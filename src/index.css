@@ -1,0 +1,211 @@
+/* === БАЗА === */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  padding: 0;
+  margin: 0;
+  background: black;
+  color: #f4e2b8;
+  font-family: system-ui, sans-serif;
+}
+
+button {
+  outline: none;
+}
+
+/* === WAP-ОБГОРТКА === */
+.wap-wrap {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.wap-card {
+  background: #141215;
+  border-radius: 12px;
+  border: 1px solid #3b3124;
+  padding: 8px 10px 10px;
+  box-shadow:
+    0 0 0 1px #000000,
+    0 0 18px rgba(0, 0, 0, 0.7);
+}
+
+/* верхній заголовок у стилі wap */
+.wap-header {
+  text-align: center;
+  font-size: 13px;
+  padding: 4px 0 6px;
+  color: #f4e2b8;
+}
+
+/* маленькі розділювачі */
+.wap-sep {
+  border-top: 1px solid #3b3124;
+  margin: 4px -10px;
+}
+
+/* кнопка-таб */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #3b3124;
+  color: #f4e2b8;
+  border: 1px solid #76624b;
+  text-decoration: none;
+}
+
+.pill:active {
+  transform: translateY(1px);
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* списки */
+.wap-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.wap-list li {
+  padding: 4px 0;
+}
+
+.wap-list a {
+  font-size: 13px;
+  color: #e3d2ac;
+  text-decoration: none;
+}
+
+/* футер */
+.wap-footer-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.wap-footer-row .pill {
+  flex: 1;
+}
+
+/* блоки в шапці/футері */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #d1c7aa;
+}
+
+/* простий бордер для карток */
+.card-border {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* === БАТЛ / ІНШЕ (було в твоєму файлі — не чіпаю) === */
+/* ... тут лишається увесь твій існуючий css, я нічого не видаляв */
+/* я просто не виводжу весь файл, щоб відповідь не була на 2000 рядків :) */
+
+/* === ДОБАВКА ДЛЯ GK / CITY === */
+
+.city-title {
+  font-size: 14px;
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.city-sep {
+  height: 1px;
+  margin: 4px 0 6px;
+  background: linear-gradient(to right, #3b2a18, #b2874b, #3b2a18);
+  opacity: 0.8;
+}
+
+.city-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.city-footer-center {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 4px;
+}
+
+/* активна таблетка (місто) */
+.bm-active {
+  background: #6a4b2b;
+  color: #f4e2b8;
+}
+
+/* L2 WAP рамка */
+.l2-frame {
+  border: 1px solid #3b2614;
+  background: #0a0a0a;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 10px #000;
+}
+
+.l2-btn {
+  width: 45%;
+  margin: 0 auto;
+  display: block;
+  padding: 3px 10px;
+
+  background: linear-gradient(#1d0f0f2f, #241c10);
+  border: 1px solid #5a4424;
+
+  color: #d6d0cc;
+  font-size: 13px;
+  text-align: center;
+
+  border-radius: 10px;
+}
+
+.l2-btn:active {
+  background: linear-gradient(#bdb6ad, #c2b9a9);
+  transform: scale(0.97);
+}
+
+/* Поля ввода в стиле WAP Lineage (узкие, аккуратные) */
+.l2-input {
+  width: 40%;
+  margin: 0 auto;
+  display: block;
+
+  background: #ffffff;
+  color: #000000;
+
+  padding: 1px;          /* ← ТУТ БУЛА ВИСОТА ВНУТРІШНЯ */
+  height: 21px;    /* ← НИЗЬКА ФІКСОВАНА ВИСОТА */
+  
+  border: 1px solid #5a4424;
+  border-radius: 2px;
+
+  font-size: 12px;
+}
+
+/* Register panel */
+.register-panel {
+  background: linear-gradient(to bottom, #090222c4, #24202b65, #0c053018);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+  border: 1px solid #c0c0c03f;
+  border-radius: 0.75rem; /* 12px */
+}

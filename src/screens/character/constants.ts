@@ -1,0 +1,18 @@
+export const SLOT_ICONS: Record<string, string> = {
+  weapon: "/icons/slot_weapon.png",
+  head: "/icons/slot_head.png",
+  armor: "/icons/slot_armor.png",
+  legs: "/icons/slot_legs.png",
+  gloves: "/icons/slot_gloves.png",
+  boots: "/icons/slot_boots.png",
+  shield: "/icons/slot_shield.png",
+  belt: "/icons/slot_belt.png",
+  cloak: "/icons/slot_cloak.png",
+  jewelry: "/icons/slot_jewelry.png",
+  tattoo: "/icons/slot_tattoo.png",
+  necklace: "/icons/slot_necklace.png",
+  earring_left: "/icons/slot_earring_left.png",
+  earring_right: "/icons/slot_earring_right.png",
+  ring_left: "/icons/slot_ring_left.png",
+  ring_right: "/icons/slot_ring_right.png",
+};

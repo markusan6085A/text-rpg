@@ -1,0 +1,94 @@
+/* Базовий фон — ніякого білого "низу" */
+html, body, #root { height: 100%; margin: 0; background:#0b0b0b; }
+.frame.min-screen { min-height: 100vh; background:#0b0b0b; }
+
+:root{
+  --gold:#e0c877;
+  --red:#ff4d4d;
+  --blue:#55a9ff;
+  --panel:#1b1b1b;
+  --line:#3a3327;
+  --text:#e7e1d5;
+}
+
+body, button, input, select { color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+
+/* Верх */
+.topbar{ padding:10px 12px; border:1px solid #6f5a35; border-radius:8px; margin:10px; background: linear-gradient(#2a231a,#1f1a13); }
+.statline{ font-size:14px; }
+.gold{ color:var(--gold);} .red{ color:var(--red);} .blue{ color:var(--blue);}
+
+/* Панель */
+.panel{ margin:12px; background: linear-gradient(#26211a,#1b1812); border:1px solid #6f5a35; border-radius:10px; padding:12px; }
+.caption{ font-weight:700; font-size:18px; margin:6px 0 10px; }
+
+/* Картка */
+.char-wrap{
+  position:relative;
+  border:1px solid #6f5a35;
+  border-radius:10px;
+  overflow:hidden;
+  background:#14110c;
+}
+
+/* Висота під мобільний + запас під 8 слотів з кожного боку */
+.char-img{
+  width:100%;
+  height:260px;       /* мобільна висота */
+  object-fit:cover;
+  display:block;
+}
+
+/* Слоти екіпа */
+.eq-slot{
+  width:34px; height:34px;        /* мобільний розмір */
+  background:#0f0f10;
+  border:1px solid #6f5a35;
+  border-radius:6px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.equip-left, .equip-right{
+  position:absolute; top:10px; bottom:10px;
+  display:grid; grid-auto-rows:min-content; row-gap:8px;
+}
+.equip-left{ left:10px; }
+.equip-right{ right:10px; }
+
+/* інформація під картинкою */
+.char-info{ margin-top:12px; }
+
+/* Бари HP / MP / SP */
+.bar{ position:relative; height:24px; border-radius:6px; margin:8px 0; overflow:hidden; border:1px solid #6f5a35; }
+.bar .bar-fill{ height:100%; }
+.bar .bar-text{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.75); }
+
+.bar.hp{ background:linear-gradient(#4a0b13,#2c070c); }
+.bar.hp .bar-fill{ background:linear-gradient(#e22b3a,#b01c28 55%, #8b1a23); }
+
+.bar.mp{ background:linear-gradient(#0d2f4e,#081b2c); }
+.bar.mp .bar-fill{ background:linear-gradient(#2e8bff,#1160c5 55%, #0d4fa3); }
+
+.bar.sp{ background:linear-gradient(#3c3748,#272430); }
+.bar.sp .bar-fill{ background:linear-gradient(#b9b1d1,#8e86aa 55%, #736b8c); }
+
+/* Секції і списки */
+.section{ margin-top:12px; padding:8px 10px; background:linear-gradient(#211c15,#19150f); border:1px solid #6f5a35; border-radius:8px; font-weight:700; }
+.list{ padding:8px 4px 4px; }
+.row{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 2px; border-bottom:1px dashed var(--line); font-size:14px; }
+.row:last-child{ border-bottom:none; }
+.red{ color:var(--red); }
+
+/* Нижні кнопки */
+.menu{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; padding:12px; margin-bottom:16px; }
+.btn{ background:linear-gradient(#27231c,#1b1812); border:1px solid #6f5a35; border-radius:16px; padding:10px 10px; text-align:center; font-weight:600; }
+
+/* Трохи масштабів для ширших екранів */
+@media (min-width:480px){
+  .menu{ grid-template-columns:repeat(4,1fr); }
+  .eq-slot{ width:38px; height:38px; }
+  .char-img{ height:300px; }
+}
+@media (min-width:768px){
+  .eq-slot{ width:44px; height:44px; }
+  .char-img{ height:330px; }
+}
