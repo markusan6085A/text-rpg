@@ -5,6 +5,7 @@ import {
   cities as WORLD_CITIES,
 } from "../data/world";
 import type { City, Zone, Mob } from "../data/world/types";
+import { useHeroStore } from "../state/heroStore";
 
 type Navigate = (path: string) => void;
 
@@ -22,6 +23,7 @@ function findZoneById(zoneId: string): { zone: Zone; city: City } | undefined {
 
 export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const q = useQuery();
+  const hero = useHeroStore((s) => s.hero);
 
   // Підтримуємо і ?id=, і ?zone= на всяк випадок
   const zoneId = q.get("id") || q.get("zone") || "";
@@ -35,11 +37,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
   if (!found) {
     return (
-      <div className="min-h-dvh w-full bg-black text-neutral-100 flex items-center justify-center p-4">
-        <div className="max-w-[440px] text-center space-y-3">
-          <div className="text-[14px] font-semibold">Зона не знайдена.</div>
+      <div className="w-full text-[#b8860b] flex items-center justify-center px-1 py-4">
+        <div className="w-full text-center space-y-3">
+          <div className="text-xs font-semibold">Зона не знайдена.</div>
           <button
-            className="h-10 px-4 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-[13px]"
+            className="h-8 px-4 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b]"
             onClick={() => navigate("/gk")}
           >
             Телепорт
@@ -80,115 +82,79 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   return (
-    <div className="min-h-dvh w-full bg-black text-neutral-100 flex justify-center p-2">
-      <div className="w-full max-w-[440px]">
-        {/* Шапка як у miru.mobi new_okrestnosti */}
-        <div className="rounded-t-[10px] bg-gradient-to-b from-[#2b2315] to-[#43331e] px-3 py-2 text-[13px]">
-          <div className="font-semibold text-center">Wap LineAge</div>
-          <div className="mt-1 text-[12px]">
-            Локація: <span className="font-semibold">{zone.name}</span>{" "}
-            <span className="text-neutral-400">
-              ({zone.minLevel}–{zone.maxLevel} ур.)
-            </span>
-          </div>
-          <div className="text-[11px] text-neutral-400">
-            Місто: {city.name} • Телепорт: {zone.tpCost.toLocaleString("uk-UA")}{" "}
-            аден
-          </div>
+    <div className="w-full text-[#b8860b] px-1 py-2">
+        {/* Заголовок */}
+        <div className="text-[#b8860b] mb-2 text-xs">Забрать награду</div>
+        <div className="text-[#b8860b] mb-4 text-base font-semibold flex items-center gap-2">
+          <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
+          <span>{zone.name}</span>
         </div>
 
-        <div className="rounded-b-[10px] bg-[#181818] ring-1 ring-[#5a4429]/80 overflow-hidden">
-          {/* список мобів */}
-          <div className="p-3 space-y-2">
-            {visibleMobs.length === 0 && (
-              <div className="text-center text-[12px] text-neutral-400">
-                У цій локації поки немає мобів.
-              </div>
-            )}
-
-            {visibleMobs.map((mob, i) => {
-              const globalIndex = startIndex + i;
-              const isChampion = mob.name.startsWith("[Champion]");
-              const isRaid = (mob as any).isRaidBoss === true;
-
-              return (
-                <div
-                  key={globalIndex}
-                  className="flex items-center justify-between rounded-[8px] bg-[#101010] px-2 py-1.5 border border-white/5"
-                >
-                  <div className="flex-1 pr-2">
-                    <div className="text-[12px]">
-                      {/* назва моба і лвл як на другому скріні */}
-                      <span
-                        className={
-                          isRaid
-                            ? "text-[#ff6666] font-semibold"
-                            : isChampion
-                            ? "text-[#ffd966]"
-                            : ""
-                        }
-                      >
-                        {mob.name}
-                      </span>{" "}
-                      <span className="text-neutral-400">
-                        [{mob.level}]
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-neutral-500">
-                      HP: {mob.hp} • EXP: {(mob as any).exp ?? 0}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => openBattle(globalIndex)}
-                    className="h-7 px-3 rounded-md bg-[#2a2a2a] text-[11px] ring-1 ring-white/10"
-                  >
-                    Бій
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* пагінація */}
-          {totalPages > 1 && (
-            <div className="border-t border-white/10 bg-[#151515] px-3 py-2 flex items-center justify-between text-[11px] text-neutral-300">
-              <button
-                className="px-2 py-1 rounded bg-[#2a2a2a] ring-1 ring-white/10 disabled:opacity-40"
-                disabled={currentPage <= 1}
-                onClick={() => goPage(currentPage - 1)}
-              >
-                ← Назад
-              </button>
-              <div>
-                Сторінка {currentPage} / {totalPages}
-              </div>
-              <button
-                className="px-2 py-1 rounded bg-[#2a2a2a] ring-1 ring-white/10 disabled:opacity-40"
-                disabled={currentPage >= totalPages}
-                onClick={() => goPage(currentPage + 1)}
-              >
-                Далі →
-              </button>
+        {/* Список мобів */}
+        <div className="space-y-0">
+          {visibleMobs.length === 0 && (
+            <div className="text-[#b8860b]/60 text-xs py-4">
+              У цій локації поки немає мобів.
             </div>
           )}
 
-          {/* нижні кнопки як у miru: Окрестности / Город */}
-          <div className="border-t border-white/10 bg-[#151515] px-3 py-2 grid grid-cols-2 gap-2 text-[12px]">
+          {visibleMobs.map((mob, i) => {
+            const globalIndex = startIndex + i;
+            const isChampion = mob.name.startsWith("[Champion]");
+            const isRaid = (mob as any).isRaidBoss === true;
+            const heroLevel = hero?.level || 1;
+            const levelDiff = Math.abs(heroLevel - mob.level);
+            const isLevelDiffTooHigh = levelDiff > 10;
+
+            return (
+              <div
+                key={globalIndex}
+                className={`flex items-center gap-2 py-1 border-b border-dotted border-[#5a4424] cursor-pointer hover:text-[#daa520] text-xs ${
+                  isLevelDiffTooHigh ? "text-red-500" : "text-[#b8860b]"
+                }`}
+                onClick={() => openBattle(globalIndex)}
+              >
+                <span className="text-green-500">(і)</span>
+                <span
+                  className={
+                    isRaid
+                      ? "text-[#ff6666]"
+                      : isChampion
+                      ? "text-[#ffd966]"
+                      : isLevelDiffTooHigh
+                      ? "text-red-500"
+                      : "text-[#b8860b]"
+                  }
+                >
+                  {mob.name}
+                </span>
+                <span className="text-red-500">[{mob.level}]</span>
+                <span className="text-red-500">({mob.hp}/{mob.hp})</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Пагінація */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-4 text-[#b8860b] text-xs">
             <button
-              onClick={() => navigate("/gk")}
-              className="h-9 rounded-md bg-[#2a2a2a] ring-1 ring-white/10"
+              className="disabled:opacity-40"
+              disabled={currentPage <= 1}
+              onClick={() => goPage(currentPage - 1)}
             >
-              Окрестности
+              &lt;&lt;&lt;
             </button>
+            <span>|</span>
             <button
-              onClick={handleBackToCity}
-              className="h-9 rounded-md bg-[#2a2a2a] ring-1 ring-white/10"
+              className="disabled:opacity-40"
+              disabled={currentPage >= totalPages}
+              onClick={() => goPage(currentPage + 1)}
             >
-              Город
+              &gt;&gt;&gt;
             </button>
           </div>
-        </div>
-      </div>
+        )}
     </div>
   );
 }

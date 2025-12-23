@@ -5,8 +5,21 @@ import {
   locations as WORLD_LOCATIONS,
 } from "../data/world";
 import type { Zone } from "../data/world/types";
+import { useHeroStore } from "../state/heroStore";
 
 type Navigate = (path: string) => void;
+
+// Маппінг міст до іконок (за ID міста)
+const CITY_ICONS: Record<string, string> = {
+  // Додайте тут міста та їх іконки
+  // Приклад: "floran": "/assets/floran.png",
+  // "gludin": "/assets/gludin.png",
+};
+
+// Маппінг міст до іконок (за назвою міста)
+const CITY_ICONS_BY_NAME: Record<string, string> = {
+  "Talking Island Village": "/assets/gk.jpg",
+};
 
 function useQuery() {
   return React.useMemo(() => new URLSearchParams(location.search), []);
@@ -17,6 +30,7 @@ function getZonesByCity(cityId: string): Zone[] {
 }
 
 export default function GKScreen({ navigate }: { navigate: Navigate }) {
+  const hero = useHeroStore((s) => s.hero);
   const q = useQuery();
 
   const defaultCityId =
@@ -39,93 +53,78 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const goToZone = (zoneId: string) => {
-    // ГОЛОВНЕ: завжди ведемо на /location?id=...
     navigate(`/location?id=${zoneId}`);
   };
 
+  const adena = hero?.adena || 0;
+
   return (
-    <div className="min-h-dvh w-full bg-black text-neutral-100 flex justify-center p-2">
-      <div className="w-full max-w-[440px]">
-        {/* Шапка */}
-        <div className="rounded-t-[10px] bg-gradient-to-b from-[#2b2315] to-[#43331e] px-3 py-2 text-[13px]">
-          <div className="font-semibold text-center">Телепорт</div>
-          <div className="mt-1 text-[12px] text-neutral-300">
-            Виберіть місто, потім окрестность.
+    <div className="w-full text-[#f4e2b8] px-1 py-2">
+        {/* Статус */}
+        <div className="text-[#b8860b] mb-3 text-xs border-b border-dotted border-[#5a4424] pb-2">
+          Вы в городе {selectedCity.name}.
+        </div>
+        <div className="text-[#b8860b] mb-3 text-xs border-b border-dotted border-[#5a4424] pb-2 flex items-center gap-2">
+          У вас {adena.toLocaleString("ru-RU")} адены
+          <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+        </div>
+
+        {/* Города */}
+        <div className="mb-4">
+          <div className="text-[#b8860b] mb-2 text-xs">Города:</div>
+          <div className="space-y-1">
+            {WORLD_CITIES.map((city) => {
+              const iconPath = CITY_ICONS[city.id] || CITY_ICONS_BY_NAME[city.name] || "/assets/travel.png";
+              return (
+                <div
+                  key={city.id}
+                  className="flex items-center gap-2 text-[#b8860b] text-xs cursor-pointer hover:text-[#daa520] border-b border-dotted border-[#5a4424] py-1"
+                  onClick={() => handleCityChange(city.id)}
+                >
+                  <img src={iconPath} alt={city.name} className="w-3 h-3 object-contain" />
+                  <span>{city.name}</span>
+                  <span className="ml-auto flex items-center gap-1 text-[#b8860b]">
+                    0
+                    <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="rounded-b-[10px] bg-[#181818] ring-1 ring-[#5a4429]/80 overflow-hidden">
-          {/* Города */}
-          <div className="p-3 border-b border-white/10">
-            <div className="text-[11px] text-neutral-400 mb-1">Города</div>
-            <div className="flex flex-wrap gap-1">
-              {WORLD_CITIES.map((city) => (
-                <button
-                  key={city.id}
-                  onClick={() => handleCityChange(city.id)}
-                  className={`px-2 py-1 rounded-md text-[11px] border ${
-                    city.id === selectedCity.id
-                      ? "bg-[#4a3721] border-[#e0b15a]"
-                      : "bg-[#2a2a2a] border-white/10"
-                  }`}
-                >
-                  {city.name}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Розділювач */}
+        <div className="border-t border-[#5a4424] my-3"></div>
 
-          {/* Окрестности вибраного міста */}
-          <div className="p-3 space-y-2">
-            <div className="text-[11px] text-neutral-400 mb-1">
-              Окрестности міста {selectedCity.name}
-            </div>
-
-            {zones.length === 0 && (
-              <div className="text-[12px] text-neutral-500">
+        {/* Локации */}
+        <div className="mb-4">
+          <div className="text-[#b8860b] mb-2 text-xs">Локации:</div>
+          <div className="space-y-1">
+            {zones.length === 0 ? (
+              <div className="text-[#b8860b]/60 text-xs">
                 Для цього міста поки що немає зон.
               </div>
-            )}
-
-            {zones.map((zone) => (
-              <div
-                key={zone.id}
-                className="flex items-center justify-between rounded-[8px] bg-[#101010] px-2 py-1.5 border border-white/5"
-              >
-                <div className="flex-1 pr-2">
-                  <div className="text-[12px]">
-                    {zone.name}{" "}
-                    <span className="text-neutral-400">
-                      ({zone.minLevel}–{zone.maxLevel} ур.)
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-neutral-500">
-                    Вартість телепорту:{" "}
-                    {zone.tpCost.toLocaleString("uk-UA")} аден
-                  </div>
-                </div>
-
-                <button
+            ) : (
+              zones.map((zone) => (
+                <div
+                  key={zone.id}
+                  className="flex items-center gap-2 text-[#b8860b] text-xs cursor-pointer hover:text-[#daa520] border-b border-dotted border-[#5a4424] py-1"
                   onClick={() => goToZone(zone.id)}
-                  className="h-7 px-3 rounded-md bg-[#2a2a2a] text-[11px] ring-1 ring-white/10"
                 >
-                  Телепорт
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Низ */}
-          <div className="border-t border-white/10 bg-[#151515] px-3 py-2">
-            <button
-              onClick={() => navigate(`/city?id=${selectedCity.id}`)}
-              className="w-full h-9 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-[12px]"
-            >
-              Назад в город
-            </button>
+                  <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
+                  <span>{zone.name}:</span>
+                  <span className="text-red-500">
+                    {zone.minLevel}-{zone.maxLevel}
+                  </span>
+                  <span className="ml-auto flex items-center gap-1 text-[#b8860b]">
+                    {zone.tpCost.toLocaleString("ru-RU")}
+                    <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
-      </div>
     </div>
   );
 }

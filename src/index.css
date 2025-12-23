@@ -154,10 +154,16 @@ button {
   color: #f4e2b8;
 }
 
+/* Загальний фон для всіх сторінок */
+.page-bg {
+  background: #1a1a1a;
+  min-height: 100vh;
+}
+
 /* L2 WAP рамка */
 .l2-frame {
   border: 1px solid #3b2614;
-  background: #0a0a0a;
+  background: #0f0f0f;
   padding: 10px;
   border-radius: 10px;
   box-shadow: inset 0 0 10px #000;
@@ -208,4 +214,86 @@ button {
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
   border: 1px solid #c0c0c03f;
   border-radius: 0.75rem; /* 12px */
+}
+
+/* === STATUS BARS (L2 Colors) === */
+:root {
+  /* HP - червоний/помаранчевий градієнт */
+  --hp-fill: linear-gradient(to right, #ff4444, #ff6b35 50%, #e22b3a);
+  --hp-bg: linear-gradient(to bottom, #4a0b13, #2c070c);
+  
+  /* MP - синій градієнт */
+  --mp-fill: linear-gradient(to right, #4488ff, #2e8bff 50%, #1160c5);
+  --mp-bg: linear-gradient(to bottom, #0d2f4e, #081b2c);
+  
+  /* CP - жовтий/золотий градієнт */
+  --cp-fill: linear-gradient(to right, #ffd700, #ffcc00 50%, #e6b800);
+  --cp-bg: linear-gradient(to bottom, #4a3d0a, #2d2306);
+  
+  /* EXP - зелений градієнт */
+  --exp-fill: linear-gradient(to right, #00cc00, #00aa00 50%, #008800);
+  --exp-bg: linear-gradient(to bottom, #0a2e0a, #051905);
+}
+
+.bar-shell {
+  position: relative;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #5a4424;
+  background: #1a1a1a;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  position: relative;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.bar-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 1;
+  letter-spacing: 0.5px;
+}
+
+/* Малі бари для лівого верхнього кута */
+.bar-shell-small {
+  position: relative;
+  height: 8px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #1a1a1a;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.bar-fill-small {
+  height: 100%;
+  transition: width 0.3s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.bar-text-small {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 7px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 1px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 1;
+  letter-spacing: 0.2px;
 }

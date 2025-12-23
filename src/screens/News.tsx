@@ -86,7 +86,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center bg-black text-gray-100">
+    <div className="flex justify-center text-gray-100">
       <div className="w-full max-w-[380px] bg-[#05040a] min-h-screen border-x border-yellow-900/40 flex flex-col">
         {/* Шапка */}
         <div className="flex items-center justify-between px-2 py-2 bg-[#111022] border-b border-yellow-900/60 text-[13px]">
