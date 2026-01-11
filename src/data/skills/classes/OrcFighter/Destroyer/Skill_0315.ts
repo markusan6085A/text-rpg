@@ -1,0 +1,35 @@
+import { SkillDefinition } from "../../../types";
+
+export const Skill_0315: SkillDefinition = {
+  id: 315,
+  code: "OR_0315",
+  name: "Crush of Doom",
+  description: "Attacks the enemy with a powerful force. Usable when one is equipped with a two-handed sword or two-handed blunt weapon. Over-hit is possible.\n\nАтакует врага мощной силой. Используется при экипировке двуручного меча или двуручной дубины. Возможен оверхит.",
+  icon: "/skills/skill0315.gif",
+  category: "physical_attack",
+  powerType: "damage",
+  target: "enemy",
+  scope: "single",
+  castTime: 1.62,
+  cooldown: 26,
+  hpCost: 231, // Base hpCost, varies by level in XML
+  effects: [],
+  levels: [
+    { level: 1, requiredLevel: 60, spCost: 120000, mpCost: 0, power: 4558 },
+    { level: 2, requiredLevel: 60, spCost: 120000, mpCost: 0, power: 4750 },
+    { level: 3, requiredLevel: 62, spCost: 150000, mpCost: 0, power: 4944 },
+    { level: 4, requiredLevel: 62, spCost: 150000, mpCost: 0, power: 5142 },
+    { level: 5, requiredLevel: 64, spCost: 200000, mpCost: 0, power: 5342 },
+    { level: 6, requiredLevel: 64, spCost: 200000, mpCost: 0, power: 5545 },
+    { level: 7, requiredLevel: 66, spCost: 250000, mpCost: 0, power: 5751 },
+    { level: 8, requiredLevel: 66, spCost: 250000, mpCost: 0, power: 5958 },
+    { level: 9, requiredLevel: 68, spCost: 330000, mpCost: 0, power: 6166 },
+    { level: 10, requiredLevel: 68, spCost: 330000, mpCost: 0, power: 6376 },
+    { level: 11, requiredLevel: 70, spCost: 360000, mpCost: 0, power: 6586 },
+    { level: 12, requiredLevel: 70, spCost: 360000, mpCost: 0, power: 6797 },
+    { level: 13, requiredLevel: 72, spCost: 630000, mpCost: 0, power: 7006 },
+    { level: 14, requiredLevel: 72, spCost: 630000, mpCost: 0, power: 7218 },
+    { level: 15, requiredLevel: 74, spCost: 880000, mpCost: 0, power: 7427 },
+    { level: 16, requiredLevel: 74, spCost: 880000, mpCost: 0, power: 7635 },
+  ],
+};

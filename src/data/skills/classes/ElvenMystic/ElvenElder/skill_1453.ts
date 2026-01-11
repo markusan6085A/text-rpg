@@ -1,0 +1,42 @@
+import { SkillDefinition } from "../../../types";
+
+// Frostwind - Magic attack skill
+// З Bishop: levels="21", power: 52-110
+// Для Elven Elder: рівні 1-21 (requiredLevel: 40-76)
+export const skill_1453: SkillDefinition = {
+  id: 1453,
+  code: "EE_1453",
+  name: "Frostwind",
+  description: "Описание умения.",
+  icon: "/skills/skill1453.png",
+  category: "magic_attack",
+  powerType: "damage",
+  target: "enemy",
+  scope: "single",
+  castTime: 2,
+  cooldown: 4,
+  levels: [
+    { level: 1, requiredLevel: 40, power: 52, mpCost: 22, spCost: 2500 },
+    { level: 2, requiredLevel: 42, power: 55, mpCost: 22, spCost: 4000 },
+    { level: 3, requiredLevel: 44, power: 58, mpCost: 23, spCost: 6500 },
+    { level: 4, requiredLevel: 46, power: 61, mpCost: 23, spCost: 10000 },
+    { level: 5, requiredLevel: 48, power: 64, mpCost: 24, spCost: 16000 },
+    { level: 6, requiredLevel: 50, power: 67, mpCost: 24, spCost: 25000 },
+    { level: 7, requiredLevel: 52, power: 70, mpCost: 25, spCost: 40000 },
+    { level: 8, requiredLevel: 54, power: 73, mpCost: 25, spCost: 65000 },
+    { level: 9, requiredLevel: 56, power: 76, mpCost: 26, spCost: 105000 },
+    { level: 10, requiredLevel: 58, power: 79, mpCost: 26, spCost: 170000 },
+    { level: 11, requiredLevel: 60, power: 82, mpCost: 27, spCost: 270000 },
+    { level: 12, requiredLevel: 62, power: 85, mpCost: 27, spCost: 420000 },
+    { level: 13, requiredLevel: 64, power: 88, mpCost: 28, spCost: 650000 },
+    { level: 14, requiredLevel: 66, power: 91, mpCost: 28, spCost: 1000000 },
+    { level: 15, requiredLevel: 68, power: 94, mpCost: 29, spCost: 1450000 },
+    { level: 16, requiredLevel: 70, power: 97, mpCost: 29, spCost: 2000000 },
+    { level: 17, requiredLevel: 72, power: 100, mpCost: 30, spCost: 2600000 },
+    { level: 18, requiredLevel: 73, power: 103, mpCost: 30, spCost: 3200000 },
+    { level: 19, requiredLevel: 74, power: 106, mpCost: 31, spCost: 3900000 },
+    { level: 20, requiredLevel: 75, power: 108, mpCost: 31, spCost: 4600000 },
+    { level: 21, requiredLevel: 76, power: 110, mpCost: 32, spCost: 5500000 },
+  ],
+};
+

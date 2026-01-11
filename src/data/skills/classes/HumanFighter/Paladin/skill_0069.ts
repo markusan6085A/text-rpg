@@ -1,0 +1,45 @@
+import { SkillDefinition } from "../../../types";
+
+// Sacrifice для Paladin (рівні 1-25)
+// Примітка: скіл витрачає HP замість MP (988-1560 HP залежно від рівня)
+export const skill_0069: SkillDefinition = {
+  id: 69,
+  code: "PAL_0069",
+  name: "Sacrifice",
+  description: "Restores another character's HP by sacrificing your own HP.\n\nВосстанавливает HP другого персонажа, жертвуя собственным HP. Восстанавливает 741-1170 HP (зависит от уровня). Расход HP: 988-1560 (зависит от уровня). Каст: 1.5 сек. Перезарядка: 8 сек.",
+  category: "heal",
+  powerType: "damage",
+  target: "ally",
+  scope: "single",
+  castTime: 1.5,
+  cooldown: 8,
+  icon: "/skills/skill0069.gif",
+  levels: [
+    { level: 1, requiredLevel: 52, spCost: 42000, mpCost: 0, power: 741 },
+    { level: 2, requiredLevel: 52, spCost: 42000, mpCost: 0, power: 762 },
+    { level: 3, requiredLevel: 52, spCost: 42000, mpCost: 0, power: 782 },
+    { level: 4, requiredLevel: 55, spCost: 49000, mpCost: 0, power: 802 },
+    { level: 5, requiredLevel: 55, spCost: 49000, mpCost: 0, power: 822 },
+    { level: 6, requiredLevel: 55, spCost: 49000, mpCost: 0, power: 843 },
+    { level: 7, requiredLevel: 58, spCost: 67000, mpCost: 0, power: 863 },
+    { level: 8, requiredLevel: 58, spCost: 67000, mpCost: 0, power: 882 },
+    { level: 9, requiredLevel: 58, spCost: 67000, mpCost: 0, power: 902 },
+    { level: 10, requiredLevel: 60, spCost: 130000, mpCost: 0, power: 922 },
+    { level: 11, requiredLevel: 60, spCost: 130000, mpCost: 0, power: 941 },
+    { level: 12, requiredLevel: 62, spCost: 170000, mpCost: 0, power: 960 },
+    { level: 13, requiredLevel: 62, spCost: 170000, mpCost: 0, power: 979 },
+    { level: 14, requiredLevel: 64, spCost: 190000, mpCost: 0, power: 997 },
+    { level: 15, requiredLevel: 64, spCost: 190000, mpCost: 0, power: 1015 },
+    { level: 16, requiredLevel: 66, spCost: 290000, mpCost: 0, power: 1033 },
+    { level: 17, requiredLevel: 66, spCost: 290000, mpCost: 0, power: 1050 },
+    { level: 18, requiredLevel: 68, spCost: 330000, mpCost: 0, power: 1067 },
+    { level: 19, requiredLevel: 68, spCost: 330000, mpCost: 0, power: 1083 },
+    { level: 20, requiredLevel: 70, spCost: 390000, mpCost: 0, power: 1099 },
+    { level: 21, requiredLevel: 70, spCost: 390000, mpCost: 0, power: 1115 },
+    { level: 22, requiredLevel: 72, spCost: 580000, mpCost: 0, power: 1129 },
+    { level: 23, requiredLevel: 72, spCost: 580000, mpCost: 0, power: 1144 },
+    { level: 24, requiredLevel: 74, spCost: 960000, mpCost: 0, power: 1157 },
+    { level: 25, requiredLevel: 74, spCost: 960000, mpCost: 0, power: 1170 },
+  ],
+};
+

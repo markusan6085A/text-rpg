@@ -1,0 +1,40 @@
+﻿import { SkillDefinition } from "../../../types";
+
+// Triple Sonic Slash    ,  ,     Sonic Focus.
+export const Skill_0261: SkillDefinition = {
+  id: 261,
+  code: "GL_0261",
+  name: "Triple Sonic Slash",
+  description: "By discharging sonic force, an enhanced triple swing attack is made. Usable when a dual-sword is equipped. Requires Level 3 or above Focus Sonic charge. Power 1948.\n\nВыпускает звуковую силу для усиленной тройной атаки. Сила: 1948-4262 (зависит от уровня). Игнорирует защиту щитом. Возможен критический удар. Требуется заряд Sonic Focus 3+ уровня. Требуется парное оружие. Каст: 1.67 сек. Перезарядка: 20 сек.",
+  category: "physical_attack",
+  powerType: "damage",
+  target: "enemy",
+  scope: "single",
+  cooldown: 10,
+  icon: "/skills/0261.jpg",
+  levels: [
+    { level: 1, requiredLevel: 55, spCost: 46000, mpCost: 114, power: 1948 },
+    { level: 2, requiredLevel: 55, spCost: 46000, mpCost: 117, power: 2042 },
+    { level: 3, requiredLevel: 55, spCost: 46000, mpCost: 120, power: 2138 },
+    { level: 4, requiredLevel: 58, spCost: 51000, mpCost: 123, power: 2236 },
+    { level: 5, requiredLevel: 58, spCost: 51000, mpCost: 125, power: 2337 },
+    { level: 6, requiredLevel: 58, spCost: 51000, mpCost: 128, power: 2439 },
+    { level: 7, requiredLevel: 60, spCost: 97000, mpCost: 131, power: 2544 },
+    { level: 8, requiredLevel: 60, spCost: 97000, mpCost: 134, power: 2651 },
+    { level: 9, requiredLevel: 62, spCost: 130000, mpCost: 134, power: 2760 },
+    { level: 10, requiredLevel: 62, spCost: 130000, mpCost: 137, power: 2870 },
+    { level: 11, requiredLevel: 64, spCost: 160000, mpCost: 139, power: 2982 },
+    { level: 12, requiredLevel: 64, spCost: 160000, mpCost: 142, power: 3095 },
+    { level: 13, requiredLevel: 66, spCost: 220000, mpCost: 144, power: 3210 },
+    { level: 14, requiredLevel: 66, spCost: 220000, mpCost: 147, power: 3325 },
+    { level: 15, requiredLevel: 68, spCost: 260000, mpCost: 149, power: 3442 },
+    { level: 16, requiredLevel: 68, spCost: 260000, mpCost: 152, power: 3559 },
+    { level: 17, requiredLevel: 70, spCost: 310000, mpCost: 154, power: 3676 },
+    { level: 18, requiredLevel: 70, spCost: 310000, mpCost: 156, power: 3794 },
+    { level: 19, requiredLevel: 72, spCost: 400000, mpCost: 158, power: 3911 },
+    { level: 20, requiredLevel: 72, spCost: 400000, mpCost: 161, power: 4029 },
+    { level: 21, requiredLevel: 74, spCost: 810000, mpCost: 163, power: 4146 },
+    { level: 22, requiredLevel: 74, spCost: 810000, mpCost: 165, power: 4262 },
+  ],
+};
+

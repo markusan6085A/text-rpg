@@ -1,0 +1,42 @@
+import { SkillDefinition } from "../../../types";
+
+// Frost Wall - attacks your target with a wall of ice
+export const skill_1286: SkillDefinition = {
+  id: 1286,
+  code: "ES_1286",
+  name: "Frost Wall",
+  description: "Attacks your target with a wall of ice. Power 48-76.\n\nАтакует цель стеной льда. Сила 48-76.",
+  icon: "/skills/skill1286.gif",
+  category: "magic_attack",
+  powerType: "damage",
+  element: "water",
+  target: "enemy",
+  scope: "single",
+  castTime: 3,
+  cooldown: 15,
+  levels: [
+    { level: 1, requiredLevel: 52, spCost: 47000, mpCost: 68, power: 48 },
+    { level: 2, requiredLevel: 52, spCost: 47000, mpCost: 70, power: 50 },
+    { level: 3, requiredLevel: 56, spCost: 48000, mpCost: 74, power: 53 },
+    { level: 4, requiredLevel: 56, spCost: 48000, mpCost: 77, power: 55 },
+    { level: 5, requiredLevel: 58, spCost: 61000, mpCost: 79, power: 56 },
+    { level: 6, requiredLevel: 58, spCost: 61000, mpCost: 80, power: 57 },
+    { level: 7, requiredLevel: 60, spCost: 75000, mpCost: 82, power: 59 },
+    { level: 8, requiredLevel: 60, spCost: 75000, mpCost: 84, power: 60 },
+    { level: 9, requiredLevel: 62, spCost: 120000, mpCost: 85, power: 61 },
+    { level: 10, requiredLevel: 62, spCost: 120000, mpCost: 87, power: 62 },
+    { level: 11, requiredLevel: 64, spCost: 150000, mpCost: 88, power: 63 },
+    { level: 12, requiredLevel: 64, spCost: 150000, mpCost: 89, power: 65 },
+    { level: 13, requiredLevel: 66, spCost: 190000, mpCost: 90, power: 66 },
+    { level: 14, requiredLevel: 66, spCost: 190000, mpCost: 93, power: 67 },
+    { level: 15, requiredLevel: 68, spCost: 190000, mpCost: 94, power: 68 },
+    { level: 16, requiredLevel: 68, spCost: 190000, mpCost: 95, power: 69 },
+    { level: 17, requiredLevel: 70, spCost: 230000, mpCost: 97, power: 70 },
+    { level: 18, requiredLevel: 70, spCost: 230000, mpCost: 98, power: 72 },
+    { level: 19, requiredLevel: 72, spCost: 390000, mpCost: 99, power: 73 },
+    { level: 20, requiredLevel: 72, spCost: 390000, mpCost: 100, power: 74 },
+    { level: 21, requiredLevel: 74, spCost: 550000, mpCost: 102, power: 75 },
+    { level: 22, requiredLevel: 74, spCost: 550000, mpCost: 103, power: 76 },
+  ],
+};
+
