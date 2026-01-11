@@ -1,0 +1,62 @@
+﻿import React from "react";
+import NavGrid from "./NavGrid";
+import StatusBars from "./StatusBars";
+import SummonStatus from "./SummonStatus";
+
+interface LayoutProps {
+  children: React.ReactNode;
+  navigate?: (path: string) => void;
+  showNavGrid?: boolean;
+  showStatusBars?: boolean;
+  customBackground?: string; // Шлях до кастомного фону
+}
+
+export default function Layout({
+  children,
+  navigate,
+  showNavGrid = true,
+  showStatusBars = true,
+  customBackground,
+}: LayoutProps) {
+  return (
+    <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
+      <div
+        className={`w-full max-w-[380px] flex flex-col relative min-h-screen ${!customBackground ? "l2-frame page-bg" : ""}`}
+        style={
+          customBackground
+            ? {
+                border: "1px solid #3b2614",
+                padding: "10px",
+                borderRadius: "10px",
+                boxShadow: "inset 0 0 10px #000",
+                background: "transparent",
+                minHeight: "100vh",
+                width: "100%",
+                overflowX: "hidden",
+                position: "relative",
+              }
+            : undefined
+        }
+      >
+        {/* Кастомний фон як окремий шар - позаду всього контенту */}
+        {customBackground && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: `url(${customBackground})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              zIndex: 0,
+            }}
+          />
+        )}
+        {showStatusBars && <StatusBars />}
+        <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
+        <div className="flex-1 pb-24 pt-20 overflow-y-auto relative z-10">{children}</div>
+      </div>
+      {showNavGrid && <NavGrid navigate={navigate} />}
+    </div>
+  );
+}
+
