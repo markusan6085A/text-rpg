@@ -742,8 +742,18 @@ export function findSetForItem(itemId: string): ArmorSet | null {
  */
 export function getActiveSetBonuses(
   equipment: Record<string, string | null>
-): Partial<CombatStats> {
-  const bonuses: Partial<CombatStats> = {};
+): Partial<CombatStats> & {
+  maxHp?: number;
+  maxMp?: number;
+  maxCp?: number;
+  critRate?: number;
+  skillCritRate?: number;
+  critDamage?: number;
+  maxHpPercent?: number;
+  pDefPercent?: number;
+  mDefPercent?: number;
+} {
+  const bonuses: any = {};
 
   for (const set of ARMOR_SETS) {
     // Перевіряємо чи всі частини сету екіпіровані
