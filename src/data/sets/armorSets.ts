@@ -9,7 +9,17 @@ export interface ArmorSetPiece {
 }
 
 export interface ArmorSetBonus {
-  fullSet?: Partial<CombatStats>;
+  fullSet?: Partial<CombatStats> & {
+    maxHp?: number;
+    maxMp?: number;
+    maxCp?: number;
+    critRate?: number; // Alias for crit
+    skillCritRate?: number; // Alias for mCrit
+    critDamage?: number; // Alias for critPower
+    maxHpPercent?: number;
+    pDefPercent?: number;
+    mDefPercent?: number;
+  };
 }
 
 export interface ArmorSet {
