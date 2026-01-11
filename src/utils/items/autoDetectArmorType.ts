@@ -82,7 +82,7 @@ export function autoDetectGrade(itemId: string): "NG" | "D" | "C" | "B" | "A" | 
  * Оновлює функцію getArmorTypeFromEquipment, щоб вона використовувала автоматичне визначення
  * якщо armorType не вказано в itemsDB
  */
-export function getArmorTypeWithAutoDetect(itemId: string): "light" | "heavy" | "robe" | null {
+export function getArmorTypeWithAutoDetect(itemId: string): "light" | "heavy" | "robe" | "magic" | "none" | "pet" | null {
   const itemDef = itemsDB[itemId];
   
   // Якщо armorType вказано в itemsDB, використовуємо його
@@ -90,7 +90,8 @@ export function getArmorTypeWithAutoDetect(itemId: string): "light" | "heavy" | 
     return itemDef.armorType;
   }
   
-  // Інакше використовуємо автоматичне визначення
-  return autoDetectArmorType(itemId);
+  // Інакше використовуємо автоматичне визначення (повертає "light" | "heavy" | "robe" | null)
+  const detected = autoDetectArmorType(itemId);
+  return detected;
 }
 
