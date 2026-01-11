@@ -4,7 +4,7 @@ type Navigate = (p: string) => void;
 
 export default function About({ navigate }: { navigate: Navigate }) {
   return (
-    <div className="min-h-screen w-full flex items-start justify-center bg-transparent text-yellow-200">
+    <div className="w-full flex items-start justify-center text-yellow-200">
       <div className="w-full max-w-[380px] px-4 pt-6 pb-10 mt-8 rounded-[14px]
                       border border-[#3a2e22] bg-[#1a1713]/95
                       shadow-[0_0_0_1px_#000_inset,0_2px_10px_rgba(0,0,0,0.6)]">

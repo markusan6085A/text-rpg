@@ -1,314 +1,221 @@
-import React, { useEffect, useState } from "react";
-import ItemRow from "../../components/ItemRow";
+import React, { useEffect, useState, useMemo } from "react";
 import { itemsDB } from "../../data/items/itemsDB";
 import { useHeroStore } from "../../state/heroStore";
+import { INVENTORY_MAX_ITEMS } from "../../state/heroStore";
+import Equipment from "./Equipment";
+
+const CATEGORIES = [
+  { key: "all", label: "Все", test: () => true },
+  { key: "weapon", label: "Оружие", test: (item: any) => item.slot === "weapon" },
+  { key: "armor", label: "Броня", test: (item: any) => ["head", "armor", "legs", "gloves", "boots", "belt"].includes(item.slot) },
+  { key: "bijou", label: "Биж", test: (item: any) => ["necklace", "earring_left", "earring_right", "ring_left", "ring_right", "jewelry"].includes(item.slot) },
+  { key: "resource", label: "Рес", test: (item: any) => item.slot === "resource" },
+  { key: "recipe", label: "Рецепты", test: (item: any) => item.slot === "recipe" },
+  { key: "quest", label: "Квест", test: (item: any) => item.slot === "quest" },
+  { key: "book", label: "Книги", test: (item: any) => item.slot === "book" },
+];
+
+const ITEMS_PER_PAGE = 10;
 
 export default function Inventory() {
   const hero = useHeroStore((s) => s.hero);
   const loadHero = useHeroStore((s) => s.loadHero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const equipItem = useHeroStore((s) => s.equipItem);
+  const unequipItem = useHeroStore((s) => s.unequipItem);
 
-  const [currentTab, setCurrentTab] = useState<string>("all");
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const MENU_MAIN = [
-    { label: "Оружие", slot: "weapon" },
-    { label: "Голова", slot: "head" },
-    { label: "Доспехи", slot: "armor" },
-    { label: "Штаны", slot: "legs" },
-    { label: "Перчатки", slot: "gloves" },
-    { label: "Ботинки", slot: "boots" },
-    { label: "Щит", slot: "shield" },
-    { label: "Ожерелье", slot: "necklace" },
-    { label: "Серьги", slot: "earring" },
-    { label: "Кольца", slot: "ring" },
-    { label: "Украшения", slot: "jewelry" },
-    { label: "Тату", slot: "tattoo" },
-    { label: "Пояс", slot: "belt" },
-    { label: "Плащ", slot: "cloak" },
-  ];
-
-  const MENU_OTHER = [
-    { label: "Ресурсы", slot: "resource" },
-    { label: "Расходные", slot: "consumable" },
-    { label: "Рецепты", slot: "recipe" },
-    { label: "Книги", slot: "book" },
-    { label: "Квесты", slot: "quest" },
-    { label: "Все", slot: "all" },
-  ];
-
-  // -------------------------------------
-  //  ЗАГРУЗКА ГЕРОЯ ЧЕРЕЗ ЗУСТАНД
-  // -------------------------------------
   useEffect(() => {
     loadHero();
-  }, []);
+  }, [loadHero]);
 
-  const filteredItems = () => {
+  // Фільтрація предметів
+  const filteredItems = useMemo(() => {
     if (!hero || !hero.inventory) return [];
-    if (currentTab === "all") return hero.inventory;
-    return hero.inventory.filter((item: any) => item.slot === currentTab);
-  };
+    const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
+    return hero.inventory.filter((item: any) => item && category.test(item));
+  }, [hero, currentCategory]);
 
-  const handleEquip = () => {
-    if (!hero || !selectedItem) return;
+  // Пагінація
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const slot = selectedItem.slot;
+  // Кількість зайнятих слотів
+  const itemsUsed = hero?.inventory?.filter(Boolean).length ?? 0;
 
-    // запрещённые категории
-    if (
-      ["all", "consumable", "resource", "quest", "book", "recipe"].includes(
-        slot
-      )
-    ) {
-      alert("Этот предмет нельзя одеть");
-      return;
-    }
+  // Обробка дій
+  const handleAction = (item: any, action: "equip" | "use" | "unequip") => {
+    if (!hero || !item) return;
 
-    const currentEquipped = hero.equipment[slot] || null;
-
-    let newInventory = hero.inventory.filter(
-      (i: any) => i.id !== selectedItem.id
-    );
-
-    // если есть предмет, который был в этом слоте
-    if (currentEquipped) {
-      const oldItem = itemsDB[currentEquipped];
-      if (oldItem) {
-        newInventory.push({
-          id: oldItem.id,
-          name: oldItem.name,
-          slot: oldItem.slot,
-          kind: oldItem.kind,
-          icon: oldItem.icon,
-          description: oldItem.description,
-          stats: oldItem.stats,
-          count: 1,
-        });
+    if (action === "equip") {
+      const slot = item.slot;
+      if (["all", "consumable", "resource", "quest", "book", "recipe"].includes(slot)) {
+        alert("Этот предмет нельзя одеть");
+        return;
       }
+      equipItem(item);
+    } else if (action === "use") {
+      // Використання предмета (потрібно буде реалізувати)
+      alert("Функція використання в розробці");
+    } else if (action === "unequip") {
+      // Зняття екіпіровки
+      const slot = item.slot;
+      unequipItem(slot);
     }
-
-    const newEquipment = {
-      ...hero.equipment,
-      [slot]: selectedItem.id,
-    };
-
-    updateHero({
-      inventory: newInventory,
-      equipment: newEquipment,
-    });
-
-    setSelectedItem(null);
   };
 
-  const handleDeleteItem = () => {
-    const updatedInventory = hero.inventory.filter(
-      (item: any) => item.id !== selectedItem.id
-    );
 
-    updateHero({ inventory: updatedInventory });
-
-    setConfirmDelete(false);
-    setSelectedItem(null);
-  };
-
-  if (!hero)
+  if (!hero) {
     return (
-      <div className="min-h-screen bg-black text-white text-center pt-20">
-        Загрузка...
-      </div>
+      <div className="text-white text-center pt-20">Загрузка...</div>
     );
+  }
+
+  const adena = hero.adena || 0;
 
   return (
-    <div className="min-h-screen w-full bg-black flex justify-center items-start pt-4">
-      <div
-        className="rounded-xl border-2 p-3 flex flex-col items-center relative"
-        style={{
-          width: "90vw",
-          backgroundColor: "rgba(20, 12, 6, 0.95)",
-          borderColor: "#5b4726",
-        }}
-      >
-        <button
-          onClick={() => (window.location.href = "/character")}
-          className="absolute top-2 right-2 bg-red-600 text-white text-[11px] px-3 py-[3px] rounded-md"
-        >
-          Назад
-        </button>
+    <div className="w-full flex flex-col items-center px-4 py-2">
+      <div className="w-full max-w-[360px]">
+        {/* Equipment вікно зверху */}
+        <Equipment compact={true} />
 
-        <div className="text-center font-bold text-yellow-400 mb-3 text-base">
-          Инвентарь
+        {/* Інвентар нижче */}
+        {/* Верхня частина: кількість слотів */}
+        <div className="flex justify-end items-center mb-2 text-white">
+          <div className="text-xs">{itemsUsed}/{INVENTORY_MAX_ITEMS}</div>
         </div>
 
-        {/* ------------------  МЕНЮ ГОЛОВНЕ ------------------ */}
-        <div className="w-full text-[13px]">
-          {MENU_MAIN.map((item, idx) => (
-            <div key={idx}>
-              <div
-                className="py-2 cursor-pointer text-left pl-2"
-                onClick={() => setCurrentTab(item.slot)}
-                style={{
-                  color: currentTab === item.slot ? "#f5d7a1" : "#fff",
+        {/* Фільтри з розділювачами */}
+        <div className="flex items-center gap-0 mb-3 text-[10px] text-white border-b border-[#5a4424] pb-1">
+          {CATEGORIES.map((cat, idx) => (
+            <React.Fragment key={cat.key}>
+              <button
+                onClick={() => {
+                  setCurrentCategory(cat.key);
+                  setCurrentPage(1);
                 }}
+                className={`px-1.5 py-0.5 ${
+                  currentCategory === cat.key
+                    ? "text-[#f5d7a1] font-semibold"
+                    : "text-white"
+                }`}
               >
-                {item.label}
-              </div>
-              <div className="w-full h-[1px] bg-[#5b4726]"></div>
-
-              {currentTab === item.slot && (
-                <div className="w-full mt-2 text-[13px]">
-                  {filteredItems().length === 0 ? (
-                    <div className="text-center text-gray-400 py-2">Пусто</div>
-                  ) : (
-                    filteredItems().map((invItem: any, invIdx: number) => (
-                      <div
-                        key={invIdx}
-                        onClick={() => setSelectedItem(invItem)}
-                      >
-                        <ItemRow item={invItem} />
-                        <div className="w-full h-[1px] bg-[#5b4726]"></div>
-                      </div>
-                    ))
-                  )}
-                </div>
+                {cat.label}
+              </button>
+              {idx < CATEGORIES.length - 1 && (
+                <span className="text-[#5a4424]">|</span>
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
 
-        {/* ------------------  ДРУГОЕ ------------------ */}
-        <div className="text-center font-bold text-yellow-400 mt-4 mb-2 text-base">
-          Другое
-        </div>
+        {/* Список предметів */}
+        <div className="space-y-0 mb-3">
+          {paginatedItems.length === 0 ? (
+            <div className="text-center text-gray-400 py-4 text-[10px]">Пусто</div>
+          ) : (
+            paginatedItems.map((item: any, idx: number) => {
+              const iconPath = item.icon?.startsWith("/") ? item.icon : `/items/${item.icon}`;
+              const isEquipable = !["all", "consumable", "resource", "quest", "book", "recipe"].includes(item.slot);
+              const isConsumable = item.slot === "consumable";
+              const isEquipped = hero.equipment?.[item.slot] === item.id;
+              const actionLabel = isEquipped
+                ? "[Снять]"
+                : isEquipable
+                ? "[Надеть]"
+                : isConsumable
+                ? "[Использовать]"
+                : "";
 
-        <div className="w-full text-[13px] mb-1">
-          {MENU_OTHER.map((item, idx) => (
-            <div key={idx}>
-              <div
-                className="py-2 cursor-pointer text-left pl-2"
-                onClick={() => setCurrentTab(item.slot)}
-                style={{
-                  color: currentTab === item.slot ? "#f5d7a1" : "#fff",
-                }}
-              >
-                {item.label}
-              </div>
-              <div className="w-full h-[1px] bg-[#5b4726]"></div>
-
-              {currentTab === item.slot && (
-                <div className="w-full mt-2 text-[13px]">
-                  {filteredItems().length === 0 ? (
-                    <div className="text-center text-gray-400 py-2">Пусто</div>
-                  ) : (
-                    filteredItems().map((invItem: any, invIdx: number) => (
-                      <div
-                        key={invIdx}
-                        onClick={() => setSelectedItem(invItem)}
-                      >
-                        <ItemRow item={invItem} />
-                        <div className="w-full h-[1px] bg-[#5b4726]"></div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ------------------ МОДАЛКА ------------------ */}
-      {selectedItem && !confirmDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div
-            className="bg-[#1a1208] border border-[#5b4726] rounded-lg p-4 text-center"
-            style={{ width: "260px" }}
-          >
-            <img
-              src={selectedItem.icon}
-              alt={selectedItem.name}
-              className="w-12 h-12 mx-auto mb-2"
-            />
-
-            <div className="text-yellow-400 font-bold text-sm mb-1">
-              {selectedItem.name}
-            </div>
-
-            {selectedItem.stats && (
-              <div className="text-white text-[11px] mb-2">
-                {(Object.entries(selectedItem.stats) as [string, any][]).map(
-                  ([key, value]) => (
-                    <div key={key}>
-                      {key}: {String(value)}
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-1.5 px-2 py-1 border-b border-[#2a2a2a] text-[10px] text-white"
+                      style={{
+                        backgroundColor: "#0f0f0f",
+                        borderBottom: "1px solid #2a2a2a",
+                      }}
+                    >
+                  <img
+                    src={iconPath}
+                    alt={item.name}
+                    className="w-5 h-5 object-contain flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white text-[10px]">
+                      {item.name}
+                      {item.count && item.count > 1 ? ` (x${item.count})` : ""}
                     </div>
-                  )
-                )}
-              </div>
-            )}
-
-            {selectedItem.count > 1 && (
-              <div className="text-gray-300 text-[11px] mb-2">
-                Количество: {selectedItem.count}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-1 mt-2">
-              <button
-                className="bg-green-700 text-white text-[11px] py-1 rounded"
-                onClick={handleEquip}
-              >
-                Одеть
-              </button>
-              <button className="bg-blue-700 text-white text-[11px] py-1 rounded">
-                Передать
-              </button>
-              <button
-                onClick={() => setConfirmDelete(true)}
-                className="bg-red-700 text-white text-[11px] py-1 rounded"
-              >
-                Удалить
-              </button>
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="bg-gray-600 text-white text-[11px] py-1 rounded"
-              >
-                Закрыть
-              </button>
-            </div>
-          </div>
+                    {actionLabel && (
+                      <button
+                        onClick={() =>
+                          handleAction(
+                            item,
+                            isEquipped ? "unequip" : isEquipable ? "equip" : "use"
+                          )
+                        }
+                        className="text-white hover:text-[#f5d7a1] text-[9px] mt-0.5"
+                      >
+                        {actionLabel}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
-      )}
 
-      {/* ------------------ ПОДТВЕРЖДЕНИЕ ------------------ */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div
-            className="bg-[#1a1208] border border-[#5b4726] rounded-lg p-4 text-center"
-            style={{ width: "230px" }}
-          >
-            <div className="text-yellow-400 font-bold text-sm mb-3">
-              Удалить предмет?
-            </div>
-
-            <div className="flex justify-center gap-2">
+        {/* Пагінація */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-1 text-white text-[10px]">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              &lt;&lt;
+            </button>
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              &lt;
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
-                className="bg-red-700 text-white text-[11px] py-1 px-3 rounded"
-                onClick={handleDeleteItem}
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-1.5 py-0.5 ${
+                  currentPage === page
+                    ? "bg-[#5a4424] text-[#f5d7a1] font-semibold"
+                    : "text-white"
+                }`}
               >
-                Да
+                {page}
               </button>
-
-              <button
-                className="bg-gray-600 text-white text-[11px] py-1 px-3 rounded"
-                onClick={() => setConfirmDelete(false)}
-              >
-                Нет
-              </button>
-            </div>
+            ))}
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              &gt;
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              &gt;&gt;
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

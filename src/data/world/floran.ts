@@ -36,15 +36,6 @@ export const FLORAN_ZONES: Zone[] = [
     tpCost: 1_200,
     cityId: "floran",
     mobs: WASTELAND_MOBS as Mob[],
-},
-  {
-    id: "wasteland",
-    name: "Wasteland",
-    minLevel: 14,
-    maxLevel: 22,
-    tpCost: 1_200,
-    cityId: "floran",
-    mobs: WASTELAND_MOBS as Mob[],
   },
   
   {

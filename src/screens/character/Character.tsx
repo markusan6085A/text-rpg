@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { itemsDB } from "../../data/items/itemsDB";
 import { SLOT_ICONS } from "./constants";
+import { useHeroStore } from "../../state/heroStore";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -21,17 +22,9 @@ const characterMap: Record<string, string> = {
 };
 
 export default function Character() {
-  const [hero, setHero] = useState<any>(null);
-
-  const [nickname, setNickname] = useState("");
-  const [level, setLevel] = useState(1);
-  const [race, setRace] = useState("");
-  const [gender, setGender] = useState("");
-  const [status, setStatus] = useState("");
-  const [profession, setProfession] = useState("");
-
-  const [adena, setAdena] = useState(0);
-  const [coins, setCoins] = useState(0);
+  const hero = useHeroStore((s) => s.hero);
+  const loadHero = useHeroStore((s) => s.loadHero);
+  const updateHero = useHeroStore((s) => s.updateHero);
 
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
@@ -40,24 +33,20 @@ export default function Character() {
   // Загрузка героя
   // -----------------------------
   useEffect(() => {
-    const accounts = JSON.parse(localStorage.getItem("l2_accounts_v2") || "[]");
-    const h = accounts.length > 0 ? accounts[0].hero : null;
+    loadHero();
+  }, [loadHero]);
 
-    if (h) {
-      setHero(h);
-
-      if (h.name) setNickname(h.name);
-      if (h.level) setLevel(h.level);
-      if (h.race) setRace(h.race);
-      if (h.gender) setGender(h.gender);
-      if (h.profession) setProfession(h.profession);
-
-      if (typeof h.adena === "number") setAdena(h.adena);
-      if (typeof h.coinOfLuck === "number") setCoins(h.coinOfLuck);
-
-      if (h.status) setStatus(h.status);
-    }
-  }, []);
+  // -----------------------------
+  // Локальні значення з hero
+  // -----------------------------
+  const nickname = hero?.name || "";
+  const level = hero?.level || 1;
+  const race = hero?.race || "";
+  const gender = hero?.gender || "";
+  const status = hero?.status || "";
+  const profession = hero?.profession || "";
+  const adena = hero?.adena || 0;
+  const coins = hero?.coinOfLuck || 0;
 
   // -----------------------------
   // EXP (как в City)
@@ -70,15 +59,7 @@ export default function Character() {
   // Сохранение статуса
   // -----------------------------
   const saveStatus = () => {
-    const updatedHero = { ...hero, status: newStatus };
-
-    setHero(updatedHero);
-    setStatus(newStatus);
-
-    const accounts = JSON.parse(localStorage.getItem("l2_accounts_v2") || "[]");
-    accounts[0].hero = updatedHero;
-    localStorage.setItem("l2_accounts_v2", JSON.stringify(accounts));
-
+    updateHero({ status: newStatus });
     setShowStatusModal(false);
   };
 
@@ -107,89 +88,20 @@ export default function Character() {
     return <div className="text-white text-center mt-10">Загрузка...</div>;
 
   return (
-    <div className="min-h-screen w-full bg-black flex flex-col items-center text-white">
+    <div className="w-full flex flex-col items-center text-white">
       <div
-        className="mt-2 rounded-xl border-2 flex flex-col items-center relative"
+        className="mt-2 flex flex-col items-center relative"
         style={{
           width: "360px",
-          backgroundColor: "rgba(20, 12, 6, 0.9)",
-          borderColor: "#3b2c1a",
           paddingTop: "10px",
           paddingBottom: "10px",
         }}
       >
 
         {/* ========================================================= */}
-        {/*     ВЕРХ — БАРЫ + ИНФО + КНОПКИ СПРАВА      */}
+        {/*     ВЕРХ — ИНФО + КНОПКИ СПРАВА      */}
         {/* ========================================================= */}
         <div className="w-full px-3 mb-2 mt-1 flex justify-between">
-
-          {/* ЛЕВАЯ КОЛОНКА БАРОВ */}
-          <div className="flex flex-col gap-[4px] mt-[4px]">
-
-            {/* CP */}
-            <div className="flex items-center gap-1">
-              <span className="w-7 text-[10px] text-[#caa777]">CP</span>
-              <div className="w-24 h-[0.7rem] bg-[#2c241b] rounded-[3px] overflow-hidden relative">
-                <div
-                  className="h-full bg-[#d9963b]"
-                  style={{
-                    width: `${Math.min(100, (hero.cp / hero.maxCp) * 100)}%`,
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center text-[9px] text-[#241809] font-semibold">
-                  {hero.cp}/{hero.maxCp}
-                </div>
-              </div>
-            </div>
-
-            {/* HP */}
-            <div className="flex items-center gap-1">
-              <span className="w-7 text-[10px] text-[#caa777]">HP</span>
-              <div className="w-24 h-[0.7rem] bg-[#2c1b1b] rounded-[3px] overflow-hidden relative">
-                <div
-                  className="h-full bg-[#c9423b]"
-                  style={{
-                    width: `${Math.min(100, (hero.hp / hero.maxHp) * 100)}%`,
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center text-[9px] text-[#330e0e] font-semibold">
-                  {hero.hp}/{hero.maxHp}
-                </div>
-              </div>
-            </div>
-
-            {/* MP */}
-            <div className="flex items-center gap-1">
-              <span className="w-7 text-[10px] text-[#caa777]">MP</span>
-              <div className="w-24 h-[0.7rem] bg-[#202637] rounded-[3px] overflow-hidden relative">
-                <div
-                  className="h-full bg-[#4d7ad9]"
-                  style={{
-                    width: `${Math.min(100, (hero.mp / hero.maxMp) * 100)}%`,
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center text-[9px] text-[#0f1728] font-semibold">
-                  {hero.mp}/{hero.maxMp}
-                </div>
-              </div>
-            </div>
-
-            {/* EXP */}
-            <div className="flex items-center gap-1">
-              <span className="w-7 text-[10px] text-[#caa777]">Exp</span>
-              <div className="w-24 h-[0.7rem] bg-[#22321f] rounded-[3px] overflow-hidden relative">
-                <div
-                  className="h-full bg-[#4f9c3b]"
-                  style={{ width: `${expPercent}%` }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center text-[9px] text-[#0f1b0b] font-semibold">
-                  {formatNumber(expCurrent)} / {formatNumber(expToNext)} ({expPercent}%)
-                </div>
-              </div>
-            </div>
-
-          </div>
 
           {/* ЦЕНТРАЛЬНАЯ ИНФОРМАЦИЯ */}
           <div className="flex flex-col items-center text-center mt-1 flex-1">
@@ -293,25 +205,6 @@ export default function Character() {
         </div>
 
         {/* ========================================================= */}
-        {/*     КНОПКИ В ОДИН РЯД — Инвентарь + Снаряжение          */}
-        {/* ========================================================= */}
-        <div className="flex justify-center gap-2 mt-3">
-          <button
-            className={`${btn} bg-yellow-600 text-black w-32`}
-            onClick={() => (window.location.href = "/inventory")}
-          >
-            Инвентарь
-          </button>
-
-          <button
-            className={`${btn} bg-yellow-600 text-black w-32`}
-            onClick={() => (window.location.href = "/equipment")}
-          >
-            Снаряжение
-          </button>
-        </div>
-
-        {/* ========================================================= */}
         {/*     СТОЛБЕЦ ПУНКТОВ — КАК ТЫ ПРОСИЛ                        */}
         {/* ========================================================= */}
         <div className="w-[330px] text-left text-[12px] text-[#f4e2b8] mt-4 space-y-1">
@@ -336,14 +229,6 @@ export default function Character() {
           <div className="mt-2">Премиум аккаунт (ускоренная прокачка)</div>
         </div>
 
-        {/* Нижнее меню */}
-        <div className="grid grid-cols-3 gap-2 mt-4 mb-2">
-          <button className={btn} onClick={() => (window.location.href = "/city")}>
-            Город
-          </button>
-          <button className={`${btn} bg-yellow-600 text-black`}>Персонаж</button>
-          <button className={btn}>Статы</button>
-        </div>
       </div>
 
       {/* Модалка статуса */}

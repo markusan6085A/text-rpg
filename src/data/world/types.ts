@@ -7,6 +7,7 @@ export interface Mob {
   level: number;
   hp: number;
   exp: number;
+  sp?: number;
   adenaMin: number;
   adenaMax: number;
   /**
