@@ -29,6 +29,15 @@ export interface ArmorSetBonus {
       maxHp?: number;
       maxMp?: number;
       maxCp?: number;
+      critRate?: number; // Alias for crit
+      skillCritRate?: number; // Alias for mCrit
+      critDamage?: number; // Alias for critPower
+      skillCritPower?: number; // Alias for critPower (magic)
+      maxHpPercent?: number;
+      pDefPercent?: number;
+      mDefPercent?: number;
+      pAtkPercent?: number;
+      mAtkPercent?: number;
     };
   }>;
 }
