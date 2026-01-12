@@ -15,6 +15,7 @@ import { getTotalShieldDefense, checkShieldBlock, hasShieldEquipped } from "../.
 import { getReflectChances, checkReflectDamage } from "./useSkill/reflectDamage";
 import { unequipItemLogic } from "../../heroStore/heroInventory";
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
+import type { Zone } from "../../../data/world/types";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -398,7 +399,7 @@ export const createProcessMobAttack =
 
     // Логіка прокляття для Floran Catacombs (10% шанс на Curse: Weakness)
     if (state.zoneId) {
-      const zone = WORLD_LOCATIONS.find((z) => z.id === state.zoneId);
+      const zone: Zone | undefined = WORLD_LOCATIONS.find((z) => z.id === state.zoneId);
       if (zone?.curseChanceOnAttack && Math.random() < zone.curseChanceOnAttack) {
         // Перевіряємо, чи вже є прокляття (щоб не дублювати)
         const hasCurse = nextBuffsAfterDispel.some((b) => b.id === 1164);
