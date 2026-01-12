@@ -1,0 +1,2624 @@
+[
+  {
+    "name": "Anti Magic",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 13,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 42,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 43,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 44,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 45,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Boost Mana",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 48,
+        "spCost": 85000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 56,
+        "spCost": 140000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 60,
+        "spCost": 250000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 72,
+        "spCost": 1400000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Fast Spell Casting",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 140000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Light Armor Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 9,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Robe Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 9,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Weapon Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 42,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Wind Shackle",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 35,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 85000,
+        "mpCost": 44,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 48,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 140000,
+        "mpCost": 52,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 58,
+        "spCost": 180000,
+        "mpCost": 54,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 60,
+        "spCost": 250000,
+        "mpCost": 55,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 58,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 60,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 62,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 68,
+        "spCost": 700000,
+        "mpCost": 64,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 70,
+        "spCost": 940000,
+        "mpCost": 65,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 72,
+        "spCost": 1400000,
+        "mpCost": 67,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 74,
+        "spCost": 2100000,
+        "mpCost": 69,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Death Whisper",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 35,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 85000,
+        "mpCost": 44,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 140000,
+        "mpCost": 52,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Dryad Root",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 34,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 34,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 40,
+        "spCost": 13000,
+        "mpCost": 35,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 38,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 38,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 42,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 43,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 44,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 45,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 47,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 48,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 49,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 50,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 52,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 180000,
+        "mpCost": 54,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 60,
+        "spCost": 250000,
+        "mpCost": 55,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 58,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 60,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 62,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 68,
+        "spCost": 700000,
+        "mpCost": 64,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 70,
+        "spCost": 940000,
+        "mpCost": 65,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 72,
+        "spCost": 1400000,
+        "mpCost": 67,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 74,
+        "spCost": 2100000,
+        "mpCost": 69,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Guidance",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 35,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 85000,
+        "mpCost": 44,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 140000,
+        "mpCost": 52,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Mental Shield",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 35,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 85000,
+        "mpCost": 44,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 56,
+        "spCost": 140000,
+        "mpCost": 52,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Might",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 35,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Recharge",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 5,
+        "requiredLevel": 40,
+        "spCost": 19000,
+        "mpCost": 67,
+        "cooldown": 0,
+        "power": 66
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 19000,
+        "mpCost": 70,
+        "cooldown": 0,
+        "power": 70
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 74,
+        "cooldown": 0,
+        "power": 73
+      },
+      {
+        "level": 8,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 78,
+        "cooldown": 0,
+        "power": 77
+      },
+      {
+        "level": 9,
+        "requiredLevel": 48,
+        "spCost": 43000,
+        "mpCost": 82,
+        "cooldown": 0,
+        "power": 81
+      },
+      {
+        "level": 10,
+        "requiredLevel": 48,
+        "spCost": 43000,
+        "mpCost": 87,
+        "cooldown": 0,
+        "power": 86
+      },
+      {
+        "level": 11,
+        "requiredLevel": 52,
+        "spCost": 56000,
+        "mpCost": 90,
+        "cooldown": 0,
+        "power": 90
+      },
+      {
+        "level": 12,
+        "requiredLevel": 52,
+        "spCost": 56000,
+        "mpCost": 94,
+        "cooldown": 0,
+        "power": 94
+      },
+      {
+        "level": 13,
+        "requiredLevel": 56,
+        "spCost": 71000,
+        "mpCost": 98,
+        "cooldown": 0,
+        "power": 98
+      },
+      {
+        "level": 14,
+        "requiredLevel": 56,
+        "spCost": 71000,
+        "mpCost": 103,
+        "cooldown": 0,
+        "power": 102
+      },
+      {
+        "level": 15,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 104,
+        "cooldown": 0,
+        "power": 104
+      },
+      {
+        "level": 16,
+        "requiredLevel": 58,
+        "spCost": 92000,
+        "mpCost": 107,
+        "cooldown": 0,
+        "power": 106
+      },
+      {
+        "level": 17,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 109,
+        "cooldown": 0,
+        "power": 108
+      },
+      {
+        "level": 18,
+        "requiredLevel": 60,
+        "spCost": 130000,
+        "mpCost": 110,
+        "cooldown": 0,
+        "power": 110
+      },
+      {
+        "level": 19,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 113,
+        "cooldown": 0,
+        "power": 113
+      },
+      {
+        "level": 20,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 115,
+        "cooldown": 0,
+        "power": 115
+      },
+      {
+        "level": 21,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 117,
+        "cooldown": 0,
+        "power": 116
+      },
+      {
+        "level": 22,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 119,
+        "cooldown": 0,
+        "power": 118
+      },
+      {
+        "level": 23,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 120,
+        "cooldown": 0,
+        "power": 120
+      },
+      {
+        "level": 24,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 123,
+        "cooldown": 0,
+        "power": 122
+      },
+      {
+        "level": 25,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 124,
+        "cooldown": 0,
+        "power": 124
+      },
+      {
+        "level": 26,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 127,
+        "cooldown": 0,
+        "power": 126
+      },
+      {
+        "level": 27,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 128,
+        "cooldown": 0,
+        "power": 128
+      },
+      {
+        "level": 28,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 130,
+        "cooldown": 0,
+        "power": 129
+      },
+      {
+        "level": 29,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 132,
+        "cooldown": 0,
+        "power": 131
+      },
+      {
+        "level": 30,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 133,
+        "cooldown": 0,
+        "power": 133
+      },
+      {
+        "level": 31,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 135,
+        "cooldown": 0,
+        "power": 134
+      },
+      {
+        "level": 32,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 137,
+        "cooldown": 0,
+        "power": 136
+      }
+    ]
+  },
+  {
+    "name": "Resist Wind",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 39000,
+        "mpCost": 35,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Fast HP Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 58,
+        "spCost": 180000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 74,
+        "spCost": 2100000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Fast Mana Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 60,
+        "spCost": 250000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 68,
+        "spCost": 700000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 74,
+        "spCost": 2100000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Concentration",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 48,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 60,
+        "spCost": 250000,
+        "mpCost": 55,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 68,
+        "spCost": 700000,
+        "mpCost": 64,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Empower",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Focus",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 48,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Purify",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 48,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 55,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Shield",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Vampiric Rage",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 58,
+        "spCost": 180000,
+        "mpCost": 54,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 72,
+        "spCost": 1400000,
+        "mpCost": 67,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Quick Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 85000,
+        "mpCost": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Greater Group Heal",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 115,
+        "cooldown": 0,
+        "power": 297
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 119,
+        "cooldown": 0,
+        "power": 308
+      },
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 122,
+        "cooldown": 0,
+        "power": 319
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 127,
+        "cooldown": 0,
+        "power": 341
+      },
+      {
+        "level": 5,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 130,
+        "cooldown": 0,
+        "power": 353
+      },
+      {
+        "level": 6,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 134,
+        "cooldown": 0,
+        "power": 364
+      },
+      {
+        "level": 7,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 143,
+        "cooldown": 0,
+        "power": 388
+      },
+      {
+        "level": 8,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 148,
+        "cooldown": 0,
+        "power": 399
+      },
+      {
+        "level": 9,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 152,
+        "cooldown": 0,
+        "power": 411
+      },
+      {
+        "level": 10,
+        "requiredLevel": 58,
+        "spCost": 61000,
+        "mpCost": 159,
+        "cooldown": 0,
+        "power": 435
+      },
+      {
+        "level": 11,
+        "requiredLevel": 58,
+        "spCost": 61000,
+        "mpCost": 159,
+        "cooldown": 0,
+        "power": 447
+      },
+      {
+        "level": 12,
+        "requiredLevel": 58,
+        "spCost": 61000,
+        "mpCost": 164,
+        "cooldown": 0,
+        "power": 459
+      },
+      {
+        "level": 13,
+        "requiredLevel": 60,
+        "spCost": 83000,
+        "mpCost": 173,
+        "cooldown": 0,
+        "power": 483
+      },
+      {
+        "level": 14,
+        "requiredLevel": 60,
+        "spCost": 83000,
+        "mpCost": 177,
+        "cooldown": 0,
+        "power": 495
+      },
+      {
+        "level": 15,
+        "requiredLevel": 60,
+        "spCost": 83000,
+        "mpCost": 180,
+        "cooldown": 0,
+        "power": 506
+      },
+      {
+        "level": 16,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 185,
+        "cooldown": 0,
+        "power": 518
+      },
+      {
+        "level": 17,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 189,
+        "cooldown": 0,
+        "power": 529
+      },
+      {
+        "level": 18,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 193,
+        "cooldown": 0,
+        "power": 541
+      },
+      {
+        "level": 19,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 195,
+        "cooldown": 0,
+        "power": 552
+      },
+      {
+        "level": 20,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 195,
+        "cooldown": 0,
+        "power": 563
+      },
+      {
+        "level": 21,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 199,
+        "cooldown": 0,
+        "power": 574
+      },
+      {
+        "level": 22,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 203,
+        "cooldown": 0,
+        "power": 585
+      },
+      {
+        "level": 23,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 207,
+        "cooldown": 0,
+        "power": 596
+      },
+      {
+        "level": 24,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 210,
+        "cooldown": 0,
+        "power": 606
+      },
+      {
+        "level": 25,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 214,
+        "cooldown": 0,
+        "power": 616
+      },
+      {
+        "level": 26,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 218,
+        "cooldown": 0,
+        "power": 626
+      },
+      {
+        "level": 27,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 222,
+        "cooldown": 0,
+        "power": 636
+      },
+      {
+        "level": 28,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 224,
+        "cooldown": 0,
+        "power": 645
+      },
+      {
+        "level": 29,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 228,
+        "cooldown": 0,
+        "power": 654
+      }
+    ]
+  },
+  {
+    "name": "Greater Heal",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 58,
+        "cooldown": 0,
+        "power": 371
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 60,
+        "cooldown": 0,
+        "power": 384
+      },
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 29000,
+        "mpCost": 62,
+        "cooldown": 0,
+        "power": 398
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 64,
+        "cooldown": 0,
+        "power": 426
+      },
+      {
+        "level": 5,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 65,
+        "cooldown": 0,
+        "power": 441
+      },
+      {
+        "level": 6,
+        "requiredLevel": 52,
+        "spCost": 38000,
+        "mpCost": 68,
+        "cooldown": 0,
+        "power": 455
+      },
+      {
+        "level": 7,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 72,
+        "cooldown": 0,
+        "power": 484
+      },
+      {
+        "level": 8,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 74,
+        "cooldown": 0,
+        "power": 499
+      },
+      {
+        "level": 9,
+        "requiredLevel": 56,
+        "spCost": 48000,
+        "mpCost": 77,
+        "cooldown": 0,
+        "power": 514
+      },
+      {
+        "level": 10,
+        "requiredLevel": 58,
+        "spCost": 61000,
+        "mpCost": 80,
+        "cooldown": 0,
+        "power": 544
+      },
+      {
+        "level": 11,
+        "requiredLevel": 58,
+        "spCost": 61000,
+        "mpCost": 80,
+        "cooldown": 0,
+        "power": 559
+      },
+      {
+        "level": 12,
+        "requiredLevel": 58,
+        "spCost": 61000,
+        "mpCost": 83,
+        "cooldown": 0,
+        "power": 574
+      },
+      {
+        "level": 13,
+        "requiredLevel": 60,
+        "spCost": 83000,
+        "mpCost": 87,
+        "cooldown": 0,
+        "power": 603
+      },
+      {
+        "level": 14,
+        "requiredLevel": 60,
+        "spCost": 83000,
+        "mpCost": 89,
+        "cooldown": 0,
+        "power": 618
+      },
+      {
+        "level": 15,
+        "requiredLevel": 60,
+        "spCost": 83000,
+        "mpCost": 90,
+        "cooldown": 0,
+        "power": 633
+      },
+      {
+        "level": 16,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 93,
+        "cooldown": 0,
+        "power": 647
+      },
+      {
+        "level": 17,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 95,
+        "cooldown": 0,
+        "power": 662
+      },
+      {
+        "level": 18,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 97,
+        "cooldown": 0,
+        "power": 676
+      },
+      {
+        "level": 19,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 98,
+        "cooldown": 0,
+        "power": 690
+      },
+      {
+        "level": 20,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 98,
+        "cooldown": 0,
+        "power": 704
+      },
+      {
+        "level": 21,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 100,
+        "cooldown": 0,
+        "power": 718
+      },
+      {
+        "level": 22,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 102,
+        "cooldown": 0,
+        "power": 731
+      },
+      {
+        "level": 23,
+        "requiredLevel": 68,
+        "spCost": 350000,
+        "mpCost": 104,
+        "cooldown": 0,
+        "power": 745
+      },
+      {
+        "level": 24,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 105,
+        "cooldown": 0,
+        "power": 758
+      },
+      {
+        "level": 25,
+        "requiredLevel": 70,
+        "spCost": 470000,
+        "mpCost": 108,
+        "cooldown": 0,
+        "power": 770
+      },
+      {
+        "level": 26,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 109,
+        "cooldown": 0,
+        "power": 783
+      },
+      {
+        "level": 27,
+        "requiredLevel": 72,
+        "spCost": 680000,
+        "mpCost": 112,
+        "cooldown": 0,
+        "power": 795
+      },
+      {
+        "level": 28,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 113,
+        "cooldown": 0,
+        "power": 806
+      },
+      {
+        "level": 29,
+        "requiredLevel": 74,
+        "spCost": 1000000,
+        "mpCost": 114,
+        "cooldown": 0,
+        "power": 817
+      }
+    ]
+  },
+  {
+    "name": "Greater Empower",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 48,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Kiss of Eva",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 52,
+        "spCost": 110000,
+        "mpCost": 48,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Cure Poison",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 58,
+        "spCost": 180000,
+        "mpCost": 55,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  {
+    "name": "Wild Magic",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 58,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 70,
+        "spCost": 940000,
+        "mpCost": 65,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  }
+]

@@ -23,6 +23,14 @@ export interface ArmorSetBonus {
     pAtkPercent?: number;
     mAtkPercent?: number;
   };
+  partialSet?: Array<{
+    pieces: number;
+    bonuses: Partial<CombatStats> & {
+      maxHp?: number;
+      maxMp?: number;
+      maxCp?: number;
+    };
+  }>;
 }
 
 export interface ArmorSet {

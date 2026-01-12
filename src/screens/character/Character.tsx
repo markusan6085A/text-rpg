@@ -1,40 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { itemsDB } from "../../data/items/itemsDB";
-import { SLOT_ICONS } from "./constants";
+import React, { useState } from "react";
 import { useHeroStore } from "../../state/heroStore";
+import { getProfessionDefinition, normalizeProfessionId } from "../../data/skills";
+import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
+import CharacterEquipmentFrame from "./CharacterEquipmentFrame";
+import RecipeBookButton from "./RecipeBookButton";
+import CharacterQuests from "./CharacterQuests";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
   return num.toLocaleString("ru-RU");
 };
 
-const characterMap: Record<string, string> = {
-  darkelf_female: "darkelf_female.png",
-  darkelf_male: "darkelf_male.png",
-  dwarf_female: "dwarf_female.png",
-  dwarf_male: "dwarf_male.png",
-  elf_female: "elf_female.png",
-  elf_male: "elf_male.png",
-  human_female: "human_female.png",
-  human_male: "human_male.png",
-  orc_female: "orc_female.png",
-  orc_male: "orc_male.png",
-};
-
 export default function Character() {
   const hero = useHeroStore((s) => s.hero);
-  const loadHero = useHeroStore((s) => s.loadHero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  
+  // Навігація для кнопки "Умения"
+  const navigate = (path: string) => {
+    window.history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
 
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
+  const [showQuests, setShowQuests] = useState(false);
 
-  // -----------------------------
-  // Загрузка героя
-  // -----------------------------
-  useEffect(() => {
-    loadHero();
-  }, [loadHero]);
+  // Hero вже завантажений в App.tsx, не потрібно завантажувати тут
 
   // -----------------------------
   // Локальні значення з hero
@@ -49,11 +40,30 @@ export default function Character() {
   const coins = hero?.coinOfLuck || 0;
 
   // -----------------------------
-  // EXP (как в City)
+  // EXP calculation
   // -----------------------------
-  const expCurrent = hero?.expCurrent ?? 0;
-  const expToNext = hero?.expToNext ?? 100000;
-  const expPercent = hero?.expPercent ?? 0;
+  const totalExp = hero?.exp ?? 0;
+  // EXP needed to reach current level (EXP_TABLE[level-1] is the exp needed to reach level)
+  // For level 1: EXP_TABLE[0] = 0
+  // For level 2: EXP_TABLE[1] = 68
+  // For level 80: EXP_TABLE[79] = 3 726 116 782
+  const currentLevelExp = level > 1 ? (EXP_TABLE[level - 1] ?? 0) : 0;
+  // Current EXP on this level
+  const expCurrent = Math.max(0, totalExp - currentLevelExp);
+  // EXP needed for next level
+  const expToNext = getExpToNext(level);
+  // If max level, show the total exp needed to reach max level (5 000 000 000 for level 80)
+  const expToNextDisplay = level >= MAX_LEVEL 
+    ? (EXP_TABLE[MAX_LEVEL - 1] ?? 0) 
+    : expToNext;
+  const expPercent = expToNextDisplay > 0 
+    ? Math.min(100, Math.floor((expCurrent / expToNextDisplay) * 100)) 
+    : 100;
+
+  // -----------------------------
+  // SP
+  // -----------------------------
+  const sp = hero?.sp ?? 0;
 
   // -----------------------------
   // Сохранение статуса
@@ -63,23 +73,6 @@ export default function Character() {
     setShowStatusModal(false);
   };
 
-  // -----------------------------
-  // Картинка персонажа
-  // -----------------------------
-  const key = `${race}_${gender}`;
-  const characterImage = `/characters/${characterMap[key] || "human_male.png"}`;
-
-  // -----------------------------
-  // Иконка надетого предмета
-  // -----------------------------
-  const getSlotIcon = (slot: string) => {
-    if (!hero || !hero.equipment) return SLOT_ICONS[slot];
-    const itemId = hero.equipment[slot];
-    if (!itemId) return SLOT_ICONS[slot];
-    const def = itemsDB[itemId];
-    if (!def) return SLOT_ICONS[slot];
-    return def.icon.startsWith("/") ? def.icon : `/items/${def.icon}`;
-  };
 
   const btn =
     "w-20 py-1 text-[10px] bg-[#0f0a06] text-white border border-[#3e301c] rounded-md";
@@ -103,34 +96,37 @@ export default function Character() {
         {/* ========================================================= */}
         <div className="w-full px-3 mb-2 mt-1 flex justify-between">
 
-          {/* ЦЕНТРАЛЬНАЯ ИНФОРМАЦИЯ */}
-          <div className="flex flex-col items-center text-center mt-1 flex-1">
+          {/* ЛІВА ІНФОРМАЦІЯ */}
+          <div className="flex flex-col text-left mt-1 flex-1">
+            <div className="border-t border-gray-500 pt-2 pb-2">
+              <div className="text-xs">
+                Статус:{" "}
+                {status ? (
+                  <span className="text-yellow-400">{status}</span>
+                ) : (
+                  <span className="text-gray-400">нет</span>
+                )}
+                <button
+                  className="text-red-400 underline ml-1 text-[10px]"
+                  onClick={() => {
+                    setNewStatus(status);
+                    setShowStatusModal(true);
+                  }}
+                >
+                  ред
+                </button>
+              </div>
 
-            <div className="font-bold text-sm">
-              {level} ур. — {nickname || "Без имени"}
+              <div className="text-[11px] text-yellow-300 mt-1">
+                Профессия:{" "}
+                {(() => {
+                  const profId = normalizeProfessionId(profession as any);
+                  const profDef = profId ? getProfessionDefinition(profId) : null;
+                  return profDef?.label || profession || "Нет";
+                })()}
+              </div>
             </div>
-
-            <div className="text-xs mt-1">
-              Статус:{" "}
-              {status ? (
-                <span className="text-yellow-400">{status}</span>
-              ) : (
-                <span className="text-gray-400">нет</span>
-              )}
-              <button
-                className="text-red-400 underline ml-1 text-[10px]"
-                onClick={() => {
-                  setNewStatus(status);
-                  setShowStatusModal(true);
-                }}
-              >
-                ред
-              </button>
-            </div>
-
-            <div className="text-[11px] text-yellow-300 mt-1">
-              Профессия: {profession || "Нет"}
-            </div>
+            <div className="border-b border-gray-500"></div>
           </div>
 
           {/* КНОПКИ СПРАВА */}
@@ -153,81 +149,81 @@ export default function Character() {
         </div>
 
         {/* ========================================= */}
-        {/*     МОДЕЛЬ + СЛОТЫ — БЕЗ ИЗМЕНЕНИЙ       */}
+        {/*     МОДЕЛЬ + СЛОТЫ — СПІЛЬНИЙ КОМПОНЕНТ  */}
         {/* ========================================= */}
-        <div
-          className="rounded-xl border-2 relative flex justify-center"
-          style={{
-            width: "330px",
-            backgroundImage: "url('/hero-bg.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            borderColor: "#5b4726",
-            paddingTop: "10px",
-            paddingBottom: "10px",
-          }}
-        >
-          {/* Левые слоты */}
-          <div className="absolute left-2 top-4 flex flex-col gap-1">
-            <img src={getSlotIcon("head")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("armor")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("legs")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("gloves")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("boots")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("belt")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-
-            <div className="flex gap-1 mt-1">
-              <img src={getSlotIcon("weapon")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-              <img src={getSlotIcon("shield")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            </div>
-          </div>
-
-          {/* Правые слоты */}
-          <div className="absolute right-2 top-4 flex flex-col gap-1 items-end">
-            <img src={getSlotIcon("jewelry")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("necklace")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("earring_left")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("earring_right")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("ring_left")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            <img src={getSlotIcon("ring_right")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-
-            <div className="flex gap-1 mt-1">
-              <img src={getSlotIcon("tattoo")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-              <img src={getSlotIcon("cloak")} className="w-7 h-7 border border-yellow-600 bg-black/50" />
-            </div>
-          </div>
-
-          {/* Модель */}
-          <div className="mt-16 mb-[-6px] flex flex-col items-center">
-            <img src={characterImage} alt="character" className="w-24 drop-shadow-xl" />
-            <div className="w-16 h-4 bg-black/70 rounded-full blur-md mt-[-4px]"></div>
-          </div>
-        </div>
+        <CharacterEquipmentFrame allowUnequip={false} marginTop="20px" />
 
         {/* ========================================================= */}
         {/*     СТОЛБЕЦ ПУНКТОВ — КАК ТЫ ПРОСИЛ                        */}
         {/* ========================================================= */}
-        <div className="w-[330px] text-left text-[12px] text-[#f4e2b8] mt-4 space-y-1">
+        <div className="w-[330px] text-left text-[12px] text-[#d3d3d3] mt-4 space-y-1">
 
-          <div>Аденa: {adena}</div>
-          <div>Coin of Luck: {coins}</div>
-
-          <div>
-            Опыт: {formatNumber(expCurrent)} / {formatNumber(expToNext)} ({expPercent}%)
+          <div className="border-b border-gray-600 pb-1 flex items-center gap-2">
+            <img src="/icons/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+            <span>Аденa: <span className="text-yellow-300">{adena}</span></span>
+          </div>
+          <div className="border-b border-gray-600 pb-1 flex items-center gap-2">
+            <img src="/icons/col (1).png" alt="Coin of Luck" className="w-3 h-3 object-contain" />
+            <span>Coin of Luck: <span className="text-yellow-300">{coins}</span></span>
           </div>
 
-          <div>Количество получаемого опыта: + 0</div>
-          <div>Очки умений: 0</div>
+          <div className="border-b border-gray-600 pb-1 flex items-center gap-2">
+            <img src="/icons/star.png" alt="Experience" className="w-3 h-3 object-contain" />
+            <span>
+              Опыт: <span className="text-green-300">{formatNumber(expCurrent)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
+            </span>
+          </div>
 
-          <div className="mt-2">Умения</div>
-          <div>Панель умений</div>
-          <div>Мои квесты</div>
+          <div className="border-b border-gray-600 pb-1 flex items-center gap-2">
+            <img src="/icons/news.png" alt="SP" className="w-3 h-3 object-contain" />
+            <span>
+              SP: <span className="text-blue-300">{formatNumber(sp)}</span>
+            </span>
+          </div>
 
-          <div className="mt-2">Рейтинги</div>
-          <div>Ежедневные задания</div>
+          <button
+            onClick={() => navigate("/learned-skills")}
+            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-gray-600 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+          >
+            <img src="/icons/news.png" alt="Skills" className="w-3 h-3 object-contain" />
+            <span>Умения</span>
+          </button>
+          <RecipeBookButton navigate={navigate} />
+          <button
+            onClick={() => setShowQuests(!showQuests)}
+            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-gray-600 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+          >
+            <img src="/icons/news.png" alt="Quests" className="w-3 h-3 object-contain" />
+            <span>Мои квесты</span>
+          </button>
 
-          <div className="mt-2">Премиум аккаунт (ускоренная прокачка)</div>
+          <div className="mt-2 border-b border-gray-600 pb-1 flex items-center gap-2">
+            <img src="/icons/rate.png" alt="Ratings" className="w-3 h-3 object-contain" />
+            <span>Рейтинги</span>
+          </div>
+          <button
+            onClick={() => navigate("/daily-quests")}
+            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-gray-600 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+          >
+            <img src="/icons/battles.png" alt="Daily Quests" className="w-3 h-3 object-contain" />
+            <span>Ежедневные задания</span>
+          </button>
+
+          <button
+            onClick={() => navigate("/premium-account")}
+            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-gray-600 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+          >
+            <img src="/icons/coin.png" alt="Premium" className="w-3 h-3 object-contain" />
+            <span>Премиум аккаунт (ускоренная прокачка)</span>
+          </button>
         </div>
+
+        {/* Квести */}
+        {showQuests && (
+          <div className="w-full mt-4">
+            <CharacterQuests />
+          </div>
+        )}
 
       </div>
 

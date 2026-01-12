@@ -1,16 +1,15 @@
 // src/data/world/floran.ts
 import type { City, Zone, Mob } from "./types";
 
-import { FLORAN_OUTSKIRTS_MOBS } from "../zones/floran_outskirts";
-import { WASTELAND_MOBS } from "../zones/wasteland";
-import { FLORAN_CHAMPION_FIELDS_MOBS } from "../zones/floran_champion_fields";
 import { FLORAN_RAID_LAIR_MOBS } from "../zones/floran_raid_lair";
-import { WASTELAND_WEST_MOBS } from "../zones/wasteland_west";
-import { ABANDONED_CAMP_MOBS } from "../zones/abandoned_camp";
-import { EXECUTION_GROUNDS_MOBS } from "../zones/execution_grounds";
-import { CRUMA_MARSHLANDS_MOBS } from "../zones/cruma_marshlands";
-
-
+import { FLORAN_OUTSKIRTS_MOBS } from "../zones/floran_outskirts";
+import { FLORAN_PLAINS_MOBS } from "../zones/floran_plains";
+import { FLORAN_FOREST_MOBS } from "../zones/floran_forest";
+import { FLORAN_VALLEY_MOBS } from "../zones/floran_valley";
+import { FLORAN_HILLS_MOBS } from "../zones/floran_hills";
+import { FLORAN_HIGHLANDS_MOBS } from "../zones/floran_highlands";
+import { FLORAN_PEAKS_MOBS } from "../zones/floran_peaks";
+import { FLORAN_CATACOMBS_MOBS } from "../zones/floran_catacombs";
 
 export const FLORAN_CITY: City = {
   id: "floran",
@@ -23,69 +22,64 @@ export const FLORAN_ZONES: Zone[] = [
     id: "floran_outskirts",
     name: "Floran Outskirts",
     minLevel: 1,
-    maxLevel: 8,
-    tpCost: 200,
+    maxLevel: 6,
+    tpCost: 500,
     cityId: "floran",
     mobs: FLORAN_OUTSKIRTS_MOBS as Mob[],
   },
   {
-    id: "wasteland",
-    name: "Wasteland",
-    minLevel: 14,
-    maxLevel: 22,
-    tpCost: 1_200,
+    id: "floran_plains",
+    name: "Floran Plains",
+    minLevel: 3,
+    maxLevel: 10,
+    tpCost: 1000,
     cityId: "floran",
-    mobs: WASTELAND_MOBS as Mob[],
+    mobs: FLORAN_PLAINS_MOBS as Mob[],
   },
-  
   {
-    id: "wasteland_west",
-    name: "Wasteland West",
-    minLevel: 22,
+    id: "floran_forest",
+    name: "Floran Forest",
+    minLevel: 7,
+    maxLevel: 16,
+    tpCost: 2000,
+    cityId: "floran",
+    mobs: FLORAN_FOREST_MOBS as Mob[],
+  },
+  {
+    id: "floran_valley",
+    name: "Floran Valley",
+    minLevel: 6,
+    maxLevel: 20,
+    tpCost: 3000,
+    cityId: "floran",
+    mobs: FLORAN_VALLEY_MOBS as Mob[],
+  },
+  {
+    id: "floran_hills",
+    name: "Floran Hills",
+    minLevel: 12,
+    maxLevel: 24,
+    tpCost: 4000,
+    cityId: "floran",
+    mobs: FLORAN_HILLS_MOBS as Mob[],
+  },
+  {
+    id: "floran_highlands",
+    name: "Floran Highlands",
+    minLevel: 20,
     maxLevel: 28,
-    tpCost: 1_500,
+    tpCost: 5000,
     cityId: "floran",
-    mobs: WASTELAND_WEST_MOBS as Mob[],
- },
-
-  {
-   id: "abandoned_camp",
-   name: "Abandoned Camp",
-   minLevel: 28,
-   maxLevel: 36,
-   tpCost: 2_200,
-   cityId: "floran",
-   mobs: ABANDONED_CAMP_MOBS as Mob[],
- },
-
-  {
-   id: "execution_grounds",
-   name: "Execution Grounds",
-   minLevel: 36,
-   maxLevel: 44,
-   tpCost: 6_200,
-   cityId: "floran",
-   mobs: EXECUTION_GROUNDS_MOBS as Mob[],
+    mobs: FLORAN_HIGHLANDS_MOBS as Mob[],
   },
-
   {
-  id: "cruma_marshlands",
-  name: "Cruma Marshlands",
-  minLevel: 44,
-  maxLevel: 52,
-  tpCost: 8_400,
-  cityId: "floran",
-  mobs: CRUMA_MARSHLANDS_MOBS as Mob[],
-},
-
-  {
-    id: "floran_champion_fields",
-    name: "Floran Champion Fields",
-    minLevel: 52,
-    maxLevel: 60,
-    tpCost: 7_000,
+    id: "floran_peaks",
+    name: "Floran Peaks",
+    minLevel: 25,
+    maxLevel: 36,
+    tpCost: 6000,
     cityId: "floran",
-    mobs: FLORAN_CHAMPION_FIELDS_MOBS as Mob[],
+    mobs: FLORAN_PEAKS_MOBS as Mob[],
   },
   {
     id: "floran_raid_lair",
@@ -95,5 +89,16 @@ export const FLORAN_ZONES: Zone[] = [
     tpCost: 12_000,
     cityId: "floran",
     mobs: FLORAN_RAID_LAIR_MOBS as Mob[],
+  },
+  {
+    id: "floran_catacombs",
+    name: "Floran Catacombs",
+    minLevel: 20,
+    maxLevel: 35,
+    tpCost: 3500,
+    cityId: "floran",
+    mobs: FLORAN_CATACOMBS_MOBS as Mob[],
+    allMobsAggressive: true, // Всі моби на сторінці атакують одночасно
+    curseChanceOnAttack: 0.1, // 10% шанс на прокляття при атаці
   },
 ];

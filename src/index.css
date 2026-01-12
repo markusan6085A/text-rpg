@@ -9,6 +9,18 @@ html, body {
   background: black;
   color: #f4e2b8;
   font-family: system-ui, sans-serif;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }
 
 button {
@@ -156,17 +168,39 @@ button {
 
 /* Загальний фон для всіх сторінок */
 .page-bg {
-  background: #1a1a1a;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Оверлей для читабельності контенту поверх фону (опціонально) */
+.page-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3); /* Темний оверлей 30% для кращої читабельності */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Контент поверх оверлею */
+.page-bg > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* L2 WAP рамка */
 .l2-frame {
   border: 1px solid #3b2614;
-  background: #0f0f0f;
+  background: #0f0f0f url('/assets/ui_frame.png') center center / contain no-repeat fixed;
   padding: 10px;
   border-radius: 10px;
   box-shadow: inset 0 0 10px #000;
+  position: relative;
 }
 
 .l2-btn {

@@ -1,0 +1,3236 @@
+[
+  {
+    "name": "Anti Magic",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 42,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 43,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 44,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 45,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Boost Mana",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Fast Spell Casting",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Light Armor Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 9,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Robe Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 9,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Weapon Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 42,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Wind Shackle",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Death Whisper",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Dryad Root",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Guidance",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Mental Shield",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Might",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Recharge",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 5,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 66,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 70,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 73,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 77,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 81,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 86,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 90,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 94,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 98,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 102,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 104,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 106,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 108,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 110,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 113,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 115,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 116,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 118,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 120,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 122,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 124,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 126,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 128,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 129,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 131,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 133,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 134,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 136,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Resist Wind",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Fast HP Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Fast Mana Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Concentration",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Empower",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Focus",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Purify",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Shield",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Vampiric Rage",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Quick Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Greater Group Heal",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 297,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 308,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 319,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 341,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 353,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 364,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 388,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 399,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 411,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 435,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 447,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 459,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 483,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 495,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 506,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 518,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 529,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 541,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 552,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 563,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 574,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 585,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 596,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 606,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 616,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 626,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 636,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 645,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 654,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Greater Heal",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 371,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 384,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 398,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 426,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 441,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 455,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 484,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 499,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 514,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 544,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 559,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 574,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 603,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 618,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 633,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 647,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 662,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 676,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 690,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 704,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 718,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 731,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 745,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 758,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 770,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 783,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 795,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 806,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 817,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Greater Empower",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Kiss of Eva",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Cure Poison",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Wild Magic",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 0,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "",
+        "descriptionRu": ""
+      }
+    ]
+  }
+]

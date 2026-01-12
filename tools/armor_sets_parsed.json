@@ -1,0 +1,836 @@
+[
+  {
+    "name": "Draconic Leather Set",
+    "bonus": "Dex +1, Str +1, Con -2, attack speed/P. Atk +4%, Max MP +289, weight limit +5759",
+    "pieces": [
+      {
+        "name": "Draconic Leather Helmet"
+      },
+      {
+        "name": "Draconic Leather Armor"
+      },
+      {
+        "name": "Draconic Leather Gloves"
+      },
+      {
+        "name": "Draconic Leather Boots"
+      }
+    ]
+  },
+  {
+    "name": "Major Acarna Set",
+    "bonus": "Wit +1, Int+1, Men -2, M.Atk +8%, moving speed +7, casting cancel chance -50%, weight limit +5759",
+    "pieces": [
+      {
+        "name": "Major Arcana Circlet"
+      },
+      {
+        "name": "Major Arcana Robe"
+      },
+      {
+        "name": "Major Arcana Gloves"
+      },
+      {
+        "name": "Major Arcana Boots"
+      }
+    ]
+  },
+  {
+    "name": "Imperial Crusader Set",
+    "bonus": "Dex -2, Str +2, P.Def +8%, Max HP +445. Sleep/Hold Resistance -70%. Poison/Bleeding -80%",
+    "pieces": [
+      {
+        "name": "Imperial Crusader Helmet"
+      },
+      {
+        "name": "Imperial Crusader Breastplate"
+      },
+      {
+        "name": "Imperial Crusader Gaiters"
+      },
+      {
+        "name": "Imperial Crusader Gauntlets"
+      },
+      {
+        "name": "Imperial Crusader Boots"
+      },
+      {
+        "name": "Imperial Crusader Shield"
+      }
+    ]
+  },
+  {
+    "name": "Dark Crystal Heavy",
+    "bonus": "Heal +4%, vulnerability to Paralysis is reduced 50%, STR-2, and CON+2. With shield +18% Sh.Block",
+    "pieces": [
+      {
+        "name": "Dark Crystal Breastplate"
+      },
+      {
+        "name": "Dark Crystal Gaiters"
+      },
+      {
+        "name": "Dark Crystal Helmet"
+      },
+      {
+        "name": "Dark Crystal Gloves Heavy Armor"
+      },
+      {
+        "name": "Dark Crystal Boots Heavy Armor"
+      },
+      {
+        "name": "Dark Crystal Shield"
+      }
+    ]
+  },
+  {
+    "name": "Dark Crystal Light",
+    "bonus": "Atk. Spd./P. Atk. +4%, vulnerability to Paralysis is reduced by 50%, STR +1, and CON -1.",
+    "pieces": [
+      {
+        "name": "Dark Crystal Leather Armor"
+      },
+      {
+        "name": "Dark Crystal Leggings"
+      },
+      {
+        "name": "Dark Crystal Helmet"
+      },
+      {
+        "name": "Dark Crystal Gloves Light Armor"
+      },
+      {
+        "name": "Dark Crystal Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Dark Crystal Magic Set",
+    "bonus": "P. Def. +8%, Casting Spd. +15%, Speed +7, small decrease in probability of magic cancellation, vulnerability to Paralysis -50%, WIT +2, MEN -2",
+    "pieces": [
+      {
+        "name": "Dark Crystal Robe"
+      },
+      {
+        "name": "Dark Crystal Helmet"
+      },
+      {
+        "name": "Dark Crystal Gloves Robe"
+      },
+      {
+        "name": "Dark Crystal Boots Robe"
+      }
+    ]
+  },
+  {
+    "name": "Majestic Heavy",
+    "bonus": "P. Atk. +4%, Accuracy +3, probability of falling into Stun -50%, STR+2 and Con-2",
+    "pieces": [
+      {
+        "name": "Majestic Circlet"
+      },
+      {
+        "name": "Majestic Gauntlets Heavy Armor"
+      },
+      {
+        "name": "Majestic Boots Heavy Armor"
+      },
+      {
+        "name": "Majestic Plate Armor"
+      }
+    ]
+  },
+  {
+    "name": "Majestic Light",
+    "bonus": "Archery P. Atk. +8%, maximum MP +240, weight limit +5759, vulnerability to Stun is reduced 50%, DEX+1, CON-1",
+    "pieces": [
+      {
+        "name": "Majestic Leather Armor"
+      },
+      {
+        "name": "Majestic Circlet"
+      },
+      {
+        "name": "Majestic Gauntlets Light Armor"
+      },
+      {
+        "name": "Majestic Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Majestic Magic Set",
+    "bonus": "maximum MP +240, Casting Spd. +15%, MP Regeneration +8%, vulnerability to Stun -50%, MEN +1, and INT -1",
+    "pieces": [
+      {
+        "name": "Majestic Robe"
+      },
+      {
+        "name": "Majestic Circlet"
+      },
+      {
+        "name": "Majestic Gauntlets Robe"
+      },
+      {
+        "name": "Majestic Boots Robe"
+      }
+    ]
+  },
+  {
+    "name": "Nightmare Heavy",
+    "bonus": "P. Atk. +4%, vulnerability to Sleep and Hold is reduced 70%, CON+2, and DEX-2. If one is also equipped with a shield of nightmare, 5% of the damage inflicted by the enemy will be reflected back upon him",
+    "pieces": [
+      {
+        "name": "Gauntlets of Nightmare Heavy Armor"
+      },
+      {
+        "name": "Boots of Nightmare Heavy Armor"
+      },
+      {
+        "name": "Shield of Nightmare"
+      }
+    ]
+  },
+  {
+    "name": "Nightmare Light",
+    "bonus": "M. Def. +4%, vulnerability to Sleep and Hold is reduced 70%, HP Regeneration +3% of damage inflicted on the enemy by close physical attack, DEX +1, and CON -1",
+    "pieces": [
+      {
+        "name": "Gauntlets of Nightmare Light Armor"
+      },
+      {
+        "name": "Boots of Nightmare Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Nightmare Magic Set",
+    "bonus": "MP Regeneration +4%, M. Atk. +8%, vulnerability to Sleep or Hold -70%, INT +2 and WIT -2",
+    "pieces": [
+      {
+        "name": "Nightmare Robe"
+      },
+      {
+        "name": "Gauntlets of Nightmare Robe"
+      },
+      {
+        "name": "Boots of Nightmare Robe"
+      }
+    ]
+  },
+  {
+    "name": "Tallum Heavy",
+    "bonus": "Atk. Spd. +8%, weight limit +5759, vulnerability to Poison or Bleed -80%, STR+2, and CON-2",
+    "pieces": [
+      {
+        "name": "Tallum Plate Armor"
+      },
+      {
+        "name": "Tallum Gloves Heavy Armor"
+      },
+      {
+        "name": "Tallum Boots Heavy Armor"
+      }
+    ]
+  },
+  {
+    "name": "Tallum Light",
+    "bonus": "MP Regeneration +8%, maximum MP +222, vulnerability to Poison and Bleed is reduced 80%, MEN +2, and WIT -2",
+    "pieces": [
+      {
+        "name": "Tallum Leather Armor"
+      },
+      {
+        "name": "Tallum Gloves Light Armor"
+      },
+      {
+        "name": "Tallum Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Tallum Magic Set",
+    "bonus": "Casting Spd. +15%, M. Def. +8%, vulnerability to Poison or Bleed -80%, INT-2, and WIT+2",
+    "pieces": [
+      {
+        "name": "Tallum Tunic"
+      },
+      {
+        "name": "Tallum Stockings"
+      },
+      {
+        "name": "Tallum Gloves Robe"
+      },
+      {
+        "name": "Tallum Boots Robe"
+      }
+    ]
+  },
+  {
+    "name": "Apella Plate Armor",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Apella Solleret Heavy Armor"
+      }
+    ]
+  },
+  {
+    "name": "Apella Brigandine",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Apella Leather Gloves Light Armor"
+      },
+      {
+        "name": "Apella Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Apella Doublet",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Apella Silk Gloves Robe"
+      },
+      {
+        "name": "Apella Sandals Robe"
+      }
+    ]
+  },
+  {
+    "name": "Avadon Heavy",
+    "bonus": "+294 HP, With Shield +24% Shield Defence",
+    "pieces": [
+      {
+        "name": "Avadon Breastplate"
+      },
+      {
+        "name": "Avadon Gaiters"
+      },
+      {
+        "name": "Avadon Circlet"
+      },
+      {
+        "name": "Avadon Boots Heavy Armor"
+      },
+      {
+        "name": "Avadon Gloves Heavy Armor"
+      }
+    ]
+  },
+  {
+    "name": "Blue Wolve's Heavy",
+    "bonus": "+7 Speed, +5% HP Regen, +3 STR, -1 CON, -2 DEX",
+    "pieces": [
+      {
+        "name": "Blue Wolf Breastplate"
+      },
+      {
+        "name": "Blue Wolf Gaiters"
+      },
+      {
+        "name": "Blue Wolf Helmet"
+      },
+      {
+        "name": "Blue Wolf Gloves Heavy Armor"
+      },
+      {
+        "name": "Blue Wolf Boots Heavy Armor"
+      }
+    ]
+  },
+  {
+    "name": "Zubei Heavy",
+    "bonus": "+5% P-Def, +294 HP",
+    "pieces": [
+      {
+        "name": "Zubei's Breastplate"
+      },
+      {
+        "name": "Zubei's Gaiters"
+      },
+      {
+        "name": "Zubei's Helmet"
+      },
+      {
+        "name": "Zubei's Gauntlets Heavy Armor"
+      },
+      {
+        "name": "Zubei's Boots Heavy Armor"
+      }
+    ]
+  },
+  {
+    "name": "Doom Plate Heavy",
+    "bonus": "+320 HP, +Waterbreath, -3 STR, +3 CON, With Shield +24% Shield Defence",
+    "pieces": [
+      {
+        "name": "Doom Plate Armor"
+      },
+      {
+        "name": "Doom Helmet"
+      },
+      {
+        "name": "Doom Gloves Heavy Armor"
+      },
+      {
+        "name": "Doom Boots Heavy Armor"
+      },
+      {
+        "name": "Doom Shield"
+      }
+    ]
+  },
+  {
+    "name": "Avadon Light",
+    "bonus": "+5.25% M-Def, +5795 Weight",
+    "pieces": [
+      {
+        "name": "Avadon Leather Armor"
+      },
+      {
+        "name": "Avadon Circlet"
+      },
+      {
+        "name": "Avadon Gloves Light Armor"
+      },
+      {
+        "name": "Avadon Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Blue Wolve's Light",
+    "bonus": "+5%P-Def, +15% Cast Speed, -2INT, +3MEN, -1WIT",
+    "pieces": [
+      {
+        "name": "Blue Wolf Leather Armor"
+      },
+      {
+        "name": "Blue Wolf Helmet"
+      },
+      {
+        "name": "Blue Wolf Gloves Light Armor"
+      },
+      {
+        "name": "Blue Wolf Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Zubei Light",
+    "bonus": "+4 Evasion",
+    "pieces": [
+      {
+        "name": "Zubei's Leather Shirt"
+      },
+      {
+        "name": "Zubei's Leather Gaiters"
+      },
+      {
+        "name": "Zubei's Helmet"
+      },
+      {
+        "name": "Zubei's Gauntlets Light Armor"
+      },
+      {
+        "name": "Zubei's Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Doom Light",
+    "bonus": "+2.7% P-Atk, +2.5% MP Regen, -1 STR, -2 CON, +3 DEX, -20% Poison, +Waterbreath",
+    "pieces": [
+      {
+        "name": "Leather Armor of Doom"
+      },
+      {
+        "name": "Doom Helmet"
+      },
+      {
+        "name": "Doom Gloves Light Armor"
+      },
+      {
+        "name": "Doom Boots Light Armor"
+      }
+    ]
+  },
+  {
+    "name": "Avadon Magic Set",
+    "bonus": "+5% P-Def, +15% Casting Speed",
+    "pieces": [
+      {
+        "name": "Avadon Robe"
+      },
+      {
+        "name": "Avadon Circlet"
+      },
+      {
+        "name": "Avadon Gloves Robe"
+      },
+      {
+        "name": "Avadon Boots Robe"
+      }
+    ]
+  },
+  {
+    "name": "Blue Wolve's Magic Set",
+    "bonus": "+206 MP, +5% MP Regen, -2 INT, -1 MEN, +3 WIT",
+    "pieces": [
+      {
+        "name": "Blue Wolf Tunic"
+      },
+      {
+        "name": "Blue Wolf Stockings"
+      },
+      {
+        "name": "Blue Wolf Helmet"
+      },
+      {
+        "name": "Blue Wolf Gloves Robe"
+      },
+      {
+        "name": "Blue Wolf Boots Robe"
+      }
+    ]
+  },
+  {
+    "name": "Zubei Magic Set",
+    "bonus": "+10% M-Atk, +5% MP Regen",
+    "pieces": [
+      {
+        "name": "Tunic of Zubei"
+      },
+      {
+        "name": "Stockings of Zubei"
+      },
+      {
+        "name": "Zubei's Helmet"
+      },
+      {
+        "name": "Zubei's Gauntlets Robe"
+      },
+      {
+        "name": "Zubei's Boots Robe"
+      }
+    ]
+  },
+  {
+    "name": "Doom Magic Set",
+    "bonus": "+7 Move Speed, +waterbreath, +5% MP Regen, +2INT, +1MEN, -3WIT",
+    "pieces": [
+      {
+        "name": "Tunic of Doom"
+      },
+      {
+        "name": "Stockings of Doom"
+      },
+      {
+        "name": "Doom Helmet"
+      },
+      {
+        "name": "Doom Gloves Robe"
+      },
+      {
+        "name": "Doom Boots Robe"
+      }
+    ]
+  },
+  {
+    "name": "Tempered Mithril Set",
+    "bonus": "+4 Evasion",
+    "pieces": [
+      {
+        "name": "Mithril Shirt"
+      },
+      {
+        "name": "Tempered Mithril Gaiters"
+      },
+      {
+        "name": "Mithril Boots"
+      }
+    ]
+  },
+  {
+    "name": "Chain Set",
+    "bonus": "+5% to Dagger Defense, With Shiled +198 HP",
+    "pieces": [
+      {
+        "name": "Chain Mail Shirt"
+      },
+      {
+        "name": "Chain Gaiters"
+      },
+      {
+        "name": "Chain Shield"
+      }
+    ]
+  },
+  {
+    "name": "Karmian Set",
+    "bonus": "+5% P-Def, +15% Casting Speed",
+    "pieces": [
+      {
+        "name": "Karmian Tunic"
+      },
+      {
+        "name": "Karmian Stockings"
+      },
+      {
+        "name": "Karmian Gloves"
+      }
+    ]
+  },
+  {
+    "name": "Plated Leather Set",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Plated Leather Gaiters"
+      },
+      {
+        "name": "Plated Leather Boots"
+      }
+    ]
+  },
+  {
+    "name": "Composite Set",
+    "bonus": "+5795 Weight Gauge, With Shield +5% M-Def",
+    "pieces": [
+      {
+        "name": "Composite Helmet"
+      },
+      {
+        "name": "Composite Shield"
+      }
+    ]
+  },
+  {
+    "name": "Demon Set",
+    "bonus": "-1 WIT, +4 INT, -269 HP",
+    "pieces": [
+      {
+        "name": "Demon's Tunic"
+      },
+      {
+        "name": "Demon's Stockings"
+      },
+      {
+        "name": "Demon's Gloves"
+      }
+    ]
+  },
+  {
+    "name": "Theca Leather Set",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Theca Leather Armor"
+      },
+      {
+        "name": "Theca Leather Gaiters"
+      },
+      {
+        "name": "Theca Leather Boots"
+      }
+    ]
+  },
+  {
+    "name": "Drake Leather Set",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Drake Leather Armor"
+      },
+      {
+        "name": "Drake Leather Boots"
+      }
+    ]
+  },
+  {
+    "name": "Full Plate Set",
+    "bonus": "+269 HP, With Shield +5% Shield Blocking Rate",
+    "pieces": [
+      {
+        "name": "Full Plate Armor"
+      },
+      {
+        "name": "Full Plate Helmet"
+      },
+      {
+        "name": "Full Plate Shield"
+      }
+    ]
+  },
+  {
+    "name": "Divine Set",
+    "bonus": "+5% P-Def, +170 MP, -1 INT, +1 WIT",
+    "pieces": [
+      {
+        "name": "Divine Tunic"
+      },
+      {
+        "name": "Divine Stockings"
+      },
+      {
+        "name": "Divine Gloves"
+      }
+    ]
+  },
+  {
+    "name": "Mithril Set",
+    "bonus": "+20 Poison Resistance, With Shield + 126 HP",
+    "pieces": [
+      {
+        "name": "Mithril Breastplate"
+      },
+      {
+        "name": "Mithril Gaiters"
+      },
+      {
+        "name": "Helmet"
+      }
+    ]
+  },
+  {
+    "name": "Reinforced Leather Set",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Reinforced Leather Shirt"
+      },
+      {
+        "name": "Reinforced Leather Gaiters"
+      },
+      {
+        "name": "Reinforced Leather Boots"
+      }
+    ]
+  },
+  {
+    "name": "Knowledge Set",
+    "bonus": "+10% M-Atk, -5 MP Regeneration",
+    "pieces": [
+      {
+        "name": "Tunic of Knowledge"
+      },
+      {
+        "name": "Stockings of Knowledge"
+      },
+      {
+        "name": "Gloves of Knowledge"
+      }
+    ]
+  },
+  {
+    "name": "Manticore Skin Set",
+    "bonus": null,
+    "pieces": [
+      {
+        "name": "Manticore Skin Shirt"
+      },
+      {
+        "name": "Manticore Skin Gaiters"
+      },
+      {
+        "name": "Manticore Skin Boots"
+      }
+    ]
+  },
+  {
+    "name": "Brigandine Set",
+    "bonus": "+153 HP, +5% P-Def, +20 HP With Shield",
+    "pieces": [
+      {
+        "name": "Brigandine Tunic"
+      },
+      {
+        "name": "Brigandine Gaiters"
+      },
+      {
+        "name": "Brigandine Helmet"
+      },
+      {
+        "name": "Brigandine Shield"
+      }
+    ]
+  },
+  {
+    "name": "Elven Mithril Set",
+    "bonus": "Movement Speed Increassed, -1 Int, +1 Wit",
+    "pieces": [
+      {
+        "name": "Mithril Tunic"
+      },
+      {
+        "name": "Mithril Stockings"
+      },
+      {
+        "name": "Elven Mithril Gloves"
+      },
+      {
+        "name": "Clan Oath Gauntlets Heavy Armor"
+      },
+      {
+        "name": "Clan Oath Sabaton Heavy Armor"
+      },
+      {
+        "name": "Clan Oath Brigandine"
+      },
+      {
+        "name": "Clan Oath Brigandine"
+      },
+      {
+        "name": "Clan Oath Leather Gloves Light Armor"
+      },
+      {
+        "name": "Clan Oath Boots Light Armor"
+      },
+      {
+        "name": "Clan Oath Aketon"
+      },
+      {
+        "name": "Clan Oath Aketon"
+      },
+      {
+        "name": "Clan Oath Padded Gloves Robe"
+      },
+      {
+        "name": "Clan Oath Sandals Robe"
+      }
+    ]
+  },
+  {
+    "name": "Wooden Set",
+    "bonus": "+2% P-Def, +41 HP",
+    "pieces": [
+      {
+        "name": "Wooden Breastplate"
+      },
+      {
+        "name": "Wooden Gaiters"
+      },
+      {
+        "name": "Wooden Helmet"
+      }
+    ]
+  },
+  {
+    "name": "Devotion Set",
+    "bonus": "+15% Casting Speed",
+    "pieces": [
+      {
+        "name": "Tunic of Devotion"
+      },
+      {
+        "name": "Stockings of Devotion"
+      },
+      {
+        "name": "Leather Helmet"
+      }
+    ]
+  }
+]

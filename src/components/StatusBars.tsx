@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { useHeroStore } from "../state/heroStore";
 import { getExpToNext } from "../data/expTable";
 import { useBattleStore } from "../state/battle/store";

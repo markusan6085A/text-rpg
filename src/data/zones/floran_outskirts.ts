@@ -1,298 +1,223 @@
 // src/data/zones/floran_outskirts.ts
 import type { Mob } from "../world/types";
+import type { DropEntry } from "../combat/types";
 
-export const FLORAN_OUTSKIRTS_MOBS: Mob[] = [
-  // ===== lvl 1–2 (стартові звірі) =====
-  {
-    id: "fl_out_ragged_wolf",
-    name: "Ragged Wolf",
-    level: 1,
-    hp: 60,
-    exp: 20,
-    adenaMin: 5,
-    adenaMax: 12,
-    dropChance: 0.18,
-  },
-  {
-    id: "fl_out_forest_rat",
-    name: "Forest Rat",
-    level: 1,
-    hp: 55,
-    exp: 18,
-    adenaMin: 4,
-    adenaMax: 10,
-    dropChance: 0.16,
-  },
-  {
-    id: "fl_out_starving_wolf",
-    name: "Starving Wolf",
-    level: 2,
-    hp: 75,
-    exp: 28,
-    adenaMin: 8,
-    adenaMax: 16,
-    dropChance: 0.20,
-  },
-  {
-    id: "fl_out_wild_fox",
-    name: "Wild Fox",
-    level: 2,
-    hp: 80,
-    exp: 30,
-    adenaMin: 9,
-    adenaMax: 18,
-    dropChance: 0.20,
-  },
-
-  // ===== lvl 2–3 (перші бандити) =====
-  {
-    id: "fl_out_goblin_scout",
-    name: "Goblin Scout",
-    level: 2,
-    hp: 85,
-    exp: 32,
-    adenaMin: 10,
-    adenaMax: 20,
-    dropChance: 0.22,
-  },
-  {
-    id: "fl_out_goblin_thief",
-    name: "Goblin Thief",
-    level: 3,
-    hp: 95,
-    exp: 40,
-    adenaMin: 14,
-    adenaMax: 24,
-    dropChance: 0.23,
-  },
-  {
-    id: "fl_out_goblin_warrior",
-    name: "Goblin Warrior",
-    level: 3,
-    hp: 105,
-    exp: 46,
-    adenaMin: 15,
-    adenaMax: 26,
-    dropChance: 0.24,
-  },
-  {
-    id: "fl_out_hungry_bear_cub",
-    name: "Hungry Bear Cub",
-    level: 3,
-    hp: 110,
-    exp: 48,
-    adenaMin: 16,
-    adenaMax: 28,
-    dropChance: 0.22,
-  },
-
-  // ===== lvl 3–4 (слабкі орки/скелети) =====
-  {
-    id: "fl_out_orc_apprentice",
-    name: "Orc Apprentice",
-    level: 3,
-    hp: 115,
-    exp: 50,
-    adenaMin: 18,
-    adenaMax: 30,
-    dropChance: 0.24,
-  },
-  {
-    id: "fl_out_orc_fighter",
-    name: "Orc Fighter",
-    level: 4,
-    hp: 135,
-    exp: 62,
-    adenaMin: 22,
-    adenaMax: 34,
-    dropChance: 0.25,
-  },
-  {
-    id: "fl_out_orc_shaman",
-    name: "Orc Shaman",
-    level: 4,
-    hp: 130,
-    exp: 66,
-    adenaMin: 24,
-    adenaMax: 38,
-    dropChance: 0.26,
-  },
-  {
-    id: "fl_out_bone_skeleton",
-    name: "Bone Skeleton",
-    level: 4,
-    hp: 140,
-    exp: 70,
-    adenaMin: 25,
-    adenaMax: 40,
-    dropChance: 0.26,
-  },
-
-  // ===== lvl 4–5 (сильніший мікс) =====
-  {
-    id: "fl_out_feral_bear",
-    name: "Feral Bear",
-    level: 4,
-    hp: 155,
-    exp: 78,
-    adenaMin: 26,
-    adenaMax: 42,
-    dropChance: 0.27,
-  },
-  {
-    id: "fl_out_bandit_lookout",
-    name: "Bandit Lookout",
-    level: 5,
-    hp: 170,
-    exp: 90,
-    adenaMin: 30,
-    adenaMax: 48,
-    dropChance: 0.28,
-  },
-  {
-    id: "fl_out_bandit_raider",
-    name: "Bandit Raider",
-    level: 5,
-    hp: 185,
-    exp: 98,
-    adenaMin: 32,
-    adenaMax: 52,
-    dropChance: 0.29,
-  },
-  {
-    id: "fl_out_bandit_leader",
-    name: "Bandit Leader",
-    level: 5,
-    hp: 195,
-    exp: 110,
-    adenaMin: 36,
-    adenaMax: 60,
-    dropChance: 0.30,
-  },
-
-  // ===== lvl 5–6 (трохи болючіші) =====
-  {
-    id: "fl_out_corrupted_treant",
-    name: "Corrupted Treant",
-    level: 5,
-    hp: 210,
-    exp: 115,
-    adenaMin: 34,
-    adenaMax: 58,
-    dropChance: 0.30,
-  },
-  {
-    id: "fl_out_wild_kasha_wolf",
-    name: "Wild Kasha Wolf",
-    level: 6,
-    hp: 230,
-    exp: 130,
-    adenaMin: 38,
-    adenaMax: 64,
-    dropChance: 0.30,
-  },
-  {
-    id: "fl_out_wild_kasha_bear",
-    name: "Wild Kasha Bear",
-    level: 6,
-    hp: 245,
-    exp: 140,
-    adenaMin: 40,
-    adenaMax: 70,
-    dropChance: 0.31,
-  },
-  {
-    id: "fl_out_dark_skeleton_warrior",
-    name: "Dark Skeleton Warrior",
-    level: 6,
-    hp: 255,
-    exp: 150,
-    adenaMin: 42,
-    adenaMax: 72,
-    dropChance: 0.32,
-  },
-
-  // ===== lvl 6–7 (верхні Outskirts) =====
-  {
-    id: "fl_out_floran_militia",
-    name: "Floran Militia Traitor",
-    level: 6,
-    hp: 260,
-    exp: 155,
-    adenaMin: 44,
-    adenaMax: 76,
-    dropChance: 0.32,
-  },
-  {
-    id: "fl_out_rogue_mystic",
-    name: "Rogue Mystic",
-    level: 7,
-    hp: 280,
-    exp: 170,
-    adenaMin: 48,
-    adenaMax: 82,
-    dropChance: 0.33,
-  },
-  {
-    id: "fl_out_rogue_archer",
-    name: "Rogue Archer",
-    level: 7,
-    hp: 295,
-    exp: 180,
-    adenaMin: 50,
-    adenaMax: 86,
-    dropChance: 0.33,
-  },
-  {
-    id: "fl_out_possessed_bear",
-    name: "Possessed Bear",
-    level: 7,
-    hp: 310,
-    exp: 190,
-    adenaMin: 52,
-    adenaMax: 90,
-    dropChance: 0.34,
-  },
-
-  // ===== lvl 7–8 (топ Outskirts) =====
-  {
-    id: "fl_out_veteran_bandit",
-    name: "Veteran Bandit",
-    level: 7,
-    hp: 320,
-    exp: 195,
-    adenaMin: 54,
-    adenaMax: 92,
-    dropChance: 0.34,
-  },
-  {
-    id: "fl_out_blood_skeleton",
-    name: "Blood Skeleton",
-    level: 8,
-    hp: 340,
-    exp: 210,
-    adenaMin: 58,
-    adenaMax: 100,
-    dropChance: 0.35,
-  },
-  {
-    id: "fl_out_cursed_magus",
-    name: "Cursed Magus",
-    level: 8,
-    hp: 355,
-    exp: 220,
-    adenaMin: 60,
-    adenaMax: 105,
-    dropChance: 0.35,
-  },
-  {
-    id: "fl_out_alpha_wolf",
-    name: "Alpha Wolf",
-    level: 8,
-    hp: 370,
-    exp: 230,
-    adenaMin: 62,
-    adenaMax: 110,
-    dropChance: 0.36,
-  },
+// Ресурси для дропу та спойлу (Floran Outskirts: 1-6 лвл)
+// Базові ресурси для низьких рівнів
+const resourceDrops: string[] = [
+  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", "stem", "thread", "suede"
 ];
+
+const resourceSpoils: string[] = [
+  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", "stem", "thread", "suede"
+];
+
+// Функція для генерації базових статів моба за рівнем
+function createMobStats(level: number, isChampion: boolean = false) {
+  const baseHp = 100 + level * 50;
+  const basePAtk = 20 + level * 5;
+  const basePDef = 15 + level * 4;
+  const baseMDef = 10 + level * 3;
+  const baseExp = 50 + level * 20;
+  const baseAdena = 20 + level * 10;
+
+  // Множник для чемпіонів (трохи посилено)
+  const championMult = isChampion ? 3.0 : 1.0;
+
+  // Збільшуємо HP, pAtk, pDef, mDef у 2 рази
+  return {
+    level,
+    hp: Math.round(baseHp * championMult * 2),
+    mp: 0,
+    pAtk: Math.round(basePAtk * championMult * 2),
+    mAtk: 0,
+    pDef: Math.round(basePDef * championMult * 2),
+    mDef: Math.round(baseMDef * championMult * 2),
+    exp: isChampion ? Math.round(baseExp * championMult * 10) : Math.round(baseExp * championMult),
+    sp: isChampion ? Math.round(level * 5 * 10) : Math.round(level * 2), // SP х10 для чемпіонів
+    adenaMin: isChampion ? Math.round(baseAdena * championMult * 10) : Math.round(baseAdena * championMult),
+    adenaMax: isChampion ? Math.round(baseAdena * 1.5 * championMult * 10) : Math.round(baseAdena * 1.5 * championMult),
+    dropChance: isChampion ? 0.6 : 0.25,
+  };
+}
+
+// Функція для генерації дропу ресурсів (3-6 ресурсів для кожного моба) - фіксовано для кожного моба
+function generateResourceDrops(mobIndex: number, mobName: string, isChampion: boolean = false): DropEntry[] {
+  const count = isChampion ? 10 : 1; // Для чемпіонів х10
+  
+  // Для кожного типу моба - 3-6 різних ресурсів
+  // Використовуємо назву моба для детермінованого вибору ресурсів
+  const nameHash = mobName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const numResources = 3 + (nameHash % 4); // 3-6 ресурсів
+  
+  // Створюємо унікальний набір ресурсів для кожного типу моба
+  const selectedResources: string[] = [];
+  const usedIndices = new Set<number>();
+  
+  for (let i = 0; i < numResources; i++) {
+    let attempts = 0;
+    while (attempts < resourceDrops.length) {
+      const resourceIndex = (nameHash + i * 7 + attempts) % resourceDrops.length;
+      if (!usedIndices.has(resourceIndex)) {
+        selectedResources.push(resourceDrops[resourceIndex]);
+        usedIndices.add(resourceIndex);
+        break;
+      }
+      attempts++;
+    }
+  }
+  
+  return selectedResources.map((resource, idx) => {
+    // Шанс: 20-35% для звичайних, вище для чемпіонів
+    const baseChance = 0.20 + (idx % 4) * 0.05; // 20%, 25%, 30%, 35%
+    const chance = isChampion ? Math.min(0.8, baseChance + 0.2) : baseChance;
+    
+    return {
+      id: resource,
+      kind: "resource" as const,
+      chance: Math.min(0.35, chance),
+      min: count,
+      max: count * 2,
+    };
+  });
+}
+
+// Функція для генерації спойлу ресурсів (3-6 ресурсів для кожного моба) - шанс на 20% більший
+function generateResourceSpoils(mobIndex: number, mobName: string, isChampion: boolean = false): DropEntry[] {
+  const count = isChampion ? 10 : 1; // Для чемпіонів х10
+  
+  // Для кожного типу моба - 3-6 різних ресурсів (може відрізнятися від дропу)
+  const nameHash = mobName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const numResources = 3 + ((nameHash + 13) % 4); // 3-6 ресурсів (інший offset)
+  
+  const selectedResources: string[] = [];
+  const usedIndices = new Set<number>();
+  
+  for (let i = 0; i < numResources; i++) {
+    let attempts = 0;
+    while (attempts < resourceSpoils.length) {
+      const resourceIndex = (nameHash + i * 11 + attempts + 5) % resourceSpoils.length; // Інший offset
+      if (!usedIndices.has(resourceIndex)) {
+        selectedResources.push(resourceSpoils[resourceIndex]);
+        usedIndices.add(resourceIndex);
+        break;
+      }
+      attempts++;
+    }
+  }
+  
+  return selectedResources.map((resource, idx) => {
+    // Шанс: на 20% більший ніж дроп (40-55% або менше)
+    const baseChance = 0.40 + (idx % 4) * 0.05; // 40%, 45%, 50%, 55%
+    const chance = isChampion ? Math.min(0.9, baseChance + 0.2) : baseChance;
+    
+    return {
+      id: resource,
+      kind: "resource" as const,
+      chance: Math.min(0.55, chance),
+      min: count,
+      max: count * 2,
+    };
+  });
+}
+
+// Генеруємо 50 звичайних мобів 1-6 лвл
+const normalMobs: Mob[] = [];
+
+// Визначаємо позиції для квестових мобів (по 4-5 кожен, уникаючи чемпіонів на позиціях: 5, 12, 20, 28, 37, 45)
+const questMobPositions: { name: string; indices: number[] }[] = [
+  { name: "Floran Bandit", indices: [0, 1, 2, 3, 4] },      // 5 мобів (0-4)
+  { name: "Floran Warrior", indices: [6, 7, 8, 9, 10] },    // 5 мобів (6-10, уникаємо 5 і 12)
+  { name: "Floran Cleric", indices: [21, 22, 23, 24] },     // 4 моби (21-24, уникаємо 20 і 28)
+];
+
+// Створюємо мапу позицій для квестових мобів
+const questMobMap = new Map<number, string>();
+questMobPositions.forEach(({ name, indices }) => {
+  indices.forEach(idx => questMobMap.set(idx, name));
+});
+
+// Різні назви мобів для Floran Outskirts (групування: 7, 6, 7, 6, 7, 6, 7, 6, 6)
+const mobNameGroups = [
+  { name: "Outskirts Wanderer", count: 7 },
+  { name: "Outskirts Nomad", count: 6 },
+  { name: "Outskirts Traveler", count: 7 },
+  { name: "Outskirts Drifter", count: 6 },
+  { name: "Outskirts Rover", count: 7 },
+  { name: "Outskirts Vagabond", count: 6 },
+  { name: "Outskirts Wayfarer", count: 7 },
+  { name: "Outskirts Pilgrim", count: 6 },
+  { name: "Outskirts Explorer", count: 6 },
+];
+
+let mobIndex = 0;
+let groupIndex = 0;
+let currentGroupCount = 0;
+
+for (let i = 0; i < 50; i++) {
+  const level = Math.floor(i / 8.33) + 1; // Розподіл: 0-8 -> 1, 9-16 -> 2, 17-25 -> 3, 26-33 -> 4, 34-41 -> 5, 42-49 -> 6
+  const clampedLevel = Math.min(6, Math.max(1, level));
+  const stats = createMobStats(clampedLevel, false);
+  
+  // Перевіряємо, чи це квестовий моб
+  let mobName: string;
+  if (questMobMap.has(i)) {
+    mobName = questMobMap.get(i)!;
+  } else {
+    // Визначаємо назву на основі групування для неквестових мобів
+    if (currentGroupCount >= mobNameGroups[groupIndex].count) {
+      groupIndex++;
+      currentGroupCount = 0;
+    }
+    mobName = mobNameGroups[groupIndex].name;
+    currentGroupCount++;
+  }
+  
+  const baseDrops = generateResourceDrops(i, mobName, false);
+  
+  // Квестові предмети НЕ додаємо до mob.drops - вони додаються автоматично в processDrops.ts тільки якщо квест активний
+  
+  normalMobs.push({
+    id: `fl_outskirts_mob_${i + 1}`,
+    name: mobName,
+    ...stats,
+    drops: baseDrops, // Тільки ресурси, квестові предмети додаються в processDrops.ts якщо квест активний
+    spoil: generateResourceSpoils(i, mobName, false),
+  });
+  
+  mobIndex++;
+}
+
+// Додаємо 6 чемпіонів в розброс (на позиціях: 5, 12, 20, 28, 37, 45)
+const championIndices = [5, 12, 20, 28, 37, 45];
+const championNames = [
+  "[Champion] Floran Elite Warrior", // Перший чемпіон для квесту
+  "[Champion] Outskirts Warlord",
+  "[Champion] Outskirts Chieftain",
+  "[Champion] Outskirts Leader",
+  "[Champion] Outskirts Commander",
+  "[Champion] Outskirts Master",
+];
+
+championIndices.forEach((index, i) => {
+  const level = Math.floor(index / 8.33) + 1;
+  const clampedLevel = Math.min(6, Math.max(1, level));
+  const stats = createMobStats(clampedLevel, true);
+  
+  const baseChampionDrops = generateResourceDrops(index, championNames[i], true); // х10 для чемпіонів
+  
+  // Квестові предмети НЕ додаємо до mob.drops - вони додаються автоматично в processDrops.ts тільки якщо квест активний
+  
+  normalMobs[index] = {
+    id: `fl_outskirts_champion_${i + 1}`,
+    name: championNames[i],
+    ...stats,
+    drops: baseChampionDrops, // Тільки ресурси, квестові предмети додаються в processDrops.ts якщо квест активний
+    spoil: generateResourceSpoils(index, championNames[i], true), // х10 для чемпіонів
+  };
+});
+
+export const FLORAN_OUTSKIRTS_MOBS: Mob[] = normalMobs;
+
+
+

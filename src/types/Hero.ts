@@ -83,6 +83,7 @@ export interface Hero {
   // Валюта
   adena: number;
   coinOfLuck?: number;
+  aa?: number; // Ancient Adena (Adena Adena)
 
   // Інше
   buffs?: unknown[];

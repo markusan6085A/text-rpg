@@ -1,0 +1,1 @@
+' style='border:solid 1px Black' width='32' height='32' alt='Heal' /></td><td valign=top nowrap><b>Heal lv.7</b><br/>1 100 SP</td><td valign=top nowrap>Расход MP:<br/>24 (5 + 19)<br/></td><td valign=top nowrap>Каст: 5 сек.<br/>Откат: 10 сек.</td><td width=100% valign=top rowspan=2>Recovers HP. Power 121.</td></tr><tr class="

@@ -1,0 +1,2240 @@
+{
+  "4": {
+    "id": 4,
+    "name": "Dash",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 3400,
+        "mpCost": 10,
+        "power": 40
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 21,
+        "power": 66
+      }
+    ],
+    "category": "buff",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 1,
+    "cooldown": 80
+  },
+  "16": {
+    "id": 16,
+    "name": "Mortal Blow",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 10000,
+        "mpCost": 9,
+        "power": 73
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 9,
+        "power": 80
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 10,
+        "power": 88
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 11,
+        "power": 115
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 12,
+        "power": 126
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 13,
+        "power": 137
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 16,
+        "power": 178
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 16,
+        "power": 193
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 0,
+        "mpCost": 17,
+        "power": 210
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 0,
+        "mpCost": 19,
+        "power": 268
+      },
+      {
+        "level": 11,
+        "requiredLevel": 60,
+        "spCost": 0,
+        "mpCost": 20,
+        "power": 291
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 0,
+        "mpCost": 20,
+        "power": 314
+      },
+      {
+        "level": 13,
+        "requiredLevel": 68,
+        "spCost": 0,
+        "mpCost": 21,
+        "power": 367
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 0,
+        "mpCost": 22,
+        "power": 396
+      },
+      {
+        "level": 15,
+        "requiredLevel": 76,
+        "spCost": 0,
+        "mpCost": 23,
+        "power": 427
+      },
+      {
+        "level": 16,
+        "requiredLevel": 80,
+        "spCost": 0,
+        "mpCost": 25,
+        "power": 494
+      },
+      {
+        "level": 17,
+        "requiredLevel": 84,
+        "spCost": 0,
+        "mpCost": 26,
+        "power": 531
+      },
+      {
+        "level": 18,
+        "requiredLevel": 88,
+        "spCost": 0,
+        "mpCost": 27,
+        "power": 571
+      },
+      {
+        "level": 19,
+        "requiredLevel": 92,
+        "spCost": 0,
+        "mpCost": 28,
+        "power": 656
+      },
+      {
+        "level": 20,
+        "requiredLevel": 96,
+        "spCost": 0,
+        "mpCost": 28,
+        "power": 703
+      },
+      {
+        "level": 21,
+        "requiredLevel": 100,
+        "spCost": 0,
+        "mpCost": 29,
+        "power": 752
+      },
+      {
+        "level": 22,
+        "requiredLevel": 104,
+        "spCost": 0,
+        "mpCost": 32,
+        "power": 859
+      },
+      {
+        "level": 23,
+        "requiredLevel": 108,
+        "spCost": 0,
+        "mpCost": 33,
+        "power": 916
+      },
+      {
+        "level": 24,
+        "requiredLevel": 112,
+        "spCost": 0,
+        "mpCost": 34,
+        "power": 977
+      }
+    ],
+    "category": "magic_attack",
+    "powerType": "damage",
+    "target": "enemy",
+    "scope": "single",
+    "castTime": 1.08,
+    "cooldown": 11
+  },
+  "27": {
+    "id": 27,
+    "name": "Unlock",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 31000,
+        "mpCost": 19,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 22,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 25,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 28,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 31,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 35,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 39,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 43,
+        "power": 0
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 0,
+        "mpCost": 47,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 0,
+        "mpCost": 51,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 60,
+        "spCost": 0,
+        "mpCost": 55,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 0,
+        "mpCost": 59,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 68,
+        "spCost": 0,
+        "mpCost": 63,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 0,
+        "mpCost": 67,
+        "power": 0
+      }
+    ],
+    "category": "magic_attack",
+    "powerType": "none",
+    "target": "ally",
+    "scope": "single",
+    "castTime": 2.5,
+    "cooldown": 120
+  },
+  "56": {
+    "id": 56,
+    "name": "Power Shot",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 10000,
+        "mpCost": 19,
+        "power": 65
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 20,
+        "power": 71
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 21,
+        "power": 78
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 25,
+        "power": 102
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 26,
+        "power": 112
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 27,
+        "power": 122
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 34,
+        "power": 158
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 36,
+        "power": 172
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 0,
+        "mpCost": 37,
+        "power": 187
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 0,
+        "mpCost": 43,
+        "power": 239
+      },
+      {
+        "level": 11,
+        "requiredLevel": 60,
+        "spCost": 0,
+        "mpCost": 44,
+        "power": 258
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 0,
+        "mpCost": 44,
+        "power": 279
+      },
+      {
+        "level": 13,
+        "requiredLevel": 68,
+        "spCost": 0,
+        "mpCost": 46,
+        "power": 326
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 0,
+        "mpCost": 48,
+        "power": 352
+      },
+      {
+        "level": 15,
+        "requiredLevel": 76,
+        "spCost": 0,
+        "mpCost": 50,
+        "power": 379
+      },
+      {
+        "level": 16,
+        "requiredLevel": 80,
+        "spCost": 0,
+        "mpCost": 54,
+        "power": 440
+      },
+      {
+        "level": 17,
+        "requiredLevel": 84,
+        "spCost": 0,
+        "mpCost": 57,
+        "power": 472
+      },
+      {
+        "level": 18,
+        "requiredLevel": 88,
+        "spCost": 0,
+        "mpCost": 59,
+        "power": 507
+      },
+      {
+        "level": 19,
+        "requiredLevel": 92,
+        "spCost": 0,
+        "mpCost": 62,
+        "power": 584
+      },
+      {
+        "level": 20,
+        "requiredLevel": 96,
+        "spCost": 0,
+        "mpCost": 62,
+        "power": 625
+      },
+      {
+        "level": 21,
+        "requiredLevel": 100,
+        "spCost": 0,
+        "mpCost": 65,
+        "power": 669
+      },
+      {
+        "level": 22,
+        "requiredLevel": 104,
+        "spCost": 0,
+        "mpCost": 69,
+        "power": 763
+      },
+      {
+        "level": 23,
+        "requiredLevel": 108,
+        "spCost": 0,
+        "mpCost": 72,
+        "power": 814
+      },
+      {
+        "level": 24,
+        "requiredLevel": 112,
+        "spCost": 0,
+        "mpCost": 74,
+        "power": 865
+      }
+    ],
+    "category": "physical_attack",
+    "powerType": "damage",
+    "target": "enemy",
+    "scope": "single",
+    "castTime": 3.2,
+    "cooldown": 25
+  },
+  "96": {
+    "id": 96,
+    "name": "Bleed",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 18000,
+        "mpCost": 32,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 41,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 67,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 81,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 93,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 99,
+        "power": 0
+      }
+    ],
+    "category": "magic_attack",
+    "powerType": "none",
+    "target": "enemy",
+    "scope": "single",
+    "castTime": 1.08,
+    "cooldown": 13
+  },
+  "99": {
+    "id": 99,
+    "name": "Rapid Shot",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 18000,
+        "mpCost": 14,
+        "power": 1.08
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 25,
+        "power": 1.12
+      }
+    ],
+    "category": "buff",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 1.5,
+    "cooldown": 10
+  },
+  "111": {
+    "id": 111,
+    "name": "Ultimate Evasion",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 11000,
+        "mpCost": 13,
+        "power": 20
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 25,
+        "power": 25
+      }
+    ],
+    "category": "buff",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 1,
+    "cooldown": 1800
+  },
+  "113": {
+    "id": 113,
+    "name": "Long Shot",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 3400,
+        "mpCost": 0,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 0
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "137": {
+    "id": 137,
+    "name": "Critical Chance",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 0.2
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 0.3
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 0.4
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "148": {
+    "id": 148,
+    "name": "Vital Force",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 18000,
+        "mpCost": 0,
+        "power": 1.9
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 2.7
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 2.9
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 3.6
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 4.5
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 4.7
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 5.6
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 6.7
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "168": {
+    "id": 168,
+    "name": "Boost Attack Speed",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 31000,
+        "mpCost": 0,
+        "power": 1.05
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 1.07
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 1.1
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "169": {
+    "id": 169,
+    "name": "Quick Step",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 7
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 11
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "171": {
+    "id": 171,
+    "name": "Esprit",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 31000,
+        "mpCost": 0,
+        "power": 2.5
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 3
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 3.5
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 4
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 4.5
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 5
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 5.5
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 6
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "193": {
+    "id": 193,
+    "name": "Critical Power",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 18000,
+        "mpCost": 0,
+        "power": 32
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 56
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 93
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 177
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 295
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 384
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "195": {
+    "id": 195,
+    "name": "Boost Breath",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 180
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 300
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "198": {
+    "id": 198,
+    "name": "Boost Evasion",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 5900,
+        "mpCost": 0,
+        "power": 2
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 3
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 4
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "208": {
+    "id": 208,
+    "name": "Bow Mastery",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 10000,
+        "mpCost": 0,
+        "power": 10.3
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 11.4
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 27.6
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 32.8
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 35.6
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 38.6
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 45.2
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 48.9
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 52.7
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 61.1
+      },
+      {
+        "level": 11,
+        "requiredLevel": 60,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 65.6
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 70.4
+      },
+      {
+        "level": 13,
+        "requiredLevel": 68,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 80.9
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 86.5
+      },
+      {
+        "level": 15,
+        "requiredLevel": 76,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 92.4
+      },
+      {
+        "level": 16,
+        "requiredLevel": 80,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 105.1
+      },
+      {
+        "level": 17,
+        "requiredLevel": 84,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 111.9
+      },
+      {
+        "level": 18,
+        "requiredLevel": 88,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 178.8
+      },
+      {
+        "level": 19,
+        "requiredLevel": 92,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 189.9
+      },
+      {
+        "level": 20,
+        "requiredLevel": 96,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 201.4
+      },
+      {
+        "level": 21,
+        "requiredLevel": 100,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 213.5
+      },
+      {
+        "level": 22,
+        "requiredLevel": 104,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 226
+      },
+      {
+        "level": 23,
+        "requiredLevel": 108,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 239.1
+      },
+      {
+        "level": 24,
+        "requiredLevel": 112,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 252.7
+      },
+      {
+        "level": 25,
+        "requiredLevel": 116,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 266.7
+      },
+      {
+        "level": 26,
+        "requiredLevel": 120,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 281.3
+      },
+      {
+        "level": 27,
+        "requiredLevel": 124,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 296.4
+      },
+      {
+        "level": 28,
+        "requiredLevel": 128,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 311.9
+      },
+      {
+        "level": 29,
+        "requiredLevel": 132,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 328
+      },
+      {
+        "level": 30,
+        "requiredLevel": 136,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 344.5
+      },
+      {
+        "level": 31,
+        "requiredLevel": 140,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 361.6
+      },
+      {
+        "level": 32,
+        "requiredLevel": 144,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 379.1
+      },
+      {
+        "level": 33,
+        "requiredLevel": 148,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 397
+      },
+      {
+        "level": 34,
+        "requiredLevel": 152,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 415.4
+      },
+      {
+        "level": 35,
+        "requiredLevel": 156,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 434.3
+      },
+      {
+        "level": 36,
+        "requiredLevel": 160,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 453.5
+      },
+      {
+        "level": 37,
+        "requiredLevel": 164,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 473.2
+      },
+      {
+        "level": 38,
+        "requiredLevel": 168,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 493.1
+      },
+      {
+        "level": 39,
+        "requiredLevel": 172,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 513.5
+      },
+      {
+        "level": 40,
+        "requiredLevel": 176,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 534.2
+      },
+      {
+        "level": 41,
+        "requiredLevel": 180,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 555.1
+      },
+      {
+        "level": 42,
+        "requiredLevel": 184,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 576.3
+      },
+      {
+        "level": 43,
+        "requiredLevel": 188,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 597.8
+      },
+      {
+        "level": 44,
+        "requiredLevel": 192,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 619.4
+      },
+      {
+        "level": 45,
+        "requiredLevel": 196,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 641.2
+      },
+      {
+        "level": 46,
+        "requiredLevel": 200,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 663.1
+      },
+      {
+        "level": 47,
+        "requiredLevel": 204,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 685
+      },
+      {
+        "level": 48,
+        "requiredLevel": 208,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 707.1
+      },
+      {
+        "level": 49,
+        "requiredLevel": 212,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 729.1
+      },
+      {
+        "level": 50,
+        "requiredLevel": 216,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 751
+      },
+      {
+        "level": 51,
+        "requiredLevel": 220,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 772.9
+      },
+      {
+        "level": 52,
+        "requiredLevel": 224,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 794.6
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "209": {
+    "id": 209,
+    "name": "Dagger Mastery",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 16000,
+        "mpCost": 0,
+        "power": 3.6
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 6
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 7.4
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 9
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 10.8
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 12.8
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 15.1
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 17.6
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 20.3
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 21.8
+      },
+      {
+        "level": 11,
+        "requiredLevel": 60,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 23.4
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 25
+      },
+      {
+        "level": 13,
+        "requiredLevel": 68,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 26.6
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 28.4
+      },
+      {
+        "level": 15,
+        "requiredLevel": 76,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 30.2
+      },
+      {
+        "level": 16,
+        "requiredLevel": 80,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 32.1
+      },
+      {
+        "level": 17,
+        "requiredLevel": 84,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 34.1
+      },
+      {
+        "level": 18,
+        "requiredLevel": 88,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 36.1
+      },
+      {
+        "level": 19,
+        "requiredLevel": 92,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 38.2
+      },
+      {
+        "level": 20,
+        "requiredLevel": 96,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 40.4
+      },
+      {
+        "level": 21,
+        "requiredLevel": 100,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 42.7
+      },
+      {
+        "level": 22,
+        "requiredLevel": 104,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 45
+      },
+      {
+        "level": 23,
+        "requiredLevel": 108,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 47.4
+      },
+      {
+        "level": 24,
+        "requiredLevel": 112,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 49.9
+      },
+      {
+        "level": 25,
+        "requiredLevel": 116,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 52.4
+      },
+      {
+        "level": 26,
+        "requiredLevel": 120,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 55
+      },
+      {
+        "level": 27,
+        "requiredLevel": 124,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 57.7
+      },
+      {
+        "level": 28,
+        "requiredLevel": 128,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 60.4
+      },
+      {
+        "level": 29,
+        "requiredLevel": 132,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 63.2
+      },
+      {
+        "level": 30,
+        "requiredLevel": 136,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 66.1
+      },
+      {
+        "level": 31,
+        "requiredLevel": 140,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 69
+      },
+      {
+        "level": 32,
+        "requiredLevel": 144,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 71.9
+      },
+      {
+        "level": 33,
+        "requiredLevel": 148,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 74.9
+      },
+      {
+        "level": 34,
+        "requiredLevel": 152,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 78
+      },
+      {
+        "level": 35,
+        "requiredLevel": 156,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 81.1
+      },
+      {
+        "level": 36,
+        "requiredLevel": 160,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 84.2
+      },
+      {
+        "level": 37,
+        "requiredLevel": 164,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 87.3
+      },
+      {
+        "level": 38,
+        "requiredLevel": 168,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 90.5
+      },
+      {
+        "level": 39,
+        "requiredLevel": 172,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 93.7
+      },
+      {
+        "level": 40,
+        "requiredLevel": 176,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 96.8
+      },
+      {
+        "level": 41,
+        "requiredLevel": 180,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 100
+      },
+      {
+        "level": 42,
+        "requiredLevel": 184,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 103.2
+      },
+      {
+        "level": 43,
+        "requiredLevel": 188,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 106.4
+      },
+      {
+        "level": 44,
+        "requiredLevel": 192,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 109.6
+      },
+      {
+        "level": 45,
+        "requiredLevel": 196,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 112.8
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "225": {
+    "id": 225,
+    "name": "Acrobatic Move",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 0
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "227": {
+    "id": 227,
+    "name": "Light Armor Mastery",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 16000,
+        "mpCost": 0,
+        "power": 4.2
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 5.3
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 6.5
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 7.7
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 9
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 9.9
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 10.8
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 12.7
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 13.7
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 14.8
+      },
+      {
+        "level": 11,
+        "requiredLevel": 60,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 16.9
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 18
+      },
+      {
+        "level": 13,
+        "requiredLevel": 68,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 19.1
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 21.5
+      },
+      {
+        "level": 15,
+        "requiredLevel": 76,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 22.7
+      },
+      {
+        "level": 16,
+        "requiredLevel": 80,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 24
+      },
+      {
+        "level": 17,
+        "requiredLevel": 84,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 25.3
+      },
+      {
+        "level": 18,
+        "requiredLevel": 88,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 26.6
+      },
+      {
+        "level": 19,
+        "requiredLevel": 92,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 27.9
+      },
+      {
+        "level": 20,
+        "requiredLevel": 96,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 29.3
+      },
+      {
+        "level": 21,
+        "requiredLevel": 100,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 30.7
+      },
+      {
+        "level": 22,
+        "requiredLevel": 104,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 32.1
+      },
+      {
+        "level": 23,
+        "requiredLevel": 108,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 33.6
+      },
+      {
+        "level": 24,
+        "requiredLevel": 112,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 35
+      },
+      {
+        "level": 25,
+        "requiredLevel": 116,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 36.5
+      },
+      {
+        "level": 26,
+        "requiredLevel": 120,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 38.1
+      },
+      {
+        "level": 27,
+        "requiredLevel": 124,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 39.6
+      },
+      {
+        "level": 28,
+        "requiredLevel": 128,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 41.2
+      },
+      {
+        "level": 29,
+        "requiredLevel": 132,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 42.8
+      },
+      {
+        "level": 30,
+        "requiredLevel": 136,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 44.5
+      },
+      {
+        "level": 31,
+        "requiredLevel": 140,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 46.1
+      },
+      {
+        "level": 32,
+        "requiredLevel": 144,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 47.8
+      },
+      {
+        "level": 33,
+        "requiredLevel": 148,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 49.5
+      },
+      {
+        "level": 34,
+        "requiredLevel": 152,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 51.3
+      },
+      {
+        "level": 35,
+        "requiredLevel": 156,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 53
+      },
+      {
+        "level": 36,
+        "requiredLevel": 160,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 54.8
+      },
+      {
+        "level": 37,
+        "requiredLevel": 164,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 56.6
+      },
+      {
+        "level": 38,
+        "requiredLevel": 168,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 58.4
+      },
+      {
+        "level": 39,
+        "requiredLevel": 172,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 60.2
+      },
+      {
+        "level": 40,
+        "requiredLevel": 176,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 62.1
+      },
+      {
+        "level": 41,
+        "requiredLevel": 180,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 64
+      },
+      {
+        "level": 42,
+        "requiredLevel": 184,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 65.8
+      },
+      {
+        "level": 43,
+        "requiredLevel": 188,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 67.7
+      },
+      {
+        "level": 44,
+        "requiredLevel": 192,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 69.7
+      },
+      {
+        "level": 45,
+        "requiredLevel": 196,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 71.6
+      },
+      {
+        "level": 46,
+        "requiredLevel": 200,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 73.5
+      },
+      {
+        "level": 47,
+        "requiredLevel": 204,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 75.5
+      },
+      {
+        "level": 48,
+        "requiredLevel": 208,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 77.4
+      },
+      {
+        "level": 49,
+        "requiredLevel": 212,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 79.4
+      },
+      {
+        "level": 50,
+        "requiredLevel": 216,
+        "spCost": 0,
+        "mpCost": 0,
+        "power": 81.3
+      }
+    ],
+    "category": "passive",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "256": {
+    "id": 256,
+    "name": "Accuracy",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 5900,
+        "mpCost": 0,
+        "power": 0
+      }
+    ],
+    "category": "magic_attack",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  },
+  "312": {
+    "id": 312,
+    "name": "Vicious Stance",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 20,
+        "spCost": 31000,
+        "mpCost": 4,
+        "power": 35
+      },
+      {
+        "level": 2,
+        "requiredLevel": 24,
+        "spCost": 0,
+        "mpCost": 5,
+        "power": 48
+      },
+      {
+        "level": 3,
+        "requiredLevel": 28,
+        "spCost": 0,
+        "mpCost": 5,
+        "power": 64
+      },
+      {
+        "level": 4,
+        "requiredLevel": 32,
+        "spCost": 0,
+        "mpCost": 6,
+        "power": 84
+      },
+      {
+        "level": 5,
+        "requiredLevel": 36,
+        "spCost": 0,
+        "mpCost": 7,
+        "power": 109
+      },
+      {
+        "level": 6,
+        "requiredLevel": 40,
+        "spCost": 0,
+        "mpCost": 7,
+        "power": 139
+      },
+      {
+        "level": 7,
+        "requiredLevel": 44,
+        "spCost": 0,
+        "mpCost": 8,
+        "power": 166
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 0,
+        "mpCost": 9,
+        "power": 196
+      },
+      {
+        "level": 9,
+        "requiredLevel": 52,
+        "spCost": 0,
+        "mpCost": 9,
+        "power": 229
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 0,
+        "mpCost": 10,
+        "power": 266
+      },
+      {
+        "level": 11,
+        "requiredLevel": 60,
+        "spCost": 0,
+        "mpCost": 10,
+        "power": 306
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 0,
+        "mpCost": 11,
+        "power": 349
+      },
+      {
+        "level": 13,
+        "requiredLevel": 68,
+        "spCost": 0,
+        "mpCost": 11,
+        "power": 379
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 0,
+        "mpCost": 12,
+        "power": 410
+      },
+      {
+        "level": 15,
+        "requiredLevel": 76,
+        "spCost": 0,
+        "mpCost": 12,
+        "power": 443
+      },
+      {
+        "level": 16,
+        "requiredLevel": 80,
+        "spCost": 0,
+        "mpCost": 13,
+        "power": 475
+      },
+      {
+        "level": 17,
+        "requiredLevel": 84,
+        "spCost": 0,
+        "mpCost": 13,
+        "power": 509
+      },
+      {
+        "level": 18,
+        "requiredLevel": 88,
+        "spCost": 0,
+        "mpCost": 13,
+        "power": 542
+      },
+      {
+        "level": 19,
+        "requiredLevel": 92,
+        "spCost": 0,
+        "mpCost": 14,
+        "power": 576
+      },
+      {
+        "level": 20,
+        "requiredLevel": 96,
+        "spCost": 0,
+        "mpCost": 14,
+        "power": 609
+      }
+    ],
+    "category": "magic_attack",
+    "powerType": "none",
+    "target": "self",
+    "scope": "single",
+    "castTime": 0,
+    "cooldown": 0
+  }
+}

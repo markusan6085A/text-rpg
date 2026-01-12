@@ -1,0 +1,35 @@
+﻿import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const root = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = path.join(root,'src','data','skills');
+let target='';
+const walk=(dir)=>{ for(const entry of fs.readdirSync(dir,{withFileTypes:true})){ const p=path.join(dir,entry.name); if(entry.isDirectory()) walk(p); else if(entry.name.startsWith('Warlock - ') && entry.name.endsWith('.htm')) target=p; } };
+walk(baseDir);
+if(!target) throw new Error('Warlock html not found');
+const html = fs.readFileSync(target,'utf8');
+const text = html.replace(/\r?\n/g,' ');
+const anchors = [...text.matchAll(/<a name=['"]level(\d+)['"]/gi)].map(m=>({pos:m.index||0, req:parseInt(m[1],10)})).sort((a,b)=>a.pos-b.pos);
+const findReqLevel = (pos)=>{ let req=40; for(const a of anchors){ if(a.pos<=pos) req=a.req; else break; } return req; };
+const entries=[];
+const regex=/<tr class=\"skillstrip\">(.*?)<\/tr>\s*<tr class=\"skillstrip\">(.*?)<\/tr>/gis;
+let m; while((m=regex.exec(text))){ const block=m[1]; const details=m[2]; const combined=block+' '+details; const pos=m.index; const iconMatch=block.match(/skill(\d+)\.(?:gif|jpg)/i); if(!iconMatch) continue; const id=parseInt(iconMatch[1],10);
+  const altMatch=block.match(/alt='([^']+)'/i); const name=altMatch?altMatch[1].trim():'';
+  const bMatch=block.match(/<b>([^<]+)<\/b>/i); const title=bMatch?bMatch[1]:'';
+  const levelMatch=title.match(/lv\.\s*([0-9]+)/i); const level=levelMatch?parseInt(levelMatch[1],10):1;
+  const spMatch=combined.match(/([0-9][0-9 ]*)\s*SP/i); const sp=spMatch?parseInt(spMatch[1].replace(/\s+/g,''),10):0;
+  const mpMatch=combined.match(/MP:<br\s*\/?>\s*([0-9]+)/i); const mp=mpMatch?parseInt(mpMatch[1],10):0;
+  const castMatch=combined.match(/Каст:\s*([0-9.,]+)/i); const cast=castMatch?parseFloat(castMatch[1].replace(',','.')):0;
+  const cdMatch=combined.match(/Откат:\s*([0-9.,]+)/i); const cd=cdMatch?parseFloat(cdMatch[1].replace(',','.')):0;
+  const powerMatch=combined.match(/Power\s*([0-9]+)/i); const power=powerMatch?parseInt(powerMatch[1],10):0;
+  const durationMatch=combined.match(/Время действия:\s*([0-9]+)\s*мин/i); const duration=durationMatch?parseInt(durationMatch[1],10):0;
+  const reqLevel=findReqLevel(pos);
+  entries.push({id,name:title||name,title,level,sp,mp,cast,cd,power,duration,reqLevel,pos});
+}
+const grouped=new Map();
+for(const e of entries){ if(!grouped.has(e.id)) grouped.set(e.id,{name:e.name,id:e.id,levels:[]}); grouped.get(e.id).levels.push({level:e.level, requiredLevel:e.reqLevel, spCost:e.sp, mpCost:e.mp, castTime:e.cast, cooldown:e.cd, power:e.power, duration:e.duration}); }
+for(const v of grouped.values()) v.levels.sort((a,b)=>a.level-b.level);
+const obj=Object.fromEntries([...grouped.entries()].map(([k,v])=>[k,v]));
+fs.writeFileSync('tmp_warlock.json', JSON.stringify(obj,null,2),'utf8');
+console.log('skills', grouped.size);
+console.log('file', target);

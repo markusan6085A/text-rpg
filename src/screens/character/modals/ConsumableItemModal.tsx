@@ -1,0 +1,200 @@
+import React, { useState } from "react";
+import type { Hero, HeroInventoryItem } from "../../../types/Hero";
+import { itemsDB } from "../../../data/items/itemsDB";
+import { useHeroStore } from "../../../state/heroStore";
+
+interface ConsumableItemModalProps {
+  item: HeroInventoryItem;
+  hero: Hero;
+  onClose: () => void;
+  onDelete: (amount: number) => void;
+  onTransfer: (amount: number) => void;
+  updateHero: (partial: Partial<Hero>) => void;
+}
+
+export default function ConsumableItemModal({
+  item,
+  hero,
+  onClose,
+  onDelete,
+  onTransfer,
+  updateHero,
+}: ConsumableItemModalProps) {
+  const maxCount = item.count ?? 1;
+  const [transferAmount, setTransferAmount] = useState(1);
+  const [deleteAmount, setDeleteAmount] = useState(1);
+  
+  const itemDef = itemsDB[item.id];
+  const isPotion = itemDef && (itemDef.restoreHp || itemDef.restoreMp || itemDef.restoreCp);
+  const isEnchantScroll = item.id?.includes("enchant_weapon_scroll") || item.id?.includes("enchant_armor_scroll");
+
+  const handleTransfer = () => {
+    if (transferAmount < 1 || transferAmount > maxCount) return;
+    onTransfer(transferAmount);
+  };
+
+  const handleDelete = () => {
+    if (deleteAmount < 1 || deleteAmount > maxCount) return;
+    onDelete(deleteAmount);
+  };
+
+  const handleUsePotion = () => {
+    if (!itemDef || !hero) return;
+    
+    const currentHero = useHeroStore.getState().hero;
+    if (!currentHero) return;
+    
+    const inventory = currentHero.inventory || [];
+    const invItem = inventory.find((i: HeroInventoryItem) => i.id === item.id);
+    if (!invItem || (invItem.count ?? 0) <= 0) return;
+    
+    // Обчислюємо нові значення HP, MP, CP
+    const maxHp = hero.maxHp || 1000;
+    const currentHp = Math.min(maxHp, hero.hp ?? maxHp);
+    const newHp = itemDef.restoreHp ? Math.min(maxHp, currentHp + itemDef.restoreHp) : hero.hp;
+    
+    const maxMp = hero.maxMp || 500;
+    const currentMp = Math.min(maxMp, hero.mp ?? maxMp);
+    const newMp = itemDef.restoreMp ? Math.min(maxMp, currentMp + itemDef.restoreMp) : hero.mp;
+    
+    const maxCp = hero.maxCp || 500;
+    const currentCp = Math.min(maxCp, hero.cp ?? maxCp);
+    const newCp = itemDef.restoreCp ? Math.min(maxCp, currentCp + itemDef.restoreCp) : hero.cp;
+    
+    // Зменшуємо кількість в інвентарі
+    const updatedInventory = inventory.map((i: HeroInventoryItem) => {
+      if (i.id === item.id) {
+        const newCount = (i.count ?? 1) - 1;
+        return newCount > 0 ? { ...i, count: newCount } : null;
+      }
+      return i;
+    }).filter(Boolean) as HeroInventoryItem[];
+    
+    // Оновлюємо всі значення одночасно
+    updateHero({ 
+      hp: newHp, 
+      mp: newMp, 
+      cp: newCp,
+      inventory: updatedInventory 
+    });
+    
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
+      <div
+        className="bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4 max-w-md w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-[#b8860b]">
+            {item.name}
+          </h2>
+          <button
+            className="text-gray-400 hover:text-white text-xl"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+        
+        <div className="space-y-3 text-xs mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400">Количество:</span>
+            <span className="text-green-400">{maxCount}</span>
+          </div>
+          {itemDef && (
+            <>
+              {itemDef.restoreHp && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400">Восстанавливает HP:</span>
+                  <span className="text-red-400">+{itemDef.restoreHp}</span>
+                </div>
+              )}
+              {itemDef.restoreMp && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400">Восстанавливает MP:</span>
+                  <span className="text-blue-400">+{itemDef.restoreMp}</span>
+                </div>
+              )}
+              {itemDef.restoreCp && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400">Восстанавливает CP:</span>
+                  <span className="text-yellow-400">+{itemDef.restoreCp}</span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        
+        <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+          {isPotion && !isEnchantScroll && (
+            <div className="mb-3">
+              <button
+                onClick={handleUsePotion}
+                className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold"
+              >
+                Использовать
+              </button>
+            </div>
+          )}
+          <div className="text-sm font-semibold text-[#b8860b] mb-2">Передать:</div>
+          <div className="flex gap-2 mb-3">
+            <input
+              type="number"
+              min="1"
+              max={maxCount}
+              value={transferAmount}
+              onChange={(e) => setTransferAmount(Math.max(1, Math.min(maxCount, parseInt(e.target.value) || 1)))}
+              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+            />
+            <button
+              onClick={handleTransfer}
+              className="text-xs text-[#b8860b] hover:text-[#d4af37]"
+            >
+              Передать
+            </button>
+          </div>
+          
+          <div className="text-sm font-semibold text-[#b8860b] mb-2">Удалить:</div>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              min="1"
+              max={maxCount}
+              value={deleteAmount}
+              onChange={(e) => setDeleteAmount(Math.max(1, Math.min(maxCount, parseInt(e.target.value) || 1)))}
+              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+            />
+            <button
+              onClick={handleDelete}
+              className="text-xs text-red-400 hover:text-red-300"
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
+        
+        <div className="flex justify-center pt-2 border-t border-gray-700">
+          <button
+            onClick={onClose}
+            className="text-xs text-[#b8860b] hover:text-[#d4af37]"
+          >
+            Закрити
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+

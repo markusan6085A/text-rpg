@@ -1,0 +1,2371 @@
+{
+  "146": {
+    "name": "Anti Magic",
+    "shortDesc": "Increases M. Def.",
+    "levels": [
+      {
+        "level": 13,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 40
+      },
+      {
+        "level": 14,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 42
+      },
+      {
+        "level": 15,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 43
+      },
+      {
+        "level": 16,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 46
+      },
+      {
+        "level": 17,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 47
+      },
+      {
+        "level": 18,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 49
+      },
+      {
+        "level": 19,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 52
+      },
+      {
+        "level": 20,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 54
+      },
+      {
+        "level": 21,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 56
+      },
+      {
+        "level": 22,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 59
+      },
+      {
+        "level": 23,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 61
+      },
+      {
+        "level": 24,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 63
+      },
+      {
+        "level": 25,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 66
+      },
+      {
+        "level": 26,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 68
+      },
+      {
+        "level": 27,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 70
+      },
+      {
+        "level": 28,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 72
+      },
+      {
+        "level": 29,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 74
+      },
+      {
+        "level": 30,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 76
+      },
+      {
+        "level": 31,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 78
+      },
+      {
+        "level": 32,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 80
+      },
+      {
+        "level": 33,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 82
+      },
+      {
+        "level": 34,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 84
+      },
+      {
+        "level": 35,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 86
+      },
+      {
+        "level": 36,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 88
+      },
+      {
+        "level": 37,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 91
+      },
+      {
+        "level": 38,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 93
+      },
+      {
+        "level": 39,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 95
+      },
+      {
+        "level": 40,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 97
+      },
+      {
+        "level": 41,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 99
+      },
+      {
+        "level": 42,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 102
+      },
+      {
+        "level": 43,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 104
+      },
+      {
+        "level": 44,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 106
+      },
+      {
+        "level": 45,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 108
+      }
+    ]
+  },
+  "164": {
+    "name": "Quick Recovery",
+    "shortDesc": "Time between magic reuse shortens.",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 0,
+        "power": 30
+      }
+    ]
+  },
+  "211": {
+    "name": "Boost HP",
+    "shortDesc": "Increases one's maximum HP.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 0,
+        "power": 60
+      },
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 0,
+        "power": 100
+      },
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 0,
+        "power": 150
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 0,
+        "power": 200
+      },
+      {
+        "level": 5,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 250
+      },
+      {
+        "level": 6,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 0,
+        "power": 300
+      },
+      {
+        "level": 7,
+        "requiredLevel": 70,
+        "spCost": 1000000,
+        "mpCost": 0,
+        "power": 350
+      }
+    ]
+  },
+  "212": {
+    "name": "Fast HP Recovery",
+    "shortDesc": "Increases HP recovery speed.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 0,
+        "power": 1.6
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 0,
+        "power": 1.7
+      },
+      {
+        "level": 4,
+        "requiredLevel": 58,
+        "spCost": 220000,
+        "mpCost": 0,
+        "power": 2.1
+      },
+      {
+        "level": 5,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 0,
+        "power": 2.6
+      },
+      {
+        "level": 6,
+        "requiredLevel": 74,
+        "spCost": 2600000,
+        "mpCost": 0,
+        "power": 2.7
+      }
+    ]
+  },
+  "213": {
+    "name": "Boost Mana",
+    "shortDesc": "Increases maximum MP.",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 0,
+        "power": 70
+      },
+      {
+        "level": 4,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 0,
+        "power": 100
+      },
+      {
+        "level": 5,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 140
+      },
+      {
+        "level": 6,
+        "requiredLevel": 60,
+        "spCost": 270000,
+        "mpCost": 0,
+        "power": 152
+      },
+      {
+        "level": 7,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 0,
+        "power": 180
+      },
+      {
+        "level": 8,
+        "requiredLevel": 72,
+        "spCost": 1700000,
+        "mpCost": 0,
+        "power": 200
+      }
+    ]
+  },
+  "228": {
+    "name": "Fast Spell Casting",
+    "shortDesc": "Spell casting speed increases.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 0,
+        "power": 7
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 10
+      }
+    ]
+  },
+  "229": {
+    "name": "Fast Mana Recovery",
+    "shortDesc": "Increases MP Recovery Speed.",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 0,
+        "power": 1.9
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 0,
+        "power": 2.3
+      },
+      {
+        "level": 5,
+        "requiredLevel": 60,
+        "spCost": 270000,
+        "mpCost": 0,
+        "power": 2.7
+      },
+      {
+        "level": 6,
+        "requiredLevel": 68,
+        "spCost": 770000,
+        "mpCost": 0,
+        "power": 3.1
+      },
+      {
+        "level": 7,
+        "requiredLevel": 74,
+        "spCost": 2600000,
+        "mpCost": 0,
+        "power": 3.4
+      }
+    ]
+  },
+  "235": {
+    "name": "Robe Mastery",
+    "shortDesc": "Increases P. Def. when wearing a robe.",
+    "levels": [
+      {
+        "level": 9,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 26.3
+      },
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 27.6
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 28.8
+      },
+      {
+        "level": 12,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 31.5
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 32.9
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 34.2
+      },
+      {
+        "level": 15,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 37.1
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 38.6
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 40.1
+      },
+      {
+        "level": 18,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 43.2
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 44.8
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 46.4
+      },
+      {
+        "level": 21,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 49.8
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 51.5
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 53.2
+      },
+      {
+        "level": 24,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 54.9
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 56.7
+      },
+      {
+        "level": 26,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 58.5
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 60.3
+      },
+      {
+        "level": 28,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 62.1
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 64
+      },
+      {
+        "level": 30,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 65.9
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 67.7
+      },
+      {
+        "level": 32,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 69.7
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 71.6
+      },
+      {
+        "level": 34,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 73.5
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 75.5
+      },
+      {
+        "level": 36,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 77.4
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 79.4
+      },
+      {
+        "level": 38,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 81.4
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 83.4
+      },
+      {
+        "level": 40,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 85.4
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 87.4
+      }
+    ]
+  },
+  "236": {
+    "name": "Light Armor Mastery",
+    "shortDesc": "Increases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor.",
+    "levels": [
+      {
+        "level": 9,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 19.8
+      },
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 20.8
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 21.8
+      },
+      {
+        "level": 12,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 24
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 25.1
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 26.3
+      },
+      {
+        "level": 15,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 28.6
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 29.8
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 31
+      },
+      {
+        "level": 18,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 33.6
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 34.9
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 36.2
+      },
+      {
+        "level": 21,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 38.9
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 40.3
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 41.7
+      },
+      {
+        "level": 24,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 43.1
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 44.6
+      },
+      {
+        "level": 26,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 46
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 47.5
+      },
+      {
+        "level": 28,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 49
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 50.5
+      },
+      {
+        "level": 30,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 52.1
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 53.6
+      },
+      {
+        "level": 32,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 55.2
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 56.7
+      },
+      {
+        "level": 34,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 58.3
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 59.9
+      },
+      {
+        "level": 36,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 61.5
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 63.1
+      },
+      {
+        "level": 38,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 64.7
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 66.4
+      },
+      {
+        "level": 40,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 68
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 69.6
+      }
+    ]
+  },
+  "249": {
+    "name": "Weapon Mastery",
+    "shortDesc": "Increases P. Atk. and M. Atk.",
+    "levels": [
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 16
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 17
+      },
+      {
+        "level": 12,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 18.1
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 20.4
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 21.6
+      },
+      {
+        "level": 15,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 22.8
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 25.5
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 26.9
+      },
+      {
+        "level": 18,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 28.3
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 31.4
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 33
+      },
+      {
+        "level": 21,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 34.6
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 38
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 39.8
+      },
+      {
+        "level": 24,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 41.7
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 43.5
+      },
+      {
+        "level": 26,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 45.4
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 47.4
+      },
+      {
+        "level": 28,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 49.4
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 51.4
+      },
+      {
+        "level": 30,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 53.5
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 55.6
+      },
+      {
+        "level": 32,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 57.7
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 59.8
+      },
+      {
+        "level": 34,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 62
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 64.1
+      },
+      {
+        "level": 36,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 66.3
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 68.5
+      },
+      {
+        "level": 38,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 70.7
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 72.9
+      },
+      {
+        "level": 40,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 75.1
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 77.2
+      },
+      {
+        "level": 42,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 79.4
+      }
+    ]
+  },
+  "259": {
+    "name": "Heavy Armor Mastery",
+    "shortDesc": "Increases P. Def., Casting Spd., and Atk. Spd. when wearing heavy armor.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 14.8
+      },
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 15.6
+      },
+      {
+        "level": 3,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "power": 16.5
+      },
+      {
+        "level": 4,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 18.3
+      },
+      {
+        "level": 5,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 19.2
+      },
+      {
+        "level": 6,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 0,
+        "power": 20.2
+      },
+      {
+        "level": 7,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 22.1
+      },
+      {
+        "level": 8,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 23.1
+      },
+      {
+        "level": 9,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 0,
+        "power": 24.1
+      },
+      {
+        "level": 10,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 26.2
+      },
+      {
+        "level": 11,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 27.3
+      },
+      {
+        "level": 12,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 0,
+        "power": 28.4
+      },
+      {
+        "level": 13,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 30.6
+      },
+      {
+        "level": 14,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 31.8
+      },
+      {
+        "level": 15,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 0,
+        "power": 33
+      },
+      {
+        "level": 16,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 34.1
+      },
+      {
+        "level": 17,
+        "requiredLevel": 58,
+        "spCost": 110000,
+        "mpCost": 0,
+        "power": 35.3
+      },
+      {
+        "level": 18,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 36.5
+      },
+      {
+        "level": 19,
+        "requiredLevel": 60,
+        "spCost": 140000,
+        "mpCost": 0,
+        "power": 37.8
+      },
+      {
+        "level": 20,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 39
+      },
+      {
+        "level": 21,
+        "requiredLevel": 62,
+        "spCost": 180000,
+        "mpCost": 0,
+        "power": 40.3
+      },
+      {
+        "level": 22,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 41.5
+      },
+      {
+        "level": 23,
+        "requiredLevel": 64,
+        "spCost": 240000,
+        "mpCost": 0,
+        "power": 42.8
+      },
+      {
+        "level": 24,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 44.1
+      },
+      {
+        "level": 25,
+        "requiredLevel": 66,
+        "spCost": 350000,
+        "mpCost": 0,
+        "power": 45.4
+      },
+      {
+        "level": 26,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 46.7
+      },
+      {
+        "level": 27,
+        "requiredLevel": 68,
+        "spCost": 390000,
+        "mpCost": 0,
+        "power": 48
+      },
+      {
+        "level": 28,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 49.4
+      },
+      {
+        "level": 29,
+        "requiredLevel": 70,
+        "spCost": 520000,
+        "mpCost": 0,
+        "power": 50.7
+      },
+      {
+        "level": 30,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 52
+      },
+      {
+        "level": 31,
+        "requiredLevel": 72,
+        "spCost": 830000,
+        "mpCost": 0,
+        "power": 53.4
+      },
+      {
+        "level": 32,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 54.7
+      },
+      {
+        "level": 33,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "power": 56.1
+      }
+    ]
+  },
+  "1032": {
+    "name": "Invigor",
+    "shortDesc": "Temporarily increases resistance to bleeding. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1033": {
+    "name": "Resist Poison",
+    "shortDesc": "Temporarily increases resistance to poison. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 60,
+        "spCost": 270000,
+        "mpCost": 30,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 68,
+        "spCost": 770000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1035": {
+    "name": "Mental Shield",
+    "shortDesc": "Temporarily increases resistance to Hold, Sleep, Fear, and Mental attacks. Enchant Time: the duration of one's skill usage is increased. Effect 2.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 4,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1036": {
+    "name": "Magic Barrier",
+    "shortDesc": "Temporarily increases M. Def. Effect 2.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1040": {
+    "name": "Shield",
+    "shortDesc": "Temporarily increases P. Def. Effect 3.",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1044": {
+    "name": "Regeneration",
+    "shortDesc": "Temporarily increases HP recovery. Effect 2.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1045": {
+    "name": "Bless the Body",
+    "shortDesc": "Temporarily increases maximum HP. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 4,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 5,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 60,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 6,
+        "requiredLevel": 72,
+        "spCost": 1700000,
+        "mpCost": 67,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1048": {
+    "name": "Bless the Soul",
+    "shortDesc": "Temporarily increases maximum MP. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 4,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 5,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 58,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 6,
+        "requiredLevel": 70,
+        "spCost": 1000000,
+        "mpCost": 65,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1062": {
+    "name": "Berserker Spirit",
+    "shortDesc": "Temporarily reduces P. Def., M. Def. and increases P. Atk., M. Atk., Atk. Spd., Casting Spd., and Speed. Effect 2.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1068": {
+    "name": "Might",
+    "shortDesc": "Temporarily increases P. Atk. Effect 3.",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1073": {
+    "name": "Kiss of Eva",
+    "shortDesc": "Temporarily increases lung capacity. Effect 2.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1077": {
+    "name": "Focus",
+    "shortDesc": "Temporarily increases critical attack rate. Effect 2.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1078": {
+    "name": "Concentration",
+    "shortDesc": "Temporarily lowers the probability of magic being canceled due to damage. Effect 3.",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 5,
+        "requiredLevel": 60,
+        "spCost": 270000,
+        "mpCost": 55,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 6,
+        "requiredLevel": 68,
+        "spCost": 770000,
+        "mpCost": 64,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1085": {
+    "name": "Acumen",
+    "shortDesc": "Temporarily increases Casting Spd. Effect 3.",
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1086": {
+    "name": "Haste",
+    "shortDesc": "Temporarily increases Atk. Spd. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1182": {
+    "name": "Resist Aqua",
+    "shortDesc": "Temporarily increases tolerance to attack by water. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 58,
+        "spCost": 220000,
+        "mpCost": 23,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1189": {
+    "name": "Resist Wind",
+    "shortDesc": "Temporarily increases resistance to attack by wind. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 58,
+        "spCost": 220000,
+        "mpCost": 30,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1191": {
+    "name": "Resist Fire",
+    "shortDesc": "Temporarily increases resistance to attacks by fire. Effect 2.",
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 39,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1201": {
+    "name": "Dryad Root",
+    "shortDesc": "Instantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additional hold attack.",
+    "levels": [
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 34,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 34,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 12,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 35,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 38,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 38,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 15,
+        "requiredLevel": 44,
+        "spCost": 13000,
+        "mpCost": 39,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 42,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 43,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 18,
+        "requiredLevel": 48,
+        "spCost": 21000,
+        "mpCost": 44,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 45,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 47,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 21,
+        "requiredLevel": 52,
+        "spCost": 33000,
+        "mpCost": 48,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 49,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 50,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 24,
+        "requiredLevel": 56,
+        "spCost": 35000,
+        "mpCost": 52,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 220000,
+        "mpCost": 54,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 26,
+        "requiredLevel": 60,
+        "spCost": 270000,
+        "mpCost": 55,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 27,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 58,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 28,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 60,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 29,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 62,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 30,
+        "requiredLevel": 68,
+        "spCost": 770000,
+        "mpCost": 64,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 31,
+        "requiredLevel": 70,
+        "spCost": 1000000,
+        "mpCost": 65,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 32,
+        "requiredLevel": 72,
+        "spCost": 1700000,
+        "mpCost": 67,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      },
+      {
+        "level": 33,
+        "requiredLevel": 74,
+        "spCost": 2600000,
+        "mpCost": 69,
+        "power": 30,
+        "castTime": 2.5,
+        "cooldown": null
+      }
+    ]
+  },
+  "1240": {
+    "name": "Guidance",
+    "shortDesc": "Temporarily increases Accuracy. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1242": {
+    "name": "Death Whisper",
+    "shortDesc": "Temporarily increases critical attack. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1243": {
+    "name": "Bless Shield",
+    "shortDesc": "Temporarily increases shield defense rate. Effect 1.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 31000,
+        "mpCost": 35,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 44,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "power": 20,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  },
+  "1272": {
+    "name": "Word of Fear",
+    "shortDesc": "Instills fear into one's enemies and causes them to flee.",
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 44,
+        "spCost": 39000,
+        "mpCost": 117,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 63000,
+        "mpCost": 129,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 140,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 4,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 153,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 5,
+        "requiredLevel": 58,
+        "spCost": 220000,
+        "mpCost": 159,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 6,
+        "requiredLevel": 60,
+        "spCost": 270000,
+        "mpCost": 165,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 7,
+        "requiredLevel": 62,
+        "spCost": 360000,
+        "mpCost": 172,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 8,
+        "requiredLevel": 64,
+        "spCost": 480000,
+        "mpCost": 178,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 9,
+        "requiredLevel": 66,
+        "spCost": 700000,
+        "mpCost": 184,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 10,
+        "requiredLevel": 68,
+        "spCost": 770000,
+        "mpCost": 189,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 11,
+        "requiredLevel": 70,
+        "spCost": 1000000,
+        "mpCost": 194,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 12,
+        "requiredLevel": 72,
+        "spCost": 1700000,
+        "mpCost": 199,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      },
+      {
+        "level": 13,
+        "requiredLevel": 74,
+        "spCost": 2600000,
+        "mpCost": 204,
+        "power": 200,
+        "castTime": 4,
+        "cooldown": null
+      }
+    ]
+  }
+}

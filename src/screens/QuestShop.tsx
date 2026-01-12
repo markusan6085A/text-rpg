@@ -466,7 +466,6 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             onClick={() => {
               setSelectedCategory("exchange");
               setSelectedArmorSubcategory(null);
-              setSelectedWeaponSubcategory(null);
             }}
             className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "exchange" ? "text-gray-200 font-semibold border-b border-gray-300" : "hover:text-gray-200"}`}
           >

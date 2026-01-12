@@ -87,7 +87,7 @@ export function getFloranAIProfile(id: string): MobAIProfile | undefined {
 export function detectMobRoleFromName(mob: Mob): MobRole {
   const name = mob.name.toLowerCase();
 
-  if (name.startsWith("[champion]")) {
+  if (name.startsWith("[champion]") || name.startsWith("[чемпион]")) {
     return "boss";
   }
 

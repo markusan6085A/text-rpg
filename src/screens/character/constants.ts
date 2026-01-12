@@ -11,8 +11,10 @@ export const SLOT_ICONS: Record<string, string> = {
   jewelry: "/icons/slot_jewelry.png",
   tattoo: "/icons/slot_tattoo.png",
   necklace: "/icons/slot_necklace.png",
+  earring: "/icons/slot_earring_left.png", // Використовуємо іконку earring_left як fallback
   earring_left: "/icons/slot_earring_left.png",
   earring_right: "/icons/slot_earring_right.png",
+  ring: "/icons/slot_ring_left.png", // Використовуємо іконку ring_left як fallback
   ring_left: "/icons/slot_ring_left.png",
   ring_right: "/icons/slot_ring_right.png",
 };
