@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import { prisma } from "./db";
 import { authRoutes } from "./auth";
 import { characterRoutes } from "./characters";
+import { chatRoutes } from "./chat";
 
 const app = Fastify({ logger: true });
 
@@ -20,6 +21,8 @@ app.get("/", async () => {
         getCharacter: "GET /characters/:id (Bearer)",
         createCharacter: "POST /characters (Bearer)",
         updateCharacter: "PUT /characters/:id (Bearer)",
+        getChatMessages: "GET /chat/messages?channel=general&page=1 (Bearer)",
+        postChatMessage: "POST /chat/messages (Bearer)",
       },
   };
 });
@@ -42,9 +45,11 @@ const start = async () => {
     // Register routes
     await app.register(authRoutes);
     await app.register(characterRoutes);
+    await app.register(chatRoutes);
 
-    await app.listen({ port: 3000, host: "0.0.0.0" });
-    app.log.info("Server started on http://0.0.0.0:3000");
+    const port = Number(process.env.PORT || 3000);
+    await app.listen({ port, host: "0.0.0.0" });
+    app.log.info(`Server started on http://0.0.0.0:${port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);

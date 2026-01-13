@@ -12,6 +12,7 @@ import About from "./screens/About";
 import Battle from "./screens/Battle";
 import Layout from "./components/Layout";
 import MageGuild from "./screens/City/MageGuild";
+import Chat from "./screens/Chat";
 
 // Inventory & Equipment
 import Inventory from "./screens/character/Inventory";
@@ -126,6 +127,9 @@ function AppInner() {
 
     case "/equipment":
       return renderWithLayout(<Equipment />);
+
+    case "/chat":
+      return renderWithLayout(<Chat navigate={navigate} />);
 
     case "/guild":
     case "/mage-guild":
