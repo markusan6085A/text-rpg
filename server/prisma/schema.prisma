@@ -41,6 +41,7 @@ model Character {
 
   account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   inventory    InventoryItem[]
+  chatMessages ChatMessage[]
 
   @@index([accountId])
   @@unique([accountId, name])
@@ -68,4 +69,17 @@ model Kv {
   key        String   @id
   value      String
   updatedAt  DateTime @updatedAt
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  characterId String
+  channel     String   @default("general") // "general", "trade", "clan", "private"
+  message     String
+  createdAt   DateTime @default(now())
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([channel, createdAt])
+  @@index([characterId])
 }

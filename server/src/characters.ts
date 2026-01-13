@@ -205,7 +205,19 @@ export async function characterRoutes(app: FastifyInstance) {
 
     // Оновлюємо тільки передані поля
     const updateData: any = {};
-    if (body.heroJson !== undefined) updateData.heroJson = body.heroJson;
+    
+    // ❗ ВАЖЛИВО: Захист від перезапису heroJson порожніми даними
+    if (body.heroJson !== undefined) {
+      // Перевіряємо, чи heroJson не порожній і має обов'язкові поля
+      if (body.heroJson && typeof body.heroJson === 'object' && body.heroJson.name) {
+        updateData.heroJson = body.heroJson;
+        app.log.info(`[PUT /characters/:id] Updating heroJson for character ${id}, inventory items: ${body.heroJson.inventory?.length || 0}`);
+      } else {
+        app.log.warn(`[PUT /characters/:id] Attempted to save empty or invalid heroJson for character ${id}, ignoring`);
+        // НЕ оновлюємо heroJson, якщо він порожній або невалідний
+      }
+    }
+    
     if (body.level !== undefined) updateData.level = body.level;
     if (body.exp !== undefined) updateData.exp = BigInt(body.exp);
     if (body.sp !== undefined) updateData.sp = body.sp;

@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import { prisma } from "./db";
 import { authRoutes } from "./auth";
 import { characterRoutes } from "./characters";
+import { chatRoutes } from "./chat";
 
 const app = Fastify({ logger: true });
 
@@ -20,6 +21,8 @@ app.get("/", async () => {
         getCharacter: "GET /characters/:id (Bearer)",
         createCharacter: "POST /characters (Bearer)",
         updateCharacter: "PUT /characters/:id (Bearer)",
+        getChatMessages: "GET /chat/messages?channel=general&page=1 (Bearer)",
+        postChatMessage: "POST /chat/messages (Bearer)",
       },
   };
 });
@@ -27,6 +30,22 @@ app.get("/", async () => {
 // Health check
 app.get("/health", async () => {
   return { status: "ok" };
+});
+
+// Database connection test
+app.get("/test-db", async (req, reply) => {
+  try {
+    const count = await prisma.account.count();
+    return { status: "ok", dbConnected: true, accountCount: count };
+  } catch (error) {
+    app.log.error("Database test error:", error);
+    return reply.code(500).send({
+      status: "error",
+      dbConnected: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined
+    });
+  }
 });
 
 // Graceful shutdown
@@ -42,6 +61,7 @@ const start = async () => {
     // Register routes
     await app.register(authRoutes);
     await app.register(characterRoutes);
+    await app.register(chatRoutes);
 
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: "0.0.0.0" });
