@@ -1,15 +1,17 @@
-// src/data/zones/floran_outskirts.ts
+// src/data/zones/floran_plains.ts
 import type { Mob } from "../world/types";
 import type { DropEntry } from "../combat/types";
 
-// Ресурси для дропу та спойлу (Floran Outskirts: 1-6 лвл)
-// Базові ресурси для низьких рівнів
+// Ресурси для дропу та спойлу (Floran Plains: 3-10 лвл)
+// Базові ресурси + Silver Nugget
 const resourceDrops: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", "stem", "thread", "suede"
+  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", 
+  "stem", "thread", "suede", "silver_nugget"
 ];
 
 const resourceSpoils: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", "stem", "thread", "suede"
+  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
+  "stem", "thread", "suede", "silver_nugget"
 ];
 
 // Функція для генерації базових статів моба за рівнем
@@ -46,11 +48,9 @@ function generateResourceDrops(mobIndex: number, mobName: string, isChampion: bo
   const count = isChampion ? 10 : 1; // Для чемпіонів х10
   
   // Для кожного типу моба - 3-6 різних ресурсів
-  // Використовуємо назву моба для детермінованого вибору ресурсів
   const nameHash = mobName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const numResources = 3 + (nameHash % 4); // 3-6 ресурсів
   
-  // Створюємо унікальний набір ресурсів для кожного типу моба
   const selectedResources: string[] = [];
   const usedIndices = new Set<number>();
   
@@ -121,64 +121,46 @@ function generateResourceSpoils(mobIndex: number, mobName: string, isChampion: b
   });
 }
 
-// Генеруємо 50 звичайних мобів 1-6 лвл
+// Генеруємо 60 звичайних мобів 3-10 лвл
 const normalMobs: Mob[] = [];
-
-// Визначаємо позиції для квестових мобів (по 4-5 кожен, уникаючи чемпіонів на позиціях: 5, 12, 20, 28, 37, 45)
-const questMobPositions: { name: string; indices: number[] }[] = [
-  { name: "Floran Bandit", indices: [0, 1, 2, 3, 4] },      // 5 мобів (0-4)
-  { name: "Floran Warrior", indices: [6, 7, 8, 9, 10] },    // 5 мобів (6-10, уникаємо 5 і 12)
-  { name: "Floran Cleric", indices: [21, 22, 23, 24] },     // 4 моби (21-24, уникаємо 20 і 28)
-];
-
-// Створюємо мапу позицій для квестових мобів
-const questMobMap = new Map<number, string>();
-questMobPositions.forEach(({ name, indices }) => {
-  indices.forEach(idx => questMobMap.set(idx, name));
-});
-
-// Різні назви мобів для Floran Outskirts (групування: 7, 6, 7, 6, 7, 6, 7, 6, 6)
+// Різні назви мобів для Floran Plains (групування: 9, 6, 9, 6, 9, 6, 9, 6, 6)
 const mobNameGroups = [
-  { name: "Outskirts Wanderer", count: 7 },
-  { name: "Outskirts Nomad", count: 6 },
-  { name: "Outskirts Traveler", count: 7 },
-  { name: "Outskirts Drifter", count: 6 },
-  { name: "Outskirts Rover", count: 7 },
-  { name: "Outskirts Vagabond", count: 6 },
-  { name: "Outskirts Wayfarer", count: 7 },
-  { name: "Outskirts Pilgrim", count: 6 },
-  { name: "Outskirts Explorer", count: 6 },
+  { name: "Plains Wanderer", count: 9 },
+  { name: "Plains Nomad", count: 6 },
+  { name: "Plains Traveler", count: 9 },
+  { name: "Plains Drifter", count: 6 },
+  { name: "Plains Rover", count: 9 },
+  { name: "Plains Vagabond", count: 6 },
+  { name: "Plains Wayfarer", count: 9 },
+  { name: "Plains Pilgrim", count: 6 },
+  { name: "Plains Explorer", count: 6 },
 ];
 
 let mobIndex = 0;
 let groupIndex = 0;
 let currentGroupCount = 0;
 
-for (let i = 0; i < 50; i++) {
-  const level = Math.floor(i / 8.33) + 1; // Розподіл: 0-8 -> 1, 9-16 -> 2, 17-25 -> 3, 26-33 -> 4, 34-41 -> 5, 42-49 -> 6
-  const clampedLevel = Math.min(6, Math.max(1, level));
+for (let i = 0; i < 60; i++) {
+  // Розподіл рівнів: 0-7 -> 3, 8-15 -> 4, 16-23 -> 5, 24-31 -> 6, 32-39 -> 7, 40-47 -> 8, 48-55 -> 9, 56-59 -> 10
+  const level = Math.floor(i / 8.57) + 3;
+  const clampedLevel = Math.min(10, Math.max(3, level));
   const stats = createMobStats(clampedLevel, false);
   
-  // Перевіряємо, чи це квестовий моб
-  let mobName: string;
-  if (questMobMap.has(i)) {
-    mobName = questMobMap.get(i)!;
-  } else {
-    // Визначаємо назву на основі групування для неквестових мобів
-    if (currentGroupCount >= mobNameGroups[groupIndex].count) {
-      groupIndex++;
-      currentGroupCount = 0;
-    }
-    mobName = mobNameGroups[groupIndex].name;
-    currentGroupCount++;
+  // Визначаємо назву на основі групування
+  if (currentGroupCount >= mobNameGroups[groupIndex].count) {
+    groupIndex++;
+    currentGroupCount = 0;
   }
+  
+  const mobName = mobNameGroups[groupIndex].name;
+  currentGroupCount++;
   
   const baseDrops = generateResourceDrops(i, mobName, false);
   
   // Квестові предмети НЕ додаємо до mob.drops - вони додаються автоматично в processDrops.ts тільки якщо квест активний
   
   normalMobs.push({
-    id: `fl_outskirts_mob_${i + 1}`,
+    id: `fl_plains_mob_${i + 1}`,
     name: mobName,
     ...stats,
     drops: baseDrops, // Тільки ресурси, квестові предмети додаються в processDrops.ts якщо квест активний
@@ -188,28 +170,33 @@ for (let i = 0; i < 50; i++) {
   mobIndex++;
 }
 
-// Додаємо 6 чемпіонів в розброс (на позиціях: 5, 12, 20, 28, 37, 45)
-const championIndices = [5, 12, 20, 28, 37, 45];
+// Додаємо 10 чемпіонів в розброс (на позиціях: 5, 12, 20, 28, 37, 45, 52, 55, 57, 59)
+const championIndices = [5, 12, 20, 28, 37, 45, 52, 55, 57, 59];
 const championNames = [
-  "[Champion] Floran Elite Warrior", // Перший чемпіон для квесту
-  "[Champion] Outskirts Warlord",
-  "[Champion] Outskirts Chieftain",
-  "[Champion] Outskirts Leader",
-  "[Champion] Outskirts Commander",
-  "[Champion] Outskirts Master",
+  "[Champion] Plains Warlord",
+  "[Champion] Plains Chieftain",
+  "[Champion] Plains Captain",
+  "[Champion] Plains Leader",
+  "[Champion] Plains Commander",
+  "[Champion] Plains Master",
+  "[Champion] Plains General",
+  "[Champion] Plains Archon",
+  "[Champion] Plains Overlord",
+  "[Champion] Plains Champion",
 ];
 
 championIndices.forEach((index, i) => {
-  const level = Math.floor(index / 8.33) + 1;
-  const clampedLevel = Math.min(6, Math.max(1, level));
-  const stats = createMobStats(clampedLevel, true);
+  // Різні рівні для чемпіонів: 4, 5, 6, 7, 8, 9, 10, 8, 9, 10
+  const championLevels = [4, 5, 6, 7, 8, 9, 10, 8, 9, 10];
+  const level = championLevels[i];
+  const stats = createMobStats(level, true);
   
   const baseChampionDrops = generateResourceDrops(index, championNames[i], true); // х10 для чемпіонів
   
   // Квестові предмети НЕ додаємо до mob.drops - вони додаються автоматично в processDrops.ts тільки якщо квест активний
   
   normalMobs[index] = {
-    id: `fl_outskirts_champion_${i + 1}`,
+    id: `fl_plains_champion_${i + 1}`,
     name: championNames[i],
     ...stats,
     drops: baseChampionDrops, // Тільки ресурси, квестові предмети додаються в processDrops.ts якщо квест активний
@@ -217,7 +204,8 @@ championIndices.forEach((index, i) => {
   };
 });
 
-export const FLORAN_OUTSKIRTS_MOBS: Mob[] = normalMobs;
+export const FLORAN_PLAINS_MOBS: Mob[] = normalMobs;
+
 
 
 

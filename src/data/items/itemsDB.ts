@@ -1,159 +1,83 @@
 // src/data/items/itemsDB.ts
+// AUTO-GENERATED from XML files
+// DO NOT EDIT MANUALLY - use tools/split_itemsdb.mjs
 
-export interface ItemDefinition {
-  id: string;
-  name: string;
-  kind: string; // "weapon", "armor", "helmet", "boots", "gloves", "consumable", etc
-  icon: string;
-  description: string;
-  stats?: any;
-  slot: string; // ✅ ДОДАНО, НІЧОГО НЕ ВИДАЛЕНО
-}
+import type { ItemDefinition } from './itemsDB.types';
+import { itemsDBChunk0 } from './itemsDB_chunk_0';
+import { itemsDBChunk1 } from './itemsDB_chunk_1';
+import { itemsDBChunk2 } from './itemsDB_chunk_2';
+import { itemsDBChunk3 } from './itemsDB_chunk_3';
+import { itemsDBChunk4 } from './itemsDB_chunk_4';
+import { itemsDBNG } from './itemsDB_ng';
+import { itemsDBD } from './itemsDB_d';
+import { itemsDBC } from './itemsDB_c';
+import { itemsDBB } from './itemsDB_b';
+import { itemsDBA } from './itemsDB_a';
+import { itemsDBS } from './itemsDB_s';
+import { starterKitItems } from '../starterKitItems';
 
+// Експортуємо тип для зручності використання
+export type { ItemDefinition } from './itemsDB.types';
+
+// Об'єднуємо всі частини
 export const itemsDB: Record<string, ItemDefinition> = {
-  // ------------------------
-  // NG ARMOR SET (LEATHER)
-  // ------------------------
-  ng_helmet_leather: {
-    id: "ng_helmet_leather",
-    name: "Кожаный Шлем (NG)",
-    kind: "helmet", // було "armor"
-    slot: "head", // ✅ ДОДАНО
-    icon: "/items/ng_helmet_leather.png",
-    description: "Легкий шлем новичка.",
-    stats: { pDef: 3 },
-  },
-
-  ng_armor_leather: {
-    id: "ng_armor_leather",
-    name: "Кожаная Броня (NG)",
-    kind: "armor", // грудь
-    slot: "armor", // ✅ ДОДАНО
-    icon: "/items/ng_armor_leather.png",
-    description: "Простая кожаная броня для начинающих.",
-    stats: { pDef: 8 },
-  },
-
-  ng_gaiters_leather: {
-    id: "ng_gaiters_leather",
-    name: "Кожаные Штаны (NG)",
-    kind: "armor", // тип залишаємо armor, слот визначимо по id
-    slot: "legs", // ✅ ДОДАНО
-    icon: "/items/ng_gaiters_leather.png",
-    description: "Прочные кожаные штаны.",
-    stats: { pDef: 5 },
-  },
-
-  ng_gloves_leather: {
-    id: "ng_gloves_leather",
-    name: "Кожаные Перчатки (NG)",
-    kind: "gloves",
-    slot: "gloves", // ✅ ДОДАНО
-    icon: "/items/ng_gloves_leather.png",
-    description: "Простые кожаные перчатки.",
-    stats: { pDef: 2 },
-  },
-
-  ng_boots_leather: {
-    id: "ng_boots_leather",
-    name: "Кожаные Ботинки (NG)",
-    kind: "boots",
-    slot: "boots", // ✅ ДОДАНО
-    icon: "/items/ng_boots_leather.png",
-    description: "Легкие ботинки новичка.",
-    stats: { pDef: 2 },
-  },
-
-  // ------------------------
-  // NG WEAPONS
-  // ------------------------
-  ng_sword_training: {
-    id: "ng_sword_training",
-    name: "Тренировочный Меч (NG)",
-    kind: "weapon",
-    slot: "weapon", // ✅ ДОДАНО
-    icon: "/items/ng_sword_training.png",
-    description: "Простой меч новичка.",
-    stats: { pAtk: 7, mAtk: 0 },
-  },
-
-  ng_staff_beginner: {
-    id: "ng_staff_beginner",
-    name: "Посох Новичка (NG)",
-    kind: "weapon",
-    slot: "weapon", // ✅ ДОДАНО
-    icon: "/items/ng_staff_beginner.png",
-    description: "Лёгкий магический обучающий посох.",
-    stats: { pAtk: 3, mAtk: 9 },
-  },
-
-  // ------------------------
-  // POTIONS / CONSUMABLES
-  // ------------------------
-  potion_hp_small: {
-    id: "potion_hp_small",
-    name: "Зелье HP (м.)",
-    kind: "consumable", // було "potion"
-    slot: "consumable", // ✅ ДОДАНО
-    icon: "/items/potion_hp_small.png",
-    description: "Малое восстановление HP.",
-  },
-
-  potion_mp_small: {
-    id: "potion_mp_small",
-    name: "Зелье MP (м.)",
-    kind: "consumable",
-    slot: "consumable", // ✅ ДОДАНО
-    icon: "/items/potion_mp_small.png",
-    description: "Малое восстановление MP.",
-  },
-
-  soulshot_ng: {
-    id: "soulshot_ng",
-    name: "Soulshot NG",
-    kind: "consumable",
-    slot: "consumable", // ✅ ДОДАНО
-    icon: "/items/soulshot_ng.png",
-    description: "Увеличивает физическую атаку.",
-  },
-
-  spiritshot_ng: {
-    id: "spiritshot_ng",
-    name: "Spiritshot NG",
-    kind: "consumable",
-    slot: "consumable", // ✅ ДОДАНО
-    icon: "/items/spiritshot_ng.png",
-    description: "Усиливает магическую атаку.",
-  },
+  ...itemsDBChunk0,
+  ...itemsDBChunk1,
+  ...itemsDBChunk2,
+  ...itemsDBChunk3,
+  ...itemsDBChunk4,
+  ...itemsDBNG,
+  ...itemsDBD,
+  ...itemsDBC,
+  ...itemsDBB,
+  ...itemsDBA,
+  ...itemsDBS,
 };
 
-// ---------------------------------------------
-// 🎒 СТАРТОВЫЙ НАБОР
-// ---------------------------------------------
+// Об'єднуємо itemsDB з starterKitItems для стартового набору
+export const itemsDBWithStarter: Record<string, ItemDefinition> = {
+  ...itemsDB,
+  ...starterKitItems,
+};
+
 export const starterKitDefault = {
   adena: 200,
 
-  items: [
-    "ng_helmet_leather",
-    "ng_armor_leather",
-    "ng_gaiters_leather",
-    "ng_gloves_leather",
-    "ng_boots_leather",
-
-    "ng_sword_training",
-    "ng_staff_beginner",
-
-    "potion_hp_small",
-    "potion_mp_small",
-
-    "soulshot_ng",
+  // Для магів (Devotion set)
+  itemsMage: [
+    "tunic_of_devotion",
+    "stockings_of_devotion",
+    "devotion_gloves",
+    "devotion_boots",
+    "devotion_helmet",
+    "weapon_mace_ng",
+    "shield_leather_ng",
     "spiritshot_ng",
+    "lesser_healing_potion",
+    "lesser_mana_potion",
+  ],
+  
+  // Для воїнів (Native set)
+  itemsFighter: [
+    "native_tunic",
+    "native_helmet",
+    "native_pants",
+    "native_gloves",
+    "native_boots",
+    "weapon_iron_hammer_ng",
+    "shield_leather_ng",
+    "soulshot_ng",
+    "lesser_healing_potion",
+    "lesser_mana_potion",
   ],
 
   quantities: {
-    potion_hp_small: 20,
-    potion_mp_small: 20,
-    soulshot_ng: 200,
-    spiritshot_ng: 200,
+    soulshot_ng: 500,
+    spiritshot_ng: 500,
+    lesser_healing_potion: 20,
+    lesser_mana_potion: 20,
   },
+  
+  // Для сумісності (буде використовуватись itemsMage або itemsFighter)
+  items: [],
 };

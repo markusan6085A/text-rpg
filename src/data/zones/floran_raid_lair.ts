@@ -9,6 +9,11 @@ export const FLORAN_RAID_LAIR_MOBS: Mob[] = [
     name: "Raid Lair Guard",
     level: 62,
     hp: 260_000,
+    mp: 0,
+    pAtk: 12_000,
+    mAtk: 0,
+    pDef: 8_000,
+    mDef: 6_000,
     exp: 220_000,
     adenaMin: 80_000,
     adenaMax: 120_000,
@@ -19,6 +24,11 @@ export const FLORAN_RAID_LAIR_MOBS: Mob[] = [
     name: "Raid Lair Magus",
     level: 64,
     hp: 290_000,
+    mp: 150_000,
+    pAtk: 3_000,
+    mAtk: 14_000,
+    pDef: 5_000,
+    mDef: 9_000,
     exp: 240_000,
     adenaMin: 85_000,
     adenaMax: 130_000,
@@ -28,3 +38,6 @@ export const FLORAN_RAID_LAIR_MOBS: Mob[] = [
   // Усі 7 РБ (імпортовані)
   ...FLORAN_RAID_BOSSES,
 ];
+
+
+
