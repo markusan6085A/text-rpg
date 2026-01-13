@@ -61,7 +61,7 @@ const allowlist = [
 // Graceful shutdown
 const start = async () => {
   try {
-    // Register CORS
+    // Register CORS FIRST - before routes!
     await app.register(cors, {
       origin: (origin, callback) => {
         // Allow requests without origin (curl, healthchecks, etc.)
@@ -87,7 +87,12 @@ const start = async () => {
       allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
-    // Register routes
+    // CRITICAL: Handle OPTIONS requests for all routes (preflight CORS)
+    app.options("*", async (request, reply) => {
+      reply.code(204).send();
+    });
+
+    // Register routes AFTER CORS
     await app.register(authRoutes);
     await app.register(characterRoutes);
     await app.register(chatRoutes);

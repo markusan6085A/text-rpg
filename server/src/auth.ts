@@ -13,7 +13,8 @@ export async function authRoutes(app: FastifyInstance) {
   // POST /auth/register  { login, password }
   app.post("/auth/register", async (req, reply) => {
     try {
-      const body = req.body as { login?: string; password?: string };
+      // Fastify automatically handles OPTIONS via CORS, but ensure body is optional
+      const body = (req.body || {}) as { login?: string; password?: string };
       const login = (body.login ?? "").trim();
       const password = body.password ?? "";
 
@@ -53,7 +54,8 @@ export async function authRoutes(app: FastifyInstance) {
   // POST /auth/login  { login, password }
   app.post("/auth/login", async (req, reply) => {
     try {
-      const body = req.body as { login?: string; password?: string };
+      // Fastify automatically handles OPTIONS via CORS, but ensure body is optional
+      const body = (req.body || {}) as { login?: string; password?: string };
       const login = (body.login ?? "").trim();
       const password = body.password ?? "";
 
