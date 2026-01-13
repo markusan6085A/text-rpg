@@ -31,7 +31,7 @@ export default function Chat({ navigate }: ChatProps) {
         setIsLoading(true);
       }
       setError(null);
-      const response = await getChatMessages(channel, currentPage, 50);
+      const response = await getChatMessages(channel, currentPage, 30);
       setMessages(response.messages);
       setPage(currentPage);
       if (currentPage === 1) {

@@ -33,7 +33,7 @@ export async function chatRoutes(app: FastifyInstance) {
 
     const channel = query.channel || "general";
     const page = Math.max(1, parseInt(query.page || "1", 10));
-    const limit = Math.min(100, Math.max(10, parseInt(query.limit || "50", 10)));
+    const limit = Math.min(100, Math.max(10, parseInt(query.limit || "30", 10)));
     const skip = (page - 1) * limit;
 
     try {
