@@ -74,7 +74,7 @@ export async function chatRoutes(app: FastifyInstance) {
         limit,
       };
     } catch (error) {
-      app.log.error("Error fetching chat messages:", error);
+      app.log.error(error, "Error fetching chat messages:");
       return reply.code(500).send({
         error: "Internal Server Error",
         message: error instanceof Error ? error.message : "Unknown error",
@@ -147,7 +147,7 @@ export async function chatRoutes(app: FastifyInstance) {
         },
       };
     } catch (error) {
-      app.log.error("Error creating chat message:", error);
+      app.log.error(error, "Error creating chat message:");
       return reply.code(500).send({
         error: "Internal Server Error",
         message: error instanceof Error ? error.message : "Unknown error",

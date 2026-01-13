@@ -38,10 +38,10 @@ export async function authRoutes(app: FastifyInstance) {
         token,
       };
     } catch (error) {
-      app.log.error("Registration error:", error);
+      app.log.error(error, "Registration error:");
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorStack = error instanceof Error ? error.stack : undefined;
-      app.log.error("Registration error details:", { message: errorMessage, stack: errorStack });
+      app.log.error({ message: errorMessage, stack: errorStack }, "Registration error details:");
       return reply.code(500).send({ 
         error: "Internal Server Error",
         message: errorMessage,
@@ -71,10 +71,10 @@ export async function authRoutes(app: FastifyInstance) {
         token,
       };
     } catch (error) {
-      app.log.error("Login error:", error);
+      app.log.error(error, "Login error:");
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorStack = error instanceof Error ? error.stack : undefined;
-      app.log.error("Login error details:", { message: errorMessage, stack: errorStack });
+      app.log.error({ message: errorMessage, stack: errorStack }, "Login error details:");
       return reply.code(500).send({ 
         error: "Internal Server Error",
         message: errorMessage,
