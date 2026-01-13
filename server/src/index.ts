@@ -13,17 +13,17 @@ app.get("/", async () => {
     name: "Text RPG Server",
     version: "1.0.0",
     status: "running",
-      endpoints: {
-        health: "GET /health",
-        register: "POST /auth/register",
-        login: "POST /auth/login",
-        listCharacters: "GET /characters (Bearer)",
-        getCharacter: "GET /characters/:id (Bearer)",
-        createCharacter: "POST /characters (Bearer)",
-        updateCharacter: "PUT /characters/:id (Bearer)",
-        getChatMessages: "GET /chat/messages?channel=general&page=1 (Bearer)",
-        postChatMessage: "POST /chat/messages (Bearer)",
-      },
+    endpoints: {
+      health: "GET /health",
+      register: "POST /auth/register",
+      login: "POST /auth/login",
+      listCharacters: "GET /characters (Bearer)",
+      getCharacter: "GET /characters/:id (Bearer)",
+      createCharacter: "POST /characters (Bearer)",
+      updateCharacter: "PUT /characters/:id (Bearer)",
+      getChatMessages: "GET /chat/messages?channel=general&page=1 (Bearer)",
+      postChatMessage: "POST /chat/messages (Bearer)",
+    },
   };
 });
 
@@ -48,24 +48,12 @@ app.get("/test-db", async (req, reply) => {
   }
 });
 
-// CORS allowlist - add your Vercel domains here
-const allowlist = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://text-pkomkw9vm-markusan6085as-projects.vercel.app",
-  "https://text-rpg-git-2025-12-23-zsq5-markusan6085as-projects.vercel.app",
-  // Add production domain if you have one
-  // "https://text-rpg.vercel.app",
-];
-
 // Graceful shutdown
 const start = async () => {
   try {
     // Register CORS FIRST - before routes!
-    // @fastify/cors automatically handles OPTIONS preflight requests
-    // Temporarily allow all origins to test if server starts
     await app.register(cors, {
-      origin: true, // Allow all origins for now
+      origin: true,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
