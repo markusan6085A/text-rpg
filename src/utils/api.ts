@@ -1,5 +1,6 @@
 // API client for backend communication
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const API_URL =
+  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
 // Логуємо API_URL при завантаженні (для відлагодження)
 if (typeof window !== 'undefined') {

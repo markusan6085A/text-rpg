@@ -48,14 +48,42 @@ app.get("/test-db", async (req, reply) => {
   }
 });
 
+// CORS allowlist - add your Vercel domains here
+const allowlist = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://text-pkomkw9vm-markusan6085as-projects.vercel.app",
+  "https://text-rpg-git-2025-12-23-zsq5-markusan6085as-projects.vercel.app",
+  // Add production domain if you have one
+  // "https://text-rpg.vercel.app",
+];
+
 // Graceful shutdown
 const start = async () => {
   try {
-    // Register CORS - allow all origins
+    // Register CORS
     await app.register(cors, {
-      origin: true,
+      origin: (origin, callback) => {
+        // Allow requests without origin (curl, healthchecks, etc.)
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        // Check if origin is in allowlist
+        if (allowlist.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+        // Allow all *.vercel.app domains (for preview deployments)
+        if (origin.match(/^https:\/\/.*\.vercel\.app$/)) {
+          callback(null, true);
+          return;
+        }
+        // Reject all other origins
+        callback(new Error("Not allowed by CORS"), false);
+      },
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     });
 
