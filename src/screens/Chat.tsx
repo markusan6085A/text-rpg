@@ -109,7 +109,7 @@ export default function Chat({ navigate }: ChatProps) {
   return (
     <div className="flex flex-col h-full w-full max-w-[380px] mx-auto bg-[#151515] text-white">
       {/* Tabs */}
-      <div className="flex border-b border-[#3b2614] bg-[#1a1a1a]">
+      <div className="flex bg-[#1a1a1a]">
         {[
           { key: "general" as ChatChannel, label: "Общ" },
           { key: "trade" as ChatChannel, label: "Торг" },
@@ -119,10 +119,10 @@ export default function Chat({ navigate }: ChatProps) {
           <button
             key={tab.key}
             onClick={() => setChannel(tab.key)}
-            className={`flex-1 px-4 py-2.5 text-sm font-semibold transition-all ${
+            className={`flex-1 px-4 py-2.5 text-sm font-semibold transition-all border-t border-b ${
               channel === tab.key
-                ? "bg-[#6a4b2b] text-white border-b-2 border-[#f4e2b8] shadow-sm"
-                : "bg-transparent text-gray-400 hover:text-white hover:bg-[#2a231a]"
+                ? "text-white border-[#f4e2b8]"
+                : "text-gray-400 hover:text-white border-transparent"
             }`}
           >
             {tab.label}
@@ -142,9 +142,9 @@ export default function Chat({ navigate }: ChatProps) {
               <span className="text-white font-semibold">{msg.characterName}</span>
               <span className="text-gray-500 ml-1">({msg.characterLevel})</span>
               <span className="text-gray-400 ml-2 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
-              <span className="text-gray-400 ml-2 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message} `)}>(цитировать)</span>
+              <span className="text-gray-400 ml-2 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
               <span className="text-gray-500 ml-2">{formatTime(msg.createdAt)}</span>
-              <div className="text-gray-200 mt-0.5">{msg.message}</div>
+              <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-gray-200"}`}>{msg.message}</div>
             </div>
           ))
         )}
@@ -185,14 +185,14 @@ export default function Chat({ navigate }: ChatProps) {
           <button
             onClick={sendMessage}
             disabled={!messageText.trim() || isLoading}
-            className="px-4 py-1.5 bg-[#6a4b2b] text-white rounded text-sm font-medium hover:bg-[#7a5b3b] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-1.5 text-white text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
             Написать
           </button>
           <button
             onClick={() => loadMessages(1, false)}
             disabled={isLoading}
-            className="px-4 py-1.5 bg-[#3b2614] text-gray-300 rounded text-sm font-medium hover:bg-[#4b3624] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-1.5 text-gray-300 text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
             Обновить
           </button>
