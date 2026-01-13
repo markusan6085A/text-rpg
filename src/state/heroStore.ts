@@ -38,7 +38,17 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   hero: null,
 
   setHero: (h) => {
-    console.log('[heroStore] setHero called, hero:', h ? 'exists' : 'null');
+    if (h) {
+      console.log('[heroStore] setHero called, hero exists:', {
+        name: h.name,
+        inventoryItems: h.inventory?.length || 0,
+        skills: h.skills?.length || 0,
+        profession: h.profession,
+        adena: h.adena
+      });
+    } else {
+      console.warn('[heroStore] setHero called with NULL hero!');
+    }
     set({ hero: h });
   },
 
@@ -54,10 +64,20 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     if (!prev) return;
 
     const updated = updateHeroLogic(prev, partial);
+    
+    // Логуємо зміни інвентаря для відстеження
+    if (partial.inventory !== undefined) {
+      console.log('[heroStore] Inventory updated:', {
+        prevCount: prev.inventory?.length || 0,
+        newCount: updated.inventory?.length || 0,
+        items: updated.inventory?.map(i => ({ id: i.id, count: i.count })) || []
+      });
+    }
+    
     set({ hero: updated });
     // Fire-and-forget: save asynchronously without blocking
     saveHeroToLocalStorage(updated).catch(err => {
-      console.error('Failed to save hero:', err);
+      console.error('[heroStore] Failed to save hero:', err);
     });
   },
 

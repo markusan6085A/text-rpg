@@ -27,8 +27,24 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const character = await getCharacter(characterStore.characterId);
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
+    // Якщо character не отримано - повертаємо null (fallback на localStorage)
+    if (!character) {
+      console.warn('[loadHeroFromAPI] Character not found, returning null for localStorage fallback');
+      return null;
+    }
+    
     // Extract hero data from character.heroJson
     const heroData = character.heroJson as any;
+    
+    // Логуємо інвентар при завантаженні
+    if (heroData?.inventory) {
+      console.log('[loadHeroFromAPI] Inventory found in heroJson:', {
+        count: heroData.inventory.length,
+        items: heroData.inventory.map((i: any) => ({ id: i.id, count: i.count }))
+      });
+    } else {
+      console.warn('[loadHeroFromAPI] No inventory found in heroJson');
+    }
     
     // Check if heroJson is empty or invalid - if so, create a new hero from character data
     let fixedHero: Hero;
@@ -120,23 +136,36 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       mp: finalMp,
       cp: finalCp,
     };
+    
+    // Логуємо фінальний інвентар після завантаження
+    console.log('[loadHeroFromAPI] Final hero inventory:', {
+      count: heroWithRecalculatedStats.inventory?.length || 0,
+      items: heroWithRecalculatedStats.inventory?.map(i => ({ id: i.id, count: i.count })) || []
+    });
 
+    // ❗ ВАЖЛИВО: НЕ перезаписуємо heroJson, якщо він вже існує!
     // Якщо heroJson був порожній і ми створили нового героя - зберігаємо його в базу
+    // Але ТІЛЬКИ якщо heroJson дійсно порожній (не має важливих полів)
     const wasEmpty = !heroData || typeof heroData !== 'object' || Object.keys(heroData).length === 0;
     if (wasEmpty) {
+      console.log('[loadHeroFromAPI] heroJson was empty, saving new hero to database');
       // Зберігаємо створеного героя в базу даних (асинхронно, не блокуємо)
       updateCharacter(character.id, {
         heroJson: heroWithRecalculatedStats,
       }).then(() => {
-        console.log('Created hero saved to database');
+        console.log('[loadHeroFromAPI] Created hero saved to database');
       }).catch((error) => {
-        console.error('Failed to save created hero to database:', error);
+        console.error('[loadHeroFromAPI] Failed to save created hero to database:', error);
       });
+    } else {
+      console.log('[loadHeroFromAPI] heroJson exists, NOT overwriting with new hero');
     }
 
     return heroWithRecalculatedStats;
   } catch (error) {
-    console.error('Failed to load hero from API:', error);
+    console.error('[loadHeroFromAPI] Failed to load hero from API:', error);
+    console.warn('[loadHeroFromAPI] Returning null - will fallback to localStorage');
+    // Повертаємо null, щоб App.tsx міг використати fallback на localStorage
     return null;
   }
 }

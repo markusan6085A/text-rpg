@@ -29,10 +29,11 @@ import GMShop from "./screens/GMShop";
 import TattooArtist from "./screens/TattooArtist";
 import Fishing from "./screens/Fishing";
 import Wip from "./screens/Wip";
+import Chat from "./screens/Chat";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
-import { setJSON } from "./state/persistence";
+import { getJSON, setJSON } from "./state/persistence";
 import { useAuthStore } from "./state/authStore";
 import { useCharacterStore } from "./state/characterStore";
 import { loadHeroFromAPI } from "./state/heroStore/heroLoadAPI";
@@ -70,6 +71,13 @@ function AppInner() {
   const loadHero = useHeroStore((s) => s.loadHero);
 
   const { navigate, path } = useRouter();
+  
+  // Логуємо API_URL при ініціалізації App
+  React.useEffect(() => {
+    const apiUrl = (window as any).__API_URL__ || import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    console.log('[App] API_URL:', apiUrl);
+    console.log('[App] VITE_API_URL from env:', import.meta.env.VITE_API_URL || 'NOT SET');
+  }, []);
 
   // Фаза завантаження
   const [isLoading, setIsLoading] = React.useState(true);
@@ -96,8 +104,20 @@ function AppInner() {
             const loadedHero = await loadHeroFromAPI();
             if (loadedHero) {
               setHero(loadedHero);
-              console.log('[App] Hero set in store successfully');
-              // НЕ викликаємо loadHero() - hero вже завантажений з API
+              console.log('[App] Hero set in store successfully from API');
+              
+              // ❗ ВАЖЛИВО: Також зберігаємо завантажений hero в localStorage як backup
+              // Це гарантує, що дані не втрачаться при проблемах з API
+              const current = getJSON<string | null>("l2_current_user", null);
+              if (current && loadedHero) {
+                const accounts = getJSON<any[]>("l2_accounts_v2", []);
+                const accIndex = accounts.findIndex((a: any) => a.username === current);
+                if (accIndex !== -1) {
+                  accounts[accIndex].hero = loadedHero;
+                  setJSON("l2_accounts_v2", accounts);
+                  console.log('[App] Hero also saved to localStorage as backup');
+                }
+              }
             } else {
               console.log('[App] Hero is null from API, fallback to localStorage');
               // Fallback на localStorage тільки якщо hero не завантажений
@@ -246,6 +266,9 @@ function AppInner() {
           <Fishing navigate={navigate} />
         </Layout>
       );
+
+    case "/chat":
+      return renderWithLayout(<Chat navigate={navigate} />);
 
     case "/wip":
       return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} />);

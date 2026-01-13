@@ -1,6 +1,15 @@
 // API client for backend communication
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// Логуємо API_URL при завантаженні (для відлагодження)
+if (typeof window !== 'undefined') {
+  console.log('[API] API_URL:', API_URL);
+  console.log('[API] VITE_API_URL from env:', import.meta.env.VITE_API_URL || 'NOT SET (using localhost:3000)');
+  // Додаємо глобальну змінну для перевірки в консолі
+  (window as any).__API_URL__ = API_URL;
+  (window as any).__VITE_API_URL__ = import.meta.env.VITE_API_URL || 'NOT SET';
+}
+
 export interface ApiError {
   error: string;
 }
@@ -90,19 +99,31 @@ async function apiRequest<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
-  if (!response.ok) {
-    const error: ApiError = await response.json().catch(() => ({
-      error: `HTTP ${response.status}: ${response.statusText}`,
-    }));
-    throw new Error(error.error || `HTTP ${response.status}`);
+    if (!response.ok) {
+      const error: ApiError = await response.json().catch(() => ({
+        error: `HTTP ${response.status}: ${response.statusText}`,
+      }));
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error: any) {
+    // Handle network errors (connection refused, etc.)
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Не удалось подключиться к серверу. Убедитесь, что backend запущен на http://localhost:3000');
+    }
+    // Handle Prisma errors (table doesn't exist, etc.)
+    if (error?.message?.includes('ChatMessage') || error?.message?.includes('does not exist')) {
+      throw new Error('Таблица ChatMessage не создана в базе данных. Выполните SQL скрипт из server/create_chat_table.sql в Supabase SQL Editor.');
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 // Auth API functions
@@ -151,4 +172,48 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
     body: JSON.stringify(data),
   });
   return response.character;
+}
+
+// Chat API
+export interface ChatMessage {
+  id: string;
+  characterName: string;
+  characterLevel: number;
+  characterRace: string;
+  characterClass: string;
+  channel: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface ChatMessagesResponse {
+  ok: boolean;
+  messages: ChatMessage[];
+  page: number;
+  limit: number;
+}
+
+export interface PostChatMessageRequest {
+  channel: string;
+  message: string;
+}
+
+export interface PostChatMessageResponse {
+  ok: boolean;
+  message: ChatMessage;
+}
+
+export async function getChatMessages(channel: string = 'general', page: number = 1, limit: number = 50): Promise<ChatMessagesResponse> {
+  const response = await apiRequest<ChatMessagesResponse>(`/chat/messages?channel=${encodeURIComponent(channel)}&page=${page}&limit=${limit}`, {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function postChatMessage(channel: string, message: string): Promise<ChatMessage> {
+  const response = await apiRequest<PostChatMessageResponse>('/chat/messages', {
+    method: 'POST',
+    body: JSON.stringify({ channel, message }),
+  });
+  return response.message;
 }
