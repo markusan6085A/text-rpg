@@ -1,0 +1,35 @@
+import { SkillDefinition } from "../../../types";
+
+export const skill_0312: SkillDefinition = {
+  id: 312,
+  code: "WL_0312",
+  name: "Vicious Stance",
+  description: "Increases one's critical attack power. MP will be consumed continuously.\n\nУвеличивает силу критической атаки на 139-609 (зависит от уровня). Непрерывно потребляет MP (7-14 MP каждую секунду). Переключаемый навык.",
+  category: "toggle",
+  powerType: "flat",
+  target: "self",
+  scope: "single",
+  icon: "/skills/skill0312.gif",
+  toggle: true,
+  mpPerTick: 5,
+  tickInterval: 1,
+  effects: [{ stat: "critDamage", mode: "flat" }],
+  levels: [
+    { level: 6, requiredLevel: 40, spCost: 39000, mpCost: 7, power: 139 },
+    { level: 7, requiredLevel: 43, spCost: 46000, mpCost: 8, power: 166 },
+    { level: 8, requiredLevel: 46, spCost: 55000, mpCost: 9, power: 196 },
+    { level: 9, requiredLevel: 49, spCost: 89000, mpCost: 9, power: 229 },
+    { level: 10, requiredLevel: 52, spCost: 150000, mpCost: 10, power: 266 },
+    { level: 11, requiredLevel: 55, spCost: 180000, mpCost: 10, power: 306 },
+    { level: 12, requiredLevel: 58, spCost: 210000, mpCost: 11, power: 349 },
+    { level: 13, requiredLevel: 60, spCost: 320000, mpCost: 11, power: 379 },
+    { level: 14, requiredLevel: 62, spCost: 400000, mpCost: 12, power: 410 },
+    { level: 15, requiredLevel: 64, spCost: 530000, mpCost: 12, power: 443 },
+    { level: 16, requiredLevel: 66, spCost: 700000, mpCost: 13, power: 475 },
+    { level: 17, requiredLevel: 68, spCost: 780000, mpCost: 13, power: 509 },
+    { level: 18, requiredLevel: 70, spCost: 850000, mpCost: 13, power: 542 },
+    { level: 19, requiredLevel: 72, spCost: 1700000, mpCost: 14, power: 576 },
+    { level: 20, requiredLevel: 74, spCost: 2100000, mpCost: 14, power: 609 },
+  ],
+};
+

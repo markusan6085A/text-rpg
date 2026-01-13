@@ -1,0 +1,61 @@
+import { SkillDefinition } from "../../../types";
+
+// Stun Shot - continuation from Elven Scout (lv.4-40)
+export const skill_0101_cont: SkillDefinition = {
+  id: 101,
+  code: "SR_0101",
+  name: "Stun Shot",
+  description: "Stunning attack that inflicts shock and damage simultaneously by shooting an arrow into a target. Usable when equipped with a bow. Over-hit possible.\n\nОглушающая атака, которая одновременно наносит шок и урон, стреляя стрелой в цель. Используется при экипировке лука. Сила 369-1827 (зависит от уровня). Возможен оверхит. Шанс оглушения 50% (зависит от CON цели). Длительность 9 сек.",
+  icon: "/skills/skill0101.gif",
+  category: "physical_attack",
+  powerType: "damage",
+  target: "enemy",
+  scope: "single",
+  castTime: 3,
+  cooldown: 10,
+  duration: 9, // Stun duration
+  chance: 50, // Success rate depends on CON stat
+  effects: [
+    { stat: "shockResist", mode: "multiplier", multiplier: 0 }, // Stuns target
+  ],
+  levels: [
+    { level: 4, requiredLevel: 40, spCost: 12000, mpCost: 80, power: 369 },
+    { level: 5, requiredLevel: 40, spCost: 12000, mpCost: 82, power: 392 },
+    { level: 6, requiredLevel: 40, spCost: 12000, mpCost: 85, power: 417 },
+    { level: 7, requiredLevel: 43, spCost: 14000, mpCost: 85, power: 442 },
+    { level: 8, requiredLevel: 43, spCost: 14000, mpCost: 87, power: 469 },
+    { level: 9, requiredLevel: 43, spCost: 14000, mpCost: 90, power: 496 },
+    { level: 10, requiredLevel: 46, spCost: 17000, mpCost: 93, power: 525 },
+    { level: 11, requiredLevel: 46, spCost: 17000, mpCost: 95, power: 555 },
+    { level: 12, requiredLevel: 46, spCost: 17000, mpCost: 98, power: 586 },
+    { level: 13, requiredLevel: 49, spCost: 30000, mpCost: 101, power: 618 },
+    { level: 14, requiredLevel: 49, spCost: 30000, mpCost: 104, power: 651 },
+    { level: 15, requiredLevel: 49, spCost: 30000, mpCost: 107, power: 686 },
+    { level: 16, requiredLevel: 52, spCost: 45000, mpCost: 109, power: 722 },
+    { level: 17, requiredLevel: 52, spCost: 45000, mpCost: 110, power: 758 },
+    { level: 18, requiredLevel: 52, spCost: 45000, mpCost: 112, power: 796 },
+    { level: 19, requiredLevel: 55, spCost: 67000, mpCost: 115, power: 835 },
+    { level: 20, requiredLevel: 55, spCost: 67000, mpCost: 118, power: 875 },
+    { level: 21, requiredLevel: 55, spCost: 67000, mpCost: 121, power: 916 },
+    { level: 22, requiredLevel: 58, spCost: 73000, mpCost: 124, power: 959 },
+    { level: 23, requiredLevel: 58, spCost: 73000, mpCost: 126, power: 1002 },
+    { level: 24, requiredLevel: 58, spCost: 73000, mpCost: 129, power: 1046 },
+    { level: 25, requiredLevel: 60, spCost: 150000, mpCost: 132, power: 1091 },
+    { level: 26, requiredLevel: 60, spCost: 150000, mpCost: 135, power: 1136 },
+    { level: 27, requiredLevel: 62, spCost: 180000, mpCost: 135, power: 1183 },
+    { level: 28, requiredLevel: 62, spCost: 180000, mpCost: 138, power: 1230 },
+    { level: 29, requiredLevel: 64, spCost: 240000, mpCost: 140, power: 1278 },
+    { level: 30, requiredLevel: 64, spCost: 240000, mpCost: 143, power: 1327 },
+    { level: 31, requiredLevel: 66, spCost: 350000, mpCost: 145, power: 1376 },
+    { level: 32, requiredLevel: 66, spCost: 350000, mpCost: 148, power: 1425 },
+    { level: 33, requiredLevel: 68, spCost: 390000, mpCost: 150, power: 1475 },
+    { level: 34, requiredLevel: 68, spCost: 390000, mpCost: 153, power: 1525 },
+    { level: 35, requiredLevel: 70, spCost: 470000, mpCost: 155, power: 1576 },
+    { level: 36, requiredLevel: 70, spCost: 470000, mpCost: 157, power: 1626 },
+    { level: 37, requiredLevel: 72, spCost: 750000, mpCost: 160, power: 1677 },
+    { level: 38, requiredLevel: 72, spCost: 750000, mpCost: 162, power: 1727 },
+    { level: 39, requiredLevel: 74, spCost: 1200000, mpCost: 164, power: 1777 },
+    { level: 40, requiredLevel: 74, spCost: 1200000, mpCost: 166, power: 1827 },
+  ],
+};
+

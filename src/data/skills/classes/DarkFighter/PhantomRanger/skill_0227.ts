@@ -1,0 +1,58 @@
+import { SkillDefinition } from "../../../types";
+
+// Light Armor Mastery - increases P. Def and Evasion when wearing light armor (continuation from Assassin lv.11-47)
+export const skill_0227: SkillDefinition = {
+  id: 227,
+  code: "PR_0227",
+  name: "Light Armor Mastery",
+  description: "Increases P. Def. when wearing light armor.\n\nУвеличивает физическую защиту при ношении легкой брони.",
+  icon: "/skills/skill0227.gif",
+  category: "passive",
+  powerType: "none",
+  target: "self",
+  scope: "single",
+  effects: [
+    { stat: "pDef", mode: "percent" }, // Value from level.power
+    { stat: "evasion", mode: "flat", value: 7 }, // Fixed value for all levels
+  ],
+  levels: [
+    { level: 11, requiredLevel: 40, spCost: 11000, mpCost: 0, power: 15.7 },
+    { level: 12, requiredLevel: 40, spCost: 11000, mpCost: 0, power: 16.7 },
+    { level: 13, requiredLevel: 40, spCost: 11000, mpCost: 0, power: 17.8 },
+    { level: 14, requiredLevel: 43, spCost: 11000, mpCost: 0, power: 18.8 },
+    { level: 15, requiredLevel: 43, spCost: 11000, mpCost: 0, power: 19.9 },
+    { level: 16, requiredLevel: 43, spCost: 11000, mpCost: 0, power: 21.1 },
+    { level: 17, requiredLevel: 46, spCost: 15000, mpCost: 0, power: 22.2 },
+    { level: 18, requiredLevel: 46, spCost: 15000, mpCost: 0, power: 23.4 },
+    { level: 19, requiredLevel: 46, spCost: 15000, mpCost: 0, power: 24.5 },
+    { level: 20, requiredLevel: 49, spCost: 25000, mpCost: 0, power: 25.8 },
+    { level: 21, requiredLevel: 49, spCost: 25000, mpCost: 0, power: 27 },
+    { level: 22, requiredLevel: 49, spCost: 25000, mpCost: 0, power: 28.2 },
+    { level: 23, requiredLevel: 52, spCost: 42000, mpCost: 0, power: 29.5 },
+    { level: 24, requiredLevel: 52, spCost: 42000, mpCost: 0, power: 30.8 },
+    { level: 25, requiredLevel: 52, spCost: 42000, mpCost: 0, power: 32.1 },
+    { level: 26, requiredLevel: 55, spCost: 56000, mpCost: 0, power: 33.5 },
+    { level: 27, requiredLevel: 55, spCost: 56000, mpCost: 0, power: 34.8 },
+    { level: 28, requiredLevel: 55, spCost: 56000, mpCost: 0, power: 36.2 },
+    { level: 29, requiredLevel: 58, spCost: 62000, mpCost: 0, power: 37.6 },
+    { level: 30, requiredLevel: 58, spCost: 62000, mpCost: 0, power: 39.1 },
+    { level: 31, requiredLevel: 58, spCost: 62000, mpCost: 0, power: 40.5 },
+    { level: 32, requiredLevel: 60, spCost: 120000, mpCost: 0, power: 42 },
+    { level: 33, requiredLevel: 60, spCost: 120000, mpCost: 0, power: 43.5 },
+    { level: 34, requiredLevel: 62, spCost: 150000, mpCost: 0, power: 44.9 },
+    { level: 35, requiredLevel: 62, spCost: 150000, mpCost: 0, power: 46.5 },
+    { level: 36, requiredLevel: 64, spCost: 180000, mpCost: 0, power: 48 },
+    { level: 37, requiredLevel: 64, spCost: 180000, mpCost: 0, power: 49.5 },
+    { level: 38, requiredLevel: 66, spCost: 250000, mpCost: 0, power: 51.1 },
+    { level: 39, requiredLevel: 66, spCost: 250000, mpCost: 0, power: 52.7 },
+    { level: 40, requiredLevel: 68, spCost: 300000, mpCost: 0, power: 54.2 },
+    { level: 41, requiredLevel: 68, spCost: 300000, mpCost: 0, power: 55.8 },
+    { level: 42, requiredLevel: 70, spCost: 360000, mpCost: 0, power: 57.4 },
+    { level: 43, requiredLevel: 70, spCost: 360000, mpCost: 0, power: 59.1 },
+    { level: 44, requiredLevel: 72, spCost: 580000, mpCost: 0, power: 60.7 },
+    { level: 45, requiredLevel: 72, spCost: 580000, mpCost: 0, power: 62.3 },
+    { level: 46, requiredLevel: 74, spCost: 820000, mpCost: 0, power: 63.9 },
+    { level: 47, requiredLevel: 74, spCost: 820000, mpCost: 0, power: 65.6 },
+  ],
+};
+
