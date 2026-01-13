@@ -62,34 +62,13 @@ const allowlist = [
 const start = async () => {
   try {
     // Register CORS FIRST - before routes!
+    // @fastify/cors automatically handles OPTIONS preflight requests
+    // Temporarily allow all origins to test if server starts
     await app.register(cors, {
-      origin: (origin, callback) => {
-        // Allow requests without origin (curl, healthchecks, etc.)
-        if (!origin) {
-          callback(null, true);
-          return;
-        }
-        // Check if origin is in allowlist
-        if (allowlist.includes(origin)) {
-          callback(null, true);
-          return;
-        }
-        // Allow all *.vercel.app domains (for preview deployments)
-        if (origin.match(/^https:\/\/.*\.vercel\.app$/)) {
-          callback(null, true);
-          return;
-        }
-        // Reject all other origins
-        callback(new Error("Not allowed by CORS"), false);
-      },
+      origin: true, // Allow all origins for now
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
-    });
-
-    // CRITICAL: Handle OPTIONS requests for all routes (preflight CORS)
-    app.options("*", async (request, reply) => {
-      reply.code(204).send();
     });
 
     // Register routes AFTER CORS
