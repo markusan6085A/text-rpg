@@ -1,6 +1,7 @@
 // src/screens/City.tsx
 import React, { useEffect } from "react";
 import { useHeroStore } from "../state/heroStore";
+import { setString } from "../state/persistence";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -75,7 +76,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const handleToCity = () => navigate("/city");
 
   const openFeature = (title: string) => {
-    localStorage.setItem("l2_last_feature", title);
+    setString("l2_last_feature", title);
     navigate("/wip");
   };
 
@@ -84,7 +85,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   return (
     <div className="w-full flex items-start justify-center">
       <div className="w-full max-w-md mt-5 mb-10 px-3">
-          <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#f4e2b8] tracking-[0.12em] uppercase">
+          <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#87ceeb] tracking-[0.12em] uppercase">
             Онлайн игра Линейдж
           </div>
 
@@ -97,10 +98,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
           {/* Сервисы */}
           <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#645b45]">
-            <div className="border-t border-[#61513b]/60 pt-2 space-y-1.5">
+            <div className="border-t border-black/60 pt-2 space-y-1.5">
 
               <button
-                className="w-full text-left text-[12px] text-[#e0c68a] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#2d5016] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => navigate("/gk")}
               >
                 <img src="/assets/travel.png" alt="Телепорт" className="w-3 h-3 object-contain" />
@@ -108,7 +109,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f01912] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#f01912] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Арена PVP сражений")}
               >
                 <img src="/assets/battles.png" alt="Арена PVP сражений" className="w-3 h-3 object-contain" />
@@ -116,7 +117,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f4e2b8] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#808080] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Статистика PvP Арены")}
               >
                 <img src="/assets/rate.png" alt="Статистика PvP Арены" className="w-3 h-3 object-contain" />
@@ -124,7 +125,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f4e2b8] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#ff8c00] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("TvT Менеджер")}
               >
                 <img src="/assets/quest.png" alt="TvT Менеджер" className="w-3 h-3 object-contain" />
@@ -132,78 +133,99 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#d6922de5] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
-                onClick={() => openFeature("Магическая статуя")}
+                className="w-full text-left text-[12px] text-[#9d4edd] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                onClick={() => navigate("/magic-statue")}
               >
                 <img src="/assets/news.png" alt="Магическая статуя" className="w-3 h-3 object-contain" />
                 <span>
                   Магическая статуя{" "}
-                  <span className="text-[11px] text-[#c7ad80]">
+                  <span className="text-[11px] text-[#808080]">
                     — бесплатный бафф
                   </span>
                 </span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#99e074] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text-[#bbff97] flex items-center gap-2"
-                onClick={() => openFeature("Магазин вещей")}
+                className="w-full text-left text-[12px] text-[#99e074] py-1.5 border-b border-dotted border-black/60 hover:text-[#bbff97] flex items-center gap-2"
+                onClick={() => navigate("/shop")}
               >
                 <img src="/assets/col.png" alt="Магазин вещей" className="w-3 h-3 object-contain" />
                 <span>Магазин вещей</span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#c29835] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#ffd700] py-1.5 border-b border-dotted border-black/60 hover:text-[#ffed4e] flex items-center gap-2"
+                onClick={() => navigate("/gm-shop")}
+              >
+                <img src="/icons/col.png" alt="GM-шоп" className="w-3 h-3 object-contain" />
+                <span>GM-шоп</span>
+              </button>
+
+              <button
+                className="w-full text-left text-[12px] text-[#c29835] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Рынок")}
               >
                 <img src="/assets/quest.png" alt="Рынок" className="w-3 h-3 object-contain" />
                 <span>
                   Рынок (2){" "}
-                  <span className="text-[11px] text-[#c7ad80]">
+                  <span className="text-[11px] text-[#808080]">
                     — покупка, продажа вещей
                   </span>
                 </span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#e7e4de] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => navigate("/guild")}
               >
                 <img src="/assets/battles.png" alt="Гильдия магов" className="w-3 h-3 object-contain" />
                 <span>
                   Гильдия магов{" "}
-                  <span className="text-[11px] text-[#c7ad80]">
-                    — изучение скилов и квесты
+                  <span className="text-[11px] text-[#808080]">
+                    — изучение скилов →
                   </span>
                 </span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#e2dfd7] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
-                onClick={() => openFeature("Склад")}
+                className="w-full text-left text-[12px] text-[#facc15] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                onClick={() => navigate("/additional-skills")}
+              >
+                <img src="/assets/battles.png" alt="Дополнительные скилы" className="w-3 h-3 object-contain" />
+                <span>
+                  Дополнительные скилы{" "}
+                  <span className="text-[11px] text-[#808080]">
+                    — изучение дополнительных скилов
+                  </span>
+                </span>
+              </button>
+
+              <button
+                className="w-full text-left text-[12px] text-[#ff8c00] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                onClick={() => navigate("/warehouse")}
               >
                 <img src="/assets/inventory.png" alt="Склад" className="w-3 h-3 object-contain" />
                 <span>Склад</span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#99e074] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text-[#bbff97] flex items-center gap-2"
-                onClick={() => openFeature("Рыбак")}
+                className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-dotted border-black/60 hover:text-[#bbff97] flex items-center gap-2"
+                onClick={() => navigate("/fishing")}
               >
                 <img src="/assets/quest.png" alt="Рыбак" className="w-3 h-3 object-contain" />
-                <span>Рыбак (+)</span>
+                <span>Рыбак</span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f4e2b8] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
-                onClick={() => openFeature("Манор")}
+                className="w-full text-left text-[12px] text-[#1e40af] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                onClick={() => navigate("/tattoo-artist")}
               >
-                <img src="/assets/travel.png" alt="Манор" className="w-3 h-3 object-contain" />
-                <span>Манор</span>
+                <img src="/assets/travel.png" alt="Татуировщик" className="w-3 h-3 object-contain" />
+                <span>Татуировщик</span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f4e2b8] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#fef08a] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("7 Печатей")}
               >
                 <img src="/assets/rate.png" alt="7 Печатей" className="w-3 h-3 object-contain" />
@@ -211,7 +233,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#e6ba53] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#e6ba53] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Олимпиада")}
               >
                 <img src="/assets/rate.png" alt="Олимпиада" className="w-3 h-3 object-contain" />
@@ -219,7 +241,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f4e2b8] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#800020] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Менеджер Олимпиады")}
               >
                 <img src="/assets/news.png" alt="Менеджер Олимпиады" className="w-3 h-3 object-contain" />
@@ -227,7 +249,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#aca9a4] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#aca9a4] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Отважный охотник")}
               >
                 <img src="/assets/battles.png" alt="Отважный охотник" className="w-3 h-3 object-contain" />
@@ -235,15 +257,15 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f4e2b8] py-1.5 border-b border-dotted border-[#5b4b35]/60 hover:text:white flex items-center gap-2"
-                onClick={() => openFeature("Рейд-Боссы (инф)")}
+                className="w-full text-left text-[12px] text-[#ffb347] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                onClick={() => openFeature("Крафт-ресурси")}
               >
-                <img src="/assets/news.png" alt="Рейд-Боссы" className="w-3 h-3 object-contain" />
-                <span>Рейд-Боссы (инф)</span>
+                <img src="/assets/news.png" alt="Крафт-ресурси" className="w-3 h-3 object-contain" />
+                <span>Крафт-ресурси</span>
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#ebe6da] py-1.5 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#ffd700] py-1.5 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Кланы")}
               >
                 <img src="/assets/ipvp.png" alt="Кланы" className="w-3 h-3 object-contain" />

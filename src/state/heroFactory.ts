@@ -1,5 +1,8 @@
 // src/state/heroFactory.ts
-import { itemsDB, starterKitDefault } from "../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter, starterKitDefault } from "../data/items/itemsDB";
+import type { Hero } from "../types/Hero";
+import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
+import { getDefaultProfessionForKlass } from "../data/skills";
 
 export type GenderRu = "Мужчина" | "Женщина" | string;
 
@@ -12,21 +15,20 @@ export interface HeroBaseStats {
   MEN: number;
 }
 
-// Базові стати для рас/класів
+// Базові стати для рас/класів (згідно з Lineage 2)
 const baseStatsTable: Record<string, HeroBaseStats> = {
-  "Человек:Воин": { STR: 12, DEX: 11, CON: 11, INT: 6,  WIT: 7,  MEN: 8 },
-  "Человек:Маг":  { STR: 7,  DEX: 9,  CON: 9,  INT: 12, WIT: 11, MEN: 11 },
+  // Воины (Fighters)
+  "Человек:Воин": { STR: 40, DEX: 30, CON: 43, INT: 21, WIT: 11, MEN: 25 },
+  "Эльф:Воин":    { STR: 36, DEX: 35, CON: 36, INT: 23, WIT: 14, MEN: 26 },
+  "Темный Эльф:Воин": { STR: 41, DEX: 34, CON: 32, INT: 25, WIT: 12, MEN: 26 },
+  "Орк:Воин":     { STR: 40, DEX: 26, CON: 47, INT: 18, WIT: 12, MEN: 27 },
+  "Гном:Воин":    { STR: 39, DEX: 29, CON: 45, INT: 20, WIT: 10, MEN: 27 },
 
-  "Эльф:Воин":    { STR: 11, DEX: 12, CON: 10, INT: 7,  WIT: 8,  MEN: 9 },
-  "Эльф:Маг":     { STR: 6,  DEX: 10, CON: 10, INT: 13, WIT: 12, MEN: 12 },
-
-  "Темный Эльф:Воин": { STR: 13, DEX: 12, CON: 9,  INT: 8,  WIT: 8,  MEN: 8 },
-  "Темный Эльф:Маг":  { STR: 7,  DEX: 11, CON: 8,  INT: 14, WIT: 12, MEN: 11 },
-
-  "Орк:Воин":     { STR: 14, DEX: 10, CON: 13, INT: 5,  WIT: 6,  MEN: 7 },
-  "Орк:Маг":      { STR: 10, DEX: 9,  CON: 12, INT: 8,  WIT: 7,  MEN: 10 },
-
-  "Гном:Воин":    { STR: 13, DEX: 10, CON: 12, INT: 6,  WIT: 7,  MEN: 8 },
+  // Мистики (Mystics)
+  "Человек:Маг":  { STR: 22, DEX: 21, CON: 27, INT: 41, WIT: 20, MEN: 39 },
+  "Эльф:Маг":     { STR: 21, DEX: 24, CON: 25, INT: 37, WIT: 23, MEN: 40 },
+  "Темный Эльф:Маг":  { STR: 23, DEX: 23, CON: 24, INT: 44, WIT: 19, MEN: 37 },
+  "Орк:Маг":      { STR: 27, DEX: 24, CON: 31, INT: 31, WIT: 15, MEN: 42 },
 };
 
 const defaultBaseStats: HeroBaseStats = {
@@ -38,11 +40,30 @@ const defaultBaseStats: HeroBaseStats = {
   MEN: 10,
 };
 
-function getBaseStatsFor(race: string, klass: string): HeroBaseStats {
-  const normalizedKlass =
-    race === "Гном" && klass === "Маг" ? "Воин" : klass;
+export function getBaseStatsFor(race: string, klass: string): HeroBaseStats {
+  // Маппінг англійських назв на російські
+  const raceMap: Record<string, string> = {
+    "Human": "Человек",
+    "Elf": "Эльф",
+    "Dark Elf": "Темный Эльф",
+    "Dwarf": "Гном",
+    "Orc": "Орк",
+  };
+  
+  const klassMap: Record<string, string> = {
+    "Fighter": "Воин",
+    "Mystic": "Маг",
+  };
+  
+  const normalizedRace = raceMap[race] || race;
+  let normalizedKlass = klassMap[klass] || klass;
+  
+  // Спеціальна обробка для Гнома
+  if (normalizedRace === "Гном" && normalizedKlass === "Маг") {
+    normalizedKlass = "Воин";
+  }
 
-  const key = `${race}:${normalizedKlass}`;
+  const key = `${normalizedRace}:${normalizedKlass}`;
   return baseStatsTable[key] ?? defaultBaseStats;
 }
 
@@ -57,6 +78,7 @@ export interface HeroInventoryItem {
   count?: number;
 }
 
+// HeroCore залишається для сумісності, але createNewHero тепер повертає Hero
 export interface HeroCore {
   id: string;
   name: string;
@@ -86,7 +108,7 @@ export interface HeroCore {
   inventory: HeroInventoryItem[];
 }
 
-function calcDerivedFromBase(
+export function calcDerivedFromBase(
   base: HeroBaseStats,
   level: number
 ) {
@@ -148,34 +170,62 @@ function mapKindToSlot(kind: string): string {
 
 
 
-export function createNewHero(params: NewHeroParams): HeroCore {
+export function createNewHero(params: NewHeroParams): HeroCore & { sp: number; skills: any[]; battleStats: any } {
   const level = 1;
   const baseStats = getBaseStatsFor(params.race, params.klass);
   const derived = calcDerivedFromBase(baseStats, level);
 
-  const inventory: HeroInventoryItem[] = starterKitDefault.items
-    .map((itemId) => {
-      const def = itemsDB[itemId];
-      if (!def) return null;
+  // Розділяємо предмети на ті, що екіпуються, і ті, що йдуть в інвентар
+  const equipment: Record<string, string | null> = {};
+  const inventory: HeroInventoryItem[] = [];
 
-      const count = starterKitDefault.quantities[itemId] ?? 1;
+  // Маппінг класів (як в getBaseStatsFor)
+  const klassMap: Record<string, string> = {
+    "Fighter": "Воин",
+    "Mystic": "Маг",
+  };
+  const normalizedKlass = klassMap[params.klass] || params.klass;
+  const isMage = normalizedKlass === "Маг";
 
-      return {
+  // Вибираємо правильний набір предметів
+  const starterItems = isMage ? starterKitDefault.itemsMage : starterKitDefault.itemsFighter;
+
+  starterItems.forEach((itemId) => {
+
+    const def = itemsDBWithStarter[itemId] || itemsDB[itemId];
+    if (!def) {
+      console.warn(`Item not found in itemsDB: ${itemId}`);
+      return;
+    }
+
+    const count = starterKitDefault.quantities[itemId] ?? 1;
+    const slot = def.slot || mapKindToSlot(def.kind);
+
+    // Предмети, які можна екіпірувати, одразу екіпуються
+    const equippableSlots = ["weapon", "shield", "head", "armor", "legs", "gloves", "boots", "belt", "cloak", "necklace", "earring", "ring", "tattoo"];
+    if (equippableSlots.includes(slot) && !equipment[slot]) {
+      equipment[slot] = itemId;
+    } else {
+      // Інші предмети йдуть в інвентар
+      inventory.push({
         id: def.id,
         name: def.name,
         type: def.kind,
-        slot: mapKindToSlot(def.kind), // ✅ ДОДАНО
+        slot: slot,
         icon: def.icon,
         description: def.description,
         stats: def.stats,
         count,
-      } as HeroInventoryItem;
-    })
-    .filter(Boolean) as HeroInventoryItem[];
+      } as HeroInventoryItem);
+    }
+  });
 
   const id = params.id ?? `hero_${Date.now()}`;
 
-  return {
+  // Встановлюємо базову професію на основі раси та класу
+  const defaultProfession = getDefaultProfessionForKlass(params.klass, params.race) || "human_fighter";
+
+  const heroCore: HeroCore = {
     id,
     name: params.name,
     username: params.username ?? params.name,
@@ -190,11 +240,31 @@ export function createNewHero(params: NewHeroParams): HeroCore {
     baseStats,
     ...derived,
 
-    equipment: {},
+    equipment: equipment,
     buffs: [],
 
     adena: starterKitDefault.adena,
     coinOfLuck: 0,
     inventory,
   };
+  
+  // Додаємо поля для Hero, включаючи profession та baseStatsInitial
+  return {
+    ...heroCore,
+    profession: defaultProfession,
+    baseStatsInitial: { ...baseStats }, // Зберігаємо оригінальні базові стати
+    sp: 0,
+    skills: [],
+    battleStats: {} as any,
+  } as any;
+
+  // Конвертуємо HeroCore в Hero з обчисленими статами
+  const recalculated = recalculateAllStats(heroCore);
+  
+  return {
+    ...heroCore,
+    sp: 0,
+    skills: [],
+    battleStats: recalculated.finalStats,
+  } as any; // Тимчасово any для сумісності
 }

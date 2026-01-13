@@ -1,0 +1,25 @@
+import { SkillDefinition } from "../../../types";
+
+export const skill_1410: SkillDefinition = {
+  id: 1410,
+  code: "HM_1410",
+  name: "Salvation",
+  description:
+    "Воскрешает цель, восстанавливает часть HP, сохраняя все усиления и ослабления.",
+  icon: "/skills/skill1410.gif",
+  category: "special",
+  powerType: "none",
+  target: "ally",
+  scope: "single",
+  castTime: 4,
+  cooldown: 2200,
+  levels: [
+    {
+      level: 1,
+      requiredLevel: 80,
+      spCost: 60000000,
+      mpCost: 86,
+      power: 0,
+    },
+  ],
+};

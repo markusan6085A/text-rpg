@@ -1,175 +1,181 @@
 // src/state/heroStore.ts
 import { create } from "zustand";
+import type { Hero, HeroInventoryItem } from "../types/Hero";
+import { loadHero } from "./heroStore/heroLoad";
+import { loadHeroFromAPI } from "./heroStore/heroLoadAPI";
+import { updateHeroLogic } from "./heroStore/heroUpdate";
+import { saveHeroToLocalStorage } from "./heroStore/heroPersistence";
+import { learnSkillLogic } from "./heroStore/heroSkills";
+import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
 import { itemsDB } from "../data/items/itemsDB";
-import { getSkillDef } from "./battle/loadout";
+import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 
 export const INVENTORY_MAX_ITEMS = 100;
 
 interface HeroState {
-  hero: any | null;
+  hero: Hero | null;
 
-  setHero: (h: any) => void;
+  setHero: (h: Hero) => void;
+
   loadHero: () => void;
-  updateHero: (partial: any) => void;
+
+  updateHero: (partial: Partial<Hero>) => void;
+
   setStatus: (value: string) => void;
-  equipItem: (item: any) => void;
-  unequipItem: (slot: string) => void;
+
   learnSkill: (skillId: number) => void;
+
+  equipItem: (item: HeroInventoryItem) => void;
+
+  unequipItem: (slot: string) => void;
+
+  updateAdena: (amount: number) => void;
+
+  addItemToInventory: (itemId: string, count?: number) => void;
 }
 
 export const useHeroStore = create<HeroState>((set, get) => ({
   hero: null,
 
-  setHero: (h) => set({ hero: h }),
+  setHero: (h) => {
+    if (h) {
+      console.log('[heroStore] setHero called, hero exists:', {
+        name: h.name,
+        inventoryItems: h.inventory?.length || 0,
+        skills: h.skills?.length || 0,
+        profession: h.profession,
+        adena: h.adena
+      });
+    } else {
+      console.warn('[heroStore] setHero called with NULL hero!');
+    }
+    set({ hero: h });
+  },
 
   loadHero: () => {
-    const current = localStorage.getItem("l2_current_user");
-    if (!current) return;
-
-    const username = JSON.parse(current);
-    const accounts = JSON.parse(localStorage.getItem("l2_accounts_v2") || "[]");
-    const acc = accounts.find((a: any) => a.username === username);
-
-    if (acc && acc.hero) {
-      set({ hero: acc.hero });
-    }
+    console.log('[heroStore] loadHero called (from localStorage)');
+    const loadedHero = loadHero();
+    console.log('[heroStore] loadHero result:', loadedHero ? 'exists' : 'null');
+    set({ hero: loadedHero });
   },
 
   updateHero: (partial) => {
     const prev = get().hero;
     if (!prev) return;
 
-    const updated = { ...prev, ...partial };
-    set({ hero: updated });
-
-    const current = JSON.parse(localStorage.getItem("l2_current_user") || "null");
-    if (!current) return;
-
-    const accounts = JSON.parse(localStorage.getItem("l2_accounts_v2") || "[]");
-    const accIndex = accounts.findIndex((a: any) => a.username === current);
-    if (accIndex !== -1) {
-      accounts[accIndex].hero = updated;
-      localStorage.setItem("l2_accounts_v2", JSON.stringify(accounts));
+    const updated = updateHeroLogic(prev, partial);
+    
+    // Логуємо зміни інвентаря для відстеження
+    if (partial.inventory !== undefined) {
+      console.log('[heroStore] Inventory updated:', {
+        prevCount: prev.inventory?.length || 0,
+        newCount: updated.inventory?.length || 0,
+        items: updated.inventory?.map(i => ({ id: i.id, count: i.count })) || []
+      });
     }
+    
+    set({ hero: updated });
+    // Fire-and-forget: save asynchronously without blocking
+    saveHeroToLocalStorage(updated).catch(err => {
+      console.error('[heroStore] Failed to save hero:', err);
+    });
   },
 
   setStatus: (value) => {
-    const { hero, updateHero } = get();
+    const hero = get().hero;
     if (!hero) return;
-
-    updateHero({ status: value });
+    get().updateHero({ status: value });
   },
 
-  equipItem: (item) => {
-    const { hero, updateHero } = get();
+  learnSkill: (skillId: number) => {
+    const hero = get().hero;
+    if (!hero) return false;
+
+    const result = learnSkillLogic(hero, skillId);
+    if (result.success && result.updatedHero) {
+      get().updateHero({
+        skills: result.updatedHero.skills,
+        sp: result.updatedHero.sp,
+      });
+    }
+    return result.success;
+  },
+
+  equipItem: (item: HeroInventoryItem) => {
+    const hero = get().hero;
     if (!hero || !item) return;
 
-    const slot = item.slot;
-    if (!slot) return;
+    const updated = equipItemLogic(hero, item);
+    get().updateHero({
+      inventory: updated.inventory,
+      equipment: updated.equipment,
+      equipmentEnchantLevels: updated.equipmentEnchantLevels,
+    });
+  },
 
-    // Запрещённые категории
-    if (["all", "consumable", "resource", "quest", "book", "recipe"].includes(slot)) {
+  unequipItem: (slot: string) => {
+    const hero = get().hero;
+    if (!hero || !slot) return;
+
+    const updated = unequipItemLogic(hero, slot);
+    get().updateHero({
+      equipment: updated.equipment,
+      inventory: updated.inventory,
+    });
+  },
+
+  updateAdena: (amount: number) => {
+    const hero = get().hero;
+    if (!hero) return;
+
+    const newAdena = Math.max(0, hero.adena + amount);
+    get().updateHero({ adena: newAdena });
+  },
+
+  addItemToInventory: (itemId: string, count: number = 1) => {
+    const hero = get().hero;
+    if (!hero) {
+      console.error("[addItemToInventory] Hero not found");
       return;
     }
 
-    const currentEquipped = hero.equipment?.[slot] || null;
-    let newInventory = [...(hero.inventory || [])].filter((i: any) => i.id !== item.id);
-
-    // Если есть предмет, который был в этом слоте
-    if (currentEquipped) {
-      const oldItem = itemsDB[currentEquipped];
-      if (oldItem) {
-        newInventory.push({
-          id: oldItem.id,
-          name: oldItem.name,
-          slot: oldItem.slot,
-          kind: oldItem.kind,
-          icon: oldItem.icon,
-          description: oldItem.description,
-          stats: oldItem.stats,
-          count: 1,
-        });
-      }
+    const itemDef = itemsDB[itemId];
+    if (!itemDef) {
+      console.error(`[addItemToInventory] Item not found in itemsDB: ${itemId}`);
+      alert(`Помилка: предмет "${itemId}" не знайдено в базі даних!`);
+      return;
     }
 
-    const newEquipment = {
-      ...(hero.equipment || {}),
-      [slot]: item.id,
-    };
-
-    updateHero({
-      inventory: newInventory,
-      equipment: newEquipment,
-    });
-  },
-
-  unequipItem: (slot) => {
-    const { hero, updateHero } = get();
-    if (!hero || !slot) return;
-
-    const itemId = hero.equipment?.[slot];
-    if (!itemId) return;
-
-    const def = itemsDB[itemId];
-    if (!def) return;
+    // Визначаємо, чи предмет може стакатися (тільки consumable, resource, quest items)
+    const stackableSlots = ["consumable", "resource", "quest"];
+    const canStack = stackableSlots.includes(itemDef.slot);
 
     const newInventory = [...(hero.inventory || [])];
-    newInventory.push({
-      id: def.id,
-      name: def.name,
-      slot: def.slot,
-      kind: def.kind,
-      icon: def.icon,
-      description: def.description,
-      stats: def.stats,
-      count: 1,
-    });
+    const existingItem = newInventory.find((item) => item.id === itemId);
 
-    const newEquipment = {
-      ...(hero.equipment || {}),
-      [slot]: null,
-    };
-
-    updateHero({
-      equipment: newEquipment,
-      inventory: newInventory,
-    });
-  },
-
-  learnSkill: (skillId) => {
-    const { hero, updateHero } = get();
-    if (!hero) return;
-
-    const skillDef = getSkillDef(skillId);
-    if (!skillDef) return;
-
-    const currentSkills = Array.isArray(hero.skills) ? hero.skills : [];
-    const existing = currentSkills.find((s: any) => s.id === skillId);
-    
-    const levels = [...skillDef.levels].sort((a, b) => a.level - b.level);
-    const currentLevel = existing?.level ?? 0;
-    const nextLevelDef = levels.find((l) => l.level > currentLevel);
-    
-    if (!nextLevelDef) return; // Уже максимальный уровень
-
-    const heroLevel = hero.level ?? 1;
-    const requiredLevel = nextLevelDef.requiredLevel ?? 1;
-    const spCost = nextLevelDef.spCost ?? 0;
-    
-    const heroSp = typeof hero.sp === "number" ? hero.sp : typeof (hero as any).SP === "number" ? (hero as any).SP : 0;
-
-    if (heroLevel < requiredLevel || heroSp < spCost) {
-      return; // Недостаточно уровня или SP
+    if (existingItem && canStack) {
+      // Тільки стакаємо, якщо предмет може стакатися
+      existingItem.count = (existingItem.count || 1) + count;
+    } else {
+      // Якщо предмет не може стакатися або його немає в інвентарі, додаємо новий
+      // Автоматично визначаємо grade та armorType, якщо вони не вказані в itemsDB
+      const grade = itemDef.grade || autoDetectGrade(itemId);
+      const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemId) : undefined);
+      
+      newInventory.push({
+        id: itemDef.id,
+        name: itemDef.name,
+        slot: itemDef.slot,
+        kind: itemDef.kind,
+        icon: itemDef.icon,
+        description: itemDef.description,
+        stats: itemDef.stats,
+        count: count,
+        grade: grade, // Додаємо грейд (з itemsDB або auto-detect)
+        armorType: armorType, // Додаємо тип броні (з itemsDB або auto-detect)
+      });
     }
 
-    const newSp = heroSp - spCost;
-    const newSkills = existing
-      ? currentSkills.map((s: any) => (s.id === skillId ? { ...s, level: nextLevelDef.level } : s))
-      : [...currentSkills, { id: skillId, level: nextLevelDef.level }];
-
-    updateHero({
-      skills: newSkills,
-      sp: newSp,
-    });
+    get().updateHero({ inventory: newInventory });
   },
 }));

@@ -1,4 +1,5 @@
 import React from "react";
+import { getString } from "../state/persistence";
 
 type GameUser = {
   username: string;
@@ -11,7 +12,7 @@ interface WipProps {
 }
 
 const Wip: React.FC<WipProps> = ({ navigate, user }) => {
-  const title = localStorage.getItem("l2_last_feature") || "Раздел";
+  const title = getString("l2_last_feature", "Раздел");
 
   const goCity = () => {
     if (user) {

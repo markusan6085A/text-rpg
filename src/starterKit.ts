@@ -108,12 +108,14 @@ export function getStarterKit(klass: string): GameItem[] {
   };
 
   // Soulshot / Spiritshot + банки
+  const isMage = klass === "Маг";
+  
   const soulshot: GameItem = {
     id: "soulshot_ng",
     name: "Soulshot NG (x200)",
     type: "consumable",
     slot: "none",
-    icon: "/items/soulshot.png",
+    icon: "/items/drops/resources/etc_spirit_bullet_white_i00.png",
     stats: {},
     description: "Боевые заряды для физического оружия. Количество: 200.",
   };
@@ -123,7 +125,7 @@ export function getStarterKit(klass: string): GameItem[] {
     name: "Spiritshot NG (x200)",
     type: "consumable",
     slot: "none",
-    icon: "/items/spiritshot.png",
+    icon: "/items/drops/resources/Etc_spell_shot_white_i01_0.jpg",
     stats: {},
     description: "Магические заряды для посохов. Количество: 200.",
   };
@@ -158,13 +160,15 @@ const mpPotion: GameItem = {
 
 
 
+  // Для магів даємо спрітшот, для воїнів - соулшот
+  const shots = isMage ? [spiritshot] : [soulshot];
+
   return [
     weapon,
     helmet,
     boots,
     cloak,
-    soulshot,
-    spiritshot,
+    ...shots,
     hpPotion,
     mpPotion,
   ];

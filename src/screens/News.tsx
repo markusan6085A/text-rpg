@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getJSON } from "../state/persistence";
 
 type Route =
   | "/"
@@ -35,9 +36,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("news");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
+      const parsed = getJSON<any[]>("news", []);
       if (Array.isArray(parsed)) {
         setItems(parsed);
       }

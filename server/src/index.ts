@@ -32,6 +32,22 @@ app.get("/health", async () => {
   return { status: "ok" };
 });
 
+// Database connection test
+app.get("/test-db", async (req, reply) => {
+  try {
+    const count = await prisma.account.count();
+    return { status: "ok", dbConnected: true, accountCount: count };
+  } catch (error) {
+    app.log.error(error, "Database test error:");
+    return reply.code(500).send({
+      status: "error",
+      dbConnected: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined
+    });
+  }
+});
+
 // Graceful shutdown
 const start = async () => {
   try {

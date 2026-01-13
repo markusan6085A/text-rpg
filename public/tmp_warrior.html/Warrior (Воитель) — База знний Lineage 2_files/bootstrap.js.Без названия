@@ -1,0 +1,22 @@
+(function(){
+  window.brand_enabled = true;
+  window.brand_url = "/out.php?out_id=20";
+  window.clickunder_enabled = true;
+  window.clickunder_urls = [
+    { url: '/out.php?out_id=20', percentage: 70 },
+    { url: '/out.php?out_id=1',  percentage: 3  },
+    { url: '/out.php?out_id=2',  percentage: 3  },
+    { url: '/out.php?out_id=3',  percentage: 3  },
+    { url: '/out.php?out_id=4',  percentage: 2  },
+    { url: '/out.php?out_id=5',  percentage: 2  },
+    { url: '/out.php?out_id=6',  percentage: 3  },
+    { url: '/out.php?out_id=7',  percentage: 3  },
+    { url: '/out.php?out_id=8',  percentage: 3  },
+    { url: '/out.php?out_id=9',  percentage: 2  },
+    { url: '/out.php?out_id=10', percentage: 2  },
+    { url: '/out.php?out_id=11', percentage: 2  },
+    { url: '/out.php?out_id=12', percentage: 2  }
+  ];
+
+  window._ann_config_loaded_at = Date.now();
+})();

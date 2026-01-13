@@ -1,26 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createNewHero } from "../state/heroFactory";
+import { clearBattlePersist } from "../state/battle/persist";
 import { useHeroStore } from "../state/heroStore";
+import { getJSON, setJSON } from "../state/persistence";
+import { register, createCharacter, updateCharacter } from "../utils/api";
+import { useAuthStore } from "../state/authStore";
+import { useCharacterStore } from "../state/characterStore";
+import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 
 interface RegisterProps {
   navigate: (path: string) => void;
 }
 
 const raceOptions = [
-  { value: "Human", label: "Human" },
-  { value: "Dark Elf", label: "Dark Elf" },
-  { value: "Elf", label: "Elf" },
-  { value: "Dwarf", label: "Dwarf" },
+  { value: "Human", label: "Человек" },
+  { value: "Dark Elf", label: "Темный Эльф" },
+  { value: "Elf", label: "Эльф" },
+  { value: "Orc", label: "Орк" },
+  { value: "Dwarf", label: "Гном" },
 ];
 
 const classOptions = [
-  { value: "Mystic", label: "Mystic" },
-  { value: "Fighter", label: "Fighter" },
+  { value: "Mystic", label: "Мистик" },
+  { value: "Fighter", label: "Боец" },
 ];
 
 const genderOptions = [
-  { value: "Male", label: "Male" },
-  { value: "Female", label: "Female" },
+  { value: "Male", label: "Мужской" },
+  { value: "Female", label: "Женский" },
 ];
 
 const CONTROL_WRAP = "w-[400px]"; // збільшена ширина для input/select
@@ -34,15 +41,15 @@ const validateNick = (nick: string): string | null => {
   const trimmed = nick.trim();
   
   if (trimmed.length < MIN_NICK_LENGTH) {
-    return `Нік повинен містити мінімум ${MIN_NICK_LENGTH} символів`;
+    return `Ник должен содержать минимум ${MIN_NICK_LENGTH} символов`;
   }
   
   if (trimmed.length > MAX_NICK_LENGTH) {
-    return `Нік повинен містити максимум ${MAX_NICK_LENGTH} символів`;
+    return `Ник должен содержать максимум ${MAX_NICK_LENGTH} символов`;
   }
   
   if (!ALLOWED_NICK_CHARS.test(trimmed)) {
-    return "Нік може містити тільки букви, цифри та символи: _, -, ., @";
+    return "Ник может содержать только буквы, цифры и символы: _, -, ., @";
   }
   
   return null;
@@ -51,6 +58,8 @@ const validateNick = (nick: string): string | null => {
 export default function Register({ navigate }: RegisterProps) {
   const loadHero = useHeroStore((s) => s.loadHero);
   const setHero = useHeroStore((s) => s.setHero);
+  const setToken = useAuthStore((s) => s.setToken);
+  const setCharacterId = useCharacterStore((s) => s.setCharacterId);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -59,6 +68,26 @@ export default function Register({ navigate }: RegisterProps) {
   const [clazz, setClazz] = useState(classOptions[0].value);
   const [gender, setGender] = useState(genderOptions[0].value);
   const [nickError, setNickError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Фільтруємо класи залежно від раси
+  const getAvailableClasses = () => {
+    if (race === "Dwarf") {
+      // Для гнома тільки воїн
+      return classOptions.filter(opt => opt.value === "Fighter");
+    }
+    return classOptions;
+  };
+
+  const availableClasses = getAvailableClasses();
+
+  // Автоматично встановлюємо клас на "Fighter", якщо вибрано гнома
+  useEffect(() => {
+    if (race === "Dwarf" && clazz === "Mystic") {
+      setClazz("Fighter");
+    }
+  }, [race, clazz]);
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -71,57 +100,87 @@ export default function Register({ navigate }: RegisterProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
-    const trimmedUsername = username.trim();
-    const nickValidationError = validateNick(trimmedUsername);
-    
-    if (nickValidationError) {
-      alert(nickValidationError);
-      return;
+    try {
+      const trimmedUsername = username.trim();
+      const nickValidationError = validateNick(trimmedUsername);
+      
+      if (nickValidationError) {
+        setError(nickValidationError);
+        setIsLoading(false);
+        return;
+      }
+
+      if (password !== password2) {
+        setError("Пароли не совпадают.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        setError("Пароль должен содержать минимум 6 символов.");
+        setIsLoading(false);
+        return;
+      }
+
+      // 1. Реєстрація через API
+      const token = await register(trimmedUsername, password);
+      setToken(token);
+
+      // 2. Створення персонажа через API
+      const character = await createCharacter({
+        name: trimmedUsername,
+        race,
+        classId: clazz,
+        sex: gender,
+      });
+      setCharacterId(character.id);
+
+      // 3. Створення героя через createNewHero
+      const coreHero = createNewHero({
+        id: `hero_${Date.now()}`,
+        name: trimmedUsername,
+        username: trimmedUsername,
+        race,
+        klass: clazz,
+        gender,
+      });
+
+      // 4. Збереження heroJson через API
+      await updateCharacter(character.id, {
+        heroJson: coreHero,
+      });
+
+      // 5. Очищаємо бафи з попереднього героя при створенні нового
+      clearBattlePersist();
+      clearBattlePersist(trimmedUsername);
+      
+      // 6. Завантажуємо героя з API
+      const loadedHero = await loadHeroFromAPI();
+      if (loadedHero) {
+        setHero(loadedHero);
+        navigate("/city");
+      } else {
+        // Fallback: встановлюємо героя вручну
+        setHero({
+          ...coreHero,
+          sp: 0,
+          skills: [],
+          battleStats: {} as any,
+        } as any);
+        navigate("/city");
+      }
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      const errorMessage = err?.message || "Ошибка регистрации. Попробуйте снова.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-
-    const accounts = JSON.parse(localStorage.getItem("l2_accounts_v2") || "[]");
-
-    if (accounts.find((acc: any) => acc.username === trimmedUsername)) {
-      alert("Username already exists.");
-      return;
-    }
-
-    if (password !== password2) {
-      alert("Passwords do not match.");
-      return;
-    }
-
-    const coreHero = createNewHero({
-      id: `hero_${Date.now()}`,
-      name: trimmedUsername,
-      username: trimmedUsername,
-      race,
-      klass: clazz,
-      gender,
-    });
-
-    accounts.push({
-      username: trimmedUsername,
-      password,
-      hero: coreHero,
-    });
-
-    localStorage.setItem("l2_accounts_v2", JSON.stringify(accounts));
-    
-    // Встановлюємо поточного користувача
-    localStorage.setItem(
-      "l2_current_user",
-      JSON.stringify(trimmedUsername)
-    );
-    
-    // Встановлюємо героя в store
-    setHero(coreHero);
-    
-    // Переходимо в місто
-    navigate("/city");
   };
 
   return (
@@ -143,7 +202,7 @@ export default function Register({ navigate }: RegisterProps) {
                     value={username}
                     onChange={handleUsernameChange}
                     maxLength={MAX_NICK_LENGTH}
-                    placeholder={`5-${MAX_NICK_LENGTH} символів`}
+                    placeholder={`5-${MAX_NICK_LENGTH} символов`}
                   />
                   {nickError && (
                     <div className="text-red-400 text-xs mt-1 text-center">
@@ -152,7 +211,7 @@ export default function Register({ navigate }: RegisterProps) {
                   )}
                   {!nickError && username.length > 0 && (
                     <div className="text-gray-400 text-xs mt-1 text-center">
-                      {username.length}/{MAX_NICK_LENGTH} символів
+                      {username.length}/{MAX_NICK_LENGTH} символов
                     </div>
                   )}
                 </div>
@@ -195,7 +254,7 @@ export default function Register({ navigate }: RegisterProps) {
             { label: "Раса", options: raceOptions, value: race, setter: setRace },
             {
               label: "Класс",
-              options: classOptions,
+              options: availableClasses,
               value: clazz,
               setter: setClazz,
             },
@@ -227,8 +286,17 @@ export default function Register({ navigate }: RegisterProps) {
             </label>
           ))}
 
-          <button type="submit" className="l2-btn w-full max-w-[400px] mt-3">
-            Зарегистрироваться
+          {error && (
+            <div className="text-red-400 text-sm text-center">
+              {error}
+            </div>
+          )}
+          <button 
+            type="submit" 
+            className="l2-btn w-full max-w-[400px] mt-3"
+            disabled={isLoading}
+          >
+            {isLoading ? "Регистрация..." : "Зарегистрироваться"}
           </button>
         </form>
 

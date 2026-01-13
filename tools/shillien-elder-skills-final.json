@@ -1,0 +1,3236 @@
+[
+  {
+    "name": "Anti Magic",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 13,
+        "spCost": 1313000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.13 13 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 40.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1413000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.14 13 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 42.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1513000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.15 13 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 43.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 1615000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.16 15 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 46.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 1715000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.17 15 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 47.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 1815000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.18 15 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 49.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 1929000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.19 29 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 52.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 2029000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.20 29 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 54.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 2129000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.21 29 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 56.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 2238000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.22 38 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 59.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 2338000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.23 38 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 61.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 2438000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.24 38 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 63.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 2548000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.25 48 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 66.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 2648000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.26 48 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 68.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 2748000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.27 48 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 70.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 2892000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.28 92 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 72.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 2992000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.29 92 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 74.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 30130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.30 130 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 76.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 31130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.31 130 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 78.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 32180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.32 180 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 80.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 33180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.33 180 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 82.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 34240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.34 240 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 84.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 35240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.35 240 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 86.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 36350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.36 350 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 88.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 37350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.37 350 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 91.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 38350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.38 350 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 93.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 39350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.39 350 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 95.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 40470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.40 470 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 97.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 41470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.41 470 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 99.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 42,
+        "spCost": 42680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.42 680 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 102.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 43,
+        "spCost": 43680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.43 680 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 104.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 44,
+        "spCost": 441000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.44 1 000 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 106.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 45,
+        "spCost": 451000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Anti Magic\tAnti Magic lv.45 1 000 000 SP\t\t\tIncreases M. Def. - ����������� ���������� ������ �� 108.",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Boost Mana",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 339000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Boost Mana\tBoost Mana lv.3 39 000 SP\t\t\tIncreases maximum MP. - ����������� ������������ MP �� 70.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 485000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Boost Mana\tBoost Mana lv.4 85 000 SP\t\t\tIncreases maximum MP. - ����������� ������������ MP �� 100.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 5140000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Boost Mana\tBoost Mana lv.5 140 000 SP\t\t\tIncreases maximum MP. - ����������� ������������ MP �� 140.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 6250000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Boost Mana\tBoost Mana lv.6 250 000 SP\t\t\tIncreases maximum MP. - ����������� ������������ MP �� 152.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 7700000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Boost Mana\tBoost Mana lv.7 700 000 SP\t\t\tIncreases maximum MP. - ����������� ������������ MP �� 180.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 81400000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Boost Mana\tBoost Mana lv.8 1 400 000 SP\t\t\tIncreases maximum MP. - ����������� ������������ MP �� 200.",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Fast Spell Casting",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 239000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast Spell Casting\tFast Spell Casting lv.2 39 000 SP\t\t\tSpell casting speed increases. - ����������� �������� ����� �� 7%.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 3140000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast Spell Casting\tFast Spell Casting lv.3 140 000 SP\t\t\tSpell casting speed increases. - ����������� �������� ����� �� 10%.",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Light Armor Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 9,
+        "spCost": 913000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.9 13 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ��",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 1013000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.10 13 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 1113000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.11 13 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 1215000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.12 15 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 1315000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.13 15 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1415000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.14 15 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1529000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.15 29 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 1629000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.16 29 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 1729000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.17 29 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 1838000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.18 38 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 1938000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.19 38 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 2038000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.20 38 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 2148000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.21 48 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 2248000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.22 48 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 2348000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.23 48 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 2492000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.24 92 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 2592000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.25 92 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 26130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.26 130 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 27130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.27 130 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 28180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.28 180 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 29180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.29 180 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 30240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.30 240 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 31240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.31 240 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 32350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.32 350 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 33350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.33 350 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 34350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.34 350 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 35350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.35 350 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 36470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.36 470 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 37470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.37 470 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 38680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.38 680 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 39680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.39 680 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Light ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 401000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.40 1 000 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Ligh",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 411000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Light Armor Mastery\tLight Armor Mastery lv.41 1 000 000 SP\t\t\tIncreases P. Def., Casting Spd., Atk. Spd. and MP regeneration when wearing light armor. - ����������� ���������� ������ � ������ ���� Ligh",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Robe Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 9,
+        "spCost": 913000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.9 13 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 26.3.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 1013000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.10 13 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 27.6.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 1113000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.11 13 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 28.8.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 1215000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.12 15 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 31.5.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 1315000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.13 15 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 32.9.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1415000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.14 15 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 34.2.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1529000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.15 29 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 37.1.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 1629000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.16 29 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 38.6.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 1729000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.17 29 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 40.1.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 1838000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.18 38 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 43.2.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 1938000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.19 38 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 44.8.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 2038000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.20 38 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 46.4.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 2148000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.21 48 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 49.8.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 2248000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.22 48 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 51.5.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 2348000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.23 48 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 53.2.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 2492000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.24 92 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 54.9.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 2592000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.25 92 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 56.7.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 26130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.26 130 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 58.5.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 27130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.27 130 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 60.3.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 28180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.28 180 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 62.1.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 29180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.29 180 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 64.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 30240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.30 240 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 65.9.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 31240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.31 240 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 67.7.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 32350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.32 350 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 69.7.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 33350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.33 350 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 71.6.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 34350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.34 350 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 73.5.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 35350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.35 350 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 75.5.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 36470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.36 470 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 77.4.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 37470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.37 470 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 79.4.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 38680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.38 680 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 81.4.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 39680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.39 680 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 83.4.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 401000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.40 1 000 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 85.4.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 411000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Robe Mastery\tRobe Mastery lv.41 1 000 000 SP\t\t\tIncreases P. Def. when wearing a robe. - ����������� ���������� ������ � ������ ���� Robe �� 87.4.",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Weapon Mastery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 10,
+        "spCost": 1013000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.10 13 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 16. - ����������� ���������� ����� �� 20. - ����������� ���������� ����� �� 45%. - �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 1113000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.11 13 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 17. - ����������� ���������� ����� �� 21.3. - ����������� ���������� ����� �� 45%. - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 1213000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.12 13 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 18.1. - ����������� ���������� ����� �� 22.6. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 1315000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.13 15 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 20.4. - ����������� ���������� ����� �� 25.4. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1415000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.14 15 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 21.6. - ����������� ���������� ����� �� 26.9. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1515000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.15 15 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 22.8. - ����������� ���������� ����� �� 28.5. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 1629000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.16 29 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 25.5. - ����������� ���������� ����� �� 31.8. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 1729000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.17 29 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 26.9. - ����������� ���������� ����� �� 33.6. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 1829000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.18 29 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 28.3. - ����������� ���������� ����� �� 35.4. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 1938000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.19 38 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 31.4. - ����������� ���������� ����� �� 39.2. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 2038000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.20 38 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 33. - ����������� ���������� ����� �� 41.2. - ����������� ���������� ����� �� 45%. - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 2138000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.21 38 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 34.6. - ����������� ���������� ����� �� 43.2. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 2248000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.22 48 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 38. - ����������� ���������� ����� �� 47.5. - ����������� ���������� ����� �� 45%. - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 2348000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.23 48 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 39.8. - ����������� ���������� ����� �� 49.8. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 2448000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.24 48 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 41.7. - ����������� ���������� ����� �� 52.1. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 2592000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.25 92 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 43.5. - ����������� ���������� ����� �� 54.4. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 2692000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.26 92 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 45.4. - ����������� ���������� ����� �� 56.8. - ����������� ���������� ����� �� 45%. - �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 27130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.27 130 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 47.4. - ����������� ���������� ����� �� 59.2. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 28130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.28 130 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 49.4. - ����������� ���������� ����� �� 61.7. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 29180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.29 180 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 51.4. - ����������� ���������� ����� �� 64.3. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 30180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.30 180 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 53.5. - ����������� ���������� ����� �� 66.8. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 31240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.31 240 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 55.6. - ����������� ���������� ����� �� 69.4. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 32240000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.32 240 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 57.7. - ����������� ���������� ����� �� 72.1. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 33350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.33 350 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 59.8. - ����������� ���������� ����� �� 74.8. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 34,
+        "spCost": 34350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.34 350 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 62. - ����������� ���������� ����� �� 77.4. - ����������� ���������� ����� �� 45%. - ��",
+        "descriptionRu": ""
+      },
+      {
+        "level": 35,
+        "spCost": 35350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.35 350 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 64.1. - ����������� ���������� ����� �� 80.2. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 36,
+        "spCost": 36350000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.36 350 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 66.3. - ����������� ���������� ����� �� 82.9. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 37,
+        "spCost": 37470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.37 470 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 68.5. - ����������� ���������� ����� �� 85.6. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 38,
+        "spCost": 38470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.38 470 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 70.7. - ����������� ���������� ����� �� 88.4. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 39,
+        "spCost": 39680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.39 680 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 72.9. - ����������� ���������� ����� �� 91.1. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 40,
+        "spCost": 40680000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.40 680 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 75.1. - ����������� ���������� ����� �� 93.8. - ����������� ���������� ����� �� 45%. - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 41,
+        "spCost": 411000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.41 1 000 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 77.2. - ����������� ���������� ����� �� 96.5. - ����������� ���������� ����� �� 45%. ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 42,
+        "spCost": 421000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Weapon Mastery\tWeapon Mastery lv.42 1 000 000 SP\t\t\tIncreases P. Atk. and M. Atk. - ����������� ���������� ����� �� 79.4. - ����������� ���������� ����� �� 99.3. - ����������� ���������� ����� �� 45%. ",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Wind Shackle",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 6,
+        "spCost": 639000,
+        "mpCost": 35,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.6 39 000 SP\t������ MP: 35 (7 + 28) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � ������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 743000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.7 43 000 SP\t������ MP: 39 (8 + 31) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � ������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 885000,
+        "mpCost": 44,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.8 85 000 SP\t������ MP: 44 (9 + 35) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � ������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 9110000,
+        "mpCost": 48,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.9 110 000 SP\t������ MP: 48 (10 + 38) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 10140000,
+        "mpCost": 52,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.10 140 000 SP\t������ MP: 52 (11 + 41) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 11180000,
+        "mpCost": 54,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.11 180 000 SP\t������ MP: 54 (11 + 43) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 12250000,
+        "mpCost": 55,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.12 250 000 SP\t������ MP: 55 (11 + 44) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 13360000,
+        "mpCost": 58,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.13 360 000 SP\t������ MP: 58 (12 + 46) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 14480000,
+        "mpCost": 60,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.14 480 000 SP\t������ MP: 60 (12 + 48) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 15700000,
+        "mpCost": 62,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.15 700 000 SP\t������ MP: 62 (13 + 49) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 16700000,
+        "mpCost": 64,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.16 700 000 SP\t������ MP: 64 (13 + 51) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 17940000,
+        "mpCost": 65,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.17 940 000 SP\t������ MP: 65 (13 + 52) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 181400000,
+        "mpCost": 67,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.18 1 400 000 SP\t������ MP: 67 (14 + 53) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 192100000,
+        "mpCost": 69,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wind Shackle\tWind Shackle lv.19 2 100 000 SP\t������ MP: 69 (14 + 55) ����: 1.5 ���. �����: 8 ���.\tSpirit of the Wind attacks, reducing target's Atk. Spd. Effect 3. ������ Wind Shackle �� 15 ���. � ���",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Death Whisper",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 139000,
+        "mpCost": 35,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Death Whisper\tDeath Whisper lv.1 39 000 SP\t������ MP: 35 (7 + 28) ����: 4 ���. �����: 6 ���.\tTemporarily increases critical attack. Effect 1. ������ Death Whisper �� 20 ���., ��������� �� ���� � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 285000,
+        "mpCost": 44,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Death Whisper\tDeath Whisper lv.2 85 000 SP\t������ MP: 44 (9 + 35) ����: 4 ���. �����: 6 ���.\tTemporarily increases critical attack. Effect 2. ������ Death Whisper �� 20 ���., ��������� �� ���� � �����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 3140000,
+        "mpCost": 52,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Death Whisper\tDeath Whisper lv.3 140 000 SP\t������ MP: 52 (11 + 41) ����: 4 ���. �����: 6 ���.\tTemporarily increases critical attack. Effect 3. ������ Death Whisper �� 20 ���., ��������� �� ���� � ���",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Dryad Root",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 10,
+        "spCost": 1013000,
+        "mpCost": 34,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.10 13 000 SP\t������ MP: 34 (7 + 27) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 1113000,
+        "mpCost": 34,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.11 13 000 SP\t������ MP: 34 (7 + 27) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 1213000,
+        "mpCost": 35,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.12 13 000 SP\t������ MP: 35 (7 + 28) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 1315000,
+        "mpCost": 38,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.13 15 000 SP\t������ MP: 38 (8 + 30) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1415000,
+        "mpCost": 38,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.14 15 000 SP\t������ MP: 38 (8 + 30) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1515000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.15 15 000 SP\t������ MP: 39 (8 + 31) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 1629000,
+        "mpCost": 42,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.16 29 000 SP\t������ MP: 42 (9 + 33) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 1729000,
+        "mpCost": 43,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.17 29 000 SP\t������ MP: 43 (9 + 34) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 1829000,
+        "mpCost": 44,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.18 29 000 SP\t������ MP: 44 (9 + 35) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 1938000,
+        "mpCost": 45,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.19 38 000 SP\t������ MP: 45 (9 + 36) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addition",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 2038000,
+        "mpCost": 47,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.20 38 000 SP\t������ MP: 47 (10 + 37) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additio",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 2138000,
+        "mpCost": 48,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.21 38 000 SP\t������ MP: 48 (10 + 38) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additio",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 2248000,
+        "mpCost": 49,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.22 48 000 SP\t������ MP: 49 (10 + 39) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additio",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 2348000,
+        "mpCost": 50,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.23 48 000 SP\t������ MP: 50 (10 + 40) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additio",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 2448000,
+        "mpCost": 52,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.24 48 000 SP\t������ MP: 52 (11 + 41) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additio",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 25180000,
+        "mpCost": 54,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.25 180 000 SP\t������ MP: 54 (11 + 43) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 26250000,
+        "mpCost": 55,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.26 250 000 SP\t������ MP: 55 (11 + 44) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 27360000,
+        "mpCost": 58,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.27 360 000 SP\t������ MP: 58 (12 + 46) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 28480000,
+        "mpCost": 60,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.28 480 000 SP\t������ MP: 60 (12 + 48) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 29700000,
+        "mpCost": 62,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.29 700 000 SP\t������ MP: 62 (13 + 49) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 30700000,
+        "mpCost": 64,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.30 700 000 SP\t������ MP: 64 (13 + 51) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 31940000,
+        "mpCost": 65,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.31 940 000 SP\t������ MP: 65 (13 + 52) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any additi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 321400000,
+        "mpCost": 67,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.32 1 400 000 SP\t������ MP: 67 (14 + 53) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addi",
+        "descriptionRu": ""
+      },
+      {
+        "level": 33,
+        "spCost": 332100000,
+        "mpCost": 69,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Dryad Root\tDryad Root lv.33 2 100 000 SP\t������ MP: 69 (14 + 55) ����: 2.5 ���. �����: 8 ���.\tInstantly throws an enemy into a state of hold. While the effect lasts, the target cannot receive any addi",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Guidance",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 139000,
+        "mpCost": 35,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Guidance\tGuidance lv.1 39 000 SP\t������ MP: 35 (7 + 28) ����: 4 ���. �����: 6 ���.\tTemporarily increases Accuracy. Effect 1. ������ Guidance �� 20 ���., ��������� �� ���� � ������, ��������� � �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 285000,
+        "mpCost": 44,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Guidance\tGuidance lv.2 85 000 SP\t������ MP: 44 (9 + 35) ����: 4 ���. �����: 6 ���.\tTemporarily increases Accuracy. Effect 2. ������ Guidance �� 20 ���., ��������� �� ���� � ������, ��������� � �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 3140000,
+        "mpCost": 52,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Guidance\tGuidance lv.3 140 000 SP\t������ MP: 52 (11 + 41) ����: 4 ���. �����: 6 ���.\tTemporarily increases Accuracy. Effect 3. ������ Guidance �� 20 ���., ��������� �� ���� � ������, ��������� � �����",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Mental Shield",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 239000,
+        "mpCost": 35,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Mental Shield\tMental Shield lv.2 39 000 SP\t������ MP: 35 (7 + 28) ����: 4 ���. �����: 6 ���.\tTemporarily increases resistance to Hold, Sleep, Fear, and Mental attacks. Enchant Time: the duration of on",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 385000,
+        "mpCost": 44,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Mental Shield\tMental Shield lv.3 85 000 SP\t������ MP: 44 (9 + 35) ����: 4 ���. �����: 6 ���.\tTemporarily increases resistance to Hold, Sleep, Fear, and Mental attacks. Enchant Time: the duration of on",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 4140000,
+        "mpCost": 52,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Mental Shield\tMental Shield lv.4 140 000 SP\t������ MP: 52 (11 + 41) ����: 4 ���. �����: 6 ���.\tTemporarily increases resistance to Hold, Sleep, Fear, and Mental attacks. Enchant Time: the duration of ",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Might",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 339000,
+        "mpCost": 35,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Might\tMight lv.3 39 000 SP\t������ MP: 35 (7 + 28) ����: 4 ���. �����: 6 ���.\tTemporarily increases P. Atk. Effect 3. ������ Might �� 20 ���., ��������� �� ���� � ������, ��������� � �������� ���������",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Recharge",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 5,
+        "spCost": 519000,
+        "mpCost": 67,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 66,
+        "description": "Recharge\tRecharge lv.5 19 000 SP\t������ MP: 67 (14 + 53) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 66. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 619000,
+        "mpCost": 70,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 70,
+        "description": "Recharge\tRecharge lv.6 19 000 SP\t������ MP: 70 (14 + 56) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 70. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 722000,
+        "mpCost": 74,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 73,
+        "description": "Recharge\tRecharge lv.7 22 000 SP\t������ MP: 74 (15 + 59) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 73. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 822000,
+        "mpCost": 78,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 77,
+        "description": "Recharge\tRecharge lv.8 22 000 SP\t������ MP: 78 (16 + 62) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 77. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 943000,
+        "mpCost": 82,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 81,
+        "description": "Recharge\tRecharge lv.9 43 000 SP\t������ MP: 82 (17 + 65) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 81. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 1043000,
+        "mpCost": 87,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 86,
+        "description": "Recharge\tRecharge lv.10 43 000 SP\t������ MP: 87 (18 + 69) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 86. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ��",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 1156000,
+        "mpCost": 90,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 90,
+        "description": "Recharge\tRecharge lv.11 56 000 SP\t������ MP: 90 (18 + 72) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 90. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ��",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 1256000,
+        "mpCost": 94,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 94,
+        "description": "Recharge\tRecharge lv.12 56 000 SP\t������ MP: 94 (19 + 75) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 94. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ��",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 1371000,
+        "mpCost": 98,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 98,
+        "description": "Recharge\tRecharge lv.13 71 000 SP\t������ MP: 98 (20 + 78) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 98. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ��",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1471000,
+        "mpCost": 103,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 102,
+        "description": "Recharge\tRecharge lv.14 71 000 SP\t������ MP: 103 (21 + 82) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 102. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1592000,
+        "mpCost": 104,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 104,
+        "description": "Recharge\tRecharge lv.15 92 000 SP\t������ MP: 104 (21 + 83) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 104. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 1692000,
+        "mpCost": 107,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 106,
+        "description": "Recharge\tRecharge lv.16 92 000 SP\t������ MP: 107 (22 + 85) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 106. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: - ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 17130000,
+        "mpCost": 109,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 108,
+        "description": "Recharge\tRecharge lv.17 130 000 SP\t������ MP: 109 (22 + 87) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 108. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 18130000,
+        "mpCost": 110,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 110,
+        "description": "Recharge\tRecharge lv.18 130 000 SP\t������ MP: 110 (22 + 88) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 110. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 19180000,
+        "mpCost": 113,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 113,
+        "description": "Recharge\tRecharge lv.19 180 000 SP\t������ MP: 113 (23 + 90) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 113. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 20180000,
+        "mpCost": 115,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 115,
+        "description": "Recharge\tRecharge lv.20 180 000 SP\t������ MP: 115 (23 + 92) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 115. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 21240000,
+        "mpCost": 117,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 116,
+        "description": "Recharge\tRecharge lv.21 240 000 SP\t������ MP: 117 (24 + 93) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 116. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 22240000,
+        "mpCost": 119,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 118,
+        "description": "Recharge\tRecharge lv.22 240 000 SP\t������ MP: 119 (24 + 95) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 118. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 23350000,
+        "mpCost": 120,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 120,
+        "description": "Recharge\tRecharge lv.23 350 000 SP\t������ MP: 120 (24 + 96) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 120. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 24350000,
+        "mpCost": 123,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 122,
+        "description": "Recharge\tRecharge lv.24 350 000 SP\t������ MP: 123 (25 + 98) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 122. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 25350000,
+        "mpCost": 124,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 124,
+        "description": "Recharge\tRecharge lv.25 350 000 SP\t������ MP: 124 (25 + 99) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 124. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: -",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 26350000,
+        "mpCost": 127,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 126,
+        "description": "Recharge\tRecharge lv.26 350 000 SP\t������ MP: 127 (26 + 101) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 126. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 27470000,
+        "mpCost": 128,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 128,
+        "description": "Recharge\tRecharge lv.27 470 000 SP\t������ MP: 128 (26 + 102) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 128. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 28470000,
+        "mpCost": 130,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 129,
+        "description": "Recharge\tRecharge lv.28 470 000 SP\t������ MP: 130 (26 + 104) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 129. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 29680000,
+        "mpCost": 132,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 131,
+        "description": "Recharge\tRecharge lv.29 680 000 SP\t������ MP: 132 (27 + 105) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 131. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 30,
+        "spCost": 30680000,
+        "mpCost": 133,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 133,
+        "description": "Recharge\tRecharge lv.30 680 000 SP\t������ MP: 133 (27 + 106) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 133. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400: ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 31,
+        "spCost": 311000000,
+        "mpCost": 135,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 134,
+        "description": "Recharge\tRecharge lv.31 1 000 000 SP\t������ MP: 135 (27 + 108) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 134. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400",
+        "descriptionRu": ""
+      },
+      {
+        "level": 32,
+        "spCost": 321000000,
+        "mpCost": 137,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 136,
+        "description": "Recharge\tRecharge lv.32 1 000 000 SP\t������ MP: 137 (28 + 109) ����: 6 ���. �����: 12 ���.\tRestores one's MP. Power 136. ������ Recharge, ��������� �� ���� � ������, ��������� � �������� ��������� 400",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Resist Wind",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 239000,
+        "mpCost": 35,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Resist Wind\tResist Wind lv.2 39 000 SP\t������ MP: 35 (7 + 28) ����: 4 ���. �����: 6 ���.\tTemporarily increases resistance to attack by wind. Effect 2. ������ Resist Wind �� 20 ���., ��������� �� ���� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 343000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Resist Wind\tResist Wind lv.3 43 000 SP\t������ MP: 39 (8 + 31) ����: 4 ���. �����: 6 ���.\tTemporarily increases resistance to attack by wind. Effect 3. ������ Resist Wind �� 20 ���., ��������� �� ���� ",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Fast HP Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 243000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast HP Recovery\tFast HP Recovery lv.2 43 000 SP\t\t\tIncreases HP recovery speed. - �������� ����������� HP �� 1.6 HP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 3110000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast HP Recovery\tFast HP Recovery lv.3 110 000 SP\t\t\tIncreases HP recovery speed. - �������� ����������� HP �� 1.7 HP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 4180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast HP Recovery\tFast HP Recovery lv.4 180 000 SP\t\t\tIncreases HP recovery speed. - �������� ����������� HP �� 2.1 HP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 5480000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast HP Recovery\tFast HP Recovery lv.5 480 000 SP\t\t\tIncreases HP recovery speed. - �������� ����������� HP �� 2.6 HP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 62100000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast HP Recovery\tFast HP Recovery lv.6 2 100 000 SP\t\t\tIncreases HP recovery speed. - �������� ����������� HP �� 2.7 HP/���.",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Fast Mana Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 343000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast Mana Recovery\tFast Mana Recovery lv.3 43 000 SP\t\t\tIncreases MP Recovery Speed. - �������� ����������� MP, �� 1.9 MP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 4110000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast Mana Recovery\tFast Mana Recovery lv.4 110 000 SP\t\t\tIncreases MP Recovery Speed. - �������� ����������� MP, �� 2.3 MP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 5250000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast Mana Recovery\tFast Mana Recovery lv.5 250 000 SP\t\t\tIncreases MP Recovery Speed. - �������� ����������� MP, �� 2.7 MP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 6700000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast Mana Recovery\tFast Mana Recovery lv.6 700 000 SP\t\t\tIncreases MP Recovery Speed. - �������� ����������� MP, �� 3.1 MP/���.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 72100000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Fast Mana Recovery\tFast Mana Recovery lv.7 2 100 000 SP\t\t\tIncreases MP Recovery Speed. - �������� ����������� MP, �� 3.4 MP/���.",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Concentration",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 343000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Concentration\tConcentration lv.3 43 000 SP\t������ MP: 39 (8 + 31) ����: 4 ���. �����: 6 ���.\tTemporarily lowers the probability of magic being canceled due to damage. Effect 3. ������ Concentration ��",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 4110000,
+        "mpCost": 48,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Concentration\tConcentration lv.4 110 000 SP\t������ MP: 48 (10 + 38) ����: 4 ���. �����: 6 ���.\tTemporarily lowers the probability of magic being canceled due to damage. Effect 4. ������ Concentration ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 5250000,
+        "mpCost": 55,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Concentration\tConcentration lv.5 250 000 SP\t������ MP: 55 (11 + 44) ����: 4 ���. �����: 6 ���.\tTemporarily lowers the probability of magic being canceled due to damage. Effect 5. ������ Concentration ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 6700000,
+        "mpCost": 64,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Concentration\tConcentration lv.6 700 000 SP\t������ MP: 64 (13 + 51) ����: 4 ���. �����: 6 ���.\tTemporarily lowers the probability of magic being canceled due to damage. Effect 6. ������ Concentration ",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Empower",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 243000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Empower\tEmpower lv.2 43 000 SP\t������ MP: 39 (8 + 31) ����: 4 ���. �����: 6 ���.\tTemporarily increases M. Atk. Effect 2. ������ Empower �� 20 ���., ��������� �� ���� � ������, ��������� � �������� ���",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Focus",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 243000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Focus\tFocus lv.2 43 000 SP\t������ MP: 39 (8 + 31) ����: 4 ���. �����: 6 ���.\tTemporarily increases critical attack rate. Effect 2. ������ Focus �� 20 ���., ��������� �� ���� � ������, ��������� � ����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 3110000,
+        "mpCost": 48,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Focus\tFocus lv.3 110 000 SP\t������ MP: 48 (10 + 38) ����: 4 ���. �����: 6 ���.\tTemporarily increases critical attack rate. Effect 3. ������ Focus �� 20 ���., ��������� �� ���� � ������, ��������� � ��",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Purify",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 143000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Purify\tPurify lv.1 43 000 SP\t������ MP: 39 (8 + 31) ����: 4 ���. �����: 15 ���.\tHeals paralysis, cures poisoning and stops bleeding with the effect of 3 or less. ������ Purify, ��������� �� ���� � ���",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 2110000,
+        "mpCost": 48,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Purify\tPurify lv.2 110 000 SP\t������ MP: 48 (10 + 38) ����: 4 ���. �����: 15 ���.\tHeals paralysis, cures poisoning and stops bleeding with the effect of 7 or less. ������ Purify, ��������� �� ���� � �",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 3360000,
+        "mpCost": 55,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Purify\tPurify lv.3 360 000 SP\t������ MP: 55 (11 + 44) ����: 4 ���. �����: 15 ���.\tHeals paralysis, cures poisoning and stops bleeding with the effect of 9 or less. ������ Purify, ��������� �� ���� � �",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Shield",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 343000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Shield\tShield lv.3 43 000 SP\t������ MP: 39 (8 + 31) ����: 4 ���. �����: 6 ���.\tTemporarily increases P. Def. Effect 3. ������ Shield �� 20 ���., ��������� �� ���� � ������, ��������� � �������� ������",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Vampiric Rage",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 243000,
+        "mpCost": 39,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Vampiric Rage\tVampiric Rage lv.2 43 000 SP\t������ MP: 39 (8 + 31) ����: 4 ���. �����: 6 ���.\tPartially restores HP using damage inflicted upon the enemy. Excludes damage from skill or remote attack. E",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 3180000,
+        "mpCost": 54,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Vampiric Rage\tVampiric Rage lv.3 180 000 SP\t������ MP: 54 (11 + 43) ����: 4 ���. �����: 6 ���.\tPartially restores HP using damage inflicted upon the enemy. Excludes damage from skill or remote attack.",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 41400000,
+        "mpCost": 67,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Vampiric Rage\tVampiric Rage lv.4 1 400 000 SP\t������ MP: 67 (14 + 53) ����: 4 ���. �����: 6 ���.\tPartially restores HP using damage inflicted upon the enemy. Excludes damage from skill or remote attac",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Quick Recovery",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 385000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Quick Recovery\tQuick Recovery lv.3 85 000 SP\t\t\tTime between magic reuse shortens. - ��������� ����� ������ ����� �� 30%.",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Greater Group Heal",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 129000,
+        "mpCost": 115,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 297,
+        "description": "Greater Group Heal\tGreater Group Heal lv.1 29 000 SP\t������ MP: 115 (23 + 92) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 297. ������ Greater Group Heal, ��������� �� ����, ���������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 229000,
+        "mpCost": 119,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 308,
+        "description": "Greater Group Heal\tGreater Group Heal lv.2 29 000 SP\t������ MP: 119 (24 + 95) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 308. ������ Greater Group Heal, ��������� �� ����, ���������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 329000,
+        "mpCost": 122,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 319,
+        "description": "Greater Group Heal\tGreater Group Heal lv.3 29 000 SP\t������ MP: 122 (25 + 97) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 319. ������ Greater Group Heal, ��������� �� ����, ���������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 438000,
+        "mpCost": 127,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 341,
+        "description": "Greater Group Heal\tGreater Group Heal lv.4 38 000 SP\t������ MP: 127 (26 + 101) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 341. ������ Greater Group Heal, ��������� �� ����, ��������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 538000,
+        "mpCost": 130,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 353,
+        "description": "Greater Group Heal\tGreater Group Heal lv.5 38 000 SP\t������ MP: 130 (26 + 104) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 353. ������ Greater Group Heal, ��������� �� ����, ��������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 638000,
+        "mpCost": 134,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 364,
+        "description": "Greater Group Heal\tGreater Group Heal lv.6 38 000 SP\t������ MP: 134 (27 + 107) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 364. ������ Greater Group Heal, ��������� �� ����, ��������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 748000,
+        "mpCost": 143,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 388,
+        "description": "Greater Group Heal\tGreater Group Heal lv.7 48 000 SP\t������ MP: 143 (29 + 114) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 388. ������ Greater Group Heal, ��������� �� ����, ��������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 848000,
+        "mpCost": 148,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 399,
+        "description": "Greater Group Heal\tGreater Group Heal lv.8 48 000 SP\t������ MP: 148 (30 + 118) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 399. ������ Greater Group Heal, ��������� �� ����, ��������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 948000,
+        "mpCost": 152,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 411,
+        "description": "Greater Group Heal\tGreater Group Heal lv.9 48 000 SP\t������ MP: 152 (31 + 121) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 411. ������ Greater Group Heal, ��������� �� ����, ��������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 1061000,
+        "mpCost": 159,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 435,
+        "description": "Greater Group Heal\tGreater Group Heal lv.10 61 000 SP\t������ MP: 159 (32 + 127) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 435. ������ Greater Group Heal, ��������� �� ����, �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 1161000,
+        "mpCost": 159,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 447,
+        "description": "Greater Group Heal\tGreater Group Heal lv.11 61 000 SP\t������ MP: 159 (32 + 127) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 447. ������ Greater Group Heal, ��������� �� ����, �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 1261000,
+        "mpCost": 164,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 459,
+        "description": "Greater Group Heal\tGreater Group Heal lv.12 61 000 SP\t������ MP: 164 (33 + 131) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 459. ������ Greater Group Heal, ��������� �� ����, �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 1383000,
+        "mpCost": 173,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 483,
+        "description": "Greater Group Heal\tGreater Group Heal lv.13 83 000 SP\t������ MP: 173 (35 + 138) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 483. ������ Greater Group Heal, ��������� �� ����, �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1483000,
+        "mpCost": 177,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 495,
+        "description": "Greater Group Heal\tGreater Group Heal lv.14 83 000 SP\t������ MP: 177 (36 + 141) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 495. ������ Greater Group Heal, ��������� �� ����, �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1583000,
+        "mpCost": 180,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 506,
+        "description": "Greater Group Heal\tGreater Group Heal lv.15 83 000 SP\t������ MP: 180 (36 + 144) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 506. ������ Greater Group Heal, ��������� �� ����, �������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 16180000,
+        "mpCost": 185,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 518,
+        "description": "Greater Group Heal\tGreater Group Heal lv.16 180 000 SP\t������ MP: 185 (37 + 148) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 518. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 17180000,
+        "mpCost": 189,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 529,
+        "description": "Greater Group Heal\tGreater Group Heal lv.17 180 000 SP\t������ MP: 189 (38 + 151) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 529. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 18240000,
+        "mpCost": 193,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 541,
+        "description": "Greater Group Heal\tGreater Group Heal lv.18 240 000 SP\t������ MP: 193 (39 + 154) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 541. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 19240000,
+        "mpCost": 195,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 552,
+        "description": "Greater Group Heal\tGreater Group Heal lv.19 240 000 SP\t������ MP: 195 (39 + 156) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 552. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 20350000,
+        "mpCost": 195,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 563,
+        "description": "Greater Group Heal\tGreater Group Heal lv.20 350 000 SP\t������ MP: 195 (39 + 156) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 563. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 21350000,
+        "mpCost": 199,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 574,
+        "description": "Greater Group Heal\tGreater Group Heal lv.21 350 000 SP\t������ MP: 199 (40 + 159) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 574. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 22350000,
+        "mpCost": 203,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 585,
+        "description": "Greater Group Heal\tGreater Group Heal lv.22 350 000 SP\t������ MP: 203 (41 + 162) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 585. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 23350000,
+        "mpCost": 207,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 596,
+        "description": "Greater Group Heal\tGreater Group Heal lv.23 350 000 SP\t������ MP: 207 (42 + 165) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 596. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 24470000,
+        "mpCost": 210,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 606,
+        "description": "Greater Group Heal\tGreater Group Heal lv.24 470 000 SP\t������ MP: 210 (42 + 168) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 606. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 25470000,
+        "mpCost": 214,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 616,
+        "description": "Greater Group Heal\tGreater Group Heal lv.25 470 000 SP\t������ MP: 214 (43 + 171) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 616. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 26680000,
+        "mpCost": 218,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 626,
+        "description": "Greater Group Heal\tGreater Group Heal lv.26 680 000 SP\t������ MP: 218 (44 + 174) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 626. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 27680000,
+        "mpCost": 222,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 636,
+        "description": "Greater Group Heal\tGreater Group Heal lv.27 680 000 SP\t������ MP: 222 (45 + 177) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 636. ������ Greater Group Heal, ��������� �� ����, ������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 281000000,
+        "mpCost": 224,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 645,
+        "description": "Greater Group Heal\tGreater Group Heal lv.28 1 000 000 SP\t������ MP: 224 (45 + 179) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 645. ������ Greater Group Heal, ��������� �� ����, ����",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 291000000,
+        "mpCost": 228,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 654,
+        "description": "Greater Group Heal\tGreater Group Heal lv.29 1 000 000 SP\t������ MP: 228 (46 + 182) ����: 7 ���. �����: 25 ���.\tRestores party members' HP. Power 654. ������ Greater Group Heal, ��������� �� ����, ����",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Greater Heal",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 129000,
+        "mpCost": 58,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 371,
+        "description": "Greater Heal\tGreater Heal lv.1 29 000 SP\t������ MP: 58 (12 + 46) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 371. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 229000,
+        "mpCost": 60,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 384,
+        "description": "Greater Heal\tGreater Heal lv.2 29 000 SP\t������ MP: 60 (12 + 48) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 384. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 3,
+        "spCost": 329000,
+        "mpCost": 62,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 398,
+        "description": "Greater Heal\tGreater Heal lv.3 29 000 SP\t������ MP: 62 (13 + 49) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 398. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 4,
+        "spCost": 438000,
+        "mpCost": 64,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 426,
+        "description": "Greater Heal\tGreater Heal lv.4 38 000 SP\t������ MP: 64 (13 + 51) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 426. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 5,
+        "spCost": 538000,
+        "mpCost": 65,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 441,
+        "description": "Greater Heal\tGreater Heal lv.5 38 000 SP\t������ MP: 65 (13 + 52) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 441. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 6,
+        "spCost": 638000,
+        "mpCost": 68,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 455,
+        "description": "Greater Heal\tGreater Heal lv.6 38 000 SP\t������ MP: 68 (14 + 54) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 455. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 7,
+        "spCost": 748000,
+        "mpCost": 72,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 484,
+        "description": "Greater Heal\tGreater Heal lv.7 48 000 SP\t������ MP: 72 (15 + 57) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 484. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 8,
+        "spCost": 848000,
+        "mpCost": 74,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 499,
+        "description": "Greater Heal\tGreater Heal lv.8 48 000 SP\t������ MP: 74 (15 + 59) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 499. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 9,
+        "spCost": 948000,
+        "mpCost": 77,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 514,
+        "description": "Greater Heal\tGreater Heal lv.9 48 000 SP\t������ MP: 77 (16 + 61) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 514. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 600",
+        "descriptionRu": ""
+      },
+      {
+        "level": 10,
+        "spCost": 1061000,
+        "mpCost": 80,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 544,
+        "description": "Greater Heal\tGreater Heal lv.10 61 000 SP\t������ MP: 80 (16 + 64) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 544. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 60",
+        "descriptionRu": ""
+      },
+      {
+        "level": 11,
+        "spCost": 1161000,
+        "mpCost": 80,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 559,
+        "description": "Greater Heal\tGreater Heal lv.11 61 000 SP\t������ MP: 80 (16 + 64) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 559. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 60",
+        "descriptionRu": ""
+      },
+      {
+        "level": 12,
+        "spCost": 1261000,
+        "mpCost": 83,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 574,
+        "description": "Greater Heal\tGreater Heal lv.12 61 000 SP\t������ MP: 83 (17 + 66) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 574. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 60",
+        "descriptionRu": ""
+      },
+      {
+        "level": 13,
+        "spCost": 1383000,
+        "mpCost": 87,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 603,
+        "description": "Greater Heal\tGreater Heal lv.13 83 000 SP\t������ MP: 87 (18 + 69) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 603. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 60",
+        "descriptionRu": ""
+      },
+      {
+        "level": 14,
+        "spCost": 1483000,
+        "mpCost": 89,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 618,
+        "description": "Greater Heal\tGreater Heal lv.14 83 000 SP\t������ MP: 89 (18 + 71) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 618. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 60",
+        "descriptionRu": ""
+      },
+      {
+        "level": 15,
+        "spCost": 1583000,
+        "mpCost": 90,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 633,
+        "description": "Greater Heal\tGreater Heal lv.15 83 000 SP\t������ MP: 90 (18 + 72) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 633. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 60",
+        "descriptionRu": ""
+      },
+      {
+        "level": 16,
+        "spCost": 16180000,
+        "mpCost": 93,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 647,
+        "description": "Greater Heal\tGreater Heal lv.16 180 000 SP\t������ MP: 93 (19 + 74) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 647. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 6",
+        "descriptionRu": ""
+      },
+      {
+        "level": 17,
+        "spCost": 17180000,
+        "mpCost": 95,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 662,
+        "description": "Greater Heal\tGreater Heal lv.17 180 000 SP\t������ MP: 95 (19 + 76) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 662. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 6",
+        "descriptionRu": ""
+      },
+      {
+        "level": 18,
+        "spCost": 18240000,
+        "mpCost": 97,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 676,
+        "description": "Greater Heal\tGreater Heal lv.18 240 000 SP\t������ MP: 97 (20 + 77) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 676. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 6",
+        "descriptionRu": ""
+      },
+      {
+        "level": 19,
+        "spCost": 19240000,
+        "mpCost": 98,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 690,
+        "description": "Greater Heal\tGreater Heal lv.19 240 000 SP\t������ MP: 98 (20 + 78) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 690. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 6",
+        "descriptionRu": ""
+      },
+      {
+        "level": 20,
+        "spCost": 20350000,
+        "mpCost": 98,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 704,
+        "description": "Greater Heal\tGreater Heal lv.20 350 000 SP\t������ MP: 98 (20 + 78) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 704. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� 6",
+        "descriptionRu": ""
+      },
+      {
+        "level": 21,
+        "spCost": 21350000,
+        "mpCost": 100,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 718,
+        "description": "Greater Heal\tGreater Heal lv.21 350 000 SP\t������ MP: 100 (20 + 80) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 718. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 22,
+        "spCost": 22350000,
+        "mpCost": 102,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 731,
+        "description": "Greater Heal\tGreater Heal lv.22 350 000 SP\t������ MP: 102 (21 + 81) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 731. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 23,
+        "spCost": 23350000,
+        "mpCost": 104,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 745,
+        "description": "Greater Heal\tGreater Heal lv.23 350 000 SP\t������ MP: 104 (21 + 83) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 745. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 24,
+        "spCost": 24470000,
+        "mpCost": 105,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 758,
+        "description": "Greater Heal\tGreater Heal lv.24 470 000 SP\t������ MP: 105 (21 + 84) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 758. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 25,
+        "spCost": 25470000,
+        "mpCost": 108,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 770,
+        "description": "Greater Heal\tGreater Heal lv.25 470 000 SP\t������ MP: 108 (22 + 86) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 770. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 26,
+        "spCost": 26680000,
+        "mpCost": 109,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 783,
+        "description": "Greater Heal\tGreater Heal lv.26 680 000 SP\t������ MP: 109 (22 + 87) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 783. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 27,
+        "spCost": 27680000,
+        "mpCost": 112,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 795,
+        "description": "Greater Heal\tGreater Heal lv.27 680 000 SP\t������ MP: 112 (23 + 89) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 795. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 28,
+        "spCost": 281000000,
+        "mpCost": 113,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 806,
+        "description": "Greater Heal\tGreater Heal lv.28 1 000 000 SP\t������ MP: 113 (23 + 90) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 806. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������",
+        "descriptionRu": ""
+      },
+      {
+        "level": 29,
+        "spCost": 291000000,
+        "mpCost": 114,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 817,
+        "description": "Greater Heal\tGreater Heal lv.29 1 000 000 SP\t������ MP: 114 (23 + 91) ����: 5 ���. �����: 10 ���.\tRestores HP. Power 817. ������ Greater Heal, ��������� �� ���� � ������, ��������� � �������� ��������",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Greater Empower",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 3110000,
+        "mpCost": 48,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Greater Empower\tGreater Empower lv.3 110 000 SP\t������ MP: 48 (10 + 38) ����: 4 ���. �����: 6 ���.\tTemporarily increases M. Atk. Effect 3. ������ Greater Empower �� 20 ���., ��������� �� ���� � ������",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Kiss of Eva",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 2,
+        "spCost": 2110000,
+        "mpCost": 48,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Kiss of Eva\tKiss of Eva lv.2 110 000 SP\t������ MP: 48 (10 + 38) ����: 4 ���. �����: 6 ���.\tTemporarily increases lung capacity. Effect 2. ������ Kiss of Eva �� 20 ���., ��������� �� ���� � ������, ���",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Cure Poison",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 3,
+        "spCost": 3180000,
+        "mpCost": 55,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Cure Poison\tCure Poison lv.3 180 000 SP\t������ MP: 55 (11 + 44) ����: 4 ���. �����: 15 ���.\tCures poisoning up to Effect 9. ������ Cure Poison, ��������� �� ���� � ������, ��������� � �������� �������",
+        "descriptionRu": ""
+      }
+    ]
+  },
+  {
+    "name": "Wild Magic",
+    "category": "passive",
+    "levels": [
+      {
+        "level": 1,
+        "spCost": 1360000,
+        "mpCost": 58,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wild Magic\tWild Magic lv.1 360 000 SP\t������ MP: 58 (12 + 46) ����: 4 ���. �����: 6 ���.\tTemporarily increases critical attack rate of magic attacks. Effect 1. ������ Wild Magic �� 20 ���., ��������� ",
+        "descriptionRu": ""
+      },
+      {
+        "level": 2,
+        "spCost": 2940000,
+        "mpCost": 65,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0,
+        "description": "Wild Magic\tWild Magic lv.2 940 000 SP\t������ MP: 65 (13 + 52) ����: 4 ���. �����: 6 ���.\tTemporarily increases critical attack rate of magic attacks. Effect 2. ������ Wild Magic �� 20 ���., ��������� ",
+        "descriptionRu": ""
+      }
+    ]
+  }
+]

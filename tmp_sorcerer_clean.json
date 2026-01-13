@@ -1,0 +1,3302 @@
+{
+  "146": {
+    "name": "Anti Magic",
+    "id": 146,
+    "levels": [
+      {
+        "level": 13,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 42,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 43,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 44,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 45,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "164": {
+    "name": "Quick Recovery",
+    "id": 164,
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "212": {
+    "name": "Fast HP Recovery",
+    "id": 212,
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "213": {
+    "name": "Boost Mana",
+    "id": 213,
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "228": {
+    "name": "Fast Spell Casting",
+    "id": 228,
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "229": {
+    "name": "Fast Mana Recovery",
+    "id": 229,
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "234": {
+    "name": "Robe Mastery",
+    "id": 234,
+    "levels": [
+      {
+        "level": 9,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "249": {
+    "name": "Weapon Mastery",
+    "id": 249,
+    "levels": [
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 42,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "285": {
+    "name": "Higher Mana Gain",
+    "id": 285,
+    "levels": [
+      {
+        "level": 9,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "1056": {
+    "name": "Cancel",
+    "id": 1056,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 44,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 54,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 55,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 58,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 60,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 62,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 9,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 64,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 65,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 67,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 69,
+        "castTime": 6,
+        "cooldown": 120,
+        "power": 0
+      }
+    ]
+  },
+  "1069": {
+    "name": "Sleep",
+    "id": 1069,
+    "levels": [
+      {
+        "level": 10,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 34,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 34,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 40,
+        "spCost": 11000,
+        "mpCost": 35,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 38,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 38,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 44,
+        "spCost": 15000,
+        "mpCost": 39,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 42,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 43,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 18,
+        "requiredLevel": 48,
+        "spCost": 22000,
+        "mpCost": 44,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 19,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 45,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 20,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 47,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 21,
+        "requiredLevel": 52,
+        "spCost": 35000,
+        "mpCost": 48,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 22,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 49,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 23,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 50,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 24,
+        "requiredLevel": 56,
+        "spCost": 38000,
+        "mpCost": 52,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 25,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 53,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 26,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 54,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 27,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 55,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 28,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 55,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 29,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 57,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 30,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 58,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 31,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 59,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 32,
+        "requiredLevel": 64,
+        "spCost": 160000,
+        "mpCost": 60,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 33,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 60,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 34,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 62,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 35,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 63,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 36,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 64,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 37,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 64,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 38,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 65,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 39,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 67,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 40,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 67,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 41,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 68,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 42,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 69,
+        "castTime": 2.5,
+        "cooldown": 6,
+        "power": 0
+      }
+    ]
+  },
+  "1072": {
+    "name": "Sleeping Cloud",
+    "id": 1072,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 59,
+        "castTime": 4,
+        "cooldown": 20,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 77,
+        "castTime": 4,
+        "cooldown": 20,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 87,
+        "castTime": 4,
+        "cooldown": 20,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 93,
+        "castTime": 4,
+        "cooldown": 20,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 98,
+        "castTime": 4,
+        "cooldown": 20,
+        "power": 0
+      }
+    ]
+  },
+  "1074": {
+    "name": "Surrender To Wind",
+    "id": 1074,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 35,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 44,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 54,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 55,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 58,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 9,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 60,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 62,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 64,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 65,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 67,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 69,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      }
+    ]
+  },
+  "1078": {
+    "name": "Concentration",
+    "id": 1078,
+    "levels": [
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 55,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 64,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      }
+    ]
+  },
+  "1083": {
+    "name": "Surrender To Fire",
+    "id": 1083,
+    "levels": [
+      {
+        "level": 4,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 35,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 44,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 9,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 54,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 55,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 58,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 60,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 62,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 64,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 65,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 16,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 67,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      },
+      {
+        "level": 17,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 69,
+        "castTime": 1.5,
+        "cooldown": 8,
+        "power": 0
+      }
+    ]
+  },
+  "1160": {
+    "name": "Slow",
+    "id": 1160,
+    "levels": [
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 35,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 39,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 44,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 48,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 7,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 54,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 8,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 55,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 9,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 58,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 10,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 60,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 11,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 62,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 12,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 64,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 13,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 65,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 14,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 67,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      },
+      {
+        "level": 15,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 69,
+        "castTime": 4,
+        "cooldown": 7,
+        "power": 0
+      }
+    ]
+  },
+  "1171": {
+    "name": "Blazing Circle",
+    "id": 1171,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 50,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 29
+      },
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 53,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 30
+      },
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 55,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 32
+      },
+      {
+        "level": 4,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 59,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 34
+      },
+      {
+        "level": 5,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 62,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 36
+      },
+      {
+        "level": 6,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 65,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 38
+      },
+      {
+        "level": 7,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 68,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 40
+      },
+      {
+        "level": 8,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 70,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 42
+      },
+      {
+        "level": 9,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 74,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 44
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 77,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 46
+      },
+      {
+        "level": 11,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 80,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 48
+      },
+      {
+        "level": 12,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 83,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 50
+      },
+      {
+        "level": 13,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 87,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 52
+      },
+      {
+        "level": 14,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 89,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 55
+      },
+      {
+        "level": 15,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 93,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 57
+      },
+      {
+        "level": 16,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 95,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 58
+      },
+      {
+        "level": 17,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 98,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 60
+      },
+      {
+        "level": 18,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 100,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 62
+      },
+      {
+        "level": 19,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 103,
+        "castTime": 4,
+        "cooldown": 15,
+        "power": 64
+      }
+    ]
+  },
+  "1230": {
+    "name": "Prominence",
+    "id": 1230,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 34,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 49
+      },
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 35,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 52
+      },
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 38,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 55
+      },
+      {
+        "level": 4,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 39,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 58
+      },
+      {
+        "level": 5,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 42,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 61
+      },
+      {
+        "level": 6,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 44,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 65
+      },
+      {
+        "level": 7,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 45,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 68
+      },
+      {
+        "level": 8,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 48,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 72
+      },
+      {
+        "level": 9,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 49,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 75
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 52,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 78
+      },
+      {
+        "level": 11,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 53,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 80
+      },
+      {
+        "level": 12,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 54,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 82
+      },
+      {
+        "level": 13,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 55,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 84
+      },
+      {
+        "level": 14,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 55,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 85
+      },
+      {
+        "level": 15,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 57,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 87
+      },
+      {
+        "level": 16,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 58,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 89
+      },
+      {
+        "level": 17,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 59,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 90
+      },
+      {
+        "level": 18,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 60,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 92
+      },
+      {
+        "level": 19,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 60,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 94
+      },
+      {
+        "level": 20,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 62,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 96
+      },
+      {
+        "level": 21,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 63,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 97
+      },
+      {
+        "level": 22,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 64,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 99
+      },
+      {
+        "level": 23,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 64,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 100
+      },
+      {
+        "level": 24,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 65,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 102
+      },
+      {
+        "level": 25,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 67,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 104
+      },
+      {
+        "level": 26,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 67,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 105
+      },
+      {
+        "level": 27,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 68,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 107
+      },
+      {
+        "level": 28,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 69,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 108
+      }
+    ]
+  },
+  "1231": {
+    "name": "Aura Flare",
+    "id": 1231,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 34,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 39
+      },
+      {
+        "level": 2,
+        "requiredLevel": 40,
+        "spCost": 17000,
+        "mpCost": 35,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 42
+      },
+      {
+        "level": 3,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 38,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 44
+      },
+      {
+        "level": 4,
+        "requiredLevel": 44,
+        "spCost": 22000,
+        "mpCost": 39,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 47
+      },
+      {
+        "level": 5,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 42,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 49
+      },
+      {
+        "level": 6,
+        "requiredLevel": 48,
+        "spCost": 33000,
+        "mpCost": 44,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 52
+      },
+      {
+        "level": 7,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 45,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 55
+      },
+      {
+        "level": 8,
+        "requiredLevel": 52,
+        "spCost": 53000,
+        "mpCost": 48,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 57
+      },
+      {
+        "level": 9,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 49,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 60
+      },
+      {
+        "level": 10,
+        "requiredLevel": 56,
+        "spCost": 56000,
+        "mpCost": 52,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 63
+      },
+      {
+        "level": 11,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 53,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 64
+      },
+      {
+        "level": 12,
+        "requiredLevel": 58,
+        "spCost": 73000,
+        "mpCost": 54,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 66
+      },
+      {
+        "level": 13,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 55,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 67
+      },
+      {
+        "level": 14,
+        "requiredLevel": 60,
+        "spCost": 88000,
+        "mpCost": 55,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 68
+      },
+      {
+        "level": 15,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 57,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 70
+      },
+      {
+        "level": 16,
+        "requiredLevel": 62,
+        "spCost": 130000,
+        "mpCost": 58,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 71
+      },
+      {
+        "level": 17,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 59,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 72
+      },
+      {
+        "level": 18,
+        "requiredLevel": 64,
+        "spCost": 150000,
+        "mpCost": 60,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 74
+      },
+      {
+        "level": 19,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 60,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 75
+      },
+      {
+        "level": 20,
+        "requiredLevel": 66,
+        "spCost": 210000,
+        "mpCost": 62,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 77
+      },
+      {
+        "level": 21,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 63,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 78
+      },
+      {
+        "level": 22,
+        "requiredLevel": 68,
+        "spCost": 210000,
+        "mpCost": 64,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 79
+      },
+      {
+        "level": 23,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 64,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 80
+      },
+      {
+        "level": 24,
+        "requiredLevel": 70,
+        "spCost": 290000,
+        "mpCost": 65,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 82
+      },
+      {
+        "level": 25,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 67,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 83
+      },
+      {
+        "level": 26,
+        "requiredLevel": 72,
+        "spCost": 470000,
+        "mpCost": 67,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 84
+      },
+      {
+        "level": 27,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 68,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 85
+      },
+      {
+        "level": 28,
+        "requiredLevel": 74,
+        "spCost": 640000,
+        "mpCost": 69,
+        "castTime": 1.5,
+        "cooldown": 2.5,
+        "power": 87
+      }
+    ]
+  },
+  "1232": {
+    "name": "Blazing Skin",
+    "id": 1232,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 35,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 44,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 52,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      }
+    ]
+  },
+  "1233": {
+    "name": "Decay",
+    "id": 1233,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 65,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 77,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 89,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 103,
+        "castTime": 4,
+        "cooldown": 6,
+        "power": 0
+      }
+    ]
+  },
+  "1275": {
+    "name": "Aura Bolt",
+    "id": 1275,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 18,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 26
+      },
+      {
+        "level": 2,
+        "requiredLevel": 44,
+        "spCost": 43000,
+        "mpCost": 20,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 29
+      },
+      {
+        "level": 3,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 23,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 33
+      },
+      {
+        "level": 4,
+        "requiredLevel": 52,
+        "spCost": 100000,
+        "mpCost": 24,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 36
+      },
+      {
+        "level": 5,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 27,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 39
+      },
+      {
+        "level": 6,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 28,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 41
+      },
+      {
+        "level": 7,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 28,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 43
+      },
+      {
+        "level": 8,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 29,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 45
+      },
+      {
+        "level": 9,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 30,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 46
+      },
+      {
+        "level": 10,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 32,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 48
+      },
+      {
+        "level": 11,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 33,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 50
+      },
+      {
+        "level": 12,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 33,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 51
+      },
+      {
+        "level": 13,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 34,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 53
+      },
+      {
+        "level": 14,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 35,
+        "castTime": 2,
+        "cooldown": 3,
+        "power": 54
+      }
+    ]
+  },
+  "1285": {
+    "name": "Seed of Fire",
+    "id": 1285,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 250,
+        "castTime": 4,
+        "cooldown": 3600,
+        "power": 0
+      }
+    ]
+  },
+  "1288": {
+    "name": "Aura Symphony",
+    "id": 1288,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 250,
+        "castTime": 7,
+        "cooldown": 3600,
+        "power": 350
+      }
+    ]
+  },
+  "1289": {
+    "name": "Inferno",
+    "id": 1289,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 250,
+        "castTime": 7,
+        "cooldown": 3600,
+        "power": 350
+      }
+    ]
+  },
+  "1292": {
+    "name": "Elemental Assault",
+    "id": 1292,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 250,
+        "castTime": 7,
+        "cooldown": 3600,
+        "power": 500
+      }
+    ]
+  },
+  "1296": {
+    "name": "Rain of Fire",
+    "id": 1296,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 58,
+        "spCost": 150000,
+        "mpCost": 54,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 41
+      },
+      {
+        "level": 2,
+        "requiredLevel": 60,
+        "spCost": 180000,
+        "mpCost": 55,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 43
+      },
+      {
+        "level": 3,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 58,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 45
+      },
+      {
+        "level": 4,
+        "requiredLevel": 64,
+        "spCost": 300000,
+        "mpCost": 60,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 46
+      },
+      {
+        "level": 5,
+        "requiredLevel": 66,
+        "spCost": 410000,
+        "mpCost": 62,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 48
+      },
+      {
+        "level": 6,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 64,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 50
+      },
+      {
+        "level": 7,
+        "requiredLevel": 70,
+        "spCost": 590000,
+        "mpCost": 65,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 51
+      },
+      {
+        "level": 8,
+        "requiredLevel": 72,
+        "spCost": 940000,
+        "mpCost": 67,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 53
+      },
+      {
+        "level": 9,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 69,
+        "castTime": 5,
+        "cooldown": 20,
+        "power": 54
+      }
+    ]
+  },
+  "1297": {
+    "name": "Clear Mind",
+    "id": 1297,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 40,
+        "spCost": 34000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 2,
+        "requiredLevel": 48,
+        "spCost": 67000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 3,
+        "requiredLevel": 56,
+        "spCost": 110000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 4,
+        "requiredLevel": 62,
+        "spCost": 250000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 5,
+        "requiredLevel": 68,
+        "spCost": 430000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      },
+      {
+        "level": 6,
+        "requiredLevel": 74,
+        "spCost": 1300000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  }
+}

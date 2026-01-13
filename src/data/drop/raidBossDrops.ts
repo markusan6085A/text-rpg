@@ -30,13 +30,13 @@ export const RAID_BOSS_DROP_PROFILES: RaidDropProfile[] = [
       { itemId: "enchant_armor_b", min: 1, max: 2, chance: 0.40 },
       { itemId: "enchant_weapon_b", min: 1, max: 1, chance: 0.30 },
 
-      // готові речі (0.2–0.8% як ти і хотів)
-      { itemId: "b_heavy_set", min: 1, max: 1, chance: 0.008 }, // 0.8%
-      { itemId: "b_light_set", min: 1, max: 1, chance: 0.006 }, // 0.6%
-      { itemId: "b_robe_set", min: 1, max: 1, chance: 0.006 },  // 0.6%
-      { itemId: "b_two_handed_sword", min: 1, max: 1, chance: 0.004 }, // 0.4%
-      { itemId: "b_bow", min: 1, max: 1, chance: 0.003 },               // 0.3%
-      { itemId: "b_staff", min: 1, max: 1, chance: 0.003 },             // 0.3%
+      // готові речі B-grade (4-8%)
+      { itemId: "b_heavy_set", min: 1, max: 1, chance: 0.08 }, // 8%
+      { itemId: "b_light_set", min: 1, max: 1, chance: 0.07 }, // 7%
+      { itemId: "b_robe_set", min: 1, max: 1, chance: 0.07 },  // 7%
+      { itemId: "b_two_handed_sword", min: 1, max: 1, chance: 0.06 }, // 6%
+      { itemId: "b_bow", min: 1, max: 1, chance: 0.05 },               // 5%
+      { itemId: "b_staff", min: 1, max: 1, chance: 0.05 },             // 5%
 
       // трохи «фанового» лута
       { itemId: "cosmetic_floran_cloak", min: 1, max: 1, chance: 0.01 }, // 1%

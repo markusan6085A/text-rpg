@@ -12,5 +12,6 @@
     "types": ["node"],
     "allowImportingTsExtensions": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.backup.ts", "src/**/*_generated.ts"]
 }

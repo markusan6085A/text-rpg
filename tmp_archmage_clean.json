@@ -1,0 +1,77 @@
+﻿{
+  "328": {
+    "name": "Wisdom",
+    "id": 328,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 76,
+        "spCost": 30000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "330": {
+    "name": "Skill Mastery",
+    "id": 330,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 77,
+        "spCost": 20000000,
+        "mpCost": 0,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "337": {
+    "name": "Arcane Power",
+    "id": 337,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 78,
+        "spCost": 32000000,
+        "mpCost": 36,
+        "castTime": 0,
+        "cooldown": 0,
+        "power": 0
+      }
+    ]
+  },
+  "1338": {
+    "name": "Arcane Chaos",
+    "id": 1338,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 78,
+        "spCost": 32000000,
+        "mpCost": 72,
+        "castTime": 4,
+        "cooldown": 60,
+        "power": 0
+      }
+    ]
+  },
+  "1339": {
+    "name": "Fire Vortex",
+    "id": 1339,
+    "levels": [
+      {
+        "level": 1,
+        "requiredLevel": 77,
+        "spCost": 20000000,
+        "mpCost": 105,
+        "castTime": 6,
+        "cooldown": 60,
+        "power": 140
+      }
+    ]
+  }
+}

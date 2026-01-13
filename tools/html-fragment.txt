@@ -1,0 +1,105 @@
+Shillien Elder - База знаний Л2</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="/js/script.js"></script>
+	<link rel="stylesheet" href="/css/style.css?v=10230925">
+	<!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+       ym(64930900, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+       });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/64930900" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+		<style>
+		html, body {height: 100%;}
+		body {background:  url(https://wiki.la2era.com/NG_background_light.jpg?v=1) center 0/cover no-repeat fixed;}	</style>
+</head>
+<body>
+	<a href="https://forum.la2era.com/threads/high-five-x3-opisanie-igrovogo-mira.6547/" target="_blank" style="display:block;position:fixed;z-index:0;left:0;top:0;width:100%;height:100%"></a>
+	<div class="container scene">
+        <div class="row">
+            <div class="col-sm-3"><a href="https://www.la2era.com" class="mainmenulink" target="_blank"><img class="logo" src="/img/logo.png"></a></div>
+            <div class="col-sm-6 aligncenter"><span class="dbh3">База знаний <span class="wikia">New Era </span>Lineage 2 C4</span></div>
+            <div class="col-sm-3 alignright"><a href="http://www.la2era.com/ru/registration?utm_source=wiki&utm_medium=organic&utm_campaign=wiki_header_btn" class="btn-start" target="_blank"><img src="/img/big_button.png" alt="кнопка" width="210px"><span>НАЧАТЬ ИГРАТЬ</span></a></div>
+        </div>
+
+        <div>
+
+
+        </div>
+
+		<img class="hr" src="/img/hr.jpg">
+        <nav>
+            <a href="/" class="mainmenulink">Главная</a>
+            <span class="dropdown mainmenulink">
+				<a href="#" class="dropdown-toggle" id="drop1" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Вещи <span class="caret"></span> </a>
+				<ul class="dropdown-menu" aria-labelledby="drop1">
+					<li><a href="/weapons">Оружие</a></li>
+					<li><a href="/armor">Броня</a></li>
+					<li><a href="/accessory">Бижутерия</a></li>
+					<li><a href="/recipes">Крафт</a></li>
+					<li><a href="/items">Предметы</a></li>
+				</ul>
+			</span>
+
+            <span class="dropdown mainmenulink">
+				<a href="#" class="dropdown-toggle" id="drop2" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Мобы <span class="caret"></span> </a>
+				<ul class="dropdown-menu" aria-labelledby="drop2">
+					<li><a href="/monsters">Монстры</a></li>
+					<li><a href="/npc">NPC</a></li>
+					<li><a href="/raids">Рейд-Боссы</a></li>
+				</ul>
+			</span>
+
+            <span class="dropdown mainmenulink">
+				<a href="#" class="dropdown-toggle" id="drop3" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> SA <span class="caret"></span> </a>
+				<ul class="dropdown-menu" aria-labelledby="drop3">
+					<li><a href="/sa">Special Abilities (SA)</a></li>
+					<li><a href="/sa_blunts">Молоты</a></li>
+					<li><a href="/sa_bows">Луки</a></li>
+					<li><a href="/sa_daggers">Кинжалы</a></li>
+					<li><a href="/sa_duals">Дуалы</a></li>
+					<li><a href="/sa_fists">Кастеты</a></li>
+					<li><a href="/sa_pole">Копья</a></li>
+					<li><a href="/sa_stafs">Посохи</a></li>
+					<li><a href="/sa_swords">Мечи</a></li>
+					<li><a href="/sa_monsters">Монстры для зарядки SA</a></li>
+				</ul>
+			</span>
+
+            <span class="dropdown mainmenulink">
+				<a href="#" class="dropdown-toggle" id="drop4" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Спецмагазины <span class="caret"></span> </a>
+				<ul class="dropdown-menu" aria-labelledby="drop3">
+					<li><a href="/mamon_trader">Мамон Торговец</a></li>
+					<li><a href="/mamon_smith">Мамон Кузнец</a></li>
+					<li><a href="/priest">Dusk / Dawn Priest</a></li>
+					<li><a href="/luxor">Luxor</a></li>
+					<li><a href="/manor">Манор</a></li>
+				</ul>
+			</span>
+
+            <a href="/sets" class="mainmenulink">Сеты</a>
+            <a href="/quests" class="mainmenulink">Квесты</a>
+            <a href="/tattoo" class="mainmenulink">Тату</a>
+            <a href="/calculator" class="mainmenulink">Калькулятор</a>
+            <a href="/fashion" class="mainmenulink">Примерочная</a>
+        </nav>
+		<main style="min-height: 700px;">
+			<style>
+.skillstrip{background-color: rgba(55,55,55, 0.3);}
+.table-bordered, .table-bordered > tbody > tr > td, .table-bordered > tbody > tr > th{
+    border: 1px solid rgba(255,255,255, 0.2);}
+</style><br><br><div class="content col-md-12"><table cellpadding='5' cellspacing='0' width='600' align='center' class="table table-bordered"><tr><td colspan='5' align='center' style='padding:10px 5px 0px 5px'><h2>Shillien Elder</h2></td></tr><tr></tr><tr><td colspan='5'><table width='100%' align=center><tr><td nowrap valign=top><h4>Уровни:</h4> &bull; <a href="#level40">Shillien Elder Level 40</a><br /> &bull; <a href="#level44">Shillien Elder Level 44</a><br /> &bull; <a href="#level48">Shillien Elder Level 48</a><br /> &bull; <a href="#level52">Shillien Elder Level 52</a><br /> &bull; <a href="#level56">Shillien Elder Level 56</a><br /> &bull; <a href="#level58">Shillien Elder Level 58</a><br /> &bull; <a href="#level60">Shillien Elder Level 60</a><br /> &bull; <a href="#level62">Shillien Elder Level 62</a><br /> &bull; <a href="#level64">Shillien Elder Level 64</a><br /> &bull; <a href="#level66">Shillien Elder Level 66</a><br /> &bull; <a href="#level68">Shillien Elder Level 68</a><br /> &bull; <a href="#level70">Shillien Elder Level 70</a><br /> &bull; <a href="#level72">Shillien Elder Level 72</a><br /> &bull; <a href="#level74">Shillien Elder Level 74</a><br /></td><td valign=top><h4>Активные умения:</h4> &bull; <a href="JavaScript:void(0);" onclick="JavaScript:if (sdiv) document.getElementById(sdiv).style.display = 'none'; document.getElementById('s1346779411').style.display = 'block'; sdiv = 's1346779411';">Concentration</a><br /><div style="display:none; margin:-0px -125px -120px -5px; padding:5px; z-index:100; border:solid 1px #444444; background-color:rgb(14,14,14); width:120px; height:120px; position:relative; left:20px; top:0px" id="s1346779411">Concentration Level: <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s1346779411').style.display='none'; location.href='#skill1278826088';">3</a> <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s1346779411').style.display='none'; location.href='#skill765606971';">4</a> <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s1346779411').style.display='none'; location.href='#skill1520766125';">5</a> <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s1346779411').style.display='none'; location.href='#skill1012114153';">6</a> </div> &bull; <a href="#skill1634120814">Cure Poison</a><br /><div style="display:none; margin:-0px -125px -120px -5px; padding:5px; z-index:100; border:solid 1px #444444; background-color:rgb(14,14,14); width:120px; height:120px; position:relative; left:20px; top:0px" id="s223067886">Cure Poison Level: <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s223067886').style.display='none'; location.href='#skill1634120814';">3</a> </div> &bull; <a href="JavaScript:void(0);" onclick="JavaScript:if (sdiv) document.getElementById(sdiv).style.display = 'none'; document.getElementById('s1349964619').style.display = 'block'; sdiv = 's1349964619';">Death Whisper</a><br /><div style="display:none; margin:-0px -125px -120px -5px; padding:5px; z-index:100; border:solid 1px #444444; background-color:rgb(14,14,14); width:120px; height:120px; position:relative; left:20px; top:0px" id="s1349964619">Death Whisper Level: <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s1349964619').style.display='none'; location.href='#skill947397016';">1</a> <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s1349964619').style.display='none'; location.href='#skill1586401246';">2</a> <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s1349964619').style.display='none'; location.href='#skill696893260';">3</a> </div> &bull; <a href="JavaScript:void(0);" onclick="JavaScript:if (sdiv) document.getElementById(sdiv).style.display = 'none'; document.getElementById('s243924444').style.display = 'block'; sdiv = 's243924444';">Dryad Root</a><br /><div style="display:none; margin:-0px -125px -120px -5px; padding:5px; z-index:100; border:solid 1px #444444; background-color:rgb(14,14,14); width:120px; height:120px; position:relative; left:20px; top:0px" id="s243924444">Dryad Root Level: <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s243924444').style.display='none'; location.href='#skill1095019491';">10</a> <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s243924444').style.display='none'; location.href='#skill910400373';">11</a> <a href="JavaScript:void(0);" onclick="JavaScript:document.getElementById('s243924444').style.display='none'; locat

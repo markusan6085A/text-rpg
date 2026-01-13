@@ -1,0 +1,842 @@
+Draconic Leather Set
+Dex +1, Str +1, Con -2, attack speed/P. Atk +4%, Max MP +289, weight limit +5759
+Draconic Leather Helmet
+ x 268      x 550      x 83      x 5370000
+Draconic Leather Armor
+Полный доспех.
+ x 870      x 4950      x 249      x 17400000
+Draconic Leather Gloves
+ x 179      x 540      x 55      x 3580000
+Draconic Leather Boots
+ x 179      x 1110      x 55      x 3580000
+
+Human Fighter
+ 
+Female
+ 
+Major Acarna Set
+Wit +1, Int+1, Men -2, M.Atk +8%, moving speed +7, casting cancel chance -50%, weight limit +5759
+Major Arcana Circlet
+ x 268      x 550      x 83      x 5370000
+Major Arcana Robe
+Полный доспех.
+ x 870      x 2300      x 166      x 17400000
+Major Arcana Gloves
+ x 179      x 540      x 55      x 3580000
+Major Arcana Boots
+ x 179      x 1110      x 55      x 3580000
+
+Human Fighter
+ 
+Female
+ 
+Imperial Crusader Set
+Dex -2, Str +2, P.Def +8%, Max HP +445. Sleep/Hold Resistance -70%. Poison/Bleeding -80%
+Imperial Crusader Helmet
+ x 268      x 550      x 83      x 5370000
+Imperial Crusader Breastplate
+ x 715      x 7620      x 205      x 14300000
+Imperial Crusader Gaiters
+ x 448      x 3260      x 128      x 8960000
+Imperial Crusader Gauntlets
+ x 179      x 540      x 55      x 3580000
+Imperial Crusader Boots
+ x 179      x 1110      x 55      x 3580000
+Imperial Crusader Shield
+ x 188      x 1170      x 290      x 3760000
+
+Human Fighter
+ 
+Female
+ 
+A-грейд
+Dark Crystal Heavy
+Heal +4%, vulnerability to Paralysis is reduced 50%, STR-2, and CON+2. With shield +18% Sh.Block
+Dark Crystal Breastplate
+ x 370      x 7700      x 171      x 4630000
+Dark Crystal Gaiters
+ x 231      x 3320      x 107      x 2890000
+Dark Crystal Helmet
+ x 139      x 570      x 69      x 1740000
+Dark Crystal Gloves Heavy Armor
+Часть тяжелых доспехов Кристалла Тьмы.
+ x 92      x 580      x 46      x 1160000
+Dark Crystal Boots Heavy Armor
+Часть тяжелых доспехов Кристалла Тьмы.
+ x 92      x 1110      x 46      x 1160000
+Dark Crystal Shield
+ x 97      x 1190      x 243      x 1220000
+
+Human Fighter
+ 
+Female
+ 
+Dark Crystal Light
+Atk. Spd./P. Atk. +4%, vulnerability to Paralysis is reduced by 50%, STR +1, and CON -1.
+Dark Crystal Leather Armor
+ x 277      x 4300      x 128      x 3470000
+Dark Crystal Leggings
+ x 173      x 1480      x 80      x 2170000
+Dark Crystal Helmet
+ x 139      x 570      x 69      x 1740000
+Dark Crystal Gloves Light Armor
+Часть легких доспехов Кристалла Тьмы.
+ x 92      x 580      x 46      x 1160000
+Dark Crystal Boots Light Armor
+Часть легких доспехов Кристалла Тьмы.
+ x 92      x 1110      x 46      x 1160000
+
+Human Fighter
+ 
+Female
+ 
+Dark Crystal Magic Set
+P. Def. +8%, Casting Spd. +15%, Speed +7, small decrease in probability of magic cancellation, vulnerability to Paralysis -50%, WIT +2, MEN -2
+Dark Crystal Robe
+Полный доспех.
+ x 406      x 2450      x 139      x 5080000
+Dark Crystal Helmet
+ x 139      x 570      x 69      x 1740000
+Dark Crystal Gloves Robe
+Часть магических доспехов Кристалла Тьмы.
+ x 92      x 580      x 46      x 1160000
+Dark Crystal Boots Robe
+Часть магических доспехов Кристалла Тьмы.
+ x 92      x 1110      x 46      x 1160000
+
+Human Fighter
+ 
+Female
+ 
+Majestic Heavy
+P. Atk. +4%, Accuracy +3, probability of falling into Stun -50%, STR+2 and Con-2
+Majestic Circlet
+ x 211      x 550      x 73      x 2640000
+Majestic Gauntlets Heavy Armor
+Часть тяжелых доспехов Величия.
+ x 140      x 540      x 49      x 1760000
+Majestic Boots Heavy Armor
+Часть тяжелых доспехов Величия.
+ x 140      x 1110      x 49      x 1760000
+Majestic Plate Armor
+Полный доспех.
+ x 824      x 9200      x 293      x 10300000
+
+Human Fighter
+ 
+Female
+ 
+Majestic Light
+Archery P. Atk. +8%, maximum MP +240, weight limit +5759, vulnerability to Stun is reduced 50%, DEX+1, CON-1
+Majestic Leather Armor
+Полный доспех.
+ x 618      x 5350      x 220      x 7730000
+Majestic Circlet
+ x 211      x 550      x 73      x 2640000
+Majestic Gauntlets Light Armor
+Часть легких доспехов Величия.
+ x 140      x 540      x 49      x 1760000
+Majestic Boots Light Armor
+Часть легких доспехов Величия.
+ x 140      x 1110      x 49      x 1760000
+
+Human Fighter
+ 
+Female
+ 
+Majestic Magic Set
+maximum MP +240, Casting Spd. +15%, MP Regeneration +8%, vulnerability to Stun -50%, MEN +1, and INT -1
+Majestic Robe
+Полный доспех.
+ x 618      x 2330      x 147      x 7730000
+Majestic Circlet
+ x 211      x 550      x 73      x 2640000
+Majestic Gauntlets Robe
+Часть магических доспехов Величия.
+ x 140      x 540      x 49      x 1760000
+Majestic Boots Robe
+Часть магических доспехов Величия.
+ x 140      x 1110      x 49      x 1760000
+
+Human Fighter
+ 
+Female
+ 
+Nightmare Heavy
+P. Atk. +4%, vulnerability to Sleep and Hold is reduced 70%, CON+2, and DEX-2. If one is also equipped with a shield of nightmare, 5% of the damage inflicted by the enemy will be reflected back upon him
+Helm of Nightmare
+ x 211      x 560      x 73      x 2640000
+Gauntlets of Nightmare Heavy Armor
+Часть тяжелых доспехов Кошмаров.
+ x 140      x 550      x 49      x 1760000
+Boots of Nightmare Heavy Armor
+Часть тяжелых доспехов Кошмаров.
+ x 140      x 1110      x 49      x 1760000
+Shield of Nightmare
+ x 148      x 1180      x 256      x 1850000
+Armor of Nightmare
+Полный доспех.
+ x 824      x 9580      x 293      x 10300000
+
+Human Fighter
+ 
+Female
+ 
+Nightmare Light
+M. Def. +4%, vulnerability to Sleep and Hold is reduced 70%, HP Regeneration +3% of damage inflicted on the enemy by close physical attack, DEX +1, and CON -1
+Helm of Nightmare
+ x 211      x 560      x 73      x 2640000
+Gauntlets of Nightmare Light Armor
+Часть легких доспехов Кошмаров.
+ x 140      x 550      x 49      x 1760000
+Boots of Nightmare Light Armor
+Часть легких доспехов Кошмаров.
+ x 140      x 1110      x 49      x 1760000
+
+Human Fighter
+ 
+Female
+ 
+Nightmare Magic Set
+MP Regeneration +4%, M. Atk. +8%, vulnerability to Sleep or Hold -70%, INT +2 and WIT -2
+Nightmare Robe
+Полный доспех.
+ x 618      x 2300      x 147      x 7730000
+Helm of Nightmare
+ x 211      x 560      x 73      x 2640000
+Gauntlets of Nightmare Robe
+Часть магических доспехов Кошмаров.
+ x 140      x 550      x 49      x 1760000
+Boots of Nightmare Robe
+Часть магических доспехов Кошмаров.
+ x 140      x 1110      x 49      x 1760000
+
+Human Fighter
+ 
+Female
+ 
+Tallum Heavy
+Atk. Spd. +8%, weight limit +5759, vulnerability to Poison or Bleed -80%, STR+2, and CON-2
+Tallum Plate Armor
+Полный доспех.
+ x 541      x 9780      x 278      x 6770000
+Tallum Helm
+ x 139      x 570      x 69      x 1740000
+Tallum Gloves Heavy Armor
+Часть тяжелых доспехов Таллума.
+ x 92      x 580      x 46      x 1160000
+Tallum Boots Heavy Armor
+Часть тяжелых доспехов Таллума.
+ x 92      x 1130      x 46      x 1160000
+
+Human Fighter
+ 
+Female
+ 
+Tallum Light
+MP Regeneration +8%, maximum MP +222, vulnerability to Poison and Bleed is reduced 80%, MEN +2, and WIT -2
+Tallum Leather Armor
+Полный доспех.
+ x 406      x 5400      x 209      x 5080000
+Tallum Helm
+ x 139      x 570      x 69      x 1740000
+Tallum Gloves Light Armor
+Часть легких доспехов Таллума.
+ x 92      x 580      x 46      x 1160000
+Tallum Boots Light Armor
+Часть легких доспехов Таллума.
+ x 92      x 1130      x 46      x 1160000
+
+Human Fighter
+ 
+Female
+ 
+Tallum Magic Set
+Casting Spd. +15%, M. Def. +8%, vulnerability to Poison or Bleed -80%, INT-2, and WIT+2
+Tallum Tunic
+ x 277      x 1860      x 86      x 3470000
+Tallum Stockings
+ x 173      x 920      x 53      x 2170000
+Tallum Helm
+ x 139      x 570      x 69      x 1740000
+Tallum Gloves Robe
+Часть магических доспехов Таллума.
+ x 92      x 580      x 46      x 1160000
+Tallum Boots Robe
+Часть магических доспехов Таллума.
+ x 92      x 1130      x 46      x 1160000
+
+Human Fighter
+ 
+Female
+ 
+Apella Plate Armor
+Maximum CP +232 and +40% CP recovery speed. When under attack from an opposing PC, debuff can be cast at an 80% success rate
+Apella Helm
+Одевается на Мудреца и выше.
+ x 0      x 570      x 69      x 0
+Apella Plate Armor
+Одевается на Мудреца и выше. Цельная клановая броня для верхней и нижней частей тела.
+ x 0      x 9780      x 278      x 0
+Apella Gauntlet Heavy Armor
+Одевается на Мудреца и выше.
+ x 0      x 580      x 46      x 0
+Apella Solleret Heavy Armor
+Одевается на Мудреца и выше.
+ x 0      x 1130      x 46      x 0
+
+Human Fighter
+ 
+Female
+ 
+Apella Brigandine
+Maximum CP +195 and +40% CP recovery speed. When under attack from an opposing PC, debuff can be cast at an 80% success rate
+Apella Helm
+Одевается на Мудреца и выше.
+ x 0      x 570      x 69      x 0
+Apella Brigandine
+Одевается на Мудреца и выше. Цельная клановая броня для верхней и нижней частей тела.
+ x 0      x 5400      x 209      x 0
+Apella Leather Gloves Light Armor
+Одевается на Мудреца и выше.
+ x 0      x 580      x 46      x 0
+Apella Boots Light Armor
+Одевается на Мудреца и выше.
+ x 0      x 1130      x 46      x 0
+
+Human Fighter
+ 
+Female
+ 
+Apella Doublet
+Maximum CP +177 and +40% CP recovery speed. When under attack from an opposing PC, debuff can be cast at an 80% success rate
+Apella Helm
+Одевается на Мудреца и выше.
+ x 0      x 570      x 69      x 0
+Apella Doublet
+Одевается на Мудреца и выше. Цельная клановая броня для верхней и нижней частей тела.
+ x 0      x 2450      x 139      x 0
+Apella Silk Gloves Robe
+Одевается на Мудреца и выше.
+ x 0      x 580      x 46      x 0
+Apella Sandals Robe
+Одевается на Мудреца и выше.
+ x 0      x 1130      x 46      x 0
+
+Human Fighter
+ 
+Female
+ 
+B-грейд
+Avadon Heavy
++294 HP, With Shield +24% Shield Defence
+Avadon Breastplate
+ x 277      x 7920      x 157      x 2080000
+Avadon Gaiters
+ x 173      x 3520      x 98      x 1300000
+Avadon Circlet
+ x 103      x 590      x 62      x 778000
+Avadon Boots Heavy Armor
+Часть тяжелых доспехов Авадона.
+ x 69      x 1180      x 41      x 519000
+Avadon Gloves Heavy Armor
+Часть тяжелых доспехов Авадона.
+ x 69      x 590      x 41      x 519000
+
+Human Fighter
+ 
+Female
+ 
+Blue Wolve's Heavy
++7 Speed, +5% HP Regen, +3 STR, -1 CON, -2 DEX
+Blue Wolf Breastplate
+ x 429      x 7820      x 166      x 3220000
+Blue Wolf Gaiters
+ x 268      x 3370      x 104      x 2010000
+Blue Wolf Helmet
+ x 161      x 580      x 66      x 1210000
+Blue Wolf Gloves Heavy Armor
+Часть тяжелых доспехов Синего Волка.
+ x 107      x 590      x 44      x 804000
+Blue Wolf Boots Heavy Armor
+Часть тяжелых доспехов Синего Волка.
+ x 107      x 1130      x 44      x 804000
+
+Human Fighter
+ 
+Female
+ 
+Zubei Heavy
++5% P-Def, +294 HP
+Zubei's Breastplate
+ x 277      x 7970      x 157      x 2080000
+Zubei's Gaiters
+ x 173      x 3570      x 98      x 1300000
+Zubei's Helmet
+ x 103      x 590      x 62      x 778000
+Zubei's Gauntlets Heavy Armor
+Часть тяжелых доспехов Зубея.
+ x 69      x 590      x 41      x 519000
+Zubei's Boots Heavy Armor
+Часть тяжелых доспехов Зубея.
+ x 69      x 1180      x 41      x 519000
+
+Human Fighter
+ 
+Female
+ 
+Doom Plate Heavy
++320 HP, +Waterbreath, -3 STR, +3 CON, With Shield +24% Shield Defence
+Doom Plate Armor
+Полный доспех.
+ x 628      x 9980      x 270      x 4710000
+Doom Helmet
+ x 161      x 580      x 66      x 1210000
+Doom Gloves Heavy Armor
+Часть тяжелых доспехов Рока.
+ x 107      x 580      x 44      x 804000
+Doom Boots Heavy Armor
+Часть тяжелых доспехов Рока.
+ x 107      x 1130      x 44      x 804000
+Doom Shield
+ x 112      x 1200      x 230      x 845000
+
+Human Fighter
+ 
+Female
+ 
+Avadon Light
++5.25% M-Def, +5795 Weight
+Avadon Leather Armor
+Полный доспех.
+ x 304      x 5600      x 191      x 2280000
+Avadon Circlet
+ x 103      x 590      x 62      x 778000
+Avadon Gloves Light Armor
+Часть легких доспехов Авадона.
+ x 69      x 590      x 41      x 519000
+Avadon Boots Light Armor
+Часть легких доспехов Авадона.
+ x 69      x 1180      x 41      x 519000
+
+Human Fighter
+ 
+Female
+ 
+Blue Wolve's Light
++5%P-Def, +15% Cast Speed, -2INT, +3MEN, -1WIT
+Blue Wolf Leather Armor
+Полный доспех.
+ x 470      x 5500      x 202      x 3530000
+Blue Wolf Helmet
+ x 161      x 580      x 66      x 1210000
+Blue Wolf Gloves Light Armor
+Часть легких доспехов Синего Волка.
+ x 107      x 590      x 44      x 804000
+Blue Wolf Boots Light Armor
+Часть легких доспехов Синего Волка.
+ x 107      x 1130      x 44      x 804000
+
+Human Fighter
+ 
+Female
+ 
+Zubei Light
++4 Evasion
+Zubei's Leather Shirt
+ x 208      x 4330      x 117      x 1560000
+Zubei's Leather Gaiters
+ x 129      x 1480      x 73      x 973000
+Zubei's Helmet
+ x 103      x 590      x 62      x 778000
+Zubei's Gauntlets Light Armor
+Часть легких доспехов Зубея.
+ x 69      x 590      x 41      x 519000
+Zubei's Boots Light Armor
+Часть легких доспехов Зубея.
+ x 69      x 1180      x 41      x 519000
+
+Human Fighter
+ 
+Female
+ 
+Doom Light
++2.7% P-Atk, +2.5% MP Regen, -1 STR, -2 CON, +3 DEX, -20% Poison, +Waterbreath
+Leather Armor of Doom
+Полный доспех.
+ x 470      x 5500      x 202      x 3530000
+Doom Helmet
+ x 161      x 580      x 66      x 1210000
+Doom Gloves Light Armor
+Часть легких доспехов Рока.
+ x 107      x 580      x 44      x 804000
+Doom Boots Light Armor
+Часть легких доспехов Рока.
+ x 107      x 1130      x 44      x 804000
+
+Human Fighter
+ 
+Female
+ 
+Avadon Magic Set
++5% P-Def, +15% Casting Speed
+Avadon Robe
+Полный доспех.
+ x 304      x 2540      x 127      x 2280000
+Avadon Circlet
+ x 103      x 590      x 62      x 778000
+Avadon Gloves Robe
+Часть магических доспехов Авадона.
+ x 69      x 590      x 41      x 519000
+Avadon Boots Robe
+Часть магических доспехов Авадона.
+ x 69      x 1180      x 41      x 519000
+
+Human Fighter
+ 
+Female
+ 
+Blue Wolve's Magic Set
++206 MP, +5% MP Regen, -2 INT, -1 MEN, +3 WIT
+Blue Wolf Tunic
+ x 321      x 1920      x 83      x 2410000
+Blue Wolf Stockings
+ x 201      x 920      x 52      x 1510000
+Blue Wolf Helmet
+ x 161      x 580      x 66      x 1210000
+Blue Wolf Gloves Robe
+Часть магических доспехов Синего Волка.
+ x 107      x 590      x 44      x 804000
+Blue Wolf Boots Robe
+Часть магических доспехов Синего Волка.
+ x 107      x 1130      x 44      x 804000
+
+Human Fighter
+ 
+Female
+ 
+Zubei Magic Set
++10% M-Atk, +5% MP Regen
+Tunic of Zubei
+ x 208      x 1960      x 78      x 1560000
+Stockings of Zubei
+ x 129      x 940      x 49      x 973000
+Zubei's Helmet
+ x 103      x 590      x 62      x 778000
+Zubei's Gauntlets Robe
+Часть магических доспехов Зубея.
+ x 69      x 590      x 41      x 519000
+Zubei's Boots Robe
+Часть магических доспехов Зубея.
+ x 69      x 1180      x 41      x 519000
+
+Human Fighter
+ 
+Female
+ 
+Doom Magic Set
++7 Move Speed, +waterbreath, +5% MP Regen, +2INT, +1MEN, -3WIT
+Tunic of Doom
+ x 321      x 1900      x 83      x 2410000
+Stockings of Doom
+ x 201      x 910      x 52      x 1510000
+Doom Helmet
+ x 161      x 580      x 66      x 1210000
+Doom Gloves Robe
+Часть магических доспехов Рока.
+ x 107      x 580      x 44      x 804000
+Doom Boots Robe
+Часть магических доспехов Рока.
+ x 107      x 1130      x 44      x 804000
+
+Human Fighter
+ 
+Female
+ 
+C-грейд
+Tempered Mithril Set
++4 Evasion
+Mithril Shirt
+ x 151      x 4470      x 90      x 379000
+Tempered Mithril Gaiters
+ x 94      x 1530      x 56      x 237000
+Mithril Boots
+ x 50      x 1230      x 32      x 126000
+
+Human Fighter
+ 
+Female
+ 
+Chain Set
++5% to Dagger Defense, With Shiled +198 HP
+Chain Mail Shirt
+ x 202      x 8120      x 120      x 505000
+Chain Gaiters
+ x 126      x 3680      x 75      x 316000
+Chain Hood
+ x 75      x 620      x 47      x 189000
+Chain Shield
+ x 53      x 1280      x 166      x 133000
+
+Human Fighter
+ 
+Female
+ 
+Karmian Set
++5% P-Def, +15% Casting Speed
+Karmian Tunic
+ x 151      x 1980      x 60      x 379000
+Karmian Stockings
+ x 94      x 970      x 37      x 237000
+Karmian Gloves
+ x 50      x 620      x 32      x 126000
+
+Human Fighter
+ 
+Female
+ 
+Plated Leather Set
++4 STR, -1 CON
+Plated Leather
+ x 178      x 4450      x 94      x 446000
+Plated Leather Gaiters
+ x 111      x 1560      x 59      x 279000
+Plated Leather Boots
+ x 50      x 1220      x 32      x 126000
+
+Human Fighter
+ 
+Female
+ 
+Composite Set
++5795 Weight Gauge, With Shield +5% M-Def
+Composite Armor
+Полный доспех.
+ x 576      x 10980      x 224      x 1440000
+Composite Helmet
+ x 147      x 610      x 54      x 368000
+Composite Shield
+ x 103      x 1230      x 190      x 258000
+
+Human Fighter
+ 
+Female
+ 
+Demon Set
+-1 WIT, +4 INT, -269 HP
+Demon's Tunic
+ x 294      x 1990      x 69      x 736000
+Demon's Stockings
+ x 184      x 980      x 43      x 460000
+Demon's Gloves
+ x 98      x 610      x 36      x 245000
+
+Human Fighter
+ 
+Female
+ 
+Theca Leather Set
++5% P-Def
+Theca Leather Armor
+ x 330      x 4370      x 106      x 825000
+Theca Leather Gaiters
+ x 206      x 1530      x 66      x 516000
+Theca Leather Boots
+ x 110      x 1210      x 37      x 275000
+
+Human Fighter
+ 
+Female
+ 
+Drake Leather Set
++5% M-Def
+Drake Leather Armor
+Полный доспех.
+ x 628      x 5800      x 179      x 1570000
+Drake Leather Boots
+ x 143      x 1210      x 39      x 358000
+
+Human Fighter
+ 
+Female
+ 
+Full Plate Set
++269 HP, With Shield +5% Shield Blocking Rate
+Full Plate Armor
+Полный доспех.
+ x 836      x 10480      x 239      x 2090000
+Full Plate Helmet
+ x 214      x 600      x 58      x 536000
+Full Plate Shield
+ x 150      x 1220      x 203      x 375000
+
+Human Fighter
+ 
+Female
+ 
+Divine Set
++5% P-Def, +170 MP, -1 INT, +1 WIT
+Divine Tunic
+ x 428      x 1980      x 74      x 1070000
+Divine Stockings
+ x 268      x 960      x 46      x 671000
+Divine Gloves
+ x 143      x 610      x 39      x 358000
+
+Human Fighter
+ 
+Female
+ 
+D-грейд
+Mithril Set
++20 Poison Resistance, With Shield + 126 HP
+Mithril Breastplate
+ x 332      x 8670      x 95      x 183000
+Mithril Gaiters
+ x 230      x 3830      x 61      x 127000
+Helmet
+ x 138      x 640      x 37      x 76200
+Hoplon
+ x 96      x 1340      x 128      x 53300
+
+Human Fighter
+ 
+Female
+ 
+Reinforced Leather Set
++80 MP
+Reinforced Leather Shirt
+ x 276      x 4570      x 73      x 152000
+Reinforced Leather Gaiters
+ x 173      x 1570      x 46      x 95200
+Reinforced Leather Boots
+ x 92      x 1280      x 24      x 50800
+
+Human Fighter
+ 
+Female
+ 
+Knowledge Set
++10% M-Atk, -5 MP Regeneration
+Tunic of Knowledge
+ x 276      x 2020      x 49      x 152000
+Stockings of Knowledge
+ x 173      x 1000      x 30      x 95200
+Gloves of Knowledge
+ x 92      x 640      x 24      x 50800
+
+Human Fighter
+ 
+Female
+ 
+Manticore Skin Set
++91 MP
+Manticore Skin Shirt
+ x 407      x 4520      x 77      x 224000
+Manticore Skin Gaiters
+ x 254      x 1550      x 48      x 140000
+Manticore Skin Boots
+ x 135      x 1260      x 27      x 74700
+
+Human Fighter
+ 
+Female
+ 
+Brigandine Set
++153 HP, +5% P-Def, +20 HP With Shield
+Brigandine Tunic
+ x 543      x 8320      x 103      x 299000
+Brigandine Gaiters
+ x 340      x 3820      x 64      x 187000
+Brigandine Helmet
+ x 203      x 630      x 41      x 112000
+Brigandine Shield
+ x 142      x 1320      x 142      x 78400
+
+Human Fighter
+ 
+Female
+ 
+Elven Mithril Set
+Movement Speed Increassed, -1 Int, +1 Wit
+Mithril Tunic
+ x 407      x 2010      x 52      x 224000
+Mithril Stockings
+ x 254      x 980      x 32      x 140000
+Elven Mithril Gloves
+ x 135      x 640      x 27      x 74700
+
+Human Fighter
+ 
+Female
+ 
+Clan Oath Armor
+P. Def. + 5% and Max HP + 85
+Clan Oath Helm
+ x 0      x 640      x 37      x 0
+Clan Oath Armor
+Полный доспех
+ x 0      x 9870      x 158      x 0
+Clan Oath Gauntlets Heavy Armor
+ x 0      x 640      x 24      x 0
+Clan Oath Sabaton Heavy Armor
+ x 0      x 1280      x 24      x 0
+
+Human Fighter
+ 
+Female
+ 
+Clan Oath Brigandine
+P. Def. + 5% and Evasion + 3
+Clan Oath Helm
+ x 0      x 640      x 37      x 0
+Clan Oath Brigandine
+Полный доспех
+ x 0      x 5400      x 119      x 0
+Clan Oath Leather Gloves Light Armor
+ x 0      x 640      x 24      x 0
+Clan Oath Boots Light Armor
+ x 0      x 1280      x 24      x 0
+
+Human Fighter
+ 
+Female
+ 
+Clan Oath Aketon
+P. Def. + 5% and Casting Spd. by 5%
+Clan Oath Helm
+ x 0      x 640      x 37      x 0
+Clan Oath Aketon
+Полный доспех
+ x 0      x 2450      x 79      x 0
+Clan Oath Padded Gloves Robe
+ x 0      x 640      x 24      x 0
+Clan Oath Sandals Robe
+ x 0      x 1280      x 24      x 0
+
+Human Fighter
+ 
+Female
+ 
+No-грейд
+Wooden Set
++2% P-Def, +41 HP
+Wooden Breastplate
+ x 0      x 4820      x 47      x 7960
+Wooden Gaiters
+ x 0      x 1670      x 29      x 4970
+Wooden Helmet
+ x 0      x 660      x 19      x 3980
+
+Human Fighter
+ 
+Female
+ 
+Devotion Set
++15% Casting Speed
+Tunic of Devotion
+ x 0      x 2090      x 30      x 20300
+Stockings of Devotion
+Часть комплекта Преданности.
+ x 0      x 1040      x 19      x 12700
+Leather Helmet

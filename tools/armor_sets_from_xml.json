@@ -1,0 +1,2450 @@
+{
+  "ng_leather_set": {
+    "name": "ng_leather_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "leather_shield",
+        "slot": "other",
+        "originalName": "Leather Shield",
+        "originalId": 18
+      },
+      {
+        "itemId": "leather_shirt",
+        "slot": "other",
+        "originalName": "Leather Shirt",
+        "originalId": 22
+      },
+      {
+        "itemId": "hard_leather_shirt",
+        "slot": "other",
+        "originalName": "Hard Leather Shirt",
+        "originalId": 27
+      },
+      {
+        "itemId": "leather_pants",
+        "slot": "other",
+        "originalName": "Leather Pants",
+        "originalId": 29
+      },
+      {
+        "itemId": "hard_leather_pants",
+        "slot": "other",
+        "originalName": "Hard Leather Pants",
+        "originalId": 30
+      },
+      {
+        "itemId": "hard_leather_gaiters",
+        "slot": "other",
+        "originalName": "Hard Leather Gaiters",
+        "originalId": 33
+      },
+      {
+        "itemId": "leather_sandals",
+        "slot": "other",
+        "originalName": "Leather Sandals",
+        "originalId": 36
+      },
+      {
+        "itemId": "leather_shoes",
+        "slot": "other",
+        "originalName": "Leather Shoes",
+        "originalId": 37
+      },
+      {
+        "itemId": "leather_boots",
+        "slot": "other",
+        "originalName": "Leather Boots",
+        "originalId": 40
+      },
+      {
+        "itemId": "leather_cap",
+        "slot": "other",
+        "originalName": "Leather Cap",
+        "originalId": 42
+      },
+      {
+        "itemId": "leather_helmet",
+        "slot": "other",
+        "originalName": "Leather Helmet",
+        "originalId": 44
+      },
+      {
+        "itemId": "leather_gloves",
+        "slot": "other",
+        "originalName": "Leather Gloves",
+        "originalId": 50
+      },
+      {
+        "itemId": "reinforced_leather_shirt",
+        "slot": "other",
+        "originalName": "Reinforced Leather Shirt",
+        "originalId": 394
+      },
+      {
+        "itemId": "plated_leather",
+        "slot": "other",
+        "originalName": "Plated Leather",
+        "originalId": 398
+      },
+      {
+        "itemId": "rind_leather_armor",
+        "slot": "other",
+        "originalName": "Rind Leather Armor",
+        "originalId": 399
+      },
+      {
+        "itemId": "theca_leather_armor",
+        "slot": "other",
+        "originalName": "Theca Leather Armor",
+        "originalId": 400
+      },
+      {
+        "itemId": "drake_leather_armor",
+        "slot": "other",
+        "originalName": "Drake Leather Armor",
+        "originalId": 401
+      },
+      {
+        "itemId": "prairie_leather_armor",
+        "slot": "other",
+        "originalName": "Prairie Leather Armor",
+        "originalId": 404
+      },
+      {
+        "itemId": "leather_armor_of_the_underworld",
+        "slot": "other",
+        "originalName": "Leather Armor of The Underworld",
+        "originalId": 405
+      },
+      {
+        "itemId": "leather_suit_of_concentration",
+        "slot": "other",
+        "originalName": "Leather Suit of Concentration",
+        "originalId": 406
+      },
+      {
+        "itemId": "aces_leather_armor",
+        "slot": "other",
+        "originalName": "Ace's Leather Armor",
+        "originalId": 407
+      },
+      {
+        "itemId": "guardians_leather_armor",
+        "slot": "other",
+        "originalName": "Guardian's Leather Armor",
+        "originalId": 408
+      },
+      {
+        "itemId": "marksmans_leather_armor",
+        "slot": "other",
+        "originalName": "Marksman's Leather Armor",
+        "originalId": 409
+      },
+      {
+        "itemId": "unicorn_leather_armor",
+        "slot": "other",
+        "originalName": "Unicorn Leather Armor",
+        "originalId": 410
+      },
+      {
+        "itemId": "dragon_leather_armor",
+        "slot": "other",
+        "originalName": "Dragon Leather Armor",
+        "originalId": 411
+      },
+      {
+        "itemId": "reinforced_leather_gaiters",
+        "slot": "other",
+        "originalName": "Reinforced Leather Gaiters",
+        "originalId": 416
+      },
+      {
+        "itemId": "plated_leather_gaiters",
+        "slot": "other",
+        "originalName": "Plated Leather Gaiters",
+        "originalId": 418
+      },
+      {
+        "itemId": "rind_leather_gaiters",
+        "slot": "other",
+        "originalName": "Rind Leather Gaiters",
+        "originalId": 419
+      },
+      {
+        "itemId": "theca_leather_gaiters",
+        "slot": "other",
+        "originalName": "Theca Leather Gaiters",
+        "originalId": 420
+      },
+      {
+        "itemId": "prairie_leather_gaiters",
+        "slot": "other",
+        "originalName": "Prairie Leather Gaiters",
+        "originalId": 421
+      },
+      {
+        "itemId": "guardians_leather_gaiters",
+        "slot": "other",
+        "originalName": "Guardian's Leather Gaiters",
+        "originalId": 423
+      },
+      {
+        "itemId": "marksmans_leather_gaiters",
+        "slot": "other",
+        "originalName": "Marksman's Leather Gaiters",
+        "originalId": 424
+      },
+      {
+        "itemId": "leather_tunic",
+        "slot": "other",
+        "originalName": "Leather Tunic",
+        "originalId": 429
+      },
+      {
+        "itemId": "leather_stockings",
+        "slot": "other",
+        "originalName": "Leather Stockings",
+        "originalId": 464
+      },
+      {
+        "itemId": "crafted_leather_gloves",
+        "slot": "other",
+        "originalName": "Crafted Leather Gloves",
+        "originalId": 604
+      },
+      {
+        "itemId": "leather_gauntlets",
+        "slot": "other",
+        "originalName": "Leather Gauntlets",
+        "originalId": 605
+      },
+      {
+        "itemId": "leather_shirt",
+        "slot": "other",
+        "originalName": "Leather Shirt",
+        "originalId": 709
+      },
+      {
+        "itemId": "hard_leather_shirt",
+        "slot": "other",
+        "originalName": "Hard Leather Shirt",
+        "originalId": 710
+      },
+      {
+        "itemId": "leather_pants",
+        "slot": "other",
+        "originalName": "Leather Pants",
+        "originalId": 713
+      },
+      {
+        "itemId": "hard_leather_pants",
+        "slot": "other",
+        "originalName": "Hard Leather Pants",
+        "originalId": 714
+      },
+      {
+        "itemId": "leather_gloves",
+        "slot": "other",
+        "originalName": "Leather Gloves",
+        "originalId": 717
+      },
+      {
+        "itemId": "hard_leather_gloves",
+        "slot": "other",
+        "originalName": "Hard Leather Gloves",
+        "originalId": 718
+      },
+      {
+        "itemId": "crafted_leather_gloves",
+        "slot": "other",
+        "originalName": "Crafted Leather Gloves",
+        "originalId": 719
+      },
+      {
+        "itemId": "leather_boots",
+        "slot": "other",
+        "originalName": "Leather Boots",
+        "originalId": 721
+      },
+      {
+        "itemId": "hard_leather_boots",
+        "slot": "other",
+        "originalName": "Hard Leather Boots",
+        "originalId": 722
+      },
+      {
+        "itemId": "crafted_leather_boots",
+        "slot": "other",
+        "originalName": "Crafted Leather Boots",
+        "originalId": 723
+      },
+      {
+        "itemId": "short_leather_gloves",
+        "slot": "other",
+        "originalName": "Short Leather Gloves",
+        "originalId": 1119
+      },
+      {
+        "itemId": "crude_leather_shoes",
+        "slot": "other",
+        "originalName": "Crude Leather Shoes",
+        "originalId": 1129
+      },
+      {
+        "itemId": "hard_leather_helmet",
+        "slot": "other",
+        "originalName": "Hard Leather Helmet",
+        "originalId": 1148
+      },
+      {
+        "itemId": "leather_gloves",
+        "slot": "other",
+        "originalName": "Leather Gloves",
+        "originalId": 1319
+      },
+      {
+        "itemId": "crafted_leather_gloves",
+        "slot": "other",
+        "originalName": "Crafted Leather Gloves",
+        "originalId": 1320
+      },
+      {
+        "itemId": "leather_shoes",
+        "slot": "other",
+        "originalName": "Leather Shoes",
+        "originalId": 1323
+      },
+      {
+        "itemId": "leather_boots",
+        "slot": "other",
+        "originalName": "Leather Boots",
+        "originalId": 1325
+      },
+      {
+        "itemId": "zubeis_leather_shirt",
+        "slot": "other",
+        "originalName": "Zubei's Leather Shirt",
+        "originalId": 2384
+      },
+      {
+        "itemId": "dark_crystal_leather_armor",
+        "slot": "other",
+        "originalName": "Dark Crystal Leather Armor",
+        "originalId": 2385
+      },
+      {
+        "itemId": "zubeis_leather_gaiters",
+        "slot": "other",
+        "originalName": "Zubei's Leather Gaiters",
+        "originalId": 2388
+      },
+      {
+        "itemId": "avadon_leather_armor",
+        "slot": "other",
+        "originalName": "Avadon Leather Armor",
+        "originalId": 2390
+      },
+      {
+        "itemId": "blue_wolf_leather_armor",
+        "slot": "other",
+        "originalName": "Blue Wolf Leather Armor",
+        "originalId": 2391
+      },
+      {
+        "itemId": "leather_armor_of_doom",
+        "slot": "other",
+        "originalName": "Leather Armor of Doom",
+        "originalId": 2392
+      },
+      {
+        "itemId": "tallum_leather_armor",
+        "slot": "other",
+        "originalName": "Tallum Leather Armor",
+        "originalId": 2393
+      },
+      {
+        "itemId": "nightmarish_leather_armor",
+        "slot": "other",
+        "originalName": "Nightmarish Leather Armor",
+        "originalId": 2394
+      },
+      {
+        "itemId": "majestic_leather_armor",
+        "slot": "other",
+        "originalName": "Majestic Leather Armor",
+        "originalId": 2395
+      },
+      {
+        "itemId": "reinforced_leather_boots",
+        "slot": "other",
+        "originalName": "Reinforced Leather Boots",
+        "originalId": 2422
+      },
+      {
+        "itemId": "plated_leather_boots",
+        "slot": "other",
+        "originalName": "Plated Leather Boots",
+        "originalId": 2431
+      },
+      {
+        "itemId": "rind_leather_boots",
+        "slot": "other",
+        "originalName": "Rind Leather Boots",
+        "originalId": 2434
+      },
+      {
+        "itemId": "theca_leather_boots",
+        "slot": "other",
+        "originalName": "Theca Leather Boots",
+        "originalId": 2436
+      },
+      {
+        "itemId": "drake_leather_boots",
+        "slot": "other",
+        "originalName": "Drake Leather Boots",
+        "originalId": 2437
+      },
+      {
+        "itemId": "dragon_leather_boots",
+        "slot": "other",
+        "originalName": "Dragon Leather Boots",
+        "originalId": 2443
+      },
+      {
+        "itemId": "reinforced_leather_gloves",
+        "slot": "other",
+        "originalName": "Reinforced Leather Gloves",
+        "originalId": 2446
+      },
+      {
+        "itemId": "plated_leather_gloves",
+        "slot": "other",
+        "originalName": "Plated Leather Gloves",
+        "originalId": 2455
+      },
+      {
+        "itemId": "rind_leather_gloves",
+        "slot": "other",
+        "originalName": "Rind Leather Gloves",
+        "originalId": 2458
+      },
+      {
+        "itemId": "theca_leather_gloves",
+        "slot": "other",
+        "originalName": "Theca Leather Gloves",
+        "originalId": 2460
+      },
+      {
+        "itemId": "drake_leather_gloves",
+        "slot": "other",
+        "originalName": "Drake Leather Gloves",
+        "originalId": 2461
+      },
+      {
+        "itemId": "dragon_leather_gloves",
+        "slot": "other",
+        "originalName": "Dragon Leather Gloves",
+        "originalId": 2477
+      },
+      {
+        "itemId": "wolfs_leather_armor",
+        "slot": "other",
+        "originalName": "Wolf's Leather Armor",
+        "originalId": 2506
+      },
+      {
+        "itemId": "wolfs_hard_leather_mail",
+        "slot": "other",
+        "originalName": "Wolf's Hard Leather Mail",
+        "originalId": 3892
+      },
+      {
+        "itemId": "hatchlings_soft_leather",
+        "slot": "other",
+        "originalName": "Hatchling's Soft Leather",
+        "originalId": 3912
+      },
+      {
+        "itemId": "sealed_dark_crystal_leather_armor",
+        "slot": "other",
+        "originalName": "Sealed Dark Crystal Leather Armor",
+        "originalId": 5297
+      },
+      {
+        "itemId": "sealed_tallum_leather_armor",
+        "slot": "other",
+        "originalName": "Sealed Tallum Leather Armor",
+        "originalId": 5301
+      },
+      {
+        "itemId": "sealed_leather_armor_of_nightmare",
+        "slot": "other",
+        "originalName": "Sealed Leather Armor of Nightmare",
+        "originalId": 5320
+      },
+      {
+        "itemId": "sealed_majestic_leather_armor",
+        "slot": "other",
+        "originalName": "Sealed Majestic Leather Armor",
+        "originalId": 5323
+      },
+      {
+        "itemId": "draconic_leather_armor",
+        "slot": "other",
+        "originalName": "Draconic Leather Armor",
+        "originalId": 6379
+      },
+      {
+        "itemId": "draconic_leather_gloves",
+        "slot": "other",
+        "originalName": "Draconic Leather Gloves",
+        "originalId": 6380
+      },
+      {
+        "itemId": "draconic_leather_boots",
+        "slot": "other",
+        "originalName": "Draconic Leather Boots",
+        "originalId": 6381
+      },
+      {
+        "itemId": "draconic_leather_helmet",
+        "slot": "other",
+        "originalName": "Draconic Leather Helmet",
+        "originalId": 6382
+      },
+      {
+        "itemId": "sealed_draconic_leather_armor",
+        "slot": "other",
+        "originalName": "Sealed Draconic Leather Armor",
+        "originalId": 6680
+      },
+      {
+        "itemId": "sealed_draconic_leather_glove",
+        "slot": "other",
+        "originalName": "Sealed Draconic Leather Glove",
+        "originalId": 6681
+      },
+      {
+        "itemId": "sealed_draconic_leather_boots",
+        "slot": "other",
+        "originalName": "Sealed Draconic Leather Boots",
+        "originalId": 6682
+      },
+      {
+        "itemId": "sealed_draconic_leather_helmet",
+        "slot": "other",
+        "originalName": "Sealed Draconic Leather Helmet",
+        "originalId": 6683
+      },
+      {
+        "itemId": "clan_oath_leather_gloves_light_armor",
+        "slot": "other",
+        "originalName": "Clan Oath Leather Gloves - Light Armor",
+        "originalId": 7855
+      },
+      {
+        "itemId": "apella_leather_gloves_light_armor",
+        "slot": "other",
+        "originalName": "Apella Leather Gloves - Light Armor",
+        "originalId": 7865
+      },
+      {
+        "itemId": "sealed_apella_leather_gloves",
+        "slot": "other",
+        "originalName": "Sealed Apella Leather Gloves",
+        "originalId": 7875
+      },
+      {
+        "itemId": "leather_cap",
+        "slot": "other",
+        "originalName": "Leather Cap",
+        "originalId": 8918
+      },
+      {
+        "itemId": "shadow_item_hard_leather_shirt",
+        "slot": "other",
+        "originalName": "Shadow Item: Hard Leather Shirt",
+        "originalId": 9032
+      },
+      {
+        "itemId": "shadow_item_hard_leather_gaiters",
+        "slot": "other",
+        "originalName": "Shadow Item: Hard Leather Gaiters",
+        "originalId": 9033
+      },
+      {
+        "itemId": "shadow_item_hard_leather_helmet",
+        "slot": "other",
+        "originalName": "Shadow Item: Hard Leather Helmet",
+        "originalId": 9037
+      },
+      {
+        "itemId": "shadow_item_reinforced_leather_shirt",
+        "slot": "other",
+        "originalName": "Shadow Item: Reinforced Leather Shirt",
+        "originalId": 9045
+      },
+      {
+        "itemId": "shadow_item_reinforced_leather_gaiters",
+        "slot": "other",
+        "originalName": "Shadow Item: Reinforced Leather Gaiters",
+        "originalId": 9046
+      },
+      {
+        "itemId": "shadow_item_reinforced_leather_gloves",
+        "slot": "other",
+        "originalName": "Shadow Item: Reinforced Leather Gloves",
+        "originalId": 9047
+      },
+      {
+        "itemId": "shadow_item_reinforced_leather_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Reinforced Leather Boots",
+        "originalId": 9048
+      },
+      {
+        "itemId": "shadow_item_theca_leather_armor",
+        "slot": "other",
+        "originalName": "Shadow Item: Theca Leather Armor",
+        "originalId": 9058
+      },
+      {
+        "itemId": "shadow_item_theca_leather_gaiters",
+        "slot": "other",
+        "originalName": "Shadow Item: Theca Leather Gaiters",
+        "originalId": 9059
+      },
+      {
+        "itemId": "shadow_item_theca_leather_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Theca Leather Boots",
+        "originalId": 9060
+      },
+      {
+        "itemId": "shadow_item_theca_leather_gloves",
+        "slot": "other",
+        "originalName": "Shadow Item: Theca Leather Gloves",
+        "originalId": 9061
+      },
+      {
+        "itemId": "shadow_item_zubeis_leather_shirt",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Leather Shirt",
+        "originalId": 9073
+      },
+      {
+        "itemId": "shadow_item_zubeis_leather_gaiters",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Leather Gaiters",
+        "originalId": 9074
+      },
+      {
+        "itemId": "shadow_item_dark_crystal_leather_armor",
+        "slot": "other",
+        "originalName": "Shadow Item: Dark Crystal Leather Armor",
+        "originalId": 9087
+      },
+      {
+        "itemId": "shadow_item_majestic_leather_armor",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Leather Armor",
+        "originalId": 9098
+      }
+    ]
+  },
+  "ng_plate_set": {
+    "name": "ng_plate_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "wooden_breastplate",
+        "slot": "other",
+        "originalName": "Wooden Breastplate",
+        "originalId": 23
+      },
+      {
+        "itemId": "bone_breastplate",
+        "slot": "other",
+        "originalName": "Bone Breastplate",
+        "originalId": 24
+      },
+      {
+        "itemId": "piece_bone_breastplate",
+        "slot": "other",
+        "originalName": "Piece Bone Breastplate",
+        "originalId": 25
+      },
+      {
+        "itemId": "bronze_breastplate",
+        "slot": "other",
+        "originalName": "Bronze Breastplate",
+        "originalId": 26
+      },
+      {
+        "itemId": "ring_mail_breastplate",
+        "slot": "other",
+        "originalName": "Ring Mail Breastplate",
+        "originalId": 347
+      },
+      {
+        "itemId": "blast_plate",
+        "slot": "other",
+        "originalName": "Blast Plate",
+        "originalId": 351
+      },
+      {
+        "itemId": "half_plate_armor",
+        "slot": "other",
+        "originalName": "Half Plate Armor",
+        "originalId": 353
+      },
+      {
+        "itemId": "full_plate_armor",
+        "slot": "other",
+        "originalName": "Full Plate Armor",
+        "originalId": 356
+      },
+      {
+        "itemId": "zubeis_breastplate",
+        "slot": "other",
+        "originalName": "Zubei's Breastplate",
+        "originalId": 357
+      },
+      {
+        "itemId": "blue_wolf_breastplate",
+        "slot": "other",
+        "originalName": "Blue Wolf Breastplate",
+        "originalId": 358
+      },
+      {
+        "itemId": "breastplate_of_valor",
+        "slot": "other",
+        "originalName": "Breastplate of Valor",
+        "originalId": 361
+      },
+      {
+        "itemId": "elven_crystal_breastplate",
+        "slot": "other",
+        "originalName": "Elven Crystal Breastplate",
+        "originalId": 364
+      },
+      {
+        "itemId": "dark_crystal_breastplate",
+        "slot": "other",
+        "originalName": "Dark Crystal Breastplate",
+        "originalId": 365
+      },
+      {
+        "itemId": "complete_set_of_plate_armor",
+        "slot": "other",
+        "originalName": "Complete Set of Plate Armor",
+        "originalId": 370
+      },
+      {
+        "itemId": "hell_plate",
+        "slot": "other",
+        "originalName": "Hell Plate",
+        "originalId": 371
+      },
+      {
+        "itemId": "art_of_plate",
+        "slot": "other",
+        "originalName": "Art of Plate",
+        "originalId": 372
+      },
+      {
+        "itemId": "iron_plate_gaiters",
+        "slot": "other",
+        "originalName": "Iron Plate Gaiters",
+        "originalId": 376
+      },
+      {
+        "itemId": "plate_gaiters",
+        "slot": "other",
+        "originalName": "Plate Gaiters",
+        "originalId": 380
+      },
+      {
+        "itemId": "steel_plate_helmet",
+        "slot": "other",
+        "originalName": "Steel Plate Helmet",
+        "originalId": 498
+      },
+      {
+        "itemId": "piece_bone_breastplate",
+        "slot": "other",
+        "originalName": "Piece Bone Breastplate",
+        "originalId": 711
+      },
+      {
+        "itemId": "half_plate_armor",
+        "slot": "other",
+        "originalName": "Half Plate Armor",
+        "originalId": 712
+      },
+      {
+        "itemId": "plate_gaiters",
+        "slot": "other",
+        "originalName": "Plate Gaiters",
+        "originalId": 716
+      },
+      {
+        "itemId": "avadon_breastplate",
+        "slot": "other",
+        "originalName": "Avadon Breastplate",
+        "originalId": 2376
+      },
+      {
+        "itemId": "doom_plate_armor",
+        "slot": "other",
+        "originalName": "Doom Plate Armor",
+        "originalId": 2381
+      },
+      {
+        "itemId": "tallum_plate_armor",
+        "slot": "other",
+        "originalName": "Tallum Plate Armor",
+        "originalId": 2382
+      },
+      {
+        "itemId": "majestic_plate_armor",
+        "slot": "other",
+        "originalName": "Majestic Plate Armor",
+        "originalId": 2383
+      },
+      {
+        "itemId": "plate_helmet",
+        "slot": "other",
+        "originalName": "Plate Helmet",
+        "originalId": 2412
+      },
+      {
+        "itemId": "full_plate_helmet",
+        "slot": "other",
+        "originalName": "Full Plate Helmet",
+        "originalId": 2414
+      },
+      {
+        "itemId": "plate_boots",
+        "slot": "other",
+        "originalName": "Plate Boots",
+        "originalId": 2428
+      },
+      {
+        "itemId": "full_plate_boots",
+        "slot": "other",
+        "originalName": "Full Plate Boots",
+        "originalId": 2438
+      },
+      {
+        "itemId": "full_plate_gauntlets",
+        "slot": "other",
+        "originalName": "Full Plate Gauntlets",
+        "originalId": 2462
+      },
+      {
+        "itemId": "plate_shield",
+        "slot": "other",
+        "originalName": "Plate Shield",
+        "originalId": 2494
+      },
+      {
+        "itemId": "full_plate_shield",
+        "slot": "other",
+        "originalName": "Full Plate Shield",
+        "originalId": 2497
+      },
+      {
+        "itemId": "wolfs_plate_mail",
+        "slot": "other",
+        "originalName": "Wolf's Plate Mail",
+        "originalId": 3898
+      },
+      {
+        "itemId": "wolfs_luxury_plate",
+        "slot": "other",
+        "originalName": "Wolf's Luxury Plate",
+        "originalId": 3900
+      },
+      {
+        "itemId": "hatchlings_shadowplate",
+        "slot": "other",
+        "originalName": "Hatchling's Shadowplate",
+        "originalId": 3917
+      },
+      {
+        "itemId": "hatchlings_ophidian_plate",
+        "slot": "other",
+        "originalName": "Hatchling's Ophidian Plate",
+        "originalId": 5183
+      },
+      {
+        "itemId": "hatchlings_crimson_plate",
+        "slot": "other",
+        "originalName": "Hatchling's Crimson Plate",
+        "originalId": 5184
+      },
+      {
+        "itemId": "hatchlings_draconic_plate",
+        "slot": "other",
+        "originalName": "Hatchling's Draconic Plate",
+        "originalId": 5185
+      },
+      {
+        "itemId": "hatchlings_inferno_plate",
+        "slot": "other",
+        "originalName": "Hatchling's Inferno Plate",
+        "originalId": 5186
+      },
+      {
+        "itemId": "sealed_dark_crystal_breastplate",
+        "slot": "other",
+        "originalName": "Sealed Dark Crystal breastplate",
+        "originalId": 5287
+      },
+      {
+        "itemId": "sealed_tallum_plate_armor",
+        "slot": "other",
+        "originalName": "Sealed Tallum Plate Armor",
+        "originalId": 5293
+      },
+      {
+        "itemId": "sealed_majestic_plate_armor",
+        "slot": "other",
+        "originalName": "Sealed Majestic Plate Armor",
+        "originalId": 5316
+      },
+      {
+        "itemId": "imperial_crusader_breastplate",
+        "slot": "other",
+        "originalName": "Imperial Crusader Breastplate",
+        "originalId": 6373
+      },
+      {
+        "itemId": "sealed_imperial_crusader_breastplate",
+        "slot": "other",
+        "originalName": "Sealed Imperial Crusader Breastplate",
+        "originalId": 6674
+      },
+      {
+        "itemId": "apella_plate_armor",
+        "slot": "other",
+        "originalName": "Apella Plate Armor",
+        "originalId": 7861
+      },
+      {
+        "itemId": "sealed_apella_plate_armor",
+        "slot": "other",
+        "originalName": "Sealed Apella Plate Armor",
+        "originalId": 7871
+      },
+      {
+        "itemId": "shadow_item_bronze_breastplate",
+        "slot": "other",
+        "originalName": "Shadow Item: Bronze Breastplate",
+        "originalId": 9030
+      },
+      {
+        "itemId": "shadow_item_zubeis_breastplate",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Breastplate",
+        "originalId": 9067
+      },
+      {
+        "itemId": "shadow_item_dark_crystal_breastplate",
+        "slot": "other",
+        "originalName": "Shadow Item: Dark Crystal Breastplate",
+        "originalId": 9081
+      },
+      {
+        "itemId": "shadow_item_majestic_plate_armor",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Plate Armor",
+        "originalId": 9094
+      }
+    ]
+  },
+  "ng_mithril_set": {
+    "name": "ng_mithril_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "mithril_breastplate",
+        "slot": "other",
+        "originalName": "Mithril Breastplate",
+        "originalId": 58
+      },
+      {
+        "itemId": "mithril_gaiters",
+        "slot": "other",
+        "originalName": "Mithril Gaiters",
+        "originalId": 59
+      },
+      {
+        "itemId": "mithril_gloves",
+        "slot": "other",
+        "originalName": "Mithril Gloves",
+        "originalId": 61
+      },
+      {
+        "itemId": "mithril_boots",
+        "slot": "other",
+        "originalName": "Mithril Boots",
+        "originalId": 62
+      },
+      {
+        "itemId": "mithril_banded_mail",
+        "slot": "other",
+        "originalName": "Mithril Banded Mail",
+        "originalId": 393
+      },
+      {
+        "itemId": "mithril_shirt",
+        "slot": "other",
+        "originalName": "Mithril Shirt",
+        "originalId": 397
+      },
+      {
+        "itemId": "mithril_banded_gaiters",
+        "slot": "other",
+        "originalName": "Mithril Banded Gaiters",
+        "originalId": 415
+      },
+      {
+        "itemId": "mithril_tunic",
+        "slot": "other",
+        "originalName": "Mithril Tunic",
+        "originalId": 437
+      },
+      {
+        "itemId": "mithril_stockings",
+        "slot": "other",
+        "originalName": "Mithril Stockings",
+        "originalId": 470
+      },
+      {
+        "itemId": "mithril_helmet",
+        "slot": "other",
+        "originalName": "Mithril Helmet",
+        "originalId": 499
+      },
+      {
+        "itemId": "mithril_gauntlets",
+        "slot": "other",
+        "originalName": "Mithril Gauntlets",
+        "originalId": 608
+      },
+      {
+        "itemId": "mithril_cloak",
+        "slot": "other",
+        "originalName": "Mithril Cloak",
+        "originalId": 617
+      },
+      {
+        "itemId": "mithril_undergarment_set",
+        "slot": "other",
+        "originalName": "Mithril Undergarment Set",
+        "originalId": 680
+      },
+      {
+        "itemId": "mithril_ring",
+        "slot": "other",
+        "originalName": "Mithril Ring",
+        "originalId": 882
+      },
+      {
+        "itemId": "mithril_breastplate",
+        "slot": "other",
+        "originalName": "Mithril Breastplate",
+        "originalId": 1309
+      },
+      {
+        "itemId": "mithril_gaiters",
+        "slot": "other",
+        "originalName": "Mithril Gaiters",
+        "originalId": 1314
+      },
+      {
+        "itemId": "mithril_scale_gaiters",
+        "slot": "other",
+        "originalName": "Mithril Scale Gaiters",
+        "originalId": 2377
+      },
+      {
+        "itemId": "tempered_mithril_gaiters",
+        "slot": "other",
+        "originalName": "Tempered Mithril Gaiters",
+        "originalId": 2387
+      },
+      {
+        "itemId": "elven_mithril_tunic",
+        "slot": "other",
+        "originalName": "Elven Mithril Tunic",
+        "originalId": 2396
+      },
+      {
+        "itemId": "elven_mithril_stockings",
+        "slot": "other",
+        "originalName": "Elven Mithril Stockings",
+        "originalId": 2401
+      },
+      {
+        "itemId": "elven_mithril_boots",
+        "slot": "other",
+        "originalName": "Elven Mithril Boots",
+        "originalId": 2426
+      },
+      {
+        "itemId": "elven_mithril_gloves",
+        "slot": "other",
+        "originalName": "Elven Mithril Gloves",
+        "originalId": 2450
+      },
+      {
+        "itemId": "reinforced_mithril_gloves",
+        "slot": "other",
+        "originalName": "Reinforced Mithril Gloves",
+        "originalId": 2452
+      },
+      {
+        "itemId": "wolfs_mithril_armor",
+        "slot": "other",
+        "originalName": "Wolf's Mithril Armor",
+        "originalId": 3901
+      },
+      {
+        "itemId": "hatchlings_mithril_coat",
+        "slot": "other",
+        "originalName": "Hatchling's Mithril Coat",
+        "originalId": 3918
+      },
+      {
+        "itemId": "mithril_panzer_coat",
+        "slot": "other",
+        "originalName": "Mithril Panzer Coat",
+        "originalId": 5170
+      },
+      {
+        "itemId": "shadow_item_mithril_breastplate",
+        "slot": "other",
+        "originalName": "Shadow Item: Mithril Breastplate",
+        "originalId": 9040
+      },
+      {
+        "itemId": "shadow_item_mithril_gaiters",
+        "slot": "other",
+        "originalName": "Shadow Item: Mithril Gaiters",
+        "originalId": 9041
+      },
+      {
+        "itemId": "shadow_item_mithril_gauntlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Mithril Gauntlet",
+        "originalId": 9128
+      }
+    ]
+  },
+  "ng_composite_set": {
+    "name": "ng_composite_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "composite_armor",
+        "slot": "other",
+        "originalName": "Composite Armor",
+        "originalId": 60
+      },
+      {
+        "itemId": "composite_boots",
+        "slot": "other",
+        "originalName": "Composite Boots",
+        "originalId": 64
+      },
+      {
+        "itemId": "composite_shield",
+        "slot": "other",
+        "originalName": "Composite Shield",
+        "originalId": 107
+      },
+      {
+        "itemId": "composite_helmet",
+        "slot": "other",
+        "originalName": "Composite Helmet",
+        "originalId": 517
+      },
+      {
+        "itemId": "composite_boots",
+        "slot": "other",
+        "originalName": "Composite Boots",
+        "originalId": 568
+      },
+      {
+        "itemId": "shadow_item_composite_armor",
+        "slot": "other",
+        "originalName": "Shadow Item: Composite Armor",
+        "originalId": 9054
+      },
+      {
+        "itemId": "shadow_item_composite_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Composite Boots",
+        "originalId": 9055
+      },
+      {
+        "itemId": "shadow_item_composite_shield",
+        "slot": "other",
+        "originalName": "Shadow Item: Composite Shield",
+        "originalId": 9056
+      },
+      {
+        "itemId": "shadow_item_composite_helmet",
+        "slot": "other",
+        "originalName": "Shadow Item: Composite Helmet",
+        "originalId": 9057
+      }
+    ]
+  },
+  "ng_doom_set": {
+    "name": "ng_doom_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "doom_shield",
+        "slot": "other",
+        "originalName": "Doom Shield",
+        "originalId": 110
+      },
+      {
+        "itemId": "tattoo_of_doom",
+        "slot": "other",
+        "originalName": "Tattoo of Doom",
+        "originalId": 494
+      },
+      {
+        "itemId": "helm_of_doom",
+        "slot": "other",
+        "originalName": "Helm of Doom",
+        "originalId": 550
+      },
+      {
+        "itemId": "boots_of_doom",
+        "slot": "other",
+        "originalName": "Boots of Doom",
+        "originalId": 601
+      },
+      {
+        "itemId": "tunic_of_doom",
+        "slot": "other",
+        "originalName": "Tunic of Doom",
+        "originalId": 2399
+      },
+      {
+        "itemId": "stockings_of_doom",
+        "slot": "other",
+        "originalName": "Stockings of Doom",
+        "originalId": 2404
+      },
+      {
+        "itemId": "doom_helmet",
+        "slot": "other",
+        "originalName": "Doom Helmet",
+        "originalId": 2417
+      },
+      {
+        "itemId": "doom_gloves",
+        "slot": "other",
+        "originalName": "Doom Gloves",
+        "originalId": 2475
+      },
+      {
+        "itemId": "sealed_doom_gloves",
+        "slot": "other",
+        "originalName": "Sealed Doom Gloves",
+        "originalId": 5721
+      },
+      {
+        "itemId": "doom_gloves_heavy_armor",
+        "slot": "other",
+        "originalName": "Doom Gloves - Heavy Armor",
+        "originalId": 5722
+      },
+      {
+        "itemId": "doom_gloves_light_armor",
+        "slot": "other",
+        "originalName": "Doom Gloves - Light Armor",
+        "originalId": 5723
+      },
+      {
+        "itemId": "doom_gloves_robe",
+        "slot": "other",
+        "originalName": "Doom Gloves - Robe",
+        "originalId": 5724
+      },
+      {
+        "itemId": "sealed_boots_of_doom",
+        "slot": "other",
+        "originalName": "Sealed Boots of Doom",
+        "originalId": 5737
+      },
+      {
+        "itemId": "doom_boots_heavy_armor",
+        "slot": "other",
+        "originalName": "Doom Boots - Heavy Armor",
+        "originalId": 5738
+      },
+      {
+        "itemId": "doom_boots_light_armor",
+        "slot": "other",
+        "originalName": "Doom Boots - Light Armor",
+        "originalId": 5739
+      },
+      {
+        "itemId": "doom_boots_robe",
+        "slot": "other",
+        "originalName": "Doom Boots - Robe",
+        "originalId": 5740
+      }
+    ]
+  },
+  "ng_scale_set": {
+    "name": "ng_scale_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "scale_mail",
+        "slot": "other",
+        "originalName": "Scale Mail",
+        "originalId": 348
+      },
+      {
+        "itemId": "compound_scale_mail",
+        "slot": "other",
+        "originalName": "Compound Scale Mail",
+        "originalId": 349
+      },
+      {
+        "itemId": "dwarven_scale_mail",
+        "slot": "other",
+        "originalName": "Dwarven Scale Mail",
+        "originalId": 350
+      },
+      {
+        "itemId": "dragon_scale_mail",
+        "slot": "other",
+        "originalName": "Dragon Scale Mail",
+        "originalId": 375
+      },
+      {
+        "itemId": "scale_gaiters",
+        "slot": "other",
+        "originalName": "Scale Gaiters",
+        "originalId": 377
+      },
+      {
+        "itemId": "compound_scale_gaiters",
+        "slot": "other",
+        "originalName": "Compound Scale Gaiters",
+        "originalId": 378
+      },
+      {
+        "itemId": "dwarven_scale_gaiters",
+        "slot": "other",
+        "originalName": "Dwarven Scale Gaiters",
+        "originalId": 379
+      },
+      {
+        "itemId": "dragon_scale_gaiters",
+        "slot": "other",
+        "originalName": "Dragon Scale Gaiters",
+        "originalId": 389
+      },
+      {
+        "itemId": "compound_scale_mail",
+        "slot": "other",
+        "originalName": "Compound Scale Mail",
+        "originalId": 1308
+      },
+      {
+        "itemId": "compound_scale_gaiters",
+        "slot": "other",
+        "originalName": "Compound Scale Gaiters",
+        "originalId": 1313
+      },
+      {
+        "itemId": "dragon_scale_boots",
+        "slot": "other",
+        "originalName": "Dragon Scale Boots",
+        "originalId": 2445
+      },
+      {
+        "itemId": "wolfs_scale_male",
+        "slot": "other",
+        "originalName": "Wolf's Scale Male",
+        "originalId": 3896
+      },
+      {
+        "itemId": "hatchlings_scale_mail",
+        "slot": "other",
+        "originalName": "Hatchling's Scale Mail",
+        "originalId": 3913
+      }
+    ]
+  },
+  "ng_brigandine_set": {
+    "name": "ng_brigandine_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "brigandine_tunic",
+        "slot": "other",
+        "originalName": "Brigandine Tunic",
+        "originalId": 352
+      },
+      {
+        "itemId": "brigandine_gaiters",
+        "slot": "other",
+        "originalName": "Brigandine Gaiters",
+        "originalId": 2378
+      },
+      {
+        "itemId": "brigandine_helmet",
+        "slot": "other",
+        "originalName": "Brigandine Helmet",
+        "originalId": 2411
+      },
+      {
+        "itemId": "brigandine_boots",
+        "slot": "other",
+        "originalName": "Brigandine Boots",
+        "originalId": 2425
+      },
+      {
+        "itemId": "brigandine_gauntlets",
+        "slot": "other",
+        "originalName": "Brigandine Gauntlets",
+        "originalId": 2449
+      },
+      {
+        "itemId": "brigandine_shield",
+        "slot": "other",
+        "originalName": "Brigandine Shield",
+        "originalId": 2493
+      },
+      {
+        "itemId": "hatchlings_brigandine",
+        "slot": "other",
+        "originalName": "Hatchling's Brigandine",
+        "originalId": 3914
+      },
+      {
+        "itemId": "clan_oath_brigandine",
+        "slot": "other",
+        "originalName": "Clan Oath Brigandine",
+        "originalId": 7854
+      },
+      {
+        "itemId": "apella_brigandine",
+        "slot": "other",
+        "originalName": "Apella Brigandine",
+        "originalId": 7864
+      },
+      {
+        "itemId": "sealed_apella_brigandine",
+        "slot": "other",
+        "originalName": "Sealed Apella Brigandine",
+        "originalId": 7874
+      }
+    ]
+  },
+  "ng_chain_set": {
+    "name": "ng_chain_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "chain_mail_shirt",
+        "slot": "other",
+        "originalName": "Chain Mail Shirt",
+        "originalId": 354
+      },
+      {
+        "itemId": "dwarven_chain_mail_shirt",
+        "slot": "other",
+        "originalName": "Dwarven Chain Mail Shirt",
+        "originalId": 355
+      },
+      {
+        "itemId": "chain_gaiters",
+        "slot": "other",
+        "originalName": "Chain Gaiters",
+        "originalId": 381
+      },
+      {
+        "itemId": "dwarven_chain_gaiters",
+        "slot": "other",
+        "originalName": "Dwarven Chain Gaiters",
+        "originalId": 382
+      },
+      {
+        "itemId": "chain_mail_of_silence",
+        "slot": "other",
+        "originalName": "Chain Mail of Silence",
+        "originalId": 402
+      },
+      {
+        "itemId": "gust_chain_mail",
+        "slot": "other",
+        "originalName": "Gust Chain Mail",
+        "originalId": 403
+      },
+      {
+        "itemId": "chain_helmet",
+        "slot": "other",
+        "originalName": "Chain Helmet",
+        "originalId": 497
+      },
+      {
+        "itemId": "chain_hood",
+        "slot": "other",
+        "originalName": "Chain Hood",
+        "originalId": 2413
+      },
+      {
+        "itemId": "chain_boots",
+        "slot": "other",
+        "originalName": "Chain Boots",
+        "originalId": 2429
+      },
+      {
+        "itemId": "dwarven_chain_boots",
+        "slot": "other",
+        "originalName": "Dwarven Chain Boots",
+        "originalId": 2432
+      },
+      {
+        "itemId": "chain_gloves",
+        "slot": "other",
+        "originalName": "Chain Gloves",
+        "originalId": 2453
+      },
+      {
+        "itemId": "dwarven_chain_gloves",
+        "slot": "other",
+        "originalName": "Dwarven Chain Gloves",
+        "originalId": 2456
+      },
+      {
+        "itemId": "chain_gloves_of_silence",
+        "slot": "other",
+        "originalName": "Chain Gloves of Silence",
+        "originalId": 2465
+      },
+      {
+        "itemId": "chain_shield",
+        "slot": "other",
+        "originalName": "Chain Shield",
+        "originalId": 2495
+      },
+      {
+        "itemId": "dwarven_chain_shield",
+        "slot": "other",
+        "originalName": "Dwarven Chain Shield",
+        "originalId": 2496
+      }
+    ]
+  },
+  "ng_nightmare_set": {
+    "name": "ng_nightmare_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "armor_of_nightmare",
+        "slot": "other",
+        "originalName": "Armor of Nightmare",
+        "originalId": 374
+      },
+      {
+        "itemId": "nightmare_robe",
+        "slot": "other",
+        "originalName": "Nightmare Robe",
+        "originalId": 2408
+      },
+      {
+        "itemId": "helm_of_nightmare",
+        "slot": "other",
+        "originalName": "Helm of Nightmare",
+        "originalId": 2418
+      },
+      {
+        "itemId": "boots_of_nightmare",
+        "slot": "other",
+        "originalName": "Boots of Nightmare",
+        "originalId": 2440
+      },
+      {
+        "itemId": "gauntlets_of_nightmare",
+        "slot": "other",
+        "originalName": "Gauntlets of Nightmare",
+        "originalId": 2479
+      },
+      {
+        "itemId": "shield_of_nightmare",
+        "slot": "other",
+        "originalName": "Shield of Nightmare",
+        "originalId": 2498
+      },
+      {
+        "itemId": "sealed_armor_of_nightmare",
+        "slot": "other",
+        "originalName": "Sealed Armor of Nightmare",
+        "originalId": 5311
+      },
+      {
+        "itemId": "sealed_helm_of_nightmare",
+        "slot": "other",
+        "originalName": "Sealed Helm of Nightmare",
+        "originalId": 5312
+      },
+      {
+        "itemId": "sealed_gauntlets_of_nightmare",
+        "slot": "other",
+        "originalName": "Sealed Gauntlets of Nightmare",
+        "originalId": 5313
+      },
+      {
+        "itemId": "sealed_boots_of_nightmare",
+        "slot": "other",
+        "originalName": "Sealed Boots of Nightmare",
+        "originalId": 5314
+      },
+      {
+        "itemId": "sealed_shield_of_nightmare",
+        "slot": "other",
+        "originalName": "Sealed Shield of Nightmare",
+        "originalId": 5315
+      },
+      {
+        "itemId": "sealed_nightmare_robe",
+        "slot": "other",
+        "originalName": "Sealed Nightmare Robe",
+        "originalId": 5326
+      },
+      {
+        "itemId": "gauntlets_of_nightmare_heavy_armor",
+        "slot": "other",
+        "originalName": "Gauntlets of Nightmare - Heavy Armor",
+        "originalId": 5771
+      },
+      {
+        "itemId": "gauntlets_of_nightmare_light_armor",
+        "slot": "other",
+        "originalName": "Gauntlets of Nightmare - Light Armor",
+        "originalId": 5772
+      },
+      {
+        "itemId": "gauntlets_of_nightmare_robe",
+        "slot": "other",
+        "originalName": "Gauntlets of Nightmare - Robe",
+        "originalId": 5773
+      },
+      {
+        "itemId": "boots_of_nightmare_heavy_armor",
+        "slot": "other",
+        "originalName": "Boots of Nightmare - Heavy Armor",
+        "originalId": 5783
+      },
+      {
+        "itemId": "boots_of_nightmare_light_armor",
+        "slot": "other",
+        "originalName": "Boots of Nightmare - Light Armor",
+        "originalId": 5784
+      },
+      {
+        "itemId": "boots_of_nightmare_robe",
+        "slot": "other",
+        "originalName": "Boots of Nightmare - Robe",
+        "originalId": 5785
+      },
+      {
+        "itemId": "shadow_item_shield_of_nightmare",
+        "slot": "other",
+        "originalName": "Shadow Item: Shield of Nightmare",
+        "originalId": 9129
+      }
+    ]
+  },
+  "ng_zubei_set": {
+    "name": "ng_zubei_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "zubeis_gaiters",
+        "slot": "other",
+        "originalName": "Zubei's Gaiters",
+        "originalId": 383
+      },
+      {
+        "itemId": "zubeis_helmet",
+        "slot": "other",
+        "originalName": "Zubei's Helmet",
+        "originalId": 503
+      },
+      {
+        "itemId": "zubeis_boots",
+        "slot": "other",
+        "originalName": "Zubei's Boots",
+        "originalId": 554
+      },
+      {
+        "itemId": "zubeis_gauntlets",
+        "slot": "other",
+        "originalName": "Zubei's Gauntlets",
+        "originalId": 612
+      },
+      {
+        "itemId": "zubeis_shield",
+        "slot": "other",
+        "originalName": "Zubei's Shield",
+        "originalId": 633
+      },
+      {
+        "itemId": "zubeis_shield",
+        "slot": "other",
+        "originalName": "Zubei's Shield",
+        "originalId": 1330
+      },
+      {
+        "itemId": "tunic_of_zubei",
+        "slot": "other",
+        "originalName": "Tunic of Zubei",
+        "originalId": 2397
+      },
+      {
+        "itemId": "stockings_of_zubei",
+        "slot": "other",
+        "originalName": "Stockings of Zubei",
+        "originalId": 2402
+      },
+      {
+        "itemId": "sealed_zubeis_gauntlets",
+        "slot": "other",
+        "originalName": "Sealed Zubei's Gauntlets",
+        "originalId": 5709
+      },
+      {
+        "itemId": "zubeis_gauntlets_heavy_armor",
+        "slot": "other",
+        "originalName": "Zubei's Gauntlets - Heavy Armor",
+        "originalId": 5710
+      },
+      {
+        "itemId": "zubeis_gauntlets_light_armor",
+        "slot": "other",
+        "originalName": "Zubei's Gauntlets - Light Armor",
+        "originalId": 5711
+      },
+      {
+        "itemId": "zubeis_gauntlets_robe",
+        "slot": "other",
+        "originalName": "Zubei's Gauntlets - Robe",
+        "originalId": 5712
+      },
+      {
+        "itemId": "sealed_zubeis_boots",
+        "slot": "other",
+        "originalName": "Sealed Zubei's Boots",
+        "originalId": 5725
+      },
+      {
+        "itemId": "zubeis_boots_heavy_armor",
+        "slot": "other",
+        "originalName": "Zubei's Boots - Heavy Armor",
+        "originalId": 5726
+      },
+      {
+        "itemId": "zubeis_boots_light_armor",
+        "slot": "other",
+        "originalName": "Zubei's Boots - Light Armor",
+        "originalId": 5727
+      },
+      {
+        "itemId": "zubeis_boots_robe",
+        "slot": "other",
+        "originalName": "Zubei's Boots - Robe",
+        "originalId": 5728
+      },
+      {
+        "itemId": "shadow_item_zubeis_gaiters",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Gaiters",
+        "originalId": 9068
+      },
+      {
+        "itemId": "shadow_item_zubeis_helmet",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Helmet",
+        "originalId": 9069
+      },
+      {
+        "itemId": "shadow_item_zubeis_shield",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Shield",
+        "originalId": 9070
+      },
+      {
+        "itemId": "shadow_item_zubeis_gauntlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Gauntlet",
+        "originalId": 9071
+      },
+      {
+        "itemId": "shadow_item_zubeis_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Boots",
+        "originalId": 9072
+      },
+      {
+        "itemId": "shadow_item_zubeis_gauntlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Gauntlet",
+        "originalId": 9075
+      },
+      {
+        "itemId": "shadow_item_zubeis_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Boots",
+        "originalId": 9076
+      },
+      {
+        "itemId": "shadow_item_tunic_of_zubei",
+        "slot": "other",
+        "originalName": "Shadow Item: Tunic of Zubei",
+        "originalId": 9077
+      },
+      {
+        "itemId": "shadow_item_stockings_of_zubei",
+        "slot": "other",
+        "originalName": "Shadow Item: Stockings of Zubei",
+        "originalId": 9078
+      },
+      {
+        "itemId": "shadow_item_zubeis_gauntlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Gauntlet",
+        "originalId": 9079
+      },
+      {
+        "itemId": "shadow_item_zubeis_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Zubei's Boots",
+        "originalId": 9080
+      }
+    ]
+  },
+  "ng_cursed_set": {
+    "name": "ng_cursed_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "cursed_tunic",
+        "slot": "other",
+        "originalName": "Cursed Tunic",
+        "originalId": 432
+      },
+      {
+        "itemId": "cursed_stockings",
+        "slot": "other",
+        "originalName": "Cursed Stockings",
+        "originalId": 465
+      },
+      {
+        "itemId": "cursed_undergarment_set",
+        "slot": "other",
+        "originalName": "Cursed Undergarment Set",
+        "originalId": 679
+      }
+    ]
+  },
+  "ng_karmian_set": {
+    "name": "ng_karmian_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "karmian_tunic",
+        "slot": "other",
+        "originalName": "Karmian Tunic",
+        "originalId": 439
+      },
+      {
+        "itemId": "karmian_stockings",
+        "slot": "other",
+        "originalName": "Karmian Stockings",
+        "originalId": 471
+      },
+      {
+        "itemId": "karmian_boots",
+        "slot": "other",
+        "originalName": "Karmian Boots",
+        "originalId": 2430
+      },
+      {
+        "itemId": "karmian_gloves",
+        "slot": "other",
+        "originalName": "Karmian Gloves",
+        "originalId": 2454
+      }
+    ]
+  },
+  "ng_demon_set": {
+    "name": "ng_demon_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "demons_tunic",
+        "slot": "other",
+        "originalName": "Demon's Tunic",
+        "originalId": 441
+      },
+      {
+        "itemId": "demons_stockings",
+        "slot": "other",
+        "originalName": "Demon's Stockings",
+        "originalId": 472
+      },
+      {
+        "itemId": "demons_undergarment_set",
+        "slot": "other",
+        "originalName": "Demon's Undergarment Set",
+        "originalId": 682
+      },
+      {
+        "itemId": "demons_boots",
+        "slot": "other",
+        "originalName": "Demon's Boots",
+        "originalId": 2435
+      },
+      {
+        "itemId": "demons_gloves",
+        "slot": "other",
+        "originalName": "Demon's Gloves",
+        "originalId": 2459
+      },
+      {
+        "itemId": "demon_horns",
+        "slot": "other",
+        "originalName": "Demon Horns",
+        "originalId": 8187
+      },
+      {
+        "itemId": "demon_horns",
+        "slot": "other",
+        "originalName": "Demon Horns",
+        "originalId": 8660
+      },
+      {
+        "itemId": "demon_circlet",
+        "slot": "other",
+        "originalName": "Demon Circlet",
+        "originalId": 8921
+      },
+      {
+        "itemId": "shadow_item_demons_tunic",
+        "slot": "other",
+        "originalName": "Shadow Item: Demon's Tunic",
+        "originalId": 9062
+      },
+      {
+        "itemId": "shadow_item_demons_stockings",
+        "slot": "other",
+        "originalName": "Shadow Item: Demon's Stockings",
+        "originalId": 9063
+      },
+      {
+        "itemId": "shadow_item_demons_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Demon's Boots",
+        "originalId": 9064
+      },
+      {
+        "itemId": "shadow_item_demons_gloves",
+        "slot": "other",
+        "originalName": "Shadow Item: Demon's Gloves",
+        "originalId": 9065
+      }
+    ]
+  },
+  "ng_avadon_set": {
+    "name": "ng_avadon_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "tattoo_of_avadon",
+        "slot": "other",
+        "originalName": "Tattoo of Avadon",
+        "originalId": 493
+      },
+      {
+        "itemId": "helm_of_avadon",
+        "slot": "other",
+        "originalName": "Helm of Avadon",
+        "originalId": 549
+      },
+      {
+        "itemId": "avadon_boots",
+        "slot": "other",
+        "originalName": "Avadon Boots",
+        "originalId": 600
+      },
+      {
+        "itemId": "avadon_shield",
+        "slot": "other",
+        "originalName": "Avadon Shield",
+        "originalId": 673
+      },
+      {
+        "itemId": "avadon_gaiters",
+        "slot": "other",
+        "originalName": "Avadon Gaiters",
+        "originalId": 2379
+      },
+      {
+        "itemId": "avadon_robe",
+        "slot": "other",
+        "originalName": "Avadon Robe",
+        "originalId": 2406
+      },
+      {
+        "itemId": "avadon_circlet",
+        "slot": "other",
+        "originalName": "Avadon Circlet",
+        "originalId": 2415
+      },
+      {
+        "itemId": "avadon_gloves",
+        "slot": "other",
+        "originalName": "Avadon Gloves",
+        "originalId": 2464
+      },
+      {
+        "itemId": "sealed_avadon_gloves",
+        "slot": "other",
+        "originalName": "Sealed Avadon Gloves",
+        "originalId": 5713
+      },
+      {
+        "itemId": "avadon_gloves_heavy_armor",
+        "slot": "other",
+        "originalName": "Avadon Gloves - Heavy Armor",
+        "originalId": 5714
+      },
+      {
+        "itemId": "avadon_gloves_light_armor",
+        "slot": "other",
+        "originalName": "Avadon Gloves - Light Armor",
+        "originalId": 5715
+      },
+      {
+        "itemId": "avadon_gloves_robe",
+        "slot": "other",
+        "originalName": "Avadon Gloves - Robe",
+        "originalId": 5716
+      },
+      {
+        "itemId": "sealed_avadon_boots",
+        "slot": "other",
+        "originalName": "Sealed Avadon Boots",
+        "originalId": 5729
+      },
+      {
+        "itemId": "avadon_boots_heavy_armor",
+        "slot": "other",
+        "originalName": "Avadon Boots - Heavy Armor",
+        "originalId": 5730
+      },
+      {
+        "itemId": "avadon_boots_light_armor",
+        "slot": "other",
+        "originalName": "Avadon Boots - Light Armor",
+        "originalId": 5731
+      },
+      {
+        "itemId": "avadon_boots_robe",
+        "slot": "other",
+        "originalName": "Avadon Boots - Robe",
+        "originalId": 5732
+      }
+    ]
+  },
+  "ng_tallum_set": {
+    "name": "ng_tallum_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "tallum_helm",
+        "slot": "other",
+        "originalName": "Tallum Helm",
+        "originalId": 547
+      },
+      {
+        "itemId": "tallum_tunic",
+        "slot": "other",
+        "originalName": "Tallum Tunic",
+        "originalId": 2400
+      },
+      {
+        "itemId": "tallum_stockings",
+        "slot": "other",
+        "originalName": "Tallum Stockings",
+        "originalId": 2405
+      },
+      {
+        "itemId": "tallum_gloves",
+        "slot": "other",
+        "originalName": "Tallum Gloves",
+        "originalId": 2478
+      },
+      {
+        "itemId": "sealed_tallum_helmet",
+        "slot": "other",
+        "originalName": "Sealed Tallum Helmet",
+        "originalId": 5294
+      },
+      {
+        "itemId": "sealed_tallum_gloves",
+        "slot": "other",
+        "originalName": "Sealed Tallum Gloves",
+        "originalId": 5295
+      },
+      {
+        "itemId": "sealed_tallum_boots",
+        "slot": "other",
+        "originalName": "Sealed Tallum Boots",
+        "originalId": 5296
+      },
+      {
+        "itemId": "sealed_tallum_tunic",
+        "slot": "other",
+        "originalName": "Sealed Tallum Tunic",
+        "originalId": 5304
+      },
+      {
+        "itemId": "sealed_tallum_stockings",
+        "slot": "other",
+        "originalName": "Sealed Tallum Stockings",
+        "originalId": 5305
+      },
+      {
+        "itemId": "tallum_gloves_heavy_armor",
+        "slot": "other",
+        "originalName": "Tallum Gloves - Heavy Armor",
+        "originalId": 5768
+      },
+      {
+        "itemId": "tallum_gloves_light_armor",
+        "slot": "other",
+        "originalName": "Tallum Gloves - Light Armor",
+        "originalId": 5769
+      },
+      {
+        "itemId": "tallum_gloves_robe",
+        "slot": "other",
+        "originalName": "Tallum Gloves - Robe",
+        "originalId": 5770
+      },
+      {
+        "itemId": "tallum_boots_heavy_armor",
+        "slot": "other",
+        "originalName": "Tallum Boots - Heavy Armor",
+        "originalId": 5780
+      },
+      {
+        "itemId": "tallum_boots_light_armor",
+        "slot": "other",
+        "originalName": "Tallum Boots - Light Armor",
+        "originalId": 5781
+      },
+      {
+        "itemId": "tallum_boots_robe",
+        "slot": "other",
+        "originalName": "Tallum Boots - Robe",
+        "originalId": 5782
+      }
+    ]
+  },
+  "ng_majestic_set": {
+    "name": "ng_majestic_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "majestic_boots",
+        "slot": "other",
+        "originalName": "Majestic Boots",
+        "originalId": 583
+      },
+      {
+        "itemId": "majestic_earring",
+        "slot": "other",
+        "originalName": "Majestic Earring",
+        "originalId": 862
+      },
+      {
+        "itemId": "majestic_ring",
+        "slot": "other",
+        "originalName": "Majestic Ring",
+        "originalId": 893
+      },
+      {
+        "itemId": "majestic_necklace",
+        "slot": "other",
+        "originalName": "Majestic Necklace",
+        "originalId": 924
+      },
+      {
+        "itemId": "majestic_robe",
+        "slot": "other",
+        "originalName": "Majestic Robe",
+        "originalId": 2409
+      },
+      {
+        "itemId": "majestic_circlet",
+        "slot": "other",
+        "originalName": "Majestic Circlet",
+        "originalId": 2419
+      },
+      {
+        "itemId": "majestic_gauntlets",
+        "slot": "other",
+        "originalName": "Majestic Gauntlets",
+        "originalId": 2482
+      },
+      {
+        "itemId": "sealed_majestic_circlet",
+        "slot": "other",
+        "originalName": "Sealed Majestic Circlet",
+        "originalId": 5317
+      },
+      {
+        "itemId": "sealed_majestic_gauntlets",
+        "slot": "other",
+        "originalName": "Sealed Majestic Gauntlets",
+        "originalId": 5318
+      },
+      {
+        "itemId": "sealed_majestic_boots",
+        "slot": "other",
+        "originalName": "Sealed Majestic Boots",
+        "originalId": 5319
+      },
+      {
+        "itemId": "sealed_majestic_robe",
+        "slot": "other",
+        "originalName": "Sealed Majestic Robe",
+        "originalId": 5329
+      },
+      {
+        "itemId": "majestic_gauntlets_heavy_armor",
+        "slot": "other",
+        "originalName": "Majestic Gauntlets - Heavy Armor",
+        "originalId": 5774
+      },
+      {
+        "itemId": "majestic_gauntlets_light_armor",
+        "slot": "other",
+        "originalName": "Majestic Gauntlets - Light Armor",
+        "originalId": 5775
+      },
+      {
+        "itemId": "majestic_gauntlets_robe",
+        "slot": "other",
+        "originalName": "Majestic Gauntlets - Robe",
+        "originalId": 5776
+      },
+      {
+        "itemId": "majestic_boots_heavy_armor",
+        "slot": "other",
+        "originalName": "Majestic Boots - Heavy Armor",
+        "originalId": 5786
+      },
+      {
+        "itemId": "majestic_boots_light_armor",
+        "slot": "other",
+        "originalName": "Majestic Boots - Light Armor",
+        "originalId": 5787
+      },
+      {
+        "itemId": "majestic_boots_robe",
+        "slot": "other",
+        "originalName": "Majestic Boots - Robe",
+        "originalId": 5788
+      },
+      {
+        "itemId": "sealed_majestic_necklace",
+        "slot": "other",
+        "originalName": "Sealed Majestic Necklace",
+        "originalId": 6326
+      },
+      {
+        "itemId": "sealed_majestic_earring",
+        "slot": "other",
+        "originalName": "Sealed Majestic Earring",
+        "originalId": 6327
+      },
+      {
+        "itemId": "sealed_majestic_ring",
+        "slot": "other",
+        "originalName": "Sealed Majestic Ring",
+        "originalId": 6328
+      },
+      {
+        "itemId": "shadow_item_majestic_circlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Circlet",
+        "originalId": 9095
+      },
+      {
+        "itemId": "shadow_item_majestic_gauntlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Gauntlet",
+        "originalId": 9096
+      },
+      {
+        "itemId": "shadow_item_majestic_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Boots",
+        "originalId": 9097
+      },
+      {
+        "itemId": "shadow_item_majestic_gauntlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Gauntlet",
+        "originalId": 9099
+      },
+      {
+        "itemId": "shadow_item_majestic_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Boots",
+        "originalId": 9100
+      },
+      {
+        "itemId": "shadow_item_majestic_robe",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Robe",
+        "originalId": 9101
+      },
+      {
+        "itemId": "shadow_item_majestic_gauntlet",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Gauntlet",
+        "originalId": 9102
+      },
+      {
+        "itemId": "shadow_item_majestic_boots",
+        "slot": "other",
+        "originalName": "Shadow Item: Majestic Boots",
+        "originalId": 9103
+      }
+    ]
+  },
+  "ng_reinforced_set": {
+    "name": "ng_reinforced_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "reinforced_gloves",
+        "slot": "other",
+        "originalName": "Reinforced Gloves",
+        "originalId": 720
+      },
+      {
+        "itemId": "reinforced_boots",
+        "slot": "other",
+        "originalName": "Reinforced Boots",
+        "originalId": 724
+      }
+    ]
+  },
+  "ng_draconic_set": {
+    "name": "ng_draconic_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "draconic_panzer_coat",
+        "slot": "other",
+        "originalName": "Draconic Panzer Coat",
+        "originalId": 5172
+      }
+    ]
+  },
+  "ng_imperial_set": {
+    "name": "ng_imperial_set",
+    "grade": "NG",
+    "pieces": [
+      {
+        "itemId": "imperial_crusader_gaiters",
+        "slot": "other",
+        "originalName": "Imperial Crusader Gaiters",
+        "originalId": 6374
+      },
+      {
+        "itemId": "imperial_crusader_gauntlets",
+        "slot": "other",
+        "originalName": "Imperial Crusader Gauntlets",
+        "originalId": 6375
+      },
+      {
+        "itemId": "imperial_crusader_boots",
+        "slot": "other",
+        "originalName": "Imperial Crusader Boots",
+        "originalId": 6376
+      },
+      {
+        "itemId": "imperial_crusader_shield",
+        "slot": "other",
+        "originalName": "Imperial Crusader Shield",
+        "originalId": 6377
+      },
+      {
+        "itemId": "imperial_crusader_helmet",
+        "slot": "other",
+        "originalName": "Imperial Crusader Helmet",
+        "originalId": 6378
+      },
+      {
+        "itemId": "sealed_imperial_crusader_gaiters",
+        "slot": "other",
+        "originalName": "Sealed Imperial Crusader Gaiters",
+        "originalId": 6675
+      },
+      {
+        "itemId": "sealed_imperial_crusader_gauntlet",
+        "slot": "other",
+        "originalName": "Sealed Imperial Crusader Gauntlet",
+        "originalId": 6676
+      },
+      {
+        "itemId": "sealed_imperial_crusader_boots",
+        "slot": "other",
+        "originalName": "Sealed Imperial Crusader Boots",
+        "originalId": 6677
+      },
+      {
+        "itemId": "sealed_imperial_crusader_shield",
+        "slot": "other",
+        "originalName": "Sealed Imperial Crusader Shield",
+        "originalId": 6678
+      },
+      {
+        "itemId": "sealed_imperial_crusader_helmet",
+        "slot": "other",
+        "originalName": "Sealed Imperial Crusader Helmet",
+        "originalId": 6679
+      },
+      {
+        "itemId": "monster_onlyshield_of_imperial_warlord_zombie",
+        "slot": "other",
+        "originalName": "Monster Only(Shield of Imperial Warlord Zombie)",
+        "originalId": 6721
+      }
+    ]
+  }
+}
