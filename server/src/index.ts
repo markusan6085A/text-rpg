@@ -51,12 +51,9 @@ app.get("/test-db", async (req, reply) => {
 // Graceful shutdown
 const start = async () => {
   try {
-    // Register CORS
+    // Register CORS - allow all origins
     await app.register(cors, {
-      origin: (origin, cb) => {
-        // Allow all origins (including Vercel preview deployments)
-        cb(null, true);
-      },
+      origin: true,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
