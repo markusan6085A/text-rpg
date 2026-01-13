@@ -38,7 +38,7 @@ app.get("/test-db", async (req, reply) => {
     const count = await prisma.account.count();
     return { status: "ok", dbConnected: true, accountCount: count };
   } catch (error) {
-    app.log.error("Database test error:", error);
+    app.log.error(error, "Database test error:");
     return reply.code(500).send({
       status: "error",
       dbConnected: false,
