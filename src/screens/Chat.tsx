@@ -83,21 +83,15 @@ export default function Chat({ navigate }: ChatProps) {
   // Optimistic messages go to the top
   // Filter out deleted messages
   // 🔥 Видаляємо дублікати: якщо повідомлення є в cachedMessages, не показуємо його з optimisticMessagesRef
-  const messagesWithoutDuplicates = [...optimisticMessagesRef.current, ...cachedMessages];
-  const seenIds = new Set<string>();
-  const allMessages = messagesWithoutDuplicates.filter(m => {
-    if (seenIds.has(m.id)) return false;
-    if (deletedIds.has(m.id)) return false; // 🔥 Фільтруємо видалені повідомлення
-    seenIds.add(m.id);
-    return true;
-  });
+  const optimisticIds = new Set(optimisticMessagesRef.current.map(m => m.id));
+  const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id) && !optimisticIds.has(m.id));
   
-  // 🔥 Обмежуємо кількість до limit (10) для cachedMessages, але optimistic завжди показуємо
-  // Якщо є optimistic - вони йдуть першими, потім cachedMessages (до 10)
-  const optimisticCount = optimisticMessagesRef.current.length;
-  const maxCachedMessages = Math.max(0, 10 - optimisticCount); // Скільки місця залишилося для cached
-  const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id)).slice(0, maxCachedMessages);
-  const messages = [...optimisticMessagesRef.current, ...filteredCached];
+  // 🔥 Обмежуємо загальну кількість до 10 повідомлень: optimistic перші, потім cached
+  // Optimistic завжди показуємо, cached додаємо до тих пір, поки всього не буде 10
+  const optimistic = optimisticMessagesRef.current;
+  const maxCached = Math.max(0, 10 - optimistic.length);
+  const limitedCached = filteredCached.slice(0, maxCached);
+  const messages = [...optimistic, ...limitedCached];
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
