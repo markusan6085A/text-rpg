@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { getChatMessages, postChatMessage, type ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 
@@ -18,24 +18,28 @@ export default function Chat({ navigate }: ChatProps) {
   const [page, setPage] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const autoRefreshRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialLoadRef = useRef(true);
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Load messages
-  const loadMessages = async (currentPage: number = 1, silent: boolean = false) => {
+  // Load messages - useCallback to prevent multiple calls
+  const loadMessages = useCallback(async (currentPage: number = 1, silent: boolean = false) => {
     try {
       if (!silent) {
         setIsLoading(true);
       }
       setError(null);
-      const response = await getChatMessages(channel, currentPage, 50);
+      // First load: 20 messages, pagination: 50 messages
+      const limit = isInitialLoadRef.current && currentPage === 1 ? 20 : 50;
+      const response = await getChatMessages(channel, currentPage, limit);
       setMessages(response.messages);
       setPage(currentPage);
       if (currentPage === 1) {
         setTimeout(scrollToBottom, 100);
+        isInitialLoadRef.current = false;
       }
     } catch (err: any) {
       console.error("Error loading messages:", err);
@@ -47,7 +51,7 @@ export default function Chat({ navigate }: ChatProps) {
       // Always reset loading state
       setIsLoading(false);
     }
-  };
+  }, [channel]);
 
   // Send message
   const sendMessage = async () => {
@@ -75,7 +79,16 @@ export default function Chat({ navigate }: ChatProps) {
 
 
   // Auto-refresh messages every 5 seconds (silent - doesn't block input)
+  // Reset initial load flag when channel changes
   useEffect(() => {
+    isInitialLoadRef.current = true;
+  }, [channel]);
+
+  // Load messages only once per channel change
+  useEffect(() => {
+    // Only load if channel is set
+    if (!channel) return;
+    
     loadMessages(1, false); // Initial load with loading indicator
 
     autoRefreshRef.current = setInterval(() => {
@@ -87,7 +100,7 @@ export default function Chat({ navigate }: ChatProps) {
         clearInterval(autoRefreshRef.current);
       }
     };
-  }, [channel]);
+  }, [channel, loadMessages]);
 
   // Format time
   const formatTime = (dateString: string) => {
@@ -217,7 +230,7 @@ export default function Chat({ navigate }: ChatProps) {
               const newPage = page + 1;
               loadMessages(newPage);
             }}
-            disabled={messages.length < 50}
+            disabled={messages.length < (page === 1 ? 20 : 50)}
             className="px-2 py-1 disabled:opacity-50"
           >
             &gt;&gt;&gt;

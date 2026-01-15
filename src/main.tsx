@@ -11,7 +11,7 @@ console.log('[MAIN] VITE_API_URL from env:', import.meta.env.VITE_API_URL || 'NO
 (window as any).__VITE_API_URL__ = import.meta.env.VITE_API_URL || 'NOT SET';
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  // StrictMode викликає подвійні рендери в dev, що призводить до подвійних запитів
+  // В production це не впливає, але для оптимізації вимкнено
+  <App />
 );

@@ -201,7 +201,7 @@ export interface PostChatMessageResponse {
   message: ChatMessage;
 }
 
-export async function getChatMessages(channel: string = 'general', page: number = 1, limit: number = 50): Promise<ChatMessagesResponse> {
+export async function getChatMessages(channel: string = 'general', page: number = 1, limit: number = 20): Promise<ChatMessagesResponse> {
   const response = await apiRequest<ChatMessagesResponse>(`/chat/messages?channel=${encodeURIComponent(channel)}&page=${page}&limit=${limit}`, {
     method: 'GET',
   });

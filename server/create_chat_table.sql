@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS "ChatMessage" (
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS "ChatMessage_channel_createdAt_idx" ON "ChatMessage"("channel", "createdAt");
+-- Optimized index for ORDER BY createdAt DESC with channel filter
+CREATE INDEX IF NOT EXISTS "ChatMessage_channel_createdAt_idx" ON "ChatMessage"("channel", "createdAt" DESC);
 CREATE INDEX IF NOT EXISTS "ChatMessage_characterId_idx" ON "ChatMessage"("characterId");
 
 -- Add foreign key
