@@ -236,18 +236,38 @@ export async function deleteChatMessage(messageId: string): Promise<{ ok: boolea
       headers['Authorization'] = `Bearer ${token}`;
     }
     
+    const url = `${API_URL}/chat/messages/${encodeURIComponent(messageId)}`;
+    console.log('[api] DELETE URL:', url);
+    console.log('[api] DELETE headers:', headers);
+    
     // 🔥 Явно НЕ додаємо Content-Type для DELETE
-    const response = await fetch(`${API_URL}/chat/messages/${encodeURIComponent(messageId)}`, {
+    const response = await fetch(url, {
       method: 'DELETE',
       headers,
       // НЕ додаємо body
     });
 
+    console.log('[api] DELETE response status:', response.status, response.statusText);
+    console.log('[api] DELETE response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      const error: ApiError = await response.json().catch(() => ({
-        error: `HTTP ${response.status}: ${response.statusText}`,
-      }));
-      throw new Error(error.error || `HTTP ${response.status}`);
+      // Спробуємо отримати детальну помилку з бекенду
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        console.error('[api] DELETE error response:', errorData);
+        errorMessage = errorData.error || errorData.message || errorMessage;
+        if (errorData.details) {
+          console.error('[api] DELETE error details:', errorData.details);
+          errorMessage += ` (${JSON.stringify(errorData.details)})`;
+        }
+      } catch (e) {
+        // Не вдалося розпарсити JSON - використовуємо текст
+        const text = await response.text().catch(() => '');
+        console.error('[api] DELETE error text:', text);
+        errorMessage = text || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
 
     const result = await response.json() as { ok: boolean; message: string };
@@ -255,6 +275,11 @@ export async function deleteChatMessage(messageId: string): Promise<{ ok: boolea
     return result;
   } catch (error: any) {
     console.error('[api] deleteChatMessage error:', error);
+    console.error('[api] deleteChatMessage error details:', {
+      message: error?.message,
+      name: error?.name,
+      stack: error?.stack,
+    });
     throw error;
   }
 }

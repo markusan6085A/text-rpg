@@ -159,7 +159,12 @@ export async function chatRoutes(app: FastifyInstance) {
   });
 
   // DELETE /chat/messages/:id
-  app.delete<{ Params: { id: string } }>("/chat/messages/:id", async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+  app.delete<{ Params: { id: string } }>("/chat/messages/:id", {
+    // 🔥 Явно вказуємо, що body не потрібен для DELETE
+    schema: {
+      body: false, // НЕ очікуємо body
+    },
+  }, async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 

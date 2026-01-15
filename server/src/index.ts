@@ -5,7 +5,11 @@ import { authRoutes } from "./auth";
 import { characterRoutes } from "./characters";
 import { chatRoutes } from "./chat";
 
-const app = Fastify({ logger: true });
+const app = Fastify({ 
+  logger: true,
+  // 🔥 Дозволяємо DELETE без body
+  bodyLimit: 1048576, // 1MB
+});
 
 // Root route
 app.get("/", async () => {
