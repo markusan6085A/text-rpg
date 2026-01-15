@@ -66,7 +66,7 @@ export function useChatMessages(opts: UseChatOptions) {
     return [];
   });
 
-  // 🔥 Оновлюємо messages при зміні key (channel/page/limit) - показуємо кеш миттєво
+  // 🔥 Оновлюємо messages при зміні key (channel/page/limit) - показуємо кеш МИТТЄВО
   useEffect(() => {
     const mem = memCache.get(key);
     const ls = readLS(key);
@@ -79,7 +79,15 @@ export function useChatMessages(opts: UseChatOptions) {
     } else {
       setMessages([]);
     }
-  }, [key]);
+    
+    // В manual режимі одразу запускаємо fetch для оновлення
+    if (manual) {
+      // Використовуємо setTimeout щоб не блокувати рендер
+      setTimeout(() => {
+        fetchNow("cache_load");
+      }, 0);
+    }
+  }, [key, manual, fetchNow]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

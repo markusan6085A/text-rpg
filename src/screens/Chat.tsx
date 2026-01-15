@@ -73,6 +73,21 @@ export default function Chat({ navigate }: ChatProps) {
     if (!messageText.trim() || !hero) return;
     
     const textToSend = messageText.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Optimistic update - show message immediately at the top
+    const optimisticMessage: ChatMessage = {
+      id: tempId,
+      characterName: hero.name || hero.username || "You",
+      channel,
+      message: textToSend,
+      createdAt: new Date().toISOString(),
+      isOwn: true,
+    };
+    
+    // Додаємо до існуючих optimistic messages, а не замінюємо
+    optimisticMessagesRef.current = [optimisticMessage, ...optimisticMessagesRef.current.filter(m => m.id !== tempId)];
+    
     // Clear input immediately for better UX
     setMessageText("");
     
@@ -81,28 +96,24 @@ export default function Chat({ navigate }: ChatProps) {
       textareaRef.current.style.height = 'auto';
     }
 
-    // Optimistic update - show message immediately at the top
-    const optimisticMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      characterName: hero.name || hero.username || "You",
-      channel,
-      message: textToSend,
-      createdAt: new Date().toISOString(),
-      isOwn: true,
-    };
-    optimisticMessagesRef.current = [optimisticMessage];
-
     try {
       // Send message in background (don't block UI)
-      await postChatMessage(channel, textToSend);
+      const realMessage = await postChatMessage(channel, textToSend);
       
-      // Remove optimistic message - нове повідомлення прийде при наступному refresh
-      optimisticMessagesRef.current = [];
-      // ❌ НЕ робимо refresh тут - optimistic вже показав повідомлення
+      // Замінюємо optimistic повідомлення на реальне
+      optimisticMessagesRef.current = optimisticMessagesRef.current.map(m => 
+        m.id === tempId ? realMessage : m
+      );
+      
+      // Якщо реальне повідомлення прийшло, видаляємо його з optimistic через 2 секунди
+      setTimeout(() => {
+        optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== realMessage.id);
+        refresh(); // Оновлюємо список після того як реальне повідомлення точно в базі
+      }, 2000);
     } catch (err: any) {
       console.error("Error sending message:", err);
       // Remove optimistic message on error
-      optimisticMessagesRef.current = [];
+      optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== tempId);
       // Restore message text if sending failed
       setMessageText(textToSend);
     }

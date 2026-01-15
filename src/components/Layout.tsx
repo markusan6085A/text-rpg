@@ -91,7 +91,7 @@ export default function Layout({
         
         {/* Кнопки: Поддержка | Онлайн | Выйти */}
         <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center pointer-events-none px-2 sm:px-4">
-          <div className="w-full max-w-[380px] flex items-center justify-between gap-2 text-xs pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
+          <div className="w-full max-w-[380px] flex items-center justify-center gap-1 text-[10px] pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
             <button
               onClick={handleSupport}
               className="text-gray-400 hover:text-gray-300 transition-colors"
