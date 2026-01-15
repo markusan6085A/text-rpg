@@ -101,6 +101,7 @@ export function useChatMessages(opts: UseChatOptions) {
     keyRef.current = key;
   }, [channel, page, limit, key]);
 
+  // 🔥 fetchNow оголошується ПЕРЕД useEffect, які його використовують
   const fetchNow = useCallback(
     async (reason: string) => {
       // Використовуємо refs для отримання актуальних значень
@@ -160,22 +161,22 @@ export function useChatMessages(opts: UseChatOptions) {
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-              const data = (await res.json()) as { ok: boolean; messages: ChatMessage[] };
-              const cleaned = Array.isArray(data.messages) ? data.messages : [];
+        const data = (await res.json()) as { ok: boolean; messages: ChatMessage[] };
+        const cleaned = Array.isArray(data.messages) ? data.messages : [];
 
-              // 🔥 Перевіряємо, чи канал/сторінка не змінилися під час запиту
-              // Якщо змінилися - не оновлюємо state (запобігає race condition)
-              if (channelRef.current !== currentChannel || pageRef.current !== currentPage) {
-                console.log('[chat] Channel/page changed during fetch, ignoring response');
-                return;
-              }
+        // 🔥 Перевіряємо, чи канал/сторінка не змінилися під час запиту
+        // Якщо змінилися - не оновлюємо state (запобігає race condition)
+        if (channelRef.current !== currentChannel || pageRef.current !== currentPage) {
+          console.log('[chat] Channel/page changed during fetch, ignoring response');
+          return;
+        }
 
-              // оновлюємо state + кеші
-              setMessages(cleaned);
+        // оновлюємо state + кеші
+        setMessages(cleaned);
 
-              const entry = { ts: Date.now(), data: cleaned };
-              memCache.set(currentKey, entry);
-              writeLS(currentKey, entry);
+        const entry = { ts: Date.now(), data: cleaned };
+        memCache.set(currentKey, entry);
+        writeLS(currentKey, entry);
 
       } catch (e: any) {
         if (e?.name === "AbortError") return;
