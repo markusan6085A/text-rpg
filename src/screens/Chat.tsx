@@ -55,7 +55,15 @@ export default function Chat({ navigate }: ChatProps) {
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top
   // Filter out deleted messages
-  const messages = [...optimisticMessagesRef.current, ...cachedMessages].filter(m => !deletedIds.has(m.id));
+  // 🔥 Видаляємо дублікати: якщо повідомлення є в cachedMessages, не показуємо його з optimisticMessagesRef
+  const messagesWithoutDuplicates = [...optimisticMessagesRef.current, ...cachedMessages];
+  const seenIds = new Set<string>();
+  const messages = messagesWithoutDuplicates.filter(m => {
+    if (seenIds.has(m.id)) return false;
+    if (deletedIds.has(m.id)) return false;
+    seenIds.add(m.id);
+    return true;
+  });
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
@@ -100,16 +108,12 @@ export default function Chat({ navigate }: ChatProps) {
       // Send message in background (don't block UI)
       const realMessage = await postChatMessage(channel, textToSend);
       
-      // Замінюємо optimistic повідомлення на реальне
-      optimisticMessagesRef.current = optimisticMessagesRef.current.map(m => 
-        m.id === tempId ? realMessage : m
-      );
+      // 🔥 Видаляємо optimistic повідомлення з tempId (воно вже замінено на реальне в базі)
+      // Реальне повідомлення прийде з сервера через кеш при наступному оновленні
+      optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== tempId);
       
-      // Якщо реальне повідомлення прийшло, видаляємо його з optimistic через 2 секунди
-      setTimeout(() => {
-        optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== realMessage.id);
-        refresh(); // Оновлюємо список після того як реальне повідомлення точно в базі
-      }, 2000);
+      // 🔥 НЕ викликаємо refresh() - це викликає затримку і пропадання повідомлення
+      // Повідомлення вже є в базі і з'явиться автоматично при наступному оновленні або через кеш
     } catch (err: any) {
       console.error("Error sending message:", err);
       // Remove optimistic message on error
