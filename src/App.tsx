@@ -32,6 +32,7 @@ import Wip from "./screens/Wip";
 import Chat from "./screens/Chat";
 import OnlinePlayers from "./screens/OnlinePlayers";
 import PlayerProfile from "./screens/PlayerProfile";
+import Mail from "./screens/Mail";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -274,6 +275,9 @@ function AppInner() {
 
     case "/online-players":
       return renderWithLayout(<OnlinePlayers navigate={navigate} />);
+
+    case "/mail":
+      return renderWithLayout(<Mail navigate={navigate} />);
 
     default:
       // Check if pathname matches /player/:id pattern

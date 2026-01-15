@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
+import WriteLetterModal from "../components/WriteLetterModal";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -213,23 +214,46 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             allowUnequip={false} 
             marginTop="0"
             heroOverride={heroData}
+            onItemClick={(slot, itemId, enchantLevel) => {
+              setSelectedItem({ slot, itemId, enchantLevel });
+            }}
           />
         </div>
+
+        {/* Модалка характеристик предмета */}
+        {selectedItem && (
+          <PlayerItemModal
+            itemId={selectedItem.itemId}
+            slot={selectedItem.slot}
+            enchantLevel={selectedItem.enchantLevel}
+            onClose={() => setSelectedItem(null)}
+          />
+        )}
 
         {/* Кнопки - просто текст */}
         <div className="flex flex-col gap-1 mb-4">
           <div className="w-full border-t border-b border-gray-600 py-1">
             <span 
-              onClick={() => {
-                navigate("/chat");
-                // TODO: Відкрити листування з цим гравцем
-              }}
+              onClick={() => setShowWriteModal(true)}
               className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
             >
               Написать письмо
             </span>
           </div>
         </div>
+
+        {/* Модалка написання листа */}
+        {showWriteModal && (
+          <WriteLetterModal
+            toCharacterId={character?.id}
+            toCharacterName={character?.name}
+            onClose={() => setShowWriteModal(false)}
+            onSent={() => {
+              setShowWriteModal(false);
+              // TODO: Можливо показати повідомлення про успішну відправку
+            }}
+          />
+        )}
 
         {/* Інформація */}
         <div className="space-y-2 text-[11px] text-gray-300 border-t border-gray-600 pt-3">

@@ -36,12 +36,15 @@ interface CharacterEquipmentFrameProps {
   marginTop?: string;
   /** 🔥 Перевизначити hero дані (для перегляду профілю іншого гравця) */
   heroOverride?: any;
+  /** 🔥 Callback для кліку на предмет (для показу характеристик іншого гравця) */
+  onItemClick?: (slot: string, itemId: string | null, enchantLevel?: number) => void;
 }
 
 export default function CharacterEquipmentFrame({ 
   allowUnequip = false,
   marginTop = "20px",
-  heroOverride = null
+  heroOverride = null,
+  onItemClick,
 }: CharacterEquipmentFrameProps) {
   const heroStore = useHeroStore((s) => s.hero);
   // 🔥 Якщо heroOverride передано, використовуємо його замість hero з store (для перегляду профілю іншого гравця)
@@ -458,7 +461,11 @@ export default function CharacterEquipmentFrame({
               <img 
                 src={getSlotIcon(slot)} 
                 className={slotClassName}
-                onClick={allowUnequip ? () => handleUnequip(slot) : undefined}
+                onClick={heroOverride && onItemClick 
+                  ? () => handleItemClick(slot)
+                  : allowUnequip 
+                    ? () => handleUnequip(slot) 
+                    : undefined}
               />
               {enchantLevel > 0 && (
                 <div 
@@ -533,7 +540,11 @@ export default function CharacterEquipmentFrame({
               <img 
                 src={getSlotIcon(slot)} 
                 className={slotClassName}
-                onClick={allowUnequip ? () => handleUnequip(slot) : undefined}
+                onClick={heroOverride && onItemClick 
+                  ? () => handleItemClick(slot)
+                  : allowUnequip 
+                    ? () => handleUnequip(slot) 
+                    : undefined}
               />
               {enchantLevel > 0 && (
                 <div 
