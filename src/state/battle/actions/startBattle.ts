@@ -249,6 +249,17 @@ export const createStartBattle =
       ? [`Fight started with ${mob.name}`, ...prevState.log].slice(0, 30)
       : [`Fight started with ${mob.name}`];
     
+    // 🔥 Оновлюємо location в heroJson при зміні локації (для відображення в профілі)
+    if (hero && zone) {
+      const currentLocation = (hero as any).location ?? (hero as any).currentLocation ?? (hero as any).zone;
+      if (currentLocation !== zone.name) {
+        // Оновлюємо location в hero через updateHero (автоматично збережеться в heroJson)
+        useHeroStore.getState().updateHero({
+          location: zone.name, // 🔥 Додаємо location для збереження в heroJson
+        } as any);
+      }
+    }
+    
     const initial: Partial<BattleState> = {
       heroName: heroName, // Зберігаємо для перевірки при завантаженні (не джерело істини)
       zoneId,

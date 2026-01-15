@@ -376,13 +376,18 @@ export function handleBaseAttack(
           ...updatedProgressKills,
         };
 
+        // 🔥 Оновлюємо mobsKilled в heroJson (для відображення в профілі)
+        const currentMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? (curHero as any).killedMobs ?? (curHero as any).totalKills ?? 0;
+        const newMobsKilled = currentMobsKilled + 1;
+        
         useHeroStore.getState().updateHero({
           level,
           exp,
           sp: (curHero.sp ?? 0) + finalSpGain,
           adena: (curHero.adena ?? 0) + finalAdenaGain,
           dailyQuestsProgress: combinedProgress,
-        });
+          mobsKilled: newMobsKilled, // 🔥 Додаємо mobsKilled для збереження в heroJson
+        } as any);
 
         const updatedHero = useHeroStore.getState().hero;
         const updMaxHp = updatedHero?.maxHp ?? curHero.maxHp ?? curHero.hp ?? 0;
