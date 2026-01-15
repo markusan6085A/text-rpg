@@ -100,10 +100,11 @@ export async function chatRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "message too long (max 500 characters)" });
     }
 
-    // Get user's character
+    // Get user's character - only select id for faster query
     const character = await prisma.character.findFirst({
       where: { accountId: auth.accountId },
       orderBy: { createdAt: "asc" },
+      select: { id: true, name: true }, // Only get what we need
     });
 
     if (!character) {

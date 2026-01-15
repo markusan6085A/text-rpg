@@ -61,19 +61,40 @@ export default function Chat({ navigate }: ChatProps) {
     // Clear input immediately for better UX
     setMessageText("");
 
+    // Optimistic update - show message immediately
+    const optimisticMessage: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      characterName: hero.name || hero.username || "You",
+      channel,
+      message: textToSend,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setTimeout(scrollToBottom, 50);
+
     try {
       setError(null);
-      setIsLoading(true);
+      // Send message in background (don't block UI)
       const response = await postChatMessage(channel, textToSend);
-      // Reload messages to show new one
-      await loadMessages(1, true);
+      
+      // Replace optimistic message with real one
+      setMessages((prev) => 
+        prev.map((msg) => 
+          msg.id === optimisticMessage.id ? response.message : msg
+        )
+      );
+      
+      // Silent refresh in background to sync with other users
+      loadMessages(1, true).catch(() => {
+        // Ignore errors in background refresh
+      });
     } catch (err: any) {
       console.error("Error sending message:", err);
+      // Remove optimistic message on error
+      setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
       // Restore message text if sending failed
       setMessageText(textToSend);
       setError(err?.message || "Ошибка отправки сообщения. Убедитесь, что backend сервер запущен и таблица ChatMessage создана в базе данных.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
