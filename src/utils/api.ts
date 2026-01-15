@@ -95,9 +95,17 @@ async function apiRequest<T>(
     ...(options.headers || {}),
   };
 
-  // 🔥 Для DELETE не додаємо Content-Type (Fastify не очікує body для DELETE)
-  if (options.method !== 'DELETE') {
-    headers['Content-Type'] = 'application/json';
+  // 🔥 Для DELETE НЕ додаємо Content-Type (Fastify вимагає body, якщо є Content-Type: application/json)
+  // 🔥 Явно видаляємо Content-Type для DELETE, якщо він був доданий раніше
+  if (options.method === 'DELETE') {
+    // Видаляємо Content-Type для DELETE (Fastify не очікує body)
+    delete headers['Content-Type'];
+    delete headers['content-type'];
+  } else {
+    // Для інших методів додаємо Content-Type, якщо його немає
+    if (!headers['Content-Type'] && !headers['content-type']) {
+      headers['Content-Type'] = 'application/json';
+    }
   }
 
   if (token) {
@@ -218,12 +226,33 @@ export async function deleteChatMessage(messageId: string): Promise<{ ok: boolea
   // 🔥 DELETE не повинен мати body, тільки URL параметр
   console.log('[api] deleteChatMessage called:', messageId);
   try {
-    const response = await apiRequest<{ ok: boolean; message: string }>(`/chat/messages/${encodeURIComponent(messageId)}`, {
+    // 🔥 Використовуємо fetch напряму для DELETE, щоб гарантовано не додати Content-Type
+    const token = getToken();
+    const headers: HeadersInit = {
+      'Accept': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // 🔥 Явно НЕ додаємо Content-Type для DELETE
+    const response = await fetch(`${API_URL}/chat/messages/${encodeURIComponent(messageId)}`, {
       method: 'DELETE',
-      // Явно не додаємо body для DELETE
+      headers,
+      // НЕ додаємо body
     });
-    console.log('[api] deleteChatMessage success:', response);
-    return response;
+
+    if (!response.ok) {
+      const error: ApiError = await response.json().catch(() => ({
+        error: `HTTP ${response.status}: ${response.statusText}`,
+      }));
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
+
+    const result = await response.json() as { ok: boolean; message: string };
+    console.log('[api] deleteChatMessage success:', result);
+    return result;
   } catch (error: any) {
     console.error('[api] deleteChatMessage error:', error);
     throw error;
