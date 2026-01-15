@@ -75,12 +75,12 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       setError(null);
       // Send message in background (don't block UI)
-      const response = await postChatMessage(channel, textToSend);
+      const realMessage = await postChatMessage(channel, textToSend);
       
       // Replace optimistic message with real one
       setMessages((prev) => 
-        prev.map((msg) => 
-          msg.id === optimisticMessage.id ? response.message : msg
+        prev.map((msg): ChatMessage => 
+          msg.id === optimisticMessage.id ? realMessage : msg
         )
       );
       
