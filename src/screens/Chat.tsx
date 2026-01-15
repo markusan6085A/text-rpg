@@ -32,8 +32,10 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Clear optimistic messages and refresh when channel changes
   useEffect(() => {
+    console.log('[chat] Channel changed to:', channel);
     optimisticMessagesRef.current = [];
     setDeletedIds(new Set()); // Clear deleted IDs when channel changes
+    setPage(1); // Reset to first page when changing channels
     // 🔥 ОДИН контрольований GET при зміні каналу
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,6 +93,8 @@ export default function Chat({ navigate }: ChatProps) {
   // Delete message - optimistic update, no confirmation
   // 🔥 Видалення працює тільки для своїх повідомлень в general/trade каналах
   const handleDeleteMessage = async (messageId: string) => {
+    console.log('[chat] handleDeleteMessage called:', { messageId, channel });
+    
     // Перевірка каналу на фронті (додаткова перевірка, основна на бекенді)
     if (channel !== "general" && channel !== "trade") {
       console.warn('[chat] Can only delete messages in general or trade channels');
@@ -104,6 +108,17 @@ export default function Chat({ navigate }: ChatProps) {
     }
     deletingRef.current.add(messageId);
 
+    // Знаходимо повідомлення для діагностики
+    const messageToDelete = [...optimisticMessagesRef.current, ...cachedMessages].find(m => m.id === messageId);
+    console.log('[chat] Message to delete:', { 
+      messageId, 
+      characterName: messageToDelete?.characterName,
+      isOwn: messageToDelete?.isOwn,
+      characterId: messageToDelete?.characterId,
+      heroName: hero?.name || hero?.username,
+      heroId: hero?.id
+    });
+
     // Optimistic update - remove immediately from UI
     setDeletedIds(prev => new Set([...prev, messageId]));
     
@@ -111,12 +126,18 @@ export default function Chat({ navigate }: ChatProps) {
     optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== messageId);
     
     try {
+      console.log('[chat] Sending DELETE request for:', messageId);
       const result = await deleteChatMessage(messageId);
       console.log('[chat] Message deleted successfully:', messageId, result);
       // Don't refresh immediately - optimistic update is enough
       // Message is already removed from UI via deletedIds
     } catch (err: any) {
-      console.error("Error deleting message:", err);
+      console.error("[chat] Error deleting message:", err);
+      console.error("[chat] Error details:", {
+        message: err?.message,
+        status: err?.status,
+        response: err?.response
+      });
       // Restore message on error
       setDeletedIds(prev => {
         const next = new Set(prev);

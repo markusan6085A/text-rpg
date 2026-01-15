@@ -92,9 +92,13 @@ async function apiRequest<T>(
 ): Promise<T> {
   const token = getToken();
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
+
+  // 🔥 Для DELETE не додаємо Content-Type (Fastify не очікує body для DELETE)
+  if (options.method !== 'DELETE') {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -211,10 +215,19 @@ export async function getChatMessages(channel: string = 'general', page: number 
 }
 
 export async function deleteChatMessage(messageId: string): Promise<{ ok: boolean; message: string }> {
-  const response = await apiRequest<{ ok: boolean; message: string }>(`/chat/messages/${encodeURIComponent(messageId)}`, {
-    method: 'DELETE',
-  });
-  return response;
+  // 🔥 DELETE не повинен мати body, тільки URL параметр
+  console.log('[api] deleteChatMessage called:', messageId);
+  try {
+    const response = await apiRequest<{ ok: boolean; message: string }>(`/chat/messages/${encodeURIComponent(messageId)}`, {
+      method: 'DELETE',
+      // Явно не додаємо body для DELETE
+    });
+    console.log('[api] deleteChatMessage success:', response);
+    return response;
+  } catch (error: any) {
+    console.error('[api] deleteChatMessage error:', error);
+    throw error;
+  }
 }
 
 export async function postChatMessage(channel: string, message: string): Promise<ChatMessage> {

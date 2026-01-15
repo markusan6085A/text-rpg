@@ -163,11 +163,33 @@ export async function chatRoutes(app: FastifyInstance) {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const messageId = req.params.id;
+    // 🔥 Парсимо messageId з різних джерел (Fastify іноді не парсить правильно)
+    let messageId: string | undefined;
+    
+    // Спробуємо з params
+    if (req.params && typeof req.params === 'object' && 'id' in req.params) {
+      messageId = String(req.params.id);
+    }
+    
+    // Якщо не вийшло, спробуємо з URL
+    if (!messageId || messageId.trim() === '') {
+      const urlMatch = req.url.match(/\/chat\/messages\/([^\/\?]+)/);
+      if (urlMatch && urlMatch[1]) {
+        messageId = decodeURIComponent(urlMatch[1]);
+      }
+    }
 
-    if (!messageId || typeof messageId !== 'string' || messageId.trim() === '') {
+    // Логуємо для діагностики
+    app.log.info({ 
+      messageId, 
+      params: req.params, 
+      url: req.url, 
+      accountId: auth.accountId 
+    }, "DELETE /chat/messages/:id");
+
+    if (!messageId || messageId.trim() === '') {
       app.log.error({ params: req.params, url: req.url }, "Invalid message id in delete request");
-      return reply.code(400).send({ error: "message id is required" });
+      return reply.code(400).send({ error: "message id is required", details: { params: req.params, url: req.url } });
     }
 
     try {
@@ -179,6 +201,7 @@ export async function chatRoutes(app: FastifyInstance) {
       });
 
       if (!character) {
+        app.log.warn({ accountId: auth.accountId }, "Character not found for delete request");
         return reply.code(404).send({ error: "character not found" });
       }
 
@@ -189,16 +212,23 @@ export async function chatRoutes(app: FastifyInstance) {
       });
 
       if (!message) {
+        app.log.warn({ messageId, characterId: character.id }, "Message not found for delete");
         return reply.code(404).send({ error: "message not found" });
       }
 
       // 🔥 Видаляти можна тільки в "general" або "trade" каналах
       if (message.channel !== "general" && message.channel !== "trade") {
+        app.log.warn({ messageId, channel: message.channel, characterId: character.id }, "Delete attempt in wrong channel");
         return reply.code(403).send({ error: "you can only delete messages in general or trade channels" });
       }
 
       // 🔥 Видаляти можна тільки свої повідомлення
       if (message.characterId !== character.id) {
+        app.log.warn({ 
+          messageId, 
+          messageCharacterId: message.characterId, 
+          userCharacterId: character.id 
+        }, "Delete attempt for someone else's message");
         return reply.code(403).send({ error: "you can only delete your own messages" });
       }
 
@@ -207,12 +237,14 @@ export async function chatRoutes(app: FastifyInstance) {
         where: { id: messageId },
       });
 
+      app.log.info({ messageId, channel: message.channel, characterId: character.id }, "Message deleted successfully");
+
       return {
         ok: true,
         message: "Message deleted",
       };
     } catch (error) {
-      app.log.error(error, "Error deleting chat message:");
+      app.log.error({ error, messageId, accountId: auth.accountId }, "Error deleting chat message:");
       return reply.code(500).send({
         error: "Internal Server Error",
         message: error instanceof Error ? error.message : "Unknown error",

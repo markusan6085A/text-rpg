@@ -208,8 +208,13 @@ export function useChatMessages(opts: UseChatOptions) {
     };
   }, []);
 
-  // 🔥 Стабільний refresh - не залежить від channel/page/limit
+  // 🔥 Стабільний refresh - використовує актуальні channel/page/limit з refs
   const refresh = useCallback(() => {
+    // Використовуємо актуальні значення з refs
+    const currentChannel = channelRef.current;
+    const currentPage = pageRef.current;
+    const currentLimit = limitRef.current;
+    console.log('[chat] refresh() called:', { currentChannel, currentPage, currentLimit });
     fetchNow("manual_refresh");
   }, [fetchNow]);
 
