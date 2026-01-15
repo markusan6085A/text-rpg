@@ -31,7 +31,7 @@ export default function Chat({ navigate }: ChatProps) {
         setIsLoading(true);
       }
       setError(null);
-      const response = await getChatMessages(channel, currentPage, 30);
+      const response = await getChatMessages(channel, currentPage, 50);
       setMessages(response.messages);
       setPage(currentPage);
       if (currentPage === 1) {
@@ -140,7 +140,6 @@ export default function Chat({ navigate }: ChatProps) {
           messages.map((msg) => (
             <div key={msg.id} className="text-xs leading-relaxed">
               <span className="text-white font-semibold">{msg.characterName}</span>
-              <span className="text-gray-500 ml-1">({msg.characterLevel})</span>
               <span className="text-gray-400 ml-2 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
               <span className="text-gray-400 ml-2 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
               <span className="text-gray-500 ml-2">{formatTime(msg.createdAt)}</span>

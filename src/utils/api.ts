@@ -179,9 +179,6 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
 export interface ChatMessage {
   id: string;
   characterName: string;
-  characterLevel: number;
-  characterRace: string;
-  characterClass: string;
   channel: string;
   message: string;
   createdAt: string;

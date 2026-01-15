@@ -33,7 +33,7 @@ export async function chatRoutes(app: FastifyInstance) {
 
     const channel = query.channel || "general";
     const page = Math.max(1, parseInt(query.page || "1", 10));
-    const limit = Math.min(100, Math.max(10, parseInt(query.limit || "30", 10)));
+    const limit = Math.min(100, Math.max(10, parseInt(query.limit || "50", 10)));
     const skip = (page - 1) * limit;
 
     try {
@@ -42,14 +42,14 @@ export async function chatRoutes(app: FastifyInstance) {
         orderBy: { createdAt: "desc" },
         take: limit,
         skip,
-        include: {
+        select: {
+          id: true,
+          message: true,
+          channel: true,
+          createdAt: true,
           character: {
             select: {
-              id: true,
               name: true,
-              level: true,
-              race: true,
-              classId: true,
             },
           },
         },
@@ -63,9 +63,6 @@ export async function chatRoutes(app: FastifyInstance) {
         messages: reversed.map((msg) => ({
           id: msg.id,
           characterName: msg.character.name,
-          characterLevel: msg.character.level,
-          characterRace: msg.character.race,
-          characterClass: msg.character.classId,
           channel: msg.channel,
           message: msg.message,
           createdAt: msg.createdAt.toISOString(),
@@ -120,14 +117,14 @@ export async function chatRoutes(app: FastifyInstance) {
           channel,
           message,
         },
-        include: {
+        select: {
+          id: true,
+          message: true,
+          channel: true,
+          createdAt: true,
           character: {
             select: {
-              id: true,
               name: true,
-              level: true,
-              race: true,
-              classId: true,
             },
           },
         },
@@ -138,9 +135,6 @@ export async function chatRoutes(app: FastifyInstance) {
         message: {
           id: chatMessage.id,
           characterName: chatMessage.character.name,
-          characterLevel: chatMessage.character.level,
-          characterRace: chatMessage.character.race,
-          characterClass: chatMessage.character.classId,
           channel: chatMessage.channel,
           message: chatMessage.message,
           createdAt: chatMessage.createdAt.toISOString(),
