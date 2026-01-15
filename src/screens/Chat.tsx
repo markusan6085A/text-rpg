@@ -84,10 +84,8 @@ export default function Chat({ navigate }: ChatProps) {
         )
       );
       
-      // Silent refresh in background to sync with other users
-      loadMessages(1, true).catch(() => {
-        // Ignore errors in background refresh
-      });
+      // Don't reload all messages - optimistic update is enough
+      // Auto-refresh will sync with other users in 5 seconds anyway
     } catch (err: any) {
       console.error("Error sending message:", err);
       // Remove optimistic message on error
