@@ -73,6 +73,9 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       maxMp: heroJson.maxMp || 100,
       cp: heroJson.cp || heroJson.maxCp || 0,
       maxCp: heroJson.maxCp || 0,
+      // 🔥 Додаємо location та mobsKilled для правильного відображення
+      location: heroJson.location || heroJson.currentLocation || heroJson.zone || undefined,
+      mobsKilled: heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? undefined,
     };
   }, [character]);
 
