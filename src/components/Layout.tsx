@@ -3,6 +3,7 @@ import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
 import { useAuthStore } from "../state/authStore";
+import { getOnlinePlayers, sendHeartbeat } from "../utils/api";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,15 +20,47 @@ export default function Layout({
   showStatusBars = true,
   customBackground,
 }: LayoutProps) {
-  const [onlineCount, setOnlineCount] = useState<number | null>(null);
-  const [showOnlineList, setShowOnlineList] = useState(false);
+  const [onlineCount, setOnlineCount] = useState<number>(0);
   const logout = useAuthStore((s) => s.logout);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  // Завантажуємо кількість онлайн (заглушка, поки немає API)
+  // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд
   useEffect(() => {
-    // TODO: Замінити на реальний API запит
-    setOnlineCount(0); // Заглушка
+    const loadOnlineCount = async () => {
+      try {
+        const data = await getOnlinePlayers();
+        setOnlineCount(data.count || 0);
+      } catch (err) {
+        console.error('[Layout] Failed to load online count:', err);
+        // Не показуємо помилку, просто залишаємо попереднє значення
+      }
+    };
+
+    loadOnlineCount();
+    const interval = setInterval(loadOnlineCount, 30000); // Оновлюємо кожні 30 секунд
+    return () => clearInterval(interval);
   }, []);
+
+  // 🔥 Heartbeat - оновлюємо активність кожні 2 хвилини (120 секунд)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const sendHeartbeatInterval = async () => {
+      try {
+        await sendHeartbeat();
+        console.log('[Layout] Heartbeat sent');
+      } catch (err) {
+        console.error('[Layout] Failed to send heartbeat:', err);
+      }
+    };
+
+    // Відправляємо heartbeat одразу при монтуванні
+    sendHeartbeatInterval();
+
+    // Відправляємо heartbeat кожні 2 хвилини
+    const heartbeatInterval = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
+    return () => clearInterval(heartbeatInterval);
+  }, [isAuthenticated]);
 
   const handleSupport = () => {
     // TODO: Відкрити підтримку
@@ -37,7 +70,6 @@ export default function Layout({
   };
 
   const handleOnline = () => {
-    setShowOnlineList(!showOnlineList);
     if (navigate) {
       navigate("/online-players");
     }
@@ -103,7 +135,7 @@ export default function Layout({
               onClick={handleOnline}
               className="text-green-400 hover:text-green-300 transition-colors"
             >
-              Онлайн: {onlineCount !== null ? onlineCount : '...'}
+              Онлайн: {onlineCount}
             </button>
             <span className="text-gray-600">|</span>
             <button

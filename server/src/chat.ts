@@ -120,6 +120,16 @@ export async function chatRoutes(app: FastifyInstance) {
     }
 
     try {
+      // 🔥 Оновлюємо активність персонажа при відправці повідомлення
+      await prisma.character.update({
+        where: { id: character.id },
+        data: {
+          lastActivityAt: new Date(),
+        },
+      }).catch(() => {
+        // Ігноруємо помилки оновлення активності
+      });
+
       const chatMessage = await prisma.chatMessage.create({
         data: {
           characterId: character.id,

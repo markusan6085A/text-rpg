@@ -177,6 +177,8 @@ export async function characterRoutes(app: FastifyInstance) {
   app.put("/characters/:id", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    
+    // 🔥 Оновлюємо активність при будь-якій активності з персонажем
 
     const params = req.params as { id?: string };
     const id = params.id;
@@ -225,6 +227,9 @@ export async function characterRoutes(app: FastifyInstance) {
     if (body.aa !== undefined) updateData.aa = body.aa;
     if (body.coinLuck !== undefined) updateData.coinLuck = body.coinLuck;
 
+    // 🔥 Оновлюємо активність при будь-якому оновленні персонажа
+    updateData.lastActivityAt = new Date();
+
     const updated = await prisma.character.update({
       where: { id },
       data: updateData,
@@ -252,5 +257,101 @@ export async function characterRoutes(app: FastifyInstance) {
     };
 
     return { ok: true, character: serialized };
+  });
+
+  // GET /characters/online - список онлайн гравців (активні за останні 10 хвилин)
+  app.get("/characters/online", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      // Гравці активні за останні 10 хвилин (600 000 мс)
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+      const onlineCharacters = await prisma.character.findMany({
+        where: {
+          lastActivityAt: {
+            gte: tenMinutesAgo, // Активні за останні 10 хвилин
+          },
+        },
+        orderBy: [
+          { level: "desc" }, // Сортуємо по рівню (високий спочатку)
+          { name: "asc" },   // Потім по імені
+        ],
+        select: {
+          id: true,
+          name: true,
+          level: true,
+          lastActivityAt: true,
+          heroJson: true, // Звідси можемо взяти location та power
+        },
+      });
+
+      // Форматуємо дані для фронтенду
+      const players = onlineCharacters.map((char) => {
+        const heroJson = (char.heroJson as any) || {};
+        const location = heroJson.location || "Unknown";
+        const power = heroJson.power || 0;
+
+        return {
+          id: char.id,
+          name: char.name,
+          level: char.level,
+          location,
+          power,
+          lastActivityAt: char.lastActivityAt.toISOString(),
+        };
+      });
+
+      return {
+        ok: true,
+        players,
+        count: players.length,
+      };
+    } catch (error) {
+      app.log.error(error, "Error fetching online players:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // POST /characters/heartbeat - оновлення активності (heartbeat)
+  app.post("/characters/heartbeat", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    try {
+      // Оновлюємо lastActivityAt для першого (активного) персонажа
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      // Оновлюємо lastActivityAt
+      await prisma.character.update({
+        where: { id: character.id },
+        data: {
+          lastActivityAt: new Date(),
+        },
+      });
+
+      return {
+        ok: true,
+        message: "Activity updated",
+      };
+    } catch (error) {
+      app.log.error(error, "Error updating heartbeat:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
   });
 }

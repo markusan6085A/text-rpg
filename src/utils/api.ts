@@ -291,3 +291,33 @@ export async function postChatMessage(channel: string, message: string): Promise
   });
   return response.message;
 }
+
+// Online players API
+export interface OnlinePlayer {
+  id: string;
+  name: string;
+  level: number;
+  location: string;
+  power?: number;
+  lastActivityAt: string;
+}
+
+export interface OnlinePlayersResponse {
+  ok: boolean;
+  players: OnlinePlayer[];
+  count: number;
+}
+
+export async function getOnlinePlayers(): Promise<OnlinePlayersResponse> {
+  const response = await apiRequest<OnlinePlayersResponse>('/characters/online', {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function sendHeartbeat(): Promise<{ ok: boolean; message: string }> {
+  const response = await apiRequest<{ ok: boolean; message: string }>('/characters/heartbeat', {
+    method: 'POST',
+  });
+  return response;
+}

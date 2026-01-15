@@ -36,6 +36,9 @@ model Character {
   // Один JSON під "героя" (статі, hp/mp/cp, бафи, позиція, що завгодно)
   heroJson     Json     @default("{}")
 
+  // 🔥 Відстеження активності для онлайн
+  lastActivityAt DateTime @default(now()) @updatedAt
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -44,6 +47,7 @@ model Character {
   chatMessages ChatMessage[]
 
   @@index([accountId])
+  @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
   @@unique([accountId, name])
 }
 

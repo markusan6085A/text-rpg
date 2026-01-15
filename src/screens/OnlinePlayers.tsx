@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getToken } from "../utils/api";
-import { API_URL } from "../utils/api";
-
-interface OnlinePlayer {
-  id: string;
-  name: string;
-  level: number;
-  location: string;
-  power?: number;
-}
+import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
 
 interface OnlinePlayersProps {
   navigate: (path: string) => void;
@@ -21,6 +12,9 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
 
   useEffect(() => {
     loadOnlinePlayers();
+    // Оновлюємо список кожні 30 секунд
+    const interval = setInterval(loadOnlinePlayers, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadOnlinePlayers = async () => {
@@ -28,33 +22,9 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
     setError(null);
     
     try {
-      // TODO: Замінити на реальний API endpoint
-      // Приклад: GET /characters/online
-      const token = getToken();
-      const headers: HeadersInit = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      };
-      
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      // Поки що використовуємо заглушку
-      // const response = await fetch(`${API_URL}/characters/online`, {
-      //   method: "GET",
-      //   headers,
-      // });
-      
-      // if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      // const data = await response.json();
-      
-      // Заглушка - поки немає API
-      setTimeout(() => {
-        setPlayers([]);
-        setLoading(false);
-      }, 500);
-      
+      const data = await getOnlinePlayers();
+      setPlayers(data.players || []);
+      setLoading(false);
     } catch (err: any) {
       setError(err?.message || "Помилка завантаження гравців");
       setLoading(false);
