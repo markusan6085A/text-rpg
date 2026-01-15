@@ -181,25 +181,29 @@ export default function Chat({ navigate }: ChatProps) {
   return (
     <div className="flex flex-col h-full w-full text-white">
       {/* Tabs */}
-      <div className="flex">
-        {[
-          { key: "general" as ChatChannel, label: "Общ" },
-          { key: "trade" as ChatChannel, label: "Торг" },
-          { key: "clan" as ChatChannel, label: "Клан" },
-          { key: "private" as ChatChannel, label: "Мой" },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setChannel(tab.key)}
-            className={`flex-1 text-sm font-semibold transition-colors ${
-              channel === tab.key
-                ? "text-white"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="border-t border-gray-600 border-b border-gray-600">
+        <div className="flex">
+          {[
+            { key: "general" as ChatChannel, label: "Общ" },
+            { key: "trade" as ChatChannel, label: "Торг" },
+            { key: "clan" as ChatChannel, label: "Клан" },
+            { key: "private" as ChatChannel, label: "Мой" },
+          ].map((tab, index, array) => (
+            <React.Fragment key={tab.key}>
+              <button
+                onClick={() => setChannel(tab.key)}
+                className={`flex-1 text-xs py-1 font-semibold transition-colors ${
+                  channel === tab.key
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {tab.label}
+              </button>
+              {index < array.length - 1 && <span className="text-gray-600">|</span>}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
 
       {/* Messages area - scroll from top, newest messages at top */}
@@ -210,12 +214,13 @@ export default function Chat({ navigate }: ChatProps) {
         ) : messages.length === 0 ? (
           <div className="text-center text-gray-400 text-sm py-4">Нет сообщений</div>
         ) : (
-          messages.map((msg) => (
-            <div key={msg.id} className="text-xs leading-relaxed flex items-start gap-2 group">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-white font-semibold">{msg.characterName}</span>
-                  <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
+          messages.map((msg, index) => (
+            <React.Fragment key={msg.id}>
+              <div className="text-xs leading-relaxed flex items-start gap-2 group">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[#d4af37] font-semibold">{msg.characterName}</span>
+                    <span className="text-green-400 cursor-pointer hover:text-green-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
                   <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
                   <span className="text-gray-500">{formatTime(msg.createdAt)}</span>
                   {/* Delete button - only for own messages in general/trade channels */}
@@ -239,40 +244,95 @@ export default function Chat({ navigate }: ChatProps) {
                     ) : null;
                   })()}
                 </div>
-                <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-gray-200"}`}>{msg.message}</div>
+                  <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-gray-200"}`}>{msg.message}</div>
+                </div>
               </div>
-            </div>
+              {index < messages.length - 1 && <div className="text-gray-600 text-center"> — </div>}
+            </React.Fragment>
           ))
         )}
       </div>
 
-      {/* Pagination - простий текст з рисками від краю до краю, без рамок */}
-      <div className="flex items-center justify-between text-xs text-gray-400">
-        <button
-          onClick={() => {
-            if (page > 1) {
+      {/* Pagination - тільки цифри, < > якщо більше 3 сторінок */}
+      <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
+        {/* Показуємо < тільки якщо більше 1 сторінки і поточна сторінка > 1 */}
+        {page > 1 && (
+          <button
+            onClick={() => {
               setPage(page - 1);
               messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
-          disabled={page === 1 || loading}
-          className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          ← Попередня
-        </button>
-        <span className="text-gray-500">|</span>
-        <span className="text-gray-300">Сторінка {page}</span>
-        <span className="text-gray-500">|</span>
-        <button
-          onClick={() => {
-            setPage(page + 1);
-            messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
-          }}
-          disabled={messages.length < 10 || loading}
-          className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
-          Наступна →
-        </button>
+            }}
+            disabled={loading}
+            className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            &lt;
+          </button>
+        )}
+        
+        {/* Показуємо номери сторінок */}
+        {(() => {
+          const hasMore = messages.length >= 10; // Якщо 10 повідомлень, є ще сторінки
+          const totalPages = hasMore ? page + 1 : page; // Орієнтовна кількість сторінок
+          
+          // Якщо 1-2 сторінки - показуємо всі
+          if (totalPages <= 2) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => {
+                  setPage(p);
+                  messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
+                }}
+                disabled={loading}
+                className={`hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors ${
+                  page === p ? "text-white font-bold" : ""
+                }`}
+              >
+                {p}
+              </button>
+            ));
+          }
+          
+          // Якщо більше 2 сторінок - показуємо поточну та сусідні
+          const pages: number[] = [];
+          if (page === 1) {
+            pages.push(1, 2, 3);
+          } else if (page === totalPages) {
+            pages.push(totalPages - 2, totalPages - 1, totalPages);
+          } else {
+            pages.push(page - 1, page, page + 1);
+          }
+          
+          return pages.map((p) => (
+            <button
+              key={p}
+              onClick={() => {
+                setPage(p);
+                messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
+              }}
+              disabled={loading}
+              className={`hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors ${
+                page === p ? "text-white font-bold" : ""
+              }`}
+            >
+              {p}
+            </button>
+          ));
+        })()}
+        
+        {/* Показуємо > тільки якщо є ще сторінки */}
+        {messages.length >= 10 && (
+          <button
+            onClick={() => {
+              setPage(page + 1);
+              messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
+            }}
+            disabled={loading}
+            className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            &gt;
+          </button>
+        )}
       </div>
 
       {/* Error message */}
@@ -287,8 +347,7 @@ export default function Chat({ navigate }: ChatProps) {
 
       {/* Input area */}
       <div className="space-y-2">
-        <input
-          type="text"
+        <textarea
           value={messageText}
           onChange={(e) => {
             setMessageText(e.target.value);
@@ -300,10 +359,15 @@ export default function Chat({ navigate }: ChatProps) {
             }
           }}
           placeholder="Введите сообщение..."
-          className="w-full text-sm text-white placeholder-gray-500"
+          className="w-full text-sm text-white placeholder-gray-500 resize-none overflow-hidden"
+          style={{ minHeight: '20px', maxHeight: '200px' }}
+          rows={1}
           maxLength={500}
-          autoFocus={false}
-          disabled={false}
+          onInput={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            target.style.height = 'auto';
+            target.style.height = `${target.scrollHeight}px`;
+          }}
         />
         <div className="flex gap-2 justify-end">
           <button
