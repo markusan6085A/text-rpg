@@ -244,7 +244,7 @@ export default function Chat({ navigate }: ChatProps) {
                     ) : null;
                   })()}
                 </div>
-                  <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-gray-200"}`}>{msg.message}</div>
+                  <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-black"}`}>{msg.message}</div>
                 </div>
               </div>
               {index < messages.length - 1 && <div className="text-gray-600 text-center"> — </div>}
@@ -346,7 +346,23 @@ export default function Chat({ navigate }: ChatProps) {
       )}
 
       {/* Input area */}
-      <div className="space-y-2">
+      <div className="flex flex-col">
+        <div className="flex gap-2 justify-end mb-1">
+          <button
+            onClick={sendMessage}
+            disabled={!messageText.trim() || loading}
+            className="text-white text-xs font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+          >
+            Написать
+          </button>
+          <button
+            onClick={refresh}
+            disabled={loading}
+            className="text-gray-400 text-xs font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+          >
+            {loading ? "Завантаження..." : "Обновить"}
+          </button>
+        </div>
         <textarea
           value={messageText}
           onChange={(e) => {
@@ -369,22 +385,6 @@ export default function Chat({ navigate }: ChatProps) {
             target.style.height = `${target.scrollHeight}px`;
           }}
         />
-        <div className="flex gap-2 justify-end">
-          <button
-            onClick={sendMessage}
-            disabled={!messageText.trim() || loading}
-            className="text-white text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-          >
-            Написать
-          </button>
-          <button
-            onClick={refresh}
-            disabled={loading}
-            className="text-gray-300 text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-          >
-            {loading ? "Завантаження..." : "Обновить"}
-          </button>
-        </div>
       </div>
     </div>
   );
