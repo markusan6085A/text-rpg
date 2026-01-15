@@ -14,6 +14,7 @@ export default function Chat({ navigate }: ChatProps) {
   const [channel, setChannel] = useState<ChatChannel>("general");
   const [messageText, setMessageText] = useState("");
   const [page, setPage] = useState(1);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
 
@@ -27,10 +28,13 @@ export default function Chat({ navigate }: ChatProps) {
     autoRefresh: false, // Вимкнено автооновлення
   });
 
-  // Clear optimistic messages when channel changes
+  // Clear optimistic messages and refresh when channel changes
   useEffect(() => {
     optimisticMessagesRef.current = [];
-  }, [channel]);
+    setDeletedIds(new Set()); // Clear deleted IDs when channel changes
+    // Force refresh when channel changes to load new messages
+    refresh();
+  }, [channel, refresh]);
 
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top
@@ -80,17 +84,33 @@ export default function Chat({ navigate }: ChatProps) {
     }
   };
 
-  // Delete message
+  // Delete message - optimistic update, no confirmation
   const handleDeleteMessage = async (messageId: string) => {
-    if (!confirm("Видалити це повідомлення?")) return;
-
+    // Optimistic update - remove immediately from UI
+    setDeletedIds(prev => new Set([...prev, messageId]));
+    
+    // Remove from optimistic messages if it's there
+    optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== messageId);
+    
     try {
       await deleteChatMessage(messageId);
-      // Refresh to update list
+      // Refresh to sync with server (will remove from cache)
       refresh();
+      // Clear deleted ID after refresh
+      setTimeout(() => setDeletedIds(prev => {
+        const next = new Set(prev);
+        next.delete(messageId);
+        return next;
+      }), 100);
     } catch (err: any) {
       console.error("Error deleting message:", err);
-      alert(err?.message || "Помилка видалення повідомлення");
+      // Restore message on error
+      setDeletedIds(prev => {
+        const next = new Set(prev);
+        next.delete(messageId);
+        return next;
+      });
+      refresh();
     }
   };
 
@@ -152,10 +172,13 @@ export default function Chat({ navigate }: ChatProps) {
                   <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
                   <span className="text-gray-500">{formatTime(msg.createdAt)}</span>
                   {/* Delete button - only for own messages */}
-                  {((msg.isOwn !== undefined && msg.isOwn) || msg.characterName === (hero.name || hero.username)) && (
+                  {(msg.isOwn === true || msg.characterName === (hero.name || hero.username)) && (
                     <button
-                      onClick={() => handleDeleteMessage(msg.id)}
-                      className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteMessage(msg.id);
+                      }}
+                      className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
                       title="Видалити"
                     >
                       [×]
