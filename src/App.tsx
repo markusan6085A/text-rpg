@@ -31,6 +31,7 @@ import Fishing from "./screens/Fishing";
 import Wip from "./screens/Wip";
 import Chat from "./screens/Chat";
 import OnlinePlayers from "./screens/OnlinePlayers";
+import PlayerProfile from "./screens/PlayerProfile";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";

@@ -61,9 +61,13 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
                 <span>Мощь</span>
               </div>
               {players.map((player) => (
-                <div key={player.id} className="flex items-center justify-between text-[12px] py-1 border-b border-dotted border-black/60">
+                <div 
+                  key={player.id} 
+                  className="flex items-center justify-between text-[12px] py-1 border-b border-dotted border-black/60 cursor-pointer hover:bg-gray-800/30 transition-colors"
+                  onClick={() => navigate(`/player/${player.id}`)}
+                >
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold">{player.name}</span>
+                    <span className="text-white font-semibold hover:text-yellow-400 transition-colors">{player.name}</span>
                     <span className="text-gray-500">{player.level} ур.</span>
                     <span className="text-gray-500">в {player.location}</span>
                   </div>

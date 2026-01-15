@@ -171,6 +171,20 @@ export async function getCharacter(id: string): Promise<Character> {
   return response.character;
 }
 
+export async function getPublicCharacter(id: string): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(`/characters/public/${id}`, {
+    method: 'GET',
+  });
+  return response.character;
+}
+
+export async function getCharacterByName(name: string): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(`/characters/by-name/${encodeURIComponent(name)}`, {
+    method: 'GET',
+  });
+  return response.character;
+}
+
 export async function createCharacter(data: CreateCharacterRequest): Promise<Character> {
   const response = await apiRequest<CharacterResponse>('/characters', {
     method: 'POST',

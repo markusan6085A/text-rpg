@@ -34,13 +34,18 @@ interface CharacterEquipmentFrameProps {
   allowUnequip?: boolean;
   /** Додатковий marginTop для рамки */
   marginTop?: string;
+  /** 🔥 Перевизначити hero дані (для перегляду профілю іншого гравця) */
+  heroOverride?: any;
 }
 
 export default function CharacterEquipmentFrame({ 
   allowUnequip = false,
-  marginTop = "20px"
+  marginTop = "20px",
+  heroOverride = null
 }: CharacterEquipmentFrameProps) {
-  const hero = useHeroStore((s) => s.hero);
+  const heroStore = useHeroStore((s) => s.hero);
+  // 🔥 Якщо heroOverride передано, використовуємо його замість hero з store (для перегляду профілю іншого гравця)
+  const hero = heroOverride || heroStore;
   const unequipItem = useHeroStore((s) => s.unequipItem);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);

@@ -383,4 +383,108 @@ export async function characterRoutes(app: FastifyInstance) {
       });
     }
   });
+
+  // GET /characters/public/:id - публічний профіль гравця (можна переглянути без авторизації власного акаунта)
+  app.get("/characters/public/:id", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const id = params.id;
+
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    try {
+      // 🔥 Шукаємо персонажа за ID (без перевірки accountId - публічний профіль)
+      const char = await prisma.character.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+          lastActivityAt: true, // 🔥 Для показу "Останній раз був"
+        },
+      });
+
+      if (!char) return reply.code(404).send({ error: "character not found" });
+
+      // Convert BigInt to Number for JSON serialization
+      const serialized = {
+        ...char,
+        exp: Number(char.exp),
+        lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
+      };
+
+      return { ok: true, character: serialized };
+    } catch (error) {
+      app.log.error(error, "Error fetching public character profile:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // GET /characters/by-name/:name - публічний профіль гравця за ім'ям
+  app.get("/characters/by-name/:name", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { name?: string };
+    const name = params.name;
+
+    if (!name) return reply.code(400).send({ error: "character name required" });
+
+    try {
+      // 🔥 Шукаємо персонажа за ім'ям (перший знайдений)
+      const char = await prisma.character.findFirst({
+        where: { name },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+          lastActivityAt: true,
+        },
+      });
+
+      if (!char) return reply.code(404).send({ error: "character not found" });
+
+      // Convert BigInt to Number for JSON serialization
+      const serialized = {
+        ...char,
+        exp: Number(char.exp),
+        lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
+      };
+
+      return { ok: true, character: serialized };
+    } catch (error) {
+      app.log.error(error, "Error fetching public character profile by name:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
 }
