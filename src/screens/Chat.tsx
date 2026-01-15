@@ -179,9 +179,9 @@ export default function Chat({ navigate }: ChatProps) {
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[380px] mx-auto bg-[#151515] text-white">
+    <div className="flex flex-col h-full w-full text-white">
       {/* Tabs */}
-      <div className="flex bg-[#1a1a1a]">
+      <div className="flex">
         {[
           { key: "general" as ChatChannel, label: "Общ" },
           { key: "trade" as ChatChannel, label: "Торг" },
@@ -191,10 +191,10 @@ export default function Chat({ navigate }: ChatProps) {
           <button
             key={tab.key}
             onClick={() => setChannel(tab.key)}
-            className={`flex-1 px-4 py-2.5 text-sm font-semibold transition-all border-t border-b ${
+            className={`flex-1 text-sm font-semibold transition-colors ${
               channel === tab.key
-                ? "text-white border-[#f4e2b8]"
-                : "text-gray-400 hover:text-white border-transparent"
+                ? "text-white"
+                : "text-gray-400 hover:text-white"
             }`}
           >
             {tab.label}
@@ -203,7 +203,7 @@ export default function Chat({ navigate }: ChatProps) {
       </div>
 
       {/* Messages area - scroll from top, newest messages at top */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0">
+      <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
         <div ref={messagesTopRef} />
         {loading && messages.length === 0 ? (
           <div className="text-center text-gray-400 text-sm py-4">Загрузка...</div>
@@ -247,7 +247,7 @@ export default function Chat({ navigate }: ChatProps) {
       </div>
 
       {/* Pagination - простий текст з рисками від краю до краю, без рамок */}
-      <div className="flex items-center justify-between px-2 py-1.5 border-t border-[#3b2614] text-xs text-gray-400 bg-[#1a1a1a]">
+      <div className="flex items-center justify-between text-xs text-gray-400">
         <button
           onClick={() => {
             if (page > 1) {
@@ -277,7 +277,7 @@ export default function Chat({ navigate }: ChatProps) {
 
       {/* Error message */}
       {error && (
-        <div className="px-2 py-1 text-red-400 text-xs text-center bg-red-900/20 border-t border-red-800/30">
+        <div className="text-red-400 text-xs text-center">
           {error}
           <div className="text-[10px] text-gray-500 mt-1">
             Убедитесь, что backend сервер запущен и міграція бази даних виконана
@@ -286,7 +286,7 @@ export default function Chat({ navigate }: ChatProps) {
       )}
 
       {/* Input area */}
-      <div className="border-t border-[#3b2614] p-2 space-y-2 bg-[#1a1a1a]">
+      <div className="space-y-2">
         <input
           type="text"
           value={messageText}
@@ -300,7 +300,7 @@ export default function Chat({ navigate }: ChatProps) {
             }
           }}
           placeholder="Введите сообщение..."
-          className="w-full px-3 py-2 bg-[#0f0f0f] border border-[#3b2614] rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#6f5a35]"
+          className="w-full text-sm text-white placeholder-gray-500"
           maxLength={500}
           autoFocus={false}
           disabled={false}
@@ -309,14 +309,14 @@ export default function Chat({ navigate }: ChatProps) {
           <button
             onClick={sendMessage}
             disabled={!messageText.trim() || loading}
-            className="px-4 py-1.5 text-white text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+            className="text-white text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
             Написать
           </button>
           <button
             onClick={refresh}
             disabled={loading}
-            className="px-4 py-1.5 text-gray-300 text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+            className="text-gray-300 text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
             {loading ? "Завантаження..." : "Обновить"}
           </button>
