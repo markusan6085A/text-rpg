@@ -4,6 +4,7 @@ import { prisma } from "./db";
 import { authRoutes } from "./auth";
 import { characterRoutes } from "./characters";
 import { chatRoutes } from "./chat";
+import { letterRoutes } from "./letters";
 
 const app = Fastify({ 
   logger: true,
@@ -32,6 +33,11 @@ app.get("/", async () => {
       sendHeartbeat: "POST /characters/heartbeat (Bearer)",
       getPublicCharacter: "GET /characters/public/:id (Bearer)",
       getCharacterByName: "GET /characters/by-name/:name (Bearer)",
+      sendLetter: "POST /letters (Bearer)",
+      getLetters: "GET /letters?page=1&limit=50 (Bearer)",
+      getLetter: "GET /letters/:id (Bearer)",
+      deleteLetter: "DELETE /letters/:id (Bearer)",
+      getUnreadCount: "GET /letters/unread-count (Bearer)",
     },
   };
 });
@@ -72,6 +78,7 @@ const start = async () => {
     await app.register(authRoutes);
     await app.register(characterRoutes);
     await app.register(chatRoutes);
+    await app.register(letterRoutes);
 
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: "0.0.0.0" });

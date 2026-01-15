@@ -45,6 +45,8 @@ model Character {
   account      Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   inventory    InventoryItem[]
   chatMessages ChatMessage[]
+  lettersFrom  Letter[] @relation("LettersFrom")
+  lettersTo    Letter[] @relation("LettersTo")
 
   @@index([accountId])
   @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
@@ -86,4 +88,21 @@ model ChatMessage {
 
   @@index([channel, createdAt])
   @@index([characterId])
+}
+
+model Letter {
+  id          String   @id @default(cuid())
+  fromCharacterId String
+  toCharacterId   String
+  subject     String   @default("")
+  message     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  readAt      DateTime?
+
+  fromCharacter Character @relation("LettersFrom", fields: [fromCharacterId], references: [id], onDelete: Cascade)
+  toCharacter   Character @relation("LettersTo", fields: [toCharacterId], references: [id], onDelete: Cascade)
+
+  @@index([toCharacterId, isRead, createdAt])
+  @@index([fromCharacterId])
 }
