@@ -273,14 +273,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
         </div>
 
-        {/* Кнопка назад */}
-        <div className="mt-4">
-          <button
+        {/* Кнопка назад - просто текст */}
+        <div className="mt-4 text-center">
+          <span 
             onClick={() => navigate("/online-players")}
-            className="w-full py-2 bg-[#1d140c] text-white border border-[#5b4726] rounded-md text-[12px] hover:bg-[#2a1f14] transition-colors"
+            className="cursor-pointer hover:text-yellow-400 transition-colors text-[12px] text-gray-300"
           >
             Назад до списку онлайн
-          </button>
+          </span>
         </div>
       </div>
     </div>
