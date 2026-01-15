@@ -30,7 +30,7 @@ export default function Chat({ navigate }: ChatProps) {
     manual: true, // 🔥 ВИМКНЕНО всі автоматичні запити
   });
 
-  // Clear optimistic messages and refresh when channel changes
+  // Clear optimistic messages when channel changes
   const currentChannelRef = useRef(channel);
   useEffect(() => {
     currentChannelRef.current = channel;
@@ -38,19 +38,11 @@ export default function Chat({ navigate }: ChatProps) {
     optimisticMessagesRef.current = [];
     setDeletedIds(new Set()); // Clear deleted IDs when channel changes
     setPage(1); // Reset to first page when changing channels
-    // 🔥 Показуємо кеш миттєво, оновлюємо в фоні
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel]); // refresh стабільний, не додаємо в deps
+    // 🔥 НЕ викликаємо автоматичний refresh() - користувач сам оновить кнопкою або дані з кешу показуються
+  }, [channel]);
 
-  // Refresh when page changes
-  useEffect(() => {
-    if (page > 1) {
-      console.log('[chat] Page changed to:', page);
-      refresh();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  // 🔥 ВИМКНЕНО автоматичний refresh при зміні сторінки - користувач сам клікає кнопки пагінації
+  // useEffect для page видалено - refresh тільки по кнопці
 
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top
@@ -215,7 +207,13 @@ export default function Chat({ navigate }: ChatProps) {
           ].map((tab, index, array) => (
             <React.Fragment key={tab.key}>
               <button
-                onClick={() => setChannel(tab.key)}
+                onClick={() => {
+                  setChannel(tab.key);
+                  if (tab.key !== channel) {
+                    // 🔥 Ручне оновлення при зміні каналу
+                    setTimeout(() => refresh(), 0);
+                  }
+                }}
                 className={`flex-1 text-xs py-1 font-semibold transition-colors ${
                   channel === tab.key
                     ? "text-white"
@@ -305,6 +303,7 @@ export default function Chat({ navigate }: ChatProps) {
                 key={p}
                 onClick={() => {
                   setPage(p);
+                  refresh(); // 🔥 Ручне оновлення при зміні сторінки
                   messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
                 }}
                 disabled={loading}
@@ -349,6 +348,7 @@ export default function Chat({ navigate }: ChatProps) {
           <button
             onClick={() => {
               setPage(page + 1);
+              refresh(); // 🔥 Ручне оновлення при зміні сторінки
               messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
             }}
             disabled={loading}
