@@ -30,6 +30,7 @@ import TattooArtist from "./screens/TattooArtist";
 import Fishing from "./screens/Fishing";
 import Wip from "./screens/Wip";
 import Chat from "./screens/Chat";
+import OnlinePlayers from "./screens/OnlinePlayers";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -269,6 +270,9 @@ function AppInner() {
 
     case "/chat":
       return renderWithLayout(<Chat navigate={navigate} />);
+
+    case "/online-players":
+      return renderWithLayout(<OnlinePlayers navigate={navigate} />);
 
     case "/wip":
       return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} />);

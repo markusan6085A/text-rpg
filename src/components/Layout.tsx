@@ -1,7 +1,8 @@
-﻿import React from "react";
+﻿import React, { useState, useEffect } from "react";
 import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
+import { useAuthStore } from "../state/authStore";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,6 +19,39 @@ export default function Layout({
   showStatusBars = true,
   customBackground,
 }: LayoutProps) {
+  const [onlineCount, setOnlineCount] = useState<number | null>(null);
+  const [showOnlineList, setShowOnlineList] = useState(false);
+  const logout = useAuthStore((s) => s.logout);
+
+  // Завантажуємо кількість онлайн (заглушка, поки немає API)
+  useEffect(() => {
+    // TODO: Замінити на реальний API запит
+    setOnlineCount(0); // Заглушка
+  }, []);
+
+  const handleSupport = () => {
+    // TODO: Відкрити підтримку
+    if (navigate) {
+      navigate("/wip");
+    }
+  };
+
+  const handleOnline = () => {
+    setShowOnlineList(!showOnlineList);
+    if (navigate) {
+      navigate("/online-players");
+    }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm("Ви впевнені, що хочете вийти?")) {
+      logout();
+      if (navigate) {
+        navigate("/");
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
       <div
@@ -53,7 +87,33 @@ export default function Layout({
         )}
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
-        <div className="flex-1 pb-24 pt-20 overflow-y-auto relative z-10">{children}</div>
+        <div className="flex-1 pb-32 pt-20 overflow-y-auto relative z-10">{children}</div>
+        
+        {/* Кнопки: Поддержка | Онлайн | Выйти */}
+        <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center pointer-events-none px-2 sm:px-4">
+          <div className="w-full max-w-[380px] flex items-center justify-between gap-2 text-xs pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
+            <button
+              onClick={handleSupport}
+              className="text-gray-400 hover:text-gray-300 transition-colors"
+            >
+              Поддержка
+            </button>
+            <span className="text-gray-600">|</span>
+            <button
+              onClick={handleOnline}
+              className="text-green-400 hover:text-green-300 transition-colors"
+            >
+              Онлайн: {onlineCount !== null ? onlineCount : '...'}
+            </button>
+            <span className="text-gray-600">|</span>
+            <button
+              onClick={handleLogout}
+              className="text-red-400 hover:text-red-300 transition-colors"
+            >
+              [Выйти]
+            </button>
+          </div>
+        </div>
       </div>
       {showNavGrid && <NavGrid navigate={navigate} />}
     </div>
