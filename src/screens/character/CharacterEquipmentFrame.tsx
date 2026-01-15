@@ -298,8 +298,24 @@ export default function CharacterEquipmentFrame({
 
   // Логіка знімання предмета
   const handleUnequip = (slot: string) => {
+    // 🔥 Забороняємо знімати предмети, якщо це профіль іншого гравця
+    if (heroOverride) {
+      console.warn('[CharacterEquipmentFrame] Cannot unequip items in player profile view.');
+      return;
+    }
     if (!hero || !hero.equipment || !hero.equipment[slot]) return;
     unequipItem(slot);
+  };
+
+  // 🔥 Обробка кліку на предмет (для іншого гравця - показуємо характеристики)
+  const handleItemClick = (slot: string) => {
+    if (heroOverride && onItemClick) {
+      const itemId = hero?.equipment?.[slot] || null;
+      const enchantLevel = hero?.equipmentEnchantLevels?.[slot] ?? 0;
+      onItemClick(slot, itemId, enchantLevel);
+    } else if (allowUnequip) {
+      handleUnequip(slot);
+    }
   };
 
   // Preload зображення для швидшого відображення
@@ -338,8 +354,8 @@ export default function CharacterEquipmentFrame({
     };
   }, [characterImage]);
 
-  // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true)
-  const slotClassName = allowUnequip 
+  // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true або heroOverride)
+  const slotClassName = (allowUnequip || (heroOverride && onItemClick))
     ? "w-6 h-6 bg-black/50 cursor-pointer" 
     : "w-6 h-6 bg-black/50";
 
@@ -490,7 +506,11 @@ export default function CharacterEquipmentFrame({
                   className={`${slotClassName} ${
                     isDisabled ? "ring-2 ring-yellow-400 ring-opacity-75" : ""
                   }`}
-                  onClick={allowUnequip && !isDisabled ? () => handleUnequip(slot) : undefined}
+                  onClick={heroOverride && onItemClick 
+                    ? () => handleItemClick(slot)
+                    : allowUnequip && !isDisabled 
+                      ? () => handleUnequip(slot) 
+                      : undefined}
                 />
                 {enchantLevel > 0 && (
                   <div 
