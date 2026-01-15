@@ -33,13 +33,20 @@ export async function chatRoutes(app: FastifyInstance) {
 
     const channel = query.channel || "general";
     const page = Math.max(1, parseInt(query.page || "1", 10));
-    const limit = Math.min(100, Math.max(10, parseInt(query.limit || "20", 10)));
+    const limit = Math.min(10, Math.max(1, parseInt(query.limit || "10", 10))); // Max 10 per page
     const skip = (page - 1) * limit;
 
     try {
+      // Get user's character to check ownership
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+
       const messages = await prisma.chatMessage.findMany({
         where: { channel },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "desc" }, // Newest first (top)
         take: limit,
         skip,
         select: {
@@ -47,6 +54,7 @@ export async function chatRoutes(app: FastifyInstance) {
           message: true,
           channel: true,
           createdAt: true,
+          characterId: true, // Include characterId to check ownership
           character: {
             select: {
               name: true,
@@ -55,17 +63,17 @@ export async function chatRoutes(app: FastifyInstance) {
         },
       });
 
-      // Reverse to show oldest first
-      const reversed = messages.reverse();
-
+      // Don't reverse - show newest first (top to bottom)
       return {
         ok: true,
-        messages: reversed.map((msg) => ({
+        messages: messages.map((msg) => ({
           id: msg.id,
           characterName: msg.character.name,
+          characterId: msg.characterId, // Include for ownership check
           channel: msg.channel,
           message: msg.message,
           createdAt: msg.createdAt.toISOString(),
+          isOwn: character ? msg.characterId === character.id : false,
         })),
         page,
         limit,
@@ -143,6 +151,62 @@ export async function chatRoutes(app: FastifyInstance) {
       };
     } catch (error) {
       app.log.error(error, "Error creating chat message:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // DELETE /chat/messages/:id
+  app.delete("/chat/messages/:id", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const messageId = params.id;
+
+    if (!messageId) {
+      return reply.code(400).send({ error: "message id is required" });
+    }
+
+    try {
+      // Get user's character
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      // Check if message exists and belongs to user
+      const message = await prisma.chatMessage.findUnique({
+        where: { id: messageId },
+        select: { characterId: true },
+      });
+
+      if (!message) {
+        return reply.code(404).send({ error: "message not found" });
+      }
+
+      if (message.characterId !== character.id) {
+        return reply.code(403).send({ error: "you can only delete your own messages" });
+      }
+
+      // Delete message
+      await prisma.chatMessage.delete({
+        where: { id: messageId },
+      });
+
+      return {
+        ok: true,
+        message: "Message deleted",
+      };
+    } catch (error) {
+      app.log.error(error, "Error deleting chat message:");
       return reply.code(500).send({
         error: "Internal Server Error",
         message: error instanceof Error ? error.message : "Unknown error",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { postChatMessage, type ChatMessage } from "../utils/api";
+import { postChatMessage, deleteChatMessage, type ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useChatMessages } from "../hooks/useChatMessages";
 
@@ -14,14 +14,14 @@ export default function Chat({ navigate }: ChatProps) {
   const [channel, setChannel] = useState<ChatChannel>("general");
   const [messageText, setMessageText] = useState("");
   const [page, setPage] = useState(1);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesTopRef = useRef<HTMLDivElement>(null);
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
 
-  // Use optimized chat hook with caching
+  // Use optimized chat hook with caching - limit 10 per page, max 50 total
   const { messages: cachedMessages, loading, error, refresh } = useChatMessages({
     channel,
     page,
-    limit: 20,
+    limit: 10, // 10 messages per page
     cacheTtlMs: 30_000, // 30 seconds cache
   });
 
@@ -30,14 +30,15 @@ export default function Chat({ navigate }: ChatProps) {
     optimisticMessagesRef.current = [];
   }, [channel]);
 
-  // Combine cached messages with optimistic updates
-  const messages = [...cachedMessages, ...optimisticMessagesRef.current];
+  // Combine cached messages with optimistic updates - newest first (top)
+  // Optimistic messages go to the top
+  const messages = [...optimisticMessagesRef.current, ...cachedMessages];
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to top when new messages arrive
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && optimisticMessagesRef.current.length > 0) {
       setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
   }, [messages.length]);
@@ -50,13 +51,14 @@ export default function Chat({ navigate }: ChatProps) {
     // Clear input immediately for better UX
     setMessageText("");
 
-    // Optimistic update - show message immediately
+    // Optimistic update - show message immediately at the top
     const optimisticMessage: ChatMessage = {
       id: `temp-${Date.now()}`,
       characterName: hero.name || hero.username || "You",
       channel,
       message: textToSend,
       createdAt: new Date().toISOString(),
+      isOwn: true,
     };
     optimisticMessagesRef.current = [optimisticMessage];
 
@@ -73,6 +75,20 @@ export default function Chat({ navigate }: ChatProps) {
       optimisticMessagesRef.current = [];
       // Restore message text if sending failed
       setMessageText(textToSend);
+    }
+  };
+
+  // Delete message
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm("Видалити це повідомлення?")) return;
+
+    try {
+      await deleteChatMessage(messageId);
+      // Refresh to update list
+      refresh();
+    } catch (err: any) {
+      console.error("Error deleting message:", err);
+      alert(err?.message || "Помилка видалення повідомлення");
     }
   };
 
@@ -117,24 +133,38 @@ export default function Chat({ navigate }: ChatProps) {
         ))}
       </div>
 
-      {/* Messages area */}
+      {/* Messages area - scroll from top, newest messages at top */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0">
+        <div ref={messagesTopRef} />
         {loading && messages.length === 0 ? (
           <div className="text-center text-gray-400 text-sm py-4">Загрузка...</div>
         ) : messages.length === 0 ? (
           <div className="text-center text-gray-400 text-sm py-4">Нет сообщений</div>
         ) : (
           messages.map((msg) => (
-            <div key={msg.id} className="text-xs leading-relaxed">
-              <span className="text-white font-semibold">{msg.characterName}</span>
-              <span className="text-gray-400 ml-2 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
-              <span className="text-gray-400 ml-2 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
-              <span className="text-gray-500 ml-2">{formatTime(msg.createdAt)}</span>
-              <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-gray-200"}`}>{msg.message}</div>
+            <div key={msg.id} className="text-xs leading-relaxed flex items-start gap-2 group">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-white font-semibold">{msg.characterName}</span>
+                  <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
+                  <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
+                  <span className="text-gray-500">{formatTime(msg.createdAt)}</span>
+                  {/* Delete button - only for own messages */}
+                  {((msg.isOwn !== undefined && msg.isOwn) || msg.characterName === (hero.name || hero.username)) && (
+                    <button
+                      onClick={() => handleDeleteMessage(msg.id)}
+                      className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px]"
+                      title="Видалити"
+                    >
+                      [×]
+                    </button>
+                  )}
+                </div>
+                <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-gray-200"}`}>{msg.message}</div>
+              </div>
             </div>
           ))
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Error message */}
@@ -184,33 +214,6 @@ export default function Chat({ navigate }: ChatProps) {
           </button>
         </div>
       </div>
-
-      {/* Pagination - temporarily disabled, can be re-enabled later if needed */}
-      {false && messages.length > 0 && (
-        <div className="border-t border-[#3b2614] p-2 text-center text-xs text-gray-400">
-          <button
-            onClick={() => {
-              const newPage = Math.max(1, page - 1);
-              setPage(newPage);
-            }}
-            disabled={page <= 1}
-            className="px-2 py-1 disabled:opacity-50"
-          >
-            &lt;&lt;&lt;
-          </button>
-          <span className="mx-4">Страница {page}</span>
-          <button
-            onClick={() => {
-              const newPage = page + 1;
-              setPage(newPage);
-            }}
-            disabled={messages.length < 20}
-            className="px-2 py-1 disabled:opacity-50"
-          >
-            &gt;&gt;&gt;
-          </button>
-        </div>
-      )}
     </div>
   );
 }

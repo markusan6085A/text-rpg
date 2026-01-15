@@ -179,9 +179,11 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
 export interface ChatMessage {
   id: string;
   characterName: string;
+  characterId?: string; // For ownership check
   channel: string;
   message: string;
   createdAt: string;
+  isOwn?: boolean; // Whether this message belongs to current user
 }
 
 export interface ChatMessagesResponse {
@@ -201,9 +203,16 @@ export interface PostChatMessageResponse {
   message: ChatMessage;
 }
 
-export async function getChatMessages(channel: string = 'general', page: number = 1, limit: number = 20): Promise<ChatMessagesResponse> {
+export async function getChatMessages(channel: string = 'general', page: number = 1, limit: number = 10): Promise<ChatMessagesResponse> {
   const response = await apiRequest<ChatMessagesResponse>(`/chat/messages?channel=${encodeURIComponent(channel)}&page=${page}&limit=${limit}`, {
     method: 'GET',
+  });
+  return response;
+}
+
+export async function deleteChatMessage(messageId: string): Promise<{ ok: boolean; message: string }> {
+  const response = await apiRequest<{ ok: boolean; message: string }>(`/chat/messages/${encodeURIComponent(messageId)}`, {
+    method: 'DELETE',
   });
   return response;
 }

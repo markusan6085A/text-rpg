@@ -5,15 +5,17 @@ import { getToken } from "../utils/api";
 type ChatMessage = {
   id: string;
   characterName: string;
+  characterId?: string;
   channel: string;
   message: string;
   createdAt: string;
+  isOwn?: boolean;
 };
 
 type UseChatOptions = {
   channel: string;              // "general"
   page: number;                 // 1
-  limit?: number;              // 20
+  limit?: number;              // 10
   cacheTtlMs?: number;         // 60_000
 };
 
@@ -45,7 +47,7 @@ function writeLS(key: string, value: { ts: number; data: ChatMessage[] }) {
 }
 
 export function useChatMessages(opts: UseChatOptions) {
-  const { channel, page, limit = 20, cacheTtlMs = 60_000 } = opts;
+  const { channel, page, limit = 10, cacheTtlMs = 60_000 } = opts;
 
   const key = useMemo(() => cacheKey(channel, page, limit), [channel, page, limit]);
 
