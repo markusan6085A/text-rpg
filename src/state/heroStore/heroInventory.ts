@@ -134,7 +134,11 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     // Перевіряємо, чи це зброя (включаючи удочки)
     const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
     if (itemDef && itemDef.kind === "weapon") {
-      slot = "weapon";
+      // 🔥 Перевіряємо, чи це не дворучна зброя
+      // Якщо це дворучна зброя, вона займає обидва слоти (weapon + shield)
+      // Якщо це одноручна зброя, вона займає тільки слот weapon
+      const isTwoHanded = isTwoHandedWeapon(item.id);
+      slot = isTwoHanded ? "weapon" : "weapon"; // Для дворучної зброї потрібно буде додати ще shield
     }
   }
 

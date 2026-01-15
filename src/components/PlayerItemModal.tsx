@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
+import { calculateEnchantedStats } from "../screens/character/inventoryUtils";
+import type { HeroInventoryItem } from "../types/Hero";
 
 interface PlayerItemModalProps {
   itemId: string | null;
@@ -14,12 +16,30 @@ export default function PlayerItemModal({
   enchantLevel = 0,
   onClose,
 }: PlayerItemModalProps) {
+  const itemDef = useMemo(() => {
+    if (!itemId) return null;
+    return itemsDBWithStarter[itemId] || itemsDB[itemId];
+  }, [itemId]);
+
+  const item = useMemo((): HeroInventoryItem | null => {
+    if (!itemDef) return null;
+    return {
+      ...itemDef,
+      enchantLevel,
+      slot,
+      count: 1,
+    } as HeroInventoryItem;
+  }, [itemDef, enchantLevel, slot]);
+
+  const enchantedStats = useMemo(() => {
+    if (!item) return null;
+    return calculateEnchantedStats(item);
+  }, [item]);
+
   if (!itemId) {
     return null;
   }
 
-  const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
-  
   if (!itemDef) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
@@ -57,9 +77,13 @@ export default function PlayerItemModal({
     ? `${itemDef.name} +${enchantLevel}` 
     : itemDef.name;
 
-  // Витягуємо характеристики
-  const stats = itemDef.stats || {};
+  // Витягуємо характеристики з урахуванням заточки
+  const stats = enchantedStats ? {
+    ...enchantedStats,
+    ...(itemDef.stats || {}), // Додаємо інші стати, які не враховуються в calculateEnchantedStats
+  } : (itemDef.stats || {});
   const description = itemDef.description || "";
+  const { pAtk, mAtk, pDef, mDef, baseStats, isWeapon, isArmor, enchantMultiplier, armorEnchantMultiplier } = enchantedStats || {};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
@@ -91,82 +115,114 @@ export default function PlayerItemModal({
 
         {/* Характеристики */}
         <div className="space-y-1 mb-3 text-xs">
-          {stats.pAtk && (
+          {pAtk !== undefined && pAtk > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-400">Физ. атака:</span>
-              <span className="text-yellow-300">+{stats.pAtk}</span>
+              <span className="text-red-400">
+                {pAtk}
+                {enchantLevel > 0 && isWeapon && baseStats?.pAtk && (
+                  <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.pAtk * (enchantMultiplier! - 1))})</span>
+                )}
+              </span>
             </div>
           )}
-          {stats.mAtk && (
+          {mAtk !== undefined && mAtk > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-400">Маг. атака:</span>
-              <span className="text-yellow-300">+{stats.mAtk}</span>
+              <span className="text-purple-400">
+                {mAtk}
+                {enchantLevel > 0 && isWeapon && baseStats?.mAtk && (
+                  <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.mAtk * (enchantMultiplier! - 1))})</span>
+                )}
+              </span>
             </div>
           )}
-          {stats.pDef && (
+          {pDef !== undefined && pDef > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-400">Физ. защита:</span>
-              <span className="text-yellow-300">+{stats.pDef}</span>
+              <span className="text-blue-400">
+                {pDef}
+                {enchantLevel > 0 && isArmor && baseStats?.pDef && (
+                  <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.pDef * (armorEnchantMultiplier! - 1))})</span>
+                )}
+              </span>
             </div>
           )}
-          {stats.mDef && (
+          {mDef !== undefined && mDef > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-400">Маг. защита:</span>
-              <span className="text-yellow-300">+{stats.mDef}</span>
+              <span className="text-cyan-400">
+                {mDef}
+                {enchantLevel > 0 && isArmor && baseStats?.mDef && (
+                  <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.mDef * (armorEnchantMultiplier! - 1))})</span>
+                )}
+              </span>
             </div>
           )}
-          {stats.STR && (
+          {itemDef.stats?.STR && (
             <div className="flex justify-between">
               <span className="text-gray-400">STR:</span>
-              <span className="text-yellow-300">+{stats.STR}</span>
+              <span className="text-yellow-300">+{itemDef.stats.STR}</span>
             </div>
           )}
-          {stats.DEX && (
+          {itemDef.stats?.DEX && (
             <div className="flex justify-between">
               <span className="text-gray-400">DEX:</span>
-              <span className="text-yellow-300">+{stats.DEX}</span>
+              <span className="text-yellow-300">+{itemDef.stats.DEX}</span>
             </div>
           )}
-          {stats.CON && (
+          {itemDef.stats?.CON && (
             <div className="flex justify-between">
               <span className="text-gray-400">CON:</span>
-              <span className="text-yellow-300">+{stats.CON}</span>
+              <span className="text-yellow-300">+{itemDef.stats.CON}</span>
             </div>
           )}
-          {stats.INT && (
+          {itemDef.stats?.INT && (
             <div className="flex justify-between">
               <span className="text-gray-400">INT:</span>
-              <span className="text-yellow-300">+{stats.INT}</span>
+              <span className="text-yellow-300">+{itemDef.stats.INT}</span>
             </div>
           )}
-          {stats.WIT && (
+          {itemDef.stats?.WIT && (
             <div className="flex justify-between">
               <span className="text-gray-400">WIT:</span>
-              <span className="text-yellow-300">+{stats.WIT}</span>
+              <span className="text-yellow-300">+{itemDef.stats.WIT}</span>
             </div>
           )}
-          {stats.MEN && (
+          {itemDef.stats?.MEN && (
             <div className="flex justify-between">
               <span className="text-gray-400">MEN:</span>
-              <span className="text-yellow-300">+{stats.MEN}</span>
+              <span className="text-yellow-300">+{itemDef.stats.MEN}</span>
             </div>
           )}
-          {stats.hp && (
+          {itemDef.stats?.hp && (
             <div className="flex justify-between">
               <span className="text-gray-400">HP:</span>
-              <span className="text-green-300">+{stats.hp}</span>
+              <span className="text-green-300">+{itemDef.stats.hp}</span>
             </div>
           )}
-          {stats.mp && (
+          {itemDef.stats?.mp && (
             <div className="flex justify-between">
               <span className="text-gray-400">MP:</span>
-              <span className="text-blue-300">+{stats.mp}</span>
+              <span className="text-blue-300">+{itemDef.stats.mp}</span>
             </div>
           )}
-          {stats.cp && (
+          {itemDef.stats?.cp && (
             <div className="flex justify-between">
               <span className="text-gray-400">CP:</span>
-              <span className="text-yellow-300">+{stats.cp}</span>
+              <span className="text-yellow-300">+{itemDef.stats.cp}</span>
+            </div>
+          )}
+          {itemDef.stats?.rCrit && (
+            <div className="flex justify-between">
+              <span className="text-gray-400">Крит:</span>
+              <span className="text-purple-400">+{itemDef.stats.rCrit}</span>
+            </div>
+          )}
+          {itemDef.stats?.pAtkSpd && (
+            <div className="flex justify-between">
+              <span className="text-gray-400">Скорость боя:</span>
+              <span className="text-yellow-400">+{itemDef.stats.pAtkSpd}</span>
             </div>
           )}
         </div>
