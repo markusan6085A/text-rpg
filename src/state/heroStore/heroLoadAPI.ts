@@ -1,5 +1,5 @@
 // Async function to load hero from API
-import { getCharacter, updateCharacter } from "../../utils/api";
+import { getCharacter, updateCharacter, sendHeartbeat } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
@@ -26,6 +26,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     console.log('[loadHeroFromAPI] Fetching character from API...');
     const character = await getCharacter(characterStore.characterId);
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
+    
+    // 🔥 Оновлюємо активність при завантаженні героя
+    sendHeartbeat().catch((err) => {
+      console.error('[loadHeroFromAPI] Failed to send heartbeat:', err);
+    });
     
     // Якщо character не отримано - повертаємо null (fallback на localStorage)
     if (!character) {

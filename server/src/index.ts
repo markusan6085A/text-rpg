@@ -28,6 +28,8 @@ app.get("/", async () => {
       getChatMessages: "GET /chat/messages?channel=general&page=1&limit=10 (Bearer)",
       postChatMessage: "POST /chat/messages (Bearer)",
       deleteChatMessage: "DELETE /chat/messages/:id (Bearer)",
+      getOnlinePlayers: "GET /characters/online (Bearer)",
+      sendHeartbeat: "POST /characters/heartbeat (Bearer)",
     },
   };
 });
