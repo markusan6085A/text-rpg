@@ -46,7 +46,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     if (!character) return null;
 
     const heroJson = character.heroJson || {};
-    const profession = heroJson.profession || character.classId || "";
+    // 🔥 profession може бути в heroJson.profession або в character.classId
+    // Приводимо до нижнього регістру для правильного визначення зображення
+    const professionRaw = heroJson.profession || character.classId || "";
+    const profession = professionRaw.toLowerCase();
     
     return {
       id: character.id,
@@ -56,7 +59,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       klass: character.classId,
       gender: character.sex,
       level: character.level,
-      profession,
+      profession: professionRaw, // Зберігаємо оригінальний регістр для відображення
       status: heroJson.status || "",
       equipment: heroJson.equipment || {},
       inventory: heroJson.inventory || [],
