@@ -76,6 +76,19 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     };
   }, [character]);
 
+  // Перевіряємо чи гравець онлайн (активний за останні 10 хвилин)
+  const isOnline = useMemo(() => {
+    if (!character?.lastActivityAt) return false;
+    try {
+      const lastActivity = new Date(character.lastActivityAt);
+      const now = new Date();
+      const diffMinutes = (now.getTime() - lastActivity.getTime()) / (1000 * 60);
+      return diffMinutes < 10;
+    } catch (e) {
+      return false;
+    }
+  }, [character?.lastActivityAt]);
+
   // Форматуємо дату "Останній раз був"
   const formatLastSeen = (dateString?: string) => {
     if (!dateString) return "Невідомо";
@@ -171,10 +184,16 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
         </div>
 
-        {/* Останній раз був */}
+        {/* Останній раз був / Онлайн */}
         {character.lastActivityAt && (
-          <div className="text-center mb-3 text-[11px] text-gray-400">
-            Последний раз был(а): {formatLastSeen(character.lastActivityAt)}
+          <div className="text-center mb-3 text-[11px]">
+            {isOnline ? (
+              <span className="text-green-400 font-semibold">Онлайн</span>
+            ) : (
+              <span className="text-gray-400">
+                Последний раз был(а): {formatLastSeen(character.lastActivityAt)}
+              </span>
+            )}
           </div>
         )}
 
@@ -193,16 +212,18 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         </div>
 
         {/* Кнопки - просто текст */}
-        <div className="flex flex-col gap-1 mb-4 text-[12px] text-gray-300">
-          <span 
-            onClick={() => {
-              navigate("/chat");
-              // TODO: Відкрити листування з цим гравцем
-            }}
-            className="cursor-pointer hover:text-yellow-400 transition-colors text-center"
-          >
-            Написать письмо
-          </span>
+        <div className="flex flex-col gap-1 mb-4">
+          <div className="w-full border-t border-b border-gray-600 py-1">
+            <span 
+              onClick={() => {
+                navigate("/chat");
+                // TODO: Відкрити листування з цим гравцем
+              }}
+              className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
+            >
+              Написать письмо
+            </span>
+          </div>
         </div>
 
         {/* Інформація */}
@@ -274,13 +295,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         </div>
 
         {/* Кнопка назад - просто текст */}
-        <div className="mt-4 text-center">
-          <span 
-            onClick={() => navigate("/online-players")}
-            className="cursor-pointer hover:text-yellow-400 transition-colors text-[12px] text-gray-300"
-          >
-            Назад до списку онлайн
-          </span>
+        <div className="mt-4">
+          <div className="w-full border-t border-b border-gray-600 py-1">
+            <span 
+              onClick={() => navigate("/online-players")}
+              className="cursor-pointer hover:text-blue-300 transition-colors text-[12px] text-blue-400 text-center block"
+            >
+              Назад до списку онлайн
+            </span>
+          </div>
         </div>
       </div>
     </div>
