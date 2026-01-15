@@ -38,7 +38,8 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top
-  const messages = [...optimisticMessagesRef.current, ...cachedMessages];
+  // Filter out deleted messages
+  const messages = [...optimisticMessagesRef.current, ...cachedMessages].filter(m => !deletedIds.has(m.id));
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
