@@ -21,8 +21,9 @@ app.get("/", async () => {
       getCharacter: "GET /characters/:id (Bearer)",
       createCharacter: "POST /characters (Bearer)",
       updateCharacter: "PUT /characters/:id (Bearer)",
-      getChatMessages: "GET /chat/messages?channel=general&page=1 (Bearer)",
+      getChatMessages: "GET /chat/messages?channel=general&page=1&limit=10 (Bearer)",
       postChatMessage: "POST /chat/messages (Bearer)",
+      deleteChatMessage: "DELETE /chat/messages/:id (Bearer)",
     },
   };
 });
