@@ -275,6 +275,25 @@ function AppInner() {
     case "/online-players":
       return renderWithLayout(<OnlinePlayers navigate={navigate} />);
 
+    default:
+      // Check if pathname matches /player/:id pattern
+      if (pathname.startsWith("/player/")) {
+        const playerId = pathname.replace("/player/", "").split("?")[0];
+        if (playerId) {
+          return renderWithLayout(<PlayerProfile navigate={navigate} playerId={playerId} />);
+        }
+      }
+      // Fall through to default route below
+      break;
+  }
+
+  // Default route (if no case matched)
+  if (pathname === "/wip") {
+    return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} />);
+  }
+
+  // Other default routes
+  switch (pathname) {
     case "/wip":
       return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} />);
 
