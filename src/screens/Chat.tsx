@@ -15,25 +15,28 @@ export default function Chat({ navigate }: ChatProps) {
   const [messageText, setMessageText] = useState("");
   const [page, setPage] = useState(1);
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  const deletingRef = useRef<Set<string>>(new Set()); // Захист від повторних DELETE
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
 
   // Use optimized chat hook with caching - limit 10 per page, max 50 total
-  // autoRefresh: false - вимкнено автооновлення, тільки ручне через кнопку
+  // manual: true - вимкнено всі автоматичні запити, тільки ручне через refresh()
   const { messages: cachedMessages, loading, error, refresh } = useChatMessages({
     channel,
     page,
     limit: 10, // 10 messages per page
     cacheTtlMs: 30_000, // 30 seconds cache
     autoRefresh: false, // Вимкнено автооновлення
+    manual: true, // 🔥 ВИМКНЕНО всі автоматичні запити
   });
 
-  // Clear optimistic messages when channel changes
+  // Clear optimistic messages and refresh when channel changes
   useEffect(() => {
     optimisticMessagesRef.current = [];
     setDeletedIds(new Set()); // Clear deleted IDs when channel changes
-    // Don't call refresh here - useChatMessages hook will handle it automatically
-  }, [channel]);
+    // 🔥 ОДИН контрольований GET при зміні каналу
+    refresh();
+  }, [channel]); // Не додаємо refresh в deps - він стабільний
 
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top
@@ -70,11 +73,11 @@ export default function Chat({ navigate }: ChatProps) {
 
     try {
       // Send message in background (don't block UI)
-      const realMessage = await postChatMessage(channel, textToSend);
+      await postChatMessage(channel, textToSend);
       
-      // Remove optimistic message and refresh cache to get real one
+      // Remove optimistic message - нове повідомлення прийде при наступному refresh
       optimisticMessagesRef.current = [];
-      refresh(); // Refresh will get the real message from server
+      // ❌ НЕ робимо refresh тут - optimistic вже показав повідомлення
     } catch (err: any) {
       console.error("Error sending message:", err);
       // Remove optimistic message on error
@@ -86,6 +89,13 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Delete message - optimistic update, no confirmation
   const handleDeleteMessage = async (messageId: string) => {
+    // 🔥 Захист від повторних DELETE
+    if (deletingRef.current.has(messageId)) {
+      console.log('[chat] Delete already in progress for', messageId);
+      return;
+    }
+    deletingRef.current.add(messageId);
+
     // Optimistic update - remove immediately from UI
     setDeletedIds(prev => new Set([...prev, messageId]));
     
@@ -96,7 +106,6 @@ export default function Chat({ navigate }: ChatProps) {
       await deleteChatMessage(messageId);
       // Don't refresh immediately - optimistic update is enough
       // Message is already removed from UI via deletedIds
-      // Auto-refresh will sync later if needed
     } catch (err: any) {
       console.error("Error deleting message:", err);
       // Restore message on error
@@ -105,6 +114,9 @@ export default function Chat({ navigate }: ChatProps) {
         next.delete(messageId);
         return next;
       });
+    } finally {
+      // 🔥 Очищаємо захист після завершення
+      deletingRef.current.delete(messageId);
     }
   };
 

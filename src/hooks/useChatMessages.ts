@@ -18,6 +18,7 @@ type UseChatOptions = {
   limit?: number;              // 10
   cacheTtlMs?: number;         // 60_000
   autoRefresh?: boolean;       // false - disable auto refresh
+  manual?: boolean;            // true - disable all automatic fetches, only manual refresh()
 };
 
 // RAM cache (shared across all instances)
@@ -49,7 +50,7 @@ function writeLS(key: string, value: { ts: number; data: ChatMessage[] }) {
 }
 
 export function useChatMessages(opts: UseChatOptions) {
-  const { channel, page, limit = 10, cacheTtlMs = 60_000, autoRefresh = false } = opts;
+  const { channel, page, limit = 10, cacheTtlMs = 60_000, autoRefresh = false, manual = false } = opts;
 
   const key = useMemo(() => cacheKey(channel, page, limit), [channel, page, limit]);
 
@@ -152,6 +153,7 @@ export function useChatMessages(opts: UseChatOptions) {
 
   // авто-оновлення: тільки якщо кеш протух (вимкнено за замовчуванням)
   useEffect(() => {
+    if (manual) return; // Manual mode - no automatic fetches
     if (!autoRefresh) return; // Вимкнено автооновлення
 
     const mem = memCache.get(key);
@@ -164,10 +166,12 @@ export function useChatMessages(opts: UseChatOptions) {
       fetchNow("mount_or_change");
     }
     // якщо кеш свіжий — показуємо миттєво і можна оновити кнопкою
-  }, [key, cacheTtlMs, fetchNow, autoRefresh]);
+  }, [key, cacheTtlMs, fetchNow, autoRefresh, manual]);
 
-  // Перше завантаження при монтуванні (тільки якщо немає кешу)
+  // Перше завантаження при монтуванні (тільки якщо немає кешу) - ВИМКНЕНО в manual режимі
   useEffect(() => {
+    if (manual) return; // Manual mode - no automatic initial load
+
     const mem = memCache.get(key);
     const ls = readLS(key);
     const hasCache = mem?.data?.length || ls?.data?.length;
@@ -176,7 +180,7 @@ export function useChatMessages(opts: UseChatOptions) {
     if (!hasCache) {
       fetchNow("initial_load");
     }
-  }, [key, fetchNow]);
+  }, [key, fetchNow, manual]);
 
   // cleanup
   useEffect(() => {
