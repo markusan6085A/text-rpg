@@ -36,7 +36,8 @@ export default function Chat({ navigate }: ChatProps) {
     setDeletedIds(new Set()); // Clear deleted IDs when channel changes
     // 🔥 ОДИН контрольований GET при зміні каналу
     refresh();
-  }, [channel]); // Не додаємо refresh в deps - він стабільний
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channel]); // refresh стабільний, не додаємо в deps
 
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top

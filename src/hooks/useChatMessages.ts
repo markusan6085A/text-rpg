@@ -72,10 +72,29 @@ export function useChatMessages(opts: UseChatOptions) {
   const abortRef = useRef<AbortController | null>(null);
   const inFlightRef = useRef(false);
   const lastFetchAtRef = useRef(0);
+  // 🔥 Зберігаємо поточні значення в refs для стабільного refresh()
+  const channelRef = useRef(channel);
+  const pageRef = useRef(page);
+  const limitRef = useRef(limit);
+  const keyRef = useRef(key);
+
+  // Оновлюємо refs при зміні
+  useEffect(() => {
+    channelRef.current = channel;
+    pageRef.current = page;
+    limitRef.current = limit;
+    keyRef.current = key;
+  }, [channel, page, limit, key]);
 
   const fetchNow = useCallback(
     async (reason: string) => {
-      if (!channel) return;
+      // Використовуємо refs для отримання актуальних значень
+      const currentChannel = channelRef.current;
+      const currentPage = pageRef.current;
+      const currentLimit = limitRef.current;
+      const currentKey = keyRef.current;
+
+      if (!currentChannel) return;
 
       // анти-спам: якщо хтось випадково викликає 2 рази підряд
       const now = Date.now();
@@ -100,9 +119,9 @@ export function useChatMessages(opts: UseChatOptions) {
       setError(null);
 
       const url =
-        `${API_URL}/chat/messages?channel=${encodeURIComponent(channel)}` +
-        `&page=${encodeURIComponent(String(page))}` +
-        `&limit=${encodeURIComponent(String(limit))}`;
+        `${API_URL}/chat/messages?channel=${encodeURIComponent(currentChannel)}` +
+        `&page=${encodeURIComponent(String(currentPage))}` +
+        `&limit=${encodeURIComponent(String(currentLimit))}`;
 
       const t0 = performance.now();
 
@@ -133,8 +152,8 @@ export function useChatMessages(opts: UseChatOptions) {
         setMessages(cleaned);
 
         const entry = { ts: Date.now(), data: cleaned };
-        memCache.set(key, entry);
-        writeLS(key, entry);
+        memCache.set(currentKey, entry);
+        writeLS(currentKey, entry);
 
       } catch (e: any) {
         if (e?.name === "AbortError") return;
@@ -142,13 +161,13 @@ export function useChatMessages(opts: UseChatOptions) {
       } finally {
         const t1 = performance.now();
         // eslint-disable-next-line no-console
-        console.log(`[chat] fetch (${reason}) ${Math.round(t1 - t0)}ms`, { channel, page, limit });
+        console.log(`[chat] fetch (${reason}) ${Math.round(t1 - t0)}ms`, { channel: currentChannel, page: currentPage, limit: currentLimit });
 
         setLoading(false);
         inFlightRef.current = false;
       }
     },
-    [channel, page, limit, key]
+    [] // 🔥 Порожній масив - функція стабільна
   );
 
   // авто-оновлення: тільки якщо кеш протух (вимкнено за замовчуванням)
@@ -166,7 +185,7 @@ export function useChatMessages(opts: UseChatOptions) {
       fetchNow("mount_or_change");
     }
     // якщо кеш свіжий — показуємо миттєво і можна оновити кнопкою
-  }, [key, cacheTtlMs, fetchNow, autoRefresh, manual]);
+  }, [key, cacheTtlMs, autoRefresh, manual, fetchNow]);
 
   // Перше завантаження при монтуванні (тільки якщо немає кешу) - ВИМКНЕНО в manual режимі
   useEffect(() => {
@@ -180,7 +199,7 @@ export function useChatMessages(opts: UseChatOptions) {
     if (!hasCache) {
       fetchNow("initial_load");
     }
-  }, [key, fetchNow, manual]);
+  }, [key, manual, fetchNow]);
 
   // cleanup
   useEffect(() => {
@@ -189,10 +208,15 @@ export function useChatMessages(opts: UseChatOptions) {
     };
   }, []);
 
+  // 🔥 Стабільний refresh - не залежить від channel/page/limit
+  const refresh = useCallback(() => {
+    fetchNow("manual_refresh");
+  }, [fetchNow]);
+
   return {
     messages,
     loading,
     error,
-    refresh: () => fetchNow("manual_refresh"),
+    refresh,
   };
 }
