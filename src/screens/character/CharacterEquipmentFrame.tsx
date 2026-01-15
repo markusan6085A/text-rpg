@@ -46,7 +46,9 @@ export default function CharacterEquipmentFrame({
   const heroStore = useHeroStore((s) => s.hero);
   // 🔥 Якщо heroOverride передано, використовуємо його замість hero з store (для перегляду профілю іншого гравця)
   const hero = heroOverride || heroStore;
-  const unequipItem = useHeroStore((s) => s.unequipItem);
+  const unequipItemStore = useHeroStore((s) => s.unequipItem);
+  // 🔥 Якщо heroOverride передано, не дозволяємо знімати екіпіровку (це профіль іншого гравця)
+  const unequipItem = heroOverride ? (() => {}) : unequipItemStore;
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 

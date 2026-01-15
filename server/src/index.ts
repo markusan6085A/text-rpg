@@ -30,6 +30,8 @@ app.get("/", async () => {
       deleteChatMessage: "DELETE /chat/messages/:id (Bearer)",
       getOnlinePlayers: "GET /characters/online (Bearer)",
       sendHeartbeat: "POST /characters/heartbeat (Bearer)",
+      getPublicCharacter: "GET /characters/public/:id (Bearer)",
+      getCharacterByName: "GET /characters/by-name/:name (Bearer)",
     },
   };
 });

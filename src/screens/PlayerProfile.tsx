@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
-import { useHeroStore } from "../state/heroStore";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
