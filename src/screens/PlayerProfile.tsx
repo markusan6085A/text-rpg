@@ -143,11 +143,6 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   // Статистика з heroJson (якщо є) - перевіряємо всі можливі варіанти назв полів
   const stats = (character.heroJson || {}) as any;
   
-  // 🔥 Діагностика: виводимо що приходить в heroJson
-  console.log('[PlayerProfile] heroJson:', character.heroJson);
-  console.log('[PlayerProfile] stats:', stats);
-  console.log('[PlayerProfile] heroData:', heroData);
-  
   const karma = stats.karma || 0;
   const pk = stats.pk || 0;
   // 🔥 mobsKilled може зберігатися в різних полях - перевіряємо всі варіанти
