@@ -79,15 +79,7 @@ export function useChatMessages(opts: UseChatOptions) {
     } else {
       setMessages([]);
     }
-    
-    // В manual режимі одразу запускаємо fetch для оновлення
-    if (manual) {
-      // Використовуємо setTimeout щоб не блокувати рендер
-      setTimeout(() => {
-        fetchNow("cache_load");
-      }, 0);
-    }
-  }, [key, manual, fetchNow]);
+  }, [key]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
