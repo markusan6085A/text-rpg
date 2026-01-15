@@ -47,6 +47,7 @@ export interface Character {
   heroJson: any;
   createdAt: string;
   updatedAt?: string;
+  lastActivityAt?: string; // 🔥 Для показу "Останній раз був"
 }
 
 export interface CreateCharacterRequest {
