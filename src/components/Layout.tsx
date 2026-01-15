@@ -26,15 +26,23 @@ export default function Layout({
 
   // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд (тільки якщо залоговані)
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setOnlineCount(0);
+      return;
+    }
 
     const loadOnlineCount = async () => {
       try {
         const data = await getOnlinePlayers();
-        setOnlineCount(data.count || 0);
-      } catch (err) {
-        console.error('[Layout] Failed to load online count:', err);
-        // Не показуємо помилку, просто залишаємо попереднє значення
+        const count = data.count ?? data.players?.length ?? 0;
+        console.log('[Layout] Online count loaded:', count, 'players:', data.players?.length);
+        setOnlineCount(count);
+      } catch (err: any) {
+        console.error('[Layout] Failed to load online count:', err?.message || err);
+        // Не показуємо помилку, просто залишаємо попереднє значення або 0
+        if (onlineCount === null || onlineCount === undefined) {
+          setOnlineCount(0);
+        }
       }
     };
 

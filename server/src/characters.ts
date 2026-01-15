@@ -268,30 +268,56 @@ export async function characterRoutes(app: FastifyInstance) {
       // Гравці активні за останні 10 хвилин (600 000 мс)
       const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-      const onlineCharacters = await prisma.character.findMany({
-        where: {
-          lastActivityAt: {
-            gte: tenMinutesAgo, // Активні за останні 10 хвилин
+      // 🔥 Якщо поле lastActivityAt не існує, використовуємо updatedAt як fallback
+      let onlineCharacters;
+      try {
+        onlineCharacters = await prisma.character.findMany({
+          where: {
+            lastActivityAt: {
+              gte: tenMinutesAgo, // Активні за останні 10 хвилин
+            },
           },
-        },
-        orderBy: [
-          { level: "desc" }, // Сортуємо по рівню (високий спочатку)
-          { name: "asc" },   // Потім по імені
-        ],
-        select: {
-          id: true,
-          name: true,
-          level: true,
-          lastActivityAt: true,
-          heroJson: true, // Звідси можемо взяти location та power
-        },
-      });
+          orderBy: [
+            { level: "desc" }, // Сортуємо по рівню (високий спочатку)
+            { name: "asc" },   // Потім по імені
+          ],
+          select: {
+            id: true,
+            name: true,
+            level: true,
+            lastActivityAt: true,
+            heroJson: true, // Звідси можемо взяти location та power
+          },
+        });
+      } catch (dbError: any) {
+        // Якщо поле lastActivityAt не існує, використовуємо updatedAt
+        app.log.warn({ error: dbError?.message }, "lastActivityAt field may not exist, using updatedAt fallback");
+        onlineCharacters = await prisma.character.findMany({
+          where: {
+            updatedAt: {
+              gte: tenMinutesAgo,
+            },
+          },
+          orderBy: [
+            { level: "desc" },
+            { name: "asc" },
+          ],
+          select: {
+            id: true,
+            name: true,
+            level: true,
+            updatedAt: true,
+            heroJson: true,
+          },
+        });
+      }
 
       // Форматуємо дані для фронтенду
-      const players = onlineCharacters.map((char) => {
+      const players = onlineCharacters.map((char: any) => {
         const heroJson = (char.heroJson as any) || {};
         const location = heroJson.location || "Unknown";
         const power = heroJson.power || 0;
+        const lastActivityAt = char.lastActivityAt || char.updatedAt;
 
         return {
           id: char.id,
@@ -299,14 +325,17 @@ export async function characterRoutes(app: FastifyInstance) {
           level: char.level,
           location,
           power,
-          lastActivityAt: char.lastActivityAt.toISOString(),
+          lastActivityAt: lastActivityAt ? (lastActivityAt.toISOString ? lastActivityAt.toISOString() : lastActivityAt) : new Date().toISOString(),
         };
       });
+
+      const count = players.length;
+      app.log.info({ count, accountId: auth.accountId }, "GET /characters/online - returning online players");
 
       return {
         ok: true,
         players,
-        count: players.length,
+        count,
       };
     } catch (error) {
       app.log.error(error, "Error fetching online players:");
