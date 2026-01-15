@@ -133,14 +133,16 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const profDef = profId ? getProfessionDefinition(profId) : null;
   const professionLabel = profDef?.label || profession || "Нет";
 
-  // Статистика з heroJson (якщо є)
+  // Статистика з heroJson (якщо є) - перевіряємо всі можливі варіанти назв полів
   const stats = (character.heroJson || {}) as any;
   const karma = stats.karma || 0;
   const pk = stats.pk || 0;
-  const mobsKilled = stats.mobsKilled || stats.mobs_killed || 0;
+  // 🔥 mobsKilled може зберігатися в різних полях - перевіряємо всі варіанти
+  const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.mobsKilled ?? stats.killedMobs ?? stats.totalKills ?? 0;
   const pvpWins = stats.pvpWins || stats.pvp_wins || 0;
   const pvpLosses = stats.pvpLosses || stats.pvp_losses || 0;
-  const location = stats.location || "Talking Island Village";
+  // 🔥 location може зберігатися в різних місцях - перевіряємо всі варіанти
+  const location = stats.location || stats.currentLocation || stats.zone || heroData?.location || "Talking Island Village";
   const premiumActive = stats.premiumActive || false;
   const premiumExpiresAt = stats.premiumExpiresAt || null;
   const giftsCount = stats.giftsCount || stats.gifts_count || 0;
