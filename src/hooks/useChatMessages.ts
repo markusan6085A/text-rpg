@@ -78,10 +78,16 @@ export function useChatMessages(opts: UseChatOptions) {
 
       // анти-спам: якщо хтось випадково викликає 2 рази підряд
       const now = Date.now();
-      if (now - lastFetchAtRef.current < 250) return;
+      if (now - lastFetchAtRef.current < 500) {
+        console.log(`[chat] Skipping fetch (${reason}) - too soon after last fetch`);
+        return;
+      }
       lastFetchAtRef.current = now;
 
-      if (inFlightRef.current) return;
+      if (inFlightRef.current) {
+        console.log(`[chat] Skipping fetch (${reason}) - already in flight`);
+        return;
+      }
       inFlightRef.current = true;
 
       // abort попередній

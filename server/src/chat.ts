@@ -1,4 +1,4 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
 
@@ -159,31 +159,15 @@ export async function chatRoutes(app: FastifyInstance) {
   });
 
   // DELETE /chat/messages/:id
-  app.delete("/chat/messages/:id", async (req, reply) => {
+  app.delete<{ Params: { id: string } }>("/chat/messages/:id", async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    // Fastify params - try different ways to access
-    const params = req.params as any;
-    let messageId: string | undefined;
-    
-    if (params && typeof params === 'object') {
-      messageId = params.id || params['id'];
-    }
-    
-    // Fallback: extract from URL if params don't work
-    if (!messageId) {
-      const urlMatch = req.url.match(/\/chat\/messages\/([^\/\?]+)/);
-      if (urlMatch) {
-        messageId = urlMatch[1];
-      }
-    }
-
-    app.log.info({ params, messageId, url: req.url, method: req.method }, "Delete message request");
+    const messageId = req.params.id;
 
     if (!messageId || typeof messageId !== 'string' || messageId.trim() === '') {
-      app.log.error({ params, messageId, url: req.url }, "Invalid message id in delete request");
-      return reply.code(400).send({ error: "message id is required", details: { params, url: req.url } });
+      app.log.error({ params: req.params, url: req.url }, "Invalid message id in delete request");
+      return reply.code(400).send({ error: "message id is required" });
     }
 
     try {

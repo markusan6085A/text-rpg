@@ -28,13 +28,12 @@ export default function Chat({ navigate }: ChatProps) {
     autoRefresh: false, // Вимкнено автооновлення
   });
 
-  // Clear optimistic messages and refresh when channel changes
+  // Clear optimistic messages when channel changes
   useEffect(() => {
     optimisticMessagesRef.current = [];
     setDeletedIds(new Set()); // Clear deleted IDs when channel changes
-    // Force refresh when channel changes to load new messages
-    refresh();
-  }, [channel, refresh]);
+    // Don't call refresh here - useChatMessages hook will handle it automatically
+  }, [channel]);
 
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top
@@ -95,14 +94,9 @@ export default function Chat({ navigate }: ChatProps) {
     
     try {
       await deleteChatMessage(messageId);
-      // Refresh to sync with server (will remove from cache)
-      refresh();
-      // Clear deleted ID after refresh
-      setTimeout(() => setDeletedIds(prev => {
-        const next = new Set(prev);
-        next.delete(messageId);
-        return next;
-      }), 100);
+      // Don't refresh immediately - optimistic update is enough
+      // Message is already removed from UI via deletedIds
+      // Auto-refresh will sync later if needed
     } catch (err: any) {
       console.error("Error deleting message:", err);
       // Restore message on error
@@ -111,7 +105,6 @@ export default function Chat({ navigate }: ChatProps) {
         next.delete(messageId);
         return next;
       });
-      refresh();
     }
   };
 
