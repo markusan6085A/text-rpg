@@ -216,7 +216,7 @@ export default function Chat({ navigate }: ChatProps) {
         ) : (
           messages.map((msg, index) => (
             <React.Fragment key={msg.id}>
-              <div className="text-xs leading-relaxed flex items-start gap-2 group">
+              <div className="text-xs leading-tight flex items-start gap-2 group">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[#d4af37] font-semibold">{msg.characterName}</span>
@@ -244,10 +244,10 @@ export default function Chat({ navigate }: ChatProps) {
                     ) : null;
                   })()}
                 </div>
-                  <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-black"}`}>{msg.message}</div>
+                  <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-white"}`}>{msg.message}</div>
                 </div>
               </div>
-              {index < messages.length - 1 && <div className="text-gray-600 text-center"> — </div>}
+              {index < messages.length - 1 && <div className="text-gray-600 text-center w-full">_ _ _-_ _ _ _</div>}
             </React.Fragment>
           ))
         )}
