@@ -23,7 +23,8 @@ type UseChatOptions = {
 const memCache = new Map<string, { ts: number; data: ChatMessage[] }>();
 
 function cacheKey(channel: string, page: number, limit: number) {
-  return `chat:${channel}|${page}|${limit}`;
+  // Version 2: changed limit from 20/30 to 10, changed order from bottom to top
+  return `chat:v2:${channel}|${page}|${limit}`;
 }
 
 function readLS(key: string) {
