@@ -159,19 +159,21 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   // Виправлено: спочатку перевіряємо stats, потім heroData
   const location = stats.location || stats.currentLocation || stats.zone || heroData?.location || "Talking Island Village";
   
-  // 🔥 Діагностика: виводимо знайдені значення
-  console.log('[PlayerProfile] mobsKilled:', mobsKilled, 'from fields:', {
-    mobsKilled: stats.mobsKilled,
-    mobs_killed: stats.mobs_killed,
-    killedMobs: stats.killedMobs,
-    totalKills: stats.totalKills,
-  });
-  console.log('[PlayerProfile] location:', location, 'from fields:', {
-    'stats.location': stats.location,
-    'stats.currentLocation': stats.currentLocation,
-    'stats.zone': stats.zone,
-    'heroData.location': heroData?.location,
-  });
+  // 🔥 Діагностика: виводимо знайдені значення (тільки в dev режимі)
+  if (import.meta.env.DEV) {
+    console.log('[PlayerProfile] mobsKilled:', mobsKilled, 'from fields:', {
+      mobsKilled: stats.mobsKilled,
+      mobs_killed: stats.mobs_killed,
+      killedMobs: stats.killedMobs,
+      totalKills: stats.totalKills,
+    });
+    console.log('[PlayerProfile] location:', location, 'from fields:', {
+      'stats.location': stats.location,
+      'stats.currentLocation': stats.currentLocation,
+      'stats.zone': stats.zone,
+      'heroData.location': heroData?.location,
+    });
+  }
   const premiumActive = stats.premiumActive || false;
   const premiumExpiresAt = stats.premiumExpiresAt || null;
   const giftsCount = stats.giftsCount || stats.gifts_count || 0;
