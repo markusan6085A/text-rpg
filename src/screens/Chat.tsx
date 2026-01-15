@@ -36,10 +36,19 @@ export default function Chat({ navigate }: ChatProps) {
     optimisticMessagesRef.current = [];
     setDeletedIds(new Set()); // Clear deleted IDs when channel changes
     setPage(1); // Reset to first page when changing channels
-    // 🔥 ОДИН контрольований GET при зміні каналу
+    // 🔥 Показуємо кеш миттєво, оновлюємо в фоні
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel]); // refresh стабільний, не додаємо в deps
+
+  // Refresh when page changes
+  useEffect(() => {
+    if (page > 1) {
+      console.log('[chat] Page changed to:', page);
+      refresh();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   // Combine cached messages with optimistic updates - newest first (top)
   // Optimistic messages go to the top
@@ -235,6 +244,35 @@ export default function Chat({ navigate }: ChatProps) {
             </div>
           ))
         )}
+      </div>
+
+      {/* Pagination - простий текст з рисками від краю до краю, без рамок */}
+      <div className="flex items-center justify-between px-2 py-1.5 border-t border-[#3b2614] text-xs text-gray-400 bg-[#1a1a1a]">
+        <button
+          onClick={() => {
+            if (page > 1) {
+              setPage(page - 1);
+              messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          disabled={page === 1 || loading}
+          className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          ← Попередня
+        </button>
+        <span className="text-gray-500">|</span>
+        <span className="text-gray-300">Сторінка {page}</span>
+        <span className="text-gray-500">|</span>
+        <button
+          onClick={() => {
+            setPage(page + 1);
+            messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
+          }}
+          disabled={messages.length < 10 || loading}
+          className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          Наступна →
+        </button>
       </div>
 
       {/* Error message */}

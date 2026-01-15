@@ -66,6 +66,21 @@ export function useChatMessages(opts: UseChatOptions) {
     return [];
   });
 
+  // 🔥 Оновлюємо messages при зміні key (channel/page/limit) - показуємо кеш миттєво
+  useEffect(() => {
+    const mem = memCache.get(key);
+    const ls = readLS(key);
+    
+    // Показуємо кеш миттєво, якщо він є
+    if (mem?.data?.length) {
+      setMessages(mem.data);
+    } else if (ls?.data?.length) {
+      setMessages(ls.data);
+    } else {
+      setMessages([]);
+    }
+  }, [key]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
