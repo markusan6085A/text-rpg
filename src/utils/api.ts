@@ -77,7 +77,7 @@ export interface CharacterResponse {
 }
 
 // Helper function to get auth token
-function getToken(): string | null {
+export function getToken(): string | null {
   try {
     return localStorage.getItem('auth_token');
   } catch {
