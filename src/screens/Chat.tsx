@@ -163,14 +163,27 @@ export default function Chat({ navigate }: ChatProps) {
         status: err?.status,
         response: err?.response
       });
-      // Restore message on error
-      setDeletedIds(prev => {
-        const next = new Set(prev);
-        next.delete(messageId);
-        return next;
-      });
-      // Show error to user
-      alert(err?.message || "Помилка видалення повідомлення");
+      
+      // 🔥 Якщо помилка 404 (message not found) - не відновлюємо повідомлення
+      // Це означає, що повідомлення вже видалено на сервері (можливо кимось іншим або раніше)
+      const isNotFound = err?.message?.includes('404') || 
+                         err?.message?.includes('message not found') || 
+                         err?.message?.includes('not found');
+      
+      if (isNotFound) {
+        console.log('[chat] Message not found (404) - assuming already deleted, keeping it removed from UI');
+        // НЕ відновлюємо повідомлення - воно вже видалено
+        // Не показуємо помилку користувачу - це нормальна ситуація
+      } else {
+        // Для інших помилок (403, 500) - відновлюємо повідомлення
+        setDeletedIds(prev => {
+          const next = new Set(prev);
+          next.delete(messageId);
+          return next;
+        });
+        // Show error to user only for non-404 errors
+        alert(err?.message || "Помилка видалення повідомлення");
+      }
     } finally {
       // 🔥 Очищаємо захист після завершення
       deletingRef.current.delete(messageId);

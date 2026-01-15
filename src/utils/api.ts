@@ -252,7 +252,8 @@ export async function deleteChatMessage(messageId: string): Promise<{ ok: boolea
 
     if (!response.ok) {
       // Спробуємо отримати детальну помилку з бекенду
-      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      const status = response.status;
+      let errorMessage = `HTTP ${status}: ${response.statusText}`;
       try {
         const errorData = await response.json();
         console.error('[api] DELETE error response:', errorData);
@@ -267,7 +268,11 @@ export async function deleteChatMessage(messageId: string): Promise<{ ok: boolea
         console.error('[api] DELETE error text:', text);
         errorMessage = text || errorMessage;
       }
-      throw new Error(errorMessage);
+      
+      // 🔥 Додаємо status до помилки для перевірки на фронтенді
+      const error = new Error(errorMessage) as any;
+      error.status = status;
+      throw error;
     }
 
     const result = await response.json() as { ok: boolean; message: string };

@@ -52,6 +52,7 @@ export default function Layout({
   }, [isAuthenticated]);
 
   // 🔥 Heartbeat - оновлюємо активність кожні 2 хвилини (120 секунд)
+  // 🔥 Якщо поле lastActivityAt не існує в БД, heartbeat може повертати 400/500 - ігноруємо помилки
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -59,8 +60,15 @@ export default function Layout({
       try {
         await sendHeartbeat();
         console.log('[Layout] Heartbeat sent');
-      } catch (err) {
-        console.error('[Layout] Failed to send heartbeat:', err);
+      } catch (err: any) {
+        // 🔥 Ігноруємо помилки heartbeat - вони не критичні
+        // Можливо поле lastActivityAt не існує в БД (міграція не виконана)
+        // Або інші тимчасові проблеми з БД
+        if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
+          console.warn('[Layout] Heartbeat failed (non-critical):', err?.message);
+        } else {
+          console.error('[Layout] Failed to send heartbeat:', err);
+        }
       }
     };
 

@@ -28,9 +28,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
     // 🔥 Оновлюємо активність при завантаженні героя (асинхронно, не блокуємо)
+    // 🔥 Ігноруємо помилки heartbeat - вони не критичні (можливо міграція не виконана)
     if (character) {
-      sendHeartbeat().catch((err) => {
-        console.error('[loadHeroFromAPI] Failed to send heartbeat:', err);
+      sendHeartbeat().catch((err: any) => {
+        if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
+          console.warn('[loadHeroFromAPI] Heartbeat failed (non-critical):', err?.message);
+        } else {
+          console.error('[loadHeroFromAPI] Failed to send heartbeat:', err);
+        }
       });
     }
     
