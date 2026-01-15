@@ -17,6 +17,7 @@ type UseChatOptions = {
   page: number;                 // 1
   limit?: number;              // 10
   cacheTtlMs?: number;         // 60_000
+  autoRefresh?: boolean;       // false - disable auto refresh
 };
 
 // RAM cache (shared across all instances)
@@ -48,7 +49,7 @@ function writeLS(key: string, value: { ts: number; data: ChatMessage[] }) {
 }
 
 export function useChatMessages(opts: UseChatOptions) {
-  const { channel, page, limit = 10, cacheTtlMs = 60_000 } = opts;
+  const { channel, page, limit = 10, cacheTtlMs = 60_000, autoRefresh = false } = opts;
 
   const key = useMemo(() => cacheKey(channel, page, limit), [channel, page, limit]);
 
@@ -143,8 +144,10 @@ export function useChatMessages(opts: UseChatOptions) {
     [channel, page, limit, key]
   );
 
-  // авто-оновлення: тільки якщо кеш протух
+  // авто-оновлення: тільки якщо кеш протух (вимкнено за замовчуванням)
   useEffect(() => {
+    if (!autoRefresh) return; // Вимкнено автооновлення
+
     const mem = memCache.get(key);
     const ls = readLS(key);
     const newest = mem?.ts ? mem : ls;
@@ -155,7 +158,19 @@ export function useChatMessages(opts: UseChatOptions) {
       fetchNow("mount_or_change");
     }
     // якщо кеш свіжий — показуємо миттєво і можна оновити кнопкою
-  }, [key, cacheTtlMs, fetchNow]);
+  }, [key, cacheTtlMs, fetchNow, autoRefresh]);
+
+  // Перше завантаження при монтуванні (тільки якщо немає кешу)
+  useEffect(() => {
+    const mem = memCache.get(key);
+    const ls = readLS(key);
+    const hasCache = mem?.data?.length || ls?.data?.length;
+
+    // Завантажуємо тільки якщо немає кешу
+    if (!hasCache) {
+      fetchNow("initial_load");
+    }
+  }, [key, fetchNow]);
 
   // cleanup
   useEffect(() => {

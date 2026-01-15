@@ -18,11 +18,13 @@ export default function Chat({ navigate }: ChatProps) {
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
 
   // Use optimized chat hook with caching - limit 10 per page, max 50 total
+  // autoRefresh: false - вимкнено автооновлення, тільки ручне через кнопку
   const { messages: cachedMessages, loading, error, refresh } = useChatMessages({
     channel,
     page,
     limit: 10, // 10 messages per page
     cacheTtlMs: 30_000, // 30 seconds cache
+    autoRefresh: false, // Вимкнено автооновлення
   });
 
   // Clear optimistic messages when channel changes
