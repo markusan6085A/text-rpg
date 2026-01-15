@@ -59,6 +59,7 @@ function isTwoHandedWeapon(itemId: string | undefined): boolean {
     (name.includes("paagrian") && name.includes("sword")) ||
     (name.includes("baguette") && name.includes("sword")) ||
     id.includes("two_handed") ||
+    id.includes("twohanded") || // 🔥 Додано для twohanded_sword (без підкреслення)
     id.includes("great_sword") ||
     id.includes("greatsword") ||
     id.includes("big_sword") ||
