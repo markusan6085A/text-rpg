@@ -163,11 +163,27 @@ export async function chatRoutes(app: FastifyInstance) {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const params = req.params as { id?: string };
-    const messageId = params.id;
-
+    // Fastify params - try different ways to access
+    const params = req.params as any;
+    let messageId: string | undefined;
+    
+    if (params && typeof params === 'object') {
+      messageId = params.id || params['id'];
+    }
+    
+    // Fallback: extract from URL if params don't work
     if (!messageId) {
-      return reply.code(400).send({ error: "message id is required" });
+      const urlMatch = req.url.match(/\/chat\/messages\/([^\/\?]+)/);
+      if (urlMatch) {
+        messageId = urlMatch[1];
+      }
+    }
+
+    app.log.info({ params, messageId, url: req.url, method: req.method }, "Delete message request");
+
+    if (!messageId || typeof messageId !== 'string' || messageId.trim() === '') {
+      app.log.error({ params, messageId, url: req.url }, "Invalid message id in delete request");
+      return reply.code(400).send({ error: "message id is required", details: { params, url: req.url } });
     }
 
     try {
