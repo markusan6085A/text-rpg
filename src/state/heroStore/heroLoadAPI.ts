@@ -27,10 +27,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const character = await getCharacter(characterStore.characterId);
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
-    // 🔥 Оновлюємо активність при завантаженні героя
-    sendHeartbeat().catch((err) => {
-      console.error('[loadHeroFromAPI] Failed to send heartbeat:', err);
-    });
+    // 🔥 Оновлюємо активність при завантаженні героя (асинхронно, не блокуємо)
+    if (character) {
+      sendHeartbeat().catch((err) => {
+        console.error('[loadHeroFromAPI] Failed to send heartbeat:', err);
+      });
+    }
     
     // Якщо character не отримано - повертаємо null (fallback на localStorage)
     if (!character) {

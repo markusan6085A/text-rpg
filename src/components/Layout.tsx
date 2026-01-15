@@ -24,8 +24,10 @@ export default function Layout({
   const logout = useAuthStore((s) => s.logout);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд
+  // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд (тільки якщо залоговані)
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const loadOnlineCount = async () => {
       try {
         const data = await getOnlinePlayers();
@@ -39,7 +41,7 @@ export default function Layout({
     loadOnlineCount();
     const interval = setInterval(loadOnlineCount, 30000); // Оновлюємо кожні 30 секунд
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthenticated]);
 
   // 🔥 Heartbeat - оновлюємо активність кожні 2 хвилини (120 секунд)
   useEffect(() => {
