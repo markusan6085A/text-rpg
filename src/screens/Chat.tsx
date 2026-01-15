@@ -89,7 +89,14 @@ export default function Chat({ navigate }: ChatProps) {
   };
 
   // Delete message - optimistic update, no confirmation
+  // 🔥 Видалення працює тільки для своїх повідомлень в general/trade каналах
   const handleDeleteMessage = async (messageId: string) => {
+    // Перевірка каналу на фронті (додаткова перевірка, основна на бекенді)
+    if (channel !== "general" && channel !== "trade") {
+      console.warn('[chat] Can only delete messages in general or trade channels');
+      return;
+    }
+
     // 🔥 Захист від повторних DELETE
     if (deletingRef.current.has(messageId)) {
       console.log('[chat] Delete already in progress for', messageId);
@@ -104,7 +111,8 @@ export default function Chat({ navigate }: ChatProps) {
     optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== messageId);
     
     try {
-      await deleteChatMessage(messageId);
+      const result = await deleteChatMessage(messageId);
+      console.log('[chat] Message deleted successfully:', messageId, result);
       // Don't refresh immediately - optimistic update is enough
       // Message is already removed from UI via deletedIds
     } catch (err: any) {
@@ -115,6 +123,8 @@ export default function Chat({ navigate }: ChatProps) {
         next.delete(messageId);
         return next;
       });
+      // Show error to user
+      alert(err?.message || "Помилка видалення повідомлення");
     } finally {
       // 🔥 Очищаємо захист після завершення
       deletingRef.current.delete(messageId);
@@ -178,19 +188,26 @@ export default function Chat({ navigate }: ChatProps) {
                   <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
                   <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
                   <span className="text-gray-500">{formatTime(msg.createdAt)}</span>
-                  {/* Delete button - only for own messages */}
-                  {(msg.isOwn === true || msg.characterName === (hero.name || hero.username)) && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteMessage(msg.id);
-                      }}
-                      className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
-                      title="Видалити"
-                    >
-                      [×]
-                    </button>
-                  )}
+                  {/* Delete button - only for own messages in general/trade channels */}
+                  {(() => {
+                    const heroName = hero.name || hero.username;
+                    // Перевірка: isOwn === true АБО characterName збігається з ім'ям героя
+                    const isOwnMessage = msg.isOwn === true || (heroName && msg.characterName?.toLowerCase() === heroName.toLowerCase());
+                    const canDelete = isOwnMessage && (channel === "general" || channel === "trade");
+                    
+                    return canDelete ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteMessage(msg.id);
+                        }}
+                        className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
+                        title="Видалити"
+                      >
+                        [×]
+                      </button>
+                    ) : null;
+                  })()}
                 </div>
                 <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-gray-200"}`}>{msg.message}</div>
               </div>

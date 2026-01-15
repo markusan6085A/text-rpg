@@ -185,13 +185,19 @@ export async function chatRoutes(app: FastifyInstance) {
       // Check if message exists and belongs to user
       const message = await prisma.chatMessage.findUnique({
         where: { id: messageId },
-        select: { characterId: true },
+        select: { characterId: true, channel: true },
       });
 
       if (!message) {
         return reply.code(404).send({ error: "message not found" });
       }
 
+      // 🔥 Видаляти можна тільки в "general" або "trade" каналах
+      if (message.channel !== "general" && message.channel !== "trade") {
+        return reply.code(403).send({ error: "you can only delete messages in general or trade channels" });
+      }
+
+      // 🔥 Видаляти можна тільки свої повідомлення
       if (message.characterId !== character.id) {
         return reply.code(403).send({ error: "you can only delete your own messages" });
       }
