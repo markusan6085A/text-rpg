@@ -142,14 +142,36 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
   // Статистика з heroJson (якщо є) - перевіряємо всі можливі варіанти назв полів
   const stats = (character.heroJson || {}) as any;
+  
+  // 🔥 Діагностика: виводимо що приходить в heroJson
+  console.log('[PlayerProfile] heroJson:', character.heroJson);
+  console.log('[PlayerProfile] stats:', stats);
+  console.log('[PlayerProfile] heroData:', heroData);
+  
   const karma = stats.karma || 0;
   const pk = stats.pk || 0;
   // 🔥 mobsKilled може зберігатися в різних полях - перевіряємо всі варіанти
-  const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.mobsKilled ?? stats.killedMobs ?? stats.totalKills ?? 0;
+  // Виправлено: прибрав дублювання stats.mobsKilled
+  const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.killedMobs ?? stats.totalKills ?? 0;
   const pvpWins = stats.pvpWins || stats.pvp_wins || 0;
   const pvpLosses = stats.pvpLosses || stats.pvp_losses || 0;
   // 🔥 location може зберігатися в різних місцях - перевіряємо всі варіанти
+  // Виправлено: спочатку перевіряємо stats, потім heroData
   const location = stats.location || stats.currentLocation || stats.zone || heroData?.location || "Talking Island Village";
+  
+  // 🔥 Діагностика: виводимо знайдені значення
+  console.log('[PlayerProfile] mobsKilled:', mobsKilled, 'from fields:', {
+    mobsKilled: stats.mobsKilled,
+    mobs_killed: stats.mobs_killed,
+    killedMobs: stats.killedMobs,
+    totalKills: stats.totalKills,
+  });
+  console.log('[PlayerProfile] location:', location, 'from fields:', {
+    'stats.location': stats.location,
+    'stats.currentLocation': stats.currentLocation,
+    'stats.zone': stats.zone,
+    'heroData.location': heroData?.location,
+  });
   const premiumActive = stats.premiumActive || false;
   const premiumExpiresAt = stats.premiumExpiresAt || null;
   const giftsCount = stats.giftsCount || stats.gifts_count || 0;
