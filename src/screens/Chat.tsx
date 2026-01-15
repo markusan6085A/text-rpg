@@ -14,7 +14,30 @@ export default function Chat({ navigate }: ChatProps) {
   const [channel, setChannel] = useState<ChatChannel>("general");
   const [messageText, setMessageText] = useState("");
   const [page, setPage] = useState(1);
-  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  // 🔥 Зберігаємо видалені ID в localStorage, щоб вони не відновлювались при оновленні сторінки
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(`chat:deleted:${channel}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return new Set(Array.isArray(parsed) ? parsed : []);
+      }
+    } catch (e) {
+      console.error('[chat] Failed to load deletedIds from localStorage:', e);
+    }
+    return new Set();
+  });
+  
+  // Оновлюємо localStorage при зміні deletedIds
+  useEffect(() => {
+    try {
+      const idsArray = Array.from(deletedIds);
+      localStorage.setItem(`chat:deleted:${channel}`, JSON.stringify(idsArray));
+    } catch (e) {
+      console.error('[chat] Failed to save deletedIds to localStorage:', e);
+    }
+  }, [deletedIds, channel]);
+
   const deletingRef = useRef<Set<string>>(new Set()); // Захист від повторних DELETE
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
@@ -36,7 +59,19 @@ export default function Chat({ navigate }: ChatProps) {
     currentChannelRef.current = channel;
     console.log('[chat] Channel changed to:', channel);
     optimisticMessagesRef.current = [];
-    setDeletedIds(new Set()); // Clear deleted IDs when channel changes
+    // 🔥 Очищаємо deletedIds при зміні каналу (різні канали мають різні видалені ID)
+    setDeletedIds(() => {
+      try {
+        const stored = localStorage.getItem(`chat:deleted:${channel}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return new Set(Array.isArray(parsed) ? parsed : []);
+        }
+      } catch (e) {
+        console.error('[chat] Failed to load deletedIds from localStorage:', e);
+      }
+      return new Set();
+    });
     setPage(1); // Reset to first page when changing channels
     // 🔥 НЕ викликаємо автоматичний refresh() - користувач сам оновить кнопкою або дані з кешу показуються
   }, [channel]);
@@ -50,12 +85,19 @@ export default function Chat({ navigate }: ChatProps) {
   // 🔥 Видаляємо дублікати: якщо повідомлення є в cachedMessages, не показуємо його з optimisticMessagesRef
   const messagesWithoutDuplicates = [...optimisticMessagesRef.current, ...cachedMessages];
   const seenIds = new Set<string>();
-  const messages = messagesWithoutDuplicates.filter(m => {
+  const allMessages = messagesWithoutDuplicates.filter(m => {
     if (seenIds.has(m.id)) return false;
-    if (deletedIds.has(m.id)) return false;
+    if (deletedIds.has(m.id)) return false; // 🔥 Фільтруємо видалені повідомлення
     seenIds.add(m.id);
     return true;
   });
+  
+  // 🔥 Обмежуємо кількість до limit (10) для cachedMessages, але optimistic завжди показуємо
+  // Якщо є optimistic - вони йдуть першими, потім cachedMessages (до 10)
+  const optimisticCount = optimisticMessagesRef.current.length;
+  const maxCachedMessages = Math.max(0, 10 - optimisticCount); // Скільки місця залишилося для cached
+  const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id)).slice(0, maxCachedMessages);
+  const messages = [...optimisticMessagesRef.current, ...filteredCached];
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
