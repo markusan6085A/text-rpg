@@ -341,3 +341,78 @@ export async function sendHeartbeat(): Promise<{ ok: boolean; message: string }>
   });
   return response;
 }
+
+// Letters API
+export interface Letter {
+  id: string;
+  subject: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  readAt?: string;
+  fromCharacter: {
+    id: string;
+    name: string;
+  };
+  toCharacter?: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface LettersResponse {
+  ok: boolean;
+  letters: Letter[];
+  total: number;
+  unreadCount: number;
+  page: number;
+  limit: number;
+}
+
+export interface LetterResponse {
+  ok: boolean;
+  letter: Letter;
+}
+
+export interface SendLetterRequest {
+  toCharacterId?: string;
+  toCharacterName?: string;
+  subject?: string;
+  message: string;
+}
+
+export async function sendLetter(request: SendLetterRequest): Promise<Letter> {
+  const response = await apiRequest<LetterResponse>('/letters', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+  return response.letter;
+}
+
+export async function getLetters(page: number = 1, limit: number = 50): Promise<LettersResponse> {
+  const response = await apiRequest<LettersResponse>(`/letters?page=${page}&limit=${limit}`, {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function getLetter(id: string): Promise<Letter> {
+  const response = await apiRequest<LetterResponse>(`/letters/${id}`, {
+    method: 'GET',
+  });
+  return response.letter;
+}
+
+export async function deleteLetter(id: string): Promise<{ ok: boolean; message: string }> {
+  const response = await apiRequest<{ ok: boolean; message: string }>(`/letters/${id}`, {
+    method: 'DELETE',
+  });
+  return response;
+}
+
+export async function getUnreadCount(): Promise<{ ok: boolean; unreadCount: number }> {
+  const response = await apiRequest<{ ok: boolean; unreadCount: number }>('/letters/unread-count', {
+    method: 'GET',
+  });
+  return response;
+}
