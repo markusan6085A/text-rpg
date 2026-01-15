@@ -11,6 +11,7 @@ interface LayoutProps {
   showNavGrid?: boolean;
   showStatusBars?: boolean;
   customBackground?: string; // Шлях до кастомного фону
+  hideFooterButtons?: boolean; // 🔥 Приховати кнопки "Поддержка | Онлайн | Выйти"
 }
 
 export default function Layout({
@@ -19,6 +20,7 @@ export default function Layout({
   showNavGrid = true,
   showStatusBars = true,
   customBackground,
+  hideFooterButtons = false,
 }: LayoutProps) {
   const [onlineCount, setOnlineCount] = useState<number>(0);
   const logout = useAuthStore((s) => s.logout);
@@ -140,30 +142,32 @@ export default function Layout({
         <div className="flex-1 pb-32 pt-20 overflow-y-auto relative z-10">{children}</div>
         
         {/* Кнопки: Поддержка | Онлайн | Выйти */}
-        <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center pointer-events-none px-2 sm:px-4">
-          <div className="w-full max-w-[380px] flex items-center justify-center gap-1 text-[10px] pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
-            <button
-              onClick={handleSupport}
-              className="text-gray-400 hover:text-gray-300 transition-colors"
-            >
-              Поддержка
-            </button>
-            <span className="text-gray-600">|</span>
-            <button
-              onClick={handleOnline}
-              className="text-green-400 hover:text-green-300 transition-colors"
-            >
-              Онлайн: {onlineCount}
-            </button>
-            <span className="text-gray-600">|</span>
-            <button
-              onClick={handleLogout}
-              className="text-red-400 hover:text-red-300 transition-colors"
-            >
-              [Выйти]
-            </button>
+        {!hideFooterButtons && isAuthenticated && (
+          <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center pointer-events-none px-2 sm:px-4">
+            <div className="w-full max-w-[380px] border-t border-b border-gray-600 py-1 flex items-center justify-center gap-1 text-[10px] pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
+              <button
+                onClick={handleSupport}
+                className="text-gray-400 hover:text-gray-300 transition-colors"
+              >
+                Поддержка
+              </button>
+              <span className="text-gray-600">|</span>
+              <button
+                onClick={handleOnline}
+                className="text-green-400 hover:text-green-300 transition-colors"
+              >
+                Онлайн: {onlineCount}
+              </button>
+              <span className="text-gray-600">|</span>
+              <button
+                onClick={handleLogout}
+                className="text-red-400 hover:text-red-300 transition-colors"
+              >
+                [Выйти]
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
       {showNavGrid && <NavGrid navigate={navigate} />}
     </div>

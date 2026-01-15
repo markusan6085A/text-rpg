@@ -162,7 +162,7 @@ function AppInner() {
   // Для інших маршрутів - компоненти самі обробляють відсутність hero (показують "Загрузка...")
   if (!hero && (pathname === "/" || pathname === "")) {
     return (
-      <Layout navigate={navigate} showNavGrid={false} showStatusBars={false}>
+      <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true}>
         <Landing
           navigate={navigate}
           onLogin={(loadedHero) => {
@@ -185,7 +185,7 @@ function AppInner() {
   switch (pathname) {
     case "/register":
       return (
-        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false}>
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true}>
           <Register navigate={navigate} />
         </Layout>
       );
@@ -299,7 +299,7 @@ function AppInner() {
 
     default:
       return (
-        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false}>
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true}>
           <Landing
             navigate={navigate}
             onLogin={(loadedHero) => {
