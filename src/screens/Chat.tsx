@@ -31,7 +31,9 @@ export default function Chat({ navigate }: ChatProps) {
   });
 
   // Clear optimistic messages and refresh when channel changes
+  const currentChannelRef = useRef(channel);
   useEffect(() => {
+    currentChannelRef.current = channel;
     console.log('[chat] Channel changed to:', channel);
     optimisticMessagesRef.current = [];
     setDeletedIds(new Set()); // Clear deleted IDs when channel changes
@@ -65,12 +67,19 @@ export default function Chat({ navigate }: ChatProps) {
   }, [messages.length]);
 
   // Send message
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const sendMessage = async () => {
     if (!messageText.trim() || !hero) return;
     
     const textToSend = messageText.trim();
     // Clear input immediately for better UX
     setMessageText("");
+    
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
 
     // Optimistic update - show message immediately at the top
     const optimisticMessage: ChatMessage = {
@@ -364,9 +373,14 @@ export default function Chat({ navigate }: ChatProps) {
           </button>
         </div>
         <textarea
+          ref={textareaRef}
           value={messageText}
           onChange={(e) => {
             setMessageText(e.target.value);
+            // Auto-resize
+            const target = e.target as HTMLTextAreaElement;
+            target.style.height = 'auto';
+            target.style.height = `${target.scrollHeight}px`;
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
@@ -379,11 +393,6 @@ export default function Chat({ navigate }: ChatProps) {
           style={{ minHeight: '20px', maxHeight: '200px' }}
           rows={1}
           maxLength={500}
-          onInput={(e) => {
-            const target = e.target as HTMLTextAreaElement;
-            target.style.height = 'auto';
-            target.style.height = `${target.scrollHeight}px`;
-          }}
         />
       </div>
     </div>

@@ -160,15 +160,22 @@ export function useChatMessages(opts: UseChatOptions) {
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const data = (await res.json()) as { ok: boolean; messages: ChatMessage[] };
-        const cleaned = Array.isArray(data.messages) ? data.messages : [];
+              const data = (await res.json()) as { ok: boolean; messages: ChatMessage[] };
+              const cleaned = Array.isArray(data.messages) ? data.messages : [];
 
-        // оновлюємо state + кеші
-        setMessages(cleaned);
+              // 🔥 Перевіряємо, чи канал/сторінка не змінилися під час запиту
+              // Якщо змінилися - не оновлюємо state (запобігає race condition)
+              if (channelRef.current !== currentChannel || pageRef.current !== currentPage) {
+                console.log('[chat] Channel/page changed during fetch, ignoring response');
+                return;
+              }
 
-        const entry = { ts: Date.now(), data: cleaned };
-        memCache.set(currentKey, entry);
-        writeLS(currentKey, entry);
+              // оновлюємо state + кеші
+              setMessages(cleaned);
+
+              const entry = { ts: Date.now(), data: cleaned };
+              memCache.set(currentKey, entry);
+              writeLS(currentKey, entry);
 
       } catch (e: any) {
         if (e?.name === "AbortError") return;
