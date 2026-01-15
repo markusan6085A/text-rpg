@@ -189,17 +189,17 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           />
         </div>
 
-        {/* Кнопки */}
-        <div className="flex flex-col gap-2 mb-4">
-          <button
+        {/* Кнопки - просто текст */}
+        <div className="flex flex-col gap-1 mb-4 text-[12px] text-gray-300">
+          <span 
             onClick={() => {
               navigate("/chat");
               // TODO: Відкрити листування з цим гравцем
             }}
-            className="w-full py-2 bg-[#1d140c] text-white border border-[#5b4726] rounded-md text-[12px] hover:bg-[#2a1f14] transition-colors"
+            className="cursor-pointer hover:text-yellow-400 transition-colors text-center"
           >
             Написать письмо
-          </button>
+          </span>
         </div>
 
         {/* Інформація */}

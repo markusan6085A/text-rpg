@@ -124,11 +124,12 @@ export default function CharacterEquipmentFrame({
     else if (profession === "dwarven_fighter" && gender === "female") {
       return `/characters/photo_2026-01-02_22-51-30.jpg`;
     }
-    // Спеціальна обробка для orc_fighter з урахуванням статі
-    else if (profession === "orc_fighter" && gender === "male") {
+    // Спеціальна обробка для orc_fighter та всіх його підкласів (включаючи Titan) з урахуванням статі
+    // Titan = orc_fighter_titan, тому всі orc_fighter_* використовують базове зображення orc_fighter
+    else if ((profession === "orc_fighter" || profession.startsWith("orc_fighter_")) && gender === "male") {
       return `/characters/photo_2026-01-03_07-00-39.jpg`;
     }
-    else if (profession === "orc_fighter" && gender === "female") {
+    else if ((profession === "orc_fighter" || profession.startsWith("orc_fighter_")) && gender === "female") {
       return `/characters/photo_2026-01-02_22-51-38.jpg`;
     }
     // Спеціальна обробка для orc_mystic_base з урахуванням статі
