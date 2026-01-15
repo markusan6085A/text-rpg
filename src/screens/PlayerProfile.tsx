@@ -14,6 +14,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showWriteModal, setShowWriteModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{ slot: string; itemId: string | null; enchantLevel?: number } | null>(null);
 
   useEffect(() => {
     const loadPlayerProfile = async () => {
