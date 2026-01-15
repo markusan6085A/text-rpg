@@ -207,7 +207,7 @@ export default function Chat({ navigate }: ChatProps) {
       </div>
 
       {/* Messages area - scroll from top, newest messages at top */}
-      <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
+      <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0">
         <div ref={messagesTopRef} />
         {loading && messages.length === 0 ? (
           <div className="text-center text-gray-400 text-sm py-4">Загрузка...</div>
@@ -375,7 +375,7 @@ export default function Chat({ navigate }: ChatProps) {
             }
           }}
           placeholder="Введите сообщение..."
-          className="w-full text-sm text-white placeholder-gray-500 resize-none overflow-hidden"
+          className="w-full text-sm text-black placeholder-gray-500 resize-none overflow-hidden"
           style={{ minHeight: '20px', maxHeight: '200px' }}
           rows={1}
           maxLength={500}
