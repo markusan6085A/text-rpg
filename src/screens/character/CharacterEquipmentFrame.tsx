@@ -566,7 +566,11 @@ export default function CharacterEquipmentFrame({
                 <img 
                   src={getSlotIcon(slot)} 
                   className={slotClassName}
-                  onClick={allowUnequip ? () => handleUnequip(slot) : undefined}
+                  onClick={heroOverride && onItemClick 
+                    ? () => handleItemClick(slot)
+                    : allowUnequip 
+                      ? () => handleUnequip(slot) 
+                      : undefined}
                 />
                 {enchantLevel > 0 && (
                   <div 

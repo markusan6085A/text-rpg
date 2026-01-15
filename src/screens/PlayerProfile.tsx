@@ -3,6 +3,7 @@ import { getPublicCharacter, getCharacterByName, type Character } from "../utils
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
 import WriteLetterModal from "../components/WriteLetterModal";
+import PlayerItemModal from "../components/PlayerItemModal";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
