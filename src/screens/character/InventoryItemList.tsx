@@ -16,7 +16,14 @@ export default function InventoryItemList({
   onEquipItem,
 }: InventoryItemListProps) {
   return (
-    <div className="space-y-0 mb-3">
+    <div 
+      className="space-y-0 mb-3 rounded-xl border-2"
+      style={{
+        backgroundColor: "#0f0f0f",
+        borderColor: "#5b4726",
+        minHeight: "200px",
+      }}
+    >
       {items.length === 0 ? (
         <div className="text-center text-gray-400 py-4 text-[10px]">Пусто</div>
       ) : (
@@ -110,7 +117,6 @@ export default function InventoryItemList({
               key={idx}
               className="flex items-center gap-1.5 px-2 py-1 border-b border-[#2a2a2a] text-[10px]"
               style={{
-                backgroundColor: "#0f0f0f",
                 borderBottom: "1px solid #2a2a2a",
                 color: "#d9d9d9",
               }}
