@@ -1,9 +1,10 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
 import { useAuthStore } from "../state/authStore";
 import { getOnlinePlayers, sendHeartbeat } from "../utils/api";
+import { useBattleStore } from "../state/battle/store";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,6 +26,29 @@ export default function Layout({
   const [onlineCount, setOnlineCount] = useState<number>(0);
   const logout = useAuthStore((s) => s.logout);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { processMobAttack, status: battleStatus, regenTick } = useBattleStore();
+
+  // 🔥 Скрол вгору при монтуванні і при зміні children - завжди показуємо верх сторінки з барами
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (contentRef.current) {
+      contentRef.current.scrollTo(0, 0);
+    }
+  }, [children]);
+
+  // 🔥 Глобальний таймер для продовження бою - моб атакує навіть якщо гравець в місті чи іншому місці
+  useEffect(() => {
+    if (!isAuthenticated || battleStatus !== "fighting") return;
+
+    const interval = setInterval(() => {
+      // Продовжуємо бій - моб атакує незалежно від локації
+      processMobAttack();
+      regenTick();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, battleStatus, processMobAttack, regenTick]);
 
   // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд (тільки якщо залоговані)
   useEffect(() => {
@@ -139,7 +163,7 @@ export default function Layout({
         )}
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
-        <div className="flex-1 pb-32 pt-20 overflow-y-auto relative z-10">{children}</div>
+        <div ref={contentRef} className="flex-1 pb-32 pt-20 overflow-y-auto relative z-10">{children}</div>
         
         {/* Кнопки: Поддержка | Онлайн | Выйти */}
         {!hideFooterButtons && isAuthenticated && (
