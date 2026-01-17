@@ -54,6 +54,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const goToZone = (zoneId: string) => {
+    // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
+    window.scrollTo(0, 0);
     // 🔥 Очищаємо попередню локацію при виході з міста через телепорт
     clearPreviousLocation();
     navigate(`/location?id=${zoneId}`);

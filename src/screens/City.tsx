@@ -71,11 +71,21 @@ const City: React.FC<CityProps> = ({ navigate }) => {
     return () => clearInterval(interval);
   }, [hero, updateHero]);
 
-  const handleToCharacter = () => navigate("/character");
-  const handleToStats = () => navigate("/stats");
-  const handleToCity = () => navigate("/city");
+  const handleToCharacter = () => {
+    window.scrollTo(0, 0);
+    navigate("/character");
+  };
+  const handleToStats = () => {
+    window.scrollTo(0, 0);
+    navigate("/stats");
+  };
+  const handleToCity = () => {
+    window.scrollTo(0, 0);
+    navigate("/city");
+  };
 
   const openFeature = (title: string) => {
+    window.scrollTo(0, 0);
     setString("l2_last_feature", title);
     navigate("/wip");
   };
@@ -102,7 +112,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#2d5016] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
-                onClick={() => navigate("/gk")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/gk");
+                }}
               >
                 <img src="/assets/travel.png" alt="Телепорт" className="w-3 h-3 object-contain" />
                 <span>Телепорт</span>
@@ -134,7 +147,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#9d4edd] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
-                onClick={() => navigate("/magic-statue")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/magic-statue");
+                }}
               >
                 <img src="/assets/news.png" alt="Магическая статуя" className="w-3 h-3 object-contain" />
                 <span>
@@ -147,7 +163,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#99e074] py-1.5 border-b border-dotted border-black/60 hover:text-[#bbff97] flex items-center gap-2"
-                onClick={() => navigate("/shop")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/shop");
+                }}
               >
                 <img src="/assets/col.png" alt="Магазин вещей" className="w-3 h-3 object-contain" />
                 <span>Магазин вещей</span>
@@ -155,7 +174,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#ffd700] py-1.5 border-b border-dotted border-black/60 hover:text-[#ffed4e] flex items-center gap-2"
-                onClick={() => navigate("/gm-shop")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/gm-shop");
+                }}
               >
                 <img src="/icons/col.png" alt="GM-шоп" className="w-3 h-3 object-contain" />
                 <span>GM-шоп</span>
@@ -176,7 +198,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
-                onClick={() => navigate("/guild")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/guild");
+                }}
               >
                 <img src="/assets/battles.png" alt="Гильдия магов" className="w-3 h-3 object-contain" />
                 <span>
@@ -189,7 +214,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#facc15] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
-                onClick={() => navigate("/additional-skills")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/additional-skills");
+                }}
               >
                 <img src="/assets/battles.png" alt="Дополнительные скилы" className="w-3 h-3 object-contain" />
                 <span>
@@ -202,7 +230,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#ff8c00] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
-                onClick={() => navigate("/warehouse")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/warehouse");
+                }}
               >
                 <img src="/assets/inventory.png" alt="Склад" className="w-3 h-3 object-contain" />
                 <span>Склад</span>
@@ -210,7 +241,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-dotted border-black/60 hover:text-[#bbff97] flex items-center gap-2"
-                onClick={() => navigate("/fishing")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/fishing");
+                }}
               >
                 <img src="/assets/quest.png" alt="Рыбак" className="w-3 h-3 object-contain" />
                 <span>Рыбак</span>
@@ -218,7 +252,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#1e40af] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
-                onClick={() => navigate("/tattoo-artist")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/tattoo-artist");
+                }}
               >
                 <img src="/assets/travel.png" alt="Татуировщик" className="w-3 h-3 object-contain" />
                 <span>Татуировщик</span>

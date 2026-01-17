@@ -481,6 +481,7 @@ export const createProcessMobAttack =
         heroStunnedUntil,
         heroBuffsBlockedUntil,
         heroSkillsBlockedUntil,
+        lastMobDamage: Math.round(heroDamage), // 🔥 Зберігаємо останній урон моба
       };
     } else if (nextHeroHP <= 0) {
       // ❗ ВАЖЛИВО: При смерті видаляємо ВСІ бафи (і від статуї, і від скілів)
@@ -522,6 +523,7 @@ export const createProcessMobAttack =
         heroStunnedUntil,
         heroBuffsBlockedUntil,
         heroSkillsBlockedUntil,
+        lastMobDamage: Math.round(heroDamage), // 🔥 Зберігаємо останній урон моба
       };
     } else {
       // Стати вже перераховані вище після зняття бафів
@@ -537,6 +539,7 @@ export const createProcessMobAttack =
         heroStunnedUntil,
         heroBuffsBlockedUntil,
         heroSkillsBlockedUntil,
+        lastMobDamage: Math.round(heroDamage), // 🔥 Зберігаємо останній урон моба
       };
     }
 

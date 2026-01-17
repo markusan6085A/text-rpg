@@ -43,6 +43,7 @@ export type BattleState = {
   cooldowns: CooldownMap;
   loadoutSlots: (number | string | null)[]; // Підтримка расходників (string типу "consumable:...")
   lastReward?: { exp: number; adena: number; sp?: number; mob: string; spoiled?: boolean };
+  lastMobDamage?: number; // 🔥 Останній урон моба для відображення в модалці
   heroBuffs: BattleBuff[];
   mobBuffs: BattleBuff[]; // Дебафи для мобів (debuff скіли)
   summonBuffs: BattleBuff[]; // Бафи для сумону

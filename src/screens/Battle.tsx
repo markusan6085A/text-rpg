@@ -64,6 +64,7 @@ export default function Battle({ navigate }: BattleProps) {
     reset,
     lastReward,
     log,
+    lastMobDamage,
   } = useBattleStore();
 
   const hero = useHeroStore((s) => s.hero);
@@ -294,6 +295,18 @@ export default function Battle({ navigate }: BattleProps) {
             <div className="text-sm font-semibold mb-2 text-[#87ceeb]">Лог бою:</div>
             <BattleLog />
           </div>
+
+          {/* 🔥 Інформація про моба та урон - нижче модалки */}
+          {lastMobDamage !== undefined && (
+            <div className="text-center pb-2 px-3 border-t border-gray-600 pt-2">
+              <div className="text-xs text-gray-300">
+                <span className="text-red-400 font-semibold">{mob.name}</span>
+                {" наносит "}
+                <span className="text-red-500 font-bold">{Math.round(lastMobDamage)}</span>
+                {" урона"}
+              </div>
+            </div>
+          )}
 
           {/* Кнопка В окрестности */}
           <div className="flex justify-center">
