@@ -93,12 +93,12 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const handleRecipes = () => openFeature("Книга рецептов");
 
   return (
-          <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#87ceeb] tracking-[0.12em] uppercase">
-            Онлайн игра Линейдж
-          </div>
+    <>
+      <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#87ceeb] tracking-[0.12em] uppercase">
+        Онлайн игра Линейдж
+      </div>
 
-
-          {/* Название города */}
+      {/* Название города */}
           <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2">
             <img src="/assets/gk.jpg" alt="Talking Island Village" className="w-6 h-6 object-contain" />
             <span className="font-semibold">Talking Island Village</span>
@@ -308,8 +308,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
             </div>
           </div>
-
-      </div>
     </>
   );
 };
