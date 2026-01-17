@@ -619,7 +619,5 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         );
       })()}
     </div>
-      </div>
-    </div>
   );
 }
