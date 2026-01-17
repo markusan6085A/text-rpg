@@ -19,7 +19,7 @@ export default function InventoryItemList({
     <div 
       className="space-y-0 mb-3 rounded-xl border-2"
       style={{
-        backgroundColor: "#1a1208",
+        backgroundColor: "#0f0c08",
         borderColor: "#5b4726",
         minHeight: "200px",
       }}
