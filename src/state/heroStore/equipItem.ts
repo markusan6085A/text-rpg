@@ -435,12 +435,12 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
 
-  const newEquipment: Record<string, string | null> = {
+  let newEquipment: Record<string, string | null> = {
     ...(hero.equipment || {}),
     [slot]: item.id,
   };
 
-  const newEquipmentEnchantLevels: Record<string, number> = {
+  let newEquipmentEnchantLevels: Record<string, number> = {
     ...(hero.equipmentEnchantLevels || {}),
   };
   if (item.enchantLevel !== undefined) {
