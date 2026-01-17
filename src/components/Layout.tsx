@@ -163,7 +163,11 @@ export default function Layout({
         )}
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
-        <div ref={contentRef} className="flex-1 pb-32 pt-20 overflow-y-auto relative z-10">{children}</div>
+        <div ref={contentRef} className="flex-1 pb-32 pt-20 overflow-y-auto relative z-10 flex justify-center">
+          <div className="w-full max-w-[360px] mt-2 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
+            {children}
+          </div>
+        </div>
         
         {/* Кнопки: Поддержка | Онлайн | Выйти */}
         {!hideFooterButtons && isAuthenticated && (

@@ -263,7 +263,7 @@ export default function Shop({ navigate }: ShopProps) {
   };
 
   return (
-    <div className="w-full max-w-[360px] mx-auto px-3 py-2">
+    <>
       {/* Заголовок */}
       <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#f4e2b8] tracking-[0.12em] uppercase">
         Магазин вещей
@@ -786,8 +786,6 @@ export default function Shop({ navigate }: ShopProps) {
           </div>
         </div>
       )}
-    </div>
-      </div>
-    </div>
+    </>
   );
 }
