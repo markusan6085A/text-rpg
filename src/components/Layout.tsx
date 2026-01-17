@@ -163,37 +163,35 @@ export default function Layout({
         )}
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
-        <div ref={contentRef} className="flex-1 pb-32 pt-20 overflow-y-auto relative z-10 flex justify-center">
-          <div className="w-full max-w-[360px] mt-2 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
+        <div ref={contentRef} className="flex-1 pb-2 pt-2 overflow-y-auto relative z-10 flex justify-center">
+          <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
           </div>
         </div>
         
         {/* Кнопки: Поддержка | Онлайн | Выйти */}
         {!hideFooterButtons && isAuthenticated && (
-          <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center pointer-events-none px-2 sm:px-4">
-            <div className="w-full max-w-[380px] border-t border-b border-gray-600 py-1 flex items-center justify-center gap-1 text-[10px] pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
-              <button
-                onClick={handleSupport}
-                className="text-gray-400 hover:text-gray-300 transition-colors"
-              >
-                Поддержка
-              </button>
-              <span className="text-gray-600">|</span>
-              <button
-                onClick={handleOnline}
-                className="text-green-400 hover:text-green-300 transition-colors"
-              >
-                Онлайн: {onlineCount}
-              </button>
-              <span className="text-gray-600">|</span>
-              <button
-                onClick={handleLogout}
-                className="text-red-400 hover:text-red-300 transition-colors"
-              >
-                [Выйти]
-              </button>
-            </div>
+          <div className="w-full py-1 flex items-center justify-center gap-1 text-[10px] relative z-10 border-t border-gray-600 mt-2">
+            <button
+              onClick={handleSupport}
+              className="text-gray-400 hover:text-gray-300 transition-colors"
+            >
+              Поддержка
+            </button>
+            <span className="text-gray-600">|</span>
+            <button
+              onClick={handleOnline}
+              className="text-green-400 hover:text-green-300 transition-colors"
+            >
+              Онлайн: {onlineCount}
+            </button>
+            <span className="text-gray-600">|</span>
+            <button
+              onClick={handleLogout}
+              className="text-red-400 hover:text-red-300 transition-colors"
+            >
+              [Выйти]
+            </button>
           </div>
         )}
       </div>
