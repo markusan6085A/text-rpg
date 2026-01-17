@@ -104,8 +104,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   return (
-    <div className="w-full flex items-start justify-center">
-      <div className="w-full max-w-[360px] mt-2 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
     <div className="w-full text-[#b8860b] px-1 py-2">
         {/* Заголовок */}
         <div className="text-[#b8860b] mb-4 text-base font-semibold flex items-center gap-2">

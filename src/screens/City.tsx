@@ -93,8 +93,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const handleRecipes = () => openFeature("Книга рецептов");
 
   return (
-    <div className="w-full flex items-start justify-center">
-      <div className="w-full max-w-md mt-5 mb-10 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
           <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#87ceeb] tracking-[0.12em] uppercase">
             Онлайн игра Линейдж
           </div>
@@ -312,7 +310,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           </div>
 
       </div>
-    </div>
+    </>
   );
 };
 

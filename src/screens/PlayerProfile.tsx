@@ -198,7 +198,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
   return (
     <div className="w-full flex flex-col items-center text-white">
-      <div className="w-full max-w-[360px] mt-2 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
+      <div className="w-full max-w-[360px] mt-2 px-3">
         {/* Заголовок */}
         <div className="text-center mb-2 text-[14px] font-bold text-[#87ceeb]">
           Информация о игроке

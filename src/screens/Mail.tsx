@@ -86,7 +86,7 @@ export default function Mail({ navigate }: MailProps) {
   if (selectedLetter) {
     return (
       <div className="w-full flex flex-col items-center text-white px-3 py-4">
-        <div className="w-full max-w-[360px] bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
+        <div className="w-full max-w-[360px]">
           {/* Заголовок */}
           <div className="flex items-center justify-between mb-3">
             <button
