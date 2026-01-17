@@ -6,6 +6,7 @@ import {
 } from "../data/world";
 import type { Zone } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
+import { savePreviousLocation, clearPreviousLocation } from "../utils/locationNavigation";
 
 type Navigate = (path: string) => void;
 
@@ -53,6 +54,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const goToZone = (zoneId: string) => {
+    // 🔥 Очищаємо попередню локацію при виході з міста через телепорт
+    clearPreviousLocation();
     navigate(`/location?id=${zoneId}`);
   };
 

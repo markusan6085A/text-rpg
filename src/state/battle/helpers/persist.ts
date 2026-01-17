@@ -1,5 +1,6 @@
 import type { BattleState } from "../types";
 import { useHeroStore } from "../../heroStore";
+import { saveBattleLogs } from "../battleLogs";
 
 // Minimal cleanup: drop only the Unicode replacement char; otherwise keep the log as-is.
 export const sanitizeLine = (line: string) =>
@@ -10,7 +11,7 @@ export const sanitizeLog = (lines: unknown): string[] => {
   return (lines as unknown[])
     .filter((l) => typeof l === "string")
     .map((l) => sanitizeLine(l as string))
-    .slice(0, 30) as string[];
+    .slice(0, 10) as string[]; // 🔥 Обмежуємо до 10 логів
 };
 
 export const persistSnapshot = (
@@ -30,6 +31,13 @@ export const persistSnapshot = (
     return;
   }
   
+  const sanitizedLog = sanitizeLog(merged.log);
+  
+  // 🔥 Зберігаємо логи бою в окреме місце для відновлення після виходу з бою (10 логів протягом 5 хвилин)
+  if (sanitizedLog.length > 0) {
+    saveBattleLogs(sanitizedLog, heroName);
+  }
+  
   persist({
     heroName, // Зберігаємо heroName для перевірки при завантаженні
     zoneId: merged.zoneId,
@@ -38,7 +46,7 @@ export const persistSnapshot = (
     mobHP: merged.mobHP,
     mobNextAttackAt: merged.mobNextAttackAt,
     status: merged.status,
-    log: sanitizeLog(merged.log),
+    log: sanitizedLog,
     cooldowns: merged.cooldowns,
     loadoutSlots: merged.loadoutSlots,
     lastReward: merged.lastReward,

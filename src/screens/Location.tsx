@@ -10,6 +10,7 @@ import { itemsDB } from "../data/items/itemsDB";
 import { isMobOnRespawn, getRespawnTimeRemaining } from "../state/battle/mobRespawns";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { findSetForItem } from "../data/sets/armorSets";
+import { savePreviousLocation } from "../utils/locationNavigation";
 
 type Navigate = (path: string) => void;
 
@@ -90,6 +91,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const handleBackToCity = () => {
+    // 🔥 Зберігаємо попередню локацію при переході в місто через телепорт
+    // (щоб потім заблокувати прямий повернення назад)
+    if (zoneId) {
+      savePreviousLocation(zoneId);
+    }
     navigate("/gk");
   };
 

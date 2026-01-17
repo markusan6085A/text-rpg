@@ -49,6 +49,8 @@ function useRouter() {
   });
 
   const navigate = React.useCallback((newPath: string) => {
+    // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки
+    window.scrollTo(0, 0);
     window.history.pushState({}, "", newPath);
     const pathname = new URL(newPath, window.location.origin).pathname;
     const search = new URL(newPath, window.location.origin).search;

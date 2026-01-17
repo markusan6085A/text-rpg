@@ -8,6 +8,7 @@ import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import type { BattleState, CooldownMap } from "../types";
 import { isMobOnRespawn, getRespawnTimeRemaining, clearMobRespawn } from "../mobRespawns";
 import { itemsDB } from "../../../data/items/itemsDB";
+import { loadBattleLogs, saveBattleLogs } from "../battleLogs";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -244,9 +245,15 @@ export const createStartBattle =
     const prevSummon = prevState.summon && prevState.summon.hp > 0 ? prevState.summon : null;
     const preservedSummon = savedSummon || prevSummon;
     
+    // 🔥 Завантажуємо збережені логи бою (останні 10 протягом 5 хвилин)
+    const savedLogs = loadBattleLogs(heroName);
+    
     // Зберігаємо попередній лог, додаючи новий запис про початок бою
-    const preservedLog = prevState.log && prevState.log.length > 0
-      ? [`Fight started with ${mob.name}`, ...prevState.log].slice(0, 30)
+    // Спочатку перевіряємо savedLogs, потім prevState.log, потім новий запис
+    const preservedLog = savedLogs.length > 0
+      ? [`Fight started with ${mob.name}`, ...savedLogs].slice(0, 10)
+      : prevState.log && prevState.log.length > 0
+      ? [`Fight started with ${mob.name}`, ...prevState.log].slice(0, 10)
       : [`Fight started with ${mob.name}`];
     
     // 🔥 Оновлюємо location в heroJson при зміні локації (для відображення в профілі)

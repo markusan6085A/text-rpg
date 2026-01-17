@@ -39,7 +39,7 @@ export const createReset =
       heroSkillsBlockedUntil: undefined, // Скидаємо блокування скілів при reset
       heroNextAttackAt: undefined,
       status: "idle",
-      log: prev.log?.slice(0, 30) ?? [],
+      log: prev.log?.slice(0, 10) ?? [],
       cooldowns: cooldownsToSave, // Зберігаємо cooldowns
       loadoutSlots: loadoutSlotsToSave,
       lastReward: prev.lastReward,
@@ -63,7 +63,7 @@ export const createReset =
       cooldowns: cooldownsToSave,
       heroBuffs: heroBuffsToSave,
       loadoutSlots: loadoutSlotsToSave,
-      log: prev.log?.slice(0, 30) ?? [],
+      log: prev.log?.slice(0, 10) ?? [],
       summon: aliveSummon,
       summonBuffs: summonBuffsToSave,
       baseSummonStats: baseSummonStatsToSave,
