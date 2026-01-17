@@ -270,20 +270,51 @@ export default function FishItemModal({
             {dismantleResult.weapons.length > 0 && (
               <div>
                 <div className="text-sm font-semibold text-[#b8860b] mb-2">Зброя:</div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {dismantleResult.weapons.map(({ id, count }) => {
                     const weaponDef = itemsDB[id];
+                    const stats = weaponDef?.stats || {};
                     return (
-                      <div key={id} className="flex items-center gap-2">
-                        {weaponDef?.icon && (
-                          <img
-                            src={weaponDef.icon.startsWith("/") ? weaponDef.icon : `/items/${weaponDef.icon}`}
-                            alt={weaponDef.name}
-                            className="w-5 h-5 object-contain"
-                          />
+                      <div key={id} className="border border-gray-700 rounded p-2 bg-[#1a1a1a]">
+                        <div className="flex items-center gap-2 mb-1">
+                          {weaponDef?.icon && (
+                            <img
+                              src={weaponDef.icon.startsWith("/") ? weaponDef.icon : `/items/${weaponDef.icon}`}
+                              alt={weaponDef.name}
+                              className="w-5 h-5 object-contain"
+                            />
+                          )}
+                          <span className="text-gray-300 font-semibold">{weaponDef?.name || id}</span>
+                          <span className="text-green-400 ml-auto">x{count}</span>
+                        </div>
+                        {(stats.pAtk || stats.mAtk || stats.rCrit || stats.pAtkSpd) && (
+                          <div className="pl-7 space-y-0.5 text-xs">
+                            {stats.pAtk && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Физ. атака:</span>
+                                <span className="text-red-400">+{stats.pAtk}</span>
+                              </div>
+                            )}
+                            {stats.mAtk && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Маг. атака:</span>
+                                <span className="text-purple-400">+{stats.mAtk}</span>
+                              </div>
+                            )}
+                            {stats.rCrit && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Крит:</span>
+                                <span className="text-purple-400">+{stats.rCrit}</span>
+                              </div>
+                            )}
+                            {stats.pAtkSpd && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Скорость боя:</span>
+                                <span className="text-yellow-400">+{stats.pAtkSpd}</span>
+                              </div>
+                            )}
+                          </div>
                         )}
-                        <span className="text-gray-400">{weaponDef?.name || id}:</span>
-                        <span className="text-green-400">x{count}</span>
                       </div>
                     );
                   })}
@@ -294,20 +325,91 @@ export default function FishItemModal({
             {dismantleResult.armorPieces.length > 0 && (
               <div>
                 <div className="text-sm font-semibold text-[#b8860b] mb-2">Частинки броні:</div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {dismantleResult.armorPieces.map(({ id, count }) => {
                     const armorDef = itemsDB[id];
+                    const stats = armorDef?.stats || {};
                     return (
-                      <div key={id} className="flex items-center gap-2">
-                        {armorDef?.icon && (
-                          <img
-                            src={armorDef.icon.startsWith("/") ? armorDef.icon : `/items/${armorDef.icon}`}
-                            alt={armorDef.name}
-                            className="w-5 h-5 object-contain"
-                          />
+                      <div key={id} className="border border-gray-700 rounded p-2 bg-[#1a1a1a]">
+                        <div className="flex items-center gap-2 mb-1">
+                          {armorDef?.icon && (
+                            <img
+                              src={armorDef.icon.startsWith("/") ? armorDef.icon : `/items/${armorDef.icon}`}
+                              alt={armorDef.name}
+                              className="w-5 h-5 object-contain"
+                            />
+                          )}
+                          <span className="text-gray-300 font-semibold">{armorDef?.name || id}</span>
+                          <span className="text-green-400 ml-auto">x{count}</span>
+                        </div>
+                        {(stats.pDef || stats.mDef || stats.maxHp || stats.maxMp) && (
+                          <div className="pl-7 space-y-0.5 text-xs">
+                            {stats.pDef && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Физ. защита:</span>
+                                <span className="text-blue-400">+{stats.pDef}</span>
+                              </div>
+                            )}
+                            {stats.mDef && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Маг. защита:</span>
+                                <span className="text-cyan-400">+{stats.mDef}</span>
+                              </div>
+                            )}
+                            {stats.maxHp && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Max HP:</span>
+                                <span className="text-red-400">+{stats.maxHp}</span>
+                              </div>
+                            )}
+                            {stats.maxMp && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Max MP:</span>
+                                <span className="text-blue-400">+{stats.maxMp}</span>
+                              </div>
+                            )}
+                            {(stats.STR || stats.DEX || stats.CON || stats.INT || stats.WIT || stats.MEN) && (
+                              <>
+                                {stats.STR && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">STR:</span>
+                                    <span className="text-yellow-300">+{stats.STR}</span>
+                                  </div>
+                                )}
+                                {stats.DEX && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">DEX:</span>
+                                    <span className="text-yellow-300">+{stats.DEX}</span>
+                                  </div>
+                                )}
+                                {stats.CON && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">CON:</span>
+                                    <span className="text-yellow-300">+{stats.CON}</span>
+                                  </div>
+                                )}
+                                {stats.INT && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">INT:</span>
+                                    <span className="text-yellow-300">+{stats.INT}</span>
+                                  </div>
+                                )}
+                                {stats.WIT && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">WIT:</span>
+                                    <span className="text-yellow-300">+{stats.WIT}</span>
+                                  </div>
+                                )}
+                                {stats.MEN && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-400">MEN:</span>
+                                    <span className="text-yellow-300">+{stats.MEN}</span>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
                         )}
-                        <span className="text-gray-400">{armorDef?.name || id}:</span>
-                        <span className="text-green-400">x{count}</span>
                       </div>
                     );
                   })}
