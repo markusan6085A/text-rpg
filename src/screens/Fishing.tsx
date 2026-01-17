@@ -83,7 +83,9 @@ export default function Fishing({ navigate }: FishingProps) {
 
   // Фон fishing.jpg відображається через Layout customBackground
   return (
-    <div className="w-full text-[#b8860b] px-1 py-2 relative z-10">
+    <div className="w-full flex items-start justify-center">
+      <div className="w-full max-w-[360px] mt-2 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4 relative z-10">
+    <div className="w-full text-[#b8860b] px-1 py-2">
       {!isFishingStarted ? (
         // Початковий екран з кнопкою
         <div className="w-full text-center space-y-4 py-8">
@@ -324,6 +326,8 @@ export default function Fishing({ navigate }: FishingProps) {
           </div>
         </div>
       )}
+    </div>
+      </div>
     </div>
   );
 }

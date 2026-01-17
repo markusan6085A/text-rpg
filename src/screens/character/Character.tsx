@@ -82,10 +82,11 @@ export default function Character() {
 
   return (
     <div className="w-full flex flex-col items-center text-white">
+      <div className="w-full max-w-[360px] mt-2 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
       <div
-        className="mt-2 flex flex-col items-center relative"
+        className="flex flex-col items-center relative"
         style={{
-          width: "360px",
+          width: "100%",
           paddingTop: "10px",
           paddingBottom: "10px",
         }}
@@ -260,6 +261,7 @@ export default function Character() {
         </div>
       )}
 
+      </div>
     </div>
   );
 }

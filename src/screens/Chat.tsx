@@ -246,6 +246,8 @@ export default function Chat({ navigate }: ChatProps) {
   }
 
   return (
+    <div className="w-full flex items-start justify-center">
+      <div className="w-full max-w-[360px] mt-2 px-3 bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
     <div className="flex flex-col h-full w-full text-white">
       {/* Tabs */}
       <div className="border-t border-gray-600 border-b border-gray-600">
@@ -460,6 +462,7 @@ export default function Chat({ navigate }: ChatProps) {
           rows={1}
           maxLength={500}
         />
+      </div>
       </div>
     </div>
   );

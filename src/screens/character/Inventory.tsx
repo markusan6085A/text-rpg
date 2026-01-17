@@ -146,7 +146,7 @@ export default function Inventory() {
 
   return (
     <div className="w-full flex flex-col items-center px-4 py-2">
-      <div className="w-full max-w-[360px]">
+      <div className="w-full max-w-[360px] bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
         {/* Equipment вікно зверху */}
         <Equipment compact={true} />
 

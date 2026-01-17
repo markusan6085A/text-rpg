@@ -787,5 +787,7 @@ export default function Shop({ navigate }: ShopProps) {
         </div>
       )}
     </div>
+      </div>
+    </div>
   );
 }

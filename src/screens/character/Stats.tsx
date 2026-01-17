@@ -77,7 +77,7 @@ export default function Stats() {
 
   return (
     <div className="w-full flex flex-col items-center text-white px-4 py-2">
-      <div className="w-full max-w-[360px]">
+      <div className="w-full max-w-[360px] bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4">
         {/* Інформація про персонажа */}
         <div className="mb-4 text-center">
           <div className="text-white font-semibold text-base mb-1">
