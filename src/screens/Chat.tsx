@@ -44,6 +44,25 @@ export default function Chat({ navigate }: ChatProps) {
   const deletingRef = useRef<Set<string>>(new Set()); // Захист від повторних DELETE
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
+  
+  // 🔥 Outbox - зберігаємо невідправлені повідомлення в localStorage
+  const [outbox, setOutbox] = useState<ChatMessage[]>(() => {
+    try {
+      const raw = localStorage.getItem(`chat:outbox:${channel}`);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  
+  // Зберігаємо outbox в localStorage при зміні
+  useEffect(() => {
+    try {
+      localStorage.setItem(`chat:outbox:${channel}`, JSON.stringify(outbox));
+    } catch (e) {
+      console.error('[chat] Failed to save outbox to localStorage:', e);
+    }
+  }, [outbox, channel]);
 
   // Use optimized chat hook with caching - limit 10 per page, max 50 total
   // 🔥 manual: false - дозволяємо автоматичне завантаження при відсутності кешу
@@ -121,7 +140,7 @@ export default function Chat({ navigate }: ChatProps) {
     const textToSend = messageText.trim();
     const tempId = `temp-${Date.now()}`;
     
-    // Optimistic update - show message immediately at the top
+    // 🔥 Optimistic update - show message immediately at the top
     const optimisticMessage: ChatMessage = {
       id: tempId,
       characterName: hero.name || hero.username || "You",
@@ -131,12 +150,15 @@ export default function Chat({ navigate }: ChatProps) {
       isOwn: true,
     };
     
+    // 🔥 Додаємо в outbox одразу - це гарантує, що повідомлення не пропаде при F5
+    setOutbox((prev) => [optimisticMessage, ...prev]);
+    
     // Додаємо до існуючих optimistic messages, а не замінюємо
     optimisticMessagesRef.current = [optimisticMessage, ...optimisticMessagesRef.current.filter(m => m.id !== tempId)];
     
     // Clear input immediately for better UX
     setMessageText("");
-    
+
     // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -145,6 +167,9 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       // Send message in background (don't block UI)
       const realMessage = await postChatMessage(channel, textToSend);
+      
+      // 🔥 Прибираємо з outbox після успішної відправки
+      setOutbox((prev) => prev.filter(m => m.id !== tempId));
       
       // 🔥 Замінюємо optimistic повідомлення на реальне
       optimisticMessagesRef.current = optimisticMessagesRef.current.map(m => 
@@ -167,6 +192,7 @@ export default function Chat({ navigate }: ChatProps) {
       }, 500);
     } catch (err: any) {
       console.error("Error sending message:", err);
+      // 🔥 При помилці залишаємо в outbox - можна буде спробувати ще раз
       // Remove optimistic message on error
       optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== tempId);
       // Restore message text if sending failed
