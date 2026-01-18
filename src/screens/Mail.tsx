@@ -30,6 +30,8 @@ export default function Mail({ navigate }: MailProps) {
   const [total, setTotal] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   const [onlinePlayerIds, setOnlinePlayerIds] = useState<Set<string>>(new Set());
+  const [replyMessage, setReplyMessage] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
 
   const loadLetters = async () => {
     // Не блокуємо UI, якщо є дані - показуємо їх, а потім оновлюємо в фоні
@@ -145,10 +147,25 @@ export default function Mail({ navigate }: MailProps) {
     setUnreadCount(prev => Math.max(0, prev - conv.unreadCount));
   };
 
-  const handleReply = () => {
-    if (selectedConversation) {
-      setReplyingTo({ id: selectedConversation.playerId, name: selectedConversation.playerName });
-      setShowWriteModal(true);
+  const handleSendReply = async () => {
+    if (!selectedConversation || !replyMessage.trim()) return;
+    
+    setSendingReply(true);
+    try {
+      await sendLetter({
+        toCharacterId: selectedConversation.playerId,
+        toCharacterName: selectedConversation.playerName,
+        subject: "",
+        message: replyMessage.trim(),
+      });
+      setReplyMessage("");
+      await loadLetters();
+      await loadConversationLetters(selectedConversation.playerId);
+    } catch (err: any) {
+      console.error("Error sending reply:", err);
+      alert(err?.message || "Помилка відправки повідомлення");
+    } finally {
+      setSendingReply(false);
     }
   };
 
@@ -188,25 +205,31 @@ export default function Mail({ navigate }: MailProps) {
             </div>
           </div>
 
-          {/* Поле вводу та кнопка */}
+          {/* Поле вводу та кнопки */}
           <div className="mb-3">
             <textarea
+              value={replyMessage}
+              onChange={(e) => setReplyMessage(e.target.value)}
               className="w-full bg-[#0b0806] border border-[#5b4726] rounded px-2 py-1 text-[7px] text-white resize-none mb-2"
-              placeholder="Введите сообщение..."
+              placeholder="Введіть повідомлення..."
               rows={3}
+              maxLength={1000}
             />
-            <button
-              onClick={handleReply}
-              className="text-green-400 hover:text-green-300 transition-colors text-sm font-bold"
-            >
-              Написать
-            </button>
-            <button
-              onClick={loadLetters}
-              className="text-yellow-400 hover:text-yellow-300 transition-colors text-[7px] mt-2"
-            >
-              Обновить
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={handleSendReply}
+                disabled={!replyMessage.trim() || sendingReply}
+                className="text-green-400 hover:text-green-300 transition-colors text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {sendingReply ? "Відправка..." : "Відправити"}
+              </button>
+              <button
+                onClick={loadLetters}
+                className="text-yellow-400 hover:text-yellow-300 transition-colors text-[7px]"
+              >
+                Оновити
+              </button>
+            </div>
           </div>
 
           {/* Історія переписок */}
