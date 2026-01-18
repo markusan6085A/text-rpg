@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getLetters, getLetter, deleteLetter, getOnlinePlayers, sendLetter, getConversationLetters, type Letter } from "../utils/api";
+import { getLetters, getLetter, deleteLetter, getOnlinePlayers, sendLetter, getConversationLetters, getUnreadCount, type Letter } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -28,6 +28,8 @@ export default function Mail({ navigate }: MailProps) {
   const [replyingTo, setReplyingTo] = useState<{ id?: string; name?: string } | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [conversationPage, setConversationPage] = useState(1);
+  const [conversationTotal, setConversationTotal] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   const [onlinePlayerIds, setOnlinePlayerIds] = useState<Set<string>>(new Set());
   const [replyMessage, setReplyMessage] = useState("");
@@ -120,11 +122,17 @@ export default function Mail({ navigate }: MailProps) {
     );
   }, [letters]);
 
-  const loadConversationLetters = async (playerId: string) => {
+  const loadConversationLetters = async (playerId: string, pageNum: number = conversationPage) => {
     try {
-      // 🔥 Завантажуємо всі листи з переписки (вхідні + вихідні) через API
-      const data = await getConversationLetters(playerId);
+      // 🔥 Завантажуємо листи з переписки (вхідні + вихідні) через API з пагінацією
+      const data = await getConversationLetters(playerId, pageNum, 10);
       setConversationLetters(data.letters || []);
+      setConversationTotal(data.total || 0);
+      setConversationPage(pageNum);
+      
+      // Оновлюємо unreadCount після завантаження (листи вже позначені як прочитані на сервері)
+      const updatedCount = await getUnreadCount();
+      setUnreadCount(updatedCount.unreadCount || 0);
     } catch (err: any) {
       console.error("Error loading conversation:", err);
       setError(err?.message || "Помилка завантаження переписки");
@@ -133,17 +141,15 @@ export default function Mail({ navigate }: MailProps) {
 
   const handleConversationClick = async (conv: Conversation) => {
     setSelectedConversation(conv);
-    await loadConversationLetters(conv.playerId);
+    setConversationPage(1); // Скидаємо на першу сторінку при відкритті
+    await loadConversationLetters(conv.playerId, 1);
     
-    // 🔥 Позначаємо всі листи від цього гравця як прочитані
+    // Позначаємо локально для швидкого відображення
     setLetters(prev => prev.map(letter => 
       letter.fromCharacter.id === conv.playerId && !letter.isRead
         ? { ...letter, isRead: true }
         : letter
     ));
-    
-    // Оновлюємо unreadCount
-    setUnreadCount(prev => Math.max(0, prev - conv.unreadCount));
   };
 
   const handleSendReply = async () => {
@@ -159,7 +165,11 @@ export default function Mail({ navigate }: MailProps) {
       });
       setReplyMessage("");
       await loadLetters();
-      await loadConversationLetters(selectedConversation.playerId);
+      await loadConversationLetters(selectedConversation.playerId, conversationPage);
+      
+      // Оновлюємо unreadCount
+      const updatedCount = await getUnreadCount();
+      setUnreadCount(updatedCount.unreadCount || 0);
     } catch (err: any) {
       console.error("Error sending reply:", err);
       alert(err?.message || "Помилка відправки повідомлення");
@@ -269,14 +279,38 @@ export default function Mail({ navigate }: MailProps) {
             })}
           </div>
 
-          {/* Пагінація */}
-          {conversations.length > 0 && (
+          {/* Пагінація для переписки */}
+          {conversationTotal > 10 && (
             <div className="flex items-center justify-center gap-2 mt-4 text-[6px] text-white">
-              <button className="hover:text-yellow-400 transition-colors">&lt;&lt;</button>
-              <button className="hover:text-yellow-400 transition-colors">&lt;</button>
-              <span className="font-bold">1</span>
-              <button className="hover:text-yellow-400 transition-colors">&gt;</button>
-              <button className="hover:text-yellow-400 transition-colors">&gt;&gt;</button>
+              <button 
+                onClick={() => loadConversationLetters(selectedConversation.playerId, 1)}
+                disabled={conversationPage === 1}
+                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                &lt;&lt;
+              </button>
+              <button 
+                onClick={() => loadConversationLetters(selectedConversation.playerId, conversationPage - 1)}
+                disabled={conversationPage === 1}
+                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                &lt;
+              </button>
+              <span className="font-bold">{conversationPage}</span>
+              <button 
+                onClick={() => loadConversationLetters(selectedConversation.playerId, conversationPage + 1)}
+                disabled={conversationPage * 10 >= conversationTotal}
+                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                &gt;
+              </button>
+              <button 
+                onClick={() => loadConversationLetters(selectedConversation.playerId, Math.ceil(conversationTotal / 10))}
+                disabled={conversationPage * 10 >= conversationTotal}
+                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                &gt;&gt;
+              </button>
             </div>
           )}
 

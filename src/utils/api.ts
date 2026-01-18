@@ -415,8 +415,8 @@ export async function deleteLetter(id: string): Promise<{ ok: boolean; message: 
   return response;
 }
 
-export async function getConversationLetters(playerId: string): Promise<{ ok: boolean; letters: Letter[] }> {
-  const response = await apiRequest<{ ok: boolean; letters: Letter[] }>(`/letters/conversation/${playerId}`, {
+export async function getConversationLetters(playerId: string, page: number = 1, limit: number = 10): Promise<{ ok: boolean; letters: Letter[]; total: number; page: number; limit: number }> {
+  const response = await apiRequest<{ ok: boolean; letters: Letter[]; total: number; page: number; limit: number }>(`/letters/conversation/${playerId}?page=${page}&limit=${limit}`, {
     method: 'GET',
   });
   return response;

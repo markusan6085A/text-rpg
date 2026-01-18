@@ -361,6 +361,7 @@ export async function letterRoutes(app: FastifyInstance) {
 
     const params = req.params as { playerId: string };
     const { playerId } = params;
+    const query = req.query as { page?: string; limit?: string };
 
     if (!playerId) return reply.code(400).send({ error: "playerId is required" });
 
@@ -376,9 +377,26 @@ export async function letterRoutes(app: FastifyInstance) {
       }
 
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const page = parseInt(query.page || "1", 10);
+      const limit = parseInt(query.limit || "10", 10);
+      const skip = (page - 1) * limit;
+
+      // Позначаємо всі вхідні листи від цього гравця як прочитані
+      await prisma.letter.updateMany({
+        where: {
+          fromCharacterId: playerId,
+          toCharacterId: character.id,
+          isRead: false,
+          createdAt: { gte: thirtyDaysAgo },
+        },
+        data: {
+          isRead: true,
+          readAt: new Date(),
+        },
+      });
 
       // Завантажуємо листи в обох напрямках
-      const [incomingLetters, outgoingLetters] = await Promise.all([
+      const [incomingLetters, outgoingLetters, totalCount] = await Promise.all([
         // Вхідні листи (від цього гравця до нас)
         prisma.letter.findMany({
           where: {
@@ -386,7 +404,7 @@ export async function letterRoutes(app: FastifyInstance) {
             toCharacterId: character.id,
             createdAt: { gte: thirtyDaysAgo },
           },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: "desc" },
           select: {
             id: true,
             subject: true,
@@ -415,7 +433,7 @@ export async function letterRoutes(app: FastifyInstance) {
             toCharacterId: playerId,
             createdAt: { gte: thirtyDaysAgo },
           },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: "desc" },
           select: {
             id: true,
             subject: true,
@@ -437,6 +455,23 @@ export async function letterRoutes(app: FastifyInstance) {
             },
           },
         }),
+        // Підрахунок загальної кількості
+        prisma.letter.count({
+          where: {
+            OR: [
+              {
+                fromCharacterId: playerId,
+                toCharacterId: character.id,
+                createdAt: { gte: thirtyDaysAgo },
+              },
+              {
+                fromCharacterId: character.id,
+                toCharacterId: playerId,
+                createdAt: { gte: thirtyDaysAgo },
+              },
+            ],
+          },
+        }),
       ]);
 
       // Об'єднуємо та сортуємо по даті (від нових до старих)
@@ -444,11 +479,11 @@ export async function letterRoutes(app: FastifyInstance) {
         (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
       );
 
-      // Беремо тільки 10 останніх повідомлень (найновіші)
-      const recentLetters = allLetters.slice(0, 10);
+      // Застосовуємо пагінацію
+      const paginatedLetters = allLetters.slice(skip, skip + limit);
 
       // Додаємо nickColor та isOwn
-      const lettersWithMeta = recentLetters.map((letter: any) => {
+      const lettersWithMeta = paginatedLetters.map((letter: any) => {
         const heroJson = (letter.fromCharacter.heroJson as any) || {};
         const nickColor = heroJson.nickColor;
         const isOwn = letter.fromCharacter.id === character.id;
@@ -465,6 +500,9 @@ export async function letterRoutes(app: FastifyInstance) {
       return {
         ok: true,
         letters: lettersWithMeta,
+        total: totalCount,
+        page,
+        limit,
       };
     } catch (error) {
       app.log.error(error, "Error fetching conversation:");
