@@ -580,7 +580,7 @@ export default function Shop({ navigate }: ShopProps) {
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="bg-[#0a0603] border border-[#3d2f1a] rounded-lg p-4 max-w-[400px] w-full"
+            className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-[400px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
