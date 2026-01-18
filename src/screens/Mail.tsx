@@ -140,7 +140,7 @@ export default function Mail({ navigate }: MailProps) {
   };
 
   const handleConversationClick = async (conv: Conversation) => {
-    setSelectedConversation(conv);
+    setSelectedConversation({ ...conv, unreadCount: 0 }); // Локально обнуляємо unreadCount
     setConversationPage(1); // Скидаємо на першу сторінку при відкритті
     await loadConversationLetters(conv.playerId, 1);
     
@@ -385,10 +385,12 @@ export default function Mail({ navigate }: MailProps) {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <span className="text-white text-[9px]">{conv.unreadCount || conversationLetters.length || 1}</span>
-                  <span className="text-gray-500 text-[8px]">{formatTime(conv.lastMessageTime)}</span>
-                </div>
+                  <div className="flex flex-col items-end gap-1">
+                    {conv.unreadCount > 0 && (
+                      <span className="text-white text-[9px]">{conv.unreadCount}</span>
+                    )}
+                    <span className="text-gray-500 text-[8px]">{formatTime(conv.lastMessageTime)}</span>
+                  </div>
               </div>
             ))}
           </div>
