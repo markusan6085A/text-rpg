@@ -11,7 +11,7 @@ type NavButton = { label: string; icon: string; path?: string; onClick?: () => v
 const buttons: NavButton[] = [
   { label: "Почта", icon: "/icons/почта.jpg", path: "/mail" },
   { label: "Чат", icon: "/icons/чат.jpg", path: "/chat" },
-  { label: "Форум", icon: "/icons/форум.jpg" },
+  { label: "Форум", icon: "/icons/форум.jpg", path: "/forum" },
   { label: "Город", icon: "/icons/город.jpg", path: "/city" },
   { label: "Инвентарь", icon: "/icons/инвентарь.jpg", path: "/inventory" },
   { label: "Персонаж", icon: "/icons/персонаж.jpg", path: "/character" },

@@ -34,6 +34,7 @@ import OnlinePlayers from "./screens/OnlinePlayers";
 import PlayerProfile from "./screens/PlayerProfile";
 import Mail from "./screens/Mail";
 import ColorizeNick from "./screens/ColorizeNick";
+import Forum from "./screens/Forum";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -281,6 +282,9 @@ function AppInner() {
 
     case "/mail":
       return renderWithLayout(<Mail navigate={navigate} />);
+
+    case "/forum":
+      return renderWithLayout(<Forum navigate={navigate} />);
 
     case "/colorize-nick":
       return renderWithLayout(<ColorizeNick navigate={navigate} />);
