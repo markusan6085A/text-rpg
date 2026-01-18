@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import { sendLetter } from "../utils/api";
 
+interface Conversation {
+  playerId: string;
+  playerName: string;
+  nickColor?: string;
+}
+
 interface WriteLetterModalProps {
   toCharacterId?: string;
   toCharacterName?: string;
+  conversations?: Conversation[];
   onClose: () => void;
   onSent: () => void;
 }
@@ -11,6 +18,7 @@ interface WriteLetterModalProps {
 export default function WriteLetterModal({
   toCharacterId,
   toCharacterName,
+  conversations = [],
   onClose,
   onSent,
 }: WriteLetterModalProps) {
@@ -18,6 +26,9 @@ export default function WriteLetterModal({
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<{ id: string; name: string } | null>(
+    toCharacterId && toCharacterName ? { id: toCharacterId, name: toCharacterName } : null
+  );
 
   const handleSend = async () => {
     if (!message.trim()) {
@@ -30,8 +41,8 @@ export default function WriteLetterModal({
 
     try {
       await sendLetter({
-        toCharacterId,
-        toCharacterName,
+        toCharacterId: selectedPlayer?.id || toCharacterId,
+        toCharacterName: selectedPlayer?.name || toCharacterName,
         subject: subject.trim() || "",
         message: message.trim(),
       });
@@ -56,6 +67,32 @@ export default function WriteLetterModal({
 
         {/* Риска */}
         <div className="w-full h-px bg-gray-600 mb-3"></div>
+
+        {/* Вибор гравця (якщо є conversations) */}
+        {conversations.length > 0 && !toCharacterName && (
+          <div className="mb-3">
+            <label className="block text-xs text-gray-400 mb-1">Кому написать (виберіть з переписки)</label>
+            <div className="max-h-32 overflow-y-auto border border-[#5b4726] rounded bg-[#0b0806]">
+              {conversations.map((conv) => (
+                <button
+                  key={conv.playerId}
+                  onClick={() => setSelectedPlayer({ id: conv.playerId, name: conv.playerName })}
+                  className={`w-full text-left px-2 py-1.5 text-sm hover:bg-gray-800/50 transition-colors ${
+                    selectedPlayer?.id === conv.playerId ? 'bg-gray-700/70' : ''
+                  }`}
+                  style={conv.nickColor ? { color: conv.nickColor } : { color: '#facc15' }}
+                >
+                  {conv.playerName}
+                </button>
+              ))}
+            </div>
+            {selectedPlayer && (
+              <div className="text-xs text-gray-500 mt-1">
+                Вибрано: <span style={{ color: conversations.find(c => c.playerId === selectedPlayer.id)?.nickColor || '#facc15' }}>{selectedPlayer.name}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Тема (опціональна) */}
         <div className="mb-3">

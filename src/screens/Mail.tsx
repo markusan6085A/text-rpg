@@ -133,6 +133,16 @@ export default function Mail({ navigate }: MailProps) {
   const handleConversationClick = async (conv: Conversation) => {
     setSelectedConversation(conv);
     await loadConversationLetters(conv.playerId);
+    
+    // 🔥 Позначаємо всі листи від цього гравця як прочитані
+    setLetters(prev => prev.map(letter => 
+      letter.fromCharacter.id === conv.playerId && !letter.isRead
+        ? { ...letter, isRead: true }
+        : letter
+    ));
+    
+    // Оновлюємо unreadCount
+    setUnreadCount(prev => Math.max(0, prev - conv.unreadCount));
   };
 
   const handleReply = () => {
@@ -332,6 +342,7 @@ export default function Mail({ navigate }: MailProps) {
       {/* Модалка написання нового листа */}
       {showWriteModal && !replyingTo && (
         <WriteLetterModal
+          conversations={conversations}
           onClose={() => {
             setShowWriteModal(false);
           }}
