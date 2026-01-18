@@ -46,65 +46,101 @@ export default function Chat({ navigate }: ChatProps) {
     setPage(1);
   }, [channel]);
 
-  // Combine cached messages with outbox - newest first (top)
-  // 🔥 Outbox показуємо ТІЛЬКИ на сторінці 1 - на інших сторінках тільки старі повідомлення
-  const messages = React.useMemo(() => {
-    const cachedIds = new Set(cachedMessages.map(m => m.id));
-    const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id));
-    
-    if (page === 1) {
-      // На сторінці 1 додаємо outbox (виключаємо ті, що вже є в кеші)
-      const filteredOutbox = outbox.filter(optMsg => !cachedIds.has(optMsg.id));
-      const maxCached = Math.max(0, 10 - filteredOutbox.length);
-      const limitedCached = filteredCached.slice(0, maxCached);
-      return [...filteredOutbox, ...limitedCached];
-    } else {
-      // На сторінках 2+ показуємо тільки кешовані повідомлення (старі)
-      return filteredCached;
+  // ---------- Helpers ----------
+  const normName = (s?: string) => (s || "").trim().toLowerCase();
+  const normText = (s?: string) => (s || "").trim();
+
+  // Fingerprint for dedupe (no clientId available)
+  // Uses author+channel+message and rounded time bucket
+  const fingerprint = (m: { characterName?: string; channel?: string; message?: string; createdAt?: string }) => {
+    const t = m.createdAt ? new Date(m.createdAt).getTime() : Date.now();
+    // 10-second bucket to tolerate server save delay/time differences
+    const bucket = Math.floor(t / 10_000);
+    return `${normName(m.characterName)}|${m.channel || ""}|${normText(m.message)}|${bucket}`;
+  };
+
+  // Build filtered cached messages (remove deleted)
+  const filteredCached = React.useMemo(() => {
+    return cachedMessages.filter((m) => !deletedIds.has(m.id));
+  }, [cachedMessages, deletedIds]);
+
+  // Server fingerprints set for fast dedupe against outbox
+  const serverFingerprints = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const m of filteredCached) {
+      set.add(fingerprint(m));
     }
-  }, [cachedMessages, outbox, deletedIds, page]);
+    return set;
+  }, [filteredCached]);
 
-  // 🔥 Видаляємо з outbox повідомлення, які вже з'явились в кеші
+  // Combine outbox (pending/sent) + cached, newest on top
+  // Show outbox only on page 1
+  const messages: ChatMessage[] = React.useMemo(() => {
+    if (page !== 1) return filteredCached;
+
+    // Dedupe outbox against server by fingerprint + also avoid local duplicates in outbox itself
+    const seen = new Set<string>();
+    const outboxVisible: ChatMessage[] = [];
+
+    for (const m of outbox) {
+      // Hide if server already contains it (confirmed)
+      const fp = fingerprint(m);
+      if (serverFingerprints.has(fp)) continue;
+
+      // Avoid duplicates inside outbox (same msg sent twice quickly)
+      if (seen.has(fp)) continue;
+      seen.add(fp);
+
+      outboxVisible.push(m as unknown as ChatMessage);
+    }
+
+    // Ensure newest first: outbox is prepended and should already be newest-first by how we add,
+    // but we keep as-is and then add cached.
+    const maxCached = Math.max(0, 10 - outboxVisible.length);
+    const limitedCached = filteredCached.slice(0, maxCached);
+
+    return [...outboxVisible, ...limitedCached];
+  }, [page, outbox, filteredCached, serverFingerprints]);
+
+  // Confirmed delivery cleanup:
+  // If an outbox message is marked 'sent' and server now has it (fingerprint match),
+  // remove it from outbox. Keep 'pending' until it becomes 'sent' or user retries.
   useEffect(() => {
-    const cachedIds = new Set(cachedMessages.map(m => m.id));
+    if (outbox.length === 0) return;
+
     setOutbox((prev) => {
-      const toRemove = prev.filter(outboxMsg => {
-        // Якщо це реальне повідомлення (не temp) і воно в кеші - видаляємо
-        if (!outboxMsg.id.startsWith('temp-') && cachedIds.has(outboxMsg.id)) {
-          return false;
-        }
-        // Якщо це temp повідомлення зі статусом 'sent' - перевіряємо чи є в кеші за вмістом
-        if (outboxMsg.id.startsWith('temp-') && outboxMsg.status === 'sent') {
-          const foundInCache = cachedMessages.some(cached => 
-            cached.message === outboxMsg.message && 
-            cached.characterName === outboxMsg.characterName &&
-            Math.abs(new Date(cached.createdAt).getTime() - new Date(outboxMsg.createdAt).getTime()) < 5000
-          );
-          return !foundInCache; // Залишаємо тільки якщо не знайдено в кеші
-        }
-        return true; // Залишаємо всі інші
-      });
-      if (toRemove.length !== prev.length) {
-        return toRemove;
-      }
-      return prev;
-    });
-  }, [cachedMessages, setOutbox]);
+      let changed = false;
+      const next = prev.filter((m) => {
+        const fp = fingerprint(m);
+        const isConfirmed = serverFingerprints.has(fp);
 
-  // Auto-scroll to top when new messages arrive
+        if (isConfirmed) {
+          changed = true;
+          return false; // remove confirmed
+        }
+        return true;
+      });
+
+      return changed ? next : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverFingerprints, setOutbox]); // serverFingerprints changes when cached changes
+
+  // Auto-scroll to top when we add something to outbox (new message)
   useEffect(() => {
-    if (messages.length > 0 && outbox.length > 0) {
+    if (page !== 1) return;
+    if (outbox.length > 0) {
       setTimeout(() => {
         messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
-  }, [messages.length, outbox.length]);
+  }, [outbox.length, page]);
 
   // Send message
   const sendMessage = async () => {
     if (!messageText.trim() || !hero) return;
 
-    // 🔥 Rate limiting for trade channel: 5 seconds between messages
+    // Rate limiting for trade channel: 5 seconds between messages
     if (channel === "trade") {
       const now = Date.now();
       const timeSinceLastMessage = now - lastTradeMessageTimeRef.current;
@@ -119,28 +155,29 @@ export default function Chat({ navigate }: ChatProps) {
     const textToSend = messageText.trim();
     const tempId = `temp-${Date.now()}`;
 
-    const optimisticMessage: OutboxMessage = {
+    const pendingMsg: OutboxMessage = {
       id: tempId,
       characterName: hero.name || hero.username || "You",
       channel,
       message: textToSend,
       createdAt: new Date().toISOString(),
       isOwn: true,
-      status: 'pending', // Статус: очікує відправки
+      status: "pending",
     };
 
-    // Add to outbox immediately to prevent loss on F5
-    setOutbox((prev) => [optimisticMessage, ...prev]);
+    // Add to outbox immediately so it survives F5 and shows on top
+    setOutbox((prev) => [pendingMsg, ...prev]);
     setMessageText("");
 
     try {
       await postChatMessage(channel, textToSend);
 
-      // 🔥 Позначаємо як 'sent', але НЕ видаляємо з outbox ще
-      // Видалимо тільки коли refresh() підтвердить, що повідомлення в кеші
-      setOutbox((prev) => prev.map(m => m.id === tempId ? { ...m, status: 'sent' as const } : m));
+      // Mark as sent; removal will happen only when server confirms via refresh
+      setOutbox((prev) =>
+        prev.map((m) => (m.id === tempId ? ({ ...m, status: "sent" } as const) : m))
+      );
 
-      // Update daily quest progress
+      // Daily quest progress
       const curHero = useHeroStore.getState().hero;
       if (curHero) {
         const updatedProgress = updateDailyQuestProgress(curHero, "daily_chat", 1);
@@ -149,60 +186,65 @@ export default function Chat({ navigate }: ChatProps) {
         }
       }
 
-      // 🔥 Оновлюємо кеш з API - це єдине джерело правди
-      // Видалимо з outbox тільки коли повідомлення з'явиться в кеші (через useEffect)
-      setTimeout(() => {
-        refresh();
-      }, 800);
+      // Refresh immediately + one retry later (no fragile single timeout)
+      refresh();
+      setTimeout(() => refresh(), 1500);
     } catch (err: any) {
       console.error("Error sending message:", err);
-      // При помилці залишаємо в outbox зі статусом 'pending' для повторної спроби
-      setOutbox((prev) => prev.map(m => m.id === tempId ? { ...m, status: 'pending' as const } : m));
+
+      // Keep in outbox, but leave as pending so it stays visible;
+      // user can just hit "Обновить" and resend if you add UI later.
+      setOutbox((prev) =>
+        prev.map((m) => (m.id === tempId ? ({ ...m, status: "pending" } as const) : m))
+      );
+
       setMessageText(textToSend);
     }
   };
 
   // Delete message
   const handleDeleteMessage = async (messageId: string) => {
-    console.log('[chat] handleDeleteMessage called:', { messageId, channel });
+    console.log("[chat] handleDeleteMessage called:", { messageId, channel });
 
     if (channel !== "general" && channel !== "trade") {
-      console.warn('[chat] Can only delete messages in general or trade channels');
+      console.warn("[chat] Can only delete messages in general or trade channels");
       return;
     }
 
     if (deletingRef.current.has(messageId)) {
-      console.log('[chat] Delete already in progress for', messageId);
+      console.log("[chat] Delete already in progress for", messageId);
       return;
     }
     deletingRef.current.add(messageId);
 
-    const messageToDelete = [...outbox, ...cachedMessages].find(m => m.id === messageId);
-    console.log('[chat] Message to delete:', {
+    const messageToDelete = [...outbox, ...cachedMessages].find((m: any) => m.id === messageId);
+    console.log("[chat] Message to delete:", {
       messageId,
       characterName: messageToDelete?.characterName,
       isOwn: messageToDelete?.isOwn,
     });
 
-    // Optimistic update - remove immediately from UI
-    setDeletedIds(prev => new Set([...prev, messageId]));
-    // Also remove from outbox if it's there
-    setOutbox(prev => prev.filter(m => m.id !== messageId));
+    // Optimistic remove from UI
+    setDeletedIds((prev) => new Set([...prev, messageId]));
+    // Remove from outbox if it's there
+    setOutbox((prev) => prev.filter((m) => m.id !== messageId));
 
     try {
       await deleteChatMessage(messageId);
-      console.log('[chat] Message deleted successfully:', messageId);
+      console.log("[chat] Message deleted successfully:", messageId);
       // Refresh cache after successful deletion
-      setTimeout(() => refresh(), 500);
+      refresh();
+      setTimeout(() => refresh(), 800);
     } catch (err: any) {
       console.error("[chat] Error deleting message:", err);
 
-      const isNotFound = err?.message?.includes('404') ||
-        err?.message?.includes('message not found') ||
-        err?.message?.includes('not found');
+      const isNotFound =
+        err?.message?.includes("404") ||
+        err?.message?.includes("message not found") ||
+        err?.message?.includes("not found");
 
       if (!isNotFound) {
-        setDeletedIds(prev => {
+        setDeletedIds((prev) => {
           const next = new Set(prev);
           next.delete(messageId);
           return next;
@@ -215,20 +257,12 @@ export default function Chat({ navigate }: ChatProps) {
   };
 
   if (!hero) {
-    return (
-      <div className="flex items-center justify-center text-xs text-gray-400">
-        Загрузка персонажа...
-      </div>
-    );
+    return <div className="flex items-center justify-center text-xs text-gray-400">Загрузка персонажа...</div>;
   }
 
   return (
     <div className="flex flex-col h-full w-full text-white">
-      <ChatTabs
-        channel={channel}
-        onChannelChange={setChannel}
-        onRefresh={refresh}
-      />
+      <ChatTabs channel={channel} onChannelChange={setChannel} onRefresh={refresh} />
 
       <ChatMessagesList
         messages={messages}
