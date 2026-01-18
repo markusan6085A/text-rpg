@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getLetters, getLetter, deleteLetter, getOnlinePlayers, sendLetter, type Letter } from "../utils/api";
+import { getLetters, getLetter, deleteLetter, getOnlinePlayers, sendLetter, getConversationLetters, type Letter } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -122,12 +122,11 @@ export default function Mail({ navigate }: MailProps) {
 
   const loadConversationLetters = async (playerId: string) => {
     try {
-      // Завантажуємо всі листи від цього гравця
-      const allLetters = letters.filter(l => l.fromCharacter.id === playerId);
-      setConversationLetters(allLetters.sort((a, b) => 
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      ));
+      // 🔥 Завантажуємо всі листи з переписки (вхідні + вихідні) через API
+      const data = await getConversationLetters(playerId);
+      setConversationLetters(data.letters || []);
     } catch (err: any) {
+      console.error("Error loading conversation:", err);
       setError(err?.message || "Помилка завантаження переписки");
     }
   };

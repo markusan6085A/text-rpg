@@ -354,6 +354,124 @@ export async function letterRoutes(app: FastifyInstance) {
     }
   });
 
+  // GET /letters/conversation/:playerId - отримати всі листи з переписки (вхідні + вихідні)
+  app.get("/letters/conversation/:playerId", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { playerId: string };
+    const { playerId } = params;
+
+    if (!playerId) return reply.code(400).send({ error: "playerId is required" });
+
+    try {
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+      // Завантажуємо листи в обох напрямках
+      const [incomingLetters, outgoingLetters] = await Promise.all([
+        // Вхідні листи (від цього гравця до нас)
+        prisma.letter.findMany({
+          where: {
+            fromCharacterId: playerId,
+            toCharacterId: character.id,
+            createdAt: { gte: thirtyDaysAgo },
+          },
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            subject: true,
+            message: true,
+            isRead: true,
+            createdAt: true,
+            fromCharacter: {
+              select: {
+                id: true,
+                name: true,
+                heroJson: true,
+              },
+            },
+            toCharacter: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        }),
+        // Вихідні листи (від нас до цього гравця)
+        prisma.letter.findMany({
+          where: {
+            fromCharacterId: character.id,
+            toCharacterId: playerId,
+            createdAt: { gte: thirtyDaysAgo },
+          },
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            subject: true,
+            message: true,
+            isRead: true, // Для вихідних - чи прочитав отримувач
+            createdAt: true,
+            fromCharacter: {
+              select: {
+                id: true,
+                name: true,
+                heroJson: true,
+              },
+            },
+            toCharacter: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        }),
+      ]);
+
+      // Об'єднуємо та сортуємо по даті
+      const allLetters = [...incomingLetters, ...outgoingLetters].sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+      );
+
+      // Додаємо nickColor та isOwn
+      const lettersWithMeta = allLetters.map((letter: any) => {
+        const heroJson = (letter.fromCharacter.heroJson as any) || {};
+        const nickColor = heroJson.nickColor;
+        const isOwn = letter.fromCharacter.id === character.id;
+        return {
+          ...letter,
+          fromCharacter: {
+            ...letter.fromCharacter,
+            nickColor: nickColor || undefined,
+          },
+          isOwn, // Чи це наш відправлений лист
+        };
+      });
+
+      return {
+        ok: true,
+        letters: lettersWithMeta,
+      };
+    } catch (error) {
+      app.log.error(error, "Error fetching conversation:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   // GET /letters/unread-count - отримати кількість непрочитаних
   app.get("/letters/unread-count", async (req, reply) => {
     const auth = getAuth(req);

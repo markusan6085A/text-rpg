@@ -353,6 +353,7 @@ export interface Letter {
   isRead: boolean;
   createdAt: string;
   readAt?: string;
+  isOwn?: boolean; // Чи це наш відправлений лист
   fromCharacter: {
     id: string;
     name: string;
@@ -410,6 +411,13 @@ export async function getLetter(id: string): Promise<Letter> {
 export async function deleteLetter(id: string): Promise<{ ok: boolean; message: string }> {
   const response = await apiRequest<{ ok: boolean; message: string }>(`/letters/${id}`, {
     method: 'DELETE',
+  });
+  return response;
+}
+
+export async function getConversationLetters(playerId: string): Promise<{ ok: boolean; letters: Letter[] }> {
+  const response = await apiRequest<{ ok: boolean; letters: Letter[] }>(`/letters/conversation/${playerId}`, {
+    method: 'GET',
   });
   return response;
 }
