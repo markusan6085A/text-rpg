@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { useHeroStore } from "../../state/heroStore";
+import { getNickColorStyle } from "../../utils/nickColor";
 import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";

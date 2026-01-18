@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { getLetters, getLetter, deleteLetter, type Letter } from "../utils/api";
+import { useHeroStore } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
+import { getNickColorStyle } from "../utils/nickColor";
 
 interface MailProps {
   navigate: (path: string) => void;
 }
 
 export default function Mail({ navigate }: MailProps) {
+  const hero = useHeroStore((s) => s.hero);
   const [letters, setLetters] = useState<Letter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
