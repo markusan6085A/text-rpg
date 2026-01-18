@@ -233,28 +233,40 @@ export default function Mail({ navigate }: MailProps) {
 
           {/* Історія переписок */}
           <div className="space-y-1">
-            {conversationLetters.map((letter) => (
-              <div key={letter.id} className="border-b border-dotted border-gray-600 pb-1 mb-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span 
-                    className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors text-[10px]"
-                    style={getNickColorStyle(letter.fromCharacter.name, hero, letter.fromCharacter.nickColor)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (letter.fromCharacter.id) {
-                        navigate(`/player/${letter.fromCharacter.id}`);
-                      } else if (letter.fromCharacter.name) {
-                        navigate(`/player/${letter.fromCharacter.name}`);
-                      }
-                    }}
-                  >
-                    {letter.fromCharacter.name}
-                  </span>
-                  <span className="text-gray-500 text-[9px]">{formatTime(letter.createdAt)}</span>
+            {conversationLetters.map((letter) => {
+              const isOwn = letter.isOwn || false;
+              const displayName = isOwn ? (hero?.name || hero?.username || "Ви") : letter.fromCharacter.name;
+              const displayNickColor = isOwn ? hero?.nickColor : letter.fromCharacter.nickColor;
+              
+              return (
+                <div key={letter.id} className="border-b border-dotted border-gray-600 pb-1 mb-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <span 
+                        className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors text-[10px]"
+                        style={getNickColorStyle(displayName, hero, displayNickColor)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isOwn && letter.fromCharacter.id) {
+                            navigate(`/player/${letter.fromCharacter.id}`);
+                          } else if (!isOwn && letter.fromCharacter.name) {
+                            navigate(`/player/${letter.fromCharacter.name}`);
+                          }
+                        }}
+                      >
+                        {displayName}
+                      </span>
+                      {/* Показуємо "непрочитано" тільки для відправлених листів, які не прочитані */}
+                      {isOwn && !letter.isRead && (
+                        <span className="text-red-400 text-[8px]">непрочитано</span>
+                      )}
+                    </div>
+                    <span className="text-gray-500 text-[9px]">{formatTime(letter.createdAt)}</span>
+                  </div>
+                  <div className="text-white text-[10px]">{letter.message}</div>
                 </div>
-                <div className="text-white text-[10px]">{letter.message}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Пагінація */}
