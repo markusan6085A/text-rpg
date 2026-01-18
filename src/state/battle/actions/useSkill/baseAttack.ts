@@ -15,6 +15,7 @@ import { canAttackWithBow, useArrow, getWeaponGrade } from "./arrowHelpers";
 import { updateDailyQuestProgress } from "../../../../utils/dailyQuests/updateDailyQuestProgress";
 import { getPremiumMultiplier } from "../../../../utils/premium/isPremiumActive";
 import { itemsDB } from "../../../../data/items/itemsDB";
+import { reportRaidBossKill } from "../../../../utils/api";
 
 export function handleBaseAttack(
   state: BattleState,
@@ -466,16 +467,14 @@ export function handleBaseAttack(
     
     // Фіксуємо вбивство raid boss в новинах
     if (isRaidBoss && curHero) {
-      import("../../../utils/api").then(({ reportRaidBossKill }) => {
-        reportRaidBossKill({
-          characterId: curHero.id,
-          characterName: curHero.name,
-          bossName: state.mob?.name || "",
-          bossLevel: state.mob?.level,
-          bossDrops: state.mob?.drops || [],
-        }).catch((err) => {
-          console.error("Error reporting raid boss kill:", err);
-        });
+      reportRaidBossKill({
+        characterId: curHero.id,
+        characterName: curHero.name,
+        bossName: state.mob?.name || "",
+        bossLevel: state.mob?.level,
+        bossDrops: state.mob?.drops || [],
+      }).catch((err) => {
+        console.error("Error reporting raid boss kill:", err);
       });
     }
     
