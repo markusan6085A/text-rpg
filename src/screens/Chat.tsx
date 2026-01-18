@@ -46,31 +46,15 @@ export default function Chat({ navigate }: ChatProps) {
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
 
   // Use optimized chat hook with caching - limit 10 per page, max 50 total
-  // manual: true - вимкнено всі автоматичні запити, тільки ручне через refresh()
+  // 🔥 manual: false - дозволяємо автоматичне завантаження при відсутності кешу
   const { messages: cachedMessages, loading, error, refresh } = useChatMessages({
     channel,
     page,
     limit: 10, // 10 messages per page
     cacheTtlMs: 30_000, // 30 seconds cache
     autoRefresh: false, // Вимкнено автооновлення
-    manual: true, // 🔥 ВИМКНЕНО всі автоматичні запити
+    manual: false, // 🔥 ДОЗВОЛЕНО автоматичне завантаження при відсутності кешу
   });
-
-  // 🔥 Початкове завантаження при монтуванні (якщо немає кешу)
-  const hasLoadedRef = useRef(false);
-  useEffect(() => {
-    if (!hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      // Перевіряємо, чи є кеш для поточного каналу
-      const cacheKey = `chat:v3:${channel}|${page}|10`;
-      const cached = localStorage.getItem(cacheKey);
-      if (!cached) {
-        // Якщо немає кешу - завантажуємо одразу
-        console.log('[chat] No cache found, loading messages on mount');
-        setTimeout(() => refresh(), 100);
-      }
-    }
-  }, []); // Тільки при монтуванні
 
   // Clear optimistic messages when channel changes
   const currentChannelRef = useRef(channel);
