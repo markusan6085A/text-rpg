@@ -446,6 +446,21 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                 </div>
               )}
             </div>
+            
+            {/* Лог операцій для інвентаря */}
+            <div className="px-4 py-2 border-t border-black/70 mt-2">
+              <div className="text-[11px] text-[#cfcfcc] mb-2 font-semibold">Лог операций:</div>
+              <div className="space-y-1">
+                {Array.from({ length: LOG_MAX_ENTRIES }, (_, index) => {
+                  const entry = log[index];
+                  return (
+                    <div key={entry?.id || `log-empty-inv-${index}`} className="text-[10px] text-gray-400 min-h-[14px]">
+                      {entry ? entry.message : "\u00A0"}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           ) : (
             // Склад
             <div className="space-y-2">
