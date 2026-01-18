@@ -175,7 +175,7 @@ export function handleBaseAttack(
   // Оновлюємо прогрес щоденних завдань: урон
   const curHero = useHeroStore.getState().hero;
   if (curHero && damage > 0) {
-    const updatedProgress = updateDailyQuestProgress(curHero, "daily_damage_deal", damage);
+    const updatedProgress = updateDailyQuestProgress(curHero, "daily_damage", damage);
     if (updatedProgress !== curHero.dailyQuestsProgress) {
       useHeroStore.getState().updateHero({ dailyQuestsProgress: updatedProgress });
     }

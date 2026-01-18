@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { postChatMessage, deleteChatMessage, type ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useChatMessages } from "../hooks/useChatMessages";
+import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestProgress";
 
 interface ChatProps {
   navigate: (path: string) => void;
@@ -141,6 +142,15 @@ export default function Chat({ navigate }: ChatProps) {
       optimisticMessagesRef.current = optimisticMessagesRef.current.map(m => 
         m.id === tempId ? realMessage : m
       );
+      
+      // Оновлюємо прогрес щоденних завдань: чат
+      const curHero = useHeroStore.getState().hero;
+      if (curHero) {
+        const updatedProgress = updateDailyQuestProgress(curHero, "daily_chat", 1);
+        if (updatedProgress !== curHero.dailyQuestsProgress) {
+          useHeroStore.getState().updateHero({ dailyQuestsProgress: updatedProgress });
+        }
+      }
       
       // 🔥 НЕ викликаємо refresh() - це викликає затримку і пропадання повідомлення
       // Реальне повідомлення вже показано замість optimistic
