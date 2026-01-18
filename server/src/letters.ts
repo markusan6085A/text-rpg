@@ -163,14 +163,23 @@ export async function letterRoutes(app: FastifyInstance) {
         },
       });
 
+      // 🔥 Враховуємо фільтр по даті для підрахунку
       const total = await prisma.letter.count({
-        where: { toCharacterId: character.id },
+        where: { 
+          toCharacterId: character.id,
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
       });
 
       const unreadCount = await prisma.letter.count({
         where: {
           toCharacterId: character.id,
           isRead: false,
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
         },
       });
 
