@@ -10,6 +10,7 @@ type ChatMessage = {
   message: string;
   createdAt: string;
   isOwn?: boolean;
+  nickColor?: string; // Color of the character's nickname
 };
 
 type UseChatOptions = {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { postChatMessage, deleteChatMessage, type ChatMessage } from "../utils/api";
+import { postChatMessage, deleteChatMessage } from "../utils/api";
+import type { ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestProgress";
