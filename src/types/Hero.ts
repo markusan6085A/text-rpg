@@ -85,6 +85,9 @@ export interface Hero {
   coinOfLuck?: number;
   aa?: number; // Ancient Adena (Adena Adena)
 
+  // Кольор ніка
+  nickColor?: string; // Hex код кольору для відображення ніка
+
   // Інше
   buffs?: unknown[];
   status?: string;
