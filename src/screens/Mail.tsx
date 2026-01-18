@@ -169,11 +169,11 @@ export default function Mail({ navigate }: MailProps) {
                 setSelectedConversation(null);
                 setConversationLetters([]);
               }}
-              className="text-gray-400 hover:text-white transition-colors text-sm"
+              className="text-gray-400 hover:text-white transition-colors text-[7px]"
             >
               ← Назад
             </button>
-            <div className="text-lg font-bold text-[#87ceeb]">
+            <div className="text-[9px] font-bold text-[#87ceeb]">
               Почта | <span style={getNickColorStyle(selectedConversation.playerName, hero, selectedConversation.nickColor)}>{selectedConversation.playerName}</span>
             </div>
           </div>
@@ -181,19 +181,19 @@ export default function Mail({ navigate }: MailProps) {
           {/* Поле вводу та кнопка */}
           <div className="mb-3">
             <textarea
-              className="w-full bg-[#0b0806] border border-[#5b4726] rounded px-2 py-1 text-sm text-white resize-none mb-2"
+              className="w-full bg-[#0b0806] border border-[#5b4726] rounded px-2 py-1 text-[7px] text-white resize-none mb-2"
               placeholder="Введите сообщение..."
               rows={3}
             />
             <button
               onClick={handleReply}
-              className="w-full bg-white text-black px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200 transition-colors"
+              className="w-full bg-white text-black px-4 py-2 rounded text-[7px] font-semibold hover:bg-gray-200 transition-colors"
             >
               Написать
             </button>
             <button
               onClick={loadLetters}
-              className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm mt-2"
+              className="text-yellow-400 hover:text-yellow-300 transition-colors text-[7px] mt-2"
             >
               Обновить
             </button>
@@ -218,16 +218,16 @@ export default function Mail({ navigate }: MailProps) {
                   >
                     {letter.fromCharacter.name}
                   </span>
-                  <span className="text-gray-500 text-xs">{formatTime(letter.createdAt)}</span>
+                  <span className="text-gray-500 text-[6px]">{formatTime(letter.createdAt)}</span>
                 </div>
-                <div className="text-white text-sm">{letter.message}</div>
+                <div className="text-white text-[7px]">{letter.message}</div>
               </div>
             ))}
           </div>
 
           {/* Пагінація */}
           {conversations.length > 0 && (
-            <div className="flex items-center justify-center gap-2 mt-4 text-xs text-white">
+            <div className="flex items-center justify-center gap-2 mt-4 text-[6px] text-white">
               <button className="hover:text-yellow-400 transition-colors">&lt;&lt;</button>
               <button className="hover:text-yellow-400 transition-colors">&lt;</button>
               <span className="font-bold">1</span>
@@ -236,10 +236,6 @@ export default function Mail({ navigate }: MailProps) {
             </div>
           )}
 
-          {/* Внизу Общ | Торг */}
-          <div className="text-center mt-4 text-yellow-400 text-sm">
-            Общ | Торг
-          </div>
         </div>
 
         {/* Модалка написання відповіді */}
@@ -269,10 +265,10 @@ export default function Mail({ navigate }: MailProps) {
       <div className="w-full max-w-[360px]">
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-3">
-          <div className="text-lg font-bold text-[#87ceeb]">Почта</div>
+          <div className="text-[9px] font-bold text-[#87ceeb]">Почта</div>
           <button
             onClick={() => setShowWriteModal(true)}
-            className="text-green-400 hover:text-green-300 transition-colors text-sm font-bold"
+            className="text-green-400 hover:text-green-300 transition-colors text-[7px] font-bold"
           >
             Написать
           </button>
@@ -283,11 +279,11 @@ export default function Mail({ navigate }: MailProps) {
 
         {/* Список переписок */}
         {loading ? (
-          <div className="text-center text-gray-400 text-sm py-4">Загрузка...</div>
+          <div className="text-center text-gray-400 text-[7px] py-4">Загрузка...</div>
         ) : error ? (
-          <div className="text-center text-red-400 text-sm py-4">{error}</div>
+          <div className="text-center text-red-400 text-[7px] py-4">{error}</div>
         ) : conversations.length === 0 ? (
-          <div className="text-center text-gray-400 text-sm py-4">Нет переписок</div>
+          <div className="text-center text-gray-400 text-[7px] py-4">Нет переписок</div>
         ) : (
           <div className="space-y-1">
             {conversations.map((conv) => (
@@ -305,15 +301,15 @@ export default function Mail({ navigate }: MailProps) {
                       {conv.playerName}
                     </span>
                     {onlinePlayerIds.has(conv.playerId) ? (
-                      <span className="text-green-400 text-xs">[On]</span>
+                      <span className="text-green-400 text-[6px]">[On]</span>
                     ) : (
-                      <span className="text-gray-500 text-xs">[Off]</span>
+                      <span className="text-gray-500 text-[6px]">[Off]</span>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-white text-sm">{conv.unreadCount || conversationLetters.length || 1}</span>
-                  <span className="text-gray-500 text-xs">{formatTime(conv.lastMessageTime)}</span>
+                  <span className="text-white text-[7px]">{conv.unreadCount || conversationLetters.length || 1}</span>
+                  <span className="text-gray-500 text-[6px]">{formatTime(conv.lastMessageTime)}</span>
                 </div>
               </div>
             ))}
@@ -322,7 +318,7 @@ export default function Mail({ navigate }: MailProps) {
 
         {/* Пагінація */}
         {total > 50 && (
-          <div className="flex items-center justify-center gap-2 mt-4 text-xs text-white">
+          <div className="flex items-center justify-center gap-2 mt-4 text-[6px] text-white">
             <button className="hover:text-yellow-400 transition-colors">&lt;&lt;</button>
             <button className="hover:text-yellow-400 transition-colors">&lt;</button>
             <span className="font-bold">{page}</span>
