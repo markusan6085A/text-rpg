@@ -187,7 +187,7 @@ export default function Mail({ navigate }: MailProps) {
             />
             <button
               onClick={handleReply}
-              className="w-full bg-white text-black px-4 py-2 rounded text-[7px] font-semibold hover:bg-gray-200 transition-colors"
+              className="text-green-400 hover:text-green-300 transition-colors text-sm font-bold"
             >
               Написать
             </button>
@@ -268,7 +268,7 @@ export default function Mail({ navigate }: MailProps) {
           <div className="text-[9px] font-bold text-[#87ceeb]">Почта</div>
           <button
             onClick={() => setShowWriteModal(true)}
-            className="text-green-400 hover:text-green-300 transition-colors text-[7px] font-bold"
+            className="text-green-400 hover:text-green-300 transition-colors text-sm font-bold"
           >
             Написать
           </button>
@@ -295,7 +295,7 @@ export default function Mail({ navigate }: MailProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span 
-                      className="font-semibold text-yellow-400"
+                      className="font-semibold text-yellow-400 text-[6px]"
                       style={getNickColorStyle(conv.playerName, hero, conv.nickColor)}
                     >
                       {conv.playerName}
