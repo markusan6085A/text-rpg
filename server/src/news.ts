@@ -1,7 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "./db";
 
 function getAuth(req: any): { accountId: string; login: string } | null {
   const authHeader = req.headers.authorization;
