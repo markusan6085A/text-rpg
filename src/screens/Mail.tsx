@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getLetters, getLetter, deleteLetter, getOnlinePlayers, type Letter } from "../utils/api";
+import { getLetters, getLetter, deleteLetter, getOnlinePlayers, sendLetter, type Letter } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
