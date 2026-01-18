@@ -54,8 +54,9 @@ export default function SummonStatus() {
 
   return (
     <div
-      className="absolute top-2 right-2 z-[100]"
+      className="absolute top-2 z-[100]"
       style={{
+        right: '0.5rem', // 8px - right-2 в Tailwind
         pointerEvents: "auto",
       }}
     >
