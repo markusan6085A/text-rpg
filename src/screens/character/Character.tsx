@@ -5,7 +5,7 @@ import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
 import CharacterEquipmentFrame from "./CharacterEquipmentFrame";
 import RecipeBookButton from "./RecipeBookButton";
 import CharacterQuests from "./CharacterQuests";
-import { getCharacters, type Character } from "../../utils/api";
+import { listCharacters, type Character } from "../../utils/api";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
