@@ -36,7 +36,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
       <div 
-        className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-lg font-semibold text-[#b8860b] mb-3">{bossName}{bossLevel ? ` - ${bossLevel} ур.` : ""}</div>

@@ -1004,7 +1004,7 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setConfirmExchange(null)}
         >
           <div 
-            className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-[350px] w-full"
+            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[350px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center text-gray-400 text-[14px] mb-4">
@@ -1039,7 +1039,7 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-[400px] w-full"
+            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[400px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}

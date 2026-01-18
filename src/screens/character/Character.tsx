@@ -307,7 +307,7 @@ export default function Character() {
       {/* Модалка статуса */}
       {showStatusModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4" style={{ width: "260px" }}>
+          <div className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4" style={{ width: "260px" }}>
             <div className="text-yellow-400 font-bold text-sm text-center mb-2">
               Новый статус
             </div>

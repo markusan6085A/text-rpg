@@ -222,7 +222,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           onClick={() => setShowApplyModal(false)}
         >
           <div
-            className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-[400px] w-full max-h-[80vh] overflow-y-auto"
+            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[400px] w-full max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center text-white text-lg font-bold mb-4 border-b border-[#5b4726] pb-2">
@@ -289,7 +289,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           onClick={() => setShowRemoveModal(false)}
         >
           <div
-            className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-[400px] w-full"
+            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[400px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center text-white text-lg font-bold mb-4 border-b border-[#5b4726] pb-2">

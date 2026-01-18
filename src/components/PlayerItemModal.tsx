@@ -44,7 +44,7 @@ export default function PlayerItemModal({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
         <div
-          className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-[360px] w-full text-white"
+          className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[360px] w-full text-white"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-3">
@@ -88,7 +88,7 @@ export default function PlayerItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-[360px] w-full text-white"
+        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[360px] w-full text-white"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Заголовок */}
