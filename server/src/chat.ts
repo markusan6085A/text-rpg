@@ -44,9 +44,21 @@ export async function chatRoutes(app: FastifyInstance) {
         select: { id: true },
       });
 
-      // 🔥 Фільтруємо повідомлення - показуємо тільки ті, що створені за останні 24 години
+      // 🔥 Видаляємо повідомлення старіші за 24 години
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      
+      // Видаляємо старі повідомлення (не чекаємо результат - виконуємо асинхронно)
+      prisma.chatMessage.deleteMany({
+        where: {
+          createdAt: {
+            lt: twentyFourHoursAgo, // Messages older than 24 hours
+          },
+        },
+      }).catch((err) => {
+        app.log.error(err, "Error deleting old chat messages:");
+      });
 
+      // Фільтруємо повідомлення - показуємо тільки ті, що створені за останні 24 години
       const messages = await prisma.chatMessage.findMany({
         where: { 
           channel,
