@@ -2,6 +2,7 @@
 import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
+import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
 import { getOnlinePlayers, sendHeartbeat } from "../utils/api";
 import { useBattleStore } from "../state/battle/store";
@@ -190,6 +191,7 @@ export default function Layout({
         )}
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
+        <MobDamageNotification navigate={navigate} /> {/* Повідомлення про урон від мобів */}
         <div ref={contentRef} className="flex-1 pb-2 pt-2 overflow-y-auto relative z-10 flex justify-center">
           <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
