@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { getOnlinePlayers } from "../utils/api";
+import { getOnlinePlayers, updateCharacter } from "../utils/api";
+import { useHeroStore } from "../state/heroStore";
+import { useCharacterStore } from "../state/characterStore";
 
 type Navigate = (p: string) => void;
 
 export default function About({ navigate }: { navigate: Navigate }) {
   const [onlineCount, setOnlineCount] = useState<number>(0);
   const [showChangeNickModal, setShowChangeNickModal] = useState(false);
+  const [newNickname, setNewNickname] = useState("");
+  const [isChanging, setIsChanging] = useState(false);
+  const hero = useHeroStore((s) => s.hero);
+  const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
 
   useEffect(() => {
     const loadOnlineCount = async () => {
@@ -61,7 +68,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
       </div>
 
       {/* Модалка зміни ніка */}
-      {showChangeNickModal && (
+      {showChangeNickModal && hero && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
           onClick={() => setShowChangeNickModal(false)}
@@ -85,6 +92,8 @@ export default function About({ navigate }: { navigate: Navigate }) {
                 <label className="block text-gray-300 mb-2">Новый ник:</label>
                 <input
                   type="text"
+                  value={newNickname}
+                  onChange={(e) => setNewNickname(e.target.value)}
                   className="w-full px-3 py-2 bg-[#0f0a06] border border-[#3e301c] rounded text-white text-sm"
                   placeholder="Введите новый ник"
                 />
@@ -103,17 +112,66 @@ export default function About({ navigate }: { navigate: Navigate }) {
 
               <div className="flex gap-2 pt-2">
                 <button
-                  className="flex-1 text-sm font-semibold text-green-400 hover:text-green-300 transition-colors"
-                  onClick={() => {
-                    // TODO: Implement nickname change
-                    setShowChangeNickModal(false);
+                  disabled={!hero || (hero.coinOfLuck || 0) < 50 || !newNickname.trim() || isChanging}
+                  className={`flex-1 text-sm font-semibold transition-colors ${
+                    !hero || (hero.coinOfLuck || 0) < 50 || !newNickname.trim() || isChanging
+                      ? "text-gray-500 cursor-not-allowed"
+                      : "text-green-400 hover:text-green-300"
+                  }`}
+                  onClick={async () => {
+                    if (!hero || !characterId || !newNickname.trim()) return;
+                    
+                    const coins = hero.coinOfLuck || 0;
+                    if (coins < 50) {
+                      alert("Недостаточно Coin of Luck!");
+                      return;
+                    }
+
+                    // Validate nickname format
+                    const nicknameRegex = /^[A-Za-z0-9_\- ]+$/;
+                    if (!nicknameRegex.test(newNickname.trim())) {
+                      alert("Некорректный ник! Используйте только A-Z, a-z, 0-9, _, -, пробел");
+                      return;
+                    }
+
+                    setIsChanging(true);
+                    try {
+                      // Update character name and deduct coins
+                      await updateCharacter(characterId, {
+                        coinLuck: coins - 50,
+                        heroJson: {
+                          ...hero,
+                          name: newNickname.trim(),
+                          coinOfLuck: coins - 50,
+                        },
+                      });
+
+                      // Update hero in store
+                      updateHero({
+                        name: newNickname.trim(),
+                        coinOfLuck: coins - 50,
+                      });
+
+                      setShowChangeNickModal(false);
+                      setNewNickname("");
+                      alert("Ник успешно изменен!");
+                    } catch (err: any) {
+                      console.error('[About] Failed to change nickname:', err);
+                      alert(err?.message || "Ошибка при изменении ника");
+                    } finally {
+                      setIsChanging(false);
+                    }
                   }}
                 >
                   Изменить
                 </button>
                 <button
-                  className="flex-1 text-sm text-red-400 hover:text-red-300 transition-colors"
-                  onClick={() => setShowChangeNickModal(false)}
+                  disabled={isChanging}
+                  className="flex-1 text-sm text-red-400 hover:text-red-300 transition-colors disabled:text-gray-500 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    setShowChangeNickModal(false);
+                    setNewNickname("");
+                  }}
                 >
                   Отмена
                 </button>

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
+import { useCharacterStore } from "../state/characterStore";
+import { updateCharacter } from "../utils/api";
 
 interface ColorizeNickProps {
   navigate: (path: string) => void;
@@ -71,7 +73,10 @@ const NICK_COLORS = [
 
 export default function ColorizeNick({ navigate }: ColorizeNickProps) {
   const hero = useHeroStore((s) => s.hero);
+  const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
 
   if (!hero) {
     return <div className="text-white text-center mt-10">Загрузка...</div>;
@@ -79,6 +84,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
 
   const coins = hero.coinOfLuck || 0;
   const heroName = hero.name || "Player";
+  const hasEnoughCoins = coins >= 50;
 
   return (
     <div className="w-full text-white px-3 py-4">
@@ -126,15 +132,45 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
           {/* Apply Button */}
           <div className="border-t border-gray-600 pt-2 pb-2">
             <button
-              className="w-full text-sm font-semibold text-white hover:opacity-80 transition-opacity"
-              onClick={() => {
-                if (selectedColor && coins >= 50) {
-                  // TODO: Implement color change
-                  alert("Цвет ника изменен!");
-                } else if (coins < 50) {
+              disabled={!selectedColor || !hasEnoughCoins || isApplying}
+              className={`w-full text-sm font-semibold transition-opacity ${
+                !selectedColor || !hasEnoughCoins || isApplying
+                  ? "text-gray-500 cursor-not-allowed"
+                  : "text-white hover:opacity-80"
+              }`}
+              onClick={async () => {
+                if (!selectedColor || !characterId) return;
+
+                if (!hasEnoughCoins) {
                   alert("Недостаточно Coin of Luck!");
-                } else {
-                  alert("Выберите цвет!");
+                  return;
+                }
+
+                setIsApplying(true);
+                try {
+                  // Update character with new nick color and deduct coins
+                  await updateCharacter(characterId, {
+                    coinLuck: coins - 50,
+                    heroJson: {
+                      ...hero,
+                      coinOfLuck: coins - 50,
+                      nickColor: selectedColor,
+                    },
+                  });
+
+                  // Update hero in store
+                  updateHero({
+                    coinOfLuck: coins - 50,
+                    nickColor: selectedColor,
+                  });
+
+                  alert("Цвет ника изменен!");
+                  navigate("/about");
+                } catch (err: any) {
+                  console.error('[ColorizeNick] Failed to change nick color:', err);
+                  alert(err?.message || "Ошибка при изменении цвета ника");
+                } finally {
+                  setIsApplying(false);
                 }
               }}
             >
