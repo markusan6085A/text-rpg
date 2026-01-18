@@ -18,7 +18,7 @@ const buttons: NavButton[] = [
   { label: "Клан", icon: "/icons/клан.jpg" },
   { label: "Меню", icon: "/icons/меню.jpg", path: "/about" },
   { label: "Статы", icon: "/icons/стати.jpg", path: "/stats" },
-  { label: "Новости", icon: "/icons/новости.jpg" },
+  { label: "Новости", icon: "/icons/новости.jpg", path: "/news" },
 ];
 
 export default function NavGrid({ navigate }: NavGridProps) {

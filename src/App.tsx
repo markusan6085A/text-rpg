@@ -35,6 +35,7 @@ import PlayerProfile from "./screens/PlayerProfile";
 import Mail from "./screens/Mail";
 import ColorizeNick from "./screens/ColorizeNick";
 import Forum from "./screens/Forum";
+import News from "./screens/News";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -338,6 +339,9 @@ function AppInner() {
 
     case "/forum":
       return renderWithLayout(<Forum navigate={navigate} />);
+
+    case "/news":
+      return renderWithLayout(<News navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} onLogout={() => {}} />);
 
     case "/colorize-nick":
       return renderWithLayout(<ColorizeNick navigate={navigate} />);
