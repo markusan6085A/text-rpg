@@ -94,8 +94,20 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   return (
     <>
-      <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#87ceeb] tracking-[0.12em] uppercase">
-        Онлайн игра Линейдж
+      {/* Приветствие */}
+      <div className="px-4 py-3 border-b border-black/70">
+        <div className="text-orange-400 text-center space-y-1 mb-3">
+          <div>Ласкаво просимо до міста.</div>
+          <div>Оберіть необхідний сервіс зі списку нижче.</div>
+        </div>
+        
+        {/* Онлайн игра Линейдж з рисками */}
+        <div className="border-t border-black/70 pt-2 pb-2">
+          <div className="text-center text-[11px] text-[#87ceeb] tracking-[0.12em] uppercase">
+            Онлайн игра Линейдж
+          </div>
+        </div>
+        <div className="border-b border-black/70"></div>
       </div>
 
       {/* Название города */}
