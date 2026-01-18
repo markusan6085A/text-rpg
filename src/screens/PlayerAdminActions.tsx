@@ -247,31 +247,44 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
             <div className="space-y-2">
               {playerBuffs.map((buff) => {
                 const formattedValues = formatBuffValues(buff.skillDef, buff.levelDef);
+                // Розділяємо опис на англійську та російську частини (як у LearnedSkillsScreen)
+                const descriptionParts = buff.description.split("\n\n");
+                let russianDescription = "";
+                if (descriptionParts.length > 1) {
+                  russianDescription = descriptionParts.slice(1).join("\n\n");
+                } else {
+                  const text = descriptionParts[0] || "";
+                  const hasCyrillic = /[А-Яа-яЁё]/.test(text);
+                  russianDescription = hasCyrillic ? text : "Переклад відсутній";
+                }
+                
+                let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
+                
                 return (
-                  <div key={buff.id} className="border-b border-gray-700 pb-2">
-                    <div className="flex items-start gap-2 mb-1">
-                      {buff.icon && (
-                        <img
-                          src={buff.icon}
-                          alt={buff.name}
-                          className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = "none";
-                          }}
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[#dec28e] font-semibold text-xs">{buff.name}</div>
-                        <div className="text-gray-400 text-[10px] leading-relaxed mt-1">
-                          {buff.description}
+                  <div key={buff.id}>
+                    <div className="flex items-start gap-2">
+                      <img
+                        src={iconSrc}
+                        alt={buff.name}
+                        className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                        }}
+                      />
+                      <div className="flex-1">
+                        <div className="text-xs text-gray-400 leading-relaxed">
+                          {russianDescription}
                         </div>
-                        <div className="text-gray-500 text-[10px] mt-1 space-y-0.5">
-                          {formattedValues.map((val, idx) => (
-                            <div key={idx}>{val}</div>
-                          ))}
-                        </div>
+                        {formattedValues.length > 0 && (
+                          <div className="text-xs text-[#228b22] mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                            {formattedValues.map((value, idx) => (
+                              <span key={idx}>{value}</span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
+                    <div className="w-full h-px bg-gray-500 mt-2"></div>
                   </div>
                 );
               })}
@@ -286,40 +299,59 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
               Лікування
             </div>
             <div className="space-y-2">
-              {myHealSkills.map((heal) => (
-                <div key={heal.id} className="border-b border-gray-700 pb-2">
-                  <div className="flex items-start gap-2 mb-1">
-                    {heal.icon && (
+              {myHealSkills.map((heal) => {
+                const descriptionParts = heal.description.split("\n\n");
+                let russianDescription = "";
+                if (descriptionParts.length > 1) {
+                  russianDescription = descriptionParts.slice(1).join("\n\n");
+                } else {
+                  const text = descriptionParts[0] || "";
+                  const hasCyrillic = /[А-Яа-яЁё]/.test(text);
+                  russianDescription = hasCyrillic ? text : "Переклад відсутній";
+                }
+                
+                let iconSrc = heal.icon?.startsWith("/") ? heal.icon : `/skills/${heal.icon || ""}`;
+                const healValues = [
+                  `Лікування: ${heal.power}`,
+                  heal.mpCost > 0 ? `MP: ${heal.mpCost}` : null,
+                  heal.castTime ? `Каст: ${heal.castTime}с` : null,
+                  heal.cooldown ? `КД: ${heal.cooldown}с` : null,
+                ].filter(Boolean) as string[];
+                
+                return (
+                  <div key={heal.id}>
+                    <div className="flex items-start gap-2">
                       <img
-                        src={heal.icon}
+                        src={iconSrc}
                         alt={heal.name}
                         className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
+                          (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
                         }}
                       />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="text-yellow-300 font-semibold text-xs">{heal.name}</div>
-                      <div className="text-gray-400 text-[10px] leading-relaxed mt-1">
-                        {heal.description}
+                      <div className="flex-1">
+                        <div className="text-xs text-gray-400 leading-relaxed">
+                          {russianDescription}
+                        </div>
+                        {healValues.length > 0 && (
+                          <div className="text-xs text-[#228b22] mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                            {healValues.map((value, idx) => (
+                              <span key={idx}>{value}</span>
+                            ))}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => handleHeal(heal.id)}
+                          className="mt-2 px-3 py-1 bg-green-900/50 border border-green-700 text-green-400 hover:bg-green-900/70 rounded text-[10px]"
+                        >
+                          Використати
+                        </button>
                       </div>
-                      <div className="text-gray-500 text-[10px] mt-1">
-                        <div>Лікування: {heal.power}</div>
-                        {heal.mpCost > 0 && <div>MP: {heal.mpCost}</div>}
-                        {heal.castTime && <div>Каст: {heal.castTime}с</div>}
-                        {heal.cooldown && <div>КД: {heal.cooldown}с</div>}
-                      </div>
-                      <button
-                        onClick={() => handleHeal(heal.id)}
-                        className="mt-2 px-3 py-1 bg-green-900/50 border border-green-700 text-green-400 hover:bg-green-900/70 rounded text-[10px]"
-                      >
-                        Використати
-                      </button>
                     </div>
+                    <div className="w-full h-px bg-gray-500 mt-2"></div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
