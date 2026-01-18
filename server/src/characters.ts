@@ -317,6 +317,7 @@ export async function characterRoutes(app: FastifyInstance) {
         const heroJson = (char.heroJson as any) || {};
         const location = heroJson.location || "Unknown";
         const power = heroJson.power || 0;
+        const nickColor = heroJson.nickColor;
         const lastActivityAt = char.lastActivityAt || char.updatedAt;
 
         return {
@@ -325,6 +326,7 @@ export async function characterRoutes(app: FastifyInstance) {
           level: char.level,
           location,
           power,
+          nickColor: nickColor || undefined,
           lastActivityAt: lastActivityAt ? (lastActivityAt.toISOString ? lastActivityAt.toISOString() : lastActivityAt) : new Date().toISOString(),
         };
       });

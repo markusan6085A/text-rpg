@@ -149,6 +149,7 @@ export async function letterRoutes(app: FastifyInstance) {
             select: {
               id: true,
               name: true,
+              heroJson: true, // Include heroJson to get nickColor
             },
           },
         },
@@ -165,9 +166,22 @@ export async function letterRoutes(app: FastifyInstance) {
         },
       });
 
+      // Map letters to include nickColor from heroJson
+      const lettersWithNickColor = letters.map((letter: any) => {
+        const heroJson = (letter.fromCharacter.heroJson as any) || {};
+        const nickColor = heroJson.nickColor;
+        return {
+          ...letter,
+          fromCharacter: {
+            ...letter.fromCharacter,
+            nickColor: nickColor || undefined,
+          },
+        };
+      });
+
       return {
         ok: true,
-        letters,
+        letters: lettersWithNickColor,
         total,
         unreadCount,
         page,
@@ -216,6 +230,7 @@ export async function letterRoutes(app: FastifyInstance) {
             select: {
               id: true,
               name: true,
+              heroJson: true, // Include heroJson to get nickColor
             },
           },
           toCharacter: {
@@ -249,7 +264,18 @@ export async function letterRoutes(app: FastifyInstance) {
         letter.readAt = new Date();
       }
 
-      return { ok: true, letter };
+      // Extract nickColor from heroJson
+      const heroJson = (letter.fromCharacter.heroJson as any) || {};
+      const nickColor = heroJson.nickColor;
+      const letterWithNickColor = {
+        ...letter,
+        fromCharacter: {
+          ...letter.fromCharacter,
+          nickColor: nickColor || undefined,
+        },
+      };
+
+      return { ok: true, letter: letterWithNickColor };
     } catch (error) {
       app.log.error(error, "Error fetching letter:");
       return reply.code(500).send({

@@ -58,6 +58,7 @@ export async function chatRoutes(app: FastifyInstance) {
           character: {
             select: {
               name: true,
+              heroJson: true, // Include heroJson to get nickColor
             },
           },
         },
@@ -66,15 +67,20 @@ export async function chatRoutes(app: FastifyInstance) {
       // Don't reverse - show newest first (top to bottom)
       return {
         ok: true,
-        messages: messages.map((msg) => ({
-          id: msg.id,
-          characterName: msg.character.name,
-          characterId: msg.characterId, // Include for ownership check
-          channel: msg.channel,
-          message: msg.message,
-          createdAt: msg.createdAt.toISOString(),
-          isOwn: character ? msg.characterId === character.id : false,
-        })),
+        messages: messages.map((msg) => {
+          const heroJson = (msg.character.heroJson as any) || {};
+          const nickColor = heroJson.nickColor;
+          return {
+            id: msg.id,
+            characterName: msg.character.name,
+            characterId: msg.characterId, // Include for ownership check
+            channel: msg.channel,
+            message: msg.message,
+            createdAt: msg.createdAt.toISOString(),
+            isOwn: character ? msg.characterId === character.id : false,
+            nickColor: nickColor || undefined,
+          };
+        }),
         page,
         limit,
       };
