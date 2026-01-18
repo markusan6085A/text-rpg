@@ -34,6 +34,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   const [warehouse, setWarehouse] = useState<(HeroInventoryItem | null)[]>([]);
   const [currentCategory, setCurrentCategory] = useState("all");
   const [log, setLog] = useState<LogEntry[]>([]);
+  const [inventoryPage, setInventoryPage] = useState(1);
   const [quantityModal, setQuantityModal] = useState<{
     item: HeroInventoryItem;
     maxCount: number;
