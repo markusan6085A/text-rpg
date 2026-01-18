@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { getLetters, getLetter, deleteLetter, type Letter } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
@@ -8,12 +8,22 @@ interface MailProps {
   navigate: (path: string) => void;
 }
 
+interface Conversation {
+  playerId: string;
+  playerName: string;
+  nickColor?: string;
+  unreadCount: number;
+  lastMessage: Letter;
+  lastMessageTime: string;
+}
+
 export default function Mail({ navigate }: MailProps) {
   const hero = useHeroStore((s) => s.hero);
   const [letters, setLetters] = useState<Letter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [conversationLetters, setConversationLetters] = useState<Letter[]>([]);
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [replyingTo, setReplyingTo] = useState<{ id?: string; name?: string } | null>(null);
   const [page, setPage] = useState(1);
@@ -39,36 +49,62 @@ export default function Mail({ navigate }: MailProps) {
     loadLetters();
   }, [page]);
 
-  const handleLetterClick = async (letter: Letter) => {
-    try {
-      const fullLetter = await getLetter(letter.id);
-      setSelectedLetter(fullLetter);
-      // Оновлюємо список, щоб показати, що лист прочитаний
-      setLetters((prev) =>
-        prev.map((l) => (l.id === letter.id ? { ...l, isRead: true } : l))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (err: any) {
-      setError(err?.message || "Помилка завантаження листа");
-    }
-  };
-
-  const handleDeleteLetter = async (letterId: string) => {
-    if (!window.confirm("Видалити цей лист?")) return;
-    try {
-      await deleteLetter(letterId);
-      if (selectedLetter?.id === letterId) {
-        setSelectedLetter(null);
+  // Групуємо листи по гравцях (переписки)
+  const conversations = useMemo<Conversation[]>(() => {
+    const convMap = new Map<string, Conversation>();
+    
+    letters.forEach((letter) => {
+      const playerId = letter.fromCharacter.id;
+      const playerName = letter.fromCharacter.name;
+      
+      if (!convMap.has(playerId)) {
+        convMap.set(playerId, {
+          playerId,
+          playerName,
+          nickColor: letter.fromCharacter.nickColor,
+          unreadCount: 0,
+          lastMessage: letter,
+          lastMessageTime: letter.createdAt,
+        });
       }
-      await loadLetters();
+      
+      const conv = convMap.get(playerId)!;
+      if (!letter.isRead) {
+        conv.unreadCount++;
+      }
+      if (new Date(letter.createdAt) > new Date(conv.lastMessageTime)) {
+        conv.lastMessage = letter;
+        conv.lastMessageTime = letter.createdAt;
+      }
+    });
+    
+    return Array.from(convMap.values()).sort((a, b) => 
+      new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
+    );
+  }, [letters]);
+
+  const loadConversationLetters = async (playerId: string) => {
+    try {
+      // Завантажуємо всі листи від цього гравця
+      const allLetters = letters.filter(l => l.fromCharacter.id === playerId);
+      setConversationLetters(allLetters.sort((a, b) => 
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      ));
     } catch (err: any) {
-      setError(err?.message || "Помилка видалення листа");
+      setError(err?.message || "Помилка завантаження переписки");
     }
   };
 
-  const handleReply = (letter: Letter) => {
-    setReplyingTo({ id: letter.fromCharacter.id, name: letter.fromCharacter.name });
-    setShowWriteModal(true);
+  const handleConversationClick = async (conv: Conversation) => {
+    setSelectedConversation(conv);
+    await loadConversationLetters(conv.playerId);
+  };
+
+  const handleReply = () => {
+    if (selectedConversation) {
+      setReplyingTo({ id: selectedConversation.playerId, name: selectedConversation.playerName });
+      setShowWriteModal(true);
+    }
   };
 
   const formatTime = (dateString: string) => {
@@ -86,61 +122,80 @@ export default function Mail({ navigate }: MailProps) {
     }
   };
 
-  if (selectedLetter) {
+  // Вигляд переписки (історія листів)
+  if (selectedConversation) {
     return (
       <div className="w-full flex flex-col items-center text-white px-3 py-4">
         <div className="w-full max-w-[360px]">
           {/* Заголовок */}
           <div className="flex items-center justify-between mb-3">
             <button
-              onClick={() => setSelectedLetter(null)}
+              onClick={() => {
+                setSelectedConversation(null);
+                setConversationLetters([]);
+              }}
               className="text-gray-400 hover:text-white transition-colors text-sm"
             >
               ← Назад
             </button>
+            <div className="text-lg font-bold text-[#87ceeb]">
+              Почта | <span style={getNickColorStyle(selectedConversation.playerName, hero, selectedConversation.nickColor)}>{selectedConversation.playerName}</span>
+            </div>
+          </div>
+
+          {/* Поле вводу та кнопка */}
+          <div className="mb-3">
+            <textarea
+              className="w-full bg-[#0b0806] border border-[#5b4726] rounded px-2 py-1 text-sm text-white resize-none mb-2"
+              placeholder="Введите сообщение..."
+              rows={3}
+            />
             <button
-              onClick={() => handleDeleteLetter(selectedLetter.id)}
-              className="text-red-400 hover:text-red-300 transition-colors text-sm"
+              onClick={handleReply}
+              className="w-full bg-white text-black px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200 transition-colors"
             >
-              Удалить
+              Написать
+            </button>
+            <button
+              onClick={loadLetters}
+              className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm mt-2"
+            >
+              Обновить
             </button>
           </div>
 
-          {/* Риска */}
-          <div className="w-full h-px bg-gray-600 mb-3"></div>
-
-          {/* Від кого */}
-          <div className="mb-2 text-xs text-gray-400">
-            От: <span style={getNickColorStyle(selectedLetter.fromCharacter.name, hero, selectedLetter.fromCharacter.nickColor)}>{selectedLetter.fromCharacter.name}</span>
+          {/* Історія переписок */}
+          <div className="space-y-1">
+            {conversationLetters.map((letter) => (
+              <div key={letter.id} className="border-b border-dotted border-gray-600 pb-1 mb-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span 
+                    className="font-semibold text-yellow-400"
+                    style={getNickColorStyle(letter.fromCharacter.name, hero, letter.fromCharacter.nickColor)}
+                  >
+                    {letter.fromCharacter.name}
+                  </span>
+                  <span className="text-gray-500 text-xs">{formatTime(letter.createdAt)}</span>
+                </div>
+                <div className="text-white text-sm">{letter.message}</div>
+              </div>
+            ))}
           </div>
 
-          {/* Тема */}
-          {selectedLetter.subject && (
-            <div className="mb-2 text-sm font-semibold text-yellow-300">
-              {selectedLetter.subject}
+          {/* Пагінація */}
+          {conversations.length > 0 && (
+            <div className="flex items-center justify-center gap-2 mt-4 text-xs text-white">
+              <button className="hover:text-yellow-400 transition-colors">&lt;&lt;</button>
+              <button className="hover:text-yellow-400 transition-colors">&lt;</button>
+              <span className="font-bold">1</span>
+              <button className="hover:text-yellow-400 transition-colors">&gt;</button>
+              <button className="hover:text-yellow-400 transition-colors">&gt;&gt;</button>
             </div>
           )}
 
-          {/* Риска */}
-          <div className="w-full h-px bg-gray-600 mb-3"></div>
-
-          {/* Текст листа */}
-          <div className="mb-4 text-sm whitespace-pre-wrap">{selectedLetter.message}</div>
-
-          {/* Риска */}
-          <div className="w-full h-px bg-gray-600 mb-3"></div>
-
-          {/* Дата */}
-          <div className="text-xs text-gray-500 mb-3">{formatTime(selectedLetter.createdAt)}</div>
-
-          {/* Кнопка відповіді */}
-          <div className="w-full border-t border-b border-gray-600 py-2 mb-3">
-            <button
-              onClick={() => handleReply(selectedLetter)}
-              className="w-full text-center text-green-400 hover:text-green-300 transition-colors text-sm font-bold"
-            >
-              Ответить
-            </button>
+          {/* Внизу Общ | Торг */}
+          <div className="text-center mt-4 text-yellow-400 text-sm">
+            Общ | Торг
           </div>
         </div>
 
@@ -157,6 +212,7 @@ export default function Mail({ navigate }: MailProps) {
               setShowWriteModal(false);
               setReplyingTo(null);
               loadLetters();
+              loadConversationLetters(selectedConversation!.playerId);
             }}
           />
         )}
@@ -164,6 +220,7 @@ export default function Mail({ navigate }: MailProps) {
     );
   }
 
+  // Головний список переписок
   return (
     <div className="w-full flex flex-col items-center text-white px-3 py-4">
       <div className="w-full max-w-[360px]">
@@ -181,46 +238,36 @@ export default function Mail({ navigate }: MailProps) {
         {/* Риска */}
         <div className="w-full h-px bg-gray-600 mb-3"></div>
 
-        {/* Непрочитані */}
-        {unreadCount > 0 && (
-          <div className="mb-3 text-sm text-green-400">
-            Непрочитанных: {unreadCount}
-          </div>
-        )}
-
-        {/* Список листів */}
+        {/* Список переписок */}
         {loading ? (
           <div className="text-center text-gray-400 text-sm py-4">Загрузка...</div>
         ) : error ? (
           <div className="text-center text-red-400 text-sm py-4">{error}</div>
-        ) : letters.length === 0 ? (
-          <div className="text-center text-gray-400 text-sm py-4">Нет писем</div>
+        ) : conversations.length === 0 ? (
+          <div className="text-center text-gray-400 text-sm py-4">Нет переписок</div>
         ) : (
           <div className="space-y-1">
-            {letters.map((letter) => (
+            {conversations.map((conv) => (
               <div
-                key={letter.id}
-                onClick={() => handleLetterClick(letter)}
-                className={`p-2 border-b border-gray-600 cursor-pointer hover:bg-gray-800/30 transition-colors ${
-                  !letter.isRead ? "bg-gray-800/50" : ""
-                }`}
+                key={conv.playerId}
+                onClick={() => handleConversationClick(conv)}
+                className="flex items-center justify-between p-2 border-b border-dotted border-gray-600 cursor-pointer hover:bg-gray-800/30 transition-colors"
               >
-                <div className="flex items-center justify-between mb-1">
-                  <div 
-                    className="text-sm font-semibold"
-                    style={getNickColorStyle(letter.fromCharacter.name, hero, letter.fromCharacter.nickColor)}
-                  >
-                    {letter.fromCharacter.name}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="font-semibold text-yellow-400"
+                      style={getNickColorStyle(conv.playerName, hero, conv.nickColor)}
+                    >
+                      {conv.playerName}
+                    </span>
+                    <span className="text-green-400 text-xs">[On]</span>
                   </div>
-                  {!letter.isRead && (
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  )}
                 </div>
-                {letter.subject && (
-                  <div className="text-xs text-yellow-300 mb-1">{letter.subject}</div>
-                )}
-                <div className="text-xs text-gray-400 truncate">{letter.message}</div>
-                <div className="text-xs text-gray-500 mt-1">{formatTime(letter.createdAt)}</div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-white text-sm">{conv.unreadCount || conversationLetters.length || 1}</span>
+                  <span className="text-gray-500 text-xs">{formatTime(conv.lastMessageTime)}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -228,28 +275,19 @@ export default function Mail({ navigate }: MailProps) {
 
         {/* Пагінація */}
         {total > 50 && (
-          <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
-            {page > 1 && (
-              <button
-                onClick={() => setPage(page - 1)}
-                className="hover:text-white transition-colors"
-              >
-                &lt;
-              </button>
-            )}
-            <span>
-              {page} / {Math.ceil(total / 50)}
-            </span>
-            {page < Math.ceil(total / 50) && (
-              <button
-                onClick={() => setPage(page + 1)}
-                className="hover:text-white transition-colors"
-              >
-                &gt;
-              </button>
-            )}
+          <div className="flex items-center justify-center gap-2 mt-4 text-xs text-white">
+            <button className="hover:text-yellow-400 transition-colors">&lt;&lt;</button>
+            <button className="hover:text-yellow-400 transition-colors">&lt;</button>
+            <span className="font-bold">{page}</span>
+            <button className="hover:text-yellow-400 transition-colors">&gt;</button>
+            <button className="hover:text-yellow-400 transition-colors">&gt;&gt;</button>
           </div>
         )}
+
+        {/* Внизу Общ | Торг */}
+        <div className="text-center mt-4 text-yellow-400 text-sm">
+          Общ | Торг
+        </div>
       </div>
 
       {/* Модалка написання нового листа */}

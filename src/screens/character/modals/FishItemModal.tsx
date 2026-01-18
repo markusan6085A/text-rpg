@@ -287,27 +287,27 @@ export default function FishItemModal({
                           <span className="text-gray-300 font-semibold">{weaponDef?.name || id}</span>
                           <span className="text-green-400 ml-auto">x{count}</span>
                         </div>
-                        {(stats.pAtk || stats.mAtk || stats.rCrit || stats.pAtkSpd) && (
+                        {Object.keys(stats).length > 0 && (
                           <div className="pl-7 space-y-0.5 text-xs">
-                            {stats.pAtk && (
+                            {stats.pAtk !== undefined && stats.pAtk !== null && (
                               <div className="flex justify-between">
                                 <span className="text-gray-400">Физ. атака:</span>
                                 <span className="text-red-400">+{stats.pAtk}</span>
                               </div>
                             )}
-                            {stats.mAtk && (
+                            {stats.mAtk !== undefined && stats.mAtk !== null && (
                               <div className="flex justify-between">
                                 <span className="text-gray-400">Маг. атака:</span>
                                 <span className="text-purple-400">+{stats.mAtk}</span>
                               </div>
                             )}
-                            {stats.rCrit && (
+                            {stats.rCrit !== undefined && stats.rCrit !== null && (
                               <div className="flex justify-between">
                                 <span className="text-gray-400">Крит:</span>
                                 <span className="text-purple-400">+{stats.rCrit}</span>
                               </div>
                             )}
-                            {stats.pAtkSpd && (
+                            {stats.pAtkSpd !== undefined && stats.pAtkSpd !== null && (
                               <div className="flex justify-between">
                                 <span className="text-gray-400">Скорость боя:</span>
                                 <span className="text-yellow-400">+{stats.pAtkSpd}</span>
