@@ -171,7 +171,7 @@ export default function Mail({ navigate }: MailProps) {
   if (selectedConversation) {
     return (
       <div className="w-full flex flex-col items-center text-white px-3 py-4">
-        <div className="w-full max-w-[360px]">
+        <div className="w-full max-w-[360px] border border-[#5b4726] rounded-lg p-4 bg-[#1a0b0b]/30">
           {/* Заголовок */}
           <div className="flex items-center justify-between mb-3">
             <button
@@ -215,7 +215,7 @@ export default function Mail({ navigate }: MailProps) {
               <div key={letter.id} className="border-b border-dotted border-gray-600 pb-1 mb-1">
                 <div className="flex items-center justify-between mb-1">
                   <span 
-                    className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors text-[6px]"
+                    className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors text-[10px]"
                     style={getNickColorStyle(letter.fromCharacter.name, hero, letter.fromCharacter.nickColor)}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -228,9 +228,9 @@ export default function Mail({ navigate }: MailProps) {
                   >
                     {letter.fromCharacter.name}
                   </span>
-                  <span className="text-gray-500 text-[6px]">{formatTime(letter.createdAt)}</span>
+                  <span className="text-gray-500 text-[9px]">{formatTime(letter.createdAt)}</span>
                 </div>
-                <div className="text-white text-[7px]">{letter.message}</div>
+                <div className="text-white text-[10px]">{letter.message}</div>
               </div>
             ))}
           </div>
@@ -305,21 +305,21 @@ export default function Mail({ navigate }: MailProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span 
-                      className="font-semibold text-yellow-400 text-[6px]"
+                      className="font-semibold text-yellow-400 text-[9px]"
                       style={getNickColorStyle(conv.playerName, hero, conv.nickColor)}
                     >
                       {conv.playerName}
                     </span>
                     {onlinePlayerIds.has(conv.playerId) ? (
-                      <span className="text-green-400 text-[6px]">[On]</span>
+                      <span className="text-green-400 text-[8px]">[On]</span>
                     ) : (
-                      <span className="text-gray-500 text-[6px]">[Off]</span>
+                      <span className="text-gray-500 text-[8px]">[Off]</span>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-white text-[7px]">{conv.unreadCount || conversationLetters.length || 1}</span>
-                  <span className="text-gray-500 text-[6px]">{formatTime(conv.lastMessageTime)}</span>
+                  <span className="text-white text-[9px]">{conv.unreadCount || conversationLetters.length || 1}</span>
+                  <span className="text-gray-500 text-[8px]">{formatTime(conv.lastMessageTime)}</span>
                 </div>
               </div>
             ))}
