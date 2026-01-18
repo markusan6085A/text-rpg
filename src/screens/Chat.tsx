@@ -77,12 +77,19 @@ export default function Chat({ navigate }: ChatProps) {
   }, [channel, setDeletedIds, setOutbox]);
 
   // Combine cached messages with optimistic updates - newest first (top)
+  // 🔥 Видаляємо дублікати: якщо повідомлення є в cachedMessages (реальні), не показуємо його з optimistic/outbox
+  const cachedIds = new Set(cachedMessages.map(m => m.id));
   const optimisticIds = new Set([...optimisticMessagesRef.current, ...outbox].map(m => m.id));
+  
+  // Фільтруємо кешовані повідомлення (виключаємо видалені та optimistic)
   const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id) && !optimisticIds.has(m.id));
-  const optimisticAll = [...outbox, ...optimisticMessagesRef.current];
-  const maxCached = Math.max(0, 10 - optimisticAll.length);
+  
+  // Фільтруємо optimistic/outbox (виключаємо ті, що вже є в кеші як реальні)
+  const filteredOptimistic = [...outbox, ...optimisticMessagesRef.current].filter(m => !cachedIds.has(m.id));
+  
+  const maxCached = Math.max(0, 10 - filteredOptimistic.length);
   const limitedCached = filteredCached.slice(0, maxCached);
-  const messages = [...optimisticAll, ...limitedCached];
+  const messages = [...filteredOptimistic, ...limitedCached];
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
