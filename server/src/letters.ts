@@ -160,7 +160,7 @@ export async function letterRoutes(app: FastifyInstance) {
               select: {
                 id: true,
                 name: true,
-                heroJson: true, // Include heroJson to get nickColor
+                nickColor: true, // ✅ замість heroJson
               },
             },
           },
@@ -174,22 +174,9 @@ export async function letterRoutes(app: FastifyInstance) {
         }),
       ]);
 
-      // Map letters to include nickColor from heroJson
-      const lettersWithNickColor = letters.map((letter: any) => {
-        const heroJson = (letter.fromCharacter.heroJson as any) || {};
-        const nickColor = heroJson.nickColor;
-        return {
-          ...letter,
-          fromCharacter: {
-            ...letter.fromCharacter,
-            nickColor: nickColor || undefined,
-          },
-        };
-      });
-
       return {
         ok: true,
-        letters: lettersWithNickColor,
+        letters,
         total,
         unreadCount,
         page,
@@ -238,7 +225,7 @@ export async function letterRoutes(app: FastifyInstance) {
             select: {
               id: true,
               name: true,
-              heroJson: true, // Include heroJson to get nickColor
+              nickColor: true, // ✅
             },
           },
           toCharacter: {
@@ -272,18 +259,7 @@ export async function letterRoutes(app: FastifyInstance) {
         letter.readAt = new Date();
       }
 
-      // Extract nickColor from heroJson
-      const heroJson = (letter.fromCharacter.heroJson as any) || {};
-      const nickColor = heroJson.nickColor;
-      const letterWithNickColor = {
-        ...letter,
-        fromCharacter: {
-          ...letter.fromCharacter,
-          nickColor: nickColor || undefined,
-        },
-      };
-
-      return { ok: true, letter: letterWithNickColor };
+      return { ok: true, letter };
     } catch (error) {
       app.log.error(error, "Error fetching letter:");
       return reply.code(500).send({
@@ -345,7 +321,7 @@ export async function letterRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /letters/conversation/:playerId - отримати всі листи з переписки (вхідні + вихідні)
+  // GET /letters/conversation/:playerId - переписка (вхідні + вихідні) з пагінацією в БД
   app.get("/letters/conversation/:playerId", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -363,16 +339,14 @@ export async function letterRoutes(app: FastifyInstance) {
         select: { id: true },
       });
 
-      if (!character) {
-        return reply.code(404).send({ error: "character not found" });
-      }
+      if (!character) return reply.code(404).send({ error: "character not found" });
 
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const page = parseInt(query.page || "1", 10);
-      const limit = parseInt(query.limit || "10", 10);
+      const page = Math.max(1, parseInt(query.page || "1", 10));
+      const limit = Math.min(50, Math.max(1, parseInt(query.limit || "10", 10)));
       const skip = (page - 1) * limit;
 
-      // Позначаємо всі вхідні листи від цього гравця як прочитані
+      // 1) Позначаємо вхідні як прочитані (тільки від playerId до нас)
       await prisma.letter.updateMany({
         where: {
           fromCharacterId: playerId,
@@ -380,121 +354,48 @@ export async function letterRoutes(app: FastifyInstance) {
           isRead: false,
           createdAt: { gte: thirtyDaysAgo },
         },
-        data: {
-          isRead: true,
-          readAt: new Date(),
-        },
+        data: { isRead: true, readAt: new Date() },
       });
 
-      // Завантажуємо листи в обох напрямках
-      const [incomingLetters, outgoingLetters, totalCount] = await Promise.all([
-        // Вхідні листи (від цього гравця до нас)
+      // 2) Один WHERE на обидва напрямки
+      const convWhere = {
+        createdAt: { gte: thirtyDaysAgo },
+        OR: [
+          { fromCharacterId: playerId, toCharacterId: character.id },
+          { fromCharacterId: character.id, toCharacterId: playerId },
+        ],
+      };
+
+      const [letters, total] = await Promise.all([
         prisma.letter.findMany({
-          where: {
-            fromCharacterId: playerId,
-            toCharacterId: character.id,
-            createdAt: { gte: thirtyDaysAgo },
-          },
+          where: convWhere,
           orderBy: { createdAt: "desc" },
+          take: limit,
+          skip,
           select: {
             id: true,
             subject: true,
             message: true,
             isRead: true,
             createdAt: true,
+            fromCharacterId: true, // ✅ потрібно для isOwn
             fromCharacter: {
-              select: {
-                id: true,
-                name: true,
-                heroJson: true,
-              },
+              select: { id: true, name: true, nickColor: true },
             },
             toCharacter: {
-              select: {
-                id: true,
-                name: true,
-              },
+              select: { id: true, name: true },
             },
           },
         }),
-        // Вихідні листи (від нас до цього гравця)
-        prisma.letter.findMany({
-          where: {
-            fromCharacterId: character.id,
-            toCharacterId: playerId,
-            createdAt: { gte: thirtyDaysAgo },
-          },
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            subject: true,
-            message: true,
-            isRead: true, // Для вихідних - чи прочитав отримувач
-            createdAt: true,
-            fromCharacter: {
-              select: {
-                id: true,
-                name: true,
-                heroJson: true,
-              },
-            },
-            toCharacter: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        }),
-        // Підрахунок загальної кількості
-        prisma.letter.count({
-          where: {
-            OR: [
-              {
-                fromCharacterId: playerId,
-                toCharacterId: character.id,
-                createdAt: { gte: thirtyDaysAgo },
-              },
-              {
-                fromCharacterId: character.id,
-                toCharacterId: playerId,
-                createdAt: { gte: thirtyDaysAgo },
-              },
-            ],
-          },
-        }),
+        prisma.letter.count({ where: convWhere }),
       ]);
 
-      // Об'єднуємо та сортуємо по даті (від нових до старих)
-      const allLetters = [...incomingLetters, ...outgoingLetters].sort(
-        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-      );
+      const lettersWithMeta = letters.map((l: any) => ({
+        ...l,
+        isOwn: l.fromCharacterId === character.id,
+      }));
 
-      // Застосовуємо пагінацію
-      const paginatedLetters = allLetters.slice(skip, skip + limit);
-
-      // Додаємо nickColor та isOwn
-      const lettersWithMeta = paginatedLetters.map((letter: any) => {
-        const heroJson = (letter.fromCharacter.heroJson as any) || {};
-        const nickColor = heroJson.nickColor;
-        const isOwn = letter.fromCharacter.id === character.id;
-        return {
-          ...letter,
-          fromCharacter: {
-            ...letter.fromCharacter,
-            nickColor: nickColor || undefined,
-          },
-          isOwn, // Чи це наш відправлений лист
-        };
-      });
-
-      return {
-        ok: true,
-        letters: lettersWithMeta,
-        total: totalCount,
-        page,
-        limit,
-      };
+      return { ok: true, letters: lettersWithMeta, total, page, limit };
     } catch (error) {
       app.log.error(error, "Error fetching conversation:");
       return reply.code(500).send({

@@ -36,6 +36,9 @@ model Character {
   // Один JSON під "героя" (статі, hp/mp/cp, бафи, позиція, що завгодно)
   heroJson     Json     @default("{}")
 
+  // ✅ Додаємо окремо колір ніку, щоб не тягнути heroJson в пошті/чаті
+  nickColor    String?
+
   // 🔥 Відстеження активності для онлайн
   lastActivityAt DateTime @default(now()) @updatedAt
 
@@ -106,6 +109,10 @@ model Letter {
 
   @@index([toCharacterId, isRead, createdAt])
   @@index([fromCharacterId])
+
+  // ✅ Для переписки (OR: A->B або B->A) + orderBy createdAt
+  @@index([fromCharacterId, toCharacterId, createdAt])
+  @@index([toCharacterId, fromCharacterId, createdAt])
 }
 
 model News {
