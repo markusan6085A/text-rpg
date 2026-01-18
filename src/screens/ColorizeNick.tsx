@@ -92,7 +92,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
           </div>
 
           {/* Color Grid - просто текст без рамок */}
-          <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="grid grid-cols-5 gap-2 mb-3">
             {NICK_COLORS.map((color, index) => (
               <button
                 key={index}
