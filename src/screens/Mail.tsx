@@ -272,7 +272,7 @@ export default function Mail({ navigate }: MailProps) {
   // Головний список переписок
   return (
     <div className="w-full flex flex-col items-center text-white px-3 py-4">
-      <div className="w-full max-w-[360px]">
+      <div className="w-full max-w-[360px] border border-[#5b4726] rounded-lg p-4 bg-[#1a0b0b]/30">
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-3">
           <div className="text-[9px] font-bold text-[#87ceeb]">Почта</div>
