@@ -64,6 +64,9 @@ const NICK_COLORS = [
   { name: "Brown", code: "#8B4513" },
   { name: "Light Brown", code: "#CD853F" },
   { name: "Dark Brown", code: "#654321" },
+  // Additional colors
+  { name: "Lavender", code: "#E6E6FA" },
+  { name: "Salmon", code: "#FA8072" },
 ];
 
 export default function ColorizeNick({ navigate }: ColorizeNickProps) {
@@ -82,13 +85,19 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
       <div className="max-w-[360px] mx-auto">
         {/* Colorize Nick Section */}
         <div>
-          <div className="text-lg font-bold mb-2">Установить цвет ника</div>
-          <div className="text-sm text-gray-300 mb-3">
-            Вы можете сменить цвет ника своего персонажа на любой из ниже приведенных.
+          <div className="border-t border-gray-600 pt-2 pb-2">
+            <div className="text-lg font-bold mb-2 text-orange-400">Установить цвет ника</div>
+          </div>
+          <div className="border-t border-gray-600 pt-2 pb-2">
+            <div className="text-sm text-gray-300 mb-3">
+              Вы можете сменить цвет ника своего персонажа на любой из ниже приведенных.
+            </div>
           </div>
 
-          <div className="text-yellow-400 text-xs font-semibold mb-3">
-            Цена: 50 Coin of Luck
+          <div className="border-t border-gray-600 pt-2 pb-2">
+            <div className="text-yellow-400 text-xs font-semibold mb-3">
+              Цена: 50 Coin of Luck
+            </div>
           </div>
 
           {/* Color Grid - просто текст без рамок */}
@@ -115,21 +124,23 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
           </div>
 
           {/* Apply Button */}
-          <button
-            className="w-full px-4 py-2 bg-yellow-600 text-black rounded hover:bg-yellow-700 text-sm font-semibold"
-            onClick={() => {
-              if (selectedColor && coins >= 50) {
-                // TODO: Implement color change
-                alert("Цвет ника изменен!");
-              } else if (coins < 50) {
-                alert("Недостаточно Coin of Luck!");
-              } else {
-                alert("Выберите цвет!");
-              }
-            }}
-          >
-            Применить цвет
-          </button>
+          <div className="border-t border-gray-600 pt-2 pb-2">
+            <button
+              className="w-full text-sm font-semibold text-white hover:opacity-80 transition-opacity"
+              onClick={() => {
+                if (selectedColor && coins >= 50) {
+                  // TODO: Implement color change
+                  alert("Цвет ника изменен!");
+                } else if (coins < 50) {
+                  alert("Недостаточно Coin of Luck!");
+                } else {
+                  alert("Выберите цвет!");
+                }
+              }}
+            >
+              Применить цвет
+            </button>
+          </div>
         </div>
       </div>
     </div>
