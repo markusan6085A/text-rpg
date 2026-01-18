@@ -428,3 +428,44 @@ export async function getUnreadCount(): Promise<{ ok: boolean; unreadCount: numb
   });
   return response;
 }
+
+// News API
+export interface NewsItem {
+  id: string;
+  type: "new_player" | "premium_purchase" | "raid_boss_kill";
+  characterId?: string;
+  characterName?: string;
+  metadata: {
+    hours?: number;
+    bossName?: string;
+    bossLevel?: number;
+    bossDrops?: any[];
+  };
+  createdAt: string;
+}
+
+export interface NewsResponse {
+  ok: boolean;
+  news: NewsItem[];
+}
+
+export async function getNews(): Promise<NewsResponse> {
+  const response = await apiRequest<NewsResponse>('/news', {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function reportRaidBossKill(params: {
+  characterId: string;
+  characterName?: string;
+  bossName: string;
+  bossLevel?: number;
+  bossDrops?: any[];
+}): Promise<{ ok: boolean }> {
+  const response = await apiRequest<{ ok: boolean }>('/news/raid-boss-kill', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return response;
+}

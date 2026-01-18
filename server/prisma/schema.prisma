@@ -47,6 +47,7 @@ model Character {
   chatMessages ChatMessage[]
   lettersFrom  Letter[] @relation("LettersFrom")
   lettersTo    Letter[] @relation("LettersTo")
+  news         News[]   @relation("News")
 
   @@index([accountId])
   @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
@@ -105,4 +106,18 @@ model Letter {
 
   @@index([toCharacterId, isRead, createdAt])
   @@index([fromCharacterId])
+}
+
+model News {
+  id           String   @id @default(cuid())
+  type         String   // "new_player" | "premium_purchase" | "raid_boss_kill"
+  characterId  String?  // ID гравця (nullable для new_player)
+  characterName String? // Нік гравця
+  metadata     Json     @default("{}") // Додаткова інформація: { hours?: number, bossName?: string, bossLevel?: number, bossDrops?: any[] }
+  createdAt    DateTime @default(now())
+
+  character    Character? @relation("News", fields: [characterId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([type])
 }

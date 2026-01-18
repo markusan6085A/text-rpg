@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
+import { addNews } from "./news";
 
 function getAuth(req: any): { accountId: string; login: string } | null {
   const header = req.headers?.authorization || "";
@@ -115,6 +116,14 @@ export async function characterRoutes(app: FastifyInstance) {
         exp: Number(created.exp),
       };
 
+      // Додаємо новину про нового гравця
+      await addNews({
+        type: "new_player",
+        characterId: created.id,
+        characterName: created.name,
+        metadata: {},
+      });
+
       return { ok: true, character: serialized };
     } catch (e: any) {
       console.error('Error creating character:', e);
@@ -205,6 +214,12 @@ export async function characterRoutes(app: FastifyInstance) {
 
     if (!existing) return reply.code(404).send({ error: "character not found" });
 
+    // Перевіряємо, чи була покупка преміуму (premiumUntil збільшився)
+    let premiumPurchased = false;
+    let premiumHours = 0;
+    const oldHeroJson = existing.heroJson as any || {};
+    const oldPremiumUntil = oldHeroJson.premiumUntil || 0;
+    
     // Оновлюємо тільки передані поля
     const updateData: any = {};
     
@@ -212,6 +227,15 @@ export async function characterRoutes(app: FastifyInstance) {
     if (body.heroJson !== undefined) {
       // Перевіряємо, чи heroJson не порожній і має обов'язкові поля
       if (body.heroJson && typeof body.heroJson === 'object' && body.heroJson.name) {
+        const newPremiumUntil = body.heroJson.premiumUntil || 0;
+        // Якщо premiumUntil збільшився (нова покупка)
+        if (newPremiumUntil > oldPremiumUntil && newPremiumUntil > Date.now()) {
+          premiumPurchased = true;
+          // Обчислюємо тривалість в годинах
+          const now = Date.now();
+          const durationMs = newPremiumUntil - Math.max(now, oldPremiumUntil);
+          premiumHours = Math.round(durationMs / (1000 * 60 * 60));
+        }
         updateData.heroJson = body.heroJson;
         app.log.info(`[PUT /characters/:id] Updating heroJson for character ${id}, inventory items: ${body.heroJson.inventory?.length || 0}`);
       } else {
@@ -249,6 +273,18 @@ export async function characterRoutes(app: FastifyInstance) {
         updatedAt: true,
       },
     });
+
+    // Додаємо новину про покупку преміуму, якщо була покупка
+    if (premiumPurchased && premiumHours > 0) {
+      await addNews({
+        type: "premium_purchase",
+        characterId: updated.id,
+        characterName: updated.name,
+        metadata: { hours: premiumHours },
+      }).catch((err) => {
+        app.log.error(err, "Error adding premium purchase news:");
+      });
+    }
 
     // Convert BigInt to Number for JSON serialization
     const serialized = {

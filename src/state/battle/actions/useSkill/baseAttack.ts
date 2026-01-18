@@ -446,10 +446,11 @@ export function handleBaseAttack(
       lootMessages.push(...dropMessages);
     }
     
+    const isRaidBoss = (state.mob as any)?.isRaidBoss === true;
+    
     // Встановлюємо респавн моба: 5 сек для риб (fishing зона), 30 секунд для звичайних, 10 хвилин для чемпіонів, respawnTime для РБ
     if (state.zoneId !== undefined && state.mobIndex !== undefined) {
       const heroName = useHeroStore.getState().hero?.name;
-      const isRaidBoss = (state.mob as any)?.isRaidBoss === true;
       const isFishingZone = state.zoneId === "fishing";
       let respawnTime: number;
       if (isRaidBoss) {
@@ -461,6 +462,21 @@ export function handleBaseAttack(
         respawnTime = isChampion ? 600000 : 30000; // 10 хв для чемпіонів, 30 сек для звичайних
       }
       setMobRespawn(state.zoneId, state.mobIndex, respawnTime, heroName);
+    }
+    
+    // Фіксуємо вбивство raid boss в новинах
+    if (isRaidBoss && curHero) {
+      import("../../../utils/api").then(({ reportRaidBossKill }) => {
+        reportRaidBossKill({
+          characterId: curHero.id,
+          characterName: curHero.name,
+          bossName: state.mob?.name || "",
+          bossLevel: state.mob?.level,
+          bossDrops: state.mob?.drops || [],
+        }).catch((err) => {
+          console.error("Error reporting raid boss kill:", err);
+        });
+      });
     }
     
     setAndPersist({
