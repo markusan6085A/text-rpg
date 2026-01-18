@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getLetters, getLetter, deleteLetter, type Letter } from "../utils/api";
+import { getLetters, getLetter, deleteLetter, getOnlinePlayers, type Letter } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -29,6 +29,7 @@ export default function Mail({ navigate }: MailProps) {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [onlinePlayerIds, setOnlinePlayerIds] = useState<Set<string>>(new Set());
 
   const loadLetters = async () => {
     setLoading(true);
@@ -48,6 +49,23 @@ export default function Mail({ navigate }: MailProps) {
   useEffect(() => {
     loadLetters();
   }, [page]);
+
+  // Завантажуємо список онлайн гравців для перевірки статусу
+  useEffect(() => {
+    const loadOnlinePlayers = async () => {
+      try {
+        const data = await getOnlinePlayers();
+        const onlineIds = new Set(data.players?.map(p => p.id) || []);
+        setOnlinePlayerIds(onlineIds);
+      } catch (err: any) {
+        console.error('[Mail] Failed to load online players:', err?.message || err);
+      }
+    };
+    
+    loadOnlinePlayers();
+    const interval = setInterval(loadOnlinePlayers, 30000); // Оновлюємо кожні 30 секунд
+    return () => clearInterval(interval);
+  }, []);
 
   // Групуємо листи по гравцях (переписки)
   const conversations = useMemo<Conversation[]>(() => {
@@ -269,7 +287,11 @@ export default function Mail({ navigate }: MailProps) {
                     >
                       {conv.playerName}
                     </span>
-                    <span className="text-green-400 text-xs">[On]</span>
+                    {onlinePlayerIds.has(conv.playerId) ? (
+                      <span className="text-green-400 text-xs">[On]</span>
+                    ) : (
+                      <span className="text-gray-500 text-xs">[Off]</span>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
