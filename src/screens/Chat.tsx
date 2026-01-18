@@ -9,7 +9,7 @@ import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestP
 import type { ChatProps, ChatChannel } from "./chat/types";
 
 // Hooks
-import { useOutbox } from "./chat/hooks/useOutbox";
+import { useOutbox, type OutboxMessage } from "./chat/hooks/useOutbox";
 import { useDeletedMessages } from "./chat/hooks/useDeletedMessages";
 
 // Components
@@ -39,89 +39,66 @@ export default function Chat({ navigate }: ChatProps) {
   // Refs
   const deletingRef = useRef<Set<string>>(new Set());
   const messagesTopRef = useRef<HTMLDivElement>(null);
-  const optimisticMessagesRef = useRef<ChatMessage[]>([]);
-  const currentChannelRef = useRef(channel);
   const lastTradeMessageTimeRef = useRef<number>(0); // Rate limiting for trade channel
 
-  // Clear optimistic messages and reload state when channel changes
+  // Reset page when channel changes
   useEffect(() => {
-    currentChannelRef.current = channel;
-    console.log('[chat] Channel changed to:', channel);
-    optimisticMessagesRef.current = [];
-
-    // Reload deletedIds for new channel
-    const stored = localStorage.getItem(`chat:deleted:${channel}`);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setDeletedIds(new Set(Array.isArray(parsed) ? parsed : []));
-      } catch (e) {
-        console.error('[chat] Failed to load deletedIds:', e);
-        setDeletedIds(new Set());
-      }
-    } else {
-      setDeletedIds(new Set());
-    }
-
-    // Reload outbox for new channel
-    try {
-      const raw = localStorage.getItem(`chat:outbox:${channel}`);
-      const newOutbox = raw ? JSON.parse(raw) : [];
-      setOutbox(newOutbox);
-    } catch (e) {
-      console.error('[chat] Failed to load outbox:', e);
-      setOutbox([]);
-    }
-
     setPage(1);
-  }, [channel, setDeletedIds, setOutbox]);
+  }, [channel]);
 
-  // Combine cached messages with optimistic updates - newest first (top)
-  // 🔥 Optimistic/outbox показуємо ТІЛЬКИ на сторінці 1 - на інших сторінках тільки старі повідомлення
-  const cachedIds = new Set(cachedMessages.map(m => m.id));
-  
-  // Функція для перевірки чи два повідомлення однакові (по тексту, імені та часу)
-  const isDuplicateMessage = (msg1: ChatMessage, msg2: ChatMessage): boolean => {
-    if (msg1.id === msg2.id) return true;
-    const timeDiff = Math.abs(new Date(msg1.createdAt).getTime() - new Date(msg2.createdAt).getTime());
-    return msg1.message === msg2.message &&
-           msg1.characterName === msg2.characterName &&
-           msg1.channel === msg2.channel &&
-           timeDiff < 5000; // 5 секунд толерантність
-  };
-  
-  // Фільтруємо кешовані повідомлення (виключаємо видалені)
-  const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id));
-  
-  // 🔥 На сторінці 1 додаємо optimistic/outbox, на інших сторінках - тільки кешовані
-  if (page === 1) {
-    // Фільтруємо optimistic/outbox (виключаємо ті, що вже є в кеші як реальні - за ID або за вмістом)
-    const allOptimistic = [...outbox, ...optimisticMessagesRef.current];
-    const filteredOptimistic = allOptimistic.filter(optMsg => {
-      // Якщо ID вже є в кеші - це дублікат
-      if (cachedIds.has(optMsg.id)) return false;
-      
-      // Перевіряємо чи є в кеші повідомлення з таким же вмістом (текст + ім'я + час)
-      const isInCache = filteredCached.some(cachedMsg => isDuplicateMessage(optMsg, cachedMsg));
-      return !isInCache;
-    });
+  // Combine cached messages with outbox - newest first (top)
+  // 🔥 Outbox показуємо ТІЛЬКИ на сторінці 1 - на інших сторінках тільки старі повідомлення
+  const messages = React.useMemo(() => {
+    const cachedIds = new Set(cachedMessages.map(m => m.id));
+    const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id));
     
-    const maxCached = Math.max(0, 10 - filteredOptimistic.length);
-    const limitedCached = filteredCached.slice(0, maxCached);
-    var messages = [...filteredOptimistic, ...limitedCached];
-  } else {
-    // На сторінках 2+ показуємо тільки кешовані повідомлення (старі)
-    var messages = filteredCached;
-  }
+    if (page === 1) {
+      // На сторінці 1 додаємо outbox (виключаємо ті, що вже є в кеші)
+      const filteredOutbox = outbox.filter(optMsg => !cachedIds.has(optMsg.id));
+      const maxCached = Math.max(0, 10 - filteredOutbox.length);
+      const limitedCached = filteredCached.slice(0, maxCached);
+      return [...filteredOutbox, ...limitedCached];
+    } else {
+      // На сторінках 2+ показуємо тільки кешовані повідомлення (старі)
+      return filteredCached;
+    }
+  }, [cachedMessages, outbox, deletedIds, page]);
+
+  // 🔥 Видаляємо з outbox повідомлення, які вже з'явились в кеші
+  useEffect(() => {
+    const cachedIds = new Set(cachedMessages.map(m => m.id));
+    setOutbox((prev) => {
+      const toRemove = prev.filter(outboxMsg => {
+        // Якщо це реальне повідомлення (не temp) і воно в кеші - видаляємо
+        if (!outboxMsg.id.startsWith('temp-') && cachedIds.has(outboxMsg.id)) {
+          return false;
+        }
+        // Якщо це temp повідомлення зі статусом 'sent' - перевіряємо чи є в кеші за вмістом
+        if (outboxMsg.id.startsWith('temp-') && outboxMsg.status === 'sent') {
+          const foundInCache = cachedMessages.some(cached => 
+            cached.message === outboxMsg.message && 
+            cached.characterName === outboxMsg.characterName &&
+            Math.abs(new Date(cached.createdAt).getTime() - new Date(outboxMsg.createdAt).getTime()) < 5000
+          );
+          return !foundInCache; // Залишаємо тільки якщо не знайдено в кеші
+        }
+        return true; // Залишаємо всі інші
+      });
+      if (toRemove.length !== prev.length) {
+        return toRemove;
+      }
+      return prev;
+    });
+  }, [cachedMessages, setOutbox]);
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
-    if (messages.length > 0 && optimisticMessagesRef.current.length > 0) {
+    if (messages.length > 0 && outbox.length > 0) {
       setTimeout(() => {
         messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
-  }, [messages.length]);
+  }, [messages.length, outbox.length]);
 
   // Send message
   const sendMessage = async () => {
@@ -142,27 +119,26 @@ export default function Chat({ navigate }: ChatProps) {
     const textToSend = messageText.trim();
     const tempId = `temp-${Date.now()}`;
 
-    const optimisticMessage: ChatMessage = {
+    const optimisticMessage: OutboxMessage = {
       id: tempId,
       characterName: hero.name || hero.username || "You",
       channel,
       message: textToSend,
       createdAt: new Date().toISOString(),
       isOwn: true,
+      status: 'pending', // Статус: очікує відправки
     };
 
     // Add to outbox immediately to prevent loss on F5
     setOutbox((prev) => [optimisticMessage, ...prev]);
-    optimisticMessagesRef.current = [optimisticMessage, ...optimisticMessagesRef.current.filter(m => m.id !== tempId)];
     setMessageText("");
 
     try {
-      const realMessage = await postChatMessage(channel, textToSend);
+      await postChatMessage(channel, textToSend);
 
-      // 🔥 ПІСЛЯ УСПІШНОЇ ВІДПРАВКИ - ВИДАЛЯЄМО З УСІХ ТИМЧАСОВИХ ДЖЕРЕЛ
-      // Одне джерело правди - API/кеш, все інше видаляємо
-      setOutbox((prev) => prev.filter(m => m.id !== tempId));
-      optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== tempId);
+      // 🔥 Позначаємо як 'sent', але НЕ видаляємо з outbox ще
+      // Видалимо тільки коли refresh() підтвердить, що повідомлення в кеші
+      setOutbox((prev) => prev.map(m => m.id === tempId ? { ...m, status: 'sent' as const } : m));
 
       // Update daily quest progress
       const curHero = useHeroStore.getState().hero;
@@ -174,14 +150,14 @@ export default function Chat({ navigate }: ChatProps) {
       }
 
       // 🔥 Оновлюємо кеш з API - це єдине джерело правди
-      // Затримка щоб сервер точно зберіг повідомлення
+      // Видалимо з outbox тільки коли повідомлення з'явиться в кеші (через useEffect)
       setTimeout(() => {
         refresh();
       }, 800);
     } catch (err: any) {
       console.error("Error sending message:", err);
-      // 🔥 При помилці видаляємо з optimistic, але залишаємо в outbox для повторної спроби
-      optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== tempId);
+      // При помилці залишаємо в outbox зі статусом 'pending' для повторної спроби
+      setOutbox((prev) => prev.map(m => m.id === tempId ? { ...m, status: 'pending' as const } : m));
       setMessageText(textToSend);
     }
   };
@@ -201,19 +177,23 @@ export default function Chat({ navigate }: ChatProps) {
     }
     deletingRef.current.add(messageId);
 
-    const messageToDelete = [...optimisticMessagesRef.current, ...cachedMessages].find(m => m.id === messageId);
+    const messageToDelete = [...outbox, ...cachedMessages].find(m => m.id === messageId);
     console.log('[chat] Message to delete:', {
       messageId,
       characterName: messageToDelete?.characterName,
       isOwn: messageToDelete?.isOwn,
     });
 
+    // Optimistic update - remove immediately from UI
     setDeletedIds(prev => new Set([...prev, messageId]));
-    optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== messageId);
+    // Also remove from outbox if it's there
+    setOutbox(prev => prev.filter(m => m.id !== messageId));
 
     try {
       await deleteChatMessage(messageId);
       console.log('[chat] Message deleted successfully:', messageId);
+      // Refresh cache after successful deletion
+      setTimeout(() => refresh(), 500);
     } catch (err: any) {
       console.error("[chat] Error deleting message:", err);
 
