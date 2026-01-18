@@ -79,13 +79,30 @@ export default function Chat({ navigate }: ChatProps) {
   // Combine cached messages with optimistic updates - newest first (top)
   // 🔥 Видаляємо дублікати: якщо повідомлення є в cachedMessages (реальні), не показуємо його з optimistic/outbox
   const cachedIds = new Set(cachedMessages.map(m => m.id));
-  const optimisticIds = new Set([...optimisticMessagesRef.current, ...outbox].map(m => m.id));
   
-  // Фільтруємо кешовані повідомлення (виключаємо видалені та optimistic)
-  const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id) && !optimisticIds.has(m.id));
+  // Функція для перевірки чи два повідомлення однакові (по тексту, імені та часу)
+  const isDuplicateMessage = (msg1: ChatMessage, msg2: ChatMessage): boolean => {
+    if (msg1.id === msg2.id) return true;
+    const timeDiff = Math.abs(new Date(msg1.createdAt).getTime() - new Date(msg2.createdAt).getTime());
+    return msg1.message === msg2.message &&
+           msg1.characterName === msg2.characterName &&
+           msg1.channel === msg2.channel &&
+           timeDiff < 5000; // 5 секунд толерантність
+  };
   
-  // Фільтруємо optimistic/outbox (виключаємо ті, що вже є в кеші як реальні)
-  const filteredOptimistic = [...outbox, ...optimisticMessagesRef.current].filter(m => !cachedIds.has(m.id));
+  // Фільтруємо кешовані повідомлення (виключаємо видалені)
+  const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id));
+  
+  // Фільтруємо optimistic/outbox (виключаємо ті, що вже є в кеші як реальні - за ID або за вмістом)
+  const allOptimistic = [...outbox, ...optimisticMessagesRef.current];
+  const filteredOptimistic = allOptimistic.filter(optMsg => {
+    // Якщо ID вже є в кеші - це дублікат
+    if (cachedIds.has(optMsg.id)) return false;
+    
+    // Перевіряємо чи є в кеші повідомлення з таким же вмістом (текст + ім'я + час)
+    const isInCache = filteredCached.some(cachedMsg => isDuplicateMessage(optMsg, cachedMsg));
+    return !isInCache;
+  });
   
   const maxCached = Math.max(0, 10 - filteredOptimistic.length);
   const limitedCached = filteredCached.slice(0, maxCached);
@@ -136,11 +153,20 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       const realMessage = await postChatMessage(channel, textToSend);
 
-      // 🔥 Remove from outbox after successful send
-      setOutbox((prev) => prev.filter(m => m.id !== tempId));
+      // 🔥 Remove from outbox after successful send (both by tempId and by matching content)
+      setOutbox((prev) => prev.filter(m => {
+        // Видаляємо якщо ID співпадає АБО це те саме повідомлення (текст + час + characterName)
+        if (m.id === tempId) return false;
+        const timeDiff = Math.abs(new Date(m.createdAt).getTime() - new Date(realMessage.createdAt).getTime());
+        if (m.message === realMessage.message && 
+            m.characterName === realMessage.characterName && 
+            timeDiff < 5000) {
+          return false; // Це те саме повідомлення, видаляємо
+        }
+        return true;
+      }));
       
-      // 🔥 Замінюємо optimistic на реальне, але не викликаємо refresh, щоб уникнути дублікатів
-      // Refresh буде викликатись автоматично при наступному запиті або при зміні каналу
+      // 🔥 Замінюємо optimistic на реальне
       optimisticMessagesRef.current = optimisticMessagesRef.current.map(m =>
         m.id === tempId ? realMessage : m
       );
