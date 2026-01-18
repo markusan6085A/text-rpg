@@ -103,7 +103,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
 
               <div className="flex gap-2 pt-2">
                 <button
-                  className="flex-1 px-4 py-2 bg-yellow-600 text-black rounded hover:bg-yellow-700 text-sm font-semibold"
+                  className="flex-1 text-sm font-semibold text-green-400 hover:text-green-300 transition-colors"
                   onClick={() => {
                     // TODO: Implement nickname change
                     setShowChangeNickModal(false);
@@ -112,7 +112,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
                   Изменить
                 </button>
                 <button
-                  className="flex-1 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 text-sm"
+                  className="flex-1 text-sm text-red-400 hover:text-red-300 transition-colors"
                   onClick={() => setShowChangeNickModal(false)}
                 >
                   Отмена
