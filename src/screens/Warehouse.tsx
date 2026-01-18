@@ -415,8 +415,8 @@ export default function Warehouse({ navigate }: WarehouseProps) {
             <>
               {/* Інвентар */}
               <div className="space-y-2">
-                {filteredInventoryItems.length > 0 ? (
-                  filteredInventoryItems.map((item, index) => (
+                {paginatedItems.length > 0 ? (
+                  paginatedItems.map((item, index) => (
                     <div
                       key={`${item.id}-${index}`}
                       className="flex items-center gap-2 py-1 border-b border-dotted border-[#5b4b35]/30"
@@ -458,6 +458,29 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                 ) : (
                   <div className="text-center text-gray-400 text-[12px] py-4">
                     Инвентарь пуст
+                  </div>
+                )}
+                
+                {/* Пагінація */}
+                {filteredInventoryItems.length > ITEMS_PER_PAGE && (
+                  <div className="flex items-center justify-center gap-2 mt-3 pt-2 border-t border-black/70">
+                    <button
+                      onClick={() => setInventoryPage(prev => Math.max(1, prev - 1))}
+                      disabled={inventoryPage === 1}
+                      className="text-[10px] text-[#ff8c00] hover:text-[#ffa500] underline disabled:text-gray-600 disabled:no-underline px-2"
+                    >
+                      ← Назад
+                    </button>
+                    <span className="text-[10px] text-gray-400">
+                      Сторінка {inventoryPage} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setInventoryPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={inventoryPage >= totalPages}
+                      className="text-[10px] text-[#ff8c00] hover:text-[#ffa500] underline disabled:text-gray-600 disabled:no-underline px-2"
+                    >
+                      Вперед →
+                    </button>
                   </div>
                 )}
               </div>
