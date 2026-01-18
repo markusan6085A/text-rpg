@@ -159,23 +159,10 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       const realMessage = await postChatMessage(channel, textToSend);
 
-      // 🔥 Remove from outbox after successful send (both by tempId and by matching content)
-      setOutbox((prev) => prev.filter(m => {
-        // Видаляємо якщо ID співпадає АБО це те саме повідомлення (текст + час + characterName)
-        if (m.id === tempId) return false;
-        const timeDiff = Math.abs(new Date(m.createdAt).getTime() - new Date(realMessage.createdAt).getTime());
-        if (m.message === realMessage.message && 
-            m.characterName === realMessage.characterName && 
-            timeDiff < 5000) {
-          return false; // Це те саме повідомлення, видаляємо
-        }
-        return true;
-      }));
-      
-      // 🔥 Замінюємо optimistic на реальне
-      optimisticMessagesRef.current = optimisticMessagesRef.current.map(m =>
-        m.id === tempId ? realMessage : m
-      );
+      // 🔥 ПІСЛЯ УСПІШНОЇ ВІДПРАВКИ - ВИДАЛЯЄМО З УСІХ ТИМЧАСОВИХ ДЖЕРЕЛ
+      // Одне джерело правди - API/кеш, все інше видаляємо
+      setOutbox((prev) => prev.filter(m => m.id !== tempId));
+      optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== tempId);
 
       // Update daily quest progress
       const curHero = useHeroStore.getState().hero;
@@ -186,11 +173,11 @@ export default function Chat({ navigate }: ChatProps) {
         }
       }
 
-      // 🔥 ОБОВ'ЯЗКОВО викликаємо refresh після успішної відправки, щоб оновити кеш
-      // Це гарантує, що повідомлення буде в кеші при перезавантаженні сторінки
+      // 🔥 Оновлюємо кеш з API - це єдине джерело правди
+      // Затримка щоб сервер точно зберіг повідомлення
       setTimeout(() => {
         refresh();
-      }, 1000);
+      }, 800);
     } catch (err: any) {
       console.error("Error sending message:", err);
       // 🔥 При помилці видаляємо з optimistic, але залишаємо в outbox для повторної спроби
