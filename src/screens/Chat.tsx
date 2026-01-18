@@ -96,31 +96,31 @@ export default function Chat({ navigate }: ChatProps) {
     });
     setPage(1); // Reset to first page when changing channels
     
-    // 🔥 При зміні каналу перевіряємо кеш і завантажуємо якщо немає
-    const cacheKey = `chat:v3:${channel}|1|10`;
-    const cached = localStorage.getItem(cacheKey);
-    if (!cached) {
-      console.log('[chat] No cache for channel, loading messages');
-      setTimeout(() => refresh(), 100);
+    // 🔥 Завантажуємо outbox для нового каналу
+    try {
+      const raw = localStorage.getItem(`chat:outbox:${channel}`);
+      const newOutbox = raw ? JSON.parse(raw) : [];
+      setOutbox(newOutbox);
+    } catch (e) {
+      console.error('[chat] Failed to load outbox for channel:', e);
+      setOutbox([]);
     }
-  }, [channel, refresh]);
+  }, [channel]);
 
   // 🔥 ВИМКНЕНО автоматичний refresh при зміні сторінки - користувач сам клікає кнопки пагінації
   // useEffect для page видалено - refresh тільки по кнопці
 
   // Combine cached messages with optimistic updates - newest first (top)
-  // Optimistic messages go to the top
+  // 🔥 Outbox + Optimistic messages go to the top
   // Filter out deleted messages
-  // 🔥 Видаляємо дублікати: якщо повідомлення є в cachedMessages, не показуємо його з optimisticMessagesRef
-  const optimisticIds = new Set(optimisticMessagesRef.current.map(m => m.id));
+  const optimisticIds = new Set([...optimisticMessagesRef.current, ...outbox].map(m => m.id));
   const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id) && !optimisticIds.has(m.id));
   
-  // 🔥 Обмежуємо загальну кількість до 10 повідомлень: optimistic перші, потім cached
-  // Optimistic завжди показуємо, cached додаємо до тих пір, поки всього не буде 10
-  const optimistic = optimisticMessagesRef.current;
-  const maxCached = Math.max(0, 10 - optimistic.length);
+  // 🔥 Об'єднуємо outbox + optimistic (outbox перші, потім optimistic), потім cached
+  const optimisticAll = [...outbox, ...optimisticMessagesRef.current];
+  const maxCached = Math.max(0, 10 - optimisticAll.length);
   const limitedCached = filteredCached.slice(0, maxCached);
-  const messages = [...optimistic, ...limitedCached];
+  const messages = [...optimisticAll, ...limitedCached];
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
