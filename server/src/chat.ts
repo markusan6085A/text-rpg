@@ -44,8 +44,16 @@ export async function chatRoutes(app: FastifyInstance) {
         select: { id: true },
       });
 
+      // 🔥 Фільтруємо повідомлення - показуємо тільки ті, що створені за останні 24 години
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
       const messages = await prisma.chatMessage.findMany({
-        where: { channel },
+        where: { 
+          channel,
+          createdAt: {
+            gte: twentyFourHoursAgo, // Only messages from last 24 hours
+          },
+        },
         orderBy: { createdAt: "desc" }, // Newest first (top)
         take: limit,
         skip,
