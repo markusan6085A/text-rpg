@@ -106,13 +106,13 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
             </div>
           </div>
 
-          {/* Color Grid - просто текст без рамок */}
-          <div className="grid grid-cols-5 gap-2 mb-3">
+          {/* Color Grid - просто текст без рамок, автоматичне розміщення в ряд */}
+          <div className="flex flex-wrap gap-2 mb-3">
             {NICK_COLORS.map((color, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedColor(color.code)}
-                className={`text-left text-sm font-bold transition-all hover:opacity-80 ${
+                className={`text-xs font-bold transition-all hover:opacity-80 ${
                   selectedColor === color.code
                     ? "underline decoration-yellow-400 decoration-2"
                     : ""
