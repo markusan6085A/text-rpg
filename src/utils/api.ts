@@ -469,3 +469,31 @@ export async function reportRaidBossKill(params: {
   });
   return response;
 }
+
+// Seven Seals API
+export interface SevenSealsRankingResponse {
+  ok: boolean;
+  ranking: Array<{
+    characterId: string;
+    characterName: string;
+    medalCount: number;
+    rank: number;
+  }>;
+  myRank: number | null;
+  myMedals: number;
+}
+
+export async function getSevenSealsRanking(): Promise<SevenSealsRankingResponse> {
+  const response = await apiRequest<SevenSealsRankingResponse>('/seven-seals/ranking', {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function reportMedalDrop(characterId: string): Promise<{ ok: boolean }> {
+  const response = await apiRequest<{ ok: boolean }>('/seven-seals/medal', {
+    method: 'POST',
+    body: JSON.stringify({ characterId }),
+  });
+  return response;
+}

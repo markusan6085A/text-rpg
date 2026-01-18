@@ -6,6 +6,7 @@ import { characterRoutes } from "./characters";
 import { chatRoutes } from "./chat";
 import { letterRoutes } from "./letters";
 import { newsRoutes } from "./news";
+import { sevenSealsRoutes } from "./sevenSeals";
 
 const app = Fastify({ 
   logger: true,
@@ -81,6 +82,7 @@ const start = async () => {
     await app.register(chatRoutes);
     await app.register(letterRoutes);
     await app.register(newsRoutes);
+    await app.register(sevenSealsRoutes);
 
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: "0.0.0.0" });

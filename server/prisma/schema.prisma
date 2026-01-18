@@ -51,6 +51,7 @@ model Character {
   lettersFrom  Letter[] @relation("LettersFrom")
   lettersTo    Letter[] @relation("LettersTo")
   news         News[]   @relation("News")
+  sevenSealsMedals SevenSealsMedal[]
 
   @@index([accountId])
   @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
@@ -127,4 +128,16 @@ model News {
 
   @@index([createdAt])
   @@index([type])
+}
+
+model SevenSealsMedal {
+  id          String   @id @default(cuid())
+  characterId String
+  weekStart   DateTime // Початок тижня (понеділок) для групування
+  createdAt   DateTime @default(now())
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId, weekStart])
+  @@index([weekStart])
 }

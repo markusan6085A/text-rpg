@@ -7,6 +7,7 @@ import { QUESTS } from "../../../data/quests";
 import { equipItemLogic } from "../../heroStore/heroInventory";
 import { INVENTORY_MAX_ITEMS } from "../../heroStore";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
+import { reportMedalDrop } from "../../../utils/api";
 
 // Функція для видалення грейдів з назв ресурсів
 // Грейди мають бути тільки в точках (enchant scrolls) та шмотках (equipment), але не в ресурсах
@@ -384,6 +385,56 @@ export function processMobDrops(
       zaricheEquipped = true;
 
       dropMessages.push(`🎉 ЗАРИЧ ВИПАВ! Автоматично одягнуто на 1 годину!`);
+    }
+  }
+
+  // 🔥 Медальки 7 Печатей (5% шанс, тільки понеділок-субота польський час)
+  const isEventActive = () => {
+    const now = new Date();
+    const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
+    const dayOfWeek = polandTime.getDay();
+    return dayOfWeek >= 1 && dayOfWeek <= 6; // Понеділок-субота
+  };
+
+  if (isEventActive() && Math.random() < 0.05) {
+    // Медалька випала!
+    const medalId = "seven_seals_medal";
+    const medalDef = itemsDB[medalId];
+    
+    if (medalDef) {
+      const existingMedalIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === medalId);
+      
+      if (existingMedalIndex >= 0) {
+        // Якщо медалька вже є, збільшуємо кількість
+        const existingMedal = newInventory[existingMedalIndex];
+        newInventory[existingMedalIndex] = {
+          ...existingMedal,
+          count: (existingMedal.count ?? 1) + 1,
+        };
+      } else {
+        // Якщо медальки немає, додаємо нову
+        if (!isInventoryFull) {
+          newInventory.push({
+            id: medalDef.id,
+            name: medalDef.name,
+            type: "quest" as const,
+            slot: medalDef.slot,
+            icon: medalDef.icon,
+            description: medalDef.description,
+            stats: medalDef.stats,
+            count: 1,
+          } as HeroInventoryItem);
+        }
+      }
+      
+      dropMessages.push(`🎖️ Медаль Печатей випала!`);
+      
+      // Відправляємо на сервер для рейтингу
+      if (hero?.id) {
+        reportMedalDrop(hero.id).catch((err) => {
+          console.error("Error reporting medal drop:", err);
+        });
+      }
     }
   }
 

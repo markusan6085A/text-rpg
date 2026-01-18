@@ -36,6 +36,7 @@ import Mail from "./screens/Mail";
 import ColorizeNick from "./screens/ColorizeNick";
 import Forum from "./screens/Forum";
 import News from "./screens/News";
+import SevenSeals from "./screens/SevenSeals";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -345,6 +346,9 @@ function AppInner() {
 
     case "/colorize-nick":
       return renderWithLayout(<ColorizeNick navigate={navigate} />);
+
+    case "/seven-seals":
+      return renderWithLayout(<SevenSeals navigate={navigate} />);
 
     default:
       // Check if pathname matches /player/:id pattern

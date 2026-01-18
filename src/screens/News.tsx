@@ -117,11 +117,16 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
   }, []);
 
   useEffect(() => {
-    const updateGameTime = () => {
-      setGameTime(getGameTimeTag());
+    // Оновлюємо польський час кожну секунду
+    const updatePolandTime = () => {
+      const now = new Date();
+      const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
+      const hours = polandTime.getHours().toString().padStart(2, "0");
+      const minutes = polandTime.getMinutes().toString().padStart(2, "0");
+      setGameTime(`${hours}:${minutes}`);
     };
-    updateGameTime();
-    const interval = setInterval(updateGameTime, 1000);
+    updatePolandTime();
+    const interval = setInterval(updatePolandTime, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -258,7 +263,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
 
       {/* Игровое время внизу */}
       <div className="px-2 py-1 border-t border-yellow-900/40 text-[11px] text-gray-400 text-center">
-        Игровое время: <span className="text-yellow-200">{gameTime}</span>
+        Польський час: <span className="text-yellow-200">{gameTime}</span>
       </div>
 
       {/* Модалка дропу RB */}

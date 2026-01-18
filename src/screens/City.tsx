@@ -273,7 +273,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#fef08a] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
-                onClick={() => openFeature("7 Печатей")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/seven-seals");
+                }}
               >
                 <img src="/assets/rate.png" alt="7 Печатей" className="w-3 h-3 object-contain" />
                 <span>7 Печатей</span>
