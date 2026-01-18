@@ -350,24 +350,47 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         {/* Категорії (тільки для інвентаря) */}
         {view === "inventory" && (
           <div className="px-4 py-2 border-b border-black/70">
-            <div className="flex items-center gap-0 mb-3 text-[10px] border-b border-[#5a4424] pb-1" style={{ color: "#d9d9d9" }}>
-              {CATEGORIES.map((cat, idx) => (
-                <React.Fragment key={cat.key}>
-                  <button
-                    onClick={() => setCurrentCategory(cat.key)}
-                    className={`px-1.5 py-0.5 ${
-                      currentCategory === cat.key
-                        ? "text-[#b8860b] font-semibold"
-                        : "text-[#d9d9d9] hover:text-[#f5d7a1]"
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                  {idx < CATEGORIES.length - 1 && (
-                    <span className="text-[#5a4424] mx-0.5">|</span>
-                  )}
-                </React.Fragment>
-              ))}
+            <div className="flex flex-col gap-1 mb-3 text-[10px] border-b border-[#5a4424] pb-1" style={{ color: "#d9d9d9" }}>
+              {/* Перший ряд - перші 5 табів */}
+              <div className="flex items-center gap-0">
+                {CATEGORIES.slice(0, 5).map((cat, idx) => (
+                  <React.Fragment key={cat.key}>
+                    <button
+                      onClick={() => setCurrentCategory(cat.key)}
+                      className={`px-1.5 py-0.5 ${
+                        currentCategory === cat.key
+                          ? "text-[#b8860b] font-semibold"
+                          : "text-[#d9d9d9] hover:text-[#f5d7a1]"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                    {idx < 4 && (
+                      <span className="text-[#5a4424] mx-0.5">|</span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              {/* Другий ряд - решта табів */}
+              <div className="flex items-center gap-0">
+                {CATEGORIES.slice(5).map((cat, idx) => (
+                  <React.Fragment key={cat.key}>
+                    <button
+                      onClick={() => setCurrentCategory(cat.key)}
+                      className={`px-1.5 py-0.5 ${
+                        currentCategory === cat.key
+                          ? "text-[#b8860b] font-semibold"
+                          : "text-[#d9d9d9] hover:text-[#f5d7a1]"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                    {idx < CATEGORIES.slice(5).length - 1 && (
+                      <span className="text-[#5a4424] mx-0.5">|</span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -487,15 +510,14 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         <div className="px-4 py-2 border-b border-black/70">
           <div className="text-[11px] text-[#cfcfcc] mb-2 font-semibold">Лог операций:</div>
           <div className="space-y-1">
-            {log.length > 0 ? (
-              log.slice(0, 10).map((entry) => (
-                <div key={entry.id} className="text-[10px] text-gray-400">
-                  {entry.message}
+            {Array.from({ length: LOG_MAX_ENTRIES }, (_, index) => {
+              const entry = log[index];
+              return (
+                <div key={entry?.id || index} className="text-[10px] text-gray-400 min-h-[14px]">
+                  {entry ? entry.message : ""}
                 </div>
-              ))
-            ) : (
-              <div className="text-[10px] text-gray-500 italic">Нет операций</div>
-            )}
+              );
+            })}
           </div>
         </div>
 
