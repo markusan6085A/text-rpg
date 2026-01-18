@@ -83,6 +83,75 @@ const start = async () => {
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: "0.0.0.0" });
     app.log.info(`Server started on http://0.0.0.0:${port}`);
+
+    // 🔥 Періодична очистка старих повідомлень чату (кожні 1 годину)
+    setInterval(async () => {
+      try {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const deletedChat = await prisma.chatMessage.deleteMany({
+          where: {
+            createdAt: {
+              lt: twentyFourHoursAgo,
+            },
+          },
+        });
+        if (deletedChat.count > 0) {
+          app.log.info(`Cleaned up ${deletedChat.count} old chat messages (older than 24 hours)`);
+        }
+      } catch (err) {
+        app.log.error(err, "Error cleaning up old chat messages:");
+      }
+    }, 60 * 60 * 1000); // Кожні 1 годину
+
+    // 🔥 Періодична очистка старих листів (кожні 1 годину)
+    setInterval(async () => {
+      try {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const deletedLetters = await prisma.letter.deleteMany({
+          where: {
+            createdAt: {
+              lt: thirtyDaysAgo,
+            },
+          },
+        });
+        if (deletedLetters.count > 0) {
+          app.log.info(`Cleaned up ${deletedLetters.count} old letters (older than 30 days)`);
+        }
+      } catch (err) {
+        app.log.error(err, "Error cleaning up old letters:");
+      }
+    }, 60 * 60 * 1000); // Кожні 1 годину
+
+    // Запускаємо очистку одразу при старті
+    setTimeout(async () => {
+      try {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const deletedChat = await prisma.chatMessage.deleteMany({
+          where: {
+            createdAt: {
+              lt: twentyFourHoursAgo,
+            },
+          },
+        });
+        if (deletedChat.count > 0) {
+          app.log.info(`Initial cleanup: removed ${deletedChat.count} old chat messages`);
+        }
+
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const deletedLetters = await prisma.letter.deleteMany({
+          where: {
+            createdAt: {
+              lt: thirtyDaysAgo,
+            },
+          },
+        });
+        if (deletedLetters.count > 0) {
+          app.log.info(`Initial cleanup: removed ${deletedLetters.count} old letters`);
+        }
+      } catch (err) {
+        app.log.error(err, "Error in initial cleanup:");
+      }
+    }, 5000); // Через 5 секунд після старту
   } catch (err) {
     app.log.error(err);
     process.exit(1);

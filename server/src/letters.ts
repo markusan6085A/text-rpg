@@ -134,8 +134,16 @@ export async function letterRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "character not found" });
       }
 
+      // 🔥 Фільтруємо листи - показуємо тільки ті, що створені за останні 30 днів
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
       const letters = await prisma.letter.findMany({
-        where: { toCharacterId: character.id },
+        where: { 
+          toCharacterId: character.id,
+          createdAt: {
+            gte: thirtyDaysAgo, // Only letters from last 30 days
+          },
+        },
         orderBy: { createdAt: "desc" },
         take: limit,
         skip,
