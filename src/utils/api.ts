@@ -211,6 +211,7 @@ export interface ChatMessage {
   message: string;
   createdAt: string;
   isOwn?: boolean; // Whether this message belongs to current user
+  nickColor?: string; // Color of the character's nickname
 }
 
 export interface ChatMessagesResponse {
@@ -320,6 +321,7 @@ export interface OnlinePlayer {
   location: string;
   power?: number;
   lastActivityAt: string;
+  nickColor?: string; // Color of the player's nickname
 }
 
 export interface OnlinePlayersResponse {
@@ -354,6 +356,7 @@ export interface Letter {
   fromCharacter: {
     id: string;
     name: string;
+    nickColor?: string; // Color of the sender's nickname
   };
   toCharacter?: {
     id: string;

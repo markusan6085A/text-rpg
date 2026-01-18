@@ -108,7 +108,7 @@ export default function Mail({ navigate }: MailProps) {
 
           {/* Від кого */}
           <div className="mb-2 text-xs text-gray-400">
-            От: <span className="text-white">{selectedLetter.fromCharacter.name}</span>
+            От: <span style={{ color: selectedLetter.fromCharacter.nickColor || "white" }}>{selectedLetter.fromCharacter.name}</span>
           </div>
 
           {/* Тема */}
@@ -203,7 +203,10 @@ export default function Mail({ navigate }: MailProps) {
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <div className="text-sm font-semibold text-white">
+                  <div 
+                    className="text-sm font-semibold"
+                    style={{ color: letter.fromCharacter.nickColor || "white" }}
+                  >
                     {letter.fromCharacter.name}
                   </div>
                   {!letter.isRead && (

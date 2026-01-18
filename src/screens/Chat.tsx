@@ -305,9 +305,10 @@ export default function Chat({ navigate }: ChatProps) {
                     <span 
                       className="font-semibold cursor-pointer hover:opacity-80 transition-colors"
                       style={{ 
-                        color: (msg.characterName === (hero?.name || hero?.username)) && hero?.nickColor 
-                          ? hero.nickColor 
-                          : "#d4af37"
+                        color: msg.nickColor || 
+                          ((msg.characterName === (hero?.name || hero?.username)) && hero?.nickColor 
+                            ? hero.nickColor 
+                            : "#d4af37")
                       }}
                       onClick={(e) => {
                         e.stopPropagation();

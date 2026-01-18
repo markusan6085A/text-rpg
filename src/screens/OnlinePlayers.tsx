@@ -67,7 +67,12 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
                   onClick={() => navigate(`/player/${player.id}`)}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold hover:text-yellow-400 transition-colors">{player.name}</span>
+                    <span 
+                      className="font-semibold hover:opacity-80 transition-colors" 
+                      style={{ color: player.nickColor || "white" }}
+                    >
+                      {player.name}
+                    </span>
                     <span className="text-gray-500">{player.level} ур.</span>
                     <span className="text-gray-500">в {player.location}</span>
                   </div>
