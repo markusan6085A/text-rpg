@@ -204,34 +204,44 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     <div className="w-full flex flex-col items-center text-white">
       <div className="w-full max-w-[360px] mt-2 px-3">
         {/* Заголовок */}
-        <div className="text-center mb-2 text-[14px] font-bold text-[#87ceeb]">
-          Информация о игроке
+        <div className="border-t border-gray-600 pt-2 mb-2">
+          <div className="text-center text-[14px] font-bold text-[#87ceeb]">
+            Информация о игроке
+          </div>
         </div>
 
         {/* Нік, профа, лвл */}
-        <div className="text-center mb-2 text-[12px]">
-          <div className="font-bold text-[14px]" style={getNickColorStyle(character.name, hero, heroData?.nickColor)}>{character.name}</div>
-          <div className="text-yellow-300">
-            {professionLabel} - {character.level} ур.
+        <div className="border-t border-gray-600 pt-2 mb-2">
+          <div className="text-center text-[12px]">
+            <div className="font-bold text-[14px]" style={getNickColorStyle(character.name, hero, heroData?.nickColor)}>{character.name}</div>
+            <div className="border-b border-gray-600 pb-2 mb-2">
+              <div className="text-yellow-300">
+                {professionLabel} - {character.level} ур.
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Останній раз був / Онлайн */}
         {character.lastActivityAt && (
-          <div className="text-center mb-3 text-[11px]">
-            {isOnline ? (
-              <span className="text-green-400 font-semibold">Онлайн</span>
-            ) : (
-              <span className="text-gray-400">
-                Последний раз был(а): {formatLastSeen(character.lastActivityAt)}
-              </span>
-            )}
+          <div className="border-t border-gray-600 pt-2 mb-2">
+            <div className="text-center text-[11px] border-b border-gray-600 pb-2">
+              {isOnline ? (
+                <span className="text-green-400 font-semibold">Онлайн</span>
+              ) : (
+                <span className="text-gray-400">
+                  Последний раз был(а): {formatLastSeen(character.lastActivityAt)}
+                </span>
+              )}
+            </div>
           </div>
         )}
 
         {/* Статус */}
-        <div className="text-center mb-3 text-[11px] text-gray-400">
-          {heroData.status || "Нет статуса"}
+        <div className="border-t border-gray-600 pt-2 mb-3">
+          <div className="text-center text-[11px] text-gray-400 border-b border-gray-600 pb-2">
+            {heroData.status || "Нет статуса"}
+          </div>
         </div>
 
         {/* Картинка персонажа з екіпіровкою */}
@@ -347,6 +357,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               В {location}
             </div>
           </div>
+
+          {/* Дата реєстрації */}
+          {character.createdAt && (
+            <div className="border-t border-gray-600 pt-2">
+              <div className="text-[10px] text-gray-400">
+                Рег-я: {formatLastSeen(character.createdAt)}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Кнопка назад - просто текст */}

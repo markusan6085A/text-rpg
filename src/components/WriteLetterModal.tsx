@@ -96,24 +96,27 @@ export default function WriteLetterModal({
 
         {/* Тема (опціональна) */}
         <div className="mb-3">
-          <label className="block text-xs text-gray-400 mb-1">Тема (необов'язково)</label>
+          <div className="text-xs text-gray-400 mb-1">Тема (необов'язково)</div>
           <input
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            className="w-full bg-[#0b0806] border border-[#5b4726] rounded px-2 py-1 text-sm text-white"
+            className="w-full bg-transparent text-sm text-white outline-none"
             placeholder="Тема листа..."
             maxLength={100}
           />
         </div>
 
+        {/* Риска */}
+        <div className="w-full h-px bg-gray-600 mb-3"></div>
+
         {/* Повідомлення */}
         <div className="mb-3">
-          <label className="block text-xs text-gray-400 mb-1">Повідомлення</label>
+          <div className="text-xs text-gray-400 mb-1">Повідомлення</div>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="w-full bg-[#0b0806] border border-[#5b4726] rounded px-2 py-1 text-sm text-white resize-none"
+            className="w-full bg-transparent text-sm text-white resize-none outline-none"
             placeholder="Введіть текст листа..."
             rows={6}
             maxLength={1000}

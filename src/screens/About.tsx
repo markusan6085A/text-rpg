@@ -74,7 +74,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
           onClick={() => setShowChangeNickModal(false)}
         >
           <div
-            className="bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className="bg-[#1a0b0b] border border-[#5c1a1a]/70 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
