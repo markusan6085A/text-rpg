@@ -126,12 +126,17 @@ export default function Layout({
       }
     };
 
-    // Відправляємо heartbeat одразу при монтуванні (тільки для важких сторінок)
-    sendHeartbeatInterval();
+    // Відкладаємо перший heartbeat на 3 секунди, щоб не блокувати початкове завантаження
+    const initialDelay = setTimeout(() => {
+      sendHeartbeatInterval();
+    }, 3000);
 
     // Відправляємо heartbeat кожні 2 хвилини
     const heartbeatInterval = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
-    return () => clearInterval(heartbeatInterval);
+    return () => {
+      clearTimeout(initialDelay);
+      clearInterval(heartbeatInterval);
+    };
   }, [isAuthenticated, isLightPage]);
 
   const handleSupport = () => {

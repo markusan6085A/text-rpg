@@ -136,52 +136,43 @@ export async function letterRoutes(app: FastifyInstance) {
 
       // 🔥 Фільтруємо листи - показуємо тільки ті, що створені за останні 30 днів
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-      const letters = await prisma.letter.findMany({
-        where: { 
-          toCharacterId: character.id,
-          createdAt: {
-            gte: thirtyDaysAgo, // Only letters from last 30 days
-          },
+      const whereClause = { 
+        toCharacterId: character.id,
+        createdAt: {
+          gte: thirtyDaysAgo,
         },
-        orderBy: { createdAt: "desc" },
-        take: limit,
-        skip,
-        select: {
-          id: true,
-          subject: true,
-          message: true,
-          isRead: true,
-          createdAt: true,
-          fromCharacter: {
-            select: {
-              id: true,
-              name: true,
-              heroJson: true, // Include heroJson to get nickColor
+      };
+
+      // 🔥 Виконуємо всі запити паралельно для швидшої відповіді
+      const [letters, total, unreadCount] = await Promise.all([
+        prisma.letter.findMany({
+          where: whereClause,
+          orderBy: { createdAt: "desc" },
+          take: limit,
+          skip,
+          select: {
+            id: true,
+            subject: true,
+            message: true,
+            isRead: true,
+            createdAt: true,
+            fromCharacter: {
+              select: {
+                id: true,
+                name: true,
+                heroJson: true, // Include heroJson to get nickColor
+              },
             },
           },
-        },
-      });
-
-      // 🔥 Враховуємо фільтр по даті для підрахунку
-      const total = await prisma.letter.count({
-        where: { 
-          toCharacterId: character.id,
-          createdAt: {
-            gte: thirtyDaysAgo,
+        }),
+        prisma.letter.count({ where: whereClause }),
+        prisma.letter.count({
+          where: {
+            ...whereClause,
+            isRead: false,
           },
-        },
-      });
-
-      const unreadCount = await prisma.letter.count({
-        where: {
-          toCharacterId: character.id,
-          isRead: false,
-          createdAt: {
-            gte: thirtyDaysAgo,
-          },
-        },
-      });
+        }),
+      ]);
 
       // Map letters to include nickColor from heroJson
       const lettersWithNickColor = letters.map((letter: any) => {
