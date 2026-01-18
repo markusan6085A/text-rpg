@@ -398,69 +398,71 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         {/* Список предметів */}
         <div className="px-4 py-2 border-b border-black/70">
           {view === "inventory" ? (
-            // Інвентар
-            <div className="space-y-2">
-              {filteredInventoryItems.length > 0 ? (
-                filteredInventoryItems.map((item, index) => (
-                  <div
-                    key={`${item.id}-${index}`}
-                    className="flex items-center gap-2 py-1 border-b border-dotted border-[#5b4b35]/30"
-                  >
-                    <img
-                      src={
-                        item.icon?.startsWith("/") 
-                          ? item.icon 
-                          : item.icon 
-                          ? `/items/${item.icon}` 
-                          : itemsDB[item.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"
-                      }
-                      alt={item.name}
-                      className="w-6 h-6 object-contain"
-                      onError={(e) => {
-                        // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
-                        const itemDef = itemsDB[item.id];
-                        if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
-                          (e.target as HTMLImageElement).src = itemDef.icon;
-                        } else {
-                          (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                        }
-                      }}
-                    />
-                    <div className="flex-1 text-[12px] text-[#cfcfcc]">
-                      <div>{item.name}</div>
-                      {item.count && item.count > 1 && (
-                        <div className="text-[10px] text-gray-400">x{item.count}</div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => handlePutToWarehouseClick(item)}
-                      className="text-[10px] text-[#ff8c00] hover:text-[#ffa500] underline px-2 py-1"
+            <>
+              {/* Інвентар */}
+              <div className="space-y-2">
+                {filteredInventoryItems.length > 0 ? (
+                  filteredInventoryItems.map((item, index) => (
+                    <div
+                      key={`${item.id}-${index}`}
+                      className="flex items-center gap-2 py-1 border-b border-dotted border-[#5b4b35]/30"
                     >
-                      [Положить на склад]
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-gray-400 text-[12px] py-4">
-                  Инвентарь пуст
-                </div>
-              )}
-            </div>
-            
-            {/* Лог операцій для інвентаря */}
-            <div className="px-4 py-2 border-t border-black/70 mt-2">
-              <div className="text-[11px] text-[#cfcfcc] mb-2 font-semibold">Лог операций:</div>
-              <div className="space-y-1">
-                {Array.from({ length: LOG_MAX_ENTRIES }, (_, index) => {
-                  const entry = log[index];
-                  return (
-                    <div key={entry?.id || `log-empty-inv-${index}`} className="text-[10px] text-gray-400 min-h-[14px]">
-                      {entry ? entry.message : "\u00A0"}
+                      <img
+                        src={
+                          item.icon?.startsWith("/") 
+                            ? item.icon 
+                            : item.icon 
+                            ? `/items/${item.icon}` 
+                            : itemsDB[item.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                        }
+                        alt={item.name}
+                        className="w-6 h-6 object-contain"
+                        onError={(e) => {
+                          // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
+                          const itemDef = itemsDB[item.id];
+                          if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
+                            (e.target as HTMLImageElement).src = itemDef.icon;
+                          } else {
+                            (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                          }
+                        }}
+                      />
+                      <div className="flex-1 text-[12px] text-[#cfcfcc]">
+                        <div>{item.name}</div>
+                        {item.count && item.count > 1 && (
+                          <div className="text-[10px] text-gray-400">x{item.count}</div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handlePutToWarehouseClick(item)}
+                        className="text-[10px] text-[#ff8c00] hover:text-[#ffa500] underline px-2 py-1"
+                      >
+                        [Положить на склад]
+                      </button>
                     </div>
-                  );
-                })}
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400 text-[12px] py-4">
+                    Инвентарь пуст
+                  </div>
+                )}
               </div>
-            </div>
+              
+              {/* Лог операцій для інвентаря */}
+              <div className="px-4 py-2 border-t border-black/70 mt-2">
+                <div className="text-[11px] text-[#cfcfcc] mb-2 font-semibold">Лог операций:</div>
+                <div className="space-y-1">
+                  {Array.from({ length: LOG_MAX_ENTRIES }, (_, index) => {
+                    const entry = log[index];
+                    return (
+                      <div key={entry?.id || `log-empty-inv-${index}`} className="text-[10px] text-gray-400 min-h-[14px]">
+                        {entry ? entry.message : "\u00A0"}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
           ) : (
             // Склад
             <div className="space-y-2">
