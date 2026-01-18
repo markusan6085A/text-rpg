@@ -87,7 +87,8 @@ export default function Character() {
   const stats = typeof heroJson === 'object' ? heroJson : {};
   const karma = stats.karma || 0;
   const pk = stats.pk || 0;
-  const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.killedMobs ?? stats.totalKills ?? 0;
+  // 🔥 mobsKilled може бути як в hero, так і в heroJson - перевіряємо обидва місця
+  const mobsKilled = (hero as any)?.mobsKilled ?? stats.mobsKilled ?? stats.mobs_killed ?? stats.killedMobs ?? stats.totalKills ?? 0;
   const pvpWins = stats.pvpWins || stats.pvp_wins || 0;
   const pvpLosses = stats.pvpLosses || stats.pvp_losses || 0;
   
