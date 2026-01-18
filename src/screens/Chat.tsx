@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { postChatMessage, deleteChatMessage } from "../utils/api";
-import type { ChatMessage } from "../utils/api";
+import { postChatMessage, deleteChatMessage, type ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestProgress";
@@ -306,7 +305,7 @@ export default function Chat({ navigate }: ChatProps) {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span 
                       className="font-semibold cursor-pointer hover:opacity-80 transition-colors"
-                      style={getNickColorStyle(msg.characterName, hero, (msg as any).nickColor)}
+                      style={getNickColorStyle(msg.characterName, hero, msg.nickColor)}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (msg.characterId) {
