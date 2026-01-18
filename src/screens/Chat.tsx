@@ -56,6 +56,22 @@ export default function Chat({ navigate }: ChatProps) {
     manual: true, // 🔥 ВИМКНЕНО всі автоматичні запити
   });
 
+  // 🔥 Початкове завантаження при монтуванні (якщо немає кешу)
+  const hasLoadedRef = useRef(false);
+  useEffect(() => {
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      // Перевіряємо, чи є кеш для поточного каналу
+      const cacheKey = `chat:v3:${channel}|${page}|10`;
+      const cached = localStorage.getItem(cacheKey);
+      if (!cached) {
+        // Якщо немає кешу - завантажуємо одразу
+        console.log('[chat] No cache found, loading messages on mount');
+        setTimeout(() => refresh(), 100);
+      }
+    }
+  }, []); // Тільки при монтуванні
+
   // Clear optimistic messages when channel changes
   const currentChannelRef = useRef(channel);
   useEffect(() => {
@@ -76,8 +92,15 @@ export default function Chat({ navigate }: ChatProps) {
       return new Set();
     });
     setPage(1); // Reset to first page when changing channels
-    // 🔥 НЕ викликаємо автоматичний refresh() - користувач сам оновить кнопкою або дані з кешу показуються
-  }, [channel]);
+    
+    // 🔥 При зміні каналу перевіряємо кеш і завантажуємо якщо немає
+    const cacheKey = `chat:v3:${channel}|1|10`;
+    const cached = localStorage.getItem(cacheKey);
+    if (!cached) {
+      console.log('[chat] No cache for channel, loading messages');
+      setTimeout(() => refresh(), 100);
+    }
+  }, [channel, refresh]);
 
   // 🔥 ВИМКНЕНО автоматичний refresh при зміні сторінки - користувач сам клікає кнопки пагінації
   // useEffect для page видалено - refresh тільки по кнопці
