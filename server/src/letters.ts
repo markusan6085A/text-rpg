@@ -161,7 +161,7 @@ export async function letterRoutes(app: FastifyInstance) {
                 id: true,
                 name: true,
                 nickColor: true, // ✅ замість heroJson
-              },
+              } as any,
             },
           },
         }),
@@ -226,7 +226,7 @@ export async function letterRoutes(app: FastifyInstance) {
               id: true,
               name: true,
               nickColor: true, // ✅
-            },
+            } as any,
           },
           toCharacter: {
             select: {
@@ -242,7 +242,7 @@ export async function letterRoutes(app: FastifyInstance) {
       }
 
       // Перевіряємо, чи це наш лист (отримувач)
-      if (letter.toCharacter.id !== character.id) {
+      if ((letter as any).toCharacter?.id !== character.id) {
         return reply.code(403).send({ error: "access denied" });
       }
 
@@ -380,7 +380,7 @@ export async function letterRoutes(app: FastifyInstance) {
             createdAt: true,
             fromCharacterId: true, // ✅ потрібно для isOwn
             fromCharacter: {
-              select: { id: true, name: true, nickColor: true },
+              select: { id: true, name: true, nickColor: true } as any,
             },
             toCharacter: {
               select: { id: true, name: true },
