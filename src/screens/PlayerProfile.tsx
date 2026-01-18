@@ -276,6 +276,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               Написать письмо
             </span>
           </div>
+          <div className="w-full border-t border-b border-gray-600 py-1">
+            <span 
+              onClick={() => navigate(`/player/${character.id}/admin`)}
+              className="cursor-pointer hover:text-red-300 transition-colors text-[12px] text-red-400 text-center block"
+            >
+              Забанити игрока
+            </span>
+          </div>
         </div>
 
         {/* Модалка написання листа */}

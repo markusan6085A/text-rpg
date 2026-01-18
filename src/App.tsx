@@ -32,6 +32,7 @@ import Wip from "./screens/Wip";
 import Chat from "./screens/Chat";
 import OnlinePlayers from "./screens/OnlinePlayers";
 import PlayerProfile from "./screens/PlayerProfile";
+import PlayerAdminActions from "./screens/PlayerAdminActions";
 import Mail from "./screens/Mail";
 import ColorizeNick from "./screens/ColorizeNick";
 import Forum from "./screens/Forum";
@@ -351,6 +352,13 @@ function AppInner() {
       return renderWithLayout(<SevenSeals navigate={navigate} />);
 
     default:
+      // Check if pathname matches /player/:id/admin pattern
+      if (pathname.startsWith("/player/") && pathname.endsWith("/admin")) {
+        const playerId = pathname.replace("/player/", "").replace("/admin", "").split("?")[0];
+        if (playerId) {
+          return renderWithLayout(<PlayerAdminActions navigate={navigate} playerId={playerId} />);
+        }
+      }
       // Check if pathname matches /player/:id pattern
       if (pathname.startsWith("/player/")) {
         const playerId = pathname.replace("/player/", "").split("?")[0];

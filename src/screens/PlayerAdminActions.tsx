@@ -1,0 +1,339 @@
+import React, { useState, useEffect, useMemo } from "react";
+import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
+import { getSkillDef } from "../state/battle/loadout";
+import { normalizeProfessionId, getProfessionDefinition } from "../data/skills";
+import { useHeroStore } from "../state/heroStore";
+import { getNickColorStyle } from "../utils/nickColor";
+
+interface PlayerAdminActionsProps {
+  navigate: (path: string) => void;
+  playerId?: string;
+  playerName?: string;
+}
+
+export default function PlayerAdminActions({ navigate, playerId, playerName }: PlayerAdminActionsProps) {
+  const hero = useHeroStore((s) => s.hero);
+  const [character, setCharacter] = useState<Character | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPlayer = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        let loadedCharacter: Character;
+        if (playerId) {
+          loadedCharacter = await getPublicCharacter(playerId);
+        } else if (playerName) {
+          loadedCharacter = await getCharacterByName(playerName);
+        } else {
+          throw new Error("playerId or playerName is required");
+        }
+        
+        setCharacter(loadedCharacter);
+      } catch (err: any) {
+        setError(err?.message || "Помилка завантаження профілю гравця");
+        console.error("[PlayerAdminActions] Error loading profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPlayer();
+  }, [playerId, playerName]);
+
+  // Конвертуємо Character в Hero формат
+  const playerHero = useMemo(() => {
+    if (!character) return null;
+
+    const heroJson = character.heroJson || {};
+    const professionRaw = heroJson.profession || character.classId || "";
+    
+    return {
+      id: character.id,
+      name: character.name,
+      race: character.race,
+      klass: character.classId,
+      profession: professionRaw,
+      level: character.level,
+      skills: heroJson.skills || [],
+      hp: heroJson.hp || heroJson.maxHp || 100,
+      maxHp: heroJson.maxHp || 100,
+      mp: heroJson.mp || heroJson.maxMp || 100,
+      maxMp: heroJson.maxMp || 100,
+    };
+  }, [character]);
+
+  // Отримуємо вивчені бафи гравця
+  const playerBuffs = useMemo(() => {
+    if (!playerHero || !playerHero.skills) return [];
+
+    return playerHero.skills
+      .map((learned: any) => {
+        const skillDef = getSkillDef(learned.id);
+        if (!skillDef || skillDef.category !== "buff") return null;
+
+        const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
+        
+        return {
+          id: learned.id,
+          name: skillDef.name,
+          description: skillDef.description,
+          icon: skillDef.icon,
+          level: learned.level,
+          castTime: skillDef.castTime,
+          cooldown: skillDef.cooldown,
+          duration: skillDef.duration,
+          mpCost: levelDef?.mpCost ?? 0,
+          skillDef,
+          levelDef,
+        };
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [playerHero]);
+
+  // Отримуємо мої heal скіли
+  const myHealSkills = useMemo(() => {
+    if (!hero || !hero.skills) return [];
+
+    return hero.skills
+      .map((learned: any) => {
+        const skillDef = getSkillDef(learned.id);
+        if (!skillDef || skillDef.category !== "heal") return null;
+
+        const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
+        
+        return {
+          id: learned.id,
+          name: skillDef.name,
+          description: skillDef.description,
+          icon: skillDef.icon,
+          level: learned.level,
+          power: levelDef?.power ?? 0,
+          mpCost: levelDef?.mpCost ?? 0,
+          castTime: skillDef.castTime,
+          cooldown: skillDef.cooldown,
+        };
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [hero]);
+
+  // Функція для форматування значень бафа
+  const formatBuffValues = (skillDef: any, levelDef: any) => {
+    const parts: string[] = [];
+    
+    if (skillDef.effects && Array.isArray(skillDef.effects) && skillDef.effects.length > 0) {
+      const effectParts = skillDef.effects.map((eff: any) => {
+        let val: number;
+        if (eff.mode === "multiplier") {
+          val = typeof eff.multiplier === "number" ? eff.multiplier : 1;
+        } else {
+          const base = typeof eff.value === "number" 
+            ? eff.value 
+            : (typeof levelDef?.power === "number" ? levelDef.power : 0);
+          val = base * (eff.multiplier ?? 1);
+        }
+        
+        const statNames: Record<string, string> = {
+          pAtk: "Физ. атака",
+          pDef: "Физ. защита",
+          mAtk: "Маг. атака",
+          mDef: "Маг. защита",
+          maxHp: "Макс. HP",
+          maxMp: "Макс. MP",
+          critRate: "Шанс крита",
+          critDamage: "Сила крита",
+        };
+        
+        const statName = statNames[eff.stat] || eff.stat;
+        const mode = eff.mode === "percent" ? "%" : eff.mode === "multiplier" ? "x" : "";
+        
+        return `${statName}: ${val}${mode}`;
+      });
+      
+      parts.push(...effectParts);
+    }
+    
+    if (levelDef?.mpCost > 0) {
+      parts.push(`MP: ${levelDef.mpCost}`);
+    }
+    if (skillDef.castTime) {
+      parts.push(`Каст: ${skillDef.castTime}с`);
+    }
+    if (skillDef.cooldown) {
+      parts.push(`КД: ${skillDef.cooldown}с`);
+    }
+    if (skillDef.duration) {
+      const minutes = Math.floor(skillDef.duration / 60);
+      const seconds = skillDef.duration % 60;
+      if (minutes > 0) {
+        parts.push(`Длит.: ${minutes}м ${seconds}с`);
+      } else {
+        parts.push(`Длит.: ${seconds}с`);
+      }
+    }
+    
+    return parts;
+  };
+
+  const handleHeal = async (healSkillId: number) => {
+    // TODO: Реалізувати API для лікування гравця
+    alert(`Лікування гравця ${character?.name} скілом ${healSkillId} (буде реалізовано)`);
+  };
+
+  const handleBan = () => {
+    // TODO: Реалізувати API для бану гравця
+    alert(`Забанення гравця ${character?.name} (буде реалізовано)`);
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center text-white text-sm py-10">
+        Загрузка...
+      </div>
+    );
+  }
+
+  if (error || !character || !playerHero) {
+    return (
+      <div className="w-full flex flex-col items-center text-white text-sm py-10">
+        <div className="text-red-400 mb-4">{error || "Профіль не знайдено"}</div>
+        <button
+          onClick={() => navigate(`/player/${character?.id || ""}`)}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
+        >
+          Назад
+        </button>
+      </div>
+    );
+  }
+
+  const profession = playerHero.profession || character.classId || "";
+  const profId = normalizeProfessionId(profession as any);
+  const profDef = profId ? getProfessionDefinition(profId) : null;
+  const professionLabel = profDef?.label || profession || "Нет";
+
+  return (
+    <div className="w-full flex flex-col items-center text-white">
+      <div className="w-full max-w-[420px] mt-2 px-3">
+        {/* Заголовок */}
+        <div className="text-center text-[#dec28e] text-lg font-semibold mb-4">
+          <div style={getNickColorStyle(character.name, hero)}>{character.name}</div>
+          <div className="text-sm text-gray-400">{professionLabel} - {character.level} ур.</div>
+        </div>
+
+        {/* Кнопка бану */}
+        <div className="mb-4">
+          <button
+            onClick={handleBan}
+            className="w-full py-2 px-4 bg-red-900/50 border border-red-700 text-red-400 hover:bg-red-900/70 rounded text-sm"
+          >
+            Забанити игрока
+          </button>
+        </div>
+
+        {/* Бафи гравця */}
+        <div className="mb-4">
+          <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-gray-600 pb-1">
+            Бафи
+          </div>
+          {playerBuffs.length === 0 ? (
+            <div className="text-gray-500 text-xs py-2">Немає вивчених бафів</div>
+          ) : (
+            <div className="space-y-2">
+              {playerBuffs.map((buff) => {
+                const formattedValues = formatBuffValues(buff.skillDef, buff.levelDef);
+                return (
+                  <div key={buff.id} className="border-b border-gray-700 pb-2">
+                    <div className="flex items-start gap-2 mb-1">
+                      {buff.icon && (
+                        <img
+                          src={buff.icon}
+                          alt={buff.name}
+                          className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[#dec28e] font-semibold text-xs">{buff.name}</div>
+                        <div className="text-gray-400 text-[10px] leading-relaxed mt-1">
+                          {buff.description}
+                        </div>
+                        <div className="text-gray-500 text-[10px] mt-1 space-y-0.5">
+                          {formattedValues.map((val, idx) => (
+                            <div key={idx}>{val}</div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Лікування */}
+        {myHealSkills.length > 0 && (
+          <div className="mb-4">
+            <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-gray-600 pb-1">
+              Лікування
+            </div>
+            <div className="space-y-2">
+              {myHealSkills.map((heal) => (
+                <div key={heal.id} className="border-b border-gray-700 pb-2">
+                  <div className="flex items-start gap-2 mb-1">
+                    {heal.icon && (
+                      <img
+                        src={heal.icon}
+                        alt={heal.name}
+                        className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-yellow-300 font-semibold text-xs">{heal.name}</div>
+                      <div className="text-gray-400 text-[10px] leading-relaxed mt-1">
+                        {heal.description}
+                      </div>
+                      <div className="text-gray-500 text-[10px] mt-1">
+                        <div>Лікування: {heal.power}</div>
+                        {heal.mpCost > 0 && <div>MP: {heal.mpCost}</div>}
+                        {heal.castTime && <div>Каст: {heal.castTime}с</div>}
+                        {heal.cooldown && <div>КД: {heal.cooldown}с</div>}
+                      </div>
+                      <button
+                        onClick={() => handleHeal(heal.id)}
+                        className="mt-2 px-3 py-1 bg-green-900/50 border border-green-700 text-green-400 hover:bg-green-900/70 rounded text-[10px]"
+                      >
+                        Використати
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Кнопка назад */}
+        <div className="mt-4 mb-4">
+          <button
+            onClick={() => navigate(`/player/${character.id}`)}
+            className="w-full py-2 px-4 bg-blue-900/50 border border-blue-700 text-blue-400 hover:bg-blue-900/70 rounded text-sm"
+          >
+            Назад
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
