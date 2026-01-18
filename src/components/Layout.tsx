@@ -29,6 +29,13 @@ export default function Layout({
   const contentRef = useRef<HTMLDivElement>(null);
   const { processMobAttack, status: battleStatus, regenTick } = useBattleStore();
 
+  // 🔥 Визначаємо "легкі" сторінки, для яких не потрібні важкі операції
+  const isLightPage = typeof window !== 'undefined' && (
+    window.location.pathname.startsWith('/mail') ||
+    window.location.pathname.startsWith('/about') ||
+    window.location.pathname.startsWith('/forum')
+  );
+
   // 🔥 Скрол вгору при монтуванні і при зміні children - завжди показуємо верх сторінки з барами
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -51,6 +58,7 @@ export default function Layout({
   }, [isAuthenticated, battleStatus, processMobAttack, regenTick]);
 
   // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд (тільки якщо залоговані)
+  // 🔥 Для легких сторінок відкладаємо завантаження на 800-1200 мс для швидкого рендерингу
   useEffect(() => {
     if (!isAuthenticated) {
       setOnlineCount(0);
@@ -61,10 +69,14 @@ export default function Layout({
       try {
         const data = await getOnlinePlayers();
         const count = data.count ?? data.players?.length ?? 0;
-        console.log('[Layout] Online count loaded:', count, 'players:', data.players?.length);
+        if (import.meta.env.DEV) {
+          console.log('[Layout] Online count loaded:', count, 'players:', data.players?.length);
+        }
         setOnlineCount(count);
       } catch (err: any) {
-        console.error('[Layout] Failed to load online count:', err?.message || err);
+        if (import.meta.env.DEV) {
+          console.error('[Layout] Failed to load online count:', err?.message || err);
+        }
         // Не показуємо помилку, просто залишаємо попереднє значення або 0
         if (onlineCount === null || onlineCount === undefined) {
           setOnlineCount(0);
@@ -72,39 +84,54 @@ export default function Layout({
       }
     };
 
-    loadOnlineCount();
-    const interval = setInterval(loadOnlineCount, 30000); // Оновлюємо кожні 30 секунд
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
+    // Відкладаємо завантаження для легких сторінок
+    const delay = isLightPage ? 1000 : 0;
+    const timeoutId = setTimeout(() => {
+      loadOnlineCount();
+    }, delay);
+
+    // Оновлюємо кожні 30 секунд тільки якщо не легка сторінка
+    const interval = isLightPage ? null : setInterval(loadOnlineCount, 30000);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      if (interval) clearInterval(interval);
+    };
+  }, [isAuthenticated, isLightPage]);
 
   // 🔥 Heartbeat - оновлюємо активність кожні 2 хвилини (120 секунд)
   // 🔥 Якщо поле lastActivityAt не існує в БД, heartbeat може повертати 400/500 - ігноруємо помилки
+  // 🔥 Пропускаємо heartbeat для легких сторінок (mail, about, forum)
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isLightPage) return;
 
     const sendHeartbeatInterval = async () => {
       try {
         await sendHeartbeat();
-        console.log('[Layout] Heartbeat sent');
+        if (import.meta.env.DEV) {
+          console.log('[Layout] Heartbeat sent');
+        }
       } catch (err: any) {
         // 🔥 Ігноруємо помилки heartbeat - вони не критичні
         // Можливо поле lastActivityAt не існує в БД (міграція не виконана)
         // Або інші тимчасові проблеми з БД
-        if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
-          console.warn('[Layout] Heartbeat failed (non-critical):', err?.message);
-        } else {
-          console.error('[Layout] Failed to send heartbeat:', err);
+        if (import.meta.env.DEV) {
+          if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
+            console.warn('[Layout] Heartbeat failed (non-critical):', err?.message);
+          } else {
+            console.error('[Layout] Failed to send heartbeat:', err);
+          }
         }
       }
     };
 
-    // Відправляємо heartbeat одразу при монтуванні
+    // Відправляємо heartbeat одразу при монтуванні (тільки для важких сторінок)
     sendHeartbeatInterval();
 
     // Відправляємо heartbeat кожні 2 хвилини
     const heartbeatInterval = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
     return () => clearInterval(heartbeatInterval);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isLightPage]);
 
   const handleSupport = () => {
     // TODO: Відкрити підтримку

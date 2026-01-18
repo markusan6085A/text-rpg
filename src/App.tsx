@@ -79,11 +79,13 @@ function AppInner() {
 
   const { navigate, path } = useRouter();
   
-  // Логуємо API_URL при ініціалізації App
+  // Логуємо API_URL при ініціалізації App (тільки в DEV)
   React.useEffect(() => {
-    const apiUrl = (window as any).__API_URL__ || import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    console.log('[App] API_URL:', apiUrl);
-    console.log('[App] VITE_API_URL from env:', import.meta.env.VITE_API_URL || 'NOT SET');
+    if (import.meta.env.DEV) {
+      const apiUrl = (window as any).__API_URL__ || import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      console.log('[App] API_URL:', apiUrl);
+      console.log('[App] VITE_API_URL from env:', import.meta.env.VITE_API_URL || 'NOT SET');
+    }
   }, []);
 
   // Фаза завантаження
