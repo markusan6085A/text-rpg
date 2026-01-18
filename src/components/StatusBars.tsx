@@ -6,6 +6,7 @@ import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs } from "../state/battle/helpers";
 import { calculateMaxResourcesWithPassives } from "../utils/calculateHeroStats";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
+import { getNickColorStyle } from "../utils/nickColor";
 
 type BarKey = "CP" | "HP" | "MP" | "EXP";
 
@@ -167,7 +168,7 @@ export default function StatusBars() {
         <Bar label="EXP" value={expPercent} max={100} />
       </div>
       <div className="mt-1 text-white text-[9px] font-semibold text-left">
-        <span style={{ color: hero.nickColor || "white" }}>{hero.name}</span>
+        <span style={getNickColorStyle(hero.name, hero)}>{hero.name}</span>
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
     </div>

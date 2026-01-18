@@ -80,7 +80,7 @@ export default function Stats() {
       <div className="w-full max-w-[360px]">
         {/* Інформація про персонажа */}
         <div className="mb-4 text-center">
-          <div className="font-semibold text-base mb-1" style={{ color: hero.nickColor || "white" }}>
+          <div className="font-semibold text-base mb-1" style={getNickColorStyle(hero.name || "", hero)}>
             {hero.name || "Без имени"}
           </div>
           <div className="text-red-500 text-sm">

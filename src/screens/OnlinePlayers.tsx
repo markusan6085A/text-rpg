@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
+import { useHeroStore } from "../state/heroStore";
+import { getNickColorStyle } from "../utils/nickColor";
 
 interface OnlinePlayersProps {
   navigate: (path: string) => void;
 }
 
 export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
+  const hero = useHeroStore((s) => s.hero);
   const [players, setPlayers] = useState<OnlinePlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +72,7 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
                   <div className="flex items-center gap-2">
                     <span 
                       className="font-semibold hover:opacity-80 transition-colors" 
-                      style={{ color: player.nickColor || "white" }}
+                      style={getNickColorStyle(player.name, hero, player.nickColor)}
                     >
                       {player.name}
                     </span>

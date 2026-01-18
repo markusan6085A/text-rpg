@@ -4,6 +4,8 @@ import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
 import WriteLetterModal from "../components/WriteLetterModal";
 import PlayerItemModal from "../components/PlayerItemModal";
+import { useHeroStore } from "../state/heroStore";
+import { getNickColorStyle } from "../utils/nickColor";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -12,6 +14,7 @@ interface PlayerProfileProps {
 }
 
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
+  const hero = useHeroStore((s) => s.hero);
   const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -207,7 +210,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Нік, профа, лвл */}
         <div className="text-center mb-2 text-[12px]">
-          <div className="font-bold text-[14px]" style={{ color: heroData?.nickColor || "white" }}>{character.name}</div>
+          <div className="font-bold text-[14px]" style={getNickColorStyle(character.name, hero, heroData?.nickColor)}>{character.name}</div>
           <div className="text-yellow-300">
             {professionLabel} - {character.level} ур.
           </div>
