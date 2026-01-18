@@ -205,7 +205,7 @@ export default function Mail({ navigate }: MailProps) {
               <div key={letter.id} className="border-b border-dotted border-gray-600 pb-1 mb-1">
                 <div className="flex items-center justify-between mb-1">
                   <span 
-                    className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors"
+                    className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors text-[6px]"
                     style={getNickColorStyle(letter.fromCharacter.name, hero, letter.fromCharacter.nickColor)}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -327,10 +327,6 @@ export default function Mail({ navigate }: MailProps) {
           </div>
         )}
 
-        {/* Внизу Общ | Торг */}
-        <div className="text-center mt-4 text-yellow-400 text-sm">
-          Общ | Торг
-        </div>
       </div>
 
       {/* Модалка написання нового листа */}
