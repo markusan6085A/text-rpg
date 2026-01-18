@@ -292,7 +292,19 @@ export default function Chat({ navigate }: ChatProps) {
               <div className="text-xs leading-tight flex items-start gap-2 group">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span `n                      className="text-[#d4af37] font-semibold cursor-pointer hover:text-yellow-400 transition-colors"`n                      onClick={(e) => {`n                        e.stopPropagation();`n                        if (msg.characterId) {`n                          navigate(`/player/${msg.characterId}`);`n                        } else if (msg.characterName) {`n                          navigate(`/player/${msg.characterName}`);`n                        }`n                      }}`n                    >`n                      {msg.characterName}`n                    </span>
+                    <span 
+                      className="text-[#d4af37] font-semibold cursor-pointer hover:text-yellow-400 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (msg.characterId) {
+                          navigate(`/player/${msg.characterId}`);
+                        } else if (msg.characterName) {
+                          navigate(`/player/${msg.characterName}`);
+                        }
+                      }}
+                    >
+                      {msg.characterName}
+                    </span>
                     <span className="text-green-400 cursor-pointer hover:text-green-300" onClick={() => setMessageText(`@${msg.characterName} `)}>[ответить]</span>
                   <span className="text-gray-400 cursor-pointer hover:text-gray-300" onClick={() => setMessageText(`@${msg.characterName}: ${msg.message}: `)}>(цитировать)</span>
                   <span className="text-gray-500">{formatTime(msg.createdAt)}</span>
