@@ -488,7 +488,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
           <div className="text-[11px] text-[#cfcfcc] mb-2 font-semibold">Лог операций:</div>
           <div className="space-y-1 max-h-40 overflow-y-auto">
             {log.length > 0 ? (
-              log.map((entry) => (
+              log.slice(0, 10).map((entry) => (
                 <div key={entry.id} className="text-[10px] text-gray-400">
                   {entry.message}
                 </div>
