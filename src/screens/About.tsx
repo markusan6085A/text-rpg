@@ -5,6 +5,7 @@ type Navigate = (p: string) => void;
 
 export default function About({ navigate }: { navigate: Navigate }) {
   const [onlineCount, setOnlineCount] = useState<number>(0);
+  const [showChangeNickModal, setShowChangeNickModal] = useState(false);
 
   useEffect(() => {
     const loadOnlineCount = async () => {
@@ -23,39 +24,104 @@ export default function About({ navigate }: { navigate: Navigate }) {
   }, []);
 
   return (
-    <div className="w-full text-yellow-200 min-h-[400px] px-3 py-4">
-      <div className="mb-4">
-        <div className="text-lg font-bold mb-2 text-blue-400">Меню сервера</div>
-        <div className="text-sm text-orange-400">
-          Здесь собраны основные разделы и сервисные функции.
+    <>
+      <div className="w-full text-yellow-200 min-h-[400px] px-3 py-4">
+        <div className="mb-4">
+          <div className="text-lg font-bold mb-2 text-blue-400">Меню сервера</div>
+          <div className="text-sm text-orange-400">
+            Здесь собраны основные разделы и сервисные функции.
+          </div>
+        </div>
+        <div className="flex flex-col gap-0">
+          <button
+            onClick={() => navigate("/wip")}
+            className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+          >
+            {String.fromCharCode(1055, 1086, 1076, 1076, 1077, 1088, 1078, 1082, 1072)}
+          </button>
+          <button
+            onClick={() => navigate("/online-players")}
+            className="text-left text-green-400 hover:text-green-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+          >
+            {String.fromCharCode(1054, 1085, 1083, 1072, 1081, 1085)} [{onlineCount}]
+          </button>
+          <button
+            onClick={() => setShowChangeNickModal(true)}
+            className="text-left text-purple-400 hover:text-purple-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+          >
+            Изменить ник
+          </button>
+          <button
+            onClick={() => navigate("/colorize-nick")}
+            className="text-left text-white hover:text-gray-200 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+          >
+            Покрасить ник
+          </button>
         </div>
       </div>
-      <div className="flex flex-col gap-0">
-        <button
-          onClick={() => navigate("/wip")}
-          className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+
+      {/* Модалка зміни ніка */}
+      {showChangeNickModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={() => setShowChangeNickModal(false)}
         >
-          {String.fromCharCode(1055, 1086, 1076, 1076, 1077, 1088, 1078, 1082, 1072)}
-        </button>
-        <button
-          onClick={() => navigate("/online-players")}
-          className="text-left text-green-400 hover:text-green-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
-        >
-          {String.fromCharCode(1054, 1085, 1083, 1072, 1081, 1085)} [{onlineCount}]
-        </button>
-        <button
-          onClick={() => navigate("/wip")}
-          className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
-        >
-          {String.fromCharCode(1047, 1084, 1110, 1085, 1080, 1090, 1100, 32, 1085, 1110, 1082)}
-        </button>
-        <button
-          onClick={() => navigate("/wip")}
-          className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
-        >
-          {String.fromCharCode(1055, 1086, 1082, 1088, 1072, 1089, 1080, 1090, 1100, 32, 1085, 1110, 1082)}
-        </button>
-      </div>
-    </div>
+          <div
+            className="bg-[#1a1a1a] border border-[#7c6847] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[#b8860b]">Изменить ник</h2>
+              <button
+                className="text-gray-400 hover:text-white text-xl"
+                onClick={() => setShowChangeNickModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-gray-300 mb-2">Новый ник:</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 bg-[#0f0a06] border border-[#3e301c] rounded text-white text-sm"
+                  placeholder="Введите новый ник"
+                />
+              </div>
+
+              <div className="text-gray-300 text-xs">
+                <div className="mb-2">Доступные символы:</div>
+                <div className="font-mono bg-[#0f0a06] p-2 rounded border border-[#3e301c]">
+                  A-Z, a-z, 0-9, _, -, пробел
+                </div>
+              </div>
+
+              <div className="text-yellow-400 text-xs font-semibold pt-2 border-t border-gray-600">
+                Цена: 50 Coin of Luck
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  className="flex-1 px-4 py-2 bg-yellow-600 text-black rounded hover:bg-yellow-700 text-sm font-semibold"
+                  onClick={() => {
+                    // TODO: Implement nickname change
+                    setShowChangeNickModal(false);
+                  }}
+                >
+                  Изменить
+                </button>
+                <button
+                  className="flex-1 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 text-sm"
+                  onClick={() => setShowChangeNickModal(false)}
+                >
+                  Отмена
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
