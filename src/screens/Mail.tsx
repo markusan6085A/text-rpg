@@ -32,7 +32,11 @@ export default function Mail({ navigate }: MailProps) {
   const [onlinePlayerIds, setOnlinePlayerIds] = useState<Set<string>>(new Set());
 
   const loadLetters = async () => {
-    setLoading(true);
+    // Не блокуємо UI, якщо є дані - показуємо їх, а потім оновлюємо в фоні
+    const isInitialLoad = letters.length === 0;
+    if (isInitialLoad) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const data = await getLetters(page, 50);
@@ -47,23 +51,36 @@ export default function Mail({ navigate }: MailProps) {
   };
 
   useEffect(() => {
-    loadLetters();
+    // Завантажуємо letters і online players паралельно
+    const loadData = async () => {
+      await Promise.all([
+        loadLetters(),
+        (async () => {
+          try {
+            const data = await getOnlinePlayers();
+            const onlineIds = new Set(data.players?.map(p => p.id) || []);
+            setOnlinePlayerIds(onlineIds);
+          } catch (err: any) {
+            console.error('[Mail] Failed to load online players:', err?.message || err);
+          }
+        })(),
+      ]);
+    };
+    
+    loadData();
   }, [page]);
 
-  // Завантажуємо список онлайн гравців для перевірки статусу
+  // Оновлюємо онлайн статус кожні 30 секунд (не блокує UI)
   useEffect(() => {
-    const loadOnlinePlayers = async () => {
+    const interval = setInterval(async () => {
       try {
         const data = await getOnlinePlayers();
         const onlineIds = new Set(data.players?.map(p => p.id) || []);
         setOnlinePlayerIds(onlineIds);
       } catch (err: any) {
-        console.error('[Mail] Failed to load online players:', err?.message || err);
+        console.error('[Mail] Failed to refresh online players:', err?.message || err);
       }
-    };
-    
-    loadOnlinePlayers();
-    const interval = setInterval(loadOnlinePlayers, 30000); // Оновлюємо кожні 30 секунд
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 

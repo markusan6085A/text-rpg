@@ -56,19 +56,24 @@ export function useChatMessages(opts: UseChatOptions) {
   const key = useMemo(() => cacheKey(channel, page, limit), [channel, page, limit]);
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    // 1) RAM cache
+    // 1) RAM cache - найшвидший
     const mem = memCache.get(key);
     if (mem?.data?.length) return mem.data;
 
     // 2) localStorage cache
     const ls = readLS(key);
-    if (ls?.data?.length) return ls.data;
+    if (ls?.data?.length) {
+      // Зберігаємо в RAM для швидкого доступу
+      memCache.set(key, ls);
+      return ls.data;
+    }
 
     return [];
   });
 
   // 🔥 Оновлюємо messages при зміні key (channel/page/limit) - показуємо кеш МИТТЄВО
   useEffect(() => {
+    // Синхронно показуємо кеш миттєво (не чекаємо на асинхронні операції)
     const mem = memCache.get(key);
     const ls = readLS(key);
     
@@ -77,6 +82,8 @@ export function useChatMessages(opts: UseChatOptions) {
       setMessages(mem.data);
     } else if (ls?.data?.length) {
       setMessages(ls.data);
+      // Зберігаємо в RAM для швидкого доступу
+      memCache.set(key, ls);
     } else {
       setMessages([]);
     }
