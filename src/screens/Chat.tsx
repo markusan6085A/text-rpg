@@ -77,7 +77,7 @@ export default function Chat({ navigate }: ChatProps) {
   }, [channel, setDeletedIds, setOutbox]);
 
   // Combine cached messages with optimistic updates - newest first (top)
-  // 🔥 Видаляємо дублікати: якщо повідомлення є в cachedMessages (реальні), не показуємо його з optimistic/outbox
+  // 🔥 Optimistic/outbox показуємо ТІЛЬКИ на сторінці 1 - на інших сторінках тільки старі повідомлення
   const cachedIds = new Set(cachedMessages.map(m => m.id));
   
   // Функція для перевірки чи два повідомлення однакові (по тексту, імені та часу)
@@ -93,20 +93,26 @@ export default function Chat({ navigate }: ChatProps) {
   // Фільтруємо кешовані повідомлення (виключаємо видалені)
   const filteredCached = cachedMessages.filter(m => !deletedIds.has(m.id));
   
-  // Фільтруємо optimistic/outbox (виключаємо ті, що вже є в кеші як реальні - за ID або за вмістом)
-  const allOptimistic = [...outbox, ...optimisticMessagesRef.current];
-  const filteredOptimistic = allOptimistic.filter(optMsg => {
-    // Якщо ID вже є в кеші - це дублікат
-    if (cachedIds.has(optMsg.id)) return false;
+  // 🔥 На сторінці 1 додаємо optimistic/outbox, на інших сторінках - тільки кешовані
+  if (page === 1) {
+    // Фільтруємо optimistic/outbox (виключаємо ті, що вже є в кеші як реальні - за ID або за вмістом)
+    const allOptimistic = [...outbox, ...optimisticMessagesRef.current];
+    const filteredOptimistic = allOptimistic.filter(optMsg => {
+      // Якщо ID вже є в кеші - це дублікат
+      if (cachedIds.has(optMsg.id)) return false;
+      
+      // Перевіряємо чи є в кеші повідомлення з таким же вмістом (текст + ім'я + час)
+      const isInCache = filteredCached.some(cachedMsg => isDuplicateMessage(optMsg, cachedMsg));
+      return !isInCache;
+    });
     
-    // Перевіряємо чи є в кеші повідомлення з таким же вмістом (текст + ім'я + час)
-    const isInCache = filteredCached.some(cachedMsg => isDuplicateMessage(optMsg, cachedMsg));
-    return !isInCache;
-  });
-  
-  const maxCached = Math.max(0, 10 - filteredOptimistic.length);
-  const limitedCached = filteredCached.slice(0, maxCached);
-  const messages = [...filteredOptimistic, ...limitedCached];
+    const maxCached = Math.max(0, 10 - filteredOptimistic.length);
+    const limitedCached = filteredCached.slice(0, maxCached);
+    var messages = [...filteredOptimistic, ...limitedCached];
+  } else {
+    // На сторінках 2+ показуємо тільки кешовані повідомлення (старі)
+    var messages = filteredCached;
+  }
 
   // Auto-scroll to top when new messages arrive
   useEffect(() => {
