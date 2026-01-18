@@ -98,14 +98,53 @@ function AppInner() {
     initializeAuth();
     initializeCharacter();
 
-    // Спробуємо завантажити героя
+    // 🔥 Визначаємо "легкі" сторінки, для яких не потрібно завантажувати hero одразу
+    const pathname = window.location.pathname;
+    const isLightPage = pathname.startsWith('/mail') || 
+                       pathname.startsWith('/about') || 
+                       pathname.startsWith('/forum');
+
+    // Для легких сторінок - одразу показуємо UI, hero завантажимо асинхронно
+    if (isLightPage) {
+      setIsLoading(false);
+      // Завантажуємо hero в фоновому режимі (не блокуємо рендер)
+      const loadHeroAsync = async () => {
+        try {
+          const authStore = useAuthStore.getState();
+          const characterStore = useCharacterStore.getState();
+          if (authStore.isAuthenticated && characterStore.characterId) {
+            try {
+              const loadedHero = await loadHeroFromAPI();
+              if (loadedHero) {
+                setHero(loadedHero);
+              } else {
+                loadHero();
+              }
+            } catch (err) {
+              loadHero();
+            }
+          } else {
+            loadHero();
+          }
+        } catch (err) {
+          // Ігноруємо помилки для легких сторінок
+        }
+      };
+      // Відкладаємо завантаження hero на 500 мс після рендеру
+      setTimeout(loadHeroAsync, 500);
+      return;
+    }
+
+    // Для важких сторінок - завантажуємо hero перед показом UI
     const load = async () => {
       try {
         // Отримуємо поточний стан після ініціалізації
         const authStore = useAuthStore.getState();
         const characterStore = useCharacterStore.getState();
 
-        console.log('[App] Starting hero load, auth:', authStore.isAuthenticated, 'characterId:', characterStore.characterId);
+        if (import.meta.env.DEV) {
+          console.log('[App] Starting hero load, auth:', authStore.isAuthenticated, 'characterId:', characterStore.characterId);
+        }
 
         // Якщо авторизований - пробуємо завантажити з API
         if (authStore.isAuthenticated && characterStore.characterId) {
@@ -113,7 +152,9 @@ function AppInner() {
             const loadedHero = await loadHeroFromAPI();
             if (loadedHero) {
               setHero(loadedHero);
-              console.log('[App] Hero set in store successfully from API');
+              if (import.meta.env.DEV) {
+                console.log('[App] Hero set in store successfully from API');
+              }
               
               // ❗ ВАЖЛИВО: Також зберігаємо завантажений hero в localStorage як backup
               // Це гарантує, що дані не втрачаться при проблемах з API
@@ -124,28 +165,38 @@ function AppInner() {
                 if (accIndex !== -1) {
                   accounts[accIndex].hero = loadedHero;
                   setJSON("l2_accounts_v2", accounts);
-                  console.log('[App] Hero also saved to localStorage as backup');
+                  if (import.meta.env.DEV) {
+                    console.log('[App] Hero also saved to localStorage as backup');
+                  }
                 }
               }
             } else {
-              console.log('[App] Hero is null from API, fallback to localStorage');
+              if (import.meta.env.DEV) {
+                console.log('[App] Hero is null from API, fallback to localStorage');
+              }
               // Fallback на localStorage тільки якщо hero не завантажений
               loadHero();
             }
           } catch (err) {
-            console.error('[App] Failed to load hero from API:', err);
-            // Fallback на localStorage тільки при помилці
+            if (import.meta.env.DEV) {
+              console.error('[App] Failed to load hero from API:', err);
+            }
+            // Fallback на localStorage при помилці
             loadHero();
           }
         } else {
-          console.log('[App] Not authenticated, loading from localStorage');
+          if (import.meta.env.DEV) {
+            console.log('[App] Not authenticated, loading from localStorage');
+          }
           // Якщо не авторизований - завантажуємо з localStorage (backward compatibility)
           loadHero();
         }
       } finally {
         // Встановлюємо isLoading = false після завантаження (незалежно від успіху/помилки)
         const finalHero = useHeroStore.getState().hero;
-        console.log('[App] Setting isLoading = false, final hero:', finalHero ? 'exists' : 'null');
+        if (import.meta.env.DEV) {
+          console.log('[App] Setting isLoading = false, final hero:', finalHero ? 'exists' : 'null');
+        }
         setIsLoading(false);
       }
     };
