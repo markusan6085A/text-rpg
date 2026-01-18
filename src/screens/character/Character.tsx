@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { getProfessionDefinition, normalizeProfessionId } from "../../data/skills";
 import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
 import CharacterEquipmentFrame from "./CharacterEquipmentFrame";
 import RecipeBookButton from "./RecipeBookButton";
 import CharacterQuests from "./CharacterQuests";
+import { getCharacters, type Character } from "../../utils/api";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -24,8 +25,25 @@ export default function Character() {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [showQuests, setShowQuests] = useState(false);
+  const [characterData, setCharacterData] = useState<Character | null>(null);
 
-  // Hero вже завантажений в App.tsx, не потрібно завантажувати тут
+  // Завантажуємо Character для отримання createdAt
+  useEffect(() => {
+    const loadCharacter = async () => {
+      try {
+        const data = await getCharacters();
+        const currentChar = data.characters?.find(c => c.name === hero?.name);
+        if (currentChar) {
+          setCharacterData(currentChar);
+        }
+      } catch (err) {
+        console.error('[Character] Failed to load character data:', err);
+      }
+    };
+    if (hero?.name) {
+      loadCharacter();
+    }
+  }, [hero?.name]);
 
   // -----------------------------
   // Локальні значення з hero
@@ -56,9 +74,25 @@ export default function Character() {
   const expToNextDisplay = level >= MAX_LEVEL 
     ? (EXP_TABLE[MAX_LEVEL - 1] ?? 0) 
     : expToNext;
+  // EXP remaining to next level (not current exp, but remaining exp needed)
+  const expRemaining = Math.max(0, expToNextDisplay - expCurrent);
   const expPercent = expToNextDisplay > 0 
     ? Math.min(100, Math.floor((expCurrent / expToNextDisplay) * 100)) 
     : 100;
+
+  // -----------------------------
+  // Statistics from heroJson
+  // -----------------------------
+  const heroJson = (hero as any)?.heroJson || {};
+  const stats = typeof heroJson === 'object' ? heroJson : {};
+  const karma = stats.karma || 0;
+  const pk = stats.pk || 0;
+  const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.killedMobs ?? stats.totalKills ?? 0;
+  const pvpWins = stats.pvpWins || stats.pvp_wins || 0;
+  const pvpLosses = stats.pvpLosses || stats.pvp_losses || 0;
+  
+  // Date of registration - get from characterData or stats
+  const registrationDate = characterData?.createdAt || stats.registrationDate || stats.createdAt || null;
 
   // -----------------------------
   // SP
@@ -170,7 +204,7 @@ export default function Character() {
           <div className="border-b border-gray-600 pb-1 flex items-center gap-2">
             <img src="/icons/star.png" alt="Experience" className="w-3 h-3 object-contain" />
             <span>
-              Опыт: <span className="text-green-300">{formatNumber(expCurrent)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
+              Опыт: <span className="text-green-300">{formatNumber(expRemaining)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
             </span>
           </div>
 
