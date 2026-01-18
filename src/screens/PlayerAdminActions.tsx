@@ -185,9 +185,9 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
     alert(`Лікування гравця ${character?.name} скілом ${healSkillId} (буде реалізовано)`);
   };
 
-  const handleBan = () => {
-    // TODO: Реалізувати API для бану гравця
-    alert(`Забанення гравця ${character?.name} (буде реалізовано)`);
+  const handleBuffPlayer = () => {
+    // TODO: Реалізувати API для бафу гравця
+    alert(`Баф гравця ${character?.name} (буде реалізовано)`);
   };
 
   if (loading) {
@@ -226,13 +226,13 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
           <div className="text-sm text-gray-400">{professionLabel} - {character.level} ур.</div>
         </div>
 
-        {/* Кнопка бану */}
+        {/* Кнопка бафу */}
         <div className="mb-4">
           <button
-            onClick={handleBan}
-            className="w-full py-2 px-4 bg-red-900/50 border border-red-700 text-red-400 hover:bg-red-900/70 rounded text-sm"
+            onClick={handleBuffPlayer}
+            className="w-full py-2 px-4 bg-green-900/50 border border-green-700 text-green-400 hover:bg-green-900/70 rounded text-sm"
           >
-            Забанити игрока
+            Забафнуть игрока
           </button>
         </div>
 
