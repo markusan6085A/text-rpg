@@ -23,17 +23,23 @@ export default function About({ navigate }: { navigate: Navigate }) {
   }, []);
 
   return (
-    <div className="w-full flex items-center justify-center text-yellow-200 min-h-[400px]">
-      <div className="flex flex-col items-center gap-3">
+    <div className="w-full text-yellow-200 min-h-[400px] px-3 py-4">
+      <div className="mb-4">
+        <div className="text-lg font-bold mb-2">Меню сервера</div>
+        <div className="text-sm text-gray-300">
+          Тут зібрані основні розділи та сервісні функції.
+        </div>
+      </div>
+      <div className="flex flex-col gap-0">
         <button
           onClick={() => navigate("/wip")}
-          className="text-gray-400 hover:text-gray-300 transition-colors text-[10px]"
+          className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
         >
           {String.fromCharCode(1055, 1086, 1076, 1076, 1077, 1088, 1078, 1082, 1072)}
         </button>
         <button
           onClick={() => navigate("/online-players")}
-          className="text-green-400 hover:text-green-300 transition-colors text-[10px]"
+          className="text-left text-green-400 hover:text-green-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
         >
           {String.fromCharCode(1054, 1085, 1083, 1072, 1081, 1085)}
         </button>
