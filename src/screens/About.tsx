@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { getOnlinePlayers } from "../utils/api";
 
 type Navigate = (p: string) => void;
