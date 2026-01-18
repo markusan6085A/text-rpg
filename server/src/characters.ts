@@ -195,11 +195,14 @@ export async function characterRoutes(app: FastifyInstance) {
 
   // POST /characters/:id/buff - застосування бафу до іншого гравця (має бути ПЕРЕД /characters/:id)
   app.post("/characters/:id/buff", async (req, reply) => {
+    app.log.info(`[POST /characters/:id/buff] Request received: ${req.url}`);
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const targetId = (req.params as any).id;
     const body = req.body as { skillId: number; buffData: any };
+    
+    app.log.info(`[POST /characters/:id/buff] targetId: ${targetId}, skillId: ${body?.skillId}`);
 
     if (!body.skillId || !body.buffData) {
       return reply.code(400).send({ error: "skillId and buffData are required" });
