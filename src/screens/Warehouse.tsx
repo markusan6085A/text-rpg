@@ -513,8 +513,8 @@ export default function Warehouse({ navigate }: WarehouseProps) {
             {Array.from({ length: LOG_MAX_ENTRIES }, (_, index) => {
               const entry = log[index];
               return (
-                <div key={entry?.id || index} className="text-[10px] text-gray-400 min-h-[14px]">
-                  {entry ? entry.message : ""}
+                <div key={entry?.id || `log-empty-${index}`} className="text-[10px] text-gray-400 min-h-[14px]">
+                  {entry ? entry.message : "\u00A0"}
                 </div>
               );
             })}
