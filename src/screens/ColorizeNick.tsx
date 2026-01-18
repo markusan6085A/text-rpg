@@ -6,18 +6,28 @@ interface ColorizeNickProps {
 }
 
 const NICK_COLORS = [
-  { name: "Yellow", code: "#FFFF00", label: "DeadFear" },
-  { name: "Orange", code: "#FFA500", label: "DeadFear" },
-  { name: "Red", code: "#FF0000", label: "DeadFear" },
-  { name: "Hot Pink", code: "#FF1493", label: "DeadFear" },
-  { name: "Magenta", code: "#FF00FF", label: "DeadFear" },
-  { name: "Purple", code: "#800080", label: "DeadFear" },
-  { name: "Indigo", code: "#4B0082", label: "DeadFear" },
-  { name: "Cyan", code: "#00FFFF", label: "DeadFear" },
-  { name: "Green", code: "#00FF00", label: "DeadFear" },
-  { name: "Lime", code: "#ADFF2F", label: "DeadFear" },
-  { name: "White", code: "#FFFFFF", label: "DeadFear" },
-  { name: "Dark Gray", code: "#333333", label: "DeadFear" },
+  { name: "Yellow", code: "#FFFF00" },
+  { name: "Orange", code: "#FFA500" },
+  { name: "Red", code: "#FF0000" },
+  { name: "Hot Pink", code: "#FF1493" },
+  { name: "Magenta", code: "#FF00FF" },
+  { name: "Purple", code: "#800080" },
+  { name: "Indigo", code: "#4B0082" },
+  { name: "Cyan", code: "#00FFFF" },
+  { name: "Aqua", code: "#00CED1" },
+  { name: "Green", code: "#00FF00" },
+  { name: "Lime", code: "#ADFF2F" },
+  { name: "Spring Green", code: "#00FF7F" },
+  { name: "White", code: "#FFFFFF" },
+  { name: "Light Gray", code: "#D3D3D3" },
+  { name: "Silver", code: "#C0C0C0" },
+  { name: "Dark Gray", code: "#333333" },
+  { name: "Blue", code: "#0000FF" },
+  { name: "Navy", code: "#000080" },
+  { name: "Dark Blue", code: "#00008B" },
+  { name: "Brown", code: "#8B4513" },
+  { name: "Gold", code: "#FFD700" },
+  { name: "Coral", code: "#FF7F50" },
 ];
 
 export default function ColorizeNick({ navigate }: ColorizeNickProps) {
@@ -28,69 +38,13 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
     return <div className="text-white text-center mt-10">Загрузка...</div>;
   }
 
-  const hp = hero.hp || 273;
-  const maxHp = hero.maxHp || 273;
-  const mp = hero.mp || 168;
-  const maxMp = hero.maxMp || 168;
-  const cp = hero.cp || 138;
-  const maxCp = hero.maxCp || 138;
-  const exp = hero.exp || 0;
-  const level = hero.level || 10;
-  const expPercent = 0; // TODO: Calculate exp percent
-  const vp = hero.vp || 240;
-  const vpLevel = 4; // TODO: Calculate VP level
   const coins = hero.coinOfLuck || 0;
 
   return (
     <div className="w-full text-white px-3 py-4">
-      <div className="max-w-[360px] mx-auto space-y-3">
-        {/* Character Info */}
-        <div className="text-center mb-3">
-          <div className="text-lg font-bold">{hero.name || "DeadFear"}, {level} ур.</div>
-        </div>
-
-        {/* Stats */}
-        <div className="space-y-1 text-xs">
-          <div className="flex justify-between">
-            <span>hp</span>
-            <span>{hp} / {maxHp}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>ma</span>
-            <span>{mp} / {maxMp}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>cp</span>
-            <span>{cp} / {maxCp}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>xp</span>
-            <span>{expPercent}%</span>
-          </div>
-          <div className="flex justify-between">
-            <span>vp</span>
-            <span>{vp} ({vpLevel} ур)</span>
-          </div>
-        </div>
-
-        {/* Daily Bonus Button */}
-        <div className="pt-2 border-t border-gray-600">
-          <button className="text-green-400 hover:text-green-300 text-sm">
-            Ежедневный бонус (+)
-          </button>
-        </div>
-
-        {/* Achievement */}
-        <div className="pt-2">
-          <div className="text-yellow-400 text-sm">Новое достижение</div>
-          <div className="text-gray-300 text-xs">Сохраните героя</div>
-          <button className="mt-1 text-green-400 hover:text-green-300 text-xs">
-            Забрать награду
-          </button>
-        </div>
-
+      <div className="max-w-[360px] mx-auto">
         {/* Colorize Nick Section */}
-        <div className="pt-4 border-t border-gray-600">
+        <div>
           <div className="text-lg font-bold mb-2">Установить цвет ника</div>
           <div className="text-sm text-gray-300 mb-3">
             Вы можете сменить цвет ника своего персонажа на любой из ниже приведенных.
@@ -100,22 +54,22 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
             Цена: 50 Coin of Luck
           </div>
 
-          {/* Color Grid */}
+          {/* Color Grid - просто текст без рамок */}
           <div className="grid grid-cols-4 gap-2 mb-3">
             {NICK_COLORS.map((color, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedColor(color.code)}
-                className={`p-3 rounded border-2 transition-all ${
+                className={`p-2 rounded transition-all ${
                   selectedColor === color.code
-                    ? "border-yellow-400 ring-2 ring-yellow-400"
-                    : "border-gray-600 hover:border-gray-500"
+                    ? "ring-2 ring-yellow-400"
+                    : "hover:opacity-80"
                 }`}
                 style={{ backgroundColor: color.code }}
                 title={color.name}
               >
                 <div className="text-black text-xs font-bold text-center">
-                  {color.label}
+                  DeadFear
                 </div>
               </button>
             ))}
