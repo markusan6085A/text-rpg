@@ -270,7 +270,7 @@ export default function Character() {
             </div>
             <div className="flex justify-between">
               <span>Ост. рек.</span>
-              <span>10</span>
+              <span>0</span>
             </div>
             <div className="flex justify-between">
               <span>Убил мобов</span>
