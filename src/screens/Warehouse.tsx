@@ -486,36 +486,37 @@ export default function Warehouse({ navigate }: WarehouseProps) {
               </div>
             </>
           ) : (
-            // Склад
+            // Склад - показуємо тільки 10 предметів
             <div className="space-y-2">
-              {warehouse.some((item) => item !== null) ? (
-                warehouse.map((item, slotIndex) => (
-                  <div
-                    key={slotIndex}
-                    className="flex items-center gap-2 py-1 border-b border-dotted border-[#5b4b35]/30"
-                  >
-                    {item ? (
-                      <>
-                    <img
-                      src={
-                        item.icon?.startsWith("/") 
-                          ? item.icon 
-                          : item.icon 
-                          ? `/items/${item.icon}` 
-                          : itemsDB[item.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"
-                      }
-                      alt={item.name}
-                      className="w-6 h-6 object-contain"
-                      onError={(e) => {
-                        // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
-                        const itemDef = itemsDB[item.id];
-                        if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
-                          (e.target as HTMLImageElement).src = itemDef.icon;
-                        } else {
-                          (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                        }
-                      }}
-                    />
+              {(() => {
+                const warehouseItems = warehouse.filter(item => item !== null).slice(0, 10);
+                return warehouseItems.length > 0 ? (
+                  warehouseItems.map((item, idx) => {
+                    const slotIndex = warehouse.findIndex(w => w !== null && w.id === item.id);
+                    return (
+                      <div
+                        key={slotIndex}
+                        className="flex items-center gap-2 py-1 border-b border-dotted border-[#5b4b35]/30"
+                      >
+                        <img
+                          src={
+                            item.icon?.startsWith("/") 
+                              ? item.icon 
+                              : item.icon 
+                              ? `/items/${item.icon}` 
+                              : itemsDB[item.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                          }
+                          alt={item.name}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            const itemDef = itemsDB[item.id];
+                            if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
+                              (e.target as HTMLImageElement).src = itemDef.icon;
+                            } else {
+                              (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                            }
+                          }}
+                        />
                         <div className="flex-1 text-[12px] text-[#cfcfcc]">
                           <div>{item.name}</div>
                           {item.count && item.count > 1 && (
@@ -528,19 +529,15 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                         >
                           [Взять]
                         </button>
-                      </>
-                    ) : (
-                      <div className="flex-1 text-[12px] text-gray-500 italic">
-                        Пусто
                       </div>
-                    )}
+                    );
+                  })
+                ) : (
+                  <div className="text-center text-gray-400 text-[12px] py-4">
+                    Склад пуст
                   </div>
-                ))
-              ) : (
-                <div className="text-center text-gray-400 text-[12px] py-4">
-                  Склад пуст
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>
