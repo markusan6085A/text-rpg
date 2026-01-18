@@ -252,6 +252,48 @@ export default function Character() {
           </button>
         </div>
 
+        {/* Социальный статус */}
+        <div className="w-[330px] text-left text-[11px] text-[#d3d3d3] mt-4 border-t border-gray-600 pt-3">
+          <div className="font-semibold mb-2">Социальный статус</div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px]">
+            <div className="flex justify-between">
+              <span>Карма</span>
+              <span className={karma >= 0 ? "text-green-400" : "text-red-400"}>{karma}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Рек.</span>
+              <span>0</span>
+            </div>
+            <div className="flex justify-between">
+              <span>PK</span>
+              <span className={pk === 0 ? "text-green-400" : "text-red-400"}>{pk}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Ост. рек.</span>
+              <span>10</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Убил мобов</span>
+              <span>{mobsKilled}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>PvP побед/поражений</span>
+              <span className={pvpWins > pvpLosses ? "text-green-400" : "text-gray-400"}>
+                {pvpWins}/{pvpLosses}
+              </span>
+            </div>
+          </div>
+          {registrationDate && (
+            <div className="mt-2 text-gray-500 text-[10px]">
+              Рег-я: {new Date(registrationDate).toLocaleDateString("ru-RU", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </div>
+          )}
+        </div>
+
         {/* Квести */}
         {showQuests && (
           <div className="w-full mt-4">
