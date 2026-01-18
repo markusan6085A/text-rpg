@@ -606,9 +606,39 @@ export async function characterRoutes(app: FastifyInstance) {
 
       const heroJson = (targetChar.heroJson as any) || {};
       
-      // Отримуємо поточні бафи (збережені в heroJson або battle state)
-      // Тут можна додати логіку для збереження бафів у heroJson.buffs або окремій таблиці
-      // Поки що просто повертаємо успіх
+      // Отримуємо поточні бафи з heroJson (якщо є)
+      const currentBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+      
+      // Створюємо новий баф з правильними полями
+      const newBuff = {
+        id: body.skillId,
+        name: body.buffData.name || "",
+        icon: body.buffData.icon || "",
+        effects: body.buffData.effects || [],
+        expiresAt: body.buffData.expiresAt || (Date.now() + (body.buffData.duration || 0) * 1000),
+        startedAt: Date.now(),
+        durationMs: (body.buffData.duration || 0) * 1000,
+        source: "skill" as const,
+        buffGroup: body.buffData.buffGroup,
+        stackType: body.buffData.stackType,
+      };
+      
+      // Видаляємо старі бафи з таким самим id (замінюємо)
+      const filteredBuffs = currentBuffs.filter((b: any) => b.id !== body.skillId);
+      
+      // Додаємо новий баф
+      const updatedBuffs = [...filteredBuffs, newBuff];
+      
+      // Оновлюємо heroJson з новими бафами
+      const updatedHeroJson = {
+        ...heroJson,
+        heroBuffs: updatedBuffs,
+      };
+
+      await prisma.character.update({
+        where: { id: targetId },
+        data: { heroJson: updatedHeroJson },
+      });
       
       return { ok: true, message: "Buff applied successfully" };
     } catch (error) {

@@ -4,6 +4,7 @@ import { getSkillDef } from "../state/battle/loadout";
 import { normalizeProfessionId, getProfessionDefinition } from "../data/skills";
 import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
+import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 
 interface PlayerAdminActionsProps {
   navigate: (path: string) => void;
@@ -256,12 +257,23 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       const buffSkill = myBuffSkills.find(b => b.id === buffSkillId);
       if (!buffSkill) return;
 
+      // Створюємо правильну структуру бафу
+      const effects = processSkillEffects(buffSkill.skillDef, buffSkill.levelDef);
+      const now = Date.now();
+      const durationMs = (buffSkill.duration || 0) * 1000;
+      
+      const buffData = {
+        name: buffSkill.name,
+        icon: buffSkill.icon || "",
+        effects: effects,
+        duration: buffSkill.duration || 0,
+        expiresAt: now + durationMs,
+        buffGroup: buffSkill.skillDef.buffGroup,
+        stackType: buffSkill.skillDef.stackType,
+      };
+
       const result = await import("../utils/api").then(({ buffPlayer }) => 
-        buffPlayer(character.id, buffSkillId, {
-          name: buffSkill.name,
-          duration: buffSkill.duration,
-          expiresAt: Date.now() + (buffSkill.duration || 0) * 1000,
-        })
+        buffPlayer(character.id, buffSkillId, buffData)
       );
       
       if (result.ok) {
@@ -273,6 +285,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       console.error("[PlayerAdminActions] Error buffing:", err);
     }
   };
+
 
   if (loading) {
     return (
