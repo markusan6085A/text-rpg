@@ -54,8 +54,11 @@ export default function SummonStatus() {
 
   return (
     <div
-      className="absolute top-2 right-2 z-[100]"
       style={{
+        position: "absolute",
+        top: "0.5rem",
+        right: "0.5rem",
+        zIndex: 100,
         pointerEvents: "auto",
       }}
     >
