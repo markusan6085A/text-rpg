@@ -338,6 +338,7 @@ export async function getOnlinePlayers(): Promise<OnlinePlayersResponse> {
 export async function sendHeartbeat(): Promise<{ ok: boolean; message: string }> {
   const response = await apiRequest<{ ok: boolean; message: string }>('/characters/heartbeat', {
     method: 'POST',
+    body: JSON.stringify({ ts: Date.now() }),
   });
   return response;
 }
