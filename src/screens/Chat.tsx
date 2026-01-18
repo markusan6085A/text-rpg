@@ -162,8 +162,7 @@ export default function Chat({ navigate }: ChatProps) {
       // Send message in background (don't block UI)
       const realMessage = await postChatMessage(channel, textToSend);
       
-      // 🔥 Замінюємо optimistic повідомлення на реальне замість видалення
-      // Це гарантує, що повідомлення не пропаде під час написання наступного
+      // 🔥 Замінюємо optimistic повідомлення на реальне
       optimisticMessagesRef.current = optimisticMessagesRef.current.map(m => 
         m.id === tempId ? realMessage : m
       );
@@ -177,8 +176,11 @@ export default function Chat({ navigate }: ChatProps) {
         }
       }
       
-      // 🔥 НЕ викликаємо refresh() - це викликає затримку і пропадання повідомлення
-      // Реальне повідомлення вже показано замість optimistic
+      // 🔥 Оновлюємо кеш з новим повідомленням, щоб воно не пропало при refresh
+      // Використовуємо setTimeout, щоб дати час серверу зберегти повідомлення
+      setTimeout(() => {
+        refresh(); // Оновлюємо кеш з сервера, щоб отримати всі повідомлення включно з новим
+      }, 500);
     } catch (err: any) {
       console.error("Error sending message:", err);
       // Remove optimistic message on error
