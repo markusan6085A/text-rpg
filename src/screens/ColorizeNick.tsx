@@ -6,28 +6,64 @@ interface ColorizeNickProps {
 }
 
 const NICK_COLORS = [
+  // Yellow variants
   { name: "Yellow", code: "#FFFF00" },
+  { name: "Light Yellow", code: "#FFFF99" },
+  { name: "Dark Yellow", code: "#CCCC00" },
+  { name: "Gold", code: "#FFD700" },
+  // Orange variants
   { name: "Orange", code: "#FFA500" },
+  { name: "Light Orange", code: "#FFB84D" },
+  { name: "Dark Orange", code: "#CC8400" },
+  { name: "Coral", code: "#FF7F50" },
+  // Red variants
   { name: "Red", code: "#FF0000" },
+  { name: "Light Red", code: "#FF6666" },
+  { name: "Dark Red", code: "#CC0000" },
+  { name: "Crimson", code: "#DC143C" },
+  // Pink variants
   { name: "Hot Pink", code: "#FF1493" },
+  { name: "Pink", code: "#FFC0CB" },
+  { name: "Deep Pink", code: "#FF1493" },
+  { name: "Light Pink", code: "#FFB6C1" },
+  // Magenta/Purple variants
   { name: "Magenta", code: "#FF00FF" },
   { name: "Purple", code: "#800080" },
+  { name: "Light Purple", code: "#DA70D6" },
+  { name: "Dark Purple", code: "#660066" },
+  { name: "Violet", code: "#8A2BE2" },
   { name: "Indigo", code: "#4B0082" },
+  // Blue variants
+  { name: "Blue", code: "#0000FF" },
+  { name: "Light Blue", code: "#87CEEB" },
+  { name: "Dark Blue", code: "#00008B" },
+  { name: "Navy", code: "#000080" },
+  { name: "Sky Blue", code: "#87CEEB" },
+  { name: "Royal Blue", code: "#4169E1" },
+  // Cyan/Aqua variants
   { name: "Cyan", code: "#00FFFF" },
   { name: "Aqua", code: "#00CED1" },
+  { name: "Turquoise", code: "#40E0D0" },
+  { name: "Teal", code: "#008080" },
+  // Green variants
   { name: "Green", code: "#00FF00" },
   { name: "Lime", code: "#ADFF2F" },
   { name: "Spring Green", code: "#00FF7F" },
+  { name: "Light Green", code: "#90EE90" },
+  { name: "Dark Green", code: "#006400" },
+  { name: "Forest Green", code: "#228B22" },
+  { name: "Sea Green", code: "#2E8B57" },
+  // White/Gray variants
   { name: "White", code: "#FFFFFF" },
   { name: "Light Gray", code: "#D3D3D3" },
   { name: "Silver", code: "#C0C0C0" },
+  { name: "Gray", code: "#808080" },
   { name: "Dark Gray", code: "#333333" },
-  { name: "Blue", code: "#0000FF" },
-  { name: "Navy", code: "#000080" },
-  { name: "Dark Blue", code: "#00008B" },
+  { name: "Charcoal", code: "#36454F" },
+  // Brown variants
   { name: "Brown", code: "#8B4513" },
-  { name: "Gold", code: "#FFD700" },
-  { name: "Coral", code: "#FF7F50" },
+  { name: "Light Brown", code: "#CD853F" },
+  { name: "Dark Brown", code: "#654321" },
 ];
 
 export default function ColorizeNick({ navigate }: ColorizeNickProps) {
@@ -39,6 +75,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
   }
 
   const coins = hero.coinOfLuck || 0;
+  const heroName = hero.name || "Player";
 
   return (
     <div className="w-full text-white px-3 py-4">
@@ -55,22 +92,20 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
           </div>
 
           {/* Color Grid - просто текст без рамок */}
-          <div className="grid grid-cols-4 gap-2 mb-3">
+          <div className="grid grid-cols-2 gap-2 mb-3">
             {NICK_COLORS.map((color, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedColor(color.code)}
-                className={`p-2 rounded transition-all ${
+                className={`text-left text-sm font-bold transition-all hover:opacity-80 ${
                   selectedColor === color.code
-                    ? "ring-2 ring-yellow-400"
-                    : "hover:opacity-80"
+                    ? "underline decoration-yellow-400 decoration-2"
+                    : ""
                 }`}
-                style={{ backgroundColor: color.code }}
+                style={{ color: color.code }}
                 title={color.name}
               >
-                <div className="text-black text-xs font-bold text-center">
-                  DeadFear
-                </div>
+                {heroName}
               </button>
             ))}
           </div>
