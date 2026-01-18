@@ -34,8 +34,8 @@ export const DAILY_QUESTS: DailyQuest[] = [
     type: "damage",
     target: 500000,
     rewards: {
-      coinOfLuck: 1,
       exp: 100000,
+      adena: 100000,
     },
   },
   {
