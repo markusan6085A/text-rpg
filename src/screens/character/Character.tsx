@@ -31,8 +31,8 @@ export default function Character() {
   useEffect(() => {
     const loadCharacter = async () => {
       try {
-        const data = await getCharacters();
-        const currentChar = data.characters?.find(c => c.name === hero?.name);
+        const characters = await listCharacters();
+        const currentChar = characters.find(c => c.name === hero?.name);
         if (currentChar) {
           setCharacterData(currentChar);
         }
