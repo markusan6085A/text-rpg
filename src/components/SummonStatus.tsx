@@ -54,9 +54,11 @@ export default function SummonStatus() {
 
   return (
     <div
-      className="absolute top-2 z-[100]"
+      className="fixed top-2 z-[100]"
       style={{
-        right: '0.5rem', // 8px - right-2 в Tailwind
+        // Обчислюємо right позицію для фіксованого позиціонування відносно центрованого контейнера
+        // max-w-[380px] контейнер по центру + padding p-2 sm:p-4
+        right: 'calc(50% - min(190px, 50vw - 1rem) + 0.5rem)',
         pointerEvents: "auto",
       }}
     >
