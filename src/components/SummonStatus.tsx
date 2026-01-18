@@ -54,12 +54,9 @@ export default function SummonStatus() {
 
   return (
     <div
-      className="fixed top-2 right-2 z-[100]"
+      className="absolute top-2 right-2 z-[100]"
       style={{
         pointerEvents: "auto",
-        // Позиціонуємо відносно viewport, але компенсуємо padding батьківського контейнера
-        // max-w-[380px] контейнер + padding p-2 sm:p-4 ≈ 16px на великих екранах
-        right: `calc((100vw - min(380px, 100% - 2rem)) / 2 + 0.5rem)`,
       }}
     >
       <div className="flex items-start">
