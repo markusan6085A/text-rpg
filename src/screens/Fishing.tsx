@@ -83,11 +83,11 @@ export default function Fishing({ navigate }: FishingProps) {
 
   // Фон fishing.jpg відображається через Layout customBackground
   return (
-    <div className="w-full text-[#b8860b] px-1 py-2 relative z-10">
+    <div className="w-full text-[#b8860b] px-1 pt-8 pb-2 relative z-10">
       {!isFishingStarted ? (
         // Початковий екран з кнопкою
         <div className="w-full text-center space-y-4 py-8">
-          <div className="text-base font-semibold text-[#b8860b] mb-6">
+          <div className="text-base font-semibold text-[#b8860b] mb-6 border-t border-b border-[#3b2614] py-2">
             Риболовля
           </div>
           <button
@@ -100,8 +100,8 @@ export default function Fishing({ navigate }: FishingProps) {
       ) : (
         // Список риб з категоріями
         <>
-          <div className="text-[#b8860b] mb-4 text-base font-semibold flex items-center gap-2">
-            <span>Риболовля</span>
+          <div className="text-[#b8860b] mb-4 text-base font-semibold text-center border-t border-b border-[#3b2614] py-2">
+            Риболовля
           </div>
 
           {/* Таби категорій */}
