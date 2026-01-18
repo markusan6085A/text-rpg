@@ -117,12 +117,18 @@ export async function characterRoutes(app: FastifyInstance) {
       };
 
       // Додаємо новину про нового гравця
-      await addNews({
-        type: "new_player",
-        characterId: created.id,
-        characterName: created.name,
-        metadata: {},
-      });
+      try {
+        await addNews({
+          type: "new_player",
+          characterId: created.id,
+          characterName: created.name,
+          metadata: {},
+        });
+        app.log.info(`News added for new player: ${created.name} (${created.id})`);
+      } catch (newsError) {
+        app.log.error(newsError, `Failed to add news for new player: ${created.name}`);
+        // Не блокуємо створення персонажа, якщо додавання новини не вдалося
+      }
 
       return { ok: true, character: serialized };
     } catch (e: any) {

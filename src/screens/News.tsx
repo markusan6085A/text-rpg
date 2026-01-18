@@ -227,40 +227,38 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
   };
 
   return (
-    <div className="flex justify-center text-gray-100">
-      <div className="w-full max-w-[380px] bg-[#05040a] min-h-screen border-x border-yellow-900/40 flex flex-col">
-        {/* Шапка */}
-        <div className="flex items-center justify-between px-2 py-2 bg-[#111022] border-b border-yellow-900/60 text-[13px]">
-          <button
-            className="px-2 py-1 border border-yellow-700/70 rounded bg-black/40"
-            onClick={() => navigate("/city")}
-          >
-            Город
-          </button>
-          <div className="font-semibold text-yellow-200 flex-1 text-center">
-            Новини сервера
+    <div className="text-gray-100 w-full flex flex-col">
+      {/* Шапка */}
+      <div className="flex items-center justify-between px-2 py-2 bg-[#111022] border-b border-yellow-900/60 text-[13px]">
+        <button
+          className="px-2 py-1 border border-yellow-700/70 rounded bg-black/40"
+          onClick={() => navigate("/city")}
+        >
+          Город
+        </button>
+        <div className="font-semibold text-yellow-200 flex-1 text-center">
+          Новини сервера
+        </div>
+      </div>
+
+      {/* Тело */}
+      <div className="flex-1 px-2 py-2">
+        {loading ? (
+          <div className="text-center text-sm text-gray-400 mt-4">
+            Загрузка новин...
           </div>
-        </div>
+        ) : items.length === 0 ? (
+          <div className="text-center text-sm text-gray-400 mt-4">
+            Новостей пока нет.
+          </div>
+        ) : (
+          <div>{items.map(renderLine)}</div>
+        )}
+      </div>
 
-        {/* Тело */}
-        <div className="flex-1 px-2 py-2">
-          {loading ? (
-            <div className="text-center text-sm text-gray-400 mt-4">
-              Загрузка новин...
-            </div>
-          ) : items.length === 0 ? (
-            <div className="text-center text-sm text-gray-400 mt-4">
-              Новостей пока нет.
-            </div>
-          ) : (
-            <div>{items.map(renderLine)}</div>
-          )}
-        </div>
-
-        {/* Игровое время внизу */}
-        <div className="px-2 py-1 border-t border-yellow-900/40 text-[11px] text-gray-400 text-center">
-          Игровое время: <span className="text-yellow-200">{gameTime}</span>
-        </div>
+      {/* Игровое время внизу */}
+      <div className="px-2 py-1 border-t border-yellow-900/40 text-[11px] text-gray-400 text-center">
+        Игровое время: <span className="text-yellow-200">{gameTime}</span>
       </div>
 
       {/* Модалка дропу RB */}

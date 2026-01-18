@@ -119,7 +119,7 @@ export async function addNews(params: {
   metadata?: any;
 }): Promise<void> {
   try {
-    await prisma.news.create({
+    const news = await prisma.news.create({
       data: {
         type: params.type,
         characterId: params.characterId || null,
@@ -127,7 +127,11 @@ export async function addNews(params: {
         metadata: params.metadata || {},
       },
     });
+    console.log(`[News] Added news: type=${params.type}, characterName=${params.characterName}, id=${news.id}`);
   } catch (error) {
-    console.error("Error adding news:", error);
+    console.error("[News] Error adding news:", error);
+    console.error("[News] Params:", JSON.stringify(params, null, 2));
+    // Перекидаємо помилку, щоб вона не тихо гасла
+    throw error;
   }
 }
