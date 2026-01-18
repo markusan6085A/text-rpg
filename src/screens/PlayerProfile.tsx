@@ -80,6 +80,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       // 🔥 Додаємо location та mobsKilled для правильного відображення
       location: heroJson.location || heroJson.currentLocation || heroJson.zone || undefined,
       mobsKilled: heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? undefined,
+      nickColor: heroJson.nickColor || undefined,
     };
   }, [character]);
 
@@ -206,7 +207,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Нік, профа, лвл */}
         <div className="text-center mb-2 text-[12px]">
-          <div className="text-white font-bold text-[14px]">{character.name}</div>
+          <div className="font-bold text-[14px]" style={{ color: heroData?.nickColor || "white" }}>{character.name}</div>
           <div className="text-yellow-300">
             {professionLabel} - {character.level} ур.
           </div>

@@ -167,7 +167,7 @@ export default function StatusBars() {
         <Bar label="EXP" value={expPercent} max={100} />
       </div>
       <div className="mt-1 text-white text-[9px] font-semibold text-left">
-        <span>{hero.name}</span>
+        <span style={{ color: hero.nickColor || "white" }}>{hero.name}</span>
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
     </div>

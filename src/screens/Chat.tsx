@@ -303,7 +303,12 @@ export default function Chat({ navigate }: ChatProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span 
-                      className="text-[#d4af37] font-semibold cursor-pointer hover:text-yellow-400 transition-colors"
+                      className="font-semibold cursor-pointer hover:opacity-80 transition-colors"
+                      style={{ 
+                        color: (msg.characterName === (hero?.name || hero?.username)) && hero?.nickColor 
+                          ? hero.nickColor 
+                          : "#d4af37"
+                      }}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (msg.characterId) {
