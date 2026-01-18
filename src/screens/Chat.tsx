@@ -41,6 +41,7 @@ export default function Chat({ navigate }: ChatProps) {
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const optimisticMessagesRef = useRef<ChatMessage[]>([]);
   const currentChannelRef = useRef(channel);
+  const lastTradeMessageTimeRef = useRef<number>(0); // Rate limiting for trade channel
 
   // Clear optimistic messages and reload state when channel changes
   useEffect(() => {
@@ -96,6 +97,18 @@ export default function Chat({ navigate }: ChatProps) {
   const sendMessage = async () => {
     if (!messageText.trim() || !hero) return;
 
+    // 🔥 Rate limiting for trade channel: 5 seconds between messages
+    if (channel === "trade") {
+      const now = Date.now();
+      const timeSinceLastMessage = now - lastTradeMessageTimeRef.current;
+      if (timeSinceLastMessage < 5000) {
+        const remainingSeconds = Math.ceil((5000 - timeSinceLastMessage) / 1000);
+        alert(`В торг чаті можна писати не частіше ніж раз на 5 секунд. Зачекайте ще ${remainingSeconds} сек.`);
+        return;
+      }
+      lastTradeMessageTimeRef.current = now;
+    }
+
     const textToSend = messageText.trim();
     const tempId = `temp-${Date.now()}`;
 
@@ -116,8 +129,11 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       const realMessage = await postChatMessage(channel, textToSend);
 
-      // Remove from outbox after successful send
+      // 🔥 Remove from outbox after successful send
       setOutbox((prev) => prev.filter(m => m.id !== tempId));
+      
+      // 🔥 Замінюємо optimistic на реальне, але не викликаємо refresh, щоб уникнути дублікатів
+      // Refresh буде викликатись автоматично при наступному запиті або при зміні каналу
       optimisticMessagesRef.current = optimisticMessagesRef.current.map(m =>
         m.id === tempId ? realMessage : m
       );
@@ -131,10 +147,11 @@ export default function Chat({ navigate }: ChatProps) {
         }
       }
 
-      // Refresh cache after delay to get new message
-      setTimeout(() => refresh(), 500);
+      // 🔥 Не викликаємо refresh відразу - це може спричинити дублікати
+      // Повідомлення вже показано через optimistic update
     } catch (err: any) {
       console.error("Error sending message:", err);
+      // 🔥 При помилці видаляємо з optimistic, але залишаємо в outbox для повторної спроби
       optimisticMessagesRef.current = optimisticMessagesRef.current.filter(m => m.id !== tempId);
       setMessageText(textToSend);
     }
