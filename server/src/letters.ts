@@ -439,13 +439,16 @@ export async function letterRoutes(app: FastifyInstance) {
         }),
       ]);
 
-      // Об'єднуємо та сортуємо по даті
+      // Об'єднуємо та сортуємо по даті (від нових до старих)
       const allLetters = [...incomingLetters, ...outgoingLetters].sort(
-        (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
       );
 
+      // Беремо тільки 10 останніх повідомлень (найновіші)
+      const recentLetters = allLetters.slice(0, 10);
+
       // Додаємо nickColor та isOwn
-      const lettersWithMeta = allLetters.map((letter: any) => {
+      const lettersWithMeta = recentLetters.map((letter: any) => {
         const heroJson = (letter.fromCharacter.heroJson as any) || {};
         const nickColor = heroJson.nickColor;
         const isOwn = letter.fromCharacter.id === character.id;
