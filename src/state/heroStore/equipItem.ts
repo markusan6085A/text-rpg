@@ -78,41 +78,15 @@ function checkSetTorso(
     });
     
     if (isRobe) {
+      // Тільки robe займає обидва слоти (armor + legs)
       shouldEquipLegs = true;
       legsItem = item;
       console.log(`[equipItemLogic] ✅ ROBE WITH 2 PARTS: Robe will occupy both armor and legs slots:`, {
         robeId: item.id,
         robeName: item.name,
       });
-    } else {
-      const set = findSetForItem(item.id);
-      console.log(`[equipItemLogic] 🔍 SET CHECK FOR TORSO:`, {
-        itemId: item.id,
-        itemName: item.name,
-        setFound: !!set,
-        setName: set?.name,
-      });
-      if (set) {
-        const legsPiece = set.pieces.find(p => p.slot === "legs");
-        console.log(`[equipItemLogic] 🔍 LEGS PIECE IN SET:`, {
-          legsPiece: legsPiece,
-          setPieces: set.pieces,
-        });
-        if (legsPiece || !legsPiece) {
-          shouldEquipLegs = true;
-          legsItem = item;
-          console.log(`[equipItemLogic] ✅ SET TORSO WITH 2 PARTS: Set torso will occupy both armor and legs slots:`, {
-            torsoId: item.id,
-            torsoName: item.name,
-            set: set.name,
-            hasLegsPiece: !!legsPiece,
-            legsItemId: legsItem.id,
-            legsItemName: legsItem.name,
-            sameItem: legsItem.id === item.id,
-          });
-        }
-      }
     }
+    // Видалено логіку для сетів - tunic і stockings одягаються окремо
   }
   
   return { shouldEquipLegs, legsItem, isRobe };
