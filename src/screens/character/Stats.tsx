@@ -79,6 +79,18 @@ export default function Stats() {
   return (
     <div className="w-full flex flex-col items-center text-white px-4 py-2">
       <div className="w-full max-w-[360px]">
+        {/* Заголовок та опис */}
+        <div className="mb-4">
+          <div className="border-t border-gray-600 mb-2"></div>
+          <div className="text-orange-400 text-sm font-semibold mb-1">
+            Характеристики персонажа
+          </div>
+          <div className="text-orange-400 text-xs mb-2">
+            Тут відображаються базові параметри, бойові характеристики та бонуси від екіпіровки і бафів.
+          </div>
+          <div className="border-b border-gray-600 mt-2"></div>
+        </div>
+
         {/* Інформація про персонажа */}
         <div className="mb-4 text-center">
           <div className="font-semibold text-base mb-1" style={getNickColorStyle(hero.name || "", hero)}>
