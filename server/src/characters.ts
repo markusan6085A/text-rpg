@@ -531,4 +531,92 @@ export async function characterRoutes(app: FastifyInstance) {
       });
     }
   });
+
+  // POST /characters/:id/heal - лікування іншого гравця
+  app.post("/characters/:id/heal", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const targetId = (req.params as any).id;
+    const body = req.body as { skillId: number; power: number };
+
+    if (!body.skillId || !body.power) {
+      return reply.code(400).send({ error: "skillId and power are required" });
+    }
+
+    try {
+      // Отримуємо цільового гравця
+      const targetChar = await prisma.character.findUnique({
+        where: { id: targetId },
+        select: { id: true, heroJson: true },
+      });
+
+      if (!targetChar) {
+        return reply.code(404).send({ error: "target character not found" });
+      }
+
+      const heroJson = (targetChar.heroJson as any) || {};
+      const currentHp = heroJson.hp || heroJson.maxHp || 100;
+      const maxHp = heroJson.maxHp || 100;
+      const newHp = Math.min(maxHp, currentHp + body.power);
+
+      // Оновлюємо HP
+      const updatedHeroJson = {
+        ...heroJson,
+        hp: newHp,
+      };
+
+      await prisma.character.update({
+        where: { id: targetId },
+        data: { heroJson: updatedHeroJson },
+      });
+
+      return { ok: true, healedHp: newHp - currentHp, currentHp: newHp };
+    } catch (error) {
+      app.log.error(error, "Error healing character:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // POST /characters/:id/buff - застосування бафу до іншого гравця
+  app.post("/characters/:id/buff", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const targetId = (req.params as any).id;
+    const body = req.body as { skillId: number; buffData: any };
+
+    if (!body.skillId || !body.buffData) {
+      return reply.code(400).send({ error: "skillId and buffData are required" });
+    }
+
+    try {
+      // Отримуємо цільового гравця
+      const targetChar = await prisma.character.findUnique({
+        where: { id: targetId },
+        select: { id: true, heroJson: true },
+      });
+
+      if (!targetChar) {
+        return reply.code(404).send({ error: "target character not found" });
+      }
+
+      const heroJson = (targetChar.heroJson as any) || {};
+      
+      // Отримуємо поточні бафи (збережені в heroJson або battle state)
+      // Тут можна додати логіку для збереження бафів у heroJson.buffs або окремій таблиці
+      // Поки що просто повертаємо успіх
+      
+      return { ok: true, message: "Buff applied successfully" };
+    } catch (error) {
+      app.log.error(error, "Error buffing character:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
 }

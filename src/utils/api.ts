@@ -497,3 +497,20 @@ export async function reportMedalDrop(characterId: string): Promise<{ ok: boolea
   });
   return response;
 }
+
+// Player Admin API
+export async function healPlayer(characterId: string, skillId: number, power: number): Promise<{ ok: boolean; healedHp?: number; currentHp?: number }> {
+  const response = await apiRequest<{ ok: boolean; healedHp?: number; currentHp?: number }>(`/characters/${characterId}/heal`, {
+    method: 'POST',
+    body: JSON.stringify({ skillId, power }),
+  });
+  return response;
+}
+
+export async function buffPlayer(characterId: string, skillId: number, buffData: any): Promise<{ ok: boolean; message?: string }> {
+  const response = await apiRequest<{ ok: boolean; message?: string }>(`/characters/${characterId}/buff`, {
+    method: 'POST',
+    body: JSON.stringify({ skillId, buffData }),
+  });
+  return response;
+}

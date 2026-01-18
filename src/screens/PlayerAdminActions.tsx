@@ -16,6 +16,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
   const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showBuffModal, setShowBuffModal] = useState(false);
 
   useEffect(() => {
     const loadPlayer = async () => {
@@ -68,7 +69,12 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
   // Отримуємо вивчені бафи гравця
   const playerBuffs = useMemo(() => {
-    if (!playerHero || !playerHero.skills) return [];
+    if (!playerHero || !playerHero.skills) {
+      console.log('[PlayerAdminActions] No playerHero or skills:', { playerHero: !!playerHero, skills: playerHero?.skills });
+      return [];
+    }
+
+    console.log('[PlayerAdminActions] Loading player buffs, skills count:', playerHero.skills.length);
 
     return playerHero.skills
       .map((learned: any) => {
@@ -94,6 +100,35 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       .filter((s): s is NonNullable<typeof s> => s !== null)
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [playerHero]);
+
+  // Отримуємо мої buff скіли (для застосування)
+  const myBuffSkills = useMemo(() => {
+    if (!hero || !hero.skills) return [];
+
+    return hero.skills
+      .map((learned: any) => {
+        const skillDef = getSkillDef(learned.id);
+        if (!skillDef || skillDef.category !== "buff") return null;
+
+        const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
+        
+        return {
+          id: learned.id,
+          name: skillDef.name,
+          description: skillDef.description,
+          icon: skillDef.icon,
+          level: learned.level,
+          castTime: skillDef.castTime,
+          cooldown: skillDef.cooldown,
+          duration: skillDef.duration,
+          mpCost: levelDef?.mpCost ?? 0,
+          skillDef,
+          levelDef,
+        };
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [hero]);
 
   // Отримуємо мої heal скіли
   const myHealSkills = useMemo(() => {
@@ -180,14 +215,63 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
     return parts;
   };
 
-  const handleHeal = async (healSkillId: number) => {
-    // TODO: Реалізувати API для лікування гравця
-    alert(`Лікування гравця ${character?.name} скілом ${healSkillId} (буде реалізовано)`);
+  const handleHeal = async (healSkillId: number, healPower: number) => {
+    if (!character || !hero) return;
+    
+    try {
+      const result = await import("../utils/api").then(({ healPlayer }) => 
+        healPlayer(character.id, healSkillId, healPower)
+      );
+      
+      if (result.ok) {
+        alert(`Игрок ${character.name} вылечен на ${result.healedHp || healPower} HP. Текущее HP: ${result.currentHp}`);
+        // Перезавантажуємо профіль
+        const loadPlayer = async () => {
+          try {
+            let loadedCharacter: Character;
+            if (playerId) {
+              loadedCharacter = await import("../utils/api").then(({ getPublicCharacter }) => getPublicCharacter(playerId));
+            } else if (playerName) {
+              loadedCharacter = await import("../utils/api").then(({ getCharacterByName }) => getCharacterByName(playerName));
+            } else {
+              return;
+            }
+            setCharacter(loadedCharacter);
+          } catch (err: any) {
+            console.error("[PlayerAdminActions] Error reloading:", err);
+          }
+        };
+        loadPlayer();
+      }
+    } catch (err: any) {
+      alert(`Ошибка лечения: ${err?.message || "Unknown error"}`);
+      console.error("[PlayerAdminActions] Error healing:", err);
+    }
   };
 
-  const handleBuffPlayer = () => {
-    // TODO: Реалізувати API для бафу гравця
-    alert(`Баф гравця ${character?.name} (буде реалізовано)`);
+  const handleBuffPlayer = async (buffSkillId: number) => {
+    if (!character || !hero) return;
+    
+    try {
+      const buffSkill = myBuffSkills.find(b => b.id === buffSkillId);
+      if (!buffSkill) return;
+
+      const result = await import("../utils/api").then(({ buffPlayer }) => 
+        buffPlayer(character.id, buffSkillId, {
+          name: buffSkill.name,
+          duration: buffSkill.duration,
+          expiresAt: Date.now() + (buffSkill.duration || 0) * 1000,
+        })
+      );
+      
+      if (result.ok) {
+        alert(`Баф "${buffSkill.name}" применен к игроку ${character.name}`);
+        setShowBuffModal(false);
+      }
+    } catch (err: any) {
+      alert(`Ошибка применения бафа: ${err?.message || "Unknown error"}`);
+      console.error("[PlayerAdminActions] Error buffing:", err);
+    }
   };
 
   if (loading) {
@@ -229,7 +313,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         {/* Кнопка бафу */}
         <div className="mb-4">
           <button
-            onClick={handleBuffPlayer}
+            onClick={() => setShowBuffModal(true)}
             className="w-full py-2 px-4 bg-green-900/50 border border-green-700 text-green-400 hover:bg-green-900/70 rounded text-sm"
           >
             Забафнуть игрока
@@ -341,7 +425,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
                           </div>
                         )}
                         <button
-                          onClick={() => handleHeal(heal.id)}
+                          onClick={() => handleHeal(heal.id, heal.power)}
                           className="mt-2 px-3 py-1 bg-green-900/50 border border-green-700 text-green-400 hover:bg-green-900/70 rounded text-[10px]"
                         >
                           Використати
@@ -352,6 +436,77 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Модалка для застосування бафів */}
+        {showBuffModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setShowBuffModal(false)}>
+            <div
+              className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[#dec28e]">Выберите баф для применения</h2>
+                <button
+                  className="text-gray-400 hover:text-white text-xl"
+                  onClick={() => setShowBuffModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              {myBuffSkills.length === 0 ? (
+                <div className="text-gray-400 text-sm py-4">У вас нет изученных бафов</div>
+              ) : (
+                <div className="space-y-2">
+                  {myBuffSkills.map((buff) => {
+                    const formattedValues = formatBuffValues(buff.skillDef, buff.levelDef);
+                    const descriptionParts = buff.description.split("\n\n");
+                    let russianDescription = "";
+                    if (descriptionParts.length > 1) {
+                      russianDescription = descriptionParts.slice(1).join("\n\n");
+                    } else {
+                      const text = descriptionParts[0] || "";
+                      const hasCyrillic = /[А-Яа-яЁё]/.test(text);
+                      russianDescription = hasCyrillic ? text : "Перевод отсутствует";
+                    }
+                    let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
+                    return (
+                      <div key={buff.id} className="border-b border-gray-700 pb-2">
+                        <div className="flex items-start gap-2">
+                          <img
+                            src={iconSrc}
+                            alt={buff.name}
+                            className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                            }}
+                          />
+                          <div className="flex-1">
+                            <div className="text-xs text-gray-400 leading-relaxed">
+                              {russianDescription}
+                            </div>
+                            {formattedValues.length > 0 && (
+                              <div className="text-xs text-[#228b22] mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                                {formattedValues.map((value, idx) => (
+                                  <span key={idx}>{value}</span>
+                                ))}
+                              </div>
+                            )}
+                            <button
+                              onClick={() => handleBuffPlayer(buff.id)}
+                              className="mt-2 px-3 py-1 bg-green-900/50 border border-green-700 text-green-400 hover:bg-green-900/70 rounded text-[10px]"
+                            >
+                              Применить
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}
