@@ -266,8 +266,21 @@ export async function characterRoutes(app: FastifyInstance) {
         stackType: body.buffData.stackType,
       };
       
-      // Видаляємо старі бафи з таким самим id (замінюємо)
-      const filteredBuffs = currentBuffs.filter((b: any) => b.id !== body.skillId);
+      // ❗ ВАЖЛИВО: Перевірка конфліктів бафів
+      // 1. Видаляємо бафи з таким самим id (замінюємо)
+      // 2. Якщо новий баф має buffGroup, видаляємо всі бафи з таким самим buffGroup
+      //    (щоб не накладати баф поверх городського бафа або наоборот)
+      let filteredBuffs = currentBuffs.filter((b: any) => {
+        // Видаляємо бафи з таким самим id
+        if (b.id === body.skillId) return false;
+        
+        // Якщо новий баф має buffGroup, видаляємо бафи з таким самим buffGroup
+        if (newBuff.buffGroup && b.buffGroup === newBuff.buffGroup) {
+          return false; // Видаляємо конфліктуючий баф
+        }
+        
+        return true;
+      });
       
       // Додаємо новий баф
       const updatedBuffs = [...filteredBuffs, newBuff];

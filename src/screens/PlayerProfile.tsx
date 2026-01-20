@@ -286,6 +286,68 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
         </div>
 
+        {/* Активні бафи гравця */}
+        {(() => {
+          const heroJson = character.heroJson || {};
+          const allBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+          const now = Date.now();
+          const activeBuffs = allBuffs.filter((b: any) => {
+            if (!b.expiresAt) return false;
+            return b.expiresAt > now;
+          });
+
+          if (activeBuffs.length === 0) return null;
+
+          return (
+            <div className="mb-4 border-t border-gray-600 pt-3">
+              <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-gray-600 pb-1">
+                Активні бафи
+              </div>
+              <div className="space-y-2">
+                {activeBuffs.map((buff: any, idx: number) => {
+                  const timeLeft = Math.max(0, Math.floor((buff.expiresAt - now) / 1000));
+                  const minutes = Math.floor(timeLeft / 60);
+                  const seconds = timeLeft % 60;
+                  const timeLeftStr = minutes > 0 ? `${minutes}м ${seconds}с` : `${seconds}с`;
+                  
+                  let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
+                  
+                  return (
+                    <div key={idx} className="flex items-start gap-2">
+                      <img
+                        src={iconSrc}
+                        alt={buff.name || "Buff"}
+                        className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                        }}
+                      />
+                      <div className="flex-1">
+                        <div className="text-xs text-gray-300">
+                          {buff.name || "Невідомий баф"}
+                        </div>
+                        <div className="text-xs text-green-400 mt-0.5">
+                          Залишилось: {timeLeftStr}
+                        </div>
+                        {buff.source === "skill" && (
+                          <div className="text-xs text-blue-400 mt-0.5">
+                            (Від гравця)
+                          </div>
+                        )}
+                        {buff.source === "buffer" && (
+                          <div className="text-xs text-yellow-400 mt-0.5">
+                            (Городський баф)
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Модалка написання листа */}
         {showWriteModal && (
           <WriteLetterModal

@@ -277,8 +277,25 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       );
       
       if (result.ok) {
-        alert(`Баф "${buffSkill.name}" применен к игроку ${character.name}`);
-        setShowBuffModal(false);
+        // ❗ Не показуємо alert, не закриваємо модалку - просто перезавантажуємо дані
+        // Перезавантажуємо профіль для оновлення бафів
+        const loadPlayer = async () => {
+          try {
+            let loadedCharacter: Character;
+            if (playerId) {
+              loadedCharacter = await import("../utils/api").then(({ getPublicCharacter }) => getPublicCharacter(playerId));
+            } else if (playerName) {
+              loadedCharacter = await import("../utils/api").then(({ getCharacterByName }) => getCharacterByName(playerName));
+            } else {
+              return;
+            }
+            setCharacter(loadedCharacter);
+          } catch (err: any) {
+            console.error("[PlayerAdminActions] Error reloading:", err);
+          }
+        };
+        loadPlayer();
+        // Модалку не закриваємо - залишаємо відкритою для подальших бафів
       }
     } catch (err: any) {
       alert(`Ошибка применения бафа: ${err?.message || "Unknown error"}`);
