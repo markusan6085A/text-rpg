@@ -98,72 +98,62 @@ function AppInner() {
   const initializeCharacter = useCharacterStore((s) => s.initialize);
 
   React.useEffect(() => {
-    // Ініціалізуємо stores
-    initializeAuth();
-    initializeCharacter();
-    
-    // 🔥 Warm-up: запускаємо ping health endpoint для підтримки сервера активним
-    // Це запобігає cold start на Railway (сервер засинає після ~5 хв неактивності)
-    // ❗ Обгортаємо в try-catch, щоб не ламати завантаження при помилках
-    try {
-      startWarmup();
-    } catch (err) {
-      // Ігноруємо помилки warm-up - вони не критичні
-      if (import.meta.env.DEV) {
-        console.warn('[App] Failed to start warm-up (non-critical):', err);
-      }
-    }
-    
-    // Cleanup при unmount
-    return () => {
+    let alive = true;
+
+    (async () => {
       try {
-        stopWarmup();
-      } catch (err) {
-        // Ігноруємо помилки cleanup
-      }
-    };
-
-    // 🔥 Визначаємо "легкі" сторінки, для яких не потрібно завантажувати hero одразу
-    const pathname = window.location.pathname;
-    const isLightPage = pathname.startsWith('/mail') || 
-                       pathname.startsWith('/about') || 
-                       pathname.startsWith('/forum');
-
-    // Для легких сторінок - одразу показуємо UI, hero завантажимо асинхронно
-    if (isLightPage) {
-      setIsLoading(false);
-      // Завантажуємо hero в фоновому режимі (не блокуємо рендер)
-      const loadHeroAsync = async () => {
+        // 1) Ініціалізуємо stores
+        initializeAuth();
+        initializeCharacter();
+        
+        // 2) Optional warm-up (fire-and-forget, не блокує)
         try {
-          const authStore = useAuthStore.getState();
-          const characterStore = useCharacterStore.getState();
-          if (authStore.isAuthenticated && characterStore.characterId) {
-            try {
-              const loadedHero = await loadHeroFromAPI();
-              if (loadedHero) {
-                setHero(loadedHero);
-              } else {
-                loadHero();
-              }
-            } catch (err) {
-              loadHero();
-            }
-          } else {
-            loadHero();
-          }
+          startWarmup();
         } catch (err) {
-          // Ігноруємо помилки для легких сторінок
+          if (import.meta.env.DEV) {
+            console.warn('[App] Failed to start warm-up (non-critical):', err);
+          }
         }
-      };
-      // Відкладаємо завантаження hero на 500 мс після рендеру
-      setTimeout(loadHeroAsync, 500);
-      return;
-    }
 
-    // Для важких сторінок - завантажуємо hero перед показом UI
-    const load = async () => {
-      try {
-        // Отримуємо поточний стан після ініціалізації
+        // 3) Визначаємо "легкі" сторінки
+        const pathname = window.location.pathname;
+        const isLightPage = pathname.startsWith('/mail') || 
+                           pathname.startsWith('/about') || 
+                           pathname.startsWith('/forum');
+
+        // Для легких сторінок - одразу показуємо UI
+        if (isLightPage) {
+          if (alive) setIsLoading(false);
+          // Завантажуємо hero в фоновому режимі (не блокуємо рендер)
+          setTimeout(() => {
+            if (!alive) return;
+            (async () => {
+              try {
+                const authStore = useAuthStore.getState();
+                const characterStore = useCharacterStore.getState();
+                if (authStore.isAuthenticated && characterStore.characterId) {
+                  try {
+                    const loadedHero = await loadHeroFromAPI();
+                    if (loadedHero && alive) {
+                      setHero(loadedHero);
+                    } else if (alive) {
+                      loadHero();
+                    }
+                  } catch (err) {
+                    if (alive) loadHero();
+                  }
+                } else if (alive) {
+                  loadHero();
+                }
+              } catch (err) {
+                // Ігноруємо помилки для легких сторінок
+              }
+            })();
+          }, 500);
+          return;
+        }
+
+        // Для важких сторінок - завантажуємо hero перед показом UI
         const authStore = useAuthStore.getState();
         const characterStore = useCharacterStore.getState();
 
@@ -175,14 +165,13 @@ function AppInner() {
         if (authStore.isAuthenticated && characterStore.characterId) {
           try {
             const loadedHero = await loadHeroFromAPI();
-            if (loadedHero) {
+            if (loadedHero && alive) {
               setHero(loadedHero);
               if (import.meta.env.DEV) {
                 console.log('[App] Hero set in store successfully from API');
               }
               
               // ❗ ВАЖЛИВО: Також зберігаємо завантажений hero в localStorage як backup
-              // Це гарантує, що дані не втрачаться при проблемах з API
               const current = getJSON<string | null>("l2_current_user", null);
               if (current && loadedHero) {
                 const accounts = getJSON<any[]>("l2_accounts_v2", []);
@@ -195,38 +184,48 @@ function AppInner() {
                   }
                 }
               }
-            } else {
+            } else if (alive) {
               if (import.meta.env.DEV) {
                 console.log('[App] Hero is null from API, fallback to localStorage');
               }
-              // Fallback на localStorage тільки якщо hero не завантажений
               loadHero();
             }
           } catch (err) {
             if (import.meta.env.DEV) {
               console.error('[App] Failed to load hero from API:', err);
             }
-            // Fallback на localStorage при помилці
-            loadHero();
+            if (alive) loadHero();
           }
-        } else {
+        } else if (alive) {
           if (import.meta.env.DEV) {
             console.log('[App] Not authenticated, loading from localStorage');
           }
-          // Якщо не авторизований - завантажуємо з localStorage (backward compatibility)
           loadHero();
         }
+      } catch (e) {
+        console.error('[App] Boot failed:', e);
+        // Не встановлюємо помилку - просто продовжуємо
       } finally {
-        // Встановлюємо isLoading = false після завантаження (незалежно від успіху/помилки)
-        const finalHero = useHeroStore.getState().hero;
-        if (import.meta.env.DEV) {
-          console.log('[App] Setting isLoading = false, final hero:', finalHero ? 'exists' : 'null');
+        // ❗ КРИТИЧНО: Завжди встановлюємо ready, навіть якщо щось пішло не так
+        if (alive) {
+          const finalHero = useHeroStore.getState().hero;
+          if (import.meta.env.DEV) {
+            console.log('[App] Setting isLoading = false, final hero:', finalHero ? 'exists' : 'null');
+          }
+          setIsLoading(false);
         }
-        setIsLoading(false);
+      }
+    })();
+
+    // Cleanup при unmount
+    return () => {
+      alive = false;
+      try {
+        stopWarmup();
+      } catch (err) {
+        // Ігноруємо помилки cleanup
       }
     };
-
-    load();
   }, []);
 
   // Поки йде завантаження — показуємо "загрузка", але НЕ Landing
