@@ -428,12 +428,12 @@ export async function characterRoutes(app: FastifyInstance) {
       if (body.expectedRevision !== undefined) {
         const revisionCheck = checkRevision(oldHeroJson, body.expectedRevision);
         if (!revisionCheck.valid) {
-          app.log.warn(`[PUT /characters/:id] Revision conflict for character ${id}: expected ${body.expectedRevision}, got ${oldHeroJson.heroRevision || 'none'}`, {
+          app.log.warn({
             accountId: auth.accountId,
             characterId: id,
             expectedRevision: body.expectedRevision,
             currentRevision: oldHeroJson.heroRevision || 0,
-          });
+          }, `[PUT /characters/:id] Revision conflict for character ${id}: expected ${body.expectedRevision}, got ${oldHeroJson.heroRevision || 'none'}`);
           
           // ❗ ВАЖЛИВО: Повертаємо серверний state для синхронізації
           return reply.code(409).send({ 
@@ -454,7 +454,11 @@ export async function characterRoutes(app: FastifyInstance) {
       // 2. Валідація структури heroJson
       const validation = validateHeroJson(body.heroJson);
       if (!validation.valid) {
-        app.log.warn(`[PUT /characters/:id] Invalid heroJson structure for character ${id}:`, validation.errors);
+        app.log.warn({
+          characterId: id,
+          accountId: auth.accountId,
+          errors: validation.errors,
+        }, `[PUT /characters/:id] Invalid heroJson structure for character ${id}`);
         return reply.code(400).send({
           error: "invalid_hero_json",
           message: "heroJson structure is invalid",
@@ -479,13 +483,13 @@ export async function characterRoutes(app: FastifyInstance) {
         const oldRevision = oldHeroJson.heroRevision || 0;
         const versionedHeroJson = addVersioning(body.heroJson, oldRevision);
         updateData.heroJson = versionedHeroJson;
-        app.log.info(`[PUT /characters/:id] Updating heroJson for character ${id}`, {
+        app.log.info({
           accountId: auth.accountId,
           characterId: id,
           oldRevision,
           newRevision: versionedHeroJson.heroRevision,
           inventoryItems: body.heroJson.inventory?.length || 0,
-        });
+        }, `[PUT /characters/:id] Updating heroJson for character ${id}`);
       } else {
         app.log.warn(`[PUT /characters/:id] Attempted to save empty or invalid heroJson for character ${id}, ignoring`);
         // НЕ оновлюємо heroJson, якщо він порожній або невалідний
