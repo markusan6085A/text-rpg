@@ -53,7 +53,11 @@ export default function Mail({ navigate }: MailProps) {
 
   const loadLetters = async () => {
     const isInitialLoad = letters.length === 0;
-    if (isInitialLoad) setLoading(true);
+    if (isInitialLoad) {
+      setLoading(true);
+      // ❗ ОПТИМІЗАЦІЯ: Показуємо skeleton одразу, не чекаємо API
+      // Це покращує відчуття швидкості навіть при cold start
+    }
 
     setError(null);
     try {
@@ -439,8 +443,19 @@ export default function Mail({ navigate }: MailProps) {
 
         <div className="w-full h-px bg-gray-600 mb-3"></div>
 
-        {loading ? (
-          <div className="text-center text-gray-400 text-[7px] py-4">Загрузка...</div>
+        {loading && letters.length === 0 ? (
+          // ❗ ОПТИМІЗАЦІЯ: Skeleton для швидшого відображення
+          <div className="space-y-1">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between p-2 border-b border-dotted border-gray-600 animate-pulse">
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-700 rounded w-24 mb-1"></div>
+                  <div className="h-3 bg-gray-800 rounded w-16"></div>
+                </div>
+                <div className="h-3 bg-gray-700 rounded w-12"></div>
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <div className="text-center text-red-400 text-[7px] py-4">{error}</div>
         ) : conversations.length === 0 ? (

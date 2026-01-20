@@ -45,6 +45,7 @@ import { getJSON, setJSON } from "./state/persistence";
 import { useAuthStore } from "./state/authStore";
 import { useCharacterStore } from "./state/characterStore";
 import { loadHeroFromAPI } from "./state/heroStore/heroLoadAPI";
+import { startWarmup, stopWarmup } from "./utils/warmup";
 
 function useRouter() {
   const [path, setPath] = React.useState(() => {
@@ -100,6 +101,15 @@ function AppInner() {
     // Ініціалізуємо stores
     initializeAuth();
     initializeCharacter();
+    
+    // 🔥 Warm-up: запускаємо ping health endpoint для підтримки сервера активним
+    // Це запобігає cold start на Railway (сервер засинає після ~5 хв неактивності)
+    startWarmup();
+    
+    // Cleanup при unmount
+    return () => {
+      stopWarmup();
+    };
 
     // 🔥 Визначаємо "легкі" сторінки, для яких не потрібно завантажувати hero одразу
     const pathname = window.location.pathname;
