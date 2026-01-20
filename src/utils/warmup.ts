@@ -1,31 +1,54 @@
 // 🔥 Warm-up utility для підтримки сервера "теплим" (prevent cold start)
 // Викликається при завантаженні додатку для "прогріву" сервера
 
-import { API_URL } from "./api";
-
-const HEALTH_ENDPOINT = `${API_URL}/health`;
 const WARMUP_INTERVAL = 4 * 60 * 1000; // 4 хвилини (Railway засинає після ~5 хв)
 
 let warmupInterval: number | null = null;
+
+/**
+ * Отримує health endpoint URL (динамічно, щоб уникнути проблем з імпортом)
+ * ❗ Не використовуємо імпорт API_URL, щоб уникнути циклічних залежностей
+ */
+function getHealthEndpoint(): string {
+  try {
+    // Спробуємо отримати з глобальної змінної (якщо api.ts вже ініціалізований)
+    const apiUrl = (typeof window !== 'undefined' && (window as any).__API_URL__) 
+      || import.meta.env.VITE_API_URL 
+      || 'http://localhost:3000';
+    return `${apiUrl}/health`;
+  } catch (err) {
+    // Fallback якщо щось пішло не так
+    const fallback = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    return `${fallback}/health`;
+  }
+}
 
 /**
  * Пінг health endpoint для підтримки сервера активним
  * Викликається в фоні, не блокує UI
  */
 export function pingHealth(): void {
-  // ❗ Fire-and-forget: не await, не блокує UI
-  fetch(HEALTH_ENDPOINT)
-    .then(() => {
-      if (import.meta.env.DEV) {
-        console.log('[warmup] Health ping successful');
-      }
-    })
-    .catch((err) => {
-      // Ігноруємо помилки - не критично
-      if (import.meta.env.DEV) {
-        console.warn('[warmup] Health ping failed (non-critical):', err);
-      }
-    });
+  try {
+    const endpoint = getHealthEndpoint();
+    // ❗ Fire-and-forget: не await, не блокує UI
+    fetch(endpoint)
+      .then(() => {
+        if (import.meta.env.DEV) {
+          console.log('[warmup] Health ping successful');
+        }
+      })
+      .catch((err) => {
+        // Ігноруємо помилки - не критично
+        if (import.meta.env.DEV) {
+          console.warn('[warmup] Health ping failed (non-critical):', err);
+        }
+      });
+  } catch (err) {
+    // Ігноруємо помилки - не критично
+    if (import.meta.env.DEV) {
+      console.warn('[warmup] Failed to ping health (non-critical):', err);
+    }
+  }
 }
 
 /**
