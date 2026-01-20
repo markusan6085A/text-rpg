@@ -21,6 +21,11 @@ export default function About({ navigate }: { navigate: Navigate }) {
         const count = data.count ?? data.players?.length ?? 0;
         setOnlineCount(count);
       } catch (err: any) {
+        // ❗ Ігноруємо 401 помилки (неавторизований) - це нормально
+        if (err?.status === 401 || err?.unauthorized) {
+          setOnlineCount(0);
+          return;
+        }
         console.error('[About] Failed to load online count:', err?.message || err);
         setOnlineCount(0);
       }
