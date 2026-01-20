@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
+import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 
 function signToken(payload: { accountId: string; login: string }) {
   const secret = process.env.JWT_SECRET;
@@ -11,7 +12,11 @@ function signToken(payload: { accountId: string; login: string }) {
 
 export async function authRoutes(app: FastifyInstance) {
   // POST /auth/register  { login, password }
-  app.post("/auth/register", async (req, reply) => {
+  app.post("/auth/register", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.register, "register")(req, reply);
+    },
+  }, async (req, reply) => {
     try {
       // Fastify automatically handles OPTIONS via CORS, but ensure body is optional
       const body = (req.body || {}) as { login?: string; password?: string };
@@ -52,7 +57,11 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   // POST /auth/login  { login, password }
-  app.post("/auth/login", async (req, reply) => {
+  app.post("/auth/login", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.auth, "login")(req, reply);
+    },
+  }, async (req, reply) => {
     try {
       // Fastify automatically handles OPTIONS via CORS, but ensure body is optional
       const body = (req.body || {}) as { login?: string; password?: string };

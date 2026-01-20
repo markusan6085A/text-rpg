@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
+import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 
 function getAuth(req: any): { accountId: string; login: string } | null {
   const header = req.headers?.authorization || "";
@@ -103,7 +104,11 @@ export async function chatRoutes(app: FastifyInstance) {
   });
 
   // POST /chat/messages { channel, message }
-  app.post("/chat/messages", async (req, reply) => {
+  app.post("/chat/messages", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.chat, "chat")(req, reply);
+    },
+  }, async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 

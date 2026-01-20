@@ -65,6 +65,7 @@ export interface UpdateCharacterRequest {
   adena?: number;
   aa?: number;
   coinLuck?: number;
+  expectedRevision?: number; // Для optimistic locking
 }
 
 export interface CharactersResponse {
@@ -123,7 +124,11 @@ async function apiRequest<T>(
       const error: ApiError = await response.json().catch(() => ({
         error: `HTTP ${response.status}: ${response.statusText}`,
       }));
-      throw new Error(error.error || `HTTP ${response.status}`);
+      // 🔥 Додаємо status до помилки для обробки на клієнті
+      const errorWithStatus = new Error(error.error || `HTTP ${response.status}`) as any;
+      errorWithStatus.status = response.status;
+      errorWithStatus.details = (error as any).details || (error as any).errors;
+      throw errorWithStatus;
     }
 
     return response.json();

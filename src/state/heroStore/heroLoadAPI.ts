@@ -8,6 +8,8 @@ import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { createNewHero } from "../heroFactory";
 import type { Hero } from "../../types/Hero";
+import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBackup } from "./syncPolicy";
+import { loadHero } from "./heroLoad";
 
 export async function loadHeroFromAPI(): Promise<Hero | null> {
   const authStore = useAuthStore.getState();
@@ -22,10 +24,34 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
   }
 
   try {
+    // 🔥 Перевіряємо локальну версію перед завантаженням з API
+    const localHero = loadHero();
+    
     // Load character from API
     console.log('[loadHeroFromAPI] Fetching character from API...');
     const character = await getCharacter(characterStore.characterId);
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
+    
+    // 🔥 Перевіряємо конфлікт синхронізації
+    if (character && localHero) {
+      const conflict = checkSyncConflict(character, localHero);
+      if (conflict.hasConflict) {
+        const resolution = resolveSyncConflict(conflict);
+        const message = getConflictMessage(conflict);
+        
+        console.warn('[loadHeroFromAPI] Sync conflict detected:', conflict);
+        console.log('[loadHeroFromAPI] Resolution:', resolution, message);
+        
+        // ❗ ВАЖЛИВО: Зберігаємо локальну версію як backup перед заміною
+        if (conflict.localNewer) {
+          saveLocalBackup(localHero, conflict);
+          console.warn('[loadHeroFromAPI] Local version is newer, saved as backup. Using server version for safety.');
+          // Можна показати alert або notification користувачу про конфлікт
+        } else if (conflict.serverNewer) {
+          console.log('[loadHeroFromAPI] Server version is newer, using server version.');
+        }
+      }
+    }
     
     // 🔥 Оновлюємо активність при завантаженні героя (асинхронно, не блокуємо)
     // 🔥 Ігноруємо помилки heartbeat - вони не критичні (можливо міграція не виконана)

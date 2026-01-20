@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
+import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 
 function getAuth(req: any): { accountId: string; login: string } | null {
   const header = req.headers?.authorization || "";
@@ -21,7 +22,11 @@ function getAuth(req: any): { accountId: string; login: string } | null {
 
 export async function letterRoutes(app: FastifyInstance) {
   // POST /letters - відправити лист
-  app.post("/letters", async (req, reply) => {
+  app.post("/letters", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.letters, "letters")(req, reply);
+    },
+  }, async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 

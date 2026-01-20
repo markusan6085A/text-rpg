@@ -1,7 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
+import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import { addNews } from "./news";
+import { validateHeroJson, addVersioning, checkRevision } from "./heroJsonValidator";
+import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 
 function getAuth(req: any): { accountId: string; login: string } | null {
   const header = req.headers?.authorization || "";
@@ -43,8 +46,30 @@ export async function characterRoutes(app: FastifyInstance) {
         coinLuck: true,
         heroJson: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
+
+    // ❗ ВАЖЛИВО: Додаємо heroRevision до персонажів, які його не мають
+    // Це забезпечує сумісність зі старими записами
+    for (const char of chars) {
+      const heroJson = char.heroJson as any || {};
+      if (!heroJson.heroRevision || heroJson.heroRevision === null) {
+        const fallbackRevision = char.updatedAt 
+          ? Math.floor(new Date(char.updatedAt).getTime())
+          : Date.now();
+        heroJson.heroRevision = fallbackRevision;
+        heroJson.heroJsonVersion = heroJson.heroJsonVersion || 1;
+        
+        // Оновлюємо heroJson з ревізією (асинхронно, не блокуємо запит)
+        prisma.character.update({
+          where: { id: char.id },
+          data: { heroJson },
+        }).catch((err) => {
+          app.log.error(err, `Failed to add heroRevision to character ${char.id}`);
+        });
+      }
+    }
 
     // Convert BigInt to Number for JSON serialization
     const serializedChars = chars.map(char => ({
@@ -172,10 +197,13 @@ export async function characterRoutes(app: FastifyInstance) {
       const maxHp = heroJson.maxHp || 100;
       const newHp = Math.min(maxHp, currentHp + body.power);
 
-      // Оновлюємо HP
+      // ❗ ВАЖЛИВО: Інкрементуємо ревізію при зміні heroJson (side-effect endpoint)
+      const oldRevision = heroJson.heroRevision || 0;
       const updatedHeroJson = {
         ...heroJson,
         hp: newHp,
+        heroRevision: Date.now() > oldRevision ? Date.now() : oldRevision + 1, // Інкремент ревізії
+        heroJsonVersion: heroJson.heroJsonVersion || 1,
       };
 
       await prisma.character.update({
@@ -244,10 +272,13 @@ export async function characterRoutes(app: FastifyInstance) {
       // Додаємо новий баф
       const updatedBuffs = [...filteredBuffs, newBuff];
       
-      // Оновлюємо heroJson з новими бафами
+      // ❗ ВАЖЛИВО: Інкрементуємо ревізію при зміні heroJson (side-effect endpoint)
+      const oldRevision = heroJson.heroRevision || 0;
       const updatedHeroJson = {
         ...heroJson,
         heroBuffs: updatedBuffs,
+        heroRevision: Date.now() > oldRevision ? Date.now() : oldRevision + 1, // Інкремент ревізії
+        heroJsonVersion: heroJson.heroJsonVersion || 1,
       };
 
       await prisma.character.update({
@@ -310,7 +341,11 @@ export async function characterRoutes(app: FastifyInstance) {
   });
 
   // PUT /characters/:id  (Bearer token)  { heroJson, level, exp, sp, adena, aa, coinLuck }
-  app.put("/characters/:id", async (req, reply) => {
+  app.put("/characters/:id", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
     
@@ -329,6 +364,7 @@ export async function characterRoutes(app: FastifyInstance) {
       adena?: number;
       aa?: number;
       coinLuck?: number;
+      expectedRevision?: number; // Для optimistic locking
     };
 
     // Перевіряємо, що персонаж існує та належить цьому акаунту
@@ -347,12 +383,86 @@ export async function characterRoutes(app: FastifyInstance) {
     const oldHeroJson = existing.heroJson as any || {};
     const oldPremiumUntil = oldHeroJson.premiumUntil || 0;
     
+    // ❗ ВАЖЛИВО: Якщо heroRevision відсутній - додаємо його автоматично
+    // Це забезпечує сумісність зі старими записами
+    if (!oldHeroJson.heroRevision || oldHeroJson.heroRevision === null) {
+      const fallbackRevision = existing.updatedAt 
+        ? Math.floor(new Date(existing.updatedAt).getTime())
+        : Date.now();
+      oldHeroJson.heroRevision = fallbackRevision;
+      oldHeroJson.heroJsonVersion = oldHeroJson.heroJsonVersion || 1;
+      
+      // Оновлюємо heroJson з ревізією (асинхронно, не блокуємо запит)
+      prisma.character.update({
+        where: { id },
+        data: { heroJson: oldHeroJson },
+      }).catch((err) => {
+        app.log.error(err, `Failed to add heroRevision to character ${id}`);
+      });
+    }
+    
+    // ❗ ВАЖЛИВО: Якщо heroRevision відсутній - додаємо його автоматично
+    // Це забезпечує сумісність зі старими записами
+    if (!oldHeroJson.heroRevision || oldHeroJson.heroRevision === null) {
+      const fallbackRevision = existing.updatedAt 
+        ? Math.floor(new Date(existing.updatedAt).getTime())
+        : Date.now();
+      oldHeroJson.heroRevision = fallbackRevision;
+      oldHeroJson.heroJsonVersion = oldHeroJson.heroJsonVersion || 1;
+      
+      // Оновлюємо heroJson з ревізією (асинхронно, не блокуємо запит)
+      prisma.character.update({
+        where: { id },
+        data: { heroJson: oldHeroJson },
+      }).catch((err) => {
+        app.log.error(err, `Failed to add heroRevision to character ${id}`);
+      });
+    }
+    
     // Оновлюємо тільки передані поля
     const updateData: any = {};
     
-    // ❗ ВАЖЛИВО: Захист від перезапису heroJson порожніми даними
+    // ❗ ВАЖЛИВО: Захист від перезапису heroJson порожніми даними + валідація + optimistic locking
     if (body.heroJson !== undefined) {
-      // Перевіряємо, чи heroJson не порожній і має обов'язкові поля
+      // 1. Перевірка optimistic locking (якщо клієнт передав expectedRevision)
+      if (body.expectedRevision !== undefined) {
+        const revisionCheck = checkRevision(oldHeroJson, body.expectedRevision);
+        if (!revisionCheck.valid) {
+          app.log.warn(`[PUT /characters/:id] Revision conflict for character ${id}: expected ${body.expectedRevision}, got ${oldHeroJson.heroRevision || 'none'}`, {
+            accountId: auth.accountId,
+            characterId: id,
+            expectedRevision: body.expectedRevision,
+            currentRevision: oldHeroJson.heroRevision || 0,
+          });
+          
+          // ❗ ВАЖЛИВО: Повертаємо серверний state для синхронізації
+          return reply.code(409).send({ 
+            error: "revision_conflict",
+            message: "Character was modified by another session. Please reload and try again.",
+            currentRevision: oldHeroJson.heroRevision || 0,
+            updatedAt: existing.updatedAt.toISOString(),
+            // Повертаємо мінімальний серверний state (можна розширити до повного heroJson)
+            serverState: {
+              heroRevision: oldHeroJson.heroRevision || 0,
+              heroJsonVersion: oldHeroJson.heroJsonVersion || 1,
+              updatedAt: existing.updatedAt.toISOString(),
+            },
+          });
+        }
+      }
+
+      // 2. Валідація структури heroJson
+      const validation = validateHeroJson(body.heroJson);
+      if (!validation.valid) {
+        app.log.warn(`[PUT /characters/:id] Invalid heroJson structure for character ${id}:`, validation.errors);
+        return reply.code(400).send({
+          error: "invalid_hero_json",
+          message: "heroJson structure is invalid",
+          errors: validation.errors,
+        });
+      }
+
+      // 3. Перевірка, чи heroJson не порожній і має обов'язкові поля
       if (body.heroJson && typeof body.heroJson === 'object' && body.heroJson.name) {
         const newPremiumUntil = body.heroJson.premiumUntil || 0;
         // Якщо premiumUntil збільшився (нова покупка)
@@ -363,8 +473,19 @@ export async function characterRoutes(app: FastifyInstance) {
           const durationMs = newPremiumUntil - Math.max(now, oldPremiumUntil);
           premiumHours = Math.round(durationMs / (1000 * 60 * 60));
         }
-        updateData.heroJson = body.heroJson;
-        app.log.info(`[PUT /characters/:id] Updating heroJson for character ${id}, inventory items: ${body.heroJson.inventory?.length || 0}`);
+        
+        // 4. Додаємо/оновлюємо versioning
+        // ❗ КРИТИЧНО: Сервер сам генерує нову ревізію на основі старої з БД
+        const oldRevision = oldHeroJson.heroRevision || 0;
+        const versionedHeroJson = addVersioning(body.heroJson, oldRevision);
+        updateData.heroJson = versionedHeroJson;
+        app.log.info(`[PUT /characters/:id] Updating heroJson for character ${id}`, {
+          accountId: auth.accountId,
+          characterId: id,
+          oldRevision,
+          newRevision: versionedHeroJson.heroRevision,
+          inventoryItems: body.heroJson.inventory?.length || 0,
+        });
       } else {
         app.log.warn(`[PUT /characters/:id] Attempted to save empty or invalid heroJson for character ${id}, ignoring`);
         // НЕ оновлюємо heroJson, якщо він порожній або невалідний
@@ -378,28 +499,201 @@ export async function characterRoutes(app: FastifyInstance) {
     if (body.aa !== undefined) updateData.aa = body.aa;
     if (body.coinLuck !== undefined) updateData.coinLuck = body.coinLuck;
 
-    // 🔥 Оновлюємо активність при будь-якому оновленні персонажа
-    updateData.lastActivityAt = new Date();
+    // 🔥 Оновлюємо активність ТІЛЬКИ якщо оновлюється heroJson (основна активність)
+    // Для інших полів (level, exp, тощо) активність оновлюється через heartbeat
+    // Це зменшує навантаження на БД при частих оновленнях
+    if (updateData.heroJson) {
+      updateData.lastActivityAt = new Date();
+    }
 
-    const updated = await prisma.character.update({
-      where: { id },
-      data: updateData,
-      select: {
-        id: true,
-        name: true,
-        race: true,
-        classId: true,
-        sex: true,
-        level: true,
-        exp: true,
-        sp: true,
-        adena: true,
-        aa: true,
-        coinLuck: true,
-        heroJson: true,
-        updatedAt: true,
-      },
-    });
+    // ❗ КРИТИЧНО: Атомарна перевірка ревізії + оновлення на рівні БД
+    // Використовуємо умовний UPDATE через raw SQL для 100% атомарності
+    let updated: any;
+    if (body.expectedRevision !== undefined && updateData.heroJson) {
+      // Використовуємо транзакцію з raw SQL для атомарного умовного UPDATE
+      // UPDATE ... WHERE id = ? AND (heroJson->>'heroRevision')::bigint = expectedRevision
+      // Якщо count = 0 → ревізія змінилася → 409
+      // Якщо count = 1 → успіх → сервер інкрементив ревізію в цьому ж апдейті
+      
+      try {
+        const result = await prisma.$transaction(async (tx) => {
+          // Спочатку перевіряємо поточну ревізію з блокуючим read (SELECT FOR UPDATE)
+          const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date }>>`
+            SELECT "heroJson", "updatedAt"
+            FROM "Character"
+            WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+            FOR UPDATE
+          `;
+
+          if (locked.length === 0) {
+            return { success: false, reason: 'not_found' };
+          }
+
+          const currentHeroJson = locked[0].heroJson as any || {};
+          const currentRevision = currentHeroJson.heroRevision || 0;
+
+          if (currentRevision !== body.expectedRevision) {
+            return { 
+              success: false, 
+              reason: 'revision_conflict',
+              currentRevision,
+              updatedAt: locked[0].updatedAt,
+            };
+          }
+
+          // Атомарний UPDATE з умовою на ревізію
+          // Використовуємо JSONB операції PostgreSQL
+          const newRevision = Date.now() > currentRevision ? Date.now() : currentRevision + 1;
+          const updatedHeroJson = {
+            ...updateData.heroJson,
+            heroRevision: newRevision,
+          };
+
+          // Виконуємо умовний UPDATE через raw SQL для атомарності
+          // Будуємо SET частину динамічно з правильними параметрами PostgreSQL
+          const setParts: string[] = [];
+          const params: any[] = [];
+          let paramIndex = 1;
+
+          // Додаємо heroJson (завжди є, бо ми в блоці updateData.heroJson)
+          setParts.push(`"heroJson" = $${paramIndex}::jsonb`);
+          params.push(JSON.stringify(updatedHeroJson));
+          paramIndex++;
+
+          if (updateData.level !== undefined) {
+            setParts.push(`"level" = $${paramIndex}`);
+            params.push(updateData.level);
+            paramIndex++;
+          }
+          if (updateData.exp !== undefined) {
+            setParts.push(`"exp" = $${paramIndex}::bigint`);
+            params.push(updateData.exp);
+            paramIndex++;
+          }
+          if (updateData.sp !== undefined) {
+            setParts.push(`"sp" = $${paramIndex}`);
+            params.push(updateData.sp);
+            paramIndex++;
+          }
+          if (updateData.adena !== undefined) {
+            setParts.push(`"adena" = $${paramIndex}`);
+            params.push(updateData.adena);
+            paramIndex++;
+          }
+          if (updateData.aa !== undefined) {
+            setParts.push(`"aa" = $${paramIndex}`);
+            params.push(updateData.aa);
+            paramIndex++;
+          }
+          if (updateData.coinLuck !== undefined) {
+            setParts.push(`"coinLuck" = $${paramIndex}`);
+            params.push(updateData.coinLuck);
+            paramIndex++;
+          }
+          if (updateData.lastActivityAt) {
+            setParts.push(`"lastActivityAt" = $${paramIndex}`);
+            params.push(updateData.lastActivityAt);
+            paramIndex++;
+          }
+          setParts.push(`"updatedAt" = NOW()`);
+
+          // Виконуємо атомарний UPDATE з умовою на ревізію
+          // Використовуємо $executeRawUnsafe з параметризованим SQL для безпеки
+          const sql = `
+            UPDATE "Character"
+            SET ${setParts.join(', ')}
+            WHERE "id" = $${paramIndex}
+              AND "accountId" = $${paramIndex + 1}
+              AND ("heroJson"->>'heroRevision')::bigint = $${paramIndex + 2}
+          `;
+          params.push(id, auth.accountId, body.expectedRevision);
+
+          const updateResult = await tx.$executeRawUnsafe(sql, ...params);
+
+          if (updateResult === 0) {
+            // Ревізія змінилася під час виконання (дуже рідкісний випадок)
+            return { 
+              success: false, 
+              reason: 'revision_conflict_during_update',
+              currentRevision,
+              updatedAt: locked[0].updatedAt,
+            };
+          }
+
+          // Отримуємо оновлений запис
+          const updated = await tx.character.findUnique({
+            where: { id },
+            select: {
+              id: true,
+              name: true,
+              race: true,
+              classId: true,
+              sex: true,
+              level: true,
+              exp: true,
+              sp: true,
+              adena: true,
+              aa: true,
+              coinLuck: true,
+              heroJson: true,
+              updatedAt: true,
+            },
+          });
+
+          return { success: true, character: updated };
+        });
+
+        if (!result.success) {
+          if (result.reason === 'not_found') {
+            return reply.code(404).send({ error: "character not found" });
+          }
+          
+          // Revision conflict
+          app.log.warn(`[PUT /characters/:id] Atomic revision check failed for character ${id}: expected ${body.expectedRevision}, got ${result.currentRevision}`);
+          return reply.code(409).send({ 
+            error: "revision_conflict",
+            message: "Character was modified by another session. Please reload and try again.",
+            currentRevision: result.currentRevision || 0,
+            updatedAt: result.updatedAt?.toISOString() || existing.updatedAt.toISOString(),
+            serverState: {
+              heroRevision: result.currentRevision || 0,
+              heroJsonVersion: oldHeroJson.heroJsonVersion || 1,
+              updatedAt: result.updatedAt?.toISOString() || existing.updatedAt.toISOString(),
+            },
+          });
+        }
+
+        // Успіх - використовуємо результат з транзакції
+        updated = result.character!;
+      } catch (txError) {
+        app.log.error(txError, `[PUT /characters/:id] Transaction error for character ${id}`);
+        return reply.code(500).send({
+          error: "Internal Server Error",
+          message: txError instanceof Error ? txError.message : "Transaction failed",
+        });
+      }
+    } else {
+      // Якщо expectedRevision не передано або не оновлюється heroJson - звичайний update
+      updated = await prisma.character.update({
+        where: { id },
+        data: updateData,
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          heroJson: true,
+          updatedAt: true,
+        },
+      });
+    }
 
     // Додаємо новину про покупку преміуму, якщо була покупка
     if (premiumPurchased && premiumHours > 0) {
