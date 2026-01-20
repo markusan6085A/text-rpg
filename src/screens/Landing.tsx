@@ -118,10 +118,27 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
       console.error('Login error:', err);
       console.error('Error details:', {
         message: err?.message,
+        status: err?.status,
         stack: err?.stack,
         error: err
       });
-      const errorMessage = err?.message || "Ошибка входа. Проверьте логин и пароль.";
+      
+      // ❗ Покращена обробка помилок - показуємо зрозумілі повідомлення
+      let errorMessage = "Ошибка входа. Проверьте логин и пароль.";
+      
+      if (err?.status === 401) {
+        errorMessage = "Неверный логин или пароль";
+      } else if (err?.status === 500) {
+        errorMessage = "Ошибка сервера. Попробуйте позже.";
+      } else if (err?.message) {
+        // Якщо повідомлення не "Internal Server Error", показуємо його
+        if (err.message !== "Internal Server Error" && !err.message.includes("Internal")) {
+          errorMessage = err.message;
+        } else {
+          errorMessage = "Ошибка сервера. Попробуйте позже.";
+        }
+      }
+      
       setError(errorMessage);
     } finally {
       setIsLoading(false);
