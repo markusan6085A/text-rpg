@@ -87,6 +87,13 @@ export default function Mail({ navigate }: MailProps) {
           setOnlinePlayerIds(onlineIds);
         })
         .catch((err: any) => {
+          // ❗ Ігноруємо 401 помилки (неавторизований) - це нормально
+          if (err?.status === 401 || err?.unauthorized) {
+            if (import.meta.env.DEV) {
+              console.log("[Mail] Not authenticated, skipping online players");
+            }
+            return;
+          }
           console.error("[Mail] Failed to load online players:", err?.message || err);
           // Не критично - просто не показуємо онлайн статус
         });
@@ -102,6 +109,10 @@ export default function Mail({ navigate }: MailProps) {
         const onlineIds = new Set(data.players?.map((p: any) => p.id) || []);
         setOnlinePlayerIds(onlineIds);
       } catch (err: any) {
+        // ❗ Ігноруємо 401 помилки (неавторизований) - це нормально
+        if (err?.status === 401 || err?.unauthorized) {
+          return;
+        }
         console.error("[Mail] Failed to refresh online players:", err?.message || err);
       }
     }, 30000);

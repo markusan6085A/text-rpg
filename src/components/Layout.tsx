@@ -78,6 +78,14 @@ export default function Layout({
           setOnlineCount(count);
         })
         .catch((err: any) => {
+          // ❗ Ігноруємо 401 помилки (неавторизований) - це нормально
+          if (err?.status === 401 || err?.unauthorized) {
+            if (import.meta.env.DEV) {
+              console.log('[Layout] Not authenticated, skipping online count');
+            }
+            setOnlineCount(0);
+            return;
+          }
           if (import.meta.env.DEV) {
             console.error('[Layout] Failed to load online count:', err?.message || err);
           }

@@ -121,6 +121,31 @@ async function apiRequest<T>(
     });
 
     if (!response.ok) {
+      // ❗ ВАЖЛИВО: Обробка 401 Unauthorized - токен невалідний або відсутній
+      if (response.status === 401) {
+        // Очищаємо токен, якщо він є (може бути невалідним)
+        const currentToken = getToken();
+        if (currentToken) {
+          // Токен є, але невалідний - очищаємо його
+          try {
+            const { useAuthStore } = await import('../state/authStore');
+            useAuthStore.getState().logout();
+          } catch (e) {
+            // Якщо не вдалося імпортувати store, просто очищаємо localStorage
+            localStorage.removeItem('auth_token');
+          }
+        }
+        
+        // Створюємо помилку зі статусом
+        const error: ApiError = await response.json().catch(() => ({
+          error: 'unauthorized',
+        }));
+        const errorWithStatus = new Error(error.error || 'unauthorized') as any;
+        errorWithStatus.status = 401;
+        errorWithStatus.unauthorized = true;
+        throw errorWithStatus;
+      }
+      
       const error: ApiError = await response.json().catch(() => ({
         error: `HTTP ${response.status}: ${response.statusText}`,
       }));
