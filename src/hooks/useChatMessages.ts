@@ -167,6 +167,25 @@ export function useChatMessages(opts: UseChatOptions) {
           cache: "no-store",
         });
 
+        // ❗ Обробка 401 Unauthorized - не показуємо помилку, просто порожній список
+        if (res.status === 401) {
+          // Очищаємо токен, якщо він є
+          if (token) {
+            try {
+              const { useAuthStore } = await import('../state/authStore');
+              useAuthStore.getState().logout();
+            } catch (e) {
+              localStorage.removeItem('auth_token');
+            }
+          }
+          // Повертаємо порожній список для неавторизованих користувачів
+          setMessages([]);
+          setLoading(false);
+          setError(null);
+          inFlightRef.current = false;
+          return;
+        }
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = (await res.json()) as { ok: boolean; messages: ChatMessage[] };
