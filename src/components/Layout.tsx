@@ -60,36 +60,37 @@ export default function Layout({
 
   // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд (тільки якщо залоговані)
   // 🔥 Для легких сторінок відкладаємо завантаження на 800-1200 мс для швидкого рендерингу
+  // ❗ ОПТИМІЗАЦІЯ: Online count - fire-and-forget, не блокує UI
   useEffect(() => {
     if (!isAuthenticated) {
       setOnlineCount(0);
       return;
     }
 
-    const loadOnlineCount = async () => {
-      try {
-        const data = await getOnlinePlayers();
-        const count = data.count ?? data.players?.length ?? 0;
-        if (import.meta.env.DEV) {
-          console.log('[Layout] Online count loaded:', count, 'players:', data.players?.length);
-        }
-        setOnlineCount(count);
-      } catch (err: any) {
-        if (import.meta.env.DEV) {
-          console.error('[Layout] Failed to load online count:', err?.message || err);
-        }
-        // Не показуємо помилку, просто залишаємо попереднє значення або 0
-        if (onlineCount === null || onlineCount === undefined) {
-          setOnlineCount(0);
-        }
-      }
+    const loadOnlineCount = () => {
+      // ❗ Fire-and-forget: не await, не блокує UI
+      getOnlinePlayers()
+        .then((data) => {
+          const count = data.count ?? data.players?.length ?? 0;
+          if (import.meta.env.DEV) {
+            console.log('[Layout] Online count loaded:', count, 'players:', data.players?.length);
+          }
+          setOnlineCount(count);
+        })
+        .catch((err: any) => {
+          if (import.meta.env.DEV) {
+            console.error('[Layout] Failed to load online count:', err?.message || err);
+          }
+          // Не показуємо помилку, просто залишаємо попереднє значення або 0
+          if (onlineCount === null || onlineCount === undefined) {
+            setOnlineCount(0);
+          }
+        });
     };
 
-    // Відкладаємо завантаження для легких сторінок
-    const delay = isLightPage ? 1000 : 0;
-    const timeoutId = setTimeout(() => {
-      loadOnlineCount();
-    }, delay);
+    // Відкладаємо завантаження для легких сторінок (більше часу для не критичних запитів)
+    const delay = isLightPage ? 2000 : 1000;
+    const timeoutId = setTimeout(loadOnlineCount, delay);
 
     // Оновлюємо кожні 30 секунд тільки якщо не легка сторінка
     const interval = isLightPage ? null : setInterval(loadOnlineCount, 30000);
@@ -103,33 +104,34 @@ export default function Layout({
   // 🔥 Heartbeat - оновлюємо активність кожні 2 хвилини (120 секунд)
   // 🔥 Якщо поле lastActivityAt не існує в БД, heartbeat може повертати 400/500 - ігноруємо помилки
   // 🔥 Пропускаємо heartbeat для легких сторінок (mail, about, forum)
+  // ❗ ОПТИМІЗАЦІЯ: Heartbeat - fire-and-forget, не блокує UI
   useEffect(() => {
     if (!isAuthenticated || isLightPage) return;
 
-    const sendHeartbeatInterval = async () => {
-      try {
-        await sendHeartbeat();
-        if (import.meta.env.DEV) {
-          console.log('[Layout] Heartbeat sent');
-        }
-      } catch (err: any) {
-        // 🔥 Ігноруємо помилки heartbeat - вони не критичні
-        // Можливо поле lastActivityAt не існує в БД (міграція не виконана)
-        // Або інші тимчасові проблеми з БД
-        if (import.meta.env.DEV) {
-          if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
-            console.warn('[Layout] Heartbeat failed (non-critical):', err?.message);
-          } else {
-            console.error('[Layout] Failed to send heartbeat:', err);
+    const sendHeartbeatInterval = () => {
+      // ❗ Fire-and-forget: не await, не блокує UI
+      sendHeartbeat()
+        .then(() => {
+          if (import.meta.env.DEV) {
+            console.log('[Layout] Heartbeat sent');
           }
-        }
-      }
+        })
+        .catch((err: any) => {
+          // 🔥 Ігноруємо помилки heartbeat - вони не критичні
+          // Можливо поле lastActivityAt не існує в БД (міграція не виконана)
+          // Або інші тимчасові проблеми з БД
+          if (import.meta.env.DEV) {
+            if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
+              console.warn('[Layout] Heartbeat failed (non-critical):', err?.message);
+            } else {
+              console.error('[Layout] Failed to send heartbeat:', err);
+            }
+          }
+        });
     };
 
-    // Відкладаємо перший heartbeat на 3 секунди, щоб не блокувати початкове завантаження
-    const initialDelay = setTimeout(() => {
-      sendHeartbeatInterval();
-    }, 3000);
+    // Відкладаємо перший heartbeat на 5 секунд, щоб не блокувати початкове завантаження
+    const initialDelay = setTimeout(sendHeartbeatInterval, 5000);
 
     // Відправляємо heartbeat кожні 2 хвилини
     const heartbeatInterval = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);

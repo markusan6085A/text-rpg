@@ -69,19 +69,23 @@ export default function Mail({ navigate }: MailProps) {
   };
 
   useEffect(() => {
+    // ❗ ОПТИМІЗАЦІЯ: Завантажуємо листи (критично) - чекаємо
+    // Online players - fire-and-forget (не блокує UI)
     const loadData = async () => {
-      await Promise.all([
-        loadLetters(),
-        (async () => {
-          try {
-            const data = await getOnlinePlayers();
-            const onlineIds = new Set(data.players?.map((p: any) => p.id) || []);
-            setOnlinePlayerIds(onlineIds);
-          } catch (err: any) {
-            console.error("[Mail] Failed to load online players:", err?.message || err);
-          }
-        })(),
-      ]);
+      // Критичний запит - чекаємо
+      await loadLetters();
+      
+      // НЕ критичні запити - fire-and-forget (не блокуємо UI)
+      // Online players завантажається в фоні
+      getOnlinePlayers()
+        .then((data) => {
+          const onlineIds = new Set(data.players?.map((p: any) => p.id) || []);
+          setOnlinePlayerIds(onlineIds);
+        })
+        .catch((err: any) => {
+          console.error("[Mail] Failed to load online players:", err?.message || err);
+          // Не критично - просто не показуємо онлайн статус
+        });
     };
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,8 +182,15 @@ export default function Mail({ navigate }: MailProps) {
       setConversationPage(pageNum);
 
       // Сервер вже міг позначити як прочитане — підтягнемо загальний лічильник
-      const updatedCount = await getUnreadCount();
-      setUnreadCount(updatedCount.unreadCount || 0);
+      // ❗ ОПТИМІЗАЦІЯ: Не критично, можна fire-and-forget
+      getUnreadCount()
+        .then((data) => {
+          setUnreadCount(data.unreadCount || 0);
+        })
+        .catch((err) => {
+          // Не критично - просто не оновлюємо лічильник
+          console.warn('[Mail] Failed to update unread count:', err);
+        });
     } catch (err: any) {
       console.error("Error loading conversation:", err);
       setError(err?.message || "Помилка завантаження переписки");
@@ -205,12 +216,14 @@ export default function Mail({ navigate }: MailProps) {
     );
 
     // 3) і ще раз підтягнемо загальний unread, щоб шапка/лічильники були точні
-    try {
-      const updatedCount = await getUnreadCount();
-      setUnreadCount(updatedCount.unreadCount || 0);
-    } catch {
-      // не критично
-    }
+    // ❗ ОПТИМІЗАЦІЯ: Не критично, можна fire-and-forget
+    getUnreadCount()
+      .then((data) => {
+        setUnreadCount(data.unreadCount || 0);
+      })
+      .catch(() => {
+        // не критично
+      });
   };
 
   const handleSendReply = async () => {
@@ -231,8 +244,15 @@ export default function Mail({ navigate }: MailProps) {
       await loadLetters();
       await loadConversationLetters(selectedConversation.playerId, conversationPage);
 
-      const updatedCount = await getUnreadCount();
-      setUnreadCount(updatedCount.unreadCount || 0);
+      // ❗ ОПТИМІЗАЦІЯ: Unread count - fire-and-forget, не блокує UI
+      getUnreadCount()
+        .then((data) => {
+          setUnreadCount(data.unreadCount || 0);
+        })
+        .catch((err) => {
+          // Не критично
+          console.warn('[Mail] Failed to update unread count:', err);
+        });
     } catch (err: any) {
       console.error("Error sending reply:", err);
       alert(err?.message || "Помилка відправки повідомлення");
