@@ -21,31 +21,56 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ slot: string; itemId: string | null; enchantLevel?: number } | null>(null);
 
-  useEffect(() => {
-    const loadPlayerProfile = async () => {
-      setLoading(true);
-      setError(null);
+  const loadPlayerProfile = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      let loadedCharacter: Character;
+      if (playerId) {
+        loadedCharacter = await getPublicCharacter(playerId);
+      } else if (playerName) {
+        loadedCharacter = await getCharacterByName(playerName);
+      } else {
+        throw new Error("playerId or playerName is required");
+      }
       
-      try {
-        let loadedCharacter: Character;
-        if (playerId) {
-          loadedCharacter = await getPublicCharacter(playerId);
-        } else if (playerName) {
-          loadedCharacter = await getCharacterByName(playerName);
-        } else {
-          throw new Error("playerId or playerName is required");
-        }
-        
-        setCharacter(loadedCharacter);
-      } catch (err: any) {
-        setError(err?.message || "Помилка завантаження профілю гравця");
-        console.error("[PlayerProfile] Error loading profile:", err);
-      } finally {
-        setLoading(false);
+      setCharacter(loadedCharacter);
+    } catch (err: any) {
+      setError(err?.message || "Помилка завантаження профілю гравця");
+      console.error("[PlayerProfile] Error loading profile:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPlayerProfile();
+  }, [playerId, playerName]);
+
+  // ❗ Оновлюємо дані при поверненні на сторінку (коли сторінка стає видимою)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && (playerId || playerName)) {
+        // Перезавантажуємо дані при поверненні на сторінку
+        loadPlayerProfile();
       }
     };
 
-    loadPlayerProfile();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Також оновлюємо при фокусі на вікно
+    const handleFocus = () => {
+      if (playerId || playerName) {
+        loadPlayerProfile();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [playerId, playerName]);
 
   // Конвертуємо Character в Hero формат для CharacterEquipmentFrame
@@ -296,13 +321,35 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             return b.expiresAt > now;
           });
 
-          if (activeBuffs.length === 0) return null;
+          // ❗ Додаємо логування для діагностики
+          if (import.meta.env.DEV) {
+            console.log('[PlayerProfile] Buffs check:', {
+              allBuffsCount: allBuffs.length,
+              activeBuffsCount: activeBuffs.length,
+              allBuffs: allBuffs,
+              activeBuffs: activeBuffs,
+              heroJson: heroJson,
+            });
+          }
+
+          // ❗ Показуємо секцію навіть якщо бафів немає, але є хоча б один баф в списку (для діагностики)
+          if (activeBuffs.length === 0 && allBuffs.length === 0) return null;
 
           return (
             <div className="mb-4 border-t border-gray-600 pt-3">
               <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-gray-600 pb-1">
-                Активні бафи
+                Активні бафи {activeBuffs.length > 0 && `(${activeBuffs.length})`}
               </div>
+              {activeBuffs.length === 0 && allBuffs.length > 0 && (
+                <div className="text-xs text-gray-500 py-2">
+                  Всі бафи закінчились
+                </div>
+              )}
+              {activeBuffs.length === 0 && allBuffs.length === 0 && (
+                <div className="text-xs text-gray-500 py-2">
+                  Немає активних бафів
+                </div>
+              )}
               <div className="space-y-2">
                 {activeBuffs.map((buff: any, idx: number) => {
                   const timeLeft = Math.max(0, Math.floor((buff.expiresAt - now) / 1000));

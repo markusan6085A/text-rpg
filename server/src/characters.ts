@@ -299,6 +299,15 @@ export async function characterRoutes(app: FastifyInstance) {
         data: { heroJson: updatedHeroJson },
       });
       
+      // ❗ Логуємо для діагностики
+      app.log.info(`[POST /characters/:id/buff] Buff applied:`, {
+        targetId,
+        skillId: body.skillId,
+        buffName: newBuff.name,
+        totalBuffs: updatedBuffs.length,
+        buffs: updatedBuffs.map((b: any) => ({ id: b.id, name: b.name, expiresAt: b.expiresAt })),
+      });
+      
       return { ok: true, message: "Buff applied successfully" };
     } catch (error) {
       app.log.error(error, "Error buffing character:");
