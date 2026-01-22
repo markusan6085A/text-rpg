@@ -300,7 +300,8 @@ export async function characterRoutes(app: FastifyInstance) {
       });
       
       // ❗ Логуємо для діагностики
-      app.log.info(`[POST /characters/:id/buff] Buff applied:`, {
+      app.log.info({
+        msg: '[POST /characters/:id/buff] Buff applied',
         targetId,
         skillId: body.skillId,
         buffName: newBuff.name,
