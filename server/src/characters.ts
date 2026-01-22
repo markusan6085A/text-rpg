@@ -300,14 +300,16 @@ export async function characterRoutes(app: FastifyInstance) {
       });
       
       // ❗ Логуємо для діагностики
-      app.log.info({
-        msg: '[POST /characters/:id/buff] Buff applied',
-        targetId,
-        skillId: body.skillId,
-        buffName: newBuff.name,
-        totalBuffs: updatedBuffs.length,
-        buffs: updatedBuffs.map((b: any) => ({ id: b.id, name: b.name, expiresAt: b.expiresAt })),
-      });
+      app.log.info(
+        {
+          targetId,
+          skillId: body.skillId,
+          buffName: newBuff.name,
+          totalBuffs: updatedBuffs.length,
+          buffs: updatedBuffs.map((b: any) => ({ id: b.id, name: b.name, expiresAt: b.expiresAt })),
+        },
+        '[POST /characters/:id/buff] Buff applied'
+      );
       
       return { ok: true, message: "Buff applied successfully" };
     } catch (error) {
