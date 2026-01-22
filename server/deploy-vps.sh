@@ -21,10 +21,12 @@ git pull
 echo -e "${GREEN}✅ Останній коміт:${NC}"
 git log -1 --oneline
 
-# КРОК 3: Перезібрати backend
-echo -e "${GREEN}📦 КРОК 3: Перезібірка backend...${NC}"
+# КРОК 3: Перезібрати backend (як на Railway - автоматично міграції)
+echo -e "${GREEN}📦 КРОК 3: Перезібірка backend (як на Railway)...${NC}"
 cd /opt/text-rpg/server
 npm ci
+npm run prisma:generate
+npm run prisma:migrate:deploy
 npm run build
 
 if [ ! -f "dist/index.js" ]; then

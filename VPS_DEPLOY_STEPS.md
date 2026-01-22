@@ -56,9 +56,13 @@ git log -1 --oneline
 
 ## Крок 3: VPS - Перезібрати backend (після pull)
 
+**Як на Railway - автоматично міграції:**
+
 ```bash
 cd /opt/text-rpg/server
 npm ci
+npm run prisma:generate
+npm run prisma:migrate:deploy
 npm run build
 ```
 
