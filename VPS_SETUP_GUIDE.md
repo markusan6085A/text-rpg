@@ -7,16 +7,17 @@
 3. [Підключення по SSH](#3-підключення-по-ssh)
 4. [Початкове налаштування сервера](#4-початкове-налаштування-сервера)
 5. [Встановлення Node.js](#5-встановлення-nodejs)
-6. [Встановлення PM2](#6-встановлення-pm2)
-7. [Встановлення nginx](#7-встановлення-nginx)
-8. [Налаштування SSL (Let's Encrypt)](#8-налаштування-ssl-lets-encrypt)
-9. [Налаштування деплою з GitHub](#9-налаштування-деплою-з-github)
-10. [Налаштування Environment Variables](#10-налаштування-environment-variables)
-11. [Перший деплой](#11-перший-деплой)
-12. [Налаштування автозапуску](#12-налаштування-автозапуску)
-13. [Налаштування моніторингу (опціонально)](#13-налаштування-моніторингу-опціонально)
-14. [Налаштування firewall](#14-налаштування-firewall)
-15. [Troubleshooting](#15-troubleshooting)
+6. [Встановлення Docker та PostgreSQL](#6-встановлення-docker-та-postgresql)
+7. [Встановлення PM2](#7-встановлення-pm2)
+8. [Встановлення nginx](#8-встановлення-nginx)
+9. [Налаштування SSL (Let's Encrypt)](#9-налаштування-ssl-lets-encrypt)
+10. [Налаштування деплою з GitHub](#10-налаштування-деплою-з-github)
+11. [Налаштування Environment Variables](#11-налаштування-environment-variables)
+12. [Перший деплой](#12-перший-деплой)
+13. [Налаштування автозапуску](#13-налаштування-автозапуску)
+14. [Налаштування моніторингу (опціонально)](#14-налаштування-моніторингу-опціонально)
+15. [Налаштування firewall](#15-налаштування-firewall)
+16. [Troubleshooting](#16-troubleshooting)
 
 ---
 
@@ -218,7 +219,161 @@ pm2 --version
 
 ---
 
-## 6. Встановлення PM2
+## 6. Встановлення Docker та PostgreSQL
+
+### Варіанти використання БД:
+
+**Варіант А: Локальна PostgreSQL на VPS (рекомендовано для VPS)**
+- ✅ Швидше (немає мережевих затримок)
+- ✅ Безкоштовно (не потрібен Supabase)
+- ✅ Повний контроль
+- ⚠️ Потрібно налаштувати backup
+
+**Варіант Б: Supabase (як на Railway)**
+- ✅ Автоматичний backup
+- ✅ Готовий до використання
+- ⚠️ Мережеві затримки
+- ⚠️ Обмеження на з'єднання
+
+**Рекомендація:** Для VPS використовуйте локальну PostgreSQL через Docker.
+
+---
+
+### Крок 1: Встановити Docker
+
+```bash
+# Оновити систему
+sudo apt update
+
+# Встановити необхідні пакети
+sudo apt install -y ca-certificates curl gnupg lsb-release
+
+# Додати Docker GPG ключ
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Додати Docker репозиторій
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Встановити Docker
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Додати користувача в групу docker (щоб не використовувати sudo)
+sudo usermod -aG docker $USER
+
+# Перевірити встановлення
+docker --version
+docker compose version
+```
+
+**Важливо:** Після додавання користувача в групу docker, потрібно вийти і знову увійти в SSH:
+
+```bash
+# Вийти з SSH
+exit
+
+# Підключитись знову
+ssh deploy@YOUR_IP
+```
+
+### Крок 2: Створити директорію для проекту
+
+```bash
+# Створити директорію
+sudo mkdir -p /opt/text-rpg
+sudo chown $USER:$USER /opt/text-rpg
+cd /opt/text-rpg
+```
+
+### Крок 3: Створити docker-compose.yml
+
+```bash
+# Створити docker-compose.yml
+nano docker-compose.yml
+```
+
+**Вставити наступну конфігурацію:**
+
+```yaml
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: game
+      POSTGRES_USER: game
+      POSTGRES_PASSWORD: change_me_strong
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U game -d game"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+```
+
+**Замінити:**
+- `change_me_strong` на сильний пароль (мінімум 16 символів)
+
+**Зберегти:** `Ctrl+O`, `Enter`, `Ctrl+X`
+
+### Крок 4: Запустити PostgreSQL
+
+```bash
+# Запустити PostgreSQL
+docker compose up -d
+
+# Перевірити статус
+docker compose ps
+
+# Перевірити логи
+docker compose logs db
+```
+
+**Має показати:** `database system is ready to accept connections`
+
+### Крок 5: Перевірити підключення
+
+```bash
+# Встановити PostgreSQL client (для тестування)
+sudo apt install -y postgresql-client
+
+# Підключитись до БД
+psql -h localhost -U game -d game
+```
+
+**Ввести пароль** (той, що вказали в docker-compose.yml)
+
+**Якщо підключення успішне, ви побачите:**
+```
+game=#
+```
+
+**Вийти:** `\q` або `Ctrl+D`
+
+### Крок 6: Налаштувати автозапуск Docker Compose
+
+Docker Compose автоматично запускається при перезавантаженні (через `restart: always`), але перевіримо:
+
+```bash
+# Перезавантажити сервер (опціонально, для тесту)
+sudo reboot
+
+# Після перезавантаження перевірити
+docker compose ps
+```
+
+---
+
+## 7. Встановлення PM2
 
 PM2 вже встановлено на попередньому кроці, але налаштуємо його:
 
@@ -323,7 +478,7 @@ sudo systemctl reload nginx
 
 ---
 
-## 8. Налаштування SSL (Let's Encrypt)
+## 9. Налаштування SSL (Let's Encrypt)
 
 ### Встановити Certbot:
 
@@ -365,7 +520,7 @@ Certbot автоматично налаштує cron job для оновленн
 
 ---
 
-## 9. Налаштування деплою з GitHub
+## 10. Налаштування деплою з GitHub
 
 ### Крок 1: Створити директорію для проекту:
 
@@ -458,7 +613,7 @@ chmod +x ~/deploy-text-rpg.sh
 
 ---
 
-## 10. Налаштування Environment Variables
+## 11. Налаштування Environment Variables
 
 ### Створити .env файл:
 
@@ -469,6 +624,36 @@ cd ~/text-rpg/server
 # Створити .env файл
 nano .env
 ```
+
+### Варіант А: Локальна PostgreSQL (рекомендовано для VPS)
+
+**Вставити (замініть `change_me_strong` на пароль з docker-compose.yml):**
+
+```env
+# База даних (локальна PostgreSQL на VPS)
+DATABASE_URL=postgresql://game:change_me_strong@localhost:5432/game
+
+# JWT секрет (згенеруйте новий!)
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long
+
+# Порт (за замовчуванням 3000)
+PORT=3000
+
+# Оточення
+NODE_ENV=production
+```
+
+**Формат DATABASE_URL для локальної БД:**
+```
+postgresql://USER:PASSWORD@localhost:5432/DATABASE
+```
+
+Де:
+- `USER` = `game` (з docker-compose.yml)
+- `PASSWORD` = пароль з docker-compose.yml (замініть `change_me_strong`)
+- `DATABASE` = `game` (з docker-compose.yml)
+
+### Варіант Б: Supabase (якщо використовуєте Supabase)
 
 **Вставити (замініть на ваші значення):**
 
@@ -497,9 +682,23 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 **Зберегти:** `Ctrl+O`, `Enter`, `Ctrl+X`
 
+### Перевірити підключення до БД:
+
+```bash
+# Перевірити, чи працює PostgreSQL
+docker compose ps
+
+# Перевірити підключення через Prisma
+cd ~/text-rpg/server
+npm run prisma:generate
+npm run prisma:migrate:deploy
+```
+
+**Якщо міграції успішні - БД налаштовано правильно!**
+
 ---
 
-## 11. Перший деплой
+## 12. Перший деплой
 
 ### Крок 1: Запустити скрипт деплою:
 
@@ -544,7 +743,7 @@ curl http://localhost:3000/health
 
 ---
 
-## 12. Налаштування автозапуску
+## 13. Налаштування автозапуску
 
 ### PM2 вже налаштовано на кроці 6, але перевіримо:
 
@@ -563,7 +762,7 @@ pm2 save
 
 ---
 
-## 13. Налаштування моніторингу (опціонально)
+## 14. Налаштування моніторингу (опціонально)
 
 ### PM2 Monitoring (безкоштовно):
 
@@ -589,7 +788,7 @@ pm2 set pm2-logrotate:compress true
 
 ---
 
-## 14. Налаштування firewall
+## 15. Налаштування firewall
 
 ### Встановити UFW (Uncomplicated Firewall):
 
@@ -615,7 +814,7 @@ sudo ufw status
 
 ---
 
-## 15. Troubleshooting
+## 16. Troubleshooting
 
 ### Проблема: Сервер не запускається
 
@@ -648,6 +847,24 @@ sudo tail -f /var/log/nginx/text-rpg-error.log
 ```
 
 ### Проблема: Помилка підключення до БД
+
+**Якщо використовуєте локальну PostgreSQL:**
+
+```bash
+# Перевірити, чи працює PostgreSQL
+docker compose ps
+cd /opt/text-rpg
+docker compose logs db
+
+# Перевірити DATABASE_URL
+cd ~/text-rpg/server
+cat .env | grep DATABASE_URL
+
+# Перевірити підключення вручну
+psql -h localhost -U game -d game
+```
+
+**Якщо використовуєте Supabase:**
 
 ```bash
 # Перевірити DATABASE_URL

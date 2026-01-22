@@ -23,7 +23,27 @@ sudo npm install -g pm2
 pm2 startup
 ```
 
-### 4. Встановлення nginx
+### 4. Встановлення Docker та PostgreSQL
+```bash
+# Встановити Docker
+sudo apt install -y ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker $USER
+# ВИЙТИ І ЗНОВУ УВІЙТИ В SSH!
+
+# Створити docker-compose.yml
+sudo mkdir -p /opt/text-rpg
+sudo chown $USER:$USER /opt/text-rpg
+cd /opt/text-rpg
+# Скопіювати docker-compose.yml з проекту або створити вручну
+docker compose up -d
+```
+
+### 5. Встановлення nginx
 ```bash
 sudo apt install -y nginx
 sudo nano /etc/nginx/sites-available/text-rpg
@@ -32,7 +52,7 @@ sudo ln -s /etc/nginx/sites-available/text-rpg /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-### 5. Клонування та деплой
+### 6. Клонування та деплой
 ```bash
 cd ~
 git clone https://github.com/your-username/text-rpg.git
@@ -41,17 +61,19 @@ npm install
 npm run prisma:generate
 npm run build
 nano .env  # Додати DATABASE_URL, JWT_SECRET, PORT=3000
+# Для локальної БД: DATABASE_URL=postgresql://game:PASSWORD@localhost:5432/game
+npm run prisma:migrate:deploy
 pm2 start dist/index.js --name text-rpg
 pm2 save
 ```
 
-### 6. SSL (якщо є домен)
+### 7. SSL (якщо є домен)
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d your-domain.com
 ```
 
-### 7. Firewall
+### 8. Firewall
 ```bash
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
@@ -68,7 +90,15 @@ cd ~/text-rpg/server
 nano .env
 ```
 
-**Вміст:**
+**Вміст (для локальної БД):**
+```env
+DATABASE_URL=postgresql://game:PASSWORD@localhost:5432/game
+JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+PORT=3000
+NODE_ENV=production
+```
+
+**Або для Supabase:**
 ```env
 DATABASE_URL=postgresql://postgres.hstwsloooubalvpwasst:PASSWORD@aws-1-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
 JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
