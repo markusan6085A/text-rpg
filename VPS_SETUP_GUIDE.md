@@ -290,6 +290,16 @@ cd /opt/text-rpg
 
 ### Крок 3: Створити docker-compose.yml
 
+**Варіант А: Скопіювати з проекту (якщо вже клонували репозиторій):**
+
+```bash
+# Якщо вже клонували репозиторій
+cp ~/text-rpg/docker-compose.yml /opt/text-rpg/
+cd /opt/text-rpg
+```
+
+**Варіант Б: Створити вручну:**
+
 ```bash
 # Створити docker-compose.yml
 nano docker-compose.yml
