@@ -808,9 +808,25 @@ pm2 logs text-rpg --lines 50
 ```bash
 # Зберегти поточний список процесів для автозапуску
 pm2 save
+
+# Налаштувати автозапуск при перезавантаженні системи
+pm2 startup
+# Виконати команду, яку покаже PM2 (зазвичай з sudo)
 ```
 
 **Тепер сервер буде автоматично запускатись при перезавантаженні!**
+
+### Крок 4: Перевірити, що API працює:
+
+```bash
+# Перевірити, чи слухає порт 3000
+ss -lntp | grep :3000 || netstat -lntp | grep :3000
+
+# Перевірити health endpoint
+curl -i http://127.0.0.1:3000/health
+```
+
+**Має показати:** `HTTP/1.1 200 OK` та `{"status":"ok"}`
 
 ### Крок 4: Перевірити через браузер:
 
@@ -1024,16 +1040,16 @@ pm2 restart text-rpg
 
 ```bash
 # Переглянути логи PM2
-pm2 logs text-rpg
+pm2 logs text-rpg-api
 
 # Перезапустити сервер
-pm2 restart text-rpg
+pm2 restart text-rpg-api
 
 # Зупинити сервер
-pm2 stop text-rpg
+pm2 stop text-rpg-api
 
 # Запустити сервер
-pm2 start text-rpg
+pm2 start text-rpg-api
 
 # Перезавантажити nginx
 sudo systemctl reload nginx

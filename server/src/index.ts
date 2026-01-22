@@ -67,6 +67,26 @@ app.get("/test-db", async (req, reply) => {
 
 // Graceful shutdown
 const start = async () => {
+  // Retry підключення до БД (до 5 спроб, з затримкою 2 секунди)
+  const maxRetries = 5;
+  const retryDelay = 2000; // 2 секунди
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await prisma.$connect();
+      app.log.info("Database connected");
+      break; // Успішно підключено
+    } catch (err) {
+      if (attempt === maxRetries) {
+        app.log.error(err, "Failed to connect to database after all retries");
+        process.exit(1);
+      } else {
+        app.log.warn(`Database connection attempt ${attempt}/${maxRetries} failed, retrying in ${retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+    }
+  }
+
   try {
     // Register CORS FIRST - before routes!
     await app.register(cors, {
