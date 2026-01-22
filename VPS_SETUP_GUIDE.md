@@ -13,11 +13,13 @@
 9. [Налаштування SSL (Let's Encrypt)](#9-налаштування-ssl-lets-encrypt)
 10. [Налаштування деплою з GitHub](#10-налаштування-деплою-з-github)
 11. [Налаштування Environment Variables](#11-налаштування-environment-variables)
-12. [Перший деплой](#12-перший-деплой)
-13. [Налаштування автозапуску](#13-налаштування-автозапуску)
-14. [Налаштування моніторингу (опціонально)](#14-налаштування-моніторингу-опціонально)
-15. [Налаштування firewall](#15-налаштування-firewall)
-16. [Troubleshooting](#16-troubleshooting)
+12. [Встановлення залежностей, міграції та збірка](#12-встановлення-залежностей-міграції-та-збірка)
+13. [Тестування сервера](#13-тестування-сервера)
+14. [Перший деплой з PM2](#14-перший-деплой-з-pm2)
+15. [Налаштування автозапуску](#15-налаштування-автозапуску)
+16. [Налаштування моніторингу (опціонально)](#16-налаштування-моніторингу-опціонально)
+17. [Налаштування firewall](#17-налаштування-firewall)
+18. [Troubleshooting](#18-troubleshooting)
 
 ---
 
@@ -341,10 +343,14 @@ volumes:
 # Запустити PostgreSQL
 docker compose up -d
 
-# Перевірити статус
-docker compose ps
+# Перевірити статус контейнерів
+docker ps
+```
 
-# Перевірити логи
+**Має показати контейнер `db` зі статусом `Up`**
+
+```bash
+# Перевірити логи (опціонально)
 docker compose logs db
 ```
 
@@ -400,7 +406,7 @@ pm2 status
 
 ---
 
-## 7. Встановлення nginx
+## 8. Встановлення nginx
 
 ### Встановити nginx:
 
@@ -535,9 +541,10 @@ Certbot автоматично налаштує cron job для оновленн
 ### Крок 1: Створити директорію для проекту:
 
 ```bash
-# Створити директорію
-mkdir -p ~/text-rpg
-cd ~/text-rpg
+# Створити директорію для проекту (рекомендовано /opt/text-rpg)
+sudo mkdir -p /opt/text-rpg
+sudo chown $USER:$USER /opt/text-rpg
+cd /opt/text-rpg
 ```
 
 ### Крок 2: Клонувати репозиторій:
@@ -550,14 +557,11 @@ git clone https://github.com/your-username/text-rpg.git .
 # git clone git@github.com:your-username/text-rpg.git .
 ```
 
-### Крок 3: Встановити залежності:
+### Крок 3: Скопіювати docker-compose.yml (якщо ще не зроблено):
 
 ```bash
-# Перейти в директорію server
-cd ~/text-rpg/server
-
-# Встановити залежності
-npm install
+# Якщо docker-compose.yml ще не в /opt/text-rpg
+cp docker-compose.yml /opt/text-rpg/ 2>/dev/null || echo "docker-compose.yml вже на місці"
 ```
 
 ### Крок 4: Створити скрипт для деплою:
@@ -629,7 +633,7 @@ chmod +x ~/deploy-text-rpg.sh
 
 ```bash
 # Перейти в директорію server
-cd ~/text-rpg/server
+cd /opt/text-rpg/server
 
 # Створити .env файл
 nano .env
@@ -640,18 +644,16 @@ nano .env
 **Вставити (замініть `change_me_strong` на пароль з docker-compose.yml):**
 
 ```env
-# База даних (локальна PostgreSQL на VPS)
-DATABASE_URL=postgresql://game:change_me_strong@localhost:5432/game
-
-# JWT секрет (згенеруйте новий!)
-JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long
-
-# Порт (за замовчуванням 3000)
+NODE_ENV=production
 PORT=3000
 
-# Оточення
-NODE_ENV=production
+DATABASE_URL="postgresql://game:change_me_strong@127.0.0.1:5432/game?schema=public"
+JWT_SECRET="change_this_to_a_long_random_secret_64_chars_min"
 ```
+
+**Важливо:**
+- Замініть `change_me_strong` на пароль з `/opt/text-rpg/docker-compose.yml`
+- Замініть `change_this_to_a_long_random_secret_64_chars_min` на сильний випадковий рядок (мінімум 64 символи)
 
 **Формат DATABASE_URL для локальної БД:**
 ```
@@ -688,27 +690,78 @@ NODE_ENV=production
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-**Скопіювати результат і вставити в .env як JWT_SECRET**
+**Скопіювати результат і вставити в .env як JWT_SECRET (в лапках)**
 
 **Зберегти:** `Ctrl+O`, `Enter`, `Ctrl+X`
 
-### Перевірити підключення до БД:
+---
+
+## 12. Встановлення залежностей, міграції та збірка
+
+### Крок 1: Встановити залежності та налаштувати Prisma:
 
 ```bash
-# Перевірити, чи працює PostgreSQL
-docker compose ps
+# Перейти в директорію server
+cd /opt/text-rpg/server
 
-# Перевірити підключення через Prisma
-cd ~/text-rpg/server
+# Встановити залежності (npm ci для production - використовує package-lock.json)
+npm ci
+
+# Згенерувати Prisma Client
 npm run prisma:generate
+
+# Запустити міграції бази даних
 npm run prisma:migrate:deploy
+
+# Зібрати проект
+npm run build
 ```
 
 **Якщо міграції успішні - БД налаштовано правильно!**
 
 ---
 
-## 12. Перший деплой
+## 13. Тестування сервера
+
+### Крок 1: Запустити сервер для перевірки:
+
+```bash
+# Переконатись, що знаходимось в правильній директорії
+cd /opt/text-rpg/server
+
+# Запустити сервер
+npm run start
+```
+
+**Якщо все ОК - сервер почне слухати на порту 3000:**
+```
+Server started on http://0.0.0.0:3000
+```
+
+**Зупинити сервер:** `Ctrl+C`
+
+### Крок 2: Відкрити порт 3000 для тестування (опціонально):
+
+```bash
+# Дозволити порт 3000 через firewall
+sudo ufw allow 3000/tcp
+
+# Перевірити статус firewall
+sudo ufw status
+```
+
+**Тепер можна перевірити з вашого ПК:**
+- `http://YOUR_IP_ADDRESS:3000`
+- `http://YOUR_IP_ADDRESS:3000/health` (якщо є health endpoint)
+
+**Після тестування закрийте порт 3000 (безпека):**
+```bash
+sudo ufw delete allow 3000/tcp
+```
+
+---
+
+## 14. Перший деплой з PM2
 
 ### Крок 1: Запустити скрипт деплою:
 
@@ -753,7 +806,7 @@ curl http://localhost:3000/health
 
 ---
 
-## 13. Налаштування автозапуску
+## 15. Налаштування автозапуску
 
 ### PM2 вже налаштовано на кроці 6, але перевіримо:
 
@@ -772,7 +825,7 @@ pm2 save
 
 ---
 
-## 14. Налаштування моніторингу (опціонально)
+## 16. Налаштування моніторингу (опціонально)
 
 ### PM2 Monitoring (безкоштовно):
 
@@ -798,7 +851,7 @@ pm2 set pm2-logrotate:compress true
 
 ---
 
-## 15. Налаштування firewall
+## 17. Налаштування firewall
 
 ### Встановити UFW (Uncomplicated Firewall):
 
@@ -824,7 +877,7 @@ sudo ufw status
 
 ---
 
-## 16. Troubleshooting
+## 18. Troubleshooting
 
 ### Проблема: Сервер не запускається
 
