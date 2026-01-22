@@ -641,15 +641,20 @@ nano .env
 
 ### Варіант А: Локальна PostgreSQL (рекомендовано для VPS)
 
-**Вставити (замініть `change_me_strong` на пароль з docker-compose.yml):**
+**Вставити (пароль можеш лишити як у compose, або зміни — але тоді зміни й там):**
 
 ```env
 NODE_ENV=production
 PORT=3000
 
 DATABASE_URL="postgresql://game:change_me_strong@127.0.0.1:5432/game?schema=public"
-JWT_SECRET="change_this_to_a_long_random_secret_64_chars_min"
+
+JWT_SECRET="REPLACE_ME"
 ```
+
+**⚠️ ВАЖЛИВО:**
+- Пароль `change_me_strong` має співпадати з паролем в `docker-compose.yml`
+- Якщо змінюєш пароль в `.env`, зміни його також в `docker-compose.yml`
 
 **Важливо:**
 - Замініть `change_me_strong` на пароль з `/opt/text-rpg/docker-compose.yml`
@@ -683,24 +688,27 @@ PORT=3000
 NODE_ENV=production
 ```
 
-**Згенерувати JWT_SECRET (мінімум 64 символи, випадкові):**
+**Згенерувати нормальний JWT_SECRET:**
 
 ```bash
 # На сервері (рекомендований спосіб)
 openssl rand -hex 64
 ```
 
-**Або через Node.js:**
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-
-**Скопіювати результат і вставити в .env як JWT_SECRET (в лапках):**
-```env
-JWT_SECRET="скопійований_результат_тут"
-```
+**Скопіюй результат і встав замість `REPLACE_ME` (в nano: правка → Ctrl+O → Enter → Ctrl+X).**
 
 **Зберегти:** `Ctrl+O`, `Enter`, `Ctrl+X`
+
+### Перевірка, що змінні читаються:
+
+```bash
+cd /opt/text-rpg/server
+node -e "require('dotenv').config(); console.log('DATABASE_URL loaded:', !!process.env.DATABASE_URL)"
+```
+
+**Якщо помилка `Cannot find module 'dotenv'` — це нормально, пропускаємо цей тест.**
+
+Prisma все одно читає `.env` самостійно, якщо він у робочій директорії.
 
 ---
 

@@ -43,12 +43,19 @@ if [ ! -f "/opt/text-rpg/server/.env" ]; then
     cat > /opt/text-rpg/server/.env << EOF
 NODE_ENV=production
 PORT=3000
+
 DATABASE_URL="postgresql://game:change_me_strong@127.0.0.1:5432/game?schema=public"
+
 JWT_SECRET="$JWT_SECRET"
 EOF
     
     echo -e "${GREEN}✅ .env файл створено з автоматично згенерованим JWT_SECRET${NC}"
-    echo -e "${YELLOW}⚠️ ВАЖЛИВО: Перевірте пароль в DATABASE_URL (замініть change_me_strong на пароль з docker-compose.yml)${NC}"
+    echo -e "${YELLOW}⚠️ ВАЖЛИВО: Перевірте пароль в DATABASE_URL (має співпадати з паролем з docker-compose.yml)${NC}"
+    
+    # Перевірка, що змінні читаються (якщо dotenv встановлено)
+    echo -e "${GREEN}Перевірка чи змінні читаються...${NC}"
+    cd /opt/text-rpg/server
+    node -e "try { require('dotenv').config(); console.log('DATABASE_URL loaded:', !!process.env.DATABASE_URL); } catch(e) { console.log('dotenv not found, skipping test (Prisma will read .env anyway)'); }" 2>/dev/null || echo -e "${YELLOW}dotenv не знайдено, пропускаємо тест (Prisma все одно читає .env)${NC}"
 else
     echo -e "${GREEN}✅ .env файл вже існує${NC}"
 fi
@@ -58,7 +65,13 @@ echo -e "${GREEN}📦 КРОК 3: Встановлення залежносте�
 cd /opt/text-rpg/server
 npm ci
 npm run prisma:generate
+
+# Важливо: запускай міграції з папки server, щоб Prisma точно знайшов .env
+echo -e "${GREEN}Запуск міграцій (з папки server)...${NC}"
+cd /opt/text-rpg/server
 npm run prisma:migrate:deploy
+
+# Після міграцій — збірка
 npm run build
 
 if [ ! -f "dist/index.js" ]; then

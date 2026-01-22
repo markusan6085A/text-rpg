@@ -46,24 +46,39 @@ ls -la /opt/text-rpg/server/.env
 nano /opt/text-rpg/server/.env
 ```
 
-**Вставити (мінімум):**
+**Вставити (пароль можеш лишити як у compose, або зміни — але тоді зміни й там):**
 
 ```env
 NODE_ENV=production
 PORT=3000
+
 DATABASE_URL="postgresql://game:change_me_strong@127.0.0.1:5432/game?schema=public"
-JWT_SECRET="(встав сюди результат: openssl rand -hex 64)"
+
+JWT_SECRET="REPLACE_ME"
 ```
 
-**Згенерувати секрет:**
+**Згенерувати нормальний JWT_SECRET:**
 
 ```bash
 openssl rand -hex 64
 ```
 
-**Скопіювати результат і вставити в `.env` як `JWT_SECRET`**
+**Скопіюй результат і встав замість `REPLACE_ME` (в nano: правка → Ctrl+O → Enter → Ctrl+X).**
 
-**⚠️ ВАЖЛИВО:** Замініть `change_me_strong` на пароль з `docker-compose.yml`!
+**⚠️ ВАЖЛИВО:** 
+- Пароль `change_me_strong` має співпадати з паролем в `docker-compose.yml`
+- Якщо змінюєш пароль в `.env`, зміни його також в `docker-compose.yml`
+
+### КРОК 2.1 — Перевірка, що змінні читаються
+
+```bash
+cd /opt/text-rpg/server
+node -e "require('dotenv').config(); console.log('DATABASE_URL loaded:', !!process.env.DATABASE_URL)"
+```
+
+**Якщо помилка `Cannot find module 'dotenv'` — це нормально, пропускаємо цей тест.**
+
+Prisma все одно читає `.env` самостійно, якщо він у робочій директорії.
 
 ### КРОК 3 — Залежності + Prisma + міграції + build
 
@@ -71,7 +86,19 @@ openssl rand -hex 64
 cd /opt/text-rpg/server
 npm ci
 npm run prisma:generate
+```
+
+**Важливо: запускай міграції з папки server, щоб Prisma точно знайшов .env:**
+
+```bash
+# Переконайся, що ти в папці server
+cd /opt/text-rpg/server
 npm run prisma:migrate:deploy
+```
+
+**Після міграцій — збірка:**
+
+```bash
 npm run build
 ```
 
