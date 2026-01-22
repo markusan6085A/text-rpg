@@ -9,7 +9,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:migrate:deploy:direct": "cross-env DATABASE_URL=\"$DIRECT_URL\" prisma migrate deploy || cross-env DATABASE_URL=\"%DIRECT_URL%\" prisma migrate deploy || prisma migrate deploy",
+    "prisma:migrate:deploy:direct": "DATABASE_URL=\"$DIRECT_URL\" prisma migrate deploy || prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

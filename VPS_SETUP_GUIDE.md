@@ -683,14 +683,22 @@ PORT=3000
 NODE_ENV=production
 ```
 
-**Згенерувати JWT_SECRET:**
+**Згенерувати JWT_SECRET (мінімум 64 символи, випадкові):**
 
 ```bash
-# На сервері
+# На сервері (рекомендований спосіб)
+openssl rand -hex 64
+```
+
+**Або через Node.js:**
+```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-**Скопіювати результат і вставити в .env як JWT_SECRET (в лапках)**
+**Скопіювати результат і вставити в .env як JWT_SECRET (в лапках):**
+```env
+JWT_SECRET="скопійований_результат_тут"
+```
 
 **Зберегти:** `Ctrl+O`, `Enter`, `Ctrl+X`
 
@@ -769,14 +777,19 @@ sudo ufw delete allow 3000/tcp
 # Переконатись, що знаходимось в правильній директорії
 cd /opt/text-rpg/server
 
-# Запустити сервер через PM2
-pm2 start dist/index.js --name text-rpg
+# Запустити сервер через PM2 (краще використовувати dist/index.js напряму)
+pm2 start dist/index.js --name text-rpg-api
 
 # Перевірити статус
 pm2 status
 ```
 
-**Має показати `text-rpg` зі статусом `online`**
+**Має показати `text-rpg-api` зі статусом `online`**
+
+**Чому `dist/index.js` замість `npm run start`:**
+- Менше обгорток
+- Простіші логи
+- Швидший старт
 
 ### Крок 2: Переглянути логи:
 
@@ -972,12 +985,15 @@ sudo systemctl status certbot.timer
 
 ### Чеклист:
 
-- [ ] Сервер запускається: `pm2 status` показує `text-rpg` online
-- [ ] Health endpoint працює: `curl http://localhost:3000/health` → `{"status":"ok"}`
+- [ ] PostgreSQL працює: `docker ps` показує контейнер `db` зі статусом `Up`
+- [ ] Порт 5432 закритий назовні: `ss -lntp | grep :5432` показує `127.0.0.1:5432` (не `0.0.0.0:5432`)
+- [ ] Сервер запускається: `pm2 status` показує `text-rpg-api` online
+- [ ] Health endpoint працює: `curl http://127.0.0.1:3000/health` → `{"status":"ok"}`
 - [ ] Nginx працює: `sudo systemctl status nginx` → active
 - [ ] SSL працює (якщо налаштовано): `https://your-domain.com/health` → `{"status":"ok"}`
-- [ ] Firewall налаштовано: `sudo ufw status` → активний
+- [ ] Firewall налаштовано: `sudo ufw status` → активний (порти 22, 80, 443 відкриті, 3000 закритий)
 - [ ] Автозапуск працює: `pm2 save` виконано, `pm2 startup` налаштовано
+- [ ] JWT_SECRET встановлено (мінімум 64 символи): `cat /opt/text-rpg/server/.env | grep JWT_SECRET`
 
 ---
 

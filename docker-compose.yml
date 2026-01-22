@@ -10,6 +10,8 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "127.0.0.1:5432:5432"
+    # Healthcheck для моніторингу (не гарантує готовність для Prisma в той самий момент)
+    # Backend має власну retry логіку для підключення до БД
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U game -d game"]
       interval: 10s
