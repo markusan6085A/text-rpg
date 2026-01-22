@@ -300,13 +300,20 @@ export async function characterRoutes(app: FastifyInstance) {
       });
       
       // ❗ Логуємо для діагностики
+      const skillId = body.skillId;
+      const buffName = newBuff.name;
+      const totalBuffs = updatedBuffs.length;
       app.log.info(
         {
           targetId,
-          skillId: body.skillId,
-          buffName: newBuff.name,
-          totalBuffs: updatedBuffs.length,
-          buffs: updatedBuffs.map((b: any) => ({ id: b.id, name: b.name, expiresAt: b.expiresAt })),
+          skillId,
+          buffName,
+          totalBuffs,
+          buffs: updatedBuffs.map((b: any) => ({
+            id: b.id,
+            name: b.name,
+            expiresAt: b.expiresAt,
+          })),
         },
         '[POST /characters/:id/buff] Buff applied'
       );
