@@ -169,7 +169,7 @@ export default function Character() {
           </div>
 
           {/* КНОПКИ СПРАВА */}
-          <div className="flex flex-col gap-1 text-right text-[10px] ml-2 border-t border-dotted border-separator pt-2 pb-2 border-b border-dotted border-separator">
+          <div className="flex flex-col gap-1 text-right text-[10px] ml-2 border-y border-dotted border-separator pt-2 pb-2">
             <button
               className="w-16 py-[2px] bg-[#1d140c] text-white border border-[#5b4726] rounded-md"
               onClick={() => (window.location.href = "/")}
