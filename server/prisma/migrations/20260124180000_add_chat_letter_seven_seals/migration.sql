@@ -1,5 +1,5 @@
--- CreateTable
-CREATE TABLE "ChatMessage" (
+-- CreateTable: ChatMessage (тільки якщо не існує)
+CREATE TABLE IF NOT EXISTS "ChatMessage" (
     "id" TEXT NOT NULL,
     "characterId" TEXT NOT NULL,
     "channel" TEXT NOT NULL DEFAULT 'general',
@@ -9,8 +9,8 @@ CREATE TABLE "ChatMessage" (
     CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "Letter" (
+-- CreateTable: Letter (тільки якщо не існує)
+CREATE TABLE IF NOT EXISTS "Letter" (
     "id" TEXT NOT NULL,
     "fromCharacterId" TEXT NOT NULL,
     "toCharacterId" TEXT NOT NULL,
@@ -23,8 +23,8 @@ CREATE TABLE "Letter" (
     CONSTRAINT "Letter_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "SevenSealsMedal" (
+-- CreateTable: SevenSealsMedal (тільки якщо не існує)
+CREATE TABLE IF NOT EXISTS "SevenSealsMedal" (
     "id" TEXT NOT NULL,
     "characterId" TEXT NOT NULL,
     "weekStart" TIMESTAMP(3) NOT NULL,
@@ -33,41 +33,50 @@ CREATE TABLE "SevenSealsMedal" (
     CONSTRAINT "SevenSealsMedal_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE INDEX "ChatMessage_channel_createdAt_idx" ON "ChatMessage"("channel", "createdAt");
+-- CreateIndex (тільки якщо не існує)
+CREATE INDEX IF NOT EXISTS "ChatMessage_channel_createdAt_idx" ON "ChatMessage"("channel", "createdAt");
 
--- CreateIndex
-CREATE INDEX "ChatMessage_characterId_idx" ON "ChatMessage"("characterId");
+CREATE INDEX IF NOT EXISTS "ChatMessage_characterId_idx" ON "ChatMessage"("characterId");
 
--- CreateIndex
-CREATE INDEX "Letter_toCharacterId_isRead_createdAt_idx" ON "Letter"("toCharacterId", "isRead", "createdAt");
+CREATE INDEX IF NOT EXISTS "Letter_toCharacterId_isRead_createdAt_idx" ON "Letter"("toCharacterId", "isRead", "createdAt");
 
--- CreateIndex
-CREATE INDEX "Letter_fromCharacterId_idx" ON "Letter"("fromCharacterId");
+CREATE INDEX IF NOT EXISTS "Letter_fromCharacterId_idx" ON "Letter"("fromCharacterId");
 
--- CreateIndex
-CREATE INDEX "Letter_fromCharacterId_toCharacterId_createdAt_idx" ON "Letter"("fromCharacterId", "toCharacterId", "createdAt");
+CREATE INDEX IF NOT EXISTS "Letter_fromCharacterId_toCharacterId_createdAt_idx" ON "Letter"("fromCharacterId", "toCharacterId", "createdAt");
 
--- CreateIndex
-CREATE INDEX "Letter_toCharacterId_fromCharacterId_createdAt_idx" ON "Letter"("toCharacterId", "fromCharacterId", "createdAt");
+CREATE INDEX IF NOT EXISTS "Letter_toCharacterId_fromCharacterId_createdAt_idx" ON "Letter"("toCharacterId", "fromCharacterId", "createdAt");
 
--- CreateIndex
-CREATE INDEX "SevenSealsMedal_characterId_weekStart_idx" ON "SevenSealsMedal"("characterId", "weekStart");
+CREATE INDEX IF NOT EXISTS "SevenSealsMedal_characterId_weekStart_idx" ON "SevenSealsMedal"("characterId", "weekStart");
 
--- CreateIndex
-CREATE INDEX "SevenSealsMedal_weekStart_idx" ON "SevenSealsMedal"("weekStart");
+CREATE INDEX IF NOT EXISTS "SevenSealsMedal_weekStart_idx" ON "SevenSealsMedal"("weekStart");
 
--- AddForeignKey
-ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Letter" ADD CONSTRAINT "Letter_fromCharacterId_fkey" FOREIGN KEY ("fromCharacterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Letter" ADD CONSTRAINT "Letter_toCharacterId_fkey" FOREIGN KEY ("toCharacterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SevenSealsMedal" ADD CONSTRAINT "SevenSealsMedal_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- AddForeignKey (тільки якщо не існує)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'ChatMessage_characterId_fkey'
+    ) THEN
+        ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'Letter_fromCharacterId_fkey'
+    ) THEN
+        ALTER TABLE "Letter" ADD CONSTRAINT "Letter_fromCharacterId_fkey" FOREIGN KEY ("fromCharacterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'Letter_toCharacterId_fkey'
+    ) THEN
+        ALTER TABLE "Letter" ADD CONSTRAINT "Letter_toCharacterId_fkey" FOREIGN KEY ("toCharacterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'SevenSealsMedal_characterId_fkey'
+    ) THEN
+        ALTER TABLE "SevenSealsMedal" ADD CONSTRAINT "SevenSealsMedal_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "Character"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+    END IF;
+END $$;
 
 -- AlterTable: Додати lastActivityAt до Character (якщо ще немає)
 DO $$ 
