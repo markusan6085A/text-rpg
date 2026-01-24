@@ -26,7 +26,7 @@
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### POST /auth/login
 Авторизація існуючого акаунту.
@@ -51,7 +51,7 @@
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 👤 Персонажі (Characters)
 
@@ -87,7 +87,7 @@ Authorization: Bearer <token>
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### GET /characters/:id
 Отримати конкретного персонажа.
@@ -120,7 +120,7 @@ Authorization: Bearer <token>
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### POST /characters
 Створити нового персонажа.
@@ -162,7 +162,7 @@ Authorization: Bearer <token>
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### PUT /characters/:id
 Оновити дані персонажа.
@@ -209,7 +209,7 @@ Authorization: Bearer <token>
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔍 Health Check
 
@@ -223,7 +223,7 @@ Authorization: Bearer <token>
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 💡 Приклади використання
 

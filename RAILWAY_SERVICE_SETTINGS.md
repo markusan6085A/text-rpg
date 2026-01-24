@@ -26,7 +26,7 @@
 2. Перейти до сервісу зі списку
 3. Відкрити **Settings** сервісу
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Де знайти налаштування в Service Settings:
 
@@ -44,7 +44,7 @@
    - Додати `DATABASE_URL`
    - Додати `JWT_SECRET`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Швидкий чеклист:
 

@@ -33,7 +33,7 @@
 
 Відкрийте URL - гра має працювати онлайн!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Якщо щось не працює:
 

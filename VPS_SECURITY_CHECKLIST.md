@@ -29,7 +29,7 @@
 6. **PM2** ✅
    - Автозапуск налаштовано
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ⚠️ Що потрібно виправити:
 
@@ -48,7 +48,7 @@ npm run build
 pm2 restart text-rpg-api
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 2. Security Headers в Nginx
 
@@ -67,7 +67,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 3. UFW (Firewall) - ПЕРЕВІРИТИ НА VPS
 
@@ -93,7 +93,7 @@ sudo ufw status verbose
 - ✅ 443/tcp (HTTPS) - ALLOW
 - ❌ 3000/tcp - НЕ має бути (закритий)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 4. SSH Безпека - ПЕРЕВІРИТИ НА VPS
 
@@ -117,7 +117,7 @@ sudo systemctl restart ssh
 
 **⚠️ УВАГА:** Переконайтеся, що у вас є SSH ключ перед вимкненням паролів!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 5. Автопатчі (опціонально, але рекомендовано)
 
@@ -127,7 +127,7 @@ sudo apt install -y unattended-upgrades
 sudo dpkg-reconfigure --priority=low unattended-upgrades
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 6. Перевірка HTTPS редіректу
 
@@ -137,7 +137,7 @@ curl -I http://api.l2dop.com/health
 
 **Має бути:** `301 Moved Permanently` або `308 Permanent Redirect` на `https://`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Пріоритети:
 
@@ -147,7 +147,7 @@ curl -I http://api.l2dop.com/health
 4. **SSH** 🟡 - перевірити налаштування (5 хвилин)
 5. **Автопатчі** 🟢 - опціонально (10 хвилин)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📝 Швидкий чек-лист для VPS:
 
@@ -170,7 +170,7 @@ sudo nano /etc/nginx/sites-available/text-rpg
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Після виконання:
 

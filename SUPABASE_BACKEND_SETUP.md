@@ -24,7 +24,7 @@
 postgresql://postgres:[YOUR-PASSWORD]@db.hstwsloooubalvpwasst.supabase.co:6543/postgres?pgbouncer=true
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 2: Створити `.env` в папці `server/`
 
@@ -42,7 +42,7 @@ JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 - Замініть `ВАШ_ПАРОЛЬ` на реальний Database Password
 - Замініть `JWT_SECRET` на випадковий рядок (для безпеки)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 3: Запустити міграції Prisma
 
@@ -53,7 +53,7 @@ npm run prisma:migrate
 
 Це створить всі таблиці в Supabase PostgreSQL.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 4: Додати API endpoints для збереження даних
 
@@ -61,13 +61,13 @@ npm run prisma:migrate
 - Збереження/завантаження даних героя (heroJson)
 - Збереження/завантаження інших даних (battle state, inventory, тощо)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 5: Оновити `persistence.ts` для використання backend API
 
 Замість localStorage → виклики до backend API.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 План дій:
 
@@ -77,7 +77,7 @@ npm run prisma:migrate
 4. **Додати API endpoints** для збереження даних
 5. **Оновити `persistence.ts`** для використання API
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 💡 Переваги цього підходу:
 
@@ -87,6 +87,6 @@ npm run prisma:migrate
 ✅ Легше додавати нові функції
 ✅ Краще для production
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Почніть з кроку 1: отримайте Connection String з Supabase Dashboard → Settings → Database**

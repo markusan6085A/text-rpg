@@ -16,7 +16,7 @@
 - Помилка в коді при старті
 - Неправильний `DATABASE_URL`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 2: Перевірити DATABASE_URL для runtime
 
@@ -37,7 +37,7 @@
    ```
    (порт 5432, direct connection - працює тільки для migrations)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 3: Перевірити логи на помилки
 
@@ -46,7 +46,7 @@
 - `Error validating datasource` - неправильний `DATABASE_URL`
 - `Internal Server Error` - помилка в коді
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 4: Перевірити health endpoint
 
@@ -62,7 +62,7 @@ https://text-rpg-production.up.railway.app/health
 
 Якщо не працює - сервер не запускається.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 5: Перевірити root endpoint
 
@@ -81,7 +81,7 @@ https://text-rpg-production.up.railway.app/
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔧 Швидке виправлення
 
@@ -95,7 +95,7 @@ https://text-rpg-production.up.railway.app/
    ```
 4. **Зберегти** - Railway автоматично перезапустить сервер
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ⚠️ Важливо
 
@@ -103,7 +103,7 @@ https://text-rpg-production.up.railway.app/
 - **Runtime:** `DATABASE_URL` має бути pooler connection (для додатку)
 - Після успішного build можна змінити `DATABASE_URL` на pooler
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Перевірка після виправлення
 

@@ -172,7 +172,7 @@ export default function StatusBars() {
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
       {/* Крапкова лінія під барами */}
-      <div className="mt-1 w-full border-t border-dotted border-[#6f5a35]"></div>
+      <div className="mt-1 w-full border-t border-dotted border-[#C9B36B]"></div>
     </div>
   );
 }

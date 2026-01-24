@@ -93,7 +93,7 @@
 - `src/state/heroStore/heroLoadAPI.ts` - перевірка конфліктів при завантаженні
 - `src/state/heroStore/heroPersistence.ts` - додавання lastSavedAt при збереженні
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📋 Рекомендації для майбутнього
 
@@ -172,7 +172,7 @@
 - Якщо версія старіша - виконувати міграцію автоматично
 - Приклад: `migrateHeroJson(heroJson, fromVersion, toVersion)`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Підсумок
 
@@ -196,7 +196,7 @@
 3. **Міграції "на льоту"** - для зміни версій heroJson
 4. **Scheduled jobs** - для автоочистки (замість setInterval)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📝 Приклад використання optimistic locking
 
@@ -224,7 +224,7 @@ try {
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Дата створення:** 2025-01-19
 **Версія heroJson:** 1

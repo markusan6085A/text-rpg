@@ -47,7 +47,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
         <div className="flex flex-col gap-0">
           <button
             onClick={() => navigate("/wip")}
-            className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+            className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-dotted border-[#C9B36B] w-full"
           >
             {String.fromCharCode(1055, 1086, 1076, 1076, 1077, 1088, 1078, 1082, 1072)}
           </button>

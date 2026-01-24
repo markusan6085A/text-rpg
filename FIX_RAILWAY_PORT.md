@@ -9,7 +9,7 @@ Railway циклічно стартує і зупиняє процес:
 
 **Причина:** Сервер жорстко слухає порт `3000`, але Railway дає порт через змінну `PORT`.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення
 
@@ -30,7 +30,7 @@ await app.listen({ port, host: "0.0.0.0" });
 app.log.info(`Server started on http://0.0.0.0:${port}`);
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📋 Що робити далі
 
@@ -39,7 +39,7 @@ app.log.info(`Server started on http://0.0.0.0:${port}`);
 3. **Зачекай 2-3 хвилини** - Railway задеплоїть нову версію
 4. **Перевір логи Railway** - сервер має запуститися і не падати
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Перевірка
 
@@ -50,7 +50,7 @@ app.log.info(`Server started on http://0.0.0.0:${port}`);
 3. **НЕ повинно бути** `Stopping Container` через кілька секунд
 4. Сервер має працювати стабільно
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Після виправлення
 

@@ -37,7 +37,7 @@ git push origin main
 
 ### 4. Після push - Railway зможе побачити server папку!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Важливо:
 

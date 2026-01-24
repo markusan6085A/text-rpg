@@ -8,7 +8,7 @@ Can't reach database server at `db.hstwsloooubalvpwasst.supabase.co:5432`
 
 Prisma не може підключитися до Supabase.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення
 
@@ -41,7 +41,7 @@ postgresql://postgres:ПАРОЛЬ@hstwsloooubalvpwasst.supabase.co:5432/postgre
                                    НЕМАЄ "db." - НЕ ПРАЦЮЄ!
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 2: Перевірити пароль
 
@@ -53,7 +53,7 @@ postgresql://postgres:ПАРОЛЬ@hstwsloooubalvpwasst.supabase.co:5432/postgre
 4. Скопіюй новий пароль
 5. Онови `DATABASE_URL` на Railway з новим паролем
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 3: Перевірити Supabase Network Settings
 
@@ -67,7 +67,7 @@ postgresql://postgres:ПАРОЛЬ@hstwsloooubalvpwasst.supabase.co:5432/postgre
 - Тимчасово вимкни
 - Або додай Railway IP (складніше)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 4: Спробувати Connection Pooling (якщо є)
 
@@ -82,7 +82,7 @@ Connection Pooling часто працює краще:
    ```
 5. Онови `DATABASE_URL` на Railway
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Швидке рішення
 
@@ -100,7 +100,7 @@ Connection Pooling часто працює краще:
 
 4. **Перевір логи** - помилка "Can't reach database server" має зникнути
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ❓ Якщо все одно не працює
 

@@ -48,7 +48,7 @@ npm install && DATABASE_URL="$DIRECT_DATABASE_URL" npm run prisma:generate && np
 
 Це використає direct connection для migrations, а runtime буде використовувати pooler.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Варіант 2: Обмежити Connection Pool Size
 
@@ -64,7 +64,7 @@ postgresql://postgres.xxxxx:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:6543/
 - `connection_limit=1` - максимум 1 з'єднання
 - `pool_timeout=10` - чекати 10 секунд на вільне з'єднання
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Варіант 3: Використовувати Transaction Mode (якщо доступно)
 
@@ -76,7 +76,7 @@ postgresql://postgres.xxxxx:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:6543/
 
 Transaction mode дозволяє більше одночасних з'єднань, ніж Session mode.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ⚠️ Важливо
 
@@ -84,7 +84,7 @@ Transaction mode дозволяє більше одночасних з'єдна�
 2. **Runtime може використовувати Transaction mode** - тому для додатку використовуйте pooler (порт 6543)
 3. **Connection limit** - Supabase має обмеження на кількість одночасних з'єднань (залежить від тарифу)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Після виправлення
 

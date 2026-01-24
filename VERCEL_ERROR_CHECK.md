@@ -21,6 +21,6 @@ Deployment з комітом `aee65be` (Merge branch '2025-12-23-zsq5') має �
 - ❌ Проблеми з environment variables
 - ❌ Проблеми з файлами (відсутні файли)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Натисніть на deployment з помилкою та покажіть логи!**

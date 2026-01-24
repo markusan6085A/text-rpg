@@ -9,7 +9,7 @@
 - ✅ SSL сертифікати автоматично
 - ✅ CDN для швидкості
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🌟 Варіант 1: Railway Pro + Vercel (РЕКОМЕНДОВАНО) ⭐
 
@@ -57,7 +57,7 @@ PORT=3000
 2. Dashboard → Metrics (CPU, Memory, Requests)
 3. Dashboard → Logs (логи в реальному часі)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🌟 Варіант 2: Render Pro (Альтернатива)
 
@@ -88,7 +88,7 @@ NODE_ENV=production
 - Settings → **Custom Domain**
 - Render автоматично налаштує SSL
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🌟 Варіант 3: AWS/GCP/Azure (Максимальна потужність)
 
@@ -117,7 +117,7 @@ NODE_ENV=production
 
 **Ціна:** Pay-as-you-go (~$10-30/місяць)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Рекомендація: Railway Pro + Vercel
 
@@ -144,7 +144,7 @@ NODE_ENV=production
    - Backup автоматичний
    - Безкоштовний план (або Pro $25/міс)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📋 Детальна інструкція: Railway Pro Setup
 
@@ -258,7 +258,7 @@ Railway автоматично перевіряє health endpoint (`/health`), �
 - Settings → **Backups**
 - Включити автоматичні backup
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🚀 Frontend на Vercel Pro (Опціонально)
 
@@ -291,7 +291,7 @@ VITE_API_URL=https://ваш-railway-url.railway.app
 3. Vercel автоматично налаштує SSL
 4. Додати DNS записи в DNS провайдера
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔄 Робочий процес для розробки:
 
@@ -330,7 +330,7 @@ git push
 # 5. Перевірити в Vercel Dashboard
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📊 Моніторинг та Analytics:
 
@@ -350,7 +350,7 @@ git push
 - **API:** Request logs, errors
 - **Auth:** User activity
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔒 Безпека:
 
@@ -361,7 +361,7 @@ git push
 5. **CORS:** Налаштовано правильно
 6. **JWT:** Безпечне зберігання токенів
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 💰 Орієнтовна вартість:
 
@@ -372,7 +372,7 @@ git push
 | Supabase | Database | $0 (або $25 Pro) |
 | **Всього** | | **$20-65/місяць** |
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Переваги цього підходу:
 
@@ -384,7 +384,7 @@ git push
 6. ✅ **Швидкість:** CDN для frontend, оптимізований backend
 7. ✅ **Надійність:** 99.9% uptime гарантія
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Фінальна рекомендація:
 

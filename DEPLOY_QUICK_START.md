@@ -5,7 +5,7 @@
 - Supabase DATABASE_URL (вже є в `server/.env`)
 - JWT_SECRET (згенерувати)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 1: Підготувати код для GitHub
 
@@ -19,7 +19,7 @@ git commit -m "Ready for deployment"
 git push
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 2: Деплой Backend на Railway
 
@@ -72,7 +72,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 3. Скопіювати URL (типу `your-app.railway.app`)
 4. Це буде ваш backend URL!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 3: Деплой Frontend на Vercel
 
@@ -105,7 +105,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 2. Дочекатися завершення (1-2 хвилини)
 3. Отримаєте URL типу `text-rpg.vercel.app`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 4: Налаштувати CORS на Backend
 
@@ -135,7 +135,7 @@ await app.register(cors, {
 
 Закомітити та запушити зміни. Railway автоматично перезадеплоїть.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 5: Тестування
 
@@ -144,7 +144,7 @@ await app.register(cors, {
 3. Спробувати залогінитися
 4. Перевірити, що персонаж зберігається
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ❌ Якщо щось не працює:
 
@@ -163,7 +163,7 @@ await app.register(cors, {
 - Перевірити, що `server/src/index.ts` оновлений
 - Перезадеплоїти backend
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Готово!
 
@@ -173,7 +173,7 @@ await app.register(cors, {
 - ✅ Авторизація працює
 - ✅ Все синхронізується між пристроями
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔄 Оновлення після змін:
 
@@ -193,7 +193,7 @@ git push
 # Vercel автоматично перезадеплоїть
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 💡 Підказки:
 

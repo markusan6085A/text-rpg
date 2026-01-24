@@ -11,7 +11,7 @@
 
 **Реєстрація через Email** теж працює, але для розробки GitHub зручніше.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 1: Реєстрація на Supabase
 
@@ -23,7 +23,7 @@
 
 **Готово!** Ви зареєстровані через GitHub.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 2: Створення проєкту
 
@@ -46,7 +46,7 @@
 4. Натисніть **"Create new project"**
 5. Зачекайте 1-2 хвилини, поки проєкт створюється
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 3: Отримання API ключів
 
@@ -69,7 +69,7 @@ anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZi
 
 5. **Також запишіть Database Password** (той, що ви створили на кроці 2)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 4: Створення таблиці для зберігання даних
 
@@ -98,7 +98,7 @@ anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZi
    - **Unique:** включити
    - Натисніть **"Save"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 5: Налаштування Row Level Security (RLS)
 
@@ -123,7 +123,7 @@ anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZi
 
 **Примітка:** Для початку можна тимчасово вимкнути RLS (для тестування), але для продакшну потрібно включити.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 6: Встановлення залежностей
 
@@ -133,7 +133,7 @@ anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZi
 npm install @supabase/supabase-js
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 7: Створення конфігурації
 
@@ -155,7 +155,7 @@ VITE_SUPABASE_URL=https://abcdefghijklmnop.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYzMDU2NzI4OSwiZXhwIjoxOTQ2MTQzMjg5fQ.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 8: Створення прикладу конфігурації
 
@@ -168,7 +168,7 @@ VITE_SUPABASE_ANON_KEY=your_anon_key_here
 
 Цей файл можна комітити в git (без реальних ключів).
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Наступні кроки (після налаштування)
 
@@ -180,7 +180,7 @@ VITE_SUPABASE_ANON_KEY=your_anon_key_here
 4. ✅ Міграцію даних з localStorage (якщо потрібно)
 5. ✅ Тестування інтеграції
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Корисні посилання
 
@@ -189,7 +189,7 @@ VITE_SUPABASE_ANON_KEY=your_anon_key_here
 - [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript/introduction)
 - [Supabase Auth](https://supabase.com/docs/guides/auth)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 💡 Важливі нотатки
 

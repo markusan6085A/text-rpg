@@ -17,7 +17,7 @@
 - ✅ CORS увімкнений
 - ✅ API endpoints: `/auth/register`, `/auth/login`, `/characters`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📋 Наступні кроки:
 
@@ -30,7 +30,7 @@ npm run prisma:migrate
 
 Це створить всі таблиці в Supabase PostgreSQL.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 2. Перевірити підключення до бази
 
@@ -41,7 +41,7 @@ npm run prisma:studio
 
 Відкриється Prisma Studio, де можна побачити всі таблиці.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 3. Запустити backend сервер
 
@@ -52,7 +52,7 @@ npm run dev
 
 Сервер запуститься на `http://localhost:3000`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 4. Додати API endpoints для збереження даних (якщо потрібно)
 
@@ -65,13 +65,13 @@ npm run dev
 - Збереження/завантаження інвентаря
 - Інші дані, які зараз в `localStorage`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 5. Оновити `persistence.ts` для використання backend API
 
 Замість `localStorage` → виклики до `http://localhost:3000/api/...`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 💡 Поточний статус:
 
@@ -83,6 +83,6 @@ npm run dev
 3. Додати нові API endpoints
 4. Оновити `persistence.ts`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Все налаштовано правильно! 🎉**

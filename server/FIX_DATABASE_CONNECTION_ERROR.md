@@ -23,7 +23,7 @@ Error: P1001: Can't reach database server at `db.hstwsloooubalvpwasst.supabase.c
 
 Migrations потрібні тільки при першому деплої або коли є нові зміни в схемі.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Варіант 2: Використати pooler connection для migrations
 
@@ -41,7 +41,7 @@ Migrations потрібні тільки при першому деплої аб
 
 **⚠️ Увага:** Pooler може не підтримувати всі типи migrations. Якщо не працює - використати Варіант 1.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Варіант 3: Виконати migrations вручну в Supabase
 
@@ -57,7 +57,7 @@ cd server
 npm run prisma:studio
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Варіант 4: Перевірити Supabase налаштування
 
@@ -67,7 +67,7 @@ npm run prisma:studio
 2. Перевірити **Connection Pooling** налаштування
 3. Перевірити, чи дозволені з'єднання з Railway IP
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Рекомендація
 
@@ -80,7 +80,7 @@ Migrations потрібні тільки при:
 - Першому деплої (створення таблиць)
 - Зміні схеми Prisma (додавання нових полів/таблиць)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Перевірка після виправлення
 

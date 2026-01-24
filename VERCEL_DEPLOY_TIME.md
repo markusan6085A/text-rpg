@@ -19,7 +19,7 @@
 3. Налаштування: ~2-3 хвилини
 4. Build та деплой: ~2-3 хвилини
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Швидкий гайд (5 хвилин):
 
@@ -44,7 +44,7 @@
 - Vercel автоматично збудує та задеплоїть
 - Отримаєте URL типу `text-rpg.vercel.app`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Готово!
 

@@ -101,7 +101,7 @@ postgresql://postgres:markusan2109A@db.hstwsloooubalvpwasst.supabase.co:5432/pos
    ```
 4. Зберегти
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ⚠️ Важливо
 
@@ -109,7 +109,7 @@ postgresql://postgres:markusan2109A@db.hstwsloooubalvpwasst.supabase.co:5432/pos
 - **Runtime:** Додаток використовує `DATABASE_URL` з `db.ts`
 - Якщо `DATABASE_URL` вказує на pooler, для build потрібно тимчасово використати direct connection
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Перевірка після виправлення
 

@@ -23,7 +23,7 @@
 4. Оновити сторінку (F5)
 5. Тепер branch `main` матиме папку `server/`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Альтернатива: Змінити branch в Vercel
 

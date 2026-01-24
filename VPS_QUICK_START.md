@@ -81,7 +81,7 @@ sudo ufw allow 443/tcp
 sudo ufw enable
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📝 Створення .env файлу
 
@@ -106,7 +106,7 @@ PORT=3000
 NODE_ENV=production
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔄 Оновлення проекту
 
@@ -127,7 +127,7 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Перевірка
 
@@ -145,6 +145,6 @@ curl http://localhost:3000/health
 http://YOUR_IP/health
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Детальний гайд:** `VPS_SETUP_GUIDE.md`

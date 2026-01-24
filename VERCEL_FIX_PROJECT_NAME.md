@@ -19,7 +19,7 @@
 3. Після зміни назви помилка має зникнути
 4. Натиснути **"Deploy"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Якщо помилка залишається:
 

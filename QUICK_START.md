@@ -24,7 +24,7 @@ npm run dev
   ➜  Network: use --host to expose
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Важливо:** 
 - Backend працює на порту **3000**

@@ -26,7 +26,7 @@
 - **Плюси:** Автоматичний деплой, без налаштування
 - **Мінуси:** Дорожче за VPS
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Варіант 1: DigitalOcean VPS (Детальний гайд)
 
@@ -245,7 +245,7 @@ await app.register(cors, {
 });
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Варіант 2: Docker на VPS (Простіше управління)
 
@@ -328,7 +328,7 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Моніторинг та обслуговування
 
@@ -372,7 +372,7 @@ DATE=$(date +%Y%m%d_%H%M%S)
 pg_dump -h localhost -U postgres textrpg > /opt/backups/db_$DATE.sql
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Рекомендації для "суперового" сервера:
 
@@ -399,7 +399,7 @@ pg_dump -h localhost -U postgres textrpg > /opt/backups/db_$DATE.sql
    - Регулярні оновлення системи
    - SSH ключі замість паролів
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Порівняння варіантів:
 
@@ -410,7 +410,7 @@ pg_dump -h localhost -U postgres textrpg > /opt/backups/db_$DATE.sql
 | Railway Pro | $20+ | Низька | ⭐⭐⭐⭐ | ⚠️ Дорожче |
 | Docker на VPS | $6-12 | Висока | ⭐⭐⭐⭐⭐ | ✅ Гнучкіше |
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Швидкий старт (1 команда для встановлення всього):
 

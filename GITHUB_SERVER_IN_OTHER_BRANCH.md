@@ -33,7 +33,7 @@ git merge 2025-12-23-zsq5
 git push origin main
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Після merge:
 

@@ -22,7 +22,7 @@ Build падає на `prisma migrate deploy` з помилкою "Can't reach d
 
 3. **Зберегти** - Railway автоматично перезапустить build
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Коли потрібні migrations?
 
@@ -32,7 +32,7 @@ Migrations потрібні тільки якщо:
 
 Якщо таблиці вже є і схема не змінювалася - migrations не потрібні!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Перевірка після змін
 

@@ -8,7 +8,7 @@
 4. Оберіть ваш репозиторій `text-rpg`
 5. Натисніть **"Deploy Now"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 2: Налаштувати Root Directory
 
@@ -19,7 +19,7 @@
 5. Встановіть: `server`
 6. Натисніть **"Save"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 3: Environment Variables
 
@@ -46,7 +46,7 @@
 - **Value:** `production`
 - Натисніть **"Add"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 4: Налаштувати Build команди
 
@@ -63,7 +63,7 @@
    ```
 6. Натисніть **"Save"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 5: Зачекати деплой
 
@@ -72,7 +72,7 @@
 3. Можна подивитися логи деплою в реальному часі
 4. Дочекайтеся завершення (2-5 хвилин)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 6: Отримати URL
 
@@ -81,7 +81,7 @@
 3. Скопіюйте URL (типу `text-rpg-api-production.up.railway.app`)
 4. Це буде ваш backend URL!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 7: Перевірити роботу
 
@@ -89,7 +89,7 @@
 2. Має показати: `{"status":"ok"}`
 3. Або просто відкрийте корінь URL - має показати JSON з інформацією про сервер
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 8: Налаштувати Auto Deploy (якщо ще не налаштовано)
 
@@ -99,7 +99,7 @@
 
 **Тепер кожен `git push` автоматично задеплоїть нову версію!**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 9: Налаштувати Custom Domain (опціонально)
 
@@ -111,7 +111,7 @@
 4. Додайте CNAME запис в DNS провайдера
 5. Railway автоматично налаштує SSL
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 10: Налаштувати Monitoring
 
@@ -119,7 +119,7 @@
 2. Побачите CPU, Memory, Network використання
 3. Перейдіть в **"Logs"** для логів в реальному часі
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Готово!
 

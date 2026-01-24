@@ -36,7 +36,7 @@
 - Константи (SUMMON_SKILLS, SONIC_FOCUS_ID, тощо)
 - Допоміжні функції
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 2. `src/state/heroStore.ts` (425 рядків)
 
@@ -70,7 +70,7 @@
 - Збереження в localStorage
 - Синхронізація статів
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 3. `src/state/battle/helpers.ts` (~157 рядків)
 
@@ -90,7 +90,7 @@
 #### `persist.ts` (~50 рядків)
 - `persistSnapshot()`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Порядок рефакторингу:
 
@@ -111,7 +111,7 @@
    - Оновити імпорти
    - Протестувати всі типи скілів
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Переваги:
 

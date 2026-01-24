@@ -6,7 +6,7 @@
 
 Там мають бути детальні логи помилки, які покажуть точну причину.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 2: Перевірити, що backend сервер запущений
 
@@ -17,7 +17,7 @@ npm run dev
 
 Backend має запуститися на `http://localhost:3000`.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 3: Перевірити .env файл
 
@@ -28,7 +28,7 @@ DATABASE_URL="postgresql://postgres:ВАШ_ПАРОЛЬ@db.xxxxx.supabase.co:543
 JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 4: Перевірити Prisma міграції
 
@@ -39,7 +39,7 @@ cd server
 npm run prisma:migrate
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 5: Перевірити Prisma Client
 
@@ -50,7 +50,7 @@ cd server
 npm run prisma:generate
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 6: Перевірити RLS в Supabase
 
@@ -63,7 +63,7 @@ npm run prisma:generate
 4. Натиснути **"..."** → **"RLS"**
 5. Переконайтеся, що RLS вимкнений (для тестування)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📝 Що шукати в логах:
 
@@ -81,6 +81,6 @@ npm run prisma:generate
    - `JWT_SECRET is missing`
    - `Token verification failed`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Найпростіше:** Подивіться логи в терміналі backend сервера - там буде точна причина помилки!

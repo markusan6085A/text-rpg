@@ -6,6 +6,6 @@
 2. Змержити `2025-12-23-zsq5` в `main`
 3. Запушити на GitHub
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Готові виконати команди?**

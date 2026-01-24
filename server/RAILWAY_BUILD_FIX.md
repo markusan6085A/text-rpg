@@ -70,7 +70,7 @@ npm install && npm run prisma:generate && npm run prisma:migrate:deploy:direct &
    npm install && npm run prisma:generate && npm run build
    ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ⚠️ Важливо
 

@@ -5,7 +5,7 @@
 - Сервер слухає на порту 3000
 - Статус: **Online** (зелена точка)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 1: Отримати URL backend
 
@@ -14,7 +14,7 @@
 3. Скопіювати URL (типу `text-rpg-production.up.railway.app`)
 4. Це буде ваш backend URL!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 2: Перевірити роботу backend
 
@@ -22,7 +22,7 @@
 2. Або відкрити URL + `/health`
 3. Має показати: `{"status":"ok"}`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 3: Додати Environment Variables (якщо ще не додали)
 
@@ -32,7 +32,7 @@
    - `JWT_SECRET` = (довгий ключ)
    - `NODE_ENV` = `production`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 4: Деплой Frontend на Vercel
 
@@ -49,7 +49,7 @@
    - `VITE_API_URL` = `https://ваш-railway-url.railway.app`
 5. **Deploy!**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 5: Налаштувати CORS (якщо потрібно)
 
@@ -69,7 +69,7 @@ await app.register(cors, {
 
 Закомітити та запушити - Railway автоматично перезадеплоїть.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Готово!
 

@@ -12,7 +12,7 @@ chmod +x server/deploy-vps.sh
 
 Скрипт автоматично виконає всі кроки 2-5.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📝 Ручний спосіб (крок за кроком)
 
@@ -29,7 +29,7 @@ git push
 
 **Якщо `git commit` скаже "nothing to commit"** — значить нічого реально не зберіг/не змінив у цій папці.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 2: VPS - Забрати зміни з GitHub
 
@@ -52,7 +52,7 @@ git pull
 git log -1 --oneline
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 3: VPS - Перезібрати backend (після pull)
 
@@ -68,7 +68,7 @@ npm run build
 
 **Якщо `npm run build` пройшов** — далі запускаємо.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 4: VPS - Запуск (тимчасово перевірка)
 
@@ -85,7 +85,7 @@ curl -i http://127.0.0.1:3000/health
 
 **Якщо відповідає** — зупини `Ctrl+C` і запускаємо через PM2.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 5: VPS - Запуск через PM2 (постійно)
 
@@ -110,7 +110,7 @@ pm2 status
 pm2 logs text-rpg-api --lines 80
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Швидка перевірка після деплою
 
@@ -128,7 +128,7 @@ curl -i http://127.0.0.1:3000/health
 curl -i http://127.0.0.1/health
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Troubleshooting
 

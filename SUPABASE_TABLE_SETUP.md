@@ -8,7 +8,7 @@
    - **Project URL:** `https://hstwsloooubalvpwasst.supabase.co`
    - **anon public key:** `eyJhbGc...` (довгий рядок)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 2: Створити таблицю
 
@@ -62,7 +62,7 @@
 
 Натисніть кнопку **"Save"** (або "Create table")
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 3: Створити індекс
 
@@ -77,7 +77,7 @@
    - ✅ **Unique** (включити - унікальний індекс)
 5. Натисніть **"Save"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 4: Створити .env.local
 
@@ -90,7 +90,7 @@ VITE_SUPABASE_ANON_KEY=ваш_anon_public_ключ_тут
 
 **ВАЖЛИВО:** Замініть `ваш_anon_public_ключ_тут` на реальний ключ з Settings → API Keys.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Готово! 🎉
 

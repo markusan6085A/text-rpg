@@ -8,7 +8,7 @@ error: Error validating datasource `db`: the URL must start with the protocol `p
 
 Це означає, що `DATABASE_URL` на Railway неправильний - він не починається з `postgresql://` або `postgres://`.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення
 
@@ -32,7 +32,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
 - `postgres:ПАРОЛЬ@...` ❌
 - Порожнє ❌
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 2: Виправити через Raw Editor (РЕКОМЕНДОВАНО)
 
@@ -50,7 +50,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
 5. Заміни `ТВІЙ_ПАРОЛЬ` на реальний пароль з Supabase
 6. Натисни **Save**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 3: Перевірити після збереження
 
@@ -60,7 +60,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
 4. Зачекай 1-2 хвилини
 5. Перевір логи - помилка "URL must start with postgresql://" має зникнути
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Швидке рішення
 
@@ -70,7 +70,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
 4. Зачекай 1-2 хвилини
 5. Перевір логи
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ❓ Якщо все одно не працює
 

@@ -29,6 +29,6 @@ Vercel деплоїть з гілки `main`, а там файл `src/screens/Wi
 
 3. Vercel автоматично задеплоїть оновлення
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Найпростіше - змержити через GitHub Pull Request!**

@@ -10,7 +10,7 @@
 
 Там мають бути детальні логи помилки, які покажуть точну причину.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення 2: RLS (Row Level Security) в Supabase
 
@@ -36,7 +36,7 @@
 
 Для production потрібно налаштувати правила RLS, щоб запити працювали.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення 3: Перевірити .env файл
 
@@ -47,7 +47,7 @@ DATABASE_URL="postgresql://postgres:ВАШ_ПАРОЛЬ@db.xxxxx.supabase.co:543
 JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення 4: Перевірити Prisma Client
 
@@ -58,7 +58,7 @@ cd server
 npm run prisma:generate
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔍 Що перевірити в логах Backend:
 
@@ -76,6 +76,6 @@ npm run prisma:generate
    - `JWT_SECRET is missing`
    - `Token verification failed`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Найпростіше рішення для тестування:** Вимкнути RLS для таблиць `Account` та `Character` в Supabase Dashboard.

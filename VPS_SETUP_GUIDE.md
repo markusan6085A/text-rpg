@@ -21,7 +21,7 @@
 17. [Налаштування firewall](#17-налаштування-firewall)
 18. [Troubleshooting](#18-troubleshooting)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 1. Вибір VPS провайдера
 
@@ -59,7 +59,7 @@
 - **Диск:** 20-40 GB SSD
 - **ОС:** Ubuntu 22.04 LTS (рекомендовано)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 2. Створення сервера
 
@@ -81,7 +81,7 @@
 - Провайдер покаже **IP адресу** сервера
 - Якщо не додали SSH ключ, отримаєте **root пароль** (збережіть!)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 3. Підключення по SSH
 
@@ -110,7 +110,7 @@ ssh root@123.45.67.89
 - Перевірте firewall на провайдера (має бути відкритий порт 22)
 - Спробуйте через інший термінал (Git Bash, WSL)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 4. Початкове налаштування сервера
 
@@ -185,7 +185,7 @@ sudo nano /etc/ssh/sshd_config
 sudo systemctl restart sshd
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 5. Встановлення Node.js
 
@@ -219,7 +219,7 @@ sudo npm install -g pm2
 pm2 --version
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 6. Встановлення Docker та PostgreSQL
 
@@ -239,7 +239,7 @@ pm2 --version
 
 **Рекомендація:** Для VPS використовуйте локальну PostgreSQL через Docker.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Крок 1: Встановити Docker
 
@@ -387,7 +387,7 @@ sudo reboot
 docker compose ps
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 7. Встановлення PM2
 
@@ -404,7 +404,7 @@ pm2 startup
 pm2 status
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 8. Встановлення nginx
 
@@ -492,7 +492,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 9. Налаштування SSL (Let's Encrypt)
 
@@ -534,7 +534,7 @@ sudo certbot renew --dry-run
 
 Certbot автоматично налаштує cron job для оновлення сертифікатів.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 10. Налаштування деплою з GitHub
 
@@ -625,7 +625,7 @@ pm2 status
 chmod +x ~/deploy-text-rpg.sh
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 11. Налаштування Environment Variables
 
@@ -710,7 +710,7 @@ node -e "require('dotenv').config(); console.log('DATABASE_URL loaded:', !!proce
 
 Prisma все одно читає `.env` самостійно, якщо він у робочій директорії.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 12. Встановлення залежностей, міграції та збірка
 
@@ -735,7 +735,7 @@ npm run build
 
 **Якщо міграції успішні - БД налаштовано правильно!**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 13. Тестування сервера
 
@@ -775,7 +775,7 @@ sudo ufw status
 sudo ufw delete allow 3000/tcp
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 14. Перший деплой з PM2
 
@@ -843,7 +843,7 @@ curl -i http://127.0.0.1:3000/health
 - Або `http://YOUR_IP_ADDRESS:3000/health` (якщо порт 3000 відкритий)
 - Має показати: `{"status":"ok"}`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 15. Налаштування автозапуску
 
@@ -862,7 +862,7 @@ pm2 save
 
 **Тепер при перезавантаженні сервера PM2 автоматично запустить text-rpg!**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 16. Налаштування моніторингу (опціонально)
 
@@ -888,7 +888,7 @@ pm2 set pm2-logrotate:retain 7
 pm2 set pm2-logrotate:compress true
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 17. Налаштування firewall
 
@@ -914,7 +914,7 @@ sudo ufw enable
 sudo ufw status
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 18. Troubleshooting
 
@@ -1003,7 +1003,7 @@ sudo certbot renew
 sudo systemctl status certbot.timer
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Перевірка після налаштування
 
@@ -1019,7 +1019,7 @@ sudo systemctl status certbot.timer
 - [ ] Автозапуск працює: `pm2 save` виконано, `pm2 startup` налаштовано
 - [ ] JWT_SECRET встановлено (мінімум 64 символи): `cat /opt/text-rpg/server/.env | grep JWT_SECRET`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🚀 Оновлення проекту (після налаштування)
 
@@ -1042,7 +1042,7 @@ npm run build
 pm2 restart text-rpg
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 📝 Корисні команди
 
@@ -1069,7 +1069,7 @@ sudo tail -f /var/log/nginx/text-rpg-error.log
 sudo reboot
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Наступні кроки
 
@@ -1078,6 +1078,6 @@ sudo reboot
 3. ✅ Налаштувати моніторинг (PM2 Plus або інший сервіс)
 4. ✅ Оновити VITE_API_URL на Vercel (якщо frontend на Vercel)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Готово! 🎉 Ваш text-rpg тепер працює на VPS без cold start!**

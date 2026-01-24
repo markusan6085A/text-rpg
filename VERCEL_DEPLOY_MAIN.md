@@ -19,7 +19,7 @@
 
 4. Отримаєте URL типу: `text-rpg-a8yr.vercel.app`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Після деплою:
 
@@ -28,7 +28,7 @@
 - Всі API запити йдуть на Railway backend
 - Гра доступна онлайн!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Примітка:
 

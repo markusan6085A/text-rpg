@@ -12,7 +12,7 @@ chmod +x server/vps-setup.sh
 
 Скрипт автоматично виконає всі кроки.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Ручний спосіб (крок за кроком)
 
@@ -188,7 +188,7 @@ ufw status
 - `http://YOUR_IP_ADDRESS/health`
 - або просто `http://YOUR_IP_ADDRESS`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Фінальна перевірка
 
@@ -211,7 +211,7 @@ curl -i http://127.0.0.1:3000/health
 2. `pm2 status` — має показати `text-rpg-api` зі статусом `online`
 3. `curl -i http://127.0.0.1:3000/health` — має показати `HTTP/1.1 200 OK` та `{"status":"ok"}`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Troubleshooting
 

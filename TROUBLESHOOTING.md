@@ -4,7 +4,7 @@
 
 Це означає, що backend сервер повернув помилку 500.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 1: Перевірити, що Backend запущений
 
@@ -26,7 +26,7 @@ http://localhost:3000
 
 Повинно показати JSON з інформацією про сервер.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 2: Перевірити логи Backend
 
@@ -38,7 +38,7 @@ http://localhost:3000
 - `Can't reach database server` - проблема з підключенням до бази даних
 - `Prisma Client is not generated` - потрібно запустити `npm run prisma:generate`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 3: Перевірити .env файл
 
@@ -49,7 +49,7 @@ DATABASE_URL="postgresql://postgres:ВАШ_ПАРОЛЬ@db.xxxxx.supabase.co:543
 JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 4: Перевірити консоль браузера (F12)
 
@@ -59,7 +59,7 @@ JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 
 Там може бути більш детальна інформація про помилку.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Крок 5: Перевірити Network (F12)
 
@@ -69,7 +69,7 @@ JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 4. Знайти запит до `/auth/register`
 5. Подивитися на Response - там може бути детальна інформація про помилку
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🔧 Найчастіші проблеми:
 
@@ -88,6 +88,6 @@ JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 ### 5. Міграції не застосовані
 **Рішення:** Запустити `cd server && npm run prisma:migrate`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Найпростіший спосіб діагностики:** Подивитися логи в терміналі, де запущений backend сервер!

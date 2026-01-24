@@ -30,7 +30,7 @@ http://localhost:3000
 
 Повинно показати JSON з інформацією про сервер.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ⚠️ Важливо:
 
@@ -39,7 +39,7 @@ http://localhost:3000
 1. **Термінал 1:** Backend (`cd server && npm run dev`) → порт 3000
 2. **Термінал 2:** Frontend (`npm run dev`) → порт 5175
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Після запуску Backend:
 
@@ -47,6 +47,6 @@ http://localhost:3000
 2. Спробуйте зареєструватися знову
 3. Помилка "Internal Server Error" має зникнути
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Я запустив backend у фоновому режимі, але краще запустити в окремому терміналі!**

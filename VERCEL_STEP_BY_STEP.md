@@ -8,7 +8,7 @@
 4. Відкриється GitHub - дозволити доступ Vercel до репозиторіїв
 5. Після цього повернетеся на Vercel
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 2: Після підключення GitHub
 
@@ -16,7 +16,7 @@
 2. Знайти `text-rpg` (markusan6085A/text-rpg)
 3. Натиснути на репозиторій або кнопку **"Import"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 3: Налаштування проєкту
 
@@ -25,7 +25,7 @@
 3. **Build Command:** `npm run build` (за замовчуванням)
 4. **Output Directory:** `dist` (за замовчуванням)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 4: Environment Variables
 
@@ -36,7 +36,7 @@
 5. Перевірити галочки: Production, Preview, Development
 6. Натиснути **"Save"** або **"Add"**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Крок 5: Deploy
 
@@ -44,7 +44,7 @@
 2. Натиснути велику кнопку **"Deploy"**
 3. Дочекатися завершення (1-2 хвилини)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Якщо кнопки "Install" немає:
 

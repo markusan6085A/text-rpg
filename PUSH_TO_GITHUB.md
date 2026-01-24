@@ -25,7 +25,7 @@ git push origin 2025-12-23-zsq5
 
 Після цього на GitHub з'явиться гілка `2025-12-23-zsq5` з усіма файлами (включно з `server/`).
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Альтернатива: Push тільки server
 
@@ -39,7 +39,7 @@ git commit -m "Add backend server"
 git push origin 2025-12-23-zsq5
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Після push на GitHub:
 

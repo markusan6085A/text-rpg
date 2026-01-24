@@ -11,7 +11,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
                          @ обов'язковий!
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення 1: URL Encoding (найпростіше)
 
@@ -53,7 +53,7 @@ postgresql://postgres:mypass123%40db.hstwsloooubalvpwasst.supabase.co:5432/postg
 
 Але це може не спрацювати. Краще спробувати Raw Editor.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення 2: Raw Editor на Railway
 
@@ -69,7 +69,7 @@ postgresql://postgres:mypass123%40db.hstwsloooubalvpwasst.supabase.co:5432/postg
 5. Заміни `ТВІЙ_ПАРОЛЬ` на реальний пароль
 6. Натисни **Save**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Рішення 3: Railway CLI
 
@@ -81,7 +81,7 @@ railway variables set DATABASE_URL="postgresql://postgres:ПАРОЛЬ@db.hstwsl
 
 Заміни `ПАРОЛЬ` на реальний пароль.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Швидке рішення
 
@@ -89,7 +89,7 @@ railway variables set DATABASE_URL="postgresql://postgres:ПАРОЛЬ@db.hstwsl
 2. Якщо не спрацює - спробуй URL encoding `%40` (Рішення 1)
 3. Якщо все одно не працює - Railway CLI (Рішення 3)
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ❓ Якщо все одно не працює
 

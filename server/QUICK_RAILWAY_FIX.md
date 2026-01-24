@@ -39,7 +39,7 @@ Railway не деплоїть, бо `prisma migrate deploy` не може вик
 
 Якщо Railway не підтримує `$DIRECT_URL`, використати Варіант 1.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Перевірка
 

@@ -19,7 +19,7 @@ Railway все ще компілює frontend (`src/App.tsx`) замість bac
 - **Start Command:** `npm start`
 - Це запустить `node dist/index.js` з папки `server/`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Якщо Root Directory встановлено, але все одно не працює:
 
@@ -39,7 +39,7 @@ Railway все ще компілює frontend (`src/App.tsx`) замість bac
 2. Створити новий
 3. Під час створення вказати Root Directory = `server`
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Перевірка логів:
 

@@ -9,7 +9,7 @@ DATABASE_URL="postgresql://postgres:ПАРОЛЬ@..."
 
 **НЕПРАВИЛЬНО!** В полі Value має бути **ТІЛЬКИ** connection string, без `DATABASE_URL="` і без лапок!
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Правильний формат
 
@@ -30,7 +30,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
 - ❌ `"` лапок
 - ❌ Ключа в значенні
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Як виправити
 
@@ -50,7 +50,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
 - Key: `DATABASE_URL` ✅
 - Value: `postgresql://postgres:...` (починається з `postgresql://`) ✅
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### Варіант 2: Raw Editor (РЕКОМЕНДОВАНО)
 
@@ -68,7 +68,7 @@ postgresql://postgres:ПАРОЛЬ@db.hstwsloooubalvpwasst.supabase.co:5432/post
 
 Raw Editor автоматично правильно форматує - Key і Value розділені.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Швидке рішення
 
@@ -80,7 +80,7 @@ Raw Editor автоматично правильно форматує - Key і V
    ```
 4. **Save**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## ✅ Перевірка
 

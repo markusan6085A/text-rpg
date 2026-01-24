@@ -7,7 +7,7 @@
 3. ✅ Backend сервер налаштований (Fastify + Prisma)
 4. ✅ API endpoints для auth та characters
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🎯 Наступні кроки:
 
@@ -30,7 +30,7 @@ http://localhost:3000/health
 }
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 2. 📝 Додати API endpoints для збереження даних героя
 
@@ -44,7 +44,7 @@ http://localhost:3000/health
 
 Це дозволить зберігати дані героя (статистика, інвентар, тощо) в базі даних.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 3. 🔄 Оновити `persistence.ts` для використання backend API
 
@@ -55,7 +55,7 @@ http://localhost:3000/health
 - Викликати backend API для збереження/завантаження даних
 - Використовувати JWT токен для авторизації
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ### 4. 🧪 Протестувати API
 
@@ -83,7 +83,7 @@ GET http://localhost:3000/characters
 Authorization: Bearer <token>
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 💡 Рекомендації:
 
@@ -106,7 +106,7 @@ Authorization: Bearer <token>
    ```
    Сервер автоматично перезавантажується при зміні коду.
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## 🚀 План дій:
 
@@ -115,6 +115,6 @@ Authorization: Bearer <token>
 3. 🔄 Оновити `persistence.ts` для використання API
 4. 🧪 Протестувати збереження/завантаження даних
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 **Все готово для наступного кроку! 🎉**

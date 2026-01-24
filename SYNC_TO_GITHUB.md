@@ -31,7 +31,7 @@ git push origin main
 git push origin 2025-12-23-zsq5
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Варіант 2: Якщо є конфлікти
 
@@ -57,7 +57,7 @@ git merge origin/main
 git pull origin main
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Варіант 3: Створити новий коміт з усіма змінами
 
@@ -86,7 +86,7 @@ git commit -m "Sync local changes with GitHub - add server and all updates"
 git push origin main
 ```
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Якщо потрібно перезаписати GitHub (увага - це видалить зміни на GitHub!)
 
@@ -98,7 +98,7 @@ git push origin main --force
 
 **НЕ використовуйте --force, якщо не впевнені!**
 
----
+<hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Перевірка після push
 
