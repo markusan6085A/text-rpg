@@ -33,8 +33,10 @@ export function validateHeroJson(heroJson: any): { valid: boolean; errors: strin
     errors.push('heroJson.race is required and must be a string');
   }
 
-  if (!heroJson.classId || typeof heroJson.classId !== 'string') {
-    errors.push('heroJson.classId is required and must be a string');
+  // Підтримка як klass (frontend), так і classId (backend)
+  const classId = heroJson.classId || heroJson.klass;
+  if (!classId || typeof classId !== 'string') {
+    errors.push('heroJson.classId or heroJson.klass is required and must be a string');
   }
 
   // Перевірка типів числових полів
