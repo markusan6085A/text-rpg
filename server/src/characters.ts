@@ -409,6 +409,106 @@ export async function characterRoutes(app: FastifyInstance) {
 
     if (!existing) return reply.code(404).send({ error: "character not found" });
 
+    // 🔥 КРИТИЧНО: Валідація критичних полів для захисту від читерства через DevTools
+    // Перевіряємо, що нові значення не менші за поточні (захист від зменшення)
+    // Або дозволяємо зміни тільки в межах розумних меж
+    if (body.level !== undefined) {
+      if (typeof body.level !== 'number' || body.level < 1 || body.level > 80) {
+        return reply.code(400).send({ error: "invalid level (must be 1-80)" });
+      }
+      // Захист від зменшення рівня (можна тільки збільшувати)
+      if (body.level < existing.level) {
+        app.log.warn({
+          accountId: auth.accountId,
+          characterId: id,
+          currentLevel: existing.level,
+          attemptedLevel: body.level,
+        }, `[PUT /characters/:id] Attempted to decrease level from ${existing.level} to ${body.level}`);
+        return reply.code(400).send({ error: "level cannot be decreased" });
+      }
+    }
+
+    if (body.exp !== undefined) {
+      if (typeof body.exp !== 'number' || body.exp < 0) {
+        return reply.code(400).send({ error: "invalid exp (must be >= 0)" });
+      }
+      // Захист від зменшення exp (можна тільки збільшувати)
+      const currentExp = Number(existing.exp);
+      if (body.exp < currentExp) {
+        app.log.warn({
+          accountId: auth.accountId,
+          characterId: id,
+          currentExp,
+          attemptedExp: body.exp,
+        }, `[PUT /characters/:id] Attempted to decrease exp from ${currentExp} to ${body.exp}`);
+        return reply.code(400).send({ error: "exp cannot be decreased" });
+      }
+    }
+
+    if (body.sp !== undefined) {
+      if (typeof body.sp !== 'number' || body.sp < 0) {
+        return reply.code(400).send({ error: "invalid sp (must be >= 0)" });
+      }
+      // Захист від зменшення sp (можна тільки збільшувати)
+      if (body.sp < existing.sp) {
+        app.log.warn({
+          accountId: auth.accountId,
+          characterId: id,
+          currentSp: existing.sp,
+          attemptedSp: body.sp,
+        }, `[PUT /characters/:id] Attempted to decrease sp from ${existing.sp} to ${body.sp}`);
+        return reply.code(400).send({ error: "sp cannot be decreased" });
+      }
+    }
+
+    if (body.adena !== undefined) {
+      if (typeof body.adena !== 'number' || body.adena < 0) {
+        return reply.code(400).send({ error: "invalid adena (must be >= 0)" });
+      }
+      // Захист від зменшення adena (можна тільки збільшувати)
+      if (body.adena < existing.adena) {
+        app.log.warn({
+          accountId: auth.accountId,
+          characterId: id,
+          currentAdena: existing.adena,
+          attemptedAdena: body.adena,
+        }, `[PUT /characters/:id] Attempted to decrease adena from ${existing.adena} to ${body.adena}`);
+        return reply.code(400).send({ error: "adena cannot be decreased" });
+      }
+    }
+
+    if (body.aa !== undefined) {
+      if (typeof body.aa !== 'number' || body.aa < 0) {
+        return reply.code(400).send({ error: "invalid aa (must be >= 0)" });
+      }
+      // Захист від зменшення aa (можна тільки збільшувати)
+      if (body.aa < (existing.aa || 0)) {
+        app.log.warn({
+          accountId: auth.accountId,
+          characterId: id,
+          currentAa: existing.aa || 0,
+          attemptedAa: body.aa,
+        }, `[PUT /characters/:id] Attempted to decrease aa from ${existing.aa || 0} to ${body.aa}`);
+        return reply.code(400).send({ error: "aa cannot be decreased" });
+      }
+    }
+
+    if (body.coinLuck !== undefined) {
+      if (typeof body.coinLuck !== 'number' || body.coinLuck < 0) {
+        return reply.code(400).send({ error: "invalid coinLuck (must be >= 0)" });
+      }
+      // Захист від зменшення coinLuck (можна тільки збільшувати)
+      if (body.coinLuck < (existing.coinLuck || 0)) {
+        app.log.warn({
+          accountId: auth.accountId,
+          characterId: id,
+          currentCoinLuck: existing.coinLuck || 0,
+          attemptedCoinLuck: body.coinLuck,
+        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${existing.coinLuck || 0} to ${body.coinLuck}`);
+        return reply.code(400).send({ error: "coinLuck cannot be decreased" });
+      }
+    }
+
     // Перевіряємо, чи була покупка преміуму (premiumUntil збільшився)
     let premiumPurchased = false;
     let premiumHours = 0;
