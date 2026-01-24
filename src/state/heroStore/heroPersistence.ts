@@ -77,13 +77,20 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       const accIndex = accounts.findIndex((a: any) => a.username === current);
       if (accIndex !== -1) {
         // Додаємо lastSavedAt для синхронізації
+        // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, тому додаємо його
+        const mobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
+          // 🔥 Додаємо mobsKilled в heroJson для збереження в localStorage
+          heroJson: {
+            ...((hero as any).heroJson || {}),
+            mobsKilled: mobsKilled,
+          },
         };
         accounts[accIndex].hero = heroWithTimestamp;
         setJSON("l2_accounts_v2", accounts);
-        console.log('[saveHeroToLocalStorage] Also saved to localStorage as backup');
+        console.log('[saveHeroToLocalStorage] Also saved to localStorage as backup, mobsKilled:', mobsKilled);
       }
     }
   } catch (error: any) {
