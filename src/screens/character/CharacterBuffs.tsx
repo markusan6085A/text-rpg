@@ -42,47 +42,21 @@ export default function CharacterBuffs() {
 
   return (
     <div className="mt-2 border-t border-dotted border-[#6f5a35] pt-2">
-      <div className="text-[11px] text-yellow-300 font-semibold mb-1">
-        Мої бафи ({uniqueBuffs.length})
-      </div>
-      <div className="space-y-1.5">
+      <div className="flex flex-wrap gap-1.5">
         {uniqueBuffs.map((buff: any, idx: number) => {
-          const timeLeft = Math.max(0, Math.floor((buff.expiresAt - now) / 1000));
-          const minutes = Math.floor(timeLeft / 60);
-          const seconds = timeLeft % 60;
-          const timeLeftStr = minutes > 0 ? `${minutes}м ${seconds}с` : `${seconds}с`;
-          
           let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
           
           return (
-            <div key={idx} className="flex items-start gap-2">
-              <img
-                src={iconSrc}
-                alt={buff.name || "Buff"}
-                className="w-4 h-4 object-contain flex-shrink-0 mt-0.5"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
-                }}
-              />
-              <div className="flex-1">
-                <div className="text-[10px] text-gray-300">
-                  {buff.name || "Невідомий баф"}
-                </div>
-                <div className="text-[9px] text-green-400 mt-0.5">
-                  {timeLeftStr}
-                </div>
-                {buff.source === "skill" && (
-                  <div className="text-[9px] text-blue-400 mt-0.5">
-                    (Від гравця)
-                  </div>
-                )}
-                {buff.source === "buffer" && (
-                  <div className="text-[9px] text-yellow-400 mt-0.5">
-                    (Городський баф)
-                  </div>
-                )}
-              </div>
-            </div>
+            <img
+              key={idx}
+              src={iconSrc}
+              alt={buff.name || "Buff"}
+              className="w-5 h-5 object-contain"
+              title={buff.name || "Buff"}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+              }}
+            />
           );
         })}
       </div>
