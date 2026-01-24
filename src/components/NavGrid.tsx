@@ -49,7 +49,9 @@ export default function NavGrid({ navigate }: NavGridProps) {
 
   const handleClick = (btn: NavButton) => {
     // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
     
     if (btn.onClick) {
       btn.onClick();

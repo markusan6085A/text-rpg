@@ -39,10 +39,15 @@ export default function Layout({
 
   // 🔥 Скрол вгору при монтуванні і при зміні children - завжди показуємо верх сторінки з барами
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Скролимо window вгору
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    // Скролимо contentRef вгору (якщо він має скрол)
     if (contentRef.current) {
-      contentRef.current.scrollTo(0, 0);
+      contentRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
+    // Додатково скролимо document.body та document.documentElement
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
   }, [children]);
 
   // 🔥 Глобальний таймер для продовження бою - моб атакує навіть якщо гравець в місті чи іншому місці

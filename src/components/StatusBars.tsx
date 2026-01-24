@@ -156,7 +156,7 @@ export default function StatusBars() {
 
   return (
     <div 
-      className="absolute top-2 left-2 z-50"
+      className="fixed top-2 left-2 z-50"
       style={{
         pointerEvents: "none",
       }}
