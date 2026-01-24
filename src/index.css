@@ -4,6 +4,7 @@
 @tailwind utilities;
 
 /* === РОЗДІЛЮВАЧІ === */
+/* Імпортуємо ПІСЛЯ Tailwind utilities, щоб @layer utilities працював */
 @import './separators.css';
 
 html, body {

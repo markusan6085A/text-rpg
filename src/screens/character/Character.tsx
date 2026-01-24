@@ -193,7 +193,7 @@ export default function Character() {
         <CharacterEquipmentFrame allowUnequip={false} marginTop="20px" />
         
         {/* Крапкова лінія під барами (від краю до краю) */}
-        <div className="w-full border-t border-dotted border-t-separator mt-2"></div>
+        <div className="w-full border-t border-dotted border-separator mt-2"></div>
 
         {/* ========================================================= */}
         {/*     СТОЛБЕЦ ПУНКТОВ — КАК ТЫ ПРОСИЛ                        */}
