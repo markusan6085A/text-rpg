@@ -1,7 +1,8 @@
 import React from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { useBattleStore } from "../../state/battle/store";
-import { loadBattle, cleanupBuffs } from "../../state/battle/helpers";
+import { loadBattle } from "../../state/battle/persist";
+import { cleanupBuffs } from "../../state/battle/helpers";
 
 export default function CharacterBuffs() {
   const hero = useHeroStore((s) => s.hero);
