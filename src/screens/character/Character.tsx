@@ -5,6 +5,7 @@ import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
 import CharacterEquipmentFrame from "./CharacterEquipmentFrame";
 import RecipeBookButton from "./RecipeBookButton";
 import CharacterQuests from "./CharacterQuests";
+import CharacterBuffs from "./CharacterBuffs";
 import { listCharacters, type Character } from "../../utils/api";
 
 // Форматирование чисел (как в City)
@@ -74,7 +75,7 @@ export default function Character() {
   const expToNextDisplay = level >= MAX_LEVEL 
     ? (EXP_TABLE[MAX_LEVEL - 1] ?? 0) 
     : expToNext;
-  // EXP remaining to next level (not current exp, but remaining exp needed)
+  // EXP remaining to next level (скільки ще треба опиту до нового лвл)
   const expRemaining = Math.max(0, expToNextDisplay - expCurrent);
   const expPercent = expToNextDisplay > 0 
     ? Math.min(100, Math.floor((expCurrent / expToNextDisplay) * 100)) 
@@ -133,7 +134,7 @@ export default function Character() {
 
           {/* ЛІВА ІНФОРМАЦІЯ */}
           <div className="flex flex-col text-left mt-1 flex-1">
-            <div className="border-t border-gray-500 pt-2 pb-2">
+            <div className="border-t border-dotted border-[#6f5a35] pt-2 pb-2">
               <div className="text-xs">
                 Статус:{" "}
                 {status ? (
@@ -152,7 +153,7 @@ export default function Character() {
                 </button>
               </div>
 
-              <div className="text-[11px] text-yellow-300 mt-1">
+              <div className="text-[11px] text-yellow-300 mt-1 border-t border-dotted border-[#6f5a35] pt-1">
                 Профессия:{" "}
                 {(() => {
                   const profId = normalizeProfessionId(profession as any);
@@ -160,12 +161,15 @@ export default function Character() {
                   return profDef?.label || profession || "Нет";
                 })()}
               </div>
+              
+              {/* Бафи під професією */}
+              <CharacterBuffs />
             </div>
-            <div className="border-b border-gray-500"></div>
+            <div className="border-b border-dotted border-[#6f5a35]"></div>
           </div>
 
           {/* КНОПКИ СПРАВА */}
-          <div className="flex flex-col gap-1 text-right text-[10px] ml-2">
+          <div className="flex flex-col gap-1 text-right text-[10px] ml-2 border-t border-dotted border-[#6f5a35] pt-2 pb-2 border-b border-dotted border-[#6f5a35]">
             <button
               className="w-16 py-[2px] bg-[#1d140c] text-white border border-[#5b4726] rounded-md"
               onClick={() => (window.location.href = "/")}
@@ -187,6 +191,9 @@ export default function Character() {
         {/*     МОДЕЛЬ + СЛОТЫ — СПІЛЬНИЙ КОМПОНЕНТ  */}
         {/* ========================================= */}
         <CharacterEquipmentFrame allowUnequip={false} marginTop="20px" />
+        
+        {/* Крапкова лінія під барами (від краю до краю) */}
+        <div className="w-full border-t border-dotted border-[#6f5a35] mt-2"></div>
 
         {/* ========================================================= */}
         {/*     СТОЛБЕЦ ПУНКТОВ — КАК ТЫ ПРОСИЛ                        */}
@@ -205,7 +212,7 @@ export default function Character() {
           <div className="border-b border-gray-600 pb-1 flex items-center gap-2">
             <img src="/icons/star.png" alt="Experience" className="w-3 h-3 object-contain" />
             <span>
-              Опыт: <span className="text-green-300">{formatNumber(expRemaining)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
+              Опыт: <span className="text-orange-400">{formatNumber(expRemaining)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
             </span>
           </div>
 

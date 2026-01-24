@@ -171,6 +171,8 @@ export default function StatusBars() {
         <span style={getNickColorStyle(hero.name, hero)}>{hero.name}</span>
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
+      {/* Крапкова лінія під барами */}
+      <div className="mt-1 w-full border-t border-dotted border-[#6f5a35]"></div>
     </div>
   );
 }
