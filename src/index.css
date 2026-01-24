@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === РОЗДІЛЮВАЧІ === */
+@import './separators.css';
+
 html, body {
   padding: 0;
   margin: 0;

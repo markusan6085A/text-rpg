@@ -1,0 +1,133 @@
+/* ============================================
+   ГЛОБАЛЬНІ СТИЛІ ДЛЯ РОЗДІЛЮВАЧІВ
+   Змінюй колір тут - він зміниться всюди!
+   ============================================ */
+
+:root {
+  /* 🎨 КОЛІР РОЗДІЛЮВАЧІВ - змінюй тут! */
+  --separator-color: #332b1560;
+  
+  /* Додаткові налаштування */
+  --separator-thickness: 2px;
+  --separator-spacing: 20px;
+}
+
+/* ============================================
+   TAILWIND UTILITY КЛАСИ
+   Використовуй ці класи замість border-[#C9B36B]
+   ============================================ */
+@layer utilities {
+  /* Універсальний клас для кольору розділювача */
+  /* Використовуй: border-t border-dotted border-separator */
+  .border-separator {
+    border-color: var(--separator-color) !important;
+  }
+  
+  /* Альтернативні класи для різних напрямків (якщо потрібно) */
+  .border-t-separator {
+    border-top-color: var(--separator-color) !important;
+  }
+  
+  .border-b-separator {
+    border-bottom-color: var(--separator-color) !important;
+  }
+  
+  .border-l-separator {
+    border-left-color: var(--separator-color) !important;
+  }
+  
+  .border-r-separator {
+    border-right-color: var(--separator-color) !important;
+  }
+  
+  /* Комбіновані класи для зручності */
+  .border-x-separator {
+    border-left-color: var(--separator-color) !important;
+    border-right-color: var(--separator-color) !important;
+  }
+  
+  .border-y-separator {
+    border-top-color: var(--separator-color) !important;
+    border-bottom-color: var(--separator-color) !important;
+  }
+}
+
+/* ============================================
+   ТИП 1: Суцільна лінія (_____________)
+   ============================================ */
+.separator-solid,
+hr.separator-solid {
+  border: none;
+  border-top: var(--separator-thickness) solid var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
+
+/* ============================================
+   ТИП 2: Пунктирна лінія (_ _ _ _ _ _ _ _)
+   ============================================ */
+.separator-dashed,
+hr.separator-dashed {
+  border: none;
+  border-top: var(--separator-thickness) dashed var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
+
+/* ============================================
+   ТИП 3: Крапкова лінія (.......................)
+   ============================================ */
+.separator-dotted,
+hr.separator-dotted {
+  border: none;
+  border-top: var(--separator-thickness) dotted var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
+
+/* ============================================
+   СТИЛІ ДЛЯ MARKDOWN РОЗДІЛЮВАЧІВ
+   (для HTML <hr> тегів в markdown)
+   ============================================ */
+hr {
+  border: none;
+  border-top: var(--separator-thickness) dotted var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
+
+/* ============================================
+   ДОДАТКОВІ ВАРІАНТИ (якщо потрібно)
+   ============================================ */
+
+/* Подвійна лінія */
+.separator-double {
+  border: none;
+  border-top: var(--separator-thickness) double var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
+
+/* Хвиляста лінія */
+.separator-wavy {
+  border: none;
+  border-top: var(--separator-thickness) wavy var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
+
+/* Товстіша лінія */
+.separator-thick {
+  border: none;
+  border-top: 4px dotted var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
+
+/* Тонша лінія */
+.separator-thin {
+  border: none;
+  border-top: 1px dotted var(--separator-color);
+  margin: var(--separator-spacing) 0;
+  width: 100%;
+}
