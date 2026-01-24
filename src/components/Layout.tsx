@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
@@ -218,7 +218,8 @@ export default function Layout({
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
         <MobDamageNotification navigate={navigate} /> {/* Повідомлення про урон від мобів */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
-        <div ref={contentRef} className="flex-1 pb-2 pt-16 overflow-y-auto relative z-10 flex justify-center">
+        {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
+        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center">
           <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
           </div>
