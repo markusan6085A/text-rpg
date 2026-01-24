@@ -28,6 +28,7 @@ export default function Layout({
   const logout = useAuthStore((s) => s.logout);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const contentRef = useRef<HTMLDivElement>(null);
+  const pathnameRef = useRef<string>('');
   const { processMobAttack, status: battleStatus, regenTick } = useBattleStore();
 
   // 🔥 Визначаємо "легкі" сторінки, для яких не потрібні важкі операції
@@ -39,17 +40,21 @@ export default function Layout({
 
   // 🔥 Скрол вгору тільки при зміні сторінки (pathname), а не при скролі користувача
   useEffect(() => {
-    const pathname = window.location.pathname;
-    // Скролимо window вгору
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    // Скролимо contentRef вгору (якщо він має скрол)
-    if (contentRef.current) {
-      contentRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const currentPathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    // Скролимо тільки якщо pathname дійсно змінився
+    if (currentPathname !== pathnameRef.current) {
+      pathnameRef.current = currentPathname;
+      // Скролимо window вгору
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      // Скролимо contentRef вгору (якщо він має скрол)
+      if (contentRef.current) {
+        contentRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }
+      // Додатково скролимо document.body та document.documentElement
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
     }
-    // Додатково скролимо document.body та document.documentElement
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-  }, [typeof window !== 'undefined' ? window.location.pathname : '']);
+  }, [children]); // Залишаємо children як тригер, але перевіряємо pathname
 
   // 🔥 Глобальний таймер для продовження бою - моб атакує навіть якщо гравець в місті чи іншому місці
   useEffect(() => {
