@@ -51,10 +51,13 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     
     // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, а не на верхньому рівні hero
     // Переконуємося, що mobsKilled зберігається в heroJson
+    const currentMobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
+    const existingHeroJson = (hero as any).heroJson || {};
     const heroJsonToSave = {
-      ...hero,
-      // Якщо mobsKilled є на верхньому рівні, додаємо його в heroJson
-      mobsKilled: (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0,
+      ...existingHeroJson, // Спочатку беремо існуючий heroJson
+      ...hero, // Потім додаємо всі поля з hero
+      // 🔥 КРИТИЧНО: mobsKilled завжди має бути в heroJson
+      mobsKilled: currentMobsKilled,
     };
     
     await updateCharacter(characterStore.characterId, {

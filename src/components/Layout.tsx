@@ -185,7 +185,7 @@ export default function Layout({
   return (
     <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
       <div
-        className={`w-full max-w-[380px] flex flex-col relative min-h-screen ${!customBackground ? "l2-frame page-bg" : ""}`}
+        className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
           customBackground
             ? {
@@ -194,7 +194,6 @@ export default function Layout({
                 borderRadius: "10px",
                 boxShadow: "inset 0 0 10px #000",
                 background: "transparent",
-                minHeight: "100vh",
                 width: "100%",
                 overflowX: "hidden",
                 position: "relative",
