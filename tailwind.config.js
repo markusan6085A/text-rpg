@@ -6,16 +6,7 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: { 
-    extend: {
-      colors: {
-        // Кастомний колір для розділювачів - використовує CSS змінну
-        separator: 'var(--separator-color)',
-      },
-      borderColor: {
-        // Додаємо до borderColor теж
-        separator: 'var(--separator-color)',
-      },
-    } 
+    extend: {},
   },
   plugins: [],
 };
