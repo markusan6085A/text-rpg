@@ -126,6 +126,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         gender: character.sex,
         // 🔥 mobsKilled зберігаємо з heroJson
         mobsKilled: mobsKilled,
+        // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled в heroJson при завантаженні
+        heroJson: {
+          ...(heroData.heroJson || heroData), // Беремо існуючий heroJson або весь heroData
+          mobsKilled: mobsKilled, // Гарантуємо, що mobsKilled є в heroJson
+        },
       } as Hero);
     }
 
@@ -167,6 +172,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         ? finalMaxCp
         : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0));
 
+    // 🔥 КРИТИЧНО: Зберігаємо mobsKilled з fixedHero і гарантуємо, що воно є в heroJson
+    const currentMobsKilled = (fixedHero as any).mobsKilled ?? (fixedHero as any).mobs_killed ?? (fixedHero as any).killedMobs ?? (fixedHero as any).totalKills ?? 0;
+    const existingHeroJson = (fixedHero as any).heroJson || {};
+    
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,
       baseStats: recalculated.originalBaseStats,
@@ -178,6 +187,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       hp: finalHp,
       mp: finalMp,
       cp: finalCp,
+      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled в heroJson
+      mobsKilled: currentMobsKilled,
+      heroJson: {
+        ...existingHeroJson,
+        mobsKilled: currentMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
+      },
     };
     
     // Логуємо фінальний інвентар після завантаження

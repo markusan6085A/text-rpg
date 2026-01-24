@@ -74,9 +74,12 @@ export function loadHero(): Hero | null {
       // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, тому читаємо його звідти
       const heroJson = (fixedHero as any).heroJson || {};
       const mobsKilled = heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? (fixedHero as any).mobsKilled ?? (fixedHero as any).mobs_killed ?? (fixedHero as any).killedMobs ?? (fixedHero as any).totalKills ?? 0;
-      if (mobsKilled > 0) {
-        (fixedHero as any).mobsKilled = mobsKilled;
-      }
+      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled на верхній рівень і в heroJson
+      (fixedHero as any).mobsKilled = mobsKilled;
+      (fixedHero as any).heroJson = {
+        ...heroJson,
+        mobsKilled: mobsKilled, // Гарантуємо, що mobsKilled є в heroJson
+      };
       
       // Міграція: виправляємо предмети "Angel Slayer", які були куплені як лук
       if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {

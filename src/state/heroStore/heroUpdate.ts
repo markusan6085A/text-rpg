@@ -23,14 +23,13 @@ export function updateHeroLogic(
     mobsKilled: newMobsKilled,
   };
   
-  // 🔥 КРИТИЧНО: Синхронізуємо mobsKilled в heroJson, щоб воно зберігалося на сервері
-  if ((partial as any).mobsKilled !== undefined) {
-    const existingHeroJson = (updated as any).heroJson || {};
-    (updated as any).heroJson = {
-      ...existingHeroJson,
-      mobsKilled: newMobsKilled,
-    };
-  }
+  // 🔥 КРИТИЧНО: ЗАВЖДИ синхронізуємо mobsKilled в heroJson, щоб воно зберігалося на сервері
+  // Навіть якщо mobsKilled не передано в partial, беремо його з prev і синхронізуємо
+  const existingHeroJson = (updated as any).heroJson || {};
+  (updated as any).heroJson = {
+    ...existingHeroJson,
+    mobsKilled: newMobsKilled, // Завжди синхронізуємо mobsKilled в heroJson
+  };
 
   // ❗ recalculateAllStats НІКОЛИ не повинен запускатися через hp/mp/cp
   // Він має запускатися ТІЛЬКИ при: level, skills, equipment, baseStats, profession, klass, equipmentEnchantLevels, activeDyes
