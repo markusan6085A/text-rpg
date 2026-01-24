@@ -119,6 +119,36 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       }
     }
   } catch (error: any) {
+    // 🔥 Обробка rate limiting (429 Too Many Requests)
+    if (error?.status === 429 || (error?.message && (error.message.includes('rate_limit') || error.message.includes('Too Many Requests')))) {
+      console.warn('[saveHeroToLocalStorage] Rate limit exceeded, saving to localStorage and will retry later');
+      
+      // Зберігаємо в localStorage як backup
+      const current = getJSON<string | null>("l2_current_user", null);
+      if (current && hero) {
+        const accounts = getJSON<any[]>("l2_accounts_v2", []);
+        const accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex !== -1) {
+          const mobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
+          const heroWithTimestamp = {
+            ...hero,
+            lastSavedAt: Date.now(),
+            _rateLimitBackup: true, // Позначаємо як backup через rate limit
+            heroJson: {
+              ...((hero as any).heroJson || {}),
+              mobsKilled: mobsKilled,
+            },
+          };
+          accounts[accIndex].hero = heroWithTimestamp;
+          setJSON("l2_accounts_v2", accounts);
+          console.log('[saveHeroToLocalStorage] Saved to localStorage due to rate limit, mobsKilled:', mobsKilled);
+        }
+      }
+      
+      // Не кидаємо помилку - дані збережені в localStorage
+      return;
+    }
+    
     // 🔥 Обробка конфлікту ревізії (409 Conflict)
     if (error?.status === 409 || (error?.message && error.message.includes('revision_conflict'))) {
       console.warn('[saveHeroToLocalStorage] Revision conflict detected - character was modified by another session');

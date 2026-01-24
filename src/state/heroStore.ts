@@ -34,6 +34,46 @@ interface HeroState {
   addItemToInventory: (itemId: string, count?: number) => void;
 }
 
+// 🔥 Debouncing для збереження - щоб уникнути rate limiting
+let saveTimeout: NodeJS.Timeout | null = null;
+let pendingSave: Hero | null = null;
+const SAVE_DEBOUNCE_MS = 2000; // Зберігаємо через 2 секунди після останнього оновлення
+
+function debouncedSave(hero: Hero) {
+  pendingSave = hero;
+  
+  if (saveTimeout) {
+    clearTimeout(saveTimeout);
+  }
+  
+  saveTimeout = setTimeout(() => {
+    if (pendingSave) {
+      saveHeroToLocalStorage(pendingSave).catch(err => {
+        console.error('[heroStore] Failed to save hero:', err);
+      });
+      pendingSave = null;
+    }
+    saveTimeout = null;
+  }, SAVE_DEBOUNCE_MS);
+}
+
+// 🔥 Критичні зміни (як mobsKilled) зберігаємо одразу
+function immediateSave(hero: Hero) {
+  // Скасовуємо debounced save, якщо він є
+  if (saveTimeout) {
+    clearTimeout(saveTimeout);
+    saveTimeout = null;
+  }
+  pendingSave = null;
+  
+  // Зберігаємо одразу
+  saveHeroToLocalStorage(hero).catch(err => {
+    console.error('[heroStore] Failed to save hero immediately:', err);
+    // Якщо не вдалося - пробуємо через debounce
+    debouncedSave(hero);
+  });
+}
+
 export const useHeroStore = create<HeroState>((set, get) => ({
   hero: null,
 
@@ -94,11 +134,20 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       });
     }
     
+    // 🔥 КРИТИЧНО: mobsKilled - критична зміна, зберігаємо одразу
+    const isCriticalChange = (partial as any).mobsKilled !== undefined || 
+                             (partial as any).level !== undefined ||
+                             (partial as any).exp !== undefined;
+    
     set({ hero: updated });
-    // Fire-and-forget: save asynchronously without blocking
-    saveHeroToLocalStorage(updated).catch(err => {
-      console.error('[heroStore] Failed to save hero:', err);
-    });
+    
+    // 🔥 Критичні зміни зберігаємо одразу, інші - через debounce
+    if (isCriticalChange) {
+      console.log('[heroStore] Critical change detected, saving immediately');
+      immediateSave(updated);
+    } else {
+      debouncedSave(updated);
+    }
   },
 
   setStatus: (value) => {
