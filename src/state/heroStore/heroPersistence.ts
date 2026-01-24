@@ -63,20 +63,24 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
                               0;
     const existingHeroJson = (hero as any).heroJson || {};
     
-    // Логуємо mobsKilled для діагностики
-    if (import.meta.env.DEV) {
-      console.log('[saveHeroToLocalStorage] mobsKilled to save:', currentMobsKilled, 'from hero:', {
-        mobsKilled: (hero as any).mobsKilled,
-        heroJsonMobsKilled: (hero as any).heroJson?.mobsKilled,
-      });
-    }
+    // Логуємо mobsKilled для діагностики (завжди, не тільки в DEV)
+    console.log('[saveHeroToLocalStorage] mobsKilled to save:', currentMobsKilled, 'from hero:', {
+      mobsKilled: (hero as any).mobsKilled,
+      heroJsonMobsKilled: (hero as any).heroJson?.mobsKilled,
+    });
     
+    // 🔥 КРИТИЧНО: НЕ копіюємо весь hero в heroJson, бо це створить циклічну структуру!
+    // Копіюємо тільки необхідні поля з hero, виключаючи heroJson
+    const { heroJson: _, ...heroWithoutJson } = hero as any;
     const heroJsonToSave = {
       ...existingHeroJson, // Спочатку беремо існуючий heroJson
-      ...hero, // Потім додаємо всі поля з hero
+      ...heroWithoutJson, // Потім додаємо поля з hero (БЕЗ heroJson, щоб уникнути циклу)
       // 🔥 КРИТИЧНО: mobsKilled завжди має бути в heroJson (перезаписуємо, щоб гарантувати правильне значення)
       mobsKilled: currentMobsKilled,
     };
+    
+    // Логуємо для діагностики
+    console.log('[saveHeroToLocalStorage] heroJsonToSave.mobsKilled:', heroJsonToSave.mobsKilled);
     
     await updateCharacter(characterStore.characterId, {
       heroJson: heroJsonToSave,
