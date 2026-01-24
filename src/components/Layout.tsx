@@ -212,7 +212,8 @@ export default function Layout({
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
         <MobDamageNotification navigate={navigate} /> {/* Повідомлення про урон від мобів */}
-        <div ref={contentRef} className="flex-1 pb-2 pt-2 overflow-y-auto relative z-10 flex justify-center">
+        {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
+        <div ref={contentRef} className="flex-1 pb-2 pt-16 overflow-y-auto relative z-10 flex justify-center">
           <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
           </div>
