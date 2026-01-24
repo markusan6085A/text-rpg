@@ -51,12 +51,30 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     
     // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, а не на верхньому рівні hero
     // Переконуємося, що mobsKilled зберігається в heroJson
-    const currentMobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
+    // Перевіряємо всі можливі місця, де може бути mobsKilled
+    const currentMobsKilled = (hero as any).mobsKilled ?? 
+                              (hero as any).mobs_killed ?? 
+                              (hero as any).killedMobs ?? 
+                              (hero as any).totalKills ?? 
+                              ((hero as any).heroJson?.mobsKilled) ??
+                              ((hero as any).heroJson?.mobs_killed) ??
+                              ((hero as any).heroJson?.killedMobs) ??
+                              ((hero as any).heroJson?.totalKills) ??
+                              0;
     const existingHeroJson = (hero as any).heroJson || {};
+    
+    // Логуємо mobsKilled для діагностики
+    if (import.meta.env.DEV) {
+      console.log('[saveHeroToLocalStorage] mobsKilled to save:', currentMobsKilled, 'from hero:', {
+        mobsKilled: (hero as any).mobsKilled,
+        heroJsonMobsKilled: (hero as any).heroJson?.mobsKilled,
+      });
+    }
+    
     const heroJsonToSave = {
       ...existingHeroJson, // Спочатку беремо існуючий heroJson
       ...hero, // Потім додаємо всі поля з hero
-      // 🔥 КРИТИЧНО: mobsKilled завжди має бути в heroJson
+      // 🔥 КРИТИЧНО: mobsKilled завжди має бути в heroJson (перезаписуємо, щоб гарантувати правильне значення)
       mobsKilled: currentMobsKilled,
     };
     

@@ -74,6 +74,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Extract hero data from character.heroJson
     const heroData = character.heroJson as any;
     
+    // 🔥 КРИТИЧНО: Читаємо mobsKilled ДО будь-яких маніпуляцій з heroData
+    const mobsKilledFromData = heroData?.mobsKilled ?? heroData?.mobs_killed ?? heroData?.killedMobs ?? heroData?.totalKills ?? undefined;
+    
+    // Логуємо mobsKilled для діагностики
+    if (import.meta.env.DEV) {
+      console.log('[loadHeroFromAPI] mobsKilled from heroJson:', mobsKilledFromData, 'heroData keys:', heroData ? Object.keys(heroData) : 'no heroData');
+    }
+    
     // Логуємо інвентар при завантаженні
     if (heroData?.inventory) {
       console.log('[loadHeroFromAPI] Inventory found in heroJson:', {
@@ -105,10 +113,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       fixedHero.adena = character.adena;
       fixedHero.coinOfLuck = character.coinLuck;
       fixedHero.aa = character.aa || 0;
+      // 🔥 КРИТИЧНО: Зберігаємо mobsKilled навіть для нового героя (якщо воно було в heroData)
+      const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
+      (fixedHero as any).mobsKilled = finalMobsKilled;
+      (fixedHero as any).heroJson = {
+        mobsKilled: finalMobsKilled,
+      };
     } else {
       // Merge character data with heroJson
-      // 🔥 ВАЖЛИВО: mobsKilled має зберігатися з heroJson
-      const mobsKilled = heroData.mobsKilled ?? heroData.mobs_killed ?? heroData.killedMobs ?? heroData.totalKills ?? 0;
+      // 🔥 ВАЖЛИВО: mobsKilled має зберігатися з heroJson (вже прочитано вище)
+      const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
       
       fixedHero = fixHeroProfession({
         ...heroData,
@@ -124,12 +138,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         race: character.race,
         klass: character.classId,
         gender: character.sex,
-        // 🔥 mobsKilled зберігаємо з heroJson
-        mobsKilled: mobsKilled,
+        // 🔥 mobsKilled зберігаємо з heroJson (використовуємо прочитане значення)
+        mobsKilled: finalMobsKilled,
         // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled в heroJson при завантаженні
         heroJson: {
-          ...(heroData.heroJson || heroData), // Беремо існуючий heroJson або весь heroData
-          mobsKilled: mobsKilled, // Гарантуємо, що mobsKilled є в heroJson
+          ...heroData, // Беремо весь heroData (який вже є character.heroJson)
+          mobsKilled: finalMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
         },
       } as Hero);
     }
@@ -173,8 +187,25 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0));
 
     // 🔥 КРИТИЧНО: Зберігаємо mobsKilled з fixedHero і гарантуємо, що воно є в heroJson
-    const currentMobsKilled = (fixedHero as any).mobsKilled ?? (fixedHero as any).mobs_killed ?? (fixedHero as any).killedMobs ?? (fixedHero as any).totalKills ?? 0;
+    // Перевіряємо всі можливі місця, де може бути mobsKilled
+    const currentMobsKilled = (fixedHero as any).mobsKilled ?? 
+                              (fixedHero as any).mobs_killed ?? 
+                              (fixedHero as any).killedMobs ?? 
+                              (fixedHero as any).totalKills ?? 
+                              ((fixedHero as any).heroJson?.mobsKilled) ??
+                              ((fixedHero as any).heroJson?.mobs_killed) ??
+                              ((fixedHero as any).heroJson?.killedMobs) ??
+                              ((fixedHero as any).heroJson?.totalKills) ??
+                              0;
     const existingHeroJson = (fixedHero as any).heroJson || {};
+    
+    // Логуємо mobsKilled для діагностики
+    if (import.meta.env.DEV) {
+      console.log('[loadHeroFromAPI] mobsKilled before recalc:', currentMobsKilled, 'from fixedHero:', {
+        mobsKilled: (fixedHero as any).mobsKilled,
+        heroJsonMobsKilled: (fixedHero as any).heroJson?.mobsKilled,
+      });
+    }
     
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,
@@ -187,13 +218,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       hp: finalHp,
       mp: finalMp,
       cp: finalCp,
-      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled в heroJson
+      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled в heroJson (не дозволяємо втратити)
       mobsKilled: currentMobsKilled,
       heroJson: {
         ...existingHeroJson,
         mobsKilled: currentMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
       },
     };
+    
+    // Логуємо фінальне mobsKilled для діагностики
+    if (import.meta.env.DEV) {
+      console.log('[loadHeroFromAPI] mobsKilled after recalc:', (heroWithRecalculatedStats as any).mobsKilled, 'in heroJson:', (heroWithRecalculatedStats as any).heroJson?.mobsKilled);
+    }
     
     // Логуємо фінальний інвентар після завантаження
     console.log('[loadHeroFromAPI] Final hero inventory:', {
