@@ -77,10 +77,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // 🔥 КРИТИЧНО: Читаємо mobsKilled ДО будь-яких маніпуляцій з heroData
     const mobsKilledFromData = heroData?.mobsKilled ?? heroData?.mobs_killed ?? heroData?.killedMobs ?? heroData?.totalKills ?? undefined;
     
-    // Логуємо mobsKilled для діагностики
-    if (import.meta.env.DEV) {
-      console.log('[loadHeroFromAPI] mobsKilled from heroJson:', mobsKilledFromData, 'heroData keys:', heroData ? Object.keys(heroData) : 'no heroData');
-    }
+    // Логуємо mobsKilled для діагностики (завжди, не тільки в DEV)
+    console.log('[loadHeroFromAPI] mobsKilled from heroJson:', mobsKilledFromData, 'heroData keys:', heroData ? Object.keys(heroData).slice(0, 20) : 'no heroData');
     
     // Логуємо інвентар при завантаженні
     if (heroData?.inventory) {
@@ -199,13 +197,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
                               0;
     const existingHeroJson = (fixedHero as any).heroJson || {};
     
-    // Логуємо mobsKilled для діагностики
-    if (import.meta.env.DEV) {
-      console.log('[loadHeroFromAPI] mobsKilled before recalc:', currentMobsKilled, 'from fixedHero:', {
-        mobsKilled: (fixedHero as any).mobsKilled,
-        heroJsonMobsKilled: (fixedHero as any).heroJson?.mobsKilled,
-      });
-    }
+    // Логуємо mobsKilled для діагностики (завжди, не тільки в DEV)
+    console.log('[loadHeroFromAPI] mobsKilled before recalc:', currentMobsKilled, 'from fixedHero:', {
+      mobsKilled: (fixedHero as any).mobsKilled,
+      heroJsonMobsKilled: (fixedHero as any).heroJson?.mobsKilled,
+    });
     
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,
@@ -226,10 +222,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       },
     };
     
-    // Логуємо фінальне mobsKilled для діагностики
-    if (import.meta.env.DEV) {
-      console.log('[loadHeroFromAPI] mobsKilled after recalc:', (heroWithRecalculatedStats as any).mobsKilled, 'in heroJson:', (heroWithRecalculatedStats as any).heroJson?.mobsKilled);
-    }
+    // Логуємо фінальне mobsKilled для діагностики (завжди, не тільки в DEV)
+    console.log('[loadHeroFromAPI] mobsKilled after recalc:', (heroWithRecalculatedStats as any).mobsKilled, 'in heroJson:', (heroWithRecalculatedStats as any).heroJson?.mobsKilled);
     
     // Логуємо фінальний інвентар після завантаження
     console.log('[loadHeroFromAPI] Final hero inventory:', {
