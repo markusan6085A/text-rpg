@@ -37,8 +37,9 @@ export default function Layout({
     window.location.pathname.startsWith('/forum')
   );
 
-  // 🔥 Скрол вгору при монтуванні і при зміні children - завжди показуємо верх сторінки з барами
+  // 🔥 Скрол вгору тільки при зміні сторінки (pathname), а не при скролі користувача
   useEffect(() => {
+    const pathname = window.location.pathname;
     // Скролимо window вгору
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     // Скролимо contentRef вгору (якщо він має скрол)
@@ -48,7 +49,7 @@ export default function Layout({
     // Додатково скролимо document.body та document.documentElement
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-  }, [children]);
+  }, [typeof window !== 'undefined' ? window.location.pathname : '']);
 
   // 🔥 Глобальний таймер для продовження бою - моб атакує навіть якщо гравець в місті чи іншому місці
   useEffect(() => {
@@ -219,31 +220,7 @@ export default function Layout({
           </div>
         </div>
         
-        {/* Кнопки: Поддержка | Онлайн | Выйти */}
-        {!hideFooterButtons && isAuthenticated && (
-          <div className="w-full py-1 flex items-center justify-center gap-1 text-[10px] relative z-10 border-t border-gray-600 mt-2">
-            <button
-              onClick={handleSupport}
-              className="text-gray-400 hover:text-gray-300 transition-colors"
-            >
-              Поддержка
-            </button>
-            <span className="text-gray-600">|</span>
-            <button
-              onClick={handleOnline}
-              className="text-green-400 hover:text-green-300 transition-colors"
-            >
-              Онлайн: {onlineCount}
-            </button>
-            <span className="text-gray-600">|</span>
-            <button
-              onClick={handleLogout}
-              className="text-red-400 hover:text-red-300 transition-colors"
-            >
-              [Выйти]
-            </button>
-          </div>
-        )}
+        {/* 🔥 Футер видалено за запитом користувача */}
       </div>
       {showNavGrid && <NavGrid navigate={navigate} />}
     </div>
