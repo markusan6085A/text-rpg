@@ -8,6 +8,7 @@ export function updateHeroLogic(
   partial: Partial<Hero>
 ): Hero {
   // ❗ ВАЖЛИВО: Завжди зберігаємо profession, race, gender, klass - вони не повинні втрачатися
+  // 🔥 mobsKilled також має зберігатися (для статистики)
   let updated = { 
     ...prev, 
     ...partial,
@@ -16,6 +17,8 @@ export function updateHeroLogic(
     klass: partial.klass !== undefined ? partial.klass : prev.klass,
     race: partial.race !== undefined ? partial.race : prev.race,
     gender: partial.gender !== undefined ? partial.gender : prev.gender,
+    // 🔥 mobsKilled зберігаємо, якщо передано
+    mobsKilled: (partial as any).mobsKilled !== undefined ? (partial as any).mobsKilled : (prev as any).mobsKilled,
   };
 
   // ❗ recalculateAllStats НІКОЛИ не повинен запускатися через hp/mp/cp

@@ -107,6 +107,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       fixedHero.aa = character.aa || 0;
     } else {
       // Merge character data with heroJson
+      // 🔥 ВАЖЛИВО: mobsKilled має зберігатися з heroJson
+      const mobsKilled = heroData.mobsKilled ?? heroData.mobs_killed ?? heroData.killedMobs ?? heroData.totalKills ?? 0;
+      
       fixedHero = fixHeroProfession({
         ...heroData,
         // Override with character data (these are the source of truth)
@@ -121,6 +124,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         race: character.race,
         klass: character.classId,
         gender: character.sex,
+        // 🔥 mobsKilled зберігаємо з heroJson
+        mobsKilled: mobsKilled,
       } as Hero);
     }
 

@@ -49,8 +49,16 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     // 🔥 Optimistic locking: передаємо поточну ревізію, якщо вона є
     const expectedRevision = (hero as any).heroRevision;
     
+    // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, а не на верхньому рівні hero
+    // Переконуємося, що mobsKilled зберігається в heroJson
+    const heroJsonToSave = {
+      ...hero,
+      // Якщо mobsKilled є на верхньому рівні, додаємо його в heroJson
+      mobsKilled: (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0,
+    };
+    
     await updateCharacter(characterStore.characterId, {
-      heroJson: hero,
+      heroJson: heroJsonToSave,
       level: hero.level,
       exp: hero.exp,
       sp: hero.sp,
