@@ -168,11 +168,11 @@ export async function letterRoutes(app: FastifyInstance) {
                 nickColor: true, // ✅ замість heroJson
                 clanMember: {
                   include: {
-                    clan: {
-                      select: {
-                        emblem: true,
-                      },
-                    },
+                clan: {
+                  select: {
+                    emblem: true,
+                  } as any,
+                },
                   },
                 },
               } as any,
@@ -251,11 +251,11 @@ export async function letterRoutes(app: FastifyInstance) {
               nickColor: true, // ✅
               clanMember: {
                 include: {
-                  clan: {
-                    select: {
-                      emblem: true,
-                    },
-                  },
+                clan: {
+                  select: {
+                    emblem: true,
+                  } as any,
+                },
                 },
               },
             } as any,

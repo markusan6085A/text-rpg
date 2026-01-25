@@ -59,12 +59,7 @@ export async function chatRoutes(app: FastifyInstance) {
         orderBy: { createdAt: "desc" }, // Newest first (top)
         take: limit,
         skip,
-        select: {
-          id: true,
-          message: true,
-          channel: true,
-          createdAt: true,
-          characterId: true, // Include characterId to check ownership
+        include: {
           character: {
             select: {
               name: true,
@@ -74,7 +69,7 @@ export async function chatRoutes(app: FastifyInstance) {
                   clan: {
                     select: {
                       emblem: true,
-                    },
+                    } as any,
                   },
                 },
               },

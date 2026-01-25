@@ -781,7 +781,7 @@ async function clanNestedRoutes(app: FastifyInstance) {
     // Оновлюємо емблему
     const updatedClan = await prisma.clan.update({
       where: { id },
-      data: { emblem },
+      data: { emblem } as any,
       include: {
         creator: {
           select: { id: true, name: true },
@@ -817,7 +817,7 @@ export async function clanRoutes(app: FastifyInstance) {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const clans = await prisma.clan.findMany({
+      const clans = await prisma.clan.findMany({
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -831,7 +831,7 @@ export async function clanRoutes(app: FastifyInstance) {
         _count: {
           select: { members: true },
         },
-      },
+      } as any,
     });
 
     return { ok: true, clans };
@@ -879,9 +879,11 @@ export async function clanRoutes(app: FastifyInstance) {
       return { ok: true, clan: null };
     }
 
+    const clanId = clan.id;
+
     // Завантажуємо членів клану
     const members = await prisma.clanMember.findMany({
-      where: { clanId: clan.id },
+      where: { clanId },
       include: {
         character: {
           select: {
@@ -909,7 +911,7 @@ export async function clanRoutes(app: FastifyInstance) {
         reputation: clan.reputation,
         adena: clan.adena,
         coinLuck: clan.coinLuck,
-        emblem: clan.emblem,
+        emblem: (clan as any).emblem || null,
         createdAt: clan.createdAt,
         creator: {
           id: clan.creator.id,
@@ -1015,7 +1017,7 @@ export async function clanRoutes(app: FastifyInstance) {
           reputation: clan.reputation,
           adena: clan.adena,
           coinLuck: clan.coinLuck,
-          emblem: clan.emblem,
+          emblem: (clan as any).emblem || null,
           createdAt: clan.createdAt,
           creator: {
             id: clan.creator.id,
@@ -1087,7 +1089,7 @@ export async function clanRoutes(app: FastifyInstance) {
         reputation: clan.reputation,
         adena: clan.adena,
         coinLuck: clan.coinLuck,
-        emblem: clan.emblem,
+        emblem: (clan as any).emblem || null,
         createdAt: clan.createdAt,
         creator: {
           id: clan.creator.id,
@@ -1162,7 +1164,7 @@ export async function clanRoutes(app: FastifyInstance) {
                 clan: {
                   select: {
                     emblem: true,
-                  },
+                  } as any,
                 },
               },
             },
