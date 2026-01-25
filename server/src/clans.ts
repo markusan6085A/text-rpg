@@ -932,6 +932,13 @@ export async function clanRoutes(app: FastifyInstance) {
         memberCount: members.length,
       },
     };
+    } catch (error: any) {
+      app.log.error({ error: error.message, stack: error.stack }, "Error fetching my clan:");
+      return reply.code(500).send({ 
+        error: "Internal Server Error",
+        message: error.message || "Failed to fetch clan"
+      });
+    }
   });
 
   // POST /clans - створити клан
@@ -1026,10 +1033,14 @@ export async function clanRoutes(app: FastifyInstance) {
         },
       };
     } catch (e: any) {
+      app.log.error({ error: e.message, stack: e.stack, code: e.code }, "Error creating clan:");
       if (e.code === "P2002") {
         return reply.code(409).send({ error: "clan name already exists" });
       }
-      throw e;
+      return reply.code(500).send({ 
+        error: "Internal Server Error",
+        message: e.message || "Failed to create clan"
+      });
     }
   });
 
