@@ -11,8 +11,6 @@ import {
   changeClanMemberTitle,
   setClanMemberDeputy,
   getClanWarehouse,
-  depositClanWarehouseItem,
-  withdrawClanWarehouseItem,
   depositClanAdena,
   withdrawClanAdena,
   depositClanCoinLuck,
@@ -23,8 +21,14 @@ import {
   type ClanLog,
   type ClanWarehouseItem,
 } from "../utils/api";
-import { CATEGORIES } from "./character/InventoryFilters";
-import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
+import ClanHeader from "./clan/ClanHeader";
+import ClanNavigation from "./clan/ClanNavigation";
+import ClanChat from "./clan/ClanChat";
+import ClanHistory from "./clan/ClanHistory";
+import ClanMembers from "./clan/ClanMembers";
+import ClanStorage from "./clan/ClanStorage";
+import DepositItemsModal from "./clan/modals/DepositItemsModal";
+import WithdrawItemsModal from "./clan/modals/WithdrawItemsModal";
 
 interface ClanProps {
   navigate: (path: string) => void;
@@ -411,12 +415,6 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       <div className="w-full text-white flex justify-center px-3 py-4">
         <div className="w-full max-w-[420px]">
           <div className="text-center text-[#dec28e]">Клан не найден</div>
-          <button
-            onClick={() => navigate("/clans")}
-            className="mt-4 px-4 py-2 bg-[#5a4424] text-white rounded"
-          >
-            Вернуться к списку кланов
-          </button>
         </div>
       </div>
     );
@@ -428,537 +426,75 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     <div className="w-full text-white px-4 py-2">
       <div className="w-full max-w-[360px] mx-auto">
         <div className="space-y-3">
-          {/* Риска вище назви клану */}
-          <div className="border-t border-gray-600"></div>
+          <ClanHeader
+            clan={clan}
+            depositAmount={depositAmount}
+            withdrawAdenaAmount={withdrawAdenaAmount}
+            coinLuckAmount={coinLuckAmount}
+            coinLuckAction={coinLuckAction}
+            isLeader={isLeader}
+            onDepositAmountChange={setDepositAmount}
+            onWithdrawAdenaAmountChange={setWithdrawAdenaAmount}
+            onCoinLuckAmountChange={setCoinLuckAmount}
+            onCoinLuckActionChange={setCoinLuckAction}
+            onDepositAdena={handleDepositAdena}
+            onWithdrawAdena={handleWithdrawAdena}
+            onCoinLuckAction={handleCoinLuckAction}
+          />
 
-          {/* Назва клану */}
-          <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
-            {clan.name}
-          </div>
-
-          {/* Риска нижче назви клану */}
-          <div className="border-b border-gray-600"></div>
-
-          {/* Емблема клану (clanns.png) */}
-          <div className="flex justify-center">
-            <img
-              src="/icons/clanns.png"
-              alt="Клан"
-              className="w-48 h-48 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/icons/clann.jpg";
-              }}
-            />
-          </div>
-
-          {/* Статистика клану */}
-          <div className="space-y-1 text-[12px]">
-            <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Уровень:</span>
-              <span className="text-white">{clan.level}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Лидер:</span>
-              <span className="text-white">{clan.creator.name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Репутация:</span>
-              <span className="text-white">{clan.reputation}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Основан:</span>
-              <span className="text-white">
-                {new Date(clan.createdAt).toLocaleDateString("ru-RU")}
-              </span>
-            </div>
-            <div>
-              <div className="flex justify-between">
-                <span className="text-[#c7ad80]">Адена:</span>
-                <span className="text-white">{clan.adena.toLocaleString("ru-RU")}</span>
-              </div>
-              <div className="flex gap-2 mt-1">
-                <button
-                  onClick={() => setDepositAmount("0")}
-                  className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
-                >
-                  положить
-                </button>
-                {isLeader && (
-                  <button
-                    onClick={() => setWithdrawAdenaAmount("0")}
-                    className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
-                  >
-                    забрать
-                  </button>
-                )}
-              </div>
-            </div>
-            {depositAmount !== "" && (
-              <div className="flex gap-2 items-center text-[11px]">
-                <input
-                  type="number"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                  className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
-                  placeholder="Сумма"
-                  autoFocus
-                />
-                <button
-                  onClick={() => {
-                    handleDepositAdena();
-                  }}
-                  className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
-                >
-                  OK
-                </button>
-                <button
-                  onClick={() => setDepositAmount("")}
-                  className="text-[11px] text-red-600 hover:text-red-500 transition-colors"
-                >
-                  Отмена
-                </button>
-              </div>
-            )}
-            {withdrawAdenaAmount !== "" && isLeader && (
-              <div className="flex gap-2 items-center text-[11px]">
-                <input
-                  type="number"
-                  value={withdrawAdenaAmount}
-                  onChange={(e) => setWithdrawAdenaAmount(e.target.value)}
-                  className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
-                  placeholder="Сумма для вывода"
-                  autoFocus
-                />
-                <button
-                  onClick={() => {
-                    handleWithdrawAdena();
-                  }}
-                  className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
-                >
-                  OK
-                </button>
-                <button
-                  onClick={() => setWithdrawAdenaAmount("")}
-                  className="text-[11px] text-red-600 hover:text-red-500 transition-colors"
-                >
-                  Отмена
-                </button>
-              </div>
-            )}
-            <div>
-              <div className="flex justify-between">
-                <span className="text-[#c7ad80]">Coin of Luck:</span>
-                <span className="text-white">{clan.coinLuck}</span>
-              </div>
-              <div className="flex gap-2 mt-1">
-                <button
-                  onClick={() => {
-                    setCoinLuckAction("deposit");
-                    setCoinLuckAmount("0");
-                  }}
-                  className="text-[10px] text-[#9f8d73] hover:text-[#c7ad80] transition-colors"
-                >
-                  положить
-                </button>
-                <button
-                  onClick={() => {
-                    setCoinLuckAction("withdraw");
-                    setCoinLuckAmount("0");
-                  }}
-                  className="text-[10px] text-[#9f8d73] hover:text-[#c7ad80] transition-colors"
-                >
-                  забрать
-                </button>
-              </div>
-            </div>
-            {coinLuckAmount !== "" && (
-              <div className="flex gap-2 items-center text-[11px]">
-                <input
-                  type="number"
-                  value={coinLuckAmount}
-                  onChange={(e) => setCoinLuckAmount(e.target.value)}
-                  className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
-                  placeholder={`Сумма для ${coinLuckAction === "deposit" ? "положения" : "вывода"}`}
-                  autoFocus
-                />
-                <button
-                  onClick={() => {
-                    handleCoinLuckAction();
-                  }}
-                  className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
-                >
-                  OK
-                </button>
-                <button
-                  onClick={() => setCoinLuckAmount("")}
-                  className="text-[11px] text-red-600 hover:text-red-500 transition-colors"
-                >
-                  Отмена
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-gray-600"></div>
-
-          {/* Меню навігації */}
-          <div className="space-y-1 text-[12px]">
-            <div
-              className={`cursor-pointer hover:text-[#f4e2b8] ${
-                activeTab === "chat" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
-              }`}
-              onClick={() => handleTabChange("chat")}
-            >
-              • Чат
-            </div>
-            <div
-              className={`cursor-pointer hover:text-[#f4e2b8] ${
-                activeTab === "members" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
-              }`}
-              onClick={() => handleTabChange("members")}
-            >
-              • Участники
-            </div>
-            <div
-              className={`cursor-pointer hover:text-[#f4e2b8] ${
-                activeTab === "history" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
-              }`}
-              onClick={() => handleTabChange("history")}
-            >
-              • История
-            </div>
-            <div
-              className={`cursor-pointer hover:text-[#f4e2b8] ${
-                activeTab === "storage" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
-              }`}
-              onClick={() => handleTabChange("storage")}
-            >
-              • Склад
-            </div>
-            {isLeader && (
-              <div className="pl-4 space-y-1">
-                <div className="text-[#c7ad80]">- Управление кланом</div>
-                <div
-                  className="text-red-500 cursor-pointer hover:text-red-400"
-                  onClick={handleDeleteClan}
-                >
-                  - Удалить клан
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-gray-600"></div>
+          <ClanNavigation
+            activeTab={activeTab}
+            isLeader={isLeader}
+            onTabChange={handleTabChange}
+            onDeleteClan={handleDeleteClan}
+          />
 
           {/* Контент табів */}
           {activeTab === "chat" && (
-            <div className="space-y-2">
-              {/* Чат */}
-              <div className="text-[12px] text-[#c7ad80] mb-2">Чат клана:</div>
-              <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
-                {chatMessages.length === 0 ? (
-                  <div className="text-[11px] text-[#9f8d73]">Нет сообщений</div>
-                ) : (
-                  chatMessages.map((msg) => (
-                    <div key={msg.id} className="text-[11px]">
-                      <span
-                        style={msg.nickColor ? { color: msg.nickColor } : {}}
-                        className="font-semibold"
-                      >
-                        {msg.characterName}:
-                      </span>{" "}
-                      <span className="text-white">{msg.message}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-              {/* Пагінація чату */}
-              {chatTotalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]">
-                  <button
-                    onClick={() => {
-                      if (chatPage > 1) {
-                        setChatPage(chatPage - 1);
-                        loadChatMessages();
-                      }
-                    }}
-                    disabled={chatPage === 1}
-                    className={`px-2 py-1 ${chatPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &lt;
-                  </button>
-                  <span className="text-white">
-                    {chatPage} / {chatTotalPages}
-                  </span>
-                  <button
-                    onClick={() => {
-                      if (chatPage < chatTotalPages) {
-                        setChatPage(chatPage + 1);
-                        loadChatMessages();
-                      }
-                    }}
-                    disabled={chatPage === chatTotalPages}
-                    className={`px-2 py-1 ${chatPage === chatTotalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &gt;
-                  </button>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={chatMessage}
-                  onChange={(e) => setChatMessage(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      handleSendChatMessage();
-                    }
-                  }}
-                  className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-[12px] text-white rounded"
-                  placeholder="Введите сообщение..."
-                />
-                <button
-                  onClick={handleSendChatMessage}
-                  className="px-3 py-1 bg-[#5a4424] text-[12px] text-white rounded hover:bg-[#6a5434]"
-                >
-                  Отправить
-                </button>
-              </div>
-            </div>
+            <ClanChat
+              messages={chatMessages}
+              message={chatMessage}
+              page={chatPage}
+              totalPages={chatTotalPages}
+              onMessageChange={setChatMessage}
+              onSendMessage={handleSendChatMessage}
+              onPageChange={(page) => {
+                setChatPage(page);
+                loadChatMessages();
+              }}
+            />
           )}
 
-          {activeTab === "history" && (
-            <div className="space-y-2">
-              <div className="text-[12px] text-[#c7ad80] mb-2">История клана:</div>
-              <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
-                {logs.length === 0 ? (
-                  <div className="text-[11px] text-[#9f8d73]">История пуста</div>
-                ) : (
-                  logs.map((log) => (
-                    <div key={log.id} className="text-[11px] text-[#9f8d73] border-b border-dotted border-[#3b2614] pb-1">
-                      {log.message}
-                      <span className="text-[10px] text-gray-500 ml-2">
-                        {new Date(log.createdAt).toLocaleString("ru-RU")}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+          {activeTab === "history" && <ClanHistory logs={logs} />}
 
           {activeTab === "storage" && (
-            <div className="space-y-2">
-              <div className="text-[12px] text-[#c7ad80] mb-2">Склад клана ({storageItems.length}/200):</div>
-              <div className="flex gap-2 mb-2">
-                <button
-                  onClick={() => setShowDepositItemsModal(true)}
-                  className="flex-1 text-[11px] text-[#c7ad80] hover:text-white transition-colors"
-                >
-                  положить вещи
-                </button>
-                <button
-                  onClick={() => setShowWithdrawItemsModal(true)}
-                  className="flex-1 text-[11px] text-[#c7ad80] hover:text-white transition-colors"
-                >
-                  забрать вещи
-                </button>
-              </div>
-              <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
-                {storageItems.length === 0 ? (
-                  <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
-                ) : (
-                  storageItems.map((item) => {
-                    const itemDef = itemsDBWithStarter[item.itemId] || itemsDB[item.itemId];
-                    const itemName = item.meta?.name || itemDef?.name || item.itemId;
-                    const iconPath = item.meta?.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                    const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
-                    return (
-                      <div key={item.id} className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1">
-                        <img
-                          src={finalIconPath}
-                          alt={itemName}
-                          className="w-6 h-6 object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                          }}
-                        />
-                        <span>{itemName} x{item.qty || 1}</span>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-              {/* Пагінація складу */}
-              {storageTotalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]">
-                  <button
-                    onClick={() => {
-                      if (storagePage > 1) {
-                        setStoragePage(storagePage - 1);
-                        loadStorage();
-                      }
-                    }}
-                    disabled={storagePage === 1}
-                    className={`px-2 py-1 ${storagePage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &lt;
-                  </button>
-                  <span className="text-white">
-                    {storagePage} / {storageTotalPages}
-                  </span>
-                  <button
-                    onClick={() => {
-                      if (storagePage < storageTotalPages) {
-                        setStoragePage(storagePage + 1);
-                        loadStorage();
-                      }
-                    }}
-                    disabled={storagePage === storageTotalPages}
-                    className={`px-2 py-1 ${storagePage === storageTotalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &gt;
-                  </button>
-                </div>
-              )}
-            </div>
+            <ClanStorage
+              items={storageItems}
+              page={storagePage}
+              totalPages={storageTotalPages}
+              onPageChange={(page) => {
+                setStoragePage(page);
+                loadStorage();
+              }}
+              onDepositClick={() => setShowDepositItemsModal(true)}
+              onWithdrawClick={() => setShowWithdrawItemsModal(true)}
+            />
           )}
 
           {activeTab === "members" && (
-            <div className="space-y-2">
-              {(() => {
-                // Обчислюємо максимум учасників на основі рівня клану
-                const getMaxMembers = (level: number): number => {
-                  if (level >= 8) return 80;
-                  if (level >= 7) return 70;
-                  if (level >= 6) return 60;
-                  if (level >= 5) return 50;
-                  if (level >= 4) return 40;
-                  if (level >= 3) return 30;
-                  if (level >= 2) return 20;
-                  return 10; // level 1
-                };
-                const maxMembers = clan ? getMaxMembers(clan.level) : 10;
-                return (
-                  <div
-                    className="text-[12px] text-[#c7ad80] mb-2 cursor-pointer hover:text-[#f4e2b8]"
-                    onClick={() => handleTabChange("members")}
-                  >
-                    Состав ({members.length}/{maxMembers})
-                  </div>
-                );
-              })()}
-              <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
-                {members.map((member) => {
-                  const isOnline = member.isOnline;
-                  const titleDisplay = member.title || "Нет титула";
-                  const roles = [];
-                  if (member.isLeader) roles.push("Глава клана");
-                  if (member.isDeputy) roles.push("Заместитель главы");
-                  const rolesDisplay = roles.length > 0 ? `, ${roles.join(", ")}` : "";
-
-                  return (
-                    <div
-                      key={member.id}
-                      className="text-[11px] border-b border-dotted border-[#3b2614] pb-1"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <span className={isOnline ? "text-green-500" : "text-red-500"}>
-                            {member.characterName} [{isOnline ? "On" : "Off"}]
-                          </span>
-                          <div className="text-[#9f8d73] mt-0.5">
-                            {titleDisplay}
-                            {rolesDisplay}
-                          </div>
-                        </div>
-                      </div>
-                      {isLeader && !member.isLeader && (
-                        <div className="mt-1 flex gap-2 text-[10px]">
-                          <span
-                            className="text-red-500 cursor-pointer hover:text-red-400"
-                            onClick={() => handleKickMember(member.characterId, member.characterName)}
-                          >
-                            Исключить
-                          </span>
-                          <span
-                            className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                            onClick={() =>
-                              setEditingTitle({
-                                characterId: member.characterId,
-                                title: member.title,
-                              })
-                            }
-                          >
-                            Изм. титул
-                          </span>
-                          {member.isDeputy ? (
-                            <span
-                              className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                              onClick={() => handleSetDeputy(member.characterId, false)}
-                            >
-                              Снять с зам.
-                            </span>
-                          ) : (
-                            <span
-                              className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                              onClick={() => handleSetDeputy(member.characterId, true)}
-                            >
-                              Назначить зам.
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {isLeader && member.isLeader && (
-                        <div className="mt-1 text-[10px]">
-                          <span
-                            className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                            onClick={() =>
-                              setEditingTitle({
-                                characterId: member.characterId,
-                                title: member.title,
-                              })
-                            }
-                          >
-                            Изм. титул
-                          </span>
-                        </div>
-                      )}
-                      {editingTitle?.characterId === member.characterId && (
-                        <div className="mt-1 flex gap-2">
-                          <input
-                            type="text"
-                            value={editingTitle.title || ""}
-                            onChange={(e) =>
-                              setEditingTitle({
-                                ...editingTitle,
-                                title: e.target.value || null,
-                              })
-                            }
-                            className="flex-1 px-1 py-0.5 bg-[#2a2a2a] border border-[#5a4424] text-[11px] text-white rounded"
-                            placeholder="Титул (пусто = нет титула)"
-                            maxLength={20}
-                          />
-                          <button
-                            onClick={() => handleChangeTitle(member.characterId, editingTitle.title)}
-                            className="px-2 py-0.5 bg-[#5a4424] text-[11px] text-white rounded hover:bg-[#6a5434]"
-                          >
-                            OK
-                          </button>
-                          <button
-                            onClick={() => setEditingTitle(null)}
-                            className="px-2 py-0.5 bg-[#3a3a3a] text-[11px] text-white rounded hover:bg-[#4a4a4a]"
-                          >
-                            Отмена
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <ClanMembers
+              clan={clan}
+              members={members}
+              isLeader={isLeader}
+              editingTitle={editingTitle}
+              onKickMember={handleKickMember}
+              onChangeTitle={handleChangeTitle}
+              onSetDeputy={handleSetDeputy}
+              onEditingTitleChange={setEditingTitle}
+              onTabChange={() => handleTabChange("members")}
+            />
           )}
+
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">
             <span
@@ -971,169 +507,27 @@ export default function Clan({ navigate, clanId }: ClanProps) {
         </div>
       </div>
 
-      {/* Модальне вікно для покладання предметів */}
+      {/* Модальні вікна */}
       {showDepositItemsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите категорию:</div>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {CATEGORIES.map((category) => (
-                <button
-                  key={category.key}
-                  onClick={() => setSelectedItemCategory(category.key)}
-                  className={`px-3 py-1 text-[11px] rounded transition-colors ${
-                    selectedItemCategory === category.key
-                      ? "bg-[#5a4424] text-[#f4e2b8]"
-                      : "bg-[#2a2a2a] text-[#c7ad80] hover:bg-[#3a3a3a]"
-                  }`}
-                >
-                  {category.label}
-                </button>
-              ))}
-            </div>
-            <div className="text-[12px] text-[#c7ad80] mb-2">Выберите предмет:</div>
-            <div className="bg-[#2a2a2a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
-              {hero && hero.inventory ? (() => {
-                const category = CATEGORIES.find((c) => c.key === selectedItemCategory) || CATEGORIES[0];
-                const filteredItems = hero.inventory.filter((item: any) => item && category.test(item));
-                return filteredItems.length === 0 ? (
-                  <div className="text-[11px] text-[#9f8d73]">Нет предметов в этой категории</div>
-                ) : (
-                  filteredItems.map((item: any) => {
-                    const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
-                    const iconPath = item.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                    const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
-                    return (
-                      <div
-                        key={item.id}
-                        className="flex items-center gap-2 text-[11px] text-[#c7ad80] border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
-                        onClick={async () => {
-                          if (!clan) return;
-                          try {
-                            const response = await depositClanWarehouseItem(
-                              clan.id,
-                              item.id,
-                              item.count || 1,
-                              { name: item.name, slot: item.slot }
-                            );
-                            if (response.ok) {
-                              setShowDepositItemsModal(false);
-                              setSelectedItemCategory("all");
-                              loadStorage();
-                              // Оновлюємо інвентар гравця (забрати предмет)
-                              const heroStore = useHeroStore.getState();
-                              if (heroStore.hero && heroStore.hero.inventory) {
-                                const depositCount = item.count || 1;
-                                const updatedInventory = heroStore.hero.inventory
-                                  .map((invItem: any) => {
-                                    if (invItem.id === item.id) {
-                                      const newCount = (invItem.count || 1) - depositCount;
-                                      if (newCount <= 0) {
-                                        return null; // Видаляємо предмет
-                                      }
-                                      return { ...invItem, count: newCount };
-                                    }
-                                    return invItem;
-                                  })
-                                  .filter((invItem: any) => invItem !== null);
-                                heroStore.updateHero({ inventory: updatedInventory });
-                              }
-                            }
-                          } catch (err: any) {
-                            console.error("[Clan] Failed to deposit item:", err);
-                            alert(err.message || "Ошибка при пополнении склада");
-                          }
-                        }}
-                      >
-                        <img
-                          src={finalIconPath}
-                          alt={item.name || item.id}
-                          className="w-6 h-6 object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                          }}
-                        />
-                        <span>{item.name || item.id} x{item.count || 1}</span>
-                      </div>
-                    );
-                  })
-                );
-              })() : (
-                <div className="text-[11px] text-[#9f8d73]">Инвентарь пуст</div>
-              )}
-            </div>
-            <button
-              onClick={() => {
-                setShowDepositItemsModal(false);
-                setSelectedItemCategory("all");
-              }}
-              className="w-full text-[12px] text-red-600 hover:text-red-500 transition-colors"
-            >
-              Отмена
-            </button>
-          </div>
-        </div>
+        <DepositItemsModal
+          clan={clan}
+          selectedCategory={selectedItemCategory}
+          onCategoryChange={setSelectedItemCategory}
+          onClose={() => {
+            setShowDepositItemsModal(false);
+            setSelectedItemCategory("all");
+          }}
+          onDepositSuccess={loadStorage}
+        />
       )}
 
-      {/* Модальне вікно для забирання предметів */}
       {showWithdrawItemsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4">
-            <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите предмет для вывода:</div>
-            <div className="bg-[#2a2a2a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
-                {storageItems.length === 0 ? (
-                  <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
-                ) : (
-                  storageItems.map((item) => {
-                    const itemDef = itemsDBWithStarter[item.itemId] || itemsDB[item.itemId];
-                    const itemName = item.meta?.name || itemDef?.name || item.itemId;
-                    const iconPath = item.meta?.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                    const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
-                    return (
-                      <div
-                        key={item.id}
-                        className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
-                        onClick={async () => {
-                          if (!clan) return;
-                          try {
-                            const response = await withdrawClanWarehouseItem(clan.id, item.id);
-                            if (response.ok) {
-                              setShowWithdrawItemsModal(false);
-                              loadStorage();
-                              // Додаємо предмет в інвентар гравця
-                              const heroStore = useHeroStore.getState();
-                              if (heroStore.hero) {
-                                heroStore.addItemToInventory(item.itemId, item.qty || 1);
-                              }
-                            }
-                          } catch (err: any) {
-                            console.error("[Clan] Failed to withdraw item:", err);
-                            alert(err.message || "Ошибка при выводе предмета");
-                          }
-                        }}
-                      >
-                        <img
-                          src={finalIconPath}
-                          alt={itemName}
-                          className="w-6 h-6 object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                          }}
-                        />
-                        <span>{itemName} x{item.qty || 1}</span>
-                      </div>
-                    );
-                  })
-                )}
-            </div>
-            <button
-              onClick={() => setShowWithdrawItemsModal(false)}
-              className="w-full text-[12px] text-red-600 hover:text-red-500 transition-colors"
-            >
-              Отмена
-            </button>
-          </div>
-        </div>
+        <WithdrawItemsModal
+          clan={clan}
+          items={storageItems}
+          onClose={() => setShowWithdrawItemsModal(false)}
+          onWithdrawSuccess={loadStorage}
+        />
       )}
     </div>
   );
