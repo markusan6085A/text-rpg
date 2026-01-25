@@ -197,11 +197,7 @@ button {
 /* L2 WAP рамка */
 .l2-frame {
   border: 1px solid #3b2614;
-  background-color: #1D1C1A !important; /* Фон внутрішньої рамки */
-  background-image: url('/icons/fon.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: #1D1C1A; /* Фон внутрішньої рамки - замість fon.png */
   padding: 10px;
   border-radius: 10px;
   box-shadow: inset 0 0 10px #000;

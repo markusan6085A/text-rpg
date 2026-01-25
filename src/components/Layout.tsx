@@ -189,26 +189,18 @@ export default function Layout({
         className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
           customBackground
-            ? {
+              ? {
                 border: "1px solid #3b2614",
                 padding: "10px",
                 borderRadius: "10px",
                 boxShadow: "inset 0 0 10px #000",
-                backgroundColor: "#1D1C1A",
-                backgroundImage: "url('/icons/fon.png')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
+                backgroundColor: "#1D1C1A", /* Замість fon.png */
                 width: "100%",
                 overflowX: "hidden",
                 position: "relative",
               }
             : {
-                backgroundColor: "#1D1C1A",
-                backgroundImage: "url('/icons/fon.png')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
+                backgroundColor: "#1D1C1A", /* Замість fon.png */
               }
         }
       >
