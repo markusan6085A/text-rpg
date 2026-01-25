@@ -546,7 +546,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">
             <span
-              onClick={() => navigate("/clans")}
+              onClick={() => navigate("/city")}
               className="text-sm text-red-600 cursor-pointer hover:text-red-500"
             >
               В город

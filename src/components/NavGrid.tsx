@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getUnreadCount } from "../utils/api";
+import { getUnreadCount, getMyClan } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 
 interface NavGridProps {
@@ -47,7 +47,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
-  const handleClick = (btn: NavButton) => {
+  const handleClick = async (btn: NavButton) => {
     // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.body.scrollTop = 0;
@@ -57,6 +57,26 @@ export default function NavGrid({ navigate }: NavGridProps) {
       btn.onClick();
       return;
     }
+    
+    // Спеціальна обробка для кнопки "Клан"
+    if (btn.label === "Клан" && navigate) {
+      try {
+        const response = await getMyClan();
+        if (response.ok && response.clan) {
+          // Якщо є клан - переходимо на детальну сторінку
+          navigate(`/clan/${response.clan.id}`);
+        } else {
+          // Якщо немає клану - переходимо на список кланів
+          navigate("/clans");
+        }
+      } catch (err) {
+        console.error("[NavGrid] Failed to check clan:", err);
+        // У разі помилки - переходимо на список кланів
+        navigate("/clans");
+      }
+      return;
+    }
+    
     if (btn.path && navigate) {
       navigate(btn.path);
       return;
