@@ -236,6 +236,265 @@ export async function clanRoutes(app: FastifyInstance) {
     }
   });
 
+  // 🔥 ВАЖЛИВО: Більш специфічні роути ПЕРЕД менш специфічними (/clans/:id)
+  // Це потрібно для правильної роботи Fastify роутингу
+
+  // POST /clans/:id/adena/deposit - покласти адену в клан
+  app.post("/clans/:id/adena/deposit", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const isMember = await prisma.clanMember.findFirst({
+      where: {
+        clanId: id,
+        characterId: character.id,
+      },
+    });
+
+    const isCreator = await prisma.clan.findFirst({
+      where: {
+        id,
+        creatorId: character.id,
+      },
+    });
+
+    if (!isMember && !isCreator) {
+      return reply.code(403).send({ error: "you are not a member of this clan" });
+    }
+
+    if (amount > (character.adena || 0)) {
+      return reply.code(400).send({ error: "insufficient adena" });
+    }
+
+    // Оновлюємо адену гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { adena: { decrement: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { adena: { increment: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "adena_deposited",
+        characterId: character.id,
+        message: `${character.name} положил ${amount} адены в клан`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
+  // POST /clans/:id/adena/withdraw - забрати адену з клану (тільки для глави)
+  app.post("/clans/:id/adena/withdraw", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const clan = await prisma.clan.findUnique({
+      where: { id },
+    });
+
+    if (!clan) {
+      return reply.code(404).send({ error: "clan not found" });
+    }
+
+    if (clan.creatorId !== character.id) {
+      return reply.code(403).send({ error: "only clan leader can withdraw adena" });
+    }
+
+    if (amount > clan.adena) {
+      return reply.code(400).send({ error: "insufficient adena in clan" });
+    }
+
+    // Оновлюємо адену гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { adena: { increment: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { adena: { decrement: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "adena_withdrawn",
+        characterId: character.id,
+        message: `${character.name} забрал ${amount} адены из клана`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
+  // POST /clans/:id/coin-luck/deposit - покласти Coin of Luck в клан
+  app.post("/clans/:id/coin-luck/deposit", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const isMember = await prisma.clanMember.findFirst({
+      where: {
+        clanId: id,
+        characterId: character.id,
+      },
+    });
+
+    const isCreator = await prisma.clan.findFirst({
+      where: {
+        id,
+        creatorId: character.id,
+      },
+    });
+
+    if (!isMember && !isCreator) {
+      return reply.code(403).send({ error: "you are not a member of this clan" });
+    }
+
+    if (amount > (character.coinLuck || 0)) {
+      return reply.code(400).send({ error: "insufficient coin of luck" });
+    }
+
+    // Оновлюємо Coin of Luck гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { coinLuck: { decrement: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { coinLuck: { increment: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "coin_luck_deposited",
+        characterId: character.id,
+        message: `${character.name} положил ${amount} Coin of Luck в клан`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
+  // POST /clans/:id/coin-luck/withdraw - забрати Coin of Luck з клану (тільки для глави)
+  app.post("/clans/:id/coin-luck/withdraw", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const clan = await prisma.clan.findUnique({
+      where: { id },
+    });
+
+    if (!clan) {
+      return reply.code(404).send({ error: "clan not found" });
+    }
+
+    if (clan.creatorId !== character.id) {
+      return reply.code(403).send({ error: "only clan leader can withdraw coin of luck" });
+    }
+
+    if (amount > clan.coinLuck) {
+      return reply.code(400).send({ error: "insufficient coin of luck in clan" });
+    }
+
+    // Оновлюємо Coin of Luck гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { coinLuck: { increment: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { coinLuck: { decrement: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "coin_luck_withdrawn",
+        characterId: character.id,
+        message: `${character.name} забрал ${amount} Coin of Luck из клана`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
   // GET /clans/:id - деталі клану
   app.get("/clans/:id", async (req, reply) => {
     const auth = getAuth(req);
@@ -1079,262 +1338,6 @@ export async function clanRoutes(app: FastifyInstance) {
     });
 
     // TODO: Додати предмет гравцю
-
-    return { ok: true };
-  });
-
-  // POST /clans/:id/adena/deposit - покласти адену в клан
-  app.post("/clans/:id/adena/deposit", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
-    const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
-
-    if (!amount || amount <= 0) {
-      return reply.code(400).send({ error: "amount must be greater than 0" });
-    }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
-
-    const isMember = await prisma.clanMember.findFirst({
-      where: {
-        clanId: id,
-        characterId: character.id,
-      },
-    });
-
-    const isCreator = await prisma.clan.findFirst({
-      where: {
-        id,
-        creatorId: character.id,
-      },
-    });
-
-    if (!isMember && !isCreator) {
-      return reply.code(403).send({ error: "you are not a member of this clan" });
-    }
-
-    if (amount > (character.adena || 0)) {
-      return reply.code(400).send({ error: "insufficient adena" });
-    }
-
-    // Оновлюємо адену гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { adena: { decrement: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { adena: { increment: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "adena_deposited",
-        characterId: character.id,
-        message: `${character.name} положил ${amount} адены в клан`,
-        metadata: { amount },
-      },
-    });
-
-    return { ok: true };
-  });
-
-  // POST /clans/:id/adena/withdraw - забрати адену з клану (тільки для глави)
-  app.post("/clans/:id/adena/withdraw", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
-    const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
-
-    if (!amount || amount <= 0) {
-      return reply.code(400).send({ error: "amount must be greater than 0" });
-    }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
-
-    const clan = await prisma.clan.findUnique({
-      where: { id },
-    });
-
-    if (!clan) {
-      return reply.code(404).send({ error: "clan not found" });
-    }
-
-    if (clan.creatorId !== character.id) {
-      return reply.code(403).send({ error: "only clan leader can withdraw adena" });
-    }
-
-    if (amount > clan.adena) {
-      return reply.code(400).send({ error: "insufficient adena in clan" });
-    }
-
-    // Оновлюємо адену гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { adena: { increment: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { adena: { decrement: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "adena_withdrawn",
-        characterId: character.id,
-        message: `${character.name} забрал ${amount} адены из клана`,
-        metadata: { amount },
-      },
-    });
-
-    return { ok: true };
-  });
-
-  // POST /clans/:id/coin-luck/deposit - покласти Coin of Luck в клан
-  app.post("/clans/:id/coin-luck/deposit", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
-    const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
-
-    if (!amount || amount <= 0) {
-      return reply.code(400).send({ error: "amount must be greater than 0" });
-    }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
-
-    const isMember = await prisma.clanMember.findFirst({
-      where: {
-        clanId: id,
-        characterId: character.id,
-      },
-    });
-
-    const isCreator = await prisma.clan.findFirst({
-      where: {
-        id,
-        creatorId: character.id,
-      },
-    });
-
-    if (!isMember && !isCreator) {
-      return reply.code(403).send({ error: "you are not a member of this clan" });
-    }
-
-    if (amount > (character.coinLuck || 0)) {
-      return reply.code(400).send({ error: "insufficient coin of luck" });
-    }
-
-    // Оновлюємо Coin of Luck гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { coinLuck: { decrement: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { coinLuck: { increment: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "coin_luck_deposited",
-        characterId: character.id,
-        message: `${character.name} положил ${amount} Coin of Luck в клан`,
-        metadata: { amount },
-      },
-    });
-
-    return { ok: true };
-  });
-
-  // POST /clans/:id/coin-luck/withdraw - забрати Coin of Luck з клану (тільки для глави)
-  app.post("/clans/:id/coin-luck/withdraw", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
-    const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
-
-    if (!amount || amount <= 0) {
-      return reply.code(400).send({ error: "amount must be greater than 0" });
-    }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
-
-    const clan = await prisma.clan.findUnique({
-      where: { id },
-    });
-
-    if (!clan) {
-      return reply.code(404).send({ error: "clan not found" });
-    }
-
-    if (clan.creatorId !== character.id) {
-      return reply.code(403).send({ error: "only clan leader can withdraw coin of luck" });
-    }
-
-    if (amount > clan.coinLuck) {
-      return reply.code(400).send({ error: "insufficient coin of luck in clan" });
-    }
-
-    // Оновлюємо Coin of Luck гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { coinLuck: { increment: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { coinLuck: { decrement: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "coin_luck_withdrawn",
-        characterId: character.id,
-        message: `${character.name} забрал ${amount} Coin of Luck из клана`,
-        metadata: { amount },
-      },
-    });
 
     return { ok: true };
   });

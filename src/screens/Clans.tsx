@@ -102,12 +102,6 @@ export default function Clans({ navigate }: ClansProps) {
     );
   }
 
-  // Якщо у гравця є клан - перенаправляємо на детальну сторінку
-  if (myClan) {
-    navigate(`/clan/${myClan.id}`);
-    return null;
-  }
-
   // Розрахунок пагінації
   const totalPages = Math.max(1, Math.ceil(allClans.length / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -179,6 +173,19 @@ export default function Clans({ navigate }: ClansProps) {
                 </div>
               )}
             </>
+          )}
+
+          {/* Показуємо інформацію про мій клан, якщо він є */}
+          {myClan && (
+            <div className="p-3 bg-[#1a1a1a] border border-[#3b2614] rounded-md space-y-1 mb-3">
+              <div className="text-[12px] text-[#f4e2b8] font-semibold">Мой клан:</div>
+              <div
+                className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
+                onClick={() => navigate(`/clan/${myClan.id}`)}
+              >
+                {myClan.name} (Level {myClan.level})
+              </div>
+            </div>
           )}
 
           {/* Список кланів */}

@@ -531,7 +531,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
             )}
             <div>
               <div className="flex justify-between">
-                <span className="text-[#c7ad80]">Монета удачи:</span>
+                <span className="text-[#c7ad80]">Coin of Luck:</span>
                 <span className="text-white">{clan.coinLuck}</span>
               </div>
               <div className="flex gap-2 mt-1">
@@ -542,7 +542,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                   }}
                   className="text-[10px] text-[#9f8d73] hover:text-[#c7ad80] transition-colors"
                 >
-                  поповнить
+                  положить
                 </button>
                 <button
                   onClick={() => {
@@ -562,7 +562,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                   value={coinLuckAmount}
                   onChange={(e) => setCoinLuckAmount(e.target.value)}
                   className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
-                  placeholder={`Сумма для ${coinLuckAction === "deposit" ? "пополнения" : "вывода"}`}
+                  placeholder={`Сумма для ${coinLuckAction === "deposit" ? "положения" : "вывода"}`}
                   autoFocus
                 />
                 <button
@@ -905,7 +905,6 @@ export default function Clan({ navigate, clanId }: ClanProps) {
               </div>
             </div>
           )}
-
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">
             <span
