@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getUnreadCount, getMyClan } from "../utils/api";
+import { getUnreadCount, getMyClan, getClanChat } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 
 interface NavGridProps {
@@ -23,6 +23,7 @@ const buttons: NavButton[] = [
 
 export default function NavGrid({ navigate }: NavGridProps) {
   const [unreadCount, setUnreadCount] = useState(0);
+  const [clanUnreadCount, setClanUnreadCount] = useState(0);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // Завантажуємо кількість непрочитаних листів
@@ -44,6 +45,45 @@ export default function NavGrid({ navigate }: NavGridProps) {
 
     loadUnreadCount();
     const interval = setInterval(loadUnreadCount, 30000); // Оновлюємо кожні 30 секунд
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  // Завантажуємо кількість непрочитаних повідомлень клану
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setClanUnreadCount(0);
+      return;
+    }
+
+    const loadClanUnreadCount = async () => {
+      try {
+        const myClanResponse = await getMyClan();
+        if (myClanResponse.ok && myClanResponse.clan) {
+          const lastVisitKey = `clan_last_visit_${myClanResponse.clan.id}`;
+          const lastVisit = localStorage.getItem(lastVisitKey);
+          const lastVisitTime = lastVisit ? parseInt(lastVisit, 10) : 0;
+
+          // Завантажуємо останні повідомлення
+          const chatResponse = await getClanChat(myClanResponse.clan.id, 1, 100);
+          if (chatResponse.ok) {
+            // Рахуємо повідомлення, які прийшли після останнього візиту
+            const unread = chatResponse.messages.filter((msg) => {
+              const msgTime = new Date(msg.createdAt).getTime();
+              return msgTime > lastVisitTime;
+            }).length;
+            setClanUnreadCount(unread);
+          }
+        } else {
+          setClanUnreadCount(0);
+        }
+      } catch (err: any) {
+        console.error('[NavGrid] Failed to load clan unread count:', err);
+        setClanUnreadCount(0);
+      }
+    };
+
+    loadClanUnreadCount();
+    const interval = setInterval(loadClanUnreadCount, 30000); // Оновлюємо кожні 30 секунд
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
@@ -91,7 +131,9 @@ export default function NavGrid({ navigate }: NavGridProps) {
           <div className="w-full flex flex-row flex-nowrap items-center justify-between gap-[0.15rem] text-[11px] text-[#d8c598]">
             {buttons.map((btn) => {
               const isMail = btn.label === "Почта";
-              const showBadge = isMail && unreadCount > 0;
+              const isClan = btn.label === "Клан";
+              const showMailBadge = isMail && unreadCount > 0;
+              const showClanBadge = isClan && clanUnreadCount > 0;
               return (
                 <button
                   key={btn.label}
@@ -108,9 +150,15 @@ export default function NavGrid({ navigate }: NavGridProps) {
                     height={32}
                   />
                   {/* Індикатор непрочитаних на пошті */}
-                  {showBadge && (
+                  {showMailBadge && (
                     <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
                       {unreadCount > 99 ? "99+" : unreadCount}
+                    </div>
+                  )}
+                  {/* Індикатор непрочитаних повідомлень клану */}
+                  {showClanBadge && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
+                      {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
                     </div>
                   )}
                 </button>

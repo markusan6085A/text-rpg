@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../state/heroStore";
 import {
   getClan,
@@ -25,13 +25,20 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const hero = useHeroStore((s) => s.hero);
   const [clan, setClan] = useState<Clan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"chat" | "history" | "members">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "history" | "members" | "storage">("chat");
   const [chatMessage, setChatMessage] = useState("");
   const [chatMessages, setChatMessages] = useState<ClanChatMessage[]>([]);
+  const [chatPage, setChatPage] = useState(1);
+  const [chatTotalPages, setChatTotalPages] = useState(1);
   const [logs, setLogs] = useState<ClanLog[]>([]);
   const [members, setMembers] = useState<ClanMember[]>([]);
+  const [storageItems, setStorageItems] = useState<any[]>([]);
+  const [storagePage, setStoragePage] = useState(1);
+  const [storageTotalPages, setStorageTotalPages] = useState(1);
   const [editingTitle, setEditingTitle] = useState<{ characterId: string; title: string | null } | null>(null);
-  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+  const [depositAmount, setDepositAmount] = useState("");
+  const [coinLuckAmount, setCoinLuckAmount] = useState("");
+  const [coinLuckAction, setCoinLuckAction] = useState<"deposit" | "withdraw">("deposit");
 
   // Завантажуємо клан
   useEffect(() => {
@@ -40,21 +47,30 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   }, [clanId, hero]);
 
-  // Автооновлення чату кожні 3 секунди
+  // Позначаємо повідомлення як прочитані при заході в клан
+  useEffect(() => {
+    if (clan && activeTab === "chat") {
+      const lastVisitKey = `clan_last_visit_${clan.id}`;
+      localStorage.setItem(lastVisitKey, Date.now().toString());
+    }
+  }, [clan, activeTab]);
+
+  // Завантажуємо чат при зміні сторінки
   useEffect(() => {
     if (activeTab === "chat" && clan) {
       loadChatMessages();
-      const interval = setInterval(loadChatMessages, 3000);
+    }
+  }, [activeTab, clan, chatPage]);
+
+  // Автооновлення чату кожні 3 секунди (тільки на першій сторінці)
+  useEffect(() => {
+    if (activeTab === "chat" && clan && chatPage === 1) {
+      const interval = setInterval(() => {
+        loadChatMessages();
+      }, 3000);
       return () => clearInterval(interval);
     }
-  }, [activeTab, clan]);
-
-  // Автоскрол до останнього повідомлення
-  useEffect(() => {
-    if (activeTab === "chat") {
-      chatMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [chatMessages, activeTab]);
+  }, [activeTab, clan, chatPage]);
 
   const loadClan = async () => {
     if (!clanId || !hero) {
@@ -74,6 +90,8 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           loadLogs();
         } else if (activeTab === "members") {
           loadMembers();
+        } else if (activeTab === "storage") {
+          loadStorage();
         }
       }
     } catch (err) {
@@ -89,9 +107,10 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     if (!clan) return;
 
     try {
-      const response = await getClanChat(clan.id, 1, 50);
+      const response = await getClanChat(clan.id, chatPage, 10);
       if (response.ok) {
         setChatMessages(response.messages);
+        setChatTotalPages(response.pagination.totalPages);
       }
     } catch (err) {
       console.error("[Clan] Failed to load chat messages:", err);
@@ -124,6 +143,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   };
 
+  const loadStorage = async () => {
+    if (!clan) return;
+    // TODO: Implement storage loading
+    setStorageItems([]);
+    setStorageTotalPages(1);
+  };
+
   const handleDeleteClan = async () => {
     if (!clan) return;
 
@@ -150,12 +176,55 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       const response = await postClanChatMessage(clan.id, chatMessage.trim());
       if (response.ok) {
         setChatMessage("");
+        // Переходимо на першу сторінку після відправки
+        setChatPage(1);
         loadChatMessages();
       }
     } catch (err: any) {
       console.error("[Clan] Failed to send chat message:", err);
       alert(err.message || "Ошибка при отправке сообщения");
     }
+  };
+
+  const handleDepositAdena = async () => {
+    if (!clan || !hero) return;
+    
+    const amount = parseInt(depositAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Введите корректную сумму!");
+      return;
+    }
+    if (amount > (hero.adena || 0)) {
+      alert("У вас недостаточно адены!");
+      return;
+    }
+    // TODO: Implement API call
+    alert("Функция в разработке");
+    setDepositAmount("");
+  };
+
+  const handleCoinLuckAction = async () => {
+    if (!clan || !hero) return;
+    
+    const amount = parseInt(coinLuckAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Введите корректную сумму!");
+      return;
+    }
+    if (coinLuckAction === "deposit") {
+      if (amount > (hero.coinOfLuck || 0)) {
+        alert("У вас недостаточно Coin of Luck!");
+        return;
+      }
+    } else {
+      if (amount > clan.coinLuck) {
+        alert("В клане недостаточно Coin of Luck!");
+        return;
+      }
+    }
+    // TODO: Implement API call
+    alert("Функция в разработке");
+    setCoinLuckAmount("");
   };
 
   const handleKickMember = async (characterId: string, characterName: string) => {
@@ -209,14 +278,18 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   };
 
-  const handleTabChange = (tab: "chat" | "history" | "members") => {
+  const handleTabChange = (tab: "chat" | "history" | "members" | "storage") => {
     setActiveTab(tab);
     if (tab === "chat") {
+      setChatPage(1);
       loadChatMessages();
     } else if (tab === "history") {
       loadLogs();
     } else if (tab === "members") {
       loadMembers();
+    } else if (tab === "storage") {
+      setStoragePage(1);
+      loadStorage();
     }
   };
 
@@ -262,19 +335,25 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     <div className="w-full text-white px-4 py-2">
       <div className="w-full max-w-[360px] mx-auto">
         <div className="space-y-3">
+          {/* Риска вище назви клану */}
+          <div className="border-t border-gray-600"></div>
+
           {/* Назва клану */}
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
             {clan.name}
           </div>
 
-          {/* Емблема клану (збільшена) */}
+          {/* Риска нижче назви клану */}
+          <div className="border-b border-gray-600"></div>
+
+          {/* Емблема клану (clanns.png) */}
           <div className="flex justify-center">
             <img
-              src="/icons/clann.jpg"
+              src="/icons/clanns.png"
               alt="Клан"
               className="w-48 h-48 object-contain"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "/icons/clan.jpg";
+                (e.target as HTMLImageElement).src = "/icons/clann.jpg";
               }}
             />
           </div>
@@ -299,14 +378,98 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 {new Date(clan.createdAt).toLocaleDateString("ru-RU")}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-[#c7ad80]">Адена:</span>
-              <span className="text-white">{clan.adena.toLocaleString("ru-RU")}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-white">{clan.adena.toLocaleString("ru-RU")}</span>
+                <button
+                  onClick={() => setDepositAmount("0")}
+                  className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700"
+                >
+                  положить
+                </button>
+              </div>
             </div>
-            <div className="flex justify-between">
+            {depositAmount !== "" && (
+              <div className="flex gap-2 items-center text-[11px]">
+                <input
+                  type="number"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
+                  placeholder="Сумма"
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    handleDepositAdena();
+                  }}
+                  className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  OK
+                </button>
+                <button
+                  onClick={() => setDepositAmount("")}
+                  className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                  Отмена
+                </button>
+              </div>
+            )}
+            <div className="flex justify-between items-center">
               <span className="text-[#c7ad80]">Coin of Luck:</span>
-              <span className="text-white">{clan.coinLuck}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-white">{clan.coinLuck}</span>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => {
+                      setCoinLuckAction("deposit");
+                      setCoinLuckAmount("0");
+                    }}
+                    className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700"
+                  >
+                    поповнить
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCoinLuckAction("withdraw");
+                      setCoinLuckAmount("0");
+                    }}
+                    className="px-2 py-0.5 bg-red-600 text-[10px] text-white rounded hover:bg-red-700"
+                  >
+                    забрать
+                  </button>
+                </div>
+              </div>
             </div>
+            {coinLuckAmount !== "" && (
+              <div className="flex gap-2 items-center text-[11px]">
+                <input
+                  type="number"
+                  value={coinLuckAmount}
+                  onChange={(e) => setCoinLuckAmount(e.target.value)}
+                  className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
+                  placeholder={`Сумма для ${coinLuckAction === "deposit" ? "пополнения" : "вывода"}`}
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    handleCoinLuckAction();
+                  }}
+                  className={`px-2 py-1 text-white rounded hover:opacity-80 ${
+                    coinLuckAction === "deposit" ? "bg-green-600" : "bg-red-600"
+                  }`}
+                >
+                  OK
+                </button>
+                <button
+                  onClick={() => setCoinLuckAmount("")}
+                  className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                  Отмена
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-gray-600"></div>
@@ -329,7 +492,14 @@ export default function Clan({ navigate, clanId }: ClanProps) {
             >
               • История
             </div>
-            <div className="text-[#c7ad80]">• Склад (0/200)</div>
+            <div
+              className={`cursor-pointer hover:text-[#f4e2b8] ${
+                activeTab === "storage" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
+              }`}
+              onClick={() => handleTabChange("storage")}
+            >
+              • Склад ({storageItems.length}/200)
+            </div>
             {isLeader && (
               <div className="pl-4 space-y-1">
                 <div className="text-[#c7ad80]">- Управление кланом</div>
@@ -351,19 +521,54 @@ export default function Clan({ navigate, clanId }: ClanProps) {
               {/* Чат */}
               <div className="text-[12px] text-[#c7ad80] mb-2">Чат клана:</div>
               <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
-                {chatMessages.map((msg) => (
-                  <div key={msg.id} className="text-[11px]">
-                    <span
-                      style={msg.nickColor ? { color: msg.nickColor } : {}}
-                      className="font-semibold"
-                    >
-                      {msg.characterName}:
-                    </span>{" "}
-                    <span className="text-white">{msg.message}</span>
-                  </div>
-                ))}
-                <div ref={chatMessagesEndRef} />
+                {chatMessages.length === 0 ? (
+                  <div className="text-[11px] text-[#9f8d73]">Нет сообщений</div>
+                ) : (
+                  chatMessages.map((msg) => (
+                    <div key={msg.id} className="text-[11px]">
+                      <span
+                        style={msg.nickColor ? { color: msg.nickColor } : {}}
+                        className="font-semibold"
+                      >
+                        {msg.characterName}:
+                      </span>{" "}
+                      <span className="text-white">{msg.message}</span>
+                    </div>
+                  ))
+                )}
               </div>
+              {/* Пагінація чату */}
+              {chatTotalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]">
+                  <button
+                    onClick={() => {
+                      if (chatPage > 1) {
+                        setChatPage(chatPage - 1);
+                        loadChatMessages();
+                      }
+                    }}
+                    disabled={chatPage === 1}
+                    className={`px-2 py-1 ${chatPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                  >
+                    &lt;
+                  </button>
+                  <span className="text-white">
+                    {chatPage} / {chatTotalPages}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (chatPage < chatTotalPages) {
+                        setChatPage(chatPage + 1);
+                        loadChatMessages();
+                      }
+                    }}
+                    disabled={chatPage === chatTotalPages}
+                    className={`px-2 py-1 ${chatPage === chatTotalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                  >
+                    &gt;
+                  </button>
+                </div>
+              )}
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -404,6 +609,55 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                   ))
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === "storage" && (
+            <div className="space-y-2">
+              <div className="text-[12px] text-[#c7ad80] mb-2">Склад клана:</div>
+              <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
+                {storageItems.length === 0 ? (
+                  <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
+                ) : (
+                  storageItems.map((item) => (
+                    <div key={item.id} className="text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1">
+                      {item.name} x{item.qty || 1}
+                    </div>
+                  ))
+                )}
+              </div>
+              {/* Пагінація складу */}
+              {storageTotalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]">
+                  <button
+                    onClick={() => {
+                      if (storagePage > 1) {
+                        setStoragePage(storagePage - 1);
+                        loadStorage();
+                      }
+                    }}
+                    disabled={storagePage === 1}
+                    className={`px-2 py-1 ${storagePage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                  >
+                    &lt;
+                  </button>
+                  <span className="text-white">
+                    {storagePage} / {storageTotalPages}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (storagePage < storageTotalPages) {
+                        setStoragePage(storagePage + 1);
+                        loadStorage();
+                      }
+                    }}
+                    disabled={storagePage === storageTotalPages}
+                    className={`px-2 py-1 ${storagePage === storageTotalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                  >
+                    &gt;
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -526,22 +780,6 @@ export default function Clan({ navigate, clanId }: ClanProps) {
               </div>
             </div>
           )}
-
-          {/* Риска вище тексту */}
-          <div className="border-t border-gray-600"></div>
-
-          {/* Текст внизу */}
-          <div className="text-[11px] text-[#9f8d73] space-y-1 pt-4">
-            <div>
-              Клан - это группа людей, объединенных общими идеями развития своих персонажей, целями их развития и средствами для их осуществления.
-            </div>
-            <div className="text-center">
-              Именно ты можешь изменить ход истории
-            </div>
-          </div>
-
-          {/* Риска нижче тексту */}
-          <div className="border-b border-gray-600"></div>
 
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">
