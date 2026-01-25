@@ -11,7 +11,10 @@ import {
   changeClanMemberTitle,
   setClanMemberDeputy,
   getClanWarehouse,
+  depositClanWarehouseItem,
+  withdrawClanWarehouseItem,
   depositClanAdena,
+  withdrawClanAdena,
   depositClanCoinLuck,
   withdrawClanCoinLuck,
   type Clan,
@@ -20,6 +23,7 @@ import {
   type ClanLog,
   type ClanWarehouseItem,
 } from "../utils/api";
+import { CATEGORIES } from "./character/InventoryFilters";
 
 interface ClanProps {
   navigate: (path: string) => void;
@@ -42,8 +46,12 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [storageTotalPages, setStorageTotalPages] = useState(1);
   const [editingTitle, setEditingTitle] = useState<{ characterId: string; title: string | null } | null>(null);
   const [depositAmount, setDepositAmount] = useState("");
+  const [withdrawAdenaAmount, setWithdrawAdenaAmount] = useState("");
   const [coinLuckAmount, setCoinLuckAmount] = useState("");
   const [coinLuckAction, setCoinLuckAction] = useState<"deposit" | "withdraw">("deposit");
+  const [showDepositItemsModal, setShowDepositItemsModal] = useState(false);
+  const [showWithdrawItemsModal, setShowWithdrawItemsModal] = useState(false);
+  const [selectedItemCategory, setSelectedItemCategory] = useState("all");
 
   // Завантажуємо клан
   useEffect(() => {
@@ -221,6 +229,32 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     } catch (err: any) {
       console.error("[Clan] Failed to deposit adena:", err);
       alert(err.message || "Ошибка при пополнении адены");
+    }
+  };
+
+  const handleWithdrawAdena = async () => {
+    if (!clan || !hero) return;
+    
+    const amount = parseInt(withdrawAdenaAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Введите корректную сумму!");
+      return;
+    }
+    if (amount > clan.adena) {
+      alert("В клане недостаточно адены!");
+      return;
+    }
+
+    try {
+      const response = await withdrawClanAdena(clan.id, amount);
+      if (response.ok) {
+        alert(`Вы забрали ${amount} адены из клана`);
+        setWithdrawAdenaAmount("");
+        loadClan(); // Оновлюємо дані клану
+      }
+    } catch (err: any) {
+      console.error("[Clan] Failed to withdraw adena:", err);
+      alert(err.message || "Ошибка при выводе адены");
     }
   };
 
@@ -426,10 +460,18 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 <span className="text-white">{clan.adena.toLocaleString("ru-RU")}</span>
                 <button
                   onClick={() => setDepositAmount("0")}
-                  className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700"
+                  className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700 shadow-md hover:shadow-green-500/50 transition-all"
                 >
                   положить
                 </button>
+                {isLeader && (
+                  <button
+                    onClick={() => setWithdrawAdenaAmount("0")}
+                    className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
+                  >
+                    забрать
+                  </button>
+                )}
               </div>
             </div>
             {depositAmount !== "" && (
@@ -458,6 +500,32 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 </button>
               </div>
             )}
+            {withdrawAdenaAmount !== "" && isLeader && (
+              <div className="flex gap-2 items-center text-[11px]">
+                <input
+                  type="number"
+                  value={withdrawAdenaAmount}
+                  onChange={(e) => setWithdrawAdenaAmount(e.target.value)}
+                  className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
+                  placeholder="Сумма для вывода"
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    handleWithdrawAdena();
+                  }}
+                  className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  OK
+                </button>
+                <button
+                  onClick={() => setWithdrawAdenaAmount("")}
+                  className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                  Отмена
+                </button>
+              </div>
+            )}
             <div className="flex justify-between items-center">
               <span className="text-[#c7ad80]">Coin of Luck:</span>
               <div className="flex items-center gap-2">
@@ -468,7 +536,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                       setCoinLuckAction("deposit");
                       setCoinLuckAmount("0");
                     }}
-                    className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700"
+                    className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700 shadow-md hover:shadow-green-500/50 transition-all"
                   >
                     поповнить
                   </button>
@@ -477,7 +545,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                       setCoinLuckAction("withdraw");
                       setCoinLuckAmount("0");
                     }}
-                    className="px-2 py-0.5 bg-red-600 text-[10px] text-white rounded hover:bg-red-700"
+                    className="px-2 py-0.5 bg-red-600 text-[10px] text-white rounded hover:bg-red-700 shadow-md hover:shadow-red-500/50 transition-all"
                   >
                     забрать
                   </button>
@@ -657,6 +725,20 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           {activeTab === "storage" && (
             <div className="space-y-2">
               <div className="text-[12px] text-[#c7ad80] mb-2">Склад клана ({storageItems.length}/200):</div>
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={() => setShowDepositItemsModal(true)}
+                  className="flex-1 px-2 py-1 bg-[#5a4424] text-[11px] text-[#c7ad80] rounded hover:bg-[#6a5434] hover:text-white transition-colors"
+                >
+                  положить вещи
+                </button>
+                <button
+                  onClick={() => setShowWithdrawItemsModal(true)}
+                  className="flex-1 px-2 py-1 bg-[#5a4424] text-[11px] text-[#c7ad80] rounded hover:bg-[#6a5434] hover:text-white transition-colors"
+                >
+                  забрать вещи
+                </button>
+              </div>
               <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
                 {storageItems.length === 0 ? (
                   <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
@@ -834,6 +916,124 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           </div>
         </div>
       </div>
+
+      {/* Модальне вікно для покладання предметів */}
+      {showDepositItemsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите категорию:</div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {CATEGORIES.map((category) => (
+                <button
+                  key={category.key}
+                  onClick={() => setSelectedItemCategory(category.key)}
+                  className={`px-3 py-1 text-[11px] rounded transition-colors ${
+                    selectedItemCategory === category.key
+                      ? "bg-[#5a4424] text-[#f4e2b8]"
+                      : "bg-[#2a2a2a] text-[#c7ad80] hover:bg-[#3a3a3a]"
+                  }`}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+            <div className="text-[12px] text-[#c7ad80] mb-2">Выберите предмет:</div>
+            <div className="bg-[#2a2a2a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
+              {hero && hero.inventory ? (() => {
+                const category = CATEGORIES.find((c) => c.key === selectedItemCategory) || CATEGORIES[0];
+                const filteredItems = hero.inventory.filter((item: any) => item && category.test(item));
+                return filteredItems.length === 0 ? (
+                  <div className="text-[11px] text-[#9f8d73]">Нет предметов в этой категории</div>
+                ) : (
+                  filteredItems.map((item: any) => (
+                    <div
+                      key={item.id}
+                      className="text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                      onClick={async () => {
+                        if (!clan) return;
+                        try {
+                          const response = await depositClanWarehouseItem(
+                            clan.id,
+                            item.id,
+                            item.count || 1,
+                            { name: item.name, slot: item.slot }
+                          );
+                          if (response.ok) {
+                            alert(`Вы положили ${item.name || item.id} x${item.count || 1} в склад`);
+                            setShowDepositItemsModal(false);
+                            setSelectedItemCategory("all");
+                            loadStorage();
+                            // TODO: Оновити інвентар гравця (забрати предмет)
+                          }
+                        } catch (err: any) {
+                          console.error("[Clan] Failed to deposit item:", err);
+                          alert(err.message || "Ошибка при пополнении склада");
+                        }
+                      }}
+                    >
+                      {item.name || item.id} x{item.count || 1}
+                    </div>
+                  ))
+                );
+              })() : (
+                <div className="text-[11px] text-[#9f8d73]">Инвентарь пуст</div>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setShowDepositItemsModal(false);
+                setSelectedItemCategory("all");
+              }}
+              className="w-full px-3 py-2 bg-gray-600 text-[12px] text-white rounded hover:bg-gray-700"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Модальне вікно для забирання предметів */}
+      {showWithdrawItemsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4">
+            <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите предмет для вывода:</div>
+            <div className="bg-[#2a2a2a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
+              {storageItems.length === 0 ? (
+                <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
+              ) : (
+                storageItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                    onClick={async () => {
+                      if (!clan) return;
+                      try {
+                        const response = await withdrawClanWarehouseItem(clan.id, item.id);
+                        if (response.ok) {
+                          alert(`Вы забрали ${item.itemId} x${item.qty} из склада`);
+                          setShowWithdrawItemsModal(false);
+                          loadStorage();
+                        }
+                      } catch (err: any) {
+                        console.error("[Clan] Failed to withdraw item:", err);
+                        alert(err.message || "Ошибка при выводе предмета");
+                      }
+                    }}
+                  >
+                    {item.itemId} x{item.qty || 1}
+                  </div>
+                ))
+              )}
+            </div>
+            <button
+              onClick={() => setShowWithdrawItemsModal(false)}
+              className="w-full px-3 py-2 bg-gray-600 text-[12px] text-white rounded hover:bg-gray-700"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

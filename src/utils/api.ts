@@ -782,6 +782,14 @@ export async function depositClanAdena(clanId: string, amount: number): Promise<
   return response;
 }
 
+export async function withdrawClanAdena(clanId: string, amount: number): Promise<{ ok: boolean }> {
+  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/adena/withdraw`, {
+    method: 'POST',
+    body: JSON.stringify({ amount }),
+  });
+  return response;
+}
+
 export async function depositClanCoinLuck(clanId: string, amount: number): Promise<{ ok: boolean }> {
   const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/coin-luck/deposit`, {
     method: 'POST',
