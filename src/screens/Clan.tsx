@@ -760,11 +760,25 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 {storageItems.length === 0 ? (
                   <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
                 ) : (
-                  storageItems.map((item) => (
-                    <div key={item.id} className="text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1">
-                      {item.itemId} x{item.qty || 1}
-                    </div>
-                  ))
+                  storageItems.map((item) => {
+                    const itemDef = itemsDBWithStarter[item.itemId] || itemsDB[item.itemId];
+                    const itemName = item.meta?.name || itemDef?.name || item.itemId;
+                    const iconPath = item.meta?.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                    const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
+                    return (
+                      <div key={item.id} className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1">
+                        <img
+                          src={finalIconPath}
+                          alt={itemName}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                          }}
+                        />
+                        <span>{itemName} x{item.qty || 1}</span>
+                      </div>
+                    );
+                  })
                 )}
               </div>
               {/* Пагінація складу */}
@@ -1043,36 +1057,50 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4">
             <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите предмет для вывода:</div>
             <div className="bg-[#2a2a2a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
-              {storageItems.length === 0 ? (
-                <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
-              ) : (
-                storageItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
-                    onClick={async () => {
-                      if (!clan) return;
-                      try {
-                        const response = await withdrawClanWarehouseItem(clan.id, item.id);
-                        if (response.ok) {
-                          setShowWithdrawItemsModal(false);
-                          loadStorage();
-                          // Додаємо предмет в інвентар гравця
-                          const heroStore = useHeroStore.getState();
-                          if (heroStore.hero) {
-                            heroStore.addItemToInventory(item.itemId, item.qty || 1);
+                {storageItems.length === 0 ? (
+                  <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
+                ) : (
+                  storageItems.map((item) => {
+                    const itemDef = itemsDBWithStarter[item.itemId] || itemsDB[item.itemId];
+                    const itemName = item.meta?.name || itemDef?.name || item.itemId;
+                    const iconPath = item.meta?.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                    const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                        onClick={async () => {
+                          if (!clan) return;
+                          try {
+                            const response = await withdrawClanWarehouseItem(clan.id, item.id);
+                            if (response.ok) {
+                              setShowWithdrawItemsModal(false);
+                              loadStorage();
+                              // Додаємо предмет в інвентар гравця
+                              const heroStore = useHeroStore.getState();
+                              if (heroStore.hero) {
+                                heroStore.addItemToInventory(item.itemId, item.qty || 1);
+                              }
+                            }
+                          } catch (err: any) {
+                            console.error("[Clan] Failed to withdraw item:", err);
+                            alert(err.message || "Ошибка при выводе предмета");
                           }
-                        }
-                      } catch (err: any) {
-                        console.error("[Clan] Failed to withdraw item:", err);
-                        alert(err.message || "Ошибка при выводе предмета");
-                      }
-                    }}
-                  >
-                    {item.itemId} x{item.qty || 1}
-                  </div>
-                ))
-              )}
+                        }}
+                      >
+                        <img
+                          src={finalIconPath}
+                          alt={itemName}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                          }}
+                        />
+                        <span>{itemName} x{item.qty || 1}</span>
+                      </div>
+                    );
+                  })
+                )}
             </div>
             <button
               onClick={() => setShowWithdrawItemsModal(false)}
