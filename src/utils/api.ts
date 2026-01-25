@@ -247,6 +247,7 @@ export interface ChatMessage {
   createdAt: string;
   isOwn?: boolean; // Whether this message belongs to current user
   nickColor?: string; // Color of the character's nickname
+  emblem?: string | null; // Clan emblem of the sender
 }
 
 export interface ChatMessagesResponse {
