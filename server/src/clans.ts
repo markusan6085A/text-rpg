@@ -2,6 +2,54 @@ import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
 
+// Функція для перевірки та створення таблиці ClanWarehouse, якщо вона не існує
+async function ensureClanWarehouseTable(app: FastifyInstance) {
+  try {
+    // Перевіряємо, чи існує таблиця
+    await prisma.$queryRaw`SELECT 1 FROM "ClanWarehouse" LIMIT 1`;
+  } catch (error: any) {
+    // Якщо таблиця не існує, створюємо її
+    if (error?.message?.includes('does not exist') || error?.code === '42P01') {
+      app.log.warn("ClanWarehouse table does not exist, creating it...");
+      try {
+        await prisma.$executeRawUnsafe(`
+          CREATE TABLE IF NOT EXISTS "ClanWarehouse" (
+            "id" TEXT NOT NULL,
+            "clanId" TEXT NOT NULL,
+            "itemId" TEXT NOT NULL,
+            "qty" INTEGER NOT NULL DEFAULT 1,
+            "meta" JSONB NOT NULL DEFAULT '{}',
+            "depositedBy" TEXT,
+            "depositedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT "ClanWarehouse_pkey" PRIMARY KEY ("id")
+          );
+          
+          CREATE INDEX IF NOT EXISTS "ClanWarehouse_clanId_idx" ON "ClanWarehouse"("clanId");
+          CREATE INDEX IF NOT EXISTS "ClanWarehouse_clanId_depositedAt_idx" ON "ClanWarehouse"("clanId", "depositedAt");
+          
+          DO $$ 
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_constraint WHERE conname = 'ClanWarehouse_clanId_fkey'
+            ) AND EXISTS (
+              SELECT 1 FROM information_schema.tables WHERE table_name = 'Clan'
+            ) THEN
+              ALTER TABLE "ClanWarehouse" ADD CONSTRAINT "ClanWarehouse_clanId_fkey" 
+              FOREIGN KEY ("clanId") REFERENCES "Clan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+            END IF;
+          END $$;
+        `);
+        app.log.info("ClanWarehouse table created successfully");
+      } catch (createError: any) {
+        app.log.error({ error: createError.message }, "Failed to create ClanWarehouse table");
+        throw createError;
+      }
+    } else {
+      throw error;
+    }
+  }
+}
+
 function getAuth(req: any): { accountId: string; login: string; characterId?: string } | null {
   const header = req.headers?.authorization || "";
   const [type, token] = String(header).split(" ");
@@ -283,6 +331,7 @@ async function clanNestedRoutes(app: FastifyInstance) {
   // GET /clans/:id/warehouse - склад клану
   app.get("/clans/:id/warehouse", async (req, reply) => {
     try {
+      await ensureClanWarehouseTable(app);
       app.log.info({ url: req.url, params: req.params }, "GET /clans/:id/warehouse called");
       const auth = getAuth(req);
       if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -356,6 +405,7 @@ async function clanNestedRoutes(app: FastifyInstance) {
   // POST /clans/:id/warehouse/deposit - покласти предмет в склад
   app.post("/clans/:id/warehouse/deposit", async (req, reply) => {
     try {
+      await ensureClanWarehouseTable(app);
       app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/warehouse/deposit called");
       const auth = getAuth(req);
       if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -476,6 +526,11 @@ async function clanNestedRoutes(app: FastifyInstance) {
 
   // POST /clans/:id/warehouse/withdraw - забрати предмет зі складу
   app.post("/clans/:id/warehouse/withdraw", async (req, reply) => {
+    try {
+      await ensureClanWarehouseTable(app);
+    } catch (error: any) {
+      app.log.error({ error: error.message }, "Failed to ensure ClanWarehouse table");
+    }
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
