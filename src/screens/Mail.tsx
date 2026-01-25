@@ -360,7 +360,7 @@ export default function Mail({ navigate }: MailProps) {
                         hero={hero}
                         clan={!isOwn && letter?.fromCharacter?.emblem ? { emblem: letter.fromCharacter.emblem } as any : null}
                         nickColor={displayNickColor || undefined}
-                        size={10}
+                        size={4}
                         className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors text-[10px]"
                         onClick={(e) => {
                           e.stopPropagation();

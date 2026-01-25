@@ -10,7 +10,7 @@ interface ClanEmblemProps {
 /**
  * Компонент для відображення емблеми клану
  */
-export function ClanEmblem({ emblem, size = 16, className = "" }: ClanEmblemProps) {
+export function ClanEmblem({ emblem, size = 5, className = "" }: ClanEmblemProps) {
   if (!emblem) return null;
 
   const emblemPath = getEmblemPath(emblem);

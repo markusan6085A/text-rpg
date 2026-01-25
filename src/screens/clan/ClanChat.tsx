@@ -39,7 +39,7 @@ export default function ClanChat({
                 hero={hero}
                 clan={msg.emblem ? { emblem: msg.emblem } as any : null}
                 nickColor={msg.nickColor || undefined}
-                size={10}
+                size={4}
                 className="font-semibold"
               />
               <span className="text-white">: {msg.message}</span>
