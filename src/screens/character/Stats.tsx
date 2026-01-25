@@ -7,6 +7,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { hasShieldEquipped, getTotalShieldDefense } from "../../utils/shield/shieldDefense";
+import CharacterBuffs from "./CharacterBuffs";
 
 export default function Stats() {
   const hero = useHeroStore((s) => s.hero);
@@ -99,6 +100,11 @@ export default function Stats() {
           <div className="text-red-500 text-sm">
             {level} ур. — {professionDisplay}
           </div>
+        </div>
+
+        {/* Бафи */}
+        <div className="mb-4">
+          <CharacterBuffs />
         </div>
 
         {/* Базовые характеристики */}
