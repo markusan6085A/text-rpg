@@ -407,20 +407,29 @@ async function clanNestedRoutes(app: FastifyInstance) {
           where: { clanId: id },
         });
       } catch (queryError: any) {
-        if (queryError?.message?.includes('does not exist') || queryError?.code === '42P01') {
+        app.log.warn({ error: queryError.message, code: queryError.code }, "Error during warehouse query, checking if table exists...");
+        if (queryError?.message?.includes('does not exist') || queryError?.code === '42P01' || queryError?.message?.includes('ClanWarehouse')) {
           app.log.warn("ClanWarehouse table missing during query, ensuring it exists...");
           await ensureClanWarehouseTable(app);
+          // Невелика затримка, щоб дати базі час на створення таблиці
+          await new Promise(resolve => setTimeout(resolve, 100));
           // Спробуємо ще раз після створення таблиці
-          items = await prisma.clanWarehouse.findMany({
-            where: { clanId: id },
-            orderBy: { depositedAt: "desc" },
-            take: limitNum,
-            skip: (pageNum - 1) * limitNum,
-          });
+          try {
+            items = await prisma.clanWarehouse.findMany({
+              where: { clanId: id },
+              orderBy: { depositedAt: "desc" },
+              take: limitNum,
+              skip: (pageNum - 1) * limitNum,
+            });
 
-          total = await prisma.clanWarehouse.count({
-            where: { clanId: id },
-          });
+            total = await prisma.clanWarehouse.count({
+              where: { clanId: id },
+            });
+            app.log.info({ itemsCount: items.length, total }, "Query successful after table creation");
+          } catch (retryError: any) {
+            app.log.error({ error: retryError.message }, "Query failed even after table creation");
+            throw retryError;
+          }
         } else {
           throw queryError;
         }
@@ -500,13 +509,22 @@ async function clanNestedRoutes(app: FastifyInstance) {
           where: { clanId: id },
         });
       } catch (countError: any) {
-        if (countError?.message?.includes('does not exist') || countError?.code === '42P01') {
+        app.log.warn({ error: countError.message, code: countError.code }, "Error during count, checking if table exists...");
+        if (countError?.message?.includes('does not exist') || countError?.code === '42P01' || countError?.message?.includes('ClanWarehouse')) {
           app.log.warn("ClanWarehouse table missing during count, ensuring it exists...");
           await ensureClanWarehouseTable(app);
+          // Невелика затримка, щоб дати базі час на створення таблиці
+          await new Promise(resolve => setTimeout(resolve, 100));
           // Спробуємо ще раз після створення таблиці
-          currentCount = await prisma.clanWarehouse.count({
-            where: { clanId: id },
-          });
+          try {
+            currentCount = await prisma.clanWarehouse.count({
+              where: { clanId: id },
+            });
+            app.log.info({ currentCount }, "Count successful after table creation");
+          } catch (retryError: any) {
+            app.log.error({ error: retryError.message }, "Count failed even after table creation");
+            throw retryError;
+          }
         } else {
           throw countError;
         }
@@ -553,19 +571,28 @@ async function clanNestedRoutes(app: FastifyInstance) {
           },
         });
       } catch (createError: any) {
-        if (createError?.message?.includes('does not exist') || createError?.code === '42P01') {
+        app.log.warn({ error: createError.message, code: createError.code }, "Error during warehouse create, checking if table exists...");
+        if (createError?.message?.includes('does not exist') || createError?.code === '42P01' || createError?.message?.includes('ClanWarehouse')) {
           app.log.warn("ClanWarehouse table missing during create, ensuring it exists...");
           await ensureClanWarehouseTable(app);
+          // Невелика затримка, щоб дати базі час на створення таблиці
+          await new Promise(resolve => setTimeout(resolve, 100));
           // Спробуємо ще раз після створення таблиці
-          warehouseItem = await prisma.clanWarehouse.create({
-            data: {
-              clanId: id,
-              itemId: String(itemId),
-              qty: Math.max(1, Math.floor(Number(qty) || 1)),
-              meta: metaData,
-              depositedBy: character.id,
-            },
-          });
+          try {
+            warehouseItem = await prisma.clanWarehouse.create({
+              data: {
+                clanId: id,
+                itemId: String(itemId),
+                qty: Math.max(1, Math.floor(Number(qty) || 1)),
+                meta: metaData,
+                depositedBy: character.id,
+              },
+            });
+            app.log.info({ warehouseItemId: warehouseItem.id }, "Create successful after table creation");
+          } catch (retryError: any) {
+            app.log.error({ error: retryError.message }, "Create failed even after table creation");
+            throw retryError;
+          }
         } else {
           throw createError;
         }
