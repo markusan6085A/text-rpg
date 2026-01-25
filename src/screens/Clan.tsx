@@ -223,9 +223,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     try {
       const response = await depositClanAdena(clan.id, amount);
       if (response.ok) {
-        alert(`Вы положили ${amount} адены в клан`);
         setDepositAmount("");
         loadClan(); // Оновлюємо дані клану
+        // Оновлюємо hero для відображення нової кількості адени
+        const heroStore = useHeroStore.getState();
+        if (heroStore.hero) {
+          heroStore.updateHero({ adena: (heroStore.hero.adena || 0) - amount });
+        }
       }
     } catch (err: any) {
       console.error("[Clan] Failed to deposit adena:", err);
@@ -249,9 +253,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     try {
       const response = await withdrawClanAdena(clan.id, amount);
       if (response.ok) {
-        alert(`Вы забрали ${amount} адены из клана`);
         setWithdrawAdenaAmount("");
         loadClan(); // Оновлюємо дані клану
+        // Оновлюємо hero для відображення нової кількості адени
+        const heroStore = useHeroStore.getState();
+        if (heroStore.hero) {
+          heroStore.updateHero({ adena: (heroStore.hero.adena || 0) + amount });
+        }
       }
     } catch (err: any) {
       console.error("[Clan] Failed to withdraw adena:", err);
@@ -276,9 +284,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       try {
         const response = await depositClanCoinLuck(clan.id, amount);
         if (response.ok) {
-          alert(`Вы положили ${amount} Coin of Luck в клан`);
           setCoinLuckAmount("");
           loadClan(); // Оновлюємо дані клану
+          // Оновлюємо hero для відображення нової кількості Coin of Luck
+          const heroStore = useHeroStore.getState();
+          if (heroStore.hero) {
+            heroStore.updateHero({ coinOfLuck: (heroStore.hero.coinOfLuck || 0) - amount });
+          }
         }
       } catch (err: any) {
         console.error("[Clan] Failed to deposit coin luck:", err);
@@ -293,9 +305,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       try {
         const response = await withdrawClanCoinLuck(clan.id, amount);
         if (response.ok) {
-          alert(`Вы забрали ${amount} Coin of Luck из клана`);
           setCoinLuckAmount("");
           loadClan(); // Оновлюємо дані клану
+          // Оновлюємо hero для відображення нової кількості Coin of Luck
+          const heroStore = useHeroStore.getState();
+          if (heroStore.hero) {
+            heroStore.updateHero({ coinOfLuck: (heroStore.hero.coinOfLuck || 0) + amount });
+          }
         }
       } catch (err: any) {
         console.error("[Clan] Failed to withdraw coin luck:", err);
@@ -963,11 +979,27 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                               { name: item.name, slot: item.slot }
                             );
                             if (response.ok) {
-                              alert(`Вы положили ${item.name || item.id} x${item.count || 1} в склад`);
                               setShowDepositItemsModal(false);
                               setSelectedItemCategory("all");
                               loadStorage();
-                              // TODO: Оновити інвентар гравця (забрати предмет)
+                              // Оновлюємо інвентар гравця (забрати предмет)
+                              const heroStore = useHeroStore.getState();
+                              if (heroStore.hero && heroStore.hero.inventory) {
+                                const depositCount = item.count || 1;
+                                const updatedInventory = heroStore.hero.inventory
+                                  .map((invItem: any) => {
+                                    if (invItem.id === item.id) {
+                                      const newCount = (invItem.count || 1) - depositCount;
+                                      if (newCount <= 0) {
+                                        return null; // Видаляємо предмет
+                                      }
+                                      return { ...invItem, count: newCount };
+                                    }
+                                    return invItem;
+                                  })
+                                  .filter((invItem: any) => invItem !== null);
+                                heroStore.updateHero({ inventory: updatedInventory });
+                              }
                             }
                           } catch (err: any) {
                             console.error("[Clan] Failed to deposit item:", err);
@@ -1023,9 +1055,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                       try {
                         const response = await withdrawClanWarehouseItem(clan.id, item.id);
                         if (response.ok) {
-                          alert(`Вы забрали ${item.itemId} x${item.qty} из склада`);
                           setShowWithdrawItemsModal(false);
                           loadStorage();
+                          // Додаємо предмет в інвентар гравця
+                          const heroStore = useHeroStore.getState();
+                          if (heroStore.hero) {
+                            heroStore.addItemToInventory(item.itemId, item.qty || 1);
+                          }
                         }
                       } catch (err: any) {
                         console.error("[Clan] Failed to withdraw item:", err);
