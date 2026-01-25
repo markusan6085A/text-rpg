@@ -336,8 +336,8 @@ async function clanNestedRoutes(app: FastifyInstance) {
           id: item.id,
           itemId: item.itemId,
           qty: item.qty,
-          meta: item.meta,
-          depositedBy: item.depositedBy,
+          meta: item.meta || {},
+          depositedBy: item.depositedBy || null,
           depositedAt: item.depositedAt,
         })),
         pagination: {
@@ -406,12 +406,15 @@ async function clanNestedRoutes(app: FastifyInstance) {
 
       // TODO: Перевірити, чи є предмет у гравця та забрати його
 
+      // Переконуємося, що meta є об'єктом
+      const metaData = typeof meta === 'object' && meta !== null ? meta : {};
+
       const warehouseItem = await prisma.clanWarehouse.create({
         data: {
           clanId: id,
-          itemId,
-          qty: qty || 1,
-          meta: meta || {},
+          itemId: String(itemId),
+          qty: Number(qty) || 1,
+          meta: metaData as any,
           depositedBy: character.id,
         },
       });
