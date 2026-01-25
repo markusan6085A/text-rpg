@@ -195,7 +195,7 @@ export default function StatusBars() {
           playerName={hero.name}
           hero={hero}
           clan={myClan}
-          size={4}
+          size={8}
         />
         <span className="text-gray-400"> — {level} ур.</span>
       </div>

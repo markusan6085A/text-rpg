@@ -22,7 +22,7 @@ export function PlayerNameWithEmblem({
   hero,
   clan,
   nickColor,
-  size = 5,
+  size = 10,
   className = "",
   onClick,
 }: PlayerNameWithEmblemProps) {

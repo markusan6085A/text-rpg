@@ -80,6 +80,7 @@ export default function Chat({ navigate }: ChatProps) {
 
     // Dedupe outbox against server by fingerprint + also avoid local duplicates in outbox itself
     const seen = new Set<string>();
+    const seenIds = new Set<string>(); // Also dedupe by ID to avoid exact duplicates
     const outboxVisible: ChatMessage[] = [];
 
     for (const m of outbox) {
@@ -91,15 +92,33 @@ export default function Chat({ navigate }: ChatProps) {
       if (seen.has(fp)) continue;
       seen.add(fp);
 
+      // Also check by ID to avoid exact duplicates
+      if (seenIds.has(m.id)) continue;
+      seenIds.add(m.id);
+
       outboxVisible.push(m as unknown as ChatMessage);
     }
+
+    // Dedupe cached messages by ID to avoid duplicates
+    const cachedIds = new Set<string>();
+    const dedupedCached = filteredCached.filter((m) => {
+      if (cachedIds.has(m.id)) return false;
+      cachedIds.add(m.id);
+      return true;
+    });
 
     // Ensure newest first: outbox is prepended and should already be newest-first by how we add,
     // but we keep as-is and then add cached.
     const maxCached = Math.max(0, 10 - outboxVisible.length);
-    const limitedCached = filteredCached.slice(0, maxCached);
+    const limitedCached = dedupedCached.slice(0, maxCached);
 
-    return [...outboxVisible, ...limitedCached];
+    // Final dedupe: remove any cached messages that match outbox by fingerprint
+    const finalCached = limitedCached.filter((m) => {
+      const fp = fingerprint(m);
+      return !seen.has(fp);
+    });
+
+    return [...outboxVisible, ...finalCached];
   }, [page, outbox, filteredCached, serverFingerprints]);
 
   // Confirmed delivery cleanup:
@@ -186,9 +205,8 @@ export default function Chat({ navigate }: ChatProps) {
         }
       }
 
-      // Refresh immediately + one retry later (no fragile single timeout)
+      // Refresh immediately (only once to avoid duplicates)
       refresh();
-      setTimeout(() => refresh(), 1500);
     } catch (err: any) {
       console.error("Error sending message:", err);
 

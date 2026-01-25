@@ -254,7 +254,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                 hero={hero}
                 clan={playerClan}
                 nickColor={heroData?.nickColor || undefined}
-                size={5}
+                size={10}
               />
             </div>
             <div className="border-b border-dotted border-[#654321] pb-2 mb-2">

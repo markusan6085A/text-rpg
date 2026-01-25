@@ -58,7 +58,7 @@ export default function ClanList({
                 <img
                   src={`/clans-emblems/${clan.emblem}`}
                   alt=""
-                  className="w-1.5 h-1.5 object-contain"
+                  className="w-3 h-3 object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}

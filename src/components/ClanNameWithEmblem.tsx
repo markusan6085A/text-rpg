@@ -13,7 +13,7 @@ interface ClanNameWithEmblemProps {
  */
 export function ClanNameWithEmblem({
   clan,
-  size = 5,
+  size = 10,
   className = "",
 }: ClanNameWithEmblemProps) {
   return (

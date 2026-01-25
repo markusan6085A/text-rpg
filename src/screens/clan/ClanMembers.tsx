@@ -70,7 +70,7 @@ export default function ClanMembers({
                       playerName={member.characterName}
                       hero={hero}
                       clan={clan}
-                      size={4}
+                      size={8}
                     /> [{isOnline ? "On" : "Off"}]
                   </span>
                   <div className="text-[#9f8d73] mt-0.5">

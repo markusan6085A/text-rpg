@@ -153,7 +153,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             playerName={item.characterName || "Unknown"}
             hero={hero}
             clan={null}
-            size={4}
+            size={8}
             className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
@@ -197,7 +197,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             playerName={item.characterName || "Unknown"}
             hero={hero}
             clan={null}
-            size={4}
+            size={8}
             className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
             onClick={(e) => {
               e.stopPropagation();

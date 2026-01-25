@@ -158,7 +158,7 @@ export default function Clans({ navigate }: ClansProps) {
                   <img
                     src={`/clans-emblems/${myClan.emblem}`}
                     alt=""
-                    className="w-1 h-1 object-contain"
+                    className="w-2 h-2 object-contain"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}

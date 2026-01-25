@@ -89,7 +89,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
 
           {/* Назва клану */}
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
-            <ClanNameWithEmblem clan={clan} size={6} />
+            <ClanNameWithEmblem clan={clan} size={12} />
           </div>
 
           {/* Риска нижче назви клану */}
