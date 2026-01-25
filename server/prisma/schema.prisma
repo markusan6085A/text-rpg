@@ -52,6 +52,10 @@ model Character {
   lettersTo    Letter[] @relation("LettersTo")
   news         News[]   @relation("News")
   sevenSealsMedals SevenSealsMedal[]
+  createdClan  Clan?    @relation("ClanCreator")
+  clanMember   ClanMember?
+  clanChatMessages ClanChat[]
+  clanLogs     ClanLog[]
 
   @@index([accountId])
   @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
@@ -140,4 +144,70 @@ model SevenSealsMedal {
 
   @@index([characterId, weekStart])
   @@index([weekStart])
+}
+
+model Clan {
+  id          String   @id @default(cuid())
+  name        String   @unique // Назва клану (унікальна)
+  level       Int      @default(1)
+  reputation  Int      @default(0) // Репутація клану
+  adena       Int      @default(0) // Адена клану
+  coinLuck    Int      @default(0) // Coin of Luck клану
+  creatorId   String   // ID гравця, який створив клан
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator     Character @relation("ClanCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members     ClanMember[]
+  chatMessages ClanChat[]
+  logs        ClanLog[]
+
+  @@index([creatorId])
+  @@index([name])
+}
+
+model ClanMember {
+  id          String   @id @default(cuid())
+  clanId      String
+  characterId String   @unique // Один гравець може бути тільки в одному клані
+  title       String?  // Титул гравця (наприклад, "Топ")
+  isDeputy    Boolean  @default(false) // Замісник глави
+  joinedAt    DateTime @default(now())
+
+  clan        Clan      @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([clanId])
+  @@index([characterId])
+}
+
+model ClanChat {
+  id          String   @id @default(cuid())
+  clanId      String
+  characterId String
+  message     String
+  createdAt   DateTime @default(now())
+
+  clan        Clan      @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([clanId, createdAt])
+  @@index([characterId])
+}
+
+model ClanLog {
+  id          String   @id @default(cuid())
+  clanId      String
+  type        String   // "member_joined", "member_left", "member_kicked", "item_deposited", "item_withdrawn", "title_changed", "deputy_appointed", "deputy_removed"
+  characterId String?  // ID гравця, який виконав дію (nullable для системних подій)
+  targetCharacterId String? // ID цільового гравця (для kicked, title_changed, etc.)
+  message     String   // Текст логу
+  metadata    Json     @default("{}") // Додаткова інформація
+  createdAt   DateTime @default(now())
+
+  clan        Clan      @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+
+  @@index([clanId, createdAt])
+  @@index([characterId])
 }

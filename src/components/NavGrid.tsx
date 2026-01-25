@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { getUnreadCount } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 
@@ -15,7 +15,7 @@ const buttons: NavButton[] = [
   { label: "Город", icon: "/icons/город.jpg", path: "/city" },
   { label: "Инвентарь", icon: "/icons/инвентарь.jpg", path: "/inventory" },
   { label: "Персонаж", icon: "/icons/персонаж.jpg", path: "/character" },
-  { label: "Клан", icon: "/icons/клан.jpg" },
+  { label: "Клан", icon: "/icons/клан.jpg", path: "/clans" },
   { label: "Меню", icon: "/icons/меню.jpg", path: "/about" },
   { label: "Статы", icon: "/icons/стати.jpg", path: "/stats" },
   { label: "Новости", icon: "/icons/новости.jpg", path: "/news" },

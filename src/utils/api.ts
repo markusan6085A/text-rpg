@@ -544,3 +544,189 @@ export async function buffPlayer(characterId: string, skillId: number, buffData:
   });
   return response;
 }
+
+// Clan API
+export interface Clan {
+  id: string;
+  name: string;
+  level: number;
+  reputation: number;
+  adena: number;
+  coinLuck: number;
+  createdAt: string;
+  creator: {
+    id: string;
+    name: string;
+  };
+  members?: ClanMember[];
+  isLeader?: boolean;
+  isMember?: boolean;
+  memberCount?: number;
+}
+
+export interface ClanMember {
+  id: string;
+  characterId: string;
+  characterName: string;
+  characterLevel?: number;
+  title: string | null;
+  isDeputy: boolean;
+  isLeader?: boolean;
+  joinedAt: string;
+  isOnline: boolean;
+}
+
+export interface ClanChatMessage {
+  id: string;
+  characterId: string;
+  characterName: string;
+  nickColor: string | null;
+  message: string;
+  createdAt: string;
+}
+
+export interface ClanLog {
+  id: string;
+  type: string;
+  characterId: string | null;
+  characterName: string | null;
+  targetCharacterId: string | null;
+  message: string;
+  metadata: any;
+  createdAt: string;
+}
+
+export interface ClansResponse {
+  ok: boolean;
+  clans: Array<{
+    id: string;
+    name: string;
+    level: number;
+    reputation: number;
+    adena: number;
+    coinLuck: number;
+    createdAt: string;
+    _count: { members: number };
+  }>;
+}
+
+export interface MyClanResponse {
+  ok: boolean;
+  clan: Clan | null;
+}
+
+export interface ClanChatResponse {
+  ok: boolean;
+  messages: ClanChatMessage[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ClanLogsResponse {
+  ok: boolean;
+  logs: ClanLog[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ClanMembersResponse {
+  ok: boolean;
+  members: ClanMember[];
+  isLeader: boolean;
+}
+
+export async function listClans(): Promise<ClansResponse> {
+  const response = await apiRequest<ClansResponse>('/clans', {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function getMyClan(): Promise<MyClanResponse> {
+  const response = await apiRequest<MyClanResponse>('/clans/my', {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function getClan(id: string): Promise<{ ok: boolean; clan: Clan }> {
+  const response = await apiRequest<{ ok: boolean; clan: Clan }>(`/clans/${id}`, {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function createClan(name: string): Promise<{ ok: boolean; clan: Clan }> {
+  const response = await apiRequest<{ ok: boolean; clan: Clan }>('/clans', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
+  return response;
+}
+
+export async function deleteClan(id: string): Promise<{ ok: boolean }> {
+  const response = await apiRequest<{ ok: boolean }>(`/clans/${id}`, {
+    method: 'DELETE',
+  });
+  return response;
+}
+
+export async function getClanChat(clanId: string, page: number = 1, limit: number = 50): Promise<ClanChatResponse> {
+  const response = await apiRequest<ClanChatResponse>(`/clans/${clanId}/chat?page=${page}&limit=${limit}`, {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function postClanChatMessage(clanId: string, message: string): Promise<{ ok: boolean; message: ClanChatMessage }> {
+  const response = await apiRequest<{ ok: boolean; message: ClanChatMessage }>(`/clans/${clanId}/chat`, {
+    method: 'POST',
+    body: JSON.stringify({ message }),
+  });
+  return response;
+}
+
+export async function getClanLogs(clanId: string, page: number = 1, limit: number = 50): Promise<ClanLogsResponse> {
+  const response = await apiRequest<ClanLogsResponse>(`/clans/${clanId}/logs?page=${page}&limit=${limit}`, {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function getClanMembers(clanId: string): Promise<ClanMembersResponse> {
+  const response = await apiRequest<ClanMembersResponse>(`/clans/${clanId}/members`, {
+    method: 'GET',
+  });
+  return response;
+}
+
+export async function kickClanMember(clanId: string, characterId: string): Promise<{ ok: boolean }> {
+  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/members/${characterId}/kick`, {
+    method: 'POST',
+  });
+  return response;
+}
+
+export async function changeClanMemberTitle(clanId: string, characterId: string, title: string | null): Promise<{ ok: boolean }> {
+  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/members/${characterId}/title`, {
+    method: 'POST',
+    body: JSON.stringify({ title }),
+  });
+  return response;
+}
+
+export async function setClanMemberDeputy(clanId: string, characterId: string, isDeputy: boolean): Promise<{ ok: boolean }> {
+  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/members/${characterId}/deputy`, {
+    method: 'POST',
+    body: JSON.stringify({ isDeputy }),
+  });
+  return response;
+}
