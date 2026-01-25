@@ -184,7 +184,7 @@ export default function Layout({
   };
 
   return (
-    <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
+    <div className="min-h-screen flex justify-center p-2 sm:p-4 overflow-x-hidden" style={{ backgroundColor: '#1D1C1A' }}>
       <div
         className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
