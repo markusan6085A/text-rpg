@@ -69,10 +69,16 @@ export default function Clans({ navigate }: ClansProps) {
     <div className="w-full text-white px-4 py-2">
       <div className="w-full max-w-[360px] mx-auto">
         <div className="space-y-3">
+          {/* Риска вище заголовка */}
+          <div className="border-t border-gray-600"></div>
+          
           {/* Заголовок з кількістю кланів */}
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
             Кланы ({clans.length})
           </div>
+          
+          {/* Риска нижче заголовка */}
+          <div className="border-b border-gray-600"></div>
 
           {/* clann.jpg - замість clan.png */}
           <div className="flex justify-center">
@@ -90,7 +96,7 @@ export default function Clans({ navigate }: ClansProps) {
           <div className="flex justify-center">
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="px-4 py-2 bg-gradient-to-r from-[#725024] to-[#c08c3c] text-[12px] font-semibold text-black rounded-md"
+              className="text-[12px] font-semibold text-green-500 hover:text-green-400"
             >
               {showCreateForm ? "Отмена" : "Создать клан"}
             </button>
@@ -192,6 +198,9 @@ export default function Clans({ navigate }: ClansProps) {
             </>
           )}
 
+          {/* Риска вище тексту */}
+          <div className="border-t border-gray-600"></div>
+          
           {/* Текст внизу */}
           <div className="text-[11px] text-[#9f8d73] space-y-1 pt-4">
             <div>
@@ -201,6 +210,9 @@ export default function Clans({ navigate }: ClansProps) {
               Именно ты можешь изменить ход истории
             </div>
           </div>
+          
+          {/* Риска нижче тексту */}
+          <div className="border-b border-gray-600"></div>
 
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">
