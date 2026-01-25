@@ -10,10 +10,15 @@ import {
   kickClanMember,
   changeClanMemberTitle,
   setClanMemberDeputy,
+  getClanWarehouse,
+  depositClanAdena,
+  depositClanCoinLuck,
+  withdrawClanCoinLuck,
   type Clan,
   type ClanMember,
   type ClanChatMessage,
   type ClanLog,
+  type ClanWarehouseItem,
 } from "../utils/api";
 
 interface ClanProps {
@@ -32,7 +37,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [chatTotalPages, setChatTotalPages] = useState(1);
   const [logs, setLogs] = useState<ClanLog[]>([]);
   const [members, setMembers] = useState<ClanMember[]>([]);
-  const [storageItems, setStorageItems] = useState<any[]>([]);
+  const [storageItems, setStorageItems] = useState<ClanWarehouseItem[]>([]);
   const [storagePage, setStoragePage] = useState(1);
   const [storageTotalPages, setStorageTotalPages] = useState(1);
   const [editingTitle, setEditingTitle] = useState<{ characterId: string; title: string | null } | null>(null);
@@ -145,9 +150,16 @@ export default function Clan({ navigate, clanId }: ClanProps) {
 
   const loadStorage = async () => {
     if (!clan) return;
-    // TODO: Implement storage loading
-    setStorageItems([]);
-    setStorageTotalPages(1);
+
+    try {
+      const response = await getClanWarehouse(clan.id, storagePage, 10);
+      if (response.ok) {
+        setStorageItems(response.items);
+        setStorageTotalPages(response.pagination.totalPages);
+      }
+    } catch (err) {
+      console.error("[Clan] Failed to load storage:", err);
+    }
   };
 
   const handleDeleteClan = async () => {
@@ -198,9 +210,18 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       alert("У вас недостаточно адены!");
       return;
     }
-    // TODO: Implement API call
-    alert("Функция в разработке");
-    setDepositAmount("");
+
+    try {
+      const response = await depositClanAdena(clan.id, amount);
+      if (response.ok) {
+        alert(`Вы положили ${amount} адены в клан`);
+        setDepositAmount("");
+        loadClan(); // Оновлюємо дані клану
+      }
+    } catch (err: any) {
+      console.error("[Clan] Failed to deposit adena:", err);
+      alert(err.message || "Ошибка при пополнении адены");
+    }
   };
 
   const handleCoinLuckAction = async () => {
@@ -216,15 +237,36 @@ export default function Clan({ navigate, clanId }: ClanProps) {
         alert("У вас недостаточно Coin of Luck!");
         return;
       }
+
+      try {
+        const response = await depositClanCoinLuck(clan.id, amount);
+        if (response.ok) {
+          alert(`Вы положили ${amount} Coin of Luck в клан`);
+          setCoinLuckAmount("");
+          loadClan(); // Оновлюємо дані клану
+        }
+      } catch (err: any) {
+        console.error("[Clan] Failed to deposit coin luck:", err);
+        alert(err.message || "Ошибка при пополнении Coin of Luck");
+      }
     } else {
       if (amount > clan.coinLuck) {
         alert("В клане недостаточно Coin of Luck!");
         return;
       }
+
+      try {
+        const response = await withdrawClanCoinLuck(clan.id, amount);
+        if (response.ok) {
+          alert(`Вы забрали ${amount} Coin of Luck из клана`);
+          setCoinLuckAmount("");
+          loadClan(); // Оновлюємо дані клану
+        }
+      } catch (err: any) {
+        console.error("[Clan] Failed to withdraw coin luck:", err);
+        alert(err.message || "Ошибка при выводе Coin of Luck");
+      }
     }
-    // TODO: Implement API call
-    alert("Функция в разработке");
-    setCoinLuckAmount("");
   };
 
   const handleKickMember = async (characterId: string, characterName: string) => {
@@ -498,7 +540,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
               }`}
               onClick={() => handleTabChange("storage")}
             >
-              • Склад ({storageItems.length}/200)
+              • Склад
             </div>
             {isLeader && (
               <div className="pl-4 space-y-1">
@@ -614,14 +656,14 @@ export default function Clan({ navigate, clanId }: ClanProps) {
 
           {activeTab === "storage" && (
             <div className="space-y-2">
-              <div className="text-[12px] text-[#c7ad80] mb-2">Склад клана:</div>
+              <div className="text-[12px] text-[#c7ad80] mb-2">Склад клана ({storageItems.length}/200):</div>
               <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
                 {storageItems.length === 0 ? (
                   <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
                 ) : (
                   storageItems.map((item) => (
                     <div key={item.id} className="text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1">
-                      {item.name} x{item.qty || 1}
+                      {item.itemId} x{item.qty || 1}
                     </div>
                   ))
                 )}

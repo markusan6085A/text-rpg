@@ -50,6 +50,19 @@ CREATE TABLE IF NOT EXISTS "ClanLog" (
     CONSTRAINT "ClanLog_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable: ClanWarehouse
+CREATE TABLE IF NOT EXISTS "ClanWarehouse" (
+    "id" TEXT NOT NULL,
+    "clanId" TEXT NOT NULL,
+    "itemId" TEXT NOT NULL,
+    "qty" INTEGER NOT NULL DEFAULT 1,
+    "meta" JSONB NOT NULL DEFAULT '{}',
+    "depositedBy" TEXT,
+    "depositedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ClanWarehouse_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX IF NOT EXISTS "Clan_name_key" ON "Clan"("name");
 CREATE UNIQUE INDEX IF NOT EXISTS "Clan_creatorId_key" ON "Clan"("creatorId");
@@ -109,5 +122,11 @@ BEGIN
         SELECT 1 FROM pg_constraint WHERE conname = 'ClanLog_characterId_fkey'
     ) THEN
         ALTER TABLE "ClanLog" ADD CONSTRAINT "ClanLog_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "Character"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'ClanWarehouse_clanId_fkey'
+    ) THEN
+        ALTER TABLE "ClanWarehouse" ADD CONSTRAINT "ClanWarehouse_clanId_fkey" FOREIGN KEY ("clanId") REFERENCES "Clan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
 END $$;

@@ -161,6 +161,7 @@ model Clan {
   members     ClanMember[]
   chatMessages ClanChat[]
   logs        ClanLog[]
+  warehouse   ClanWarehouse[]
 
   @@index([creatorId])
   @@index([name])
