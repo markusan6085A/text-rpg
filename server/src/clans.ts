@@ -241,11 +241,14 @@ export async function clanRoutes(app: FastifyInstance) {
 
   // POST /clans/:id/adena/deposit - покласти адену в клан
   app.post("/clans/:id/adena/deposit", async (req, reply) => {
+    app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/adena/deposit called");
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const { id } = req.params as { id: string };
     const { amount } = req.body as { amount?: number };
+    
+    app.log.info({ id, amount }, "Processing adena deposit");
 
     if (!amount || amount <= 0) {
       return reply.code(400).send({ error: "amount must be greater than 0" });
