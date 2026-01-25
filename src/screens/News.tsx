@@ -263,7 +263,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
 
       {/* Игровое время внизу */}
       <div className="px-2 py-1 border-t border-yellow-900/40 text-[11px] text-gray-400 text-center">
-        Польський час: <span className="text-yellow-200">{gameTime}</span>
+        Игровое время: <span className="text-yellow-200">{gameTime}</span>
       </div>
 
       {/* Модалка дропу RB */}
