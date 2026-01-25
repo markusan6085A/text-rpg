@@ -613,6 +613,14 @@ export default function Clan({ navigate, clanId }: ClanProps) {
             </div>
             <div
               className={`cursor-pointer hover:text-[#f4e2b8] ${
+                activeTab === "members" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
+              }`}
+              onClick={() => handleTabChange("members")}
+            >
+              • Участники
+            </div>
+            <div
+              className={`cursor-pointer hover:text-[#f4e2b8] ${
                 activeTab === "history" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
               }`}
               onClick={() => handleTabChange("history")}
@@ -818,12 +826,28 @@ export default function Clan({ navigate, clanId }: ClanProps) {
 
           {activeTab === "members" && (
             <div className="space-y-2">
-              <div
-                className="text-[12px] text-[#c7ad80] mb-2 cursor-pointer hover:text-[#f4e2b8]"
-                onClick={() => handleTabChange("members")}
-              >
-                Состав ({members.length}/30)
-              </div>
+              {(() => {
+                // Обчислюємо максимум учасників на основі рівня клану
+                const getMaxMembers = (level: number): number => {
+                  if (level >= 8) return 80;
+                  if (level >= 7) return 70;
+                  if (level >= 6) return 60;
+                  if (level >= 5) return 50;
+                  if (level >= 4) return 40;
+                  if (level >= 3) return 30;
+                  if (level >= 2) return 20;
+                  return 10; // level 1
+                };
+                const maxMembers = clan ? getMaxMembers(clan.level) : 10;
+                return (
+                  <div
+                    className="text-[12px] text-[#c7ad80] mb-2 cursor-pointer hover:text-[#f4e2b8]"
+                    onClick={() => handleTabChange("members")}
+                  >
+                    Состав ({members.length}/{maxMembers})
+                  </div>
+                );
+              })()}
               <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
                 {members.map((member) => {
                   const isOnline = member.isOnline;
