@@ -376,11 +376,7 @@ function AppInner() {
       return renderWithLayout(<SevenSeals navigate={navigate} />);
 
     case "/clans":
-      return (
-        <Layout navigate={navigate} showStatusBars={false}>
-          <Clans navigate={navigate} />
-        </Layout>
-      );
+      return renderWithLayout(<Clans navigate={navigate} />);
 
     default:
       // Check if pathname matches /player/:id/admin pattern
