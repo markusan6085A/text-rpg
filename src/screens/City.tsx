@@ -316,7 +316,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
               <button
                 className="w-full text-left text-[12px] text-[#ffd700] py-1.5 hover:text:white flex items-center gap-2"
-                onClick={() => openFeature("Кланы")}
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate("/clans");
+                }}
               >
                 <img src="/assets/ipvp.png" alt="Кланы" className="w-3 h-3 object-contain" />
                 <span>Кланы</span>
