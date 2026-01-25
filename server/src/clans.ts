@@ -407,30 +407,55 @@ async function clanNestedRoutes(app: FastifyInstance) {
       // TODO: Перевірити, чи є предмет у гравця та забрати його
 
       // Переконуємося, що meta є об'єктом
-      const metaData = typeof meta === 'object' && meta !== null ? meta : {};
+      let metaData: any = {};
+      try {
+        if (meta && typeof meta === 'object' && !Array.isArray(meta)) {
+          metaData = meta;
+        }
+      } catch (e) {
+        app.log.warn({ error: e }, "Failed to parse meta, using empty object");
+        metaData = {};
+      }
+
+      // Перевіряємо, чи клан існує
+      const clanExists = await prisma.clan.findUnique({
+        where: { id },
+        select: { id: true },
+      });
+
+      if (!clanExists) {
+        return reply.code(404).send({ error: "clan not found" });
+      }
+
+      app.log.info({ clanId: id, itemId, qty, metaData, depositedBy: character.id }, "Creating warehouse item");
 
       const warehouseItem = await prisma.clanWarehouse.create({
         data: {
           clanId: id,
           itemId: String(itemId),
-          qty: Number(qty) || 1,
-          meta: metaData as any,
+          qty: Math.max(1, Math.floor(Number(qty) || 1)),
+          meta: metaData,
           depositedBy: character.id,
         },
       });
 
-      // Додаємо лог
-      await prisma.clanLog.create({
-        data: {
-          clanId: id,
-          type: "item_deposited",
-          characterId: character.id,
-          message: `${character.name} положил предмет в склад`,
-          metadata: { itemId, qty },
-        },
-      });
+      app.log.info({ warehouseItemId: warehouseItem.id }, "Warehouse item created");
 
-      app.log.info({ warehouseItemId: warehouseItem.id }, "Warehouse item created successfully");
+      // Додаємо лог
+      try {
+        await prisma.clanLog.create({
+          data: {
+            clanId: id,
+            type: "item_deposited",
+            characterId: character.id,
+            message: `${character.name} положил предмет в склад`,
+            metadata: { itemId: String(itemId), qty: Number(qty) || 1 } as any,
+          },
+        });
+      } catch (logError: any) {
+        app.log.warn({ logError: logError.message }, "Failed to create clan log, but item was deposited");
+        // Не кидаємо помилку, бо предмет вже покладено
+      }
 
       return {
         ok: true,
@@ -438,8 +463,8 @@ async function clanNestedRoutes(app: FastifyInstance) {
           id: warehouseItem.id,
           itemId: warehouseItem.itemId,
           qty: warehouseItem.qty,
-          meta: warehouseItem.meta,
-          depositedBy: warehouseItem.depositedBy,
+          meta: warehouseItem.meta || {},
+          depositedBy: warehouseItem.depositedBy || null,
           depositedAt: warehouseItem.depositedAt,
         },
       };
