@@ -491,13 +491,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                   onClick={() => {
                     handleDepositAdena();
                   }}
-                  className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                  className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
                 >
                   OK
                 </button>
                 <button
                   onClick={() => setDepositAmount("")}
-                  className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  className="text-[11px] text-red-600 hover:text-red-500 transition-colors"
                 >
                   Отмена
                 </button>
@@ -517,13 +517,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                   onClick={() => {
                     handleWithdrawAdena();
                   }}
-                  className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                  className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
                 >
                   OK
                 </button>
                 <button
                   onClick={() => setWithdrawAdenaAmount("")}
-                  className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  className="text-[11px] text-red-600 hover:text-red-500 transition-colors"
                 >
                   Отмена
                 </button>
@@ -531,7 +531,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
             )}
             <div>
               <div className="flex justify-between">
-                <span className="text-[#c7ad80]">Coin of Luck:</span>
+                <span className="text-[#c7ad80]">Монета удачи:</span>
                 <span className="text-white">{clan.coinLuck}</span>
               </div>
               <div className="flex gap-2 mt-1">
@@ -540,7 +540,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                     setCoinLuckAction("deposit");
                     setCoinLuckAmount("0");
                   }}
-                  className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
+                  className="text-[10px] text-[#9f8d73] hover:text-[#c7ad80] transition-colors"
                 >
                   поповнить
                 </button>
@@ -549,7 +549,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                     setCoinLuckAction("withdraw");
                     setCoinLuckAmount("0");
                   }}
-                  className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
+                  className="text-[10px] text-[#9f8d73] hover:text-[#c7ad80] transition-colors"
                 >
                   забрать
                 </button>
@@ -569,15 +569,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                   onClick={() => {
                     handleCoinLuckAction();
                   }}
-                  className={`px-2 py-1 text-white rounded hover:opacity-80 ${
-                    coinLuckAction === "deposit" ? "bg-green-600" : "bg-red-600"
-                  }`}
+                  className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
                 >
                   OK
                 </button>
                 <button
                   onClick={() => setCoinLuckAmount("")}
-                  className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  className="text-[11px] text-red-600 hover:text-red-500 transition-colors"
                 >
                   Отмена
                 </button>
