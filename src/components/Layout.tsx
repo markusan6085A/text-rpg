@@ -184,34 +184,65 @@ export default function Layout({
   };
 
   return (
-    <>
-      {/* 🎨 Рамка fpn.png - верхня частина (зовнішня рамка навколо всього екрану) */}
-      <div className="game-frame-outer-top" />
-      
-      {/* 🎨 Рамка fpn.png - ліва частина (зовнішня рамка навколо всього екрану) */}
-      <div className="game-frame-outer-left" />
-      
-      {/* 🎨 Рамка fpn.png - права частина (зовнішня рамка навколо всього екрану) */}
-      <div className="game-frame-outer-right" />
-      
-      <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden" style={{ paddingTop: '80px', paddingLeft: '50px', paddingRight: '50px' }}>
-        <div
-          className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
-          style={
-            customBackground
-              ? {
-                  border: "1px solid #3b2614",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  boxShadow: "inset 0 0 10px #000",
-                  background: "transparent",
-                  width: "100%",
-                  overflowX: "hidden",
-                  position: "relative",
-                }
-              : undefined
-          }
-        >
+    <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
+      <div
+        className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
+        style={
+          customBackground
+            ? {
+                border: "1px solid #3b2614",
+                padding: "10px",
+                borderRadius: "10px",
+                boxShadow: "inset 0 0 10px #000",
+                background: "transparent",
+                width: "100%",
+                overflowX: "hidden",
+                position: "relative",
+              }
+            : undefined
+        }
+      >
+        {/* 🎨 Рамка fpn.png - верхня частина (вище барів) */}
+        <div 
+          className="absolute top-0 left-0 right-0"
+          style={{
+            height: '80px',
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "top center",
+            backgroundSize: "100% auto",
+            pointerEvents: "none",
+            zIndex: 1000,
+          }}
+        />
+        
+        {/* 🎨 Рамка fpn.png - ліва частина (по ширині контейнера) */}
+        <div 
+          className="absolute top-0 left-0 bottom-0"
+          style={{
+            width: '50px',
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "repeat-y",
+            backgroundPosition: "left top",
+            backgroundSize: "auto 100%",
+            pointerEvents: "none",
+            zIndex: 1000,
+          }}
+        />
+        
+        {/* 🎨 Рамка fpn.png - права частина (по ширині контейнера) */}
+        <div 
+          className="absolute top-0 right-0 bottom-0"
+          style={{
+            width: '50px',
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "repeat-y",
+            backgroundPosition: "right top",
+            backgroundSize: "auto 100%",
+            pointerEvents: "none",
+            zIndex: 1000,
+          }}
+        />
         
         {/* Кастомний фон як окремий шар - позаду всього контенту */}
         {customBackground && (
@@ -232,7 +263,8 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center">
+        {/* 🔥 Додаємо padding-left та padding-right для рамки */}
+        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center" style={{ paddingLeft: '50px', paddingRight: '50px', paddingTop: '80px' }}>
           <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
           </div>
@@ -242,7 +274,6 @@ export default function Layout({
         </div>
         {showNavGrid && <NavGrid navigate={navigate} />}
       </div>
-    </>
   );
 }
 
