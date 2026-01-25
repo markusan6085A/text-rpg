@@ -202,40 +202,6 @@ export default function Layout({
             : undefined
         }
       >
-        {/* 🎨 verx.png - верхня лінія контейнера (замість верхньої лінії) */}
-        <div 
-          className="absolute top-0 left-0 right-0"
-          style={{
-            height: '60px',
-            backgroundImage: "url('/icons/verx.png')",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "top center",
-            backgroundSize: "100% auto",
-            pointerEvents: "none",
-            zIndex: 10,
-          }}
-        />
-        
-        {/* 🎨 Бічні сторони контейнера - колір як на verx.png (темно-коричневий) */}
-        <div 
-          className="absolute top-0 left-0 bottom-0"
-          style={{
-            width: '50px',
-            backgroundColor: '#2a1f18', /* Темно-коричневий колір як на verx.png */
-            pointerEvents: "none",
-            zIndex: 5,
-          }}
-        />
-        <div 
-          className="absolute top-0 right-0 bottom-0"
-          style={{
-            width: '50px',
-            backgroundColor: '#2a1f18', /* Темно-коричневий колір як на verx.png */
-            pointerEvents: "none",
-            zIndex: 5,
-          }}
-        />
-        
         {/* Кастомний фон як окремий шар - позаду всього контенту */}
         {customBackground && (
           <div
@@ -255,8 +221,7 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        {/* 🔥 Додаємо padding-left та padding-right для бічних сторін */}
-        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center" style={{ paddingLeft: '50px', paddingRight: '50px', paddingTop: '60px' }}>
+        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center">
           <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
           </div>
