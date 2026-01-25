@@ -194,6 +194,7 @@ export default function Layout({
                 padding: "10px",
                 borderRadius: "10px",
                 boxShadow: "inset 0 0 10px #000",
+                backgroundColor: "#1D1C1A",
                 backgroundImage: "url('/icons/fon.png')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -203,6 +204,7 @@ export default function Layout({
                 position: "relative",
               }
             : {
+                backgroundColor: "#1D1C1A",
                 backgroundImage: "url('/icons/fon.png')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
