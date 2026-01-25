@@ -186,7 +186,7 @@ export default function Layout({
   return (
     <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
       <div
-        className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
+        className={`w-full max-w-[380px] flex flex-col relative game-frame ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
           customBackground
             ? {
@@ -202,6 +202,39 @@ export default function Layout({
             : undefined
         }
       >
+        {/* 🎨 Рамка fpn.png - верхня частина */}
+        <div 
+          className="game-frame-top"
+          style={{
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "top center",
+            backgroundSize: "100% auto",
+          }}
+        />
+        
+        {/* 🎨 Рамка fpn.png - ліва частина */}
+        <div 
+          className="game-frame-left"
+          style={{
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "repeat-y",
+            backgroundPosition: "left top",
+            backgroundSize: "auto 100%",
+          }}
+        />
+        
+        {/* 🎨 Рамка fpn.png - права частина */}
+        <div 
+          className="game-frame-right"
+          style={{
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "repeat-y",
+            backgroundPosition: "right top",
+            backgroundSize: "auto 100%",
+          }}
+        />
+        
         {/* Кастомний фон як окремий шар - позаду всього контенту */}
         {customBackground && (
           <div
@@ -221,7 +254,8 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center">
+        {/* 🔥 Додаємо padding-left та padding-right для рамки */}
+        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center" style={{ paddingLeft: '50px', paddingRight: '50px', paddingTop: '80px' }}>
           <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
           </div>
