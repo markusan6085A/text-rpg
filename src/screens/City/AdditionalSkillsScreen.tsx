@@ -97,6 +97,7 @@ export default function AdditionalSkillsScreen({
   const allAdditionalSkills = Object.values(AdditionalSkills);
 
   // Фільтруємо скіли: показуємо тільки ті, які ще НЕ вивчені
+  // 🎯 Скіли відкриваються по рівню: показуємо тільки скіли з requiredLevel <= heroLevel
   const availableSkills = allAdditionalSkills
     .map((sk) => {
       const entry = currentSkills.find((hs: any) => hs.id === sk.id);
@@ -115,6 +116,12 @@ export default function AdditionalSkillsScreen({
       }
 
       const requiredLevel = firstLevelDef.requiredLevel ?? 1;
+      
+      // 🎯 Скіл відкривається тільки якщо рівень гравця >= requiredLevel
+      if (heroLevel < requiredLevel) {
+        return null; // Не показуємо скіли, які ще не відкрилися
+      }
+      
       const adenaCost = firstLevelDef.spCost ?? 0; // Використовуємо spCost як вартість аден
       const heroAdena = hero.adena ?? 0;
       const canLearn = heroLevel >= requiredLevel && heroAdena >= adenaCost;

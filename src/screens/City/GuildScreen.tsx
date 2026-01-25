@@ -255,6 +255,7 @@ export default function GuildScreen({
   
   // ❗ Універсальна логіка: скіли зникають після досягнення рівня наступної професії, якщо вона не вибрана
   // Але скіли з requiredLevel < рівня наступної професії завжди відображаються (якщо не вивчені)
+  // 🎯 Скіли відкриваються по рівню: показуємо тільки скіли з requiredLevel <= heroLevel
   const available: SkillRow[] = availableSkills
     .map((sk) => {
       const entry = currentSkills.find((hs: any) => hs.id === sk.id);
@@ -265,6 +266,12 @@ export default function GuildScreen({
 
       const requiredLevel = nextLevelDef.requiredLevel ?? 1;
       const spCost = nextLevelDef.spCost ?? 0;
+      
+      // 🎯 Скіл відкривається тільки якщо рівень гравця >= requiredLevel
+      if (heroLevel < requiredLevel) {
+        return null; // Не показуємо скіли, які ще не відкрилися
+      }
+      
       const canLearn = heroLevel >= requiredLevel && heroSp >= spCost;
 
       // Перевіряємо, чи потрібно приховати цей рівень скіла
