@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { getMyClan, createClan, listClans, type Clan } from "../utils/api";
+import CreateClanForm from "./clans/CreateClanForm";
+import ClanList from "./clans/ClanList";
 
 interface ClansProps {
   navigate: (path: string) => void;
@@ -82,6 +84,10 @@ export default function Clans({ navigate }: ClansProps) {
     }
   };
 
+  const handleClanClick = (clanId: string) => {
+    navigate(`/clan-info/${clanId}`);
+  };
+
   if (!hero) {
     return (
       <div className="w-full text-white flex justify-center px-3 py-4">
@@ -101,12 +107,6 @@ export default function Clans({ navigate }: ClansProps) {
       </div>
     );
   }
-
-  // Розрахунок пагінації
-  const totalPages = Math.max(1, Math.ceil(allClans.length / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentClans = allClans.slice(startIndex, endIndex);
 
   return (
     <div className="w-full text-white px-4 py-2">
@@ -137,42 +137,13 @@ export default function Clans({ navigate }: ClansProps) {
 
           {/* Кнопка створення клану (тільки якщо немає клану) */}
           {!myClan && (
-            <>
-              <div className="flex justify-center">
-                <button
-                  onClick={() => setShowCreateForm(!showCreateForm)}
-                  className="text-[12px] font-semibold text-green-500 hover:text-green-400"
-                >
-                  {showCreateForm ? "Отмена" : "Создать клан"}
-                </button>
-              </div>
-
-              {/* Форма створення клану */}
-              {showCreateForm && (
-                <div className="p-3 bg-[#1a1a1a] border border-[#3b2614] rounded-md space-y-2">
-                  <div className="text-[12px] text-[#f4e2b8]">Название клана:</div>
-                  <input
-                    type="text"
-                    value={clanName}
-                    onChange={(e) => setClanName(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        handleCreateClan();
-                      }
-                    }}
-                    className="w-full px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-[12px] text-white rounded"
-                    placeholder="Введите название (3-16 символов)"
-                    maxLength={16}
-                  />
-                  <button
-                    onClick={handleCreateClan}
-                    className="w-full px-3 py-2 bg-gradient-to-r from-[#725024] to-[#c08c3c] text-[12px] font-semibold text-black rounded-md"
-                  >
-                    Создать
-                  </button>
-                </div>
-              )}
-            </>
+            <CreateClanForm
+              clanName={clanName}
+              showForm={showCreateForm}
+              onClanNameChange={setClanName}
+              onToggleForm={() => setShowCreateForm(!showCreateForm)}
+              onCreateClan={handleCreateClan}
+            />
           )}
 
           {/* Показуємо інформацію про мій клан, якщо він є */}
@@ -189,80 +160,13 @@ export default function Clans({ navigate }: ClansProps) {
           )}
 
           {/* Список кланів */}
-          {allClans.length === 0 ? (
-            <div className="text-center text-[#9f8d73] text-sm py-4">
-              Кланов пока нет
-            </div>
-          ) : (
-            <>
-              {/* Заголовки таблиці */}
-              <div className="grid grid-cols-2 gap-2 text-[12px] text-[#c7ad80] border-b border-[#3b2614] pb-1">
-                <div>Название</div>
-                <div className="text-right">Уровень</div>
-              </div>
-
-              {/* Список кланів */}
-              <div className="space-y-1">
-                {currentClans.map((clan) => (
-                  <div
-                    key={clan.id}
-                    className="grid grid-cols-2 gap-2 text-[12px] text-[#d3d3d3] py-1 border-b border-dotted border-[#3b2614] cursor-pointer hover:text-[#f4e2b8]"
-                    onClick={() => navigate(`/clan-info/${clan.id}`)}
-                  >
-                    <div>{clan.name}</div>
-                    <div className="text-right">Level {clan.level}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Пагінація */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 text-[12px] text-[#c7ad80]">
-                  <button
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                    className={`px-2 py-1 ${currentPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &lt;&lt;
-                  </button>
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`px-2 py-1 ${currentPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &lt;
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-2 py-1 ${
-                        currentPage === page
-                          ? "text-[#f4e2b8] font-bold"
-                          : "text-[#c7ad80] hover:text-[#f4e2b8]"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`px-2 py-1 ${currentPage === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &gt;
-                  </button>
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                    className={`px-2 py-1 ${currentPage === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
-                  >
-                    &gt;&gt;
-                  </button>
-                </div>
-              )}
-            </>
-          )}
+          <ClanList
+            clans={allClans}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            onClanClick={handleClanClick}
+            onPageChange={handlePageChange}
+          />
 
           {/* Риска вище тексту */}
           <div className="border-t border-gray-600"></div>
