@@ -22,18 +22,6 @@ export default function ClanManagement({
 }: ClanManagementProps) {
   return (
     <div className="space-y-3">
-      {/* Емблема клану */}
-      <div className="flex justify-center">
-        <img
-          src="/icons/clanns.png"
-          alt="Клан"
-          className="w-48 h-48 object-contain"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/icons/clann.jpg";
-          }}
-        />
-      </div>
-
       {/* Команди управління */}
       <div className="space-y-1 text-[12px]">
         <button
