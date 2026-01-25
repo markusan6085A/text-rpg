@@ -83,7 +83,7 @@ export default function Fishing({ navigate }: FishingProps) {
 
   // Фон fishing.jpg відображається через Layout customBackground
   return (
-    <div className="w-full text-[#b8860b] px-1 pt-8 pb-2 relative z-10">
+    <div className="w-full text-[#b8860b] px-1 pb-2">
       {!isFishingStarted ? (
         // Початковий екран з кнопкою
         <div className="w-full text-center space-y-4 py-8">
