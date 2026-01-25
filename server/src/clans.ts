@@ -839,99 +839,100 @@ export async function clanRoutes(app: FastifyInstance) {
 
   // GET /clans/my - мій клан (якщо є)
   app.get("/clans/my", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    try {
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    // Знаходимо персонажа по accountId (беремо першого)
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
+      // Знаходимо персонажа по accountId (беремо першого)
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+      });
 
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
 
-    // Перевіряємо, чи гравець створив клан або є членом клану
-    const createdClan = await prisma.clan.findFirst({
-      where: { creatorId: character.id },
-      include: {
-        creator: {
-          select: { id: true, name: true },
+      // Перевіряємо, чи гравець створив клан або є членом клану
+      const createdClan = await prisma.clan.findFirst({
+        where: { creatorId: character.id },
+        include: {
+          creator: {
+            select: { id: true, name: true },
+          },
         },
-      },
-    });
+      });
 
-    const memberClan = await prisma.clanMember.findFirst({
-      where: { characterId: character.id },
-      include: {
-        clan: {
-          include: {
-            creator: {
-              select: { id: true, name: true },
+      const memberClan = await prisma.clanMember.findFirst({
+        where: { characterId: character.id },
+        include: {
+          clan: {
+            include: {
+              creator: {
+                select: { id: true, name: true },
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    const clan = createdClan || memberClan?.clan;
-    if (!clan) {
-      return { ok: true, clan: null };
-    }
+      const clan = createdClan || memberClan?.clan;
+      if (!clan) {
+        return { ok: true, clan: null };
+      }
 
-    const clanId = clan.id;
+      const clanId = clan.id;
 
-    // Завантажуємо членів клану
-    const members = await prisma.clanMember.findMany({
-      where: { clanId },
-      include: {
-        character: {
-          select: {
-            id: true,
-            name: true,
-            lastActivityAt: true,
+      // Завантажуємо членів клану
+      const members = await prisma.clanMember.findMany({
+        where: { clanId },
+        include: {
+          character: {
+            select: {
+              id: true,
+              name: true,
+              lastActivityAt: true,
+            },
           },
         },
-      },
-      orderBy: [
-        { isDeputy: "desc" },
-        { joinedAt: "asc" },
-      ],
-    });
+        orderBy: [
+          { isDeputy: "desc" },
+          { joinedAt: "asc" },
+        ],
+      });
 
-    // Визначаємо, чи поточний гравець є головою
-    const isLeader = clan.creatorId === character.id;
+      // Визначаємо, чи поточний гравець є головою
+      const isLeader = clan.creatorId === character.id;
 
-    return {
-      ok: true,
-      clan: {
-        id: clan.id,
-        name: clan.name,
-        level: clan.level,
-        reputation: clan.reputation,
-        adena: clan.adena,
-        coinLuck: clan.coinLuck,
-        emblem: (clan as any).emblem || null,
-        createdAt: clan.createdAt,
-        creator: {
-          id: clan.creator.id,
-          name: clan.creator.name,
+      return {
+        ok: true,
+        clan: {
+          id: clan.id,
+          name: clan.name,
+          level: clan.level,
+          reputation: clan.reputation,
+          adena: clan.adena,
+          coinLuck: clan.coinLuck,
+          emblem: (clan as any).emblem || null,
+          createdAt: clan.createdAt,
+          creator: {
+            id: clan.creator.id,
+            name: clan.creator.name,
+          },
+          members: members.map((m) => ({
+            id: m.id,
+            characterId: m.character.id,
+            characterName: m.character.name,
+            title: m.title,
+            isDeputy: m.isDeputy,
+            joinedAt: m.joinedAt,
+            isOnline: m.character.lastActivityAt
+              ? new Date(m.character.lastActivityAt).getTime() > Date.now() - 5 * 60 * 1000
+              : false,
+          })),
+          isLeader,
+          memberCount: members.length,
         },
-        members: members.map((m) => ({
-          id: m.id,
-          characterId: m.character.id,
-          characterName: m.character.name,
-          title: m.title,
-          isDeputy: m.isDeputy,
-          joinedAt: m.joinedAt,
-          isOnline: m.character.lastActivityAt
-            ? new Date(m.character.lastActivityAt).getTime() > Date.now() - 5 * 60 * 1000
-            : false,
-        })),
-        isLeader,
-        memberCount: members.length,
-      },
-    };
+      };
     } catch (error: any) {
       app.log.error({ error: error.message, stack: error.stack }, "Error fetching my clan:");
       return reply.code(500).send({ 
