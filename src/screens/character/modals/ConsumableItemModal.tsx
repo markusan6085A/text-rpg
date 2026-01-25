@@ -146,7 +146,20 @@ export default function ConsumableItemModal({
               min="1"
               max={maxCount}
               value={transferAmount}
-              onChange={(e) => setTransferAmount(Math.max(1, Math.min(maxCount, parseInt(e.target.value) || 1)))}
+              onChange={(e) => {
+                let val = e.target.value;
+                // Видаляємо початковий "0" якщо вводиться число
+                if (val.startsWith("0") && val.length > 1) {
+                  val = val.replace(/^0+/, "") || "1";
+                }
+                const numVal = parseInt(val) || 1;
+                setTransferAmount(Math.max(1, Math.min(maxCount, numVal)));
+              }}
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.select();
+                }
+              }}
               className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
             />
             <button
@@ -164,7 +177,20 @@ export default function ConsumableItemModal({
               min="1"
               max={maxCount}
               value={deleteAmount}
-              onChange={(e) => setDeleteAmount(Math.max(1, Math.min(maxCount, parseInt(e.target.value) || 1)))}
+              onChange={(e) => {
+                let val = e.target.value;
+                // Видаляємо початковий "0" якщо вводиться число
+                if (val.startsWith("0") && val.length > 1) {
+                  val = val.replace(/^0+/, "") || "1";
+                }
+                const numVal = parseInt(val) || 1;
+                setDeleteAmount(Math.max(1, Math.min(maxCount, numVal)));
+              }}
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.select();
+                }
+              }}
               className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
             />
             <button

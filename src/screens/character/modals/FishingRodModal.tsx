@@ -213,15 +213,22 @@ export default function FishingRodModal({
                     maxEnchantLevel - currentEnchantLevel
                   )}
                   value={enchantAmount}
+                  onFocus={(e) => {
+                    if (e.target.value === "0") {
+                      e.target.select();
+                    }
+                  }}
                   onChange={(e) => {
-                    const val = Math.max(
-                      1,
-                      Math.min(
-                        parseInt(e.target.value) || 1,
-                        Math.min(coinOfLuckCount, maxEnchantLevel - currentEnchantLevel)
-                      )
+                    let val = e.target.value;
+                    if (val.startsWith("0") && val.length > 1) {
+                      val = val.replace(/^0+/, "") || "1";
+                    }
+                    const numVal = parseInt(val) || 1;
+                    const maxVal = Math.min(
+                      coinOfLuckCount,
+                      maxEnchantLevel - currentEnchantLevel
                     );
-                    setEnchantAmount(val);
+                    setEnchantAmount(Math.max(1, Math.min(maxVal, numVal)));
                   }}
                   className="w-20 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
                 />

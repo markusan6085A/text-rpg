@@ -738,8 +738,18 @@ export default function Shop({ navigate }: ShopProps) {
                       max="30000"
                       value={buyQuantity}
                       onChange={(e) => {
-                        const val = parseInt(e.target.value) || 1;
-                        setBuyQuantity(Math.max(1, Math.min(30000, val)));
+                        let val = e.target.value;
+                        // Видаляємо початковий "0" якщо вводиться число
+                        if (val.startsWith("0") && val.length > 1) {
+                          val = val.replace(/^0+/, "") || "1";
+                        }
+                        const numVal = parseInt(val) || 1;
+                        setBuyQuantity(Math.max(1, Math.min(30000, numVal)));
+                      }}
+                      onFocus={(e) => {
+                        if (e.target.value === "0") {
+                          e.target.select();
+                        }
                       }}
                       className="w-16 h-6 px-2 bg-[#1a1a1a] text-white text-[12px] text-center border border-[#5b4726] rounded"
                     />

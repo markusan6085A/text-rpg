@@ -1,6 +1,7 @@
 import React from "react";
 import { type Clan } from "../../utils/api";
 import { useHeroStore } from "../../state/heroStore";
+import { handleNumberInput } from "../../utils/numberInput";
 
 interface ClanHeaderProps {
   clan: Clan;
@@ -105,7 +106,15 @@ export default function ClanHeader({
             <input
               type="number"
               value={depositAmount}
-              onChange={(e) => onDepositAmountChange(e.target.value)}
+              onChange={(e) => {
+                const newValue = handleNumberInput(depositAmount, e.target.value);
+                onDepositAmountChange(newValue);
+              }}
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.select();
+                }
+              }}
               className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
               placeholder="Сумма"
               autoFocus
@@ -129,7 +138,15 @@ export default function ClanHeader({
             <input
               type="number"
               value={withdrawAdenaAmount}
-              onChange={(e) => onWithdrawAdenaAmountChange(e.target.value)}
+              onChange={(e) => {
+                const newValue = handleNumberInput(withdrawAdenaAmount, e.target.value);
+                onWithdrawAdenaAmountChange(newValue);
+              }}
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.select();
+                }
+              }}
               className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
               placeholder="Сумма для вывода"
               autoFocus
@@ -179,7 +196,15 @@ export default function ClanHeader({
             <input
               type="number"
               value={coinLuckAmount}
-              onChange={(e) => onCoinLuckAmountChange(e.target.value)}
+              onChange={(e) => {
+                const newValue = handleNumberInput(coinLuckAmount, e.target.value);
+                onCoinLuckAmountChange(newValue);
+              }}
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.select();
+                }
+              }}
               className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
               placeholder={`Сумма для ${coinLuckAction === "deposit" ? "положения" : "вывода"}`}
               autoFocus

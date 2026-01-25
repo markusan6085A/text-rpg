@@ -631,9 +631,18 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                 max={quantityModal.maxCount}
                 value={quantityInput}
                 onChange={(e) => {
-                  const val = e.target.value;
+                  let val = e.target.value;
+                  // Видаляємо початковий "0" якщо вводиться число
+                  if (val.startsWith("0") && val.length > 1) {
+                    val = val.replace(/^0+/, "") || "1";
+                  }
                   if (val === "" || (Number(val) >= 1 && Number(val) <= quantityModal.maxCount)) {
                     setQuantityInput(val);
+                  }
+                }}
+                onFocus={(e) => {
+                  if (e.target.value === "0") {
+                    e.target.select();
                   }
                 }}
                 className="w-full px-3 py-2 bg-[#2a2a2a] border border-[#7c6847] text-sm text-[#cfcfcc] rounded focus:outline-none focus:ring-1 focus:ring-[#b8860b]"

@@ -870,8 +870,18 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                     min="1"
                     value={buyQuantity}
                     onChange={(e) => {
-                      const val = parseInt(e.target.value) || 1;
-                      setBuyQuantity(Math.max(1, val));
+                      let val = e.target.value;
+                      // Видаляємо початковий "0" якщо вводиться число
+                      if (val.startsWith("0") && val.length > 1) {
+                        val = val.replace(/^0+/, "") || "1";
+                      }
+                      const numVal = parseInt(val) || 1;
+                      setBuyQuantity(Math.max(1, numVal));
+                    }}
+                    onFocus={(e) => {
+                      if (e.target.value === "0") {
+                        e.target.select();
+                      }
                     }}
                     className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-[#5b4726] rounded text-center text-[12px]"
                   />
