@@ -111,22 +111,38 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       fixedHero.adena = character.adena;
       fixedHero.coinOfLuck = character.coinLuck;
       fixedHero.aa = character.aa || 0;
-      // 🔥 КРИТИЧНО: Зберігаємо mobsKilled навіть для нового героя (якщо воно було в heroData)
+      // 🔥 КРИТИЧНО: Зберігаємо mobsKilled, level, exp навіть для нового героя (якщо воно було в heroData)
       const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
       (fixedHero as any).mobsKilled = finalMobsKilled;
       (fixedHero as any).heroJson = {
         mobsKilled: finalMobsKilled,
+        level: character.level, // Зберігаємо level в heroJson
+        exp: Number(character.exp), // Зберігаємо exp в heroJson
       };
     } else {
       // Merge character data with heroJson
       // 🔥 ВАЖЛИВО: mobsKilled має зберігатися з heroJson (вже прочитано вище)
       const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
       
+      // 🔥 КРИТИЧНО: Рівень може бути в heroJson.level (новіше) або в character.level (старе)
+      // Використовуємо більше значення, щоб не втратити рівень
+      const heroJsonLevel = (heroData as any).level;
+      const finalLevel = heroJsonLevel !== undefined && heroJsonLevel > character.level 
+        ? heroJsonLevel 
+        : character.level;
+      
+      // 🔥 КРИТИЧНО: EXP також може бути в heroJson
+      const heroJsonExp = (heroData as any).exp;
+      const finalExp = heroJsonExp !== undefined && heroJsonExp > Number(character.exp)
+        ? heroJsonExp
+        : Number(character.exp);
+      
       fixedHero = fixHeroProfession({
         ...heroData,
         // Override with character data (these are the source of truth)
-        level: character.level,
-        exp: Number(character.exp), // Convert BigInt to number
+        // 🔥 КРИТИЧНО: Використовуємо більше значення рівня та exp, щоб не втратити прогрес
+        level: finalLevel,
+        exp: finalExp, // Convert BigInt to number
         sp: character.sp,
         adena: character.adena,
         coinOfLuck: character.coinLuck,
@@ -138,10 +154,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         gender: character.sex,
         // 🔥 mobsKilled зберігаємо з heroJson (використовуємо прочитане значення)
         mobsKilled: finalMobsKilled,
-        // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled в heroJson при завантаженні
+        // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled, level, exp в heroJson при завантаженні
         heroJson: {
           ...heroData, // Беремо весь heroData (який вже є character.heroJson)
           mobsKilled: finalMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
+          level: finalLevel, // Гарантуємо, що level є в heroJson
+          exp: finalExp, // Гарантуємо, що exp є в heroJson
         },
       } as Hero);
     }
@@ -149,7 +167,24 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Recalculate stats (same logic as localStorage version)
     const now = Date.now();
     const savedBattle = loadBattle(fixedHero.name);
-    const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
+    
+    // 🔥 КРИТИЧНО: Бафи можуть бути в heroJson.heroBuffs (з сервера) або в savedBattle.heroBuffs (localStorage)
+    // Перевіряємо обидва джерела і об'єднуємо їх
+    const heroJsonBuffs = Array.isArray((fixedHero as any).heroJson?.heroBuffs) 
+      ? (fixedHero as any).heroJson.heroBuffs 
+      : [];
+    const savedBattleBuffs = savedBattle?.heroBuffs || [];
+    
+    // Об'єднуємо бафи з обох джерел (уникаємо дублікатів за id)
+    const allBuffs = [...heroJsonBuffs, ...savedBattleBuffs];
+    const uniqueBuffs = allBuffs.filter((buff, index, self) => 
+      index === self.findIndex((b) => 
+        (b.id && buff.id && b.id === buff.id) || 
+        (!b.id && !buff.id && b.name === buff.name)
+      )
+    );
+    
+    const savedBuffs = cleanupBuffs(uniqueBuffs, now);
     const recalculated = recalculateAllStats(fixedHero, []);
 
     const baseMax = {
@@ -214,11 +249,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       hp: finalHp,
       mp: finalMp,
       cp: finalCp,
-      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled в heroJson (не дозволяємо втратити)
+      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled, level, exp в heroJson (не дозволяємо втратити)
       mobsKilled: currentMobsKilled,
       heroJson: {
         ...existingHeroJson,
         mobsKilled: currentMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
+        level: fixedHero.level, // Гарантуємо, що level є в heroJson
+        exp: fixedHero.exp, // Гарантуємо, що exp є в heroJson
+        heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері
       },
     };
     

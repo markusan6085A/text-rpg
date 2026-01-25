@@ -72,15 +72,40 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     // 🔥 КРИТИЧНО: НЕ копіюємо весь hero в heroJson, бо це створить циклічну структуру!
     // Копіюємо тільки необхідні поля з hero, виключаючи heroJson
     const { heroJson: _, ...heroWithoutJson } = hero as any;
+    
+    // 🔥 КРИТИЧНО: Бафи можуть бути в heroJson.heroBuffs або в battle state
+    // Перевіряємо обидва джерела
+    const loadBattle = require("../battle/persist").loadBattle;
+    const savedBattle = loadBattle(hero.name);
+    const battleBuffs = savedBattle?.heroBuffs || [];
+    const heroJsonBuffs = Array.isArray(existingHeroJson.heroBuffs) ? existingHeroJson.heroBuffs : [];
+    
+    // Об'єднуємо бафи з обох джерел (уникаємо дублікатів за id)
+    const allBuffs = [...heroJsonBuffs, ...battleBuffs];
+    const uniqueBuffs = allBuffs.filter((buff: any, index: number, self: any[]) => 
+      index === self.findIndex((b: any) => 
+        (b.id && buff.id && b.id === buff.id) || 
+        (!b.id && !buff.id && b.name === buff.name)
+      )
+    );
+    
     const heroJsonToSave = {
       ...existingHeroJson, // Спочатку беремо існуючий heroJson
       ...heroWithoutJson, // Потім додаємо поля з hero (БЕЗ heroJson, щоб уникнути циклу)
-      // 🔥 КРИТИЧНО: mobsKilled завжди має бути в heroJson (перезаписуємо, щоб гарантувати правильне значення)
+      // 🔥 КРИТИЧНО: mobsKilled, level, exp, heroBuffs завжди мають бути в heroJson
       mobsKilled: currentMobsKilled,
+      level: hero.level, // Гарантуємо, що level є в heroJson
+      exp: hero.exp, // Гарантуємо, що exp є в heroJson
+      heroBuffs: uniqueBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
     };
     
     // Логуємо для діагностики
-    console.log('[saveHeroToLocalStorage] heroJsonToSave.mobsKilled:', heroJsonToSave.mobsKilled);
+    console.log('[saveHeroToLocalStorage] heroJsonToSave:', {
+      mobsKilled: heroJsonToSave.mobsKilled,
+      level: heroJsonToSave.level,
+      exp: heroJsonToSave.exp,
+      heroBuffsCount: uniqueBuffs.length,
+    });
     
     await updateCharacter(characterStore.characterId, {
       heroJson: heroJsonToSave,
