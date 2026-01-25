@@ -7,11 +7,13 @@ async function ensureClanWarehouseTable(app: FastifyInstance) {
   try {
     // Перевіряємо, чи існує таблиця
     await prisma.$queryRaw`SELECT 1 FROM "ClanWarehouse" LIMIT 1`;
+    app.log.debug("ClanWarehouse table exists");
   } catch (error: any) {
     // Якщо таблиця не існує, створюємо її
-    if (error?.message?.includes('does not exist') || error?.code === '42P01') {
-      app.log.warn("ClanWarehouse table does not exist, creating it...");
+    if (error?.message?.includes('does not exist') || error?.code === '42P01' || error?.message?.includes('ClanWarehouse')) {
+      app.log.warn({ error: error.message }, "ClanWarehouse table does not exist, creating it...");
       try {
+        // Спочатку створюємо таблицю
         await prisma.$executeRawUnsafe(`
           CREATE TABLE IF NOT EXISTS "ClanWarehouse" (
             "id" TEXT NOT NULL,
@@ -23,29 +25,51 @@ async function ensureClanWarehouseTable(app: FastifyInstance) {
             "depositedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT "ClanWarehouse_pkey" PRIMARY KEY ("id")
           );
-          
-          CREATE INDEX IF NOT EXISTS "ClanWarehouse_clanId_idx" ON "ClanWarehouse"("clanId");
-          CREATE INDEX IF NOT EXISTS "ClanWarehouse_clanId_depositedAt_idx" ON "ClanWarehouse"("clanId", "depositedAt");
-          
-          DO $$ 
-          BEGIN
-            IF NOT EXISTS (
-              SELECT 1 FROM pg_constraint WHERE conname = 'ClanWarehouse_clanId_fkey'
-            ) AND EXISTS (
-              SELECT 1 FROM information_schema.tables WHERE table_name = 'Clan'
-            ) THEN
-              ALTER TABLE "ClanWarehouse" ADD CONSTRAINT "ClanWarehouse_clanId_fkey" 
-              FOREIGN KEY ("clanId") REFERENCES "Clan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-            END IF;
-          END $$;
         `);
+        
+        // Створюємо індекси
+        await prisma.$executeRawUnsafe(`
+          CREATE INDEX IF NOT EXISTS "ClanWarehouse_clanId_idx" ON "ClanWarehouse"("clanId");
+        `);
+        
+        await prisma.$executeRawUnsafe(`
+          CREATE INDEX IF NOT EXISTS "ClanWarehouse_clanId_depositedAt_idx" ON "ClanWarehouse"("clanId", "depositedAt");
+        `);
+        
+        // Додаємо foreign key, якщо таблиця Clan існує
+        const clanExists = await prisma.$queryRaw<Array<{exists: boolean}>>`
+          SELECT EXISTS (
+            SELECT 1 FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_name = 'Clan'
+          ) as exists;
+        `;
+        
+        if (clanExists[0]?.exists) {
+          const fkExists = await prisma.$queryRaw<Array<{exists: boolean}>>`
+            SELECT EXISTS (
+              SELECT 1 FROM pg_constraint 
+              WHERE conname = 'ClanWarehouse_clanId_fkey'
+            ) as exists;
+          `;
+          
+          if (!fkExists[0]?.exists) {
+            await prisma.$executeRawUnsafe(`
+              ALTER TABLE "ClanWarehouse" 
+              ADD CONSTRAINT "ClanWarehouse_clanId_fkey" 
+              FOREIGN KEY ("clanId") REFERENCES "Clan"("id") 
+              ON DELETE CASCADE ON UPDATE CASCADE;
+            `);
+          }
+        }
+        
         app.log.info("ClanWarehouse table created successfully");
       } catch (createError: any) {
-        app.log.error({ error: createError.message }, "Failed to create ClanWarehouse table");
-        throw createError;
+        app.log.error({ error: createError.message, stack: createError.stack }, "Failed to create ClanWarehouse table");
+        // Не кидаємо помилку далі, щоб не блокувати запит
       }
     } else {
-      throw error;
+      app.log.error({ error: error.message }, "Unexpected error checking ClanWarehouse table");
+      // Не кидаємо помилку, спробуємо продовжити
     }
   }
 }
@@ -368,16 +392,39 @@ async function clanNestedRoutes(app: FastifyInstance) {
         return reply.code(403).send({ error: "you are not a member of this clan" });
       }
 
-      const items = await prisma.clanWarehouse.findMany({
-        where: { clanId: id },
-        orderBy: { depositedAt: "desc" },
-        take: limitNum,
-        skip: (pageNum - 1) * limitNum,
-      });
+      // Переконаємося, що таблиця існує перед використанням
+      let items: any[] = [];
+      let total = 0;
+      try {
+        items = await prisma.clanWarehouse.findMany({
+          where: { clanId: id },
+          orderBy: { depositedAt: "desc" },
+          take: limitNum,
+          skip: (pageNum - 1) * limitNum,
+        });
 
-      const total = await prisma.clanWarehouse.count({
-        where: { clanId: id },
-      });
+        total = await prisma.clanWarehouse.count({
+          where: { clanId: id },
+        });
+      } catch (queryError: any) {
+        if (queryError?.message?.includes('does not exist') || queryError?.code === '42P01') {
+          app.log.warn("ClanWarehouse table missing during query, ensuring it exists...");
+          await ensureClanWarehouseTable(app);
+          // Спробуємо ще раз після створення таблиці
+          items = await prisma.clanWarehouse.findMany({
+            where: { clanId: id },
+            orderBy: { depositedAt: "desc" },
+            take: limitNum,
+            skip: (pageNum - 1) * limitNum,
+          });
+
+          total = await prisma.clanWarehouse.count({
+            where: { clanId: id },
+          });
+        } else {
+          throw queryError;
+        }
+      }
 
       return {
         ok: true,
@@ -446,9 +493,24 @@ async function clanNestedRoutes(app: FastifyInstance) {
       }
 
       // Перевіряємо ліміт складу (200 предметів)
-      const currentCount = await prisma.clanWarehouse.count({
-        where: { clanId: id },
-      });
+      // Спочатку переконаємося, що таблиця існує
+      let currentCount = 0;
+      try {
+        currentCount = await prisma.clanWarehouse.count({
+          where: { clanId: id },
+        });
+      } catch (countError: any) {
+        if (countError?.message?.includes('does not exist') || countError?.code === '42P01') {
+          app.log.warn("ClanWarehouse table missing during count, ensuring it exists...");
+          await ensureClanWarehouseTable(app);
+          // Спробуємо ще раз після створення таблиці
+          currentCount = await prisma.clanWarehouse.count({
+            where: { clanId: id },
+          });
+        } else {
+          throw countError;
+        }
+      }
 
       if (currentCount >= 200) {
         return reply.code(400).send({ error: "clan warehouse is full (200 items max)" });
@@ -479,15 +541,35 @@ async function clanNestedRoutes(app: FastifyInstance) {
 
       app.log.info({ clanId: id, itemId, qty, metaData, depositedBy: character.id }, "Creating warehouse item");
 
-      const warehouseItem = await prisma.clanWarehouse.create({
-        data: {
-          clanId: id,
-          itemId: String(itemId),
-          qty: Math.max(1, Math.floor(Number(qty) || 1)),
-          meta: metaData,
-          depositedBy: character.id,
-        },
-      });
+      let warehouseItem;
+      try {
+        warehouseItem = await prisma.clanWarehouse.create({
+          data: {
+            clanId: id,
+            itemId: String(itemId),
+            qty: Math.max(1, Math.floor(Number(qty) || 1)),
+            meta: metaData,
+            depositedBy: character.id,
+          },
+        });
+      } catch (createError: any) {
+        if (createError?.message?.includes('does not exist') || createError?.code === '42P01') {
+          app.log.warn("ClanWarehouse table missing during create, ensuring it exists...");
+          await ensureClanWarehouseTable(app);
+          // Спробуємо ще раз після створення таблиці
+          warehouseItem = await prisma.clanWarehouse.create({
+            data: {
+              clanId: id,
+              itemId: String(itemId),
+              qty: Math.max(1, Math.floor(Number(qty) || 1)),
+              meta: metaData,
+              depositedBy: character.id,
+            },
+          });
+        } else {
+          throw createError;
+        }
+      }
 
       app.log.info({ warehouseItemId: warehouseItem.id }, "Warehouse item created");
 
