@@ -1,12 +1,13 @@
 import React from "react";
 
-type TabType = "chat" | "history" | "members" | "storage";
+type TabType = "chat" | "history" | "members" | "storage" | "management" | "quests";
 
 interface ClanNavigationProps {
   activeTab: TabType;
   isLeader: boolean;
   onTabChange: (tab: TabType) => void;
   onDeleteClan: () => void;
+  onManagementClick: () => void;
 }
 
 export default function ClanNavigation({
@@ -14,6 +15,7 @@ export default function ClanNavigation({
   isLeader,
   onTabChange,
   onDeleteClan,
+  onManagementClick,
 }: ClanNavigationProps) {
   return (
     <>
@@ -47,6 +49,14 @@ export default function ClanNavigation({
         </div>
         <div
           className={`cursor-pointer hover:text-[#f4e2b8] ${
+            activeTab === "quests" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
+          }`}
+          onClick={() => onTabChange("quests")}
+        >
+          • Квесты
+        </div>
+        <div
+          className={`cursor-pointer hover:text-[#f4e2b8] ${
             activeTab === "storage" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
           }`}
           onClick={() => onTabChange("storage")}
@@ -55,7 +65,14 @@ export default function ClanNavigation({
         </div>
         {isLeader && (
           <div className="pl-4 space-y-1">
-            <div className="text-[#c7ad80]">- Управление кланом</div>
+            <div
+              className={`cursor-pointer hover:text-[#f4e2b8] ${
+                activeTab === "management" ? "text-[#f4e2b8]" : "text-[#c7ad80]"
+              }`}
+              onClick={onManagementClick}
+            >
+              - Управление кланом
+            </div>
             <div
               className="text-red-500 cursor-pointer hover:text-red-400"
               onClick={onDeleteClan}

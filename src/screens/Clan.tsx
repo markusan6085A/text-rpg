@@ -27,6 +27,8 @@ import ClanChat from "./clan/ClanChat";
 import ClanHistory from "./clan/ClanHistory";
 import ClanMembers from "./clan/ClanMembers";
 import ClanStorage from "./clan/ClanStorage";
+import ClanManagement from "./clan/ClanManagement";
+import ClanQuests from "./clan/ClanQuests";
 import DepositItemsModal from "./clan/modals/DepositItemsModal";
 import WithdrawItemsModal from "./clan/modals/WithdrawItemsModal";
 
@@ -39,7 +41,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const hero = useHeroStore((s) => s.hero);
   const [clan, setClan] = useState<Clan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"chat" | "history" | "members" | "storage">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "history" | "members" | "storage" | "management" | "quests">("chat");
   const [chatMessage, setChatMessage] = useState("");
   const [chatMessages, setChatMessages] = useState<ClanChatMessage[]>([]);
   const [chatPage, setChatPage] = useState(1);
@@ -375,7 +377,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   };
 
-  const handleTabChange = (tab: "chat" | "history" | "members" | "storage") => {
+  const handleTabChange = (tab: "chat" | "history" | "members" | "storage" | "management" | "quests") => {
     setActiveTab(tab);
     if (tab === "chat") {
       setChatPage(1);
@@ -387,7 +389,38 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     } else if (tab === "storage") {
       setStoragePage(1);
       loadStorage();
+    } else if (tab === "quests") {
+      // Заглушка для квестів
     }
+    // management не потребує завантаження даних
+  };
+
+  const handleManagementClick = () => {
+    setActiveTab("management");
+  };
+
+  const handleAnnouncement = () => {
+    alert("Вывесить объявление - в разработке");
+  };
+
+  const handleEmblem = () => {
+    alert("Эмблема клана - в разработке");
+  };
+
+  const handleAcademy = () => {
+    alert("Создать академию - в разработке");
+  };
+
+  const handleLevelUp = () => {
+    alert("Повысить уровень клана - в разработке");
+  };
+
+  const handleSkillTree = () => {
+    alert("Древо умений - в разработке");
+  };
+
+  const handleDragonLair = () => {
+    alert("Логово дракона - в разработке");
   };
 
   if (!hero) {
@@ -447,6 +480,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
             isLeader={isLeader}
             onTabChange={handleTabChange}
             onDeleteClan={handleDeleteClan}
+            onManagementClick={handleManagementClick}
           />
 
           {/* Контент табів */}
@@ -466,6 +500,20 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           )}
 
           {activeTab === "history" && <ClanHistory logs={logs} />}
+
+          {activeTab === "quests" && <ClanQuests />}
+
+          {activeTab === "management" && clan && (
+            <ClanManagement
+              clan={clan}
+              onAnnouncement={handleAnnouncement}
+              onEmblem={handleEmblem}
+              onAcademy={handleAcademy}
+              onLevelUp={handleLevelUp}
+              onSkillTree={handleSkillTree}
+              onDragonLair={handleDragonLair}
+            />
+          )}
 
           {activeTab === "storage" && (
             <ClanStorage
