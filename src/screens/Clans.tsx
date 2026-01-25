@@ -181,7 +181,7 @@ export default function Clans({ navigate }: ClansProps) {
               <div className="text-[12px] text-[#f4e2b8] font-semibold">Мой клан:</div>
               <div
                 className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                onClick={() => navigate(`/clan/${myClan.id}`)}
+                onClick={() => navigate(`/clan-info/${myClan.id}`)}
               >
                 {myClan.name} (Level {myClan.level})
               </div>
@@ -207,7 +207,7 @@ export default function Clans({ navigate }: ClansProps) {
                   <div
                     key={clan.id}
                     className="grid grid-cols-2 gap-2 text-[12px] text-[#d3d3d3] py-1 border-b border-dotted border-[#3b2614] cursor-pointer hover:text-[#f4e2b8]"
-                    onClick={() => navigate(`/clan/${clan.id}`)}
+                    onClick={() => navigate(`/clan-info/${clan.id}`)}
                   >
                     <div>{clan.name}</div>
                     <div className="text-right">Level {clan.level}</div>

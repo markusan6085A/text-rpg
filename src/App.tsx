@@ -40,6 +40,7 @@ import News from "./screens/News";
 import SevenSeals from "./screens/SevenSeals";
 import Clans from "./screens/Clans";
 import Clan from "./screens/Clan";
+import ClanInfo from "./screens/ClanInfo";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -380,7 +381,14 @@ function AppInner() {
       return renderWithLayout(<Clans navigate={navigate} />);
 
     default:
-      // Check if pathname matches /clan/:id pattern
+      // Check if pathname matches /clan-info/:id pattern (інформаційна сторінка)
+      if (pathname.startsWith("/clan-info/")) {
+        const clanId = pathname.replace("/clan-info/", "").split("?")[0];
+        if (clanId) {
+          return renderWithLayout(<ClanInfo navigate={navigate} clanId={clanId} />);
+        }
+      }
+      // Check if pathname matches /clan/:id pattern (повна сторінка управління)
       if (pathname.startsWith("/clan/")) {
         const clanId = pathname.replace("/clan/", "").split("?")[0];
         if (clanId) {

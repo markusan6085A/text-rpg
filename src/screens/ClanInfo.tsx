@@ -1,0 +1,226 @@
+import React, { useState, useEffect } from "react";
+import { getClan, getClanMembers, type Clan, type ClanMember } from "../utils/api";
+
+interface ClanInfoProps {
+  navigate: (path: string) => void;
+  clanId: string;
+}
+
+export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
+  const [clan, setClan] = useState<Clan | null>(null);
+  const [members, setMembers] = useState<ClanMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [membersPage, setMembersPage] = useState(1);
+  const membersPerPage = 10;
+
+  useEffect(() => {
+    loadClanInfo();
+  }, [clanId]);
+
+  const loadClanInfo = async () => {
+    try {
+      setLoading(true);
+      const clanResponse = await getClan(clanId);
+      if (clanResponse.ok) {
+        setClan(clanResponse.clan);
+        // Завантажуємо учасників
+        const membersResponse = await getClanMembers(clanId);
+        if (membersResponse.ok) {
+          setMembers(membersResponse.members);
+        }
+      } else {
+        alert("Клан не найден");
+        navigate("/clans");
+      }
+    } catch (err) {
+      console.error("[ClanInfo] Failed to load clan:", err);
+      alert("Ошибка при загрузке информации о клане");
+      navigate("/clans");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Обчислюємо максимум учасників на основі рівня клану
+  const getMaxMembers = (level: number): number => {
+    if (level >= 8) return 80;
+    if (level >= 7) return 70;
+    if (level >= 6) return 60;
+    if (level >= 5) return 50;
+    if (level >= 4) return 40;
+    if (level >= 3) return 30;
+    if (level >= 2) return 20;
+    return 10; // level 1
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full text-white flex justify-center px-3 py-4">
+        <div className="w-full max-w-[420px]">
+          <div className="text-center text-[#dec28e]">Загрузка...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!clan) {
+    return (
+      <div className="w-full text-white flex justify-center px-3 py-4">
+        <div className="w-full max-w-[420px]">
+          <div className="text-center text-[#dec28e]">Клан не найден</div>
+        </div>
+      </div>
+    );
+  }
+
+  const maxMembers = getMaxMembers(clan.level);
+  const totalPages = Math.max(1, Math.ceil(members.length / membersPerPage));
+  const startIndex = (membersPage - 1) * membersPerPage;
+  const endIndex = startIndex + membersPerPage;
+  const currentMembers = members.slice(startIndex, endIndex);
+
+  return (
+    <div className="w-full text-white px-4 py-2">
+      <div className="w-full max-w-[360px] mx-auto">
+        <div className="space-y-3">
+          {/* Риска вище назви клану */}
+          <div className="border-t border-gray-600"></div>
+
+          {/* Назва клану */}
+          <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
+            {clan.name}
+          </div>
+
+          {/* Риска нижче назви клану */}
+          <div className="border-b border-gray-600"></div>
+
+          {/* Емблема клану */}
+          <div className="flex justify-center">
+            <img
+              src="/icons/clanns.png"
+              alt="Клан"
+              className="w-48 h-48 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/icons/clann.jpg";
+              }}
+            />
+          </div>
+
+          {/* Статистика клану */}
+          <div className="space-y-1 text-[12px]">
+            <div className="flex justify-between">
+              <span className="text-[#c7ad80]">Уровень:</span>
+              <span className="text-white">{clan.level}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#c7ad80]">Лидер:</span>
+              <span className="text-white">{clan.creator.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#c7ad80]">Репутация:</span>
+              <span className="text-white">{clan.reputation}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#c7ad80]">Основан:</span>
+              <span className="text-white">
+                {new Date(clan.createdAt).toLocaleDateString("ru-RU")}
+              </span>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-600"></div>
+
+          {/* Список учасників */}
+          <div className="space-y-2">
+            <div className="text-[12px] text-[#c7ad80] font-semibold">
+              Состав ({members.length}/{maxMembers})
+            </div>
+            <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
+              {currentMembers.length === 0 ? (
+                <div className="text-[11px] text-[#9f8d73]">Нет участников</div>
+              ) : (
+                currentMembers.map((member) => {
+                  const isOnline = member.isOnline;
+                  const titleDisplay = member.title || "Нет титула";
+                  const roles = [];
+                  if (member.isLeader) roles.push("Глава клана");
+                  if (member.isDeputy) roles.push("Заместитель главы");
+                  const rolesDisplay = roles.length > 0 ? `, ${roles.join(", ")}` : "";
+
+                  return (
+                    <div
+                      key={member.id}
+                      className="text-[11px] border-b border-dotted border-[#3b2614] pb-1"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <span
+                            className={isOnline ? "text-green-500" : "text-white"}
+                            style={
+                              !isOnline && member.characterName === clan.creator.name
+                                ? { color: "#ff6b9d" }
+                                : {}
+                            }
+                          >
+                            {member.characterName} [{isOnline ? "On" : "Off"}]
+                          </span>
+                          <div className="text-[#9f8d73] mt-0.5">
+                            {titleDisplay}
+                            {rolesDisplay}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Пагінація учасників */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]">
+                <button
+                  onClick={() => {
+                    if (membersPage > 1) {
+                      setMembersPage(membersPage - 1);
+                    }
+                  }}
+                  disabled={membersPage === 1}
+                  className={`px-2 py-1 ${membersPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                >
+                  &lt;
+                </button>
+                <span className="text-white">
+                  {membersPage} / {totalPages}
+                </span>
+                <button
+                  onClick={() => {
+                    if (membersPage < totalPages) {
+                      setMembersPage(membersPage + 1);
+                    }
+                  }}
+                  disabled={membersPage === totalPages}
+                  className={`px-2 py-1 ${membersPage === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                >
+                  &gt;
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-gray-600"></div>
+
+          {/* Кнопка назад */}
+          <div className="mt-4 flex justify-center">
+            <span
+              onClick={() => navigate("/clans")}
+              className="text-sm text-red-600 cursor-pointer hover:text-red-500"
+            >
+              В город
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
