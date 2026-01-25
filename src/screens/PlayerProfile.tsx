@@ -6,6 +6,8 @@ import WriteLetterModal from "../components/WriteLetterModal";
 import PlayerItemModal from "../components/PlayerItemModal";
 import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
+import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
+import { getMyClan } from "../utils/api";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -20,6 +22,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [error, setError] = useState<string | null>(null);
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ slot: string; itemId: string | null; enchantLevel?: number } | null>(null);
+  const [playerClan, setPlayerClan] = useState<any>(null);
 
   const loadPlayerProfile = async () => {
     setLoading(true);
@@ -36,6 +39,13 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       }
       
       setCharacter(loadedCharacter);
+      
+      // Використовуємо клан з character, якщо він є
+      if (loadedCharacter.clan) {
+        setPlayerClan(loadedCharacter.clan);
+      } else {
+        setPlayerClan(null);
+      }
     } catch (err: any) {
       setError(err?.message || "Помилка завантаження профілю гравця");
       console.error("[PlayerProfile] Error loading profile:", err);
@@ -238,7 +248,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         {/* Нік, профа, лвл */}
         <div className="border-t border-dotted border-[#654321] pt-2 mb-2">
           <div className="text-center text-[12px]">
-            <div className="font-bold text-[14px]" style={getNickColorStyle(character.name, hero, heroData?.nickColor)}>{character.name}</div>
+            <div className="font-bold text-[14px]">
+              <PlayerNameWithEmblem
+                playerName={character.name}
+                hero={hero}
+                clan={playerClan}
+                nickColor={heroData?.nickColor || undefined}
+                size={14}
+              />
+            </div>
             <div className="border-b border-dotted border-[#654321] pb-2 mb-2">
               <div className="text-yellow-300">
                 {professionLabel} - {character.level} ур.

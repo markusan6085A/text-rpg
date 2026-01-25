@@ -1,9 +1,12 @@
 import React from "react";
+import { ClanNameWithEmblem } from "../../components/ClanNameWithEmblem";
+import type { Clan } from "../../utils/api";
 
-interface Clan {
+interface ClanListItem {
   id: string;
   name: string;
   level: number;
+  emblem?: string | null;
 }
 
 interface ClanListProps {
@@ -50,7 +53,19 @@ export default function ClanList({
             className="grid grid-cols-2 gap-2 text-[12px] text-[#d3d3d3] py-1 border-b border-dotted border-[#3b2614] cursor-pointer hover:text-[#f4e2b8]"
             onClick={() => onClanClick(clan.id)}
           >
-            <div>{clan.name}</div>
+            <div className="flex items-center gap-1">
+              {clan.emblem && (
+                <img
+                  src={`/clans-emblems/${clan.emblem}`}
+                  alt=""
+                  className="w-4 h-4 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              )}
+              <span>{clan.name}</span>
+            </div>
             <div className="text-right">Level {clan.level}</div>
           </div>
         ))}

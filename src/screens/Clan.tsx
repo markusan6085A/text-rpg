@@ -15,6 +15,7 @@ import {
   withdrawClanAdena,
   depositClanCoinLuck,
   withdrawClanCoinLuck,
+  setClanEmblem,
   type Clan,
   type ClanMember,
   type ClanChatMessage,
@@ -31,6 +32,7 @@ import ClanManagement from "./clan/ClanManagement";
 import ClanQuests from "./clan/ClanQuests";
 import DepositItemsModal from "./clan/modals/DepositItemsModal";
 import WithdrawItemsModal from "./clan/modals/WithdrawItemsModal";
+import SelectClanEmblemModal from "./clan/modals/SelectClanEmblemModal";
 
 interface ClanProps {
   navigate: (path: string) => void;
@@ -58,6 +60,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [coinLuckAction, setCoinLuckAction] = useState<"deposit" | "withdraw">("deposit");
   const [showDepositItemsModal, setShowDepositItemsModal] = useState(false);
   const [showWithdrawItemsModal, setShowWithdrawItemsModal] = useState(false);
+  const [showEmblemModal, setShowEmblemModal] = useState(false);
   const [selectedItemCategory, setSelectedItemCategory] = useState("all");
 
   // Завантажуємо клан
@@ -404,7 +407,22 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   };
 
   const handleEmblem = () => {
-    alert("Эмблема клана - в разработке");
+    setShowEmblemModal(true);
+  };
+
+  const handleSelectEmblem = async (emblem: string) => {
+    if (!clan) return;
+    
+    try {
+      const response = await setClanEmblem(clan.id, emblem);
+      if (response.ok) {
+        setShowEmblemModal(false);
+        loadClan(); // Оновлюємо дані клану
+      }
+    } catch (err: any) {
+      console.error("[Clan] Failed to set emblem:", err);
+      alert(err.message || "Ошибка при установке эмблемы");
+    }
   };
 
   const handleAcademy = () => {
@@ -575,6 +593,14 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           items={storageItems}
           onClose={() => setShowWithdrawItemsModal(false)}
           onWithdrawSuccess={loadStorage}
+        />
+      )}
+
+      {showEmblemModal && clan && (
+        <SelectClanEmblemModal
+          currentEmblem={clan.emblem || null}
+          onSelect={handleSelectEmblem}
+          onClose={() => setShowEmblemModal(false)}
         />
       )}
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getClan, getClanMembers, type Clan, type ClanMember } from "../utils/api";
+import { ClanNameWithEmblem } from "../components/ClanNameWithEmblem";
 
 interface ClanInfoProps {
   navigate: (path: string) => void;
@@ -88,7 +89,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
 
           {/* Назва клану */}
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
-            {clan.name}
+            <ClanNameWithEmblem clan={clan} size={18} />
           </div>
 
           {/* Риска нижче назви клану */}

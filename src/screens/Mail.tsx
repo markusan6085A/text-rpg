@@ -10,6 +10,7 @@ import {
 import { useHeroStore } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
+import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 
 interface MailProps {
   navigate: (path: string) => void;
@@ -354,9 +355,13 @@ export default function Mail({ navigate }: MailProps) {
                 <div key={letter.id} className="border-b border-dotted border-[#654321] pb-1 mb-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
-                      <span
+                      <PlayerNameWithEmblem
+                        playerName={displayName}
+                        hero={hero}
+                        clan={!isOwn && letter?.fromCharacter?.emblem ? { emblem: letter.fromCharacter.emblem } as any : null}
+                        nickColor={displayNickColor || undefined}
+                        size={10}
                         className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80 transition-colors text-[10px]"
-                        style={getNickColorStyle(displayName, hero, displayNickColor)}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (!isOwn && letter?.fromCharacter?.id) {
@@ -365,9 +370,7 @@ export default function Mail({ navigate }: MailProps) {
                             navigate(`/player/${letter.fromCharacter.name}`);
                           }
                         }}
-                      >
-                        {displayName}
-                      </span>
+                      />
 
                       {isOwn && !letter.isRead && <span className="text-red-400 text-[8px]">непрочитано</span>}
                     </div>

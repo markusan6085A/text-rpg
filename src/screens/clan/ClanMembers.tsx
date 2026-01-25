@@ -1,5 +1,7 @@
 import React from "react";
 import { type Clan, type ClanMember } from "../../utils/api";
+import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
+import { useHeroStore } from "../../state/heroStore";
 
 interface ClanMembersProps {
   clan: Clan;
@@ -24,6 +26,7 @@ export default function ClanMembers({
   onEditingTitleChange,
   onTabChange,
 }: ClanMembersProps) {
+  const hero = useHeroStore((s) => s.hero);
   // Обчислюємо максимум учасників на основі рівня клану
   const getMaxMembers = (level: number): number => {
     if (level >= 8) return 80;
@@ -63,7 +66,12 @@ export default function ClanMembers({
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <span className={isOnline ? "text-green-500" : "text-red-500"}>
-                    {member.characterName} [{isOnline ? "On" : "Off"}]
+                    <PlayerNameWithEmblem
+                      playerName={member.characterName}
+                      hero={hero}
+                      clan={clan}
+                      size={10}
+                    /> [{isOnline ? "On" : "Off"}]
                   </span>
                   <div className="text-[#9f8d73] mt-0.5">
                     {titleDisplay}

@@ -1009,6 +1009,17 @@ export async function characterRoutes(app: FastifyInstance) {
           createdAt: true,
           updatedAt: true,
           lastActivityAt: true, // 🔥 Для показу "Останній раз був"
+          clanMember: {
+            include: {
+              clan: {
+                select: {
+                  id: true,
+                  name: true,
+                  emblem: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -1019,6 +1030,7 @@ export async function characterRoutes(app: FastifyInstance) {
         ...char,
         exp: Number(char.exp),
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
+        clan: char.clanMember?.clan || null,
       };
 
       return { ok: true, character: serialized };
@@ -1061,6 +1073,17 @@ export async function characterRoutes(app: FastifyInstance) {
           createdAt: true,
           updatedAt: true,
           lastActivityAt: true,
+          clanMember: {
+            include: {
+              clan: {
+                select: {
+                  id: true,
+                  name: true,
+                  emblem: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -1071,6 +1094,7 @@ export async function characterRoutes(app: FastifyInstance) {
         ...char,
         exp: Number(char.exp),
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
+        clan: char.clanMember?.clan || null,
       };
 
       return { ok: true, character: serialized };

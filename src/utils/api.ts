@@ -48,6 +48,11 @@ export interface Character {
   createdAt: string;
   updatedAt?: string;
   lastActivityAt?: string; // 🔥 Для показу "Останній раз був"
+  clan?: {
+    id: string;
+    name: string;
+    emblem: string | null;
+  } | null;
 }
 
 export interface CreateCharacterRequest {
@@ -388,6 +393,7 @@ export interface Letter {
     id: string;
     name: string;
     nickColor?: string; // Color of the sender's nickname
+    emblem?: string | null; // Clan emblem of the sender
   };
   toCharacter?: {
     id: string;
@@ -553,6 +559,7 @@ export interface Clan {
   reputation: number;
   adena: number;
   coinLuck: number;
+  emblem: string | null;
   createdAt: string;
   creator: {
     id: string;
@@ -581,6 +588,7 @@ export interface ClanChatMessage {
   characterId: string;
   characterName: string;
   nickColor: string | null;
+  emblem: string | null;
   message: string;
   createdAt: string;
 }
@@ -605,6 +613,7 @@ export interface ClansResponse {
     reputation: number;
     adena: number;
     coinLuck: number;
+    emblem: string | null;
     createdAt: string;
     _count: { members: number };
   }>;
@@ -802,6 +811,14 @@ export async function withdrawClanCoinLuck(clanId: string, amount: number): Prom
   const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/coin-luck/withdraw`, {
     method: 'POST',
     body: JSON.stringify({ amount }),
+  });
+  return response;
+}
+
+export async function setClanEmblem(clanId: string, emblem: string): Promise<{ ok: boolean; clan: Clan }> {
+  const response = await apiRequest<{ ok: boolean; clan: Clan }>(`/clans/${clanId}/emblem`, {
+    method: 'POST',
+    body: JSON.stringify({ emblem }),
   });
   return response;
 }

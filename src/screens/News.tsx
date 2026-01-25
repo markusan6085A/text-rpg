@@ -4,6 +4,7 @@ import { getGameTimeTag } from "../utils/news";
 import { itemsDB } from "../data/items/itemsDB";
 import { getNickColorStyle } from "../utils/nickColor";
 import { useHeroStore } from "../state/heroStore";
+import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 
 type Route =
   | "/"
@@ -148,9 +149,12 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
       text = (
         <>
           На сервері з'явився новий гравець{" "}
-          <span 
+          <PlayerNameWithEmblem
+            playerName={item.characterName || "Unknown"}
+            hero={hero}
+            clan={null}
+            size={12}
             className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
-            style={item.characterName ? getNickColorStyle(item.characterName, hero) : {}}
             onClick={(e) => {
               e.stopPropagation();
               if (item.characterId) {
@@ -159,9 +163,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
                 navigate(`/player/${item.characterName}` as any);
               }
             }}
-          >
-            {item.characterName || "Unknown"}
-          </span>
+          />
         </>
       );
     } else if (item.type === "premium_purchase") {
@@ -191,9 +193,12 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
       const drops = item.metadata?.bossDrops;
       text = (
         <>
-          <span 
+          <PlayerNameWithEmblem
+            playerName={item.characterName || "Unknown"}
+            hero={hero}
+            clan={null}
+            size={12}
             className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
-            style={item.characterName ? getNickColorStyle(item.characterName, hero) : {}}
             onClick={(e) => {
               e.stopPropagation();
               if (item.characterId) {
@@ -202,9 +207,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
                 navigate(`/player/${item.characterName}` as any);
               }
             }}
-          >
-            {item.characterName || "Unknown"}
-          </span>{" "}
+          />{" "}
           убив{" "}
           <span 
             className="text-yellow-300 cursor-pointer hover:opacity-80 transition-colors"

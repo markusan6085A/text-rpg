@@ -1,5 +1,7 @@
 import React from "react";
 import { type ClanChatMessage } from "../../utils/api";
+import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
+import { useHeroStore } from "../../state/heroStore";
 
 interface ClanChatProps {
   messages: ClanChatMessage[];
@@ -20,6 +22,8 @@ export default function ClanChat({
   onSendMessage,
   onPageChange,
 }: ClanChatProps) {
+  const hero = useHeroStore((s) => s.hero);
+  
   return (
     <div className="space-y-2">
       {/* Чат */}
@@ -30,13 +34,15 @@ export default function ClanChat({
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className="text-[11px]">
-              <span
-                style={msg.nickColor ? { color: msg.nickColor } : {}}
+              <PlayerNameWithEmblem
+                playerName={msg.characterName}
+                hero={hero}
+                clan={msg.emblem ? { emblem: msg.emblem } as any : null}
+                nickColor={msg.nickColor || undefined}
+                size={10}
                 className="font-semibold"
-              >
-                {msg.characterName}:
-              </span>{" "}
-              <span className="text-white">{msg.message}</span>
+              />
+              <span className="text-white">: {msg.message}</span>
             </div>
           ))
         )}

@@ -151,10 +151,20 @@ export default function Clans({ navigate }: ClansProps) {
             <div className="p-3 bg-[#1a1a1a] border border-[#3b2614] rounded-md space-y-1 mb-3">
               <div className="text-[12px] text-[#f4e2b8] font-semibold">Мой клан:</div>
               <div
-                className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
+                className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8] flex items-center gap-1"
                 onClick={() => navigate(`/clan-info/${myClan.id}`)}
               >
-                {myClan.name} (Level {myClan.level})
+                {myClan.emblem && (
+                  <img
+                    src={`/clans-emblems/${myClan.emblem}`}
+                    alt=""
+                    className="w-3 h-3 object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                )}
+                <span>{myClan.name} (Level {myClan.level})</span>
               </div>
             </div>
           )}

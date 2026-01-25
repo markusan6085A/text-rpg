@@ -1,6 +1,7 @@
 import React from "react";
 import { type Clan } from "../../utils/api";
 import { useHeroStore } from "../../state/heroStore";
+import { ClanNameWithEmblem } from "../../components/ClanNameWithEmblem";
 import { handleNumberInput } from "../../utils/numberInput";
 
 interface ClanHeaderProps {
@@ -41,7 +42,7 @@ export default function ClanHeader({
 
       {/* Назва клану */}
       <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
-        {clan.name}
+        <ClanNameWithEmblem clan={clan} size={18} />
       </div>
 
       {/* Риска нижче назви клану */}

@@ -738,6 +738,73 @@ async function clanNestedRoutes(app: FastifyInstance) {
 
     return { ok: true };
   });
+
+  // POST /clans/:id/emblem - встановити емблему клану (тільки для глави)
+  app.post("/clans/:id/emblem", async (req, reply) => {
+    app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/emblem called");
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { emblem } = req.body as { emblem?: string };
+
+    if (!emblem) {
+      return reply.code(400).send({ error: "emblem is required" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const clan = await prisma.clan.findUnique({
+      where: { id },
+      include: {
+        creator: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    if (!clan) {
+      return reply.code(404).send({ error: "clan not found" });
+    }
+
+    // Перевіряємо, чи гравець є головою клану
+    if (clan.creatorId !== character.id) {
+      return reply.code(403).send({ error: "only clan leader can set emblem" });
+    }
+
+    // Оновлюємо емблему
+    const updatedClan = await prisma.clan.update({
+      where: { id },
+      data: { emblem },
+      include: {
+        creator: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "emblem_changed",
+        characterId: character.id,
+        message: `${character.name} изменил эмблему клана`,
+        metadata: { emblem },
+      },
+    });
+
+    return {
+      ok: true,
+      clan: updatedClan,
+    };
+  });
 }
 
 export async function clanRoutes(app: FastifyInstance) {
@@ -759,6 +826,7 @@ export async function clanRoutes(app: FastifyInstance) {
         reputation: true,
         adena: true,
         coinLuck: true,
+        emblem: true,
         createdAt: true,
         _count: {
           select: { members: true },
@@ -841,6 +909,7 @@ export async function clanRoutes(app: FastifyInstance) {
         reputation: clan.reputation,
         adena: clan.adena,
         coinLuck: clan.coinLuck,
+        emblem: clan.emblem,
         createdAt: clan.createdAt,
         creator: {
           id: clan.creator.id,
@@ -946,6 +1015,7 @@ export async function clanRoutes(app: FastifyInstance) {
           reputation: clan.reputation,
           adena: clan.adena,
           coinLuck: clan.coinLuck,
+          emblem: clan.emblem,
           createdAt: clan.createdAt,
           creator: {
             id: clan.creator.id,
@@ -1017,6 +1087,7 @@ export async function clanRoutes(app: FastifyInstance) {
         reputation: clan.reputation,
         adena: clan.adena,
         coinLuck: clan.coinLuck,
+        emblem: clan.emblem,
         createdAt: clan.createdAt,
         creator: {
           id: clan.creator.id,
@@ -1086,6 +1157,15 @@ export async function clanRoutes(app: FastifyInstance) {
             id: true,
             name: true,
             nickColor: true,
+            clanMember: {
+              include: {
+                clan: {
+                  select: {
+                    emblem: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -1105,6 +1185,7 @@ export async function clanRoutes(app: FastifyInstance) {
         characterId: m.character.id,
         characterName: m.character.name,
         nickColor: m.character.nickColor,
+        emblem: m.character.clanMember?.clan?.emblem || null,
         message: m.message,
         createdAt: m.createdAt,
       })),

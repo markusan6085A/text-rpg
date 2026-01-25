@@ -69,6 +69,15 @@ export async function chatRoutes(app: FastifyInstance) {
             select: {
               name: true,
               heroJson: true, // Include heroJson to get nickColor
+              clanMember: {
+                include: {
+                  clan: {
+                    select: {
+                      emblem: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -89,6 +98,7 @@ export async function chatRoutes(app: FastifyInstance) {
             createdAt: msg.createdAt.toISOString(),
             isOwn: character ? msg.characterId === character.id : false,
             nickColor: nickColor || undefined,
+            emblem: msg.character.clanMember?.clan?.emblem || null,
           };
         }),
         page,

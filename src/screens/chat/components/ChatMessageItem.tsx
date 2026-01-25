@@ -2,8 +2,8 @@ import React from "react";
 import type { ChatMessage } from "../../../utils/api";
 import type { Hero } from "../../../types/Hero";
 import type { ChatChannel } from "../types";
-import { getNickColorStyle } from "../../../utils/nickColor";
 import { formatTime } from "../utils";
+import { PlayerNameWithEmblem } from "../../../components/PlayerNameWithEmblem";
 
 interface ChatMessageItemProps {
   msg: ChatMessage;
@@ -35,9 +35,13 @@ export function ChatMessageItem({
       <div className="text-xs leading-tight flex items-start gap-2 group">
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span
+            <PlayerNameWithEmblem
+              playerName={msg.characterName}
+              hero={hero}
+              clan={msg.emblem ? { emblem: msg.emblem } as any : null}
+              nickColor={msg.nickColor || undefined}
+              size={12}
               className="font-semibold cursor-pointer hover:opacity-80 transition-colors"
-              style={getNickColorStyle(msg.characterName, hero, msg.nickColor)}
               onClick={(e) => {
                 e.stopPropagation();
                 if (msg.characterId) {
@@ -46,9 +50,7 @@ export function ChatMessageItem({
                   onNavigate(`/player/${msg.characterName}`);
                 }
               }}
-            >
-              {msg.characterName}
-            </span>
+            />
             <span
               className="text-green-400 cursor-pointer hover:text-green-300"
               onClick={() => onReply(`@${msg.characterName} `)}

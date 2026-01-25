@@ -166,6 +166,15 @@ export async function letterRoutes(app: FastifyInstance) {
                 id: true,
                 name: true,
                 nickColor: true, // ✅ замість heroJson
+                clanMember: {
+                  include: {
+                    clan: {
+                      select: {
+                        emblem: true,
+                      },
+                    },
+                  },
+                },
               } as any,
             },
           },
@@ -179,9 +188,18 @@ export async function letterRoutes(app: FastifyInstance) {
         }),
       ]);
 
+      // Додаємо emblem до fromCharacter
+      const lettersWithEmblem = letters.map((l: any) => ({
+        ...l,
+        fromCharacter: l.fromCharacter ? {
+          ...l.fromCharacter,
+          emblem: l.fromCharacter.clanMember?.clan?.emblem || null,
+        } : l.fromCharacter,
+      }));
+
       return {
         ok: true,
-        letters,
+        letters: lettersWithEmblem,
         total,
         unreadCount,
         page,
@@ -231,6 +249,15 @@ export async function letterRoutes(app: FastifyInstance) {
               id: true,
               name: true,
               nickColor: true, // ✅
+              clanMember: {
+                include: {
+                  clan: {
+                    select: {
+                      emblem: true,
+                    },
+                  },
+                },
+              },
             } as any,
           },
           toCharacter: {
@@ -264,7 +291,16 @@ export async function letterRoutes(app: FastifyInstance) {
         letter.readAt = new Date();
       }
 
-      return { ok: true, letter };
+      // Додаємо emblem до fromCharacter
+      const letterWithEmblem = {
+        ...letter,
+        fromCharacter: letter.fromCharacter ? {
+          ...letter.fromCharacter,
+          emblem: (letter.fromCharacter as any).clanMember?.clan?.emblem || null,
+        } : letter.fromCharacter,
+      };
+
+      return { ok: true, letter: letterWithEmblem };
     } catch (error) {
       app.log.error(error, "Error fetching letter:");
       return reply.code(500).send({
@@ -398,6 +434,10 @@ export async function letterRoutes(app: FastifyInstance) {
       const lettersWithMeta = letters.map((l: any) => ({
         ...l,
         isOwn: l.fromCharacterId === character.id,
+        fromCharacter: l.fromCharacter ? {
+          ...l.fromCharacter,
+          emblem: l.fromCharacter.clanMember?.clan?.emblem || null,
+        } : l.fromCharacter,
       }));
 
       return { ok: true, letters: lettersWithMeta, total, page, limit };

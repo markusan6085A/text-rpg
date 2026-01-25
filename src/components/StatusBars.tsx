@@ -7,6 +7,8 @@ import { cleanupBuffs } from "../state/battle/helpers";
 import { calculateMaxResourcesWithPassives } from "../utils/calculateHeroStats";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
 import { getNickColorStyle } from "../utils/nickColor";
+import { PlayerNameWithEmblem } from "./PlayerNameWithEmblem";
+import { getMyClan } from "../utils/api";
 
 type BarKey = "CP" | "HP" | "MP" | "EXP";
 
@@ -70,8 +72,29 @@ export default function StatusBars() {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const battleStatus = useBattleStore((s) => s.status);
+  const [myClan, setMyClan] = React.useState<any>(null);
   
   const inBattle = battleStatus !== "idle";
+
+  // Завантажуємо клан для відображення емблеми
+  React.useEffect(() => {
+    if (!hero) {
+      setMyClan(null);
+      return;
+    }
+
+    getMyClan()
+      .then((response) => {
+        if (response.ok && response.clan) {
+          setMyClan(response.clan);
+        } else {
+          setMyClan(null);
+        }
+      })
+      .catch(() => {
+        setMyClan(null);
+      });
+  }, [hero]);
 
   // Регенерація HP/MP/CP (тільки поза боєм) та перевірка таймера Зарича
   React.useEffect(() => {
@@ -168,7 +191,12 @@ export default function StatusBars() {
         <Bar label="EXP" value={expPercent} max={100} />
       </div>
       <div className="mt-1 text-white text-[9px] font-semibold text-left">
-        <span style={getNickColorStyle(hero.name, hero)}>{hero.name}</span>
+        <PlayerNameWithEmblem
+          playerName={hero.name}
+          hero={hero}
+          clan={myClan}
+          size={10}
+        />
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
       {/* Крапкова лінія під барами */}
