@@ -202,48 +202,6 @@ export default function Layout({
             : undefined
         }
       >
-        {/* 🎨 Рамка fpn.png - верхня частина (вище барів) */}
-        <div 
-          className="absolute top-0 left-0 right-0"
-          style={{
-            height: '80px',
-            backgroundImage: "url('/icons/fpn.png')",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "top center",
-            backgroundSize: "100% auto",
-            pointerEvents: "none",
-            zIndex: 1000,
-          }}
-        />
-        
-        {/* 🎨 Рамка fpn.png - ліва частина (по ширині контейнера) */}
-        <div 
-          className="absolute top-0 left-0 bottom-0"
-          style={{
-            width: '50px',
-            backgroundImage: "url('/icons/fpn.png')",
-            backgroundRepeat: "repeat-y",
-            backgroundPosition: "left top",
-            backgroundSize: "auto 100%",
-            pointerEvents: "none",
-            zIndex: 1000,
-          }}
-        />
-        
-        {/* 🎨 Рамка fpn.png - права частина (по ширині контейнера) */}
-        <div 
-          className="absolute top-0 right-0 bottom-0"
-          style={{
-            width: '50px',
-            backgroundImage: "url('/icons/fpn.png')",
-            backgroundRepeat: "repeat-y",
-            backgroundPosition: "right top",
-            backgroundSize: "auto 100%",
-            pointerEvents: "none",
-            zIndex: 1000,
-          }}
-        />
-        
         {/* Кастомний фон як окремий шар - позаду всього контенту */}
         {customBackground && (
           <div
@@ -257,6 +215,49 @@ export default function Layout({
             }}
           />
         )}
+        
+        {/* 🎨 Рамка fpn.png - верхня частина (на самому верху контейнера, вище барів) */}
+        <div 
+          className="absolute top-0 left-0 right-0"
+          style={{
+            height: '80px',
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "top center",
+            backgroundSize: "100% auto",
+            pointerEvents: "none",
+            zIndex: 10,
+          }}
+        />
+        
+        {/* 🎨 Рамка fpn.png - ліва частина (по краях контейнера, вирівняна з NavGrid) */}
+        <div 
+          className="absolute top-0 left-0 bottom-0"
+          style={{
+            width: '50px',
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "repeat-y",
+            backgroundPosition: "left top",
+            backgroundSize: "auto 100%",
+            pointerEvents: "none",
+            zIndex: 10,
+          }}
+        />
+        
+        {/* 🎨 Рамка fpn.png - права частина (по краях контейнера, вирівняна з NavGrid) */}
+        <div 
+          className="absolute top-0 right-0 bottom-0"
+          style={{
+            width: '50px',
+            backgroundImage: "url('/icons/fpn.png')",
+            backgroundRepeat: "repeat-y",
+            backgroundPosition: "right top",
+            backgroundSize: "auto 100%",
+            pointerEvents: "none",
+            zIndex: 10,
+          }}
+        />
+        
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
