@@ -153,7 +153,7 @@ model Clan {
   reputation  Int      @default(0) // Репутація клану
   adena       Int      @default(0) // Адена клану
   coinLuck    Int      @default(0) // Coin of Luck клану
-  creatorId   String   // ID гравця, який створив клан
+  creatorId   String   @unique // ID гравця, який створив клан (один гравець = один клан)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
