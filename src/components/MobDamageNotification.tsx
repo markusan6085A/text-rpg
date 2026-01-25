@@ -15,16 +15,30 @@ export default function MobDamageNotification({ navigate }: MobDamageNotificatio
     // Шукаємо повідомлення типу "наносит вам ... урона" або "наносит ... урона"
     for (const line of log) {
       const lower = line.toLowerCase();
+      // 🔥 ПРИБРАНО: Не показуємо повідомлення для рейд-босів (Raid Boss)
+      if (lower.includes("raid boss")) {
+        continue;
+      }
+      
       if ((lower.includes("наносит вам") || lower.includes("наносит")) && lower.includes("урона")) {
         // Парсимо назву моба та урон
         const match = line.match(/^([^наносит]+?)\s+наносит\s+(?:вам\s+)?(\d+)\s+урона/);
         if (match) {
           const mobName = match[1].trim();
+          // 🔥 ПРИБРАНО: Не показуємо повідомлення для рейд-босів
+          if (mobName.toLowerCase().includes("raid boss")) {
+            continue;
+          }
           const damage = match[2];
           return { mobName, damage, fullText: line };
         }
         // Якщо не знайшли точний match, використовуємо весь рядок
-        return { mobName: line.split(" наносит")[0]?.trim() || "", damage: "", fullText: line };
+        const mobName = line.split(" наносит")[0]?.trim() || "";
+        // 🔥 ПРИБРАНО: Не показуємо повідомлення для рейд-босів
+        if (mobName.toLowerCase().includes("raid boss")) {
+          continue;
+        }
+        return { mobName, damage: "", fullText: line };
       }
     }
     return null;

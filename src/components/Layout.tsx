@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
-import MobDamageNotification from "./MobDamageNotification";
+// 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно
+// import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
 import { getOnlinePlayers, sendHeartbeat } from "../utils/api";
 import { useBattleStore } from "../state/battle/store";
@@ -216,7 +217,8 @@ export default function Layout({
         )}
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
-        <MobDamageNotification navigate={navigate} /> {/* Повідомлення про урон від мобів */}
+        {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
+        {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
         <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center">
