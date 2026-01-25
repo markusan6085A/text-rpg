@@ -19,226 +19,8 @@ function getAuth(req: any): { accountId: string; login: string; characterId?: st
   }
 }
 
-export async function clanRoutes(app: FastifyInstance) {
-  // GET /clans - список всіх кланів
-  app.get("/clans", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
-    const clans = await prisma.clan.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        level: true,
-        reputation: true,
-        adena: true,
-        coinLuck: true,
-        createdAt: true,
-        _count: {
-          select: { members: true },
-        },
-      },
-    });
-
-    return { ok: true, clans };
-  });
-
-  // GET /clans/my - мій клан (якщо є)
-  app.get("/clans/my", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
-    // Знаходимо персонажа по accountId (беремо першого)
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
-
-    // Перевіряємо, чи гравець створив клан або є членом клану
-    const createdClan = await prisma.clan.findFirst({
-      where: { creatorId: character.id },
-      include: {
-        creator: {
-          select: { id: true, name: true },
-        },
-      },
-    });
-
-    const memberClan = await prisma.clanMember.findFirst({
-      where: { characterId: character.id },
-      include: {
-        clan: {
-          include: {
-            creator: {
-              select: { id: true, name: true },
-            },
-          },
-        },
-      },
-    });
-
-    const clan = createdClan || memberClan?.clan;
-    if (!clan) {
-      return { ok: true, clan: null };
-    }
-
-    // Завантажуємо членів клану
-    const members = await prisma.clanMember.findMany({
-      where: { clanId: clan.id },
-      include: {
-        character: {
-          select: {
-            id: true,
-            name: true,
-            lastActivityAt: true,
-          },
-        },
-      },
-      orderBy: [
-        { isDeputy: "desc" },
-        { joinedAt: "asc" },
-      ],
-    });
-
-    // Визначаємо, чи поточний гравець є головою
-    const isLeader = clan.creatorId === character.id;
-
-    return {
-      ok: true,
-      clan: {
-        id: clan.id,
-        name: clan.name,
-        level: clan.level,
-        reputation: clan.reputation,
-        adena: clan.adena,
-        coinLuck: clan.coinLuck,
-        createdAt: clan.createdAt,
-        creator: {
-          id: clan.creator.id,
-          name: clan.creator.name,
-        },
-        members: members.map((m) => ({
-          id: m.id,
-          characterId: m.character.id,
-          characterName: m.character.name,
-          title: m.title,
-          isDeputy: m.isDeputy,
-          joinedAt: m.joinedAt,
-          isOnline: m.character.lastActivityAt
-            ? new Date(m.character.lastActivityAt).getTime() > Date.now() - 5 * 60 * 1000
-            : false,
-        })),
-        isLeader,
-        memberCount: members.length,
-      },
-    };
-  });
-
-  // POST /clans - створити клан
-  app.post("/clans", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
-    const { name } = req.body as { name?: string };
-
-    if (!name || typeof name !== "string") {
-      return reply.code(400).send({ error: "name is required" });
-    }
-
-    if (name.length < 3 || name.length > 16) {
-      return reply.code(400).send({ error: "name must be between 3 and 16 characters" });
-    }
-
-    // Знаходимо персонажа
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
-
-    // Перевіряємо, чи гравець вже створив клан або є членом клану
-    const existingClan = await prisma.clan.findFirst({
-      where: { creatorId: character.id },
-    });
-
-    const existingMember = await prisma.clanMember.findFirst({
-      where: { characterId: character.id },
-    });
-
-    if (existingClan || existingMember) {
-      return reply.code(409).send({ error: "you already have a clan" });
-    }
-
-    // Перевіряємо, чи назва клану вже існує
-    const nameExists = await prisma.clan.findUnique({
-      where: { name },
-    });
-
-    if (nameExists) {
-      return reply.code(409).send({ error: "clan name already exists" });
-    }
-
-    try {
-      // Створюємо клан та автоматично додаємо творця як члена
-      const clan = await prisma.clan.create({
-        data: {
-          name,
-          level: 1,
-          creatorId: character.id,
-          members: {
-            create: {
-              characterId: character.id,
-              isDeputy: false,
-            },
-          },
-          logs: {
-            create: {
-              type: "member_joined",
-              characterId: character.id,
-              message: `${character.name} создал клан "${name}"`,
-            },
-          },
-        },
-        include: {
-          creator: {
-            select: { id: true, name: true },
-          },
-        },
-      });
-
-      return {
-        ok: true,
-        clan: {
-          id: clan.id,
-          name: clan.name,
-          level: clan.level,
-          reputation: clan.reputation,
-          adena: clan.adena,
-          coinLuck: clan.coinLuck,
-          createdAt: clan.createdAt,
-          creator: {
-            id: clan.creator.id,
-            name: clan.creator.name,
-          },
-        },
-      };
-    } catch (e: any) {
-      if (e.code === "P2002") {
-        return reply.code(409).send({ error: "clan name already exists" });
-      }
-      throw e;
-    }
-  });
-
-  // 🔥 ВАЖЛИВО: Більш специфічні роути ПЕРЕД менш специфічними (/clans/:id)
-  // Це потрібно для правильної роботи Fastify роутингу
-
+// 🔥 Окремий плагін для вкладених роутів /clans/:id/*
+async function clanNestedRoutes(app: FastifyInstance) {
   // POST /clans/:id/adena/deposit - покласти адену в клан
   app.post("/clans/:id/adena/deposit", async (req, reply) => {
     app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/adena/deposit called");
@@ -496,6 +278,227 @@ export async function clanRoutes(app: FastifyInstance) {
     });
 
     return { ok: true };
+  });
+}
+
+export async function clanRoutes(app: FastifyInstance) {
+  // 🔥 КРИТИЧНО: Спочатку реєструємо вкладені роути (специфічні)
+  await app.register(clanNestedRoutes);
+  
+  // GET /clans - список всіх кланів
+  app.get("/clans", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const clans = await prisma.clan.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        level: true,
+        reputation: true,
+        adena: true,
+        coinLuck: true,
+        createdAt: true,
+        _count: {
+          select: { members: true },
+        },
+      },
+    });
+
+    return { ok: true, clans };
+  });
+
+  // GET /clans/my - мій клан (якщо є)
+  app.get("/clans/my", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    // Знаходимо персонажа по accountId (беремо першого)
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    // Перевіряємо, чи гравець створив клан або є членом клану
+    const createdClan = await prisma.clan.findFirst({
+      where: { creatorId: character.id },
+      include: {
+        creator: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    const memberClan = await prisma.clanMember.findFirst({
+      where: { characterId: character.id },
+      include: {
+        clan: {
+          include: {
+            creator: {
+              select: { id: true, name: true },
+            },
+          },
+        },
+      },
+    });
+
+    const clan = createdClan || memberClan?.clan;
+    if (!clan) {
+      return { ok: true, clan: null };
+    }
+
+    // Завантажуємо членів клану
+    const members = await prisma.clanMember.findMany({
+      where: { clanId: clan.id },
+      include: {
+        character: {
+          select: {
+            id: true,
+            name: true,
+            lastActivityAt: true,
+          },
+        },
+      },
+      orderBy: [
+        { isDeputy: "desc" },
+        { joinedAt: "asc" },
+      ],
+    });
+
+    // Визначаємо, чи поточний гравець є головою
+    const isLeader = clan.creatorId === character.id;
+
+    return {
+      ok: true,
+      clan: {
+        id: clan.id,
+        name: clan.name,
+        level: clan.level,
+        reputation: clan.reputation,
+        adena: clan.adena,
+        coinLuck: clan.coinLuck,
+        createdAt: clan.createdAt,
+        creator: {
+          id: clan.creator.id,
+          name: clan.creator.name,
+        },
+        members: members.map((m) => ({
+          id: m.id,
+          characterId: m.character.id,
+          characterName: m.character.name,
+          title: m.title,
+          isDeputy: m.isDeputy,
+          joinedAt: m.joinedAt,
+          isOnline: m.character.lastActivityAt
+            ? new Date(m.character.lastActivityAt).getTime() > Date.now() - 5 * 60 * 1000
+            : false,
+        })),
+        isLeader,
+        memberCount: members.length,
+      },
+    };
+  });
+
+  // POST /clans - створити клан
+  app.post("/clans", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { name } = req.body as { name?: string };
+
+    if (!name || typeof name !== "string") {
+      return reply.code(400).send({ error: "name is required" });
+    }
+
+    if (name.length < 3 || name.length > 16) {
+      return reply.code(400).send({ error: "name must be between 3 and 16 characters" });
+    }
+
+    // Знаходимо персонажа
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    // Перевіряємо, чи гравець вже створив клан або є членом клану
+    const existingClan = await prisma.clan.findFirst({
+      where: { creatorId: character.id },
+    });
+
+    const existingMember = await prisma.clanMember.findFirst({
+      where: { characterId: character.id },
+    });
+
+    if (existingClan || existingMember) {
+      return reply.code(409).send({ error: "you already have a clan" });
+    }
+
+    // Перевіряємо, чи назва клану вже існує
+    const nameExists = await prisma.clan.findUnique({
+      where: { name },
+    });
+
+    if (nameExists) {
+      return reply.code(409).send({ error: "clan name already exists" });
+    }
+
+    try {
+      // Створюємо клан та автоматично додаємо творця як члена
+      const clan = await prisma.clan.create({
+        data: {
+          name,
+          level: 1,
+          creatorId: character.id,
+          members: {
+            create: {
+              characterId: character.id,
+              isDeputy: false,
+            },
+          },
+          logs: {
+            create: {
+              type: "member_joined",
+              characterId: character.id,
+              message: `${character.name} создал клан "${name}"`,
+            },
+          },
+        },
+        include: {
+          creator: {
+            select: { id: true, name: true },
+          },
+        },
+      });
+
+      return {
+        ok: true,
+        clan: {
+          id: clan.id,
+          name: clan.name,
+          level: clan.level,
+          reputation: clan.reputation,
+          adena: clan.adena,
+          coinLuck: clan.coinLuck,
+          createdAt: clan.createdAt,
+          creator: {
+            id: clan.creator.id,
+            name: clan.creator.name,
+          },
+        },
+      };
+    } catch (e: any) {
+      if (e.code === "P2002") {
+        return reply.code(409).send({ error: "clan name already exists" });
+      }
+      throw e;
+    }
   });
 
   // GET /clans/:id - деталі клану
