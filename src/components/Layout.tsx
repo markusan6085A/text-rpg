@@ -194,39 +194,22 @@ export default function Layout({
                 padding: "10px",
                 borderRadius: "10px",
                 boxShadow: "inset 0 0 10px #000",
-                background: "transparent",
+                backgroundImage: "url('/icons/fon.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
                 width: "100%",
                 overflowX: "hidden",
                 position: "relative",
               }
-            : undefined
+            : {
+                backgroundImage: "url('/icons/fon.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }
         }
       >
-        {/* 🎨 fon.png - фон для середини зовнішньої рамки для всіх сторінок */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: "url('/icons/fon.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            zIndex: 0,
-          }}
-        />
-        
-        {/* Кастомний фон як окремий шар - позаду всього контенту (якщо вказано) */}
-        {customBackground && (
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: `url(${customBackground})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              zIndex: 1,
-            }}
-          />
-        )}
         {showStatusBars && <StatusBars />}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
