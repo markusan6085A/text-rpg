@@ -212,3 +212,18 @@ model ClanLog {
   @@index([clanId, createdAt])
   @@index([characterId])
 }
+
+model ClanWarehouse {
+  id          String   @id @default(cuid())
+  clanId      String
+  itemId      String   // ID предмета
+  qty         Int      @default(1)
+  meta        Json     @default("{}") // Метадані предмета
+  depositedBy String?  // ID гравця, який поклав предмет
+  depositedAt DateTime @default(now())
+
+  clan        Clan     @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@index([clanId])
+  @@index([clanId, depositedAt])
+}
