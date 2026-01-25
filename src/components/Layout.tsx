@@ -202,7 +202,19 @@ export default function Layout({
             : undefined
         }
       >
-        {/* Кастомний фон як окремий шар - позаду всього контенту */}
+        {/* 🎨 fon.png - фон для середини зовнішньої рамки для всіх сторінок */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "url('/icons/fon.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            zIndex: 0,
+          }}
+        />
+        
+        {/* Кастомний фон як окремий шар - позаду всього контенту (якщо вказано) */}
         {customBackground && (
           <div
             className="absolute inset-0 pointer-events-none"
@@ -211,7 +223,7 @@ export default function Layout({
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
-              zIndex: 0,
+              zIndex: 1,
             }}
           />
         )}
