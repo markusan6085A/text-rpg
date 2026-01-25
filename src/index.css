@@ -193,14 +193,13 @@ button {
   z-index: 1;
 }
 
-/* 🎨 Рамка fpn.png для верхньої та бічних частин */
-.game-frame {
+/* 🎨 Рамка fpn.png для верхньої та бічних частин - зовнішня рамка навколо всього екрану */
+#root {
   position: relative;
-  overflow: visible;
 }
 
-.game-frame-top {
-  position: absolute;
+.game-frame-outer-top {
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -208,13 +207,13 @@ button {
   background-image: url('/icons/fpn.png');
   background-repeat: no-repeat;
   background-position: top center;
-  background-size: contain;
+  background-size: 100% auto;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
 }
 
-.game-frame-left {
-  position: absolute;
+.game-frame-outer-left {
+  position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
@@ -222,13 +221,13 @@ button {
   background-image: url('/icons/fpn.png');
   background-repeat: repeat-y;
   background-position: left top;
-  background-size: contain;
+  background-size: auto 100%;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
 }
 
-.game-frame-right {
-  position: absolute;
+.game-frame-outer-right {
+  position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
@@ -236,9 +235,9 @@ button {
   background-image: url('/icons/fpn.png');
   background-repeat: repeat-y;
   background-position: right top;
-  background-size: contain;
+  background-size: auto 100%;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 /* L2 WAP рамка */

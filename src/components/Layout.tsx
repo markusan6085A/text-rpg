@@ -184,56 +184,34 @@ export default function Layout({
   };
 
   return (
-    <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
-      <div
-        className={`w-full max-w-[380px] flex flex-col relative game-frame ${!customBackground ? "l2-frame page-bg" : ""}`}
-        style={
-          customBackground
-            ? {
-                border: "1px solid #3b2614",
-                padding: "10px",
-                borderRadius: "10px",
-                boxShadow: "inset 0 0 10px #000",
-                background: "transparent",
-                width: "100%",
-                overflowX: "hidden",
-                position: "relative",
-              }
-            : undefined
-        }
-      >
-        {/* 🎨 Рамка fpn.png - верхня частина */}
-        <div 
-          className="game-frame-top"
-          style={{
-            backgroundImage: "url('/icons/fpn.png')",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "top center",
-            backgroundSize: "100% auto",
-          }}
-        />
-        
-        {/* 🎨 Рамка fpn.png - ліва частина */}
-        <div 
-          className="game-frame-left"
-          style={{
-            backgroundImage: "url('/icons/fpn.png')",
-            backgroundRepeat: "repeat-y",
-            backgroundPosition: "left top",
-            backgroundSize: "auto 100%",
-          }}
-        />
-        
-        {/* 🎨 Рамка fpn.png - права частина */}
-        <div 
-          className="game-frame-right"
-          style={{
-            backgroundImage: "url('/icons/fpn.png')",
-            backgroundRepeat: "repeat-y",
-            backgroundPosition: "right top",
-            backgroundSize: "auto 100%",
-          }}
-        />
+    <>
+      {/* 🎨 Рамка fpn.png - верхня частина (зовнішня рамка навколо всього екрану) */}
+      <div className="game-frame-outer-top" />
+      
+      {/* 🎨 Рамка fpn.png - ліва частина (зовнішня рамка навколо всього екрану) */}
+      <div className="game-frame-outer-left" />
+      
+      {/* 🎨 Рамка fpn.png - права частина (зовнішня рамка навколо всього екрану) */}
+      <div className="game-frame-outer-right" />
+      
+      <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden" style={{ paddingTop: '80px', paddingLeft: '50px', paddingRight: '50px' }}>
+        <div
+          className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
+          style={
+            customBackground
+              ? {
+                  border: "1px solid #3b2614",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  boxShadow: "inset 0 0 10px #000",
+                  background: "transparent",
+                  width: "100%",
+                  overflowX: "hidden",
+                  position: "relative",
+                }
+              : undefined
+          }
+        >
         
         {/* Кастомний фон як окремий шар - позаду всього контенту */}
         {customBackground && (
@@ -254,17 +232,17 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        {/* 🔥 Додаємо padding-left та padding-right для рамки */}
-        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center" style={{ paddingLeft: '50px', paddingRight: '50px', paddingTop: '80px' }}>
+        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center">
           <div className="w-full max-w-[360px] mt-2 px-3">
             {children}
           </div>
         </div>
         
         {/* 🔥 Футер видалено за запитом користувача */}
+        </div>
+        {showNavGrid && <NavGrid navigate={navigate} />}
       </div>
-      {showNavGrid && <NavGrid navigate={navigate} />}
-    </div>
+    </>
   );
 }
 
