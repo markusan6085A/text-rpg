@@ -24,6 +24,7 @@ import {
   type ClanWarehouseItem,
 } from "../utils/api";
 import { CATEGORIES } from "./character/InventoryFilters";
+import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 
 interface ClanProps {
   navigate: (path: string) => void;
@@ -454,13 +455,15 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 {new Date(clan.createdAt).toLocaleDateString("ru-RU")}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#c7ad80]">Адена:</span>
-              <div className="flex items-center gap-2">
+            <div>
+              <div className="flex justify-between">
+                <span className="text-[#c7ad80]">Адена:</span>
                 <span className="text-white">{clan.adena.toLocaleString("ru-RU")}</span>
+              </div>
+              <div className="flex gap-2 mt-1">
                 <button
                   onClick={() => setDepositAmount("0")}
-                  className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700 shadow-md hover:shadow-green-500/50 transition-all"
+                  className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
                 >
                   положить
                 </button>
@@ -526,30 +529,30 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 </button>
               </div>
             )}
-            <div className="flex justify-between items-center">
-              <span className="text-[#c7ad80]">Coin of Luck:</span>
-              <div className="flex items-center gap-2">
+            <div>
+              <div className="flex justify-between">
+                <span className="text-[#c7ad80]">Coin of Luck:</span>
                 <span className="text-white">{clan.coinLuck}</span>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => {
-                      setCoinLuckAction("deposit");
-                      setCoinLuckAmount("0");
-                    }}
-                    className="px-2 py-0.5 bg-green-600 text-[10px] text-white rounded hover:bg-green-700 shadow-md hover:shadow-green-500/50 transition-all"
-                  >
-                    поповнить
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCoinLuckAction("withdraw");
-                      setCoinLuckAmount("0");
-                    }}
-                    className="px-2 py-0.5 bg-red-600 text-[10px] text-white rounded hover:bg-red-700 shadow-md hover:shadow-red-500/50 transition-all"
-                  >
-                    забрать
-                  </button>
-                </div>
+              </div>
+              <div className="flex gap-2 mt-1">
+                <button
+                  onClick={() => {
+                    setCoinLuckAction("deposit");
+                    setCoinLuckAmount("0");
+                  }}
+                  className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
+                >
+                  поповнить
+                </button>
+                <button
+                  onClick={() => {
+                    setCoinLuckAction("withdraw");
+                    setCoinLuckAmount("0");
+                  }}
+                  className="text-[10px] text-[#c7ad80] hover:text-white transition-colors"
+                >
+                  забрать
+                </button>
               </div>
             </div>
             {coinLuckAmount !== "" && (
@@ -728,13 +731,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
               <div className="flex gap-2 mb-2">
                 <button
                   onClick={() => setShowDepositItemsModal(true)}
-                  className="flex-1 px-2 py-1 bg-[#5a4424] text-[11px] text-[#c7ad80] rounded hover:bg-[#6a5434] hover:text-white transition-colors"
+                  className="flex-1 text-[11px] text-[#c7ad80] hover:text-white transition-colors"
                 >
                   положить вещи
                 </button>
                 <button
                   onClick={() => setShowWithdrawItemsModal(true)}
-                  className="flex-1 px-2 py-1 bg-[#5a4424] text-[11px] text-[#c7ad80] rounded hover:bg-[#6a5434] hover:text-white transition-colors"
+                  className="flex-1 text-[11px] text-[#c7ad80] hover:text-white transition-colors"
                 >
                   забрать вещи
                 </button>
@@ -945,35 +948,48 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 return filteredItems.length === 0 ? (
                   <div className="text-[11px] text-[#9f8d73]">Нет предметов в этой категории</div>
                 ) : (
-                  filteredItems.map((item: any) => (
-                    <div
-                      key={item.id}
-                      className="text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
-                      onClick={async () => {
-                        if (!clan) return;
-                        try {
-                          const response = await depositClanWarehouseItem(
-                            clan.id,
-                            item.id,
-                            item.count || 1,
-                            { name: item.name, slot: item.slot }
-                          );
-                          if (response.ok) {
-                            alert(`Вы положили ${item.name || item.id} x${item.count || 1} в склад`);
-                            setShowDepositItemsModal(false);
-                            setSelectedItemCategory("all");
-                            loadStorage();
-                            // TODO: Оновити інвентар гравця (забрати предмет)
+                  filteredItems.map((item: any) => {
+                    const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
+                    const iconPath = item.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                    const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-2 text-[11px] text-[#c7ad80] border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                        onClick={async () => {
+                          if (!clan) return;
+                          try {
+                            const response = await depositClanWarehouseItem(
+                              clan.id,
+                              item.id,
+                              item.count || 1,
+                              { name: item.name, slot: item.slot }
+                            );
+                            if (response.ok) {
+                              alert(`Вы положили ${item.name || item.id} x${item.count || 1} в склад`);
+                              setShowDepositItemsModal(false);
+                              setSelectedItemCategory("all");
+                              loadStorage();
+                              // TODO: Оновити інвентар гравця (забрати предмет)
+                            }
+                          } catch (err: any) {
+                            console.error("[Clan] Failed to deposit item:", err);
+                            alert(err.message || "Ошибка при пополнении склада");
                           }
-                        } catch (err: any) {
-                          console.error("[Clan] Failed to deposit item:", err);
-                          alert(err.message || "Ошибка при пополнении склада");
-                        }
-                      }}
-                    >
-                      {item.name || item.id} x{item.count || 1}
-                    </div>
-                  ))
+                        }}
+                      >
+                        <img
+                          src={finalIconPath}
+                          alt={item.name || item.id}
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                          }}
+                        />
+                        <span>{item.name || item.id} x{item.count || 1}</span>
+                      </div>
+                    );
+                  })
                 );
               })() : (
                 <div className="text-[11px] text-[#9f8d73]">Инвентарь пуст</div>
@@ -984,7 +1000,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
                 setShowDepositItemsModal(false);
                 setSelectedItemCategory("all");
               }}
-              className="w-full px-3 py-2 bg-gray-600 text-[12px] text-white rounded hover:bg-gray-700"
+              className="w-full text-[12px] text-red-600 hover:text-red-500 transition-colors"
             >
               Отмена
             </button>
@@ -1027,7 +1043,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
             </div>
             <button
               onClick={() => setShowWithdrawItemsModal(false)}
-              className="w-full px-3 py-2 bg-gray-600 text-[12px] text-white rounded hover:bg-gray-700"
+              className="w-full text-[12px] text-red-600 hover:text-red-500 transition-colors"
             >
               Отмена
             </button>
