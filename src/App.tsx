@@ -39,6 +39,7 @@ import Forum from "./screens/Forum";
 import News from "./screens/News";
 import SevenSeals from "./screens/SevenSeals";
 import Clans from "./screens/Clans";
+import Clan from "./screens/Clan";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -379,6 +380,13 @@ function AppInner() {
       return renderWithLayout(<Clans navigate={navigate} />);
 
     default:
+      // Check if pathname matches /clan/:id pattern
+      if (pathname.startsWith("/clan/")) {
+        const clanId = pathname.replace("/clan/", "").split("?")[0];
+        if (clanId) {
+          return renderWithLayout(<Clan navigate={navigate} clanId={clanId} />);
+        }
+      }
       // Check if pathname matches /player/:id/admin pattern
       if (pathname.startsWith("/player/") && pathname.endsWith("/admin")) {
         const playerId = pathname.replace("/player/", "").replace("/admin", "").split("?")[0];
