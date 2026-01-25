@@ -282,153 +282,168 @@ async function clanNestedRoutes(app: FastifyInstance) {
 
   // GET /clans/:id/warehouse - склад клану
   app.get("/clans/:id/warehouse", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    try {
+      app.log.info({ url: req.url, params: req.params }, "GET /clans/:id/warehouse called");
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const { id } = req.params as { id: string };
-    const { page = "1", limit = "10" } = req.query as { page?: string; limit?: string };
+      const { id } = req.params as { id: string };
+      const { page = "1", limit = "10" } = req.query as { page?: string; limit?: string };
 
-    const pageNum = parseInt(page, 10) || 1;
-    const limitNum = Math.min(parseInt(limit, 10) || 10, 50);
+      const pageNum = parseInt(page, 10) || 1;
+      const limitNum = Math.min(parseInt(limit, 10) || 10, 50);
 
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+      });
 
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const isMember = await prisma.clanMember.findFirst({
+        where: {
+          clanId: id,
+          characterId: character.id,
+        },
+      });
+
+      const isCreator = await prisma.clan.findFirst({
+        where: {
+          id,
+          creatorId: character.id,
+        },
+      });
+
+      if (!isMember && !isCreator) {
+        return reply.code(403).send({ error: "you are not a member of this clan" });
+      }
+
+      const items = await prisma.clanWarehouse.findMany({
+        where: { clanId: id },
+        orderBy: { depositedAt: "desc" },
+        take: limitNum,
+        skip: (pageNum - 1) * limitNum,
+      });
+
+      const total = await prisma.clanWarehouse.count({
+        where: { clanId: id },
+      });
+
+      return {
+        ok: true,
+        items: items.map((item) => ({
+          id: item.id,
+          itemId: item.itemId,
+          qty: item.qty,
+          meta: item.meta,
+          depositedBy: item.depositedBy,
+          depositedAt: item.depositedAt,
+        })),
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum),
+        },
+      };
+    } catch (error: any) {
+      app.log.error({ error: error.message, stack: error.stack }, "Error in warehouse GET");
+      return reply.code(500).send({ error: error.message || "Internal server error" });
     }
-
-    const isMember = await prisma.clanMember.findFirst({
-      where: {
-        clanId: id,
-        characterId: character.id,
-      },
-    });
-
-    const isCreator = await prisma.clan.findFirst({
-      where: {
-        id,
-        creatorId: character.id,
-      },
-    });
-
-    if (!isMember && !isCreator) {
-      return reply.code(403).send({ error: "you are not a member of this clan" });
-    }
-
-    const items = await prisma.clanWarehouse.findMany({
-      where: { clanId: id },
-      orderBy: { depositedAt: "desc" },
-      take: limitNum,
-      skip: (pageNum - 1) * limitNum,
-    });
-
-    const total = await prisma.clanWarehouse.count({
-      where: { clanId: id },
-    });
-
-    return {
-      ok: true,
-      items: items.map((item) => ({
-        id: item.id,
-        itemId: item.itemId,
-        qty: item.qty,
-        meta: item.meta,
-        depositedBy: item.depositedBy,
-        depositedAt: item.depositedAt,
-      })),
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        totalPages: Math.ceil(total / limitNum),
-      },
-    };
   });
 
   // POST /clans/:id/warehouse/deposit - покласти предмет в склад
   app.post("/clans/:id/warehouse/deposit", async (req, reply) => {
-    app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/warehouse/deposit called");
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    try {
+      app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/warehouse/deposit called");
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const { id } = req.params as { id: string };
-    const { itemId, qty = 1, meta = {} } = req.body as { itemId?: string; qty?: number; meta?: any };
+      const { id } = req.params as { id: string };
+      const { itemId, qty = 1, meta = {} } = req.body as { itemId?: string; qty?: number; meta?: any };
 
-    if (!itemId) {
-      return reply.code(400).send({ error: "itemId is required" });
+      app.log.info({ id, itemId, qty, meta }, "Processing warehouse deposit");
+
+      if (!itemId) {
+        return reply.code(400).send({ error: "itemId is required" });
+      }
+
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+      });
+
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const isMember = await prisma.clanMember.findFirst({
+        where: {
+          clanId: id,
+          characterId: character.id,
+        },
+      });
+
+      const isCreator = await prisma.clan.findFirst({
+        where: {
+          id,
+          creatorId: character.id,
+        },
+      });
+
+      if (!isMember && !isCreator) {
+        return reply.code(403).send({ error: "you are not a member of this clan" });
+      }
+
+      // Перевіряємо ліміт складу (200 предметів)
+      const currentCount = await prisma.clanWarehouse.count({
+        where: { clanId: id },
+      });
+
+      if (currentCount >= 200) {
+        return reply.code(400).send({ error: "clan warehouse is full (200 items max)" });
+      }
+
+      // TODO: Перевірити, чи є предмет у гравця та забрати його
+
+      const warehouseItem = await prisma.clanWarehouse.create({
+        data: {
+          clanId: id,
+          itemId,
+          qty: qty || 1,
+          meta: meta || {},
+          depositedBy: character.id,
+        },
+      });
+
+      // Додаємо лог
+      await prisma.clanLog.create({
+        data: {
+          clanId: id,
+          type: "item_deposited",
+          characterId: character.id,
+          message: `${character.name} положил предмет в склад`,
+          metadata: { itemId, qty },
+        },
+      });
+
+      app.log.info({ warehouseItemId: warehouseItem.id }, "Warehouse item created successfully");
+
+      return {
+        ok: true,
+        item: {
+          id: warehouseItem.id,
+          itemId: warehouseItem.itemId,
+          qty: warehouseItem.qty,
+          meta: warehouseItem.meta,
+          depositedBy: warehouseItem.depositedBy,
+          depositedAt: warehouseItem.depositedAt,
+        },
+      };
+    } catch (error: any) {
+      app.log.error({ error: error.message, stack: error.stack }, "Error in warehouse deposit");
+      return reply.code(500).send({ error: error.message || "Internal server error" });
     }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
-    }
-
-    const isMember = await prisma.clanMember.findFirst({
-      where: {
-        clanId: id,
-        characterId: character.id,
-      },
-    });
-
-    const isCreator = await prisma.clan.findFirst({
-      where: {
-        id,
-        creatorId: character.id,
-      },
-    });
-
-    if (!isMember && !isCreator) {
-      return reply.code(403).send({ error: "you are not a member of this clan" });
-    }
-
-    // Перевіряємо ліміт складу (200 предметів)
-    const currentCount = await prisma.clanWarehouse.count({
-      where: { clanId: id },
-    });
-
-    if (currentCount >= 200) {
-      return reply.code(400).send({ error: "clan warehouse is full (200 items max)" });
-    }
-
-    // TODO: Перевірити, чи є предмет у гравця та забрати його
-
-    const warehouseItem = await prisma.clanWarehouse.create({
-      data: {
-        clanId: id,
-        itemId,
-        qty: qty || 1,
-        meta: meta || {},
-        depositedBy: character.id,
-      },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "item_deposited",
-        characterId: character.id,
-        message: `${character.name} положил предмет в склад`,
-        metadata: { itemId, qty },
-      },
-    });
-
-    return {
-      ok: true,
-      item: {
-        id: warehouseItem.id,
-        itemId: warehouseItem.itemId,
-        qty: warehouseItem.qty,
-        meta: warehouseItem.meta,
-        depositedBy: warehouseItem.depositedBy,
-        depositedAt: warehouseItem.depositedAt,
-      },
-    };
   });
 
   // POST /clans/:id/warehouse/withdraw - забрати предмет зі складу
@@ -502,8 +517,9 @@ async function clanNestedRoutes(app: FastifyInstance) {
 }
 
 export async function clanRoutes(app: FastifyInstance) {
-  // 🔥 КРИТИЧНО: Спочатку реєструємо вкладені роути (специфічні)
-  await app.register(clanNestedRoutes);
+  // 🔥 КРИТИЧНО: Спочатку реєструємо вкладені роути (специфічні) з префіксом
+  // Використовуємо префікс, щоб гарантувати правильний порядок обробки
+  await app.register(clanNestedRoutes, { prefix: "" });
   
   // GET /clans - список всіх кланів
   app.get("/clans", async (req, reply) => {
