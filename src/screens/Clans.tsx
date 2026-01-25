@@ -69,6 +69,19 @@ export default function Clans({ navigate }: ClansProps) {
     <div className="w-full text-white px-4 py-2">
       <div className="w-full max-w-[360px] mx-auto">
         <div className="space-y-3">
+          {/* clann.jpg - замість статус-барів */}
+          <div className="flex justify-center mb-2">
+            <img
+              src="/icons/clann.jpg"
+              alt="Status Bar"
+              className="w-full max-w-[360px] h-auto object-contain"
+              onError={(e) => {
+                console.error("Failed to load clann.jpg");
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
+
           {/* Заголовок з кількістю кланів */}
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
             Кланы ({clans.length})
