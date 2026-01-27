@@ -237,11 +237,16 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       });
     }
     
-    // 🔥 КРИТИЧНО: mobsKilled, skills, sp, profession - критичні зміни, зберігаємо одразу
+    // 🔥 КРИТИЧНО: Всі важливі зміни, які не повинні втрачатися після F5 - зберігаємо одразу
     const isCriticalChange = (partial as any).mobsKilled !== undefined || 
                              partial.skills !== undefined ||
                              partial.sp !== undefined || // 🔥 SP - критична зміна
-                             partial.profession !== undefined || // 🔥 Profession - критична зміна (щоб не втрачалася після F5)
+                             partial.profession !== undefined || // 🔥 Profession - критична зміна
+                             partial.inventory !== undefined || // 🔥 Inventory - критична зміна (покупки, продажі, використання)
+                             partial.equipment !== undefined || // 🔥 Equipment - критична зміна (екіпірування/зняття)
+                             partial.adena !== undefined || // 🔥 Adena - критична зміна (покупки, продажі)
+                             (partial as any).coinOfLuck !== undefined || // 🔥 CoinOfLuck - критична зміна (використання)
+                             (partial as any).aa !== undefined || // 🔥 AA (Ancient Adena) - критична зміна (покупки, обмін)
                              (partial as any).level !== undefined ||
                              (partial as any).exp !== undefined;
     
