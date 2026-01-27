@@ -320,7 +320,7 @@ export async function characterRoutes(app: FastifyInstance) {
             },
             '[POST /characters/:id/buff] Keeping existing buff (better than new)'
           );
-          return { ok: true, message: "Existing buff is better, keeping it" };
+          return reply.code(200).send({ ok: true, message: "Existing buff is better, keeping it" });
         }
         
         // Новий баф кращий - додаємо (старий вже видалений через filteredBuffs)
