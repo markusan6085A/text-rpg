@@ -237,10 +237,11 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       });
     }
     
-    // 🔥 КРИТИЧНО: mobsKilled, skills, sp - критичні зміни, зберігаємо одразу
+    // 🔥 КРИТИЧНО: mobsKilled, skills, sp, profession - критичні зміни, зберігаємо одразу
     const isCriticalChange = (partial as any).mobsKilled !== undefined || 
                              partial.skills !== undefined ||
                              partial.sp !== undefined || // 🔥 SP - критична зміна
+                             partial.profession !== undefined || // 🔥 Profession - критична зміна (щоб не втрачалася після F5)
                              (partial as any).level !== undefined ||
                              (partial as any).exp !== undefined;
     
