@@ -49,7 +49,11 @@ export default function SelectClanEmblemModal({
                     ? "border-yellow-500 bg-yellow-500/20"
                     : "border-[#3b2614] hover:border-[#5a4424]"
                 }`}
-                style={{ minHeight: "56px", minWidth: "56px" }}
+                style={{ 
+                  minHeight: "56px", 
+                  minWidth: "56px",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)" // Світлий фон для видимості прозорих PNG
+                }}
                 onClick={() => onSelect(emblem)}
               >
                 {emblemPath ? (
