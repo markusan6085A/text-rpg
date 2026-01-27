@@ -285,10 +285,22 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // 🔥 КРИТИЧНО: Зберігаємо heroRevision з сервера для optimistic locking
     if (hydratedHero) {
       (hydratedHero as any).heroRevision = (heroData as any)?.heroRevision || (character as any)?.heroRevision || undefined;
+      
+      // 🔥 КРИТИЧНО: Синхронізуємо heroBuffs в heroJson
+      // Бафи можуть бути в heroJson.heroBuffs (з сервера) або в savedBattle.heroBuffs (localStorage)
+      // Використовуємо об'єднані savedBuffs (вже оброблені через cleanupBuffs)
       (hydratedHero as any).heroJson = {
         ...(hydratedHero as any).heroJson,
         heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері
       };
+      
+      // 🔥 Логуємо для діагностики
+      console.log('[loadHeroFromAPI] Hero loaded with buffs:', {
+        heroJsonBuffs: heroJsonBuffs.length,
+        savedBattleBuffs: savedBattleBuffs.length,
+        uniqueBuffs: savedBuffs.length,
+        buffNames: savedBuffs.map((b: any) => b.name || b.id).slice(0, 5),
+      });
     }
     
     // Логуємо фінальні дані для діагностики

@@ -87,33 +87,47 @@ export const useHeroStore = create<HeroState>((set, get) => ({
 
     // 🔥 КРИТИЧНО: Захист від не-героївських payload (наприклад, клан з /my endpoint)
     // Перевіряємо, чи це дійсно hero об'єкт, а не клан або інший об'єкт
+    // 🔥 ВАЖЛИВО: Guard має бути "менш строгим" - приймати героя навіть якщо він урізаний (без heroJson/skills)
     function isHeroPayload(x: any): boolean {
       if (!x || typeof x !== 'object') return false;
       
-      // Клан має поля members, emblem, isLeader, memberCount, creator, reputation, adena
-      // Герой має heroJson, skills, mobsKilled, exp, level
+      // Клан має специфічні поля: members (масив), memberCount, isLeader, creator, reputation
+      // Герой має: name, race, klass/classId (обов'язкові базові поля)
       const hasClanFields = 
-        (Array.isArray(x.members) || x.memberCount !== undefined || x.isLeader !== undefined || 
-         x.emblem !== undefined || x.creator !== undefined || x.reputation !== undefined);
+        (Array.isArray(x.members) || 
+         (x.memberCount !== undefined && x.isLeader !== undefined) || 
+         (x.creator !== undefined && x.reputation !== undefined));
       
+      // 🔥 ВАЖЛИВО: Перевіряємо базові поля героя ПЕРШИМИ (name, race, klass/classId)
+      // Це гарантує, що навіть урізаний DTO (без heroJson/skills/mobsKilled) буде прийнято
+      const hasBasicHeroFields = 
+        typeof x.name === 'string' && 
+        typeof x.race === 'string' && 
+        (typeof x.klass === 'string' || typeof x.classId === 'string');
+      
+      // Якщо є базові поля героя - це герой (навіть якщо немає heroJson/skills)
+      if (hasBasicHeroFields) {
+        // 🔥 Додаткова перевірка: якщо є кланові поля БЕЗ геройських - це клан
+        // Але якщо є базові геройські поля - це герой (можливо з кланом)
+        if (hasClanFields && !hasBasicHeroFields) {
+          return false; // Клан без базових полів героя
+        }
+        return true; // Має базові поля героя - це герой
+      }
+      
+      // Якщо немає базових полів, але є геройські поля (heroJson, skills, mobsKilled, exp, level) - це герой
       const hasHeroFields = 
         (x.heroJson !== undefined || Array.isArray(x.skills) || 
          typeof x.mobsKilled === "number" || typeof x.exp === "number" || 
          typeof x.level === "number");
       
-      // Якщо є кланові поля, але немає геройських - це клан, не герой
-      if (hasClanFields && !hasHeroFields) {
-        return false;
-      }
-      
-      // Якщо є геройські поля - це герой
       if (hasHeroFields) {
         return true;
       }
       
-      // Якщо є базові поля героя (name, race, klass) - це герой
-      if (typeof x.name === 'string' && typeof x.race === 'string' && (typeof x.klass === 'string' || typeof x.classId === 'string')) {
-        return true;
+      // Якщо є кланові поля без геройських - це клан
+      if (hasClanFields && !hasHeroFields) {
+        return false;
       }
       
       return false;
