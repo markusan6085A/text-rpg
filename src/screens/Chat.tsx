@@ -76,10 +76,17 @@ export default function Chat({ navigate }: ChatProps) {
   };
   
   // Додаткова функція для порівняння по змісту (для outbox vs server)
-  const contentFingerprint = (m: { characterName?: string; channel?: string; message?: string; createdAt?: string }) => {
+  // 🔥 ВАЖЛИВО: БЕЗ урахування часу - тільки автор + канал + зміст
+  // Це дозволяє знайти дублікати навіть якщо createdAt різний
+  const contentFingerprint = (m: { characterName?: string; channel?: string; message?: string }) => {
+    return `${normName(m.characterName)}|${m.channel || ""}|${normText(m.message)}`;
+  };
+  
+  // Додаткова функція для порівняння по змісту з урахуванням часу (більш точна)
+  const contentFingerprintWithTime = (m: { characterName?: string; channel?: string; message?: string; createdAt?: string }) => {
     const t = m.createdAt ? new Date(m.createdAt).getTime() : Date.now();
-    // 30-second bucket для порівняння змісту
-    const bucket = Math.floor(t / 30_000);
+    // 60-second bucket для порівняння змісту з часом
+    const bucket = Math.floor(t / 60_000);
     return `${normName(m.characterName)}|${m.channel || ""}|${normText(m.message)}|${bucket}`;
   };
   
@@ -94,18 +101,22 @@ export default function Chat({ navigate }: ChatProps) {
   }, [cachedMessages, deletedIds]);
 
   // Server fingerprints set for fast dedupe against outbox
-  // 🔥 ВАЖЛИВО: Зберігаємо і fingerprint (ID або зміст+автор+час), і content fingerprint для порівняння з outbox
+  // 🔥 ВАЖЛИВО: Зберігаємо і fingerprint (ID або зміст+автор+час), і content fingerprint БЕЗ часу для порівняння з outbox
   const serverFingerprints = React.useMemo(() => {
     const fingerprintSet = new Set<string>();
-    const contentFpSet = new Set<string>();
+    const contentFpSet = new Set<string>(); // БЕЗ часу - тільки автор+канал+зміст
+    const contentFpWithTimeSet = new Set<string>(); // З часом - для більш точного збігу
     const idSet = new Set<string>();
     
     for (const m of filteredCached) {
       // Додаємо основний fingerprint (ID для server повідомлень)
       fingerprintSet.add(fingerprint(m));
       
-      // Додаємо content fingerprint для порівняння з outbox
+      // Додаємо content fingerprint БЕЗ часу - для агресивної дедуплікації
       contentFpSet.add(contentFingerprint(m));
+      
+      // Додаємо content fingerprint З часом - для більш точного збігу
+      contentFpWithTimeSet.add(contentFingerprintWithTime(m));
       
       // Додаємо ID для точного збігу
       const idFp = idFingerprint(m);
@@ -116,7 +127,8 @@ export default function Chat({ navigate }: ChatProps) {
     
     return { 
       fingerprints: fingerprintSet, 
-      contentFingerprints: contentFpSet,
+      contentFingerprints: contentFpSet, // БЕЗ часу
+      contentFingerprintsWithTime: contentFpWithTimeSet, // З часом
       ids: idSet 
     };
   }, [filteredCached]);
@@ -139,14 +151,19 @@ export default function Chat({ navigate }: ChatProps) {
 
     for (const m of outboxForChannel) {
       const fp = fingerprint(m);
-      const contentFp = contentFingerprint(m);
+      const contentFp = contentFingerprint(m); // БЕЗ часу
+      const contentFpWithTime = contentFingerprintWithTime(m); // З часом
       const idFp = idFingerprint(m);
       
       // 🔥 ВАЖЛИВО: Якщо сервер вже має це повідомлення (підтверджено) - НЕ показуємо в outbox
-      // Перевіряємо по content fingerprint (зміст+автор+час) - це найточніше для outbox повідомлень
-      // Це запобігає дублюванню для автора повідомлення
+      // Перевіряємо по content fingerprint БЕЗ часу (найагресивніша дедуплікація)
+      // Це запобігає дублюванню для автора повідомлення навіть якщо createdAt різний
       if (serverFingerprints.contentFingerprints.has(contentFp)) {
-        // Повідомлення вже підтверджене сервером (знайдено по змісту) - пропускаємо
+        // Повідомлення вже підтверджене сервером (знайдено по змісту БЕЗ часу) - пропускаємо
+        continue;
+      }
+      if (serverFingerprints.contentFingerprintsWithTime.has(contentFpWithTime)) {
+        // Повідомлення вже підтверджене сервером (знайдено по змісту З часом) - пропускаємо
         continue;
       }
       if (serverFingerprints.fingerprints.has(fp)) {
@@ -208,11 +225,14 @@ export default function Chat({ navigate }: ChatProps) {
       let changed = false;
       const next = prev.filter((m) => {
         const fp = fingerprint(m);
-        const contentFp = contentFingerprint(m);
+        const contentFp = contentFingerprint(m); // БЕЗ часу
+        const contentFpWithTime = contentFingerprintWithTime(m); // З часом
         const idFp = idFingerprint(m);
         
-        // Перевіряємо по content fingerprint (найточніше для outbox), fingerprint та ID
+        // Перевіряємо по content fingerprint БЕЗ часу (найагресивніша дедуплікація)
+        // Це видалить outbox повідомлення навіть якщо createdAt трохи різний
         const isConfirmed = serverFingerprints.contentFingerprints.has(contentFp) ||
+                           serverFingerprints.contentFingerprintsWithTime.has(contentFpWithTime) ||
                            serverFingerprints.fingerprints.has(fp) || 
                            (idFp && serverFingerprints.ids.has(idFp));
 
