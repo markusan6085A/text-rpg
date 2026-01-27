@@ -38,7 +38,7 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
   };
 
   // Сортування гравців
-  const sortedPlayers = React.useMemo(() => {
+  const sortedPlayers = useMemo(() => {
     const sorted = [...players];
     if (sortBy === "level") {
       // По уровню: від більшого до меншого
