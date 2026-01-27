@@ -368,44 +368,22 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                   Немає активних бафів
                 </div>
               )}
-              <div className="space-y-2">
+              {/* 🔥 Тільки іконки в ряд з переносом */}
+              <div className="flex flex-wrap gap-2">
                 {activeBuffs.map((buff: any, idx: number) => {
-                  const timeLeft = Math.max(0, Math.floor((buff.expiresAt - now) / 1000));
-                  const minutes = Math.floor(timeLeft / 60);
-                  const seconds = timeLeft % 60;
-                  const timeLeftStr = minutes > 0 ? `${minutes}м ${seconds}с` : `${seconds}с`;
-                  
                   let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
                   
                   return (
-                    <div key={idx} className="flex items-start gap-2">
-                      <img
-                        src={iconSrc}
-                        alt={buff.name || "Buff"}
-                        className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
-                        }}
-                      />
-                      <div className="flex-1">
-                        <div className="text-xs text-gray-300">
-                          {buff.name || "Невідомий баф"}
-                        </div>
-                        <div className="text-xs text-green-400 mt-0.5">
-                          Залишилось: {timeLeftStr}
-                        </div>
-                        {buff.source === "skill" && (
-                          <div className="text-xs text-blue-400 mt-0.5">
-                            (Від гравця)
-                          </div>
-                        )}
-                        {buff.source === "buffer" && (
-                          <div className="text-xs text-yellow-400 mt-0.5">
-                            (Городський баф)
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <img
+                      key={idx}
+                      src={iconSrc}
+                      alt={buff.name || "Buff"}
+                      className="w-8 h-8 object-contain"
+                      title={buff.name || "Buff"} // Показуємо назву при hover
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                      }}
+                    />
                   );
                 })}
               </div>
