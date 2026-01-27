@@ -104,16 +104,39 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     // Використовуємо heroJson з hydrated hero (він вже синхронізований)
     const heroJsonToSave = (hero as any).heroJson || {};
     
+    // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass
+    // Гарантуємо, що вони завжди присутні (навіть якщо hydrateHero не додав їх)
+    if (!heroJsonToSave.name && hero.name) {
+      heroJsonToSave.name = hero.name;
+    }
+    if (!heroJsonToSave.race && hero.race) {
+      heroJsonToSave.race = hero.race;
+    }
+    if (!heroJsonToSave.klass && !heroJsonToSave.classId && hero.klass) {
+      heroJsonToSave.klass = hero.klass;
+      heroJsonToSave.classId = hero.klass; // Сервер може вимагати classId
+    }
+    if (!heroJsonToSave.gender && hero.gender) {
+      heroJsonToSave.gender = hero.gender;
+    }
+    if (!heroJsonToSave.profession && hero.profession) {
+      heroJsonToSave.profession = hero.profession;
+    }
+    
     // Додаємо heroBuffs (вони не в hydrateHero, бо це окрема логіка)
     heroJsonToSave.heroBuffs = uniqueBuffs;
     
     // Логуємо для діагностики
     console.log('[saveHeroToLocalStorage] heroJsonToSave:', {
+      name: heroJsonToSave.name,
+      race: heroJsonToSave.race,
+      klass: heroJsonToSave.klass || heroJsonToSave.classId,
       mobsKilled: heroJsonToSave.mobsKilled,
       level: heroJsonToSave.level,
       exp: heroJsonToSave.exp,
       skillsCount: Array.isArray(heroJsonToSave.skills) ? heroJsonToSave.skills.length : 0,
       heroBuffsCount: uniqueBuffs.length,
+      hasRequiredFields: !!(heroJsonToSave.name && heroJsonToSave.race && (heroJsonToSave.klass || heroJsonToSave.classId)),
     });
     
     await updateCharacter(characterStore.characterId, {

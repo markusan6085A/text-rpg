@@ -33,6 +33,7 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     : (hj.level !== undefined && hj.level !== null && hj.level > 0 ? hj.level : 1);
 
   // 🔥 Синхронізуємо heroJson з hero (однонапрямкова синхронізація: hero → heroJson)
+  // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass
   const hydratedHero: Hero = {
     ...hero,
     skills,
@@ -42,6 +43,14 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     heroJson: {
       ...hj,
       // 🔥 КРИТИЧНО: heroJson завжди синхронізований з hero (для серіалізації)
+      // Базові поля (обов'язкові для сервера)
+      name: hero.name || hj.name || '',
+      race: hero.race || hj.race || '',
+      klass: hero.klass || hj.klass || '',
+      classId: hero.klass || hj.classId || hj.klass || '',
+      gender: hero.gender || hj.gender || '',
+      profession: hero.profession || hj.profession || '',
+      // Прогрес (skills, mobsKilled, exp, level)
       skills,
       mobsKilled,
       exp,
