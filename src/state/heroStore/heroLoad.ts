@@ -4,6 +4,7 @@ import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { getJSON, getString, removeItem, setJSON } from "../persistence";
 import type { Hero } from "../../types/Hero";
+import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 
 export function loadHero(): Hero | null {
   // Міграція: видаляємо старий ключ l2_progress (більше не використовується)
