@@ -20,8 +20,14 @@ export function ChatPagination({
   messagesTopRef,
 }: ChatPaginationProps) {
   // Використовуємо totalPages з пропсів, якщо є, інакше обчислюємо
+  // 🔥 ВАЖЛИВО: Якщо totalPages не передано, використовуємо fallback, але перевіряємо також messagesCount
+  // Якщо на поточній сторінці є 10 повідомлень, це означає, що може бути більше сторінок
   const hasMore = messagesCount >= 10;
-  const totalPages = propTotalPages || (hasMore ? page + 1 : page);
+  // Використовуємо propTotalPages якщо є, інакше обчислюємо на основі messagesCount
+  // Якщо на сторінці 2+ є повідомлення, значить є ще сторінки
+  const totalPages = propTotalPages !== undefined 
+    ? propTotalPages 
+    : (hasMore ? Math.max(page + 1, page) : page);
 
   const handlePageClick = (newPage: number) => {
     onPageChange(newPage);

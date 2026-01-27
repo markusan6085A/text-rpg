@@ -94,7 +94,17 @@ export function useChatMessages(opts: UseChatOptions) {
     } else {
       setMessages([]);
     }
-  }, [key, channel]);
+    
+    // 🔥 ВАЖЛИВО: При зміні сторінки завжди завантажуємо актуальні дані з сервера
+    // Це гарантує, що нові повідомлення з'являться на сторінці 2+
+    if (!manual) {
+      // Невелика затримка, щоб уникнути конфліктів з іншими useEffect
+      const timer = setTimeout(() => {
+        fetchNow("page_change");
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [key, channel, manual, fetchNow]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

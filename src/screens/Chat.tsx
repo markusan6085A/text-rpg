@@ -51,6 +51,16 @@ export default function Chat({ navigate }: ChatProps) {
     }, 100);
   }, [channel]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 🔥 ВАЖЛИВО: Оновлюємо повідомлення при зміні сторінки
+  // Це гарантує, що при переході на сторінку 2+ завантажаться актуальні повідомлення
+  useEffect(() => {
+    // Затримка для уникнення конфліктів з іншими useEffect
+    const timer = setTimeout(() => {
+      refresh();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [page, refresh]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ---------- Helpers ----------
   const normName = (s?: string) => (s || "").trim().toLowerCase();
   const normText = (s?: string) => (s || "").trim();
