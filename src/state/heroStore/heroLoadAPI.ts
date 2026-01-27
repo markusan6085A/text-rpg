@@ -261,6 +261,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         skills: fixedHero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills в heroJson для збереження на сервері
         heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері
       },
+      // 🔥 КРИТИЧНО: Зберігаємо heroRevision з сервера для optimistic locking
+      heroRevision: (heroData as any)?.heroRevision || (character as any)?.heroRevision || undefined,
     };
     
     // Логуємо фінальне mobsKilled для діагностики (завжди, не тільки в DEV)

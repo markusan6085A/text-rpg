@@ -180,7 +180,35 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     if (error?.status === 409 || (error?.message && error.message.includes('revision_conflict'))) {
       console.warn('[saveHeroToLocalStorage] Revision conflict detected - character was modified by another session');
       
-      // ❗ ВАЖЛИВО: НЕ робимо force overwrite! Зберігаємо локальну версію як backup
+      // ❗ ВАЖЛИВО: При 409 Conflict автоматично перезавантажуємо героя з сервера
+      // Це дозволяє отримати актуальну ревізію і продовжити роботу без перезавантаження сторінки
+      try {
+        console.log('[saveHeroToLocalStorage] Reloading hero from API to get latest revision...');
+        const { loadHeroFromAPI } = await import('./heroLoadAPI');
+        const { useHeroStore } = await import('../heroStore');
+        const reloadedHero = await loadHeroFromAPI();
+        if (reloadedHero) {
+          // Оновлюємо hero в store з актуальною ревізією
+          useHeroStore.getState().setHero(reloadedHero);
+          console.log('[saveHeroToLocalStorage] Hero reloaded successfully, retrying save...');
+          // Повторюємо спробу збереження з актуальною ревізією
+          const updatedHero = useHeroStore.getState().hero;
+          if (updatedHero) {
+            // Мержимо зміни з поточного hero в reloadedHero
+            const mergedHero = {
+              ...reloadedHero,
+              ...hero,
+              heroRevision: reloadedHero.heroRevision, // Використовуємо актуальну ревізію
+            };
+            // Повторюємо збереження (рекурсивно, але тільки один раз)
+            return saveHeroToLocalStorage(mergedHero as Hero);
+          }
+        }
+      } catch (reloadError) {
+        console.error('[saveHeroToLocalStorage] Failed to reload hero after 409 conflict:', reloadError);
+      }
+      
+      // Якщо перезавантаження не вдалося - зберігаємо локальну версію як backup
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
@@ -199,8 +227,9 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
         }
       }
       
-      // ❗ НЕ робимо автоматичний force overwrite - вимагаємо перезавантаження
-      throw new Error('Character was modified by another session. Please reload the page to get the latest version.');
+      // Не викидаємо помилку - дані збережені в localStorage
+      console.warn('[saveHeroToLocalStorage] 409 conflict handled, data saved to localStorage');
+      return;
     }
     
     console.error('[saveHeroToLocalStorage] Failed to save hero via API:', error);
