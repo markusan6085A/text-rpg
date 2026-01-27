@@ -115,8 +115,7 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
       const newCp = Math.min(newMaxCp, currentHero.cp ?? newMaxCp);
       
       // ❗ Оновлюємо hero з БАЗОВИМИ ресурсами БЕЗ бафів (бафи застосовуються в computeBuffedMaxResources)
-    // 🔥 КРИТИЧНО: Також зберігаємо бафи в heroJson для персистентності
-    const currentHero = heroStore.hero;
+      // 🔥 КРИТИЧНО: Також зберігаємо бафи в heroJson для персистентності
     if (currentHero) {
       const existingHeroJson = (currentHero as any).heroJson || {};
       heroStore.updateHero({

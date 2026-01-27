@@ -170,8 +170,6 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         race: character.race,
         klass: character.classId,
         gender: character.sex,
-        // 🔥 mobsKilled зберігаємо з heroJson (використовуємо прочитане значення)
-        mobsKilled: finalMobsKilled,
         // 🔥 Схема A: hero.skills, hero.mobsKilled - офіційні поля
         skills: (heroData as any).skills || fixedHero.skills || [],
         mobsKilled: finalMobsKilled as any,
@@ -278,15 +276,15 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // 🔥 Схема A: hero.skills, hero.mobsKilled - офіційні поля
       skills: finalSkills,
       mobsKilled: finalMobsKilled as any,
-      // 🔥 КРИТИЧНО: Зберігаємо heroRevision з сервера для optimistic locking
-      heroRevision: (heroData as any)?.heroRevision || (character as any)?.heroRevision || undefined,
     };
     
     // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
     const hydratedHero = hydrateHero(heroWithRecalculatedStats);
     
     // Додаємо heroBuffs до heroJson (вони не в hydrateHero, бо це окрема логіка)
+    // 🔥 КРИТИЧНО: Зберігаємо heroRevision з сервера для optimistic locking
     if (hydratedHero) {
+      (hydratedHero as any).heroRevision = (heroData as any)?.heroRevision || (character as any)?.heroRevision || undefined;
       (hydratedHero as any).heroJson = {
         ...(hydratedHero as any).heroJson,
         heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері

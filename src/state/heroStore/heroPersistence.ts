@@ -205,7 +205,7 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
             const mergedHero = {
               ...reloadedHero,
               ...hero,
-              heroRevision: reloadedHero.heroRevision, // Використовуємо актуальну ревізію
+              heroRevision: (reloadedHero as any).heroRevision, // Використовуємо актуальну ревізію
             };
             // Повторюємо збереження (рекурсивно, але тільки один раз)
             return saveHeroToLocalStorage(mergedHero as Hero);
