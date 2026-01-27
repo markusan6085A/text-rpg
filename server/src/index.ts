@@ -37,34 +37,41 @@ const app = Fastify({
   bodyLimit: 1048576, // 1MB
 });
 
-// Root route
-app.get("/", async () => {
-  return {
-    name: "Text RPG Server",
-    version: "1.0.0",
-    status: "running",
-    endpoints: {
-      health: "GET /health",
-      register: "POST /auth/register",
-      login: "POST /auth/login",
-      listCharacters: "GET /characters (Bearer)",
-      getCharacter: "GET /characters/:id (Bearer)",
-      createCharacter: "POST /characters (Bearer)",
-      updateCharacter: "PUT /characters/:id (Bearer)",
-      getChatMessages: "GET /chat/messages?channel=general&page=1&limit=10 (Bearer)",
-      postChatMessage: "POST /chat/messages (Bearer)",
-      deleteChatMessage: "DELETE /chat/messages/:id (Bearer)",
-      getOnlinePlayers: "GET /characters/online (Bearer)",
-      sendHeartbeat: "POST /characters/heartbeat (Bearer)",
-      getPublicCharacter: "GET /characters/public/:id (Bearer)",
-      getCharacterByName: "GET /characters/by-name/:name (Bearer)",
-      sendLetter: "POST /letters (Bearer)",
-      getLetters: "GET /letters?page=1&limit=50 (Bearer)",
-      getLetter: "GET /letters/:id (Bearer)",
-      deleteLetter: "DELETE /letters/:id (Bearer)",
-      getUnreadCount: "GET /letters/unread-count (Bearer)",
-    },
-  };
+// Root route - тільки для API запитів (з заголовком Accept: application/json)
+// Для браузера (без Accept заголовка) буде обслуговуватися index.html через static files
+app.get("/", async (request, reply) => {
+  const acceptHeader = request.headers.accept || "";
+  // Якщо це API запит (з JSON Accept) - повертаємо JSON
+  if (acceptHeader.includes("application/json")) {
+    return {
+      name: "Text RPG Server",
+      version: "1.0.0",
+      status: "running",
+      endpoints: {
+        health: "GET /health",
+        register: "POST /auth/register",
+        login: "POST /auth/login",
+        listCharacters: "GET /characters (Bearer)",
+        getCharacter: "GET /characters/:id (Bearer)",
+        createCharacter: "POST /characters (Bearer)",
+        updateCharacter: "PUT /characters/:id (Bearer)",
+        getChatMessages: "GET /chat/messages?channel=general&page=1&limit=10 (Bearer)",
+        postChatMessage: "POST /chat/messages (Bearer)",
+        deleteChatMessage: "DELETE /chat/messages/:id (Bearer)",
+        getOnlinePlayers: "GET /characters/online (Bearer)",
+        sendHeartbeat: "POST /characters/heartbeat (Bearer)",
+        getPublicCharacter: "GET /characters/public/:id (Bearer)",
+        getCharacterByName: "GET /characters/by-name/:name (Bearer)",
+        sendLetter: "POST /letters (Bearer)",
+        getLetters: "GET /letters?page=1&limit=50 (Bearer)",
+        getLetter: "GET /letters/:id (Bearer)",
+        deleteLetter: "DELETE /letters/:id (Bearer)",
+        getUnreadCount: "GET /letters/unread-count (Bearer)",
+      },
+    };
+  }
+  // Для браузера - не обробляємо тут, буде обслуговуватися через static files або 404 handler
+  return reply.code(404).send({ error: "Not found" });
 });
 
 // Health check
