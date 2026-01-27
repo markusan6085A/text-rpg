@@ -57,15 +57,16 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Fingerprint for dedupe (no clientId available)
   // Uses author+channel+message and rounded time bucket
-  // 🔥 Зменшуємо bucket до 5 секунд для кращої дедуплікації
+  // 🔥 Зменшуємо bucket до 10 секунд для кращої дедуплікації між outbox та server
   const fingerprint = (m: { characterName?: string; channel?: string; message?: string; createdAt?: string; id?: string }) => {
-    // Використовуємо ID якщо є (найточніше)
-    if (m.id) {
+    // Для повідомлень з сервера - використовуємо ID (найточніше)
+    if (m.id && !m.id.startsWith('temp-')) {
       return `id:${m.id}`;
     }
+    // Для outbox повідомлень (tempId) - використовуємо зміст + автор + час
     const t = m.createdAt ? new Date(m.createdAt).getTime() : Date.now();
-    // 5-second bucket to tolerate server save delay/time differences
-    const bucket = Math.floor(t / 5_000);
+    // 10-second bucket to tolerate server save delay/time differences
+    const bucket = Math.floor(t / 10_000);
     return `${normName(m.characterName)}|${m.channel || ""}|${normText(m.message)}|${bucket}`;
   };
 
@@ -100,9 +101,14 @@ export default function Chat({ navigate }: ChatProps) {
     const outboxVisible: ChatMessage[] = [];
 
     for (const m of outboxForChannel) {
-      // Hide if server already contains it (confirmed)
       const fp = fingerprint(m);
-      if (serverFingerprints.has(fp)) continue;
+      
+      // 🔥 ВАЖЛИВО: Якщо сервер вже має це повідомлення (підтверджено) - НЕ показуємо в outbox
+      // Це запобігає дублюванню для автора повідомлення
+      if (serverFingerprints.has(fp)) {
+        // Повідомлення вже підтверджене сервером - пропускаємо
+        continue;
+      }
 
       // Avoid duplicates inside outbox (same msg sent twice quickly)
       if (seen.has(fp)) continue;
@@ -144,9 +150,11 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Confirmed delivery cleanup:
   // If an outbox message is marked 'sent' and server now has it (fingerprint match),
-  // remove it from outbox. Keep 'pending' until it becomes 'sent' or user retries.
+  // remove it from outbox IMMEDIATELY. Keep 'pending' until it becomes 'sent' or user retries.
+  // 🔥 ВАЖЛИВО: Видаляємо outbox повідомлення, якщо вони збігаються з серверними по fingerprint
   useEffect(() => {
     if (outbox.length === 0) return;
+    if (serverFingerprints.size === 0) return; // Немає серверних повідомлень - нічого видаляти
 
     setOutbox((prev) => {
       let changed = false;
@@ -156,6 +164,7 @@ export default function Chat({ navigate }: ChatProps) {
 
         if (isConfirmed) {
           changed = true;
+          // 🔥 Видаляємо підтверджене повідомлення з outbox
           return false; // remove confirmed
         }
         return true;
@@ -164,7 +173,7 @@ export default function Chat({ navigate }: ChatProps) {
       return changed ? next : prev;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverFingerprints, setOutbox]); // serverFingerprints changes when cached changes
+  }, [serverFingerprints, setOutbox, outbox.length]); // serverFingerprints changes when cached changes
 
   // Auto-scroll to top when we add something to outbox (new message)
   useEffect(() => {
