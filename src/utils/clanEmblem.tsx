@@ -59,7 +59,7 @@ function replaceBlackBackground(image: HTMLImageElement, targetColor: string): s
  */
 export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProps) {
   const [processedSrc, setProcessedSrc] = useState<string | null>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const [processingError, setProcessingError] = useState(false);
 
   if (!emblem) return null;
 
@@ -68,23 +68,28 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
 
   // Обробляємо зображення при завантаженні
   useEffect(() => {
-    if (!imgRef.current) return;
-
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    // Не встановлюємо crossOrigin для локальних файлів (з того ж домену)
+    // img.crossOrigin = "anonymous";
     
     img.onload = () => {
       try {
+        // Перевіряємо, чи зображення завантажилося
+        if (img.width === 0 || img.height === 0) {
+          setProcessingError(true);
+          return;
+        }
         const processed = replaceBlackBackground(img, "#1D1C1A");
         setProcessedSrc(processed);
       } catch (err) {
         console.error(`[ClanEmblem] Failed to process emblem: ${emblemPath}`, err);
-        setProcessedSrc(emblemPath); // Fallback до оригіналу
+        setProcessingError(true);
       }
     };
 
     img.onerror = () => {
-      setProcessedSrc(emblemPath); // Fallback до оригіналу
+      console.error(`[ClanEmblem] Failed to load emblem for processing: ${emblemPath}`);
+      setProcessingError(true);
     };
 
     img.src = emblemPath;
@@ -105,8 +110,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
       }}
     >
       <img
-        ref={imgRef}
-        src={processedSrc || emblemPath}
+        src={processingError ? emblemPath : (processedSrc || emblemPath)}
         alt=""
         className="object-contain"
         style={{
@@ -114,6 +118,11 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
           height: "100%",
           maxWidth: `${size}px`,
           maxHeight: `${size}px`,
+          // 🔥 CSS filter для заміни чорного фону на #1D1C1A (якщо Canvas не спрацював)
+          // Використовуємо brightness та contrast для освітлення чорного фону
+          filter: processingError || !processedSrc 
+            ? "brightness(1.15) contrast(1.05)" // Fallback: освітлюємо чорний фон
+            : "none", // Якщо Canvas обробив - не застосовуємо filter
         }}
         onError={(e) => {
           console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);
@@ -122,7 +131,10 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         onLoad={() => {
           // Діагностика: виводимо в консоль, коли зображення завантажилося
           if (process.env.NODE_ENV === 'development') {
-            console.log(`[ClanEmblem] Successfully loaded emblem: ${emblemPath}`);
+            console.log(`[ClanEmblem] Successfully loaded emblem: ${emblemPath}`, {
+              processed: !!processedSrc,
+              error: processingError
+            });
           }
         }}
       />
