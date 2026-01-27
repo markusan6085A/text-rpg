@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
@@ -7,11 +7,14 @@ interface OnlinePlayersProps {
   navigate: (path: string) => void;
 }
 
+type SortType = "level" | "name";
+
 export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
   const hero = useHeroStore((s) => s.hero);
   const [players, setPlayers] = useState<OnlinePlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortType>("level");
 
   useEffect(() => {
     loadOnlinePlayers();
@@ -34,6 +37,23 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
     }
   };
 
+  // Сортування гравців
+  const sortedPlayers = React.useMemo(() => {
+    const sorted = [...players];
+    if (sortBy === "level") {
+      // По уровню: від більшого до меншого
+      sorted.sort((a, b) => (b.level || 0) - (a.level || 0));
+    } else if (sortBy === "name") {
+      // По нику: по алфавіту (від A до Z)
+      sorted.sort((a, b) => {
+        const nameA = (a.name || "").toLowerCase();
+        const nameB = (b.name || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
+    return sorted;
+  }, [players, sortBy]);
+
   return (
     <div className="w-full flex items-start justify-center">
       <div className="w-full max-w-md mt-5 mb-10 px-3">
@@ -42,11 +62,25 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
         </div>
 
         <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#645b45]">
-          <div className="text-yellow-400 text-center mb-2">
-            Сортировать по: уровню | нику
-          </div>
           <div className="text-yellow-400 text-center mb-3">
-            Без клана
+            Сортировать по:{" "}
+            <button
+              onClick={() => setSortBy("level")}
+              className={`hover:underline transition-colors ${
+                sortBy === "level" ? "text-white font-bold" : ""
+              }`}
+            >
+              уровню
+            </button>
+            {" | "}
+            <button
+              onClick={() => setSortBy("name")}
+              className={`hover:underline transition-colors ${
+                sortBy === "name" ? "text-white font-bold" : ""
+              }`}
+            >
+              нику
+            </button>
           </div>
 
           {loading ? (
@@ -63,7 +97,7 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
                 <span>Ник</span>
                 <span>Мощь</span>
               </div>
-              {players.map((player) => (
+              {sortedPlayers.map((player) => (
                 <div 
                   key={player.id} 
                   className="flex items-center justify-between text-[12px] py-1 border-b border-dotted border-black/60 cursor-pointer hover:bg-gray-800/30 transition-colors"
