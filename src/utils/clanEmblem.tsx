@@ -17,26 +17,41 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
   if (!emblemPath) return null;
 
   return (
-    <img
-      src={emblemPath}
-      alt=""
-      className={`inline-block object-contain ${className}`}
-      style={{ 
-        width: `${size}px`, 
-        height: `${size}px`, 
-        verticalAlign: "middle"
+    <span
+      className={`inline-block ${className}`}
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        verticalAlign: "middle",
+        backgroundColor: "#141215", // Фон сторінки гри
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "2px",
       }}
-      onError={(e) => {
-        console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);
-        (e.target as HTMLImageElement).style.display = "none";
-      }}
-      onLoad={() => {
-        // Діагностика: виводимо в консоль, коли зображення завантажилося
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[ClanEmblem] Successfully loaded emblem: ${emblemPath}`);
-        }
-      }}
-    />
+    >
+      <img
+        src={emblemPath}
+        alt=""
+        className="object-contain"
+        style={{
+          width: "100%",
+          height: "100%",
+          maxWidth: `${size}px`,
+          maxHeight: `${size}px`,
+        }}
+        onError={(e) => {
+          console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);
+          (e.target as HTMLImageElement).style.display = "none";
+        }}
+        onLoad={() => {
+          // Діагностика: виводимо в консоль, коли зображення завантажилося
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`[ClanEmblem] Successfully loaded emblem: ${emblemPath}`);
+          }
+        }}
+      />
+    </span>
   );
 }
 
