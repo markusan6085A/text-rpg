@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getClan, getClanMembers, type Clan, type ClanMember } from "../utils/api";
+import { getClan, type Clan, type ClanMember } from "../utils/api";
 import { ClanNameWithEmblem } from "../components/ClanNameWithEmblem";
 
 interface ClanInfoProps {
@@ -24,10 +24,25 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
       const clanResponse = await getClan(clanId);
       if (clanResponse.ok) {
         setClan(clanResponse.clan);
-        // Завантажуємо учасників
-        const membersResponse = await getClanMembers(clanId);
-        if (membersResponse.ok) {
-          setMembers(membersResponse.members);
+        // Використовуємо учасників з відповіді getClan (яка вже містить список членів)
+        // Конвертуємо формат з getClan до формату ClanMember
+        if (clanResponse.clan.members && Array.isArray(clanResponse.clan.members)) {
+          const leaderId = clanResponse.clan.creator?.id;
+          const membersList = clanResponse.clan.members.map((m: any) => ({
+            id: m.id,
+            characterId: m.characterId,
+            characterName: m.characterName,
+            characterLevel: 0, // getClan не повертає level
+            title: m.title || null,
+            isDeputy: m.isDeputy || false,
+            isLeader: m.characterId === leaderId,
+            joinedAt: m.joinedAt,
+            isOnline: m.isOnline || false,
+          }));
+          setMembers(membersList);
+        } else {
+          // Якщо members немає, встановлюємо порожній список
+          setMembers([]);
         }
       } else {
         alert("Клан не найден");
