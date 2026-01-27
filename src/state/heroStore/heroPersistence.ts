@@ -1,10 +1,17 @@
 import type { Hero } from "../../types/Hero";
-import { updateCharacter } from "../../utils/api";
+import { updateCharacter, getCharacter } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
 import { loadBattle } from "../battle/persist";
 import { hydrateHero } from "./heroHydration";
+
+// 🔥 КРИТИЧНО: Глобальний "save mutex" для серіалізації збережень
+// Запобігає паралельним збереженням, які викликають revision_conflict
+let saving = false;
+let queuedHero: Hero | null = null;
+let retryCount = 0;
+const MAX_RETRIES = 1; // Максимум 1 автоматичний retry при revision_conflict
 
 // Try to save via API, fallback to localStorage if not authenticated
 export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
@@ -14,6 +21,39 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     return;
   }
   
+  // 🔥 КРИТИЧНО: Серіалізуємо збереження - якщо вже йде save, ставимо в чергу
+  if (saving) {
+    console.log('[saveHeroToLocalStorage] Save already in progress, queuing hero for later save');
+    queuedHero = hero; // Коалесимо - беремо останній state
+    return;
+  }
+  
+  // Встановлюємо флаг, що save йде
+  saving = true;
+  retryCount = 0;
+  
+  try {
+    await saveHeroOnce(hero);
+  } finally {
+    saving = false;
+    
+    // Якщо була черга - запускаємо збереження з останнього стану
+    if (queuedHero) {
+      const nextHero = queuedHero;
+      queuedHero = null;
+      console.log('[saveHeroToLocalStorage] Processing queued save');
+      // Викликаємо асинхронно, щоб не блокувати
+      setTimeout(() => {
+        saveHeroToLocalStorage(nextHero).catch((err) => {
+          console.error('[saveHeroToLocalStorage] Failed to save queued hero:', err);
+        });
+      }, 100);
+    }
+  }
+}
+
+// Внутрішня функція для одного збереження
+async function saveHeroOnce(hero: Hero): Promise<void> {
   // 🔥 Правило 2: Використовуємо hydrateHero перед збереженням для гарантованої синхронізації
   const hydrated = hydrateHero(hero);
   if (!hydrated) {
@@ -175,7 +215,7 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       classIdType: typeof heroJsonToSave.classId,
     });
     
-    await updateCharacter(characterStore.characterId, {
+    const updatedCharacter = await updateCharacter(characterStore.characterId, {
       heroJson: heroJsonToSave,
       level: hero.level,
       exp: hero.exp,
@@ -186,6 +226,22 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       expectedRevision, // Передаємо для optimistic locking
     });
     console.log('[saveHeroToLocalStorage] Hero saved successfully via API');
+    
+    // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision у store
+    // Це запобігає наступним revision_conflict, бо наступний save буде з актуальною ревізією
+    if (updatedCharacter) {
+      const newRevision = (updatedCharacter as any).heroRevision || (updatedCharacter as any).revision;
+      if (newRevision) {
+        const { useHeroStore } = await import('../heroStore');
+        const currentHero = useHeroStore.getState().hero;
+        if (currentHero) {
+          useHeroStore.getState().updateHero({
+            heroRevision: newRevision,
+          } as any);
+          console.log('[saveHeroToLocalStorage] Updated heroRevision in store:', newRevision);
+        }
+      }
+    }
     
     // ❗ ВАЖЛИВО: Також зберігаємо в localStorage як backup (навіть якщо API працює)
     // Це гарантує, що дані не втрачаться при проблемах з API
@@ -242,37 +298,100 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       return;
     }
     
-    // 🔥 Обробка конфлікту ревізії (409 Conflict)
-    if (error?.status === 409 || (error?.message && error.message.includes('revision_conflict'))) {
+    // 🔥 Обробка конфлікту ревізії (409 Conflict або revision_conflict)
+    if (error?.status === 409 || (error?.message && (error.message.includes('revision_conflict') || error.message.includes('revision conflict')))) {
       console.warn('[saveHeroToLocalStorage] Revision conflict detected - character was modified by another session');
       
-      // ❗ ВАЖЛИВО: При 409 Conflict автоматично перезавантажуємо героя з сервера
-      // Це дозволяє отримати актуальну ревізію і продовжити роботу без перезавантаження сторінки
-      try {
-        console.log('[saveHeroToLocalStorage] Reloading hero from API to get latest revision...');
-        const { loadHeroFromAPI } = await import('./heroLoadAPI');
-        const { useHeroStore } = await import('../heroStore');
-        const reloadedHero = await loadHeroFromAPI();
-        if (reloadedHero) {
-          // Оновлюємо hero в store з актуальною ревізією
-          useHeroStore.getState().setHero(reloadedHero);
-          console.log('[saveHeroToLocalStorage] Hero reloaded successfully, retrying save...');
-          // Повторюємо спробу збереження з актуальною ревізією
-          const updatedHero = useHeroStore.getState().hero;
-          if (updatedHero) {
-            // Мержимо зміни з поточного hero в reloadedHero
-            const mergedHero = {
-              ...reloadedHero,
-              ...hero,
-              heroRevision: (reloadedHero as any).heroRevision, // Використовуємо актуальну ревізію
-            };
-            // Повторюємо збереження (рекурсивно, але тільки один раз)
-            return saveHeroToLocalStorage(mergedHero as Hero);
+      // 🔥 КРИТИЧНО: Автоматично "rehydrate + retry один раз"
+      // Правильний UX: користувач навіть не помітить конфлікт
+      if (retryCount < MAX_RETRIES) {
+        retryCount++;
+        console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
+        
+        try {
+          // 1. Отримуємо актуального героя з сервера (GET /characters/:id)
+          const characterStore = useCharacterStore.getState();
+          const currentCharacter = await getCharacter(characterStore.characterId);
+          
+          if (currentCharacter) {
+            // 2. Мержимо локальні дельти (exp/mobsKilled/skills/buffs) з серверним станом
+            const serverHeroJson = currentCharacter.heroJson || {};
+            const localMobsKilled = (hero as any).mobsKilled ?? 0;
+            const serverMobsKilled = serverHeroJson.mobsKilled ?? 0;
+            const localExp = hero.exp ?? 0;
+            const serverExp = serverHeroJson.exp ?? Number(currentCharacter.exp) ?? 0;
+            const localSkills = hero.skills ?? [];
+            const serverSkills = serverHeroJson.skills ?? [];
+            
+            // Беремо більше значення для exp/mobsKilled (щоб не втратити прогрес)
+            const mergedMobsKilled = Math.max(localMobsKilled, serverMobsKilled);
+            const mergedExp = Math.max(localExp, serverExp);
+            
+            // Об'єднуємо skills (уникаємо дублікатів)
+            const mergedSkills = [...serverSkills];
+            localSkills.forEach((localSkill: any) => {
+              const existing = mergedSkills.find((s: any) => s.id === localSkill.id);
+              if (existing) {
+                // Якщо локальний рівень вищий - оновлюємо
+                if (localSkill.level > existing.level) {
+                  existing.level = localSkill.level;
+                }
+              } else {
+                mergedSkills.push(localSkill);
+              }
+            });
+            
+            // Об'єднуємо бафи (з обох джерел)
+            const savedBattle = loadBattle(hero.name);
+            const battleBuffs = savedBattle?.heroBuffs || [];
+            const serverBuffs = Array.isArray(serverHeroJson.heroBuffs) ? serverHeroJson.heroBuffs : [];
+            const localBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
+            const allBuffs = [...serverBuffs, ...localBuffs, ...battleBuffs];
+            const mergedBuffs = allBuffs.filter((buff: any, index: number, self: any[]) => 
+              index === self.findIndex((b: any) => 
+                (b.id && buff.id && b.id === buff.id) || 
+                (!b.id && !buff.id && b.name === buff.name)
+              )
+            );
+            
+            // 3. Оновлюємо hero в store з актуальною ревізією та змердженими даними
+            const { useHeroStore } = await import('../heroStore');
+            const currentHero = useHeroStore.getState().hero;
+            if (currentHero) {
+              const mergedHero = {
+                ...currentHero,
+                exp: mergedExp,
+                mobsKilled: mergedMobsKilled as any,
+                skills: mergedSkills,
+                heroRevision: (currentCharacter as any).heroRevision || (currentCharacter as any).revision, // Актуальна ревізія
+                heroJson: {
+                  ...(currentHero as any).heroJson,
+                  ...serverHeroJson,
+                  exp: mergedExp,
+                  mobsKilled: mergedMobsKilled,
+                  skills: mergedSkills,
+                  heroBuffs: mergedBuffs,
+                },
+              };
+              
+              // Оновлюємо store
+              useHeroStore.getState().setHero(mergedHero);
+              console.log('[saveHeroToLocalStorage] Hero rehydrated and merged, retrying save with revision:', (mergedHero as any).heroRevision);
+              
+              // 4. Повторюємо збереження з актуальною ревізією
+              // Використовуємо saveHeroOnce напряму, щоб не збільшувати retryCount
+              await saveHeroOnce(mergedHero);
+              return; // Успішно збережено після retry
+            }
           }
+        } catch (reloadError) {
+          console.error('[saveHeroToLocalStorage] Failed to reload and retry after revision conflict:', reloadError);
+          retryCount = MAX_RETRIES; // Не намагаємося більше
         }
-      } catch (reloadError) {
-        console.error('[saveHeroToLocalStorage] Failed to reload hero after 409 conflict:', reloadError);
       }
+      
+      // Якщо retry не вдався або досягнуто максимум - зберігаємо локальну версію як backup
+      console.warn('[saveHeroToLocalStorage] Revision conflict - saving to localStorage as backup');
       
       // Якщо перезавантаження не вдалося - зберігаємо локальну версію як backup
       const current = getJSON<string | null>("l2_current_user", null);
