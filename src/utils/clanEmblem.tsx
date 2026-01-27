@@ -24,9 +24,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
       style={{ 
         width: `${size}px`, 
         height: `${size}px`, 
-        verticalAlign: "middle",
-        imageRendering: "auto",
-        backgroundColor: "transparent"
+        verticalAlign: "middle"
       }}
       onError={(e) => {
         console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);

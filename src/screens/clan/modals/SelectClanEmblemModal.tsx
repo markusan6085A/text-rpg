@@ -49,11 +49,7 @@ export default function SelectClanEmblemModal({
                     ? "border-yellow-500 bg-yellow-500/20"
                     : "border-[#3b2614] hover:border-[#5a4424]"
                 }`}
-                style={{ 
-                  minHeight: "56px", 
-                  minWidth: "56px",
-                  backgroundColor: "rgba(255, 255, 255, 0.1)" // Світлий фон для видимості прозорих PNG
-                }}
+                style={{ minHeight: "56px", minWidth: "56px" }}
                 onClick={() => onSelect(emblem)}
               >
                 {emblemPath ? (
@@ -65,9 +61,7 @@ export default function SelectClanEmblemModal({
                       maxWidth: "56px", 
                       maxHeight: "56px", 
                       minWidth: "40px", 
-                      minHeight: "40px",
-                      imageRendering: "auto",
-                      backgroundColor: "transparent"
+                      minHeight: "40px"
                     }}
                     onError={(e) => {
                       console.error(`[SelectClanEmblemModal] Failed to load emblem: ${emblemPath}`);
