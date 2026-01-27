@@ -1,5 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import fastifyStatic from "@fastify/static";
+import path from "path";
 import { prisma } from "./db";
 import { authRoutes } from "./auth";
 import { characterRoutes } from "./characters";
@@ -8,6 +10,12 @@ import { letterRoutes } from "./letters";
 import { newsRoutes } from "./news";
 import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
+
+// Отримуємо шлях до dist папки (frontend build)
+// Використовуємо require для отримання __dirname в CommonJS
+// Після компіляції __dirname буде вказувати на server/dist/
+// Шлях до dist папки frontend (з кореня проекту) = server/dist/../../../dist
+const distPath = path.resolve(process.cwd(), "..", "dist");
 
 const app = Fastify({ 
   logger: true,
@@ -89,6 +97,28 @@ const start = async () => {
   }
 
   try {
+    // 🔥 Реєструємо статичні файли ПЕРЕД CORS та routes
+    // Це дозволяє обслуговувати JavaScript модулі з правильними MIME types
+    try {
+      await app.register(fastifyStatic, {
+        root: distPath,
+        prefix: '/', // Обслуговуємо з кореня
+        // Додаємо правильні MIME types для JavaScript модулів
+        setHeaders: (res, pathName) => {
+          if (pathName.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+          } else if (pathName.endsWith('.mjs')) {
+            res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+          } else if (pathName.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css; charset=utf-8');
+          }
+        },
+      });
+      app.log.info(`Static files registered from: ${distPath}`);
+    } catch (staticError) {
+      app.log.warn({ error: staticError, distPath }, 'Failed to register static files (may be normal if dist/ does not exist)');
+    }
+
     // Register CORS FIRST - before routes!
     // 🔒 Безпека: дозволяємо тільки домени l2dop.com
     const allowedOrigins = [
@@ -120,6 +150,29 @@ const start = async () => {
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
+    });
+
+    // 🔥 Fallback для SPA: всі не-API маршрути повертають index.html
+    app.setNotFoundHandler(async (request, reply) => {
+      // Якщо це API запит - повертаємо 404
+      if (request.url.startsWith('/auth/') || 
+          request.url.startsWith('/characters/') || 
+          request.url.startsWith('/chat/') || 
+          request.url.startsWith('/letters/') || 
+          request.url.startsWith('/news/') || 
+          request.url.startsWith('/clans/') ||
+          request.url.startsWith('/seven-seals/') ||
+          request.url === '/health' ||
+          request.url === '/test-db') {
+        return reply.code(404).send({ error: 'Not found' });
+      }
+      // Для всіх інших маршрутів - повертаємо index.html (SPA routing)
+      try {
+        return reply.sendFile('index.html', distPath);
+      } catch (err) {
+        app.log.error({ error: err, url: request.url }, 'Failed to serve index.html');
+        return reply.code(404).send({ error: 'Not found' });
+      }
     });
 
     // Register routes AFTER CORS
