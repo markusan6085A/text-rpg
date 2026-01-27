@@ -65,12 +65,16 @@ function useRouter() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    window.history.pushState({}, "", newPath);
+    
     const pathname = new URL(newPath, window.location.origin).pathname;
     const search = new URL(newPath, window.location.origin).search;
-    setPath(pathname + search);
-    // 🔥 Завжди оновлюємо refreshKey, навіть якщо шлях той самий - це форсує ре-рендер
+    const newPathFull = pathname + search;
+    
+    // 🔥 Завжди оновлюємо refreshKey ПЕРЕД setPath, навіть якщо шлях той самий - це форсує ре-рендер
     setRefreshKey(prev => prev + 1);
+    
+    window.history.pushState({}, "", newPath);
+    setPath(newPathFull);
   }, []);
 
   React.useEffect(() => {
