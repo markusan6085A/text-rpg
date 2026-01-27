@@ -73,15 +73,14 @@ export function loadHero(): Hero | null {
         }
       }
       
-      // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, тому читаємо його звідти
+      // 🔥 Схема A: hero.mobsKilled, hero.skills - офіційні поля
+      // Читаємо з heroJson (для міграції), але встановлюємо на верхній рівень hero
       const heroJson = (fixedHero as any).heroJson || {};
-      const mobsKilled = heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? (fixedHero as any).mobsKilled ?? (fixedHero as any).mobs_killed ?? (fixedHero as any).killedMobs ?? (fixedHero as any).totalKills ?? 0;
-      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled на верхній рівень і в heroJson
+      const mobsKilled = heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? (fixedHero as any).mobsKilled ?? 0;
+      const skills = Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : (Array.isArray(fixedHero.skills) ? fixedHero.skills : []);
+      
       (fixedHero as any).mobsKilled = mobsKilled;
-      (fixedHero as any).heroJson = {
-        ...heroJson,
-        mobsKilled: mobsKilled, // Гарантуємо, що mobsKilled є в heroJson
-      };
+      fixedHero.skills = skills;
       
       // Міграція: виправляємо предмети "Angel Slayer", які були куплені як лук
       if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {

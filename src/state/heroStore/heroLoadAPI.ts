@@ -133,12 +133,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // 🔥 КРИТИЧНО: Зберігаємо mobsKilled, level, exp навіть для нового героя (якщо воно було в heroData)
       const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
       (fixedHero as any).mobsKilled = finalMobsKilled;
-      (fixedHero as any).heroJson = {
-        mobsKilled: finalMobsKilled,
-        level: character.level, // Зберігаємо level в heroJson
-        exp: Number(character.exp), // Зберігаємо exp в heroJson
-        skills: fixedHero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills в heroJson
-      };
+      // 🔥 Схема A: heroJson лише для серіалізації
+      // Встановлюємо skills/mobsKilled на верхній рівень hero
+      fixedHero.skills = fixedHero.skills || [];
+      (fixedHero as any).mobsKilled = finalMobsKilled;
     } else {
       // Merge character data with heroJson
       // 🔥 ВАЖЛИВО: mobsKilled має зберігатися з heroJson (вже прочитано вище)
@@ -174,14 +172,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         gender: character.sex,
         // 🔥 mobsKilled зберігаємо з heroJson (використовуємо прочитане значення)
         mobsKilled: finalMobsKilled,
-        // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled, level, exp, skills в heroJson при завантаженні
-        heroJson: {
-          ...heroData, // Беремо весь heroData (який вже є character.heroJson)
-          mobsKilled: finalMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
-          level: finalLevel, // Гарантуємо, що level є в heroJson
-          exp: finalExp, // Гарантуємо, що exp є в heroJson
-          skills: (heroData as any).skills || fixedHero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills з heroData або з fixedHero
-        },
+        // 🔥 Схема A: hero.skills, hero.mobsKilled - офіційні поля
+        skills: (heroData as any).skills || fixedHero.skills || [],
+        mobsKilled: finalMobsKilled as any,
       } as Hero);
     }
 
