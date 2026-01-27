@@ -23,14 +23,20 @@ export function updateHeroLogic(
     mobsKilled: newMobsKilled,
   };
   
-  // 🔥 КРИТИЧНО: ЗАВЖДИ синхронізуємо mobsKilled та skills в heroJson, щоб вони зберігалися на сервері
-  // Навіть якщо mobsKilled/skills не передано в partial, беремо їх з prev і синхронізуємо
+  // 🔥 КРИТИЧНО: ЗАВЖДИ синхронізуємо mobsKilled, skills та heroBuffs в heroJson, щоб вони зберігалися на сервері
+  // Навіть якщо mobsKilled/skills/heroBuffs не передано в partial, беремо їх з prev і синхронізуємо
   const existingHeroJson = (updated as any).heroJson || {};
   const newSkills = partial.skills !== undefined ? partial.skills : prev.skills;
+  // 🔥 КРИТИЧНО: heroBuffs можуть бути в heroJson або передані в partial
+  const newHeroBuffs = (partial as any).heroJson?.heroBuffs !== undefined 
+    ? (partial as any).heroJson.heroBuffs 
+    : (existingHeroJson.heroBuffs || (prev as any).heroJson?.heroBuffs || []);
   (updated as any).heroJson = {
     ...existingHeroJson,
+    ...((partial as any).heroJson || {}), // Додаємо зміни з partial.heroJson (якщо є)
     mobsKilled: newMobsKilled, // Завжди синхронізуємо mobsKilled в heroJson
     skills: newSkills || [], // 🔥 КРИТИЧНО: Завжди синхронізуємо skills в heroJson
+    heroBuffs: newHeroBuffs, // 🔥 КРИТИЧНО: Завжди синхронізуємо heroBuffs в heroJson
   };
 
   // ❗ recalculateAllStats НІКОЛИ не повинен запускатися через hp/mp/cp
