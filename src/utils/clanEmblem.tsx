@@ -131,14 +131,13 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
           maxHeight: `${size}px`,
           position: "relative",
           zIndex: 1,
-          // 🔥 CSS filter для заміни чорного фону на #1D1C1A
-          // Використовуємо brightness для освітлення чорного фону до #1D1C1A
-          // #000000 -> #1D1C1A: brightness(1.15) приблизно дає потрібний колір
+          // 🔥 CSS filter для заміни чорного фону на #1D1C1A (темніший варіант)
+          // Якщо Canvas не спрацював - застосовуємо затемнюючий filter
           filter: processingError || !processedSrc 
-            ? "brightness(1.2) contrast(1.1)" // Освітлюємо чорний фон
+            ? "brightness(0.85) contrast(1.0)" // Затемнюємо фон для кращого збігу з #1D1C1A
             : "none", // Якщо Canvas обробив - не застосовуємо filter
-          // Додатково: mix-blend-mode для кращого змішування з фоном
-          mixBlendMode: processingError || !processedSrc ? "screen" : "normal",
+          // Не використовуємо mix-blend-mode, щоб не освітлювати зображення
+          mixBlendMode: "normal",
         }}
         onError={(e) => {
           console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);
