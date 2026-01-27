@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useHeroStore } from "../state/heroStore";
 import {
   getClan,
@@ -63,37 +63,56 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [showEmblemModal, setShowEmblemModal] = useState(false);
   const [selectedItemCategory, setSelectedItemCategory] = useState("all");
 
+  // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функцій
+  const loadChatMessages = useCallback(async () => {
+    if (!clan) return;
+
+    try {
+      const response = await getClanChat(clan.id, chatPage, 10);
+      if (response.ok) {
+        setChatMessages(response.messages);
+        setChatTotalPages(response.pagination.totalPages);
+      }
+    } catch (err) {
+      console.error("[Clan] Failed to load chat messages:", err);
+    }
+  }, [clan?.id, chatPage]); // 🔥 Мінімальні dependencies - тільки clan.id та chatPage (примітиви)
+
   // Завантажуємо клан
   useEffect(() => {
     if (clanId) {
       loadClan();
     }
-  }, [clanId, hero]);
+  }, [clanId, hero?.name]); // 🔥 Мінімальні dependencies - тільки clanId та hero.name (примітив)
 
   // Позначаємо повідомлення як прочитані при заході в клан
   useEffect(() => {
-    if (clan && activeTab === "chat") {
+    if (clan?.id && activeTab === "chat") {
       const lastVisitKey = `clan_last_visit_${clan.id}`;
       localStorage.setItem(lastVisitKey, Date.now().toString());
     }
-  }, [clan, activeTab]);
+  }, [clan?.id, activeTab]); // 🔥 Мінімальні dependencies - тільки clan.id та activeTab (примітиви)
 
   // Завантажуємо чат при зміні сторінки
   useEffect(() => {
     if (activeTab === "chat" && clan) {
       loadChatMessages();
     }
-  }, [activeTab, clan, chatPage]);
+  }, [activeTab, clan?.id, chatPage, loadChatMessages]); // 🔥 Мінімальні dependencies
 
   // Автооновлення чату кожні 3 секунди (тільки на першій сторінці)
   useEffect(() => {
-    if (activeTab === "chat" && clan && chatPage === 1) {
-      const interval = setInterval(() => {
-        loadChatMessages();
-      }, 3000);
-      return () => clearInterval(interval);
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
+    if (activeTab !== "chat" || !clan?.id || chatPage !== 1) {
+      return; // Cleanup спрацює автоматично через return нижче
     }
-  }, [activeTab, clan, chatPage]);
+    
+    const interval = setInterval(() => {
+      loadChatMessages();
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [activeTab, clan?.id, chatPage, loadChatMessages]); // 🔥 Мінімальні dependencies - тільки примітиви та стабільна функція
 
   const loadClan = async () => {
     if (!clanId || !hero) {
@@ -126,19 +145,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   };
 
-  const loadChatMessages = async () => {
-    if (!clan) return;
-
-    try {
-      const response = await getClanChat(clan.id, chatPage, 10);
-      if (response.ok) {
-        setChatMessages(response.messages);
-        setChatTotalPages(response.pagination.totalPages);
-      }
-    } catch (err) {
-      console.error("[Clan] Failed to load chat messages:", err);
-    }
-  };
+  // loadChatMessages визначено вище через useCallback
 
   const loadLogs = async () => {
     if (!clan) return;

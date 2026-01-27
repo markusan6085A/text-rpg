@@ -41,34 +41,40 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
   const regenIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  // 🔥 КРИТИЧНО: Використовуємо hero?.name як стабільну залежність замість всього hero об'єкта
+  const heroName = hero?.name;
   
   useEffect(() => {
-    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
-    if (regenIntervalRef.current) {
-      clearInterval(regenIntervalRef.current);
-      regenIntervalRef.current = null;
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
+    if (!heroName) {
+      return; // Cleanup спрацює автоматично через return нижче
     }
     
-    regenIntervalRef.current = setInterval(() => {
-      const baseMaxHp = hero.maxHp || 1;
-      const baseMaxMp = hero.maxMp || 1;
-      const baseMaxCp = hero.maxCp ?? Math.round(baseMaxHp * 0.6);
+    // 🔥 КРИТИЧНО: Використовуємо функції з store всередині interval, а не в dependencies
+    const interval = setInterval(() => {
+      const heroStore = useHeroStore.getState();
+      const currentHero = heroStore.hero;
+      if (!currentHero) return;
+      
+      const baseMaxHp = currentHero.maxHp || 1;
+      const baseMaxMp = currentHero.maxMp || 1;
+      const baseMaxCp = currentHero.maxCp ?? Math.round(baseMaxHp * 0.6);
 
       const hpRegen = Math.max(1, Math.round(baseMaxHp * 0.02));
       const mpRegen = Math.max(1, Math.round(baseMaxMp * 0.03));
       const cpRegen = Math.max(1, Math.round(baseMaxCp * 0.05));
 
-      const nextHp = Math.min(baseMaxHp, (hero.hp ?? baseMaxHp) + hpRegen);
-      const nextMp = Math.min(baseMaxMp, (hero.mp ?? baseMaxMp) + mpRegen);
-      const nextCp = Math.min(baseMaxCp, (hero.cp ?? baseMaxCp) + cpRegen);
+      const nextHp = Math.min(baseMaxHp, (currentHero.hp ?? baseMaxHp) + hpRegen);
+      const nextMp = Math.min(baseMaxMp, (currentHero.mp ?? baseMaxMp) + mpRegen);
+      const nextCp = Math.min(baseMaxCp, (currentHero.cp ?? baseMaxCp) + cpRegen);
 
       if (
-        nextHp !== hero.hp ||
-        nextMp !== hero.mp ||
-        nextCp !== hero.cp ||
-        baseMaxCp !== hero.maxCp
+        nextHp !== currentHero.hp ||
+        nextMp !== currentHero.mp ||
+        nextCp !== currentHero.cp ||
+        baseMaxCp !== currentHero.maxCp
       ) {
-        updateHero({
+        heroStore.updateHero({
           hp: nextHp,
           mp: nextMp,
           cp: nextCp,
@@ -76,14 +82,14 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         });
       }
     }, 1000);
+    
+    regenIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
 
     return () => {
-      if (regenIntervalRef.current) {
-        clearInterval(regenIntervalRef.current);
-        regenIntervalRef.current = null;
-      }
+      clearInterval(interval);
+      regenIntervalRef.current = null;
     };
-  }, [hero, updateHero]);
+  }, [heroName]); // 🔥 Мінімальні dependencies - тільки heroName (примітив), updateHero викликається через store
 
   const handleToCharacter = () => {
     window.scrollTo(0, 0);

@@ -16,14 +16,8 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortType>("level");
 
-  useEffect(() => {
-    loadOnlinePlayers();
-    // Оновлюємо список кожні 30 секунд
-    const interval = setInterval(loadOnlinePlayers, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadOnlinePlayers = async () => {
+  // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функції
+  const loadOnlinePlayers = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -35,7 +29,15 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
       setError(err?.message || "Помилка завантаження гравців");
       setLoading(false);
     }
-  };
+  }, []); // Порожній масив - функція стабільна
+
+  useEffect(() => {
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
+    loadOnlinePlayers();
+    // Оновлюємо список кожні 30 секунд
+    const interval = setInterval(loadOnlinePlayers, 30000);
+    return () => clearInterval(interval);
+  }, [loadOnlinePlayers]); // 🔥 Мінімальні dependencies - тільки стабільна функція
 
   // Сортування гравців
   const sortedPlayers = useMemo(() => {

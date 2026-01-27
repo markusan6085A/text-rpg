@@ -106,16 +106,15 @@ export default function StatusBars() {
   const regenIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
   
   React.useEffect(() => {
-    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
-    if (regenIntervalRef.current) {
-      clearInterval(regenIntervalRef.current);
-      regenIntervalRef.current = null;
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
+    if (inBattle) {
+      return; // Cleanup спрацює автоматично через return нижче
     }
     
-    if (inBattle) return; // Не регенеруємо в бою
-    
-    regenIntervalRef.current = setInterval(() => {
-      const currentHero = useHeroStore.getState().hero;
+    // 🔥 КРИТИЧНО: Використовуємо функції з store всередині interval, а не в dependencies
+    const interval = setInterval(() => {
+      const heroStore = useHeroStore.getState();
+      const currentHero = heroStore.hero;
       if (!currentHero) return;
       
       const baseMaxHp = currentHero.maxHp || 1;
@@ -155,17 +154,17 @@ export default function StatusBars() {
       }
       
       if (Object.keys(updates).length > 0) {
-        updateHero(updates);
+        heroStore.updateHero(updates);
       }
     }, 1000);
+    
+    regenIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
 
     return () => {
-      if (regenIntervalRef.current) {
-        clearInterval(regenIntervalRef.current);
-        regenIntervalRef.current = null;
-      }
+      clearInterval(interval);
+      regenIntervalRef.current = null;
     };
-  }, [inBattle, updateHero]);
+  }, [inBattle]); // 🔥 Мінімальні dependencies - тільки inBattle (примітив), updateHero викликається через store
 
   // ВАЖЛИВО: Перевірка hero має бути ПІСЛЯ всіх хуків (useEffect тощо)
   if (!hero) return null;

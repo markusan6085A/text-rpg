@@ -107,13 +107,8 @@ export default function Mail({ navigate }: MailProps) {
   const onlinePlayersIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
-    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
-    if (onlinePlayersIntervalRef.current) {
-      clearInterval(onlinePlayersIntervalRef.current);
-      onlinePlayersIntervalRef.current = null;
-    }
-    
-    onlinePlayersIntervalRef.current = setInterval(async () => {
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
+    const interval = setInterval(async () => {
       try {
         const data = await getOnlinePlayers();
         const onlineIds = new Set(data.players?.map((p: any) => p.id) || []);
@@ -126,14 +121,14 @@ export default function Mail({ navigate }: MailProps) {
         console.error("[Mail] Failed to refresh online players:", err?.message || err);
       }
     }, 30000);
+    
+    onlinePlayersIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
 
     return () => {
-      if (onlinePlayersIntervalRef.current) {
-        clearInterval(onlinePlayersIntervalRef.current);
-        onlinePlayersIntervalRef.current = null;
-      }
+      clearInterval(interval);
+      onlinePlayersIntervalRef.current = null;
     };
-  }, []);
+  }, []); // 🔥 Порожній масив - interval створюється один раз при mount
 
   /**
    * ВАЖЛИВО:

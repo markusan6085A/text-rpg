@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
@@ -33,11 +33,14 @@ export default function Layout({
   const { processMobAttack, status: battleStatus, regenTick } = useBattleStore();
 
   // 🔥 Визначаємо "легкі" сторінки, для яких не потрібні важкі операції
-  const isLightPage = typeof window !== 'undefined' && (
-    window.location.pathname.startsWith('/mail') ||
-    window.location.pathname.startsWith('/about') ||
-    window.location.pathname.startsWith('/forum')
-  );
+  // 🔥 КРИТИЧНО: Використовуємо useMemo для стабілізації, щоб не тригерити useEffect при кожному рендері
+  const isLightPage = React.useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const pathname = window.location.pathname;
+    return pathname.startsWith('/mail') ||
+           pathname.startsWith('/about') ||
+           pathname.startsWith('/forum');
+  }, []); // Пустий масив - обчислюється один раз
 
   // 🔥 Скрол вгору тільки при зміні сторінки (pathname), а не при скролі користувача
   useEffect(() => {
@@ -62,27 +65,26 @@ export default function Layout({
   const battleIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
-    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
-    if (battleIntervalRef.current) {
-      clearInterval(battleIntervalRef.current);
-      battleIntervalRef.current = null;
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
+    if (!isAuthenticated || battleStatus !== "fighting") {
+      return; // Cleanup спрацює автоматично через return нижче
     }
-    
-    if (!isAuthenticated || battleStatus !== "fighting") return;
 
-    battleIntervalRef.current = setInterval(() => {
+    // 🔥 КРИТИЧНО: Використовуємо функції з store всередині interval, а не в dependencies
+    const interval = setInterval(() => {
+      const battleStore = useBattleStore.getState();
       // Продовжуємо бій - моб атакує незалежно від локації
-      processMobAttack();
-      regenTick();
+      battleStore.processMobAttack();
+      battleStore.regenTick();
     }, 1000);
+    
+    battleIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
 
     return () => {
-      if (battleIntervalRef.current) {
-        clearInterval(battleIntervalRef.current);
-        battleIntervalRef.current = null;
-      }
+      clearInterval(interval);
+      battleIntervalRef.current = null;
     };
-  }, [isAuthenticated, battleStatus, processMobAttack, regenTick]);
+  }, [isAuthenticated, battleStatus]); // 🔥 Мінімальні dependencies - тільки примітиви
 
   // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд (тільки якщо залоговані)
   // 🔥 Для легких сторінок відкладаємо завантаження на 800-1200 мс для швидкого рендерингу
@@ -92,19 +94,10 @@ export default function Layout({
   const onlineTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
-    // 🔥 КРИТИЧНО: Очищаємо попередній interval/timeout перед створенням нового
-    if (onlineIntervalRef.current) {
-      clearInterval(onlineIntervalRef.current);
-      onlineIntervalRef.current = null;
-    }
-    if (onlineTimeoutRef.current) {
-      clearTimeout(onlineTimeoutRef.current);
-      onlineTimeoutRef.current = null;
-    }
-    
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
     if (!isAuthenticated) {
       setOnlineCount(0);
-      return;
+      return; // Cleanup спрацює автоматично через return нижче
     }
 
     const loadOnlineCount = () => {
@@ -135,24 +128,25 @@ export default function Layout({
 
     // Відкладаємо завантаження для легких сторінок (більше часу для не критичних запитів)
     const delay = isLightPage ? 2000 : 1000;
-    onlineTimeoutRef.current = setTimeout(loadOnlineCount, delay);
+    const timeout = setTimeout(loadOnlineCount, delay);
+    onlineTimeoutRef.current = timeout; // Зберігаємо для можливості ручного очищення
 
     // Оновлюємо кожні 30 секунд тільки якщо не легка сторінка
+    let interval: NodeJS.Timeout | null = null;
     if (!isLightPage) {
-      onlineIntervalRef.current = setInterval(loadOnlineCount, 30000);
+      interval = setInterval(loadOnlineCount, 30000);
+      onlineIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
     }
     
     return () => {
-      if (onlineTimeoutRef.current) {
-        clearTimeout(onlineTimeoutRef.current);
-        onlineTimeoutRef.current = null;
-      }
-      if (onlineIntervalRef.current) {
-        clearInterval(onlineIntervalRef.current);
+      clearTimeout(timeout);
+      onlineTimeoutRef.current = null;
+      if (interval) {
+        clearInterval(interval);
         onlineIntervalRef.current = null;
       }
     };
-  }, [isAuthenticated, isLightPage]);
+  }, [isAuthenticated]); // 🔥 Мінімальні dependencies - тільки isAuthenticated, isLightPage стабільний через useMemo
 
   // 🔥 Heartbeat - оновлюємо активність кожні 2 хвилини (120 секунд)
   // 🔥 Якщо поле lastActivityAt не існує в БД, heartbeat може повертати 400/500 - ігноруємо помилки
@@ -163,17 +157,10 @@ export default function Layout({
   const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
-    // 🔥 КРИТИЧНО: Очищаємо попередній interval/timeout перед створенням нового
-    if (heartbeatIntervalRef.current) {
-      clearInterval(heartbeatIntervalRef.current);
-      heartbeatIntervalRef.current = null;
+    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
+    if (!isAuthenticated || isLightPage) {
+      return; // Cleanup спрацює автоматично через return нижче
     }
-    if (heartbeatTimeoutRef.current) {
-      clearTimeout(heartbeatTimeoutRef.current);
-      heartbeatTimeoutRef.current = null;
-    }
-    
-    if (!isAuthenticated || isLightPage) return;
 
     const sendHeartbeatInterval = () => {
       // ❗ Fire-and-forget: не await, не блокує UI
@@ -198,22 +185,20 @@ export default function Layout({
     };
 
     // Відкладаємо перший heartbeat на 5 секунд, щоб не блокувати початкове завантаження
-    heartbeatTimeoutRef.current = setTimeout(sendHeartbeatInterval, 5000);
+    const timeout = setTimeout(sendHeartbeatInterval, 5000);
+    heartbeatTimeoutRef.current = timeout; // Зберігаємо для можливості ручного очищення
 
     // Відправляємо heartbeat кожні 2 хвилини
-    heartbeatIntervalRef.current = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
+    const interval = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
+    heartbeatIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
     
     return () => {
-      if (heartbeatTimeoutRef.current) {
-        clearTimeout(heartbeatTimeoutRef.current);
-        heartbeatTimeoutRef.current = null;
-      }
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-        heartbeatIntervalRef.current = null;
-      }
+      clearTimeout(timeout);
+      heartbeatTimeoutRef.current = null;
+      clearInterval(interval);
+      heartbeatIntervalRef.current = null;
     };
-  }, [isAuthenticated, isLightPage]);
+  }, [isAuthenticated]); // 🔥 Мінімальні dependencies - тільки isAuthenticated, isLightPage стабільний через useMemo
 
   const handleSupport = () => {
     // TODO: Відкрити підтримку
