@@ -23,7 +23,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         width: `${size}px`,
         height: `${size}px`,
         verticalAlign: "middle",
-        backgroundColor: "#1D1C1A", // Фон зовнішньої рамки сторінки (.l2-frame)
+        backgroundColor: "#1D1C1A", // Фон Layout (.l2-frame) - той самий що і на всіх сторінках
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
