@@ -104,6 +104,12 @@ export default function StatusBars() {
   // Регенерація HP/MP/CP (тільки поза боєм) та перевірка таймера Зарича
   // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
   const regenIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  // 🔥 THROTTLE: Накопичуємо зміни і викликаємо updateHero рідше (кожні 5 секунд замість кожної секунди)
+  const regenThrottleRef = React.useRef<{ lastUpdate: number; pendingUpdates: Partial<any> | null }>({
+    lastUpdate: 0,
+    pendingUpdates: null,
+  });
+  const REGEN_UPDATE_INTERVAL_MS = 5000; // Оновлюємо store кожні 5 секунд (замість кожної секунди)
   
   React.useEffect(() => {
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
@@ -153,11 +159,11 @@ export default function StatusBars() {
         updates.cp = nextCp;
       }
       
-      // ❗ ПЕРЕВІРКА ТАЙМЕРА ЗАРИЧА
+      // ❗ ПЕРЕВІРКА ТАЙМЕРА ЗАРИЧА (критично - завжди обробляємо одразу)
       if (currentHero.equipment?.weapon === "zariche" && currentHero.zaricheEquippedUntil) {
         const now = Date.now();
         if (now >= currentHero.zaricheEquippedUntil) {
-          // Час вийшов - знімаємо Зарича
+          // Час вийшов - знімаємо Зарича (критично - не throttle'имо)
           const heroWithoutZariche = unequipItemLogic(currentHero, "weapon");
           updates.equipment = heroWithoutZariche.equipment;
           updates.equipmentEnchantLevels = heroWithoutZariche.equipmentEnchantLevels;
@@ -165,16 +171,37 @@ export default function StatusBars() {
         }
       }
       
+      // 🔥 THROTTLE: Накопичуємо зміни і викликаємо updateHero тільки кожні 5 секунд
+      const now = Date.now();
+      const timeSinceLastUpdate = now - regenThrottleRef.current.lastUpdate;
+      
       if (Object.keys(updates).length > 0) {
-        heroStore.updateHero(updates);
+        // Мержимо зміни з попередніми
+        regenThrottleRef.current.pendingUpdates = {
+          ...regenThrottleRef.current.pendingUpdates,
+          ...updates,
+        };
+        
+        // Якщо пройшло достатньо часу або є критичні зміни (Зарич) - оновлюємо одразу
+        if (timeSinceLastUpdate >= REGEN_UPDATE_INTERVAL_MS || updates.equipment !== undefined) {
+          heroStore.updateHero(regenThrottleRef.current.pendingUpdates || updates);
+          regenThrottleRef.current.lastUpdate = now;
+          regenThrottleRef.current.pendingUpdates = null;
+        }
       }
-    }, 1000);
+    }, 1000); // Регенерація все ще працює кожну секунду для UI, але збереження throttle'имо
     
     regenIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
 
     return () => {
       clearInterval(interval);
       regenIntervalRef.current = null;
+      // 🔥 КРИТИЧНО: Зберігаємо накопичені зміни перед cleanup
+      if (regenThrottleRef.current.pendingUpdates) {
+        const heroStore = useHeroStore.getState();
+        heroStore.updateHero(regenThrottleRef.current.pendingUpdates);
+        regenThrottleRef.current.pendingUpdates = null;
+      }
     };
   }, [inBattle]); // 🔥 Мінімальні dependencies - тільки inBattle (примітив), updateHero викликається через store
 
