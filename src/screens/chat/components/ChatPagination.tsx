@@ -30,9 +30,14 @@ export function ChatPagination({
     : (hasMore ? Math.max(page + 1, page) : page);
 
   const handlePageClick = (newPage: number) => {
+    console.log('[ChatPagination] Page change:', { from: page, to: newPage, totalPages });
     onPageChange(newPage);
+    // 🔥 ВАЖЛИВО: Завжди викликаємо refresh при зміні сторінки, щоб завантажити актуальні дані
     if (newPage !== page) {
-      onRefresh();
+      // Невелика затримка, щоб state встиг оновитися
+      setTimeout(() => {
+        onRefresh();
+      }, 50);
     }
     messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
   };

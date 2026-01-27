@@ -209,6 +209,13 @@ export function useChatMessages(opts: UseChatOptions) {
         const filteredByChannel = cleaned.filter((m) => m.channel === currentChannel);
 
         // оновлюємо state + кеші
+        console.log('[chat] Fetched messages:', { 
+          page: currentPage, 
+          channel: currentChannel, 
+          count: filteredByChannel.length, 
+          totalPages: data.totalPages,
+          messageIds: filteredByChannel.map(m => m.id).slice(0, 5) 
+        });
         setMessages(filteredByChannel);
         if (data.totalPages !== undefined) {
           setTotalPages(data.totalPages);
@@ -290,7 +297,7 @@ export function useChatMessages(opts: UseChatOptions) {
     const currentChannel = channelRef.current;
     const currentPage = pageRef.current;
     const currentLimit = limitRef.current;
-    console.log('[chat] refresh() called:', { currentChannel, currentPage, currentLimit });
+    console.log('[chat] refresh() called:', { currentChannel, currentPage, currentLimit, key: keyRef.current });
     fetchNow("manual_refresh");
   }, [fetchNow]);
 
