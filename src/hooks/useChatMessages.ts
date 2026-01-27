@@ -94,17 +94,7 @@ export function useChatMessages(opts: UseChatOptions) {
     } else {
       setMessages([]);
     }
-    
-    // 🔥 ВАЖЛИВО: При зміні сторінки завжди завантажуємо актуальні дані з сервера
-    // Це гарантує, що нові повідомлення з'являться на сторінці 2+
-    if (!manual) {
-      // Невелика затримка, щоб уникнути конфліктів з іншими useEffect
-      const timer = setTimeout(() => {
-        fetchNow("page_change");
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [key, channel, manual, fetchNow]);
+  }, [key, channel]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -272,6 +262,19 @@ export function useChatMessages(opts: UseChatOptions) {
     if (!hasCache) {
       fetchNow("initial_load");
     }
+  }, [key, manual, fetchNow]);
+
+  // 🔥 ВАЖЛИВО: При зміні сторінки завжди завантажуємо актуальні дані з сервера
+  // Це гарантує, що нові повідомлення з'являться на сторінці 2+
+  // Розміщено ПІСЛЯ оголошення fetchNow, щоб уникнути помилки "used before declaration"
+  useEffect(() => {
+    if (manual) return; // Manual mode - no automatic fetches
+    
+    // Невелика затримка, щоб уникнути конфліктів з іншими useEffect
+    const timer = setTimeout(() => {
+      fetchNow("page_change");
+    }, 150);
+    return () => clearTimeout(timer);
   }, [key, manual, fetchNow]);
 
   // cleanup
