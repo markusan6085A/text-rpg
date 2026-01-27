@@ -58,10 +58,49 @@ const SAVE_DEBOUNCE_MS = 10000; // 🔥 ЗБІЛЬШЕНО: Зберігаємо
 let rateLimitUntil: number = 0;
 const RATE_LIMIT_COOLDOWN_MS = 60000; // 60 секунд після rate limit
 
+// 🔥 Черга критичних змін - зберігаються одразу після закінчення cooldown
+let criticalSaveQueue: Hero | null = null;
+let criticalSaveTimeout: NodeJS.Timeout | null = null;
+
 // 🔥 Експортуємо функцію для встановлення rate limit cooldown (використовується в heroPersistence)
 export function setRateLimitCooldown(durationMs: number = RATE_LIMIT_COOLDOWN_MS) {
   rateLimitUntil = Date.now() + durationMs;
   console.warn(`[heroStore] Rate limit cooldown set for ${durationMs}ms`);
+  
+  // 🔥 Якщо є критична зміна в черзі - плануємо збереження після cooldown
+  if (criticalSaveQueue) {
+    scheduleCriticalSaveAfterCooldown();
+  }
+}
+
+// 🔥 Плануємо збереження критичної зміни після закінчення cooldown
+function scheduleCriticalSaveAfterCooldown() {
+  if (criticalSaveTimeout) {
+    clearTimeout(criticalSaveTimeout);
+  }
+  
+  const now = Date.now();
+  const remaining = Math.max(0, rateLimitUntil - now);
+  
+  if (remaining > 0) {
+    console.log(`[heroStore] Scheduling critical save after ${Math.ceil(remaining / 1000)}s cooldown`);
+    criticalSaveTimeout = setTimeout(() => {
+      if (criticalSaveQueue) {
+        const heroToSave = criticalSaveQueue;
+        criticalSaveQueue = null;
+        criticalSaveTimeout = null;
+        console.log('[heroStore] Executing queued critical save after cooldown');
+        immediateSave(heroToSave);
+      }
+    }, remaining + 100); // +100ms для гарантії, що cooldown точно закінчився
+  } else {
+    // Cooldown вже закінчився - зберігаємо одразу
+    if (criticalSaveQueue) {
+      const heroToSave = criticalSaveQueue;
+      criticalSaveQueue = null;
+      immediateSave(heroToSave);
+    }
+  }
 }
 
 function debouncedSave(hero: Hero) {
@@ -95,15 +134,16 @@ function debouncedSave(hero: Hero) {
   }, SAVE_DEBOUNCE_MS);
 }
 
-// 🔥 Критичні зміни (як mobsKilled) зберігаємо одразу, але з перевіркою rate limit
+// 🔥 Критичні зміни (як mobsKilled, skills, sp) зберігаємо одразу, але з перевіркою rate limit
 function immediateSave(hero: Hero) {
   // 🔥 Перевіряємо, чи не в rate limit cooldown
   const now = Date.now();
   if (now < rateLimitUntil) {
     const remaining = Math.ceil((rateLimitUntil - now) / 1000);
-    console.log(`[heroStore] Skipping immediate save - rate limit cooldown active (${remaining}s remaining), using debounced save instead`);
-    // Використовуємо debounced save замість immediate
-    debouncedSave(hero);
+    console.log(`[heroStore] Critical save blocked by rate limit cooldown (${remaining}s remaining), queuing for after cooldown`);
+    // 🔥 КРИТИЧНО: Додаємо в чергу критичних змін - вони мають зберегтися одразу після cooldown
+    criticalSaveQueue = hero; // Завжди беремо найновішу версію
+    scheduleCriticalSaveAfterCooldown();
     return;
   }
   
@@ -114,6 +154,13 @@ function immediateSave(hero: Hero) {
   }
   pendingSave = null;
   
+  // Очищаємо чергу критичних змін, бо зберігаємо зараз
+  criticalSaveQueue = null;
+  if (criticalSaveTimeout) {
+    clearTimeout(criticalSaveTimeout);
+    criticalSaveTimeout = null;
+  }
+  
   // Зберігаємо одразу
   saveHeroToLocalStorage(hero).catch(err => {
     console.error('[heroStore] Failed to save hero immediately:', err);
@@ -121,9 +168,13 @@ function immediateSave(hero: Hero) {
     if (err?.status === 429 || (err?.message && err.message.includes('rate_limit'))) {
       rateLimitUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
       console.warn(`[heroStore] Rate limit detected, cooldown for ${RATE_LIMIT_COOLDOWN_MS}ms`);
+      // 🔥 Додаємо в чергу критичних змін для повторної спроби після cooldown
+      criticalSaveQueue = hero;
+      scheduleCriticalSaveAfterCooldown();
+    } else {
+      // Якщо не rate limit - пробуємо через debounce
+      debouncedSave(hero);
     }
-    // Якщо не вдалося - пробуємо через debounce
-    debouncedSave(hero);
   });
 }
 
