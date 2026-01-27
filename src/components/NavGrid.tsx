@@ -95,6 +95,11 @@ export default function NavGrid({ navigate }: NavGridProps) {
     
     if (btn.onClick) {
       btn.onClick();
+      // 🔥 ВАЖЛИВО: Після onClick також викликаємо navigate з поточним шляхом для оновлення сторінки
+      if (navigate) {
+        const currentPath = window.location.pathname;
+        navigate(currentPath);
+      }
       return;
     }
     
@@ -118,6 +123,8 @@ export default function NavGrid({ navigate }: NavGridProps) {
     }
     
     if (btn.path && navigate) {
+      // 🔥 ВАЖЛИВО: Завжди викликаємо navigate, навіть якщо шлях той самий
+      // Це гарантує оновлення сторінки через refreshKey
       navigate(btn.path);
       return;
     }
