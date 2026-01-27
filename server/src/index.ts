@@ -12,10 +12,24 @@ import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
 
 // Отримуємо шлях до dist папки (frontend build)
-// Використовуємо require для отримання __dirname в CommonJS
-// Після компіляції __dirname буде вказувати на server/dist/
-// Шлях до dist папки frontend (з кореня проекту) = server/dist/../../../dist
-const distPath = path.resolve(process.cwd(), "..", "dist");
+// Якщо сервер запускається з server/, то process.cwd() = server/
+// Шлях до dist папки frontend (з кореня проекту) = ../dist
+// Якщо сервер запускається з кореня, то dist/ напряму
+let distPath: string;
+try {
+  // Спробуємо знайти dist в корені проекту (на один рівень вище server/)
+  const rootDist = path.resolve(process.cwd(), "..", "dist");
+  const fs = require("fs");
+  if (fs.existsSync(rootDist)) {
+    distPath = rootDist;
+  } else {
+    // Якщо не знайдено, спробуємо в поточній директорії
+    distPath = path.resolve(process.cwd(), "dist");
+  }
+} catch {
+  // Fallback: припускаємо, що dist в корені проекту
+  distPath = path.resolve(process.cwd(), "..", "dist");
+}
 
 const app = Fastify({ 
   logger: true,
