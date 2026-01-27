@@ -44,7 +44,7 @@ export default function SelectClanEmblemModal({
                   src={emblemPath || ""}
                   alt={emblem}
                   className="w-full h-full object-contain"
-                  style={{ maxWidth: "40px", maxHeight: "40px" }}
+                  style={{ maxWidth: "56px", maxHeight: "56px" }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}

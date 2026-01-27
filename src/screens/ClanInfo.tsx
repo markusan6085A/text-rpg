@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { getClan, type Clan, type ClanMember } from "../utils/api";
 import { ClanNameWithEmblem } from "../components/ClanNameWithEmblem";
+import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
+import { useHeroStore } from "../state/heroStore";
+import ClanMembersModal from "./clan/modals/ClanMembersModal";
 
 interface ClanInfoProps {
   navigate: (path: string) => void;
@@ -8,11 +11,13 @@ interface ClanInfoProps {
 }
 
 export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
+  const hero = useHeroStore((s) => s.hero);
   const [clan, setClan] = useState<Clan | null>(null);
   const [members, setMembers] = useState<ClanMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [membersPage, setMembersPage] = useState(1);
   const membersPerPage = 10;
+  const [showMembersModal, setShowMembersModal] = useState(false);
 
   useEffect(() => {
     loadClanInfo();
@@ -130,7 +135,23 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-[#c7ad80]">Лидер:</span>
-              <span className="text-white">{clan.creator.name}</span>
+              <span className="text-white">
+                <PlayerNameWithEmblem
+                  playerName={clan.creator.name}
+                  hero={hero}
+                  clan={clan}
+                  size={10}
+                  className="cursor-pointer hover:opacity-80 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (clan.creator.id) {
+                      navigate(`/player/${clan.creator.id}`);
+                    } else {
+                      navigate(`/player/${clan.creator.name}`);
+                    }
+                  }}
+                />
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#c7ad80]">Репутация:</span>
@@ -148,7 +169,10 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
 
           {/* Список учасників */}
           <div className="space-y-2">
-            <div className="text-[12px] text-[#c7ad80] font-semibold">
+            <div
+              className="text-[12px] text-[#c7ad80] font-semibold cursor-pointer hover:text-[#f4e2b8] transition-colors"
+              onClick={() => setShowMembersModal(true)}
+            >
               Состав ({members.length}/{maxMembers})
             </div>
             <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
@@ -170,16 +194,22 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <span
-                            className={isOnline ? "text-green-500" : "text-white"}
-                            style={
-                              !isOnline && member.characterName === clan.creator.name
-                                ? { color: "#ff6b9d" }
-                                : {}
-                            }
-                          >
-                            {member.characterName} [{isOnline ? "On" : "Off"}]
-                          </span>
+                          <PlayerNameWithEmblem
+                            playerName={member.characterName}
+                            hero={hero}
+                            clan={clan}
+                            size={10}
+                            className={`cursor-pointer hover:opacity-80 transition-colors ${isOnline ? "text-green-500" : "text-white"}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (member.characterId) {
+                                navigate(`/player/${member.characterId}`);
+                              } else {
+                                navigate(`/player/${member.characterName}`);
+                              }
+                            }}
+                          />
+                          <span className="ml-1">[{isOnline ? "On" : "Off"}]</span>
                           <div className="text-[#9f8d73] mt-0.5">
                             {titleDisplay}
                             {rolesDisplay}
@@ -237,6 +267,23 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
           </div>
         </div>
       </div>
+
+      {/* Модалка перегляду всіх гравців клану */}
+      {showMembersModal && clan && (
+        <ClanMembersModal
+          members={members}
+          clan={clan}
+          onClose={() => setShowMembersModal(false)}
+          onPlayerClick={(characterId, characterName) => {
+            setShowMembersModal(false);
+            if (characterId) {
+              navigate(`/player/${characterId}`);
+            } else {
+              navigate(`/player/${characterName}`);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

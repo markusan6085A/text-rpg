@@ -38,9 +38,9 @@ export function ChatMessageItem({
             <PlayerNameWithEmblem
               playerName={msg.characterName}
               hero={hero}
-              clan={msg.emblem ? { emblem: msg.emblem } as any : null}
+              clan={msg.emblem && msg.emblem.trim() ? { emblem: msg.emblem } as any : null}
               nickColor={msg.nickColor || undefined}
-              size={8}
+              size={12}
               className="font-semibold cursor-pointer hover:opacity-80 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();

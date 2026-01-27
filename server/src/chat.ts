@@ -96,6 +96,10 @@ export async function chatRoutes(app: FastifyInstance) {
         messages: messages.map((msg) => {
           const heroJson = (msg.character.heroJson as any) || {};
           const nickColor = heroJson.nickColor;
+          // 🔥 Отримуємо emblem з клану гравця
+          const clanEmblem = msg.character.clanMembers?.[0]?.clan?.emblem;
+          const emblem = clanEmblem && clanEmblem.trim() ? clanEmblem : null;
+          
           return {
             id: msg.id,
             characterName: msg.character.name,
@@ -105,7 +109,7 @@ export async function chatRoutes(app: FastifyInstance) {
             createdAt: msg.createdAt.toISOString(),
             isOwn: character ? msg.characterId === character.id : false,
             nickColor: nickColor || undefined,
-            emblem: msg.character.clanMembers?.[0]?.clan?.emblem || null,
+            emblem: emblem,
           };
         }),
         page,
