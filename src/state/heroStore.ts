@@ -5,6 +5,7 @@ import { loadHero } from "./heroStore/heroLoad";
 import { loadHeroFromAPI } from "./heroStore/heroLoadAPI";
 import { updateHeroLogic } from "./heroStore/heroUpdate";
 import { saveHeroToLocalStorage } from "./heroStore/heroPersistence";
+import { hydrateHero } from "./heroStore/heroHydration";
 import { learnSkillLogic } from "./heroStore/heroSkills";
 import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
 import { itemsDB } from "../data/items/itemsDB";
@@ -79,37 +80,23 @@ export const useHeroStore = create<HeroState>((set, get) => ({
 
   setHero: (h) => {
     if (h) {
-      // 🔥 КРИТИЧНО: Перевіряємо mobsKilled при встановленні hero
-      const mobsKilled = (h as any).mobsKilled ?? (h as any).heroJson?.mobsKilled ?? 0;
+      // 🔥 Правило 2: Використовуємо hydrateHero при встановленні hero
+      const hydrated = hydrateHero(h);
+      
       console.log('[heroStore] setHero called, hero exists:', {
         name: h.name,
         inventoryItems: h.inventory?.length || 0,
-        skills: h.skills?.length || 0,
+        skills: hydrated?.skills?.length || 0,
         profession: h.profession,
         adena: h.adena,
-        mobsKilled: mobsKilled, // 🔥 Додаємо mobsKilled в логування
-        hasMobsKilledInHero: !!(h as any).mobsKilled,
-        hasMobsKilledInHeroJson: !!(h as any).heroJson?.mobsKilled,
+        mobsKilled: (hydrated as any)?.mobsKilled ?? 0,
       });
       
-      // 🔥 КРИТИЧНО: Гарантуємо, що mobsKilled завжди є в hero, навіть якщо його немає
-      if (!(h as any).mobsKilled && mobsKilled > 0) {
-        (h as any).mobsKilled = mobsKilled;
-        console.log('[heroStore] Restored mobsKilled to hero:', mobsKilled);
-      }
-      
-      // 🔥 КРИТИЧНО: Гарантуємо, що mobsKilled завжди є в heroJson
-      if (!(h as any).heroJson) {
-        (h as any).heroJson = {};
-      }
-      if (!(h as any).heroJson.mobsKilled && mobsKilled >= 0) {
-        (h as any).heroJson.mobsKilled = mobsKilled;
-        console.log('[heroStore] Restored mobsKilled to heroJson:', mobsKilled);
-      }
+      set({ hero: hydrated });
     } else {
       console.warn('[heroStore] setHero called with NULL hero!');
+      set({ hero: null });
     }
-    set({ hero: h });
   },
 
   loadHero: () => {

@@ -10,6 +10,7 @@ import { createNewHero } from "../heroFactory";
 import type { Hero } from "../../types/Hero";
 import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBackup } from "./syncPolicy";
 import { loadHero } from "./heroLoad";
+import { hydrateHero } from "./heroHydration";
 
 export async function loadHeroFromAPI(): Promise<Hero | null> {
   const authStore = useAuthStore.getState();
@@ -24,17 +25,36 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
   }
 
   try {
-    // 🔥 Перевіряємо локальну версію перед завантаженням з API
+    // 🔥 Правило 1: Local-first старт - завантажуємо локальну версію спочатку
     const localHero = loadHero();
+    const hydratedLocalHero = hydrateHero(localHero);
     
     // Load character from API
     console.log('[loadHeroFromAPI] Fetching character from API...');
     const character = await getCharacter(characterStore.characterId);
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
-    // 🔥 Перевіряємо конфлікт синхронізації
-    if (character && localHero) {
-      const conflict = checkSyncConflict(character, localHero);
+    // 🔥 Правило 1: Перевіряємо, чи локальна версія має новіші дані (skills/mobsKilled)
+    // Якщо так - не перетираємо локальні зміни
+    if (character && hydratedLocalHero) {
+      const heroData = character.heroJson as any;
+      const serverSkills = Array.isArray(heroData?.skills) ? heroData.skills.length : 0;
+      const localSkills = Array.isArray(hydratedLocalHero.skills) ? hydratedLocalHero.skills.length : 0;
+      const serverMobsKilled = heroData?.mobsKilled ?? 0;
+      const localMobsKilled = (hydratedLocalHero as any).mobsKilled ?? 0;
+      
+      // 🔥 Якщо локальна версія має більше skills або mobsKilled - не перетираємо
+      const localHasMoreProgress = localSkills > serverSkills || localMobsKilled > serverMobsKilled;
+      
+      if (localHasMoreProgress) {
+        console.warn('[loadHeroFromAPI] Local version has more progress (local skills:', localSkills, 'server:', serverSkills, 'local mobs:', localMobsKilled, 'server:', serverMobsKilled, '), keeping local version');
+        // Використовуємо локальну версію, але синхронізуємо з сервером (push local to server)
+        // Це буде зроблено через saveHeroToLocalStorage при наступному оновленні
+        return hydratedLocalHero;
+      }
+      
+      // 🔥 Перевіряємо конфлікт синхронізації (для інших випадків)
+      const conflict = checkSyncConflict(character, hydratedLocalHero);
       if (conflict.hasConflict) {
         const resolution = resolveSyncConflict(conflict);
         const message = getConflictMessage(conflict);
@@ -44,9 +64,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         
         // ❗ ВАЖЛИВО: Зберігаємо локальну версію як backup перед заміною
         if (conflict.localNewer) {
-          saveLocalBackup(localHero, conflict);
+          saveLocalBackup(hydratedLocalHero, conflict);
           console.warn('[loadHeroFromAPI] Local version is newer, saved as backup. Using server version for safety.');
-          // Можна показати alert або notification користувачу про конфлікт
         } else if (conflict.serverNewer) {
           console.log('[loadHeroFromAPI] Server version is newer, using server version.');
         }
@@ -240,6 +259,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       heroJsonMobsKilled: (fixedHero as any).heroJson?.mobsKilled,
     });
     
+    // 🔥 Схема A: hero.* - єдине джерело істини
+    // Встановлюємо skills/mobsKilled з heroJson (при завантаженні з сервера)
+    // Але якщо локальна версія має більше - використовуємо локальну
+    const localSkills = hydratedLocalHero?.skills || [];
+    const localMobsKilled = (hydratedLocalHero as any)?.mobsKilled ?? 0;
+    const serverSkills = Array.isArray((heroData as any)?.skills) ? (heroData as any).skills : [];
+    const serverMobsKilled = mobsKilledFromData ?? 0;
+    
+    // 🔥 Використовуємо більше значення (local або server)
+    const finalSkills = localSkills.length > serverSkills.length ? localSkills : (serverSkills.length > 0 ? serverSkills : (fixedHero.skills || []));
+    const finalMobsKilled = localMobsKilled > serverMobsKilled ? localMobsKilled : (serverMobsKilled > 0 ? serverMobsKilled : currentMobsKilled);
+    
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,
       baseStats: recalculated.originalBaseStats,
@@ -251,38 +282,44 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       hp: finalHp,
       mp: finalMp,
       cp: finalCp,
-      // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled, level, exp в heroJson (не дозволяємо втратити)
-      mobsKilled: currentMobsKilled,
-      heroJson: {
-        ...existingHeroJson,
-        mobsKilled: currentMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
-        level: fixedHero.level, // Гарантуємо, що level є в heroJson
-        exp: fixedHero.exp, // Гарантуємо, що exp є в heroJson
-        skills: fixedHero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills в heroJson для збереження на сервері
-        heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері
-      },
+      // 🔥 Схема A: hero.skills, hero.mobsKilled - офіційні поля
+      skills: finalSkills,
+      mobsKilled: finalMobsKilled as any,
       // 🔥 КРИТИЧНО: Зберігаємо heroRevision з сервера для optimistic locking
       heroRevision: (heroData as any)?.heroRevision || (character as any)?.heroRevision || undefined,
     };
     
-    // Логуємо фінальне mobsKilled для діагностики (завжди, не тільки в DEV)
-    console.log('[loadHeroFromAPI] mobsKilled after recalc:', (heroWithRecalculatedStats as any).mobsKilled, 'in heroJson:', (heroWithRecalculatedStats as any).heroJson?.mobsKilled);
+    // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
+    const hydratedHero = hydrateHero(heroWithRecalculatedStats);
     
-    // Логуємо фінальний інвентар після завантаження
-    console.log('[loadHeroFromAPI] Final hero inventory:', {
-      count: heroWithRecalculatedStats.inventory?.length || 0,
-      items: heroWithRecalculatedStats.inventory?.map(i => ({ id: i.id, count: i.count })) || []
-    });
+    // Додаємо heroBuffs до heroJson (вони не в hydrateHero, бо це окрема логіка)
+    if (hydratedHero) {
+      (hydratedHero as any).heroJson = {
+        ...(hydratedHero as any).heroJson,
+        heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері
+      };
+    }
+    
+    // Логуємо фінальні дані для діагностики
+    if (hydratedHero) {
+      console.log('[loadHeroFromAPI] Final hero after hydration:', {
+        skillsCount: hydratedHero.skills?.length || 0,
+        mobsKilled: (hydratedHero as any).mobsKilled,
+        level: hydratedHero.level,
+        exp: hydratedHero.exp,
+        inventoryCount: hydratedHero.inventory?.length || 0,
+      });
+    }
 
     // ❗ ВАЖЛИВО: НЕ перезаписуємо heroJson, якщо він вже існує!
     // Якщо heroJson був порожній і ми створили нового героя - зберігаємо його в базу
     // Але ТІЛЬКИ якщо heroJson дійсно порожній (не має важливих полів)
     const wasEmpty = !heroData || typeof heroData !== 'object' || Object.keys(heroData).length === 0;
-    if (wasEmpty) {
+    if (wasEmpty && hydratedHero) {
       console.log('[loadHeroFromAPI] heroJson was empty, saving new hero to database');
       // Зберігаємо створеного героя в базу даних (асинхронно, не блокуємо)
       updateCharacter(character.id, {
-        heroJson: heroWithRecalculatedStats,
+        heroJson: (hydratedHero as any).heroJson,
       }).then(() => {
         console.log('[loadHeroFromAPI] Created hero saved to database');
       }).catch((error) => {
@@ -292,7 +329,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       console.log('[loadHeroFromAPI] heroJson exists, NOT overwriting with new hero');
     }
 
-    return heroWithRecalculatedStats;
+    return hydratedHero || heroWithRecalculatedStats;
   } catch (error) {
     console.error('[loadHeroFromAPI] Failed to load hero from API:', error);
     console.warn('[loadHeroFromAPI] Returning null - will fallback to localStorage');

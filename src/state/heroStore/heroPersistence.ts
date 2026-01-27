@@ -4,6 +4,7 @@ import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
 import { loadBattle } from "../battle/persist";
+import { hydrateHero } from "./heroHydration";
 
 // Try to save via API, fallback to localStorage if not authenticated
 export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
@@ -12,6 +13,16 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     console.error('[saveHeroToLocalStorage] Attempted to save empty or invalid hero!', hero);
     return;
   }
+  
+  // 🔥 Правило 2: Використовуємо hydrateHero перед збереженням для гарантованої синхронізації
+  const hydrated = hydrateHero(hero);
+  if (!hydrated) {
+    console.error('[saveHeroToLocalStorage] Failed to hydrate hero!');
+    return;
+  }
+  
+  // Використовуємо hydrated hero для збереження
+  hero = hydrated;
   
   const authStore = useAuthStore.getState();
   const characterStore = useCharacterStore.getState();
@@ -89,16 +100,12 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       )
     );
     
-    const heroJsonToSave = {
-      ...existingHeroJson, // Спочатку беремо існуючий heroJson
-      ...heroWithoutJson, // Потім додаємо поля з hero (БЕЗ heroJson, щоб уникнути циклу)
-      // 🔥 КРИТИЧНО: mobsKilled, level, exp, skills, heroBuffs завжди мають бути в heroJson
-      mobsKilled: currentMobsKilled,
-      level: hero.level, // Гарантуємо, що level є в heroJson
-      exp: hero.exp, // Гарантуємо, що exp є в heroJson
-      skills: hero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills в heroJson
-      heroBuffs: uniqueBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
-    };
+    // 🔥 Схема A: heroJson завжди синхронізований через hydrateHero
+    // Використовуємо heroJson з hydrated hero (він вже синхронізований)
+    const heroJsonToSave = (hero as any).heroJson || {};
+    
+    // Додаємо heroBuffs (вони не в hydrateHero, бо це окрема логіка)
+    heroJsonToSave.heroBuffs = uniqueBuffs;
     
     // Логуємо для діагностики
     console.log('[saveHeroToLocalStorage] heroJsonToSave:', {

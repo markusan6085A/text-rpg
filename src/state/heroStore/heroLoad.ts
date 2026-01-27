@@ -5,6 +5,7 @@ import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { getJSON, getString, removeItem, setJSON } from "../persistence";
 import type { Hero } from "../../types/Hero";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
+import { hydrateHero } from "./heroHydration";
 
 export function loadHero(): Hero | null {
   // Міграція: видаляємо старий ключ l2_progress (більше не використовується)
@@ -202,16 +203,19 @@ export function loadHero(): Hero | null {
       cp: finalCp,
     };
     
+    // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
+    const hydratedHero = hydrateHero(heroWithRecalculatedStats);
+    
     // ❗ ВАЖЛИВО: Завжди зберігаємо hero після перерахунку, навіть якщо стати не змінилися
     // Ресурси (HP/MP/CP/maxHp/maxMp/maxCp) можуть змінитися навіть якщо бойові стати не змінилися
     // Це гарантує, що при наступному F5 буде завантажено правильні значення
     const accIndex = accounts.findIndex((a: any) => a.username === username);
-    if (accIndex !== -1) {
-      accounts[accIndex].hero = heroWithRecalculatedStats;
+    if (accIndex !== -1 && hydratedHero) {
+      accounts[accIndex].hero = hydratedHero;
       setJSON("l2_accounts_v2", accounts);
     }
     
-    return heroWithRecalculatedStats;
+    return hydratedHero || heroWithRecalculatedStats;
   }
   
   return null;

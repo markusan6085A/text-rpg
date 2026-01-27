@@ -2,6 +2,7 @@ import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { loadBattle } from "../battle/persist";
 import { cleanupBuffs } from "../battle/helpers";
 import type { Hero } from "../../types/Hero";
+import { hydrateHero } from "./heroHydration";
 
 export function updateHeroLogic(
   prev: Hero,
@@ -23,21 +24,15 @@ export function updateHeroLogic(
     mobsKilled: newMobsKilled,
   };
   
-  // 🔥 КРИТИЧНО: ЗАВЖДИ синхронізуємо mobsKilled, skills та heroBuffs в heroJson, щоб вони зберігалися на сервері
-  // Навіть якщо mobsKilled/skills/heroBuffs не передано в partial, беремо їх з prev і синхронізуємо
-  const existingHeroJson = (updated as any).heroJson || {};
+  // 🔥 Схема A: hero.* - єдине джерело істини
+  // Оновлюємо hero.skills, hero.mobsKilled (якщо передано в partial)
   const newSkills = partial.skills !== undefined ? partial.skills : prev.skills;
-  // 🔥 КРИТИЧНО: heroBuffs можуть бути в heroJson або передані в partial
-  const newHeroBuffs = (partial as any).heroJson?.heroBuffs !== undefined 
-    ? (partial as any).heroJson.heroBuffs 
-    : (existingHeroJson.heroBuffs || (prev as any).heroJson?.heroBuffs || []);
-  (updated as any).heroJson = {
-    ...existingHeroJson,
-    ...((partial as any).heroJson || {}), // Додаємо зміни з partial.heroJson (якщо є)
-    mobsKilled: newMobsKilled, // Завжди синхронізуємо mobsKilled в heroJson
-    skills: newSkills || [], // 🔥 КРИТИЧНО: Завжди синхронізуємо skills в heroJson
-    heroBuffs: newHeroBuffs, // 🔥 КРИТИЧНО: Завжди синхронізуємо heroBuffs в heroJson
-  };
+  if (partial.skills !== undefined) {
+    updated.skills = partial.skills;
+  }
+  if ((partial as any).mobsKilled !== undefined) {
+    (updated as any).mobsKilled = (partial as any).mobsKilled;
+  }
 
   // ❗ recalculateAllStats НІКОЛИ не повинен запускатися через hp/mp/cp
   // Він має запускатися ТІЛЬКИ при: level, skills, equipment, baseStats, profession, klass, equipmentEnchantLevels, activeDyes
@@ -135,6 +130,23 @@ export function updateHeroLogic(
     };
   }
 
-  return updated;
+  // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
+  const hydrated = hydrateHero(updated);
+  
+  // 🔥 Зберігаємо heroBuffs в heroJson (якщо передано в partial)
+  if (hydrated) {
+    const existingHeroJson = (hydrated as any).heroJson || {};
+    const newHeroBuffs = (partial as any).heroJson?.heroBuffs !== undefined 
+      ? (partial as any).heroJson.heroBuffs 
+      : (existingHeroJson.heroBuffs || (prev as any).heroJson?.heroBuffs || []);
+    
+    (hydrated as any).heroJson = {
+      ...existingHeroJson,
+      ...((partial as any).heroJson || {}), // Додаємо зміни з partial.heroJson (якщо є)
+      heroBuffs: newHeroBuffs, // 🔥 КРИТИЧНО: Зберігаємо heroBuffs в heroJson
+    };
+  }
+
+  return hydrated || updated;
 }
 
