@@ -56,6 +56,9 @@ function useRouter() {
     const search = window.location.search;
     return pathname + search;
   });
+  
+  // 🔥 refreshKey для форсування оновлення сторінки навіть при кліку на той самий шлях
+  const [refreshKey, setRefreshKey] = React.useState(0);
 
   const navigate = React.useCallback((newPath: string) => {
     // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
@@ -66,6 +69,8 @@ function useRouter() {
     const pathname = new URL(newPath, window.location.origin).pathname;
     const search = new URL(newPath, window.location.origin).search;
     setPath(pathname + search);
+    // 🔥 Завжди оновлюємо refreshKey, навіть якщо шлях той самий - це форсує ре-рендер
+    setRefreshKey(prev => prev + 1);
   }, []);
 
   React.useEffect(() => {
@@ -73,12 +78,14 @@ function useRouter() {
       const pathname = window.location.pathname;
       const search = window.location.search;
       setPath(pathname + search);
+      // 🔥 Оновлюємо refreshKey при навігації назад/вперед
+      setRefreshKey(prev => prev + 1);
     };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
   }, []);
 
-  return { navigate, path };
+  return { navigate, path, refreshKey };
 }
 
 function AppInner() {
@@ -86,7 +93,7 @@ function AppInner() {
   const setHero = useHeroStore((s) => s.setHero);
   const loadHero = useHeroStore((s) => s.loadHero);
 
-  const { navigate, path } = useRouter();
+  const { navigate, path, refreshKey } = useRouter();
   
   // Логуємо API_URL при ініціалізації App (тільки в DEV)
   React.useEffect(() => {
@@ -249,7 +256,7 @@ function AppInner() {
   // Для інших маршрутів - компоненти самі обробляють відсутність hero (показують "Загрузка...")
   if (!hero && (pathname === "/" || pathname === "")) {
     return (
-      <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true}>
+      <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key={`landing-layout-${refreshKey}`}>
         <Landing
           navigate={navigate}
           onLogin={(loadedHero) => {
@@ -259,6 +266,7 @@ function AppInner() {
             setHero(loadedHero);
             navigate("/city");
           }}
+          key={`landing-${refreshKey}`}
         />
       </Layout>
     );
@@ -266,147 +274,147 @@ function AppInner() {
 
   // Router
   const renderWithLayout = (children: React.ReactNode) => (
-    <Layout navigate={navigate}>{children}</Layout>
+    <Layout navigate={navigate} key={`layout-${pathname}-${refreshKey}`}>{children}</Layout>
   );
 
   switch (pathname) {
     case "/register":
       return (
-        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true}>
-          <Register navigate={navigate} />
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key={`register-layout-${refreshKey}`}>
+          <Register navigate={navigate} key={`register-${refreshKey}`} />
         </Layout>
       );
 
     case "/city":
-      return renderWithLayout(<City navigate={navigate} />);
+      return renderWithLayout(<City navigate={navigate} key={`city-${refreshKey}`} />);
 
     case "/character":
-      return renderWithLayout(<Character />);
+      return renderWithLayout(<Character key={`character-${refreshKey}`} />);
 
     case "/gk":
-      return renderWithLayout(<GK navigate={navigate} />);
+      return renderWithLayout(<GK navigate={navigate} key={`gk-${refreshKey}`} />);
 
     case "/location":
-      return renderWithLayout(<Location navigate={navigate} />);
+      return renderWithLayout(<Location navigate={navigate} key={`location-${refreshKey}`} />);
 
     case "/stats":
-      return renderWithLayout(<Stats />);
+      return renderWithLayout(<Stats key={`stats-${refreshKey}`} />);
 
     case "/about":
-      return renderWithLayout(<About navigate={navigate} />);
+      return renderWithLayout(<About navigate={navigate} key={`about-${refreshKey}`} />);
 
     case "/battle":
-      return renderWithLayout(<Battle navigate={navigate} />);
+      return renderWithLayout(<Battle navigate={navigate} key={`battle-${refreshKey}`} />);
 
     case "/inventory":
-      return renderWithLayout(<Inventory />);
+      return renderWithLayout(<Inventory key={`inventory-${refreshKey}`} />);
 
     case "/equipment":
-      return renderWithLayout(<Equipment />);
+      return renderWithLayout(<Equipment key={`equipment-${refreshKey}`} />);
 
     case "/guild":
     case "/mage-guild":
-      return renderWithLayout(<MageGuild navigate={navigate} />);
+      return renderWithLayout(<MageGuild navigate={navigate} key={`mage-guild-${refreshKey}`} />);
 
     case "/magic-statue":
-      return renderWithLayout(<MagicStatue navigate={navigate} />);
+      return renderWithLayout(<MagicStatue navigate={navigate} key={`magic-statue-${refreshKey}`} />);
 
     case "/learned-skills":
-      return renderWithLayout(<LearnedSkillsScreen navigate={navigate} />);
+      return renderWithLayout(<LearnedSkillsScreen navigate={navigate} key={`learned-skills-${refreshKey}`} />);
 
     case "/additional-skills":
-      return renderWithLayout(<AdditionalSkillsScreen navigate={navigate} />);
+      return renderWithLayout(<AdditionalSkillsScreen navigate={navigate} key={`additional-skills-${refreshKey}`} />);
 
     case "/recipe-book":
       return renderWithLayout(
-        <div className="w-full flex flex-col items-center text-white px-4 py-2">
+        <div key={`recipe-book-${refreshKey}`} className="w-full flex flex-col items-center text-white px-4 py-2">
           <div className="text-xl font-bold mb-4">Книга рецептов</div>
           <div className="text-gray-400">В разработке...</div>
         </div>
       );
 
     case "/shop":
-      return renderWithLayout(<Shop navigate={navigate} />);
+      return renderWithLayout(<Shop navigate={navigate} key={`shop-${refreshKey}`} />);
 
     case "/gm-shop":
-      return renderWithLayout(<GMShop navigate={navigate} />);
+      return renderWithLayout(<GMShop navigate={navigate} key={`gm-shop-${refreshKey}`} />);
 
     case "/tattoo-artist":
-      return renderWithLayout(<TattooArtist navigate={navigate} />);
+      return renderWithLayout(<TattooArtist navigate={navigate} key={`tattoo-artist-${refreshKey}`} />);
 
     case "/quests":
-      return renderWithLayout(<QuestsScreen navigate={navigate} />);
+      return renderWithLayout(<QuestsScreen navigate={navigate} key={`quests-${refreshKey}`} />);
 
     case "/quest-shop":
-      return renderWithLayout(<QuestShop navigate={navigate} />);
+      return renderWithLayout(<QuestShop navigate={navigate} key={`quest-shop-${refreshKey}`} />);
 
     case "/warehouse":
-      return renderWithLayout(<Warehouse navigate={navigate} />);
+      return renderWithLayout(<Warehouse navigate={navigate} key={`warehouse-${refreshKey}`} />);
 
     case "/daily-quests":
-      return renderWithLayout(<DailyQuests navigate={navigate} />);
+      return renderWithLayout(<DailyQuests navigate={navigate} key={`daily-quests-${refreshKey}`} />);
 
     case "/premium-account":
-      return renderWithLayout(<PremiumAccount navigate={navigate} />);
+      return renderWithLayout(<PremiumAccount navigate={navigate} key={`premium-account-${refreshKey}`} />);
 
     case "/fishing":
       return (
-        <Layout navigate={navigate} customBackground="/icons/fishing.jpg">
-          <Fishing navigate={navigate} />
+        <Layout navigate={navigate} customBackground="/icons/fishing.jpg" key={`fishing-layout-${refreshKey}`}>
+          <Fishing navigate={navigate} key={`fishing-${refreshKey}`} />
         </Layout>
       );
 
     case "/chat":
-      return renderWithLayout(<Chat navigate={navigate} />);
+      return renderWithLayout(<Chat navigate={navigate} key={`chat-${refreshKey}`} />);
 
     case "/online-players":
-      return renderWithLayout(<OnlinePlayers navigate={navigate} />);
+      return renderWithLayout(<OnlinePlayers navigate={navigate} key={`online-players-${refreshKey}`} />);
 
     case "/mail":
-      return renderWithLayout(<Mail navigate={navigate} />);
+      return renderWithLayout(<Mail navigate={navigate} key={`mail-${refreshKey}`} />);
 
     case "/forum":
-      return renderWithLayout(<Forum navigate={navigate} />);
+      return renderWithLayout(<Forum navigate={navigate} key={`forum-${refreshKey}`} />);
 
     case "/news":
-      return renderWithLayout(<News navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} onLogout={() => {}} />);
+      return renderWithLayout(<News navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} onLogout={() => {}} key={`news-${refreshKey}`} />);
 
     case "/colorize-nick":
-      return renderWithLayout(<ColorizeNick navigate={navigate} />);
+      return renderWithLayout(<ColorizeNick navigate={navigate} key={`colorize-nick-${refreshKey}`} />);
 
     case "/seven-seals":
-      return renderWithLayout(<SevenSeals navigate={navigate} />);
+      return renderWithLayout(<SevenSeals navigate={navigate} key={`seven-seals-${refreshKey}`} />);
 
     case "/clans":
-      return renderWithLayout(<Clans navigate={navigate} />);
+      return renderWithLayout(<Clans navigate={navigate} key={`clans-${refreshKey}`} />);
 
     default:
       // Check if pathname matches /clan-info/:id pattern (інформаційна сторінка)
       if (pathname.startsWith("/clan-info/")) {
         const clanId = pathname.replace("/clan-info/", "").split("?")[0];
         if (clanId) {
-          return renderWithLayout(<ClanInfo navigate={navigate} clanId={clanId} />);
+          return renderWithLayout(<ClanInfo navigate={navigate} clanId={clanId} key={`clan-info-${clanId}-${refreshKey}`} />);
         }
       }
       // Check if pathname matches /clan/:id pattern (повна сторінка управління)
       if (pathname.startsWith("/clan/")) {
         const clanId = pathname.replace("/clan/", "").split("?")[0];
         if (clanId) {
-          return renderWithLayout(<Clan navigate={navigate} clanId={clanId} />);
+          return renderWithLayout(<Clan navigate={navigate} clanId={clanId} key={`clan-${clanId}-${refreshKey}`} />);
         }
       }
       // Check if pathname matches /player/:id/admin pattern
       if (pathname.startsWith("/player/") && pathname.endsWith("/admin")) {
         const playerId = pathname.replace("/player/", "").replace("/admin", "").split("?")[0];
         if (playerId) {
-          return renderWithLayout(<PlayerAdminActions navigate={navigate} playerId={playerId} />);
+          return renderWithLayout(<PlayerAdminActions navigate={navigate} playerId={playerId} key={`player-admin-${playerId}-${refreshKey}`} />);
         }
       }
       // Check if pathname matches /player/:id pattern
       if (pathname.startsWith("/player/")) {
         const playerId = pathname.replace("/player/", "").split("?")[0];
         if (playerId) {
-          return renderWithLayout(<PlayerProfile navigate={navigate} playerId={playerId} />);
+          return renderWithLayout(<PlayerProfile navigate={navigate} playerId={playerId} key={`player-${playerId}-${refreshKey}`} />);
         }
       }
       // Fall through to default route below
@@ -415,17 +423,17 @@ function AppInner() {
 
   // Default route (if no case matched)
   if (pathname === "/wip") {
-    return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} />);
+    return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} key={`wip-${refreshKey}`} />);
   }
 
   // Other default routes
   switch (pathname) {
     case "/wip":
-      return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} />);
+      return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} key={`wip-${refreshKey}`} />);
 
     default:
       return (
-        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true}>
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key={`default-landing-layout-${refreshKey}`}>
           <Landing
             navigate={navigate}
             onLogin={(loadedHero) => {
@@ -433,6 +441,7 @@ function AppInner() {
               setHero(loadedHero);
               navigate("/city");
             }}
+            key={`default-landing-${refreshKey}`}
           />
         </Layout>
       );
