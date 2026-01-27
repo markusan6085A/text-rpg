@@ -107,8 +107,19 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "2px",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      {/* 🔥 Фоновий шар з кольором #1D1C1A - буде видно через прозорі частини зображення */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "#1D1C1A",
+          zIndex: 0,
+        }}
+      />
       <img
         src={processingError ? emblemPath : (processedSrc || emblemPath)}
         alt=""
@@ -118,11 +129,16 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
           height: "100%",
           maxWidth: `${size}px`,
           maxHeight: `${size}px`,
-          // 🔥 CSS filter для заміни чорного фону на #1D1C1A (якщо Canvas не спрацював)
-          // Використовуємо brightness та contrast для освітлення чорного фону
+          position: "relative",
+          zIndex: 1,
+          // 🔥 CSS filter для заміни чорного фону на #1D1C1A
+          // Використовуємо brightness для освітлення чорного фону до #1D1C1A
+          // #000000 -> #1D1C1A: brightness(1.15) приблизно дає потрібний колір
           filter: processingError || !processedSrc 
-            ? "brightness(1.15) contrast(1.05)" // Fallback: освітлюємо чорний фон
+            ? "brightness(1.2) contrast(1.1)" // Освітлюємо чорний фон
             : "none", // Якщо Canvas обробив - не застосовуємо filter
+          // Додатково: mix-blend-mode для кращого змішування з фоном
+          mixBlendMode: processingError || !processedSrc ? "screen" : "normal",
         }}
         onError={(e) => {
           console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);
