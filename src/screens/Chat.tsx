@@ -211,14 +211,9 @@ export default function Chat({ navigate }: ChatProps) {
       return true;
     });
 
-    // Ensure newest first: outbox is prepended and should already be newest-first by how we add,
-    // but we keep as-is and then add cached.
-    const maxCached = Math.max(0, 10 - outboxVisible.length);
-    const limitedCached = dedupedCached.slice(0, maxCached);
-
     // 🔥 ФІНАЛЬНА ДЕДУПЛІКАЦІЯ: видаляємо будь-які cached повідомлення, які збігаються з outbox
     // Перевіряємо і по fingerprint, і по ID для максимальної точності
-    const finalCached = limitedCached.filter((m) => {
+    const dedupedCachedFromOutbox = dedupedCached.filter((m) => {
       const fp = fingerprint(m);
       // Якщо fingerprint вже є в seen (з outbox) - пропускаємо
       if (seen.has(fp)) return false;
@@ -227,7 +222,13 @@ export default function Chat({ navigate }: ChatProps) {
       return true;
     });
 
-    return [...outboxVisible, ...finalCached];
+    // 🔥 ВАЖЛИВО: На сторінці 1 показуємо рівно 10 повідомлень (outbox + серверні)
+    // Якщо outbox займає місце, то серверні обмежуємо, щоб загалом було 10
+    // Це гарантує, що повідомлення 11+ підуть на сторінку 2
+    const maxCached = Math.max(0, 10 - outboxVisible.length);
+    const limitedCached = dedupedCachedFromOutbox.slice(0, maxCached);
+
+    return [...outboxVisible, ...limitedCached];
   }, [page, outbox, filteredCached, serverFingerprints, channel]);
 
   // Confirmed delivery cleanup:
