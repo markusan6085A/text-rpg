@@ -79,17 +79,22 @@ export function useChatMessages(opts: UseChatOptions) {
     const mem = memCache.get(key);
     const ls = readLS(key);
     
-    // Показуємо кеш миттєво, якщо він є
-    if (mem?.data?.length) {
-      setMessages(mem.data);
-    } else if (ls?.data?.length) {
-      setMessages(ls.data);
-      // Зберігаємо в RAM для швидкого доступу
-      memCache.set(key, ls);
+    // Показуємо кеш миттєво, якщо він є, але фільтруємо по channel
+    const cachedData = mem?.data || ls?.data || [];
+    const filteredByChannel = Array.isArray(cachedData) 
+      ? cachedData.filter((m: any) => m.channel === channel)
+      : [];
+    
+    if (filteredByChannel.length > 0) {
+      setMessages(filteredByChannel);
+      if (ls?.data?.length && !mem) {
+        // Зберігаємо в RAM для швидкого доступу
+        memCache.set(key, { ts: ls.ts, data: filteredByChannel });
+      }
     } else {
       setMessages([]);
     }
-  }, [key]);
+  }, [key, channel]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -200,8 +205,11 @@ export function useChatMessages(opts: UseChatOptions) {
           return;
         }
 
+        // 🔥 Додаткова перевірка: фільтруємо повідомлення по channel (на випадок якщо сервер повернув не той канал)
+        const filteredByChannel = cleaned.filter((m) => m.channel === currentChannel);
+
         // оновлюємо state + кеші
-        setMessages(cleaned);
+        setMessages(filteredByChannel);
         if (data.totalPages !== undefined) {
           setTotalPages(data.totalPages);
         }

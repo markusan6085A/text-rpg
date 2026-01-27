@@ -44,7 +44,12 @@ export default function Chat({ navigate }: ChatProps) {
   // Reset page when channel changes
   useEffect(() => {
     setPage(1);
-  }, [channel]);
+    // Очищаємо кеш при зміні каналу, щоб уникнути змішування повідомлень
+    // Використовуємо setTimeout, щоб уникнути проблем з залежностями
+    setTimeout(() => {
+      refresh();
+    }, 100);
+  }, [channel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------- Helpers ----------
   const normName = (s?: string) => (s || "").trim().toLowerCase();
@@ -76,14 +81,20 @@ export default function Chat({ navigate }: ChatProps) {
   // Combine outbox (pending/sent) + cached, newest on top
   // Show outbox only on page 1
   const messages: ChatMessage[] = React.useMemo(() => {
-    if (page !== 1) return filteredCached;
+    // 🔥 Фільтруємо cachedMessages по channel (на випадок якщо в кеші є повідомлення з іншого каналу)
+    const filteredByChannel = filteredCached.filter((m) => m.channel === channel);
+    
+    if (page !== 1) return filteredByChannel;
+
+    // 🔥 Фільтруємо outbox по channel - тільки повідомлення поточного каналу!
+    const outboxForChannel = outbox.filter((m) => m.channel === channel);
 
     // Dedupe outbox against server by fingerprint + also avoid local duplicates in outbox itself
     const seen = new Set<string>();
     const seenIds = new Set<string>(); // Also dedupe by ID to avoid exact duplicates
     const outboxVisible: ChatMessage[] = [];
 
-    for (const m of outbox) {
+    for (const m of outboxForChannel) {
       // Hide if server already contains it (confirmed)
       const fp = fingerprint(m);
       if (serverFingerprints.has(fp)) continue;
@@ -101,7 +112,7 @@ export default function Chat({ navigate }: ChatProps) {
 
     // Dedupe cached messages by ID to avoid duplicates
     const cachedIds = new Set<string>();
-    const dedupedCached = filteredCached.filter((m) => {
+    const dedupedCached = filteredByChannel.filter((m) => {
       if (cachedIds.has(m.id)) return false;
       cachedIds.add(m.id);
       return true;
@@ -119,7 +130,7 @@ export default function Chat({ navigate }: ChatProps) {
     });
 
     return [...outboxVisible, ...finalCached];
-  }, [page, outbox, filteredCached, serverFingerprints]);
+  }, [page, outbox, filteredCached, serverFingerprints, channel]);
 
   // Confirmed delivery cleanup:
   // If an outbox message is marked 'sent' and server now has it (fingerprint match),
