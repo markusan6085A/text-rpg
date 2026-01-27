@@ -119,20 +119,20 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     const currentHero = heroStore.hero;
     if (currentHero) {
       const existingHeroJson = (currentHero as any).heroJson || {};
-      (currentHero as any).heroJson = {
-        ...existingHeroJson,
-        heroBuffs: updatedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
-      };
+      heroStore.updateHero({
+        maxHp: recalculated.resources.maxHp, // Базове значення БЕЗ бафів
+        maxMp: recalculated.resources.maxMp,
+        maxCp: recalculated.resources.maxCp,
+        hp: newHp, // Але hp оновлюємо з урахуванням бафів
+        mp: newMp,
+        cp: newCp,
+        // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson через updateHero
+        heroJson: {
+          ...existingHeroJson,
+          heroBuffs: updatedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
+        } as any,
+      });
     }
-    
-    heroStore.updateHero({
-      maxHp: recalculated.resources.maxHp, // Базове значення БЕЗ бафів
-      maxMp: recalculated.resources.maxMp,
-      maxCp: recalculated.resources.maxCp,
-      hp: newHp, // Але hp оновлюємо з урахуванням бафів
-      mp: newMp,
-      cp: newCp,
-    });
     }
 
     // Оновлюємо компонент для відображення
@@ -179,12 +179,13 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     const currentHero = heroStore.hero;
     if (currentHero) {
       const existingHeroJson = (currentHero as any).heroJson || {};
-      (currentHero as any).heroJson = {
-        ...existingHeroJson,
-        heroBuffs: filteredBuffs, // 🔥 КРИТИЧНО: Зберігаємо оновлені бафи в heroJson
-      };
       // Оновлюємо hero, щоб зберегти зміни в heroJson
-      heroStore.updateHero({});
+      heroStore.updateHero({
+        heroJson: {
+          ...existingHeroJson,
+          heroBuffs: filteredBuffs, // 🔥 КРИТИЧНО: Зберігаємо оновлені бафи в heroJson
+        } as any,
+      });
     }
 
     // Оновлюємо компонент для відображення
