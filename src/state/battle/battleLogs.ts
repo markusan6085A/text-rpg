@@ -1,5 +1,5 @@
 // Збереження останніх 10 логів бою протягом 5 хвилин
-import { getJSON, setJSON } from "../persistence";
+import { getJSON, setJSON, removeItem } from "../persistence";
 
 const BATTLE_LOGS_KEY = "l2_battle_logs";
 const BATTLE_LOGS_MAX_COUNT = 10;
@@ -84,7 +84,6 @@ export function clearBattleLogs(heroName?: string | null): void {
 
   try {
     const storageKey = `${BATTLE_LOGS_KEY}_${heroName}`;
-    const { removeItem } = require("../persistence");
     removeItem(storageKey);
   } catch (err) {
     console.error("[battleLogs] Failed to clear battle logs:", err);

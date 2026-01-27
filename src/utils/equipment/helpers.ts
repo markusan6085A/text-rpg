@@ -4,6 +4,7 @@
 
 import { getEquipmentFileId } from "./itemEquipmentMapping";
 import { getRaceId, getGenderSuffix } from "./raceMapping";
+import { ITEM_EQUIPMENT_MAPPING } from "./itemEquipmentMapping";
 
 /**
  * Перевіряє, чи існує зображення екіпірування для предмета
@@ -28,7 +29,7 @@ export function checkEquipmentExists(
  */
 export function getItemsWithEquipment(): string[] {
   // Можна використати для відображення списку доступних предметів
-  return Object.keys(require("./itemEquipmentMapping").ITEM_EQUIPMENT_MAPPING);
+  return Object.keys(ITEM_EQUIPMENT_MAPPING);
 }
 
 /**

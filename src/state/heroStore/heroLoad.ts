@@ -120,7 +120,6 @@ export function loadHero(): Hero | null {
     
     // Якщо стати зіпсовані - відновлюємо оригінальні
     if (hasCorruptedStats) {
-      const { calcBaseStats } = require("../../utils/stats/calcBaseStats");
       const restoredBaseStats = calcBaseStats(
         fixedHero.race || "Human",
         fixedHero.klass || fixedHero.profession || "Fighter"

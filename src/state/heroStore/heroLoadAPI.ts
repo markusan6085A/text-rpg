@@ -118,6 +118,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         mobsKilled: finalMobsKilled,
         level: character.level, // Зберігаємо level в heroJson
         exp: Number(character.exp), // Зберігаємо exp в heroJson
+        skills: fixedHero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills в heroJson
       };
     } else {
       // Merge character data with heroJson
@@ -154,12 +155,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         gender: character.sex,
         // 🔥 mobsKilled зберігаємо з heroJson (використовуємо прочитане значення)
         mobsKilled: finalMobsKilled,
-        // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled, level, exp в heroJson при завантаженні
+        // 🔥 КРИТИЧНО: Завжди синхронізуємо mobsKilled, level, exp, skills в heroJson при завантаженні
         heroJson: {
           ...heroData, // Беремо весь heroData (який вже є character.heroJson)
           mobsKilled: finalMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
           level: finalLevel, // Гарантуємо, що level є в heroJson
           exp: finalExp, // Гарантуємо, що exp є в heroJson
+          skills: (heroData as any).skills || fixedHero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills з heroData або з fixedHero
         },
       } as Hero);
     }
@@ -256,6 +258,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         mobsKilled: currentMobsKilled, // Гарантуємо, що mobsKilled є в heroJson
         level: fixedHero.level, // Гарантуємо, що level є в heroJson
         exp: fixedHero.exp, // Гарантуємо, що exp є в heroJson
+        skills: fixedHero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills в heroJson для збереження на сервері
         heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері
       },
     };

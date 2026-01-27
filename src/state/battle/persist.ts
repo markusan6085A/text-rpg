@@ -1,5 +1,6 @@
 import type { BattleState } from "./types";
 import { getJSON, removeItem, setJSON } from "../persistence";
+import { useHeroStore } from "../heroStore";
 
 // Версія battle state для міграцій
 export const BATTLE_VERSION = 1;
@@ -33,7 +34,6 @@ export const loadBattle = (heroName?: string | null): PersistedBattleState | nul
   let currentHeroName = heroName;
   if (!currentHeroName) {
     try {
-      const { useHeroStore } = require("../heroStore");
       const hero = useHeroStore.getState().hero;
       currentHeroName = hero?.name;
     } catch (e) {

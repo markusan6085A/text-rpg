@@ -3,6 +3,7 @@ import { updateCharacter } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
+import { loadBattle } from "../battle/persist";
 
 // Try to save via API, fallback to localStorage if not authenticated
 export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
@@ -75,7 +76,6 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     
     // 🔥 КРИТИЧНО: Бафи можуть бути в heroJson.heroBuffs або в battle state
     // Перевіряємо обидва джерела
-    const loadBattle = require("../battle/persist").loadBattle;
     const savedBattle = loadBattle(hero.name);
     const battleBuffs = savedBattle?.heroBuffs || [];
     const heroJsonBuffs = Array.isArray(existingHeroJson.heroBuffs) ? existingHeroJson.heroBuffs : [];
@@ -92,10 +92,11 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     const heroJsonToSave = {
       ...existingHeroJson, // Спочатку беремо існуючий heroJson
       ...heroWithoutJson, // Потім додаємо поля з hero (БЕЗ heroJson, щоб уникнути циклу)
-      // 🔥 КРИТИЧНО: mobsKilled, level, exp, heroBuffs завжди мають бути в heroJson
+      // 🔥 КРИТИЧНО: mobsKilled, level, exp, skills, heroBuffs завжди мають бути в heroJson
       mobsKilled: currentMobsKilled,
       level: hero.level, // Гарантуємо, що level є в heroJson
       exp: hero.exp, // Гарантуємо, що exp є в heroJson
+      skills: hero.skills || [], // 🔥 КРИТИЧНО: Зберігаємо skills в heroJson
       heroBuffs: uniqueBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
     };
     
@@ -104,6 +105,7 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       mobsKilled: heroJsonToSave.mobsKilled,
       level: heroJsonToSave.level,
       exp: heroJsonToSave.exp,
+      skillsCount: Array.isArray(heroJsonToSave.skills) ? heroJsonToSave.skills.length : 0,
       heroBuffsCount: uniqueBuffs.length,
     });
     
