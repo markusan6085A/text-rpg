@@ -51,9 +51,27 @@ interface HeroState {
 // 🔥 Debouncing для збереження - щоб уникнути rate limiting
 let saveTimeout: NodeJS.Timeout | null = null;
 let pendingSave: Hero | null = null;
-const SAVE_DEBOUNCE_MS = 2000; // Зберігаємо через 2 секунди після останнього оновлення
+const SAVE_DEBOUNCE_MS = 10000; // 🔥 ЗБІЛЬШЕНО: Зберігаємо через 10 секунд після останнього оновлення (було 2 секунди)
+
+// 🔥 Захист від rate limit - якщо отримали 429, не зберігаємо деякий час
+let rateLimitUntil: number = 0;
+const RATE_LIMIT_COOLDOWN_MS = 60000; // 60 секунд після rate limit
+
+// 🔥 Експортуємо функцію для встановлення rate limit cooldown (використовується в heroPersistence)
+export function setRateLimitCooldown(durationMs: number = RATE_LIMIT_COOLDOWN_MS) {
+  rateLimitUntil = Date.now() + durationMs;
+  console.warn(`[heroStore] Rate limit cooldown set for ${durationMs}ms`);
+}
 
 function debouncedSave(hero: Hero) {
+  // 🔥 Перевіряємо, чи не в rate limit cooldown
+  const now = Date.now();
+  if (now < rateLimitUntil) {
+    const remaining = Math.ceil((rateLimitUntil - now) / 1000);
+    console.log(`[heroStore] Skipping save - rate limit cooldown active (${remaining}s remaining)`);
+    return;
+  }
+  
   pendingSave = hero;
   
   if (saveTimeout) {
@@ -64,6 +82,11 @@ function debouncedSave(hero: Hero) {
     if (pendingSave) {
       saveHeroToLocalStorage(pendingSave).catch(err => {
         console.error('[heroStore] Failed to save hero:', err);
+        // 🔥 Якщо отримали rate limit - встановлюємо cooldown
+        if (err?.status === 429 || (err?.message && err.message.includes('rate_limit'))) {
+          rateLimitUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
+          console.warn(`[heroStore] Rate limit detected, cooldown for ${RATE_LIMIT_COOLDOWN_MS}ms`);
+        }
       });
       pendingSave = null;
     }
@@ -71,8 +94,18 @@ function debouncedSave(hero: Hero) {
   }, SAVE_DEBOUNCE_MS);
 }
 
-// 🔥 Критичні зміни (як mobsKilled) зберігаємо одразу
+// 🔥 Критичні зміни (як mobsKilled) зберігаємо одразу, але з перевіркою rate limit
 function immediateSave(hero: Hero) {
+  // 🔥 Перевіряємо, чи не в rate limit cooldown
+  const now = Date.now();
+  if (now < rateLimitUntil) {
+    const remaining = Math.ceil((rateLimitUntil - now) / 1000);
+    console.log(`[heroStore] Skipping immediate save - rate limit cooldown active (${remaining}s remaining), using debounced save instead`);
+    // Використовуємо debounced save замість immediate
+    debouncedSave(hero);
+    return;
+  }
+  
   // Скасовуємо debounced save, якщо він є
   if (saveTimeout) {
     clearTimeout(saveTimeout);
@@ -83,6 +116,11 @@ function immediateSave(hero: Hero) {
   // Зберігаємо одразу
   saveHeroToLocalStorage(hero).catch(err => {
     console.error('[heroStore] Failed to save hero immediately:', err);
+    // 🔥 Якщо отримали rate limit - встановлюємо cooldown
+    if (err?.status === 429 || (err?.message && err.message.includes('rate_limit'))) {
+      rateLimitUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
+      console.warn(`[heroStore] Rate limit detected, cooldown for ${RATE_LIMIT_COOLDOWN_MS}ms`);
+    }
     // Якщо не вдалося - пробуємо через debounce
     debouncedSave(hero);
   });

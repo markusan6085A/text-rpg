@@ -334,6 +334,15 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     if (error?.status === 429 || (error?.message && (error.message.includes('rate_limit') || error.message.includes('Too Many Requests')))) {
       console.warn('[saveHeroToLocalStorage] Rate limit exceeded, saving to localStorage and will retry later');
       
+      // 🔥 КРИТИЧНО: Повідомляємо heroStore про rate limit для встановлення cooldown
+      // Це запобігає подальшим спробам збереження протягом cooldown періоду
+      try {
+        const { setRateLimitCooldown } = await import('../heroStore');
+        setRateLimitCooldown(60000); // 60 секунд cooldown
+      } catch (e) {
+        console.error('[saveHeroToLocalStorage] Failed to set rate limit cooldown:', e);
+      }
+      
       // Зберігаємо в localStorage як backup
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {

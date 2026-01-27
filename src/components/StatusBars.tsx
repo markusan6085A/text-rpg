@@ -129,6 +129,18 @@ export default function StatusBars() {
       const nextMp = Math.min(baseMaxMp, (currentHero.mp ?? baseMaxMp) + mpRegen);
       const nextCp = Math.min(baseMaxCp, (currentHero.cp ?? baseMaxCp) + cpRegen);
 
+      // 🔥 ОПТИМІЗАЦІЯ: Не викликаємо updateHero, якщо ресурси вже на максимумі
+      // Це запобігає зайвим збереженням, коли HP/MP/CP вже повні
+      const isAtMax = (nextHp >= baseMaxHp && nextMp >= baseMaxMp && nextCp >= baseMaxCp) &&
+                      (currentHero.hp ?? baseMaxHp) >= baseMaxHp &&
+                      (currentHero.mp ?? baseMaxMp) >= baseMaxMp &&
+                      (currentHero.cp ?? baseMaxCp) >= baseMaxCp;
+      
+      if (isAtMax) {
+        // Ресурси вже на максимумі - не оновлюємо
+        return;
+      }
+
       const updates: Partial<typeof currentHero> = {};
       
       if (

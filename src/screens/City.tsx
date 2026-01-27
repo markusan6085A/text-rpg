@@ -1,5 +1,5 @@
 // src/screens/City.tsx
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { useHeroStore } from "../state/heroStore";
 import { setString } from "../state/persistence";
 
@@ -39,57 +39,9 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   const lowHp = hp / maxHp < 0.3;
 
-  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
-  const regenIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-  // 🔥 КРИТИЧНО: Використовуємо hero?.name як стабільну залежність замість всього hero об'єкта
-  const heroName = hero?.name;
-  
-  useEffect(() => {
-    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
-    if (!heroName) {
-      return; // Cleanup спрацює автоматично через return нижче
-    }
-    
-    // 🔥 КРИТИЧНО: Використовуємо функції з store всередині interval, а не в dependencies
-    const interval = setInterval(() => {
-      const heroStore = useHeroStore.getState();
-      const currentHero = heroStore.hero;
-      if (!currentHero) return;
-      
-      const baseMaxHp = currentHero.maxHp || 1;
-      const baseMaxMp = currentHero.maxMp || 1;
-      const baseMaxCp = currentHero.maxCp ?? Math.round(baseMaxHp * 0.6);
-
-      const hpRegen = Math.max(1, Math.round(baseMaxHp * 0.02));
-      const mpRegen = Math.max(1, Math.round(baseMaxMp * 0.03));
-      const cpRegen = Math.max(1, Math.round(baseMaxCp * 0.05));
-
-      const nextHp = Math.min(baseMaxHp, (currentHero.hp ?? baseMaxHp) + hpRegen);
-      const nextMp = Math.min(baseMaxMp, (currentHero.mp ?? baseMaxMp) + mpRegen);
-      const nextCp = Math.min(baseMaxCp, (currentHero.cp ?? baseMaxCp) + cpRegen);
-
-      if (
-        nextHp !== currentHero.hp ||
-        nextMp !== currentHero.mp ||
-        nextCp !== currentHero.cp ||
-        baseMaxCp !== currentHero.maxCp
-      ) {
-        heroStore.updateHero({
-          hp: nextHp,
-          mp: nextMp,
-          cp: nextCp,
-          maxCp: baseMaxCp,
-        });
-      }
-    }, 1000);
-    
-    regenIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
-
-    return () => {
-      clearInterval(interval);
-      regenIntervalRef.current = null;
-    };
-  }, [heroName]); // 🔥 Мінімальні dependencies - тільки heroName (примітив), updateHero викликається через store
+  // 🔥 ВИДАЛЕНО: Регенерація HP/MP/CP - вона вже є в StatusBars (глобальний компонент)
+  // Це запобігає дублюванню регенерації та зайвим збереженням
+  // StatusBars вже обробляє регенерацію для всіх сторінок
 
   const handleToCharacter = () => {
     window.scrollTo(0, 0);
