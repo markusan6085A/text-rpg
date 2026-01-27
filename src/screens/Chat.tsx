@@ -160,6 +160,13 @@ export default function Chat({ navigate }: ChatProps) {
       // Це запобігає дублюванню для автора повідомлення навіть якщо createdAt різний
       if (serverFingerprints.contentFingerprints.has(contentFp)) {
         // Повідомлення вже підтверджене сервером (знайдено по змісту БЕЗ часу) - пропускаємо
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[chat] Skipping outbox message (found by content fingerprint):', { 
+            message: m.message, 
+            contentFp,
+            outboxId: m.id 
+          });
+        }
         continue;
       }
       if (serverFingerprints.contentFingerprintsWithTime.has(contentFpWithTime)) {
@@ -239,6 +246,14 @@ export default function Chat({ navigate }: ChatProps) {
         if (isConfirmed) {
           changed = true;
           // 🔥 Видаляємо підтверджене повідомлення з outbox
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[chat] Removing confirmed outbox message:', { 
+              message: m.message, 
+              contentFp,
+              contentFpWithTime,
+              outboxId: m.id 
+            });
+          }
           return false; // remove confirmed
         }
         return true;
