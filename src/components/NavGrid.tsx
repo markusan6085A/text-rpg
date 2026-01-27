@@ -83,7 +83,8 @@ export default function NavGrid({ navigate }: NavGridProps) {
     };
 
     loadClanUnreadCount();
-    const interval = setInterval(loadClanUnreadCount, 30000); // Оновлюємо кожні 30 секунд
+    // 🔥 ОПТИМІЗАЦІЯ: Зменшуємо частоту поллінгу з 30 секунд до 60 секунд
+    const interval = setInterval(loadClanUnreadCount, 60000); // Оновлюємо кожні 60 секунд
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 

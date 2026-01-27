@@ -77,12 +77,14 @@ export default function StatusBars() {
   const inBattle = battleStatus !== "idle";
 
   // Завантажуємо клан для відображення емблеми
+  // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан тільки один раз при зміні hero, не поллимо
   React.useEffect(() => {
     if (!hero) {
       setMyClan(null);
       return;
     }
 
+    // Завантажуємо клан один раз при зміні hero
     getMyClan()
       .then((response) => {
         if (response.ok && response.clan) {
@@ -94,7 +96,10 @@ export default function StatusBars() {
       .catch(() => {
         setMyClan(null);
       });
-  }, [hero]);
+    
+    // 🔥 НЕ додаємо setInterval - клан завантажується тільки при зміні hero
+    // Якщо потрібно оновити клан - це має робитися через окремий endpoint або при навігації
+  }, [hero?.name]); // Завантажуємо тільки при зміні імені героя
 
   // Регенерація HP/MP/CP (тільки поза боєм) та перевірка таймера Зарича
   React.useEffect(() => {

@@ -79,24 +79,73 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   hero: null,
 
   setHero: (h) => {
-    if (h) {
-      // 🔥 Правило 2: Використовуємо hydrateHero при встановленні hero
-      const hydrated = hydrateHero(h);
-      
-      console.log('[heroStore] setHero called, hero exists:', {
-        name: h.name,
-        inventoryItems: h.inventory?.length || 0,
-        skills: hydrated?.skills?.length || 0,
-        profession: h.profession,
-        adena: h.adena,
-        mobsKilled: (hydrated as any)?.mobsKilled ?? 0,
-      });
-      
-      set({ hero: hydrated });
-    } else {
+    if (!h) {
       console.warn('[heroStore] setHero called with NULL hero!');
       set({ hero: null });
+      return;
     }
+
+    // 🔥 КРИТИЧНО: Захист від не-героївських payload (наприклад, клан з /my endpoint)
+    // Перевіряємо, чи це дійсно hero об'єкт, а не клан або інший об'єкт
+    function isHeroPayload(x: any): boolean {
+      if (!x || typeof x !== 'object') return false;
+      
+      // Клан має поля members, emblem, isLeader, memberCount, creator, reputation, adena
+      // Герой має heroJson, skills, mobsKilled, exp, level
+      const hasClanFields = 
+        (Array.isArray(x.members) || x.memberCount !== undefined || x.isLeader !== undefined || 
+         x.emblem !== undefined || x.creator !== undefined || x.reputation !== undefined);
+      
+      const hasHeroFields = 
+        (x.heroJson !== undefined || Array.isArray(x.skills) || 
+         typeof x.mobsKilled === "number" || typeof x.exp === "number" || 
+         typeof x.level === "number");
+      
+      // Якщо є кланові поля, але немає геройських - це клан, не герой
+      if (hasClanFields && !hasHeroFields) {
+        return false;
+      }
+      
+      // Якщо є геройські поля - це герой
+      if (hasHeroFields) {
+        return true;
+      }
+      
+      // Якщо є базові поля героя (name, race, klass) - це герой
+      if (typeof x.name === 'string' && typeof x.race === 'string' && (typeof x.klass === 'string' || typeof x.classId === 'string')) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    if (!isHeroPayload(h)) {
+      console.warn('[heroStore.setHero] Rejected non-hero payload (likely clan object from /my endpoint):', {
+        hasMembers: Array.isArray((h as any).members),
+        hasEmblem: (h as any).emblem !== undefined,
+        hasIsLeader: (h as any).isLeader !== undefined,
+        hasMemberCount: (h as any).memberCount !== undefined,
+        hasHeroJson: (h as any).heroJson !== undefined,
+        hasSkills: Array.isArray((h as any).skills),
+        hasMobsKilled: typeof (h as any).mobsKilled === 'number',
+        name: (h as any).name,
+      });
+      return; // Не оновлюємо heroStore не-героївськими даними
+    }
+
+    // 🔥 Правило 2: Використовуємо hydrateHero при встановленні hero
+    const hydrated = hydrateHero(h);
+    
+    console.log('[heroStore] setHero called, hero exists:', {
+      name: h.name,
+      inventoryItems: h.inventory?.length || 0,
+      skills: hydrated?.skills?.length || 0,
+      profession: h.profession,
+      adena: h.adena,
+      mobsKilled: (hydrated as any)?.mobsKilled ?? 0,
+    });
+    
+    set({ hero: hydrated });
   },
 
   loadHero: () => {
