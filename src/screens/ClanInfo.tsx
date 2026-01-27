@@ -117,27 +117,14 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
 
           {/* Емблема клану */}
           <div className="flex justify-center">
-            {clan.emblem ? (
-              <img
-                src={`/clans-emblems/${clan.emblem}`}
-                alt="Емблема клану"
-                className="w-48 h-48 object-contain"
-                onError={(e) => {
-                  console.error(`[ClanInfo] Failed to load emblem: ${clan.emblem}`);
-                  // Fallback до дефолтного зображення
-                  (e.target as HTMLImageElement).src = "/icons/clanns.png";
-                }}
-              />
-            ) : (
-              <img
-                src="/icons/clanns.png"
-                alt="Клан"
-                className="w-48 h-48 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/icons/clann.jpg";
-                }}
-              />
-            )}
+            <img
+              src="/icons/clanns.png"
+              alt="Клан"
+              className="w-48 h-48 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/icons/clann.jpg";
+              }}
+            />
           </div>
 
           {/* Статистика клану */}

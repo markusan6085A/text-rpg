@@ -57,10 +57,15 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Fingerprint for dedupe (no clientId available)
   // Uses author+channel+message and rounded time bucket
-  const fingerprint = (m: { characterName?: string; channel?: string; message?: string; createdAt?: string }) => {
+  // 🔥 Зменшуємо bucket до 5 секунд для кращої дедуплікації
+  const fingerprint = (m: { characterName?: string; channel?: string; message?: string; createdAt?: string; id?: string }) => {
+    // Використовуємо ID якщо є (найточніше)
+    if (m.id) {
+      return `id:${m.id}`;
+    }
     const t = m.createdAt ? new Date(m.createdAt).getTime() : Date.now();
-    // 10-second bucket to tolerate server save delay/time differences
-    const bucket = Math.floor(t / 10_000);
+    // 5-second bucket to tolerate server save delay/time differences
+    const bucket = Math.floor(t / 5_000);
     return `${normName(m.characterName)}|${m.channel || ""}|${normText(m.message)}|${bucket}`;
   };
 
@@ -123,10 +128,15 @@ export default function Chat({ navigate }: ChatProps) {
     const maxCached = Math.max(0, 10 - outboxVisible.length);
     const limitedCached = dedupedCached.slice(0, maxCached);
 
-    // Final dedupe: remove any cached messages that match outbox by fingerprint
+    // 🔥 ФІНАЛЬНА ДЕДУПЛІКАЦІЯ: видаляємо будь-які cached повідомлення, які збігаються з outbox
+    // Перевіряємо і по fingerprint, і по ID для максимальної точності
     const finalCached = limitedCached.filter((m) => {
       const fp = fingerprint(m);
-      return !seen.has(fp);
+      // Якщо fingerprint вже є в seen (з outbox) - пропускаємо
+      if (seen.has(fp)) return false;
+      // Якщо ID вже є в seenIds (з outbox) - пропускаємо
+      if (seenIds.has(m.id)) return false;
+      return true;
     });
 
     return [...outboxVisible, ...finalCached];
@@ -216,8 +226,11 @@ export default function Chat({ navigate }: ChatProps) {
         }
       }
 
-      // Не викликаємо refresh() одразу - повідомлення вже в outbox і з'явиться при наступному refresh
-      // Це запобігає дублюванню, оскільки повідомлення вже показується з outbox
+      // 🔥 ВАЖЛИВО: Викликаємо refresh через невеликий delay, щоб сервер встиг зберегти повідомлення
+      // Але тільки один раз, щоб уникнути дублювання
+      setTimeout(() => {
+        refresh();
+      }, 500);
     } catch (err: any) {
       console.error("Error sending message:", err);
 

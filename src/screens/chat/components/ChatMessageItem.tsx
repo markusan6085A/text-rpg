@@ -40,7 +40,7 @@ export function ChatMessageItem({
               hero={hero}
               clan={msg.emblem && msg.emblem.trim() ? { emblem: msg.emblem } as any : null}
               nickColor={msg.nickColor || undefined}
-              size={12}
+              size={16}
               className="font-semibold cursor-pointer hover:opacity-80 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();

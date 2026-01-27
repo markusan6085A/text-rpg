@@ -118,7 +118,7 @@ export default function Stats() {
               playerName={hero.name || "Без имени"}
               hero={hero}
               clan={playerClan}
-              size={12}
+              size={14}
             />
           </div>
           <div className="text-red-500 text-sm">

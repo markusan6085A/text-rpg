@@ -75,7 +75,7 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
                       hero={hero}
                       clan={player.emblem ? { emblem: player.emblem } as any : null}
                       nickColor={player.nickColor}
-                      size={8}
+                      size={12}
                       className="font-semibold hover:opacity-80 transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
