@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { useHeroStore } from "../../state/heroStore";
-import { getNickColorStyle } from "../../utils/nickColor";
+import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
 import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { hasShieldEquipped, getTotalShieldDefense } from "../../utils/shield/shieldDefense";
 import CharacterBuffs from "./CharacterBuffs";
+import { getMyClan } from "../../utils/api";
 
 export default function Stats() {
   const hero = useHeroStore((s) => s.hero);
@@ -15,6 +16,7 @@ export default function Stats() {
   const battleStatus = useBattleStore((s) => s.status);
   const [baseStats, setBaseStats] = useState<any>(null);
   const [combatStats, setCombatStats] = useState<any>(null);
+  const [playerClan, setPlayerClan] = useState<any>(null);
 
   useEffect(() => {
     if (!hero) return;
@@ -33,6 +35,23 @@ export default function Stats() {
     setBaseStats(recalculated.baseStats);
     setCombatStats(recalculated.finalStats);
   }, [hero, battleBuffs, battleStatus]);
+
+  // Завантажуємо клан гравця для відображення емблеми
+  useEffect(() => {
+    const loadClan = async () => {
+      try {
+        const response = await getMyClan();
+        if (response.ok && response.clan) {
+          setPlayerClan(response.clan);
+        } else {
+          setPlayerClan(null);
+        }
+      } catch (err) {
+        setPlayerClan(null);
+      }
+    };
+    loadClan();
+  }, [hero]);
 
   if (!hero || !baseStats || !combatStats) {
     return <div className="text-white text-center mt-10">Загрузка...</div>;
@@ -94,8 +113,13 @@ export default function Stats() {
 
         {/* Інформація про персонажа */}
         <div className="mb-4 text-center">
-          <div className="font-semibold text-base mb-1" style={getNickColorStyle(hero.name || "", hero)}>
-            {hero.name || "Без имени"}
+          <div className="font-semibold text-base mb-1">
+            <PlayerNameWithEmblem
+              playerName={hero.name || "Без имени"}
+              hero={hero}
+              clan={playerClan}
+              size={12}
+            />
           </div>
           <div className="text-red-500 text-sm">
             {level} ур. — {professionDisplay}

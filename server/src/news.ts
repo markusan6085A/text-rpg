@@ -29,6 +29,20 @@ export async function newsRoutes(app: FastifyInstance) {
           characterName: true,
           metadata: true,
           createdAt: true,
+          character: {
+            select: {
+              clanMember: {
+                select: {
+                  clan: {
+                    select: {
+                      emblem: true,
+                    },
+                  },
+                },
+                take: 1,
+              },
+            },
+          },
         },
       });
 
@@ -39,6 +53,7 @@ export async function newsRoutes(app: FastifyInstance) {
           type: n.type,
           characterId: n.characterId,
           characterName: n.characterName,
+          emblem: n.character?.clanMember?.[0]?.clan?.emblem || null,
           metadata: n.metadata,
           createdAt: n.createdAt.toISOString(),
         })),

@@ -880,6 +880,16 @@ export async function characterRoutes(app: FastifyInstance) {
             level: true,
             lastActivityAt: true,
             heroJson: true, // Звідси можемо взяти location та power
+            clanMembers: {
+              select: {
+                clan: {
+                  select: {
+                    emblem: true,
+                  },
+                },
+              },
+              take: 1,
+            },
           },
         });
       } catch (dbError: any) {
@@ -901,6 +911,16 @@ export async function characterRoutes(app: FastifyInstance) {
             level: true,
             updatedAt: true,
             heroJson: true,
+            clanMembers: {
+              select: {
+                clan: {
+                  select: {
+                    emblem: true,
+                  },
+                },
+              },
+              take: 1,
+            },
           },
         });
       }
@@ -912,6 +932,7 @@ export async function characterRoutes(app: FastifyInstance) {
         const power = heroJson.power || 0;
         const nickColor = heroJson.nickColor;
         const lastActivityAt = char.lastActivityAt || char.updatedAt;
+        const emblem = char.clanMembers?.[0]?.clan?.emblem || null;
 
         return {
           id: char.id,
@@ -920,6 +941,7 @@ export async function characterRoutes(app: FastifyInstance) {
           location,
           power,
           nickColor: nickColor || undefined,
+          emblem: emblem || undefined,
           lastActivityAt: lastActivityAt ? (lastActivityAt.toISOString ? lastActivityAt.toISOString() : lastActivityAt) : new Date().toISOString(),
         };
       });

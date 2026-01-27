@@ -358,6 +358,7 @@ export interface OnlinePlayer {
   power?: number;
   lastActivityAt: string;
   nickColor?: string; // Color of the player's nickname
+  emblem?: string; // Clan emblem
 }
 
 export interface OnlinePlayersResponse {
@@ -472,6 +473,7 @@ export interface NewsItem {
   type: "new_player" | "premium_purchase" | "raid_boss_kill";
   characterId?: string;
   characterName?: string;
+  emblem?: string; // Clan emblem
   metadata: {
     hours?: number;
     bossName?: string;

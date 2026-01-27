@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
-import { getNickColorStyle } from "../utils/nickColor";
+import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 
 interface OnlinePlayersProps {
   navigate: (path: string) => void;
@@ -70,12 +70,18 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
                   onClick={() => navigate(`/player/${player.id}`)}
                 >
                   <div className="flex items-center gap-2">
-                    <span 
-                      className="font-semibold hover:opacity-80 transition-colors" 
-                      style={getNickColorStyle(player.name, hero, player.nickColor)}
-                    >
-                      {player.name}
-                    </span>
+                    <PlayerNameWithEmblem
+                      playerName={player.name}
+                      hero={hero}
+                      clan={player.emblem ? { emblem: player.emblem } as any : null}
+                      nickColor={player.nickColor}
+                      size={8}
+                      className="font-semibold hover:opacity-80 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/player/${player.id}`);
+                      }}
+                    />
                     <span className="text-gray-500">{player.level} ур.</span>
                     <span className="text-gray-500">в {player.location}</span>
                   </div>
