@@ -73,17 +73,16 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
                               ((hero as any).heroJson?.killedMobs) ??
                               ((hero as any).heroJson?.totalKills) ??
                               0;
-    const existingHeroJson = (hero as any).heroJson || {};
+    
+    // 🔥 КРИТИЧНО: Завжди робимо MERGE з існуючим heroJson, щоб не втратити дані
+    // Ніколи не перезаписуємо heroJson об'єктом, який містить тільки skills/mobsKilled/buffs
+    const existingHeroJson = (hero as any).heroJson ?? {};
     
     // Логуємо mobsKilled для діагностики (завжди, не тільки в DEV)
     console.log('[saveHeroToLocalStorage] mobsKilled to save:', currentMobsKilled, 'from hero:', {
       mobsKilled: (hero as any).mobsKilled,
-      heroJsonMobsKilled: (hero as any).heroJson?.mobsKilled,
+      heroJsonMobsKilled: existingHeroJson.mobsKilled,
     });
-    
-    // 🔥 КРИТИЧНО: НЕ копіюємо весь hero в heroJson, бо це створить циклічну структуру!
-    // Копіюємо тільки необхідні поля з hero, виключаючи heroJson
-    const { heroJson: _, ...heroWithoutJson } = hero as any;
     
     // 🔥 КРИТИЧНО: Бафи можуть бути в heroJson.heroBuffs або в battle state
     // Перевіряємо обидва джерела
@@ -100,34 +99,39 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       )
     );
     
-    // 🔥 Схема A: heroJson завжди синхронізований через hydrateHero
-    // Використовуємо heroJson з hydrated hero (він вже синхронізований)
-    const heroJsonToSave = (hero as any).heroJson || {};
+    // 🔥 Гарантуємо обов'язкові поля для сервера (name, race, classId/klass)
+    // Беремо з існуючого heroJson або з hero, але завжди маємо значення
+    const requiredName = (existingHeroJson.name ?? hero.name ?? "").toString();
+    const requiredRace = (existingHeroJson.race ?? hero.race ?? "").toString();
+    const requiredClassId = (existingHeroJson.classId ?? (hero as any).classId ?? hero.klass ?? "").toString();
+    const requiredKlass = (existingHeroJson.klass ?? hero.klass ?? "").toString();
     
-    // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass
-    // Гарантуємо, що вони завжди присутні (навіть якщо hydrateHero не додав їх)
-    if (!heroJsonToSave.name && hero.name) {
-      heroJsonToSave.name = hero.name;
-    }
-    if (!heroJsonToSave.race && hero.race) {
-      heroJsonToSave.race = hero.race;
-    }
-    if (!heroJsonToSave.klass && !heroJsonToSave.classId && hero.klass) {
-      heroJsonToSave.klass = hero.klass;
-      heroJsonToSave.classId = hero.klass; // Сервер може вимагати classId
-    }
-    if (!heroJsonToSave.gender && hero.gender) {
-      heroJsonToSave.gender = hero.gender;
-    }
-    if (!heroJsonToSave.profession && hero.profession) {
-      heroJsonToSave.profession = hero.profession;
-    }
-    
-    // Додаємо heroBuffs (вони не в hydrateHero, бо це окрема логіка)
-    heroJsonToSave.heroBuffs = uniqueBuffs;
+    // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
+    const heroJsonToSave = {
+      ...existingHeroJson, // 🔥 КРИТИЧНО: Зберігаємо всі існуючі поля з heroJson
+      
+      // 🔒 Обов'язкові поля — гарантуємо завжди (з існуючого або з hero)
+      name: requiredName,
+      race: requiredRace,
+      // Сервер приймає або classId, або klass — передаємо обидва для надійності
+      ...(requiredClassId ? { classId: requiredClassId } : {}),
+      ...(requiredKlass ? { klass: requiredKlass } : {}),
+      
+      // Додаткові базові поля (якщо є)
+      ...(hero.gender ? { gender: hero.gender } : {}),
+      ...(hero.profession ? { profession: hero.profession } : {}),
+      
+      // 🔥 Прогрес (оновлюємо завжди)
+      level: hero.level ?? existingHeroJson.level ?? 1,
+      exp: hero.exp ?? existingHeroJson.exp ?? 0,
+      mobsKilled: currentMobsKilled,
+      skills: hero.skills ?? existingHeroJson.skills ?? [],
+      heroBuffs: uniqueBuffs, // Бафи з об'єднаних джерел
+    };
     
     // Логуємо для діагностики
-    console.log('[saveHeroToLocalStorage] heroJsonToSave:', {
+    const hasRequiredFields = !!(heroJsonToSave.name && heroJsonToSave.race && (heroJsonToSave.klass || heroJsonToSave.classId));
+    console.log('[saveHeroToLocalStorage] heroJsonToSave (MERGE):', {
       name: heroJsonToSave.name,
       race: heroJsonToSave.race,
       klass: heroJsonToSave.klass || heroJsonToSave.classId,
@@ -136,8 +140,36 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       exp: heroJsonToSave.exp,
       skillsCount: Array.isArray(heroJsonToSave.skills) ? heroJsonToSave.skills.length : 0,
       heroBuffsCount: uniqueBuffs.length,
-      hasRequiredFields: !!(heroJsonToSave.name && heroJsonToSave.race && (heroJsonToSave.klass || heroJsonToSave.classId)),
+      hasRequiredFields,
+      existingFieldsCount: Object.keys(existingHeroJson).length,
+      mergedFieldsCount: Object.keys(heroJsonToSave).length,
     });
+    
+    // 🔥 КРИТИЧНО: Перевіряємо обов'язкові поля перед відправкою
+    if (!hasRequiredFields) {
+      console.error('[saveHeroToLocalStorage] CRITICAL: heroJson missing required fields!', {
+        name: heroJsonToSave.name,
+        race: heroJsonToSave.race,
+        klass: heroJsonToSave.klass,
+        classId: heroJsonToSave.classId,
+        heroName: hero.name,
+        heroRace: hero.race,
+        heroKlass: hero.klass,
+      });
+      // Не відправляємо на сервер, якщо немає обов'язкових полів
+      // Зберігаємо тільки в localStorage як backup
+      const current = getJSON<string | null>("l2_current_user", null);
+      if (current) {
+        const accounts = getJSON<any[]>("l2_accounts_v2", []);
+        const accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex !== -1) {
+          accounts[accIndex].hero = hero;
+          setJSON("l2_accounts_v2", accounts);
+          console.warn('[saveHeroToLocalStorage] Saved to localStorage only (missing required fields)');
+        }
+      }
+      return;
+    }
     
     await updateCharacter(characterStore.characterId, {
       heroJson: heroJsonToSave,
