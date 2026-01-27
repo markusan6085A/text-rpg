@@ -127,6 +127,11 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
 
     // Оновлюємо компонент для відображення
     setRefreshKey((k) => k + 1);
+    
+    // 🔥 ВАЖЛИВО: Викликаємо navigate з поточним шляхом, щоб спрацював механізм refreshKey з App.tsx
+    // Це форсує повне оновлення сторінки та відображення бафів
+    const currentPath = window.location.pathname;
+    navigate(currentPath);
   };
 
   const hasActiveBuffs = activeBufferBuffs.length > 0 && 
@@ -161,6 +166,11 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
 
     // Оновлюємо компонент для відображення
     setRefreshKey((k) => k + 1);
+    
+    // 🔥 ВАЖЛИВО: Викликаємо navigate з поточним шляхом, щоб спрацював механізм refreshKey з App.tsx
+    // Це форсує повне оновлення сторінки та відображення бафів
+    const currentPath = window.location.pathname;
+    navigate(currentPath);
   };
 
   return (
