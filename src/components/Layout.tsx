@@ -58,22 +58,50 @@ export default function Layout({
   }, [children]); // Залишаємо children як тригер, але перевіряємо pathname
 
   // 🔥 Глобальний таймер для продовження бою - моб атакує навіть якщо гравець в місті чи іншому місці
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  const battleIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
+    if (battleIntervalRef.current) {
+      clearInterval(battleIntervalRef.current);
+      battleIntervalRef.current = null;
+    }
+    
     if (!isAuthenticated || battleStatus !== "fighting") return;
 
-    const interval = setInterval(() => {
+    battleIntervalRef.current = setInterval(() => {
       // Продовжуємо бій - моб атакує незалежно від локації
       processMobAttack();
       regenTick();
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (battleIntervalRef.current) {
+        clearInterval(battleIntervalRef.current);
+        battleIntervalRef.current = null;
+      }
+    };
   }, [isAuthenticated, battleStatus, processMobAttack, regenTick]);
 
   // 🔥 Завантажуємо кількість онлайн та оновлюємо кожні 30 секунд (тільки якщо залоговані)
   // 🔥 Для легких сторінок відкладаємо завантаження на 800-1200 мс для швидкого рендерингу
   // ❗ ОПТИМІЗАЦІЯ: Online count - fire-and-forget, не блокує UI
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  const onlineIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const onlineTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval/timeout перед створенням нового
+    if (onlineIntervalRef.current) {
+      clearInterval(onlineIntervalRef.current);
+      onlineIntervalRef.current = null;
+    }
+    if (onlineTimeoutRef.current) {
+      clearTimeout(onlineTimeoutRef.current);
+      onlineTimeoutRef.current = null;
+    }
+    
     if (!isAuthenticated) {
       setOnlineCount(0);
       return;
@@ -102,22 +130,27 @@ export default function Layout({
             console.error('[Layout] Failed to load online count:', err?.message || err);
           }
           // Не показуємо помилку, просто залишаємо попереднє значення або 0
-          if (onlineCount === null || onlineCount === undefined) {
-            setOnlineCount(0);
-          }
         });
     };
 
     // Відкладаємо завантаження для легких сторінок (більше часу для не критичних запитів)
     const delay = isLightPage ? 2000 : 1000;
-    const timeoutId = setTimeout(loadOnlineCount, delay);
+    onlineTimeoutRef.current = setTimeout(loadOnlineCount, delay);
 
     // Оновлюємо кожні 30 секунд тільки якщо не легка сторінка
-    const interval = isLightPage ? null : setInterval(loadOnlineCount, 30000);
+    if (!isLightPage) {
+      onlineIntervalRef.current = setInterval(loadOnlineCount, 30000);
+    }
     
     return () => {
-      clearTimeout(timeoutId);
-      if (interval) clearInterval(interval);
+      if (onlineTimeoutRef.current) {
+        clearTimeout(onlineTimeoutRef.current);
+        onlineTimeoutRef.current = null;
+      }
+      if (onlineIntervalRef.current) {
+        clearInterval(onlineIntervalRef.current);
+        onlineIntervalRef.current = null;
+      }
     };
   }, [isAuthenticated, isLightPage]);
 
@@ -125,7 +158,21 @@ export default function Layout({
   // 🔥 Якщо поле lastActivityAt не існує в БД, heartbeat може повертати 400/500 - ігноруємо помилки
   // 🔥 Пропускаємо heartbeat для легких сторінок (mail, about, forum)
   // ❗ ОПТИМІЗАЦІЯ: Heartbeat - fire-and-forget, не блокує UI
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval/timeout ID, щоб уникнути дублювання
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval/timeout перед створенням нового
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+    if (heartbeatTimeoutRef.current) {
+      clearTimeout(heartbeatTimeoutRef.current);
+      heartbeatTimeoutRef.current = null;
+    }
+    
     if (!isAuthenticated || isLightPage) return;
 
     const sendHeartbeatInterval = () => {
@@ -151,13 +198,20 @@ export default function Layout({
     };
 
     // Відкладаємо перший heartbeat на 5 секунд, щоб не блокувати початкове завантаження
-    const initialDelay = setTimeout(sendHeartbeatInterval, 5000);
+    heartbeatTimeoutRef.current = setTimeout(sendHeartbeatInterval, 5000);
 
     // Відправляємо heartbeat кожні 2 хвилини
-    const heartbeatInterval = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
+    heartbeatIntervalRef.current = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
+    
     return () => {
-      clearTimeout(initialDelay);
-      clearInterval(heartbeatInterval);
+      if (heartbeatTimeoutRef.current) {
+        clearTimeout(heartbeatTimeoutRef.current);
+        heartbeatTimeoutRef.current = null;
+      }
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+        heartbeatIntervalRef.current = null;
+      }
     };
   }, [isAuthenticated, isLightPage]);
 

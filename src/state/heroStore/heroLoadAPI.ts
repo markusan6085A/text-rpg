@@ -12,12 +12,8 @@ import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBa
 import { loadHero } from "./heroLoad";
 import { hydrateHero } from "./heroHydration";
 
-// 🔥 КРИТИЧНО: Оновлюємо останні серверні значення exp/level після завантаження
-// Це використовується для clamp в saveHeroToLocalStorage
-declare global {
-  var __lastServerExp: number | null;
-  var __lastServerLevel: number | null;
-}
+// 🔥 ВИДАЛЕНО: window.__lastServerExp та глобальні змінні
+// Тепер використовуємо serverState з heroStore
 
 export async function loadHeroFromAPI(): Promise<Hero | null> {
   const authStore = useAuthStore.getState();
@@ -312,12 +308,15 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // Логуємо фінальні дані для діагностики
     if (hydratedHero) {
-      // 🔥 КРИТИЧНО: Оновлюємо останні серверні значення exp/level для clamp
+      // 🔥 КРИТИЧНО: Оновлюємо serverState в store після GET
       // Це запобігає помилці "exp cannot be decreased" при наступному save
-      if (typeof window !== 'undefined') {
-        (window as any).__lastServerExp = hydratedHero.exp ?? 0;
-        (window as any).__lastServerLevel = hydratedHero.level ?? 1;
-      }
+      const { useHeroStore } = await import('../heroStore');
+      useHeroStore.getState().updateServerState({
+        exp: hydratedHero.exp ?? 0,
+        level: hydratedHero.level ?? 1,
+        heroRevision: (hydratedHero as any).heroRevision,
+        updatedAt: Date.now(),
+      });
       
       console.log('[loadHeroFromAPI] Final hero after hydration:', {
         skillsCount: hydratedHero.skills?.length || 0,
@@ -325,8 +324,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         level: hydratedHero.level,
         exp: hydratedHero.exp,
         inventoryCount: hydratedHero.inventory?.length || 0,
-        lastServerExp: (window as any).__lastServerExp,
-        lastServerLevel: (window as any).__lastServerLevel,
+        serverState: useHeroStore.getState().serverState,
       });
     }
 

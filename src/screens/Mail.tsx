@@ -103,8 +103,17 @@ export default function Mail({ navigate }: MailProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  const onlinePlayersIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
-    const interval = setInterval(async () => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
+    if (onlinePlayersIntervalRef.current) {
+      clearInterval(onlinePlayersIntervalRef.current);
+      onlinePlayersIntervalRef.current = null;
+    }
+    
+    onlinePlayersIntervalRef.current = setInterval(async () => {
       try {
         const data = await getOnlinePlayers();
         const onlineIds = new Set(data.players?.map((p: any) => p.id) || []);
@@ -118,7 +127,12 @@ export default function Mail({ navigate }: MailProps) {
       }
     }, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (onlinePlayersIntervalRef.current) {
+        clearInterval(onlinePlayersIntervalRef.current);
+        onlinePlayersIntervalRef.current = null;
+      }
+    };
   }, []);
 
   /**

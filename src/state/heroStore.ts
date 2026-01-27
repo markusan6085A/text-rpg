@@ -13,14 +13,27 @@ import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectA
 
 export const INVENTORY_MAX_ITEMS = 100;
 
+// 🔥 КРИТИЧНО: Серверний стан для синхронізації exp/level
+// Замість глобальних змінних та window - зберігаємо в store
+export interface ServerState {
+  exp: number;
+  level: number;
+  heroRevision?: number;
+  updatedAt: number; // Timestamp останнього оновлення
+}
+
 interface HeroState {
   hero: Hero | null;
+  serverState: ServerState | null; // 🔥 Серверний стан для clamp
 
   setHero: (h: Hero) => void;
 
   loadHero: () => void;
 
   updateHero: (partial: Partial<Hero>) => void;
+  
+  // 🔥 Оновлюємо серверний стан після GET/PATCH
+  updateServerState: (state: Partial<ServerState>) => void;
 
   setStatus: (value: string) => void;
 
@@ -77,6 +90,7 @@ function immediateSave(hero: Hero) {
 
 export const useHeroStore = create<HeroState>((set, get) => ({
   hero: null,
+  serverState: null, // 🔥 Серверний стан для синхронізації
 
   setHero: (h) => {
     if (!h) {
@@ -199,6 +213,20 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     } else {
       debouncedSave(updated);
     }
+  },
+
+  // 🔥 Оновлюємо серверний стан після GET/PATCH
+  updateServerState: (state) => {
+    const current = get().serverState;
+    set({
+      serverState: {
+        exp: state.exp ?? current?.exp ?? 0,
+        level: state.level ?? current?.level ?? 1,
+        heroRevision: state.heroRevision ?? current?.heroRevision,
+        updatedAt: state.updatedAt ?? current?.updatedAt ?? Date.now(),
+      },
+    });
+    console.log('[heroStore] Server state updated:', get().serverState);
   },
 
   setStatus: (value) => {

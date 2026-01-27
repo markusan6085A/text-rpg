@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getUnreadCount, getMyClan, getClanChat } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 
@@ -27,7 +27,16 @@ export default function NavGrid({ navigate }: NavGridProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // Завантажуємо кількість непрочитаних листів
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  const unreadIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
+    if (unreadIntervalRef.current) {
+      clearInterval(unreadIntervalRef.current);
+      unreadIntervalRef.current = null;
+    }
+    
     if (!isAuthenticated) {
       setUnreadCount(0);
       return;
@@ -44,12 +53,27 @@ export default function NavGrid({ navigate }: NavGridProps) {
     };
 
     loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 30000); // Оновлюємо кожні 30 секунд
-    return () => clearInterval(interval);
+    unreadIntervalRef.current = setInterval(loadUnreadCount, 30000); // Оновлюємо кожні 30 секунд
+    
+    return () => {
+      if (unreadIntervalRef.current) {
+        clearInterval(unreadIntervalRef.current);
+        unreadIntervalRef.current = null;
+      }
+    };
   }, [isAuthenticated]);
 
   // Завантажуємо кількість непрочитаних повідомлень клану
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  const clanUnreadIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
+    if (clanUnreadIntervalRef.current) {
+      clearInterval(clanUnreadIntervalRef.current);
+      clanUnreadIntervalRef.current = null;
+    }
+    
     if (!isAuthenticated) {
       setClanUnreadCount(0);
       return;
@@ -84,8 +108,14 @@ export default function NavGrid({ navigate }: NavGridProps) {
 
     loadClanUnreadCount();
     // 🔥 ОПТИМІЗАЦІЯ: Зменшуємо частоту поллінгу з 30 секунд до 60 секунд
-    const interval = setInterval(loadClanUnreadCount, 60000); // Оновлюємо кожні 60 секунд
-    return () => clearInterval(interval);
+    clanUnreadIntervalRef.current = setInterval(loadClanUnreadCount, 60000); // Оновлюємо кожні 60 секунд
+    
+    return () => {
+      if (clanUnreadIntervalRef.current) {
+        clearInterval(clanUnreadIntervalRef.current);
+        clanUnreadIntervalRef.current = null;
+      }
+    };
   }, [isAuthenticated]);
 
   const handleClick = async (btn: NavButton) => {

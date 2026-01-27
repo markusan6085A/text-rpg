@@ -102,10 +102,19 @@ export default function StatusBars() {
   }, [hero?.name]); // Завантажуємо тільки при зміні імені героя
 
   // Регенерація HP/MP/CP (тільки поза боєм) та перевірка таймера Зарича
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  const regenIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  
   React.useEffect(() => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
+    if (regenIntervalRef.current) {
+      clearInterval(regenIntervalRef.current);
+      regenIntervalRef.current = null;
+    }
+    
     if (inBattle) return; // Не регенеруємо в бою
     
-    const interval = setInterval(() => {
+    regenIntervalRef.current = setInterval(() => {
       const currentHero = useHeroStore.getState().hero;
       if (!currentHero) return;
       
@@ -150,7 +159,12 @@ export default function StatusBars() {
       }
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (regenIntervalRef.current) {
+        clearInterval(regenIntervalRef.current);
+        regenIntervalRef.current = null;
+      }
+    };
   }, [inBattle, updateHero]);
 
   // ВАЖЛИВО: Перевірка hero має бути ПІСЛЯ всіх хуків (useEffect тощо)

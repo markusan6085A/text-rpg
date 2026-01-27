@@ -1,5 +1,5 @@
 // src/screens/City.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { setString } from "../state/persistence";
 
@@ -39,8 +39,17 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   const lowHp = hp / maxHp < 0.3;
 
+  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  const regenIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
-    const interval = setInterval(() => {
+    // 🔥 КРИТИЧНО: Очищаємо попередній interval перед створенням нового
+    if (regenIntervalRef.current) {
+      clearInterval(regenIntervalRef.current);
+      regenIntervalRef.current = null;
+    }
+    
+    regenIntervalRef.current = setInterval(() => {
       const baseMaxHp = hero.maxHp || 1;
       const baseMaxMp = hero.maxMp || 1;
       const baseMaxCp = hero.maxCp ?? Math.round(baseMaxHp * 0.6);
@@ -68,7 +77,12 @@ const City: React.FC<CityProps> = ({ navigate }) => {
       }
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (regenIntervalRef.current) {
+        clearInterval(regenIntervalRef.current);
+        regenIntervalRef.current = null;
+      }
+    };
   }, [hero, updateHero]);
 
   const handleToCharacter = () => {
