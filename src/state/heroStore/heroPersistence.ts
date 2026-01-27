@@ -225,35 +225,44 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       classIdType: typeof heroJsonToSave.classId,
     });
     
-    // 🔥 КРИТИЧНО: exp/level завжди беремо з hero.exp/hero.level (не з heroJson!)
+    // 🔥 КРИТИЧНО: exp/level/sp завжди беремо з hero.exp/hero.level/hero.sp (не з heroJson!)
     // І робимо clamp з останнім серверним значенням, щоб не відправити менше
-    // Це запобігає помилці "exp cannot be decreased"
+    // Це запобігає помилці "exp cannot be decreased" та "sp cannot be decreased"
     const localExp = Number(hero.exp ?? 0); // Тільки з hero.exp (єдине джерело істини)
     const localLevel = Number(hero.level ?? 1);
+    const localSp = Number(hero.sp ?? 0); // 🔥 Додано SP
     
     // 🔥 Отримуємо останні серверні значення з store (замість window/глобальних змінних)
     const { useHeroStore } = await import('../heroStore');
     const serverState = useHeroStore.getState().serverState;
     const serverExpKnown = serverState?.exp ?? null;
     const serverLevelKnown = serverState?.level ?? null;
+    const serverSpKnown = serverState?.sp ?? null; // 🔥 Додано SP
     
-    // 🔥 Clamp ТІЛЬКИ для exp (і mobsKilled) - level беремо з сервера як source of truth
+    // 🔥 Clamp ТІЛЬКИ для exp та sp (і mobsKilled) - level беремо з сервера як source of truth
     // Якщо level залежить від exp, то "максимальний level" може зробити стан неконсистентним
-    // Краще правило: clamp робити тільки для exp, а level хай приходить з сервера як істина
+    // Краще правило: clamp робити тільки для exp та sp, а level хай приходить з сервера як істина
     const expToSend = serverExpKnown !== null ? Math.max(localExp, serverExpKnown) : localExp;
+    // 🔥 КРИТИЧНО: SP також clamp'имо - не дозволяємо зменшувати SP нижче серверного значення
+    // Це запобігає помилці "sp cannot be decreased" при вивченні скілів
+    const spToSend = serverSpKnown !== null ? Math.max(localSp, serverSpKnown) : localSp;
     // 🔥 ВАЖЛИВО: level НЕ clamp'имо - беремо з сервера як source of truth
     // Якщо сервер приймає level як похідне від exp - він сам перерахує
     // Якщо сервер приймає level як незалежне поле - передаємо локальне, але сервер перевірить
     const levelToSend = localLevel; // Не clamp'имо level - сервер є source of truth
     
-    console.log('[saveHeroToLocalStorage] Sending exp/level:', {
+    console.log('[saveHeroToLocalStorage] Sending exp/level/sp:', {
       localExp,
       localLevel,
+      localSp,
       serverExpKnown,
       serverLevelKnown,
+      serverSpKnown,
       expToSend,
       levelToSend,
+      spToSend,
       expClamped: expToSend !== localExp,
+      spClamped: spToSend !== localSp,
       levelFromServer: serverLevelKnown !== null,
     });
     
@@ -261,7 +270,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       heroJson: heroJsonToSave,
       level: levelToSend,
       exp: expToSend, // 🔥 Використовуємо clamped exp
-      sp: hero.sp,
+      sp: spToSend, // 🔥 Використовуємо clamped sp (замість hero.sp)
       adena: hero.adena,
       aa: hero.aa || 0,
       coinLuck: hero.coinOfLuck || 0,
@@ -269,36 +278,42 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     });
     console.log('[saveHeroToLocalStorage] Hero saved successfully via API');
     
-    // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision, exp, level у store
-    // Це запобігає наступним revision_conflict та "exp cannot be decreased"
+    // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision, exp, level, sp у store
+    // Це запобігає наступним revision_conflict та "exp cannot be decreased" / "sp cannot be decreased"
     if (updatedCharacter) {
       const newRevision = (updatedCharacter as any).heroRevision || (updatedCharacter as any).revision;
       const serverExp = Number(updatedCharacter.exp ?? 0);
       const serverLevel = Number(updatedCharacter.level ?? 1);
+      const serverSp = Number(updatedCharacter.sp ?? 0); // 🔥 Додано SP
       
       // 🔥 Оновлюємо serverState в store (замість глобальних змінних та window)
       const { useHeroStore } = await import('../heroStore');
       useHeroStore.getState().updateServerState({
         exp: serverExp,
         level: serverLevel,
+        sp: serverSp, // 🔥 Додано SP
         heroRevision: newRevision,
         updatedAt: Date.now(),
       });
       
-      // 🔥 Оновлюємо hero в store: exp clamp'имо, level беремо з сервера як source of truth
+      // 🔥 Оновлюємо hero в store: exp/sp clamp'имо, level беремо з сервера як source of truth
       const currentHero = useHeroStore.getState().hero;
       if (currentHero) {
         // Clamp exp - беремо більше значення (захист від зменшення)
         const clampedExp = Math.max(currentHero.exp ?? 0, serverExp);
+        // Clamp sp - беремо більше значення (захист від зменшення)
+        const clampedSp = Math.max(currentHero.sp ?? 0, serverSp);
         // Level беремо з сервера як source of truth (не clamp'имо)
         useHeroStore.getState().updateHero({
           heroRevision: newRevision,
           exp: clampedExp,
+          sp: clampedSp, // 🔥 Додано SP
           level: serverLevel, // 🔥 Level з сервера - source of truth
         } as any);
-        console.log('[saveHeroToLocalStorage] Updated heroRevision, exp, level in store:', {
+        console.log('[saveHeroToLocalStorage] Updated heroRevision, exp, level, sp in store:', {
           revision: newRevision,
           exp: clampedExp,
+          sp: clampedSp,
           level: serverLevel,
           serverState: useHeroStore.getState().serverState,
         });
@@ -471,9 +486,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               const serverLevel = Number(currentCharacter.level ?? 1);
               
               // 🔥 Оновлюємо serverState після GET (перед retry)
+              const serverSp = Number(currentCharacter.sp ?? 0); // 🔥 Додано SP
               useHeroStore.getState().updateServerState({
                 exp: mergedExp, // Використовуємо merged exp (більше значення)
                 level: serverLevel, // Level з сервера - source of truth
+                sp: serverSp, // 🔥 Додано SP
                 heroRevision: newRevision,
                 updatedAt: Date.now(),
               });

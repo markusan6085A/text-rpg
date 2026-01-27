@@ -309,11 +309,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Логуємо фінальні дані для діагностики
     if (hydratedHero) {
       // 🔥 КРИТИЧНО: Оновлюємо serverState в store після GET
-      // Це запобігає помилці "exp cannot be decreased" при наступному save
+      // Це запобігає помилці "exp cannot be decreased" та "sp cannot be decreased" при наступному save
       const { useHeroStore } = await import('../heroStore');
       useHeroStore.getState().updateServerState({
         exp: hydratedHero.exp ?? 0,
         level: hydratedHero.level ?? 1,
+        sp: hydratedHero.sp ?? 0, // 🔥 Додано SP
         heroRevision: (hydratedHero as any).heroRevision,
         updatedAt: Date.now(),
       });

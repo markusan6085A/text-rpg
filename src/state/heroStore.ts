@@ -13,11 +13,12 @@ import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectA
 
 export const INVENTORY_MAX_ITEMS = 100;
 
-// 🔥 КРИТИЧНО: Серверний стан для синхронізації exp/level
+// 🔥 КРИТИЧНО: Серверний стан для синхронізації exp/level/sp
 // Замість глобальних змінних та window - зберігаємо в store
 export interface ServerState {
   exp: number;
   level: number;
+  sp: number; // 🔥 Додано SP для синхронізації
   heroRevision?: number;
   updatedAt: number; // Timestamp останнього оновлення
 }
@@ -236,9 +237,10 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       });
     }
     
-    // 🔥 КРИТИЧНО: mobsKilled, skills - критичні зміни, зберігаємо одразу
+    // 🔥 КРИТИЧНО: mobsKilled, skills, sp - критичні зміни, зберігаємо одразу
     const isCriticalChange = (partial as any).mobsKilled !== undefined || 
                              partial.skills !== undefined ||
+                             partial.sp !== undefined || // 🔥 SP - критична зміна
                              (partial as any).level !== undefined ||
                              (partial as any).exp !== undefined;
     
@@ -260,6 +262,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       serverState: {
         exp: state.exp ?? current?.exp ?? 0,
         level: state.level ?? current?.level ?? 1,
+        sp: state.sp ?? current?.sp ?? 0, // 🔥 Додано SP
         heroRevision: state.heroRevision ?? current?.heroRevision,
         updatedAt: state.updatedAt ?? current?.updatedAt ?? Date.now(),
       },
