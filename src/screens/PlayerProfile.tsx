@@ -368,8 +368,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                   Немає активних бафів
                 </div>
               )}
-              {/* 🔥 Тільки іконки в ряд з переносом */}
-              <div className="flex flex-wrap gap-2">
+              {/* 🔥 Тільки іконки в ряд з переносом - зменшені в 1.5 рази */}
+              <div className="flex flex-wrap gap-1.5">
                 {activeBuffs.map((buff: any, idx: number) => {
                   let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
                   
@@ -378,7 +378,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                       key={idx}
                       src={iconSrc}
                       alt={buff.name || "Buff"}
-                      className="w-8 h-8 object-contain"
+                      className="w-5 h-5 object-contain"
                       title={buff.name || "Buff"} // Показуємо назву при hover
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/skills/skill0000.gif";

@@ -15,6 +15,7 @@ import {
   processWarcryerBuffs,
   processStackingBuffs,
   consumeSonicFocus,
+  isBuffBetter,
 } from "./buffHelpers";
 import { handleToggleOff, createToggleBuff } from "./toggleSkill";
 import { handleSummonBuffs } from "./summonBuffs";
@@ -203,7 +204,28 @@ export function handleBuffSkill(
   // Додаємо новий баф, якщо є ефекти
   if (effList.length > 0 && def.id !== SONIC_FOCUS_ID && def.id !== FOCUSED_FORCE_ID) {
     const newBuff = createToggleBuff(def, effList, now, finalDurationSec);
-    newBuffs = [...newBuffs, newBuff];
+    
+    // 🔥 КРИТИЧНО: Перевіряємо чи є вже такий самий баф, але кращого рівня
+    // Якщо є старий баф з таким самим id, але новий кращий - замінюємо
+    // Якщо старий кращий - не додаємо новий
+    const existingBuff = activeBuffs.find((b) => b.id === def.id);
+    if (existingBuff) {
+      if (isBuffBetter(newBuff, existingBuff)) {
+        // Новий баф кращий - додаємо (старий вже видалений через filteredBase)
+        newBuffs = [...newBuffs, newBuff];
+        if (import.meta.env.DEV) {
+          console.log(`[BUFF REPLACEMENT] Replacing ${def.name} with better version`);
+        }
+      } else {
+        // Старий баф кращий - не додаємо новий
+        if (import.meta.env.DEV) {
+          console.log(`[BUFF REPLACEMENT] Keeping existing ${def.name} (better than new)`);
+        }
+      }
+    } else {
+      // Немає такого бафу - додаємо новий
+      newBuffs = [...newBuffs, newBuff];
+    }
   }
 
   // Обробка WC-бафів (обмеження кількості)

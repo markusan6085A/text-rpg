@@ -159,6 +159,39 @@ export function processSkillEffects(
 }
 
 /**
+ * Порівнює рівень бафів - чи новий баф кращий за старий
+ * Повертає true якщо новий баф має більші ефекти (кращий рівень)
+ */
+export function isBuffBetter(newBuff: any, oldBuff: any): boolean {
+  // Якщо бафи мають різні id - не порівнюємо
+  if (newBuff.id !== oldBuff.id) return false;
+  
+  // Порівнюємо загальну силу ефектів
+  const newTotalPower = (newBuff.effects || []).reduce((sum: number, eff: any) => {
+    if (eff.mode === "multiplier") {
+      return sum + (eff.multiplier || 1);
+    } else if (eff.mode === "percent") {
+      return sum + Math.abs(eff.value || 0);
+    } else {
+      return sum + Math.abs(eff.value || 0);
+    }
+  }, 0);
+  
+  const oldTotalPower = (oldBuff.effects || []).reduce((sum: number, eff: any) => {
+    if (eff.mode === "multiplier") {
+      return sum + (eff.multiplier || 1);
+    } else if (eff.mode === "percent") {
+      return sum + Math.abs(eff.value || 0);
+    } else {
+      return sum + Math.abs(eff.value || 0);
+    }
+  }, 0);
+  
+  // Новий баф кращий якщо має більшу загальну силу
+  return newTotalPower > oldTotalPower;
+}
+
+/**
  * Перевіряє, чи два бафи однакові (для заміни)
  */
 export function createIsSameBuff(def: SkillDefinition) {

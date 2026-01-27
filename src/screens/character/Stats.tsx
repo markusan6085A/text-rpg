@@ -26,11 +26,28 @@ export default function Stats() {
     // Завантажуємо бафи з battle state (включаючи бафи статуї) навіть поза боєм
     const savedBattle = loadBattle(hero.name);
     const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
-    const activeBuffs = battleStatus === "fighting" 
+    const battleActiveBuffs = battleStatus === "fighting" 
       ? cleanupBuffs(battleBuffs, now) 
       : savedBuffs;
     
-    const recalculated = recalculateAllStats(hero, activeBuffs);
+    // 🔥 КРИТИЧНО: Також завантажуємо бафи з heroJson.heroBuffs (з сервера)
+    const heroJson = (hero as any)?.heroJson || {};
+    const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+    const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => {
+      if (!b.expiresAt) return false;
+      return b.expiresAt > now;
+    });
+    
+    // Об'єднуємо бафи з обох джерел (уникаємо дублікатів за id)
+    const allActiveBuffs = [...battleActiveBuffs, ...activeHeroJsonBuffs];
+    const uniqueBuffs = allActiveBuffs.filter((buff, index, self) => 
+      index === self.findIndex((b) => 
+        (b.id && buff.id && b.id === buff.id) || 
+        (!b.id && !buff.id && b.name === buff.name)
+      )
+    );
+    
+    const recalculated = recalculateAllStats(hero, uniqueBuffs);
     
     setBaseStats(recalculated.baseStats);
     setCombatStats(recalculated.finalStats);

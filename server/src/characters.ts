@@ -266,10 +266,10 @@ export async function characterRoutes(app: FastifyInstance) {
         stackType: body.buffData.stackType,
       };
       
-      // ❗ ВАЖЛИВО: Перевірка конфліктів бафів
+      // ❗ ВАЖЛИВО: Перевірка конфліктів бафів та заміна за рівень
       // 1. Видаляємо бафи з таким самим id (замінюємо)
       // 2. Якщо новий баф має buffGroup, видаляємо всі бафи з таким самим buffGroup
-      //    (щоб не накладати баф поверх городського бафа або наоборот)
+      // 3. Якщо той самий баф, але кращого рівня - замінюємо старий
       let filteredBuffs = currentBuffs.filter((b: any) => {
         // Видаляємо бафи з таким самим id
         if (b.id === body.skillId) return false;
@@ -281,6 +281,60 @@ export async function characterRoutes(app: FastifyInstance) {
         
         return true;
       });
+      
+      // 🔥 КРИТИЧНО: Перевіряємо чи є вже такий самий баф, але кращого рівня
+      // Якщо є старий баф з таким самим id, але новий кращий - замінюємо
+      // Якщо старий кращий - не додаємо новий
+      const existingBuff = currentBuffs.find((b: any) => b.id === body.skillId);
+      if (existingBuff) {
+        // Порівнюємо загальну силу ефектів
+        const newTotalPower = (newBuff.effects || []).reduce((sum: number, eff: any) => {
+          if (eff.mode === "multiplier") {
+            return sum + (eff.multiplier || 1);
+          } else if (eff.mode === "percent") {
+            return sum + Math.abs(eff.value || 0);
+          } else {
+            return sum + Math.abs(eff.value || 0);
+          }
+        }, 0);
+        
+        const oldTotalPower = (existingBuff.effects || []).reduce((sum: number, eff: any) => {
+          if (eff.mode === "multiplier") {
+            return sum + (eff.multiplier || 1);
+          } else if (eff.mode === "percent") {
+            return sum + Math.abs(eff.value || 0);
+          } else {
+            return sum + Math.abs(eff.value || 0);
+          }
+        }, 0);
+        
+        // Якщо старий баф кращий - не додаємо новий
+        if (oldTotalPower >= newTotalPower) {
+          app.log.info(
+            {
+              targetId,
+              skillId: body.skillId,
+              reason: "existing_buff_better",
+              oldPower: oldTotalPower,
+              newPower: newTotalPower,
+            },
+            '[POST /characters/:id/buff] Keeping existing buff (better than new)'
+          );
+          return { ok: true, message: "Existing buff is better, keeping it" };
+        }
+        
+        // Новий баф кращий - додаємо (старий вже видалений через filteredBuffs)
+        app.log.info(
+          {
+            targetId,
+            skillId: body.skillId,
+            reason: "replacing_with_better",
+            oldPower: oldTotalPower,
+            newPower: newTotalPower,
+          },
+          '[POST /characters/:id/buff] Replacing buff with better version'
+        );
+      }
       
       // Додаємо новий баф
       const updatedBuffs = [...filteredBuffs, newBuff];
