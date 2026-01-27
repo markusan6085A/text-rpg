@@ -12,6 +12,13 @@ import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBa
 import { loadHero } from "./heroLoad";
 import { hydrateHero } from "./heroHydration";
 
+// 🔥 КРИТИЧНО: Оновлюємо останні серверні значення exp/level після завантаження
+// Це використовується для clamp в saveHeroToLocalStorage
+declare global {
+  var __lastServerExp: number | null;
+  var __lastServerLevel: number | null;
+}
+
 export async function loadHeroFromAPI(): Promise<Hero | null> {
   const authStore = useAuthStore.getState();
   const characterStore = useCharacterStore.getState();
@@ -305,12 +312,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // Логуємо фінальні дані для діагностики
     if (hydratedHero) {
+      // 🔥 КРИТИЧНО: Оновлюємо останні серверні значення exp/level для clamp
+      // Це запобігає помилці "exp cannot be decreased" при наступному save
+      if (typeof window !== 'undefined') {
+        (window as any).__lastServerExp = hydratedHero.exp ?? 0;
+        (window as any).__lastServerLevel = hydratedHero.level ?? 1;
+      }
+      
       console.log('[loadHeroFromAPI] Final hero after hydration:', {
         skillsCount: hydratedHero.skills?.length || 0,
         mobsKilled: (hydratedHero as any).mobsKilled,
         level: hydratedHero.level,
         exp: hydratedHero.exp,
         inventoryCount: hydratedHero.inventory?.length || 0,
+        lastServerExp: (window as any).__lastServerExp,
+        lastServerLevel: (window as any).__lastServerLevel,
       });
     }
 

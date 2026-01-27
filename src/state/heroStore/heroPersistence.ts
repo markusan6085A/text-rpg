@@ -13,6 +13,11 @@ let queued = false; // Прапорець, що є зміни для збере�
 let retryCount = 0;
 const MAX_RETRIES = 1; // Максимум 1 автоматичний retry при revision_conflict
 
+// 🔥 КРИТИЧНО: Зберігаємо останній серверний exp/level для clamp
+// Це запобігає помилці "exp cannot be decreased"
+let lastServerExp: number | null = null;
+let lastServerLevel: number | null = null;
+
 // Try to save via API, fallback to localStorage if not authenticated
 export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
   // ❗ ВАЖЛИВО: Перевіряємо, чи hero не порожній перед збереженням
@@ -194,7 +199,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       ...(hero.gender ? { gender: String(hero.gender) } : {}),
       ...(hero.profession ? { profession: String(hero.profession) } : {}),
       
-      // 🔥 Прогрес (оновлюємо завжди)
+      // 🔥 Прогрес (оновлюємо завжди) - значення будуть обчислені нижче з clamp
       level: Number(hero.level ?? existingHeroJson.level ?? 1),
       exp: Number(hero.exp ?? existingHeroJson.exp ?? 0),
       mobsKilled: Number(currentMobsKilled),
@@ -222,10 +227,38 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       classIdType: typeof heroJsonToSave.classId,
     });
     
+    // 🔥 КРИТИЧНО: exp/level завжди беремо з hero.exp/hero.level (не з heroJson!)
+    // І робимо clamp з останнім серверним значенням, щоб не відправити менше
+    // Це запобігає помилці "exp cannot be decreased"
+    const localExp = Number(hero.exp ?? 0); // Тільки з hero.exp (єдине джерело істини)
+    const localLevel = Number(hero.level ?? 1);
+    
+    // Отримуємо останні серверні значення (з window або з глобальної змінної)
+    const serverExpKnown = typeof window !== 'undefined' 
+      ? ((window as any).__lastServerExp ?? lastServerExp ?? null)
+      : (lastServerExp ?? null);
+    const serverLevelKnown = typeof window !== 'undefined'
+      ? ((window as any).__lastServerLevel ?? lastServerLevel ?? null)
+      : (lastServerLevel ?? null);
+    
+    // 🔥 Clamp: гарантуємо, що exp/level не менші за останні серверні значення
+    const expToSend = serverExpKnown !== null ? Math.max(localExp, serverExpKnown) : localExp;
+    const levelToSend = serverLevelKnown !== null ? Math.max(localLevel, serverLevelKnown) : localLevel;
+    
+    console.log('[saveHeroToLocalStorage] Sending exp/level with clamp:', {
+      localExp,
+      localLevel,
+      serverExpKnown,
+      serverLevelKnown,
+      expToSend,
+      levelToSend,
+      clamped: expToSend !== localExp || levelToSend !== localLevel,
+    });
+    
     const updatedCharacter = await updateCharacter(characterStore.characterId, {
       heroJson: heroJsonToSave,
-      level: hero.level,
-      exp: hero.exp,
+      level: levelToSend,
+      exp: expToSend, // 🔥 Використовуємо clamped exp
       sp: hero.sp,
       adena: hero.adena,
       aa: hero.aa || 0,
@@ -234,18 +267,35 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     });
     console.log('[saveHeroToLocalStorage] Hero saved successfully via API');
     
-    // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision у store
-    // Це запобігає наступним revision_conflict, бо наступний save буде з актуальною ревізією
+    // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision, exp, level у store
+    // Це запобігає наступним revision_conflict та "exp cannot be decreased"
     if (updatedCharacter) {
       const newRevision = (updatedCharacter as any).heroRevision || (updatedCharacter as any).revision;
-      if (newRevision) {
+      const serverExp = Number(updatedCharacter.exp ?? 0);
+      const serverLevel = Number(updatedCharacter.level ?? 1);
+      
+      // Оновлюємо глобальні змінні для наступного clamp (і в window для доступу з інших модулів)
+      lastServerExp = serverExp;
+      lastServerLevel = serverLevel;
+      if (typeof window !== 'undefined') {
+        (window as any).__lastServerExp = serverExp;
+        (window as any).__lastServerLevel = serverLevel;
+      }
+      
+      if (newRevision || serverExp > 0 || serverLevel > 0) {
         const { useHeroStore } = await import('../heroStore');
         const currentHero = useHeroStore.getState().hero;
         if (currentHero) {
           useHeroStore.getState().updateHero({
             heroRevision: newRevision,
+            exp: Math.max(currentHero.exp ?? 0, serverExp), // Беремо більше значення
+            level: Math.max(currentHero.level ?? 1, serverLevel), // Беремо більше значення
           } as any);
-          console.log('[saveHeroToLocalStorage] Updated heroRevision in store:', newRevision);
+          console.log('[saveHeroToLocalStorage] Updated heroRevision, exp, level in store:', {
+            revision: newRevision,
+            exp: Math.max(currentHero.exp ?? 0, serverExp),
+            level: Math.max(currentHero.level ?? 1, serverLevel),
+          });
         }
       }
     }
