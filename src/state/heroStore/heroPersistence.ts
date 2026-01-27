@@ -9,7 +9,7 @@ import { hydrateHero } from "./heroHydration";
 // 🔥 КРИТИЧНО: Глобальний "save mutex" для серіалізації збережень
 // Запобігає паралельним збереженням, які викликають revision_conflict
 let saving = false;
-let queuedHero: Hero | null = null;
+let queued = false; // Прапорець, що є зміни для збереження (не snapshot!)
 let retryCount = 0;
 const MAX_RETRIES = 1; // Максимум 1 автоматичний retry при revision_conflict
 
@@ -21,10 +21,10 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     return;
   }
   
-  // 🔥 КРИТИЧНО: Серіалізуємо збереження - якщо вже йде save, ставимо в чергу
+  // 🔥 КРИТИЧНО: Серіалізуємо збереження - якщо вже йде save, ставимо прапорець
   if (saving) {
-    console.log('[saveHeroToLocalStorage] Save already in progress, queuing hero for later save');
-    queuedHero = hero; // Коалесимо - беремо останній state
+    console.log('[saveHeroToLocalStorage] Save already in progress, marking as queued');
+    queued = true; // Прапорець, що є зміни (не snapshot!)
     return;
   }
   
@@ -37,16 +37,23 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
   } finally {
     saving = false;
     
-    // Якщо була черга - запускаємо збереження з останнього стану
-    if (queuedHero) {
-      const nextHero = queuedHero;
-      queuedHero = null;
-      console.log('[saveHeroToLocalStorage] Processing queued save');
+    // 🔥 КРИТИЧНО: Якщо була черга - беремо АКТУАЛЬНОГО героя зі store (не snapshot!)
+    // Це гарантує, що не втратимо зміни, які відбулися під час save
+    if (queued) {
+      queued = false;
+      console.log('[saveHeroToLocalStorage] Processing queued save - getting current hero from store');
       // Викликаємо асинхронно, щоб не блокувати
-      setTimeout(() => {
-        saveHeroToLocalStorage(nextHero).catch((err) => {
+      setTimeout(async () => {
+        try {
+          const { useHeroStore } = await import('../heroStore');
+          const currentHero = useHeroStore.getState().hero;
+          if (currentHero) {
+            // Беремо актуального героя зі store, а не snapshot
+            await saveHeroToLocalStorage(currentHero);
+          }
+        } catch (err) {
           console.error('[saveHeroToLocalStorage] Failed to save queued hero:', err);
-        });
+        }
       }, 100);
     }
   }
@@ -304,6 +311,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       
       // 🔥 КРИТИЧНО: Автоматично "rehydrate + retry один раз"
       // Правильний UX: користувач навіть не помітить конфлікт
+      // 🔥 ВАЖЛИВО: Перевіряємо лічильник, щоб не створити цикл
       if (retryCount < MAX_RETRIES) {
         retryCount++;
         console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
@@ -323,7 +331,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             const localSkills = hero.skills ?? [];
             const serverSkills = serverHeroJson.skills ?? [];
             
-            // Беремо більше значення для exp/mobsKilled (щоб не втратити прогрес)
+            // 🔥 КРИТИЧНО: Merge exp/mobsKilled - беремо більше значення (щоб не втратити прогрес)
+            // Для mobsKilled це ок, бо це лічильник "назавжди"
+            // Для exp теж ок, бо це накопичувальний прогрес
+            // Якщо в майбутньому буде втрата exp при смерті - потрібно буде змінити логіку
             const mergedMobsKilled = Math.max(localMobsKilled, serverMobsKilled);
             const mergedExp = Math.max(localExp, serverExp);
             
@@ -341,18 +352,52 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               }
             });
             
-            // Об'єднуємо бафи (з обох джерел)
+            // 🔥 КРИТИЧНО: Об'єднуємо бафи з нормалізацією та очищенням прострочених
             const savedBattle = loadBattle(hero.name);
             const battleBuffs = savedBattle?.heroBuffs || [];
             const serverBuffs = Array.isArray(serverHeroJson.heroBuffs) ? serverHeroJson.heroBuffs : [];
             const localBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
             const allBuffs = [...serverBuffs, ...localBuffs, ...battleBuffs];
-            const mergedBuffs = allBuffs.filter((buff: any, index: number, self: any[]) => 
-              index === self.findIndex((b: any) => 
-                (b.id && buff.id && b.id === buff.id) || 
-                (!b.id && !buff.id && b.name === buff.name)
-              )
-            );
+            
+            // Нормалізуємо бафи: об'єднуємо за buffId/source, беремо максимальний expiresAt
+            const now = Date.now();
+            const buffMap = new Map<string, any>();
+            
+            allBuffs.forEach((buff: any) => {
+              // Пропускаємо прострочені бафи (якщо expiresAt є і він менше now)
+              if (buff.expiresAt && typeof buff.expiresAt === 'number' && buff.expiresAt < now) {
+                return; // Пропускаємо прострочений баф
+              }
+              
+              // Створюємо ключ для групування: id або name
+              const key = buff.id ? `id_${buff.id}` : `name_${buff.name || ''}`;
+              const existing = buffMap.get(key);
+              
+              if (!existing) {
+                // Перший баф з таким id/name
+                buffMap.set(key, { ...buff });
+              } else {
+                // Якщо вже є - беремо максимальний expiresAt або останній apply
+                if (buff.expiresAt && existing.expiresAt) {
+                  // Беремо максимальний expiresAt (більш тривалий баф)
+                  if (buff.expiresAt > existing.expiresAt) {
+                    buffMap.set(key, { ...buff });
+                  }
+                } else if (buff.expiresAt && !existing.expiresAt) {
+                  // Якщо новий має expiresAt, а старий ні - беремо новий
+                  buffMap.set(key, { ...buff });
+                } else if (!buff.expiresAt && existing.expiresAt) {
+                  // Якщо старий має expiresAt, а новий ні - залишаємо старий
+                  // (toggle бафи мають Number.MAX_SAFE_INTEGER)
+                }
+              }
+            });
+            
+            const mergedBuffs = Array.from(buffMap.values());
+            
+            // Додатково очищаємо через cleanupBuffs (якщо є expiresAt)
+            const { cleanupBuffs } = await import('../battle/helpers');
+            const cleanedBuffs = cleanupBuffs(mergedBuffs, now);
             
             // 3. Оновлюємо hero в store з актуальною ревізією та змердженими даними
             const { useHeroStore } = await import('../heroStore');
@@ -370,7 +415,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
                   exp: mergedExp,
                   mobsKilled: mergedMobsKilled,
                   skills: mergedSkills,
-                  heroBuffs: mergedBuffs,
+                  heroBuffs: cleanedBuffs,
                 },
               };
               
@@ -381,12 +426,29 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               // 4. Повторюємо збереження з актуальною ревізією
               // Використовуємо saveHeroOnce напряму, щоб не збільшувати retryCount
               await saveHeroOnce(mergedHero);
+              console.log('[saveHeroToLocalStorage] Successfully saved after retry');
               return; // Успішно збережено після retry
             }
           }
-        } catch (reloadError) {
+        } catch (reloadError: any) {
           console.error('[saveHeroToLocalStorage] Failed to reload and retry after revision conflict:', reloadError);
+          
+          // 🔥 КРИТИЧНО: Якщо retry теж отримав 409 - показуємо попередження і зупиняємося
+          if (reloadError?.status === 409 || (reloadError?.message && reloadError.message.includes('revision_conflict'))) {
+            console.error('[saveHeroToLocalStorage] Retry also failed with revision_conflict - stopping auto-retry');
+            // Можна показати toast/notification користувачу: "Оновіть сторінку"
+            if (typeof window !== 'undefined' && window.alert) {
+              window.alert('Конфлікт версій персонажа. Будь ласка, оновіть сторінку (F5) для синхронізації.');
+            }
+          }
+          
           retryCount = MAX_RETRIES; // Не намагаємося більше
+        }
+      } else {
+        // 🔥 КРИТИЧНО: Якщо досягнуто максимум retry - показуємо попередження
+        console.error('[saveHeroToLocalStorage] Maximum retries reached, stopping auto-retry');
+        if (typeof window !== 'undefined' && window.alert) {
+          window.alert('Не вдалося зберегти дані через конфлікт версій. Будь ласка, оновіть сторінку (F5).');
         }
       }
       
