@@ -71,6 +71,8 @@ export function useChatMessages(opts: UseChatOptions) {
     return [];
   });
 
+  const [totalPages, setTotalPages] = useState<number | undefined>(undefined);
+
   // 🔥 Оновлюємо messages при зміні key (channel/page/limit) - показуємо кеш МИТТЄВО
   useEffect(() => {
     // Синхронно показуємо кеш миттєво (не чекаємо на асинхронні операції)
@@ -188,7 +190,7 @@ export function useChatMessages(opts: UseChatOptions) {
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const data = (await res.json()) as { ok: boolean; messages: ChatMessage[] };
+        const data = (await res.json()) as { ok: boolean; messages: ChatMessage[]; total?: number; totalPages?: number };
         const cleaned = Array.isArray(data.messages) ? data.messages : [];
 
         // 🔥 Перевіряємо, чи канал/сторінка не змінилися під час запиту
@@ -200,6 +202,9 @@ export function useChatMessages(opts: UseChatOptions) {
 
         // оновлюємо state + кеші
         setMessages(cleaned);
+        if (data.totalPages !== undefined) {
+          setTotalPages(data.totalPages);
+        }
 
         const entry = { ts: Date.now(), data: cleaned };
         memCache.set(currentKey, entry);
@@ -273,5 +278,6 @@ export function useChatMessages(opts: UseChatOptions) {
     loading,
     error,
     refresh,
+    totalPages,
   };
 }

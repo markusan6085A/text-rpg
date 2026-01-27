@@ -255,6 +255,8 @@ export interface ChatMessagesResponse {
   messages: ChatMessage[];
   page: number;
   limit: number;
+  total?: number;
+  totalPages?: number;
 }
 
 export interface PostChatMessageRequest {

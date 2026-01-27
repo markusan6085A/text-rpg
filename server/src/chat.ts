@@ -78,6 +78,17 @@ export async function chatRoutes(app: FastifyInstance) {
         },
       });
 
+      // 🔥 Підраховуємо загальну кількість повідомлень (максимум 200)
+      const totalMessages = await prisma.chatMessage.count({
+        where: { 
+          channel,
+          createdAt: {
+            gte: twentyFourHoursAgo,
+          },
+        },
+      });
+      const totalPages = Math.max(1, Math.ceil(Math.min(totalMessages, 200) / limit));
+
       // Don't reverse - show newest first (top to bottom)
       return {
         ok: true,
@@ -98,6 +109,8 @@ export async function chatRoutes(app: FastifyInstance) {
         }),
         page,
         limit,
+        total: Math.min(totalMessages, 200),
+        totalPages,
       };
     } catch (error) {
       app.log.error(error, "Error fetching chat messages:");
@@ -145,6 +158,66 @@ export async function chatRoutes(app: FastifyInstance) {
     }
 
     try {
+      // 🔥 Перевіряємо кількість повідомлень в каналі (максимум 200)
+      const messageCount = await prisma.chatMessage.count({
+        where: { channel },
+      });
+
+      if (messageCount >= 200) {
+        // Видаляємо найстаріші повідомлення, залишаємо 199, щоб додати нове
+        const messagesToDelete = await prisma.chatMessage.findMany({
+          where: { channel },
+          orderBy: { createdAt: "asc" },
+          take: messageCount - 199,
+          select: { id: true },
+        });
+
+        if (messagesToDelete.length > 0) {
+          await prisma.chatMessage.deleteMany({
+            where: {
+              id: { in: messagesToDelete.map((m) => m.id) },
+            },
+          });
+        }
+      }
+
+      // 🔥 Видаляємо повідомлення старіші 24 годин перед додаванням нового
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      await prisma.chatMessage.deleteMany({
+        where: {
+          channel,
+          createdAt: {
+            lt: twentyFourHoursAgo,
+          },
+        },
+      }).catch(() => {
+        // Ігноруємо помилки видалення старих повідомлень
+      });
+
+      // 🔥 Перевіряємо інтервал між повідомленнями (5 секунд для general і trade)
+      if (channel === "general" || channel === "trade") {
+        const lastMessage = await prisma.chatMessage.findFirst({
+          where: {
+            characterId: character.id,
+            channel,
+          },
+          orderBy: { createdAt: "desc" },
+          select: { createdAt: true },
+        });
+
+        if (lastMessage) {
+          const timeSinceLastMessage = Date.now() - new Date(lastMessage.createdAt).getTime();
+          if (timeSinceLastMessage < 5000) {
+            const remainingSeconds = Math.ceil((5000 - timeSinceLastMessage) / 1000);
+            return reply.code(429).send({
+              error: "rate_limit",
+              message: `В чаті можна писати не частіше ніж раз на 5 секунд. Зачекайте ще ${remainingSeconds} сек.`,
+              retryAfter: remainingSeconds,
+            });
+          }
+        }
+      }
+
       // 🔥 Оновлюємо активність персонажа при відправці повідомлення
       await prisma.character.update({
         where: { id: character.id },

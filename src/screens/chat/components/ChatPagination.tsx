@@ -3,6 +3,7 @@ import React from "react";
 interface ChatPaginationProps {
   page: number;
   messagesCount: number;
+  totalPages?: number;
   loading: boolean;
   onPageChange: (page: number) => void;
   onRefresh: () => void;
@@ -12,13 +13,15 @@ interface ChatPaginationProps {
 export function ChatPagination({
   page,
   messagesCount,
+  totalPages: propTotalPages,
   loading,
   onPageChange,
   onRefresh,
   messagesTopRef,
 }: ChatPaginationProps) {
+  // Використовуємо totalPages з пропсів, якщо є, інакше обчислюємо
   const hasMore = messagesCount >= 10;
-  const totalPages = hasMore ? page + 1 : page;
+  const totalPages = propTotalPages || (hasMore ? page + 1 : page);
 
   const handlePageClick = (newPage: number) => {
     onPageChange(newPage);

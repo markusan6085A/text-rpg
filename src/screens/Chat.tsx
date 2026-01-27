@@ -27,7 +27,7 @@ export default function Chat({ navigate }: ChatProps) {
   // Hooks
   const [deletedIds, setDeletedIds] = useDeletedMessages(channel);
   const [outbox, setOutbox] = useOutbox(channel);
-  const { messages: cachedMessages, loading, error, refresh } = useChatMessages({
+  const { messages: cachedMessages, loading, error, refresh, totalPages } = useChatMessages({
     channel,
     page,
     limit: 10,
@@ -39,7 +39,7 @@ export default function Chat({ navigate }: ChatProps) {
   // Refs
   const deletingRef = useRef<Set<string>>(new Set());
   const messagesTopRef = useRef<HTMLDivElement>(null);
-  const lastTradeMessageTimeRef = useRef<number>(0); // Rate limiting for trade channel
+  const lastTradeMessageTimeRef = useRef<number>(0); // Rate limiting for general and trade channels
 
   // Reset page when channel changes
   useEffect(() => {
@@ -159,13 +159,13 @@ export default function Chat({ navigate }: ChatProps) {
   const sendMessage = async () => {
     if (!messageText.trim() || !hero) return;
 
-    // Rate limiting for trade channel: 5 seconds between messages
-    if (channel === "trade") {
+    // Rate limiting for general and trade channels: 5 seconds between messages
+    if (channel === "general" || channel === "trade") {
       const now = Date.now();
       const timeSinceLastMessage = now - lastTradeMessageTimeRef.current;
       if (timeSinceLastMessage < 5000) {
         const remainingSeconds = Math.ceil((5000 - timeSinceLastMessage) / 1000);
-        alert(`В торг чаті можна писати не частіше ніж раз на 5 секунд. Зачекайте ще ${remainingSeconds} сек.`);
+        alert(`В чаті можна писати не частіше ніж раз на 5 секунд. Зачекайте ще ${remainingSeconds} сек.`);
         return;
       }
       lastTradeMessageTimeRef.current = now;
@@ -205,8 +205,8 @@ export default function Chat({ navigate }: ChatProps) {
         }
       }
 
-      // Refresh immediately (only once to avoid duplicates)
-      refresh();
+      // Не викликаємо refresh() одразу - повідомлення вже в outbox і з'явиться при наступному refresh
+      // Це запобігає дублюванню, оскільки повідомлення вже показується з outbox
     } catch (err: any) {
       console.error("Error sending message:", err);
 
@@ -296,6 +296,7 @@ export default function Chat({ navigate }: ChatProps) {
       <ChatPagination
         page={page}
         messagesCount={messages.length}
+        totalPages={totalPages}
         loading={loading}
         onPageChange={setPage}
         onRefresh={refresh}
