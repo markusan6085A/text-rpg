@@ -57,17 +57,21 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Fingerprint for dedupe (no clientId available)
   // Uses author+channel+message and rounded time bucket
-  // 🔥 Зменшуємо bucket до 10 секунд для кращої дедуплікації між outbox та server
+  // 🔥 ВАЖЛИВО: Для дедуплікації між outbox та server використовуємо зміст+автор+час
+  // Це дозволяє знайти outbox повідомлення, коли воно приходить з сервера з реальним ID
   const fingerprint = (m: { characterName?: string; channel?: string; message?: string; createdAt?: string; id?: string }) => {
-    // Для повідомлень з сервера - використовуємо ID (найточніше)
-    if (m.id && !m.id.startsWith('temp-')) {
-      return `id:${m.id}`;
-    }
-    // Для outbox повідомлень (tempId) - використовуємо зміст + автор + час
     const t = m.createdAt ? new Date(m.createdAt).getTime() : Date.now();
-    // 10-second bucket to tolerate server save delay/time differences
-    const bucket = Math.floor(t / 10_000);
+    // 15-second bucket to tolerate server save delay/time differences
+    // Збільшуємо до 15 секунд, щоб точно знайти повідомлення після refresh
+    const bucket = Math.floor(t / 15_000);
+    // Використовуємо зміст+автор+час для всіх повідомлень (і outbox, і server)
+    // Це дозволяє знайти дублікати навіть якщо ID різні (tempId vs serverId)
     return `${normName(m.characterName)}|${m.channel || ""}|${normText(m.message)}|${bucket}`;
+  };
+  
+  // Додаткова функція для порівняння по ID (для точного збігу)
+  const idFingerprint = (m: { id?: string }) => {
+    return m.id ? `id:${m.id}` : null;
   };
 
   // Build filtered cached messages (remove deleted)
@@ -76,12 +80,18 @@ export default function Chat({ navigate }: ChatProps) {
   }, [cachedMessages, deletedIds]);
 
   // Server fingerprints set for fast dedupe against outbox
+  // 🔥 ВАЖЛИВО: Зберігаємо і fingerprint (зміст+автор+час), і ID для точного збігу
   const serverFingerprints = React.useMemo(() => {
     const set = new Set<string>();
+    const idSet = new Set<string>();
     for (const m of filteredCached) {
       set.add(fingerprint(m));
+      const idFp = idFingerprint(m);
+      if (idFp) {
+        idSet.add(idFp);
+      }
     }
-    return set;
+    return { fingerprints: set, ids: idSet };
   }, [filteredCached]);
 
   // Combine outbox (pending/sent) + cached, newest on top
@@ -102,11 +112,17 @@ export default function Chat({ navigate }: ChatProps) {
 
     for (const m of outboxForChannel) {
       const fp = fingerprint(m);
+      const idFp = idFingerprint(m);
       
       // 🔥 ВАЖЛИВО: Якщо сервер вже має це повідомлення (підтверджено) - НЕ показуємо в outbox
+      // Перевіряємо і по fingerprint (зміст+автор+час), і по ID для максимальної точності
       // Це запобігає дублюванню для автора повідомлення
-      if (serverFingerprints.has(fp)) {
+      if (serverFingerprints.fingerprints.has(fp)) {
         // Повідомлення вже підтверджене сервером - пропускаємо
+        continue;
+      }
+      if (idFp && serverFingerprints.ids.has(idFp)) {
+        // ID вже є на сервері - пропускаємо
         continue;
       }
 
@@ -154,13 +170,17 @@ export default function Chat({ navigate }: ChatProps) {
   // 🔥 ВАЖЛИВО: Видаляємо outbox повідомлення, якщо вони збігаються з серверними по fingerprint
   useEffect(() => {
     if (outbox.length === 0) return;
-    if (serverFingerprints.size === 0) return; // Немає серверних повідомлень - нічого видаляти
+    if (serverFingerprints.fingerprints.size === 0) return; // Немає серверних повідомлень - нічого видаляти
 
     setOutbox((prev) => {
       let changed = false;
       const next = prev.filter((m) => {
         const fp = fingerprint(m);
-        const isConfirmed = serverFingerprints.has(fp);
+        const idFp = idFingerprint(m);
+        
+        // Перевіряємо і по fingerprint, і по ID
+        const isConfirmed = serverFingerprints.fingerprints.has(fp) || 
+                           (idFp && serverFingerprints.ids.has(idFp));
 
         if (isConfirmed) {
           changed = true;
