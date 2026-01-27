@@ -99,59 +99,20 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       )
     );
     
-    // 🔥 Гарантуємо обов'язкові поля для сервера (name, race, classId/klass)
-    // Беремо з існуючого heroJson або з hero, але завжди маємо значення
-    const requiredName = (existingHeroJson.name ?? hero.name ?? "").toString();
-    const requiredRace = (existingHeroJson.race ?? hero.race ?? "").toString();
-    const requiredClassId = (existingHeroJson.classId ?? (hero as any).classId ?? hero.klass ?? "").toString();
-    const requiredKlass = (existingHeroJson.klass ?? hero.klass ?? "").toString();
+    // 🔥 КРИТИЧНО: Гарантуємо обов'язкові поля для сервера (name, race, classId/klass)
+    // Беремо з існуючого heroJson або з hero, але завжди маємо значення (і вони мають бути строками!)
+    const requiredName = String(existingHeroJson.name ?? hero.name ?? "");
+    const requiredRace = String(existingHeroJson.race ?? hero.race ?? "");
+    const requiredClassId = String(existingHeroJson.classId ?? (hero as any).classId ?? hero.klass ?? "");
+    const requiredKlass = String(existingHeroJson.klass ?? hero.klass ?? "");
     
-    // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
-    const heroJsonToSave = {
-      ...existingHeroJson, // 🔥 КРИТИЧНО: Зберігаємо всі існуючі поля з heroJson
-      
-      // 🔒 Обов'язкові поля — гарантуємо завжди (з існуючого або з hero)
-      name: requiredName,
-      race: requiredRace,
-      // Сервер приймає або classId, або klass — передаємо обидва для надійності
-      ...(requiredClassId ? { classId: requiredClassId } : {}),
-      ...(requiredKlass ? { klass: requiredKlass } : {}),
-      
-      // Додаткові базові поля (якщо є)
-      ...(hero.gender ? { gender: hero.gender } : {}),
-      ...(hero.profession ? { profession: hero.profession } : {}),
-      
-      // 🔥 Прогрес (оновлюємо завжди)
-      level: hero.level ?? existingHeroJson.level ?? 1,
-      exp: hero.exp ?? existingHeroJson.exp ?? 0,
-      mobsKilled: currentMobsKilled,
-      skills: hero.skills ?? existingHeroJson.skills ?? [],
-      heroBuffs: uniqueBuffs, // Бафи з об'єднаних джерел
-    };
-    
-    // Логуємо для діагностики
-    const hasRequiredFields = !!(heroJsonToSave.name && heroJsonToSave.race && (heroJsonToSave.klass || heroJsonToSave.classId));
-    console.log('[saveHeroToLocalStorage] heroJsonToSave (MERGE):', {
-      name: heroJsonToSave.name,
-      race: heroJsonToSave.race,
-      klass: heroJsonToSave.klass || heroJsonToSave.classId,
-      mobsKilled: heroJsonToSave.mobsKilled,
-      level: heroJsonToSave.level,
-      exp: heroJsonToSave.exp,
-      skillsCount: Array.isArray(heroJsonToSave.skills) ? heroJsonToSave.skills.length : 0,
-      heroBuffsCount: uniqueBuffs.length,
-      hasRequiredFields,
-      existingFieldsCount: Object.keys(existingHeroJson).length,
-      mergedFieldsCount: Object.keys(heroJsonToSave).length,
-    });
-    
-    // 🔥 КРИТИЧНО: Перевіряємо обов'язкові поля перед відправкою
-    if (!hasRequiredFields) {
-      console.error('[saveHeroToLocalStorage] CRITICAL: heroJson missing required fields!', {
-        name: heroJsonToSave.name,
-        race: heroJsonToSave.race,
-        klass: heroJsonToSave.klass,
-        classId: heroJsonToSave.classId,
+    // 🔥 КРИТИЧНО: Перевіряємо, що обов'язкові поля не порожні
+    if (!requiredName || !requiredRace || (!requiredClassId && !requiredKlass)) {
+      console.error('[saveHeroToLocalStorage] CRITICAL: Missing required fields in hero!', {
+        name: requiredName,
+        race: requiredRace,
+        classId: requiredClassId,
+        klass: requiredKlass,
         heroName: hero.name,
         heroRace: hero.race,
         heroKlass: hero.klass,
@@ -170,6 +131,49 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       }
       return;
     }
+    
+    // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
+    const heroJsonToSave = {
+      ...existingHeroJson, // 🔥 КРИТИЧНО: Зберігаємо всі існуючі поля з heroJson
+      
+      // 🔒 Обов'язкові поля — гарантуємо завжди (з існуючого або з hero) і завжди строки!
+      name: requiredName,
+      race: requiredRace,
+      // Сервер приймає або classId, або klass — передаємо обидва для надійності
+      classId: requiredClassId,
+      klass: requiredKlass,
+      
+      // Додаткові базові поля (якщо є)
+      ...(hero.gender ? { gender: String(hero.gender) } : {}),
+      ...(hero.profession ? { profession: String(hero.profession) } : {}),
+      
+      // 🔥 Прогрес (оновлюємо завжди)
+      level: Number(hero.level ?? existingHeroJson.level ?? 1),
+      exp: Number(hero.exp ?? existingHeroJson.exp ?? 0),
+      mobsKilled: Number(currentMobsKilled),
+      skills: Array.isArray(hero.skills) ? hero.skills : (Array.isArray(existingHeroJson.skills) ? existingHeroJson.skills : []),
+      heroBuffs: Array.isArray(uniqueBuffs) ? uniqueBuffs : [],
+    };
+    
+    // Логуємо для діагностики
+    const hasRequiredFields = !!(heroJsonToSave.name && heroJsonToSave.race && (heroJsonToSave.klass || heroJsonToSave.classId));
+    console.log('[saveHeroToLocalStorage] heroJsonToSave (MERGE with required fields):', {
+      name: heroJsonToSave.name,
+      race: heroJsonToSave.race,
+      klass: heroJsonToSave.klass,
+      classId: heroJsonToSave.classId,
+      mobsKilled: heroJsonToSave.mobsKilled,
+      level: heroJsonToSave.level,
+      exp: heroJsonToSave.exp,
+      skillsCount: Array.isArray(heroJsonToSave.skills) ? heroJsonToSave.skills.length : 0,
+      heroBuffsCount: uniqueBuffs.length,
+      hasRequiredFields,
+      existingFieldsCount: Object.keys(existingHeroJson).length,
+      mergedFieldsCount: Object.keys(heroJsonToSave).length,
+      nameType: typeof heroJsonToSave.name,
+      raceType: typeof heroJsonToSave.race,
+      classIdType: typeof heroJsonToSave.classId,
+    });
     
     await updateCharacter(characterStore.characterId, {
       heroJson: heroJsonToSave,
