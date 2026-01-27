@@ -52,17 +52,28 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
 
   // Функція для завершення завдання
   const completeQuest = (quest: DailyQuest) => {
-    if (isQuestCompleted(quest)) return;
+    // Отримуємо актуальний стан
+    const currentHero = useHeroStore.getState().hero;
+    if (!currentHero) return;
     
-    const currentProgress = getQuestProgress(quest);
-    if (currentProgress < quest.target) return;
+    const currentProgress = progress[quest.id] || 0;
+    const currentCompleted = currentHero.dailyQuestsCompleted || [];
+    
+    // Перевіряємо, чи завдання вже завершене
+    if (currentCompleted.includes(quest.id) || currentProgress >= quest.target) {
+      return;
+    }
+    
+    // Перевіряємо, чи прогрес достатній для завершення
+    if (currentProgress < quest.target) {
+      return;
+    }
 
     const rewards = quest.rewards || {};
-    const newInventory = [...(hero.inventory || [])];
-    let newAdena = hero.adena || 0;
-    let newExp = hero.exp || 0;
-    let newSp = hero.sp || 0;
-    let newCoinOfLuck = hero.coinOfLuck || 0;
+    let newAdena = currentHero.adena || 0;
+    let newExp = currentHero.exp || 0;
+    let newSp = currentHero.sp || 0;
+    let newCoinOfLuck = currentHero.coinOfLuck || 0;
 
     // Додаємо нагороди
     if (rewards.adena) {
@@ -84,7 +95,7 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
       exp: newExp,
       sp: newSp,
       coinOfLuck: newCoinOfLuck,
-      dailyQuestsCompleted: [...completed, quest.id],
+      dailyQuestsCompleted: [...currentCompleted, quest.id],
     });
   };
 

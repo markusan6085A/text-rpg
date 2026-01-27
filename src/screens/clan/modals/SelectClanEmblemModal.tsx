@@ -19,6 +19,17 @@ export default function SelectClanEmblemModal({
   const endIndex = startIndex + emblemsPerPage;
   const currentEmblems = CLAN_EMBLEMS.slice(startIndex, endIndex);
 
+  // Діагностика: виводимо шляхи в консоль
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[SelectClanEmblemModal] Current emblems:', currentEmblems);
+      currentEmblems.forEach((emblem) => {
+        const path = getEmblemPath(emblem);
+        console.log(`[SelectClanEmblemModal] Emblem: ${emblem}, Path: ${path}`);
+      });
+    }
+  }, [currentEmblems]);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4">
@@ -33,24 +44,40 @@ export default function SelectClanEmblemModal({
             return (
               <div
                 key={emblem}
-                className={`relative cursor-pointer border-2 rounded p-1 transition-all ${
+                className={`relative cursor-pointer border-2 rounded p-1 transition-all flex items-center justify-center ${
                   isSelected
                     ? "border-yellow-500 bg-yellow-500/20"
                     : "border-[#3b2614] hover:border-[#5a4424]"
                 }`}
+                style={{ minHeight: "56px", minWidth: "56px" }}
                 onClick={() => onSelect(emblem)}
               >
-                <img
-                  src={emblemPath || ""}
-                  alt={emblem}
-                  className="w-full h-full object-contain"
-                  style={{ maxWidth: "56px", maxHeight: "56px" }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
+                {emblemPath ? (
+                  <img
+                    src={emblemPath}
+                    alt={emblem}
+                    className="w-full h-full object-contain"
+                    style={{ maxWidth: "56px", maxHeight: "56px", minWidth: "40px", minHeight: "40px" }}
+                    onError={(e) => {
+                      console.error(`[SelectClanEmblemModal] Failed to load emblem: ${emblemPath}`);
+                      const img = e.target as HTMLImageElement;
+                      img.style.display = "none";
+                      const parent = img.parentElement;
+                      if (parent && !parent.querySelector(".emblem-placeholder")) {
+                        const placeholder = document.createElement("div");
+                        placeholder.className = "emblem-placeholder text-[8px] text-gray-500 text-center flex items-center justify-center w-full h-full";
+                        placeholder.textContent = "?";
+                        parent.appendChild(placeholder);
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="text-[8px] text-gray-500 text-center flex items-center justify-center w-full h-full">
+                    ?
+                  </div>
+                )}
                 {isSelected && (
-                  <div className="absolute top-0 right-0 bg-yellow-500 text-black text-[8px] px-1 rounded">
+                  <div className="absolute top-0 right-0 bg-yellow-500 text-black text-[8px] px-1 rounded z-10">
                     ✓
                   </div>
                 )}

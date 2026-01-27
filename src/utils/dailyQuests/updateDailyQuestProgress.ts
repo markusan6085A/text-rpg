@@ -17,11 +17,17 @@ export function updateDailyQuestProgress(
   const currentValue = currentProgress[questId] || 0;
   const completed = hero.dailyQuestsCompleted || [];
   
-  // Якщо завдання вже завершене, не оновлюємо
+  // Якщо завдання вже завершене, не оновлюємо - повертаємо той самий об'єкт
   if (completed.includes(questId)) {
     return currentProgress;
   }
   
+  // Якщо значення не змінилося (amount === 0), повертаємо той самий об'єкт
+  if (amount === 0) {
+    return currentProgress;
+  }
+  
+  // Повертаємо новий об'єкт з оновленим значенням
   return {
     ...currentProgress,
     [questId]: currentValue + amount,
