@@ -57,7 +57,14 @@ export default function SelectClanEmblemModal({
                     src={emblemPath}
                     alt={emblem}
                     className="w-full h-full object-contain"
-                    style={{ maxWidth: "56px", maxHeight: "56px", minWidth: "40px", minHeight: "40px" }}
+                    style={{ 
+                      maxWidth: "56px", 
+                      maxHeight: "56px", 
+                      minWidth: "40px", 
+                      minHeight: "40px",
+                      imageRendering: "auto",
+                      backgroundColor: "transparent"
+                    }}
                     onError={(e) => {
                       console.error(`[SelectClanEmblemModal] Failed to load emblem: ${emblemPath}`);
                       const img = e.target as HTMLImageElement;
@@ -68,6 +75,12 @@ export default function SelectClanEmblemModal({
                         placeholder.className = "emblem-placeholder text-[8px] text-gray-500 text-center flex items-center justify-center w-full h-full";
                         placeholder.textContent = "?";
                         parent.appendChild(placeholder);
+                      }
+                    }}
+                    onLoad={() => {
+                      // Діагностика: виводимо в консоль, коли зображення завантажилося
+                      if (process.env.NODE_ENV === 'development') {
+                        console.log(`[SelectClanEmblemModal] Successfully loaded emblem: ${emblemPath}`);
                       }
                     }}
                   />

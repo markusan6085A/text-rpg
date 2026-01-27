@@ -21,9 +21,22 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
       src={emblemPath}
       alt=""
       className={`inline-block object-contain ${className}`}
-      style={{ width: `${size}px`, height: `${size}px`, verticalAlign: "middle" }}
+      style={{ 
+        width: `${size}px`, 
+        height: `${size}px`, 
+        verticalAlign: "middle",
+        imageRendering: "auto",
+        backgroundColor: "transparent"
+      }}
       onError={(e) => {
+        console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);
         (e.target as HTMLImageElement).style.display = "none";
+      }}
+      onLoad={() => {
+        // Діагностика: виводимо в консоль, коли зображення завантажилося
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[ClanEmblem] Successfully loaded emblem: ${emblemPath}`);
+        }
       }}
     />
   );
