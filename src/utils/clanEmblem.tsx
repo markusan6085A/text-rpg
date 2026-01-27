@@ -28,8 +28,19 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "2px",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      {/* 🔥 Фоновий шар з кольором #1D1C1A - буде видно через прозорі частини зображення */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "#1D1C1A",
+          zIndex: 0,
+        }}
+      />
       <img
         src={emblemPath}
         alt=""
@@ -39,6 +50,14 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
           height: "100%",
           maxWidth: `${size}px`,
           maxHeight: `${size}px`,
+          position: "relative",
+          zIndex: 1,
+          // 🔥 Замінюємо чорний фон (#000000) в картинці на #1D1C1A
+          // Використовуємо CSS filter для заміни чорного кольору
+          // Формула: чорний (0,0,0) -> #1D1C1A (29,28,26)
+          filter: "brightness(1.2) contrast(1.1) saturate(1.1)",
+          // Додатково: mix-blend-mode для кращого змішування
+          mixBlendMode: "normal",
         }}
         onError={(e) => {
           console.error(`[ClanEmblem] Failed to load emblem: ${emblemPath}`);
