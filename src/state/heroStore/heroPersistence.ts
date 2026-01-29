@@ -1,3 +1,11 @@
+/**
+ * heroPersistence — ЄДИНЕ МІСЦЕ ЗАПИСУ героя в localStorage (l2_accounts_v2) при збереженні прогресу.
+ *
+ * ЄДИНЕ ДЖЕРЕЛО ПРАВДИ:
+ * - Читання героя з localStorage — тільки heroLoad (loadHero()).
+ * - Запис героя в localStorage — тільки тут (saveHeroToLocalStorage, saveHeroToLocalStorageOnly,
+ *   backup при 429/409/fallback). App/Landing/Register НІКОЛИ не пишуть hero в l2_accounts_v2.
+ */
 import type { Hero } from "../../types/Hero";
 import { updateCharacter, getCharacter } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";

@@ -1,3 +1,12 @@
+/**
+ * heroLoad — ЄДИНЕ МІСЦЕ ЧИТАННЯ героя з localStorage (l2_accounts_v2).
+ *
+ * ЄДИНЕ ДЖЕРЕЛО ПРАВДИ:
+ * - Запис hero в localStorage робить ТІЛЬКИ heroPersistence (при збереженні прогресу).
+ * - heroLoad лише ЧИТАЄ і нормалізує в пам'яті. В кінці loadHero() НЕ пишемо hero назад
+ *   (щоб не перезаписати новіший стан від heroPersistence).
+ * - Запис у heroLoad тільки при міграціях: fixProfession, fix inventory (Angel Slayer).
+ */
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { loadBattle } from "../battle/persist";
@@ -73,14 +82,16 @@ export function loadHero(): Hero | null {
         }
       }
       
-      // 🔥 Єдина схема: exp/level/sp/skills/mobsKilled — з heroJson або верхнього рівня hero
+      // 🔥 Джерело істини: hero.* має пріоритет над heroJson (не перетирати hero валідним значенням heroJson)
       const heroJson = (fixedHero as any).heroJson || {};
-      const mobsKilled = heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? (fixedHero as any).mobsKilled ?? 0;
-      const skills = Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : (Array.isArray(fixedHero.skills) ? fixedHero.skills : []);
-      if (heroJson.exp !== undefined && heroJson.exp !== null) fixedHero.exp = Number(heroJson.exp);
-      if (heroJson.level !== undefined && heroJson.level !== null) fixedHero.level = Number(heroJson.level);
-      if (heroJson.sp !== undefined && heroJson.sp !== null) fixedHero.sp = Number(heroJson.sp);
-      if (heroJson.adena !== undefined && heroJson.adena !== null) fixedHero.adena = Number(heroJson.adena);
+      if (fixedHero.exp === undefined || fixedHero.exp === null) fixedHero.exp = Number(heroJson.exp ?? 0);
+      if (fixedHero.level === undefined || fixedHero.level === null) fixedHero.level = Number(heroJson.level ?? 1);
+      if (fixedHero.sp === undefined || fixedHero.sp === null) fixedHero.sp = Number(heroJson.sp ?? 0);
+      if (fixedHero.adena === undefined || fixedHero.adena === null) fixedHero.adena = Number(heroJson.adena ?? 0);
+      const mobsKilled = (fixedHero as any).mobsKilled ?? heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? 0;
+      const skills = (Array.isArray(fixedHero.skills) && fixedHero.skills.length > 0)
+        ? fixedHero.skills
+        : (Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : []);
       (fixedHero as any).mobsKilled = mobsKilled;
       fixedHero.skills = skills;
       
@@ -207,15 +218,9 @@ export function loadHero(): Hero | null {
     // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
     const hydratedHero = hydrateHero(heroWithRecalculatedStats);
     
-    // ❗ ВАЖЛИВО: Завжди зберігаємо hero після перерахунку, навіть якщо стати не змінилися
-    // Ресурси (HP/MP/CP/maxHp/maxMp/maxCp) можуть змінитися навіть якщо бойові стати не змінилися
-    // Це гарантує, що при наступному F5 буде завантажено правильні значення
-    const accIndex = accounts.findIndex((a: any) => a.username === username);
-    if (accIndex !== -1 && hydratedHero) {
-      accounts[accIndex].hero = hydratedHero;
-      setJSON("l2_accounts_v2", accounts);
-    }
-    
+    // 🔥 ЄДИНЕ ДЖЕРЕЛО ПРАВДИ: НЕ пишемо hero в localStorage тут.
+    // Запис hero робить тільки heroPersistence (при збереженні прогресу). Тут лише читаємо і нормалізуємо в пам'яті.
+    // Інакше кожен loadHero() перезаписував би localStorage і міг би затерти новіший стан від heroPersistence.
     return hydratedHero || heroWithRecalculatedStats;
   }
   

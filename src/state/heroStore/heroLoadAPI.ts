@@ -49,12 +49,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     }
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
-    // 🔥 Єдина логіка: якщо локальна версія має більше прогресy в БУДЬ-ЯКОМУ полі — беремо локаль
-    // (exp, level, sp, adena, skills, mobsKilled). Інакше після F5 відкат бафів/адени/сп.
+    // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
+    // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
+    // Inventory/buffs — не порівнюємо "більше/менше", для них інший критерій.
+    // Останній запобіжник: local.lastSavedAt > server.updatedAt → локалка новіша, лишаємо навіть при рівних значеннях.
     if (character && hydratedLocalHero) {
       const heroData = character.heroJson as any;
-      const serverSkills = Array.isArray(heroData?.skills) ? heroData.skills.length : 0;
-      const localSkills = Array.isArray(hydratedLocalHero.skills) ? hydratedLocalHero.skills.length : 0;
+      const serverSkillsArr = Array.isArray(heroData?.skills) ? heroData.skills : [];
+      const localSkillsArr = Array.isArray(hydratedLocalHero.skills) ? hydratedLocalHero.skills : [];
+      const skillLevelSum = (arr: any[]) => arr.reduce((s, sk) => s + (Number((sk as any).level) || 1), 0);
+      const serverSkillLevelsSum = skillLevelSum(serverSkillsArr);
+      const localSkillLevelsSum = skillLevelSum(localSkillsArr);
       const serverMobsKilled = heroData?.mobsKilled ?? 0;
       const localMobsKilled = (hydratedLocalHero as any).mobsKilled ?? 0;
       const serverExp = Number(character.exp ?? heroData?.exp ?? 0);
@@ -65,17 +70,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const localSp = hydratedLocalHero.sp ?? 0;
       const serverAdena = Number(character.adena ?? heroData?.adena ?? 0);
       const localAdena = hydratedLocalHero.adena ?? 0;
-      
+      const localLastSavedAt = (hydratedLocalHero as any).lastSavedAt || 0;
+      const serverUpdatedAt = character.updatedAt ? new Date(character.updatedAt).getTime() : 0;
+      const localNewerByTimestamp = localLastSavedAt > 0 && serverUpdatedAt > 0 && localLastSavedAt > serverUpdatedAt;
+
       const localHasMoreProgress =
+        localNewerByTimestamp ||
         localExp > serverExp ||
         localLevel > serverLevel ||
         localSp > serverSp ||
         localAdena > serverAdena ||
-        localSkills > serverSkills ||
+        localSkillLevelsSum > serverSkillLevelsSum ||
         localMobsKilled > serverMobsKilled;
-      
+
       if (localHasMoreProgress) {
-        console.warn('[loadHeroFromAPI] Local has more progress, keeping local (level/exp/sp/adena/skills/mobs):', { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkills, serverSkills, localMobsKilled, serverMobsKilled });
+        console.warn('[loadHeroFromAPI] Local preferred (by timestamp or progress):', localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress', { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
         // Використовуємо локальну версію і одразу пушимо на сервер у фоні
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
           saveHeroToLocalStorage(hydratedLocalHero).catch((err: any) => {

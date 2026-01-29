@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { INVENTORY_MAX_ITEMS, useHeroStore } from "../state/heroStore";
 import { itemsDB } from "../data/items/itemsDB";
 
@@ -66,7 +66,6 @@ export default function InventoryPanel({
   framed = true,
 }: InventoryPanelProps) {
   const hero = useHeroStore((s) => s.hero);
-  const loadHero = useHeroStore((s) => s.loadHero);
   const equipItem = useHeroStore((s) => s.equipItem);
   const updateHero = useHeroStore((s) => s.updateHero);
 
@@ -74,9 +73,9 @@ export default function InventoryPanel({
   const [selectedItem, setSelectedItem] = useState<InvItem | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  useEffect(() => {
-    loadHero();
-  }, [loadHero]);
+  // 🔥 НЕ викликати loadHero() тут — воно перезаписує store з localStorage і дає миттєвий відкат
+  // після вбивства моба (store оновлений, save ще async/429, loadHero() читає старий localStorage → set(hero) → відкат).
+  // Герой вже завантажений при ініціалізації App.
 
   const items = useMemo(() => {
     if (!hero?.inventory) return [];
