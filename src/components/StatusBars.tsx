@@ -104,12 +104,12 @@ export default function StatusBars() {
   // Регенерація HP/MP/CP (тільки поза боєм) та перевірка таймера Зарича
   // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
   const regenIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-  // 🔥 THROTTLE: Накопичуємо зміни і викликаємо updateHero рідше (кожні 5 секунд замість кожної секунди)
+  // 🔥 THROTTLE: Накопичуємо зміни і викликаємо updateHero рідше (було 5 с — "лвл через 5 сек")
   const regenThrottleRef = React.useRef<{ lastUpdate: number; pendingUpdates: Partial<any> | null }>({
     lastUpdate: 0,
     pendingUpdates: null,
   });
-  const REGEN_UPDATE_INTERVAL_MS = 5000; // Оновлюємо store кожні 5 секунд (замість кожної секунди)
+  const REGEN_UPDATE_INTERVAL_MS = 1000; // 1 с: реген оновлює store щосекунди; level з hero — одразу при лвлапі
   
   React.useEffect(() => {
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
