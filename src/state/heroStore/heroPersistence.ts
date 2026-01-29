@@ -1,10 +1,13 @@
 /**
- * heroPersistence — ЄДИНЕ МІСЦЕ ЗАПИСУ героя в localStorage (l2_accounts_v2) при збереженні прогресу.
+ * heroPersistence — ЄДИНЕ МІСЦЕ ЗАПИСУ героя в localStorage (l2_accounts_v2).
  *
- * ЄДИНЕ ДЖЕРЕЛО ПРАВДИ:
- * - Читання героя з localStorage — тільки heroLoad (loadHero()).
- * - Запис героя в localStorage — тільки тут (saveHeroToLocalStorage, saveHeroToLocalStorageOnly,
- *   backup при 429/409/fallback). App/Landing/Register НІКОЛИ не пишуть hero в l2_accounts_v2.
+ * ЗАЛІЗОБЕТОН:
+ * - localStorage = миттєвий snapshot: saveHeroToLocalStorageOnly() викликається СИНХРОННО з heroStore
+ *   при КОЖНІЙ зміні hero (setHero, loadHero, updateHero). Без debounce, без очікування API.
+ * - API = "доставимо коли зможемо": saveHeroToLocalStorage() — async, debounce/queue/rate limit.
+ *
+ * Читання з localStorage — тільки heroLoad (loadHero()). Запис — тільки тут.
+ * App/Landing/Register НІКОЛИ не пишуть hero в l2_accounts_v2.
  */
 import type { Hero } from "../../types/Hero";
 import { updateCharacter, getCharacter } from "../../utils/api";
@@ -37,7 +40,8 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
   };
 }
 
-// 🔥 Зберігаємо героя ТІЛЬКИ в localStorage (без API). Використовується при rate limit queue.
+// 🔥 Залізобетон: СИНХРОННИЙ запис у localStorage — миттєвий snapshot при кожній зміні hero в store.
+// Викликається з heroStore (setHero, loadHero, updateHero). Без API, без debounce.
 export function saveHeroToLocalStorageOnly(hero: Hero): void {
   if (!hero || !hero.name) return;
   const hydrated = hydrateHero(hero);

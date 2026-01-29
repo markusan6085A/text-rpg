@@ -74,8 +74,23 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const serverUpdatedAt = character.updatedAt ? new Date(character.updatedAt).getTime() : 0;
       const localNewerByTimestamp = localLastSavedAt > 0 && serverUpdatedAt > 0 && localLastSavedAt > serverUpdatedAt;
 
+      // 🔥 КРИТИЧНО: Якщо локально є активні бафи (наприклад зі статуї), а на сервері їх немає/менше — лишаємо локальну версію
+      // Інакше після loadHeroFromAPI ми перезаписуємо store серверним героєм і бафи "зникають через секунду"
+      const now = Date.now();
+      const localBuffsFromJson = Array.isArray((hydratedLocalHero as any).heroJson?.heroBuffs) ? (hydratedLocalHero as any).heroJson.heroBuffs : [];
+      const localBuffsFromBattle = loadBattle(hydratedLocalHero.name);
+      const localBuffsMerged = [...localBuffsFromJson, ...(localBuffsFromBattle?.heroBuffs || [])];
+      const localBuffsDeduped = localBuffsMerged.filter((b: any, i: number, arr: any[]) =>
+        arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
+      );
+      const localActiveBuffsCount = cleanupBuffs(localBuffsDeduped, now).length;
+      const serverBuffs = Array.isArray(heroData?.heroBuffs) ? heroData.heroBuffs : [];
+      const serverActiveBuffsCount = cleanupBuffs(serverBuffs, now).length;
+      const localHasActiveBuffsNotOnServer = localActiveBuffsCount > serverActiveBuffsCount && localActiveBuffsCount > 0;
+
       const localHasMoreProgress =
         localNewerByTimestamp ||
+        localHasActiveBuffsNotOnServer ||
         localExp > serverExp ||
         localLevel > serverLevel ||
         localSp > serverSp ||
@@ -84,7 +99,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         localMobsKilled > serverMobsKilled;
 
       if (localHasMoreProgress) {
-        console.warn('[loadHeroFromAPI] Local preferred (by timestamp or progress):', localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress', { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
+        const reason = localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress');
+        console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
         // Використовуємо локальну версію і одразу пушимо на сервер у фоні
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
           saveHeroToLocalStorage(hydratedLocalHero).catch((err: any) => {

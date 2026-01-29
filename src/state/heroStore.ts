@@ -272,6 +272,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     });
     
     set({ hero: hydrated });
+    // 🔥 Залізобетон: localStorage = миттєвий snapshot при будь-якій зміні hero в store
+    if (hydrated) saveHeroToLocalStorageOnly(hydrated);
   },
 
   loadHero: () => {
@@ -279,6 +281,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const loadedHero = loadHero();
     console.log('[heroStore] loadHero result:', loadedHero ? 'exists' : 'null');
     set({ hero: loadedHero });
+    // 🔥 Залізобетон: після завантаження з localStorage теж синхронно пишемо (той самий snapshot)
+    if (loadedHero) saveHeroToLocalStorageOnly(loadedHero);
   },
 
   updateHero: (partial) => {
@@ -297,6 +301,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     }
     
     // 🔥 КРИТИЧНО: Всі важливі зміни, які не повинні втрачатися після F5 - зберігаємо одразу
+    // 🔥 Бафи (heroJson.heroBuffs) — критична зміна, щоб баф з статуї не зникав через 1 сек (debounce перезаписував старим снапшотом)
     const isCriticalChange = (partial as any).mobsKilled !== undefined || 
                              partial.skills !== undefined ||
                              partial.sp !== undefined || // 🔥 SP - критична зміна
@@ -307,11 +312,14 @@ export const useHeroStore = create<HeroState>((set, get) => ({
                              (partial as any).coinOfLuck !== undefined || // 🔥 CoinOfLuck - критична зміна (використання)
                              (partial as any).aa !== undefined || // 🔥 AA (Ancient Adena) - критична зміна (покупки, обмін)
                              (partial as any).level !== undefined ||
-                             (partial as any).exp !== undefined;
+                             (partial as any).exp !== undefined ||
+                             (partial as any).heroJson?.heroBuffs !== undefined; // 🔥 Бафи — одразу зберігати в localStorage/API
     
     set({ hero: updated });
+    // 🔥 Залізобетон: localStorage = миттєвий snapshot ЗАВЖДИ; API — окремо (debounce/queue)
+    saveHeroToLocalStorageOnly(updated);
     
-    // 🔥 Критичні зміни зберігаємо одразу, інші - через debounce
+    // 🔥 API: критичні зміни — одразу в чергу, інші — debounce (localStorage вже записано вище)
     if (isCriticalChange) {
       console.log('[heroStore] Critical change detected, saving immediately');
       immediateSave(updated);
