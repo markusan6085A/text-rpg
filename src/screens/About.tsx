@@ -31,9 +31,12 @@ export default function About({ navigate }: { navigate: Navigate }) {
         setOnlineCount(0);
       }
     };
-    loadOnlineCount();
-    const interval = setInterval(loadOnlineCount, 30000);
-    return () => clearInterval(interval);
+    const startTimeout = setTimeout(loadOnlineCount, 15000); // Перший через 15 с
+    const interval = setInterval(loadOnlineCount, 60000); // Далі кожні 60 с
+    return () => {
+      clearTimeout(startTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
   return (

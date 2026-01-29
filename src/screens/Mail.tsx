@@ -122,7 +122,7 @@ export default function Mail({ navigate }: MailProps) {
         }
         console.error("[Mail] Failed to refresh online players:", err?.message || err);
       }
-    }, 30000);
+    }, 60000); // Було 30 с — менше запитів = менше 429
     
     onlinePlayersIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
 

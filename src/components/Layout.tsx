@@ -129,15 +129,15 @@ export default function Layout({
         });
     };
 
-    // 🔥 Відкладаємо перший online на 2–3 с, щоб не лавиною з loadHeroFromAPI (GET character)
-    const delay = isLightPage ? 2000 : 3000;
+    // 🔥 Перші 15 с — тільки GET character. Online/heartbeat/unread не славимо, щоб PUT (скіл/баф/моб) не отримав 429
+    const delay = isLightPage ? 5000 : 15000;
     const timeout = setTimeout(loadOnlineCount, delay);
     onlineTimeoutRef.current = timeout; // Зберігаємо для можливості ручного очищення
 
-    // Оновлюємо кожні 30 секунд тільки якщо не легка сторінка
+    // Оновлюємо кожні 60 с (було 30), менше запитів = менше 429
     let interval: NodeJS.Timeout | null = null;
     if (!isLightPage) {
-      interval = setInterval(loadOnlineCount, 30000);
+      interval = setInterval(loadOnlineCount, 60000);
       onlineIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
     }
     
@@ -189,12 +189,12 @@ export default function Layout({
         });
     };
 
-    // Відкладаємо перший heartbeat на 5 секунд, щоб не блокувати початкове завантаження
-    const timeout = setTimeout(sendHeartbeatInterval, 5000);
+    // 🔥 Перший heartbeat через 20 с, щоб не спалити ліміт до PUT (скіл/баф/моб)
+    const timeout = setTimeout(sendHeartbeatInterval, 20000);
     heartbeatTimeoutRef.current = timeout; // Зберігаємо для можливості ручного очищення
 
-    // Відправляємо heartbeat кожні 2 хвилини
-    const interval = setInterval(sendHeartbeatInterval, 2 * 60 * 1000);
+    // Відправляємо heartbeat кожні 4 хвилини (було 2), менше запитів = менше 429
+    const interval = setInterval(sendHeartbeatInterval, 4 * 60 * 1000);
     heartbeatIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
     
     return () => {

@@ -35,8 +35,8 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
   useEffect(() => {
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
     loadOnlinePlayers();
-    // Оновлюємо список кожні 30 секунд
-    const interval = setInterval(loadOnlinePlayers, 30000);
+    // Оновлюємо список кожні 60 с (було 30), менше запитів = менше 429
+    const interval = setInterval(loadOnlinePlayers, 60000);
     return () => clearInterval(interval);
   }, [loadOnlinePlayers]); // 🔥 Мінімальні dependencies - тільки стабільна функція
 

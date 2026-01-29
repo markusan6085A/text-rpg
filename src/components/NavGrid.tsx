@@ -49,9 +49,9 @@ export default function NavGrid({ navigate }: NavGridProps) {
       }
     };
 
-    // 🔥 Відкладаємо перший запит на 3 с, щоб не лавиною з loadHeroFromAPI + online
-    const startTimeout = setTimeout(loadUnreadCount, 3000);
-    const interval = setInterval(loadUnreadCount, 30000); // Оновлюємо кожні 30 секунд
+    // 🔥 Перші 15 с — тільки GET character. Unread не славимо, щоб PUT (скіл/баф) не отримав 429
+    const startTimeout = setTimeout(loadUnreadCount, 15000);
+    const interval = setInterval(loadUnreadCount, 60000); // Кожні 60 с (було 30)
     unreadIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
     
     return () => {
@@ -100,8 +100,8 @@ export default function NavGrid({ navigate }: NavGridProps) {
       }
     };
 
-    // 🔥 Відкладаємо перший запит на 4 с, щоб не лавиною з loadHeroFromAPI + online + unread
-    const clanStartTimeout = setTimeout(loadClanUnreadCount, 4000);
+    // 🔥 Перший clan unread через 20 с, щоб не спалити ліміт до PUT
+    const clanStartTimeout = setTimeout(loadClanUnreadCount, 20000);
     // 🔥 ОПТИМІЗАЦІЯ: Зменшуємо частоту поллінгу з 30 секунд до 60 секунд
     const interval = setInterval(loadClanUnreadCount, 60000); // Оновлюємо кожні 60 секунд
     clanUnreadIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
