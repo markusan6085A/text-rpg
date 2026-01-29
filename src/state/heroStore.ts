@@ -292,9 +292,11 @@ export const useHeroStore = create<HeroState>((set, get) => ({
 
     const updated = updateHeroLogic(prev, partial);
 
-    // 🔥 Реген HP/MP/CP — тільки store + localStorage snapshot, без API (прибирає 80% PUT-потоку)
+    // 🔥 Реген HP/MP/CP — тільки store + localStorage, без API. Критерій: partial лише hp/mp/cp (максимум status).
     const keys = Object.keys(partial);
-    const onlyRegen = keys.length > 0 && keys.every((k) => k === "hp" || k === "mp" || k === "cp");
+    const onlyRegen =
+      keys.length > 0 &&
+      keys.every((k) => k === "hp" || k === "mp" || k === "cp" || k === "status");
 
     set({ hero: updated });
 
@@ -349,6 +351,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         updatedAt: server.updatedAt ?? current?.updatedAt ?? Date.now(),
       },
     });
+    // Бафи: saveHeroToLocalStorageOnly мерджить heroJson.heroBuffs + loadBattle().heroBuffs — залізобетон як раніше
     saveHeroToLocalStorageOnly(merged);
   },
 

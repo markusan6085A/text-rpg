@@ -93,8 +93,8 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
   } finally {
     saving = false;
     
-    // 🔥 КРИТИЧНО: Якщо була черга - беремо АКТУАЛЬНОГО героя зі store (не snapshot!)
-    // Це гарантує, що не втратимо зміни, які відбулися під час save
+    // 🔥 КРИТИЧНО: Якщо була черга — беремо актуального героя зі store (не snapshot).
+    // applyServerSync не викликає save, тому queued тепер тільки коли зміни під час збереження.
     if (queued) {
       queued = false;
       console.log('[saveHeroToLocalStorage] Processing queued save - getting current hero from store');
