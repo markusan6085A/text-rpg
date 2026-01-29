@@ -31,7 +31,10 @@ interface HeroState {
 
   loadHero: () => void;
 
-  updateHero: (partial: Partial<Hero>) => void;
+  updateHero: (partial: Partial<Hero>, opts?: { persist?: boolean }) => void;
+
+  /** Оновлення героя після серверного sync (PUT/409) без запуску persistence — не викликати updateHero */
+  applyServerSync: (partial: Partial<Hero>, server: Partial<ServerState>) => void;
   
   // 🔥 Оновлюємо серверний стан після GET/PATCH
   updateServerState: (state: Partial<ServerState>) => void;
@@ -272,8 +275,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     });
     
     set({ hero: hydrated });
-    // 🔥 Залізобетон: localStorage = миттєвий snapshot при будь-якій зміні hero в store
-    if (hydrated) saveHeroToLocalStorageOnly(hydrated);
+    // 🔥 НЕ пишемо в localStorage з setHero — інакше один раз "старий" серверний герой перезатирає прогрес
   },
 
   loadHero: () => {
@@ -281,16 +283,27 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const loadedHero = loadHero();
     console.log('[heroStore] loadHero result:', loadedHero ? 'exists' : 'null');
     set({ hero: loadedHero });
-    // 🔥 Залізобетон: після завантаження з localStorage теж синхронно пишемо (той самий snapshot)
-    if (loadedHero) saveHeroToLocalStorageOnly(loadedHero);
+    // 🔥 НЕ пишемо в localStorage з loadHero — запис тільки в updateHero / heroPersistence
   },
 
-  updateHero: (partial) => {
+  updateHero: (partial, opts) => {
     const prev = get().hero;
     if (!prev) return;
 
     const updated = updateHeroLogic(prev, partial);
-    
+
+    // 🔥 Реген HP/MP/CP — тільки store + localStorage snapshot, без API (прибирає 80% PUT-потоку)
+    const keys = Object.keys(partial);
+    const onlyRegen = keys.length > 0 && keys.every((k) => k === "hp" || k === "mp" || k === "cp");
+
+    set({ hero: updated });
+
+    const persist = opts?.persist !== false;
+    if (!persist) return;
+
+    saveHeroToLocalStorageOnly(updated);
+    if (onlyRegen) return; // ⛔ НІЯКОГО debouncedSave/immediateSave для регену
+
     // Логуємо зміни інвентаря для відстеження
     if (partial.inventory !== undefined) {
       console.log('[heroStore] Inventory updated:', {
@@ -299,33 +312,44 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         items: updated.inventory?.map(i => ({ id: i.id, count: i.count })) || []
       });
     }
-    
-    // 🔥 КРИТИЧНО: Всі важливі зміни, які не повинні втрачатися після F5 - зберігаємо одразу
-    // 🔥 Бафи (heroJson.heroBuffs) — критична зміна, щоб баф з статуї не зникав через 1 сек (debounce перезаписував старим снапшотом)
-    const isCriticalChange = (partial as any).mobsKilled !== undefined || 
+
+    const isCriticalChange = (partial as any).mobsKilled !== undefined ||
                              partial.skills !== undefined ||
-                             partial.sp !== undefined || // 🔥 SP - критична зміна
-                             partial.profession !== undefined || // 🔥 Profession - критична зміна
-                             partial.inventory !== undefined || // 🔥 Inventory - критична зміна (покупки, продажі, використання)
-                             partial.equipment !== undefined || // 🔥 Equipment - критична зміна (екіпірування/зняття)
-                             partial.adena !== undefined || // 🔥 Adena - критична зміна (покупки, продажі)
-                             (partial as any).coinOfLuck !== undefined || // 🔥 CoinOfLuck - критична зміна (використання)
-                             (partial as any).aa !== undefined || // 🔥 AA (Ancient Adena) - критична зміна (покупки, обмін)
+                             partial.sp !== undefined ||
+                             partial.profession !== undefined ||
+                             partial.inventory !== undefined ||
+                             partial.equipment !== undefined ||
+                             partial.adena !== undefined ||
+                             (partial as any).coinOfLuck !== undefined ||
+                             (partial as any).aa !== undefined ||
                              (partial as any).level !== undefined ||
                              (partial as any).exp !== undefined ||
-                             (partial as any).heroJson?.heroBuffs !== undefined; // 🔥 Бафи — одразу зберігати в localStorage/API
-    
-    set({ hero: updated });
-    // 🔥 Залізобетон: localStorage = миттєвий snapshot ЗАВЖДИ; API — окремо (debounce/queue)
-    saveHeroToLocalStorageOnly(updated);
-    
-    // 🔥 API: критичні зміни — одразу в чергу, інші — debounce (localStorage вже записано вище)
+                             (partial as any).heroJson?.heroBuffs !== undefined;
+
     if (isCriticalChange) {
       console.log('[heroStore] Critical change detected, saving immediately');
       immediateSave(updated);
     } else {
       debouncedSave(updated);
     }
+  },
+
+  applyServerSync: (partial, server) => {
+    const prev = get().hero;
+    if (!prev) return;
+    const merged = hydrateHero({ ...prev, ...partial } as any) ?? ({ ...prev, ...partial } as Hero);
+    set({ hero: merged });
+    const current = get().serverState;
+    set({
+      serverState: {
+        exp: server.exp ?? current?.exp ?? 0,
+        level: server.level ?? current?.level ?? 1,
+        sp: server.sp ?? current?.sp ?? 0,
+        heroRevision: server.heroRevision ?? current?.heroRevision,
+        updatedAt: server.updatedAt ?? current?.updatedAt ?? Date.now(),
+      },
+    });
+    saveHeroToLocalStorageOnly(merged);
   },
 
   // 🔥 Оновлюємо серверний стан після GET/PATCH

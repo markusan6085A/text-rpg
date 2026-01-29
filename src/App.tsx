@@ -279,7 +279,7 @@ function AppInner() {
   // Для інших маршрутів - компоненти самі обробляють відсутність hero (показують "Загрузка...")
   if (!hero && (pathname === "/" || pathname === "")) {
     return (
-      <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key={`landing-layout-${refreshKey}`}>
+      <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="landing-layout">
         <Landing
           navigate={navigate}
           onLogin={(loadedHero) => {
@@ -295,15 +295,15 @@ function AppInner() {
     );
   }
 
-  // Router
+  // Router: Layout без refreshKey у key — стабільний, не ремонтується при кожному кліку (прибирає шторм GET/таймерів)
   const renderWithLayout = (children: React.ReactNode) => (
-    <Layout navigate={navigate} key={`layout-${pathname}-${refreshKey}`}>{children}</Layout>
+    <Layout navigate={navigate} key={`layout-${pathname}`}>{children}</Layout>
   );
 
   switch (pathname) {
     case "/register":
       return (
-        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key={`register-layout-${refreshKey}`}>
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="register-layout">
           <Register navigate={navigate} key={`register-${refreshKey}`} />
         </Layout>
       );
@@ -382,7 +382,7 @@ function AppInner() {
 
     case "/fishing":
       return (
-        <Layout navigate={navigate} customBackground="/icons/fishing.jpg" key={`fishing-layout-${refreshKey}`}>
+        <Layout navigate={navigate} customBackground="/icons/fishing.jpg" key="fishing-layout">
           <Fishing navigate={navigate} key={`fishing-${refreshKey}`} />
         </Layout>
       );
@@ -456,7 +456,7 @@ function AppInner() {
 
     default:
       return (
-        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key={`default-landing-layout-${refreshKey}`}>
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="default-landing-layout">
           <Landing
             navigate={navigate}
             onLogin={(loadedHero) => {

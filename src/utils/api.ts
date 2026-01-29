@@ -211,6 +211,9 @@ export async function listCharacters(): Promise<Character[]> {
 }
 
 export async function getCharacter(id: string): Promise<Character> {
+  if (import.meta.env.DEV) {
+    console.log('GET character called', new Error().stack);
+  }
   const response = await apiRequest<CharacterResponse>(`/characters/${id}`, {
     method: 'GET',
   });

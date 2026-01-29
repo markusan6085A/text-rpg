@@ -121,11 +121,6 @@ export default function NavGrid({ navigate }: NavGridProps) {
     
     if (btn.onClick) {
       btn.onClick();
-      // 🔥 ВАЖЛИВО: Після onClick також викликаємо navigate з поточним шляхом для оновлення сторінки
-      if (navigate) {
-        const currentPath = window.location.pathname;
-        navigate(currentPath);
-      }
       return;
     }
     

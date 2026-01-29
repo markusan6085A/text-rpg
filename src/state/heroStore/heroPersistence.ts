@@ -369,37 +369,17 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const serverLevel = Number(updatedCharacter.level ?? 1);
       const serverSp = Number(updatedCharacter.sp ?? 0); // 🔥 Додано SP
       
-      // 🔥 Оновлюємо serverState в store (замість глобальних змінних та window)
+      // 🔥 applyServerSync замість updateHero — не запускає persistence (прибирає рекурсію PUT→updateHero→PUT)
       const { useHeroStore } = await import('../heroStore');
-      useHeroStore.getState().updateServerState({
-        exp: serverExp,
-        level: serverLevel,
-        sp: serverSp, // 🔥 Додано SP
-        heroRevision: newRevision,
-        updatedAt: Date.now(),
-      });
-      
-      // 🔥 Оновлюємо hero в store: exp/sp clamp'имо, level беремо з сервера як source of truth
       const currentHero = useHeroStore.getState().hero;
       if (currentHero) {
-        // Clamp exp - беремо більше значення (захист від зменшення)
         const clampedExp = Math.max(currentHero.exp ?? 0, serverExp);
-        // Clamp sp - беремо більше значення (захист від зменшення)
         const clampedSp = Math.max(currentHero.sp ?? 0, serverSp);
-        // Level беремо з сервера як source of truth (не clamp'имо)
-        useHeroStore.getState().updateHero({
-          heroRevision: newRevision,
-          exp: clampedExp,
-          sp: clampedSp, // 🔥 Додано SP
-          level: serverLevel, // 🔥 Level з сервера - source of truth
-        } as any);
-        console.log('[saveHeroToLocalStorage] Updated heroRevision, exp, level, sp in store:', {
-          revision: newRevision,
-          exp: clampedExp,
-          sp: clampedSp,
-          level: serverLevel,
-          serverState: useHeroStore.getState().serverState,
-        });
+        useHeroStore.getState().applyServerSync(
+          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: serverLevel } as any,
+          { exp: serverExp, level: serverLevel, sp: serverSp, heroRevision: newRevision, updatedAt: Date.now() }
+        );
+        console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: serverLevel });
       }
     }
     
@@ -557,21 +537,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             if (currentHero) {
               const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision;
               const serverLevel = Number(currentCharacter.level ?? 1);
-              
-              // 🔥 Оновлюємо serverState після GET (перед retry)
-              const serverSp = Number(currentCharacter.sp ?? 0); // 🔥 Додано SP
-              useHeroStore.getState().updateServerState({
-                exp: mergedExp, // Використовуємо merged exp (більше значення)
-                level: serverLevel, // Level з сервера - source of truth
-                sp: serverSp, // 🔥 Додано SP
-                heroRevision: newRevision,
-                updatedAt: Date.now(),
-              });
-              
+              const serverSp = Number(currentCharacter.sp ?? 0);
+
               const mergedHero = {
                 ...currentHero,
                 exp: mergedExp,
-                level: serverLevel, // 🔥 Level з сервера - source of truth
+                level: serverLevel,
                 mobsKilled: mergedMobsKilled as any,
                 skills: mergedSkills,
                 heroRevision: newRevision,
@@ -584,14 +555,19 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
                   heroBuffs: cleanedBuffs,
                 },
               };
-              
-              // Оновлюємо store
-              useHeroStore.getState().setHero(mergedHero);
+
+              // 🔥 applyServerSync замість setHero — оновлює store без запуску persistence; retry з поточного hero
+              useHeroStore.getState().applyServerSync(mergedHero as any, {
+                exp: mergedExp,
+                level: serverLevel,
+                sp: serverSp,
+                heroRevision: newRevision,
+                updatedAt: Date.now(),
+              });
               console.log('[saveHeroToLocalStorage] Hero rehydrated and merged, retrying save with revision:', newRevision);
-              
-              // 4. Повторюємо збереження з актуальною ревізією
-              // Використовуємо saveHeroOnce напряму, щоб не збільшувати retryCount
-              await saveHeroOnce(mergedHero);
+
+              const heroToSave = useHeroStore.getState().hero;
+              if (heroToSave) await saveHeroOnce(heroToSave);
               console.log('[saveHeroToLocalStorage] Successfully saved after retry');
               return; // Успішно збережено після retry
             }
