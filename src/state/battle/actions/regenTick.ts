@@ -18,6 +18,24 @@ type Setter = (
   replace?: boolean
 ) => void;
 
+/** Merge two buff lists and dedup by id / stackType / name. Second list wins on same key (e.g. toggle updates). */
+function mergeBuffsDedup(a: any[], b: any[]): any[] {
+  const out: any[] = [];
+  const seen = new Set<string>();
+  for (const x of [...b, ...a]) {
+    if (!x) continue;
+    const key =
+      (typeof x.id === "number" ? `id:${x.id}` : "") ||
+      (x.stackType ? `stack:${x.stackType}` : "") ||
+      (x.name ? `name:${x.name}` : "") ||
+      JSON.stringify(x);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(x);
+  }
+  return out;
+}
+
 export const createRegenTick =
   (set: Setter, get: () => BattleState): BattleState["regenTick"] =>
   () => {
@@ -31,7 +49,8 @@ export const createRegenTick =
     const cleanedSummonBuffs = cleanupSummonBuffs(state.summonBuffs || [], now);
 
     // Обробляємо toggle tick ефекти (споживання MP/HP для активних toggle скілів)
-    const updateHero = useHeroStore.getState().updateHero;
+    const heroStore = useHeroStore.getState();
+    const updateHero = heroStore.updateHero;
     const { updatedBuffs: buffsAfterTicks, logMessages: tickLogMessages } = processToggleTicks(
       { ...state, heroBuffs: cleanedBuffs },
       now,
@@ -39,15 +58,22 @@ export const createRegenTick =
       () => {} // updateBuffs буде викликано через set
     );
 
+    // Фікс №1: не перезаписувати heroBuffs тим, що повернув processToggleTicks (може бути тільки toggle-бафи).
+    // Мерджимо cleanedBuffs + buffsAfterTicks з dedup — інакше бафи статуї (source=buffer) зникають.
+    const mergedHeroBuffs = cleanupBuffs(mergeBuffsDedup(cleanedBuffs, buffsAfterTicks), now);
+    if (import.meta.env.DEV) {
+      console.log("REGEN cleaned:", cleanedBuffs.length, "afterTicks:", buffsAfterTicks.length, "merged:", mergedHeroBuffs.length);
+    }
+
     // Отримуємо поточного героя після toggle ticks (HP могло змінитися)
     const heroAfterTicks = useHeroStore.getState().hero;
     if (!heroAfterTicks) return;
 
     // Отримуємо базові max ресурси через централізовану функцію
     const baseMax = getMaxResources(heroAfterTicks);
-    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, buffsAfterTicks);
+    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, mergedHeroBuffs);
 
-    const heroStats = applyBuffsToStats(heroAfterTicks.battleStats || {}, buffsAfterTicks);
+    const heroStats = applyBuffsToStats(heroAfterTicks.battleStats || {}, mergedHeroBuffs);
     const hpRegen = Math.max(0, heroStats.hpRegen ?? 0);
     const mpRegen = Math.max(0, heroStats.mpRegen ?? 0);
     const cpRegen = Math.max(0, heroStats.cpRegen ?? 0);
@@ -64,22 +90,18 @@ export const createRegenTick =
 
     // Перераховуємо стати після зміни HP (через toggle ticks та регенерацію), щоб активувати/деактивувати пасивні скіли з hpThreshold
     const heroWithNewHp = { ...heroAfterTicks, hp: nextHP, maxHp: maxHp };
-    const recalculated = recalculateAllStats(heroWithNewHp, buffsAfterTicks);
-    
-    // Оновлюємо battleStats якщо вони змінилися (через активацію/деактивацію Final Frenzy)
-    if (recalculated.finalStats.pAtk !== heroAfterTicks.battleStats?.pAtk ||
-        recalculated.finalStats.mAtk !== heroAfterTicks.battleStats?.mAtk ||
-        recalculated.finalStats.pDef !== heroAfterTicks.battleStats?.pDef ||
-        recalculated.finalStats.mDef !== heroAfterTicks.battleStats?.mDef) {
-      updateHero({ 
-        hp: nextHP, 
-        mp: nextMP, 
-        cp: nextCP,
-        battleStats: recalculated.finalStats 
-      });
-    } else {
-      updateHero({ hp: nextHP, mp: nextMP, cp: nextCP });
+    const recalculated = recalculateAllStats(heroWithNewHp, mergedHeroBuffs);
+
+    // Фікс №2: battleStats не тригерити API — тільки store; hp/mp/cp йдуть через onlyRegen (localStorage без PUT).
+    const statsChanged =
+      recalculated.finalStats.pAtk !== heroAfterTicks.battleStats?.pAtk ||
+      recalculated.finalStats.mAtk !== heroAfterTicks.battleStats?.mAtk ||
+      recalculated.finalStats.pDef !== heroAfterTicks.battleStats?.pDef ||
+      recalculated.finalStats.mDef !== heroAfterTicks.battleStats?.mDef;
+    if (statsChanged) {
+      heroStore.updateHero({ battleStats: recalculated.finalStats }, { persist: false });
     }
+    heroStore.updateHero({ hp: nextHP, mp: nextMP, cp: nextCP });
 
     // Оновлюємо стати сумону з урахуванням бафів (якщо є)
     let updatedSummon = state.summon;
@@ -123,7 +145,7 @@ export const createRegenTick =
       : state.log;
 
     const updates: Partial<BattleState> = {
-      heroBuffs: buffsAfterTicks,
+      heroBuffs: mergedHeroBuffs,
       summonBuffs: cleanedSummonBuffs,
       ...(updatedSummon !== state.summon ? { summon: updatedSummon } : {}),
       cooldowns: state.cooldowns || {},

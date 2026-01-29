@@ -83,6 +83,10 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
       summonLastAttackAt: battleState.summonLastAttackAt || saved?.summonLastAttackAt || undefined,
     }, hero.name);
 
+    if (import.meta.env.DEV) {
+      console.log("AFTER STATUE buffs:", updatedBuffs.length, updatedBuffs.map((b: any) => [b.id, b.name, b.expiresAt, b.source]));
+    }
+
     // ❗ ВАЖЛИВО: Після застосування бафів статуї потрібно перерахувати стати
     // Але hero.maxHp має містити БАЗОВЕ значення БЕЗ бафів
     // Бафи застосовуються в computeBuffedMaxResources при використанні
