@@ -130,6 +130,29 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
 
   // Save via API
   try {
+    // 🔥 КРИТИЧНО: Якщо вже в cooldown (429) — НЕ славимо PUT, тільки localStorage.
+    // Інакше "черга збереження" (setTimeout 100ms) славить другий PUT → знову 429 → подвійний cooldown і відкати.
+    const { getRateLimitRemainingMs } = await import('../heroStore');
+    if (getRateLimitRemainingMs() > 0) {
+      const current = getJSON<string | null>("l2_current_user", null);
+      if (current && hero) {
+        const accounts = getJSON<any[]>("l2_accounts_v2", []);
+        const accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex !== -1) {
+          const heroWithTimestamp = {
+            ...hero,
+            lastSavedAt: Date.now(),
+            _rateLimitSkip: true,
+            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
+          };
+          accounts[accIndex].hero = heroWithTimestamp;
+          setJSON("l2_accounts_v2", accounts);
+          console.log('[saveHeroToLocalStorage] Cooldown active, saved to localStorage only (no PUT)');
+        }
+      }
+      return;
+    }
+
     console.log('[saveHeroToLocalStorage] Saving hero via API:', {
       inventoryItems: hero.inventory?.length || 0,
       skills: hero.skills?.length || 0,
