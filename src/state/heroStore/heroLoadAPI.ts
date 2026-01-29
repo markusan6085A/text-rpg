@@ -60,16 +60,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const skillLevelSum = (arr: any[]) => arr.reduce((s, sk) => s + (Number((sk as any).level) || 1), 0);
       const serverSkillLevelsSum = skillLevelSum(serverSkillsArr);
       const localSkillLevelsSum = skillLevelSum(localSkillsArr);
-      const serverMobsKilled = heroData?.mobsKilled ?? 0;
-      const localMobsKilled = (hydratedLocalHero as any).mobsKilled ?? 0;
+      const serverMobsKilled = Number(heroData?.mobsKilled ?? 0);
+      const localMobsKilled = Number((hydratedLocalHero as any).mobsKilled ?? (hydratedLocalHero as any).heroJson?.mobsKilled ?? 0);
+      // 🔥 КРИТИЧНО: Всі значення в Number() — API може повертати рядки, інакше localExp > serverExp дає хибний результат
       const serverExp = Number(character.exp ?? heroData?.exp ?? 0);
-      const localExp = hydratedLocalHero.exp ?? 0;
-      const serverLevel = character.level ?? heroData?.level ?? 1;
-      const localLevel = hydratedLocalHero.level ?? 1;
+      const localExp = Number(hydratedLocalHero.exp ?? (hydratedLocalHero as any).heroJson?.exp ?? 0);
+      const serverLevel = Number(character.level ?? heroData?.level ?? 1);
+      const localLevel = Number(hydratedLocalHero.level ?? (hydratedLocalHero as any).heroJson?.level ?? 1);
       const serverSp = Number(character.sp ?? heroData?.sp ?? 0);
-      const localSp = hydratedLocalHero.sp ?? 0;
+      const localSp = Number(hydratedLocalHero.sp ?? (hydratedLocalHero as any).heroJson?.sp ?? 0);
       const serverAdena = Number(character.adena ?? heroData?.adena ?? 0);
-      const localAdena = hydratedLocalHero.adena ?? 0;
+      const localAdena = Number(hydratedLocalHero.adena ?? (hydratedLocalHero as any).heroJson?.adena ?? 0);
       const localLastSavedAt = (hydratedLocalHero as any).lastSavedAt || 0;
       const serverUpdatedAt = character.updatedAt ? new Date(character.updatedAt).getTime() : 0;
       const localNewerByTimestamp = localLastSavedAt > 0 && serverUpdatedAt > 0 && localLastSavedAt > serverUpdatedAt;

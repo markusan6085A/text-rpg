@@ -48,6 +48,8 @@ import { setJSON } from "./state/persistence";
 import { useAuthStore } from "./state/authStore";
 import { useCharacterStore } from "./state/characterStore";
 import { loadHeroFromAPI } from "./state/heroStore/heroLoadAPI";
+import { loadHero as getHeroFromLocalStorage } from "./state/heroStore/heroLoad";
+import { hydrateHero } from "./state/heroStore/heroHydration";
 import { startWarmup, stopWarmup } from "./utils/warmup";
 
 function useRouter() {
@@ -154,7 +156,15 @@ function AppInner() {
                   try {
                     const loadedHero = await loadHeroFromAPI();
                     if (loadedHero && alive) {
-                      setHero(loadedHero);
+                      // 🔥 Залізобетон: ніколи не перезаписувати store серверним героєм, якщо в localStorage є більший прогрес (відкати після F5)
+                      const localHero = getHeroFromLocalStorage();
+                      const le = Number((localHero as any)?.exp ?? (localHero as any)?.heroJson?.exp ?? 0);
+                      const ll = Number((localHero as any)?.level ?? (localHero as any)?.heroJson?.level ?? 0);
+                      const ls = Number((localHero as any)?.sp ?? (localHero as any)?.heroJson?.sp ?? 0);
+                      const la = Number((localHero as any)?.adena ?? (localHero as any)?.heroJson?.adena ?? 0);
+                      const lm = Number((localHero as any)?.mobsKilled ?? (localHero as any)?.heroJson?.mobsKilled ?? 0);
+                      const moreLocal = localHero && (le > Number(loadedHero.exp ?? 0) || ll > Number(loadedHero.level ?? 0) || ls > Number((loadedHero as any).sp ?? 0) || la > Number(loadedHero.adena ?? 0) || lm > Number((loadedHero as any).mobsKilled ?? 0));
+                      setHero(moreLocal ? (hydrateHero(localHero) ?? loadedHero) : loadedHero);
                     } else if (alive) {
                       loadHero();
                     }
@@ -185,12 +195,18 @@ function AppInner() {
           try {
             const loadedHero = await loadHeroFromAPI();
             if (loadedHero && alive) {
-              setHero(loadedHero);
+              // 🔥 Залізобетон: ніколи не перезаписувати store серверним героєм, якщо в localStorage є більший прогрес (відкати після F5)
+              const localHero = getHeroFromLocalStorage();
+              const le = Number((localHero as any)?.exp ?? (localHero as any)?.heroJson?.exp ?? 0);
+              const ll = Number((localHero as any)?.level ?? (localHero as any)?.heroJson?.level ?? 0);
+              const ls = Number((localHero as any)?.sp ?? (localHero as any)?.heroJson?.sp ?? 0);
+              const la = Number((localHero as any)?.adena ?? (localHero as any)?.heroJson?.adena ?? 0);
+              const lm = Number((localHero as any)?.mobsKilled ?? (localHero as any)?.heroJson?.mobsKilled ?? 0);
+              const moreLocal = localHero && (le > Number(loadedHero.exp ?? 0) || ll > Number(loadedHero.level ?? 0) || ls > Number((loadedHero as any).sp ?? 0) || la > Number(loadedHero.adena ?? 0) || lm > Number((loadedHero as any).mobsKilled ?? 0));
+              setHero(moreLocal ? (hydrateHero(localHero) ?? loadedHero) : loadedHero);
               if (import.meta.env.DEV) {
-                console.log('[App] Hero set in store successfully from API');
+                console.log('[App] Hero set in store:', moreLocal ? 'local (more progress)' : 'from API');
               }
-              // 🔥 КРИТИЧНО: НЕ перезаписуємо localStorage героєм з API! Це знищувало локальний прогрес
-              // (бафи, адена, exp, level) після F5. Запис у localStorage тільки в heroPersistence при збереженні.
             } else if (alive) {
               if (import.meta.env.DEV) {
                 console.log('[App] Hero is null from API, fallback to localStorage');
