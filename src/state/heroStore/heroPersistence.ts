@@ -16,6 +16,21 @@ const MAX_RETRIES = 1; // Максимум 1 автоматичний retry пр
 // 🔥 ВИДАЛЕНО: Глобальні змінні lastServerExp/lastServerLevel та window.__lastServerExp
 // Тепер використовуємо serverState з heroStore
 
+// 🔥 Зберігаємо героя ТІЛЬКИ в localStorage (без API). Використовується при rate limit queue.
+export function saveHeroToLocalStorageOnly(hero: Hero): void {
+  if (!hero || !hero.name) return;
+  const hydrated = hydrateHero(hero);
+  if (!hydrated) return;
+  const current = getJSON<string | null>("l2_current_user", null);
+  if (!current) return;
+  const accounts = getJSON<any[]>("l2_accounts_v2", []);
+  const accIndex = accounts.findIndex((a: any) => a.username === current);
+  if (accIndex === -1) return;
+  accounts[accIndex].hero = hydrated;
+  setJSON("l2_accounts_v2", accounts);
+  console.log('[saveHeroToLocalStorageOnly] Saved hero to localStorage (level:', hydrated.level, 'exp:', hydrated.exp, ')');
+}
+
 // Try to save via API, fallback to localStorage if not authenticated
 export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
   // ❗ ВАЖЛИВО: Перевіряємо, чи hero не порожній перед збереженням

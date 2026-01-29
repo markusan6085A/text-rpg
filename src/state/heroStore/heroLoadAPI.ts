@@ -37,22 +37,34 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const character = await getCharacter(characterStore.characterId);
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
-    // 🔥 Правило 1: Перевіряємо, чи локальна версія має новіші дані (skills/mobsKilled)
-    // Якщо так - не перетираємо локальні зміни
+    // 🔥 Правило 1: Перевіряємо, чи локальна версія має новіші дані (skills/mobsKilled/exp/level)
+    // Якщо так - не перетираємо локальні зміни (щоб після F5 не втратити level up)
     if (character && hydratedLocalHero) {
       const heroData = character.heroJson as any;
       const serverSkills = Array.isArray(heroData?.skills) ? heroData.skills.length : 0;
       const localSkills = Array.isArray(hydratedLocalHero.skills) ? hydratedLocalHero.skills.length : 0;
       const serverMobsKilled = heroData?.mobsKilled ?? 0;
       const localMobsKilled = (hydratedLocalHero as any).mobsKilled ?? 0;
+      const serverExp = Number(character.exp ?? heroData?.exp ?? 0);
+      const localExp = hydratedLocalHero.exp ?? 0;
+      const serverLevel = character.level ?? heroData?.level ?? 1;
+      const localLevel = hydratedLocalHero.level ?? 1;
       
-      // 🔥 Якщо локальна версія має більше skills або mobsKilled - не перетираємо
-      const localHasMoreProgress = localSkills > serverSkills || localMobsKilled > serverMobsKilled;
+      // 🔥 КРИТИЧНО: Якщо локальна версія має більше exp/level/skills/mobsKilled - не перетираємо
+      const localHasMoreProgress =
+        localExp > serverExp ||
+        localLevel > serverLevel ||
+        localSkills > serverSkills ||
+        localMobsKilled > serverMobsKilled;
       
       if (localHasMoreProgress) {
-        console.warn('[loadHeroFromAPI] Local version has more progress (local skills:', localSkills, 'server:', serverSkills, 'local mobs:', localMobsKilled, 'server:', serverMobsKilled, '), keeping local version');
-        // Використовуємо локальну версію, але синхронізуємо з сервером (push local to server)
-        // Це буде зроблено через saveHeroToLocalStorage при наступному оновленні
+        console.warn('[loadHeroFromAPI] Local version has more progress (local level:', localLevel, 'exp:', localExp, 'server level:', serverLevel, 'exp:', serverExp, 'skills:', localSkills, '/', serverSkills, 'mobs:', localMobsKilled, '/', serverMobsKilled, '), keeping local version');
+        // Використовуємо локальну версію і одразу пушимо на сервер у фоні
+        import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
+          saveHeroToLocalStorage(hydratedLocalHero).catch((err: any) => {
+            console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);
+          });
+        });
         return hydratedLocalHero;
       }
       

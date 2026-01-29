@@ -4,7 +4,7 @@ import type { Hero, HeroInventoryItem } from "../types/Hero";
 import { loadHero } from "./heroStore/heroLoad";
 import { loadHeroFromAPI } from "./heroStore/heroLoadAPI";
 import { updateHeroLogic } from "./heroStore/heroUpdate";
-import { saveHeroToLocalStorage } from "./heroStore/heroPersistence";
+import { saveHeroToLocalStorage, saveHeroToLocalStorageOnly } from "./heroStore/heroPersistence";
 import { hydrateHero } from "./heroStore/heroHydration";
 import { learnSkillLogic } from "./heroStore/heroSkills";
 import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
@@ -144,6 +144,8 @@ function immediateSave(hero: Hero) {
     // 🔥 КРИТИЧНО: Додаємо в чергу критичних змін - вони мають зберегтися одразу після cooldown
     criticalSaveQueue = hero; // Завжди беремо найновішу версію
     scheduleCriticalSaveAfterCooldown();
+    // 🔥 КРИТИЧНО: Зберігаємо в localStorage одразу, щоб після F5 не втратити level/exp
+    saveHeroToLocalStorageOnly(hero);
     return;
   }
   
