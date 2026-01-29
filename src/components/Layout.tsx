@@ -27,6 +27,7 @@ export default function Layout({
   hideFooterButtons = false,
 }: LayoutProps) {
   const [onlineCount, setOnlineCount] = useState<number>(0);
+  const [cooldownSec, setCooldownSec] = useState(0); // 🔥 Показуємо "Зачекайте X сек" при 429
   const logout = useAuthStore((s) => s.logout);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -128,8 +129,8 @@ export default function Layout({
         });
     };
 
-    // Відкладаємо завантаження для легких сторінок (більше часу для не критичних запитів)
-    const delay = isLightPage ? 2000 : 1000;
+    // 🔥 Відкладаємо перший online на 2–3 с, щоб не лавиною з loadHeroFromAPI (GET character)
+    const delay = isLightPage ? 2000 : 3000;
     const timeout = setTimeout(loadOnlineCount, delay);
     onlineTimeoutRef.current = timeout; // Зберігаємо для можливості ручного очищення
 
@@ -204,6 +205,15 @@ export default function Layout({
     };
   }, [isAuthenticated]); // 🔥 Мінімальні dependencies - тільки isAuthenticated, isLightPage стабільний через useMemo
 
+  // 🔥 Індикатор rate limit: оновлюємо кожну секунду, щоб показати "Зачекайте X сек"
+  useEffect(() => {
+    const t = setInterval(() => {
+      const ms = getRateLimitRemainingMs();
+      setCooldownSec(ms > 0 ? Math.ceil(ms / 1000) : 0);
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
   const handleSupport = () => {
     // TODO: Відкрити підтримку
     if (navigate) {
@@ -248,6 +258,11 @@ export default function Layout({
         }
       >
         {showStatusBars && <StatusBars />}
+        {cooldownSec > 0 && (
+          <div className="fixed top-14 left-0 right-0 z-50 bg-amber-900/95 text-amber-200 text-center text-xs py-1.5 px-2">
+            Забагато запитів. Зачекайте {cooldownSec} сек.
+          </div>
+        )}
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
         {/* <MobDamageNotification navigate={navigate} /> */}

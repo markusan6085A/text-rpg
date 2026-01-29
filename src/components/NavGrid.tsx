@@ -49,11 +49,13 @@ export default function NavGrid({ navigate }: NavGridProps) {
       }
     };
 
-    loadUnreadCount();
+    // 🔥 Відкладаємо перший запит на 3 с, щоб не лавиною з loadHeroFromAPI + online
+    const startTimeout = setTimeout(loadUnreadCount, 3000);
     const interval = setInterval(loadUnreadCount, 30000); // Оновлюємо кожні 30 секунд
     unreadIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
     
     return () => {
+      clearTimeout(startTimeout);
       clearInterval(interval);
       unreadIntervalRef.current = null;
     };
@@ -98,12 +100,14 @@ export default function NavGrid({ navigate }: NavGridProps) {
       }
     };
 
-    loadClanUnreadCount();
+    // 🔥 Відкладаємо перший запит на 4 с, щоб не лавиною з loadHeroFromAPI + online + unread
+    const clanStartTimeout = setTimeout(loadClanUnreadCount, 4000);
     // 🔥 ОПТИМІЗАЦІЯ: Зменшуємо частоту поллінгу з 30 секунд до 60 секунд
     const interval = setInterval(loadClanUnreadCount, 60000); // Оновлюємо кожні 60 секунд
     clanUnreadIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
     
     return () => {
+      clearTimeout(clanStartTimeout);
       clearInterval(interval);
       clanUnreadIntervalRef.current = null;
     };

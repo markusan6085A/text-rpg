@@ -1,5 +1,5 @@
 // Async function to load hero from API
-import { getCharacter, updateCharacter, sendHeartbeat } from "../../utils/api";
+import { getCharacter, updateCharacter } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
@@ -141,17 +141,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       }
     }
     
-    // 🔥 Оновлюємо активність при завантаженні героя (асинхронно, не блокуємо)
-    // 🔥 Пропускаємо heartbeat під час rate limit cooldown
-    if (character && getRateLimitRemainingMs() === 0) {
-      sendHeartbeat().catch((err: any) => {
-        if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
-          console.warn('[loadHeroFromAPI] Heartbeat failed (non-critical):', err?.message);
-        } else {
-          console.error('[loadHeroFromAPI] Failed to send heartbeat:', err);
-        }
-      });
-    }
+    // 🔥 НЕ славимо heartbeat тут — Layout вже славить через 5 с і кожні 2 хв. Менше запитів = менше 429.
     
     // Якщо character не отримано - повертаємо null (fallback на localStorage)
     if (!character) {
