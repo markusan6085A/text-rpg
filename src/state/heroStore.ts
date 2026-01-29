@@ -55,7 +55,7 @@ interface HeroState {
 // 🔥 Debouncing для збереження - щоб уникнути rate limiting
 let saveTimeout: NodeJS.Timeout | null = null;
 let pendingSave: Hero | null = null;
-const SAVE_DEBOUNCE_MS = 10000; // 🔥 ЗБІЛЬШЕНО: Зберігаємо через 10 секунд після останнього оновлення (було 2 секунди)
+const SAVE_DEBOUNCE_MS = 5000; // 🔥 5 с: менша затримка для не-критичних змін (було 10 с — «10 сек 1 лвл»)
 
 // 🔥 Захист від rate limit - якщо отримали 429, не зберігаємо деякий час
 let rateLimitUntil: number = 0;
@@ -329,7 +329,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
                              (partial as any).heroJson?.heroBuffs !== undefined;
 
     if (isCriticalChange) {
-      console.log('[heroStore] Critical change detected, saving immediately');
+      if (import.meta.env.DEV && ((partial as any).level !== undefined || (partial as any).exp !== undefined)) {
+        console.log('[heroStore] immediateSave (level/exp):', { level: updated.level, exp: updated.exp });
+      }
       immediateSave(updated);
     } else {
       debouncedSave(updated);

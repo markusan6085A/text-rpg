@@ -380,26 +380,43 @@ export function handleBaseAttack(
         // 🔥 Оновлюємо mobsKilled в heroJson (для відображення в профілі)
         const currentMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? (curHero as any).killedMobs ?? (curHero as any).totalKills ?? 0;
         const newMobsKilled = currentMobsKilled + 1;
-        
-        useHeroStore.getState().updateHero({
-          level,
-          exp,
-          sp: (curHero.sp ?? 0) + finalSpGain,
-          adena: (curHero.adena ?? 0) + finalAdenaGain,
-          dailyQuestsProgress: combinedProgress,
-          mobsKilled: newMobsKilled, // 🔥 Додаємо mobsKilled для збереження в heroJson
-        } as any);
 
-        const updatedHero = useHeroStore.getState().hero;
-        const updMaxHp = updatedHero?.maxHp ?? curHero.maxHp ?? curHero.hp ?? 0;
-        const updMaxCp = updatedHero?.maxCp ?? curHero.maxCp ?? curHero.cp ?? 0;
-        const updMaxMp = updatedHero?.maxMp ?? curHero.maxMp ?? curHero.mp ?? 0;
+        const updMaxHp = curHero.maxHp ?? curHero.hp ?? 0;
+        const updMaxCp = curHero.maxCp ?? curHero.cp ?? 0;
+        const updMaxMp = curHero.maxMp ?? curHero.mp ?? 0;
 
         if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
 
         heroHpAfter = leveled ? updMaxHp : heroHpAfter;
         heroCpAfter = leveled ? updMaxCp : heroCpAfter;
         heroMpAfter = leveled ? updMaxMp : heroMpAfter;
+
+        // 🔥 Один updateHero при перемозі з лутом: level/exp/hp/mp/cp/battleStats → лише immediateSave, без debounce (10 с затримка).
+        const heroWithNewHp = {
+          ...curHero,
+          level,
+          exp,
+          sp: (curHero.sp ?? 0) + finalSpGain,
+          adena: (curHero.adena ?? 0) + finalAdenaGain,
+          dailyQuestsProgress: combinedProgress,
+          mobsKilled: newMobsKilled,
+          hp: heroHpAfter,
+          mp: heroMpAfter,
+          cp: heroCpAfter,
+        };
+        const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
+        useHeroStore.getState().updateHero({
+          level,
+          exp,
+          sp: (curHero.sp ?? 0) + finalSpGain,
+          adena: (curHero.adena ?? 0) + finalAdenaGain,
+          dailyQuestsProgress: combinedProgress,
+          mobsKilled: newMobsKilled,
+          hp: heroHpAfter,
+          mp: heroMpAfter,
+          cp: heroCpAfter,
+          battleStats: recalculatedAfter.finalStats,
+        } as any);
       }
     }
 
@@ -410,24 +427,26 @@ export function handleBaseAttack(
     const attackSpeed = buffedStats?.attackSpeed ?? buffedStats?.atkSpeed ?? 0;
     const autoAttackInterval = isFishingZoneVictory ? 400 : calcAutoAttackInterval(attackSpeed);
     const nextAutoAttackAt = now + autoAttackInterval;
-    
-    // Перераховуємо стати після зміни HP (через level up або інші причини)
-    const heroAfterLevel = useHeroStore.getState().hero;
-    if (heroAfterLevel) {
-      const heroWithNewHp = { ...heroAfterLevel, hp: heroHpAfter };
-      const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
-      updateHero({ 
-        hp: heroHpAfter, 
-        mp: heroMpAfter, 
-        cp: heroCpAfter,
-        battleStats: recalculatedAfter.finalStats 
-      });
-    } else {
-      updateHero({ 
-        hp: heroHpAfter, 
-        mp: heroMpAfter, 
-        cp: heroCpAfter,
-      });
+
+    // Перераховуємо стати та оновлюємо hero тільки якщо не було луту (лут вже оновлено вище одним updateHero)
+    if (!(adenaGain || expGain || spGain) || !curHero) {
+      const heroAfterLevel = useHeroStore.getState().hero;
+      if (heroAfterLevel) {
+        const heroWithNewHp = { ...heroAfterLevel, hp: heroHpAfter };
+        const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
+        updateHero({
+          hp: heroHpAfter,
+          mp: heroMpAfter,
+          cp: heroCpAfter,
+          battleStats: recalculatedAfter.finalStats,
+        });
+      } else {
+        updateHero({
+          hp: heroHpAfter,
+          mp: heroMpAfter,
+          cp: heroCpAfter,
+        });
+      }
     }
     
     const lootMessages: (string | null)[] = [
