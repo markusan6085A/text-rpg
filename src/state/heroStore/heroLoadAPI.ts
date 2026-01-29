@@ -11,6 +11,7 @@ import type { Hero } from "../../types/Hero";
 import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBackup } from "./syncPolicy";
 import { loadHero } from "./heroLoad";
 import { hydrateHero } from "./heroHydration";
+import { getRateLimitRemainingMs } from "../heroStore";
 
 // 🔥 ВИДАЛЕНО: window.__lastServerExp та глобальні змінні
 // Тепер використовуємо serverState з heroStore
@@ -34,7 +35,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // Load character from API
     console.log('[loadHeroFromAPI] Fetching character from API...');
-    const character = await getCharacter(characterStore.characterId);
+    let character;
+    try {
+      character = await getCharacter(characterStore.characterId);
+    } catch (apiErr: any) {
+      // 🔥 При 429 сервер не приймає запити — використовуємо локальну версію, щоб після F5 не відкатилось
+      if (apiErr?.status === 429 || apiErr?.message?.includes?.('rate_limit')) {
+        console.warn('[loadHeroFromAPI] Rate limit on GET character, using local hero to avoid rollback');
+        if (hydratedLocalHero) return hydratedLocalHero;
+        return localHero ? hydrateHero(localHero) : null;
+      }
+      throw apiErr;
+    }
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
     // 🔥 Правило 1: Перевіряємо, чи локальна версія має новіші дані (skills/mobsKilled/exp/level)
@@ -88,8 +100,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     }
     
     // 🔥 Оновлюємо активність при завантаженні героя (асинхронно, не блокуємо)
-    // 🔥 Ігноруємо помилки heartbeat - вони не критичні (можливо міграція не виконана)
-    if (character) {
+    // 🔥 Пропускаємо heartbeat під час rate limit cooldown
+    if (character && getRateLimitRemainingMs() === 0) {
       sendHeartbeat().catch((err: any) => {
         if (err?.status === 400 || err?.status === 404 || err?.status === 500) {
           console.warn('[loadHeroFromAPI] Heartbeat failed (non-critical):', err?.message);
@@ -170,23 +182,22 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         ? heroJsonExp
         : Number(character.exp);
       
+      // 🔥 КРИТИЧНО: Не посилатися на fixedHero до його ініціалізації (ReferenceError якщо heroData.skills порожні)
+      const serverSkillsArr = Array.isArray((heroData as any).skills) ? (heroData as any).skills : [];
+      
       fixedHero = fixHeroProfession({
         ...heroData,
-        // Override with character data (these are the source of truth)
-        // 🔥 КРИТИЧНО: Використовуємо більше значення рівня та exp, щоб не втратити прогрес
         level: finalLevel,
-        exp: finalExp, // Convert BigInt to number
+        exp: finalExp,
         sp: character.sp,
         adena: character.adena,
         coinOfLuck: character.coinLuck,
         aa: character.aa || 0,
-        // Ensure required fields
         name: character.name,
         race: character.race,
         klass: character.classId,
         gender: character.sex,
-        // 🔥 Схема A: hero.skills, hero.mobsKilled - офіційні поля
-        skills: (heroData as any).skills || fixedHero.skills || [],
+        skills: serverSkillsArr,
         mobsKilled: finalMobsKilled as any,
       } as Hero);
     }

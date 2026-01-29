@@ -158,6 +158,11 @@ async function apiRequest<T>(
       const errorWithStatus = new Error(error.error || `HTTP ${response.status}`) as any;
       errorWithStatus.status = response.status;
       errorWithStatus.details = (error as any).details || (error as any).errors;
+      // 🔥 429: передаємо retryAfter (секунди), щоб клієнт не славив запити до reset
+      if (response.status === 429) {
+        const retryAfter = Number((error as any).retryAfter);
+        errorWithStatus.retryAfter = Number.isFinite(retryAfter) ? retryAfter : 60;
+      }
       throw errorWithStatus;
     }
 

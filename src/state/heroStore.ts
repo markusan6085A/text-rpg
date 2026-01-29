@@ -73,6 +73,12 @@ export function setRateLimitCooldown(durationMs: number = RATE_LIMIT_COOLDOWN_MS
   }
 }
 
+// 🔥 Скільки ще мс до кінця cooldown (0 якщо не активний). Layout/heartbeat пропускають запити поки > 0
+export function getRateLimitRemainingMs(): number {
+  const now = Date.now();
+  return rateLimitUntil > now ? rateLimitUntil - now : 0;
+}
+
 // 🔥 Плануємо збереження критичної зміни після закінчення cooldown
 function scheduleCriticalSaveAfterCooldown() {
   if (criticalSaveTimeout) {

@@ -5,6 +5,7 @@ import SummonStatus from "./SummonStatus";
 // 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно
 // import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
+import { getRateLimitRemainingMs } from "../state/heroStore";
 import { getOnlinePlayers, sendHeartbeat } from "../utils/api";
 import { useBattleStore } from "../state/battle/store";
 
@@ -163,6 +164,8 @@ export default function Layout({
     }
 
     const sendHeartbeatInterval = () => {
+      // 🔥 Під час rate limit cooldown не славимо heartbeat, щоб не витрачати ліміт на збереження
+      if (getRateLimitRemainingMs() > 0) return;
       // ❗ Fire-and-forget: не await, не блокує UI
       sendHeartbeat()
         .then(() => {

@@ -16,6 +16,19 @@ const MAX_RETRIES = 1; // Максимум 1 автоматичний retry пр
 // 🔥 ВИДАЛЕНО: Глобальні змінні lastServerExp/lastServerLevel та window.__lastServerExp
 // Тепер використовуємо serverState з heroStore
 
+// 🔥 КРИТИЧНО: У всіх backup у localStorage heroJson має містити exp/level/sp/skills/mobsKilled
+// щоб при local-first / порівнянні не було відкату через старі значення
+function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
+  const mobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
+  return {
+    exp: hero.exp ?? 0,
+    level: hero.level ?? 1,
+    sp: hero.sp ?? 0,
+    skills: Array.isArray(hero.skills) ? hero.skills : [],
+    mobsKilled,
+  };
+}
+
 // 🔥 Зберігаємо героя ТІЛЬКИ в localStorage (без API). Використовується при rate limit queue.
 export function saveHeroToLocalStorageOnly(hero: Hero): void {
   if (!hero || !hero.name) return;
@@ -26,7 +39,8 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const accounts = getJSON<any[]>("l2_accounts_v2", []);
   const accIndex = accounts.findIndex((a: any) => a.username === current);
   if (accIndex === -1) return;
-  accounts[accIndex].hero = hydrated;
+  const heroJson = { ...((hydrated as any).heroJson || {}), ...buildBackupHeroJson(hydrated) };
+  accounts[accIndex].hero = { ...hydrated, heroJson };
   setJSON("l2_accounts_v2", accounts);
   console.log('[saveHeroToLocalStorageOnly] Saved hero to localStorage (level:', hydrated.level, 'exp:', hydrated.exp, ')');
 }
@@ -349,33 +363,27 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const accounts = getJSON<any[]>("l2_accounts_v2", []);
       const accIndex = accounts.findIndex((a: any) => a.username === current);
       if (accIndex !== -1) {
-        // Додаємо lastSavedAt для синхронізації
-        // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, тому додаємо його
-        const mobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
-          // 🔥 Додаємо mobsKilled в heroJson для збереження в localStorage
-          heroJson: {
-            ...((hero as any).heroJson || {}),
-            mobsKilled: mobsKilled,
-          },
+          heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
         };
         accounts[accIndex].hero = heroWithTimestamp;
         setJSON("l2_accounts_v2", accounts);
-        console.log('[saveHeroToLocalStorage] Also saved to localStorage as backup, mobsKilled:', mobsKilled);
+        console.log('[saveHeroToLocalStorage] Also saved to localStorage as backup');
       }
     }
   } catch (error: any) {
     // 🔥 Обробка rate limiting (429 Too Many Requests)
     if (error?.status === 429 || (error?.message && (error.message.includes('rate_limit') || error.message.includes('Too Many Requests')))) {
-      console.warn('[saveHeroToLocalStorage] Rate limit exceeded, saving to localStorage and will retry later');
+      const retrySec = Number((error as any).retryAfter);
+      const cooldownMs = (Number.isFinite(retrySec) && retrySec > 0 ? retrySec : 60) * 1000;
+      console.warn('[saveHeroToLocalStorage] Rate limit exceeded, saving to localStorage, cooldown', Math.ceil(cooldownMs / 1000), 's');
       
-      // 🔥 КРИТИЧНО: Повідомляємо heroStore про rate limit для встановлення cooldown
-      // Це запобігає подальшим спробам збереження протягом cooldown періоду
+      // 🔥 КРИТИЧНО: Використовуємо retryAfter з відповіді сервера
       try {
         const { setRateLimitCooldown } = await import('../heroStore');
-        setRateLimitCooldown(60000); // 60 секунд cooldown
+        setRateLimitCooldown(cooldownMs);
       } catch (e) {
         console.error('[saveHeroToLocalStorage] Failed to set rate limit cooldown:', e);
       }
@@ -386,19 +394,15 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
         const accIndex = accounts.findIndex((a: any) => a.username === current);
         if (accIndex !== -1) {
-          const mobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
           const heroWithTimestamp = {
             ...hero,
             lastSavedAt: Date.now(),
-            _rateLimitBackup: true, // Позначаємо як backup через rate limit
-            heroJson: {
-              ...((hero as any).heroJson || {}),
-              mobsKilled: mobsKilled,
-            },
+            _rateLimitBackup: true,
+            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
           };
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
-          console.log('[saveHeroToLocalStorage] Saved to localStorage due to rate limit, mobsKilled:', mobsKilled);
+          console.log('[saveHeroToLocalStorage] Saved to localStorage due to rate limit');
         }
       }
       
@@ -570,18 +574,17 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // Якщо retry не вдався або досягнуто максимум - зберігаємо локальну версію як backup
       console.warn('[saveHeroToLocalStorage] Revision conflict - saving to localStorage as backup');
       
-      // Якщо перезавантаження не вдалося - зберігаємо локальну версію як backup
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
         const accIndex = accounts.findIndex((a: any) => a.username === current);
         if (accIndex !== -1) {
-          // Зберігаємо локальну версію як backup перед заміною
           const heroWithTimestamp = {
             ...hero,
             lastSavedAt: Date.now(),
-            _conflictBackup: true, // Позначаємо як backup через конфлікт
+            _conflictBackup: true,
             _conflictServerState: error.details?.serverState || null,
+            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
           };
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
@@ -603,10 +606,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const accounts = getJSON<any[]>("l2_accounts_v2", []);
       const accIndex = accounts.findIndex((a: any) => a.username === current);
       if (accIndex !== -1) {
-        // Додаємо lastSavedAt для синхронізації
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
+          heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
         };
         accounts[accIndex].hero = heroWithTimestamp;
         setJSON("l2_accounts_v2", accounts);
