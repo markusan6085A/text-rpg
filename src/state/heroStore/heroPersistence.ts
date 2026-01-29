@@ -198,6 +198,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     }
     
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
+    // 🔥 КРИТИЧНО: inventory та equipment завжди беремо з hero, щоб стартовий набір не пропадав
     const heroJsonToSave = {
       ...existingHeroJson, // 🔥 КРИТИЧНО: Зберігаємо всі існуючі поля з heroJson
       
@@ -218,6 +219,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       mobsKilled: Number(currentMobsKilled),
       skills: Array.isArray(hero.skills) ? hero.skills : (Array.isArray(existingHeroJson.skills) ? existingHeroJson.skills : []),
       heroBuffs: Array.isArray(uniqueBuffs) ? uniqueBuffs : [],
+      
+      // 🔥 КРИТИЧНО: Завжди зберігаємо inventory та equipment з hero (не лишаємо тільки з existingHeroJson)
+      // Інакше стартовий набір може зникнути, якщо сервер колись повернув порожній heroJson
+      inventory: Array.isArray(hero.inventory) ? hero.inventory : (Array.isArray(existingHeroJson.inventory) ? existingHeroJson.inventory : []),
+      equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : (existingHeroJson.equipment && typeof existingHeroJson.equipment === 'object' ? existingHeroJson.equipment : {}),
+      ...(hero.equipmentEnchantLevels && Object.keys(hero.equipmentEnchantLevels).length > 0 ? { equipmentEnchantLevels: hero.equipmentEnchantLevels } : {}),
     };
     
     // Логуємо для діагностики
