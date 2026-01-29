@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 
 interface OnlinePlayersProps {
@@ -18,6 +18,7 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
 
   // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функції
   const loadOnlinePlayers = React.useCallback(async () => {
+    if (getRateLimitRemainingMs() > 0) return;
     setLoading(true);
     setError(null);
     

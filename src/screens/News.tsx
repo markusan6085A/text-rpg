@@ -3,7 +3,7 @@ import { getNews, type NewsItem } from "../utils/api";
 import { getGameTimeTag } from "../utils/news";
 import { itemsDB } from "../data/items/itemsDB";
 import { getNickColorStyle } from "../utils/nickColor";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 
 type Route =
@@ -101,6 +101,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
 
   useEffect(() => {
     const loadNews = async () => {
+      if (getRateLimitRemainingMs() > 0) return;
       try {
         const data = await getNews();
         setItems(data.news || []);

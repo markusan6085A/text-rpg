@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getUnreadCount, getMyClan, getClanChat } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
+import { getRateLimitRemainingMs } from "../state/heroStore";
 
 interface NavGridProps {
   navigate?: (path: string) => void;
@@ -38,6 +39,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
     }
 
     const loadUnreadCount = async () => {
+      if (getRateLimitRemainingMs() > 0) return;
       try {
         const data = await getUnreadCount();
         setUnreadCount(data.unreadCount || 0);
@@ -69,6 +71,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
     }
 
     const loadClanUnreadCount = async () => {
+      if (getRateLimitRemainingMs() > 0) return;
       try {
         const myClanResponse = await getMyClan();
         if (myClanResponse.ok && myClanResponse.clan) {

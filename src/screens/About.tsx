@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getOnlinePlayers, updateCharacter } from "../utils/api";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 
 type Navigate = (p: string) => void;
@@ -16,6 +16,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
 
   useEffect(() => {
     const loadOnlineCount = async () => {
+      if (getRateLimitRemainingMs() > 0) return;
       try {
         const data = await getOnlinePlayers();
         const count = data.count ?? data.players?.length ?? 0;

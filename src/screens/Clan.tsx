@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import {
   getClan,
   deleteClan,
@@ -66,6 +66,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функцій
   const loadChatMessages = useCallback(async () => {
     if (!clan) return;
+    if (getRateLimitRemainingMs() > 0) return;
 
     try {
       const response = await getClanChat(clan.id, chatPage, 10);

@@ -7,7 +7,7 @@ import {
   getUnreadCount,
   type Letter,
 } from "../utils/api";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
@@ -53,6 +53,7 @@ export default function Mail({ navigate }: MailProps) {
   const heroId = hero?.id;
 
   const loadLetters = async () => {
+    if (getRateLimitRemainingMs() > 0) return;
     const isInitialLoad = letters.length === 0;
     if (isInitialLoad) {
       setLoading(true);
@@ -109,6 +110,7 @@ export default function Mail({ navigate }: MailProps) {
   useEffect(() => {
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
     const interval = setInterval(async () => {
+      if (getRateLimitRemainingMs() > 0) return;
       try {
         const data = await getOnlinePlayers();
         const onlineIds = new Set(data.players?.map((p: any) => p.id) || []);

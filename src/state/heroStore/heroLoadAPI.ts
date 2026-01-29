@@ -28,6 +28,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     return null;
   }
 
+  // 🔥 Правило №1: під час rate limit cooldown НЕ робимо GET — одразу повертаємо локального героя
+  if (getRateLimitRemainingMs() > 0) {
+    const localHero = loadHero();
+    const hydrated = hydrateHero(localHero);
+    if (hydrated) {
+      console.warn('[loadHeroFromAPI] Cooldown active, returning local hero without GET');
+      return hydrated;
+    }
+    return localHero ? hydrateHero(localHero) : null;
+  }
+
   try {
     // 🔥 Правило 1: Local-first старт - завантажуємо локальну версію спочатку
     const localHero = loadHero();

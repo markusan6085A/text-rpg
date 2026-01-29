@@ -156,15 +156,21 @@ function AppInner() {
                   try {
                     const loadedHero = await loadHeroFromAPI();
                     if (loadedHero && alive) {
-                      // 🔥 Залізобетон: ніколи не перезаписувати store серверним героєм, якщо в localStorage є більший прогрес (відкати після F5)
+                      // 🔥 Залізобетон: ніколи не перезаписувати store серверним героєм, якщо в localStorage є той самий або більший прогрес (відкати після F5)
+                      // При рівному прогресі беремо локального — щоб не перезаписати бафи/адена серверною (застарілою) версією
                       const localHero = getHeroFromLocalStorage();
                       const le = Number((localHero as any)?.exp ?? (localHero as any)?.heroJson?.exp ?? 0);
                       const ll = Number((localHero as any)?.level ?? (localHero as any)?.heroJson?.level ?? 0);
                       const ls = Number((localHero as any)?.sp ?? (localHero as any)?.heroJson?.sp ?? 0);
                       const la = Number((localHero as any)?.adena ?? (localHero as any)?.heroJson?.adena ?? 0);
                       const lm = Number((localHero as any)?.mobsKilled ?? (localHero as any)?.heroJson?.mobsKilled ?? 0);
-                      const moreLocal = localHero && (le > Number(loadedHero.exp ?? 0) || ll > Number(loadedHero.level ?? 0) || ls > Number((loadedHero as any).sp ?? 0) || la > Number(loadedHero.adena ?? 0) || lm > Number((loadedHero as any).mobsKilled ?? 0));
-                      setHero(moreLocal ? (hydrateHero(localHero) ?? loadedHero) : loadedHero);
+                      const re = Number(loadedHero.exp ?? 0);
+                      const rl = Number(loadedHero.level ?? 0);
+                      const rs = Number((loadedHero as any).sp ?? 0);
+                      const ra = Number(loadedHero.adena ?? 0);
+                      const rm = Number((loadedHero as any).mobsKilled ?? 0);
+                      const localBetterOrEqual = localHero && (le > re || ll > rl || ls > rs || la > ra || lm > rm || (le >= re && ll >= rl && ls >= rs && la >= ra && lm >= rm));
+                      setHero(localBetterOrEqual ? (hydrateHero(localHero) ?? loadedHero) : loadedHero);
                     } else if (alive) {
                       loadHero();
                     }
@@ -195,17 +201,23 @@ function AppInner() {
           try {
             const loadedHero = await loadHeroFromAPI();
             if (loadedHero && alive) {
-              // 🔥 Залізобетон: ніколи не перезаписувати store серверним героєм, якщо в localStorage є більший прогрес (відкати після F5)
+              // 🔥 Залізобетон: ніколи не перезаписувати store серверним героєм, якщо в localStorage є той самий або більший прогрес (відкати після F5)
+              // При рівному прогресі беремо локального — щоб не перезаписати бафи/адена серверною (застарілою) версією
               const localHero = getHeroFromLocalStorage();
               const le = Number((localHero as any)?.exp ?? (localHero as any)?.heroJson?.exp ?? 0);
               const ll = Number((localHero as any)?.level ?? (localHero as any)?.heroJson?.level ?? 0);
               const ls = Number((localHero as any)?.sp ?? (localHero as any)?.heroJson?.sp ?? 0);
               const la = Number((localHero as any)?.adena ?? (localHero as any)?.heroJson?.adena ?? 0);
               const lm = Number((localHero as any)?.mobsKilled ?? (localHero as any)?.heroJson?.mobsKilled ?? 0);
-              const moreLocal = localHero && (le > Number(loadedHero.exp ?? 0) || ll > Number(loadedHero.level ?? 0) || ls > Number((loadedHero as any).sp ?? 0) || la > Number(loadedHero.adena ?? 0) || lm > Number((loadedHero as any).mobsKilled ?? 0));
-              setHero(moreLocal ? (hydrateHero(localHero) ?? loadedHero) : loadedHero);
+              const re = Number(loadedHero.exp ?? 0);
+              const rl = Number(loadedHero.level ?? 0);
+              const rs = Number((loadedHero as any).sp ?? 0);
+              const ra = Number(loadedHero.adena ?? 0);
+              const rm = Number((loadedHero as any).mobsKilled ?? 0);
+              const localBetterOrEqual = localHero && (le > re || ll > rl || ls > rs || la > ra || lm > rm || (le >= re && ll >= rl && ls >= rs && la >= ra && lm >= rm));
+              setHero(localBetterOrEqual ? (hydrateHero(localHero) ?? loadedHero) : loadedHero);
               if (import.meta.env.DEV) {
-                console.log('[App] Hero set in store:', moreLocal ? 'local (more progress)' : 'from API');
+                console.log('[App] Hero set in store:', localBetterOrEqual ? 'local (better or equal)' : 'from API');
               }
             } else if (alive) {
               if (import.meta.env.DEV) {

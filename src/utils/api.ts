@@ -158,10 +158,15 @@ async function apiRequest<T>(
       const errorWithStatus = new Error(error.error || `HTTP ${response.status}`) as any;
       errorWithStatus.status = response.status;
       errorWithStatus.details = (error as any).details || (error as any).errors;
-      // 🔥 429: передаємо retryAfter (секунди), щоб клієнт не славив запити до reset
+      // 🔥 429: центрально врубаємо глобальний cooldown — будь-який 429 зупиняє всі запити (GET/heartbeat/polling/PUT)
       if (response.status === 429) {
         const retryAfter = Number((error as any).retryAfter);
-        errorWithStatus.retryAfter = Number.isFinite(retryAfter) ? retryAfter : 60;
+        const sec = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 60;
+        try {
+          const mod = await import('../state/heroStore');
+          mod.setRateLimitCooldown(sec * 1000);
+        } catch (_) {}
+        errorWithStatus.retryAfter = sec;
       }
       throw errorWithStatus;
     }

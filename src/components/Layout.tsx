@@ -102,6 +102,7 @@ export default function Layout({
     }
 
     const loadOnlineCount = () => {
+      if (getRateLimitRemainingMs() > 0) return; // 🔥 Під час cooldown не славимо запити
       // ❗ Fire-and-forget: не await, не блокує UI
       getOnlinePlayers()
         .then((data) => {

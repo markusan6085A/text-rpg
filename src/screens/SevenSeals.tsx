@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getSevenSealsRanking } from "../utils/api";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
 
 interface SevenSealsProps {
@@ -24,6 +24,7 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
 
   useEffect(() => {
     const loadRanking = async () => {
+      if (getRateLimitRemainingMs() > 0) return;
       setLoading(true);
       try {
         const data = await getSevenSealsRanking();

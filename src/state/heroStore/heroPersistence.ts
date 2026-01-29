@@ -27,7 +27,7 @@ const MAX_RETRIES = 1; // Максимум 1 автоматичний retry пр
 // 🔥 ВИДАЛЕНО: Глобальні змінні lastServerExp/lastServerLevel та window.__lastServerExp
 // Тепер використовуємо serverState з heroStore
 
-// 🔥 КРИТИЧНО: У всіх backup у localStorage heroJson має містити exp/level/sp/skills/mobsKilled
+// 🔥 КРИТИЧНО: У всіх backup у localStorage heroJson має містити exp/level/sp/skills/mobsKilled/adena
 // щоб при local-first / порівнянні не було відкату через старі значення
 function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
   const mobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
@@ -35,6 +35,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     exp: hero.exp ?? 0,
     level: hero.level ?? 1,
     sp: hero.sp ?? 0,
+    adena: hero.adena ?? (hero as any).heroJson?.adena ?? 0,
     skills: Array.isArray(hero.skills) ? hero.skills : [],
     mobsKilled,
   };
@@ -51,10 +52,21 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const accounts = getJSON<any[]>("l2_accounts_v2", []);
   const accIndex = accounts.findIndex((a: any) => a.username === current);
   if (accIndex === -1) return;
-  const heroJson = { ...((hydrated as any).heroJson || {}), ...buildBackupHeroJson(hydrated) };
+  const existingJson = (hydrated as any).heroJson || {};
+  const battleState = loadBattle(hydrated.name);
+  const battleBuffs = Array.isArray(battleState?.heroBuffs) ? battleState.heroBuffs : [];
+  const jsonBuffs = Array.isArray(existingJson.heroBuffs) ? existingJson.heroBuffs : [];
+  const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
+    arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
+  );
+  const heroJson = {
+    ...existingJson,
+    ...buildBackupHeroJson(hydrated),
+    heroBuffs: mergedBuffs.length ? mergedBuffs : (existingJson.heroBuffs ?? []),
+  };
   accounts[accIndex].hero = { ...hydrated, heroJson };
   setJSON("l2_accounts_v2", accounts);
-  console.log('[saveHeroToLocalStorageOnly] Saved hero to localStorage (level:', hydrated.level, 'exp:', hydrated.exp, ')');
+  console.log('[saveHeroToLocalStorageOnly] Saved hero to localStorage (level:', hydrated.level, 'exp:', hydrated.exp, 'buffs:', mergedBuffs.length, ')');
 }
 
 // Try to save via API, fallback to localStorage if not authenticated
