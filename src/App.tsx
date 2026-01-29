@@ -44,7 +44,7 @@ import ClanInfo from "./screens/ClanInfo";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
-import { getJSON, setJSON } from "./state/persistence";
+import { setJSON } from "./state/persistence";
 import { useAuthStore } from "./state/authStore";
 import { useCharacterStore } from "./state/characterStore";
 import { loadHeroFromAPI } from "./state/heroStore/heroLoadAPI";
@@ -189,20 +189,8 @@ function AppInner() {
               if (import.meta.env.DEV) {
                 console.log('[App] Hero set in store successfully from API');
               }
-              
-              // ❗ ВАЖЛИВО: Також зберігаємо завантажений hero в localStorage як backup
-              const current = getJSON<string | null>("l2_current_user", null);
-              if (current && loadedHero) {
-                const accounts = getJSON<any[]>("l2_accounts_v2", []);
-                const accIndex = accounts.findIndex((a: any) => a.username === current);
-                if (accIndex !== -1) {
-                  accounts[accIndex].hero = loadedHero;
-                  setJSON("l2_accounts_v2", accounts);
-                  if (import.meta.env.DEV) {
-                    console.log('[App] Hero also saved to localStorage as backup');
-                  }
-                }
-              }
+              // 🔥 КРИТИЧНО: НЕ перезаписуємо localStorage героєм з API! Це знищувало локальний прогрес
+              // (бафи, адена, exp, level) після F5. Запис у localStorage тільки в heroPersistence при збереженні.
             } else if (alive) {
               if (import.meta.env.DEV) {
                 console.log('[App] Hero is null from API, fallback to localStorage');

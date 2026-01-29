@@ -49,8 +49,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     }
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
-    // 🔥 Правило 1: Перевіряємо, чи локальна версія має новіші дані (skills/mobsKilled/exp/level)
-    // Якщо так - не перетираємо локальні зміни (щоб після F5 не втратити level up)
+    // 🔥 Єдина логіка: якщо локальна версія має більше прогресy в БУДЬ-ЯКОМУ полі — беремо локаль
+    // (exp, level, sp, adena, skills, mobsKilled). Інакше після F5 відкат бафів/адени/сп.
     if (character && hydratedLocalHero) {
       const heroData = character.heroJson as any;
       const serverSkills = Array.isArray(heroData?.skills) ? heroData.skills.length : 0;
@@ -61,16 +61,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const localExp = hydratedLocalHero.exp ?? 0;
       const serverLevel = character.level ?? heroData?.level ?? 1;
       const localLevel = hydratedLocalHero.level ?? 1;
+      const serverSp = Number(character.sp ?? heroData?.sp ?? 0);
+      const localSp = hydratedLocalHero.sp ?? 0;
+      const serverAdena = Number(character.adena ?? heroData?.adena ?? 0);
+      const localAdena = hydratedLocalHero.adena ?? 0;
       
-      // 🔥 КРИТИЧНО: Якщо локальна версія має більше exp/level/skills/mobsKilled - не перетираємо
       const localHasMoreProgress =
         localExp > serverExp ||
         localLevel > serverLevel ||
+        localSp > serverSp ||
+        localAdena > serverAdena ||
         localSkills > serverSkills ||
         localMobsKilled > serverMobsKilled;
       
       if (localHasMoreProgress) {
-        console.warn('[loadHeroFromAPI] Local version has more progress (local level:', localLevel, 'exp:', localExp, 'server level:', serverLevel, 'exp:', serverExp, 'skills:', localSkills, '/', serverSkills, 'mobs:', localMobsKilled, '/', serverMobsKilled, '), keeping local version');
+        console.warn('[loadHeroFromAPI] Local has more progress, keeping local (level/exp/sp/adena/skills/mobs):', { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkills, serverSkills, localMobsKilled, serverMobsKilled });
         // Використовуємо локальну версію і одразу пушимо на сервер у фоні
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
           saveHeroToLocalStorage(hydratedLocalHero).catch((err: any) => {

@@ -73,12 +73,14 @@ export function loadHero(): Hero | null {
         }
       }
       
-      // 🔥 Схема A: hero.mobsKilled, hero.skills - офіційні поля
-      // Читаємо з heroJson (для міграції), але встановлюємо на верхній рівень hero
+      // 🔥 Єдина схема: exp/level/sp/skills/mobsKilled — з heroJson або верхнього рівня hero
       const heroJson = (fixedHero as any).heroJson || {};
       const mobsKilled = heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? (fixedHero as any).mobsKilled ?? 0;
       const skills = Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : (Array.isArray(fixedHero.skills) ? fixedHero.skills : []);
-      
+      if (heroJson.exp !== undefined && heroJson.exp !== null) fixedHero.exp = Number(heroJson.exp);
+      if (heroJson.level !== undefined && heroJson.level !== null) fixedHero.level = Number(heroJson.level);
+      if (heroJson.sp !== undefined && heroJson.sp !== null) fixedHero.sp = Number(heroJson.sp);
+      if (heroJson.adena !== undefined && heroJson.adena !== null) fixedHero.adena = Number(heroJson.adena);
       (fixedHero as any).mobsKilled = mobsKilled;
       fixedHero.skills = skills;
       
