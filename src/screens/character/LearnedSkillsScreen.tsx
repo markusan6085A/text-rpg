@@ -1,6 +1,6 @@
 import React from "react";
 import { useHeroStore } from "../../state/heroStore";
-import { getSkillsForProfession, normalizeProfessionId, getProfessionDefinition } from "../../data/skills";
+import { getSkillsForProfession, normalizeProfessionId, getProfessionDefinition, getDefaultProfessionForKlass } from "../../data/skills";
 import { getSkillDef } from "../../state/battle/loadout";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { AdditionalSkills } from "../../data/skills/additional";
@@ -29,7 +29,8 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
     updateHero({ profession: fixedHero.profession });
   }
 
-  const normalizedProfession = normalizeProfessionId(fixedHero.profession || "");
+  const effectiveProfession = fixedHero.profession || getDefaultProfessionForKlass(fixedHero.klass, fixedHero.race);
+  const normalizedProfession = normalizeProfessionId(effectiveProfession || "");
   const allSkillsForProfession = getSkillsForProfession(normalizedProfession);
   const learnedSkills = Array.isArray(hero.skills) ? hero.skills : [];
   

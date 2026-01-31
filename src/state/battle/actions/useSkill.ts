@@ -5,7 +5,7 @@ import {
   computeBuffedMaxResources,
 } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
-import { BASE_ATTACK, getSkillDef } from "../loadout";
+import { BASE_ATTACK, getSkillDef, getSkillDefForBattle } from "../loadout";
 import type { BattleState } from "../types";
 import { checkSkillConditions } from "../../../utils/stats/applyPassiveSkills";
 import { canAttackWithBow, isBowEquipped } from "./useSkill/arrowHelpers";
@@ -131,7 +131,7 @@ export const createUseSkill =
     const learned = (hero.skills || []).find((s: any) => s.id === skillId);
     if (!learned) return;
 
-    const def = getSkillDef(skillId);
+    const def = getSkillDefForBattle(hero.profession, hero.klass, hero.race, skillId) ?? getSkillDef(skillId);
     if (!def) return;
     // 🔍 ДІАГНОСТИКА: що реально приходить при касті (для "всі як toggle")
     if (import.meta.env.DEV && (def.category === "buff" || def.category === "toggle")) {

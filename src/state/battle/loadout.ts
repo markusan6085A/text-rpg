@@ -1,4 +1,4 @@
-import { allSkills } from "../../data/skills";
+import { allSkills, getSkillDefForProfession, getDefaultProfessionForKlass } from "../../data/skills";
 import { getJSON, setJSON } from "../persistence";
 
 export const BASE_ATTACK_ID = 0;
@@ -57,4 +57,17 @@ export const getSkillDef = (id: number) => {
     console.log(`[getSkillDef] ✅ Знайдено додатковий скіл: ${found.name} (ID: ${id}, code: ${found.code})`);
   }
   return { ...found, toggle: normalizeToggle(found) };
+};
+
+/** Отримує скіл для бою з урахуванням професії — Prophet має buff, OrcShaman toggle для того ж ID */
+export const getSkillDefForBattle = (
+  profession: string | null,
+  klass: string | undefined,
+  race: string | undefined,
+  skillId: number
+) => {
+  const effectiveProfession = profession || getDefaultProfessionForKlass(klass || "", race);
+  const def = getSkillDefForProfession(effectiveProfession, skillId) ?? getSkillDef(skillId);
+  if (!def) return undefined;
+  return { ...def, toggle: normalizeToggle(def) };
 };

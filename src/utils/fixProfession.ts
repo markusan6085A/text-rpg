@@ -1,6 +1,7 @@
 // Утиліта для автоматичного виправлення професій героїв
 // Використовується при завантаженні героя
 import { getJSON, setJSON } from "../state/persistence";
+import { getDefaultProfessionForKlass } from "../data/skills";
 
 export function fixHeroProfession(hero: any): any {
   if (!hero) return hero;
@@ -80,22 +81,14 @@ export function fixHeroProfession(hero: any): any {
     }
   }
 
-  // Якщо професія відсутня, встановлюємо ТІЛЬКИ базову (не за рівнем!)
-  if (!hero.profession) {
-    if (isDarkElf && isMystic) {
-      const correctProfession = "dark_mystic_base";
-      console.log(`[fixProfession] Встановлюю відсутню базову професію для ${hero.name || "героя"}:`, correctProfession);
+  // Якщо професія відсутня — виводимо з klass/race
+  if (!hero.profession || String(hero.profession).trim() === "") {
+    const defaultProf = getDefaultProfessionForKlass(hero.klass || "", hero.race);
+    if (defaultProf) {
+      console.log(`[fixProfession] Встановлюю базову професію для ${hero.name || "героя"}:`, defaultProf, "(klass:", hero.klass, "race:", hero.race, ")");
       return {
         ...hero,
-        profession: correctProfession,
-      };
-    }
-    if (isDwarf && isFighter) {
-      const correctProfession = "dwarven_fighter";
-      console.log(`[fixProfession] Встановлюю відсутню базову професію для ${hero.name || "героя"}:`, correctProfession);
-      return {
-        ...hero,
-        profession: correctProfession,
+        profession: defaultProf,
       };
     }
   }
