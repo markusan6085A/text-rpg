@@ -129,8 +129,8 @@ export default function Layout({
         });
     };
 
-    // 🔥 Перші 15 с — тільки GET character. Online/heartbeat/unread не славимо, щоб PUT (скіл/баф/моб) не отримав 429
-    const delay = isLightPage ? 5000 : 15000;
+    // 🔥 Перші 5–8 с — тільки GET character. Online/heartbeat/unread не славимо, щоб PUT не отримав 429
+    const delay = isLightPage ? 3000 : 8000;
     const timeout = setTimeout(loadOnlineCount, delay);
     onlineTimeoutRef.current = timeout; // Зберігаємо для можливості ручного очищення
 
@@ -189,8 +189,8 @@ export default function Layout({
         });
     };
 
-    // 🔥 Перший heartbeat через 20 с, щоб не спалити ліміт до PUT (скіл/баф/моб)
-    const timeout = setTimeout(sendHeartbeatInterval, 20000);
+    // 🔥 Перший heartbeat через 8 с — гравець одразу показується в онлайні
+    const timeout = setTimeout(sendHeartbeatInterval, 8000);
     heartbeatTimeoutRef.current = timeout; // Зберігаємо для можливості ручного очищення
 
     // Відправляємо heartbeat кожні 4 хвилини (було 2), менше запитів = менше 429

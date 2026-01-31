@@ -417,6 +417,12 @@ export async function characterRoutes(app: FastifyInstance) {
 
     if (!char) return reply.code(404).send({ error: "character not found" });
 
+    // 🔥 Оновлюємо lastActivityAt при завантаженні героя — гравець одразу в онлайні
+    prisma.character.update({
+      where: { id: char.id },
+      data: { lastActivityAt: new Date() },
+    }).catch(() => {});
+
     // Convert BigInt to Number for JSON serialization
     const serialized = {
       ...char,
@@ -915,14 +921,15 @@ export async function characterRoutes(app: FastifyInstance) {
       // Гравці активні за останні 10 хвилин (600 000 мс)
       const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-      // 🔥 Якщо поле lastActivityAt не існує, використовуємо updatedAt як fallback
+      // 🔥 Активні за останні 10 хв: lastActivityAt >= X або (lastActivityAt null + updatedAt >= X)
       let onlineCharacters;
       try {
         onlineCharacters = await prisma.character.findMany({
           where: {
-            lastActivityAt: {
-              gte: tenMinutesAgo, // Активні за останні 10 хвилин
-            },
+            OR: [
+              { lastActivityAt: { gte: tenMinutesAgo } },
+              { lastActivityAt: null, updatedAt: { gte: tenMinutesAgo } },
+            ],
           },
           orderBy: [
             { level: "desc" }, // Сортуємо по рівню (високий спочатку)
