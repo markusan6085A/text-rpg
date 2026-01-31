@@ -67,7 +67,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
     <div className="w-full text-[#f4e2b8] px-1 py-2">
         {/* Банер телепорту між верхнім банером (StatusBars) і "Вы в городе" */}
         <div className="flex justify-center mb-3">
-          <img src="/teleport.jpg" alt="Телепорт" className="w-full max-w-[360px] h-auto object-contain rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <img src="/icons/teleport.jpg" alt="Телепорт" className="w-full max-w-[360px] h-auto object-contain rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
         </div>
         
         {/* Статус */}
