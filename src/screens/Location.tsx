@@ -54,11 +54,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
   if (!found) {
     return (
-      <div className="w-full text-[#b8860b] flex items-center justify-center px-1 py-4">
+      <div className="w-full text-[#c7ad80] flex items-center justify-center px-1 py-4">
         <div className="w-full text-center space-y-3">
           <div className="text-xs font-semibold">Зона не знайдена.</div>
           <button
-            className="h-8 px-4 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b]"
+            className="h-8 px-4 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#c7ad80]"
             onClick={() => navigate("/gk")}
           >
             Телепорт
@@ -104,9 +104,9 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   return (
-    <div className="w-full text-[#b8860b] px-1 py-2">
+    <div className="w-full text-[#c7ad80] px-1 py-2">
         {/* Заголовок */}
-        <div className="text-[#b8860b] mb-4 text-base font-semibold flex items-center gap-2">
+        <div className="text-[#c7ad80] mb-4 text-base font-semibold flex items-center gap-2">
           <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
           <span>{zone.name}</span>
         </div>
@@ -114,7 +114,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         {/* Список мобів */}
         <div className="space-y-0">
           {visibleMobs.length === 0 && (
-            <div className="text-[#b8860b]/60 text-xs py-4">
+            <div className="text-[#c7ad80]/60 text-xs py-4">
               У цій локації поки немає мобів.
             </div>
           )}
@@ -137,7 +137,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 <div
                   key={globalIndex}
                   className={`flex items-center gap-2 py-1 border-b border-dotted border-gray-500 text-xs ${
-                    isLevelDiffTooHigh ? "text-red-500" : "text-[#b8860b]"
+                    isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
                   }`}
                 >
                   {mob.icon && (
@@ -160,14 +160,14 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     (і)
                   </span>
                   <span
-                    className={`flex-1 cursor-pointer hover:text-[#daa520] ${
+                    className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${
                       isRaid
-                        ? "text-[#ff6666]"
+                        ? "text-red-500"
                         : isChampion
-                        ? "text-[#ffd966]"
+                        ? "text-blue-400"
                         : isLevelDiffTooHigh
                         ? "text-red-500"
-                        : "text-[#b8860b]"
+                        : "text-[#c7ad80]"
                     }`}
                     onClick={() => openBattle(globalIndex)}
                   >
@@ -183,7 +183,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
         {/* Пагінація */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-4 text-[#b8860b] text-xs">
+          <div className="flex items-center justify-center gap-2 mt-4 text-[#c7ad80] text-xs">
             <button
               className="disabled:opacity-40"
               disabled={currentPage <= 1}
@@ -205,7 +205,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         {/* Кнопка Назад */}
         <div className="flex justify-center mt-4">
           <button
-            className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#c7ad80] hover:bg-[#3a3a3a]"
             onClick={handleBackToCity}
           >
             Назад
