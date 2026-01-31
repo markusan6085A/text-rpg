@@ -315,7 +315,11 @@ function AppInner() {
       return renderWithLayout(<Character key={`character-${refreshKey}`} />);
 
     case "/gk":
-      return renderWithLayout(<GK navigate={navigate} key={`gk-${refreshKey}`} />);
+      return (
+        <Layout navigate={navigate} contentTopCompact key={`layout-gk`}>
+          <GK navigate={navigate} key={`gk-${refreshKey}`} />
+        </Layout>
+      );
 
     case "/location":
       return renderWithLayout(<Location navigate={navigate} key={`location-${refreshKey}`} />);

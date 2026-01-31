@@ -16,6 +16,7 @@ interface LayoutProps {
   showStatusBars?: boolean;
   customBackground?: string; // Шлях до кастомного фону
   hideFooterButtons?: boolean; // 🔥 Приховати кнопки "Поддержка | Онлайн | Выйти"
+  contentTopCompact?: boolean; // 🔥 Менший top padding — картинка (teleport) під банер
 }
 
 export default function Layout({
@@ -25,6 +26,7 @@ export default function Layout({
   showStatusBars = true,
   customBackground,
   hideFooterButtons = false,
+  contentTopCompact = false,
 }: LayoutProps) {
   const [onlineCount, setOnlineCount] = useState<number>(0);
   const [cooldownSec, setCooldownSec] = useState(0); // 🔥 Показуємо "Зачекайте X сек" при 429
@@ -268,8 +270,8 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        <div ref={contentRef} className="flex-1 pb-24 pt-16 overflow-y-auto relative z-10 flex justify-center">
-          <div className="w-full max-w-[360px] mt-2 px-3">
+        <div ref={contentRef} className={`flex-1 pb-24 overflow-y-auto relative z-10 flex justify-center ${contentTopCompact ? "pt-6" : "pt-16"}`}>
+          <div className={`w-full max-w-[360px] px-3 ${contentTopCompact ? "mt-0" : "mt-2"}`}>
             {children}
           </div>
         </div>

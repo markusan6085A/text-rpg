@@ -66,7 +66,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   return (
     <div className="w-full text-[#f4e2b8] px-1 pt-0 pb-2">
         {/* Банер телепорту під самий банер (StatusBars) */}
-        <div className="flex justify-center mb-2 -mt-1">
+        <div className="flex justify-center mb-2">
           <img src="/icons/teleport.jpg" alt="Телепорт" className="w-[85%] max-w-[280px] h-auto object-contain rounded" />
         </div>
         
