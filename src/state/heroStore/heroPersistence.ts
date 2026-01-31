@@ -417,21 +417,32 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         console.error('[saveHeroToLocalStorage] Failed to set rate limit cooldown:', e);
       }
       
-      // Зберігаємо в localStorage як backup
+      // 🔥 Зберігаємо в localStorage як backup — ОБОВ'ЯЗКОВО мерджимо бафи з battle state!
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
+        const savedBattle = loadBattle(hero.name);
+        const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
+        const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
+        const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
+          arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
+        );
+        const heroJson = {
+          ...((hero as any).heroJson || {}),
+          ...buildBackupHeroJson(hero),
+          heroBuffs: mergedBuffs.length ? mergedBuffs : ((hero as any).heroJson?.heroBuffs ?? []),
+        };
+        const heroWithTimestamp = {
+          ...hero,
+          lastSavedAt: Date.now(),
+          _rateLimitBackup: true,
+          heroJson,
+        };
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
         const accIndex = accounts.findIndex((a: any) => a.username === current);
         if (accIndex !== -1) {
-          const heroWithTimestamp = {
-            ...hero,
-            lastSavedAt: Date.now(),
-            _rateLimitBackup: true,
-            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
-          };
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
-          console.log('[saveHeroToLocalStorage] Saved to localStorage due to rate limit');
+          console.log('[saveHeroToLocalStorage] Saved to localStorage due to rate limit (buffs:', mergedBuffs.length, ')');
         }
       }
       
