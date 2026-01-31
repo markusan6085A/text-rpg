@@ -829,13 +829,24 @@ if (import.meta.env.DEV) {
   console.log(`[skills/index.ts] 📊 Додаткових скілів в allSkills: ${allSkills.filter(s => s.code?.startsWith("ADD_")).length}`);
 }
 
+// Map label -> id for hero.profession that may be stored as "Warcryer" etc
+const LABEL_TO_PROFESSION_ID: Record<string, ProfessionId> = Object.fromEntries(
+  Object.values(professionDefinitions).map((d) => [d.label.toLowerCase(), d.id])
+);
+
 // normalize  id ->  
 export const normalizeProfessionId = (id: ProfessionId | string | null): ProfessionId | null => {
   if (!id) return null;
-  if (id === "human_mystic_advanced") return "human_mystic_cleric";
-  if (id === "human_mystic") return "human_mystic_base";
-  if (id === "elven_mystic_base") return "elven_mystic";
-  return id as ProfessionId;
+  const s = String(id).trim();
+  if (!s) return null;
+  if (s === "human_mystic_advanced") return "human_mystic_cleric";
+  if (s === "human_mystic") return "human_mystic_base";
+  if (s === "elven_mystic_base") return "elven_mystic";
+  // hero.profession may be stored as label ("Warcryer", "Prophet") — map to id
+  if (LABEL_TO_PROFESSION_ID[s.toLowerCase()]) return LABEL_TO_PROFESSION_ID[s.toLowerCase()];
+  // Already valid id
+  if (professionDefinitions[s as ProfessionId]) return s as ProfessionId;
+  return s as ProfessionId;
 };
 
 const getSkillModulesForProfession = (professionId: ProfessionId | null) => {
