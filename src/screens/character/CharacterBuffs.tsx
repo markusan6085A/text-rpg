@@ -46,7 +46,7 @@ export default function CharacterBuffs() {
   if (uniqueBuffs.length === 0) return null;
 
   return (
-    <div className="mt-2 border-t border-solid border-[1px] border-[#654321] pt-2">
+    <div className="mt-2 border-t border-dotted border-[#654321] pt-2">
       <div className="flex flex-wrap gap-1.5">
         {uniqueBuffs.map((buff: any, idx: number) => {
           let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
