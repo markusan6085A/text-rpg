@@ -64,19 +64,19 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   const adena = hero?.adena || 0;
 
   return (
-    <div className="w-full text-[#f4e2b8] px-1 py-2">
-        {/* Банер телепорту між верхнім банером (StatusBars) і "Вы в городе" */}
-        <div className="flex justify-center mb-2">
-          <img src="/icons/teleport.jpg" alt="Телепорт" className="w-full max-w-[360px] h-auto object-contain rounded" />
+    <div className="w-full text-[#f4e2b8] px-1 pt-0 pb-2">
+        {/* Банер телепорту під самий банер (StatusBars) */}
+        <div className="flex justify-center mb-2 -mt-1">
+          <img src="/icons/teleport.jpg" alt="Телепорт" className="w-[85%] max-w-[280px] h-auto object-contain rounded" />
         </div>
         
         {/* Статус */}
-        <div className="text-gray-400 mb-3 text-xs border-b border-dotted border-[#c7ad80] pb-2">
+        <div className="text-gray-400 mb-3 text-xs border-b border-solid border-[#654321] pb-2">
           Вы в городе <span className="text-[#ff8c00]">{selectedCity.name}</span>.
         </div>
         
         {/* Кнопка Квести та кв-шоп */}
-        <div className="mb-3 flex items-center gap-2 border-b border-dotted border-[#c7ad80] pb-1.5">
+        <div className="mb-3 flex items-center gap-2 border-b border-solid border-[#654321] pb-1.5">
           <button
             className="flex-1 text-left text-[12px] py-1.5 hover:opacity-80 flex items-center gap-2"
             onClick={() => navigate("/quests")}
@@ -95,7 +95,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         </div>
         
         
-        <div className="text-gray-400 mb-3 text-xs border-b border-dotted border-[#c7ad80] pb-2 flex items-center gap-2">
+        <div className="text-gray-400 mb-3 text-xs border-b border-solid border-[#654321] pb-2 flex items-center gap-2">
           У вас <span className="text-[#ffd700]">{adena.toLocaleString("ru-RU")}</span> адены
           <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
         </div>
