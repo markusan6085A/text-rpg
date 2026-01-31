@@ -375,11 +375,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       if (currentHero) {
         const clampedExp = Math.max(currentHero.exp ?? 0, serverExp);
         const clampedSp = Math.max(currentHero.sp ?? 0, serverSp);
+        // 🔥 КРИТИЧНО: clamp level — сервер може повертати level 1 (старий), не перезаписувати лвл 2→1
+        const clampedLevel = Math.max(currentHero.level ?? 1, serverLevel);
         useHeroStore.getState().applyServerSync(
-          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: serverLevel } as any,
-          { exp: serverExp, level: serverLevel, sp: serverSp, heroRevision: newRevision, updatedAt: Date.now() }
+          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel } as any,
+          { exp: serverExp, level: clampedLevel, sp: serverSp, heroRevision: newRevision, updatedAt: Date.now() }
         );
-        console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: serverLevel });
+        console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, serverLevel });
       }
     }
     
@@ -538,11 +540,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision;
               const serverLevel = Number(currentCharacter.level ?? 1);
               const serverSp = Number(currentCharacter.sp ?? 0);
+              // 🔥 clamp level — не перезаписувати лвл 2→1
+              const mergedLevel = Math.max(currentHero.level ?? 1, serverLevel);
 
               const mergedHero = {
                 ...currentHero,
                 exp: mergedExp,
-                level: serverLevel,
+                level: mergedLevel,
                 mobsKilled: mergedMobsKilled as any,
                 skills: mergedSkills,
                 heroRevision: newRevision,
@@ -559,7 +563,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               // 🔥 applyServerSync замість setHero — оновлює store без запуску persistence; retry з поточного hero
               useHeroStore.getState().applyServerSync(mergedHero as any, {
                 exp: mergedExp,
-                level: serverLevel,
+                level: mergedLevel,
                 sp: serverSp,
                 heroRevision: newRevision,
                 updatedAt: Date.now(),
