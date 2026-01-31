@@ -6,6 +6,7 @@ import {
 } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { BASE_ATTACK, getSkillDef } from "../loadout";
+import { getSkillDefForProfession } from "../../../data/skills";
 import type { BattleState } from "../types";
 import { checkSkillConditions } from "../../../utils/stats/applyPassiveSkills";
 import { canAttackWithBow, isBowEquipped } from "./useSkill/arrowHelpers";
@@ -131,7 +132,8 @@ export const createUseSkill =
     const learned = (hero.skills || []).find((s: any) => s.id === skillId);
     if (!learned) return;
 
-    const def = getSkillDef(skillId);
+    // 🔥 Використовуємо profession-specific версію — buff vs toggle (Warcryer Chant vs OrcShaman Soul Cry)
+    const def = getSkillDefForProfession(hero.profession, skillId) ?? getSkillDef(skillId);
     if (!def) return;
 
     // Перевірка стріл для лука (якщо навик вимагає лук)

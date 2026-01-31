@@ -903,6 +903,25 @@ export const getDefaultProfessionForKlass = (
 export const getProfessionDefinition = (id: ProfessionId | null) =>
   (id ? professionDefinitions[id] : null) ?? null;
 
+/** Отримує скіл для професії — використовує profession-specific версію (buff vs toggle) */
+export const getSkillDefForProfession = (
+  professionId: ProfessionId | string | null,
+  skillId: number
+): import("./types").SkillDefinition | undefined => {
+  const pid = normalizeProfessionId(professionId);
+  if (!pid) return skillsDB[skillId];
+
+  const modules = getSkillModulesForProfession(pid);
+  // Шукаємо з кінця (найбільш специфічна професія) — щоб Warcryer WC_1001 (buff) перезаписав OrcShaman OS_1001 (toggle)
+  for (let i = modules.length - 1; i >= 0; i--) {
+    const mod = modules[i];
+    if (!mod) continue;
+    const found = Object.values(mod).find((s: any) => s?.id === skillId);
+    if (found) return found as import("./types").SkillDefinition;
+  }
+  return skillsDB[skillId];
+};
+
 export const getSkillsForProfession = (professionId: ProfessionId | null) => {
   return getSkillsForProfessionImpl(
     professionId,

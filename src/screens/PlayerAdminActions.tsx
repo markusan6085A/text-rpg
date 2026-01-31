@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
-import { getSkillDef } from "../state/battle/loadout";
+import { getSkillDefForProfession } from "../data/skills";
 import { normalizeProfessionId, getProfessionDefinition } from "../data/skills";
 import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -79,7 +79,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
     return playerHero.skills
       .map((learned: any) => {
-        const skillDef = getSkillDef(learned.id);
+        const skillDef = getSkillDefForProfession(playerHero.profession, learned.id);
         if (!skillDef || skillDef.category !== "buff") return null;
 
         const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
@@ -108,7 +108,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
     return hero.skills
       .map((learned: any) => {
-        const skillDef = getSkillDef(learned.id);
+        const skillDef = getSkillDefForProfession(hero.profession, learned.id);
         if (!skillDef || skillDef.category !== "buff") return null;
 
         const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
@@ -137,7 +137,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
     return hero.skills
       .map((learned: any) => {
-        const skillDef = getSkillDef(learned.id);
+        const skillDef = getSkillDefForProfession(hero.profession, learned.id);
         if (!skillDef || skillDef.category !== "heal") return null;
 
         const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
