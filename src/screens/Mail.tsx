@@ -363,7 +363,7 @@ export default function Mail({ navigate }: MailProps) {
               const displayNickColor = isOwn ? hero?.nickColor : letter?.fromCharacter?.nickColor;
 
               return (
-                <div key={letter.id} className="border-b border-dotted border-[#654321] pb-1 mb-1">
+                <div key={letter.id} className="border-b border-dotted border-[#c7ad80] pb-1 mb-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <PlayerNameWithEmblem
@@ -472,7 +472,7 @@ export default function Mail({ navigate }: MailProps) {
           // ❗ ОПТИМІЗАЦІЯ: Skeleton для швидшого відображення
           <div className="space-y-1">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center justify-between p-2 border-b border-dotted border-[#654321] animate-pulse">
+              <div key={i} className="flex items-center justify-between p-2 border-b border-dotted border-[#c7ad80] animate-pulse">
                 <div className="flex-1">
                   <div className="h-4 bg-gray-700 rounded w-24 mb-1"></div>
                   <div className="h-3 bg-gray-800 rounded w-16"></div>
@@ -491,7 +491,7 @@ export default function Mail({ navigate }: MailProps) {
               <div
                 key={conv.playerId}
                 onClick={() => handleConversationClick(conv)}
-                className="flex items-center justify-between p-2 border-b border-dotted border-[#654321] cursor-pointer hover:bg-gray-800/30 transition-colors"
+                className="flex items-center justify-between p-2 border-b border-dotted border-[#c7ad80] cursor-pointer hover:bg-gray-800/30 transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

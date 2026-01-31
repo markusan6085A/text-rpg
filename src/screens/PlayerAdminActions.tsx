@@ -352,7 +352,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
         {/* Бафи гравця */}
         <div className="mb-4">
-          <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-[#654321] pb-1">
+          <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-[#c7ad80] pb-1">
             Бафи
           </div>
           {playerBuffs.length === 0 ? (
@@ -409,7 +409,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         {/* Лікування */}
         {myHealSkills.length > 0 && (
           <div className="mb-4">
-            <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-[#654321] pb-1">
+            <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-[#c7ad80] pb-1">
               Лікування
             </div>
             <div className="space-y-2">
@@ -503,7 +503,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
                     }
                     let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
                     return (
-                      <div key={buff.id} className="border-b border-dotted border-[#654321] pb-2">
+                      <div key={buff.id} className="border-b border-dotted border-[#c7ad80] pb-2">
                         <div className="flex items-start gap-2">
                           <img
                             src={iconSrc}

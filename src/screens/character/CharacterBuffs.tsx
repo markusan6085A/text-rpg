@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
@@ -8,11 +8,16 @@ export default function CharacterBuffs() {
   const hero = useHeroStore((s) => s.hero);
   const battleStatus = useBattleStore((s) => s.status);
   const battleBuffs = useBattleStore((s) => s.heroBuffs || []);
+  // 🔥 Таймер — перерендер кожну секунду, щоб зникали прострочені бафи
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   if (!hero) return null;
 
   // Завантажуємо бафи з battle state (включаючи бафи статуї) навіть поза боєм
-  const now = Date.now();
   const savedBattle = loadBattle(hero.name);
   const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
   const activeBuffs = battleStatus === "fighting" 
@@ -41,7 +46,7 @@ export default function CharacterBuffs() {
   if (uniqueBuffs.length === 0) return null;
 
   return (
-    <div className="mt-2 border-t border-dotted border-[#654321] pt-2">
+    <div className="mt-2 border-t border-dotted border-[#c7ad80] pt-2">
       <div className="flex flex-wrap gap-1.5">
         {uniqueBuffs.map((buff: any, idx: number) => {
           let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;

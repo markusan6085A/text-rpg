@@ -2,7 +2,7 @@ import React from "react";
 import { useHeroStore } from "../state/heroStore";
 import { getExpToNext } from "../data/expTable";
 import { useBattleStore } from "../state/battle/store";
-import { loadBattle } from "../state/battle/persist";
+import { loadBattle, persistBattle } from "../state/battle/persist";
 import { cleanupBuffs } from "../state/battle/helpers";
 import { calculateMaxResourcesWithPassives } from "../utils/calculateHeroStats";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
@@ -110,6 +110,24 @@ export default function StatusBars() {
     pendingUpdates: null,
   });
   const REGEN_UPDATE_INTERVAL_MS = 1000; // 1 с: реген оновлює store щосекунди; level з hero — одразу при лвлапі
+
+  // 🔥 Периодичне очищення прострочених бафів поза боєм — зберігаємо в persist і heroJson
+  React.useEffect(() => {
+    if (inBattle) return;
+    const t = setInterval(() => {
+      const heroStore = useHeroStore.getState();
+      const h = heroStore.hero;
+      if (!h?.name) return;
+      const saved = loadBattle(h.name);
+      const rawBuffs = saved?.heroBuffs || [];
+      const cleaned = cleanupBuffs(rawBuffs, Date.now());
+      if (cleaned.length >= rawBuffs.length) return;
+      persistBattle({ ...saved, heroBuffs: cleaned }, h.name);
+      useBattleStore.setState({ heroBuffs: cleaned });
+      heroStore.updateHero({ heroJson: { ...(h as any).heroJson, heroBuffs: cleaned } } as any);
+    }, 30000);
+    return () => clearInterval(t);
+  }, [inBattle]);
   
   React.useEffect(() => {
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням

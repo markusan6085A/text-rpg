@@ -17,6 +17,12 @@ export default function Stats() {
   const [baseStats, setBaseStats] = useState<any>(null);
   const [combatStats, setCombatStats] = useState<any>(null);
   const [playerClan, setPlayerClan] = useState<any>(null);
+  // 🔥 Таймер — перерахунок статів щосекунди, щоб зникали бафи при простроченні
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     if (!hero) return;
@@ -51,7 +57,7 @@ export default function Stats() {
     
     setBaseStats(recalculated.baseStats);
     setCombatStats(recalculated.finalStats);
-  }, [hero, battleBuffs, battleStatus]);
+  }, [hero, battleBuffs, battleStatus, now]);
 
   // Завантажуємо клан гравця для відображення емблеми
   useEffect(() => {
@@ -118,14 +124,14 @@ export default function Stats() {
       <div className="w-full max-w-[360px]">
         {/* Заголовок та опис */}
         <div className="mb-4">
-          <div className="border-t border-gray-600 mb-2"></div>
+          <div className="border-t border-[#c7ad80] mb-2"></div>
           <div className="text-orange-400 text-sm font-semibold mb-1">
             Характеристики персонажа
           </div>
           <div className="text-orange-400 text-xs mb-2">
             Тут відображаються базові параметри, бойові характеристики та бонуси від екіпіровки і бафів.
           </div>
-          <div className="border-b border-gray-600 mt-2"></div>
+          <div className="border-b border-[#c7ad80] mt-2"></div>
         </div>
 
         {/* Інформація про персонажа */}
@@ -266,7 +272,7 @@ export default function Stats() {
             </div>
           </div>
           {/* Риска від краю до краю під останніми рядками */}
-          <div className="border-t border-gray-500 mt-1.5"></div>
+          <div className="border-t border-[#c7ad80] mt-1.5"></div>
         </div>
       </div>
     </div>
