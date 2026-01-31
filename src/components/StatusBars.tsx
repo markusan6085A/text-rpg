@@ -229,8 +229,8 @@ export default function StatusBars() {
   const mp = hero.mp ?? maxMp;
   const cp = hero.cp ?? maxCp;
 
-  const level = hero.level ?? 1;
-  const expCurrent = hero.exp ?? 0;
+  const level = Number(hero.level ?? 1) || 1;
+  const expCurrent = Number(hero.exp ?? 0) || 0;
   const expNeed = getExpToNext(level);
   const expPercent = expNeed > 0 ? Math.min(100, Math.floor((expCurrent / expNeed) * 100)) : 100;
 

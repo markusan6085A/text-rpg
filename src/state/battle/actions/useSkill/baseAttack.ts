@@ -356,12 +356,15 @@ export function handleBaseAttack(
         const finalSpGain = Math.round(spGain * premiumMultiplier);
         const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
 
-        let level = curHero.level ?? 1;
-        let exp = (curHero.exp ?? 0) + finalExpGain;
-        while (exp >= getExpToNext(level, XP_RATE)) {
+        // 🔥 КРИТИЧНО: Number() — API/мобільний може повертати exp/level як string; "67"+10="6710"
+        // Також float: 67.999999 >= 68 = false — додаємо epsilon для порівняння
+        let level = Number(curHero.level ?? 1) || 1;
+        let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;
+        const EPS = 0.001; // захист від float
+        while (exp >= getExpToNext(level, XP_RATE) - EPS) {
           const need = getExpToNext(level, XP_RATE);
           if (need <= 0) break;
-          exp -= need;
+          exp = Math.max(0, Math.floor(exp - need));
           level += 1;
           leveled = true;
           if (level >= MAX_LEVEL) {
