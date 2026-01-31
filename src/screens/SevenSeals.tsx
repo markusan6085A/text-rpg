@@ -60,16 +60,16 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
         Семь Печатей
       </div>
 
-      {/* Опис ивента */}
+      {/* Опис ивента — зменшено в 1.5 рази */}
       <div className="px-2 mb-4">
-        <div className="text-orange-400 text-sm leading-relaxed space-y-2">
-          <p className="border-t border-gray-600 pt-2">
+        <div className="text-orange-400 text-xs leading-relaxed space-y-1">
+          <p className="border-t border-gray-600 pt-1.5">
             Семь Печатей — это еженедельное PvE-событие, которое длится с понедельника по субботу и проверяет силу, выносливость и упорство героев.
           </p>
-          <p className="border-t border-gray-600 pt-2">
+          <p className="border-t border-gray-600 pt-1.5">
             В течение ивента со всех монстров выпадают Медали Печатей.
           </p>
-          <p className="border-t border-b border-gray-600 pt-2 pb-2">
+          <p className="border-t border-b border-gray-600 pt-1.5 pb-1.5">
             Каждая собранная медаль засчитывается в личный рейтинг игрока.
           </p>
         </div>
@@ -82,11 +82,12 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
         </div>
       </div>
 
-      {/* Мои медальки */}
+      {/* Мои медальки та Убил мобов */}
       {hero && (
         <div className="px-2 mb-4">
           <div className="text-center text-sm text-[#b8860b] py-2 border-t border-b border-gray-600">
             <div>Мои медальки: <span className="text-yellow-400 font-semibold">{myMedals}</span></div>
+            <div className="mt-1">Убил мобов: <span className="text-yellow-400 font-semibold">{(hero as any)?.mobsKilled ?? (hero as any)?.heroJson?.mobsKilled ?? 0}</span></div>
             {myRank !== null && (
               <div className="text-xs text-gray-400 mt-1">Мой рейтинг: #{myRank}</div>
             )}
@@ -134,10 +135,10 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
         )}
       </div>
 
-      {/* Кнопка Награды */}
+      {/* Кнопка Награды — зелена, зменшена в 1.5 рази */}
       <div className="px-2 mb-4">
         <div 
-          className="text-center text-sm font-semibold text-[#b8860b] mb-2 border-t border-b border-gray-600 py-2 cursor-pointer hover:text-yellow-400 transition-colors"
+          className="text-center text-xs font-semibold text-green-500 mb-2 border border-green-600 py-1.5 px-3 rounded cursor-pointer hover:bg-green-900/40 hover:text-green-400 transition-colors"
           onClick={() => setShowRewards(!showRewards)}
         >
           Награды

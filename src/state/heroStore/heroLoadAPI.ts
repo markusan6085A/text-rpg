@@ -341,7 +341,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // Додаємо heroBuffs до heroJson (вони не в hydrateHero, бо це окрема логіка)
     // 🔥 КРИТИЧНО: Зберігаємо heroRevision з сервера для optimistic locking
+    // 🔥 hero.id = character.id для reportMedalDrop/reportRaidBossKill тощо
     if (hydratedHero) {
+      (hydratedHero as any).id = character.id;
       (hydratedHero as any).heroRevision = (heroData as any)?.heroRevision || (character as any)?.heroRevision || undefined;
       
       // 🔥 КРИТИЧНО: Синхронізуємо heroBuffs в heroJson

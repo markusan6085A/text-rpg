@@ -8,6 +8,7 @@ import { equipItemLogic } from "../../heroStore/heroInventory";
 import { INVENTORY_MAX_ITEMS } from "../../heroStore";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { reportMedalDrop } from "../../../utils/api";
+import { useCharacterStore } from "../../characterStore";
 
 // Функція для видалення грейдів з назв ресурсів
 // Грейди мають бути тільки в точках (enchant scrolls) та шмотках (equipment), але не в ресурсах
@@ -429,9 +430,10 @@ export function processMobDrops(
       
       dropMessages.push(`🎖️ Медаль Печатей випала!`);
       
-      // Відправляємо на сервер для рейтингу
-      if (hero?.id) {
-        reportMedalDrop(hero.id).catch((err) => {
+      // 🔥 Відправляємо на сервер для рейтингу — використовуємо characterId з store (hero.id може бути hero_xxx)
+      const characterId = useCharacterStore.getState().characterId;
+      if (characterId) {
+        reportMedalDrop(characterId).catch((err) => {
           console.error("Error reporting medal drop:", err);
         });
       }
