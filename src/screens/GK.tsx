@@ -103,19 +103,19 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
         {/* Города */}
         <div className="mb-4">
-          <div className="text-[#3D2B1F] mb-2 text-xs">Города:</div>
+          <div className="text-[#7B3F00] mb-2 text-xs">Города:</div>
           <div className="space-y-1">
             {WORLD_CITIES.map((city) => {
               const iconPath = CITY_ICONS[city.id] || CITY_ICONS_BY_NAME[city.name] || "/assets/travel.png";
               return (
                 <div
                   key={city.id}
-                  className="flex items-center gap-2 text-[#3D2B1F] text-xs cursor-pointer hover:text-[#5a4230] border-b border-dotted border-gray-500 py-1"
+                  className="flex items-center gap-2 text-[#7B3F00] text-xs cursor-pointer hover:text-[#9a5a20] border-b border-dotted border-gray-500 py-1"
                   onClick={() => handleCityChange(city.id)}
                 >
                   <img src={iconPath} alt={city.name} className="w-3 h-3 object-contain" />
                   <span>{city.name}</span>
-                  <span className="ml-auto flex items-center gap-1 text-[#3D2B1F]">
+                  <span className="ml-auto flex items-center gap-1 text-[#7B3F00]">
                     0
                     <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
                   </span>
@@ -130,17 +130,17 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
         {/* Локации */}
         <div className="mb-4">
-          <div className="text-[#3D2B1F] mb-2 text-xs">Локации:</div>
+          <div className="text-[#7B3F00] mb-2 text-xs">Локации:</div>
           <div className="space-y-1">
             {zones.length === 0 ? (
-              <div className="text-[#3D2B1F]/60 text-xs">
+              <div className="text-[#7B3F00]/60 text-xs">
                 Для цього міста поки що немає зон.
               </div>
             ) : (
               zones.map((zone) => (
                 <div
                   key={zone.id}
-                  className="flex items-center gap-2 text-[#3D2B1F] text-xs cursor-pointer hover:text-[#5a4230] border-b border-dotted border-gray-500 py-1"
+                  className="flex items-center gap-2 text-[#7B3F00] text-xs cursor-pointer hover:text-[#9a5a20] border-b border-dotted border-gray-500 py-1"
                   onClick={() => goToZone(zone.id)}
                 >
                   <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
@@ -148,7 +148,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                   <span className="text-red-500">
                     {zone.minLevel}-{zone.maxLevel}
                   </span>
-                  <span className="ml-auto flex items-center gap-1 text-[#3D2B1F]">
+                  <span className="ml-auto flex items-center gap-1 text-[#7B3F00]">
                     {zone.tpCost.toLocaleString("ru-RU")}
                     <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
                   </span>
