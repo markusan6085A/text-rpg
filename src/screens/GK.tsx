@@ -65,11 +65,10 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   return (
     <div className="w-full text-[#f4e2b8] px-1 py-2">
-        {/* BACKUP: Картинка gk - прибрано
-        <div className="flex justify-center mb-2">
-          <img src="/gk.jpg" alt="gk" className="h-auto w-[70%] max-h-20" />
+        {/* Банер телепорту між верхнім банером (StatusBars) і "Вы в городе" */}
+        <div className="flex justify-center mb-3">
+          <img src="/teleport.jpg" alt="Телепорт" className="w-full max-w-[360px] h-auto object-contain rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
         </div>
-        */}
         
         {/* Статус */}
         <div className="text-gray-400 mb-3 text-xs border-b border-dotted border-gray-500 pb-2">
@@ -110,7 +109,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
               return (
                 <div
                   key={city.id}
-                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] border-b border-dotted border-gray-500 py-1"
+                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] py-1"
                   onClick={() => handleCityChange(city.id)}
                 >
                   <img src={iconPath} alt={city.name} className="w-3 h-3 object-contain" />
@@ -125,9 +124,6 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
           </div>
         </div>
 
-        {/* Розділювач */}
-        <div className="border-t border-gray-500 my-3"></div>
-
         {/* Локации */}
         <div className="mb-4">
           <div className="text-[#c7ad80] mb-2 text-xs">Локации:</div>
@@ -140,7 +136,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
               zones.map((zone) => (
                 <div
                   key={zone.id}
-                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] border-b border-dotted border-gray-500 py-1"
+                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] py-1"
                   onClick={() => goToZone(zone.id)}
                 >
                   <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
