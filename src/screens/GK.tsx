@@ -66,17 +66,17 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   return (
     <div className="w-full text-[#f4e2b8] px-1 py-2">
         {/* Банер телепорту між верхнім банером (StatusBars) і "Вы в городе" */}
-        <div className="flex justify-center mb-3">
-          <img src="/icons/teleport.jpg" alt="Телепорт" className="w-full max-w-[360px] h-auto object-contain rounded" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+        <div className="flex justify-center mb-2">
+          <img src="/icons/teleport.jpg" alt="Телепорт" className="w-full max-w-[360px] h-auto object-contain rounded" />
         </div>
         
         {/* Статус */}
-        <div className="text-gray-400 mb-3 text-xs border-b border-dotted border-gray-500 pb-2">
+        <div className="text-gray-400 mb-3 text-xs border-b border-dotted border-[#c7ad80] pb-2">
           Вы в городе <span className="text-[#ff8c00]">{selectedCity.name}</span>.
         </div>
         
         {/* Кнопка Квести та кв-шоп */}
-        <div className="mb-3 flex items-center gap-2 border-b border-dotted border-gray-500 pb-1.5">
+        <div className="mb-3 flex items-center gap-2 border-b border-dotted border-[#c7ad80] pb-1.5">
           <button
             className="flex-1 text-left text-[12px] py-1.5 hover:opacity-80 flex items-center gap-2"
             onClick={() => navigate("/quests")}
@@ -95,21 +95,21 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         </div>
         
         
-        <div className="text-gray-400 mb-3 text-xs border-b border-dotted border-gray-500 pb-2 flex items-center gap-2">
+        <div className="text-gray-400 mb-3 text-xs border-b border-dotted border-[#c7ad80] pb-2 flex items-center gap-2">
           У вас <span className="text-[#ffd700]">{adena.toLocaleString("ru-RU")}</span> адены
           <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
         </div>
 
         {/* Города */}
-        <div className="mb-4">
-          <div className="text-[#c7ad80] mb-2 text-xs">Города:</div>
-          <div className="space-y-1">
+        <div className="mb-3">
+          <div className="text-[#c7ad80] mb-1 text-xs">Города:</div>
+          <div className="space-y-0.5">
             {WORLD_CITIES.map((city) => {
-              const iconPath = CITY_ICONS[city.id] || CITY_ICONS_BY_NAME[city.name] || "/assets/travel.png";
+              const iconPath = CITY_ICONS[city.id] || CITY_ICONS_BY_NAME[city.name] || "/icons/castle.png";
               return (
                 <div
                   key={city.id}
-                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] py-1"
+                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] py-0.5"
                   onClick={() => handleCityChange(city.id)}
                 >
                   <img src={iconPath} alt={city.name} className="w-3 h-3 object-contain" />
@@ -125,9 +125,9 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         </div>
 
         {/* Локации */}
-        <div className="mb-4">
-          <div className="text-[#c7ad80] mb-2 text-xs">Локации:</div>
-          <div className="space-y-1">
+        <div className="mb-3">
+          <div className="text-[#c7ad80] mb-1 text-xs">Локации:</div>
+          <div className="space-y-0.5">
             {zones.length === 0 ? (
               <div className="text-[#c7ad80]/60 text-xs">
                 Для цього міста поки що немає зон.
@@ -136,7 +136,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
               zones.map((zone) => (
                 <div
                   key={zone.id}
-                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] py-1"
+                  className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] py-0.5"
                   onClick={() => goToZone(zone.id)}
                 >
                   <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
