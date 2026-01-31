@@ -15,19 +15,24 @@ function getAuth(req: any): { accountId: string; login: string } | null {
   }
 }
 
-// Отримати початок поточного тижня (понеділок) в польському часі
+// Початок тижня (понеділок) — UTC для узгодженості create/query
+// Старий код (toLocaleString+timeZone) давав некоректний результат через парсинг в local timezone
 function getWeekStartPoland(): Date {
   const now = new Date();
-  // Конвертуємо в польський час
-  const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
-  const dayOfWeek = polandTime.getDay(); // 0 = неділя, 1 = понеділок, ..., 6 = субота
-  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Днів до понеділка
-  
-  const weekStart = new Date(polandTime);
-  weekStart.setHours(0, 0, 0, 0);
-  weekStart.setDate(weekStart.getDate() - daysToMonday);
-  
-  return weekStart;
+  const dayOfWeek = now.getUTCDay();
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  return new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() - daysToMonday,
+    0, 0, 0, 0
+  ));
+}
+
+// Інклюзивний фільтр: включає медалі з понеділка мінус 2 дні (на випадок timezone різниці)
+function getWeekStartInclusive(): Date {
+  const weekStart = getWeekStartPoland();
+  return new Date(weekStart.getTime() - 2 * 24 * 60 * 60 * 1000);
 }
 
 // Перевірити, чи зараз понеділок-субота (польський час)
@@ -54,12 +59,15 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       if (!character) return reply.code(404).send({ error: "character not found" });
 
       const weekStart = getWeekStartPoland();
+      const weekStartInclusive = getWeekStartInclusive();
+      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000); // наступний понеділок
 
-      // Отримуємо рейтинг для поточного тижня
+      // Отримуємо рейтинг — інклюзивний фільтр (timezone bug) + верхня межа
       const medals = await prisma.sevenSealsMedal.findMany({
         where: {
           weekStart: {
-            gte: weekStart,
+            gte: weekStartInclusive,
+            lt: weekEnd,
           },
         },
         select: {
@@ -95,12 +103,13 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
           rank: index + 1,
         }));
 
-      // Знаходимо мій рейтинг та кількість медалей
+      // Знаходимо мій рейтинг та кількість медалей (той самий фільтр що й для ranking)
       const myMedals = await prisma.sevenSealsMedal.count({
         where: {
           characterId: character.id,
           weekStart: {
-            gte: weekStart,
+            gte: weekStartInclusive,
+            lt: weekEnd,
           },
         },
       });
