@@ -17,7 +17,7 @@ export function handleToggleOff(
   setAndPersist: (updates: Partial<BattleState>) => void,
   get: () => BattleState
 ): boolean {
-  const isToggle = def.category === "toggle" || def.toggle;
+  const isToggle = def.toggle === true;
   if (!isToggle) {
     return false;
   }
@@ -71,7 +71,7 @@ export function createToggleBuff(
   now: number,
   finalDurationSec: number
 ): any {
-  const isToggle = def.category === "toggle" || def.toggle;
+  const isToggle = def.toggle === true;
   
   // Діагностика для Rapid Shot (id 99)
   if (def.id === 99 && import.meta.env.DEV) {

@@ -32,18 +32,29 @@ export const saveLoadout = (heroName: string | undefined, slots: (number | strin
 };
 
 export const BASE_ATTACK = { id: BASE_ATTACK_ID, name: "Attack", icon: "/skills/attack.jpg" };
+/** Нормалізує toggle до суворого boolean — запобігає "всі скіли як toggle" через category/string */
+function normalizeToggle(def: { toggle?: unknown; category?: string }): boolean {
+  return (
+    def.toggle === true ||
+    def.toggle === "true" ||
+    (typeof def.category === "string" && def.category === "toggle")
+  );
+}
+
 export const getSkillDef = (id: number) => {
   const found = allSkills.find((s) => s.id === id);
-  // Діагностика для додаткових скілів
-  if ((id === 130 || id === 429 || id === 401) && !found) {
-    console.warn(`[getSkillDef] ⚠️ Додатковий скіл ID ${id} не знайдено в allSkills!`, {
-      allSkillsCount: allSkills.length,
-      allSkillsIds: allSkills.map(s => s.id).slice(0, 20),
-      hasAdditionalSkills: allSkills.some(s => s.code?.startsWith("ADD_")),
-    });
+  if (!found) {
+    if ((id === 130 || id === 429 || id === 401)) {
+      console.warn(`[getSkillDef] ⚠️ Додатковий скіл ID ${id} не знайдено в allSkills!`, {
+        allSkillsCount: allSkills.length,
+        allSkillsIds: allSkills.map(s => s.id).slice(0, 20),
+        hasAdditionalSkills: allSkills.some(s => s.code?.startsWith("ADD_")),
+      });
+    }
+    return undefined;
   }
-  if ((id === 130 || id === 429 || id === 401) && found) {
+  if ((id === 130 || id === 429 || id === 401)) {
     console.log(`[getSkillDef] ✅ Знайдено додатковий скіл: ${found.name} (ID: ${id}, code: ${found.code})`);
   }
-  return found;
+  return { ...found, toggle: normalizeToggle(found) };
 };

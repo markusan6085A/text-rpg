@@ -50,7 +50,7 @@ export function handleBuffSkill(
   }
 
   // Діагностика для toggle скілів
-  if ((def.category === "toggle" || def.toggle) && import.meta.env.DEV) {
+  if (def.toggle === true && import.meta.env.DEV) {
     console.log(`[TOGGLE] handleBuffSkill called for ${def.name} (${def.id}):`, {
       skillId,
       category: def.category,
@@ -142,7 +142,7 @@ export function handleBuffSkill(
     });
   }
 
-  const isToggle = def.category === "toggle" || def.toggle;
+  const isToggle = def.toggle === true;
   const isSameBuff = createIsSameBuff(def);
   // Для toggle скілів duration не використовується - вони вимикаються тільки вручну
   const durationSec = isToggle ? 0 : (def.duration ?? 10);
