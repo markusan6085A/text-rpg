@@ -35,7 +35,7 @@ git commit -m "Add backend server"
 git push origin main
 ```
 
-### 4. Після push - Railway зможе побачити server папку!
+### 4. Після push - на VPS виконати `git pull && ./server/deploy-vps.sh`
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 

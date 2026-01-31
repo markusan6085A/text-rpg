@@ -38,5 +38,4 @@ git push origin main
 ## Після merge:
 
 1. На GitHub гілка `main` матиме папку `server/`
-2. Railway зможе побачити `server/` якщо підключений до `main`
-3. Або налаштувати Railway на гілку `2025-12-23-zsq5`
+2. На VPS при `git pull` і `./server/deploy-vps.sh` підтягнеться `server/` з обраної гілки

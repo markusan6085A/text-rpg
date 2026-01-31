@@ -133,6 +133,16 @@ export const createUseSkill =
 
     const def = getSkillDef(skillId);
     if (!def) return;
+    // 🔍 ДІАГНОСТИКА: що реально приходить при касті (для "всі як toggle")
+    if (import.meta.env.DEV && (def.category === "buff" || def.category === "toggle")) {
+      console.log("[useSkill] cast", {
+        id: skillId,
+        name: def.name,
+        category: def.category,
+        toggle: def.toggle,
+        toggleType: typeof def.toggle,
+      });
+    }
 
     // Перевірка стріл для лука (якщо навик вимагає лук)
     if (def.requiresWeapon === "bow" || (isBowEquipped(hero) && (def.category === "physical_attack" || def.category === "magic_attack"))) {

@@ -32,7 +32,7 @@
 1. Знайти секцію **"Environment Variables"**
 2. Натиснути **"+ Add"** або **"Add Environment Variable"**
 3. **Key:** `VITE_API_URL`
-4. **Value:** `https://text-rpg-production.up.railway.app`
+4. **Value:** `https://l2dop.com`
 5. Перевірити галочки: Production, Preview, Development
 6. Натиснути **"Save"** або **"Add"**
 

@@ -30,7 +30,7 @@ VITE_API_URL=https://ваш-backend-url.com
 - **Плюси**: Простий деплой, безкоштовний план, автоматичний HTTPS
 - **Мінуси**: Може бути холодний старт для serverless функций
 
-#### Варіант Б: Railway / Render (Для backend)
+#### Варіант Б: VPS (Для backend — поточна конфігурація)
 - **Backend**: Railway/Render (Node.js)
 - **Frontend**: Vercel/Netlify
 - **Плюси**: Стабільний backend, завжди онлайн

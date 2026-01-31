@@ -43,7 +43,7 @@
 
 **Що потрібно:**
 1. Деплой frontend (Vercel/Netlify)
-2. Деплой backend (Railway/Render)
+2. Деплой backend (VPS: `./server/deploy-vps.sh`)
 3. Налаштувати змінні оточення
 4. Підключити домен
 
@@ -66,7 +66,7 @@
    - Framework Preset: Vite
 
 3. **Environment Variables (якщо потрібно):**
-   - `VITE_API_URL` = `https://your-backend-url.railway.app` (після деплою backend)
+   - `VITE_API_URL` = `https://l2dop.com` (URL вашого backend)
 
 4. **Deploy!**
    - Vercel автоматично задеплоїть
@@ -74,30 +74,13 @@
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
-### 2. Backend на Railway (безкоштовно $5 credit/mo)
+### 2. Backend на VPS
 
-1. **Створити аккаунт на Railway:**
-   - https://railway.app
-   - Реєстрація через GitHub
-
-2. **Створити новий проєкт:**
-   - "New Project" → "Deploy from GitHub repo"
-   - Вибрати репозиторій
-   - Path: `/server` (папка server)
-
-3. **Налаштувати змінні оточення:**
-   - В Railway проєкті → Variables
-   - Додати:
-     - `DATABASE_URL` = (Supabase connection string з `.env`)
-     - `JWT_SECRET` = (ваш секретний ключ)
-
-4. **Налаштувати команди:**
-   - Build Command: `npm install && npm run prisma:generate && npm run build`
-   - Start Command: `npm start`
-
-5. **Deploy!**
-   - Railway автоматично задеплоїть
-   - Отримаєте URL типу: `your-app.railway.app`
+1. **SSH на VPS:** `ssh root@116.203.243.128`
+2. **Клонувати/оновлювати код:** `cd /opt/text-rpg && git pull`
+3. **Налаштувати `.env` в server/:** `DATABASE_URL`, `JWT_SECRET`
+4. **Запустити деплой:** `./server/deploy-vps.sh`
+5. **Backend URL:** `https://l2dop.com`
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
@@ -121,9 +104,8 @@
 2. Додати ваш домен (наприклад, `game.yourdomain.com`)
 3. Налаштувати DNS записи (CNAME або A record)
 
-**Для Railway:**
-1. Service → Settings → Networking
-2. Generate Domain (або підключити custom domain)
+**Для VPS:**
+1. Налаштувати Nginx/Caddy для домену l2dop.com
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 

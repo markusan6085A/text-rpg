@@ -21,8 +21,8 @@ git pull
 echo -e "${GREEN}✅ Останній коміт:${NC}"
 git log -1 --oneline
 
-# КРОК 3: Перезібрати backend (як на Railway - автоматично міграції)
-echo -e "${GREEN}📦 КРОК 3: Перезібірка backend (як на Railway)...${NC}"
+# КРОК 3: Перезібрати backend (автоматично міграції)
+echo -e "${GREEN}📦 КРОК 3: Перезібірка backend...${NC}"
 cd /opt/text-rpg/server
 npm ci
 npm run prisma:generate

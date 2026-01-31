@@ -21,56 +21,15 @@ git push
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
-## Крок 2: Деплой Backend на Railway
+## Крок 2: Деплой Backend на VPS
 
-### 2.1. Реєстрація
-1. Перейти на https://railway.app
-2. Натиснути "Login" → "Login with GitHub"
-3. Дозволити доступ до GitHub
+Backend деплоїться на VPS (наприклад, l2dop.com). Див. `VPS_QUICK_DEPLOY.md` та `server/deploy-vps.sh`.
 
-### 2.2. Створити проект
-1. Натиснути **"New Project"**
-2. Вибрати **"Deploy from GitHub repo"**
-3. Вибрати ваш репозиторій `text-rpg`
-4. Railway почне деплой (поки що буде помилка - це нормально)
-
-### 2.3. Налаштувати сервіс
-1. Після створення проекту, Railway покаже сервіс
-2. Натиснути на сервіс → **Settings** → **Root Directory**
-3. Встановити: `server`
-4. Натиснути **Save**
-
-### 2.4. Environment Variables
-1. В проєкті → **Variables** tab
-2. Додати змінні:
-
-**DATABASE_URL:**
-- Відкрити `server/.env`
-- Скопіювати значення `DATABASE_URL=...`
-- В Railway додати: `DATABASE_URL` = (вставити значення)
-
-**JWT_SECRET:**
-- Згенерувати секретний ключ:
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-- Скопіювати результат
-- В Railway додати: `JWT_SECRET` = (вставити результат)
-
-**PORT (опціонально):**
-- Railway сам встановить PORT, але можна додати: `PORT` = `3000`
-
-### 2.5. Налаштувати Build/Start команди
-1. В Settings → **Deploy**
-2. Build Command: `npm install && npm run prisma:generate && npm run build`
-3. Start Command: `npm start`
-4. Натиснути **Save**
-
-### 2.6. Отримати URL
-1. В Settings → **Networking**
-2. Натиснути **Generate Domain**
-3. Скопіювати URL (типу `your-app.railway.app`)
-4. Це буде ваш backend URL!
+**Коротко:**
+1. SSH на VPS: `ssh root@116.203.243.128`
+2. Перейти в `/opt/text-rpg`, виконати `git pull`
+3. Запустити `./server/deploy-vps.sh`
+4. Backend URL (якщо frontend і backend на одному домені): `https://l2dop.com`
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
@@ -96,7 +55,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 1. В секції **Environment Variables**
 2. Додати:
    - **Key:** `VITE_API_URL`
-   - **Value:** `https://ваш-backend-url.railway.app` (з Кроку 2.6)
+   - **Value:** `https://l2dop.com` (або URL вашого backend на VPS)
 3. Натиснути **Add**
 4. Перевірити, що вибрано **Production**, **Preview**, **Development**
 
@@ -112,8 +71,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 Після деплою frontend, потрібно оновити CORS на backend:
 
 1. Отримати frontend URL з Vercel (Крок 3.5)
-2. В Railway → Variables
-3. Додати:
+2. На VPS: додати в `server/.env` або env змінні:
    - **Key:** `FRONTEND_URL`
    - **Value:** `https://ваш-frontend-url.vercel.app`
 
@@ -133,7 +91,7 @@ await app.register(cors, {
 });
 ```
 
-Закомітити та запушити зміни. Railway автоматично перезадеплоїть.
+Закомітити та запушити зміни. На VPS виконати `./server/deploy-vps.sh` для перезадеплою.
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
@@ -149,7 +107,7 @@ await app.register(cors, {
 ## ❌ Якщо щось не працює:
 
 ### Backend не запускається:
-- Перевірити логи в Railway (Deployments → View Logs)
+- Перевірити логи на VPS (`pm2 logs` або `journalctl -u text-rpg`)
 - Перевірити, що DATABASE_URL правильний
 - Перевірити, що JWT_SECRET встановлений
 
@@ -159,7 +117,7 @@ await app.register(cors, {
 - Відкрити DevTools → Network, перевірити помилки
 
 ### CORS помилки:
-- Перевірити, що FRONTEND_URL додано в Railway
+- Перевірити, що FRONTEND_URL/дозволені домени в `server/src/index.ts`
 - Перевірити, що `server/src/index.ts` оновлений
 - Перезадеплоїти backend
 
@@ -177,12 +135,15 @@ await app.register(cors, {
 
 ## 🔄 Оновлення після змін:
 
-**Backend:**
+**Backend (VPS):**
 ```bash
+# Локально:
 git add .
 git commit -m "Update backend"
 git push
-# Railway автоматично перезадеплоїть
+
+# На VPS:
+cd /opt/text-rpg && git pull && ./server/deploy-vps.sh
 ```
 
 **Frontend:**
@@ -197,14 +158,10 @@ git push
 
 ## 💡 Підказки:
 
-1. **Безкоштовні ліміти:**
-   - Railway: $5 credit/місяць (достатньо для початку)
-   - Vercel: 100GB bandwidth/місяць (достатньо для початку)
+1. **Моніторинг:**
+   - VPS: `pm2 logs` або `journalctl -u text-rpg`
+   - Vercel: analytics та логи
 
-2. **Моніторинг:**
-   - Railway показує логи в реальному часі
-   - Vercel показує analytics та логи
-
-3. **Кастомний домен:**
+2. **Кастомний домен:**
    - Vercel: Settings → Domains → Add Domain
-   - Railway: Settings → Networking → Custom Domain
+   - VPS: налаштувати Nginx/Caddy для l2dop.com

@@ -14,12 +14,12 @@ Frontend успішно задеплоївся на Vercel!
 
 ### 2. **Перевірити Environment Variable**
 В Dashboard → Settings → Environment Variables:
-- `VITE_API_URL` = `https://text-rpg-production.up.railway.app`
+- `VITE_API_URL` = `https://l2dop.com`
 
 Якщо немає — додайте!
 
-### 3. **Перевірити Backend на Railway**
-- Переконайтеся, що backend працює: `https://text-rpg-production.up.railway.app/health`
+### 3. **Перевірити Backend**
+- Переконайтеся, що backend працює: `https://l2dop.com/health`
 - Має бути: `{"status":"ok"}`
 
 ### 4. **Протестувати гру онлайн**
@@ -34,7 +34,7 @@ Frontend успішно задеплоївся на Vercel!
 
 ### Frontend не підключається до Backend:
 1. Перевірте `VITE_API_URL` в Vercel Settings
-2. Перевірте, що backend працює на Railway
+2. Перевірте, що backend працює на VPS
 3. Перевірте CORS налаштування (мають бути налаштовані)
 
 ### Помилки в консолі браузера:
@@ -56,7 +56,7 @@ Frontend успішно задеплоївся на Vercel!
 ## ✅ Чеклист:
 
 - [ ] Frontend задеплоївся на Vercel
-- [ ] Backend працює на Railway
+- [ ] Backend працює на VPS
 - [ ] Environment Variable `VITE_API_URL` встановлено
 - [ ] Гра працює онлайн
 - [ ] Реєстрація працює

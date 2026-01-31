@@ -20,7 +20,7 @@
 1. В секції **"Environment Variables"**
 2. Натиснути **"+ Add"**
 3. **Key:** `VITE_API_URL`
-4. **Value:** `https://text-rpg-production.up.railway.app`
+4. **Value:** `https://l2dop.com` (або URL вашого VPS backend)
 5. Перевірити галочки: Production, Preview, Development
 6. Натиснути **"Save"**
 
@@ -39,4 +39,4 @@
 
 1. Перевірити логи в Vercel (Deployments → View Logs)
 2. Перевірити, що `VITE_API_URL` правильний
-3. Перевірити, що backend доступний: `https://text-rpg-production.up.railway.app/health`
+3. Перевірити, що backend доступний: `https://l2dop.com/health`

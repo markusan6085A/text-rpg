@@ -3,14 +3,14 @@
 ## Просто натисніть Deploy!
 
 **Що має працювати:**
-- ✅ Backend вже працює на Railway (`text-rpg-production.up.railway.app`)
+- ✅ Backend працює на VPS (l2dop.com)
 - ✅ Frontend задеплоїться з `main` (там є весь frontend код)
 - ✅ Environment Variable `VITE_API_URL` вже додано в Vercel
 
 ## Що робити:
 
 1. **Перевірити Environment Variable:**
-   - `VITE_API_URL` = `https://text-rpg-production.up.railway.app`
+   - `VITE_API_URL` = `https://l2dop.com`
    - Якщо є - ОК!
 
 2. **Натиснути "Deploy"** (чорна кнопка внизу)
@@ -24,12 +24,12 @@
 ## Після деплою:
 
 - Frontend працює на Vercel
-- Backend працює на Railway
-- Всі API запити йдуть на Railway backend
+- Backend працює на VPS
+- Всі API запити йдуть на backend (l2dop.com)
 - Гра доступна онлайн!
 
 <hr style="border: none; border-top: 2px dotted #C9B36B; margin: 20px 0;">
 
 ## Примітка:
 
-Папка `server/` не потрібна для frontend деплою - вона тільки для backend (який вже на Railway). Frontend задеплоїться нормально з `main`.
+Папка `server/` не потрібна для frontend деплою — вона тільки для backend (на VPS). Frontend задеплоїться нормально з `main`.

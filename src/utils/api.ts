@@ -559,10 +559,18 @@ export interface SevenSealsRankResponse {
 }
 
 export async function getSevenSealsRank(characterId: string): Promise<SevenSealsRankResponse> {
-  const response = await apiRequest<SevenSealsRankResponse>(`/seven-seals/rank/${characterId}`, {
-    method: 'GET',
-  });
-  return response;
+  try {
+    const response = await apiRequest<SevenSealsRankResponse>(`/seven-seals/rank/${characterId}`, {
+      method: 'GET',
+    });
+    return response;
+  } catch (err: any) {
+    // 404 = route not found (production server may not have seven-seals yet)
+    if (err?.status === 404) {
+      return { ok: false, rank: null, medalCount: 0 };
+    }
+    throw err;
+  }
 }
 
 // Player Admin API

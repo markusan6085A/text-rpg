@@ -921,15 +921,12 @@ export async function characterRoutes(app: FastifyInstance) {
       // Гравці активні за останні 10 хвилин (600 000 мс)
       const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-      // 🔥 Активні за останні 10 хв: lastActivityAt >= X або (lastActivityAt null + updatedAt >= X)
+      // Активні за останні 10 хв: lastActivityAt >= X
       let onlineCharacters;
       try {
         onlineCharacters = await prisma.character.findMany({
           where: {
-            OR: [
-              { lastActivityAt: { gte: tenMinutesAgo } },
-              { lastActivityAt: null, updatedAt: { gte: tenMinutesAgo } },
-            ],
+            lastActivityAt: { gte: tenMinutesAgo },
           },
           orderBy: [
             { level: "desc" }, // Сортуємо по рівню (високий спочатку)
@@ -941,7 +938,7 @@ export async function characterRoutes(app: FastifyInstance) {
             level: true,
             lastActivityAt: true,
             heroJson: true, // Звідси можемо взяти location та power
-            clanMembers: {
+            clanMember: {
               select: {
                 clan: {
                   select: {
@@ -949,7 +946,6 @@ export async function characterRoutes(app: FastifyInstance) {
                   },
                 },
               },
-              take: 1,
             },
           },
         });
@@ -972,7 +968,7 @@ export async function characterRoutes(app: FastifyInstance) {
             level: true,
             updatedAt: true,
             heroJson: true,
-            clanMembers: {
+            clanMember: {
               select: {
                 clan: {
                   select: {
@@ -980,7 +976,6 @@ export async function characterRoutes(app: FastifyInstance) {
                   },
                 },
               },
-              take: 1,
             },
           },
         });
@@ -993,7 +988,7 @@ export async function characterRoutes(app: FastifyInstance) {
         const power = heroJson.power || 0;
         const nickColor = heroJson.nickColor;
         const lastActivityAt = char.lastActivityAt || char.updatedAt;
-        const emblem = char.clanMembers?.[0]?.clan?.emblem || null;
+        const emblem = char.clanMember?.clan?.emblem || null;
 
         return {
           id: char.id,

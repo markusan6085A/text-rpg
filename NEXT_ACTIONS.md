@@ -20,7 +20,7 @@
 
 **Що зробити:**
 1. Деплой frontend на Vercel
-2. Деплой backend на Railway/Render
+2. Деплой backend на VPS (./server/deploy-vps.sh)
 3. Налаштувати environment variables
 4. Підключити домен (якщо потрібно)
 

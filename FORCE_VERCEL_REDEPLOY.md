@@ -48,7 +48,7 @@ Vercel деплоїть стару версію, хоча код оновлен�
    - Output Directory: `dist`
 
 3. **Environment Variables:**
-   - Додати `VITE_API_URL` = `https://text-rpg-production.up.railway.app`
+   - Додати `VITE_API_URL` = `https://l2dop.com`
    - (для Production, Preview, Development)
 
 4. **Deploy!**

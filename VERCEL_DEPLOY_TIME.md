@@ -37,7 +37,7 @@
 3. **Build Command:** `npm run build` (за замовчуванням)
 4. **Output Directory:** `dist` (за замовчуванням)
 5. **Environment Variables:**
-   - `VITE_API_URL` = `https://text-rpg-production.up.railway.app`
+   - `VITE_API_URL` = `https://l2dop.com`
 6. Натиснути **"Deploy"**
 
 ### Крок 4: Дочекатися деплою (2-3 хвилини)

@@ -21,11 +21,8 @@
 
 ### Варіант 1: Налаштувати VITE_API_URL на Vercel (РЕКОМЕНДОВАНО)
 
-1. **Отримати URL backend:**
-   - Відкрийте Railway Dashboard: https://railway.app/dashboard
-   - Знайдіть ваш backend проект
-   - Settings → Networking → Public Domain
-   - Скопіюйте URL (наприклад: `https://text-rpg-production.up.railway.app`)
+1. **Визначити URL backend:**
+   - Backend працює на VPS: `https://l2dop.com` (або ваш домен)
 
 2. **Додати змінну на Vercel:**
    - Відкрийте Vercel Dashboard: https://vercel.com/dashboard
@@ -33,7 +30,7 @@
    - Settings → Environment Variables
    - Натисніть **"+ Add"**
    - **Key:** `VITE_API_URL`
-   - **Value:** `https://ваш-railway-url.railway.app` (З ОБОВ'ЯЗКОВИМ `https://`!)
+   - **Value:** `https://l2dop.com` (З ОБОВ'ЯЗКОВИМ `https://`!)
    - **Environment:** Виберіть всі (Production, Preview, Development)
    - Натисніть **"Save"**
 
@@ -79,7 +76,7 @@
 ## ⚠️ Важливо:
 
 - **VITE_API_URL має починатися з `https://`** (не `http://`)
-- **Backend має бути доступний** (перевірте Railway)
+- **Backend має бути доступний** (перевірте VPS / l2dop.com)
 - **Після зміни VITE_API_URL потрібен redeploy** на Vercel
 
 ## 🎯 Після виправлення:

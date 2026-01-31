@@ -64,7 +64,7 @@ export async function chatRoutes(app: FastifyInstance) {
             select: {
               name: true,
               heroJson: true, // Include heroJson to get nickColor
-              clanMembers: {
+              clanMember: {
                 select: {
                   clan: {
                     select: {
@@ -72,7 +72,6 @@ export async function chatRoutes(app: FastifyInstance) {
                     },
                   },
                 },
-                take: 1,
               },
             },
           },
@@ -94,15 +93,16 @@ export async function chatRoutes(app: FastifyInstance) {
       return {
         ok: true,
         messages: messages.map((msg) => {
-          const heroJson = (msg.character.heroJson as any) || {};
+          const char = (msg as any).character;
+          const heroJson = (char?.heroJson as any) || {};
           const nickColor = heroJson.nickColor;
-          // 🔥 Отримуємо emblem з клану гравця
-          const clanEmblem = msg.character.clanMembers?.[0]?.clan?.emblem;
-          const emblem = clanEmblem && clanEmblem.trim() ? clanEmblem : null;
+          // Отримуємо emblem з клану гравця
+          const clanEmblem = char?.clanMember?.clan?.emblem;
+          const emblem = clanEmblem && String(clanEmblem).trim() ? clanEmblem : null;
           
           return {
             id: msg.id,
-            characterName: msg.character.name,
+            characterName: char?.name ?? "",
             characterId: msg.characterId, // Include for ownership check
             channel: msg.channel,
             message: msg.message,

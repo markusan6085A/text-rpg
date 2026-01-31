@@ -24,7 +24,7 @@
 1. Натисніть кнопку **"+ Add"** або **"Add New"**
 2. Введіть:
    - **Key:** `VITE_API_URL`
-   - **Value:** `https://ваш-railway-backend-url.railway.app`
+   - **Value:** `https://l2dop.com` (або URL вашого backend)
    - **Environment:** Виберіть всі (Production, Preview, Development)
 3. Натисніть **"Save"**
 

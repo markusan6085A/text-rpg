@@ -8,14 +8,9 @@
 
 ## Рішення
 
-### 1. Отримати URL бекенду на Railway
+### 1. Визначити URL бекенду
 
-1. Відкрийте Railway Dashboard: https://railway.app/dashboard
-2. Знайдіть ваш проект (backend)
-3. Відкрийте сервіс
-4. Перейдіть на вкладку **"Settings"**
-5. У розділі **"Networking"** знайдіть **"Public Domain"** або **"Custom Domain"**
-6. Скопіюйте URL (наприклад: `https://text-rpg-production.up.railway.app`)
+Backend працює на VPS (наприклад, `https://l2dop.com`). Якщо frontend і backend на одному домені — це той самий URL.
 
 ### 2. Додати змінну на Vercel
 
@@ -25,8 +20,7 @@
 4. Натисніть **"Add New"**
 5. Додайте змінну:
    - **Key:** `VITE_API_URL`
-   - **Value:** URL з Railway **З ОБОВ'ЯЗКОВИМ `https://` на початку!** (наприклад: `https://text-rpg-production.up.railway.app`)
-   - ⚠️ **ВАЖЛИВО:** Має бути `https://text-rpg-production.up.railway.app`, а НЕ просто `text-rpg-production.up.railway.app`
+   - **Value:** URL backend **З ОБОВ'ЯЗКОВИМ `https://` на початку!** (наприклад: `https://l2dop.com`)
    - **Environment:** Виберіть всі (Production, Preview, Development)
 6. Натисніть **"Save"**
 
@@ -39,10 +33,9 @@
 
 ### 4. Перевірити бекенд
 
-Переконайтеся, що бекенд працює на Railway:
-- Відкрийте URL бекенду в браузері
-- Має з'явитися JSON з повідомленням (наприклад, `{"message": "API is running"}`)
-- Або перевірте endpoint: `https://ваш-railway-url.com/health` (якщо є)
+Переконайтеся, що бекенд працює:
+- Відкрийте `https://l2dop.com/health` (або ваш URL backend)
+- Має з'явитися `{"status":"ok"}`
 
 ### 5. Перевірити CORS
 
