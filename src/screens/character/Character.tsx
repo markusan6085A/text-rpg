@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
+import { useCharacterStore } from "../../state/characterStore";
 import { getProfessionDefinition, normalizeProfessionId } from "../../data/skills";
 import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
 import CharacterEquipmentFrame from "./CharacterEquipmentFrame";
 import RecipeBookButton from "./RecipeBookButton";
 import CharacterQuests from "./CharacterQuests";
 import CharacterBuffs from "./CharacterBuffs";
-import { listCharacters, type Character } from "../../utils/api";
+import SevenSealsBonusModal from "../../components/SevenSealsBonusModal";
+import { listCharacters, getSevenSealsRank, type Character } from "../../utils/api";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -27,6 +29,26 @@ export default function Character() {
   const [newStatus, setNewStatus] = useState("");
   const [showQuests, setShowQuests] = useState(false);
   const [characterData, setCharacterData] = useState<Character | null>(null);
+  const [sevenSealsRank, setSevenSealsRank] = useState<number | null>(null);
+  const [showSevenSealsModal, setShowSevenSealsModal] = useState(false);
+
+  const characterId = useCharacterStore((s) => s.characterId);
+
+  // Завантажуємо Seven Seals ранг для badge "Победитель 7 печатей"
+  useEffect(() => {
+    const load = async () => {
+      if (!characterId) return;
+      try {
+        const data = await getSevenSealsRank(characterId);
+        if (data.rank && data.rank >= 1 && data.rank <= 3) {
+          setSevenSealsRank(data.rank);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    load();
+  }, [characterId]);
 
   // Завантажуємо Character для отримання createdAt
   useEffect(() => {
@@ -243,6 +265,16 @@ export default function Character() {
             <img src="/icons/rate.png" alt="Ratings" className="w-3 h-3 object-contain" />
             <span>Рейтинги</span>
           </div>
+          {sevenSealsRank !== null && (
+            <button
+              onClick={() => setShowSevenSealsModal(true)}
+              className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-dotted border-[#654321] pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+            >
+              <span className={sevenSealsRank === 1 ? "text-yellow-400" : sevenSealsRank === 2 ? "text-gray-300" : "text-orange-400"}>
+                Победитель 7 печатей ({sevenSealsRank} место)
+              </span>
+            </button>
+          )}
           <button
             onClick={() => navigate("/daily-quests")}
             className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-dotted border-[#654321] pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
@@ -310,6 +342,15 @@ export default function Character() {
         )}
 
       </div>
+
+      {/* Модалка бонусу 7 печатей */}
+      {showSevenSealsModal && sevenSealsRank !== null && (
+        <SevenSealsBonusModal
+          rank={sevenSealsRank as 1 | 2 | 3}
+          playerName={nickname}
+          onClose={() => setShowSevenSealsModal(false)}
+        />
+      )}
 
       {/* Модалка статуса */}
       {showStatusModal && (

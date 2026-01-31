@@ -552,6 +552,19 @@ export async function reportMedalDrop(characterId: string): Promise<{ ok: boolea
   return response;
 }
 
+export interface SevenSealsRankResponse {
+  ok: boolean;
+  rank: number | null;
+  medalCount: number;
+}
+
+export async function getSevenSealsRank(characterId: string): Promise<SevenSealsRankResponse> {
+  const response = await apiRequest<SevenSealsRankResponse>(`/seven-seals/rank/${characterId}`, {
+    method: 'GET',
+  });
+  return response;
+}
+
 // Player Admin API
 export async function healPlayer(characterId: string, skillId: number, power: number): Promise<{ ok: boolean; healedHp?: number; currentHp?: number }> {
   const response = await apiRequest<{ ok: boolean; healedHp?: number; currentHp?: number }>(`/characters/${characterId}/heal`, {

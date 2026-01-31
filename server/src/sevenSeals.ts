@@ -181,4 +181,56 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       });
     }
   });
+
+  // GET /seven-seals/rank/:characterId — ранг персонажа за поточний тиждень (для badge "Победитель 7 печатей")
+  app.get("/seven-seals/rank/:characterId", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { characterId?: string };
+    const characterId = params.characterId;
+
+    if (!characterId) return reply.code(400).send({ error: "characterId required" });
+
+    try {
+      const weekStart = getWeekStartPoland();
+      const weekStartInclusive = getWeekStartInclusive();
+      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      const medals = await prisma.sevenSealsMedal.findMany({
+        where: {
+          weekStart: { gte: weekStartInclusive, lt: weekEnd },
+        },
+        select: {
+          characterId: true,
+          character: { select: { name: true } },
+        },
+      });
+
+      const medalCounts = new Map<string, { characterId: string; count: number }>();
+      medals.forEach((m) => {
+        const current = medalCounts.get(m.characterId) || { characterId: m.characterId, count: 0 };
+        current.count++;
+        medalCounts.set(m.characterId, current);
+      });
+
+      const ranking = Array.from(medalCounts.values())
+        .sort((a, b) => b.count - a.count)
+        .map((p, i) => ({ characterId: p.characterId, rank: i + 1, medalCount: p.count }));
+
+      const entry = ranking.find((p) => p.characterId === characterId);
+
+      return {
+        ok: true,
+        rank: entry?.rank ?? null,
+        medalCount: entry?.medalCount ?? 0,
+      };
+    } catch (error) {
+      app.log.error(error, "Error fetching Seven Seals rank:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
 }

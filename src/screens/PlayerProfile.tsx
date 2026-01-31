@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
+import { getPublicCharacter, getCharacterByName, getSevenSealsRank, type Character } from "../utils/api";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
 import WriteLetterModal from "../components/WriteLetterModal";
@@ -8,6 +8,7 @@ import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { getMyClan } from "../utils/api";
+import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -23,6 +24,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ slot: string; itemId: string | null; enchantLevel?: number } | null>(null);
   const [playerClan, setPlayerClan] = useState<any>(null);
+  const [sevenSealsRank, setSevenSealsRank] = useState<number | null>(null);
+  const [showSevenSealsModal, setShowSevenSealsModal] = useState(false);
   // 🔥 Таймер — перерендер щосекунди, щоб бафи інших гравців зникали при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -63,6 +66,24 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   useEffect(() => {
     loadPlayerProfile();
   }, [playerId, playerName]);
+
+  // Завантажуємо Seven Seals ранг для badge "Победитель 7 печатей"
+  useEffect(() => {
+    const load = async () => {
+      if (!character?.id) return;
+      try {
+        const data = await getSevenSealsRank(character.id);
+        if (data.rank && data.rank >= 1 && data.rank <= 3) {
+          setSevenSealsRank(data.rank);
+        } else {
+          setSevenSealsRank(null);
+        }
+      } catch {
+        setSevenSealsRank(null);
+      }
+    };
+    load();
+  }, [character?.id]);
 
   // ❗ Оновлюємо дані при поверненні на сторінку (коли сторінка стає видимою)
   useEffect(() => {
@@ -245,14 +266,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     <div className="w-full flex flex-col items-center text-white">
       <div className="w-full max-w-[360px] mt-2 px-3">
         {/* Заголовок */}
-        <div className="border-t border-[1px] border-solid border-[#654321] pt-2 mb-2">
+        <div className="border-t border-dotted border-[#654321] pt-2 mb-2">
           <div className="text-center text-[14px] font-bold text-[#87ceeb]">
             Информация о игроке
           </div>
         </div>
 
         {/* Нік, профа, лвл */}
-        <div className="border-t border-[1px] border-solid border-[#654321] pt-2 mb-2">
+        <div className="border-t border-dotted border-[#654321] pt-2 mb-2">
           <div className="text-center text-[12px]">
             <div className="font-bold text-[14px]">
               <PlayerNameWithEmblem
@@ -263,7 +284,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                 size={10}
               />
             </div>
-            <div className="border-b border-[1px] border-solid border-[#654321] pb-2 mb-2">
+            <div className="border-b border-dotted border-[#654321] pb-2 mb-2">
               <div className="text-yellow-300">
                 {professionLabel} - {character.level} ур.
               </div>
@@ -273,8 +294,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Останній раз був / Онлайн */}
         {character.lastActivityAt && (
-          <div className="border-t border-[1px] border-solid border-[#654321] pt-2 mb-2">
-            <div className="text-center text-[11px] border-b border-[1px] border-solid border-[#654321] pb-2">
+          <div className="border-t border-dotted border-[#654321] pt-2 mb-2">
+            <div className="text-center text-[11px] border-b border-dotted border-[#654321] pb-2">
               {isOnline ? (
                 <span className="text-green-400 font-semibold">Онлайн</span>
               ) : (
@@ -287,11 +308,25 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         )}
 
         {/* Статус */}
-        <div className="border-t border-[1px] border-solid border-[#654321] pt-2 mb-3">
-          <div className="text-center text-[11px] text-gray-400 border-b border-[1px] border-solid border-[#654321] pb-2">
+        <div className="border-t border-dotted border-[#654321] pt-2 mb-3">
+          <div className="text-center text-[11px] text-gray-400 border-b border-dotted border-[#654321] pb-2">
             {heroData.status || "Нет статуса"}
           </div>
         </div>
+
+        {/* Победитель 7 печатей — клікабельна кнопка */}
+        {sevenSealsRank !== null && (
+          <div className="mb-3">
+            <button
+              onClick={() => setShowSevenSealsModal(true)}
+              className="w-full text-center text-xs py-2 border border-dotted border-[#654321] rounded cursor-pointer hover:bg-[#2a2015] transition-colors"
+            >
+              <span className={sevenSealsRank === 1 ? "text-yellow-400" : sevenSealsRank === 2 ? "text-gray-300" : "text-orange-400"}>
+                Победитель 7 печатей ({sevenSealsRank} место)
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* Картинка персонажа з екіпіровкою */}
         <div className="mb-4">
@@ -317,7 +352,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Кнопки - просто текст */}
         <div className="flex flex-col gap-1 mb-4">
-          <div className="w-full border-t border-b border-[1px] border-solid border-[#654321] py-1">
+          <div className="w-full border-t border-b border-dotted border-[#654321] py-1">
             <span 
               onClick={() => setShowWriteModal(true)}
               className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
@@ -325,7 +360,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               Написать письмо
             </span>
           </div>
-          <div className="w-full border-t border-b border-[1px] border-solid border-[#654321] py-1">
+          <div className="w-full border-t border-b border-dotted border-[#654321] py-1">
             <span 
               onClick={() => navigate(`/player/${character.id}/admin`)}
               className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
@@ -359,8 +394,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           if (activeBuffs.length === 0 && allBuffs.length === 0) return null;
 
           return (
-            <div className="mb-4 border-t border-[1px] border-solid border-[#654321] pt-3">
-              <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-[1px] border-solid border-[#654321] pb-1">
+            <div className="mb-4 border-t border-dotted border-[#654321] pt-3">
+              <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-[#654321] pb-1">
                 Активні бафи {activeBuffs.length > 0 && `(${activeBuffs.length})`}
               </div>
               {activeBuffs.length === 0 && allBuffs.length > 0 && (
@@ -396,6 +431,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           );
         })()}
 
+        {/* Модалка бонусу 7 печатей */}
+        {showSevenSealsModal && sevenSealsRank !== null && (
+          <SevenSealsBonusModal
+            rank={sevenSealsRank as 1 | 2 | 3}
+            playerName={character.name}
+            onClose={() => setShowSevenSealsModal(false)}
+          />
+        )}
+
         {/* Модалка написання листа */}
         {showWriteModal && (
           <WriteLetterModal
@@ -410,7 +454,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         )}
 
         {/* Інформація */}
-        <div className="space-y-2 text-[11px] text-gray-300 border-t border-[1px] border-solid border-[#654321] pt-3">
+        <div className="space-y-2 text-[11px] text-gray-300 border-t border-dotted border-[#654321] pt-3">
           {/* Профессия */}
           <div className="flex justify-between">
             <span>Профессия:</span>
@@ -426,7 +470,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           )}
 
           {/* Социальный статус */}
-          <div className="border-t border-[1px] border-solid border-[#654321] pt-2 mt-2">
+          <div className="border-t border-dotted border-[#654321] pt-2 mt-2">
             <div className="font-semibold mb-1">Социальный статус</div>
             <div className="grid grid-cols-2 gap-2 text-[10px]">
               <div className="flex justify-between">
@@ -449,7 +493,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
 
           {/* PvP */}
-          <div className="border-t border-[1px] border-solid border-[#654321] pt-2">
+          <div className="border-t border-dotted border-[#654321] pt-2">
             <div className="flex justify-between text-[10px]">
               <span>PvP побед/поражений</span>
               <span className={pvpWins > pvpLosses ? "text-green-400" : "text-gray-400"}>
@@ -459,7 +503,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
 
           {/* Подарки */}
-          <div className="border-t border-[1px] border-solid border-[#654321] pt-2">
+          <div className="border-t border-dotted border-[#654321] pt-2">
             <div className="flex justify-between text-[10px]">
               <span>Подарки</span>
               <span>({giftsCount})</span>
@@ -470,7 +514,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
 
           {/* Локація */}
-          <div className="border-t border-[1px] border-solid border-[#654321] pt-2">
+          <div className="border-t border-dotted border-[#654321] pt-2">
             <div className="text-[10px] text-gray-400">
               В {location}
             </div>
@@ -478,7 +522,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
           {/* Дата реєстрації */}
           {character.createdAt && (
-            <div className="border-t border-[1px] border-solid border-[#654321] pt-2">
+            <div className="border-t border-dotted border-[#654321] pt-2">
               <div className="text-[10px] text-gray-400">
                 Рег-я: {formatLastSeen(character.createdAt)}
               </div>
@@ -488,7 +532,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Кнопка назад - просто текст */}
         <div className="mt-4">
-          <div className="w-full border-t border-b border-[1px] border-solid border-[#654321] py-1">
+          <div className="w-full border-t border-b border-dotted border-[#654321] py-1">
             <span 
               onClick={() => navigate("/online-players")}
               className="cursor-pointer hover:text-blue-300 transition-colors text-[12px] text-blue-400 text-center block"
