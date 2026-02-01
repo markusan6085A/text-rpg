@@ -82,7 +82,7 @@ export const rateLimiters = {
   letters: new RateLimiter(60 * 1000, 5), // 5 листів на хвилину
   
   // Character updates - більш м'які (часто потрібні)
-  characterUpdate: new RateLimiter(60 * 1000, 30), // 30 оновлень на хвилину
+  characterUpdate: new RateLimiter(60 * 1000, 120), // 120 оновлень на хвилину
 };
 
 // Helper для отримання ключа rate limiter (по IP або accountId)
