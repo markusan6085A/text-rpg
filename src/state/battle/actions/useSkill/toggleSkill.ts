@@ -17,7 +17,8 @@ export function handleToggleOff(
   setAndPersist: (updates: Partial<BattleState>) => void,
   get: () => BattleState
 ): boolean {
-  const isToggle = def.toggle === true;
+  // category=buff завжди НЕ toggle — навіть якщо toggle=true в даних
+  const isToggle = def.category === "buff" ? false : (def.toggle === true);
   if (!isToggle) {
     return false;
   }
