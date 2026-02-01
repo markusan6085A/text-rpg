@@ -76,6 +76,26 @@ export default function StatusBars() {
   
   const inBattle = battleStatus !== "idle";
 
+  const getCombinedBuffs = React.useCallback(() => {
+    if (!hero?.name) return [];
+    const now = Date.now();
+    const savedBattle = loadBattle(hero.name);
+    const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
+    const battleBuffs = cleanupBuffs(useBattleStore.getState().heroBuffs || [], now);
+    const heroJson = (hero as any)?.heroJson || {};
+    const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+    const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => b?.expiresAt && b.expiresAt > now);
+
+    const baseBuffs = inBattle ? battleBuffs : savedBuffs;
+    const all = [...baseBuffs, ...activeHeroJsonBuffs];
+    return all.filter((buff, index, self) =>
+      index === self.findIndex((b) =>
+        (b.id && buff.id && b.id === buff.id) ||
+        (!b.id && !buff.id && b.name === buff.name)
+      )
+    );
+  }, [hero?.name, inBattle]);
+
   // Завантажуємо клан для відображення емблеми
   // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан тільки один раз при зміні hero, не поллимо
   React.useEffect(() => {
@@ -145,20 +165,27 @@ export default function StatusBars() {
       const baseMaxMp = currentHero.maxMp || 1;
       const baseMaxCp = currentHero.maxCp ?? Math.round(baseMaxHp * 0.6);
 
-      const hpRegen = Math.max(1, Math.round(baseMaxHp * 0.02));
-      const mpRegen = Math.max(1, Math.round(baseMaxMp * 0.03));
-      const cpRegen = Math.max(1, Math.round(baseMaxCp * 0.05));
+      const combinedBuffs = getCombinedBuffs();
+      const { maxHp: buffedMaxHp, maxMp: buffedMaxMp, maxCp: buffedMaxCp } =
+        calculateMaxResourcesWithPassives(
+          { ...currentHero, maxHp: baseMaxHp, maxMp: baseMaxMp, maxCp: baseMaxCp },
+          combinedBuffs
+        );
 
-      const nextHp = Math.min(baseMaxHp, (currentHero.hp ?? baseMaxHp) + hpRegen);
-      const nextMp = Math.min(baseMaxMp, (currentHero.mp ?? baseMaxMp) + mpRegen);
-      const nextCp = Math.min(baseMaxCp, (currentHero.cp ?? baseMaxCp) + cpRegen);
+      const hpRegen = Math.max(1, Math.round(buffedMaxHp * 0.02));
+      const mpRegen = Math.max(1, Math.round(buffedMaxMp * 0.03));
+      const cpRegen = Math.max(1, Math.round(buffedMaxCp * 0.05));
+
+      const nextHp = Math.min(buffedMaxHp, (currentHero.hp ?? buffedMaxHp) + hpRegen);
+      const nextMp = Math.min(buffedMaxMp, (currentHero.mp ?? buffedMaxMp) + mpRegen);
+      const nextCp = Math.min(buffedMaxCp, (currentHero.cp ?? buffedMaxCp) + cpRegen);
 
       // 🔥 ОПТИМІЗАЦІЯ: Не викликаємо updateHero, якщо ресурси вже на максимумі
       // Це запобігає зайвим збереженням, коли HP/MP/CP вже повні
-      const isAtMax = (nextHp >= baseMaxHp && nextMp >= baseMaxMp && nextCp >= baseMaxCp) &&
-                      (currentHero.hp ?? baseMaxHp) >= baseMaxHp &&
-                      (currentHero.mp ?? baseMaxMp) >= baseMaxMp &&
-                      (currentHero.cp ?? baseMaxCp) >= baseMaxCp;
+      const isAtMax = (nextHp >= buffedMaxHp && nextMp >= buffedMaxMp && nextCp >= buffedMaxCp) &&
+                      (currentHero.hp ?? buffedMaxHp) >= buffedMaxHp &&
+                      (currentHero.mp ?? buffedMaxMp) >= buffedMaxMp &&
+                      (currentHero.cp ?? buffedMaxCp) >= buffedMaxCp;
       
       if (isAtMax) {
         // Ресурси вже на максимумі - не оновлюємо
@@ -230,7 +257,7 @@ export default function StatusBars() {
   const now = Date.now();
   const savedBattle = loadBattle(hero.name);
   const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
-  const battleBuffs = inBattle ? (useBattleStore.getState().heroBuffs || []) : savedBuffs;
+  const battleBuffs = getCombinedBuffs();
   
   // Використовуємо hero.maxHp/maxMp/maxCp як базові значення (єдине джерело правди)
   const baseMaxHp = hero.maxHp || 1;
