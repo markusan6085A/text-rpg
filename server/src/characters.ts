@@ -193,8 +193,19 @@ export async function characterRoutes(app: FastifyInstance) {
       }
 
       const heroJson = (targetChar.heroJson as any) || {};
-      const currentHp = heroJson.hp || heroJson.maxHp || 100;
-      const maxHp = heroJson.maxHp || 100;
+      const rawHp = Number(heroJson.hp ?? 0);
+      const rawMaxHp = Number(
+        heroJson.maxHp ??
+        heroJson.maxHP ??
+        heroJson.max_hp ??
+        heroJson?.resources?.maxHp ??
+        heroJson?.battleStats?.maxHp ??
+        heroJson?.finalStats?.maxHp ??
+        heroJson?.baseFinalStats?.maxHp ??
+        0
+      );
+      const currentHp = rawHp > 0 ? rawHp : (rawMaxHp > 0 ? rawMaxHp : 100);
+      const maxHp = rawMaxHp > 0 ? rawMaxHp : Math.max(currentHp, 100);
       const newHp = Math.min(maxHp, currentHp + body.power);
 
       // ❗ ВАЖЛИВО: Інкрементуємо ревізію при зміні heroJson (side-effect endpoint)

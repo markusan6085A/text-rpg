@@ -281,6 +281,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       hp: Number(hero.hp ?? existingHeroJson.hp ?? 0),
       mp: Number(hero.mp ?? existingHeroJson.mp ?? 0),
       cp: Number(hero.cp ?? existingHeroJson.cp ?? 0),
+      // 🔥 Максимальні ресурси (щоб heal на сервері не падав до 100)
+      maxHp: Number(hero.maxHp ?? existingHeroJson.maxHp ?? 0),
+      maxMp: Number(hero.maxMp ?? existingHeroJson.maxMp ?? 0),
+      maxCp: Number(hero.maxCp ?? existingHeroJson.maxCp ?? 0),
       mobsKilled: Number(currentMobsKilled),
       skills: Array.isArray(hero.skills) ? hero.skills : (Array.isArray(existingHeroJson.skills) ? existingHeroJson.skills : []),
       heroBuffs: Array.isArray(uniqueBuffs) ? uniqueBuffs : [],
