@@ -119,7 +119,7 @@ export function updateHeroLogic(
       maxHp: recalculated.resources.maxHp, // Явно встановлюємо maxHp
       maxMp: recalculated.resources.maxMp, // Явно встановлюємо maxMp
       maxCp: recalculated.resources.maxCp, // Явно встановлюємо maxCp
-      battleStats: recalculated.finalStats,
+      battleStats: recalculated.baseFinalStats,
       // Оновлюємо hp/mp/cp тільки якщо потрібно (не в бою або level up)
       // Використовуємо safeHp/safeMp/safeCp, щоб не перезаписати правильні значення
       ...(shouldUpdateResources ? {

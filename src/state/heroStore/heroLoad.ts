@@ -203,7 +203,7 @@ export function loadHero(): Hero | null {
       ...fixedHero,
       baseStats: recalculated.originalBaseStats, // Оригінальні базові стати (не зрощені)
       baseStatsInitial: fixedHero.baseStatsInitial || recalculated.originalBaseStats, // Зберігаємо оригінальні
-      battleStats: recalculated.finalStats,
+      battleStats: recalculated.baseFinalStats,
       // ❗ ВАЖЛИВО: hero.maxHp має містити БАЗОВЕ значення БЕЗ бафів
       // Бафи застосовуються в computeBuffedMaxResources при використанні
       maxHp: recalculated.resources.maxHp, // Базове значення БЕЗ бафів

@@ -331,14 +331,14 @@ export function handleCorpseDrain(
   const recalculated = recalculateAllStats(heroWithNewHp, activeBuffs);
   
   // Оновлюємо battleStats якщо вони змінилися
-  if (recalculated.finalStats.pAtk !== hero?.battleStats?.pAtk ||
-      recalculated.finalStats.mAtk !== hero?.battleStats?.mAtk ||
-      recalculated.finalStats.pDef !== hero?.battleStats?.pDef ||
-      recalculated.finalStats.mDef !== hero?.battleStats?.mDef) {
+  if (recalculated.baseFinalStats.pAtk !== hero?.battleStats?.pAtk ||
+      recalculated.baseFinalStats.mAtk !== hero?.battleStats?.mAtk ||
+      recalculated.baseFinalStats.pDef !== hero?.battleStats?.pDef ||
+      recalculated.baseFinalStats.mDef !== hero?.battleStats?.mDef) {
     updateHero({ 
       hp: nextHeroHP, 
       mp: nextHeroMP,
-      battleStats: recalculated.finalStats 
+      battleStats: recalculated.baseFinalStats 
     });
   } else {
     updateHero({ hp: nextHeroHP, mp: nextHeroMP });

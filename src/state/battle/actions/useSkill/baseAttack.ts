@@ -192,13 +192,13 @@ export function handleBaseAttack(
   const recalculated = recalculateAllStats(heroWithNewHp, activeBuffs);
   
   // Оновлюємо battleStats якщо вони змінилися
-  if (recalculated.finalStats.pAtk !== hero.battleStats?.pAtk ||
-      recalculated.finalStats.mAtk !== hero.battleStats?.mAtk ||
-      recalculated.finalStats.pDef !== hero.battleStats?.pDef ||
-      recalculated.finalStats.mDef !== hero.battleStats?.mDef) {
+  if (recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk ||
+      recalculated.baseFinalStats.mAtk !== hero.battleStats?.mAtk ||
+      recalculated.baseFinalStats.pDef !== hero.battleStats?.pDef ||
+      recalculated.baseFinalStats.mDef !== hero.battleStats?.mDef) {
     updateHero({ 
       hp: nextHeroHP,
-      battleStats: recalculated.finalStats 
+      battleStats: recalculated.baseFinalStats 
     });
   } else {
     updateHero({ hp: nextHeroHP });
@@ -418,7 +418,7 @@ export function handleBaseAttack(
           hp: heroHpAfter,
           mp: heroMpAfter,
           cp: heroCpAfter,
-          battleStats: recalculatedAfter.finalStats,
+          battleStats: recalculatedAfter.baseFinalStats,
         } as any);
       }
     }
@@ -441,7 +441,7 @@ export function handleBaseAttack(
           hp: heroHpAfter,
           mp: heroMpAfter,
           cp: heroCpAfter,
-          battleStats: recalculatedAfter.finalStats,
+          battleStats: recalculatedAfter.baseFinalStats,
         });
       } else {
         updateHero({

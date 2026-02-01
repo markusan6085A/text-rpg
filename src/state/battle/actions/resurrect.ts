@@ -45,7 +45,7 @@ export const createResurrect =
       hp: nextHP, 
       mp: nextMP, 
       cp: nextCP,
-      battleStats: recalculated.finalStats 
+      battleStats: recalculated.baseFinalStats 
     });
 
     const updates: Partial<BattleState> = {

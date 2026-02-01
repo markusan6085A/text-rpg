@@ -94,12 +94,12 @@ export const createRegenTick =
 
     // Фікс №2: battleStats не тригерити API — тільки store; hp/mp/cp йдуть через onlyRegen (localStorage без PUT).
     const statsChanged =
-      recalculated.finalStats.pAtk !== heroAfterTicks.battleStats?.pAtk ||
-      recalculated.finalStats.mAtk !== heroAfterTicks.battleStats?.mAtk ||
-      recalculated.finalStats.pDef !== heroAfterTicks.battleStats?.pDef ||
-      recalculated.finalStats.mDef !== heroAfterTicks.battleStats?.mDef;
+      recalculated.baseFinalStats.pAtk !== heroAfterTicks.battleStats?.pAtk ||
+      recalculated.baseFinalStats.mAtk !== heroAfterTicks.battleStats?.mAtk ||
+      recalculated.baseFinalStats.pDef !== heroAfterTicks.battleStats?.pDef ||
+      recalculated.baseFinalStats.mDef !== heroAfterTicks.battleStats?.mDef;
     if (statsChanged) {
-      heroStore.updateHero({ battleStats: recalculated.finalStats }, { persist: false });
+      heroStore.updateHero({ battleStats: recalculated.baseFinalStats }, { persist: false });
     }
     heroStore.updateHero({ hp: nextHP, mp: nextMP, cp: nextCP });
 

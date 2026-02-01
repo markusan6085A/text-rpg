@@ -429,10 +429,10 @@ export const createProcessMobAttack =
     const recalculated = recalculateAllStats(heroWithNewHp, nextBuffsAfterDispel);
     
     // Оновлюємо battleStats в heroStore, щоб вони відображалися правильно
-    if (recalculated.finalStats.pAtk !== hero.battleStats?.pAtk) {
+    if (recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk) {
       updateHero({ 
         hp: nextHeroHP,
-        battleStats: recalculated.finalStats 
+        battleStats: recalculated.baseFinalStats 
       });
     } else {
       updateHero({ hp: nextHeroHP });
@@ -466,7 +466,7 @@ export const createProcessMobAttack =
         hp: savedHP, 
         mp: savedMP, 
         cp: Math.min(maxCp, curHeroCP),
-        battleStats: recalculatedSaved.finalStats 
+        battleStats: recalculatedSaved.baseFinalStats 
       });
       
       updates = {

@@ -311,15 +311,15 @@ export function handleBuffSkill(
   const recalculated = recalculateAllStats(heroWithNewHp, newBuffs);
   
   // Оновлюємо battleStats якщо вони змінилися
-  if (recalculated.finalStats.pAtk !== hero.battleStats?.pAtk ||
-      recalculated.finalStats.mAtk !== hero.battleStats?.mAtk ||
-      recalculated.finalStats.pDef !== hero.battleStats?.pDef ||
-      recalculated.finalStats.mDef !== hero.battleStats?.mDef) {
+  if (recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk ||
+      recalculated.baseFinalStats.mAtk !== hero.battleStats?.mAtk ||
+      recalculated.baseFinalStats.pDef !== hero.battleStats?.pDef ||
+      recalculated.baseFinalStats.mDef !== hero.battleStats?.mDef) {
     updateHero({ 
       hp: newHeroHP, 
       mp: newHeroMP, 
       cp: Math.min(maxCp, curHeroCP),
-      battleStats: recalculated.finalStats 
+      battleStats: recalculated.baseFinalStats 
     });
   } else {
     updateHero({ 

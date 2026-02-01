@@ -66,6 +66,25 @@ export interface RecalculatedStats {
     shieldBlockRate?: number;
     shieldBlockPower?: number;
   };
+  // Стати БЕЗ бафів (для бойової логіки)
+  baseFinalStats: {
+    pAtk: number;
+    mAtk: number;
+    pDef: number;
+    mDef: number;
+    accuracy: number;
+    evasion: number;
+    crit: number;
+    mCrit: number;
+    critPower: number;
+    attackSpeed: number;
+    castSpeed: number;
+    hpRegen: number;
+    mpRegen: number;
+    cpRegen: number;
+    shieldBlockRate?: number;
+    shieldBlockPower?: number;
+  };
 }
 
 export function recalculateAllStats(
@@ -249,10 +268,15 @@ export function recalculateAllStats(
   // Але для відображення в UI (Stats.tsx) треба застосувати бафи тут
   const statsWithBuffsForDisplay = applyBuffsToStats(finalCombatStats, buffs);
 
-  // 9. Конвертуємо crit та mCrit в відсотки для відображення (ПІСЛЯ застосування всіх модифікаторів)
+  // 9. Конвертуємо crit та mCrit в відсотки (для відображення)
   // Формула: critPercent = Math.min(100, Math.round(crit / 10))
   // Наприклад: crit = 1200 → critPercent = 100% (1200 / 10 = 120, обмежено до 100)
   // Наприклад: crit = 350 → critPercent = 35% (350 / 10 = 35)
+  const baseStatsWithPercent = {
+    ...finalCombatStats,
+    crit: Math.min(100, Math.round(finalCombatStats.crit / 10)),
+    mCrit: Math.min(100, Math.round(finalCombatStats.mCrit / 10)),
+  };
   const finalStatsWithPercent = {
     ...statsWithBuffsForDisplay,
     crit: Math.min(100, Math.round(statsWithBuffsForDisplay.crit / 10)), // Конвертуємо flat → %
@@ -263,7 +287,8 @@ export function recalculateAllStats(
     baseStats: grownBaseStats, // ЗРОЩЕНІ стати для відображення в UI
     originalBaseStats: originalBaseStats, // ОРИГІНАЛЬНІ стати для збереження
     resources: clampedResources,
-    finalStats: finalStatsWithPercent, // ✅ Використовуємо конвертовані значення З бафами для відображення
+    finalStats: finalStatsWithPercent, // ✅ Значення З бафами для UI
+    baseFinalStats: baseStatsWithPercent, // ✅ Значення БЕЗ бафів (бойова логіка)
   };
 }
 

@@ -265,6 +265,6 @@ export function createNewHero(params: NewHeroParams): HeroCore & { sp: number; s
     ...heroCore,
     sp: 0,
     skills: [],
-    battleStats: recalculated.finalStats,
+    battleStats: recalculated.baseFinalStats,
   } as any; // Тимчасово any для сумісності
 }

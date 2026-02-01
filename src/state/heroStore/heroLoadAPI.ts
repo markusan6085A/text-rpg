@@ -324,7 +324,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       ...fixedHero,
       baseStats: recalculated.originalBaseStats,
       baseStatsInitial: fixedHero.baseStatsInitial || recalculated.originalBaseStats,
-      battleStats: recalculated.finalStats,
+      battleStats: recalculated.baseFinalStats,
       maxHp: recalculated.resources.maxHp,
       maxMp: recalculated.resources.maxMp,
       maxCp: recalculated.resources.maxCp,
