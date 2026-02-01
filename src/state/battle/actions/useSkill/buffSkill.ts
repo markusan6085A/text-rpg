@@ -144,6 +144,12 @@ export function handleBuffSkill(
 
   // category=buff завжди НЕ toggle — навіть якщо toggle=true в даних
   const isToggle = def.category === "buff" ? false : (def.toggle === true);
+  
+  // 🔍 Діагностика: перевірка чи є buff з toggle:true в даних
+  if (import.meta.env.DEV && def.category === "buff" && def.toggle === true) {
+    console.warn("[BUG] Buff skill has toggle:true", { id: def.id, name: def.name, code: def.code, profession: hero.profession });
+  }
+  
   const isSameBuff = createIsSameBuff(def);
   // Для toggle скілів duration не використовується - вони вимикаються тільки вручну
   const durationSec = isToggle ? 0 : (def.duration ?? 10);
@@ -204,7 +210,7 @@ export function handleBuffSkill(
 
   // Додаємо новий баф, якщо є ефекти
   if (effList.length > 0 && def.id !== SONIC_FOCUS_ID && def.id !== FOCUSED_FORCE_ID) {
-    const newBuff = createToggleBuff(def, effList, now, finalDurationSec);
+    const newBuff = createToggleBuff(def, effList, now, finalDurationSec, isToggle);
     
     // 🔥 КРИТИЧНО: Перевіряємо чи є вже такий самий баф, але кращого рівня
     // Якщо є старий баф з таким самим id, але новий кращий - замінюємо

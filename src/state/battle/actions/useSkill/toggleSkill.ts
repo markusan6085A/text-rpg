@@ -69,9 +69,9 @@ export function createToggleBuff(
   def: SkillDefinition,
   effList: any[],
   now: number,
-  finalDurationSec: number
+  finalDurationSec: number,
+  isToggle: boolean
 ): any {
-  const isToggle = def.toggle === true;
   
   // Діагностика для Rapid Shot (id 99)
   if (def.id === 99 && import.meta.env.DEV) {
