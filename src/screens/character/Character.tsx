@@ -8,7 +8,8 @@ import RecipeBookButton from "./RecipeBookButton";
 import CharacterQuests from "./CharacterQuests";
 import CharacterBuffs from "./CharacterBuffs";
 import SevenSealsBonusModal from "../../components/SevenSealsBonusModal";
-import { listCharacters, getSevenSealsRank, type Character } from "../../utils/api";
+import { listCharacters, getSevenSealsRank, claimSevenSealsReward, type Character } from "../../utils/api";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -34,21 +35,34 @@ export default function Character() {
 
   const characterId = useCharacterStore((s) => s.characterId);
 
-  // Завантажуємо Seven Seals ранг для badge "Победитель 7 печатей"
+  // Завантажуємо Seven Seals ранг для badge "Победитель 7 печатей" + auto-claim нагороди
   useEffect(() => {
     const load = async () => {
-      if (!characterId) return;
+      if (!characterId || !hero) return;
       try {
         const data = await getSevenSealsRank(characterId);
         if (data.rank && data.rank >= 1 && data.rank <= 3) {
           setSevenSealsRank(data.rank);
+          // Якщо ще не отримано нагороду — запитуємо claim (сервер згенерує рандомні стати)
+          const heroJson = (hero as any)?.heroJson || {};
+          if (!heroJson.sevenSealsBonus) {
+            try {
+              const claimRes = await claimSevenSealsReward(characterId);
+              if (claimRes.ok && !claimRes.alreadyClaimed) {
+                const loadedHero = await loadHeroFromAPI();
+                if (loadedHero) useHeroStore.getState().setHero(loadedHero);
+              }
+            } catch {
+              // ignore claim errors
+            }
+          }
         }
       } catch {
         // ignore
       }
     };
     load();
-  }, [characterId]);
+  }, [characterId, hero?.name]);
 
   // Завантажуємо Character для отримання createdAt
   useEffect(() => {
@@ -348,6 +362,7 @@ export default function Character() {
         <SevenSealsBonusModal
           rank={sevenSealsRank as 1 | 2 | 3}
           playerName={nickname}
+          bonus={(hero as any)?.heroJson?.sevenSealsBonus}
           onClose={() => setShowSevenSealsModal(false)}
         />
       )}

@@ -114,13 +114,26 @@ export function recalculateAllStats(
   const resources = calcResources(grownBaseStats, level, hero.equipment, hero.activeDyes);
 
   // 3. level scaling + equipment bonuses -> combat stats (використовуємо зрощені стати)
-  const combatStats = calcCombatStats(
+  let combatStats = calcCombatStats(
     grownBaseStats,
     level,
     hero.equipment,
     hero.equipmentEnchantLevels,
     hero.activeDyes
   );
+
+  // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати з heroJson
+  const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus;
+  if (sevenSealsBonus && typeof sevenSealsBonus === "object") {
+    const b = sevenSealsBonus as { pAtk?: number; mAtk?: number; pDef?: number; mDef?: number };
+    combatStats = {
+      ...combatStats,
+      pAtk: combatStats.pAtk + (Number(b.pAtk) || 0),
+      mAtk: combatStats.mAtk + (Number(b.mAtk) || 0),
+      pDef: combatStats.pDef + (Number(b.pDef) || 0),
+      mDef: combatStats.mDef + (Number(b.mDef) || 0),
+    };
+  }
 
   // 🔍 ДІАГНОСТИКА: перевіряємо mDef ПІСЛЯ екіпіровки, ПЕРЕД пасивками
   console.log(`[recalculateAllStats] mDef after equipment:`, {

@@ -19,13 +19,16 @@ const SEVEN_SEALS_REWARDS: Record<number, string> = {
 interface SevenSealsBonusModalProps {
   rank: 1 | 2 | 3;
   playerName?: string;
+  /** Реальні отримані стати (якщо вже отримано нагороду) */
+  bonus?: { pAtk: number; mAtk: number; pDef: number; mDef: number };
   onClose: () => void;
 }
 
-export default function SevenSealsBonusModal({ rank, playerName, onClose }: SevenSealsBonusModalProps) {
-  const bonusText = SEVEN_SEALS_REWARDS[rank];
+export default function SevenSealsBonusModal({ rank, playerName, bonus, onClose }: SevenSealsBonusModalProps) {
+  const rangesText = SEVEN_SEALS_REWARDS[rank];
   const titleColor =
     rank === 1 ? "text-yellow-400" : rank === 2 ? "text-gray-300" : "text-orange-400";
+  const hasBonus = bonus && typeof bonus.pAtk === "number";
 
   return (
     <div
@@ -41,7 +44,15 @@ export default function SevenSealsBonusModal({ rank, playerName, onClose }: Seve
           {playerName && <div className="text-gray-400 text-xs mt-1">{playerName}</div>}
         </div>
         <div className="text-gray-300 text-xs whitespace-pre-line leading-relaxed">
-          {bonusText}
+          {hasBonus ? (
+            <>
+              <div className="text-green-400 font-semibold mb-1">Ваш бонус:</div>
+              <div>Физ/Маг атака: +{bonus!.pAtk} / +{bonus!.mAtk}</div>
+              <div>Физ/Маг защита: +{bonus!.pDef} / +{bonus!.mDef}</div>
+            </>
+          ) : (
+            rangesText
+          )}
         </div>
         <div className="mt-4 flex justify-center">
           <button

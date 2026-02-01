@@ -436,6 +436,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           <SevenSealsBonusModal
             rank={sevenSealsRank as 1 | 2 | 3}
             playerName={character.name}
+            bonus={(character?.heroJson as any)?.sevenSealsBonus}
             onClose={() => setShowSevenSealsModal(false)}
           />
         )}

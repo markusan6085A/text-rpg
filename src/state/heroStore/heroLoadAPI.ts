@@ -335,6 +335,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       skills: finalSkills,
       mobsKilled: finalMobsKilled as any,
     };
+    // 🔥 Зберігаємо повний heroJson з сервера (sevenSealsBonus, heroBuffs тощо)
+    (heroWithRecalculatedStats as any).heroJson = heroData || (fixedHero as any).heroJson || {};
     
     // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
     const hydratedHero = hydrateHero(heroWithRecalculatedStats);

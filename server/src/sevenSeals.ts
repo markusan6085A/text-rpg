@@ -224,6 +224,81 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
+  // POST /seven-seals/claim — отримати нагороду за 1-3 місце (рандомні стати в межах діапазону)
+  app.post("/seven-seals/claim", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const body = req.body as { characterId: string };
+    const characterId = body.characterId;
+    if (!characterId) return reply.code(400).send({ error: "characterId required" });
+
+    try {
+      const character = await prisma.character.findFirst({
+        where: { id: characterId, accountId: auth.accountId },
+        select: { id: true, heroJson: true },
+      });
+      if (!character) return reply.code(404).send({ error: "character not found" });
+
+      const points = await prisma.sevenSealsScore.findUnique({
+        where: { characterId },
+        select: { points: true },
+      }).then(r => r?.points ?? 0);
+
+      const aboveCount = await prisma.sevenSealsScore.count({
+        where: { points: { gt: points } },
+      });
+      const rank = aboveCount + 1;
+      if (rank < 1 || rank > 3) {
+        return reply.code(400).send({ error: "only rank 1-3 can claim rewards" });
+      }
+
+      const heroJson = (character.heroJson as Record<string, unknown>) || {};
+      if (heroJson.sevenSealsBonus && typeof heroJson.sevenSealsBonus === "object") {
+        return reply.send({
+          ok: true,
+          alreadyClaimed: true,
+          bonus: heroJson.sevenSealsBonus,
+        });
+      }
+
+      const RANGES: Record<number, { pAtk: [number, number]; pDef: [number, number] }> = {
+        1: { pAtk: [125, 750], pDef: [154, 456] },
+        2: { pAtk: [100, 500], pDef: [100, 400] },
+        3: { pAtk: [80, 300], pDef: [80, 300] },
+      };
+      const r = RANGES[rank] || RANGES[3];
+      const rand = (min: number, max: number) => Math.floor(min + Math.random() * (max - min + 1));
+      const sevenSealsBonus = {
+        pAtk: rand(r.pAtk[0], r.pAtk[1]),
+        mAtk: rand(r.pAtk[0], r.pAtk[1]),
+        pDef: rand(r.pDef[0], r.pDef[1]),
+        mDef: rand(r.pDef[0], r.pDef[1]),
+        rank,
+      };
+
+      const updatedHeroJson = {
+        ...heroJson,
+        sevenSealsBonus,
+      };
+      await prisma.character.update({
+        where: { id: characterId },
+        data: { heroJson: updatedHeroJson },
+      });
+
+      return reply.send({
+        ok: true,
+        bonus: sevenSealsBonus,
+      });
+    } catch (error) {
+      app.log.error(error, "Error claiming Seven Seals reward:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   // POST /seven-seals/add — нарахування очок (адмін/тест)
   app.post("/seven-seals/add", async (req, reply) => {
     const auth = getAuth(req);

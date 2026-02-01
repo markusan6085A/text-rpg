@@ -573,6 +573,18 @@ export async function getSevenSealsRank(characterId: string): Promise<SevenSeals
   }
 }
 
+export async function claimSevenSealsReward(characterId: string): Promise<{
+  ok: boolean;
+  alreadyClaimed?: boolean;
+  bonus?: { pAtk: number; mAtk: number; pDef: number; mDef: number; rank: number };
+}> {
+  const response = await apiRequest<any>(`/seven-seals/claim`, {
+    method: 'POST',
+    body: JSON.stringify({ characterId }),
+  });
+  return response;
+}
+
 // Player Admin API
 export async function healPlayer(characterId: string, skillId: number, power: number): Promise<{ ok: boolean; healedHp?: number; currentHp?: number }> {
   const response = await apiRequest<{ ok: boolean; healedHp?: number; currentHp?: number }>(`/characters/${characterId}/heal`, {
