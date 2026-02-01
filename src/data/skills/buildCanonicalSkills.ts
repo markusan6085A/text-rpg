@@ -41,6 +41,14 @@ export function buildCanonicalSkills(
         console.log(`[buildCanonicalSkills] 🔧 Skill 337 - використовуємо EvasSaint версію (Arcane Power), всього ${merged[id].levels.length} рівнів`);
         return;
       }
+      // Спеціальна обробка для skill_1001 - Warcryer (Chant of Courage, buff) замінює OrcShaman (Soul Cry, toggle)
+      if (id === 1001 && sk.code === "WC_1001") {
+        merged[id] = { ...sk, levels: [...(sk.levels || [])].sort((a, b) => (a.level || 0) - (b.level || 0)), toggle: false };
+        return;
+      }
+      if (id === 1001 && (sk.code === "OS_1001" || sk.code === "OM_1001") && merged[id]?.code === "WC_1001") {
+        return; // Не перезаписувати WC_1001 (buff) на OS/OM_1001 (toggle)
+      }
       if (!merged[id]) {
         merged[id] = { ...sk, levels: [...(sk.levels || [])].sort((a, b) => (a.level || 0) - (b.level || 0)) };
         return;
