@@ -32,8 +32,10 @@ export const saveLoadout = (heroName: string | undefined, slots: (number | strin
 };
 
 export const BASE_ATTACK = { id: BASE_ATTACK_ID, name: "Attack", icon: "/skills/attack.jpg" };
-/** Нормалізує toggle до суворого boolean — запобігає "всі скіли як toggle" через category/string */
+/** Нормалізує toggle до суворого boolean — buff завжди не-toggle, тільки category=toggle явно toggle */
 function normalizeToggle(def: { toggle?: unknown; category?: string }): boolean {
+  // Buff-скіли НІКОЛИ не toggle — ігноруємо поле toggle якщо category=buff
+  if (typeof def.category === "string" && def.category === "buff") return false;
   return (
     def.toggle === true ||
     def.toggle === "true" ||
