@@ -6,11 +6,17 @@ import { GM_SHOP_ITEMS } from "../GMShop";
 
 // Маппінг profession -> зображення
 const professionImageMap: Record<string, string> = {
-  human_fighter: "photo_2026-01-02_22-50-38.jpg",
-  human_mystic_base: "photo_2026-01-02_22-50-50.jpg",
-  human_mystic_wizard: "photo_2026-01-02_22-50-50.jpg", // для сумісності
+  human_fighter: "Human-voin.jpg",
+  human_mystic_base: "Human-mistsk.jpg",
+  human_mystic_wizard: "Human-mistsk.jpg",
+  elven_fighter: "Elf-voin.jpg",
+  elven_mystic: "Elf-mag.jpg",
+  dark_fighter: "Dark_Elf-voinn.jpg",
+  dark_mystic_base: "Dark_Elf_mag.jpg",
+  dwarven_fighter: "Dwarf_voin.jpg",
+  orc_fighter: "Orc_voinn.jpg",
+  orc_mystic_base: "Orc_mag.jpg",
   // Тут можна додати інші професії
-  // elven_fighter_elven_knight: "photo_2026-01-02_22-50-53.jpg",
   // і т.д.
 };
 
@@ -83,69 +89,71 @@ export default function CharacterEquipmentFrame({
     // Спеціальна обробка для human_fighter та всіх його підкласів з урахуванням статі
     // Всі human_fighter_* професії використовують базове зображення human_fighter
     if ((profession === "human_fighter" || profession.startsWith("human_fighter_")) && gender === "female") {
-      return `/characters/photo_2026-01-02_22-50-53.jpg`;
+      return `/characters/Human-vvoin.jpg`;
     }
     else if ((profession === "human_fighter" || profession.startsWith("human_fighter_")) && gender === "male") {
-      return `/characters/photo_2026-01-02_22-50-38.jpg`;
+      return `/characters/Human-voin.jpg`;
     } 
-    // Спеціальна обробка для human_mystic_base з урахуванням статі
-    else if (profession === "human_mystic_base" && gender === "male") {
-      return `/characters/photo_2026-01-02_22-50-56.jpg`;
+    // Спеціальна обробка для human_mystic_base та всіх human_mystic з урахуванням статі
+    else if ((profession === "human_mystic_base" || profession.startsWith("human_mystic_")) && gender === "male") {
+      return `/characters/Human-mistsk.jpg`;
+    }
+    else if ((profession === "human_mystic_base" || profession.startsWith("human_mystic_")) && gender === "female") {
+      return `/characters/Human-misstsk.jpg`;
     }
     // Спеціальна обробка для elven_mystic з урахуванням статі
-    else if (profession === "elven_mystic" && gender === "male") {
-      return `/characters/photo_2026-01-02_22-50-59.jpg`;
+    else if ((profession === "elven_mystic" || profession.startsWith("elven_mystic_")) && gender === "male") {
+      return `/characters/Elf-mag.jpg`;
     }
-    else if (profession === "elven_mystic" && gender === "female") {
-      return `/characters/photo_2026-01-02_22-51-04.jpg`;
+    else if ((profession === "elven_mystic" || profession.startsWith("elven_mystic_")) && gender === "female") {
+      return `/characters/Elf-mistsk.jpg`;
     }
     // Спеціальна обробка для elven_fighter з урахуванням статі
-    else if (profession === "elven_fighter" && gender === "male") {
-      return `/characters/photo_2026-01-02_22-51-10.jpg`;
+    else if ((profession === "elven_fighter" || profession.startsWith("elven_fighter_")) && gender === "male") {
+      return `/characters/Elf-voin.jpg`;
     }
-    else if (profession === "elven_fighter" && gender === "female") {
-      return `/characters/photo_2026-01-02_22-51-06.jpg`;
+    else if ((profession === "elven_fighter" || profession.startsWith("elven_fighter_")) && gender === "female") {
+      return `/characters/Elf-voinn.jpg`;
     }
     // Спеціальна обробка для dark_fighter з урахуванням статі
-    else if (profession === "dark_fighter" && gender === "male") {
-      return `/characters/photo_2026-01-02_22-51-16.jpg`;
+    else if ((profession === "dark_fighter" || profession.startsWith("dark_fighter_")) && gender === "male") {
+      return `/characters/Dark_Elf-voinn.jpg`;
     }
-    else if (profession === "dark_fighter" && gender === "female") {
-      return `/characters/photo_2026-01-02_22-51-22.jpg`;
+    else if ((profession === "dark_fighter" || profession.startsWith("dark_fighter_")) && gender === "female") {
+      return `/characters/Dark_Elf_voin.jpg`;
     }
-    // Спеціальна обробка для dark_mystic_base з урахуванням статі
-    else if (profession === "dark_mystic_base" && gender === "male") {
-      return `/characters/photo_2026-01-02_22-51-24.jpg`;
+    // Спеціальна обробка для dark_mystic з урахуванням статі
+    else if ((profession === "dark_mystic_base" || profession.startsWith("dark_mystic_")) && gender === "male") {
+      return `/characters/Dark_Elf_mag.jpg`;
     }
-    else if (profession === "dark_mystic_base" && gender === "female") {
-      return `/characters/photo_2026-01-02_22-51-19.jpg`;
+    else if ((profession === "dark_mystic_base" || profession.startsWith("dark_mystic_")) && gender === "female") {
+      return `/characters/Dark_Elf_mistsk.jpg`;
     }
     // Спеціальна обробка для dwarven_fighter з урахуванням статі
-    else if (profession === "dwarven_fighter" && gender === "male") {
-      return `/characters/photo_2026-01-02_22-51-27.jpg`;
+    else if ((profession === "dwarven_fighter" || profession.startsWith("dwarven_fighter_")) && gender === "male") {
+      return `/characters/Dwarf_voin.jpg`;
     }
-    else if (profession === "dwarven_fighter" && gender === "female") {
-      return `/characters/photo_2026-01-02_22-51-30.jpg`;
+    else if ((profession === "dwarven_fighter" || profession.startsWith("dwarven_fighter_")) && gender === "female") {
+      return `/characters/Dwarfvoiiin.jpg`;
     }
     // Спеціальна обробка для orc_fighter та всіх його підкласів (включаючи Titan) з урахуванням статі
-    // Titan = orc_fighter_titan, тому всі orc_fighter_* використовують базове зображення orc_fighter
     else if ((profession === "orc_fighter" || profession.startsWith("orc_fighter_")) && gender === "male") {
-      return `/characters/photo_2026-01-03_07-00-39.jpg`;
+      return `/characters/Orc_voinn.jpg`;
     }
     else if ((profession === "orc_fighter" || profession.startsWith("orc_fighter_")) && gender === "female") {
-      return `/characters/photo_2026-01-02_22-51-38.jpg`;
+      return `/characters/Orc_vjinnn.jpg`;
     }
-    // Спеціальна обробка для orc_mystic_base з урахуванням статі
-    else if (profession === "orc_mystic_base" && gender === "male") {
-      return `/characters/photo_2026-01-02_22-51-35.jpg`;
+    // Спеціальна обробка для orc_mystic з урахуванням статі
+    else if ((profession === "orc_mystic_base" || profession.startsWith("orc_mystic_")) && gender === "male") {
+      return `/characters/Orc_mag.jpg`;
     }
-    else if (profession === "orc_mystic_base" && gender === "female") {
-      return `/characters/photo_2026-01-02_22-51-41.jpg`;
+    else if ((profession === "orc_mystic_base" || profession.startsWith("orc_mystic_")) && gender === "female") {
+      return `/characters/Orc_mistik.jpg`;
     }
-    // Обробка для soultaker (human_mystic_soultaker)
+    // Обробка для soultaker (human_mystic_soultaker) - мужська версія мистика
     else if (profession === "human_mystic_soultaker" || profession === "soultaker" || profession.includes("soultaker")) {
-      // Використовуємо зображення для human_mystic_base
-      const imagePath = `/characters/photo_2026-01-02_22-50-50.jpg`;
+      // Використовуємо зображення для human_mystic male
+      const imagePath = gender === "female" ? `/characters/Human-misstsk.jpg` : `/characters/Human-mistsk.jpg`;
       console.log(`[CharacterEquipmentFrame] Using soultaker image: ${imagePath}`);
       return imagePath;
     }
@@ -163,28 +171,28 @@ export default function CharacterEquipmentFrame({
       // Якщо файл не знайдено в characterMap, використовуємо базові зображення
       if (!characterMap[key]) {
         if (race === "human" && gender === "male") {
-          fallbackImage = `/characters/photo_2026-01-02_22-50-38.jpg`; // human_fighter male
+          fallbackImage = `/characters/Human-voin.jpg`; // human_fighter male
         } else if (race === "human" && gender === "female") {
-          fallbackImage = `/characters/photo_2026-01-02_22-50-53.jpg`; // human_fighter female
+          fallbackImage = `/characters/Human-vvoin.jpg`; // human_fighter female
         } else if (race === "elf" && gender === "male") {
-          fallbackImage = `/characters/photo_2026-01-02_22-51-10.jpg`; // elven_fighter male
+          fallbackImage = `/characters/Elf-voin.jpg`; // elven_fighter male
         } else if (race === "elf" && gender === "female") {
-          fallbackImage = `/characters/photo_2026-01-02_22-51-06.jpg`; // elven_fighter female
+          fallbackImage = `/characters/Elf-voinn.jpg`; // elven_fighter female
         } else if (race === "darkelf" || race === "dark elf") {
           fallbackImage = gender === "male" 
-            ? `/characters/photo_2026-01-02_22-51-16.jpg` 
-            : `/characters/photo_2026-01-02_22-51-22.jpg`;
+            ? `/characters/Dark_Elf-voinn.jpg` 
+            : `/characters/Dark_Elf_voin.jpg`;
         } else if (race === "dwarf" || race === "dwarven") {
           fallbackImage = gender === "male" 
-            ? `/characters/photo_2026-01-02_22-51-27.jpg` 
-            : `/characters/photo_2026-01-02_22-51-30.jpg`;
+            ? `/characters/Dwarf_voin.jpg` 
+            : `/characters/Dwarfvoiiin.jpg`;
         } else if (race === "orc") {
           fallbackImage = gender === "male" 
-            ? `/characters/photo_2026-01-03_07-00-39.jpg` 
-            : `/characters/photo_2026-01-02_22-51-38.jpg`;
+            ? `/characters/Orc_voinn.jpg` 
+            : `/characters/Orc_vjinnn.jpg`;
         } else {
-          // Останній fallback - human male
-          fallbackImage = `/characters/photo_2026-01-02_22-50-38.jpg`;
+          // Останній fallback - human male fighter
+          fallbackImage = `/characters/Human-voin.jpg`;
         }
       }
       
@@ -416,28 +424,28 @@ export default function CharacterEquipmentFrame({
               const race = hero?.race?.toLowerCase() || "human";
               
               // Визначаємо fallback зображення за race+gender
-              let fallbackSrc = `/characters/photo_2026-01-02_22-50-38.jpg`; // default: human male
+              let fallbackSrc = `/characters/Human-voin.jpg`; // default: human male fighter
               
               if (race === "human" && gender === "female") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-50-53.jpg`;
+                fallbackSrc = `/characters/Human-vvoin.jpg`;
               } else if (race === "human" && gender === "male") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-50-38.jpg`;
+                fallbackSrc = `/characters/Human-voin.jpg`;
               } else if (race === "elf" && gender === "male") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-51-10.jpg`;
+                fallbackSrc = `/characters/Elf-voin.jpg`;
               } else if (race === "elf" && gender === "female") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-51-06.jpg`;
+                fallbackSrc = `/characters/Elf-voinn.jpg`;
               } else if ((race === "darkelf" || race === "dark elf") && gender === "male") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-51-16.jpg`;
+                fallbackSrc = `/characters/Dark_Elf-voinn.jpg`;
               } else if ((race === "darkelf" || race === "dark elf") && gender === "female") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-51-22.jpg`;
+                fallbackSrc = `/characters/Dark_Elf_voin.jpg`;
               } else if ((race === "dwarf" || race === "dwarven") && gender === "male") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-51-27.jpg`;
+                fallbackSrc = `/characters/Dwarf_voin.jpg`;
               } else if ((race === "dwarf" || race === "dwarven") && gender === "female") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-51-30.jpg`;
+                fallbackSrc = `/characters/Dwarfvoiiin.jpg`;
               } else if (race === "orc" && gender === "male") {
-                fallbackSrc = `/characters/photo_2026-01-03_07-00-39.jpg`;
+                fallbackSrc = `/characters/Orc_voinn.jpg`;
               } else if (race === "orc" && gender === "female") {
-                fallbackSrc = `/characters/photo_2026-01-02_22-51-38.jpg`;
+                fallbackSrc = `/characters/Orc_vjinnn.jpg`;
               }
               
               return (
