@@ -3,9 +3,11 @@ import { useHeroStore } from "../../state/heroStore";
 import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
+import { getCharacter } from "../../utils/api";
 
 export default function CharacterBuffs() {
   const hero = useHeroStore((s) => s.hero);
+  const updateHero = useHeroStore((s) => s.updateHero);
   const battleStatus = useBattleStore((s) => s.status);
   const battleBuffs = useBattleStore((s) => s.heroBuffs || []);
   // 🔥 Таймер — перерендер кожну секунду, щоб зникали прострочені бафи
@@ -14,6 +16,37 @@ export default function CharacterBuffs() {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  // 🔥 Синхронізуємо heroJson.heroBuffs із сервера (коли бафають інші гравці)
+  useEffect(() => {
+    if (!hero?.id) return;
+
+    let disposed = false;
+    const syncFromServer = async () => {
+      try {
+        const data = await getCharacter(hero.id);
+        const serverBuffs = Array.isArray((data as any)?.heroJson?.heroBuffs)
+          ? (data as any).heroJson.heroBuffs
+          : [];
+        const localBuffs = Array.isArray((hero as any)?.heroJson?.heroBuffs)
+          ? (hero as any).heroJson.heroBuffs
+          : [];
+
+        if (!disposed && JSON.stringify(serverBuffs) !== JSON.stringify(localBuffs)) {
+          updateHero({ heroJson: { heroBuffs: serverBuffs } }, { persist: false });
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    syncFromServer();
+    const t = setInterval(syncFromServer, 5000);
+    return () => {
+      disposed = true;
+      clearInterval(t);
+    };
+  }, [hero?.id]);
 
   if (!hero) return null;
 
