@@ -236,8 +236,8 @@ export const createUseSkill =
       heroStats
     );
 
-    // Перевірка cooldown — toggle нормалізований у getSkillDef до boolean
-    const isToggle = def.toggle === true;
+    // category=buff завжди НЕ toggle — навіть якщо toggle=true в даних
+    const isToggle = def.category === "buff" ? false : (def.toggle === true);
     const cooldowns = get().cooldowns || {};
     
     if (skillId !== BASE_ATTACK.id) {

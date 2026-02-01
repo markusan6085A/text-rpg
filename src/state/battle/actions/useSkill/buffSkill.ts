@@ -142,7 +142,8 @@ export function handleBuffSkill(
     });
   }
 
-  const isToggle = def.toggle === true;
+  // category=buff завжди НЕ toggle — навіть якщо toggle=true в даних
+  const isToggle = def.category === "buff" ? false : (def.toggle === true);
   const isSameBuff = createIsSameBuff(def);
   // Для toggle скілів duration не використовується - вони вимикаються тільки вручну
   const durationSec = isToggle ? 0 : (def.duration ?? 10);
