@@ -113,13 +113,23 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (localHasMoreProgress) {
         const reason = localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress');
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
-        // Використовуємо локальну версію і одразу пушимо на сервер у фоні
+        // 🔥 hp/mp/cp беремо з СЕРВЕРА — щоб не перезаписати heal/buff з side-effect endpoints
+        const heroData = character.heroJson as any;
+        const serverHp = heroData?.hp !== undefined && heroData?.hp !== null ? Number(heroData.hp) : undefined;
+        const serverMp = heroData?.mp !== undefined && heroData?.mp !== null ? Number(heroData.mp) : undefined;
+        const serverCp = heroData?.cp !== undefined && heroData?.cp !== null ? Number(heroData.cp) : undefined;
+        const mergedHero: Hero = {
+          ...hydratedLocalHero,
+          ...(serverHp !== undefined ? { hp: serverHp } : {}),
+          ...(serverMp !== undefined ? { mp: serverMp } : {}),
+          ...(serverCp !== undefined ? { cp: serverCp } : {}),
+        };
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
-          saveHeroToLocalStorage(hydratedLocalHero).catch((err: any) => {
+          saveHeroToLocalStorage(mergedHero).catch((err: any) => {
             console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);
           });
         });
-        return hydratedLocalHero;
+        return mergedHero;
       }
       
       // 🔥 Перевіряємо конфлікт синхронізації (для інших випадків)

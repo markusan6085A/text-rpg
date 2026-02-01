@@ -227,7 +227,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       );
       
       if (result.ok) {
-        alert(`Игрок ${character.name} вылечен на ${result.healedHp || healPower} HP. Текущее HP: ${result.currentHp}`);
+        alert(`Игроку ${character.name} відновлено ${result.healedHp || healPower} HP.`);
         // Перезавантажуємо профіль
         const loadPlayer = async () => {
           try {
