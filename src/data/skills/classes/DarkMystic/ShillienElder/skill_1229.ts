@@ -13,7 +13,7 @@ export const skill_1229: SkillDefinition = {
   icon: "/skills/skill1303.gif",
   category: "buff",
   powerType: "percent",
-  target: "self",
+  target: "ally",
   scope: "single",
   duration: 1200,
   castTime: 4,

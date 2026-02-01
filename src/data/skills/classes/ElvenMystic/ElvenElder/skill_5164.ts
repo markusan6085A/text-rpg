@@ -11,7 +11,7 @@ export const skill_5164: SkillDefinition = {
   icon: "/skills/skill5164.gif",
   category: "buff",
   powerType: "none",
-  target: "self",
+  target: "ally",
   scope: "single",
   duration: 1200,
   castTime: 4,
