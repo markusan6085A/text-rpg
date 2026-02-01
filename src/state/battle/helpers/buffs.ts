@@ -73,9 +73,10 @@ export const applyBuffsToStats = (
         });
       }
       
-      // Для multiplier режиму використовуємо eff.multiplier, для інших - eff.value
-      const val = mode === "multiplier" 
-        ? (eff.multiplier ?? 1) 
+      // Для multiplier режиму: eff.multiplier або eff.value (дефолт 1)
+      // Для інших режимів: eff.value (дефолт 0)
+      const val = mode === "multiplier"
+        ? (eff.multiplier ?? eff.value ?? 1)
         : (eff.value ?? 0);
       
       // Маппінг статів для сумісності
@@ -145,16 +146,17 @@ export const applyBuffsToStats = (
       // ❗ ВАЖЛИВО: Збираємо всі percent бафи для кожного стату
       // Відсотки додаються, а не множаться один на одного
       if (mode === "percent") {
+        const percentValue = eff.multiplier !== undefined && eff.multiplier !== null ? eff.multiplier : val;
         if (stat === "skillCritRate" || stat === "vampirism" || stat === "critDamage") {
           // skillCritRate, vampirism, and critDamage are always additive (e.g., +20% critDamage means add 20)
           // The value is already in percentage points, so we add it directly
-          flatBuffsByStat[targetStat] = (flatBuffsByStat[targetStat] || 0) + val;
+          flatBuffsByStat[targetStat] = (flatBuffsByStat[targetStat] || 0) + percentValue;
         } else if (stat === "atkSpeed" || stat === "attackSpeed") {
           // Для atkSpeed збираємо відсотки окремо
-          percentBuffsByStat[targetStat] = (percentBuffsByStat[targetStat] || 0) + val;
+          percentBuffsByStat[targetStat] = (percentBuffsByStat[targetStat] || 0) + percentValue;
         } else {
           // Для всіх інших статів (включаючи pAtk, mAtk, pDef, mDef) збираємо відсотки
-          percentBuffsByStat[targetStat] = (percentBuffsByStat[targetStat] || 0) + val;
+          percentBuffsByStat[targetStat] = (percentBuffsByStat[targetStat] || 0) + percentValue;
         }
       } else if (mode === "multiplier") {
         // Для multiplier збираємо множники (вони множаться один на одного)
@@ -185,9 +187,7 @@ export const applyBuffsToStats = (
   // Спочатку застосовуємо multiplier бафи (вони множаться один на одного)
   Object.keys(multiplierBuffsByStat).forEach((targetStat) => {
     const baseValue = typeof stats?.[targetStat] === "number" ? stats[targetStat] : (merged[targetStat] ?? 0);
-    if (baseValue > 0) {
-      merged[targetStat] = baseValue * multiplierBuffsByStat[targetStat];
-    }
+    merged[targetStat] = baseValue * multiplierBuffsByStat[targetStat];
   });
 
   // Потім застосовуємо percent бафи (відсотки додаються, а не множаться)
