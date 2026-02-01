@@ -1,7 +1,7 @@
 import React from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { getSkillsForProfession, normalizeProfessionId, getProfessionDefinition, getDefaultProfessionForKlass } from "../../data/skills";
-import { getSkillDef } from "../../state/battle/loadout";
+import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { AdditionalSkills } from "../../data/skills/additional";
 
@@ -139,10 +139,15 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
     return parts;
   };
 
-  // Отримуємо вивчені скіли з повною інформацією
+  // Отримуємо вивчені скіли з повною інформацією — getSkillDefForBattle для професійної версії (Chant of Life vs Wild Magic)
   const skillsWithInfo = learnedSkills
     .map((learned: any) => {
-      const skillDef = getSkillDef(learned.id);
+      const skillDef = getSkillDefForBattle(
+        effectiveProfession,
+        fixedHero.klass,
+        fixedHero.race,
+        learned.id
+      ) ?? getSkillDef(learned.id);
       if (!skillDef) return null;
 
       // Перевіряємо, чи скіл належить поточній професії або є додатковим скілом
