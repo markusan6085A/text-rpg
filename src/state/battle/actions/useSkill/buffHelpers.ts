@@ -187,8 +187,8 @@ export function isBuffBetter(newBuff: any, oldBuff: any): boolean {
     }
   }, 0);
   
-  // Новий баф кращий якщо має більшу загальну силу
-  return newTotalPower > oldTotalPower;
+  // Новий баф кращий або такий самий — додаємо для оновлення тривалості (перебаф)
+  return newTotalPower >= oldTotalPower;
 }
 
 /**
