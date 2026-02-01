@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
-import { getSkillDef } from "../state/battle/loadout";
+import { getSkillDef, getSkillDefForBattle } from "../state/battle/loadout";
 import { normalizeProfessionId, getProfessionDefinition } from "../data/skills";
 import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -108,10 +108,17 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
     return hero.skills
       .map((learned: any) => {
-        const skillDef = getSkillDef(learned.id);
+        // ❗ Використовуємо getSkillDefForBattle — професійна версія скіла (Prophet 1045/1048/1062 мають target: "ally")
+        const skillDef = getSkillDefForBattle(
+          (hero as any).profession ?? null,
+          (hero as any).klass,
+          (hero as any).race,
+          learned.id
+        ) ?? getSkillDef(learned.id);
         if (!skillDef || skillDef.category !== "buff") return null;
-        // ❗ Фільтруємо скіли з target: "self" — їх не можна застосувати на інших гравців
-        if (skillDef.target === "self") return null;
+        // ❗ Показуємо тільки скіли з target "ally" або "party" — їх можна застосувати на інших гравців
+        const target = skillDef.target ?? "self";
+        if (target !== "ally" && target !== "party") return null;
 
         const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
         

@@ -69,24 +69,27 @@ export function buildCanonicalSkills(
           console.log(`[buildCanonicalSkills] 🔧 Skill 312 (Vicious Stance) - використовуємо ефекти для Rogue (тільки critDamage)`);
         }
       }
-      // Спеціальна обробка для skill_1229 - різні скіли для Warcryer (Chant of Life) та ShillienElder (Wild Magic)
-      // Warcryer версія має пріоритет (hpRegen), ShillienElder версія (skillCritRate) не повинна перезаписувати
-      else if (id === 1229 && sk.code === "WC_1229" && incomingHasEffects) {
-        // Warcryer версія (Chant of Life) - завжди використовуємо її назву та ефекти
-        base.name = sk.name; // "Chant of Life"
-        base.effects = sk.effects; // hpRegen
-        base.description = sk.description;
-        console.log(`[buildCanonicalSkills] 🔧 Skill 1229 - використовуємо Warcryer версію (Chant of Life)`);
+      // Спеціальна обробка для skill_1229 - Warcryer/Shillien Saint (Chant of Life) та ShillienElder (Wild Magic)
+      else if ((id === 1229 && sk.code === "WC_1229") || (id === 1229 && sk.code === "DMS_1229")) {
+        if (incomingHasEffects || sk.code === "DMS_1229") {
+          base.name = sk.name; // "Chant of Life"
+          base.effects = sk.effects; // hpRegen
+          base.description = sk.description;
+          base.target = sk.target;
+          base.scope = sk.scope;
+          base.code = sk.code;
+          console.log(`[buildCanonicalSkills] 🔧 Skill 1229 - використовуємо версію Chant of Life (${sk.code})`);
+        }
       } else if (id === 1229 && sk.code === "DME_1229") {
-        // ShillienElder версія (Wild Magic) - НЕ перезаписуємо, якщо вже є Warcryer версія
-        if (base.code !== "WC_1229") {
-          // Тільки якщо Warcryer версія ще не була оброблена
+        // ShillienElder версія (Wild Magic) — не перезаписуємо, якщо вже є Chant of Life (WC_1229 або DMS_1229)
+        const isChantOfLife = base.code === "WC_1229" || base.code === "DMS_1229";
+        if (!isChantOfLife) {
           base.name = sk.name; // "Wild Magic"
           base.effects = sk.effects; // skillCritRate
           base.description = sk.description;
           console.log(`[buildCanonicalSkills] 🔧 Skill 1229 - використовуємо ShillienElder версію (Wild Magic)`);
         } else {
-          console.log(`[buildCanonicalSkills] ⚠️ Skill 1229 - ігноруємо ShillienElder версію, вже є Warcryer версія`);
+          console.log(`[buildCanonicalSkills] ⚠️ Skill 1229 - ігноруємо ShillienElder версію, вже є Chant of Life`);
         }
       }
       // Спеціальна обробка для skill_1311 - різні скіли для Warcryer (Chant of Strength) та HumanMystic/Bishop (Body of Avatar)

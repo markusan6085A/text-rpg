@@ -51,9 +51,15 @@ export function getSkillsForProfession(
 
   const result: SkillDefinition[] = [];
   allowedLevels.forEach((levelsSet, id) => {
-    const base = canonical[id];
+    // Для Shillien Saint і skill 1229 використовуємо визначення з модуля Saint (Chant of Life), а не canonical (Wild Magic)
+    let base = canonical[id];
+    if (pid === "dark_mystic_shillien_saint" && id === 1229) {
+      const saintMod = modules[modules.length - 1];
+      const saintSkill = saintMod && Object.values(saintMod).find((s: any) => s?.id === 1229);
+      if (saintSkill) base = saintSkill as SkillDefinition;
+    }
     if (!base) return;
-    
+
     let filteredLevels = (base.levels || []).filter((lvl: any) => levelsSet.has(lvl.level));
     
     // Для Rogue (1-ша професія, 20-40 лвл) фільтруємо рівні за requiredLevel <= 40
