@@ -79,7 +79,12 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
     return playerHero.skills
       .map((learned: any) => {
-        const skillDef = getSkillDef(learned.id);
+        const skillDef = getSkillDefForBattle(
+          playerHero.profession ?? null,
+          playerHero.klass,
+          playerHero.race,
+          learned.id
+        ) ?? getSkillDef(learned.id);
         if (!skillDef || skillDef.category !== "buff") return null;
 
         const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
@@ -102,21 +107,21 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [playerHero]);
 
-  // Отримуємо мої buff скіли (для застосування) — тільки ті, які можна застосувати на інших
+  // Отримуємо buff скіли для застосування на гравця — використовуємо бафи ПЕРЕГЛЯНУТОГО гравця (playerHero),
+  // щоб GM міг застосувати бафи цього персонажа на нього ж (або якщо це власний профіль — ті самі бафи)
   const myBuffSkills = useMemo(() => {
-    if (!hero || !hero.skills) return [];
+    const source = playerHero || hero;
+    if (!source || !source.skills) return [];
 
-    return hero.skills
+    return source.skills
       .map((learned: any) => {
-        // ❗ Використовуємо getSkillDefForBattle — професійна версія скіла (Prophet 1045/1048/1062 мають target: "ally")
         const skillDef = getSkillDefForBattle(
-          (hero as any).profession ?? null,
-          (hero as any).klass,
-          (hero as any).race,
+          (source as any).profession ?? null,
+          (source as any).klass,
+          (source as any).race,
           learned.id
         ) ?? getSkillDef(learned.id);
         if (!skillDef || skillDef.category !== "buff") return null;
-        // ❗ Показуємо тільки скіли з target "ally" або "party" — їх можна застосувати на інших гравців
         const target = skillDef.target ?? "self";
         if (target !== "ally" && target !== "party") return null;
 
@@ -138,7 +143,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       })
       .filter((s): s is NonNullable<typeof s> => s !== null)
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [hero]);
+  }, [playerHero, hero]);
 
   // Отримуємо мої heal скіли
   const myHealSkills = useMemo(() => {
