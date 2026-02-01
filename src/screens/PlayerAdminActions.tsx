@@ -102,7 +102,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [playerHero]);
 
-  // Отримуємо мої buff скіли (для застосування)
+  // Отримуємо мої buff скіли (для застосування) — тільки ті, які можна застосувати на інших
   const myBuffSkills = useMemo(() => {
     if (!hero || !hero.skills) return [];
 
@@ -110,6 +110,8 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       .map((learned: any) => {
         const skillDef = getSkillDef(learned.id);
         if (!skillDef || skillDef.category !== "buff") return null;
+        // ❗ Фільтруємо скіли з target: "self" — їх не можна застосувати на інших гравців
+        if (skillDef.target === "self") return null;
 
         const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
         
