@@ -182,51 +182,76 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /seven-seals/rank/:characterId — ранг персонажа за поточний тиждень (для badge "Победитель 7 печатей")
+  // GET /seven-seals/rank/:characterId — ранг персонажа (SevenSealsScore)
+  // Якщо рядка нема → points:0, rank:1 (без 404)
   app.get("/seven-seals/rank/:characterId", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const params = req.params as { characterId?: string };
-    const characterId = params.characterId;
-
+    const { characterId } = req.params as { characterId: string };
     if (!characterId) return reply.code(400).send({ error: "characterId required" });
 
     try {
-      const weekStart = getWeekStartPoland();
-      const weekStartInclusive = getWeekStartInclusive();
-      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-      const medals = await prisma.sevenSealsMedal.findMany({
-        where: {
-          weekStart: { gte: weekStartInclusive, lt: weekEnd },
-        },
-        select: {
-          characterId: true,
-          character: { select: { name: true } },
-        },
+      const row = await prisma.sevenSealsScore.findUnique({
+        where: { characterId },
+        select: { points: true, seal: true, updatedAt: true },
       });
 
-      const medalCounts = new Map<string, { characterId: string; count: number }>();
-      medals.forEach((m) => {
-        const current = medalCounts.get(m.characterId) || { characterId: m.characterId, count: 0 };
-        current.count++;
-        medalCounts.set(m.characterId, current);
+      const points = row?.points ?? 0;
+      const seal = row?.seal ?? null;
+
+      // rank = 1 + кількість персонажів з points строго більше
+      const aboveCount = await prisma.sevenSealsScore.count({
+        where: { points: { gt: points } },
       });
-
-      const ranking = Array.from(medalCounts.values())
-        .sort((a, b) => b.count - a.count)
-        .map((p, i) => ({ characterId: p.characterId, rank: i + 1, medalCount: p.count }));
-
-      const entry = ranking.find((p) => p.characterId === characterId);
+      const rank = aboveCount + 1;
 
       return {
         ok: true,
-        rank: entry?.rank ?? null,
-        medalCount: entry?.medalCount ?? 0,
+        characterId,
+        points,
+        seal,
+        rank,
+        medalCount: points, // backward compat для фронту
+        updatedAt: row?.updatedAt ?? null,
       };
     } catch (error) {
       app.log.error(error, "Error fetching Seven Seals rank:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // POST /seven-seals/add — нарахування очок (адмін/тест)
+  app.post("/seven-seals/add", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const body = req.body as { characterId: string; points?: number; seal?: string | null };
+    const characterId = body.characterId;
+    const add = Math.trunc(body.points ?? 0);
+    const seal = body.seal ?? null;
+
+    if (!characterId || !Number.isFinite(add)) {
+      return reply.code(400).send({ ok: false, error: "bad_request" });
+    }
+
+    try {
+      const row = await prisma.sevenSealsScore.upsert({
+        where: { characterId },
+        create: { characterId, points: Math.max(0, add), seal },
+        update: {
+          points: { increment: add },
+          seal,
+        },
+        select: { characterId: true, points: true, seal: true, updatedAt: true },
+      });
+
+      return { ok: true, ...row };
+    } catch (error) {
+      app.log.error(error, "Error adding Seven Seals points:");
       return reply.code(500).send({
         error: "Internal Server Error",
         message: error instanceof Error ? error.message : "Unknown error",
