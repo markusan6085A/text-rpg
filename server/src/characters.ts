@@ -870,25 +870,31 @@ export async function characterRoutes(app: FastifyInstance) {
       }
     } else {
       // Якщо expectedRevision не передано або не оновлюється heroJson - звичайний update
-      updated = await prisma.character.update({
-        where: { id },
-        data: updateData,
-        select: {
-          id: true,
-          name: true,
-          race: true,
-          classId: true,
-          sex: true,
-          level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          heroJson: true,
-          updatedAt: true,
-        },
-      });
+      // ❗ Перевіряємо чи є що оновлювати
+      if (Object.keys(updateData).length === 0) {
+        // Нема даних для оновлення — повертаємо existing без зміни
+        updated = existing;
+      } else {
+        updated = await prisma.character.update({
+          where: { id },
+          data: updateData,
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            heroJson: true,
+            updatedAt: true,
+          },
+        });
+      }
     }
 
     // Додаємо новину про покупку преміуму, якщо була покупка
