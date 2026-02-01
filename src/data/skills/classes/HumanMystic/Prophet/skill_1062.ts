@@ -1,4 +1,4 @@
-﻿import { SkillDefinition } from "../../../types";
+import { SkillDefinition } from "../../../types";
 
 export const skill_1062: SkillDefinition = {
   id: 1062,
@@ -14,36 +14,13 @@ export const skill_1062: SkillDefinition = {
   cooldown: 6,
   duration: 1200,
   effects: [
-    {
-      stat: "pAtk",
-      mode: "percent"
-    },
-    {
-      stat: "attackSpeed",
-      mode: "percent"
-    },
-    {
-      stat: "mAtk",
-      mode: "percent"
-    },
-    {
-      stat: "castSpeed",
-      mode: "percent"
-    },
-    {
-      stat: "runSpeed",
-      mode: "flat"
-    },
-    {
-      stat: "pDef",
-      mode: "percent",
-      multiplier: -1
-    },
-    {
-      stat: "mDef",
-      mode: "percent",
-      multiplier: -2
-    }
+    { stat: "pAtk", mode: "percent", value: 20 },
+    { stat: "attackSpeed", mode: "percent", value: 20 },
+    { stat: "mAtk", mode: "percent", value: 20 },
+    { stat: "castSpeed", mode: "percent", value: 20 },
+    { stat: "runSpeed", mode: "flat", value: 5 },
+    { stat: "pDef", mode: "percent", value: -20 },
+    { stat: "mDef", mode: "percent", value: -20 },
   ],
   stackType: "berserker_spirit",
   stackOrder: 1,

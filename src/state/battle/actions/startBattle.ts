@@ -27,7 +27,16 @@ export const createStartBattle =
     const heroName = hero?.name;
     const saved = loadBattle(heroName);
     const now = Date.now();
-    const savedBuffs = cleanupBuffs(saved?.heroBuffs || [], now);
+    // 🔥 КРИТИЧНО: Об'єднуємо бафи з localStorage і heroJson.heroBuffs (бафи від інших гравців)
+    const battleBuffs = saved?.heroBuffs || [];
+    const heroJsonBuffs = Array.isArray((hero as any)?.heroBuffs) ? (hero as any).heroBuffs
+      : Array.isArray((hero as any)?.heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs
+      : [];
+    const mergedBuffsRaw = [...battleBuffs, ...heroJsonBuffs];
+    const mergedBuffsUnique = mergedBuffsRaw.filter((buff, i, arr) =>
+      arr.findIndex((b) => (b.id && buff.id && b.id === buff.id) || (!b.id && !buff.id && b.name === buff.name)) === i
+    );
+    const savedBuffs = cleanupBuffs(mergedBuffsUnique, now);
     const prevState = get();
     
     // ❗ ВАЖЛИВО: Використовуємо cooldowns з saved (localStorage) або з prevState (поточний store)

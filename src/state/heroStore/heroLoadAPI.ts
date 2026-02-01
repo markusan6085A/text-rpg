@@ -249,10 +249,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const savedBattle = loadBattle(fixedHero.name);
     
     // 🔥 КРИТИЧНО: Бафи можуть бути в heroJson.heroBuffs (з сервера) або в savedBattle.heroBuffs (localStorage)
-    // Перевіряємо обидва джерела і об'єднуємо їх
-    const heroJsonBuffs = Array.isArray((fixedHero as any).heroJson?.heroBuffs) 
-      ? (fixedHero as any).heroJson.heroBuffs 
-      : [];
+    // Сервер зберігає heroBuffs на верхньому рівні heroJson (character.heroJson.heroBuffs)
+    // fixedHero = { ...heroData } → heroBuffs може бути у fixedHero.heroBuffs або fixedHero.heroJson?.heroBuffs
+    const heroJsonBuffs = Array.isArray((fixedHero as any).heroBuffs) 
+      ? (fixedHero as any).heroBuffs 
+      : Array.isArray((fixedHero as any).heroJson?.heroBuffs) 
+        ? (fixedHero as any).heroJson.heroBuffs 
+        : [];
     const savedBattleBuffs = savedBattle?.heroBuffs || [];
     
     // Об'єднуємо бафи з обох джерел (уникаємо дублікатів за id)

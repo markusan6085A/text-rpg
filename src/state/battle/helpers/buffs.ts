@@ -145,8 +145,10 @@ export const applyBuffsToStats = (
 
       // ❗ ВАЖЛИВО: Збираємо всі percent бафи для кожного стату
       // Відсотки додаються, а не множаться один на одного
+      // Для percent mode використовуємо val (eff.value) — це вже обчислений відсоток з processSkillEffects
+      // (eff.multiplier у effects використовується тільки для обчислення value, не як фінальний %)
       if (mode === "percent") {
-        const percentValue = eff.multiplier !== undefined && eff.multiplier !== null ? eff.multiplier : val;
+        const percentValue = val;
         if (stat === "skillCritRate" || stat === "vampirism" || stat === "critDamage") {
           // skillCritRate, vampirism, and critDamage are always additive (e.g., +20% critDamage means add 20)
           // The value is already in percentage points, so we add it directly
