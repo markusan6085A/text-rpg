@@ -182,10 +182,10 @@ export async function characterRoutes(app: FastifyInstance) {
     }
 
     try {
-      // Отримуємо цільового гравця
+      // Отримуємо цільового гравця (level потрібен для fallback maxHp)
       const targetChar = await prisma.character.findUnique({
         where: { id: targetId },
-        select: { id: true, heroJson: true },
+        select: { id: true, level: true, heroJson: true },
       });
 
       if (!targetChar) {
@@ -193,19 +193,15 @@ export async function characterRoutes(app: FastifyInstance) {
       }
 
       const heroJson = (targetChar.heroJson as any) || {};
-      const rawHp = Number(heroJson.hp ?? 0);
       const rawMaxHp = Number(
-        heroJson.maxHp ??
-        heroJson.maxHP ??
-        heroJson.max_hp ??
-        heroJson?.resources?.maxHp ??
-        heroJson?.battleStats?.maxHp ??
-        heroJson?.finalStats?.maxHp ??
-        heroJson?.baseFinalStats?.maxHp ??
-        0
+        heroJson.maxHp ?? heroJson.maxHP ?? heroJson.max_hp ??
+        heroJson?.resources?.maxHp ?? heroJson?.battleStats?.maxHp ?? 0
       );
-      const currentHp = rawHp > 0 ? rawHp : (rawMaxHp > 0 ? rawMaxHp : 100);
-      const maxHp = rawMaxHp > 0 ? rawMaxHp : Math.max(currentHp, 100);
+      const level = Number(targetChar.level ?? 1);
+      // Якщо maxHp не збережено — обчислюємо з рівня (formula з calcResources)
+      const maxHp = rawMaxHp > 100 ? rawMaxHp : Math.max(100, 150 + level * 12);
+      const rawHp = Number(heroJson.hp ?? 0);
+      const currentHp = rawHp > 0 ? Math.min(rawHp, maxHp) : maxHp;
       const newHp = Math.min(maxHp, currentHp + body.power);
 
       // ❗ ВАЖЛИВО: Інкрементуємо ревізію при зміні heroJson (side-effect endpoint)
@@ -213,7 +209,8 @@ export async function characterRoutes(app: FastifyInstance) {
       const updatedHeroJson = {
         ...heroJson,
         hp: newHp,
-        heroRevision: Date.now() > oldRevision ? Date.now() : oldRevision + 1, // Інкремент ревізії
+        maxHp: maxHp,
+        heroRevision: Date.now() > oldRevision ? Date.now() : oldRevision + 1,
         heroJsonVersion: heroJson.heroJsonVersion || 1,
       };
 
