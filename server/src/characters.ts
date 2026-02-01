@@ -525,16 +525,7 @@ export async function characterRoutes(app: FastifyInstance) {
       if (typeof body.adena !== 'number' || body.adena < 0) {
         return reply.code(400).send({ error: "invalid adena (must be >= 0)" });
       }
-      // Захист від зменшення adena (можна тільки збільшувати)
-      if (body.adena < existing.adena) {
-        app.log.warn({
-          accountId: auth.accountId,
-          characterId: id,
-          currentAdena: existing.adena,
-          attemptedAdena: body.adena,
-        }, `[PUT /characters/:id] Attempted to decrease adena from ${existing.adena} to ${body.adena}`);
-        return reply.code(400).send({ error: "adena cannot be decreased" });
-      }
+      // Дозволяємо зменшення adena — потрібно для покупок в магазині, клані тощо
     }
 
     if (body.aa !== undefined) {
