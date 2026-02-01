@@ -277,6 +277,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // 🔥 Прогрес (оновлюємо завжди) - значення будуть обчислені нижче з clamp
       level: Number(hero.level ?? existingHeroJson.level ?? 1),
       exp: Number(hero.exp ?? existingHeroJson.exp ?? 0),
+      // 🔥 Поточні ресурси (щоб після F5 HP/MP/CP не скидалися)
+      hp: Number(hero.hp ?? existingHeroJson.hp ?? 0),
+      mp: Number(hero.mp ?? existingHeroJson.mp ?? 0),
+      cp: Number(hero.cp ?? existingHeroJson.cp ?? 0),
       mobsKilled: Number(currentMobsKilled),
       skills: Array.isArray(hero.skills) ? hero.skills : (Array.isArray(existingHeroJson.skills) ? existingHeroJson.skills : []),
       heroBuffs: Array.isArray(uniqueBuffs) ? uniqueBuffs : [],
