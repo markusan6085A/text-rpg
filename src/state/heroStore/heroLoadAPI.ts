@@ -404,6 +404,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         if (localInvLen > serverInvLen) {
           (hydratedHero as any).inventory = localInv;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: localInv };
+          // Щоб після покупки в Shop/QuestShop не «поверталась» стара adena з сервера — беремо локальну
+          if (hydratedLocalHero.adena !== undefined && hydratedLocalHero.adena !== null) {
+            (hydratedHero as any).adena = hydratedLocalHero.adena;
+            (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, adena: hydratedLocalHero.adena };
+          }
           console.log('[loadHeroFromAPI] Preferring local inventory (more items):', localInvLen, 'vs', serverInvLen);
         }
         if (localEquipCount > serverEquipCount) {
