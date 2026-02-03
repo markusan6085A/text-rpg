@@ -258,14 +258,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         : [];
     const savedBattleBuffs = savedBattle?.heroBuffs || [];
     
-    // Об'єднуємо бафи з обох джерел (уникаємо дублікатів за id)
+    // Об'єднуємо бафи з сервера та з battle (статуя зберігає в battle). При однаковому id/stackType
+    // залишаємо баф з більшим expiresAt (свіжіший), щоб щойно взяті бафи статуї не пропадали після GET
     const allBuffs = [...heroJsonBuffs, ...savedBattleBuffs];
-    const uniqueBuffs = allBuffs.filter((buff, index, self) => 
-      index === self.findIndex((b) => 
-        (b.id && buff.id && b.id === buff.id) || 
-        (!b.id && !buff.id && b.name === buff.name)
-      )
-    );
+    const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
+    const bestByKey = new Map<string, any>();
+    for (const b of allBuffs) {
+      const key = byKey(b);
+      const cur = bestByKey.get(key);
+      const exp = b.expiresAt ?? 0;
+      if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
+    }
+    const uniqueBuffs = Array.from(bestByKey.values());
     
     const savedBuffs = cleanupBuffs(uniqueBuffs, now);
     const recalculated = recalculateAllStats(fixedHero, []);

@@ -83,6 +83,9 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
       summonLastAttackAt: battleState.summonLastAttackAt || saved?.summonLastAttackAt || undefined,
     }, hero.name);
 
+    // Синхронізуємо battle store, щоб бафи одразу відображались (StatusBars/інші читають loadBattle, але store теж оновлюємо)
+    useBattleStore.setState({ heroBuffs: updatedBuffs });
+
     if (import.meta.env.DEV) {
       console.log("AFTER STATUE buffs:", updatedBuffs.length, updatedBuffs.map((b: any) => [b.id, b.name, b.expiresAt, b.source]));
     }
