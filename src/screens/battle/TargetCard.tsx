@@ -16,10 +16,11 @@ export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps
   const clampedHP = Math.max(0, Math.min(maxHP, hpValue));
   const hpPercent = maxHP > 0 ? Math.max(0, Math.min(100, Math.round((clampedHP / maxHP) * 100))) : 0;
 
+  const nameStyle = { color: "#c7ad80" };
   const nameClass = compact
-    ? "text-[10px] font-semibold text-[#c7ad80] leading-tight"
-    : "text-xs font-semibold text-[#c7ad80] leading-tight";
-  const levelClass = compact ? "text-[9px] text-[#c7ad80]" : "text-[11px] text-[#c7ad80]";
+    ? "text-[10px] font-semibold leading-tight"
+    : "text-xs font-semibold leading-tight";
+  const levelClass = compact ? "text-[9px]" : "text-[11px]";
   const barWidth = "w-[140px]";
   const barHeight = compact ? "h-[0.78rem]" : "h-[0.85rem]";
   const barTextSize = compact ? "text-[11px]" : "text-[11px]";
@@ -33,8 +34,8 @@ export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps
       }
     >
       <div className="flex items-baseline justify-start gap-2 w-full">
-        <div className={nameClass}>{mob.name}</div>
-        <div className={levelClass}>Lv {mob.level}</div>
+        <div className={nameClass} style={nameStyle}>{mob.name}</div>
+        <div className={levelClass} style={nameStyle}>Lv {mob.level}</div>
       </div>
       <div className="flex flex-col items-start gap-[4px] text-[11px] text-[#252524] w-full">
         <div className={`${barWidth}`}>

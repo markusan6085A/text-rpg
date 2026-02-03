@@ -133,7 +133,10 @@ export function BattleLog() {
   const { log } = useBattleStore();
   const lines = [...log].slice(-LOG_MAX_LINES);
   return (
-    <div className="border border-[#654321] rounded p-2 bg-black/20">
+    <div
+      className="border-2 rounded p-2 bg-black/30"
+      style={{ borderColor: "#654321" }}
+    >
       <div className="space-y-1 text-[12px] leading-[1.2]">
         {lines.map((line, idx) => {
         const dobychaLine = parseDobychaLine(line);
