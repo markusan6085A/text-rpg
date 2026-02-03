@@ -389,6 +389,29 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         uniqueBuffs: savedBuffs.length,
         buffNames: savedBuffs.map((b: any) => b.name || b.id).slice(0, 5),
       });
+
+      // 🔥 КРИТИЧНО: Якщо локально більше предметів/екіпу — беремо з локального героя, щоб не втрачати покупки після F5
+      // (збереження на API з затримкою, сервер може повернути старий heroJson без куплених речей)
+      if (hydratedLocalHero) {
+        const localInv = hydratedLocalHero.inventory ?? [];
+        const serverInv = hydratedHero.inventory ?? [];
+        const localEquip = hydratedLocalHero.equipment ?? {};
+        const serverEquip = hydratedHero.equipment ?? {};
+        const localInvLen = Array.isArray(localInv) ? localInv.length : 0;
+        const serverInvLen = Array.isArray(serverInv) ? serverInv.length : 0;
+        const localEquipCount = Object.keys(localEquip).filter((k) => localEquip[k] != null).length;
+        const serverEquipCount = Object.keys(serverEquip).filter((k) => serverEquip[k] != null).length;
+        if (localInvLen > serverInvLen) {
+          (hydratedHero as any).inventory = localInv;
+          (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: localInv };
+          console.log('[loadHeroFromAPI] Preferring local inventory (more items):', localInvLen, 'vs', serverInvLen);
+        }
+        if (localEquipCount > serverEquipCount) {
+          (hydratedHero as any).equipment = localEquip;
+          (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, equipment: localEquip };
+          console.log('[loadHeroFromAPI] Preferring local equipment (more slots):', localEquipCount, 'vs', serverEquipCount);
+        }
+      }
     }
     
     // Логуємо фінальні дані для діагностики

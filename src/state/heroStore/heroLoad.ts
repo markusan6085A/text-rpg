@@ -101,6 +101,13 @@ export function loadHero(): Hero | null {
       if ((fixedHero as any).dailyQuestsProgress === undefined && (heroJson as any).dailyQuestsProgress) (fixedHero as any).dailyQuestsProgress = (heroJson as any).dailyQuestsProgress;
       if ((fixedHero as any).dailyQuestsCompleted === undefined && Array.isArray((heroJson as any).dailyQuestsCompleted)) (fixedHero as any).dailyQuestsCompleted = (heroJson as any).dailyQuestsCompleted;
       if ((fixedHero as any).dailyQuestsResetDate === undefined && (heroJson as any).dailyQuestsResetDate) (fixedHero as any).dailyQuestsResetDate = (heroJson as any).dailyQuestsResetDate;
+      // Інвентар та екіпіровка — відновлюємо з heroJson, якщо на герої відсутні (щоб не втрачати покупки)
+      if ((!fixedHero.inventory || !Array.isArray(fixedHero.inventory) || fixedHero.inventory.length === 0) && Array.isArray((heroJson as any).inventory) && (heroJson as any).inventory.length > 0) {
+        fixedHero.inventory = (heroJson as any).inventory;
+      }
+      if ((!fixedHero.equipment || typeof fixedHero.equipment !== 'object') && (heroJson as any).equipment && typeof (heroJson as any).equipment === 'object' && Object.keys((heroJson as any).equipment).length > 0) {
+        fixedHero.equipment = (heroJson as any).equipment;
+      }
 
       // Міграція: виправляємо предмети "Angel Slayer", які були куплені як лук
       if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {
