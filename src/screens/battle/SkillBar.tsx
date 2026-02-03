@@ -4,7 +4,7 @@ import { isShotConsumable } from "../../state/battle/actions/useSkill/shotHelper
 import { useHeroStore } from "../../state/heroStore";
 import { allSkills } from "../../data/skills";
 import { MAX_SLOTS } from "../../state/battle/loadout";
-import { itemsDB } from "../../data/items/itemsDB";
+import { itemsDBWithStarter } from "../../data/items/itemsDB";
 
 type LearnedSkill = {
   id: number;
@@ -106,18 +106,18 @@ export function SkillBar() {
       }));
   }, [hero?.inventory]);
 
-  // Зброя та щити з інвентаря для вкладки «Предметы» — ставимо на панель, клік одягає і підсвічує
+  // Зброя та щити з інвентаря (itemsDBWithStarter щоб стартовий набір теж показував іконку/назву)
   const equippableItems = React.useMemo(() => {
     if (!hero?.inventory) return [];
     return hero.inventory
       .filter((item: any) => {
         if (!item?.id) return false;
-        const def = itemsDB[item.id];
+        const def = itemsDBWithStarter[item.id];
         const slot = def?.slot || item.slot;
         return slot === "weapon" || slot === "shield";
       })
       .map((item: any) => {
-        const def = itemsDB[item.id];
+        const def = itemsDBWithStarter[item.id];
         return {
           id: `item:${item.id}`,
           name: def?.name ?? item.name,
@@ -152,7 +152,7 @@ export function SkillBar() {
     // Перевіряємо чи це расходник
     if (typeof id === "string" && id.startsWith("consumable:")) {
       const itemId = id.replace("consumable:", "");
-      const itemDef = itemsDB[itemId];
+      const itemDef = itemsDBWithStarter[itemId];
       if (itemDef) {
         const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
         return {
@@ -167,10 +167,10 @@ export function SkillBar() {
       return null;
     }
 
-    // Предмет для екіпірування (зброя/щит на панелі)
+    // Предмет для екіпірування (зброя/щит на панелі; itemsDBWithStarter = стартовий набір теж)
     if (typeof id === "string" && id.startsWith("item:")) {
       const itemId = id.replace("item:", "");
-      const itemDef = itemsDB[itemId];
+      const itemDef = itemsDBWithStarter[itemId];
       if (itemDef) {
         return {
           id,
