@@ -18,7 +18,7 @@ export function ChatInput({
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex flex-col border-t border-gray-600 pt-2">
+    <div className="flex flex-col border-b border-gray-600 pb-2">
       <input
         ref={inputRef}
         type="text"
@@ -34,19 +34,21 @@ export function ChatInput({
         className="w-full text-sm text-black placeholder-gray-400 bg-white border border-gray-300 rounded px-2 py-1.5 mb-2"
         maxLength={500}
       />
-      <div className="flex items-stretch">
+      <div className="flex items-center gap-0 text-xs">
         <button
+          type="button"
           onClick={onSend}
           disabled={!messageText.trim() || loading}
-          className="flex-1 py-1.5 bg-[#c7ad80] text-black text-xs font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity rounded-l"
+          className="bg-transparent border-none p-0 cursor-pointer text-[#c7ad80] hover:text-[#d4c49a] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           Написать
         </button>
-        <span className="w-px bg-gray-600" aria-hidden />
+        <span className="text-[#c7ad80] px-1 select-none">|</span>
         <button
+          type="button"
           onClick={onRefresh}
           disabled={loading}
-          className="flex-1 py-1.5 bg-[#c7ad80] text-black text-xs font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity rounded-r"
+          className="bg-transparent border-none p-0 cursor-pointer text-[#c7ad80] hover:text-[#d4c49a] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           {loading ? "..." : "Обновить"}
         </button>

@@ -16,27 +16,24 @@ export function ChatTabs({ channel, onChannelChange, onRefresh }: ChatTabsProps)
   ];
 
   return (
-    <div className="border-b border-gray-700">
-      <div className="flex items-stretch">
-        {tabs.map((tab, index, array) => (
+    <div className="border-b border-gray-500">
+      <div className="flex items-center gap-0 text-xs py-2 px-1">
+        {tabs.map((tab, index) => (
           <React.Fragment key={tab.key}>
             <button
+              type="button"
               onClick={() => {
                 onChannelChange(tab.key);
-                if (tab.key !== channel) {
-                  setTimeout(() => onRefresh(), 0);
-                }
+                if (tab.key !== channel) setTimeout(() => onRefresh(), 0);
               }}
-              className={`flex-1 text-xs py-2 font-semibold transition-colors ${
-                channel === tab.key
-                  ? "bg-[#c7ad80] text-black"
-                  : "bg-gray-800/90 text-gray-300 hover:text-white"
+              className={`bg-transparent border-none p-0 cursor-pointer transition-colors ${
+                channel === tab.key ? "text-white" : "text-[#c7ad80] hover:text-[#d4c49a]"
               }`}
             >
               {tab.label}
             </button>
-            {index < array.length - 1 && (
-              <span className="w-px bg-gray-600 self-stretch" aria-hidden />
+            {index < tabs.length - 1 && (
+              <span className="text-[#c7ad80] px-0.5 select-none">|</span>
             )}
           </React.Fragment>
         ))}
