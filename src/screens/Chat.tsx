@@ -410,8 +410,34 @@ export default function Chat({ navigate }: ChatProps) {
     return <div className="flex items-center justify-center text-xs text-gray-400">Загрузка персонажа...</div>;
   }
 
+  const heroHp = hero.hp ?? 0;
+  const heroMaxHp = hero.maxHp ?? 1;
+  const heroMp = hero.mp ?? 0;
+  const heroMaxMp = hero.maxMp ?? 1;
+  const heroCp = hero.cp ?? 0;
+  const heroMaxCp = hero.maxCp ?? 1;
+  const heroLevel = hero.level ?? 1;
+  const heroName = hero.name || hero.username || "";
+  const xpPercent = typeof (hero as any).expPercent === "number" ? (hero as any).expPercent : 0;
+  const vp = typeof (hero as any).vp === "number" ? (hero as any).vp : 0;
+  const vpLevel = typeof (hero as any).vpLevel === "number" ? (hero as any).vpLevel : 0;
+
   return (
     <div className="flex flex-col h-full w-full text-white">
+      {/* Блок статів гравця як на скріні — колір #c7ad80 */}
+      <div className="text-[#c7ad80] text-xs py-2 px-2 border-b border-gray-600">
+        <div className="font-semibold">
+          {heroName}, {heroLevel} ур.
+        </div>
+        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
+          <span>hp {heroHp} / {heroMaxHp}</span>
+          <span>ma {heroMp} / {heroMaxMp}</span>
+          <span>cp {heroCp} / {heroMaxCp}</span>
+          <span>xp {xpPercent}%</span>
+          <span>vp {vp} ({vpLevel} ур)</span>
+        </div>
+      </div>
+
       <ChatTabs channel={channel} onChannelChange={setChannel} onRefresh={refresh} />
 
       <ChatMessagesList
