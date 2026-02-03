@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { sanitizeLine } from "../../state/battle/helpers";
 
@@ -127,13 +127,15 @@ const parseDobychaLine = (line: string) => {
   return <div>{parts}</div>;
 };
 
+const LOG_MAX_LINES = 10;
+
 export function BattleLog() {
   const { log } = useBattleStore();
-  // Показываем больше строк, с прокруткой; выводим как есть.
-  const lines = [...log].slice(0, 25);
+  const lines = [...log].slice(-LOG_MAX_LINES);
   return (
-    <div className="space-y-1 text-[12px] leading-[1.2] min-h-[200px] max-h-[260px] overflow-y-auto pr-1">
-      {lines.map((line, idx) => {
+    <div className="border border-[#654321] rounded p-2 bg-black/20">
+      <div className="space-y-1 text-[12px] leading-[1.2]">
+        {lines.map((line, idx) => {
         const dobychaLine = parseDobychaLine(line);
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
@@ -146,6 +148,7 @@ export function BattleLog() {
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

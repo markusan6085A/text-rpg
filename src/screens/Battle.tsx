@@ -232,7 +232,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px bg-gray-600"></div>
+          <div className="w-full h-px bg-[#654321]"></div>
 
           {/* ПОБЕДА! */}
           <div className="text-center">
@@ -240,7 +240,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px bg-gray-600"></div>
+          <div className="w-full h-px bg-[#654321]"></div>
 
           {/* Дроп */}
           <div className="p-3">
@@ -268,7 +268,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px bg-gray-600"></div>
+          <div className="w-full h-px bg-[#654321]"></div>
 
           {/* Кнопки в один ряд */}
           <div className="flex items-center gap-2 text-xs justify-center">
@@ -288,17 +288,17 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px bg-gray-600"></div>
+          <div className="w-full h-px bg-[#654321]"></div>
 
           {/* Лог бою */}
-          <div className="p-3">
+          <div className="p-2">
             <div className="text-sm font-semibold mb-2 text-[#87ceeb]">Лог бою:</div>
             <BattleLog />
           </div>
 
           {/* 🔥 Інформація про моба та урон - нижче модалки */}
           {lastMobDamage !== undefined && (
-            <div className="text-center pb-2 px-3 border-t border-gray-600 pt-2">
+            <div className="text-center pb-2 px-3 border-t border-[#654321] pt-2">
               <div className="text-xs text-gray-300">
                 <span className="text-red-400 font-semibold">{mob.name}</span>
                 {" наносит "}
@@ -324,23 +324,28 @@ export default function Battle({ navigate }: BattleProps) {
   }
 
   return (
-    <div className="w-full text-white px-4 py-2">
-      <div className="w-full max-w-[360px] mx-auto space-y-3">
-        {/* Картка цілі (моб) */}
+    <div className="w-full text-white px-4 pt-0 pb-2">
+      <div className="w-full max-w-[360px] mx-auto space-y-2">
+        {/* Картка цілі (моб) — піднята вище */}
         {mob && (
-          <div className="flex justify-center">
-            <TargetCard zone={zone} city={city} mob={mob} />
-          </div>
+          <>
+            <div className="flex justify-center -mt-1">
+              <TargetCard zone={zone} city={city} mob={mob} />
+            </div>
+            <div className="w-full h-px bg-[#654321]" />
+          </>
         )}
 
         {/* Бари бафів */}
         <BuffBar buffs={heroBuffs || []} now={now} />
+        <div className="w-full h-px bg-[#654321]" />
 
         {/* Панель навичок */}
         <SkillBar />
+        <div className="w-full h-px bg-[#654321]" />
 
-        {/* Лог бою */}
-        <div className="p-3">
+        {/* Лог бою — 10 повідомлень у рамці */}
+        <div className="p-2">
           <div className="text-sm font-semibold mb-2 text-[#f5d7a1]">Лог бою:</div>
           <BattleLog />
         </div>

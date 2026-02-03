@@ -17,9 +17,9 @@ export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps
   const hpPercent = maxHP > 0 ? Math.max(0, Math.min(100, Math.round((clampedHP / maxHP) * 100))) : 0;
 
   const nameClass = compact
-    ? "text-[10px] font-semibold text-[#ffe9c0] leading-tight"
-    : "text-xs font-semibold text-[#f4e2b8] leading-tight";
-  const levelClass = compact ? "text-[9px] text-[#caa777]" : "text-[11px] text-[#caa777]";
+    ? "text-[10px] font-semibold text-[#c7ad80] leading-tight"
+    : "text-xs font-semibold text-[#c7ad80] leading-tight";
+  const levelClass = compact ? "text-[9px] text-[#c7ad80]" : "text-[11px] text-[#c7ad80]";
   const barWidth = "w-[140px]";
   const barHeight = compact ? "h-[0.78rem]" : "h-[0.85rem]";
   const barTextSize = compact ? "text-[11px]" : "text-[11px]";
