@@ -22,11 +22,11 @@ export function getNickColor(
 
   // If it's the current player's own nickname, use hero.nickColor
   if (hero && (playerName === hero.name || playerName === hero.username)) {
-    return hero.nickColor || "#d4af37"; // Default gold color
+    return hero.nickColor || "#c7ad80"; // Основний колір ніка
   }
 
   // Default color for other players (if no color is provided)
-  return "#d4af37"; // Default gold color
+  return "#c7ad80"; // Основний колір ніка
 }
 
 /**

@@ -117,7 +117,8 @@ export function calcDerivedFromBase(
   const conBonus = 1 + (base.CON - 10) * 0.03;
   const menBonus = 1 + (base.MEN - 10) * 0.03;
 
-  const baseHp = 220 + lvl * 28;
+  // HP: на 80 рівні ~4k+ для магів, 5k+ для танків (різниця через CON)
+  const baseHp = 120 + lvl * 34;
   const baseMp = 120 + lvl * 16;
 
   const maxHp = Math.round(baseHp * conBonus);

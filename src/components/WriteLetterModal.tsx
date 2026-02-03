@@ -80,7 +80,7 @@ export default function WriteLetterModal({
                   className={`w-full text-left px-2 py-1.5 text-sm hover:bg-gray-800/50 transition-colors ${
                     selectedPlayer?.id === conv.playerId ? 'bg-gray-700/70' : ''
                   }`}
-                  style={conv.nickColor ? { color: conv.nickColor } : { color: '#facc15' }}
+                  style={conv.nickColor ? { color: conv.nickColor } : { color: '#c7ad80' }}
                 >
                   {conv.playerName}
                 </button>
@@ -88,7 +88,7 @@ export default function WriteLetterModal({
             </div>
             {selectedPlayer && (
               <div className="text-xs text-gray-500 mt-1">
-                Вибрано: <span style={{ color: conversations.find(c => c.playerId === selectedPlayer.id)?.nickColor || '#facc15' }}>{selectedPlayer.name}</span>
+                Вибрано: <span style={{ color: conversations.find(c => c.playerId === selectedPlayer.id)?.nickColor || '#c7ad80' }}>{selectedPlayer.name}</span>
               </div>
             )}
           </div>
