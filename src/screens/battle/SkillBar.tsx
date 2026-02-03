@@ -52,6 +52,7 @@ function useLearnedActive(): LearnedSkill[] {
 export function SkillBar() {
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const hero = useHeroStore((s) => s.hero);
+  const equipItem = useHeroStore((s) => s.equipItem);
   const heroMP = hero?.mp ?? 0;
   const MAX_VISIBLE_SLOTS = 40;
   const [now, setNow] = React.useState(Date.now());
@@ -105,11 +106,35 @@ export function SkillBar() {
       }));
   }, [hero?.inventory]);
 
+  // Зброя та щити з інвентаря для вкладки «Предметы» — ставимо на панель, клік одягає і підсвічує
+  const equippableItems = React.useMemo(() => {
+    if (!hero?.inventory) return [];
+    return hero.inventory
+      .filter((item: any) => {
+        if (!item?.id) return false;
+        const def = itemsDB[item.id];
+        const slot = def?.slot || item.slot;
+        return slot === "weapon" || slot === "shield";
+      })
+      .map((item: any) => {
+        const def = itemsDB[item.id];
+        return {
+          id: `item:${item.id}`,
+          name: def?.name ?? item.name,
+          icon: def?.icon ?? item.icon ?? "/items/default_item.png",
+          itemId: item.id,
+          item,
+        };
+      });
+  }, [hero?.inventory]);
+
   const currentList =
     category === "magic"
       ? learnedActive
       : category === "consumable"
       ? consumables
+      : category === "item"
+      ? equippableItems
       : category === "remove"
       ? loadoutSlots.map((id, idx) => ({ id, idx })).filter((s) => s.id !== null)
       : [];
@@ -141,6 +166,22 @@ export function SkillBar() {
       }
       return null;
     }
+
+    // Предмет для екіпірування (зброя/щит на панелі)
+    if (typeof id === "string" && id.startsWith("item:")) {
+      const itemId = id.replace("item:", "");
+      const itemDef = itemsDB[itemId];
+      if (itemDef) {
+        return {
+          id,
+          name: itemDef.name,
+          icon: itemDef.icon,
+          type: "item" as const,
+          itemId,
+        };
+      }
+      return null;
+    }
     
     // Це скіл
     const skill = learnedActive.find((s) => s.id === id);
@@ -159,9 +200,11 @@ export function SkillBar() {
             {slotsToShow.slice(0, 7).map((id, idx) => {
               const slotInfo = getSlotInfo(id);
               const isConsumable = slotInfo?.type === "consumable";
-              const itemId = isConsumable && "itemId" in slotInfo ? slotInfo.itemId : "";
+              const isItem = slotInfo?.type === "item";
+              const itemId = (isConsumable || isItem) && "itemId" in slotInfo ? slotInfo.itemId : "";
               const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(idx);
+              const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
               const readyAt = id !== null && typeof id === "number" ? cooldowns[id] ?? 0 : 0;
               const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
               
@@ -183,6 +226,9 @@ export function SkillBar() {
               const handleSlotClick = () => {
                 if (isCharge) {
                   toggleChargeSlot(idx);
+                } else if (isItem && itemId) {
+                  const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
+                  if (invItem) equipItem(invItem);
                 } else if (id !== null) {
                   useSkill(id as any);
                 } else {
@@ -197,6 +243,8 @@ export function SkillBar() {
                   disabled={disabled || consumableDisabled}
                   className={`relative w-8 h-8 rounded border overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50 transition-colors ${
                     isChargeActive
+                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
+                      : isItemEquipped
                       ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
                       : "border-[#7c6847] bg-[#0f0c09]"
                   }`}
@@ -231,9 +279,11 @@ export function SkillBar() {
               const slotIndex = idx + 7;
               const slotInfo = getSlotInfo(id);
               const isConsumable = slotInfo?.type === "consumable";
-              const itemId = isConsumable && "itemId" in slotInfo ? slotInfo.itemId : "";
+              const isItem = slotInfo?.type === "item";
+              const itemId = (isConsumable || isItem) && "itemId" in slotInfo ? slotInfo.itemId : "";
               const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(slotIndex);
+              const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
               const readyAt = id !== null && typeof id === "number" ? cooldowns[id] ?? 0 : 0;
               const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
               
@@ -255,6 +305,9 @@ export function SkillBar() {
               const handleSlotClick = () => {
                 if (isCharge) {
                   toggleChargeSlot(slotIndex);
+                } else if (isItem && itemId) {
+                  const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
+                  if (invItem) equipItem(invItem);
                 } else if (id !== null) {
                   useSkill(id as any);
                 } else {
@@ -269,6 +322,8 @@ export function SkillBar() {
                   disabled={disabled || consumableDisabled}
                   className={`relative w-8 h-8 rounded border overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50 transition-colors ${
                     isChargeActive
+                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
+                      : isItemEquipped
                       ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
                       : "border-[#7c6847] bg-[#0f0c09]"
                   }`}
@@ -376,7 +431,6 @@ export function SkillBar() {
                       <button
                         key={`pick-${c.id}`}
                         onClick={() => {
-                          // Використовуємо рядковий ID для расходників
                           const updated = computeNextSlots(slotsToShow, pickerSlot, c.id as any);
                           setLoadoutSkill(pickerSlot, c.id as any);
                           const nextIdx = findNextEmpty(updated);
@@ -394,6 +448,21 @@ export function SkillBar() {
                       </button>
                     );
                   })
+                : category === "item"
+                ? (currentList as { id: string; name: string; icon: string; itemId: string }[]).map((c) => (
+                    <button
+                      key={`pick-${c.id}`}
+                      onClick={() => {
+                        const updated = computeNextSlots(slotsToShow, pickerSlot, c.id as any);
+                        setLoadoutSkill(pickerSlot, c.id as any);
+                        setPickerSlot(null);
+                      }}
+                      className="w-7 h-7 rounded border border-[#6b5330] bg-[#1f160c] flex items-center justify-center"
+                      title={c.name}
+                    >
+                      <img src={c.icon} alt={c.name} className="w-full h-full object-cover rounded" />
+                    </button>
+                  ))
                 : (currentList as LearnedSkill[]).map((s) => {
                     const readyAt = cooldowns[s.id] ?? 0;
                     const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
@@ -415,7 +484,9 @@ export function SkillBar() {
                     );
                   })}
               {currentList.length === 0 && (
-                <div className="col-span-5 text-[12px] text-[#caa777]">Нет доступных скиллов</div>
+                <div className="col-span-5 text-[12px] text-[#caa777]">
+                  {category === "item" ? "Нет оружия/щитов в инвентаре" : "Нет доступных скиллов"}
+                </div>
               )}
             </div>
 

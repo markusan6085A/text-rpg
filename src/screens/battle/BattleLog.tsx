@@ -131,7 +131,8 @@ const LOG_MAX_LINES = 10;
 
 export function BattleLog() {
   const { log } = useBattleStore();
-  const lines = [...log].slice(-LOG_MAX_LINES);
+  // Лог зберігається як [найновіше, ...старіші]. Показуємо перші 10 = 10 останніх повідомлень; нові з’являються, старі зникають.
+  const lines = [...log].slice(0, LOG_MAX_LINES);
   return (
     <div
       className="border-2 rounded p-2 bg-black/30"
