@@ -36,6 +36,7 @@ const restoredState: Partial<BattleState> = saved && belongsToCurrentHero && isV
   heroBuffs: restoredSummon ? (saved.heroBuffs || []) : (saved.heroBuffs || []).filter((b: any) => b.id !== 1262 && b.id !== 1332),
   cooldowns: saved.cooldowns || {},
   loadoutSlots: saved.loadoutSlots || initialState.loadoutSlots,
+  activeChargeSlots: saved.activeChargeSlots ?? initialState.activeChargeSlots,
   log: saved.log || [],
 } : {};
 

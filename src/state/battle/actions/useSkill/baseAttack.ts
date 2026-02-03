@@ -118,8 +118,10 @@ export function handleBaseAttack(
     updateHero({ inventory: updatedInventory });
   }
 
-  // Автоматичне використання soulshot (для фізичної атаки, але не для риб)
-  const shotResult = !isFishingZone ? useAutoShot(hero, true, false) : { used: false, multiplier: 1.0 };
+  // Заряди (soulshot) тільки якщо увімкнені на панелі
+  const shotResult = !isFishingZone
+    ? useAutoShot(hero, true, false, state.loadoutSlots ?? [], state.activeChargeSlots ?? [])
+    : { used: false, multiplier: 1.0 };
   
   // Використовуємо стрілу, якщо одягнутий лук (тільки не для риб)
   if (!isFishingZone && bowCheck.grade) {

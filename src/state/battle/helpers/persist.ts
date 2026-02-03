@@ -49,6 +49,7 @@ export const persistSnapshot = (
     log: sanitizedLog,
     cooldowns: merged.cooldowns,
     loadoutSlots: merged.loadoutSlots,
+    activeChargeSlots: merged.activeChargeSlots,
     lastReward: merged.lastReward,
     heroBuffs: merged.heroBuffs,
     summon: merged.summon,

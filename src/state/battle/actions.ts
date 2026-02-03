@@ -4,6 +4,7 @@ import { createStartBattle } from "./actions/startBattle";
 import { createUseSkill } from "./actions/useSkill";
 import { createReset } from "./actions/reset";
 import { createSetLoadoutSkill } from "./actions/setLoadoutSkill";
+import { createToggleChargeSlot } from "./actions/toggleChargeSlot";
 import { createProcessMobAttack } from "./actions/processMobAttack";
 import { createRegenTick } from "./actions/regenTick";
 import { createResurrect } from "./actions/resurrect";
@@ -17,6 +18,7 @@ export const createBattleActions: StateCreator<BattleState, [], [], Partial<Batt
   useSkill: createUseSkill(set, get),
   reset: createReset(set, get),
   setLoadoutSkill: createSetLoadoutSkill(set, get),
+  toggleChargeSlot: createToggleChargeSlot(set, get),
   processMobAttack: createProcessMobAttack(set, get),
   resurrect: createResurrect(set, get),
   regenTick: createRegenTick(set, get),

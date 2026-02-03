@@ -74,8 +74,8 @@ export function handleAttackSkill(
     mDef: state.mob?.mDef ?? Math.round((state.mob?.level ?? 1) * 8 + (state.mob?.hp ?? 0) * 0.12),
   };
 
-  // Автоматичне використання soulshot/spiritshot
-  const shotResult = useAutoShot(hero, isPhysical, isMagic);
+  // Заряди тільки якщо увімкнені на панелі
+  const shotResult = useAutoShot(hero, isPhysical, isMagic, state.loadoutSlots ?? [], state.activeChargeSlots ?? []);
   
   // Використовуємо стрілу, якщо одягнутий лук або навик вимагає лук
   if (requiresBow && isBowEquipped(hero)) {

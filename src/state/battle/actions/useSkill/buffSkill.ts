@@ -283,8 +283,8 @@ export function handleBuffSkill(
   const { maxHp, maxMp, maxCp } = computeMaxNow(newBuffs);
   let healedFromMax = Math.max(0, maxHp - curMaxHp);
   
-  // Якщо є spiritshot - збільшуємо відновлення HP від бафа в 2 рази (для магів)
-  const spiritshotActive = hasSpiritshotActive(hero);
+  // Якщо spiritshot увімкнений на панелі - збільшуємо відновлення HP від бафа в 2 рази
+  const spiritshotActive = hasSpiritshotActive(hero, state.loadoutSlots ?? [], state.activeChargeSlots ?? []);
   if (spiritshotActive && healedFromMax > 0) {
     healedFromMax = Math.round(healedFromMax * 2);
   }

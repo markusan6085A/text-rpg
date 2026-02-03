@@ -42,6 +42,7 @@ export type BattleState = {
   regenTick: () => void;
   cooldowns: CooldownMap;
   loadoutSlots: (number | string | null)[]; // Підтримка расходників (string типу "consumable:...")
+  activeChargeSlots: number[]; // Індекси слотів панелі, де заряди (soulshot/spiritshot) увімкнені вручну
   lastReward?: { exp: number; adena: number; sp?: number; mob: string; spoiled?: boolean };
   lastMobDamage?: number; // 🔥 Останній урон моба для відображення в модалці
   heroBuffs: BattleBuff[];
@@ -98,6 +99,7 @@ export type BattleState = {
   startBattle: (zoneId: string, mobIndex: number) => void;
   useSkill: (skillId: number | string) => void; // Підтримка расходників (string типу "consumable:...")
   setLoadoutSkill: (slotIndex: number, skillId: number | string | null) => void;
+  toggleChargeSlot: (slotIndex: number) => void; // Увімкнути/вимкнути заряд у слоті (тільки для soulshot/spiritshot)
   processMobAttack: () => void;
   resurrect: () => void;
   reset: () => void;

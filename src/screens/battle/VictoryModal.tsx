@@ -159,18 +159,6 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
             Дроп: немає
           </div>
 
-          {/* 🔥 Інформація про моба та урон - нижче модалки */}
-          {mob && lastMobDamage !== undefined && (
-            <div className="text-center pb-2 px-3">
-              <div className="text-xs text-gray-300">
-                <span className="text-red-400 font-semibold">{mob.name}</span>
-                {" наносит "}
-                <span className="text-red-500 font-bold">{Math.round(lastMobDamage)}</span>
-                {" урона"}
-              </div>
-            </div>
-          )}
-
           {/* Кнопки */}
           <div className="flex flex-col items-center gap-1 pb-3 px-3">
             <button

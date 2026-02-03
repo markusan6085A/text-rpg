@@ -88,8 +88,8 @@ export function handleConsumable(
         healAmount = 200; // Малі банки
       }
       
-      // Якщо є spiritshot - збільшуємо хіл в 2 рази (для магів)
-      const spiritshotActive = hasSpiritshotActive(hero);
+      // Якщо spiritshot увімкнений на панелі - збільшуємо хіл в 2 рази
+      const spiritshotActive = hasSpiritshotActive(hero, state.loadoutSlots ?? [], state.activeChargeSlots ?? []);
       if (spiritshotActive) {
         healAmount = Math.round(healAmount * 2);
       }

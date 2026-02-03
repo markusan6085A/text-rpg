@@ -1,5 +1,6 @@
 import React from "react";
 import { useBattleStore } from "../../state/battle/store";
+import { isShotConsumable } from "../../state/battle/actions/useSkill/shotHelpers";
 import { useHeroStore } from "../../state/heroStore";
 import { allSkills } from "../../data/skills";
 import { MAX_SLOTS } from "../../state/battle/loadout";
@@ -49,7 +50,7 @@ function useLearnedActive(): LearnedSkill[] {
 }
 
 export function SkillBar() {
-  const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill } = useBattleStore();
+  const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const hero = useHeroStore((s) => s.hero);
   const heroMP = hero?.mp ?? 0;
   const MAX_VISIBLE_SLOTS = 40;
@@ -158,11 +159,14 @@ export function SkillBar() {
             {slotsToShow.slice(0, 7).map((id, idx) => {
               const slotInfo = getSlotInfo(id);
               const isConsumable = slotInfo?.type === "consumable";
+              const itemId = isConsumable && "itemId" in slotInfo ? slotInfo.itemId : "";
+              const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
+              const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(idx);
               const readyAt = id !== null && typeof id === "number" ? cooldowns[id] ?? 0 : 0;
               const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
               
               const disabled = id !== null && slotInfo?.type === "skill" && (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || cdLeft > 0);
-              const consumableDisabled = isConsumable && (slotInfo.count ?? 0) <= 0;
+              const consumableDisabled = isConsumable && !isCharge && (slotInfo.count ?? 0) <= 0;
 
               if (id === null) {
                 return (
@@ -176,12 +180,26 @@ export function SkillBar() {
                 );
               }
 
+              const handleSlotClick = () => {
+                if (isCharge) {
+                  toggleChargeSlot(idx);
+                } else if (id !== null) {
+                  useSkill(id as any);
+                } else {
+                  setPickerSlot(idx);
+                }
+              };
+
               return (
                 <button
                   key={`slot-${idx}`}
-                  onClick={() => (id !== null ? useSkill(id as any) : setPickerSlot(idx))}
+                  onClick={handleSlotClick}
                   disabled={disabled || consumableDisabled}
-                  className="relative w-8 h-8 rounded border border-[#7c6847] bg-[#0f0c09] overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50"
+                  className={`relative w-8 h-8 rounded border overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50 transition-colors ${
+                    isChargeActive
+                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
+                      : "border-[#7c6847] bg-[#0f0c09]"
+                  }`}
                   title={slotInfo?.name}
                 >
                   {slotInfo ? (
@@ -213,11 +231,14 @@ export function SkillBar() {
               const slotIndex = idx + 7;
               const slotInfo = getSlotInfo(id);
               const isConsumable = slotInfo?.type === "consumable";
+              const itemId = isConsumable && "itemId" in slotInfo ? slotInfo.itemId : "";
+              const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
+              const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(slotIndex);
               const readyAt = id !== null && typeof id === "number" ? cooldowns[id] ?? 0 : 0;
               const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
               
               const disabled = id !== null && slotInfo?.type === "skill" && (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || cdLeft > 0);
-              const consumableDisabled = isConsumable && (slotInfo.count ?? 0) <= 0;
+              const consumableDisabled = isConsumable && !isCharge && (slotInfo.count ?? 0) <= 0;
 
               if (id === null) {
                 return (
@@ -231,12 +252,26 @@ export function SkillBar() {
                 );
               }
 
+              const handleSlotClick = () => {
+                if (isCharge) {
+                  toggleChargeSlot(slotIndex);
+                } else if (id !== null) {
+                  useSkill(id as any);
+                } else {
+                  setPickerSlot(slotIndex);
+                }
+              };
+
               return (
                 <button
                   key={`slot-${slotIndex}`}
-                  onClick={() => (id !== null ? useSkill(id as any) : setPickerSlot(slotIndex))}
+                  onClick={handleSlotClick}
                   disabled={disabled || consumableDisabled}
-                  className="relative w-8 h-8 rounded border border-[#7c6847] bg-[#0f0c09] overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50"
+                  className={`relative w-8 h-8 rounded border overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50 transition-colors ${
+                    isChargeActive
+                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
+                      : "border-[#7c6847] bg-[#0f0c09]"
+                  }`}
                   title={slotInfo?.name}
                 >
                   {slotInfo ? (

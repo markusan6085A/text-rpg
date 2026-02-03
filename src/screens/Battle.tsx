@@ -232,7 +232,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-0.5" style={{ backgroundColor: "#654321" }}></div>
+          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
 
           {/* ПОБЕДА! */}
           <div className="text-center">
@@ -240,7 +240,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-0.5" style={{ backgroundColor: "#654321" }}></div>
+          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
 
           {/* Дроп */}
           <div className="p-3">
@@ -268,7 +268,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-0.5" style={{ backgroundColor: "#654321" }}></div>
+          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
 
           {/* Кнопки в один ряд */}
           <div className="flex items-center gap-2 text-xs justify-center">
@@ -288,25 +288,13 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px bg-[#654321]"></div>
+          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
 
           {/* Лог бою */}
           <div className="p-2">
             <div className="text-sm font-semibold mb-2 text-[#87ceeb]">Лог бою:</div>
             <BattleLog />
           </div>
-
-          {/* 🔥 Інформація про моба та урон - нижче модалки */}
-          {lastMobDamage !== undefined && (
-            <div className="text-center pb-2 px-3 pt-2" style={{ borderTop: "1px solid #654321" }}>
-              <div className="text-xs text-gray-300">
-                <span className="text-red-400 font-semibold">{mob.name}</span>
-                {" наносит "}
-                <span className="text-red-500 font-bold">{Math.round(lastMobDamage)}</span>
-                {" урона"}
-              </div>
-            </div>
-          )}
 
           {/* Кнопка В окрестности */}
           <div className="flex justify-center">
@@ -332,17 +320,17 @@ export default function Battle({ navigate }: BattleProps) {
             <div className="flex justify-center -mt-1">
               <TargetCard zone={zone} city={city} mob={mob} />
             </div>
-            <div className="w-full h-0.5" style={{ backgroundColor: "#654321" }} />
+            <div className="w-full h-px" style={{ backgroundColor: "#704214" }} />
           </>
         )}
 
         {/* Бари бафів */}
         <BuffBar buffs={heroBuffs || []} now={now} />
-        <div className="w-full h-0.5" style={{ backgroundColor: "#654321" }} />
+        <div className="w-full h-px" style={{ backgroundColor: "#704214" }} />
 
         {/* Панель навичок */}
         <SkillBar />
-        <div className="w-full h-0.5" style={{ backgroundColor: "#654321" }} />
+        <div className="w-full h-px" style={{ backgroundColor: "#704214" }} />
 
         {/* Лог бою — 10 повідомлень у рамці */}
         <div className="p-2">

@@ -70,77 +70,80 @@ function findShotInInventory(
   return null;
 }
 
+/** Чи itemId є soulshot або spiritshot */
+export function isShotConsumable(itemId: string, shotType: "soulshot" | "spiritshot"): boolean {
+  return itemId.startsWith(shotType);
+}
+
 /**
- * Перевіряє та використовує soulshot/spiritshot автоматично
+ * Використовує soulshot/spiritshot тільки якщо гравець увімкнув заряд на панелі (клік по слоту).
  * @param hero - герой
  * @param isPhysical - чи це фізична атака
  * @param isMagic - чи це магічна атака
- * @returns результат використання shot (чи використано, множник урону)
+ * @param loadoutSlots - слоти панелі
+ * @param activeChargeSlots - індекси слотів, де заряд увімкнено
  */
 export function useAutoShot(
   hero: Hero,
   isPhysical: boolean,
-  isMagic: boolean
+  isMagic: boolean,
+  loadoutSlots: (number | string | null)[] = [],
+  activeChargeSlots: number[] = []
 ): ShotResult {
   if (!hero?.inventory) {
     return { used: false, multiplier: 1.0, shotType: null };
   }
 
-  // Визначаємо який shot потрібен:
-  // - Маг скіл (isMagic=true) -> витрачає спріншоти
-  // - Фізична атака (isPhysical=true) -> витрачає соулшоти
   const shotType = isMagic ? "spiritshot" : isPhysical ? "soulshot" : null;
-  
   if (!shotType) {
     return { used: false, multiplier: 1.0, shotType: null };
   }
 
-  // Визначаємо грейд зброї
-  const weaponGrade = getWeaponGrade(hero);
-  
-  // Шукаємо відповідний shot в інвентарі
-  const shotResult = findShotInInventory(hero, shotType, weaponGrade);
-  
-  if (!shotResult) {
-    return { used: false, multiplier: 1.0, shotType: null };
+  // Шукаємо слот з відповідним зарядом, який увімкнений
+  for (const slotIndex of activeChargeSlots) {
+    const slotId = loadoutSlots[slotIndex];
+    if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
+    const itemId = slotId.replace("consumable:", "");
+    if (!isShotConsumable(itemId, shotType)) continue;
+    const invItem = hero.inventory.find((i: any) => i.id === itemId && (i.count ?? 0) > 0);
+    if (!invItem) continue;
+
+    // Використовуємо один заряд
+    const heroStore = useHeroStore.getState();
+    const updatedInventory = hero.inventory.map((inv: any) => {
+      if (inv.id !== itemId) return inv;
+      const newCount = (inv.count ?? 1) - 1;
+      return newCount > 0 ? { ...inv, count: newCount } : null;
+    }).filter(Boolean) as any[];
+    heroStore.updateHero({ inventory: updatedInventory });
+
+    return {
+      used: true,
+      multiplier: 1.4,
+      shotType,
+    };
   }
 
-  const { item: shotItem, itemId: shotItemId } = shotResult;
-
-  // Використовуємо shot - зменшуємо count
-  const heroStore = useHeroStore.getState();
-  const updatedInventory = hero.inventory.map((invItem: any) => {
-    if (invItem.id === shotItemId) {
-      const newCount = (invItem.count ?? 1) - 1;
-      return newCount > 0 ? { ...invItem, count: newCount } : null;
-    }
-    return invItem;
-  }).filter(Boolean) as any[];
-
-  // Оновлюємо інвентар
-  heroStore.updateHero({ inventory: updatedInventory });
-
-  // Множник урону для shot (+40% урону)
-  const damageMultiplier = 1.4; // +40% урону
-
-  return {
-    used: true,
-    multiplier: damageMultiplier,
-    shotType: shotType,
-  };
+  return { used: false, multiplier: 1.0, shotType: null };
 }
 
 /**
- * Перевіряє чи є spiritshot в інвентарі (для магів)
- * Використовується для збільшення хілів/бафів/зельїв в 2 рази
+ * Перевіряє чи spiritshot увімкнений на панелі і є в інвентарі (для магів, хіл x2).
  */
-export function hasSpiritshotActive(hero: Hero): boolean {
+export function hasSpiritshotActive(
+  hero: Hero,
+  loadoutSlots: (number | string | null)[] = [],
+  activeChargeSlots: number[] = []
+): boolean {
   if (!hero?.inventory) return false;
-  
-  // Перевіряємо всі грейди spiritshot
-  const weaponGrade = getWeaponGrade(hero);
-  const shotResult = findShotInInventory(hero, "spiritshot", weaponGrade);
-  
-  return !!shotResult;
+  for (const slotIndex of activeChargeSlots) {
+    const slotId = loadoutSlots[slotIndex];
+    if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
+    const itemId = slotId.replace("consumable:", "");
+    if (!isShotConsumable(itemId, "spiritshot")) continue;
+    const has = hero.inventory.some((i: any) => i.id === itemId && (i.count ?? 0) > 0);
+    if (has) return true;
+  }
+  return false;
 }
 
