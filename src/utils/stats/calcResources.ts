@@ -30,15 +30,13 @@ export function calcResources(
   const lvl = Math.max(1, level);
   
   // Level scaling для ресурсів
-  // Зменшені множники CON/MEN для балансу (базові стати тепер високі)
-  // CON 40-50 дає бонус ~1.05-1.15 замість 1.9-2.2
+  // CON/MEN дають бонус від бази 40/25
   const conBonus = 1 + (baseStats.CON - 40) * 0.01;
   const menBonus = 1 + (baseStats.MEN - 25) * 0.01;
   
-  // Зменшені базові HP/MP для балансу
-  // На 1 рівні: 150 HP, 100 MP
-  // На 80 рівні: ~1110 HP, ~740 MP (без бонусів CON/MEN)
-  const baseHp = 150 + lvl * 12;
+  // HP: на 80 рівні ~4k для магів, ~5k+ для танків (різниця через conBonus)
+  // baseHp таке, щоб при CON 24 виходило ~4k, при CON 47 ~5k+
+  const baseHp = 200 + lvl * 56;
   const baseMp = 100 + lvl * 8;
   
   let maxHp = Math.round(baseHp * conBonus);

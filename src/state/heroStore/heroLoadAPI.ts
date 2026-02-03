@@ -333,6 +333,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const finalSkills = localSkills.length > serverSkills.length ? localSkills : (serverSkills.length > 0 ? serverSkills : (fixedHero.skills || []));
     const finalMobsKilled = localMobsKilled > serverMobsKilled ? localMobsKilled : (serverMobsKilled > 0 ? serverMobsKilled : currentMobsKilled);
     
+    // Щоденні завдання: зберігаємо з hero (сервер або локаль), щоб не втрачати прогрес
+    const dailyQuestsProgress = (fixedHero as any).dailyQuestsProgress ?? (heroData as any)?.dailyQuestsProgress ?? hydratedLocalHero?.dailyQuestsProgress;
+    const dailyQuestsCompleted = (fixedHero as any).dailyQuestsCompleted ?? (heroData as any)?.dailyQuestsCompleted ?? hydratedLocalHero?.dailyQuestsCompleted;
+    const dailyQuestsResetDate = (fixedHero as any).dailyQuestsResetDate ?? (heroData as any)?.dailyQuestsResetDate ?? hydratedLocalHero?.dailyQuestsResetDate;
+
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,
       baseStats: recalculated.originalBaseStats,
@@ -347,6 +352,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // 🔥 Схема A: hero.skills, hero.mobsKilled - офіційні поля
       skills: finalSkills,
       mobsKilled: finalMobsKilled as any,
+      // Щоденні завдання — щоб працювали після завантаження з API
+      ...(dailyQuestsProgress !== undefined ? { dailyQuestsProgress } : {}),
+      ...(dailyQuestsCompleted !== undefined ? { dailyQuestsCompleted } : {}),
+      ...(dailyQuestsResetDate !== undefined ? { dailyQuestsResetDate } : {}),
     };
     // 🔥 Зберігаємо повний heroJson з сервера (sevenSealsBonus, heroBuffs тощо)
     (heroWithRecalculatedStats as any).heroJson = heroData || (fixedHero as any).heroJson || {};

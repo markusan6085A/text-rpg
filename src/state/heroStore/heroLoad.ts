@@ -97,7 +97,11 @@ export function loadHero(): Hero | null {
         : (Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : []);
       (fixedHero as any).mobsKilled = mobsKilled;
       fixedHero.skills = skills;
-      
+      // Щоденні завдання — відновлюємо з heroJson при завантаженні з localStorage
+      if ((fixedHero as any).dailyQuestsProgress === undefined && (heroJson as any).dailyQuestsProgress) (fixedHero as any).dailyQuestsProgress = (heroJson as any).dailyQuestsProgress;
+      if ((fixedHero as any).dailyQuestsCompleted === undefined && Array.isArray((heroJson as any).dailyQuestsCompleted)) (fixedHero as any).dailyQuestsCompleted = (heroJson as any).dailyQuestsCompleted;
+      if ((fixedHero as any).dailyQuestsResetDate === undefined && (heroJson as any).dailyQuestsResetDate) (fixedHero as any).dailyQuestsResetDate = (heroJson as any).dailyQuestsResetDate;
+
       // Міграція: виправляємо предмети "Angel Slayer", які були куплені як лук
       if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {
         let inventoryUpdated = false;

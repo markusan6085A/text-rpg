@@ -11,11 +11,11 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
 
-  // Перевіряємо, чи потрібно скинути щоденні завдання (якщо змінився день)
+  // Перевіряємо, чи потрібно скинути щоденні завдання (якщо змінився день) — використовуємо локальну дату
   useEffect(() => {
     if (!hero) return;
-    
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`; // YYYY-MM-DD (локально)
     const resetDate = hero.dailyQuestsResetDate;
     
     if (resetDate !== today) {
