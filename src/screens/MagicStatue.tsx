@@ -153,20 +153,16 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
   const hasActiveBuffs = activeBufferBuffs.length > 0 && 
     activeBufferBuffs.some((b) => b.expiresAt > now);
 
+  // Видаляємо ВСІ бафи (і від статуї, і від скілів) — з першого натискання
   const removeAllBufferBuffs = () => {
     const now = Date.now();
     const saved = loadBattle(hero.name);
     const currentBuffs = cleanupBuffs(saved?.heroBuffs || [], now);
     
-    // Отримуємо поточний стан бою, щоб зберегти summon та cooldowns
+    // Видаляємо всі бафи без винятку
+    const filteredBuffs: BattleBuff[] = [];
+
     const battleState = useBattleStore.getState();
-
-    // Видаляємо всі бафи від статуї
-    const filteredBuffs = currentBuffs.filter((b) => b.source !== "buffer");
-
-    // Зберігаємо оновлені бафи, зберігаючи поточний стан (включаючи summon та cooldowns)
-    // ❗ ВАЖЛИВО: Беремо cooldowns з saved (якщо є), бо battleState може мати порожні cooldowns поза боєм
-    // Якщо battleState має актуальні cooldowns (не порожній об'єкт), використовуємо їх
     const currentCooldowns = battleState.cooldowns && Object.keys(battleState.cooldowns).length > 0
       ? battleState.cooldowns
       : (saved?.cooldowns || {});
@@ -174,31 +170,27 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     persistBattle({
       ...saved,
       heroBuffs: filteredBuffs,
-      cooldowns: currentCooldowns, // Використовуємо актуальні cooldowns або збережені
-      // Зберігаємо summon з поточного стану бою, якщо він є
+      cooldowns: currentCooldowns,
       summon: battleState.summon || saved?.summon || undefined,
       summonLastAttackAt: battleState.summonLastAttackAt || saved?.summonLastAttackAt || undefined,
     }, hero.name);
 
-    // 🔥 КРИТИЧНО: Також зберігаємо бафи в heroJson для персистентності
+    // Синхронізуємо battle store одразу, щоб UI оновився
+    useBattleStore.setState({ heroBuffs: filteredBuffs });
+
     const heroStore = useHeroStore.getState();
     const currentHero = heroStore.hero;
     if (currentHero) {
       const existingHeroJson = (currentHero as any).heroJson || {};
-      // Оновлюємо hero, щоб зберегти зміни в heroJson
       heroStore.updateHero({
         heroJson: {
           ...existingHeroJson,
-          heroBuffs: filteredBuffs, // 🔥 КРИТИЧНО: Зберігаємо оновлені бафи в heroJson
+          heroBuffs: filteredBuffs,
         } as any,
       });
     }
 
-    // Оновлюємо компонент для відображення
     setRefreshKey((k) => k + 1);
-    
-    // 🔥 ВАЖЛИВО: Викликаємо navigate з поточним шляхом, щоб спрацював механізм refreshKey з App.tsx
-    // Це форсує повне оновлення сторінки та відображення бафів
     const currentPath = window.location.pathname;
     navigate(currentPath);
   };

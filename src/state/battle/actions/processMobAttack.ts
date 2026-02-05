@@ -503,12 +503,15 @@ export const createProcessMobAttack =
       // Перераховуємо стати навіть при смерті (на випадок, якщо є скіли, що активуються при 0 HP)
       const heroWithZeroHp = { ...hero, hp: 0, maxHp: maxHp, equipment: equipmentAfterDeath };
       const recalculatedDead = recalculateAllStats(heroWithZeroHp, buffsAfterDeath);
+      // ❗ При смерті очищаємо всі бафи і в hero (heroJson), щоб вони не лишались після респа
+      const existingJson = (hero as any).heroJson || {};
       updateHero({ 
         hp: 0,
         battleStats: recalculatedDead.finalStats,
         equipment: equipmentAfterDeath,
         equipmentEnchantLevels: equipmentEnchantLevelsAfterDeath,
         zaricheEquippedUntil: zaricheEquippedUntilAfterDeath,
+        heroJson: { ...existingJson, heroBuffs: [] } as any,
       });
       
       updates = {
