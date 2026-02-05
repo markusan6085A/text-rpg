@@ -222,6 +222,8 @@ export const applyBuffsToStats = (
       merged["skillCritRate"] = merged[targetStat];
       merged["mCritRate"] = merged[targetStat];
       merged["magicCritRate"] = merged[targetStat];
+    } else if (targetStat === "critPower") {
+      merged["critDamage"] = merged[targetStat];
     }
   });
 

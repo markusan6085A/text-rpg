@@ -172,7 +172,9 @@ function immediateSave(hero: Hero) {
     criticalSaveTimeout = null;
   }
   
-  // Зберігаємо одразу
+  // 🔥 КРИТИЧНО: Спочатку синхронно пишемо в localStorage, щоб після F5 не втратити покупки/екіп
+  saveHeroToLocalStorageOnly(hero);
+  // Потім зберігаємо на API
   saveHeroToLocalStorage(hero).catch(err => {
     console.error('[heroStore] Failed to save hero immediately:', err);
     // 🔥 Якщо отримали rate limit - встановлюємо cooldown

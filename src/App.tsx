@@ -63,23 +63,17 @@ function useRouter() {
   const [refreshKey, setRefreshKey] = React.useState(0);
 
   const navigate = React.useCallback((newPath: string) => {
-    // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-    
     const pathname = new URL(newPath, window.location.origin).pathname;
     const search = new URL(newPath, window.location.origin).search;
-    const newPathFull = pathname + search;
-    
-    // 🔥 КРИТИЧНО: Завжди оновлюємо refreshKey ПЕРЕД setPath, навіть якщо шлях той самий - це форсує ре-рендер
-    // Це гарантує, що компоненти завжди оновлюються при виклику navigate
-    setRefreshKey(prev => prev + 1);
-    
-    // 🔥 ВАЖЛИВО: Оновлюємо path навіть якщо він той самий, щоб форсувати ре-рендер
-    // React порівнює path за значенням, тому навіть якщо значення те саме, refreshKey зміниться
-    window.history.pushState({}, "", newPath);
-    setPath(newPathFull);
+    const fullPath = pathname + search;
+    const currentPath = window.location.pathname + window.location.search;
+    // 🔥 Якщо клік по тому самому шляху — повне перезавантаження (як F5)
+    if (fullPath === currentPath) {
+      window.location.reload();
+      return;
+    }
+    // 🔥 При переході на інший шлях — теж повне перезавантаження, щоб дані завжди свіжі (як F5)
+    window.location.href = fullPath.startsWith("/") ? fullPath : "/" + fullPath;
   }, []);
 
   React.useEffect(() => {

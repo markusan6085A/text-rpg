@@ -494,6 +494,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
             <div
               className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
+              style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 5rem)" }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-[#dec28e]">Выберите баф для применения</h2>
@@ -507,7 +508,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
               {myBuffSkills.length === 0 ? (
                 <div className="text-gray-400 text-sm py-4">У вас нет изученных бафов</div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 mb-8">
                   {myBuffSkills.map((buff) => {
                     const formattedValues = formatBuffValues(buff.skillDef, buff.levelDef);
                     const descriptionParts = buff.description.split("\n\n");
