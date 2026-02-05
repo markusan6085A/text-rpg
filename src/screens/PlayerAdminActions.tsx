@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
 import { getSkillDef, getSkillDefForBattle } from "../state/battle/loadout";
-import { normalizeProfessionId, getProfessionDefinition } from "../data/skills";
+import { normalizeProfessionId, getProfessionDefinition, getDefaultProfessionForKlass } from "../data/skills";
 import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
@@ -46,19 +46,24 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
     loadPlayer();
   }, [playerId, playerName]);
 
-  // Конвертуємо Character в Hero формат
+  // Конвертуємо Character в Hero формат; profession нормалізуємо для всіх професій (бафи відображаються коректно)
   const playerHero = useMemo(() => {
     if (!character) return null;
 
     const heroJson = character.heroJson || {};
     const professionRaw = heroJson.profession || character.classId || "";
-    
+    const normalized = normalizeProfessionId(professionRaw);
+    const effectiveProfession =
+      (normalized && getProfessionDefinition(normalized))
+        ? normalized
+        : (getDefaultProfessionForKlass(character.classId || "", character.race) || professionRaw || "");
+
     return {
       id: character.id,
       name: character.name,
       race: character.race,
       klass: character.classId,
-      profession: professionRaw,
+      profession: effectiveProfession,
       level: character.level,
       skills: heroJson.skills || [],
       hp: heroJson.hp || heroJson.maxHp || 100,
