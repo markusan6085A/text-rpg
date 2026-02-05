@@ -1,5 +1,19 @@
 import type { BattleBuff } from "../types";
 
+// Fallback-бази для percent-бафів, якщо стат не заданий в base stats (наприклад atkSpeed vs attackSpeed)
+const DEFAULT_BASE_STATS: Record<string, number> = {
+  atkSpeed: 200,
+  attackSpeed: 200,
+  crit: 4,
+  critRate: 4,
+  critPower: 50,
+  critDamage: 50,
+  mCrit: 4,
+  skillCritRate: 4,
+  mCritRate: 4,
+  magicCritRate: 4,
+};
+
 export const cleanupBuffs = (buffs: BattleBuff[], now: number) => {
   const seenStack = new Set<string>();
   const seenId = new Set<number>();
@@ -204,17 +218,45 @@ export const applyBuffsToStats = (
   });
 
   // Потім застосовуємо percent бафи (відсотки додаються, а не множаться)
+  // merged має пріоритет над stats (там вже могли бути multiplier/flat), потім дефолтна база — щоб не було 0 * (1+%) = 0
   Object.keys(percentBuffsByStat).forEach((targetStat) => {
-    const baseValue = typeof stats?.[targetStat] === "number" ? stats[targetStat] : (merged[targetStat] ?? 0);
     const totalPercent = percentBuffsByStat[targetStat];
+    let baseValue: number;
     if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
-      // Для atkSpeed використовуємо базове значення або fallback
-      const baseAtkSpeed = baseValue > 0 ? baseValue : (typeof stats?.["atkSpeed"] === "number" ? stats["atkSpeed"] : typeof stats?.["attackSpeed"] === "number" ? stats["attackSpeed"] : 200);
-      merged[targetStat] = baseAtkSpeed * (1 + totalPercent / 100);
+      baseValue =
+        typeof merged["atkSpeed"] === "number" ? merged["atkSpeed"]
+        : typeof merged["attackSpeed"] === "number" ? merged["attackSpeed"]
+        : typeof stats?.["atkSpeed"] === "number" ? stats["atkSpeed"]
+        : typeof stats?.["attackSpeed"] === "number" ? stats["attackSpeed"]
+        : (DEFAULT_BASE_STATS[targetStat] ?? 200);
+    } else if (targetStat === "critPower" || targetStat === "critDamage") {
+      baseValue =
+        typeof merged["critPower"] === "number" ? merged["critPower"]
+        : typeof merged["critDamage"] === "number" ? merged["critDamage"]
+        : typeof stats?.["critPower"] === "number" ? stats["critPower"]
+        : typeof stats?.["critDamage"] === "number" ? stats["critDamage"]
+        : (DEFAULT_BASE_STATS[targetStat] ?? 50);
+    } else if (targetStat === "crit" || targetStat === "mCrit") {
+      baseValue =
+        typeof merged[targetStat] === "number" ? merged[targetStat]
+        : typeof stats?.[targetStat] === "number" ? stats[targetStat]
+        : (DEFAULT_BASE_STATS[targetStat] ?? 4);
+    } else {
+      baseValue =
+        typeof merged[targetStat] === "number" ? merged[targetStat]
+        : typeof stats?.[targetStat] === "number" ? stats[targetStat]
+        : (DEFAULT_BASE_STATS[targetStat] ?? 0);
+    }
+    merged[targetStat] = baseValue * (1 + totalPercent / 100);
+    if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
       merged["atkSpeed"] = merged[targetStat];
       merged["attackSpeed"] = merged[targetStat];
-    } else if (baseValue > 0) {
-      merged[targetStat] = baseValue * (1 + totalPercent / 100);
+    } else if (targetStat === "critPower") {
+      merged["critDamage"] = merged[targetStat];
+    } else if (targetStat === "mCrit") {
+      merged["skillCritRate"] = merged[targetStat];
+      merged["mCritRate"] = merged[targetStat];
+      merged["magicCritRate"] = merged[targetStat];
     }
   });
 
