@@ -112,14 +112,9 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [playerHero]);
 
-  // Отримуємо buff скіли для застосування — якщо це власний профіль і hero має скіли, використовуємо hero (актуальні зі store).
-  // Інакше — playerHero (з API), щоб GM міг бафати іншого гравця його ж бафами.
+  // Отримуємо buff скіли для застосування — завжди берём бафи поточного гравця (hero), щоб можна було бафати іншого гравця СВОЇМИ бафами.
   const myBuffSkills = useMemo(() => {
-    const isOwnProfile = character && hero && (hero.name === character.name || hero.name === playerHero?.name);
-    const source =
-      isOwnProfile && hero?.skills?.length
-        ? hero
-        : (playerHero || hero);
+    const source = hero;
     if (!source || !source.skills) return [];
 
     return source.skills
