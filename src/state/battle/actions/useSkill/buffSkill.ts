@@ -267,6 +267,23 @@ export function handleBuffSkill(
     return true;
   }
 
+  // Якщо баф без ефектів і нічого не застосовано (ні баф, ні debuff, ні special) — не ставимо відкат і не списуємо MP
+  const hasDebuffOrStun = (debuffResult.newMobBuffs?.length ?? 0) > 0 || debuffResult.mobStunnedUntil != null;
+  const hasSpecialEffect = (battleRoarResult.hpChange !== 0 || bodyToMindResult.hpChange !== 0 || bodyToMindResult.mpChange !== 0);
+  const buffWasAdded = newBuffs.some((b) => b.id === def.id);
+  if (
+    def.category === "buff" &&
+    effList.length === 0 &&
+    !buffWasAdded &&
+    !hasDebuffOrStun &&
+    !hasSpecialEffect
+  ) {
+    setAndPersist({
+      log: [`${def.name}: немає ефекту (навик не застосовано).`, ...state.log].slice(0, 30),
+    });
+    return true;
+  }
+
   const specialHpChange = battleRoarResult.hpChange + bodyToMindResult.hpChange;
   const specialMpChange = bodyToMindResult.mpChange;
   const specialLog = battleRoarResult.log || bodyToMindResult.log || otherSpecialLog;
