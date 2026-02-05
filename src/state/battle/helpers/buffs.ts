@@ -188,8 +188,19 @@ export const applyBuffsToStats = (
   // ❗ ВАЖЛИВО: Тепер застосовуємо всі зібрані бафи до базових значень
   // Спочатку застосовуємо multiplier бафи (вони множаться один на одного)
   Object.keys(multiplierBuffsByStat).forEach((targetStat) => {
-    const baseValue = typeof stats?.[targetStat] === "number" ? stats[targetStat] : (merged[targetStat] ?? 0);
+    let baseValue: number;
+    if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
+      baseValue = typeof merged["atkSpeed"] === "number" ? merged["atkSpeed"] : typeof merged["attackSpeed"] === "number" ? merged["attackSpeed"] : typeof stats?.["atkSpeed"] === "number" ? stats["atkSpeed"] : typeof stats?.["attackSpeed"] === "number" ? stats["attackSpeed"] : 200;
+    } else {
+      baseValue = typeof stats?.[targetStat] === "number" ? stats[targetStat] : (merged[targetStat] ?? 0);
+    }
     merged[targetStat] = baseValue * multiplierBuffsByStat[targetStat];
+    if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
+      merged["atkSpeed"] = merged[targetStat];
+      merged["attackSpeed"] = merged[targetStat];
+    } else if (targetStat === "critPower") {
+      merged["critDamage"] = merged[targetStat];
+    }
   });
 
   // Потім застосовуємо percent бафи (відсотки додаються, а не множаться)
