@@ -182,54 +182,45 @@ function AppInner() {
           return;
         }
 
-        // Для важких сторінок - завантажуємо hero перед показом UI
+        // Для важких сторінок — миттєво показуємо UI з локальним героєм, API в фоні
         const authStore = useAuthStore.getState();
         const characterStore = useCharacterStore.getState();
 
         if (import.meta.env.DEV) {
-          console.log('[App] Starting hero load, auth:', authStore.isAuthenticated, 'characterId:', characterStore.characterId);
+          console.log('[App] Instant load: setting local hero first, then API in background');
         }
 
-        // Якщо авторизований - пробуємо завантажити з API
+        // 1) Одразу показуємо локального героя (миттєво, без очікування API)
+        const localHero = getHeroFromLocalStorage();
+        const heroToShow = hydrateHero(localHero) ?? localHero;
+        if (heroToShow && alive) setHero(heroToShow);
+        else if (alive) loadHero(); // loadHero також викликає setHero через heroStore
+
+        // 2) Показуємо UI одразу (не чекаємо API)
+        if (alive) setIsLoading(false);
+
+        // 3) API в фоні — коли прийде відповідь, оновимо store якщо потрібно
         if (authStore.isAuthenticated && characterStore.characterId) {
-          try {
-            const loadedHero = await loadHeroFromAPI();
-            if (loadedHero && alive) {
-              // 🔥 Залізобетон: ніколи не перезаписувати store серверним героєм, якщо в localStorage є той самий або більший прогрес (відкати після F5)
-              // При рівному прогресі беремо локального — щоб не перезаписати бафи/адена серверною (застарілою) версією
-              const localHero = getHeroFromLocalStorage();
-              const le = Number((localHero as any)?.exp ?? (localHero as any)?.heroJson?.exp ?? 0);
-              const ll = Number((localHero as any)?.level ?? (localHero as any)?.heroJson?.level ?? 0);
-              const ls = Number((localHero as any)?.sp ?? (localHero as any)?.heroJson?.sp ?? 0);
-              const la = Number((localHero as any)?.adena ?? (localHero as any)?.heroJson?.adena ?? 0);
-              const lm = Number((localHero as any)?.mobsKilled ?? (localHero as any)?.heroJson?.mobsKilled ?? 0);
+          loadHeroFromAPI().then((loadedHero) => {
+            if (!alive) return;
+            if (loadedHero) {
+              const local = getHeroFromLocalStorage();
+              const le = Number((local as any)?.exp ?? (local as any)?.heroJson?.exp ?? 0);
+              const ll = Number((local as any)?.level ?? (local as any)?.heroJson?.level ?? 0);
+              const ls = Number((local as any)?.sp ?? (local as any)?.heroJson?.sp ?? 0);
+              const la = Number((local as any)?.adena ?? (local as any)?.heroJson?.adena ?? 0);
+              const lm = Number((local as any)?.mobsKilled ?? (local as any)?.heroJson?.mobsKilled ?? 0);
               const re = Number(loadedHero.exp ?? 0);
               const rl = Number(loadedHero.level ?? 0);
               const rs = Number((loadedHero as any).sp ?? 0);
               const ra = Number(loadedHero.adena ?? 0);
               const rm = Number((loadedHero as any).mobsKilled ?? 0);
-              const localBetterOrEqual = localHero && (le > re || ll > rl || ls > rs || la > ra || lm > rm || (le >= re && ll >= rl && ls >= rs && la >= ra && lm >= rm));
-              setHero(localBetterOrEqual ? (hydrateHero(localHero) ?? loadedHero) : loadedHero);
-              if (import.meta.env.DEV) {
-                console.log('[App] Hero set in store:', localBetterOrEqual ? 'local (better or equal)' : 'from API');
-              }
-            } else if (alive) {
-              if (import.meta.env.DEV) {
-                console.log('[App] Hero is null from API, fallback to localStorage');
-              }
-              loadHero();
+              const localBetterOrEqual = local && (le > re || ll > rl || ls > rs || la > ra || lm > rm || (le >= re && ll >= rl && ls >= rs && la >= ra && lm >= rm));
+              setHero(localBetterOrEqual ? (hydrateHero(local) ?? loadedHero) : loadedHero);
             }
-          } catch (err) {
-            if (import.meta.env.DEV) {
-              console.error('[App] Failed to load hero from API:', err);
-            }
-            if (alive) loadHero();
-          }
-        } else if (alive) {
-          if (import.meta.env.DEV) {
-            console.log('[App] Not authenticated, loading from localStorage');
-          }
-          loadHero();
+          }).catch((err) => {
+            if (import.meta.env.DEV) console.error('[App] Background API load failed:', err);
+          });
         }
       } catch (e) {
         console.error('[App] Boot failed:', e);
