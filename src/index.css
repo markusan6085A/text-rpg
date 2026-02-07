@@ -11,6 +11,8 @@ html, body {
   font-family: system-ui, sans-serif;
   overflow-x: hidden;
   width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   height: 100%;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
@@ -19,6 +21,7 @@ html, body {
 #root {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   position: relative;
 }

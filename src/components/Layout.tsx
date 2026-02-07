@@ -239,9 +239,9 @@ export default function Layout({
   };
 
   return (
-    <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4 overflow-x-hidden">
+    <div className="min-h-screen h-[100dvh] bg-black flex justify-center p-2 sm:p-4 overflow-hidden">
       <div
-        className={`w-full max-w-[380px] flex flex-col relative ${!customBackground ? "l2-frame page-bg" : ""}`}
+        className={`w-full max-w-[380px] flex flex-col relative min-h-[100dvh] ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
           customBackground
               ? {
@@ -270,7 +270,7 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        <div ref={contentRef} className={`flex-1 pb-24 overflow-y-auto relative z-10 flex justify-center ${contentTopCompact ? "pt-6" : "pt-16"}`}>
+        <div ref={contentRef} className={`flex-1 min-h-0 pb-24 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center ${contentTopCompact ? "pt-6" : "pt-16"}`}>
           <div className={`w-full max-w-[360px] px-3 ${contentTopCompact ? "mt-0" : "mt-2"}`}>
             {children}
           </div>

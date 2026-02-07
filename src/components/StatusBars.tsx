@@ -251,7 +251,16 @@ export default function StatusBars() {
   }, [inBattle]); // 🔥 Мінімальні dependencies - тільки inBattle (примітив), updateHero викликається через store
 
   // ВАЖЛИВО: Перевірка hero має бути ПІСЛЯ всіх хуків (useEffect тощо)
-  if (!hero) return null;
+  // Якщо hero немає — показуємо placeholder тієї ж висоти, щоб не було layout shift при завантаженні
+  if (!hero) {
+    return (
+      <div
+        className="fixed top-2 left-2 z-50 w-[90px] h-[72px] rounded bg-black/40 animate-pulse"
+        style={{ pointerEvents: "none" }}
+        aria-hidden="true"
+      />
+    );
+  }
 
   // Завантажуємо бафи з battle state (включаючи бафи статуї) навіть поза боєм
   const now = Date.now();
