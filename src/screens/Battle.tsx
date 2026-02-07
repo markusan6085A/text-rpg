@@ -74,22 +74,25 @@ export default function Battle({ navigate }: BattleProps) {
   // Ініціалізація бою
   React.useEffect(() => {
     if (zoneId && mobIndex >= 0 && found) {
-      // Не викликаємо startBattle, якщо вже була спроба для цієї комбінації zoneId+mobIndex
-      // і статус "idle" без моба (це означає помилку)
+      // Чекаємо hero перед стартом (API може завантажувати після reload)
+      if (!hero) return;
+
       const isSameBattle = battleZoneId === zoneId && battleMobIndex === mobIndex;
       const hasError = status === "idle" && !mob;
-      
-      if (isSameBattle && hasError) {
-        // Вже була спроба і є помилка - не повторюємо
+
+      // Якщо була помилка "Hero not found", а тепер hero завантажився — повторити startBattle
+      if (isSameBattle && hasError && hero) {
+        startBattle(zoneId, mobIndex);
         return;
       }
-      
-      // Викликаємо startBattle тільки якщо це новий бій або бій ще не ініціалізовано
+      if (isSameBattle && hasError) return; // Інша помилка — не повторюємо
+
+      // Викликаємо startBattle для нового бою або коли бій ще не ініціалізовано
       if (!isSameBattle || status === undefined) {
         startBattle(zoneId, mobIndex);
       }
     }
-  }, [zoneId, mobIndex, found, battleZoneId, battleMobIndex, startBattle, status, mob]);
+  }, [zoneId, mobIndex, found, battleZoneId, battleMobIndex, startBattle, status, mob, hero]);
 
   // Таймер для регенерації та атак мобів
   React.useEffect(() => {
