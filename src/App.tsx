@@ -33,7 +33,6 @@ import Chat from "./screens/Chat";
 import OnlinePlayers from "./screens/OnlinePlayers";
 import PlayerProfile from "./screens/PlayerProfile";
 import PlayerAdminActions from "./screens/PlayerAdminActions";
-import Admin from "./screens/Admin";
 import Mail from "./screens/Mail";
 import ColorizeNick from "./screens/ColorizeNick";
 import Forum from "./screens/Forum";
@@ -409,9 +408,6 @@ function AppInner() {
 
     case "/clans":
       return renderWithLayout(<Clans navigate={navigate} key={`clans-${refreshKey}`} />);
-
-    case "/admin":
-      return renderWithLayout(<Admin navigate={navigate} key={`admin-${refreshKey}`} />);
 
     default:
       // Check if pathname matches /clan-info/:id pattern (інформаційна сторінка)

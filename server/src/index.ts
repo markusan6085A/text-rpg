@@ -207,13 +207,13 @@ const start = async () => {
     await app.register(authRoutes);
     await app.register(authRefreshRoutes);
     await app.register(authLogoutRoutes);
+    await app.register(adminRoutes);
     await app.register(characterRoutes);
     await app.register(chatRoutes);
     await app.register(letterRoutes);
     await app.register(newsRoutes);
     await app.register(sevenSealsRoutes);
     await app.register(clanRoutes);
-    await app.register(adminRoutes); // без prefix — шляхи вже /admin/auth/..., /admin/ping
 
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: "0.0.0.0" });
