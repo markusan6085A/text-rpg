@@ -13,6 +13,7 @@ import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
 import { authRefreshRoutes } from "./routes/authRefresh";
 import { authLogoutRoutes } from "./routes/authLogout";
+import { adminRoutes } from "./routes/admin";
 
 // Отримуємо шлях до dist папки (frontend build)
 // Якщо сервер запускається з server/, то process.cwd() = server/
@@ -188,6 +189,7 @@ const start = async () => {
           request.url.startsWith('/news/') || 
           request.url.startsWith('/clans/') ||
           request.url.startsWith('/seven-seals/') ||
+          request.url.startsWith('/admin/') ||
           request.url === '/health' ||
           request.url === '/test-db') {
         return reply.code(404).send({ error: 'Not found' });
@@ -211,6 +213,7 @@ const start = async () => {
     await app.register(newsRoutes);
     await app.register(sevenSealsRoutes);
     await app.register(clanRoutes);
+    await app.register(adminRoutes);
 
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: "0.0.0.0" });
