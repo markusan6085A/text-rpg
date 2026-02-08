@@ -184,7 +184,7 @@ const start = async () => {
     await app.register(authRefreshRoutes);
     await app.register(authLogoutRoutes);
 
-    // ✅ ADMIN (ОБОВʼЯЗКОВО!)
+    // ✅ ADMIN
     await app.register(adminRoutes, { prefix: "/admin" });
     await app.register(adminAuthRoutes, { prefix: "/admin/auth" });
 
@@ -195,23 +195,22 @@ const start = async () => {
     await app.register(sevenSealsRoutes);
     await app.register(clanRoutes);
 
+    // ✅ setNotFoundHandler ТІЛЬКИ ПІСЛЯ ВСІХ register
     app.setNotFoundHandler(async (request, reply) => {
-      // API routes: просто 404 JSON
       if (
         request.url.startsWith("/auth") ||
         request.url.startsWith("/admin") ||
         request.url.startsWith("/characters") ||
-        request.url.startsWith("/chat") ||
-        request.url.startsWith("/letters") ||
-        request.url.startsWith("/news") ||
-        request.url.startsWith("/sevenSeals") ||
-        request.url.startsWith("/clans")
+        request.url.startsWith("/chat")
       ) {
         return reply.code(404).send({ error: "Not found" });
       }
-
-      // фронт: віддаємо index.html
-      return reply.sendFile("index.html");
+      try {
+        return reply.sendFile("index.html", distPath);
+      } catch (err) {
+        app.log.error({ error: err, url: request.url }, "Failed to serve index.html");
+        return reply.code(404).send({ error: "Not found" });
+      }
     });
 
     const port = Number(process.env.PORT || 3000);
