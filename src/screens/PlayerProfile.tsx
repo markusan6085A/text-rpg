@@ -262,31 +262,37 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
   const premiumTime = formatPremiumTime(premiumExpiresAt);
 
+  const lineThin = "border-t border-[#c7ad80]/70";
+  const lineThick = "border-t-2 border-[#c7ad80]";
+  const boxPad = "px-3";
+
   return (
     <div className="w-full flex flex-col items-center text-white">
-      <div className="w-full max-w-[360px] mt-2 px-3">
+      <div className="w-full max-w-[360px] mt-2">
         {/* Заголовок */}
-        <div className="border-t border-solid border-white/50 pt-2 mb-2">
-          <div className="text-center text-[14px] font-bold text-[#87ceeb]">
+        <div className={`w-full ${lineThick} ${lineThin} py-2`}>
+          <div className={`${boxPad} text-center text-[14px] font-bold text-[#87ceeb]`}>
             Информация о игроке
           </div>
         </div>
 
         {/* Нік, профа, лвл */}
-        <div className="border-t border-solid border-white/50 pt-2 mb-2">
-          <div className="text-center text-[12px]">
-            <div className="font-bold text-[14px]">
-              <PlayerNameWithEmblem
-                playerName={character.name}
-                hero={hero}
-                clan={playerClan}
-                nickColor={heroData?.nickColor || undefined}
-                size={10}
-              />
-            </div>
-            <div className="border-b border-solid border-white/50 pb-2 mb-2">
-              <div className="text-yellow-300">
-                {professionLabel} - {character.level} ур.
+        <div className="w-full">
+          <div className={`${lineThin} pt-2`}>
+            <div className={`${boxPad} text-center`}>
+              <div className="font-bold text-[14px]">
+                <PlayerNameWithEmblem
+                  playerName={character.name}
+                  hero={hero}
+                  clan={playerClan}
+                  nickColor={heroData?.nickColor || undefined}
+                  size={10}
+                />
+              </div>
+              <div className={`${lineThin} mt-2 pt-2 pb-2`}>
+                <div className="text-yellow-300 text-[12px]">
+                  {professionLabel} - {character.level} ур.
+                </div>
               </div>
             </div>
           </div>
@@ -294,8 +300,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Останній раз був / Онлайн */}
         {character.lastActivityAt && (
-          <div className="border-t border-solid border-white/50 pt-2 mb-2">
-            <div className="text-center text-[11px] border-b border-solid border-white/50 pb-2">
+          <div className={`${lineThin} py-2`}>
+            <div className={`${boxPad} text-center text-[11px]`}>
               {isOnline ? (
                 <span className="text-green-400 font-semibold">Онлайн</span>
               ) : (
@@ -308,8 +314,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         )}
 
         {/* Статус */}
-        <div className="border-t border-solid border-white/50 pt-2 mb-3">
-          <div className="text-center text-[11px] text-gray-400 border-b border-solid border-white/50 pb-2">
+        <div className={`${lineThin} py-2`}>
+          <div className={`${boxPad} text-center text-[11px] text-gray-400`}>
             {heroData.status || "Нет статуса"}
           </div>
         </div>
@@ -350,23 +356,27 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           />
         )}
 
-        {/* Кнопки - просто текст */}
-        <div className="flex flex-col gap-1 mb-4">
-          <div className="w-full border-t border-b border-solid border-white/50 py-1">
-            <span 
-              onClick={() => setShowWriteModal(true)}
-              className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
-            >
-              Написать письмо
-            </span>
+        {/* Кнопки - edge-to-edge, текст з паддінгом */}
+        <div className="w-full mb-4">
+          <div className={`${lineThin} py-1`}>
+            <div className={boxPad}>
+              <span
+                onClick={() => setShowWriteModal(true)}
+                className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
+              >
+                Написать письмо
+              </span>
+            </div>
           </div>
-          <div className="w-full border-t border-b border-solid border-white/50 py-1">
-            <span 
-              onClick={() => navigate(`/player/${character.id}/admin`)}
-              className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
-            >
-              Забафнуть игрока
-            </span>
+          <div className={`${lineThin} py-1`}>
+            <div className={boxPad}>
+              <span
+                onClick={() => navigate(`/player/${character.id}/admin`)}
+                className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
+              >
+                Забафнуть игрока
+              </span>
+            </div>
           </div>
         </div>
 
