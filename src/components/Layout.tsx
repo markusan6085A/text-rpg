@@ -239,9 +239,9 @@ export default function Layout({
   };
 
   return (
-    <div className="min-h-screen h-[100dvh] bg-black flex justify-center p-2 sm:p-4 overflow-hidden">
+    <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4">
       <div
-        className={`w-full max-w-[380px] flex flex-col relative min-h-[100dvh] ${!customBackground ? "l2-frame page-bg" : ""}`}
+        className={`w-full max-w-[380px] flex flex-col relative min-h-full ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
           customBackground
               ? {
@@ -274,7 +274,7 @@ export default function Layout({
         ) : showStatusBars ? (
           <div className="flex-shrink-0 w-full" style={{ height: "3.75rem" }} aria-hidden />
         ) : null}
-        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center" style={{ paddingBottom: "max(12rem, calc(env(safe-area-inset-bottom, 0px) + 9rem))" }}>
+        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center pb-[8.5rem]">
           <div className={`w-full max-w-[360px] px-3 mt-0`}>
             {children}
           </div>
