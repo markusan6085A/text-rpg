@@ -170,6 +170,10 @@ export default function Character() {
 
           {/* ЛІВА ІНФОРМАЦІЯ */}
           <div className="flex flex-col text-left mt-0 flex-1">
+            <div className="mt-2 mb-2 text-[12px] text-[#d6c29a] font-semibold">
+              Мой персонаж
+            </div>
+            <div className="h-px bg-[#6b5b3f]/60 mb-2" />
             <div className="border-t border-solid border-[#c7ad80]/60 pt-2 pb-2">
               <div className="text-xs">
                 Статус:{" "}
