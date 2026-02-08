@@ -305,6 +305,15 @@ export default function Character() {
             <img src="/icons/coin.png" alt="Premium" className="w-3 h-3 object-contain" />
             <span>Премиум аккаунт (ускоренная прокачка)</span>
           </button>
+
+          {hero?.name?.trim() === "Existence" && (
+            <button
+              onClick={() => navigate("/admin")}
+              className="mt-1 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#3bd16f] flex items-center gap-2"
+            >
+              <span>Панель Existence</span>
+            </button>
+          )}
         </div>
 
         {/* Социальный статус */}
