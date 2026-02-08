@@ -103,7 +103,7 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
               {sortedPlayers.map((player) => (
                 <div 
                   key={player.id} 
-                  className="flex items-center justify-between text-[12px] py-1 border-b border-dotted border-black/60 cursor-pointer hover:bg-gray-800/30 transition-colors"
+                  className="flex items-center justify-between text-[12px] py-1 border-b border-solid border-black/60 cursor-pointer hover:bg-gray-800/30 transition-colors"
                   onClick={() => navigate(`/player/${player.id}`)}
                 >
                   <div className="flex items-center gap-2">

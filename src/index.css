@@ -148,6 +148,12 @@ button {
   opacity: 0.8;
 }
 
+/* Суцільні роздільники замість пунктирних (тонкі/середні/грубші) */
+.sep-solid-thin { border: none; border-bottom: 1px solid rgba(255,255,255,0.22); }
+.sep-solid { border: none; border-bottom: 1px solid rgba(255,255,255,0.4); }
+.sep-solid-strong { border: none; border-bottom: 2px solid rgba(255,255,255,0.5); }
+.sep-solid-warm { border: none; border-bottom: 1px solid rgba(245,222,179,0.35); }
+
 .city-list {
   list-style: none;
   margin: 0;

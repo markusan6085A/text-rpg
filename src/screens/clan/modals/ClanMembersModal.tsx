@@ -51,7 +51,7 @@ export default function ClanMembersModal({
               return (
                 <div
                   key={member.id}
-                  className="text-[11px] border-b border-dotted border-white/40 pb-1 cursor-pointer hover:bg-[#2a2a2a] transition-colors p-1 rounded"
+                  className="text-[11px] border-b border-solid border-white/40 pb-1 cursor-pointer hover:bg-[#2a2a2a] transition-colors p-1 rounded"
                   onClick={() => {
                     if (member.characterId) {
                       onPlayerClick(member.characterId, member.characterName);

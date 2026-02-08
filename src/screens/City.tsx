@@ -93,7 +93,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
             <div className="border-t border-black/60 pt-2 space-y-1.5">
 
               <button
-                className="w-full text-left text-[12px] text-[#2d5016] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#2d5016] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/gk");
@@ -104,7 +104,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#f01912] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#f01912] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Арена PVP сражений")}
               >
                 <img src="/assets/battles.png" alt="Арена PVP сражений" className="w-3 h-3 object-contain" />
@@ -112,7 +112,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#808080] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#808080] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Статистика PvP Арены")}
               >
                 <img src="/assets/rate.png" alt="Статистика PvP Арены" className="w-3 h-3 object-contain" />
@@ -120,7 +120,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#ff8c00] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#ff8c00] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("TvT Менеджер")}
               >
                 <img src="/assets/quest.png" alt="TvT Менеджер" className="w-3 h-3 object-contain" />
@@ -128,7 +128,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#9d4edd] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#9d4edd] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/magic-statue");
@@ -144,7 +144,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#99e074] py-1.5 border-b border-dotted border-black/60 hover:text-[#bbff97] flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#99e074] py-1.5 border-b border-solid border-black/60 hover:text-[#bbff97] flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/shop");
@@ -155,7 +155,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#ffd700] py-1.5 border-b border-dotted border-black/60 hover:text-[#ffed4e] flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#ffd700] py-1.5 border-b border-solid border-black/60 hover:text-[#ffed4e] flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/gm-shop");
@@ -166,7 +166,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#c29835] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#c29835] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Рынок")}
               >
                 <img src="/assets/quest.png" alt="Рынок" className="w-3 h-3 object-contain" />
@@ -179,7 +179,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/guild");
@@ -195,7 +195,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#facc15] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#facc15] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/additional-skills");
@@ -211,7 +211,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#ff8c00] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#ff8c00] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/warehouse");
@@ -222,7 +222,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-dotted border-black/60 hover:text-[#bbff97] flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#3b82f6] py-1.5 border-b border-solid border-black/60 hover:text-[#bbff97] flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/fishing");
@@ -233,7 +233,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#1e40af] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#1e40af] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/tattoo-artist");
@@ -244,7 +244,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#fef08a] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#fef08a] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => {
                   window.scrollTo(0, 0);
                   navigate("/seven-seals");
@@ -255,7 +255,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#e6ba53] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#e6ba53] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Олимпиада")}
               >
                 <img src="/assets/rate.png" alt="Олимпиада" className="w-3 h-3 object-contain" />
@@ -263,7 +263,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#800020] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#800020] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Менеджер Олимпиады")}
               >
                 <img src="/assets/news.png" alt="Менеджер Олимпиады" className="w-3 h-3 object-contain" />
@@ -271,7 +271,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#aca9a4] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#aca9a4] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Отважный охотник")}
               >
                 <img src="/assets/battles.png" alt="Отважный охотник" className="w-3 h-3 object-contain" />
@@ -279,7 +279,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
               </button>
 
               <button
-                className="w-full text-left text-[12px] text-[#ffb347] py-1.5 border-b border-dotted border-black/60 hover:text:white flex items-center gap-2"
+                className="w-full text-left text-[12px] text-[#ffb347] py-1.5 border-b border-solid border-black/60 hover:text:white flex items-center gap-2"
                 onClick={() => openFeature("Крафт-ресурси")}
               >
                 <img src="/assets/news.png" alt="Крафт-ресурси" className="w-3 h-3 object-contain" />

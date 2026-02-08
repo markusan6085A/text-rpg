@@ -95,7 +95,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         >
           ← Назад
         </button>
-        <div className="text-[#ffd700] text-xs border-b border-dotted border-white/50 pb-2 font-semibold flex-1 flex items-center gap-2" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div className="text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1 flex items-center gap-2" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
           <img src="/icons/col (1).png" alt="Premium" className="w-4 h-4 object-contain" />
           Премиум аккаунт
         </div>
@@ -143,7 +143,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
             return (
               <div
                 key={option.id}
-                className={`border border-dotted border-white/50 p-2 rounded ${
+                className={`border border-solid border-white/50 p-2 rounded ${
                   selectedOption?.id === option.id ? "bg-yellow-900/20 border-yellow-500" : ""
                 } ${!canAfford ? "opacity-50" : ""}`}
               >

@@ -420,7 +420,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                   paginatedItems.map((item, index) => (
                     <div
                       key={`${item.id}-${index}`}
-                      className="flex items-center gap-2 py-1 border-b border-dotted border-white/30"
+                      className="flex items-center gap-2 py-1 border-b border-solid border-white/30"
                     >
                       <img
                         src={
@@ -497,7 +497,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                     return (
                       <div
                         key={slotIndex}
-                        className="flex items-center gap-2 py-1 border-b border-dotted border-white/30"
+                        className="flex items-center gap-2 py-1 border-b border-solid border-white/30"
                       >
                         <img
                           src={

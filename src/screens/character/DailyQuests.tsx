@@ -109,7 +109,7 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
         >
           ← Назад
         </button>
-        <div className="text-[#ffd700] text-xs border-b border-dotted border-white/50 pb-2 font-semibold flex-1" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div className="text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
           Ежедневные задания
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
             return (
               <div
                 key={quest.id}
-                className={`border-b border-dotted border-white/50 py-2 ${completed ? "opacity-60" : ""}`}
+                className={`border-b border-solid border-white/50 py-2 ${completed ? "opacity-60" : ""}`}
               >
                 <div className="flex items-center gap-2 mb-1">
                   {quest.icon && (

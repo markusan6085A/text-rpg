@@ -170,7 +170,7 @@ export default function Character() {
 
           {/* ЛІВА ІНФОРМАЦІЯ */}
           <div className="flex flex-col text-left mt-1 flex-1">
-            <div className="border-t border-dotted border-white/50 pt-2 pb-2">
+            <div className="border-t border-solid border-white/40 pt-2 pb-2">
               <div className="text-xs">
                 Статус:{" "}
                 {status ? (
@@ -189,7 +189,7 @@ export default function Character() {
                 </button>
               </div>
 
-              <div className="text-[11px] text-yellow-300 mt-1 border-t border-dotted border-white/50 pt-1">
+              <div className="text-[11px] text-yellow-300 mt-1 border-t border-solid border-white/30 pt-1">
                 Профессия:{" "}
                 {(() => {
                   const profId = normalizeProfessionId(profession as any);
@@ -201,11 +201,11 @@ export default function Character() {
               {/* Бафи під професією */}
               <CharacterBuffs />
             </div>
-            <div className="border-b border-dotted border-white/50"></div>
+            <div className="border-b border-solid border-white/40"></div>
           </div>
 
           {/* КНОПКИ СПРАВА */}
-          <div className="flex flex-col gap-1 text-right text-[10px] ml-2 border-y border-dotted border-white/50 pt-2 pb-2">
+          <div className="flex flex-col gap-1 text-right text-[10px] ml-2 border-y border-solid border-white/40 pt-2 pb-2">
             <button
               className="w-16 py-[2px] bg-[#1d140c] text-white border border-white/50 rounded-md"
               onClick={() => (window.location.href = "/")}
@@ -229,30 +229,30 @@ export default function Character() {
         <CharacterEquipmentFrame allowUnequip={false} marginTop="20px" />
         
         {/* Крапкова лінія під барами (від краю до краю) */}
-        <div className="w-full border-t border-dotted border-white/50 mt-2"></div>
+        <div className="w-full border-t-2 border-solid border-amber-200/40 mt-2"></div>
 
         {/* ========================================================= */}
         {/*     СТОЛБЕЦ ПУНКТОВ — КАК ТЫ ПРОСИЛ                        */}
         {/* ========================================================= */}
         <div className="w-[330px] text-left text-[12px] text-[#d3d3d3] mt-4 space-y-1">
 
-          <div className="border-b border-dotted border-white/50 pb-1 flex items-center gap-2">
+          <div className="border-b border-solid border-white/30 pb-1 flex items-center gap-2">
             <img src="/icons/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
             <span>Аденa: <span className="text-yellow-300">{adena}</span></span>
           </div>
-          <div className="border-b border-dotted border-white/50 pb-1 flex items-center gap-2">
+          <div className="border-b border-solid border-white/30 pb-1 flex items-center gap-2">
             <img src="/icons/col (1).png" alt="Coin of Luck" className="w-3 h-3 object-contain" />
             <span>Coin of Luck: <span className="text-yellow-300">{coins}</span></span>
           </div>
 
-          <div className="border-b border-dotted border-white/50 pb-1 flex items-center gap-2">
+          <div className="border-b border-solid border-white/30 pb-1 flex items-center gap-2">
             <img src="/icons/star.png" alt="Experience" className="w-3 h-3 object-contain" />
             <span>
               Опыт: <span className="text-orange-400">{formatNumber(expRemaining)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
             </span>
           </div>
 
-          <div className="border-b border-dotted border-white/50 pb-1 flex items-center gap-2">
+          <div className="border-b border-solid border-white/30 pb-1 flex items-center gap-2">
             <img src="/icons/news.png" alt="SP" className="w-3 h-3 object-contain" />
             <span>
               SP: <span className="text-blue-300">{formatNumber(sp)}</span>
@@ -261,7 +261,7 @@ export default function Character() {
 
           <button
             onClick={() => navigate("/learned-skills")}
-            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-dotted border-white/50 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-white/30 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
           >
             <img src="/icons/news.png" alt="Skills" className="w-3 h-3 object-contain" />
             <span>Умения</span>
@@ -269,20 +269,20 @@ export default function Character() {
           <RecipeBookButton navigate={navigate} />
           <button
             onClick={() => setShowQuests(!showQuests)}
-            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-dotted border-white/50 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-white/30 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
           >
             <img src="/icons/news.png" alt="Quests" className="w-3 h-3 object-contain" />
             <span>Мои квесты</span>
           </button>
 
-          <div className="mt-2 border-b border-dotted border-white/50 pb-1 flex items-center gap-2">
+          <div className="mt-2 border-b border-solid border-white/30 pb-1 flex items-center gap-2">
             <img src="/icons/rate.png" alt="Ratings" className="w-3 h-3 object-contain" />
             <span>Рейтинги</span>
           </div>
           {sevenSealsRank !== null && (
             <button
               onClick={() => setShowSevenSealsModal(true)}
-              className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-dotted border-white/50 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+              className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-white/30 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
             >
               <span className={sevenSealsRank === 1 ? "text-yellow-400" : sevenSealsRank === 2 ? "text-gray-300" : "text-orange-400"}>
                 Победитель 7 печатей ({sevenSealsRank} место)
@@ -291,7 +291,7 @@ export default function Character() {
           )}
           <button
             onClick={() => navigate("/daily-quests")}
-            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-dotted border-white/50 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-white/30 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
           >
             <img src="/icons/battles.png" alt="Daily Quests" className="w-3 h-3 object-contain" />
             <span>Ежедневные задания</span>
@@ -299,7 +299,7 @@ export default function Character() {
 
           <button
             onClick={() => navigate("/premium-account")}
-            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-dotted border-white/50 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
+            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-white/30 pb-1 w-full text-[#d3d3d3] flex items-center gap-2"
           >
             <img src="/icons/coin.png" alt="Premium" className="w-3 h-3 object-contain" />
             <span>Премиум аккаунт (ускоренная прокачка)</span>
@@ -307,7 +307,7 @@ export default function Character() {
         </div>
 
         {/* Социальный статус */}
-        <div className="w-[330px] text-left text-[11px] text-[#d3d3d3] mt-4 border-t border-dotted border-white/50 pt-3">
+        <div className="w-[330px] text-left text-[11px] text-[#d3d3d3] mt-4 border-t-2 border-solid border-amber-200/40 pt-3">
           <div className="font-semibold mb-2">Социальный статус</div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px]">
             <div className="flex justify-between">

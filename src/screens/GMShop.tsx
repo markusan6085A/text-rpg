@@ -837,7 +837,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             {GM_SHOP_ITEMS.filter(item => item.grade === selectedGrade).map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-2 py-1.5 border-b border-dotted border-white/30 hover:bg-black/20 cursor-pointer"
+                className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
                 onClick={() => {
                   setSelectedItem(item);
                   setBuyQuantity(1);

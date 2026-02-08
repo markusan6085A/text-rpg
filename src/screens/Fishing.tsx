@@ -143,7 +143,7 @@ export default function Fishing({ navigate }: FishingProps) {
                 return (
                   <div
                     key={mob.id}
-                    className={`flex items-center gap-2 py-1 border-b border-dotted border-white/50 text-xs ${
+                    className={`flex items-center gap-2 py-1 border-b border-solid border-white/50 text-xs ${
                       isLevelDiffTooHigh ? "text-red-500" : "text-[#b8860b]"
                     }`}
                   >

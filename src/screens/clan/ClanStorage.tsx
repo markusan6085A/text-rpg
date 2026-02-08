@@ -46,7 +46,7 @@ export default function ClanStorage({
             const iconPath = item.meta?.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
             const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
             return (
-              <div key={item.id} className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-white/40 pb-1">
+              <div key={item.id} className="flex items-center gap-2 text-[11px] text-white border-b border-solid border-white/40 pb-1">
                 <img
                   src={finalIconPath}
                   alt={itemName}

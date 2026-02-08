@@ -61,7 +61,7 @@ export default function ClanMembers({
           return (
             <div
               key={member.id}
-              className="text-[11px] border-b border-dotted border-white/40 pb-1"
+              className="text-[11px] border-b border-solid border-white/40 pb-1"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">

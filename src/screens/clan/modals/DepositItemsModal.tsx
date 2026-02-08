@@ -93,7 +93,7 @@ export default function DepositItemsModal({
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-2 text-[11px] text-[#c7ad80] border-b border-dotted border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                  className="flex items-center gap-2 text-[11px] text-[#c7ad80] border-b border-solid border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
                   onClick={() => handleDeposit(item)}
                 >
                   <img

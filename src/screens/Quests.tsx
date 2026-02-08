@@ -46,7 +46,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
     return (
       <div className="w-full text-[#f4e2b8] px-1 py-2">
         {/* Заголовок */}
-        <div className="text-[#ffd700] mb-4 text-xs border-b border-dotted border-white/50 pb-2 font-semibold" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div className="text-[#ffd700] mb-4 text-xs border-b border-solid border-white/50 pb-2 font-semibold" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
           Квести
         </div>
 
@@ -72,7 +72,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
                 <button
                   key={location}
                   onClick={() => setSelectedLocation(location)}
-                  className="w-full text-left border-b border-dotted border-white/50 py-2 hover:bg-black/20"
+                  className="w-full text-left border-b border-solid border-white/50 py-2 hover:bg-black/20"
                 >
                   <div className="flex items-center gap-2">
                     <img src="/assets/quest.png" alt="Quest" className="w-3 h-3 object-contain" />
@@ -109,7 +109,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
         >
           ← Назад
         </button>
-        <div className="text-[#ffd700] text-xs border-b border-dotted border-white/50 pb-2 font-semibold flex-1" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div className="text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
           {selectedLocation} {locationQuests[0]?.locationLevel && `(${locationQuests[0].locationLevel})`}
         </div>
       </div>
@@ -124,7 +124,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
           availableQuests.map((quest) => (
             <div
               key={quest.id}
-              className="border-b border-dotted border-white/50 py-2"
+              className="border-b border-solid border-white/50 py-2"
             >
               <div className="flex items-center gap-2 mb-1">
                 <img src="/assets/quest.png" alt="Quest" className="w-3 h-3 object-contain" />

@@ -665,7 +665,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-2 py-1.5 border-b border-dotted border-white/30 hover:bg-black/20"
+                className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20"
               >
                 {/* Іконка */}
                 <img

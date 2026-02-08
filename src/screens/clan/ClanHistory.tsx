@@ -14,7 +14,7 @@ export default function ClanHistory({ logs }: ClanHistoryProps) {
           <div className="text-[11px] text-[#9f8d73]">История пуста</div>
         ) : (
           logs.map((log) => (
-            <div key={log.id} className="text-[11px] text-[#9f8d73] border-b border-dotted border-white/40 pb-1">
+            <div key={log.id} className="text-[11px] text-[#9f8d73] border-b border-solid border-white/40 pb-1">
               {log.message}
               <span className="text-[10px] text-gray-500 ml-2">
                 {new Date(log.createdAt).toLocaleString("ru-RU")}

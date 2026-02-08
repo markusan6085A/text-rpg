@@ -136,7 +136,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               return (
                 <div
                   key={globalIndex}
-                  className={`flex items-center gap-2 py-1 border-b border-dotted border-white/50 text-xs ${
+                  className={`flex items-center gap-2 py-1 border-b border-solid border-white/50 text-xs ${
                     isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
                   }`}
                 >

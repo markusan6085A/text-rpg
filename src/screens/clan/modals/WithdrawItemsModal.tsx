@@ -53,7 +53,7 @@ export default function WithdrawItemsModal({
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                  className="flex items-center gap-2 text-[11px] text-white border-b border-solid border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
                   onClick={() => handleWithdraw(item)}
                 >
                   <img
