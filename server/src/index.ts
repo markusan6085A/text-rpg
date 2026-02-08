@@ -160,7 +160,7 @@ const start = async () => {
         if (!origin) return callback(null, true);
 
         const isAllowedVercel = (o: string) =>
-          /^https:\/\/text-.*-l2dop\.vercel\.app$/.test(o);
+          /^https:\/\/text-.*-(l2dop|12dop)\.vercel\.app$/.test(o);
 
         if (allowedOrigins.includes(origin) || isAllowedVercel(origin)) {
           return callback(null, true);
