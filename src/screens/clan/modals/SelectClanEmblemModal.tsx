@@ -52,7 +52,7 @@ export default function SelectClanEmblemModal({
                 style={{ 
                   minHeight: "56px", 
                   minWidth: "56px",
-                  backgroundColor: "#1D1C1A" // Фон зовнішньої рамки сторінки (.l2-frame)
+                  backgroundColor: "#252422" // Фон зовнішньої рамки сторінки (.l2-frame)
                 }}
                 onClick={() => onSelect(emblem)}
               >

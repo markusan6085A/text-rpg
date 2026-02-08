@@ -8,7 +8,7 @@ interface ClanEmblemProps {
 }
 
 /**
- * Функція для заміни чорного фону в зображенні на #1D1C1A через Canvas
+ * Функція для заміни чорного фону в зображенні на #252422 через Canvas
  */
 function replaceBlackBackground(image: HTMLImageElement, targetColor: string): string {
   const canvas = document.createElement('canvas');
@@ -25,7 +25,7 @@ function replaceBlackBackground(image: HTMLImageElement, targetColor: string): s
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
 
-  // Конвертуємо targetColor (#1D1C1A) в RGB
+  // Конвертуємо targetColor (#252422) в RGB
   const targetR = parseInt(targetColor.slice(1, 3), 16);
   const targetG = parseInt(targetColor.slice(3, 5), 16);
   const targetB = parseInt(targetColor.slice(5, 7), 16);
@@ -79,7 +79,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
           setProcessingError(true);
           return;
         }
-        const processed = replaceBlackBackground(img, "#1D1C1A");
+        const processed = replaceBlackBackground(img, "#252422");
         setProcessedSrc(processed);
       } catch (err) {
         console.error(`[ClanEmblem] Failed to process emblem: ${emblemPath}`, err);
@@ -102,7 +102,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         width: `${size}px`,
         height: `${size}px`,
         verticalAlign: "middle",
-        backgroundColor: "#1D1C1A", // Фон Layout (.l2-frame) - той самий що і на всіх сторінках
+        backgroundColor: "#252422", // Фон Layout (.l2-frame) - той самий що і на всіх сторінках
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
@@ -111,12 +111,12 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         overflow: "hidden",
       }}
     >
-      {/* 🔥 Фоновий шар з кольором #1D1C1A - буде видно через прозорі частини зображення */}
+      {/* 🔥 Фоновий шар з кольором #252422 - буде видно через прозорі частини зображення */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          backgroundColor: "#1D1C1A",
+          backgroundColor: "#252422",
           zIndex: 0,
         }}
       />
@@ -131,10 +131,10 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
           maxHeight: `${size}px`,
           position: "relative",
           zIndex: 1,
-          // 🔥 CSS filter для заміни чорного фону на #1D1C1A (темніший варіант)
+          // 🔥 CSS filter для заміни чорного фону на #252422 (темніший варіант)
           // Якщо Canvas не спрацював - застосовуємо затемнюючий filter
           filter: processingError || !processedSrc 
-            ? "brightness(0.55) contrast(1.0)" // Затемнюємо фон ще більше для кращого збігу з #1D1C1A
+            ? "brightness(0.55) contrast(1.0)" // Затемнюємо фон ще більше для кращого збігу з #252422
             : "none", // Якщо Canvas обробив - не застосовуємо filter
           // Не використовуємо mix-blend-mode, щоб не освітлювати зображення
           mixBlendMode: "normal",

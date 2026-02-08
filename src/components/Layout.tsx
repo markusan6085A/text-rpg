@@ -249,13 +249,13 @@ export default function Layout({
                 padding: "10px",
                 borderRadius: "10px",
                 boxShadow: "inset 0 0 10px #000",
-                backgroundColor: "#1D1C1A", /* Замість fon.png */
+                backgroundColor: "#252422", /* Трохи світліший фон */
                 width: "100%",
                 overflowX: "hidden",
                 position: "relative",
               }
             : {
-                backgroundColor: "#1D1C1A", /* Замість fon.png */
+                backgroundColor: "#252422", /* Трохи світліший фон */
               }
         }
       >
