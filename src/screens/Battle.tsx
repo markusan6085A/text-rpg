@@ -74,14 +74,16 @@ export default function Battle({ navigate }: BattleProps) {
   const lineGold = "border-t border-[#c7ad80]/80";
   const lineGoldThick = "border-t-2 border-[#c7ad80]";
   const pad = "px-3";
-  const boxGreen = "border border-[#3bd16f]/70 bg-[#0b140d]/35";
-  const boxBlue = "border-2 border-[#4aa3ff]/80 bg-black/25";
+  const boxBlue =
+    "rounded-lg border-2 border-[#4aa3ff]/70 bg-black/25 shadow-[inset_0_0_12px_rgba(74,163,255,0.18)] overflow-hidden";
   const btnGold =
-    "w-full text-center text-[12px] py-1.5 border border-[#c7ad80]/80 " +
-    "text-[#c7ad80] hover:bg-[#2a2015] transition-colors rounded";
+    "w-full text-center text-[12px] py-2 rounded-lg " +
+    "border border-[#c7ad80]/80 text-[#c7ad80] " +
+    "bg-[#151311]/40 shadow-[inset_0_0_10px_rgba(199,173,128,0.10)] " +
+    "hover:bg-[#2a2015] transition-colors";
   const btnGreen =
-    "w-full text-center text-[12px] py-1.5 border border-[#3bd16f]/70 " +
-    "text-[#3bd16f] hover:bg-[#102314] transition-colors rounded";
+    "w-full text-center text-[12px] py-2 rounded-lg border border-[#3bd16f]/70 " +
+    "text-[#3bd16f] hover:bg-[#102314] transition-colors";
 
   // Ініціалізація бою
   React.useEffect(() => {
@@ -253,71 +255,94 @@ export default function Battle({ navigate }: BattleProps) {
             </div>
           </div>
 
-          {/* Дроп — зелена рамка */}
+          {/* Выпало + дроп (рамка тільки навколо списку) */}
           <div className="mt-3">
-            <div className={`${boxGreen} rounded-sm`}>
-              <div className="border-b border-[#3bd16f]/60 py-2">
-                <div className={`${pad} text-[12px] text-[#3bd16f] font-semibold`}>Выпало:</div>
-              </div>
-              <div className={`${pad} py-2 text-[12px] text-[#cfead6] space-y-1`}>
-                {lastReward.exp > 0 && (
-                  <div className="flex justify-between">
-                    <span>Опыт:</span>
-                    <span className="text-[#3bd16f]">+{lastReward.exp}</span>
-                  </div>
-                )}
-                {lastReward.sp !== undefined && lastReward.sp > 0 && (
-                  <div className="flex justify-between">
-                    <span>SP:</span>
-                    <span className="text-[#3bd16f]">+{lastReward.sp}</span>
-                  </div>
-                )}
-                {lastReward.adena > 0 && (
-                  <div className="flex justify-between">
-                    <span>Adena</span>
-                    <span className="text-[#3bd16f]">(x{lastReward.adena})</span>
-                  </div>
-                )}
-              </div>
-              <div className="border-t border-[#3bd16f]/60 py-1" />
-            </div>
-          </div>
-
-          {/* Кнопки: ліворуч Бить следующего! (золото), праворуч Забрать и бить следующего! (зелений) */}
-          <div className={`${lineGold} mt-3 pt-2`}>
-            <div className={`${pad} grid grid-cols-2 gap-2`}>
-              <button type="button" className={btnGold} onClick={handleNextOnly}>
-                Бить следующего!
-              </button>
-              <button type="button" className={btnGreen} onClick={handleTakeAndNext}>
-                Забрать и бить следующего!
-              </button>
-            </div>
-          </div>
-
-          {/* Лог бою — синя рамка, w-full */}
-          <div className={`${lineGold} mt-3 pt-2`}>
             <div className={pad}>
-              <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
-              <div className={`${boxBlue} w-full rounded-sm`}>
-                <div className={`${pad} py-2 text-[11px] leading-4`}>
-                  <BattleLog noBorder />
-                </div>
-              </div>
+              <div className="text-[12px] text-[#3bd16f] font-semibold">Выпало:</div>
+              <div className="mt-1 h-[2px] w-10 bg-[#3bd16f]/70 rounded-full" />
             </div>
-          </div>
-
-          {/* В окрестности */}
-          <div className={`${lineGold} py-2`}>
-            <div className={pad}>
-              <button
-                type="button"
-                onClick={handleTakeAndLocation}
-                className="text-white hover:underline cursor-pointer flex items-center gap-1 text-xs"
+            <div className="mt-2 px-3">
+              <div
+                className="
+                  rounded-lg
+                  border-2 border-[#3bd16f]/70
+                  bg-[#07140b]/45
+                  shadow-[inset_0_0_12px_rgba(59,209,111,0.18)]
+                  overflow-hidden
+                "
               >
-                <span>В окрестности</span>
-              </button>
+                <div className="h-[2px] bg-[#3bd16f]/60" />
+                <div className="px-3 py-2 text-[12px] text-[#cfead6] space-y-1">
+                  {lastReward.exp > 0 && (
+                    <div className="flex justify-between">
+                      <span>Опыт:</span>
+                      <span className="text-[#3bd16f]">+{lastReward.exp}</span>
+                    </div>
+                  )}
+                  {lastReward.sp !== undefined && lastReward.sp > 0 && (
+                    <div className="flex justify-between">
+                      <span>SP:</span>
+                      <span className="text-[#3bd16f]">+{lastReward.sp}</span>
+                    </div>
+                  )}
+                  {lastReward.adena > 0 && (
+                    <div className="flex justify-between">
+                      <span>Adena</span>
+                      <span className="text-[#3bd16f]">(x{lastReward.adena})</span>
+                    </div>
+                  )}
+                </div>
+                <div className="h-[2px] bg-[#3bd16f]/60" />
+              </div>
             </div>
+          </div>
+
+          {/* Дії після бою (без рамок, лише текст) */}
+          <div className="mt-3">
+            <div className="px-3 text-center text-[12px]">
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={handleNextOnly}
+                onKeyDown={(e) => e.key === "Enter" && handleNextOnly()}
+                className="cursor-pointer text-[#c7ad80] hover:text-[#e7d7b3] transition-colors"
+              >
+                Бить следующего!
+              </span>
+              <span className="mx-2 text-[#c7ad80]/70">|</span>
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={handleTakeAndNext}
+                onKeyDown={(e) => e.key === "Enter" && handleTakeAndNext()}
+                className="cursor-pointer text-[#3bd16f] hover:text-[#6dff9a] transition-colors"
+              >
+                Забрать и бить следующего!
+              </span>
+            </div>
+            <div className="mt-2 border-t border-[#c7ad80]/80" />
+          </div>
+
+          {/* Лог бою (синя рамка, без лінії під) */}
+          <div className="mt-3 px-3">
+            <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
+            <div className={`${boxBlue} w-full`}>
+              <div className="px-3 py-2 text-[11px] leading-4">
+                <BattleLog noBorder />
+              </div>
+            </div>
+          </div>
+
+          {/* В окрестности + лінія під ним */}
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={handleTakeAndLocation}
+              className="w-full px-3 text-center text-[12px] text-white/90 hover:text-white transition-colors cursor-pointer"
+            >
+              В окрестности
+            </button>
+            <div className="mt-2 border-t border-[#c7ad80]/80" />
           </div>
         </div>
       </div>
@@ -354,12 +379,12 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
         </div>
 
-        {/* Лог бою — синя рамка, w-full */}
+        {/* Лог бою — синя рамка, rounded + inset glow */}
         <div className={`${lineGold} pt-2`}>
           <div className={pad}>
             <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
-            <div className={`${boxBlue} w-full rounded-sm`}>
-              <div className={`${pad} py-2 text-[11px] leading-4`}>
+            <div className={`${boxBlue} w-full`}>
+              <div className="px-3 py-2 text-[11px] leading-4">
                 <BattleLog noBorder />
               </div>
             </div>
