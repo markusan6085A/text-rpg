@@ -13,6 +13,7 @@ import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
 import { authRefreshRoutes } from "./routes/authRefresh";
 import { authLogoutRoutes } from "./routes/authLogout";
+import { adminAuthRoutes } from "./routes/adminAuth";
 import { adminRoutes } from "./routes/admin";
 
 // Отримуємо шлях до dist папки (frontend build)
@@ -144,6 +145,7 @@ const start = async () => {
       app.log.warn({ error: staticError, distPath }, 'Failed to register static files (may be normal if dist/ does not exist)');
     }
 
+    await app.register(adminAuthRoutes);
     await app.register(adminRoutes);
 
     await app.register(cookie);
