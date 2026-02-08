@@ -179,37 +179,13 @@ const start = async () => {
       allowedHeaders: ["Content-Type", "Authorization"],
     });
 
-    // 🔥 Fallback для SPA: всі не-API маршрути повертають index.html
-    app.setNotFoundHandler(async (request, reply) => {
-      // Якщо це API запит - повертаємо 404
-      if (request.url.startsWith('/auth/') || 
-          request.url.startsWith('/characters/') || 
-          request.url.startsWith('/chat/') || 
-          request.url.startsWith('/letters/') || 
-          request.url.startsWith('/news/') || 
-          request.url.startsWith('/clans/') ||
-          request.url.startsWith('/seven-seals/') ||
-          request.url.startsWith('/admin/') ||
-          request.url === '/health' ||
-          request.url === '/test-db') {
-        return reply.code(404).send({ error: 'Not found' });
-      }
-      // Для всіх інших маршрутів - повертаємо index.html (SPA routing)
-      try {
-        return reply.sendFile('index.html', distPath);
-      } catch (err) {
-        app.log.error({ error: err, url: request.url }, 'Failed to serve index.html');
-        return reply.code(404).send({ error: 'Not found' });
-      }
-    });
-
     // Register routes AFTER CORS and cookie
     await app.register(authRoutes);
     await app.register(authRefreshRoutes);
     await app.register(authLogoutRoutes);
 
-    await app.register(adminAuthRoutes);
     await app.register(adminRoutes);
+    await app.register(adminAuthRoutes);
 
     await app.register(characterRoutes);
     await app.register(chatRoutes);
@@ -217,6 +193,24 @@ const start = async () => {
     await app.register(newsRoutes);
     await app.register(sevenSealsRoutes);
     await app.register(clanRoutes);
+
+    // setNotFoundHandler ТІЛЬКИ після всіх register — інакше /admin/* не працює
+    app.setNotFoundHandler(async (request, reply) => {
+      if (
+        request.url.startsWith("/auth") ||
+        request.url.startsWith("/admin") ||
+        request.url.startsWith("/characters") ||
+        request.url.startsWith("/chat")
+      ) {
+        return reply.code(404).send({ error: "Not found" });
+      }
+      try {
+        return reply.sendFile("index.html", distPath);
+      } catch (err) {
+        app.log.error({ error: err, url: request.url }, "Failed to serve index.html");
+        return reply.code(404).send({ error: "Not found" });
+      }
+    });
 
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: "0.0.0.0" });
