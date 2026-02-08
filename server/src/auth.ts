@@ -1,14 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { prisma } from "./db";
 import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 import { randomToken, sha256, addDays, setRefreshCookie } from "./auth/refresh";
 
 function signAccessToken(payload: { accountId: string; login: string }) {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error("JWT_SECRET is missing in .env");
-  const ttl = process.env.ACCESS_TTL || "15m";
+  const secret: Secret = process.env.JWT_SECRET || "dev_secret";
+  const ttl: SignOptions["expiresIn"] = process.env.JWT_TTL || "15m";
   return jwt.sign(payload, secret, { expiresIn: ttl });
 }
 

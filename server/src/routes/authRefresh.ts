@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import jwt from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { prisma } from "../db";
 import {
   getRefreshCookie,
@@ -57,9 +57,8 @@ export const authRefreshRoutes: FastifyPluginAsync = async (app) => {
 
     setRefreshCookie(reply, newPlain);
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) return reply.code(500).send({ error: "JWT_SECRET not configured" });
-    const accessTtl = process.env.ACCESS_TTL || "15m";
+    const secret: Secret = process.env.JWT_SECRET || "dev_secret";
+    const accessTtl: SignOptions["expiresIn"] = process.env.JWT_TTL || "15m";
     const accessToken = jwt.sign(
       { accountId: row.account.id, login: row.account.login },
       secret,
