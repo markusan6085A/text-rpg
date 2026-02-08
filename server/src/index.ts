@@ -149,36 +149,35 @@ const start = async () => {
     await app.register(cookie);
 
     // Register CORS - before routes (credentials: true for refresh cookie)
-    // 🔒 Безпека: дозволяємо тільки домени l2dop.com
     const allowedOrigins = [
-      'https://l2dop.com',
-      'https://www.l2dop.com',
-      'http://localhost:5173', // для локальної розробки
-      'http://localhost:3000',  // для локальної розробки
+      "https://l2dop.com",
+      "https://www.l2dop.com",
+      "http://localhost:5173",
+      "http://localhost:3000",
     ];
-    
+
     await app.register(cors, {
       origin: (origin, callback) => {
-        // Дозволяємо запити без origin (наприклад, Postman, curl)
-        if (!origin) {
+        if (!origin) return callback(null, true);
+
+        const isAllowedVercel = (o: string) =>
+          /^https:\/\/text-.*-l2dop\.vercel\.app$/.test(o);
+
+        if (allowedOrigins.includes(origin) || isAllowedVercel(origin)) {
           return callback(null, true);
         }
-        // Перевіряємо, чи origin в списку дозволених
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
+
+        if (process.env.NODE_ENV === "production") {
+          app.log.warn({ origin }, "Blocked CORS request from unauthorized origin");
+          return callback(new Error("Not allowed by CORS"), false);
         }
-        // Для production - блокуємо невідомі домени
-        if (process.env.NODE_ENV === 'production') {
-          app.log.warn({ origin }, 'Blocked CORS request from unauthorized origin');
-          return callback(new Error('Not allowed by CORS'), false);
-        }
-        // Для development - дозволяємо (але логуємо)
-        app.log.warn({ origin }, 'Allowing CORS from unknown origin (development mode)');
+
+        app.log.warn({ origin }, "Allowing CORS from unknown origin (development mode)");
         return callback(null, true);
       },
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
     });
 
     // 🔥 Fallback для SPA: всі не-API маршрути повертають index.html
