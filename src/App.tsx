@@ -109,16 +109,25 @@ function AppInner() {
 
   // Фаза завантаження
   const [isLoading, setIsLoading] = React.useState(true);
-  const initializeAuth = useAuthStore((s) => s.initialize);
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
   const initializeCharacter = useCharacterStore((s) => s.initialize);
 
   React.useEffect(() => {
     let alive = true;
+    const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
     (async () => {
       try {
-        // 1) Ініціалізуємо stores
-        initializeAuth();
+        // 1) Bootstrap: отримуємо accessToken через refresh cookie (без localStorage)
+        try {
+          const r = await fetch(`${API_URL}/auth/refresh`, { method: "POST", credentials: "include" });
+          if (r.ok) {
+            const d = await r.json();
+            if (d?.accessToken && alive) setAccessToken(d.accessToken);
+          }
+        } catch (_) {}
+
+        // 2) Ініціалізуємо character store
         initializeCharacter();
         
         // 2) Optional warm-up (fire-and-forget, не блокує)

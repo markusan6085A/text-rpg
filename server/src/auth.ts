@@ -3,11 +3,37 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
 import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
+import { randomToken, sha256, addDays, setRefreshCookie } from "./auth/refresh";
 
-function signToken(payload: { accountId: string; login: string }) {
+function signAccessToken(payload: { accountId: string; login: string }) {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error("JWT_SECRET is missing in .env");
-  return jwt.sign(payload, secret, { expiresIn: "30d" });
+  const ttl = process.env.ACCESS_TTL || "15m";
+  return jwt.sign(payload, secret, { expiresIn: ttl });
+}
+
+export async function issueTokens(
+  reply: import("fastify").FastifyReply,
+  account: { id: string; login: string }
+) {
+  const accessToken = signAccessToken({ accountId: account.id, login: account.login });
+
+  const refreshPlain = randomToken(32);
+  const refreshHash = sha256(refreshPlain);
+  const days = Number(process.env.REFRESH_TTL_DAYS || "30");
+  const expiresAt = addDays(new Date(), days);
+
+  await prisma.refreshToken.create({
+    data: {
+      accountId: account.id,
+      tokenHash: refreshHash,
+      expiresAt,
+    },
+  });
+
+  setRefreshCookie(reply, refreshPlain);
+
+  return { accessToken };
 }
 
 export async function authRoutes(app: FastifyInstance) {
@@ -18,7 +44,6 @@ export async function authRoutes(app: FastifyInstance) {
     },
   }, async (req, reply) => {
     try {
-      // Fastify automatically handles OPTIONS via CORS, but ensure body is optional
       const body = (req.body || {}) as { login?: string; password?: string };
       const login = (body.login ?? "").trim();
       const password = body.password ?? "";
@@ -36,22 +61,22 @@ export async function authRoutes(app: FastifyInstance) {
         select: { id: true, login: true, createdAt: true },
       });
 
-      const token = signToken({ accountId: account.id, login: account.login });
+      const { accessToken } = await issueTokens(reply, account);
 
-      return {
+      return reply.send({
         ok: true,
         account,
-        token,
-      };
+        accessToken,
+      });
     } catch (error) {
       app.log.error(error, "Registration error:");
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorStack = error instanceof Error ? error.stack : undefined;
       app.log.error({ message: errorMessage, stack: errorStack }, "Registration error details:");
-      return reply.code(500).send({ 
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: errorMessage,
-        details: process.env.NODE_ENV === 'development' ? errorStack : undefined
+        details: process.env.NODE_ENV === "development" ? errorStack : undefined,
       });
     }
   });
@@ -63,7 +88,6 @@ export async function authRoutes(app: FastifyInstance) {
     },
   }, async (req, reply) => {
     try {
-      // Fastify automatically handles OPTIONS via CORS, but ensure body is optional
       const body = (req.body || {}) as { login?: string; password?: string };
       const login = (body.login ?? "").trim();
       const password = body.password ?? "";
@@ -74,22 +98,22 @@ export async function authRoutes(app: FastifyInstance) {
       const ok = await bcrypt.compare(password, account.passHash);
       if (!ok) return reply.code(401).send({ error: "invalid credentials" });
 
-      const token = signToken({ accountId: account.id, login: account.login });
+      const { accessToken } = await issueTokens(reply, account);
 
-      return {
+      return reply.send({
         ok: true,
         account: { id: account.id, login: account.login },
-        token,
-      };
+        accessToken,
+      });
     } catch (error) {
       app.log.error(error, "Login error:");
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorStack = error instanceof Error ? error.stack : undefined;
       app.log.error({ message: errorMessage, stack: errorStack }, "Login error details:");
-      return reply.code(500).send({ 
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: errorMessage,
-        details: process.env.NODE_ENV === 'development' ? errorStack : undefined
+        details: process.env.NODE_ENV === "development" ? errorStack : undefined,
       });
     }
   });

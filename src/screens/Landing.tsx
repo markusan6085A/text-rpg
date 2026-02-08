@@ -34,7 +34,7 @@ const validateNick = (nick: string): string | null => {
 };
 
 export default function Landing({ navigate, onLogin }: LandingProps) {
-  const setToken = useAuthStore((s) => s.setToken);
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
   const setCharacterId = useCharacterStore((s) => s.setCharacterId);
   
   const [username, setUsername] = useState("");
@@ -81,8 +81,8 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
       }
 
       // 1. Логін через API
-      const token = await login(nick, pass);
-      setToken(token);
+      const accessToken = await login(nick, pass);
+      setAccessToken(accessToken);
 
       // 2. Отримуємо список персонажів
       const characters = await listCharacters();

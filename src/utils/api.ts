@@ -28,7 +28,7 @@ export interface LoginRequest {
 
 export interface AuthResponse {
   ok: boolean;
-  token: string;
+  accessToken: string;
 }
 
 // Character API
@@ -83,123 +83,112 @@ export interface CharacterResponse {
   character: Character;
 }
 
-// Helper function to get auth token
-export function getToken(): string | null {
+import { useAuthStore } from "../state/authStore";
+
+export function getAccessToken(): string | null {
+  return useAuthStore.getState().accessToken;
+}
+
+async function refreshAccessToken(): Promise<string | null> {
   try {
-    return localStorage.getItem('auth_token');
+    const res = await fetch(`${API_URL}/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data?.accessToken) {
+      useAuthStore.getState().setAccessToken(data.accessToken);
+      return data.accessToken;
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-// Helper function to make API requests
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = getToken();
   const headers: HeadersInit = {
     ...(options.headers || {}),
   };
 
-  // 🔥 Для DELETE НЕ додаємо Content-Type (Fastify вимагає body, якщо є Content-Type: application/json)
-  // 🔥 Явно видаляємо Content-Type для DELETE, якщо він був доданий раніше
-  if (options.method === 'DELETE') {
-    // Видаляємо Content-Type для DELETE (Fastify не очікує body)
-    delete headers['Content-Type'];
-    delete headers['content-type'];
+  if (options.method === "DELETE") {
+    delete (headers as Record<string, string>)["Content-Type"];
+    delete (headers as Record<string, string>)["content-type"];
   } else {
-    // Для інших методів додаємо Content-Type, якщо його немає
-    if (!headers['Content-Type'] && !headers['content-type']) {
-      headers['Content-Type'] = 'application/json';
+    if (!(headers as Record<string, string>)["Content-Type"]) {
+      (headers as Record<string, string>)["Content-Type"] = "application/json";
     }
   }
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  try {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+  const doFetch = async (token: string | null) => {
+    const h = { ...headers };
+    if (token) (h as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    return fetch(`${API_URL}${endpoint}`, {
       ...options,
-      headers,
+      headers: h,
+      credentials: "include",
     });
+  };
 
-    if (!response.ok) {
-      // ❗ ВАЖЛИВО: Обробка 401 Unauthorized - токен невалідний або відсутній
-      if (response.status === 401) {
-        // Очищаємо токен, якщо він є (може бути невалідним)
-        const currentToken = getToken();
-        if (currentToken) {
-          // Токен є, але невалідний - очищаємо його
-          try {
-            const { useAuthStore } = await import('../state/authStore');
-            useAuthStore.getState().logout();
-          } catch (e) {
-            // Якщо не вдалося імпортувати store, просто очищаємо localStorage
-            localStorage.removeItem('auth_token');
-          }
-        }
-        
-        // Створюємо помилку зі статусом
-        const error: ApiError = await response.json().catch(() => ({
-          error: 'unauthorized',
-        }));
-        const errorWithStatus = new Error(error.error || 'unauthorized') as any;
-        errorWithStatus.status = 401;
-        errorWithStatus.unauthorized = true;
-        throw errorWithStatus;
-      }
-      
-      const error: ApiError = await response.json().catch(() => ({
-        error: `HTTP ${response.status}: ${response.statusText}`,
-      }));
-      // 🔥 Додаємо status до помилки для обробки на клієнті
-      const errorWithStatus = new Error(error.error || `HTTP ${response.status}`) as any;
-      errorWithStatus.status = response.status;
-      errorWithStatus.details = (error as any).details || (error as any).errors;
-      // 🔥 429: центрально врубаємо глобальний cooldown — будь-який 429 зупиняє всі запити (GET/heartbeat/polling/PUT)
-      if (response.status === 429) {
-        const retryAfter = Number((error as any).retryAfter);
-        const sec = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 60;
-        try {
-          const mod = await import('../state/heroStore');
-          mod.setRateLimitCooldown(sec * 1000);
-        } catch (_) {}
-        errorWithStatus.retryAfter = sec;
-      }
-      throw errorWithStatus;
-    }
+  let token = getAccessToken();
+  let response = await doFetch(token);
 
-    return response.json();
-  } catch (error: any) {
-    // Handle network errors (connection refused, etc.)
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('Не удалось подключиться к серверу. Убедитесь, что backend запущен на http://localhost:3000');
+  if (response.status === 401) {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      response = await doFetch(newToken);
     }
-    // Handle Prisma errors (table doesn't exist, etc.)
-    if (error?.message?.includes('ChatMessage') || error?.message?.includes('does not exist')) {
-      throw new Error('Таблица ChatMessage не создана в базе данных. Выполните SQL скрипт из server/create_chat_table.sql в Supabase SQL Editor.');
-    }
-    throw error;
   }
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      useAuthStore.getState().setAccessToken(null);
+      const error: ApiError = await response.json().catch(() => ({ error: "unauthorized" }));
+      const err = new Error(error.error || "unauthorized") as any;
+      err.status = 401;
+      err.unauthorized = true;
+      throw err;
+    }
+    const error: ApiError = await response.json().catch(() => ({
+      error: `HTTP ${response.status}: ${response.statusText}`,
+    }));
+    const errorWithStatus = new Error(error.error || `HTTP ${response.status}`) as any;
+    errorWithStatus.status = response.status;
+    errorWithStatus.details = (error as any).details || (error as any).errors;
+    if (response.status === 429) {
+      const retryAfter = Number((error as any).retryAfter);
+      const sec = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 60;
+      try {
+        const mod = await import("../state/heroStore");
+        mod.setRateLimitCooldown(sec * 1000);
+      } catch (_) {}
+      errorWithStatus.retryAfter = sec;
+    }
+    throw errorWithStatus;
+  }
+
+  return response.json();
 }
 
-// Auth API functions
+// Auth API functions (credentials: "include" is in apiRequest)
 export async function register(login: string, password: string): Promise<string> {
-  const response = await apiRequest<AuthResponse>('/auth/register', {
-    method: 'POST',
+  const response = await apiRequest<AuthResponse>("/auth/register", {
+    method: "POST",
     body: JSON.stringify({ login, password }),
   });
-  return response.token;
+  return response.accessToken;
 }
 
 export async function login(login: string, password: string): Promise<string> {
-  const response = await apiRequest<AuthResponse>('/auth/login', {
-    method: 'POST',
+  const response = await apiRequest<AuthResponse>("/auth/login", {
+    method: "POST",
     body: JSON.stringify({ login, password }),
   });
-  return response.token;
+  return response.accessToken;
 }
 
 // Character API functions
@@ -294,24 +283,14 @@ export async function deleteChatMessage(messageId: string): Promise<{ ok: boolea
   console.log('[api] deleteChatMessage called:', messageId);
   try {
     // 🔥 Використовуємо fetch напряму для DELETE, щоб гарантовано не додати Content-Type
-    const token = getToken();
-    const headers: HeadersInit = {
-      'Accept': 'application/json',
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    const url = `${API_URL}/chat/messages/${encodeURIComponent(messageId)}`;
-    console.log('[api] DELETE URL:', url);
-    console.log('[api] DELETE headers:', headers);
-    
-    // 🔥 Явно НЕ додаємо Content-Type для DELETE
-    const response = await fetch(url, {
-      method: 'DELETE',
+    const token = getAccessToken();
+    const headers: HeadersInit = { Accept: "application/json" };
+    if (token) (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_URL}/chat/messages/${encodeURIComponent(messageId)}`, {
+      method: "DELETE",
       headers,
-      // НЕ додаємо body
+      credentials: "include",
     });
 
     console.log('[api] DELETE response status:', response.status, response.statusText);

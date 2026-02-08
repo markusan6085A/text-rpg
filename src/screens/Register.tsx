@@ -58,7 +58,7 @@ const validateNick = (nick: string): string | null => {
 export default function Register({ navigate }: RegisterProps) {
   const loadHero = useHeroStore((s) => s.loadHero);
   const setHero = useHeroStore((s) => s.setHero);
-  const setToken = useAuthStore((s) => s.setToken);
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
   const setCharacterId = useCharacterStore((s) => s.setCharacterId);
 
   const [username, setUsername] = useState("");
@@ -128,8 +128,8 @@ export default function Register({ navigate }: RegisterProps) {
       }
 
       // 1. Реєстрація через API
-      const token = await register(trimmedUsername, password);
-      setToken(token);
+      const accessToken = await register(trimmedUsername, password);
+      setAccessToken(accessToken);
 
       // 2. Створення персонажа через API
       const character = await createCharacter({

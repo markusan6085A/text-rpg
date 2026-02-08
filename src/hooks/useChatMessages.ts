@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { API_URL } from "../utils/api";
-import { getToken } from "../utils/api";
+import { API_URL, getAccessToken } from "../utils/api";
 
 type ChatMessage = {
   id: string;
@@ -157,33 +156,25 @@ export function useChatMessages(opts: UseChatOptions) {
       const t0 = performance.now();
 
       try {
-        const token = getToken();
+        const token = getAccessToken();
         const headers: HeadersInit = {
           "Accept": "application/json",
           "Content-Type": "application/json",
         };
-        
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
+        if (token) headers["Authorization"] = `Bearer ${token}`;
 
         const res = await fetch(url, {
           method: "GET",
           signal: ac.signal,
           headers,
           cache: "no-store",
+          credentials: "include",
         });
 
-        // ❗ Обробка 401 Unauthorized - не показуємо помилку, просто порожній список
         if (res.status === 401) {
-          // Очищаємо токен, якщо він є
           if (token) {
-            try {
-              const { useAuthStore } = await import('../state/authStore');
-              useAuthStore.getState().logout();
-            } catch (e) {
-              localStorage.removeItem('auth_token');
-            }
+            const { useAuthStore } = await import("../state/authStore");
+            useAuthStore.getState().setAccessToken(null);
           }
           // Повертаємо порожній список для неавторизованих користувачів
           setMessages([]);

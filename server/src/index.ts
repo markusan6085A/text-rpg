@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import { prisma } from "./db";
@@ -10,6 +11,8 @@ import { letterRoutes } from "./letters";
 import { newsRoutes } from "./news";
 import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
+import { authRefreshRoutes } from "./routes/authRefresh";
+import { authLogoutRoutes } from "./routes/authLogout";
 
 // Отримуємо шлях до dist папки (frontend build)
 // Якщо сервер запускається з server/, то process.cwd() = server/
@@ -140,7 +143,9 @@ const start = async () => {
       app.log.warn({ error: staticError, distPath }, 'Failed to register static files (may be normal if dist/ does not exist)');
     }
 
-    // Register CORS FIRST - before routes!
+    await app.register(cookie);
+
+    // Register CORS - before routes (credentials: true for refresh cookie)
     // 🔒 Безпека: дозволяємо тільки домени l2dop.com
     const allowedOrigins = [
       'https://l2dop.com',
@@ -196,8 +201,10 @@ const start = async () => {
       }
     });
 
-    // Register routes AFTER CORS
+    // Register routes AFTER CORS and cookie
     await app.register(authRoutes);
+    await app.register(authRefreshRoutes);
+    await app.register(authLogoutRoutes);
     await app.register(characterRoutes);
     await app.register(chatRoutes);
     await app.register(letterRoutes);
