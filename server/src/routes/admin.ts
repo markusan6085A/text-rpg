@@ -5,12 +5,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
   // public ping (для тесту)
   app.get("/admin/ping", async () => ({ ok: true }));
 
-  // protected ping
-  app.get("/admin/secure-ping", { preHandler: requireAdmin }, async () => {
-    return { ok: true, admin: true };
-  });
-
-  // приклад "адмін API": статистика
+  // приклад "адмін API": статистика (/admin/secure-ping в adminAuth)
   app.get("/admin/stats", { preHandler: requireAdmin }, async () => {
     return {
       ok: true,
