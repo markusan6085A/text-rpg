@@ -16,10 +16,10 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
     if (!hero) return;
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`; // YYYY-MM-DD (локально)
-    const resetDate = hero.dailyQuestsResetDate;
+    const rawReset = hero.dailyQuestsResetDate;
+    const resetDate = rawReset ? String(rawReset).slice(0, 10) : ""; // нормалізуємо ISO (2025-02-01T...) до YYYY-MM-DD
     
     if (resetDate !== today) {
-      // Скидаємо прогрес та завершені завдання
       updateHero({
         dailyQuestsProgress: {},
         dailyQuestsCompleted: [],
@@ -52,20 +52,12 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
 
   // Функція для завершення завдання
   const completeQuest = (quest: DailyQuest) => {
-    // Отримуємо актуальний стан
     const currentHero = useHeroStore.getState().hero;
     if (!currentHero) return;
-    
-    const currentProgress = progress[quest.id] || 0;
+    const currentProgress = currentHero.dailyQuestsProgress?.[quest.id] ?? 0;
     const currentCompleted = currentHero.dailyQuestsCompleted || [];
     
-    // Перевіряємо, чи завдання вже завершене
-    if (currentCompleted.includes(quest.id) || currentProgress >= quest.target) {
-      return;
-    }
-    
-    // Перевіряємо, чи прогрес достатній для завершення
-    if (currentProgress < quest.target) {
+    if (currentCompleted.includes(quest.id) || currentProgress < quest.target) {
       return;
     }
 
