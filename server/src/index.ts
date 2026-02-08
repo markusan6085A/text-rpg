@@ -144,8 +144,6 @@ const start = async () => {
       app.log.warn({ error: staticError, distPath }, 'Failed to register static files (may be normal if dist/ does not exist)');
     }
 
-    await app.register(adminRoutes);
-
     await app.register(cookie);
 
     // Register CORS - before routes (credentials: true for refresh cookie)
@@ -209,6 +207,7 @@ const start = async () => {
     await app.register(authRoutes);
     await app.register(authRefreshRoutes);
     await app.register(authLogoutRoutes);
+    await app.register(adminRoutes);
     await app.register(characterRoutes);
     await app.register(chatRoutes);
     await app.register(letterRoutes);
