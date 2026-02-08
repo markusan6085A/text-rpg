@@ -235,7 +235,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
+          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
 
           {/* ПОБЕДА! */}
           <div className="text-center">
@@ -243,7 +243,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
+          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
 
           {/* Дроп */}
           <div className="p-3">
@@ -271,7 +271,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
+          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
 
           {/* Кнопки в один ряд */}
           <div className="flex items-center gap-2 text-xs justify-center">
@@ -291,7 +291,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "#704214" }}></div>
+          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
 
           {/* Лог бою */}
           <div className="p-2">
@@ -323,17 +323,17 @@ export default function Battle({ navigate }: BattleProps) {
             <div className="flex justify-center -mt-1">
               <TargetCard zone={zone} city={city} mob={mob} />
             </div>
-            <div className="w-full h-px" style={{ backgroundColor: "#704214" }} />
+            <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }} />
           </>
         )}
 
         {/* Бари бафів */}
         <BuffBar buffs={heroBuffs || []} now={now} />
-        <div className="w-full h-px" style={{ backgroundColor: "#704214" }} />
+        <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }} />
 
         {/* Панель навичок */}
         <SkillBar />
-        <div className="w-full h-px" style={{ backgroundColor: "#704214" }} />
+        <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }} />
 
         {/* Лог бою — 10 повідомлень у рамці */}
         <div className="p-2">

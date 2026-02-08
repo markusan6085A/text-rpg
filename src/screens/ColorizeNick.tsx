@@ -91,16 +91,16 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
       <div className="max-w-[360px] mx-auto">
         {/* Colorize Nick Section */}
         <div>
-          <div className="border-t border-gray-600 pt-2 pb-2">
+          <div className="border-t border-white/40 pt-2 pb-2">
             <div className="text-lg font-bold mb-2 text-orange-400">Установить цвет ника</div>
           </div>
-          <div className="border-t border-gray-600 pt-2 pb-2">
+          <div className="border-t border-white/40 pt-2 pb-2">
             <div className="text-sm text-gray-300 mb-3">
               Вы можете сменить цвет ника своего персонажа на любой из ниже приведенных.
             </div>
           </div>
 
-          <div className="border-t border-gray-600 pt-2 pb-2">
+          <div className="border-t border-white/40 pt-2 pb-2">
             <div className="text-yellow-400 text-xs font-semibold mb-3">
               Цена: 50 Coin of Luck
             </div>
@@ -130,7 +130,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
           </div>
 
           {/* Apply Button */}
-          <div className="border-t border-gray-600 pt-2 pb-2">
+          <div className="border-t border-white/40 pt-2 pb-2">
             <button
               disabled={!selectedColor || !hasEnoughCoins || isApplying}
               className={`w-full text-sm font-semibold transition-opacity ${

@@ -56,7 +56,7 @@ export default function WriteLetterModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[360px] w-full text-white">
+      <div className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[360px] w-full text-white">
         {/* Заголовок - схожий на TargetCard */}
         <div className="flex items-baseline justify-start gap-2 mb-3">
           <div className="text-sm font-semibold text-[#ffe9c0]">Написать письмо</div>
@@ -72,7 +72,7 @@ export default function WriteLetterModal({
         {conversations.length > 0 && !toCharacterName && (
           <div className="mb-3">
             <label className="block text-xs text-gray-400 mb-1">Кому написать (виберіть з переписки)</label>
-            <div className="max-h-32 overflow-y-auto border border-[#5b4726] rounded bg-[#0b0806]">
+            <div className="max-h-32 overflow-y-auto border border-white/50 rounded bg-[#0b0806]">
               {conversations.map((conv) => (
                 <button
                   key={conv.playerId}

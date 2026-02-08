@@ -40,7 +40,7 @@ export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps
       <div className="flex flex-col items-start gap-[4px] text-[11px] text-[#252524] w-full">
         <div className={`${barWidth}`}>
           <div
-            className={`${barHeight} rounded-[4px] overflow-hidden relative bg-[#14110c] border border-[#3b2614]`}
+            className={`${barHeight} rounded-[4px] overflow-hidden relative bg-[#14110c] border border-white/40`}
           >
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"

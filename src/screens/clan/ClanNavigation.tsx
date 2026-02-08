@@ -19,7 +19,7 @@ export default function ClanNavigation({
 }: ClanNavigationProps) {
   return (
     <>
-      <div className="border-t border-gray-600"></div>
+      <div className="border-t border-white/50"></div>
 
       {/* Меню навігації */}
       <div className="space-y-1 text-[12px]">
@@ -83,7 +83,7 @@ export default function ClanNavigation({
         )}
       </div>
 
-      <div className="border-t border-gray-600"></div>
+      <div className="border-t border-white/50"></div>
     </>
   );
 }

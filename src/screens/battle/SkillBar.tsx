@@ -216,7 +216,7 @@ export function SkillBar() {
                   <button
                     key={`slot-${idx}`}
                     onClick={() => setPickerSlot(idx)}
-                    className="w-8 h-8 rounded border border-dashed border-[#6b5330] bg-[#120d08] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 transition"
+                    className="w-8 h-8 rounded border border-dashed border-white/50 bg-[#120d08] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 transition"
                   >
                     +
                   </button>
@@ -246,7 +246,7 @@ export function SkillBar() {
                       ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
                       : isItemEquipped
                       ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
-                      : "border-[#7c6847] bg-[#0f0c09]"
+                      : "border-white/50 bg-[#0f0c09]"
                   }`}
                   title={slotInfo?.name}
                 >
@@ -270,7 +270,7 @@ export function SkillBar() {
             })}
             <button
               onClick={openRemovePicker}
-              className="w-8 h-8 rounded border border-[#6b5330] bg-[#1a1814] text-[#caa777] text-[11px] flex items-center justify-center hover:brightness-110 transition"
+              className="w-8 h-8 rounded border border-white/50 bg-[#1a1814] text-[#caa777] text-[11px] flex items-center justify-center hover:brightness-110 transition"
               title="Убрать скиллы"
             >
               Убр.
@@ -295,7 +295,7 @@ export function SkillBar() {
                   <button
                     key={`slot-${slotIndex}`}
                     onClick={() => setPickerSlot(slotIndex)}
-                    className="w-8 h-8 rounded border border-dashed border-[#6b5330] bg-[#120d08] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 transition"
+                    className="w-8 h-8 rounded border border-dashed border-white/50 bg-[#120d08] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 transition"
                   >
                     +
                   </button>
@@ -325,7 +325,7 @@ export function SkillBar() {
                       ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
                       : isItemEquipped
                       ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
-                      : "border-[#7c6847] bg-[#0f0c09]"
+                      : "border-white/50 bg-[#0f0c09]"
                   }`}
                   title={slotInfo?.name}
                 >
@@ -359,14 +359,14 @@ export function SkillBar() {
           onClick={() => setPickerSlot(null)}
         >
           <div
-            className="w-full max-w-[360px] rounded-[12px] border border-[#4e3b24] bg-[#120d08] p-3 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.55)]"
+            className="w-full max-w-[360px] rounded-[12px] border border-white/50 bg-[#120d08] p-3 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.55)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between text-sm text-[#f0e0c0]">
               <span>Выберите умение для слота {pickerSlot + 1}</span>
               <button
                 onClick={() => setPickerSlot(null)}
-                className="text-xs px-2 py-1 rounded border border-[#4e3b24] bg-[#1a1814] text-[#f0e0c0] hover:bg-[#2a241a]"
+                className="text-xs px-2 py-1 rounded border border-white/50 bg-[#1a1814] text-[#f0e0c0] hover:bg-[#2a241a]"
               >
                 Закрыть
               </button>
@@ -374,25 +374,25 @@ export function SkillBar() {
 
             <div className="flex gap-2 text-[12px] text-[#c7a46a]">
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-[#34312b] ${category === "magic" ? "text-white" : ""}`}
+                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "magic" ? "text-white" : ""}`}
                 onClick={() => setCategory("magic")}
               >
                 Магия
               </button>
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-[#34312b] ${category === "consumable" ? "text-white" : ""}`}
+                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "consumable" ? "text-white" : ""}`}
                 onClick={() => setCategory("consumable")}
               >
                 Расходки
               </button>
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-[#34312b] ${category === "item" ? "text-white" : ""}`}
+                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "item" ? "text-white" : ""}`}
                 onClick={() => setCategory("item")}
               >
                 Предметы
               </button>
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-[#34312b] ${category === "remove" ? "text-white" : "text-[#e37c7c]"}`}
+                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "remove" ? "text-white" : "text-[#e37c7c]"}`}
                 onClick={() => setCategory("remove")}
               >
                 Удалить
@@ -413,7 +413,7 @@ export function SkillBar() {
                           const nextIdx = findNextEmpty(updated);
                           setPickerSlot(nextIdx);
                         }}
-                        className="w-7 h-7 rounded border border-[#6b5330] bg-[#1f160c] flex items-center justify-center relative"
+                        className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center relative"
                         title={def.name}
                       >
                         <img src={def.icon || "/skills/attack.jpg"} alt={def.name} className="w-full h-full object-cover rounded" />
@@ -436,7 +436,7 @@ export function SkillBar() {
                           const nextIdx = findNextEmpty(updated);
                           setPickerSlot(nextIdx);
                         }}
-                        className="w-7 h-7 rounded border border-[#6b5330] bg-[#1f160c] flex items-center justify-center relative"
+                        className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center relative"
                         title={`${c.name} (x${c.count})`}
                       >
                         <img src={c.icon} alt={c.name} className="w-full h-full object-cover rounded" />
@@ -457,7 +457,7 @@ export function SkillBar() {
                         setLoadoutSkill(pickerSlot, c.id as any);
                         setPickerSlot(null);
                       }}
-                      className="w-7 h-7 rounded border border-[#6b5330] bg-[#1f160c] flex items-center justify-center"
+                      className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center"
                       title={c.name}
                     >
                       <img src={c.icon} alt={c.name} className="w-full h-full object-cover rounded" />
@@ -477,7 +477,7 @@ export function SkillBar() {
                           setPickerSlot(nextIdx);
                         }}
                         disabled={disabled}
-                        className="w-7 h-7 rounded border border-[#6b5330] bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
+                        className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
                       >
                         <img src={s.icon} alt={s.name} className="w-full h-full object-cover rounded" />
                       </button>
@@ -493,7 +493,7 @@ export function SkillBar() {
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setPickerSlot(null)}
-                className="h-8 px-3 rounded-md border border-[#494949] bg-[#1b1b1b] text-[#e8e8e8] text-[12px] hover:bg-[#272727]"
+                className="h-8 px-3 rounded-md border border-white/40 bg-[#1b1b1b] text-[#e8e8e8] text-[12px] hover:bg-[#272727]"
               >
                 Готово
               </button>

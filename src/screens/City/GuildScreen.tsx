@@ -170,12 +170,12 @@ export default function GuildScreen({
     return (
       <div className="min-h-screen bg-[#1a1814] text-white flex justify-center px-3 py-4">
         <div className="w-full max-w-[420px]">
-          <div className="bg-[#110c08] border border-[#34312b] shadow-[0_18px_50px_rgba(0,0,0,0.7)] p-6 space-y-3 rounded-[10px] text-center text-[#dec28e]">
+          <div className="bg-[#110c08] border border-white/40 shadow-[0_18px_50px_rgba(0,0,0,0.7)] p-6 space-y-3 rounded-[10px] text-center text-[#dec28e]">
             <div className="text-lg font-semibold text-[#f0e2b0]">{title}</div>
             <p className="text-sm text-[#f4e2b8]">{emptyMessage}</p>
             <button
               onClick={() => navigate("/city")}
-              className="px-4 py-2 bg-[#2c220f] border border-[#5b4b35] rounded-md text-sm"
+              className="px-4 py-2 bg-[#2c220f] border border-white/50 rounded-md text-sm"
             >
               {backLabel}
             </button>

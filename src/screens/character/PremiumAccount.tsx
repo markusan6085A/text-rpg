@@ -95,7 +95,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         >
           ← Назад
         </button>
-        <div className="text-[#ffd700] text-xs border-b border-dotted border-gray-500 pb-2 font-semibold flex-1 flex items-center gap-2" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div className="text-[#ffd700] text-xs border-b border-dotted border-white/50 pb-2 font-semibold flex-1 flex items-center gap-2" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
           <img src="/icons/col (1).png" alt="Premium" className="w-4 h-4 object-contain" />
           Премиум аккаунт
         </div>
@@ -117,7 +117,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
       )}
 
       {/* Інформація про бонуси */}
-      <div className="mb-4 p-3 bg-[#1a1a1a] border border-[#5a4424] rounded">
+      <div className="mb-4 p-3 bg-[#1a1a1a] border border-white/50 rounded">
         <div className="text-[#b8860b] text-xs font-semibold mb-2">Бонуси преміум аккаунту:</div>
         <div className="text-gray-300 text-[10px] space-y-1">
           <div>• Опыт (EXP): x2</div>
@@ -143,7 +143,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
             return (
               <div
                 key={option.id}
-                className={`border border-dotted border-gray-500 p-2 rounded ${
+                className={`border border-dotted border-white/50 p-2 rounded ${
                   selectedOption?.id === option.id ? "bg-yellow-900/20 border-yellow-500" : ""
                 } ${!canAfford ? "opacity-50" : ""}`}
               >

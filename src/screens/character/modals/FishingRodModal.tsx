@@ -115,7 +115,7 @@ export default function FishingRodModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -152,7 +152,7 @@ export default function FishingRodModal({
         </div>
 
         {/* Стати */}
-        <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
           <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export default function FishingRodModal({
 
         {/* Опис */}
         {item.description && (
-          <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Описание:</div>
             <div className="text-gray-300 text-xs italic">{item.description}</div>
           </div>
@@ -186,7 +186,7 @@ export default function FishingRodModal({
 
         {/* Заточка */}
         {currentEnchantLevel < maxEnchantLevel && (
-          <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Заточка (Coin of Luck):</div>
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function FishingRodModal({
                     );
                     setEnchantAmount(Math.max(1, Math.min(maxVal, numVal)));
                   }}
-                  className="w-20 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+                  className="w-20 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
                 />
                 <span className="text-gray-400 text-xs">
                   (Буде +{Math.min(currentEnchantLevel + enchantAmount, maxEnchantLevel)})
@@ -256,7 +256,7 @@ export default function FishingRodModal({
         )}
 
         {/* Кнопки дій */}
-        <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
           <div className="flex justify-center gap-2">
             <button
               onClick={onTransfer}
@@ -274,7 +274,7 @@ export default function FishingRodModal({
         </div>
 
         {/* Кнопка закриття */}
-        <div className="flex justify-center pt-2 border-t border-gray-700">
+        <div className="flex justify-center pt-2 border-t border-white/50">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"

@@ -63,11 +63,11 @@ export function BuffBar({ buffs, now }: Props) {
                   }}
                 />
               )}
-              <div className="absolute inset-[1px] rounded border border-[#2a1414] bg-[#1a1a1a] overflow-hidden">
+              <div className="absolute inset-[1px] rounded border border-white/30 bg-[#1a1a1a] overflow-hidden">
                 <img src={icon} alt={title} className="w-full h-full object-cover" />
               </div>
               {b.stacks && b.stacks > 0 && (
-                <div className="absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-[#7c3030]">
+                <div className="absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-white/50">
                   {b.stacks}
                 </div>
               )}

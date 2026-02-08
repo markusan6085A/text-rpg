@@ -37,13 +37,13 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
       <div 
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-lg font-semibold text-[#b8860b] mb-3">{bossName}{bossLevel ? ` - ${bossLevel} ур.` : ""}</div>
         
         {drops && drops.length > 0 && (
-          <div className="border-t border-gray-700 pt-2 mt-2">
+          <div className="border-t border-white/40 pt-2 mt-2">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
             <div className="space-y-1">
               {drops.map((drop, idx) => {
@@ -61,7 +61,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
                     <img
                       src={iconPath}
                       alt={itemName}
-                      className="w-5 h-5 object-contain border border-gray-600 bg-black/40"
+                      className="w-5 h-5 object-contain border border-white/40 bg-black/40"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none";
                       }}
@@ -79,7 +79,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
           </div>
         )}
 
-        <div className="flex justify-center mt-4 pt-2 border-t border-gray-700">
+        <div className="flex justify-center mt-4 pt-2 border-t border-white/40">
           <button
             className="px-4 py-2 bg-[#5c1a1a] text-white rounded hover:bg-[#7a2222] transition-colors"
             onClick={onClose}

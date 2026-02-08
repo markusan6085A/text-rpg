@@ -245,7 +245,7 @@ export default function Layout({
         style={
           customBackground
               ? {
-                border: "1px solid #3b2614",
+                border: "1px solid rgba(255,255,255,0.4)",
                 padding: "10px",
                 borderRadius: "10px",
                 boxShadow: "inset 0 0 10px #000",

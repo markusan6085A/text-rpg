@@ -124,14 +124,14 @@ export default function Stats() {
       <div className="w-full max-w-[360px]">
         {/* Заголовок та опис */}
         <div className="mb-4">
-          <div className="border-t border-[#c7ad80] mb-2"></div>
+          <div className="border-t border-white/50 mb-2"></div>
           <div className="text-orange-400 text-sm font-semibold mb-1">
             Характеристики персонажа
           </div>
           <div className="text-orange-400 text-xs mb-2">
             Тут відображаються базові параметри, бойові характеристики та бонуси від екіпіровки і бафів.
           </div>
-          <div className="border-b border-[#c7ad80] mt-2"></div>
+          <div className="border-b border-white/50 mt-2"></div>
         </div>
 
         {/* Інформація про персонажа */}
@@ -272,7 +272,7 @@ export default function Stats() {
             </div>
           </div>
           {/* Риска від краю до краю під останніми рядками */}
-          <div className="border-t border-[#c7ad80] mt-1.5"></div>
+          <div className="border-t border-white/50 mt-1.5"></div>
         </div>
       </div>
     </div>

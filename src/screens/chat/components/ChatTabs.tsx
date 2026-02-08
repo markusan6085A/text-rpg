@@ -16,7 +16,7 @@ export function ChatTabs({ channel, onChannelChange, onRefresh }: ChatTabsProps)
   ];
 
   return (
-    <div className="border-b border-gray-500">
+    <div className="border-b border-white/50">
       <div className="flex items-center gap-0 text-xs py-2 px-1">
         {tabs.map((tab, index) => (
           <React.Fragment key={tab.key}>

@@ -154,7 +154,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
 
   return (
     <div className="fixed bottom-0 z-50 w-full flex justify-center bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-2 sm:px-4 pointer-events-none left-0 right-0">
-      <div className="w-full max-w-[380px] rounded-lg border border-[#5b4726] bg-[#0b0806f0] px-1 py-[2px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
+      <div className="w-full max-w-[380px] rounded-lg border border-white/50 bg-[#0b0806f0] px-1 py-[2px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto" style={{ transform: 'translateX(-5px)' }}>
         <div className="px-0 py-0 overflow-x-hidden">
           <div className="w-full flex flex-row flex-nowrap items-center justify-between gap-[0.15rem] text-[11px] text-[#d8c598]">
             {buttons.map((btn) => {

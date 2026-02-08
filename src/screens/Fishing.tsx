@@ -87,7 +87,7 @@ export default function Fishing({ navigate }: FishingProps) {
       {!isFishingStarted ? (
         // Початковий екран з кнопкою
         <div className="w-full text-center space-y-4 py-8">
-          <div className="text-base font-semibold text-[#b8860b] mb-6 border-t border-b border-[#3b2614] py-2">
+          <div className="text-base font-semibold text-[#b8860b] mb-6 border-t border-b border-white/40 py-2">
             Риболовля
           </div>
           <button
@@ -100,7 +100,7 @@ export default function Fishing({ navigate }: FishingProps) {
       ) : (
         // Список риб з категоріями
         <>
-          <div className="text-[#b8860b] mb-4 text-base font-semibold text-center border-t border-b border-[#3b2614] py-2">
+          <div className="text-[#b8860b] mb-4 text-base font-semibold text-center border-t border-b border-white/40 py-2">
             Риболовля
           </div>
 
@@ -143,7 +143,7 @@ export default function Fishing({ navigate }: FishingProps) {
                 return (
                   <div
                     key={mob.id}
-                    className={`flex items-center gap-2 py-1 border-b border-dotted border-gray-500 text-xs ${
+                    className={`flex items-center gap-2 py-1 border-b border-dotted border-white/50 text-xs ${
                       isLevelDiffTooHigh ? "text-red-500" : "text-[#b8860b]"
                     }`}
                   >
@@ -222,7 +222,7 @@ export default function Fishing({ navigate }: FishingProps) {
           onClick={() => setSelectedMob(null)}
         >
           <div
-            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
@@ -251,7 +251,7 @@ export default function Fishing({ navigate }: FishingProps) {
               </div>
 
               {/* Стати */}
-              <div className="border-t border-gray-700 pt-2 mt-2">
+              <div className="border-t border-white/40 pt-2 mt-2">
                 <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="flex items-center gap-2">
@@ -275,7 +275,7 @@ export default function Fishing({ navigate }: FishingProps) {
 
               {/* Дроп */}
               {selectedMob.drops && selectedMob.drops.length > 0 && (
-                <div className="border-t border-gray-700 pt-2 mt-2">
+                <div className="border-t border-white/40 pt-2 mt-2">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
                   <div className="space-y-1">
                       {selectedMob.drops.map((drop, idx) => {
@@ -293,7 +293,7 @@ export default function Fishing({ navigate }: FishingProps) {
                           <img
                             src={iconPath}
                             alt={itemName}
-                            className="w-5 h-5 object-contain border border-gray-600 bg-black/40"
+                            className="w-5 h-5 object-contain border border-white/40 bg-black/40"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = "none";
                             }}
@@ -312,7 +312,7 @@ export default function Fishing({ navigate }: FishingProps) {
               )}
 
               {/* Кнопка закриття */}
-              <div className="flex justify-center mt-4 pt-2 border-t border-gray-700">
+              <div className="flex justify-center mt-4 pt-2 border-t border-white/40">
                 <button
                   className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
                   onClick={() => setSelectedMob(null)}

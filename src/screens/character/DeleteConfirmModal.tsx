@@ -16,7 +16,7 @@ export default function DeleteConfirmModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4">
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-6 max-w-md w-full"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-6 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">

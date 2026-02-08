@@ -307,7 +307,7 @@ export default function Mail({ navigate }: MailProps) {
   if (selectedConversation) {
     return (
       <div className="w-full flex flex-col items-center text-white px-3 py-4">
-        <div className="w-full max-w-[360px] border border-[#5b4726] rounded-lg p-4 bg-[#1a0b0b]/30">
+        <div className="w-full max-w-[360px] border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => {
@@ -337,7 +337,7 @@ export default function Mail({ navigate }: MailProps) {
             <textarea
               value={replyMessage}
               onChange={(e) => setReplyMessage(e.target.value)}
-              className="w-full bg-[#0b0806] border border-[#5b4726] rounded px-2 py-1 text-[7px] text-white resize-none mb-2"
+              className="w-full bg-[#0b0806] border border-white/50 rounded px-2 py-1 text-[7px] text-white resize-none mb-2"
               placeholder="Введіть повідомлення..."
               rows={3}
               maxLength={1000}
@@ -363,7 +363,7 @@ export default function Mail({ navigate }: MailProps) {
               const displayNickColor = isOwn ? hero?.nickColor : letter?.fromCharacter?.nickColor;
 
               return (
-                <div key={letter.id} className="border-b border-dotted border-[#c7ad80] pb-1 mb-1">
+                <div key={letter.id} className="border-b border-dotted border-white/50 pb-1 mb-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <PlayerNameWithEmblem
@@ -455,7 +455,7 @@ export default function Mail({ navigate }: MailProps) {
   // Головний список переписок
   return (
     <div className="w-full flex flex-col items-center text-white px-3 py-4">
-      <div className="w-full max-w-[360px] border border-[#5b4726] rounded-lg p-4 bg-[#1a0b0b]/30">
+      <div className="w-full max-w-[360px] border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
         <div className="flex items-center justify-between mb-3">
           <div className="text-[9px] font-bold text-[#87ceeb]">Почта</div>
           <button
@@ -472,7 +472,7 @@ export default function Mail({ navigate }: MailProps) {
           // ❗ ОПТИМІЗАЦІЯ: Skeleton для швидшого відображення
           <div className="space-y-1">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center justify-between p-2 border-b border-dotted border-[#c7ad80] animate-pulse">
+              <div key={i} className="flex items-center justify-between p-2 border-b border-dotted border-white/50 animate-pulse">
                 <div className="flex-1">
                   <div className="h-4 bg-gray-700 rounded w-24 mb-1"></div>
                   <div className="h-3 bg-gray-800 rounded w-16"></div>
@@ -491,7 +491,7 @@ export default function Mail({ navigate }: MailProps) {
               <div
                 key={conv.playerId}
                 onClick={() => handleConversationClick(conv)}
-                className="flex items-center justify-between p-2 border-b border-dotted border-[#c7ad80] cursor-pointer hover:bg-gray-800/30 transition-colors"
+                className="flex items-center justify-between p-2 border-b border-dotted border-white/50 cursor-pointer hover:bg-gray-800/30 transition-colors"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

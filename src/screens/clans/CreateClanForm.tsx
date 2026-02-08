@@ -28,7 +28,7 @@ export default function CreateClanForm({
 
       {/* Форма створення клану */}
       {showForm && (
-        <div className="p-3 bg-[#1a1a1a] border border-[#3b2614] rounded-md space-y-2">
+        <div className="p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-2">
           <div className="text-[12px] text-[#f4e2b8]">Название клана:</div>
           <input
             type="text"
@@ -39,7 +39,7 @@ export default function CreateClanForm({
                 onCreateClan();
               }
             }}
-            className="w-full px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-[12px] text-white rounded"
+            className="w-full px-2 py-1 bg-[#2a2a2a] border border-white/50 text-[12px] text-white rounded"
             placeholder="Введите название (3-16 символов)"
             maxLength={16}
           />

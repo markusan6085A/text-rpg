@@ -6,7 +6,7 @@ export default function Forgot({ navigate }: { navigate: Navigate }) {
   return (
     <div className="min-h-screen w-full flex items-start justify-center bg-transparent text-yellow-200">
       <div className="w-full max-w-[380px] px-4 pt-6 pb-10 mt-8 rounded-[14px]
-                      border border-[#3a2e22] bg-[#1a1713]/95
+                      border border-white/40 bg-[#1a1713]/95
                       shadow-[0_0_0_1px_#000_inset,0_2px_10px_rgba(0,0,0,0.6)]">
         <div className="text-center text-[22px] font-bold mb-4">Відновлення пароля</div>
         <p className="text-center text-[15px] text-yellow-100/90 leading-relaxed px-2 mb-6">

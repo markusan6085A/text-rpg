@@ -39,9 +39,9 @@ export default function WithdrawItemsModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4">
+      <div className="bg-[#1a1a1a] border border-white/50 rounded p-4 max-w-[360px] w-full mx-4">
         <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите предмет для вывода:</div>
-        <div className="bg-[#2a2a2a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
+        <div className="bg-[#2a2a2a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
           {items.length === 0 ? (
             <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
           ) : (
@@ -53,7 +53,7 @@ export default function WithdrawItemsModal({
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                  className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
                   onClick={() => handleWithdraw(item)}
                 >
                   <img

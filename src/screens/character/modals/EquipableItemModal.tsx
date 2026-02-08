@@ -21,7 +21,7 @@ export default function EquipableItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -64,7 +64,7 @@ export default function EquipableItemModal({
 
         {/* Стати */}
         {item.stats && (
-          <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               {pAtk !== undefined && (
@@ -141,7 +141,7 @@ export default function EquipableItemModal({
 
         {/* Опис предмета */}
         {item.description && (
-          <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Описание:</div>
             <div className="text-gray-300 text-xs italic">
               {item.description}
@@ -151,14 +151,14 @@ export default function EquipableItemModal({
 
         {/* Інформація про сет */}
         {getSetInfo(item) && (
-          <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Сет:</div>
             <div className="text-yellow-400 text-xs whitespace-pre-line">{getSetInfo(item)}</div>
           </div>
         )}
 
         {/* Кнопки дій */}
-        <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
           <div className="flex justify-center gap-2">
             <button
               onClick={onTransfer}
@@ -176,7 +176,7 @@ export default function EquipableItemModal({
         </div>
 
         {/* Кнопка закриття */}
-        <div className="flex justify-center pt-2 border-t border-gray-700">
+        <div className="flex justify-center pt-2 border-t border-white/50">
           <button
             onClick={onClose}
             className="text-xs text-[#b8860b] hover:text-[#d4af37]"

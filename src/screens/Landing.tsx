@@ -229,7 +229,7 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
       {/* Модальне вікно "Про гру" */}
       {showAboutModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#14110c] border border-[#3b2614] rounded-lg p-6 max-w-[600px] w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#14110c] border border-white/40 rounded-lg p-6 max-w-[600px] w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-yellow-400 font-bold text-lg">⚔️ L2MOBI.DOP — світ, де вирішує твій вибір</h2>
               <button

@@ -277,7 +277,7 @@ export default function AdditionalSkillsScreen({
                             className={`mt-2 pt-2 pb-2 text-[11px] border-t border-b ${
                               canLearn
                                 ? "text-green-500 hover:text-green-400 cursor-pointer border-green-500/30"
-                                : "text-gray-500 cursor-not-allowed border-gray-500/30"
+                                : "text-gray-500 cursor-not-allowed border-white/30"
                             }`}
                           >
                             {learnLabel} за {adenaCost} адены

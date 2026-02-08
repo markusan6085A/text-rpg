@@ -370,7 +370,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
         {/* Бафи гравця */}
         <div className="mb-4">
-          <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-[#c7ad80] pb-1">
+          <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-white/50 pb-1">
             Бафи
           </div>
           {playerBuffs.length === 0 ? (
@@ -427,7 +427,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         {/* Лікування */}
         {myHealSkills.length > 0 && (
           <div className="mb-4">
-            <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-[#c7ad80] pb-1">
+            <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-dotted border-white/50 pb-1">
               Лікування
             </div>
             <div className="space-y-2">
@@ -492,7 +492,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         {showBuffModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setShowBuffModal(false)}>
             <div
-              className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
               style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 5rem)" }}
             >
@@ -522,7 +522,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
                     }
                     let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
                     return (
-                      <div key={buff.id} className="border-b border-dotted border-[#c7ad80] pb-2">
+                      <div key={buff.id} className="border-b border-dotted border-white/50 pb-2">
                         <div className="flex items-start gap-2">
                           <img
                             src={iconSrc}

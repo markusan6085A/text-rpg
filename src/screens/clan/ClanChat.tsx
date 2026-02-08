@@ -28,7 +28,7 @@ export default function ClanChat({
     <div className="space-y-2">
       {/* Чат */}
       <div className="text-[12px] text-[#c7ad80] mb-2">Чат клана:</div>
-      <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
+      <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
         {messages.length === 0 ? (
           <div className="text-[11px] text-[#9f8d73]">Нет сообщений</div>
         ) : (
@@ -87,7 +87,7 @@ export default function ClanChat({
               onSendMessage();
             }
           }}
-          className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-[12px] text-white rounded"
+          className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-[12px] text-white rounded"
           placeholder="Введите сообщение..."
         />
         <button

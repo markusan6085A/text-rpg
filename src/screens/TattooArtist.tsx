@@ -222,10 +222,10 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           onClick={() => setShowApplyModal(false)}
         >
           <div
-            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[400px] w-full max-h-[80vh] overflow-y-auto"
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-[#5b4726] pb-2">
+            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
               Виберіть тату для нанесення
             </div>
 
@@ -238,7 +238,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                 {dyesWithInfo.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 p-2 border border-[#5b4726] rounded hover:bg-black/20 cursor-pointer"
+                    className="flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20 cursor-pointer"
                     onClick={() => handleApplyDye(item)}
                   >
                     <img
@@ -273,7 +273,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
             <div className="mt-4 flex justify-center">
               <button
                 onClick={() => setShowApplyModal(false)}
-                className="px-4 py-2 bg-[#1a1208] text-gray-400 border border-[#5b4726] rounded text-[12px] hover:text-gray-300"
+                className="px-4 py-2 bg-[#1a1208] text-gray-400 border border-white/50 rounded text-[12px] hover:text-gray-300"
               >
                 Скасувати
               </button>
@@ -289,10 +289,10 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           onClick={() => setShowRemoveModal(false)}
         >
           <div
-            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[400px] w-full"
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-[#5b4726] pb-2">
+            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
               Виберіть тату для зняття
             </div>
 
@@ -309,7 +309,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                   return (
                     <div
                       key={index}
-                      className="flex items-center gap-3 p-2 border border-[#5b4726] rounded hover:bg-black/20"
+                      className="flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20"
                     >
                       <img
                         src={dyeInfo?.icon || "/items/drops/resources/etc_ancient_adena_i00.png"}
@@ -342,7 +342,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
             <div className="mt-4 flex justify-center">
               <button
                 onClick={() => setShowRemoveModal(false)}
-                className="px-4 py-2 bg-[#1a1208] text-gray-400 border border-[#5b4726] rounded text-[12px] hover:text-gray-300"
+                className="px-4 py-2 bg-[#1a1208] text-gray-400 border border-white/50 rounded text-[12px] hover:text-gray-300"
               >
                 Скасувати
               </button>

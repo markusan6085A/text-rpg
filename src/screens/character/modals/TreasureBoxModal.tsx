@@ -148,7 +148,7 @@ export default function TreasureBoxModal({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => { setShowOpenResult(false); setOpenResult(null); onClose(); }}>
         <div
-          className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[80vh] overflow-y-auto"
+          className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[80vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-4">
@@ -198,7 +198,7 @@ export default function TreasureBoxModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[80vh] overflow-y-auto"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -223,7 +223,7 @@ export default function TreasureBoxModal({
 
         <div className="space-y-4">
           {/* Відкриття скарбнички */}
-          <div className="border border-[#7c6847] rounded p-3">
+          <div className="border border-white/50 rounded p-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-[#b8860b]">Відкрити</span>
               <span className="text-xs text-gray-400">Кількість: {maxCount}</span>
@@ -247,7 +247,7 @@ export default function TreasureBoxModal({
                     e.target.select();
                   }
                 }}
-                className="w-20 px-2 py-1 bg-[#2a2a2a] border border-[#7c6847] rounded text-white text-sm"
+                className="w-20 px-2 py-1 bg-[#2a2a2a] border border-white/50 rounded text-white text-sm"
               />
               <button
                 onClick={handleOpen}
@@ -262,7 +262,7 @@ export default function TreasureBoxModal({
           </div>
 
           {/* Передача на склад */}
-          <div className="border border-[#7c6847] rounded p-3">
+          <div className="border border-white/50 rounded p-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-[#b8860b]">Передати на склад</span>
               <span className="text-xs text-gray-400">Кількість: {maxCount}</span>
@@ -286,7 +286,7 @@ export default function TreasureBoxModal({
                     e.target.select();
                   }
                 }}
-                className="w-20 px-2 py-1 bg-[#2a2a2a] border border-[#7c6847] rounded text-white text-sm"
+                className="w-20 px-2 py-1 bg-[#2a2a2a] border border-white/50 rounded text-white text-sm"
               />
               <button
                 onClick={handleTransfer}

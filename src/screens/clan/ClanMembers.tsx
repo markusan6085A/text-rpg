@@ -49,7 +49,7 @@ export default function ClanMembers({
       >
         Состав ({members.length}/{maxMembers})
       </div>
-      <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
+      <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
         {members.map((member) => {
           const isOnline = member.isOnline;
           const titleDisplay = member.title || "Нет титула";
@@ -61,7 +61,7 @@ export default function ClanMembers({
           return (
             <div
               key={member.id}
-              className="text-[11px] border-b border-dotted border-[#3b2614] pb-1"
+              className="text-[11px] border-b border-dotted border-white/40 pb-1"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -141,7 +141,7 @@ export default function ClanMembers({
                         title: e.target.value || null,
                       })
                     }
-                    className="flex-1 px-1 py-0.5 bg-[#2a2a2a] border border-[#5a4424] text-[11px] text-white rounded"
+                    className="flex-1 px-1 py-0.5 bg-[#2a2a2a] border border-white/50 text-[11px] text-white rounded"
                     placeholder="Титул (пусто = нет титула)"
                     maxLength={20}
                   />

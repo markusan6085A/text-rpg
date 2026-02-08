@@ -136,7 +136,7 @@ export function BattleLog() {
   return (
     <div
       className="border-2 rounded p-2 bg-black/30"
-      style={{ borderColor: "#704214" }}
+      style={{ borderColor: "rgba(255,255,255,0.5)" }}
     >
       <div className="space-y-1 text-[12px] leading-[1.2]">
         {lines.map((line, idx) => {

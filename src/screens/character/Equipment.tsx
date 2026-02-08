@@ -13,7 +13,7 @@ export default function Equipment({ compact = false }: EquipmentProps) {
   if (!hero) return <div className="text-white mt-6">Загрузка...</div>;
 
   const btn =
-    "w-20 py-1 text-[10px] bg-[#0f0a06] text-white border border-[#3e301c] rounded-md";
+    "w-20 py-1 text-[10px] bg-[#0f0a06] text-white border border-white/50 rounded-md";
 
   // Компактний вигляд для Inventory - використовуємо спільний компонент
   if (compact) {
@@ -32,7 +32,7 @@ export default function Equipment({ compact = false }: EquipmentProps) {
         style={{
           width: "360px",
           backgroundColor: "rgba(20, 12, 6, 0.9)",
-          borderColor: "#3b2c1a",
+          borderColor: "rgba(255,255,255,0.4)",
           paddingTop: "12px",
           paddingBottom: "12px",
         }}

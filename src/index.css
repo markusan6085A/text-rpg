@@ -39,7 +39,7 @@ button {
 .wap-card {
   background: #141215;
   border-radius: 12px;
-  border: 1px solid #3b3124;
+  border: 1px solid rgba(255,255,255,0.4);
   padding: 8px 10px 10px;
   box-shadow:
     0 0 0 1px #000000,
@@ -56,7 +56,7 @@ button {
 
 /* маленькі розділювачі */
 .wap-sep {
-  border-top: 1px solid #3b3124;
+  border-top: 1px solid rgba(255,255,255,0.4);
   margin: 4px -10px;
 }
 
@@ -68,9 +68,9 @@ button {
   padding: 6px 12px;
   border-radius: 999px;
   font-size: 12px;
-  background: #3b3124;
+  background: rgba(255,255,255,0.15);
   color: #f4e2b8;
-  border: 1px solid #76624b;
+  border: 1px solid rgba(255,255,255,0.5);
   text-decoration: none;
 }
 
@@ -199,7 +199,7 @@ button {
 
 /* L2 WAP рамка */
 .l2-frame {
-  border: 1px solid #3b2614;
+  border: 1px solid rgba(255,255,255,0.4);
   background-color: #252422; /* Фон внутрішньої рамки - трохи світліший */
   padding: 10px;
   border-radius: 10px;
@@ -214,7 +214,7 @@ button {
   padding: 3px 10px;
 
   background: linear-gradient(#1d0f0f2f, #241c10);
-  border: 1px solid #5a4424;
+  border: 1px solid rgba(255,255,255,0.5);
 
   color: #d6d0cc;
   font-size: 13px;
@@ -240,7 +240,7 @@ button {
   padding: 1px;          /* ← ТУТ БУЛА ВИСОТА ВНУТРІШНЯ */
   height: 21px;    /* ← НИЗЬКА ФІКСОВАНА ВИСОТА */
   
-  border: 1px solid #5a4424;
+  border: 1px solid rgba(255,255,255,0.5);
   border-radius: 2px;
 
   font-size: 12px;
@@ -278,7 +278,7 @@ button {
   height: 24px;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid #5a4424;
+  border: 1px solid rgba(255,255,255,0.5);
   background: #1a1a1a;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 }

@@ -113,7 +113,7 @@ export default function Clans({ navigate }: ClansProps) {
       <div className="w-full max-w-[360px] mx-auto">
         <div className="space-y-3">
           {/* Риска вище заголовка */}
-          <div className="border-t border-gray-600"></div>
+          <div className="border-t border-white/40"></div>
 
           {/* Заголовок з кількістю кланів */}
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
@@ -121,7 +121,7 @@ export default function Clans({ navigate }: ClansProps) {
           </div>
 
           {/* Риска нижче заголовка */}
-          <div className="border-b border-gray-600"></div>
+          <div className="border-b border-white/40"></div>
 
           {/* clann.jpg - збільшена */}
           <div className="flex justify-center">
@@ -148,7 +148,7 @@ export default function Clans({ navigate }: ClansProps) {
 
           {/* Показуємо інформацію про мій клан, якщо він є */}
           {myClan && (
-            <div className="p-3 bg-[#1a1a1a] border border-[#3b2614] rounded-md space-y-1 mb-3">
+            <div className="p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-1 mb-3">
               <div className="text-[12px] text-[#f4e2b8] font-semibold">Мой клан:</div>
               <div
                 className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8] flex items-center gap-1"
@@ -179,7 +179,7 @@ export default function Clans({ navigate }: ClansProps) {
           />
 
           {/* Риска вище тексту */}
-          <div className="border-t border-gray-600"></div>
+          <div className="border-t border-white/40"></div>
 
           {/* Текст внизу */}
           <div className="text-[11px] text-[#9f8d73] space-y-1 pt-4">
@@ -192,7 +192,7 @@ export default function Clans({ navigate }: ClansProps) {
           </div>
 
           {/* Риска нижче тексту */}
-          <div className="border-b border-gray-600"></div>
+          <div className="border-b border-white/40"></div>
 
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">

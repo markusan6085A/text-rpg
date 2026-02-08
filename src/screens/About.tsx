@@ -51,25 +51,25 @@ export default function About({ navigate }: { navigate: Navigate }) {
         <div className="flex flex-col gap-0">
           <button
             onClick={() => navigate("/wip")}
-            className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-dotted border-[#c7ad80] w-full"
+            className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-dotted border-white/50 w-full"
           >
             {String.fromCharCode(1055, 1086, 1076, 1076, 1077, 1088, 1078, 1082, 1072)}
           </button>
           <button
             onClick={() => navigate("/online-players")}
-            className="text-left text-green-400 hover:text-green-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+            className="text-left text-green-400 hover:text-green-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
           >
             {String.fromCharCode(1054, 1085, 1083, 1072, 1081, 1085)} [{onlineCount}]
           </button>
           <button
             onClick={() => setShowChangeNickModal(true)}
-            className="text-left text-purple-400 hover:text-purple-300 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+            className="text-left text-purple-400 hover:text-purple-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
           >
             Изменить ник
           </button>
           <button
             onClick={() => navigate("/colorize-nick")}
-            className="text-left text-white hover:text-gray-200 transition-colors text-[10px] py-2 border-b border-gray-600 w-full"
+            className="text-left text-white hover:text-gray-200 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
           >
             Покрасить ник
           </button>
@@ -83,7 +83,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
           onClick={() => setShowChangeNickModal(false)}
         >
           <div
-            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -103,19 +103,19 @@ export default function About({ navigate }: { navigate: Navigate }) {
                   type="text"
                   value={newNickname}
                   onChange={(e) => setNewNickname(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#0f0a06] border border-[#3e301c] rounded text-white text-sm"
+                  className="w-full px-3 py-2 bg-[#0f0a06] border border-white/50 rounded text-white text-sm"
                   placeholder="Введите новый ник"
                 />
               </div>
 
               <div className="text-gray-300 text-xs">
                 <div className="mb-2">Доступные символы:</div>
-                <div className="font-mono bg-[#0f0a06] p-2 rounded border border-[#3e301c]">
+                <div className="font-mono bg-[#0f0a06] p-2 rounded border border-white/50">
                   A-Z, a-z, 0-9, _, -, пробел
                 </div>
               </div>
 
-              <div className="text-yellow-400 text-xs font-semibold pt-2 border-t border-gray-600">
+              <div className="text-yellow-400 text-xs font-semibold pt-2 border-t border-white/40">
                 Цена: 50 Coin of Luck
               </div>
 

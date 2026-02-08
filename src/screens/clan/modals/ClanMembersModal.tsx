@@ -28,7 +28,7 @@ export default function ClanMembersModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
       <div
-        className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4 max-h-[80vh] overflow-y-auto"
+        className="bg-[#1a1a1a] border border-white/50 rounded p-4 max-w-[360px] w-full mx-4 max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-[14px] text-[#f4e2b8] mb-3 text-center font-semibold">
@@ -51,7 +51,7 @@ export default function ClanMembersModal({
               return (
                 <div
                   key={member.id}
-                  className="text-[11px] border-b border-dotted border-[#3b2614] pb-1 cursor-pointer hover:bg-[#2a2a2a] transition-colors p-1 rounded"
+                  className="text-[11px] border-b border-dotted border-white/40 pb-1 cursor-pointer hover:bg-[#2a2a2a] transition-colors p-1 rounded"
                   onClick={() => {
                     if (member.characterId) {
                       onPlayerClick(member.characterId, member.characterName);

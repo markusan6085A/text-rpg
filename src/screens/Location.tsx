@@ -136,7 +136,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               return (
                 <div
                   key={globalIndex}
-                  className={`flex items-center gap-2 py-1 border-b border-dotted border-gray-500 text-xs ${
+                  className={`flex items-center gap-2 py-1 border-b border-dotted border-white/50 text-xs ${
                     isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
                   }`}
                 >
@@ -219,7 +219,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             onClick={() => setSelectedMob(null)}
           >
             <div
-              className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Заголовок */}
@@ -255,7 +255,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 )}
 
                 {/* Стати */}
-                <div className="border-t border-gray-700 pt-2 mt-2">
+                <div className="border-t border-white/40 pt-2 mt-2">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex items-center gap-2">
@@ -278,7 +278,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 </div>
 
                 {/* Досвід та валюта */}
-                <div className="border-t border-gray-700 pt-2 mt-2">
+                <div className="border-t border-white/40 pt-2 mt-2">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Нагороди:</div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -302,7 +302,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
                 {/* Дроп */}
                 {selectedMob.drops && selectedMob.drops.length > 0 && (
-                  <div className="border-t border-gray-700 pt-2 mt-2">
+                  <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
                     <div className="space-y-1">
                       {selectedMob.drops.map((drop, idx) => {
@@ -326,7 +326,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                             <img
                               src={iconPath}
                               alt={itemName}
-                              className="w-5 h-5 object-contain border border-gray-600 bg-black/40"
+                              className="w-5 h-5 object-contain border border-white/40 bg-black/40"
                               onError={(e) => {
                                 // Якщо іконка не завантажилась, приховуємо її
                                 (e.target as HTMLImageElement).style.display = "none";
@@ -347,7 +347,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
                 {/* Спойл */}
                 {selectedMob.spoil && selectedMob.spoil.length > 0 && (
-                  <div className="border-t border-gray-700 pt-2 mt-2">
+                  <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Спойл:</div>
                     <div className="space-y-1">
                       {selectedMob.spoil.map((spoil, idx) => {
@@ -371,7 +371,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                             <img
                               src={iconPath}
                               alt={itemName}
-                              className="w-5 h-5 object-contain border border-gray-600 bg-black/40"
+                              className="w-5 h-5 object-contain border border-white/40 bg-black/40"
                               onError={(e) => {
                                 // Якщо іконка не завантажилась, приховуємо її
                                 (e.target as HTMLImageElement).style.display = "none";
@@ -391,7 +391,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 )}
 
                 {/* Кнопка закриття */}
-                <div className="flex justify-center mt-4 pt-2 border-t border-gray-700">
+                <div className="flex justify-center mt-4 pt-2 border-t border-white/40">
                   <button
                     className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
                     onClick={() => setSelectedMob(null)}
@@ -421,7 +421,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             onClick={() => setSelectedDropItem(null)}
           >
             <div
-              className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -441,7 +441,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 <img
                   src={iconPath}
                   alt={itemDef.name}
-                  className="w-16 h-16 object-contain border border-gray-600 bg-black/40"
+                  className="w-16 h-16 object-contain border border-white/40 bg-black/40"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
                   }}
@@ -464,7 +464,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
               {/* Стати */}
               {itemDef.stats && Object.keys(itemDef.stats).length > 0 && (
-                <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+                <div className="border-t border-white/40 pt-2 mt-2 mb-4">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {itemDef.stats.pAtk !== undefined && (
@@ -558,7 +558,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 }
 
                 return (
-                  <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+                  <div className="border-t border-white/40 pt-2 mt-2 mb-4">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">
                       Сет: {set.name} [{set.grade}]
                     </div>
@@ -597,7 +597,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
               {/* Опис предмета */}
               {itemDef.description && (
-                <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+                <div className="border-t border-white/40 pt-2 mt-2 mb-4">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Опис:</div>
                   <div className="text-gray-300 text-xs">
                     {itemDef.description}
@@ -606,7 +606,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               )}
 
               {/* Кнопка закриття */}
-              <div className="flex justify-center pt-2 border-t border-gray-700">
+              <div className="flex justify-center pt-2 border-t border-white/40">
                 <button
                   onClick={() => setSelectedDropItem(null)}
                   className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"

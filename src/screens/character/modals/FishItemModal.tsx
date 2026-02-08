@@ -246,7 +246,7 @@ export default function FishItemModal({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => { setShowDismantleResult(false); setDismantleResult(null); onClose(); }}>
         <div
-          className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[80vh] overflow-y-auto"
+          className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[80vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-4">
@@ -275,7 +275,7 @@ export default function FishItemModal({
                     const weaponDef = itemsDB[id];
                     const stats = weaponDef?.stats || {};
                     return (
-                      <div key={id} className="border border-gray-700 rounded p-2 bg-[#1a1a1a]">
+                      <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
                         <div className="flex items-center gap-2 mb-1">
                           {weaponDef?.icon && (
                             <img
@@ -330,7 +330,7 @@ export default function FishItemModal({
                     const armorDef = itemsDB[id];
                     const stats = armorDef?.stats || {};
                     return (
-                      <div key={id} className="border border-gray-700 rounded p-2 bg-[#1a1a1a]">
+                      <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
                         <div className="flex items-center gap-2 mb-1">
                           {armorDef?.icon && (
                             <img
@@ -449,7 +449,7 @@ export default function FishItemModal({
               )}
           </div>
 
-          <div className="flex justify-center pt-2 border-t border-gray-700">
+          <div className="flex justify-center pt-2 border-t border-white/50">
             <button
               onClick={() => { setShowDismantleResult(false); setDismantleResult(null); onClose(); }}
               className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
@@ -465,7 +465,7 @@ export default function FishItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -491,7 +491,7 @@ export default function FishItemModal({
           )}
         </div>
 
-        <div className="border-t border-gray-700 pt-2 mt-2 mb-4 space-y-3">
+        <div className="border-t border-white/50 pt-2 mt-2 mb-4 space-y-3">
           <div>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Передати:</div>
             <div className="flex gap-2">
@@ -513,7 +513,7 @@ export default function FishItemModal({
                     e.target.select();
                   }
                 }}
-                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
               />
               <button
                 onClick={handleTransfer}
@@ -545,7 +545,7 @@ export default function FishItemModal({
                     e.target.select();
                   }
                 }}
-                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
               />
               <button
                 onClick={handleDelete}
@@ -577,7 +577,7 @@ export default function FishItemModal({
                     e.target.select();
                   }
                 }}
-                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
               />
               <button
                 onClick={handleDismantle}
@@ -589,7 +589,7 @@ export default function FishItemModal({
           </div>
         </div>
 
-        <div className="flex justify-center pt-2 border-t border-gray-700">
+        <div className="flex justify-center pt-2 border-t border-white/50">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"

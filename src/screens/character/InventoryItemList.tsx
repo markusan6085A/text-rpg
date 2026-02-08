@@ -20,7 +20,7 @@ export default function InventoryItemList({
       className="space-y-0 mb-3 rounded-xl border-2"
       style={{
         backgroundColor: "#0f0c08",
-        borderColor: "#5b4726",
+        borderColor: "rgba(255,255,255,0.5)",
         minHeight: "200px",
       }}
     >
@@ -115,7 +115,7 @@ export default function InventoryItemList({
           return (
             <div
               key={idx}
-              className="flex items-center gap-1.5 px-2 py-1 border-b border-[#2a2a2a] text-[10px]"
+              className="flex items-center gap-1.5 px-2 py-1 border-b border-white/30 text-[10px]"
               style={{
                 borderBottom: "1px solid #2a2a2a",
                 color: "#d9d9d9",
@@ -162,7 +162,7 @@ export default function InventoryItemList({
                       e.stopPropagation();
                       onEquipItem(item);
                     }}
-                    className="text-[#b8860b] hover:text-[#d4af37] text-[9px] font-semibold px-2 py-0.5 border border-[#7c6847] rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] whitespace-nowrap"
+                    className="text-[#b8860b] hover:text-[#d4af37] text-[9px] font-semibold px-2 py-0.5 border border-white/50 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] whitespace-nowrap"
                   >
                     Одеть
                   </button>

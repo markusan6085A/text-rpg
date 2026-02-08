@@ -84,7 +84,7 @@ export default function ConsumableItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -128,7 +128,7 @@ export default function ConsumableItemModal({
           )}
         </div>
         
-        <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
           {isPotion && !isEnchantScroll && (
             <div className="mb-3">
               <button
@@ -160,7 +160,7 @@ export default function ConsumableItemModal({
                   e.target.select();
                 }
               }}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
             />
             <button
               onClick={handleTransfer}
@@ -191,7 +191,7 @@ export default function ConsumableItemModal({
                   e.target.select();
                 }
               }}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-gray-700 text-white rounded text-xs"
+              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
             />
             <button
               onClick={handleDelete}
@@ -202,7 +202,7 @@ export default function ConsumableItemModal({
           </div>
         </div>
         
-        <div className="flex justify-center pt-2 border-t border-gray-700">
+        <div className="flex justify-center pt-2 border-t border-white/50">
           <button
             onClick={onClose}
             className="text-xs text-[#b8860b] hover:text-[#d4af37]"

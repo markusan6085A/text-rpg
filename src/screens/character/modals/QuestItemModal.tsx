@@ -55,7 +55,7 @@ export default function QuestItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -145,7 +145,7 @@ export default function QuestItemModal({
           )}
         </div>
 
-        <div className="flex justify-center pt-2 border-t border-gray-700">
+        <div className="flex justify-center pt-2 border-t border-white/50">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"

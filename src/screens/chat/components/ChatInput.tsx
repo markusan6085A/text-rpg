@@ -18,7 +18,7 @@ export function ChatInput({
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex flex-col border-b border-gray-600 pb-2">
+    <div className="flex flex-col border-b border-white/50 pb-2">
       <input
         ref={inputRef}
         type="text"
@@ -31,7 +31,7 @@ export function ChatInput({
           }
         }}
         placeholder="Введите сообщение..."
-        className="w-full text-sm text-black placeholder-gray-400 bg-white border border-gray-300 rounded px-2 py-1.5 mb-2"
+        className="w-full text-sm text-black placeholder-gray-400 bg-white border border-white/60 rounded px-2 py-1.5 mb-2"
         maxLength={500}
       />
       <div className="flex items-center gap-0 text-xs">

@@ -38,7 +38,7 @@ export default function ClanHeader({
   return (
     <>
       {/* Риска вище назви клану */}
-      <div className="border-t border-gray-600"></div>
+      <div className="border-t border-white/50"></div>
 
       {/* Назва клану */}
       <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
@@ -46,7 +46,7 @@ export default function ClanHeader({
       </div>
 
       {/* Риска нижче назви клану */}
-      <div className="border-b border-gray-600"></div>
+      <div className="border-b border-white/50"></div>
 
       {/* Емблема клану (clanns.png) */}
       <div className="flex justify-center">
@@ -116,7 +116,7 @@ export default function ClanHeader({
                   e.target.select();
                 }
               }}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
+              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded"
               placeholder="Сумма"
               autoFocus
             />
@@ -148,7 +148,7 @@ export default function ClanHeader({
                   e.target.select();
                 }
               }}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
+              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded"
               placeholder="Сумма для вывода"
               autoFocus
             />
@@ -206,7 +206,7 @@ export default function ClanHeader({
                   e.target.select();
                 }
               }}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-[#5a4424] text-white rounded"
+              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded"
               placeholder={`Сумма для ${coinLuckAction === "deposit" ? "положения" : "вывода"}`}
               autoFocus
             />

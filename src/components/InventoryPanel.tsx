@@ -118,7 +118,7 @@ export default function InventoryPanel({
     return (
       <div
         className="rounded-xl border-2 p-3 text-center text-white"
-        style={{ width: maxWidth, backgroundColor: "#141414", borderColor: "#5b4726" }}
+        style={{ width: maxWidth, backgroundColor: "#141414", borderColor: "rgba(255,255,255,0.5)" }}
       >
         Р—Р°РіСЂСѓР·РєР°...
       </div>
@@ -155,7 +155,7 @@ export default function InventoryPanel({
         {categories.map((cat) => (
           <button
             key={cat.key}
-            className="px-2 py-1 rounded-sm border border-[#3b2c1a]"
+            className="px-2 py-1 rounded-sm border border-white/40"
             style={{
               backgroundColor: activeCat === cat.key ? "#2a1f14" : "transparent",
               color: activeCat === cat.key ? "#f5d7a1" : "#e7e0d0",
@@ -167,7 +167,7 @@ export default function InventoryPanel({
         ))}
       </div>
 
-      <div className="w-full bg-[#0f0c08] border-y border-[#3b2c1a] rounded-none overflow-hidden">
+      <div className="w-full bg-[#0f0c08] border-y border-white/40 rounded-none overflow-hidden">
         {items.length === 0 ? (
           <div className="text-center text-gray-400 py-3 text-[13px]">РџСѓСЃС‚Рѕ</div>
         ) : (
@@ -180,7 +180,7 @@ export default function InventoryPanel({
                 <img
                   src={invItem.icon || itemsDB[invItem.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
                   alt={invItem.name}
-                  className="w-7 h-7 border border-[#856429] bg-black/40 object-contain"
+                  className="w-7 h-7 border border-white/50 bg-black/40 object-contain"
                   onError={(e) => {
                     // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
                     const itemDef = itemsDB[invItem.id];
@@ -205,7 +205,7 @@ export default function InventoryPanel({
                   <div className="text-[11px] text-gray-300">x{invItem.count}</div>
                 )}
               </div>
-              {idx < items.length - 1 && <div className="w-full h-[1px] bg-[#3b2c1a]"></div>}
+              {idx < items.length - 1 && <div className="w-full h-[1px] bg-white/20"></div>}
             </div>
           ))
         )}
@@ -214,7 +214,7 @@ export default function InventoryPanel({
       {selectedItem && !confirmDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div
-            className="bg-[#1a1208] border border-[#5b4726] rounded-lg p-4 text-center"
+            className="bg-[#1a1208] border border-white/50 rounded-lg p-4 text-center"
             style={{ width: "260px" }}
           >
             <img
@@ -283,7 +283,7 @@ export default function InventoryPanel({
       {confirmDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div
-            className="bg-[#1a1208] border border-[#5b4726] rounded-lg p-4 text-center"
+            className="bg-[#1a1208] border border-white/50 rounded-lg p-4 text-center"
             style={{ width: "230px" }}
           >
             <div className="text-yellow-400 font-bold text-sm mb-3">

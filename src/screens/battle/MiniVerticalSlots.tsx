@@ -87,8 +87,8 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
         }}
         className={`px-2 py-1 text-[11px] rounded border ${
           removeMode
-            ? "border-[#c77c7c] text-white bg-[#1a0f0f]"
-            : "border-[#4e3b24] text-[#f4e2b8] bg-[#120d08]"
+            ? "border-white/50 text-white bg-[#1a0f0f]"
+            : "border-white/50 text-[#f4e2b8] bg-[#120d08]"
         }`}
       >
         Убр.
@@ -114,7 +114,7 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
                 setPickerOpen(true);
                 setPickerTab("skills");
               }}
-              className="w-8 h-8 rounded border border-dashed border-[#6b5330] bg-[#120d08] text-[#c7a46a] text-[12px] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+              className="w-8 h-8 rounded border border-dashed border-white/50 bg-[#120d08] text-[#c7a46a] text-[12px] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
             >
               +
             </button>
@@ -134,7 +134,7 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
               if (id !== null) useSkill(id);
             }}
             disabled={disabled}
-            className="relative w-8 h-8 rounded border border-[#7c6847] bg-[#0f0c09] overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50"
+            className="relative w-8 h-8 rounded border border-white/50 bg-[#0f0c09] overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50"
             title={def?.name}
           >
             {def ? (
@@ -160,7 +160,7 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
               setPickerSlot(null);
             }}
           />
-          <div className="relative w-full max-w-[360px] rounded-[12px] border border-[#4e3b24] bg-gradient-to-b from-[#1a120c] to-[#0f0a07] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-3 z-50">
+          <div className="relative w-full max-w-[360px] rounded-[12px] border border-white/50 bg-gradient-to-b from-[#1a120c] to-[#0f0a07] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-3 z-50">
             <div className="flex justify-between items-center text-[13px] text-[#f4e2b8] font-semibold">
               <span>Выбор слота {pickerSlot !== null ? pickerSlot + 1 : ""}</span>
               <button
@@ -168,7 +168,7 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
                   setPickerOpen(false);
                   setPickerSlot(null);
                 }}
-                className="px-2 py-1 text-[11px] rounded border border-[#494949] bg-[#1b1b1b] text-[#e8e8e8]"
+                className="px-2 py-1 text-[11px] rounded border border-white/40 bg-[#1b1b1b] text-[#e8e8e8]"
               >
                 Закрыть
               </button>
@@ -179,7 +179,7 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
                 <button
                   key={tab}
                   onClick={() => setPickerTab(tab)}
-                  className={`px-2 py-1 rounded border border-[#34312b] ${
+                  className={`px-2 py-1 rounded border border-white/40 ${
                     pickerTab === tab ? "bg-[#1a1814] text-white" : "bg-[#120d08]"
                   }`}
                 >
@@ -199,7 +199,7 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
                       key={`mini-pick-${s.id}`}
                       onClick={() => handlePick(s.id)}
                       disabled={disabled}
-                      className="w-6 h-6 rounded border border-[#6b5330] bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
+                      className="w-6 h-6 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
                       title={s.name}
                     >
                       <img src={s.icon} alt={s.name} className="w-full h-full object-cover rounded" />

@@ -77,7 +77,7 @@ export default function EnchantScrollModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -103,7 +103,7 @@ export default function EnchantScrollModal({
           </div>
         </div>
         
-        <div className="border-t border-gray-700 pt-2 mt-2 mb-4">
+        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
           <div className="text-sm font-semibold text-[#b8860b] mb-2">Оберіть предмет для заточки:</div>
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             {suitableItems.length === 0 ? (
@@ -120,8 +120,8 @@ export default function EnchantScrollModal({
                     onClick={() => setEnchantTargetItem(item)}
                     className={`w-full flex items-center gap-2 p-2 border rounded ${
                       enchantTargetItem?.id === item.id
-                        ? "border-[#b8860b] bg-[#2a2a2a]"
-                        : "border-gray-700 bg-[#1a1a1a]"
+                        ? "border-white/50 bg-[#2a2a2a]"
+                        : "border-white/50 bg-[#1a1a1a]"
                     }`}
                   >
                     <img src={iconPath} alt={item.name} className="w-8 h-8 object-contain" />
@@ -136,7 +136,7 @@ export default function EnchantScrollModal({
           </div>
         </div>
         
-        <div className="flex justify-center gap-2 pt-2 border-t border-gray-700">
+        <div className="flex justify-center gap-2 pt-2 border-t border-white/50">
           {enchantTargetItem && (
             <button
               onClick={handleEnchant}

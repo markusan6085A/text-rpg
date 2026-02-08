@@ -36,7 +36,7 @@ export default function SevenSealsBonusModal({ rank, playerName, bonus, onClose 
       onClick={onClose}
     >
       <div
-        className="bg-[#1a1510] border border-[#654321] rounded-lg p-4 max-w-[280px]"
+        className="bg-[#1a1510] border border-white/50 rounded-lg p-4 max-w-[280px]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className={`font-bold text-sm mb-2 ${titleColor}`}>

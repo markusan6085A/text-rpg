@@ -29,7 +29,7 @@ const Wip: React.FC<WipProps> = ({ navigate, user }) => {
   return (
     <div className="flex items-start justify-center">
       <div className="w-full max-w-md mt-10 mb-10 px-4">
-        <div className="rounded-[18px] border border-[#7a6040] bg-gradient-to-b from-[#2b2015] via-[#19130d] to-[#0e0a07] shadow-[0_26px_80px_rgba(0,0,0,0.95)] overflow-hidden">
+        <div className="rounded-[18px] border border-white/50 bg-gradient-to-b from-[#2b2015] via-[#19130d] to-[#0e0a07] shadow-[0_26px_80px_rgba(0,0,0,0.95)] overflow-hidden">
           <div className="bg-[#20160f] border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#f4e2b8] tracking-[0.12em] uppercase">
             Раздел в разработке
           </div>

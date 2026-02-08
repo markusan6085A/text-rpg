@@ -32,7 +32,7 @@ export default function SelectClanEmblemModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-[#1a1a1a] border border-[#5a4424] rounded p-4 max-w-[360px] w-full mx-4">
+      <div className="bg-[#1a1a1a] border border-white/50 rounded p-4 max-w-[360px] w-full mx-4">
         <div className="text-[14px] text-[#f4e2b8] mb-3 text-center">Выберите эмблему клана:</div>
         
         {/* Сітка емблем */}
@@ -47,7 +47,7 @@ export default function SelectClanEmblemModal({
                 className={`relative cursor-pointer border-2 rounded p-1 transition-all flex items-center justify-center ${
                   isSelected
                     ? "border-yellow-500 bg-yellow-500/20"
-                    : "border-[#3b2614] hover:border-[#5a4424]"
+                    : "border-white/40 hover:border-white/50"
                 }`}
                 style={{ 
                   minHeight: "56px", 

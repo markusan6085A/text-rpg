@@ -50,7 +50,7 @@ export default function InventoryFilters({
   const secondRow = CATEGORIES.slice(5); // Решта табів
 
   return (
-    <div className="flex flex-col gap-1 mb-3 text-[10px] border-b border-[#5a4424] pb-1" style={{ color: "#d9d9d9" }}>
+    <div className="flex flex-col gap-1 mb-3 text-[10px] border-b border-white/50 pb-1" style={{ color: "#d9d9d9" }}>
       {/* Перший ряд */}
       <div className="flex items-center gap-0">
         {firstRow.map((cat, idx) => (

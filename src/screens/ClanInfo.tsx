@@ -105,7 +105,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
       <div className="w-full max-w-[360px] mx-auto">
         <div className="space-y-3">
           {/* Риска вище назви клану */}
-          <div className="border-t border-gray-600"></div>
+          <div className="border-t border-white/40"></div>
 
           {/* Назва клану */}
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
@@ -113,7 +113,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
           </div>
 
           {/* Риска нижче назви клану */}
-          <div className="border-b border-gray-600"></div>
+          <div className="border-b border-white/40"></div>
 
           {/* Емблема клану */}
           <div className="flex justify-center">
@@ -165,7 +165,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
             </div>
           </div>
 
-          <div className="border-t border-gray-600"></div>
+          <div className="border-t border-white/40"></div>
 
           {/* Список учасників */}
           <div className="space-y-2">
@@ -175,7 +175,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
             >
               Состав ({members.length}/{maxMembers})
             </div>
-            <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
+            <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
               {currentMembers.length === 0 ? (
                 <div className="text-[11px] text-[#9f8d73]">Нет участников</div>
               ) : (
@@ -190,7 +190,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
                   return (
                     <div
                       key={member.id}
-                      className="text-[11px] border-b border-dotted border-[#3b2614] pb-1"
+                      className="text-[11px] border-b border-dotted border-white/40 pb-1"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -254,7 +254,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
             )}
           </div>
 
-          <div className="border-t border-gray-600"></div>
+          <div className="border-t border-white/40"></div>
 
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">

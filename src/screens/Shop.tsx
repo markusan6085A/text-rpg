@@ -286,7 +286,7 @@ export default function Shop({ navigate }: ShopProps) {
               setSelectedConsumablesSubcategory(null);
               setCurrentPage(1);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "weapons" ? "text-gray-200 font-semibold border-b border-gray-300" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "weapons" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
           >
             Оружие
           </button>
@@ -300,7 +300,7 @@ export default function Shop({ navigate }: ShopProps) {
               setSelectedConsumablesSubcategory(null);
               setCurrentPage(1);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "armor" ? "text-gray-200 font-semibold border-b border-gray-300" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "armor" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
           >
             Броня
           </button>
@@ -314,7 +314,7 @@ export default function Shop({ navigate }: ShopProps) {
               setSelectedConsumablesSubcategory(null);
               setCurrentPage(1);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "jewelry" ? "text-gray-200 font-semibold border-b border-gray-300" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "jewelry" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
           >
             Биж
           </button>
@@ -327,7 +327,7 @@ export default function Shop({ navigate }: ShopProps) {
               setSelectedConsumablesSubcategory(null);
               setCurrentPage(1);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "materials" ? "text-gray-200 font-semibold border-b border-gray-300" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "materials" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
           >
             Материалы
           </button>
@@ -340,7 +340,7 @@ export default function Shop({ navigate }: ShopProps) {
               setSelectedConsumablesSubcategory(null);
               setCurrentPage(1);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "consumables" ? "text-gray-200 font-semibold border-b border-gray-300" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "consumables" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
           >
             Расходники
           </button>
@@ -485,7 +485,7 @@ export default function Shop({ navigate }: ShopProps) {
             {paginatedItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-2 py-1.5 border-b border-dotted border-[#5b4b35]/30 hover:bg-black/20"
+                className="flex items-center gap-2 py-1.5 border-b border-dotted border-white/30 hover:bg-black/20"
               >
                 {/* Іконка */}
                 <img
@@ -580,11 +580,11 @@ export default function Shop({ navigate }: ShopProps) {
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[400px] w-full"
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-[#5b4726] pb-2">
+            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
               Информация о предмете
             </div>
 
@@ -689,7 +689,7 @@ export default function Shop({ navigate }: ShopProps) {
 
             {/* Опис предмета */}
             {selectedItem.description && (
-              <div className="text-gray-300 text-[12px] mb-4 border-t border-[#5b4726] pt-2">
+              <div className="text-gray-300 text-[12px] mb-4 border-t border-white/50 pt-2">
                 <div className="font-semibold text-[#e0c68a] mb-1">Описание:</div>
                 <div className="italic">{selectedItem.description}</div>
               </div>
@@ -697,7 +697,7 @@ export default function Shop({ navigate }: ShopProps) {
 
             {/* Інформація про сет */}
             {getSetInfo(selectedItem) && (
-              <div className="text-yellow-400 text-[12px] mb-2 border-t border-[#5b4726] pt-2">
+              <div className="text-yellow-400 text-[12px] mb-2 border-t border-white/50 pt-2">
                 <div className="whitespace-pre-line">{getSetInfo(selectedItem)}</div>
               </div>
             )}
@@ -716,13 +716,13 @@ export default function Shop({ navigate }: ShopProps) {
             </div>
 
             {/* ID предмета */}
-            <div className="text-white text-[12px] mb-4 border-t border-[#5b4726] pt-2">
+            <div className="text-white text-[12px] mb-4 border-t border-white/50 pt-2">
               ID предмета: {selectedItem.itemId}
             </div>
 
             {/* Вибір кількості (особливо для расходників) */}
             {(selectedItem.type === "consumable" || selectedItem.type === "material") && (
-              <div className="mb-4 border-t border-[#5b4726] pt-2">
+              <div className="mb-4 border-t border-white/50 pt-2">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-white text-[12px]">Кількість:</span>
                   <div className="flex items-center gap-1">
@@ -751,7 +751,7 @@ export default function Shop({ navigate }: ShopProps) {
                           e.target.select();
                         }
                       }}
-                      className="w-16 h-6 px-2 bg-[#1a1a1a] text-white text-[12px] text-center border border-[#5b4726] rounded"
+                      className="w-16 h-6 px-2 bg-[#1a1a1a] text-white text-[12px] text-center border border-white/50 rounded"
                     />
                     <button
                       onClick={() => setBuyQuantity(Math.min(30000, buyQuantity + 1))}

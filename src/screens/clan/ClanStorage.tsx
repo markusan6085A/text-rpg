@@ -36,7 +36,7 @@ export default function ClanStorage({
           забрать вещи
         </button>
       </div>
-      <div className="bg-[#1a1a1a] border border-[#3b2614] rounded p-2 max-h-64 overflow-y-auto space-y-1">
+      <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
         {items.length === 0 ? (
           <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
         ) : (
@@ -46,7 +46,7 @@ export default function ClanStorage({
             const iconPath = item.meta?.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
             const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
             return (
-              <div key={item.id} className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-[#3b2614] pb-1">
+              <div key={item.id} className="flex items-center gap-2 text-[11px] text-white border-b border-dotted border-white/40 pb-1">
                 <img
                   src={finalIconPath}
                   alt={itemName}

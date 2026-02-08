@@ -790,7 +790,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             }}
             className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
               selectedCategory === "shop" 
-                ? "text-gray-200 font-semibold border-b border-gray-300" 
+                ? "text-gray-200 font-semibold border-b border-white/60" 
                 : "hover:text-gray-200"
             }`}
           >
@@ -804,7 +804,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             }}
             className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
               selectedCategory === "aa" 
-                ? "text-gray-200 font-semibold border-b border-gray-300" 
+                ? "text-gray-200 font-semibold border-b border-white/60" 
                 : "hover:text-gray-200"
             }`}
           >
@@ -824,8 +824,8 @@ export default function GMShop({ navigate }: GMShopProps) {
                 onClick={() => setSelectedGrade(grade)}
                 className={`px-2 py-1 text-[11px] ${
                   selectedGrade === grade
-                    ? "bg-[#3d2f1a] text-[#ff8c00] border border-[#5b4726]"
-                    : "bg-[#1a1208] text-gray-400 border border-[#2a1a10] hover:text-gray-300"
+                    ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
+                    : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
                 }`}
               >
                 {grade}
@@ -837,7 +837,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             {GM_SHOP_ITEMS.filter(item => item.grade === selectedGrade).map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-2 py-1.5 border-b border-dotted border-[#5b4b35]/30 hover:bg-black/20 cursor-pointer"
+                className="flex items-center gap-2 py-1.5 border-b border-dotted border-white/30 hover:bg-black/20 cursor-pointer"
                 onClick={() => {
                   setSelectedItem(item);
                   setBuyQuantity(1);
@@ -964,13 +964,13 @@ export default function GMShop({ navigate }: GMShopProps) {
             )}
 
             {/* Вибір кількості */}
-            <div className="mt-4 pt-4 border-t border-[#5b4726]">
+            <div className="mt-4 pt-4 border-t border-white/50">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-white text-[12px]">Кількість каменів:</span>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setExchangeQuantity(Math.max(1, exchangeQuantity - 1))}
-                    className="px-2 py-1 bg-[#1a1208] text-white border border-[#5b4726] rounded text-[12px] hover:bg-[#2a1a10]"
+                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
                   >
                     -
                   </button>
@@ -982,11 +982,11 @@ export default function GMShop({ navigate }: GMShopProps) {
                       const val = parseInt(e.target.value) || 1;
                       setExchangeQuantity(Math.max(1, val));
                     }}
-                    className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-[#5b4726] rounded text-center text-[12px]"
+                    className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-center text-[12px]"
                   />
                   <button
                     onClick={() => setExchangeQuantity(exchangeQuantity + 1)}
-                    className="px-2 py-1 bg-[#1a1208] text-white border border-[#5b4726] rounded text-[12px] hover:bg-[#2a1a10]"
+                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
                   >
                     +
                   </button>
@@ -1004,7 +1004,7 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setConfirmExchange(null)}
         >
           <div 
-            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[350px] w-full"
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[350px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center text-gray-400 text-[14px] mb-4">
@@ -1017,13 +1017,13 @@ export default function GMShop({ navigate }: GMShopProps) {
             <div className="flex justify-center gap-4">
               <button
                 onClick={confirmExchangeAction}
-                className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer px-4 py-2 bg-[#1a1208] border border-[#5b4726] rounded"
+                className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer px-4 py-2 bg-[#1a1208] border border-white/50 rounded"
               >
                 Підтвердити
               </button>
               <button
                 onClick={() => setConfirmExchange(null)}
-                className="text-gray-400 text-[12px] hover:text-gray-300 cursor-pointer px-4 py-2 bg-[#1a1208] border border-[#5b4726] rounded"
+                className="text-gray-400 text-[12px] hover:text-gray-300 cursor-pointer px-4 py-2 bg-[#1a1208] border border-white/50 rounded"
               >
                 Скасувати
               </button>
@@ -1039,11 +1039,11 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="bg-[#14110c] border border-[#3b2614] rounded-lg p-4 max-w-[400px] w-full"
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-[#5b4726] pb-2">
+            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
               Інформація про предмет
             </div>
 
@@ -1077,13 +1077,13 @@ export default function GMShop({ navigate }: GMShopProps) {
             </div>
 
             {/* Вибір кількості */}
-            <div className="mb-4 border-t border-[#5b4726] pt-2">
+            <div className="mb-4 border-t border-white/50 pt-2">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-white text-[12px]">Кількість:</span>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setBuyQuantity(Math.max(1, buyQuantity - 1))}
-                    className="px-2 py-1 bg-[#1a1208] text-white border border-[#5b4726] rounded text-[12px] hover:bg-[#2a1a10]"
+                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
                   >
                     -
                   </button>
@@ -1105,11 +1105,11 @@ export default function GMShop({ navigate }: GMShopProps) {
                         e.target.select();
                       }
                     }}
-                    className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-[#5b4726] rounded text-center text-[12px]"
+                    className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-center text-[12px]"
                   />
                   <button
                     onClick={() => setBuyQuantity(buyQuantity + 1)}
-                    className="px-2 py-1 bg-[#1a1208] text-white border border-[#5b4726] rounded text-[12px] hover:bg-[#2a1a10]"
+                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
                   >
                     +
                   </button>
@@ -1124,13 +1124,13 @@ export default function GMShop({ navigate }: GMShopProps) {
             <div className="flex gap-2 justify-center">
               <button
                 onClick={() => handleBuy(selectedItem, buyQuantity)}
-                className="text-green-400 text-[12px] py-2 hover:text-green-300 cursor-pointer px-4 bg-[#1a1208] border border-[#5b4726] rounded"
+                className="text-green-400 text-[12px] py-2 hover:text-green-300 cursor-pointer px-4 bg-[#1a1208] border border-white/50 rounded"
               >
                 Купити
               </button>
               <button
                 onClick={() => setSelectedItem(null)}
-                className="text-gray-400 text-[12px] py-2 hover:text-gray-300 cursor-pointer px-4 bg-[#1a1208] border border-[#5b4726] rounded"
+                className="text-gray-400 text-[12px] py-2 hover:text-gray-300 cursor-pointer px-4 bg-[#1a1208] border border-white/50 rounded"
               >
                 Скасувати
               </button>
