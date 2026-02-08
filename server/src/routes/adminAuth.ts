@@ -48,8 +48,8 @@ export function requireAdmin(request: FastifyRequest) {
 }
 
 export const adminAuthRoutes: FastifyPluginAsync = async (app) => {
-  // POST /admin/auth/login
-  app.post("/admin/auth/login", async (request, reply) => {
+  // POST /login → /admin/auth/login з prefix
+  app.post("/login", async (request, reply) => {
     const body = request.body as any;
 
     const login = String(body?.login || "");
@@ -70,14 +70,14 @@ export const adminAuthRoutes: FastifyPluginAsync = async (app) => {
     return { token };
   });
 
-  // GET /admin/me
-  app.get("/admin/me", async (request) => {
+  // GET /me
+  app.get("/me", async (request) => {
     requireAdmin(request);
     return { ok: true, admin: (request as any).admin };
   });
 
-  // GET /admin/secure-ping
-  app.get("/admin/secure-ping", async (request) => {
+  // GET /secure-ping
+  app.get("/secure-ping", async (request) => {
     requireAdmin(request);
     return { ok: true };
   });

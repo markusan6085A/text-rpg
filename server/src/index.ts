@@ -184,8 +184,8 @@ const start = async () => {
     await app.register(authRefreshRoutes);
     await app.register(authLogoutRoutes);
 
-    await app.register(adminRoutes);
-    await app.register(adminAuthRoutes);
+    await app.register(adminRoutes, { prefix: "/admin" });
+    await app.register(adminAuthRoutes, { prefix: "/admin/auth" });
 
     await app.register(characterRoutes);
     await app.register(chatRoutes);
