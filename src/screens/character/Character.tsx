@@ -164,67 +164,64 @@ export default function Character() {
       >
 
         {/* ========================================================= */}
-        {/*     ВЕРХ — ИНФО + КНОПКИ СПРАВА      */}
+        {/*     ВЕРХ — МОЙ ПЕРСОНАЖ + КНОПКИ СПРАВА                   */}
         {/* ========================================================= */}
-        <div className="w-full px-3 mb-1 mt-0 flex justify-between">
-
-          {/* ЛІВА ІНФОРМАЦІЯ */}
-          <div className="flex flex-col text-left mt-0 flex-1">
-            <div className="mt-2 mb-2 text-[12px] text-[#d6c29a] font-semibold">
-              Мой персонаж
-            </div>
-            <div className="h-px bg-[#6b5b3f]/60 mb-2" />
-            <div className="border-t border-solid border-[#c7ad80]/60 pt-2 pb-2">
-              <div className="text-xs">
-                Статус:{" "}
-                {status ? (
-                  <span className="text-yellow-400">{status}</span>
-                ) : (
-                  <span className="text-gray-400">нет</span>
-                )}
-                <button
-                  className="text-red-400 underline ml-1 text-[10px]"
-                  onClick={() => {
-                    setNewStatus(status);
-                    setShowStatusModal(true);
-                  }}
-                >
-                  ред
-                </button>
+        <div className="w-full px-3 mb-1 mt-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[12px] font-semibold text-[#d6c29a] leading-none">
+                Мой персонаж
               </div>
-
-              <div className="text-[11px] text-yellow-300 mt-1 border-t border-solid border-[#c7ad80]/60 pt-1">
-                Профессия:{" "}
-                {(() => {
-                  const profId = normalizeProfessionId(profession as any);
-                  const profDef = profId ? getProfessionDefinition(profId) : null;
-                  return profDef?.label || profession || "Нет";
-                })()}
-              </div>
-              
-              {/* Бафи під професією */}
-              <CharacterBuffs />
+              <div className="h-px bg-[#6b5b3f]/60 mt-2" />
             </div>
-            <div className="border-b border-solid border-[#c7ad80]/60"></div>
+            <div className="flex flex-col gap-1.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => (window.location.href = "/")}
+                className="w-[76px] h-[22px] rounded-md border border-[#c7ad80] bg-[#1f1d1a]/80 text-[12px] text-[#e7d7b3] leading-none shadow-[inset_0_0_8px_rgba(0,0,0,0.75)] hover:bg-[#2a2723]/80 active:translate-y-[1px]"
+              >
+                Выход
+              </button>
+              <button
+                type="button"
+                onClick={() => alert("Меню в разработке")}
+                className="w-[76px] h-[22px] rounded-md border border-[#c7ad80] bg-[#1f1d1a]/80 text-[12px] text-[#e7d7b3] leading-none shadow-[inset_0_0_8px_rgba(0,0,0,0.75)] hover:bg-[#2a2723]/80 active:translate-y-[1px]"
+              >
+                Меню
+              </button>
+            </div>
           </div>
 
-          {/* КНОПКИ СПРАВА */}
-          <div className="flex flex-col gap-1 text-right text-[10px] ml-2 border-y border-solid border-[#c7ad80]/60 pt-2 pb-2">
-            <button
-              className="w-16 py-[2px] bg-[#1d140c] text-white border border-[#c7ad80] rounded-md"
-              onClick={() => (window.location.href = "/")}
-            >
-              Выход
-            </button>
-
-            <button
-              className="w-16 py-[2px] bg-[#1d140c] text-white border border-[#c7ad80] rounded-md"
-              onClick={() => alert("Меню в разработке")}
-            >
-              Меню
-            </button>
+          {/* Статус, Профессия, Бафи */}
+          <div className="border-t border-solid border-[#c7ad80]/60 pt-2 pb-2 mt-2">
+            <div className="text-xs">
+              Статус:{" "}
+              {status ? (
+                <span className="text-yellow-400">{status}</span>
+              ) : (
+                <span className="text-gray-400">нет</span>
+              )}
+              <button
+                className="text-red-400 underline ml-1 text-[10px]"
+                onClick={() => {
+                  setNewStatus(status);
+                  setShowStatusModal(true);
+                }}
+              >
+                ред
+              </button>
+            </div>
+            <div className="text-[11px] text-yellow-300 mt-1 border-t border-solid border-[#c7ad80]/60 pt-1">
+              Профессия:{" "}
+              {(() => {
+                const profId = normalizeProfessionId(profession as any);
+                const profDef = profId ? getProfessionDefinition(profId) : null;
+                return profDef?.label || profession || "Нет";
+              })()}
+            </div>
+            <CharacterBuffs />
           </div>
-
+          <div className="border-b border-solid border-[#c7ad80]/60" />
         </div>
 
         {/* ========================================= */}
