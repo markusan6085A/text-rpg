@@ -71,6 +71,18 @@ export default function Battle({ navigate }: BattleProps) {
   const [now, setNow] = React.useState(Date.now());
   const found = zoneId ? findZoneWithCity(zoneId) : undefined;
 
+  const lineGold = "border-t border-[#c7ad80]/80";
+  const lineGoldThick = "border-t-2 border-[#c7ad80]";
+  const pad = "px-3";
+  const boxGreen = "border border-[#3bd16f]/70 bg-[#0b140d]/35";
+  const boxBlue = "border border-[#4aa3ff]/70 bg-black/25";
+  const btnGold =
+    "w-full text-center text-[12px] py-1.5 border border-[#c7ad80]/80 " +
+    "text-[#c7ad80] hover:bg-[#2a2015] transition-colors rounded";
+  const btnGreen =
+    "w-full text-center text-[12px] py-1.5 border border-[#3bd16f]/70 " +
+    "text-[#3bd16f] hover:bg-[#102314] transition-colors rounded";
+
   // Ініціалізація бою
   React.useEffect(() => {
     if (zoneId && mobIndex >= 0 && found) {
@@ -225,89 +237,87 @@ export default function Battle({ navigate }: BattleProps) {
     };
 
     return (
-      <div className="w-full text-white px-4 py-2">
-        <div className="w-full max-w-[360px] mx-auto space-y-3">
+      <div className="w-full text-white py-2">
+        <div className="w-full max-w-[360px] mx-auto">
           {/* Інформація про моба */}
-          <div className="text-center">
-            <div className="text-lg font-semibold text-red-500">
+          <div className={`${lineGold} pt-2`}>
+            <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
               {mob.name}, {mob.level} ур.
             </div>
           </div>
 
-          {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
-
           {/* ПОБЕДА! */}
-          <div className="text-center">
-            <div className="text-base font-bold text-green-500">ПОБЕДА!</div>
-          </div>
-
-          {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
-
-          {/* Дроп */}
-          <div className="p-3">
-            <div className="text-sm font-semibold mb-2">Выпало:</div>
-            <div className="space-y-1 text-xs">
-              {lastReward.exp > 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-green-300">Опыт:</span>
-                  <span className="text-green-300">+{lastReward.exp}</span>
-                </div>
-              )}
-              {lastReward.sp !== undefined && lastReward.sp > 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-yellow-600">SP:</span>
-                  <span className="text-yellow-600">+{lastReward.sp}</span>
-                </div>
-              )}
-              {lastReward.adena > 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-yellow-400">Adena</span>
-                  <span className="text-yellow-400 text-[10px]">(x{lastReward.adena})</span>
-                </div>
-              )}
+          <div className={`${lineGold} py-2`}>
+            <div className={`${pad} text-center`}>
+              <div className="text-base font-bold text-green-500">ПОБЕДА!</div>
             </div>
           </div>
 
-          {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
-
-          {/* Кнопки в один ряд */}
-          <div className="flex items-center gap-2 text-xs justify-center">
-            <button
-              onClick={handleTakeAndNext}
-              className="text-gray-400 hover:underline cursor-pointer font-bold"
-            >
-              Забрать и бить следующего!
-            </button>
-            <span className="text-gray-500">|</span>
-            <button
-              onClick={handleNextOnly}
-              className="text-gray-400 hover:underline cursor-pointer font-bold"
-            >
-              Бить следующего!
-            </button>
+          {/* Дроп — зелена рамка */}
+          <div className="mt-3">
+            <div className={`${boxGreen} rounded-sm`}>
+              <div className="border-b border-[#3bd16f]/60 py-2">
+                <div className={`${pad} text-[12px] text-[#3bd16f] font-semibold`}>Выпало:</div>
+              </div>
+              <div className={`${pad} py-2 text-[12px] text-[#cfead6] space-y-1`}>
+                {lastReward.exp > 0 && (
+                  <div className="flex justify-between">
+                    <span>Опыт:</span>
+                    <span className="text-[#3bd16f]">+{lastReward.exp}</span>
+                  </div>
+                )}
+                {lastReward.sp !== undefined && lastReward.sp > 0 && (
+                  <div className="flex justify-between">
+                    <span>SP:</span>
+                    <span className="text-[#3bd16f]">+{lastReward.sp}</span>
+                  </div>
+                )}
+                {lastReward.adena > 0 && (
+                  <div className="flex justify-between">
+                    <span>Adena</span>
+                    <span className="text-[#3bd16f]">(x{lastReward.adena})</span>
+                  </div>
+                )}
+              </div>
+              <div className="border-t border-[#3bd16f]/60 py-1" />
+            </div>
           </div>
 
-          {/* Риска */}
-          <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }}></div>
-
-          {/* Лог бою */}
-          <div className="p-2">
-            <div className="text-sm font-semibold mb-2 text-[#87ceeb]">Лог бою:</div>
-            <BattleLog />
+          {/* Кнопки: ліворуч Бить следующего! (золото), праворуч Забрать и бить следующего! (зелений) */}
+          <div className={`${lineGold} mt-3 pt-2`}>
+            <div className={`${pad} grid grid-cols-2 gap-2`}>
+              <button type="button" className={btnGold} onClick={handleNextOnly}>
+                Бить следующего!
+              </button>
+              <button type="button" className={btnGreen} onClick={handleTakeAndNext}>
+                Забрать и бить следующего!
+              </button>
+            </div>
           </div>
 
-          {/* Кнопка В окрестности */}
-          <div className="flex justify-center">
-            <button
-              onClick={handleTakeAndLocation}
-              className="text-white hover:underline cursor-pointer flex items-center gap-1 text-xs"
-            >
-              <span></span>
-              <span>В окрестности</span>
-            </button>
+          {/* Лог бою — синя рамка, w-full */}
+          <div className={`${lineGold} mt-3 pt-2`}>
+            <div className={pad}>
+              <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
+              <div className={`${boxBlue} w-full rounded-sm`}>
+                <div className={`${pad} py-2 text-[11px] leading-4`}>
+                  <BattleLog noBorder />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* В окрестности */}
+          <div className={`${lineGold} py-2`}>
+            <div className={pad}>
+              <button
+                type="button"
+                onClick={handleTakeAndLocation}
+                className="text-white hover:underline cursor-pointer flex items-center gap-1 text-xs"
+              >
+                <span>В окрестности</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -315,45 +325,63 @@ export default function Battle({ navigate }: BattleProps) {
   }
 
   return (
-    <div className="w-full text-white px-4 pt-0 pb-2">
-      <div className="w-full max-w-[360px] mx-auto space-y-2">
-        {/* Картка цілі (моб) — піднята вище */}
+    <div className="w-full text-white pt-0 pb-2">
+      <div className="w-full max-w-[360px] mx-auto">
+        {/* Картка цілі (моб) */}
         {mob && (
           <>
-            <div className="flex justify-center -mt-1">
-              <TargetCard zone={zone} city={city} mob={mob} />
+            <div className={`${lineGold} pt-2`}>
+              <div className={pad}>
+                <div className="flex justify-center -mt-1">
+                  <TargetCard zone={zone} city={city} mob={mob} />
+                </div>
+              </div>
             </div>
-            <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }} />
           </>
         )}
 
         {/* Бари бафів */}
-        <BuffBar buffs={heroBuffs || []} now={now} />
-        <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }} />
+        <div className={lineGold}>
+          <div className={pad}>
+            <BuffBar buffs={heroBuffs || []} now={now} />
+          </div>
+        </div>
 
         {/* Панель навичок */}
-        <SkillBar />
-        <div className="w-full h-px" style={{ backgroundColor: "rgba(255,255,255,0.5)" }} />
+        <div className={lineGold}>
+          <div className={pad}>
+            <SkillBar />
+          </div>
+        </div>
 
-        {/* Лог бою — 10 повідомлень у рамці */}
-        <div className="p-2">
-          <div className="text-sm font-semibold mb-2 text-[#f5d7a1]">Лог бою:</div>
-          <BattleLog />
+        {/* Лог бою — синя рамка, w-full */}
+        <div className={`${lineGold} pt-2`}>
+          <div className={pad}>
+            <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
+            <div className={`${boxBlue} w-full rounded-sm`}>
+              <div className={`${pad} py-2 text-[11px] leading-4`}>
+                <BattleLog noBorder />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Кнопки управління */}
-        <div className="flex gap-2 justify-center">
-          {status === "idle" && (
-            <button
-              onClick={() => {
-                reset();
-                navigate(`/location?id=${zone.id}`);
-              }}
-              className="px-4 py-2 bg-yellow-600 rounded text-black text-sm"
-            >
-              Повернутися в локацію
-            </button>
-          )}
+        <div className={`${lineGold} pt-2`}>
+          <div className={`${pad} flex gap-2 justify-center`}>
+            {status === "idle" && (
+              <button
+                type="button"
+                onClick={() => {
+                  reset();
+                  navigate(`/location?id=${zone.id}`);
+                }}
+                className="px-4 py-2 bg-yellow-600 rounded text-black text-sm"
+              >
+                Повернутися в локацію
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

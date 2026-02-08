@@ -129,22 +129,17 @@ const parseDobychaLine = (line: string) => {
 
 const LOG_MAX_LINES = 10;
 
-export function BattleLog() {
+export function BattleLog({ noBorder }: { noBorder?: boolean }) {
   const { log } = useBattleStore();
   // Лог зберігається як [найновіше, ...старіші]. Показуємо перші 10 = 10 останніх повідомлень; нові з’являються, старі зникають.
   const lines = [...log].slice(0, LOG_MAX_LINES);
-  return (
-    <div
-      className="border-2 rounded p-2 bg-black/30"
-      style={{ borderColor: "rgba(255,255,255,0.5)" }}
-    >
-      <div className="space-y-1 text-[12px] leading-[1.2]">
-        {lines.map((line, idx) => {
+  const content = (
+    <div className="space-y-1 text-[12px] leading-[1.2]">
+      {lines.map((line, idx) => {
         const dobychaLine = parseDobychaLine(line);
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
         }
-        
         const color = getColor(line);
         return (
           <div key={idx} style={{ color }}>
@@ -152,7 +147,15 @@ export function BattleLog() {
           </div>
         );
       })}
-      </div>
+    </div>
+  );
+  if (noBorder) return content;
+  return (
+    <div
+      className="border-2 rounded p-2 bg-black/30"
+      style={{ borderColor: "rgba(255,255,255,0.5)" }}
+    >
+      {content}
     </div>
   );
 }
