@@ -74,6 +74,7 @@ export default function Battle({ navigate }: BattleProps) {
   const lineGold = "border-t border-[#c7ad80]/80";
   const lineGoldThick = "border-t-2 border-[#c7ad80]";
   const pad = "px-3";
+  const dividerGold = <div className="border-t-2 border-[#c7ad80]/80 mt-2" />;
   const boxBlue =
     "rounded-lg border-2 border-[#4aa3ff]/70 bg-black/25 shadow-[inset_0_0_12px_rgba(74,163,255,0.18)] overflow-hidden";
   const btnGold =
@@ -297,33 +298,33 @@ export default function Battle({ navigate }: BattleProps) {
             </div>
           </div>
 
-          {/* Дії після бою (без рамок, лише текст) */}
-          <div className="mt-3">
-            <div className="px-3 text-center text-[12px]">
-              <span
-                role="button"
-                tabIndex={0}
-                onClick={handleNextOnly}
-                onKeyDown={(e) => e.key === "Enter" && handleNextOnly()}
-                className="cursor-pointer text-[#c7ad80] hover:text-[#e7d7b3] transition-colors"
-              >
-                Бить следующего!
-              </span>
-              <span className="mx-2 text-[#c7ad80]/70">|</span>
-              <span
-                role="button"
-                tabIndex={0}
-                onClick={handleTakeAndNext}
-                onKeyDown={(e) => e.key === "Enter" && handleTakeAndNext()}
-                className="cursor-pointer text-[#3bd16f] hover:text-[#6dff9a] transition-colors"
-              >
-                Забрать и бить следующего!
-              </span>
-            </div>
-            <div className="mt-2 border-t border-[#c7ad80]/80" />
+          {/* лінія ВИЩЕ дій */}
+          <div className="px-3">{dividerGold}</div>
+
+          {/* Дії без рамок */}
+          <div className="mt-2 px-3 text-center text-[12px]">
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={handleNextOnly}
+              onKeyDown={(e) => e.key === "Enter" && handleNextOnly()}
+              className="cursor-pointer text-[#c7ad80] hover:text-[#e7d7b3] transition-colors"
+            >
+              Бить следующего!
+            </span>
+            <span className="mx-2 text-[#c7ad80]/70">|</span>
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={handleTakeAndNext}
+              onKeyDown={(e) => e.key === "Enter" && handleTakeAndNext()}
+              className="cursor-pointer text-[#3bd16f] hover:text-[#6dff9a] transition-colors"
+            >
+              Забрать и бить следующего!
+            </span>
           </div>
 
-          {/* Лог бою (синя рамка, без лінії під) */}
+          {/* Лог бою — без лінії під рамкою */}
           <div className="mt-3 px-3">
             <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
             <div className={`${boxBlue} w-full`}>
@@ -334,7 +335,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* В окрестности + лінія під ним */}
-          <div className="mt-3">
+          <div className="mt-4">
             <button
               type="button"
               onClick={handleTakeAndLocation}
@@ -342,7 +343,7 @@ export default function Battle({ navigate }: BattleProps) {
             >
               В окрестности
             </button>
-            <div className="mt-2 border-t border-[#c7ad80]/80" />
+            <div className="px-3">{dividerGold}</div>
           </div>
         </div>
       </div>
@@ -379,20 +380,18 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
         </div>
 
-        {/* Лог бою — синя рамка, rounded + inset glow */}
-        <div className={`${lineGold} pt-2`}>
-          <div className={pad}>
-            <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
-            <div className={`${boxBlue} w-full`}>
-              <div className="px-3 py-2 text-[11px] leading-4">
-                <BattleLog noBorder />
-              </div>
+        {/* Лог бою — без лінії під рамкою */}
+        <div className="mt-3 px-3">
+          <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
+          <div className={`${boxBlue} w-full`}>
+            <div className="px-3 py-2 text-[11px] leading-4">
+              <BattleLog noBorder />
             </div>
           </div>
         </div>
 
-        {/* Кнопки управління */}
-        <div className={`${lineGold} pt-2`}>
+        {/* Нижній блок + лінія під ним */}
+        <div className="mt-4">
           <div className={`${pad} flex gap-2 justify-center`}>
             {status === "idle" && (
               <button
@@ -407,6 +406,7 @@ export default function Battle({ navigate }: BattleProps) {
               </button>
             )}
           </div>
+          <div className={pad}>{dividerGold}</div>
         </div>
       </div>
     </div>

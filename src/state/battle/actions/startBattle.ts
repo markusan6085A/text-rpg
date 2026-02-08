@@ -293,7 +293,7 @@ export const createStartBattle =
       log: preservedLog,
       cooldowns: availableCooldowns,
       loadoutSlots: loadLoadout(heroName),
-      activeChargeSlots: prevState.activeChargeSlots ?? [], // Заряди не скидаємо — лишаються увімкненими поки гравець сам не вимкне
+      activeChargeSlots: get().activeChargeSlots ?? [], // Читаємо останній стан — заряди лишаються увімкненими поки гравець сам не вимкне
       lastReward: undefined,
       heroBuffs: preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332),
       mobBuffs: [],
