@@ -268,10 +268,14 @@ export default function Layout({
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
         {/* <MobDamageNotification navigate={navigate} /> */}
-        {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
-        {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center" style={{ paddingTop: contentTopCompact ? "0.5rem" : "4rem", paddingBottom: "max(35rem, calc(env(safe-area-inset-bottom, 0px) + 25rem), 30dvh)" }}>
-          <div className={`w-full max-w-[360px] px-3 ${contentTopCompact ? "mt-0" : "mt-0"}`}>
+        {/* Спейсер під бари: контент не йде під бари при скролі, пустого місця нема */}
+        {contentTopCompact ? (
+          <div className="flex-shrink-0 w-full" style={{ height: "0.5rem" }} aria-hidden />
+        ) : showStatusBars ? (
+          <div className="flex-shrink-0 w-full" style={{ height: "3.75rem" }} aria-hidden />
+        ) : null}
+        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center" style={{ paddingBottom: "max(35rem, calc(env(safe-area-inset-bottom, 0px) + 25rem), 30dvh)" }}>
+          <div className={`w-full max-w-[360px] px-3 mt-0`}>
             {children}
           </div>
         </div>
