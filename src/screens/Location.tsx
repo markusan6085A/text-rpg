@@ -106,7 +106,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   return (
     <div className="w-full text-[#c7ad80] px-1 py-2">
         {/* Заголовок */}
-        <div className="text-[#c7ad80] mb-4 text-base font-semibold flex items-center gap-2">
+        <div className="text-[#c7ad80] mb-2 text-base font-semibold flex items-center gap-2">
           <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
           <span>{zone.name}</span>
         </div>
@@ -183,7 +183,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
         {/* Пагінація */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-4 text-[#c7ad80] text-xs">
+          <div className="flex items-center justify-center gap-2 mt-2 text-[#c7ad80] text-xs">
             <button
               className="disabled:opacity-40"
               disabled={currentPage <= 1}
@@ -203,7 +203,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         )}
 
         {/* Кнопка Назад */}
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-2">
           <button
             className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#c7ad80] hover:bg-[#3a3a3a]"
             onClick={handleBackToCity}
@@ -223,7 +223,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Заголовок */}
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-semibold text-[#b8860b]">
                   {selectedMob.name}
                 </h2>
@@ -391,7 +391,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 )}
 
                 {/* Кнопка закриття */}
-                <div className="flex justify-center mt-4 pt-2 border-t border-white/40">
+                <div className="flex justify-center mt-2 pt-2 border-t border-white/40">
                   <button
                     className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
                     onClick={() => setSelectedMob(null)}
@@ -424,7 +424,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-semibold text-[#b8860b]">
                   {itemDef.name} {itemGrade && `[${itemGrade}]`}
                 </h2>
@@ -437,7 +437,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               </div>
 
               {/* Іконка та основна інформація */}
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-2">
                 <img
                   src={iconPath}
                   alt={itemDef.name}
@@ -464,7 +464,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
               {/* Стати */}
               {itemDef.stats && Object.keys(itemDef.stats).length > 0 && (
-                <div className="border-t border-white/40 pt-2 mt-2 mb-4">
+                <div className="border-t border-white/40 pt-2 mt-2 mb-2">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {itemDef.stats.pAtk !== undefined && (
@@ -558,7 +558,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 }
 
                 return (
-                  <div className="border-t border-white/40 pt-2 mt-2 mb-4">
+                  <div className="border-t border-white/40 pt-2 mt-2 mb-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">
                       Сет: {set.name} [{set.grade}]
                     </div>
@@ -597,7 +597,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
               {/* Опис предмета */}
               {itemDef.description && (
-                <div className="border-t border-white/40 pt-2 mt-2 mb-4">
+                <div className="border-t border-white/40 pt-2 mt-2 mb-2">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Опис:</div>
                   <div className="text-gray-300 text-xs">
                     {itemDef.description}

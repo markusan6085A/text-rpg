@@ -40,7 +40,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
         className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="text-lg font-semibold text-[#b8860b] mb-3">{bossName}{bossLevel ? ` - ${bossLevel} ур.` : ""}</div>
+        <div className="text-lg font-semibold text-[#b8860b] mb-2">{bossName}{bossLevel ? ` - ${bossLevel} ур.` : ""}</div>
         
         {drops && drops.length > 0 && (
           <div className="border-t border-white/40 pt-2 mt-2">
@@ -79,7 +79,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
           </div>
         )}
 
-        <div className="flex justify-center mt-4 pt-2 border-t border-white/40">
+        <div className="flex justify-center mt-2 pt-2 border-t border-white/40">
           <button
             className="px-4 py-2 bg-[#5c1a1a] text-white rounded hover:bg-[#7a2222] transition-colors"
             onClick={onClose}
@@ -254,11 +254,11 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
       {/* Тело */}
       <div className="flex-1 px-2 py-2">
         {loading ? (
-          <div className="text-center text-sm text-gray-400 mt-4">
+          <div className="text-center text-sm text-gray-400 mt-2">
             Загрузка новин...
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center text-sm text-gray-400 mt-4">
+          <div className="text-center text-sm text-gray-400 mt-2">
             Новостей пока нет.
           </div>
         ) : (

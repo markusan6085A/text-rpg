@@ -88,7 +88,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   return (
     <div className="w-full text-[#f4e2b8] px-1 py-2">
       {/* Заголовок */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-2">
         <button
           onClick={() => navigate("/character")}
           className="text-gray-400 text-xs hover:text-gray-300"
@@ -103,7 +103,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
 
       {/* Статус преміум аккаунту */}
       {isPremiumActive && (
-        <div className="mb-4 p-3 bg-green-900/20 border border-green-500/50 rounded">
+        <div className="mb-2 p-3 bg-green-900/20 border border-green-500/50 rounded">
           <div className="text-green-400 text-xs font-semibold mb-1">
             ✓ Преміум аккаунт активний
           </div>
@@ -117,7 +117,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
       )}
 
       {/* Інформація про бонуси */}
-      <div className="mb-4 p-3 bg-[#1a1a1a] border border-white/50 rounded">
+      <div className="mb-2 p-3 bg-[#1a1a1a] border border-white/50 rounded">
         <div className="text-[#b8860b] text-xs font-semibold mb-2">Бонуси преміум аккаунту:</div>
         <div className="text-gray-300 text-[10px] space-y-1">
           <div>• Опыт (EXP): x2</div>
@@ -129,7 +129,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
       </div>
 
       {/* Доступні опції */}
-      <div className="mb-4">
+      <div className="mb-2">
         <div className="text-[#b8860b] text-xs font-semibold mb-2">
           Доступні опції:
         </div>

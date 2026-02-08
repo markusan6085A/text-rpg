@@ -166,10 +166,10 @@ export default function Character() {
         {/* ========================================================= */}
         {/*     ВЕРХ — ИНФО + КНОПКИ СПРАВА      */}
         {/* ========================================================= */}
-        <div className="w-full px-3 mb-2 mt-1 flex justify-between">
+        <div className="w-full px-3 mb-1 mt-0 flex justify-between">
 
           {/* ЛІВА ІНФОРМАЦІЯ */}
-          <div className="flex flex-col text-left mt-1 flex-1">
+          <div className="flex flex-col text-left mt-0 flex-1">
             <div className="border-t border-solid border-[#c7ad80]/60 pt-2 pb-2">
               <div className="text-xs">
                 Статус:{" "}
@@ -226,15 +226,15 @@ export default function Character() {
         {/* ========================================= */}
         {/*     МОДЕЛЬ + СЛОТЫ — СПІЛЬНИЙ КОМПОНЕНТ  */}
         {/* ========================================= */}
-        <CharacterEquipmentFrame allowUnequip={false} marginTop="20px" />
+        <CharacterEquipmentFrame allowUnequip={false} marginTop="8px" />
         
         {/* Крапкова лінія під барами (від краю до краю) */}
-        <div className="w-full border-t-2 border-solid border-[#c7ad80]/70 mt-2"></div>
+        <div className="w-full border-t-2 border-solid border-[#c7ad80]/70 mt-1"></div>
 
         {/* ========================================================= */}
         {/*     СТОЛБЕЦ ПУНКТОВ — КАК ТЫ ПРОСИЛ                        */}
         {/* ========================================================= */}
-        <div className="w-[330px] text-left text-[12px] text-[#c7ad80] mt-4 space-y-1">
+        <div className="w-[330px] text-left text-[12px] text-[#c7ad80] mt-1 space-y-1">
 
           <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
             <img src="/icons/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
@@ -261,7 +261,7 @@ export default function Character() {
 
           <button
             onClick={() => navigate("/learned-skills")}
-            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+            className="mt-1 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
           >
             <img src="/icons/news.png" alt="Skills" className="w-3 h-3 object-contain" />
             <span>Умения</span>
@@ -275,7 +275,7 @@ export default function Character() {
             <span>Мои квесты</span>
           </button>
 
-          <div className="mt-2 border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
+          <div className="mt-1 border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
             <img src="/icons/rate.png" alt="Ratings" className="w-3 h-3 object-contain" />
             <span>Рейтинги</span>
           </div>
@@ -299,7 +299,7 @@ export default function Character() {
 
           <button
             onClick={() => navigate("/premium-account")}
-            className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+            className="mt-1 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
           >
             <img src="/icons/coin.png" alt="Premium" className="w-3 h-3 object-contain" />
             <span>Премиум аккаунт (ускоренная прокачка)</span>
@@ -307,7 +307,7 @@ export default function Character() {
         </div>
 
         {/* Социальный статус */}
-        <div className="w-[330px] text-left text-[11px] text-[#c7ad80] mt-4 border-t-2 border-solid border-[#c7ad80]/70 pt-3">
+        <div className="w-[330px] text-left text-[11px] text-[#c7ad80] mt-2 border-t-2 border-solid border-[#c7ad80]/70 pt-2">
           <div className="font-semibold mb-2">Социальный статус</div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px]">
             <div className="flex justify-between">
@@ -350,7 +350,7 @@ export default function Character() {
 
         {/* Квести */}
         {showQuests && (
-          <div className="w-full mt-4">
+          <div className="w-full mt-2">
             <CharacterQuests />
           </div>
         )}

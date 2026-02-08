@@ -42,7 +42,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
   return (
     <>
       <div className="w-full text-yellow-200 min-h-[400px] px-3 py-4">
-        <div className="mb-4">
+        <div className="mb-2">
           <div className="text-lg font-bold mb-2 text-blue-400">Меню сервера</div>
           <div className="text-sm text-orange-400">
             Здесь собраны основные разделы и сервисные функции.
@@ -86,7 +86,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
             className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-[#b8860b]">Изменить ник</h2>
               <button
                 className="text-gray-400 hover:text-white text-xl"

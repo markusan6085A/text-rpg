@@ -102,7 +102,7 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
   return (
     <div className="w-full text-[#f4e2b8] px-1 py-2">
       {/* Заголовок */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-2">
         <button
           onClick={() => navigate("/character")}
           className="text-gray-400 text-xs hover:text-gray-300"

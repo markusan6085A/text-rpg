@@ -213,7 +213,7 @@ export default function CharacterQuests() {
   return (
     <div className="w-full text-[#f4e2b8] px-1 py-2">
       {/* Заголовок */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-2">
         {selectedLocation && (
           <button
             onClick={() => setSelectedLocation(null)}
@@ -229,7 +229,7 @@ export default function CharacterQuests() {
 
       {/* Список локацій (якщо немає активних квестів і локація не вибрана) */}
       {showLocationList && (
-        <div className="mb-4">
+        <div className="mb-2">
           <div className="text-[#b8860b] mb-2 text-xs font-semibold">Доступні локації:</div>
           <div className="space-y-1">
             {locations.map((location) => {
@@ -265,7 +265,7 @@ export default function CharacterQuests() {
 
       {/* Активні квести */}
       {activeQuestsWithDetails.length > 0 && (
-        <div className="mb-4">
+        <div className="mb-2">
           <div className="text-[#b8860b] mb-2 text-xs font-semibold">Активні квести:</div>
           <div className="space-y-2">
             {activeQuestsWithDetails.map((quest) => {
@@ -380,7 +380,7 @@ export default function CharacterQuests() {
 
       {/* Доступні квести */}
       {availableQuests.length > 0 && (
-        <div className="mb-4">
+        <div className="mb-2">
           <div className="text-[#b8860b] mb-2 text-xs font-semibold">Доступні квести:</div>
           <div className="space-y-2">
             {availableQuests.map((quest) => (

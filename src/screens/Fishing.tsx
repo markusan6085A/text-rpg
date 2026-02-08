@@ -86,7 +86,7 @@ export default function Fishing({ navigate }: FishingProps) {
     <div className="w-full text-[#b8860b] px-1 pb-2">
       {!isFishingStarted ? (
         // Початковий екран з кнопкою
-        <div className="w-full text-center space-y-4 py-8">
+        <div className="w-full text-center space-y-2 py-4">
           <div className="text-base font-semibold text-[#b8860b] mb-6 border-t border-b border-white/40 py-2">
             Риболовля
           </div>
@@ -100,12 +100,12 @@ export default function Fishing({ navigate }: FishingProps) {
       ) : (
         // Список риб з категоріями
         <>
-          <div className="text-[#b8860b] mb-4 text-base font-semibold text-center border-t border-b border-white/40 py-2">
+          <div className="text-[#b8860b] mb-2 text-base font-semibold text-center border-t border-b border-white/40 py-2">
             Риболовля
           </div>
 
           {/* Таби категорій */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-2">
             {(Object.keys(fishByCategory) as FishCategory[]).map((category) => (
               <button
                 key={category}
@@ -184,7 +184,7 @@ export default function Fishing({ navigate }: FishingProps) {
 
           {/* Пагінація */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-4 text-white text-xs">
+            <div className="flex items-center justify-center gap-2 mt-2 text-white text-xs">
               <button
                 className="disabled:opacity-40 text-white"
                 disabled={currentPage <= 1}
@@ -204,7 +204,7 @@ export default function Fishing({ navigate }: FishingProps) {
           )}
 
           {/* Кнопка назад */}
-          <div className="mt-4 flex justify-center">
+          <div className="mt-2 flex justify-center">
             <button
               className="text-xs text-red-500 hover:text-red-400"
               onClick={() => setIsFishingStarted(false)}
@@ -226,7 +226,7 @@ export default function Fishing({ navigate }: FishingProps) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-[#b8860b]">
                 {selectedMob.name}
               </h2>
@@ -312,7 +312,7 @@ export default function Fishing({ navigate }: FishingProps) {
               )}
 
               {/* Кнопка закриття */}
-              <div className="flex justify-center mt-4 pt-2 border-t border-white/40">
+              <div className="flex justify-center mt-2 pt-2 border-t border-white/40">
                 <button
                   className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
                   onClick={() => setSelectedMob(null)}

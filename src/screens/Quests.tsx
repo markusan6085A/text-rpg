@@ -46,7 +46,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
     return (
       <div className="w-full text-[#f4e2b8] px-1 py-2">
         {/* Заголовок */}
-        <div className="text-[#ffd700] mb-4 text-xs border-b border-solid border-white/50 pb-2 font-semibold" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div className="text-[#ffd700] mb-2 text-xs border-b border-solid border-white/50 pb-2 font-semibold" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
           Квести
         </div>
 
@@ -102,7 +102,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
   return (
     <div className="w-full text-[#f4e2b8] px-1 py-2">
       {/* Заголовок з кнопкою назад */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-2">
         <button
           onClick={() => setSelectedLocation(null)}
           className="text-gray-400 text-xs hover:text-gray-300"

@@ -111,7 +111,7 @@ export default function Clans({ navigate }: ClansProps) {
   return (
     <div className="w-full text-white px-4 py-2">
       <div className="w-full max-w-[360px] mx-auto">
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* Риска вище заголовка */}
           <div className="border-t border-white/40"></div>
 
@@ -148,7 +148,7 @@ export default function Clans({ navigate }: ClansProps) {
 
           {/* Показуємо інформацію про мій клан, якщо він є */}
           {myClan && (
-            <div className="p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-1 mb-3">
+            <div className="p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-1 mb-2">
               <div className="text-[12px] text-[#f4e2b8] font-semibold">Мой клан:</div>
               <div
                 className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8] flex items-center gap-1"
@@ -195,7 +195,7 @@ export default function Clans({ navigate }: ClansProps) {
           <div className="border-b border-white/40"></div>
 
           {/* Кнопка назад */}
-          <div className="mt-4 flex justify-center">
+          <div className="mt-2 flex justify-center">
             <span
               onClick={() => navigate("/city")}
               className="text-sm text-red-600 cursor-pointer hover:text-red-500"
