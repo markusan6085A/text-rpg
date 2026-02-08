@@ -75,7 +75,7 @@ export default function Battle({ navigate }: BattleProps) {
   const lineGoldThick = "border-t-2 border-[#c7ad80]";
   const pad = "px-3";
   const boxGreen = "border border-[#3bd16f]/70 bg-[#0b140d]/35";
-  const boxBlue = "border border-[#4aa3ff]/70 bg-black/25";
+  const boxBlue = "border-2 border-[#4aa3ff]/80 bg-black/25";
   const btnGold =
     "w-full text-center text-[12px] py-1.5 border border-[#c7ad80]/80 " +
     "text-[#c7ad80] hover:bg-[#2a2015] transition-colors rounded";
@@ -340,8 +340,8 @@ export default function Battle({ navigate }: BattleProps) {
           </>
         )}
 
-        {/* Бари бафів */}
-        <div className={lineGold}>
+        {/* Бари бафів — відступ зверху від HP моба */}
+        <div className={`${lineGold} pt-3`}>
           <div className={pad}>
             <BuffBar buffs={heroBuffs || []} now={now} />
           </div>

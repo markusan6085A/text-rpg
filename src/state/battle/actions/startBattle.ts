@@ -141,16 +141,15 @@ export const createStartBattle =
         : now + autoAttackIntervalResume;
 
       set({
-        heroName: heroName, // Зберігаємо для перевірки при завантаженні (не джерело істини)
+        heroName: heroName,
         zoneId,
         mob: saved.mob as Mob,
         mobIndex,
         mobHP: saved.mobHP,
-        mobStunnedUntil: saved.mobStunnedUntil, // Відновлюємо stun стан при resume
+        mobStunnedUntil: saved.mobStunnedUntil,
         mobNextAttackAt: saved.mobNextAttackAt ?? now + 1000 + Math.random() * 5000,
         heroNextAttackAt: heroNextAttackAtResume,
         status: saved.status === "victory" ? "victory" : saved.status ?? "fighting",
-        // Ignore stored log; start clean.
         log: [`Fight resumed with ${saved.mob?.name || mob.name}`],
         cooldowns,
         loadoutSlots: Array.isArray(saved.loadoutSlots)
@@ -158,9 +157,10 @@ export const createStartBattle =
           : heroName
           ? loadLoadout(heroName)
           : [],
+        activeChargeSlots: Array.isArray((saved as any).activeChargeSlots) ? (saved as any).activeChargeSlots : (get().activeChargeSlots ?? []),
         lastReward: saved.lastReward,
         heroBuffs,
-        mobBuffs, // Відновлюємо debuff мобів при resume
+        mobBuffs,
         summonBuffs: saved.summonBuffs || [],
         baseSummonStats: saved.baseSummonStats,
         summon: restoredSummon,
@@ -277,25 +277,26 @@ export const createStartBattle =
     }
     
     const initial: Partial<BattleState> = {
-      heroName: heroName, // Зберігаємо для перевірки при завантаженні (не джерело істини)
+      heroName: heroName,
       zoneId,
       mob,
       mobIndex,
       mobHP: mob.hp,
-      aggressiveMobs: aggressiveMobs.length > 0 ? aggressiveMobs : undefined, // Додаємо агресивних мобів
-      mobStunnedUntil: undefined, // Скидаємо stun при початку нового бою
-      heroStunnedUntil: undefined, // Скидаємо stun гравця при початку нового бою
-      heroBuffsBlockedUntil: undefined, // Скидаємо блокування бафів при початку нового бою
-      heroSkillsBlockedUntil: undefined, // Скидаємо блокування скілів при початку нового бою
+      aggressiveMobs: aggressiveMobs.length > 0 ? aggressiveMobs : undefined,
+      mobStunnedUntil: undefined,
+      heroStunnedUntil: undefined,
+      heroBuffsBlockedUntil: undefined,
+      heroSkillsBlockedUntil: undefined,
       mobNextAttackAt: now + 1000 + Math.random() * 5000,
       heroNextAttackAt: now + autoAttackInterval,
       status: "fighting",
       log: preservedLog,
-      cooldowns: availableCooldowns, // Використовуємо збережені cooldowns
+      cooldowns: availableCooldowns,
       loadoutSlots: loadLoadout(heroName),
+      activeChargeSlots: prevState.activeChargeSlots ?? [], // Заряди не скидаємо — лишаються увімкненими поки гравець сам не вимкне
       lastReward: undefined,
-      heroBuffs: preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332), // Remove Transfer Pain and Unicorn Seraphim buff if summon is dead
-      mobBuffs: [], // Скидаємо debuff мобів при початку нового бою
+      heroBuffs: preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332),
+      mobBuffs: [],
       summonBuffs: preservedSummon ? (saved?.summonBuffs || prevState.summonBuffs || []) : [],
       baseSummonStats: preservedSummon ? (saved?.baseSummonStats || prevState.baseSummonStats) : undefined,
       resurrection: null,

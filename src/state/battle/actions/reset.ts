@@ -19,6 +19,7 @@ export const createReset =
     const cooldownsToSave = prev.cooldowns ?? {};
     const heroBuffsToSave = prev.heroBuffs ?? [];
     const loadoutSlotsToSave = prev.loadoutSlots ?? [BASE_ATTACK.id, null];
+    const activeChargeSlotsToSave = prev.activeChargeSlots ?? [];
     
     // ❗ Зберігаємо живий сумон, якщо він існує і живий
     const aliveSummon = prev.summon && prev.summon.hp > 0 ? prev.summon : null;
@@ -40,8 +41,9 @@ export const createReset =
       heroNextAttackAt: undefined,
       status: "idle",
       log: prev.log?.slice(0, 10) ?? [],
-      cooldowns: cooldownsToSave, // Зберігаємо cooldowns
+      cooldowns: cooldownsToSave,
       loadoutSlots: loadoutSlotsToSave,
+      activeChargeSlots: activeChargeSlotsToSave, // Заряди не скидаємо
       lastReward: prev.lastReward,
       heroBuffs: heroBuffsToSave, // Зберігаємо heroBuffs (включаючи бафи статуї)
       mobBuffs: [], // Скидаємо debuff мобів при reset
@@ -63,6 +65,7 @@ export const createReset =
       cooldowns: cooldownsToSave,
       heroBuffs: heroBuffsToSave,
       loadoutSlots: loadoutSlotsToSave,
+      activeChargeSlots: activeChargeSlotsToSave,
       log: prev.log?.slice(0, 10) ?? [],
       summon: aliveSummon,
       summonBuffs: summonBuffsToSave,
