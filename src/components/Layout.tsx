@@ -245,7 +245,7 @@ export default function Layout({
         style={
           customBackground
               ? {
-                border: "1px solid rgba(255,255,255,0.4)",
+                border: "1px solid #c7ad80",
                 padding: "10px",
                 borderRadius: "10px",
                 boxShadow: "inset 0 0 10px #000",
@@ -270,7 +270,7 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center ${contentTopCompact ? "pt-6" : "pt-16"}`} style={{ paddingBottom: "max(7rem, env(safe-area-inset-bottom, 0px) + 5.5rem)" }}>
+        <div ref={contentRef} className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center ${contentTopCompact ? "pt-6" : "pt-16"}`} style={{ paddingBottom: "max(10rem, env(safe-area-inset-bottom, 0px) + 8rem)" }}>
           <div className={`w-full max-w-[360px] px-3 ${contentTopCompact ? "mt-0" : "mt-2"}`}>
             {children}
           </div>

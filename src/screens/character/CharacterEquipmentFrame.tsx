@@ -546,7 +546,7 @@ export default function CharacterEquipmentFrame({
                     <img
                       src={dyeInfo?.icon || "/items/drops/resources/etc_ancient_adena_i00.png"}
                       alt={dyeInfo?.name || dye.id}
-                      className="w-5 h-5 object-contain border border-white/50 rounded bg-black/70"
+                      className="w-5 h-5 object-contain border border-[#c7ad80] rounded bg-black/70"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
