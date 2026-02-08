@@ -268,7 +268,9 @@ export default function Layout({
         <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
         {/* <MobDamageNotification navigate={navigate} /> */}
-        {/* Верхній спейсер під бари прибрано — без пустого поля */}
+        {showStatusBars ? (
+          <div className="flex-shrink-0 w-full" style={{ height: "0.25rem" }} aria-hidden />
+        ) : null}
         <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center pb-[8.5rem]">
           <div className={`w-full max-w-[360px] px-3 mt-0`}>
             {children}
