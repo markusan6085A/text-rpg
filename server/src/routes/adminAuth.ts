@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
-import jwt from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 
 // ВАЖЛИВО:
 // - ADMIN_LOGIN = "Existence"
@@ -20,7 +20,7 @@ function signAdminToken(payload: object) {
   const secret = process.env.ADMIN_JWT_SECRET || "";
   if (!secret) throw new Error("ADMIN_JWT_SECRET is missing");
   const ttl = process.env.ADMIN_JWT_TTL || "10m";
-  return jwt.sign(payload, secret, { expiresIn: ttl });
+  return jwt.sign(payload, secret, { expiresIn: ttl } as SignOptions);
 }
 
 function verifyAdminToken(token: string) {
