@@ -253,3 +253,24 @@ model ClanWarehouse {
   @@index([clanId])
   @@index([clanId, depositedAt])
 }
+
+model AdminMfa {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  login     String   @unique
+  secretEnc String
+  enabledAt DateTime?
+}
+
+model AdminRefreshToken {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  tokenHash String   @unique
+  login     String
+
+  @@index([login, expiresAt])
+}
