@@ -270,7 +270,7 @@ export default function Layout({
         {/* <MobDamageNotification navigate={navigate} /> */}
         {/* 🔥 Додаємо padding-top, щоб контент не перекривався з fixed барами */}
         {/* 🔥 Додаємо padding-bottom для місця під нижнє меню (NavGrid) на телефоні */}
-        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center" style={{ paddingTop: contentTopCompact ? "0.5rem" : "4rem", paddingBottom: "max(24rem, env(safe-area-inset-bottom, 0px) + 18rem)" }}>
+        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center" style={{ paddingTop: contentTopCompact ? "0.5rem" : "4rem", paddingBottom: "max(28rem, env(safe-area-inset-bottom, 0px) + 22rem)" }}>
           <div className={`w-full max-w-[360px] px-3 ${contentTopCompact ? "mt-0" : "mt-0"}`}>
             {children}
           </div>
