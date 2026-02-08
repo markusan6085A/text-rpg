@@ -179,7 +179,7 @@ const start = async () => {
       allowedHeaders: ["Content-Type", "Authorization"],
     });
 
-    // Register routes AFTER CORS and cookie
+    // Register routes AFTER CORS and cookie (setNotFoundHandler МАЄ бути НИЖЧЕ за всі register!)
     await app.register(authRoutes);
     await app.register(authRefreshRoutes);
     await app.register(authLogoutRoutes);
