@@ -19,17 +19,19 @@ export function addDays(d: Date, days: number) {
   return x;
 }
 
+/** Path для refresh cookie: якщо фронт ходить через /api (проксі) — постав REFRESH_COOKIE_PATH=/api/auth/refresh */
+const REFRESH_COOKIE_PATH = process.env.REFRESH_COOKIE_PATH || "/auth/refresh";
+
 export function setRefreshCookie(reply: FastifyReply, token: string) {
   const secure = process.env.COOKIE_SECURE === "true";
   const domain = process.env.COOKIE_DOMAIN || undefined;
-  // sameSite: "none" потрібен для cross-origin (наприклад фронт на Vercel, API на api.l2dop.com)
   const sameSite = (process.env.COOKIE_SAME_SITE as "strict" | "lax" | "none") || "lax";
 
   reply.setCookie("refresh_token", token, {
     httpOnly: true,
     secure: sameSite === "none" ? true : secure,
     sameSite,
-    path: "/auth/refresh",
+    path: REFRESH_COOKIE_PATH,
     domain,
     maxAge: Number(process.env.REFRESH_TTL_DAYS || "30") * 24 * 60 * 60,
   });
@@ -41,7 +43,7 @@ export function clearRefreshCookie(reply: FastifyReply) {
   const sameSite = (process.env.COOKIE_SAME_SITE as "strict" | "lax" | "none") || "lax";
 
   reply.clearCookie("refresh_token", {
-    path: "/auth/refresh",
+    path: REFRESH_COOKIE_PATH,
     domain,
     secure: sameSite === "none" ? true : secure,
     sameSite,
