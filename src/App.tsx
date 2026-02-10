@@ -98,8 +98,11 @@ function AppInner() {
   const hero = useHeroStore((s) => s.hero);
   const setHero = useHeroStore((s) => s.setHero);
   const loadHero = useHeroStore((s) => s.loadHero);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const setCharacterId = useCharacterStore((s) => s.setCharacterId);
 
   const { navigate, path, refreshKey } = useRouter();
+  const [loadingHeroAfterAuth, setLoadingHeroAfterAuth] = React.useState(false);
   
   // Логуємо API_URL при ініціалізації App (тільки в DEV)
   React.useEffect(() => {
@@ -109,6 +112,35 @@ function AppInner() {
       console.log('[App] VITE_API_URL from env:', import.meta.env.VITE_API_URL || 'NOT SET');
     }
   }, []);
+
+  // Після входу (наприклад /admin/login) є accessToken, але hero null — на "/" підтягуємо персонажа й редірект у город
+  React.useEffect(() => {
+    const pathname = window.location.pathname.replace(/\?.*$/, "");
+    if (pathname !== "/" || hero || !isAuthenticated) return;
+    let alive = true;
+    setLoadingHeroAfterAuth(true);
+    (async () => {
+      try {
+        const { listCharacters } = await import("./utils/api");
+        const { loadHeroFromAPI } = await import("./state/heroStore/heroLoadAPI");
+        const chars = await listCharacters();
+        if (!alive) return;
+        if (chars.length > 0) {
+          setCharacterId(chars[0].id);
+          const h = await loadHeroFromAPI();
+          if (alive && h) setHero(h);
+          if (alive) navigate("/city");
+        } else {
+          navigate("/register");
+        }
+      } catch {
+        if (alive) navigate("/");
+      } finally {
+        if (alive) setLoadingHeroAfterAuth(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [isAuthenticated, hero, navigate, setCharacterId, setHero]);
 
   // Фаза завантаження
   const [isLoading, setIsLoading] = React.useState(true);
@@ -275,17 +307,23 @@ function AppInner() {
   // Extract pathname from path (remove query params for routing)
   const pathname = path.split('?')[0];
 
+  // Після входу через /admin/login є accessToken, але hero ще null — показуємо загрузку (завантаження в useEffect вище)
+  if (!hero && (pathname === "/" || pathname === "") && isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-gray-400">
+        Загрузка персонажа...
+      </div>
+    );
+  }
+
   // Перевірка hero тільки для root та register (для цих шляхів показуємо Landing якщо не залогінений)
-  // Для інших маршрутів - компоненти самі обробляють відсутність hero (показують "Загрузка...")
   if (!hero && (pathname === "/" || pathname === "")) {
     return (
       <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="landing-layout">
         <Landing
           navigate={navigate}
           onLogin={(loadedHero) => {
-            // --- ВАЖЛИВО: ФІКС  ----
             setJSON("l2_current_user", loadedHero.username);
-            // ------------------------
             setHero(loadedHero);
             navigate("/city");
           }}
