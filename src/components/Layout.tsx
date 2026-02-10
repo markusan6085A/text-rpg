@@ -5,8 +5,9 @@ import SummonStatus from "./SummonStatus";
 // 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно
 // import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
+import { useAdminStore } from "../state/adminStore";
 import { getRateLimitRemainingMs } from "../state/heroStore";
-import { getOnlinePlayers, sendHeartbeat } from "../utils/api";
+import { getOnlinePlayers, sendHeartbeat, adminLogout } from "../utils/api";
 import { useBattleStore } from "../state/battle/store";
 
 interface LayoutProps {
@@ -232,6 +233,8 @@ export default function Layout({
   const handleLogout = () => {
     if (window.confirm("Ви впевнені, що хочете вийти?")) {
       logout();
+      adminLogout().catch(() => {});
+      useAdminStore.getState().resetAdmin();
       if (navigate) {
         navigate("/");
       }

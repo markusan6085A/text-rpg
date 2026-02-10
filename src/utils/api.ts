@@ -149,6 +149,11 @@ async function apiRequest<T>(
   if (!response.ok) {
     if (response.status === 401) {
       useAuthStore.getState().setAccessToken(null);
+      try {
+        const { useAdminStore } = await import("../state/adminStore");
+        useAdminStore.getState().resetAdmin();
+      } catch (_) {}
+      adminLogout().catch(() => {});
       const error: ApiError = await response.json().catch(() => ({ error: "unauthorized" }));
       const err = new Error(error.error || "unauthorized") as any;
       err.status = 401;
