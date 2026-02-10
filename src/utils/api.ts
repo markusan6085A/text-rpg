@@ -855,9 +855,9 @@ export async function setClanEmblem(clanId: string, emblem: string): Promise<{ o
   return response;
 }
 
-// ——— Admin API (Bearer token, ключ у localStorage["admin_token"]) ———
+// ——— Admin API (cookie admin_session, без токенів у фронті) ———
 
-export async function adminLogin(login: string, password: string): Promise<{ token: string }> {
+export async function adminLogin(login: string, password: string): Promise<{ ok: boolean }> {
   const res = await fetch(`${API_URL}/admin/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -870,13 +870,12 @@ export async function adminLogin(login: string, password: string): Promise<{ tok
     err.status = res.status;
     throw err;
   }
-  return { token: data.token };
+  return { ok: true };
 }
 
-export async function adminMe(token: string): Promise<{ ok: boolean; admin: { login?: string } }> {
+export async function adminMe(): Promise<{ ok: boolean; admin: { login?: string } }> {
   const res = await fetch(`${API_URL}/admin/auth/me`, {
     method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
     credentials: "include",
   });
   const data = await res.json().catch(() => ({}));
@@ -888,10 +887,9 @@ export async function adminMe(token: string): Promise<{ ok: boolean; admin: { lo
   return data;
 }
 
-export async function adminStats(token: string): Promise<{ ok: boolean; uptimeSec?: number; nodeEnv?: string }> {
+export async function adminStats(): Promise<{ ok: boolean; uptimeSec?: number; nodeEnv?: string }> {
   const res = await fetch(`${API_URL}/admin/stats`, {
     method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
     credentials: "include",
   });
   const data = await res.json().catch(() => ({}));
@@ -901,4 +899,11 @@ export async function adminStats(token: string): Promise<{ ok: boolean; uptimeSe
     throw err;
   }
   return data;
+}
+
+export async function adminLogout(): Promise<void> {
+  await fetch(`${API_URL}/admin/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
 }

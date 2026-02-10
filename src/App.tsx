@@ -41,6 +41,8 @@ import SevenSeals from "./screens/SevenSeals";
 import Clans from "./screens/Clans";
 import Clan from "./screens/Clan";
 import ClanInfo from "./screens/ClanInfo";
+import AdminLogin from "./screens/AdminLogin";
+import AdminDashboard from "./screens/AdminDashboard";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -408,6 +410,20 @@ function AppInner() {
 
     case "/clans":
       return renderWithLayout(<Clans navigate={navigate} key={`clans-${refreshKey}`} />);
+
+    case "/admin/login":
+      return (
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="admin-login-layout">
+          <AdminLogin navigate={navigate} key={`admin-login-${refreshKey}`} />
+        </Layout>
+      );
+
+    case "/admin":
+      return (
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="admin-dashboard-layout">
+          <AdminDashboard navigate={navigate} key={`admin-dashboard-${refreshKey}`} />
+        </Layout>
+      );
 
     default:
       // Check if pathname matches /clan-info/:id pattern (інформаційна сторінка)
