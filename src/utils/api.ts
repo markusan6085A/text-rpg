@@ -1,6 +1,8 @@
 // API client for backend communication
+// У production на l2dop.com запити йдуть через /api → Vercel rewrite на api.l2dop.com
 export const API_URL =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
+  import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
+  (import.meta.env.MODE === "production" ? "/api" : "http://localhost:3000");
 
 // Логуємо API_URL при завантаженні (для відлагодження)
 if (typeof window !== 'undefined') {
@@ -851,4 +853,52 @@ export async function setClanEmblem(clanId: string, emblem: string): Promise<{ o
     body: JSON.stringify({ emblem }),
   });
   return response;
+}
+
+// ——— Admin API (Bearer token, ключ у localStorage["admin_token"]) ———
+
+export async function adminLogin(login: string, password: string): Promise<{ token: string }> {
+  const res = await fetch(`${API_URL}/admin/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ login, password }),
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Login failed") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return { token: data.token };
+}
+
+export async function adminMe(token: string): Promise<{ ok: boolean; admin: { login?: string } }> {
+  const res = await fetch(`${API_URL}/admin/auth/me`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Unauthorized") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+export async function adminStats(token: string): Promise<{ ok: boolean; uptimeSec?: number; nodeEnv?: string }> {
+  const res = await fetch(`${API_URL}/admin/stats`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return data;
 }
