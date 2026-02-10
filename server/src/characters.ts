@@ -1062,11 +1062,8 @@ export async function characterRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /characters/public/:id - публічний профіль гравця (можна переглянути без авторизації власного акаунта)
+  // GET /characters/public/:id - публічний профіль гравця (без авторизації)
   app.get("/characters/public/:id", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
     const params = req.params as { id?: string };
     const id = params.id;
 
@@ -1126,11 +1123,8 @@ export async function characterRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /characters/by-name/:name - публічний профіль гравця за ім'ям
+  // GET /characters/by-name/:name - публічний профіль гравця за ім'ям (без авторизації)
   app.get("/characters/by-name/:name", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
     const params = req.params as { name?: string };
     const name = params.name;
 

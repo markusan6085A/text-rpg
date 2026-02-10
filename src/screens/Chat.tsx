@@ -376,10 +376,13 @@ export default function Chat({ navigate }: ChatProps) {
       isOwn: messageToDelete?.isOwn,
     });
 
-    // Optimistic remove from UI
     setDeletedIds((prev) => new Set([...prev, messageId]));
-    // Remove from outbox if it's there
     setOutbox((prev) => prev.filter((m) => m.id !== messageId));
+
+    if (messageId.startsWith("temp-")) {
+      deletingRef.current.delete(messageId);
+      return;
+    }
 
     try {
       await deleteChatMessage(messageId);
@@ -412,6 +415,13 @@ export default function Chat({ navigate }: ChatProps) {
     if (deletingRef.current.has(messageId)) return;
     deletingRef.current.add(messageId);
     setDeletedIds((prev) => new Set([...prev, messageId]));
+    setOutbox((prev) => prev.filter((m) => m.id !== messageId));
+
+    if (messageId.startsWith("temp-")) {
+      deletingRef.current.delete(messageId);
+      return;
+    }
+
     try {
       await adminDeleteChatMessage(messageId);
       refresh();
