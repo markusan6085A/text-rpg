@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { postChatMessage, deleteChatMessage } from "../utils/api";
+import { postChatMessage, deleteChatMessage, adminDeleteChatMessage, adminMuteChatUser } from "../utils/api";
 import type { ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
+import { useAdminStore } from "../state/adminStore";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestProgress";
 
@@ -20,6 +21,7 @@ import { ChatInput } from "./chat/components/ChatInput";
 
 export default function Chat({ navigate }: ChatProps) {
   const hero = useHeroStore((s) => s.hero);
+  const isAdmin = useAdminStore((s) => s.isAdmin);
   const [channel, setChannel] = useState<ChatChannel>("general");
   const [messageText, setMessageText] = useState("");
   const [page, setPage] = useState(1);
@@ -406,6 +408,34 @@ export default function Chat({ navigate }: ChatProps) {
     }
   };
 
+  const handleAdminDeleteMessage = async (messageId: string) => {
+    if (deletingRef.current.has(messageId)) return;
+    deletingRef.current.add(messageId);
+    setDeletedIds((prev) => new Set([...prev, messageId]));
+    try {
+      await adminDeleteChatMessage(messageId);
+      refresh();
+      setTimeout(() => refresh(), 500);
+    } catch (err: any) {
+      setDeletedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(messageId);
+        return next;
+      });
+      alert(err?.message || "Помилка видалення");
+    } finally {
+      deletingRef.current.delete(messageId);
+    }
+  };
+
+  const handleAdminMute = async (characterId: string, durationMinutes: number) => {
+    try {
+      await adminMuteChatUser(characterId, durationMinutes);
+    } catch (err: any) {
+      alert(err?.message || "Помилка муту");
+    }
+  };
+
   if (!hero) {
     return <div className="flex items-center justify-center text-xs text-gray-400">Загрузка персонажа...</div>;
   }
@@ -431,6 +461,9 @@ export default function Chat({ navigate }: ChatProps) {
         onDelete={handleDeleteMessage}
         onReply={setMessageText}
         onNavigate={navigate}
+        isAdmin={isAdmin}
+        onAdminDelete={handleAdminDeleteMessage}
+        onMute={handleAdminMute}
       />
 
       <ChatPagination

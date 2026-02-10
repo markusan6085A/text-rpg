@@ -13,6 +13,9 @@ interface ChatMessagesListProps {
   onDelete: (messageId: string) => void;
   onReply: (text: string) => void;
   onNavigate: (path: string) => void;
+  isAdmin?: boolean;
+  onAdminDelete?: (messageId: string) => void;
+  onMute?: (characterId: string, durationMinutes: number) => void;
 }
 
 export function ChatMessagesList({
@@ -24,6 +27,9 @@ export function ChatMessagesList({
   onDelete,
   onReply,
   onNavigate,
+  isAdmin,
+  onAdminDelete,
+  onMute,
 }: ChatMessagesListProps) {
   return (
     <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0">
@@ -44,6 +50,9 @@ export function ChatMessagesList({
             onDelete={onDelete}
             onReply={onReply}
             onNavigate={onNavigate}
+            isAdmin={isAdmin}
+            onAdminDelete={onAdminDelete}
+            onMute={onMute}
           />
         ))
       )}

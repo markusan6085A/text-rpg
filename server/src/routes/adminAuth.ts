@@ -14,9 +14,10 @@ function isProd(): boolean {
 }
 
 function cookieOpts(): { path: string; httpOnly: boolean; secure: boolean; sameSite: "lax" } {
-  // Клієнт ходить через l2dop.com/api/admin/... → cookie має летіти туди
+  // Якщо фронт ходить напряму на api.l2dop.com → шлях /admin. Якщо через проксі l2dop.com/api/... → /api/admin
+  const path = process.env.ADMIN_COOKIE_PATH || "/api/admin";
   return {
-    path: "/api/admin",
+    path,
     httpOnly: true,
     secure: isProd(),
     sameSite: "lax",

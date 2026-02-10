@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
 import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
+import { getMutedUntil } from "./chatMute";
 
 function getAuth(req: any): { accountId: string; login: string } | null {
   const header = req.headers?.authorization || "";
@@ -160,6 +161,15 @@ export async function chatRoutes(app: FastifyInstance) {
 
     if (!character) {
       return reply.code(404).send({ error: "character not found" });
+    }
+
+    const muteUntil = getMutedUntil(character.id);
+    if (muteUntil != null) {
+      const secLeft = Math.ceil((muteUntil - Date.now()) / 1000);
+      return reply.code(403).send({
+        error: "muted",
+        message: `Чат замьючено ще на ${secLeft} сек.`,
+      });
     }
 
     try {

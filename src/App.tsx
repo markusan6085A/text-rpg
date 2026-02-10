@@ -49,6 +49,7 @@ import { useHeroStore } from "./state/heroStore";
 import { setJSON } from "./state/persistence";
 import { useAuthStore } from "./state/authStore";
 import { useCharacterStore } from "./state/characterStore";
+import { useAdminStore } from "./state/adminStore";
 import { loadHeroFromAPI } from "./state/heroStore/heroLoadAPI";
 import { loadHero as getHeroFromLocalStorage } from "./state/heroStore/heroLoad";
 import { hydrateHero } from "./state/heroStore/heroHydration";
@@ -131,8 +132,11 @@ function AppInner() {
 
         // 2) Ініціалізуємо character store
         initializeCharacter();
-        
-        // 2) Optional warm-up (fire-and-forget, не блокує)
+
+        // 2.1) Адмін: хто я (для кнопок Адмін у грі)
+        useAdminStore.getState().checkAdmin().catch(() => {});
+
+        // 2.2) Optional warm-up (fire-and-forget, не блокує)
         try {
           startWarmup();
         } catch (err) {

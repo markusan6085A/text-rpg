@@ -1,7 +1,9 @@
 // src/screens/City.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
+import { useAdminStore } from "../state/adminStore";
 import { setString } from "../state/persistence";
+import { AdminActionsModal } from "../components/AdminActionsModal";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -13,6 +15,8 @@ const formatNumber = (value: number) =>
 const City: React.FC<CityProps> = ({ navigate }) => {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const isAdmin = useAdminStore((s) => s.isAdmin);
+  const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   if (!hero) {
     return (
@@ -296,8 +300,21 @@ const City: React.FC<CityProps> = ({ navigate }) => {
                 <img src="/assets/ipvp.png" alt="Кланы" className="w-3 h-3 object-contain" />
                 <span>Кланы</span>
               </button>
+
+              {isAdmin && (
+                <button
+                  className="w-full text-left text-[12px] text-[#c7ad80] py-1.5 border-t border-[#c7ad80]/30 mt-2 pt-2 hover:text-[#e8d5b5] flex items-center gap-2"
+                  onClick={() => setAdminModalOpen(true)}
+                >
+                  <span>Адмін</span>
+                </button>
+              )}
             </div>
           </div>
+
+          {adminModalOpen && (
+            <AdminActionsModal onClose={() => setAdminModalOpen(false)} navigate={navigate} />
+          )}
     </>
   );
 };

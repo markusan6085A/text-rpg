@@ -14,6 +14,9 @@ interface ChatMessageItemProps {
   onDelete: (messageId: string) => void;
   onReply: (text: string) => void;
   onNavigate: (path: string) => void;
+  isAdmin?: boolean;
+  onAdminDelete?: (messageId: string) => void;
+  onMute?: (characterId: string, durationMinutes: number) => void;
 }
 
 export function ChatMessageItem({
@@ -25,6 +28,9 @@ export function ChatMessageItem({
   onDelete,
   onReply,
   onNavigate,
+  isAdmin,
+  onAdminDelete,
+  onMute,
 }: ChatMessageItemProps) {
   const heroName = hero.name || hero.username;
   const isOwnMessage = msg.isOwn === true || (heroName && msg.characterName?.toLowerCase() === heroName.toLowerCase());
@@ -64,7 +70,7 @@ export function ChatMessageItem({
               (цитировать)
             </span>
             <span className="text-gray-500">{formatTime(msg.createdAt)}</span>
-            {canDelete && (
+            {canDelete && !isAdmin && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -74,6 +80,30 @@ export function ChatMessageItem({
                 title="Видалити"
               >
                 [×]
+              </button>
+            )}
+            {isAdmin && onAdminDelete && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAdminDelete(msg.id);
+                }}
+                className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
+                title="Видалити (адмін)"
+              >
+                [Видалити]
+              </button>
+            )}
+            {isAdmin && onMute && msg.characterId && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMute(msg.characterId!, 10);
+                }}
+                className="text-amber-400 opacity-0 group-hover:opacity-100 hover:text-amber-300 transition-opacity text-[10px] cursor-pointer"
+                title="Мут 10 хв"
+              >
+                [Mute 10 хв]
               </button>
             )}
           </div>

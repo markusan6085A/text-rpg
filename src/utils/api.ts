@@ -907,3 +907,35 @@ export async function adminLogout(): Promise<void> {
     credentials: "include",
   });
 }
+
+/** Адмін: видалити будь-яке повідомлення чату */
+export async function adminDeleteChatMessage(messageId: string): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/chat/messages/${encodeURIComponent(messageId)}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return { ok: true };
+}
+
+/** Адмін: замьютити гравця в чаті на N хвилин */
+export async function adminMuteChatUser(characterId: string, durationMinutes: number): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/chat/mute`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ characterId, durationMinutes }),
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return { ok: true };
+}
