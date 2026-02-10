@@ -857,7 +857,7 @@ export async function setClanEmblem(clanId: string, emblem: string): Promise<{ o
 
 // ——— Admin API (cookie admin_session, без токенів у фронті) ———
 
-export async function adminLogin(login: string, password: string): Promise<{ ok: boolean }> {
+export async function adminLogin(login: string, password: string): Promise<{ ok: boolean; accessToken?: string }> {
   const res = await fetch(`${API_URL}/admin/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -870,7 +870,7 @@ export async function adminLogin(login: string, password: string): Promise<{ ok:
     err.status = res.status;
     throw err;
   }
-  return { ok: true };
+  return { ok: true, accessToken: data.accessToken };
 }
 
 export async function adminMe(): Promise<{ ok: boolean; admin: { login?: string } }> {

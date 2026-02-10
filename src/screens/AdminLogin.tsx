@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { adminLogin, adminMe } from "../utils/api";
+import { useAuthStore } from "../state/authStore";
 
 interface AdminLoginProps {
   navigate: (path: string) => void;
@@ -24,8 +25,13 @@ export default function AdminLogin({ navigate }: AdminLoginProps) {
     setError(null);
     setLoading(true);
     try {
-      await adminLogin(login.trim(), password);
-      navigate("/admin");
+      const data = await adminLogin(login.trim(), password);
+      if (data.accessToken) {
+        useAuthStore.getState().setAccessToken(data.accessToken);
+        navigate("/");
+      } else {
+        navigate("/admin");
+      }
     } catch (err: any) {
       if (err?.status === 401) {
         setError("Невірний логін або пароль");

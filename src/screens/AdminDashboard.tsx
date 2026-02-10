@@ -77,6 +77,40 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
             </pre>
           )}
         </section>
+
+        <section className="mb-6">
+          <h2 className="text-lg text-[#c7ad80]/90 mb-2">Швидкі посилання</h2>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              className="px-4 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+            >
+              В гру
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/city")}
+              className="px-4 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+            >
+              Город (з кнопкою Адмін)
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/chat")}
+              className="px-4 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+            >
+              Чат (модерація)
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/news")}
+              className="px-4 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+            >
+              Новини
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );
