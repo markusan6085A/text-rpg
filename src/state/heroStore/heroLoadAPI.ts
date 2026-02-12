@@ -259,6 +259,35 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       } as Hero);
     }
 
+    // 🔥 КРИТИЧНО: Перед перерахунком статів використовуємо об'єднані skills/equipment/inventory (локальні якщо більше),
+    // інакше після F5 maxHp рахується без плаща/пояса/доп. скілів і падає (напр. 16766 → 9600)
+    const localSkills = hydratedLocalHero?.skills || [];
+    const serverSkillsForMerge = Array.isArray((heroData as any)?.skills) ? (heroData as any).skills : [];
+    const skillLevelSum = (arr: any[]) => arr.reduce((s, sk) => s + (Number((sk as any).level) || 1), 0);
+    const finalSkillsForRecalc =
+      skillLevelSum(localSkills) >= skillLevelSum(serverSkillsForMerge) && localSkills.length > 0
+        ? localSkills
+        : serverSkillsForMerge.length > 0
+          ? serverSkillsForMerge
+          : fixedHero.skills || [];
+    const localEquip = hydratedLocalHero?.equipment ?? {};
+    const serverEquip = fixedHero.equipment ?? {};
+    const localEquipCount = Object.keys(localEquip).filter((k) => localEquip[k] != null).length;
+    const serverEquipCount = Object.keys(serverEquip).filter((k) => serverEquip[k] != null).length;
+    const mergedEquipment = localEquipCount > serverEquipCount ? localEquip : serverEquip;
+    const localInv = hydratedLocalHero?.inventory ?? [];
+    const serverInv = fixedHero.inventory ?? [];
+    const mergedInventory =
+      Array.isArray(localInv) && localInv.length > (Array.isArray(serverInv) ? serverInv.length : 0)
+        ? localInv
+        : serverInv;
+    const heroForRecalc: Hero = {
+      ...fixedHero,
+      skills: finalSkillsForRecalc,
+      equipment: mergedEquipment,
+      inventory: mergedInventory,
+    };
+
     // Recalculate stats (same logic as localStorage version)
     const now = Date.now();
     const savedBattle = loadBattle(fixedHero.name);
@@ -287,7 +316,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const uniqueBuffs = Array.from(bestByKey.values());
     
     const savedBuffs = cleanupBuffs(uniqueBuffs, now);
-    const recalculated = recalculateAllStats(fixedHero, []);
+    const recalculated = recalculateAllStats(heroForRecalc, []);
 
     const baseMax = {
       maxHp: recalculated.resources.maxHp,
@@ -356,15 +385,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     });
     
     // 🔥 Схема A: hero.* - єдине джерело істини
-    // Встановлюємо skills/mobsKilled з heroJson (при завантаженні з сервера)
-    // Але якщо локальна версія має більше - використовуємо локальну
-    const localSkills = hydratedLocalHero?.skills || [];
+    // Skills вже об'єднані в finalSkillsForRecalc; використовуємо їх для фінального героя
     const localMobsKilled = (hydratedLocalHero as any)?.mobsKilled ?? 0;
-    const serverSkills = Array.isArray((heroData as any)?.skills) ? (heroData as any).skills : [];
     const serverMobsKilled = mobsKilledFromData ?? 0;
-    
-    // 🔥 Використовуємо більше значення (local або server)
-    const finalSkills = localSkills.length > serverSkills.length ? localSkills : (serverSkills.length > 0 ? serverSkills : (fixedHero.skills || []));
+    const finalSkills = finalSkillsForRecalc;
     const finalMobsKilled = localMobsKilled > serverMobsKilled ? localMobsKilled : (serverMobsKilled > 0 ? serverMobsKilled : currentMobsKilled);
     
     // Щоденні завдання: зберігаємо з hero (сервер або локаль), щоб не втрачати прогрес

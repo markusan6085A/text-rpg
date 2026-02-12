@@ -3,7 +3,7 @@ import { createNewHero } from "../state/heroFactory";
 import { clearBattlePersist } from "../state/battle/persist";
 import { useHeroStore } from "../state/heroStore";
 import { getJSON, setJSON } from "../state/persistence";
-import { register, createCharacter, updateCharacter, adminLogout } from "../utils/api";
+import { register, createCharacter, updateCharacter } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
@@ -131,8 +131,7 @@ export default function Register({ navigate }: RegisterProps) {
       // 1. Реєстрація через API
       const accessToken = await register(trimmedUsername, password);
       setAccessToken(accessToken);
-      adminLogout().catch(() => {});
-      useAdminStore.getState().resetAdmin();
+      useAdminStore.getState().checkAdmin().catch(() => {});
 
       // 2. Створення персонажа через API
       const character = await createCharacter({

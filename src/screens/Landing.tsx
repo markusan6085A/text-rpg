@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { getJSON } from "../state/persistence";
-import { login, listCharacters, adminLogout } from "../utils/api";
+import { login, listCharacters } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
@@ -84,9 +84,8 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
       // 1. Логін через API
       const accessToken = await login(nick, pass);
       setAccessToken(accessToken);
-      // Звичайний вхід — не адмін: прибираємо адмін-сесію, щоб твин не бачив адмінку
-      adminLogout().catch(() => {});
-      useAdminStore.getState().resetAdmin();
+      // Перевіряємо адмін-сесію: якщо є валідний адмін-кукі — кнопка «Адмін» з’явиться в місті
+      useAdminStore.getState().checkAdmin().catch(() => {});
 
       // 2. Отримуємо список персонажів
       const characters = await listCharacters();
