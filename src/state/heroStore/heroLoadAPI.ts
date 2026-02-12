@@ -293,7 +293,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
 
+    const oldMaxHp = fixedHero.maxHp ?? 0;
+    const oldMaxMp = fixedHero.maxMp ?? 0;
+    const oldMaxCp = fixedHero.maxCp ?? 0;
+    const wasFullHp = oldMaxHp <= 0 || (fixedHero.hp ?? 0) >= oldMaxHp * 0.99;
+    const wasFullMp = oldMaxMp <= 0 || (fixedHero.mp ?? 0) >= oldMaxMp * 0.99;
+    const wasFullCp = oldMaxCp <= 0 || (fixedHero.cp ?? 0) >= oldMaxCp * 0.99;
+    const newMaxIncreasedHp = recalculated.resources.maxHp > oldMaxHp * 1.05;
+    const newMaxIncreasedMp = recalculated.resources.maxMp > oldMaxMp * 1.05;
+    const newMaxIncreasedCp = recalculated.resources.maxCp > oldMaxCp * 1.05;
+    const fillHp = newMaxIncreasedHp && (wasFullHp || oldMaxHp === 0);
+    const fillMp = newMaxIncreasedMp && (wasFullMp || oldMaxMp === 0);
+    const fillCp = newMaxIncreasedCp && (wasFullCp || oldMaxCp === 0);
+
     const finalHp =
+      fillHp ||
       fixedHero.hp === undefined ||
       fixedHero.hp <= 0 ||
       fixedHero.hp >= finalMaxHp
@@ -301,6 +315,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0));
 
     const finalMp =
+      fillMp ||
       fixedHero.mp === undefined ||
       fixedHero.mp <= 0 ||
       fixedHero.mp >= finalMaxMp
@@ -308,6 +323,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0));
 
     const finalCp =
+      fillCp ||
       fixedHero.cp === undefined ||
       fixedHero.cp <= 0 ||
       fixedHero.cp >= finalMaxCp

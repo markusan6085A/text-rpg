@@ -130,12 +130,29 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       // exp для рівня: можна захардкодити 0 для level 1, або просту формулу
       const expForLevel = level <= 1 ? 0 : BigInt(Math.min(Number.MAX_SAFE_INTEGER, (level - 1) * 1000));
       const heroJson = (char.heroJson as any) || {};
+      const lvl = Math.max(1, level);
+      const baseStats = heroJson.baseStats || heroJson.baseStatsInitial || {};
+      const CON = Number(baseStats.CON ?? 40);
+      const MEN = Number(baseStats.MEN ?? 25);
+      const conBonus = 1 + (CON - 40) * 0.01;
+      const menBonus = 1 + (MEN - 25) * 0.01;
+      const baseHp = 200 + lvl * 56;
+      const baseMp = 100 + lvl * 8;
+      const maxHp = Math.max(1, Math.round(baseHp * conBonus));
+      const maxMp = Math.max(1, Math.round(baseMp * menBonus));
+      const maxCp = Math.max(1, Math.round(maxHp * 0.6));
       const updatedHeroJson = {
         ...heroJson,
         level,
         exp: Number(expForLevel),
         heroRevision: Date.now(),
         heroJsonVersion: heroJson.heroJsonVersion || 1,
+        hp: maxHp,
+        mp: maxMp,
+        cp: maxCp,
+        maxHp,
+        maxMp,
+        maxCp,
       };
       await prisma.character.update({
         where: { id: characterId },
