@@ -43,6 +43,7 @@ import Clan from "./screens/Clan";
 import ClanInfo from "./screens/ClanInfo";
 import AdminLogin from "./screens/AdminLogin";
 import AdminDashboard from "./screens/AdminDashboard";
+import { AdminItemPickerPage } from "./screens/admin/AdminItemPickerPage";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
@@ -347,7 +348,7 @@ function AppInner() {
 
   // Блок: якщо персонаж заблокований — тільки екран "Ваш персонаж заблокирован" та кнопка Вихід
   const isBlocked = hero?.blockedUntil && new Date(hero.blockedUntil).getTime() > Date.now();
-  if (hero && isBlocked && pathname !== "/admin" && pathname !== "/admin/login") {
+  if (hero && isBlocked && pathname !== "/admin" && pathname !== "/admin/login" && pathname !== "/admin/items") {
     const logout = useAuthStore.getState().logout;
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-[#c7ad80] p-4">
@@ -494,6 +495,13 @@ function AppInner() {
       return (
         <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="admin-dashboard-layout">
           <AdminDashboard navigate={navigate} key={`admin-dashboard-${refreshKey}`} />
+        </Layout>
+      );
+
+    case "/admin/items":
+      return (
+        <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="admin-items-picker-layout">
+          <AdminItemPickerPage navigate={navigate} key={`admin-items-picker-${refreshKey}`} />
         </Layout>
       );
 

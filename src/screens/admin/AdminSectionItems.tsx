@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { adminFindPlayerByName, adminGiveItem, adminTakeItem } from "../../utils/api";
 import { itemsDB } from "../../data/items/itemsDB";
 
@@ -22,7 +22,16 @@ function getCategory(kind: string): string {
   return CATEGORY_LABELS[kind] || CATEGORY_LABELS.other || "Інше";
 }
 
-export function AdminSectionItems() {
+function getItemIcon(icon: string | undefined): string {
+  if (!icon) return "/items/drops/Weapon_squires_sword_i00_0.jpg";
+  return icon.startsWith("/") ? icon : `/items/${icon}`;
+}
+
+interface AdminSectionItemsProps {
+  navigate: (path: string) => void;
+}
+
+export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
   const [nick, setNick] = useState("");
   const [itemId, setItemId] = useState("");
   const [qty, setQty] = useState("1");
@@ -30,12 +39,22 @@ export function AdminSectionItems() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("adminSelectedItemId");
+      if (saved) {
+        setItemId(saved);
+        sessionStorage.removeItem("adminSelectedItemId");
+      }
+    } catch (_) {}
+  }, []);
+
   const itemsByCategory = useMemo(() => {
-    const map: Record<string, Array<{ id: string; name: string; grade?: string }>> = {};
+    const map: Record<string, Array<{ id: string; name: string; grade?: string; icon?: string }>> = {};
     for (const [id, def] of Object.entries(itemsDB)) {
       const cat = getCategory(def.kind || def.slot || "other");
       if (!map[cat]) map[cat] = [];
-      map[cat].push({ id, name: def.name, grade: def.grade });
+      map[cat].push({ id, name: def.name, grade: def.grade, icon: def.icon });
     }
     for (const arr of Object.values(map)) arr.sort((a, b) => (a.grade || "").localeCompare(b.grade || "") || a.name.localeCompare(b.name));
     return map;
@@ -92,20 +111,27 @@ export function AdminSectionItems() {
           placeholder="Нік гравця"
           className="w-full px-3 py-2 rounded bg-black/40 border border-[#c7ad80]/40 text-white placeholder-gray-500"
         />
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <input
             type="text"
             value={itemId}
             onChange={(e) => setItemId(e.target.value)}
             placeholder="ID предмета (наприклад shadow_helm)"
-            className="flex-1 px-3 py-2 rounded bg-black/40 border border-[#c7ad80]/40 text-white placeholder-gray-500"
+            className="flex-1 min-w-[140px] px-3 py-2 rounded bg-black/40 border border-[#c7ad80]/40 text-white placeholder-gray-500"
           />
           <button
             type="button"
-            onClick={() => setShowPicker((s) => !s)}
+            onClick={() => navigate("/admin/items")}
             className="px-3 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] text-sm whitespace-nowrap"
           >
-            {showPicker ? "Сховати" : "Всі предмети"}
+            Відкрити вибір предметів
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowPicker((s) => !s)}
+            className="px-3 py-2 rounded bg-[#c7ad80]/10 border border-[#c7ad80]/40 text-[#c7ad80] text-sm whitespace-nowrap"
+          >
+            {showPicker ? "Сховати список" : "Список тут"}
           </button>
         </div>
         {showPicker && (
@@ -118,11 +144,17 @@ export function AdminSectionItems() {
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => { setItemId(item.id); }}
-                      className="px-2 py-0.5 rounded bg-[#c7ad80]/10 border border-[#c7ad80]/30 text-gray-300 hover:bg-[#c7ad80]/20 text-xs"
+                      onClick={() => setItemId(item.id)}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#c7ad80]/10 border border-[#c7ad80]/30 text-gray-300 hover:bg-[#c7ad80]/20 text-xs"
                       title={item.name}
                     >
-                      {item.id}
+                      <img
+                        src={getItemIcon(item.icon)}
+                        alt=""
+                        className="w-4 h-4 object-contain flex-shrink-0"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }}
+                      />
+                      <span className="truncate max-w-[100px]">{item.id}</span>
                     </button>
                   ))}
                 </div>

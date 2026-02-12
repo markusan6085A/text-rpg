@@ -69,7 +69,7 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
         )}
 
         <div className="flex flex-col gap-0">
-          <AdminSectionItems />
+          <AdminSectionItems navigate={navigate} />
           <AdminSectionLevelExp />
           <AdminSectionAdena />
           <AdminSectionForceLogout />
