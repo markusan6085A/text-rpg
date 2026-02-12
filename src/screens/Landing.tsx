@@ -228,14 +228,6 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
         <button className="l2-btn mt-2" onClick={() => alert("Недоступно")}>
           Забыли пароль?
         </button>
-
-        <button
-          type="button"
-          className="mt-3 text-gray-500 hover:text-gray-400 text-xs"
-          onClick={() => navigate("/admin/login")}
-        >
-          Вхід в адмін-панель
-        </button>
       </div>
 
       {/* Модальне вікно "Про гру" */}
