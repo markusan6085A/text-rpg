@@ -26,22 +26,17 @@ export function AdminSectionForceLogout() {
     }
   };
 
+  const inputCl = "text-sm py-1 px-2 rounded bg-black/40 border border-[#c7ad80]/30 text-white placeholder-gray-500 w-28";
   return (
-    <section className="border-b border-[#c7ad80]/30 pb-4 mb-4">
-      <h2 className="text-lg font-semibold mb-2" style={style}>Force logout (викинути з гри)</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <input
-          type="text"
-          value={nick}
-          onChange={(e) => setNick(e.target.value)}
-          placeholder="Нік гравця"
-          className="w-full px-3 py-2 rounded bg-black/40 border border-[#c7ad80]/40 text-white placeholder-gray-500"
-        />
-        <button type="submit" disabled={loading} className="px-4 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50">
+    <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
+      <h2 className="text-sm font-semibold mb-2" style={style}>Force logout</h2>
+      <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
+        <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />
+        <button type="submit" disabled={loading} className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50">
           {loading ? "..." : "Викинути з гри"}
         </button>
       </form>
-      {message && <p className="mt-2 text-sm text-gray-400">{message}</p>}
+      {message && <p className="mt-1 text-xs text-gray-500">{message}</p>}
     </section>
   );
 }
