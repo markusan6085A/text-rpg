@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { postChatMessage, deleteChatMessage, adminDeleteChatMessage, adminMuteChatUser } from "../utils/api";
+import { postChatMessage, deleteChatMessage, adminDeleteChatMessage, adminMuteChatUser, getChatRestriction } from "../utils/api";
 import type { ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useAdminStore } from "../state/adminStore";
@@ -18,6 +18,24 @@ import { ChatTabs } from "./chat/components/ChatTabs";
 import { ChatMessagesList } from "./chat/components/ChatMessagesList";
 import { ChatPagination } from "./chat/components/ChatPagination";
 import { ChatInput } from "./chat/components/ChatInput";
+import { ChatRestrictionModal } from "./chat/components/ChatRestrictionModal";
+
+type Restriction = { mutedUntil: number | null; bannedUntil: string | null };
+
+function formatTimeLeft(untilMs: number): string {
+  const sec = Math.max(0, Math.ceil((untilMs - Date.now()) / 1000));
+  if (sec >= 3600) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    return `${h} год ${m} хв`;
+  }
+  if (sec >= 60) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m} хв ${s} сек`;
+  }
+  return `${sec} сек`;
+}
 
 export default function Chat({ navigate }: ChatProps) {
   const hero = useHeroStore((s) => s.hero);
@@ -25,6 +43,8 @@ export default function Chat({ navigate }: ChatProps) {
   const [channel, setChannel] = useState<ChatChannel>("general");
   const [messageText, setMessageText] = useState("");
   const [page, setPage] = useState(1);
+  const [restriction, setRestriction] = useState<Restriction>({ mutedUntil: null, bannedUntil: null });
+  const [showRestrictionModal, setShowRestrictionModal] = useState(false);
 
   // Hooks
   const [deletedIds, setDeletedIds] = useDeletedMessages(channel);
@@ -42,6 +62,43 @@ export default function Chat({ navigate }: ChatProps) {
   const deletingRef = useRef<Set<string>>(new Set());
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const lastTradeMessageTimeRef = useRef<number>(0); // Rate limiting for general and trade channels
+
+  const now = Date.now();
+  const mutedUntilMs = restriction.mutedUntil != null && restriction.mutedUntil > now ? restriction.mutedUntil : null;
+  const bannedUntilMs = restriction.bannedUntil && new Date(restriction.bannedUntil).getTime() > now ? new Date(restriction.bannedUntil).getTime() : null;
+  const isRestricted = mutedUntilMs != null || bannedUntilMs != null;
+
+  // Перевірка мут/бан при завантаженні чату та з hero
+  useEffect(() => {
+    if (!hero) return;
+    const bannedUntil = (hero as any).bannedUntil;
+    if (bannedUntil && new Date(bannedUntil).getTime() > Date.now()) {
+      setRestriction((r) => ({ ...r, bannedUntil }));
+    }
+    getChatRestriction()
+      .then((res) => {
+        if (res.isMuted && res.mutedUntil != null) {
+          setRestriction((r) => ({ ...r, mutedUntil: res.mutedUntil }));
+          setShowRestrictionModal(true);
+        } else if (res.isBanned && res.bannedUntil) {
+          setRestriction((r) => ({ ...r, bannedUntil: res.bannedUntil }));
+          setShowRestrictionModal(true);
+        }
+      })
+      .catch(() => {});
+  }, [hero?.id]);
+
+  // Скидання обмеження коли час минув
+  useEffect(() => {
+    if (!isRestricted) return;
+    const endMs = mutedUntilMs ?? bannedUntilMs ?? 0;
+    const delay = Math.max(1000, endMs - Date.now());
+    const t = setTimeout(() => {
+      setRestriction({ mutedUntil: null, bannedUntil: null });
+      setShowRestrictionModal(false);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [mutedUntilMs, bannedUntilMs, isRestricted]);
 
   // Reset page when channel changes
   useEffect(() => {
@@ -291,6 +348,11 @@ export default function Chat({ navigate }: ChatProps) {
   const sendMessage = async () => {
     if (!messageText.trim() || !hero) return;
 
+    if (isRestricted) {
+      setShowRestrictionModal(true);
+      return;
+    }
+
     // Rate limiting for general and trade channels: 5 seconds between messages
     if (channel === "general" || channel === "trade") {
       const now = Date.now();
@@ -344,8 +406,19 @@ export default function Chat({ navigate }: ChatProps) {
     } catch (err: any) {
       console.error("Error sending message:", err);
 
+      const body = err?.body;
+      if (body?.error === "muted" && (body.secondsLeft != null || body.mutedUntil)) {
+        const until = body.mutedUntil ? new Date(body.mutedUntil).getTime() : Date.now() + (body.secondsLeft || 0) * 1000;
+        setRestriction((r) => ({ ...r, mutedUntil: until }));
+        setShowRestrictionModal(true);
+      } else if (body?.error === "banned" && body.bannedUntil) {
+        setRestriction((r) => ({ ...r, bannedUntil: body.bannedUntil }));
+        setShowRestrictionModal(true);
+      } else if (body?.error !== "muted" && body?.error !== "banned") {
+        alert(err?.message || "Помилка відправки");
+      }
+
       // Keep in outbox, but leave as pending so it stays visible;
-      // user can just hit "Обновить" and resend if you add UI later.
       setOutbox((prev) =>
         prev.map((m) => (m.id === tempId ? ({ ...m, status: "pending" } as const) : m))
       );
@@ -460,6 +533,8 @@ export default function Chat({ navigate }: ChatProps) {
         onMessageChange={setMessageText}
         onSend={sendMessage}
         onRefresh={refresh}
+        disabled={isRestricted}
+        onDisabledClick={() => setShowRestrictionModal(true)}
       />
 
       <ChatMessagesList
@@ -493,6 +568,15 @@ export default function Chat({ navigate }: ChatProps) {
             Убедитесь, что backend сервер запущен и міграція бази даних виконана
           </div>
         </div>
+      )}
+
+      {showRestrictionModal && (mutedUntilMs != null || bannedUntilMs != null) && (
+        <ChatRestrictionModal
+          type={mutedUntilMs != null ? "mute" : "ban"}
+          message={mutedUntilMs != null ? "Вам застосовано мут у чаті. Написати повідомлення буде можливо після закінчення часу." : "Вам застосовано бан чату. Написати повідомлення буде можливо після закінчення бана."}
+          timeLeftText={formatTimeLeft(mutedUntilMs ?? bannedUntilMs ?? 0)}
+          onClose={() => setShowRestrictionModal(false)}
+        />
       )}
     </div>
   );

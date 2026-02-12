@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { adminFindPlayerByName, adminBan, adminUnban } from "../../utils/api";
+import { AdminNotifyModal } from "../../components/AdminNotifyModal";
 
 const style = { color: "#c7ad80" };
 const DURATIONS = [
@@ -9,11 +10,20 @@ const DURATIONS = [
   { label: "7 днів", min: 60 * 24 * 7 },
 ];
 
+function formatDuration(min: number): string {
+  if (min < 60) return `${min} хв`;
+  if (min < 60 * 24) return `${Math.floor(min / 60)} год`;
+  return `${Math.floor(min / (60 * 24))} дн`;
+}
+
 export function AdminSectionBanUnban() {
   const [nick, setNick] = useState("");
   const [durationMin, setDurationMin] = useState(60);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [successModal, setSuccessModal] = useState<"ban" | "unban" | null>(null);
+  const [successPlayerName, setSuccessPlayerName] = useState("");
+  const [successDurationMin, setSuccessDurationMin] = useState(0);
 
   const handleBan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +36,9 @@ export function AdminSectionBanUnban() {
     try {
       const { character } = await adminFindPlayerByName(nick.trim());
       await adminBan(character.id, durationMin);
-      setMessage("Гравця забанено");
+      setSuccessPlayerName(character.name);
+      setSuccessDurationMin(durationMin);
+      setSuccessModal("ban");
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -45,7 +57,8 @@ export function AdminSectionBanUnban() {
     try {
       const { character } = await adminFindPlayerByName(nick.trim());
       await adminUnban(character.id);
-      setMessage("Гравця розбанено");
+      setSuccessPlayerName(character.name);
+      setSuccessModal("unban");
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -69,6 +82,20 @@ export function AdminSectionBanUnban() {
         <button type="button" onClick={handleUnban} disabled={loading} className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50">Розбанити</button>
       </form>
       {message && <p className="mt-1 text-xs text-gray-500">{message}</p>}
+      {successModal === "ban" && (
+        <AdminNotifyModal
+          title="Бан застосовано"
+          message={`Гравець ${successPlayerName} отримав бан на ${formatDuration(successDurationMin)}.`}
+          onClose={() => setSuccessModal(null)}
+        />
+      )}
+      {successModal === "unban" && (
+        <AdminNotifyModal
+          title="Розбан"
+          message={`Гравця ${successPlayerName} розбанено.`}
+          onClose={() => setSuccessModal(null)}
+        />
+      )}
     </section>
   );
 }

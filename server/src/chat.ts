@@ -127,6 +127,39 @@ export async function chatRoutes(app: FastifyInstance) {
     }
   });
 
+  // GET /chat/restriction — чи поточний персонаж замьючен/забанен (для показу модалки в чаті)
+  app.get("/chat/restriction", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    let bannedUntil: string | null = null;
+    try {
+      const rows = await prisma.$queryRaw<Array<{ bannedUntil: Date | null }>>`
+        SELECT "bannedUntil" FROM "Character" WHERE id = ${character.id} AND "accountId" = ${auth.accountId}
+      `;
+      if (rows[0]?.bannedUntil) bannedUntil = rows[0].bannedUntil.toISOString();
+    } catch {
+      // колонка може ще не існувати
+    }
+
+    const muteUntil = getMutedUntil(character.id);
+    const now = Date.now();
+    return {
+      ok: true,
+      mutedUntil: muteUntil != null ? muteUntil : null,
+      bannedUntil,
+      isMuted: muteUntil != null && muteUntil > now,
+      isBanned: bannedUntil != null && new Date(bannedUntil).getTime() > now,
+    };
+  });
+
   // POST /chat/messages { channel, message }
   app.post("/chat/messages", {
     preHandler: async (req, reply) => {
@@ -166,9 +199,13 @@ export async function chatRoutes(app: FastifyInstance) {
 
     const isBanned = character.bannedUntil && new Date(character.bannedUntil).getTime() > Date.now();
     if (isBanned && (channel === "general" || channel === "trade" || channel === "clan")) {
+      const banEnd = new Date(character.bannedUntil!).getTime();
+      const secondsLeft = Math.ceil((banEnd - Date.now()) / 1000);
       return reply.code(403).send({
         error: "banned",
         message: "Чат заблоковано до кінця бана.",
+        secondsLeft,
+        bannedUntil: character.bannedUntil,
       });
     }
 
@@ -178,6 +215,8 @@ export async function chatRoutes(app: FastifyInstance) {
       return reply.code(403).send({
         error: "muted",
         message: `Чат замьючено ще на ${secLeft} сек.`,
+        secondsLeft: secLeft,
+        mutedUntil: new Date(muteUntil).toISOString(),
       });
     }
 

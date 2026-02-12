@@ -380,8 +380,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // 🔥 Схема A: hero.skills, hero.mobsKilled - офіційні поля
       skills: finalSkills,
       mobsKilled: finalMobsKilled as any,
-      // Адмін: блок — показуємо екран "персонаж заблокирован"
+      // Адмін: блок/бан — показуємо екран або блокуємо чат
       ...((character as any).blockedUntil ? { blockedUntil: (character as any).blockedUntil } : {}),
+      ...((character as any).bannedUntil ? { bannedUntil: (character as any).bannedUntil } : {}),
       // Щоденні завдання — щоб працювали після завантаження з API
       ...(dailyQuestsProgress !== undefined ? { dailyQuestsProgress } : {}),
       ...(dailyQuestsCompleted !== undefined ? { dailyQuestsCompleted } : {}),

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { adminFindPlayerByName, adminMuteChatUser } from "../../utils/api";
+import { AdminNotifyModal } from "../../components/AdminNotifyModal";
 
 const style = { color: "#c7ad80" };
 const DURATIONS = [
@@ -8,11 +9,18 @@ const DURATIONS = [
   { label: "24 год", min: 60 * 24 },
 ];
 
+function formatDuration(min: number): string {
+  if (min < 60) return `${min} хв`;
+  if (min < 60 * 24) return `${Math.floor(min / 60)} год`;
+  return `${Math.floor(min / (60 * 24))} дн`;
+}
+
 export function AdminSectionMute() {
   const [nick, setNick] = useState("");
   const [durationMin, setDurationMin] = useState(10);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [successModal, setSuccessModal] = useState<{ playerName: string; durationMin: number } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +33,7 @@ export function AdminSectionMute() {
     try {
       const { character } = await adminFindPlayerByName(nick.trim());
       await adminMuteChatUser(character.id, durationMin);
-      setMessage(`Мут на ${durationMin} хв застосовано`);
+      setSuccessModal({ playerName: character.name, durationMin });
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -50,6 +58,13 @@ export function AdminSectionMute() {
         </button>
       </form>
       {message && <p className="mt-1 text-xs text-gray-500">{message}</p>}
+      {successModal && (
+        <AdminNotifyModal
+          title="Мут застосовано"
+          message={`Гравець ${successModal.playerName} отримав мут на ${formatDuration(successModal.durationMin)}.`}
+          onClose={() => setSuccessModal(null)}
+        />
+      )}
     </section>
   );
 }

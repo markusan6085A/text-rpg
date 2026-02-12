@@ -6,6 +6,8 @@ interface ChatInputProps {
   onMessageChange: (text: string) => void;
   onSend: () => void;
   onRefresh: () => void;
+  disabled?: boolean;
+  onDisabledClick?: () => void;
 }
 
 export function ChatInput({
@@ -14,8 +16,18 @@ export function ChatInput({
   onMessageChange,
   onSend,
   onRefresh,
+  disabled = false,
+  onDisabledClick,
 }: ChatInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSend = () => {
+    if (disabled && onDisabledClick) {
+      onDisabledClick();
+      return;
+    }
+    onSend();
+  };
 
   return (
     <div className="flex flex-col border-b border-white/50 pb-2">
@@ -23,22 +35,24 @@ export function ChatInput({
         ref={inputRef}
         type="text"
         value={messageText}
-        onChange={(e) => onMessageChange(e.target.value)}
+        onChange={(e) => !disabled && onMessageChange(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            onSend();
+            handleSend();
           }
         }}
-        placeholder="Введите сообщение..."
-        className="w-full text-sm text-black placeholder-gray-400 bg-white border border-white/60 rounded px-2 py-1.5 mb-2"
+        onFocus={() => disabled && onDisabledClick?.()}
+        placeholder={disabled ? "Чат недоступний (мут/бан) — натисніть для деталей" : "Введите сообщение..."}
+        className="w-full text-sm text-black placeholder-gray-400 bg-white border border-white/60 rounded px-2 py-1.5 mb-2 disabled:opacity-70 disabled:cursor-not-allowed"
         maxLength={500}
+        disabled={disabled}
       />
       <div className="flex items-center gap-0 text-xs">
         <button
           type="button"
-          onClick={onSend}
-          disabled={!messageText.trim() || loading}
+          onClick={handleSend}
+          disabled={disabled ? false : (!messageText.trim() || loading)}
           className="bg-transparent border-none p-0 cursor-pointer text-[#c7ad80] hover:text-[#d4c49a] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           Написать
@@ -47,7 +61,7 @@ export function ChatInput({
         <button
           type="button"
           onClick={onRefresh}
-          disabled={loading}
+          disabled={loading || disabled}
           className="bg-transparent border-none p-0 cursor-pointer text-[#c7ad80] hover:text-[#d4c49a] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
         >
           {loading ? "..." : "Обновить"}

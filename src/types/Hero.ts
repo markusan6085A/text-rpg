@@ -128,6 +128,7 @@ export interface Hero {
 
   // Адмін: бан/блок (з сервера)
   blockedUntil?: string | null; // ISO date — якщо в майбутньому, гравець бачить екран "персонаж заблокирован"
+  bannedUntil?: string | null; // ISO date — бан чату (не можна писати в чаті до кінця)
 
   // JSON дані для збереження на сервері
   heroJson?: any; // JSON об'єкт з додатковими даними героя

@@ -162,12 +162,14 @@ async function apiRequest<T>(
       err.unauthorized = true;
       throw err;
     }
-    const error: ApiError = await response.json().catch(() => ({
+    const errorBody = await response.json().catch(() => ({
       error: `HTTP ${response.status}: ${response.statusText}`,
     }));
+    const error: ApiError = errorBody as ApiError;
     const errorWithStatus = new Error(error.error || `HTTP ${response.status}`) as any;
     errorWithStatus.status = response.status;
-    errorWithStatus.details = (error as any).details || (error as any).errors;
+    errorWithStatus.details = (errorBody as any).details || (errorBody as any).errors;
+    errorWithStatus.body = errorBody;
     if (response.status === 429) {
       const retryAfter = Number((error as any).retryAfter);
       const sec = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 60;
@@ -278,6 +280,19 @@ export interface PostChatMessageRequest {
 export interface PostChatMessageResponse {
   ok: boolean;
   message: ChatMessage;
+}
+
+export interface ChatRestrictionResponse {
+  ok: boolean;
+  mutedUntil: number | null;
+  bannedUntil: string | null;
+  isMuted: boolean;
+  isBanned: boolean;
+}
+
+export async function getChatRestriction(): Promise<ChatRestrictionResponse> {
+  const response = await apiRequest<ChatRestrictionResponse>('/chat/restriction', { method: 'GET' });
+  return response;
 }
 
 export async function getChatMessages(channel: string = 'general', page: number = 1, limit: number = 10): Promise<ChatMessagesResponse> {
