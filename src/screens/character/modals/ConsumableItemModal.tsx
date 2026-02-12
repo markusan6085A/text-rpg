@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../../state/heroStore";
+import { loadBattle } from "../../../state/battle/persist";
+import { cleanupBuffs, computeBuffedMaxResources } from "../../../state/battle/helpers";
 
 interface ConsumableItemModalProps {
   item: HeroInventoryItem;
@@ -40,24 +42,34 @@ export default function ConsumableItemModal({
 
   const handleUsePotion = () => {
     if (!itemDef || !hero) return;
-    
+
     const currentHero = useHeroStore.getState().hero;
     if (!currentHero) return;
-    
+
     const inventory = currentHero.inventory || [];
     const invItem = inventory.find((i: HeroInventoryItem) => i.id === item.id);
     if (!invItem || (invItem.count ?? 0) <= 0) return;
-    
-    // Обчислюємо нові значення HP, MP, CP
-    const maxHp = hero.maxHp || 1000;
+
+    // 🔥 КРИТИЧНО: використовуємо max З БАФАМИ (статуя/місто), інакше банка обрізає hp до базового max і hp "падає"
+    const now = Date.now();
+    const saved = loadBattle(hero.name);
+    const buffs = cleanupBuffs(saved?.heroBuffs || [], now);
+    const baseMax = {
+      maxHp: hero.maxHp || 1000,
+      maxMp: hero.maxMp || 500,
+      maxCp: hero.maxCp ?? Math.round((hero.maxHp || 1000) * 0.6),
+    };
+    const { maxHp: buffedMaxHp, maxMp: buffedMaxMp, maxCp: buffedMaxCp } = computeBuffedMaxResources(baseMax, buffs);
+
+    const maxHp = buffedMaxHp;
     const currentHp = Math.min(maxHp, hero.hp ?? maxHp);
     const newHp = itemDef.restoreHp ? Math.min(maxHp, currentHp + itemDef.restoreHp) : hero.hp;
-    
-    const maxMp = hero.maxMp || 500;
+
+    const maxMp = buffedMaxMp;
     const currentMp = Math.min(maxMp, hero.mp ?? maxMp);
     const newMp = itemDef.restoreMp ? Math.min(maxMp, currentMp + itemDef.restoreMp) : hero.mp;
-    
-    const maxCp = hero.maxCp || 500;
+
+    const maxCp = buffedMaxCp;
     const currentCp = Math.min(maxCp, hero.cp ?? maxCp);
     const newCp = itemDef.restoreCp ? Math.min(maxCp, currentCp + itemDef.restoreCp) : hero.cp;
     

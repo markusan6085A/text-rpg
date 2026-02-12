@@ -3,6 +3,8 @@ import React from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useAdminStore } from "../state/adminStore";
 import { setString } from "../state/persistence";
+import { loadBattle } from "../state/battle/persist";
+import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -26,9 +28,19 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   const level = hero.level ?? 1;
 
-  const maxHp = hero.maxHp || 1;
-  const maxMp = hero.maxMp || 1;
-  const maxCp = hero.maxCp ?? Math.round(maxHp * 0.6);
+  // Бафи міста/статуї: показуємо max з бафами, щоб lowHp і відображення були коректні
+  const now = Date.now();
+  const savedBattle = loadBattle(hero.name);
+  const cityBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
+  const baseMax = {
+    maxHp: hero.maxHp || 1,
+    maxMp: hero.maxMp || 1,
+    maxCp: hero.maxCp ?? Math.round((hero.maxHp || 1) * 0.6),
+  };
+  const buffed = computeBuffedMaxResources(baseMax, cityBuffs);
+  const maxHp = buffed.maxHp;
+  const maxMp = buffed.maxMp;
+  const maxCp = buffed.maxCp;
 
   const hp = hero.hp ?? maxHp;
   const mp = hero.mp ?? maxMp;
@@ -39,7 +51,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const expPercent =
     expToNext > 0 ? Math.min(100, Math.floor((expCurrent / expToNext) * 100)) : 0;
 
-  const lowHp = hp / maxHp < 0.3;
+  const lowHp = maxHp > 0 && hp / maxHp < 0.3;
 
   // 🔥 ВИДАЛЕНО: Регенерація HP/MP/CP - вона вже є в StatusBars (глобальний компонент)
   // Це запобігає дублюванню регенерації та зайвим збереженням

@@ -123,7 +123,6 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
       
       // ❗ Оновлюємо hero з БАЗОВИМИ ресурсами БЕЗ бафів (бафи застосовуються в computeBuffedMaxResources)
       // 🔥 КРИТИЧНО: Також зберігаємо бафи в heroJson для персистентності
-    if (currentHero) {
       const existingHeroJson = (currentHero as any).heroJson || {};
       heroStore.updateHero({
         maxHp: recalculated.resources.maxHp, // Базове значення БЕЗ бафів
@@ -132,13 +131,11 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
         hp: newHp, // Але hp оновлюємо з урахуванням бафів
         mp: newMp,
         cp: newCp,
-        // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson через updateHero
         heroJson: {
           ...existingHeroJson,
           heroBuffs: updatedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
         } as any,
       });
-    }
     }
 
     // Оновлюємо компонент для відображення
@@ -182,7 +179,16 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     const currentHero = heroStore.hero;
     if (currentHero) {
       const existingHeroJson = (currentHero as any).heroJson || {};
+      // Після зняття бафів max знижується — обрізаємо hp/mp/cp до базового max
+      const baseMax = {
+        maxHp: currentHero.maxHp,
+        maxMp: currentHero.maxMp,
+        maxCp: currentHero.maxCp,
+      };
       heroStore.updateHero({
+        hp: Math.min(currentHero.hp, baseMax.maxHp),
+        mp: Math.min(currentHero.mp, baseMax.maxMp),
+        cp: Math.min(currentHero.cp, baseMax.maxCp),
         heroJson: {
           ...existingHeroJson,
           heroBuffs: filteredBuffs,
