@@ -4,9 +4,10 @@ import { useAuthStore } from "../state/authStore";
 
 interface AdminLoginProps {
   navigate: (path: string) => void;
+  navigateNoReload?: (path: string) => void;
 }
 
-export default function AdminLogin({ navigate }: AdminLoginProps) {
+export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginProps) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +29,8 @@ export default function AdminLogin({ navigate }: AdminLoginProps) {
       const data = await adminLogin(login.trim(), password);
       if (data.accessToken) {
         useAuthStore.getState().setAccessToken(data.accessToken);
-        navigate("/");
+        // Без перезавантаження, щоб токен не губився і не кидало на головну
+        (navigateNoReload ?? navigate)("/");
       } else {
         navigate("/admin");
       }

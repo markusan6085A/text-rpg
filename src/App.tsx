@@ -79,6 +79,16 @@ function useRouter() {
     window.location.href = fullPath.startsWith("/") ? fullPath : "/" + fullPath;
   }, []);
 
+  /** Перехід без перезавантаження сторінки (токен у пам'яті зберігається). Потрібно після адмін-логіну. */
+  const navigateNoReload = React.useCallback((newPath: string) => {
+    const pathname = new URL(newPath, window.location.origin).pathname;
+    const search = new URL(newPath, window.location.origin).search;
+    const fullPath = (pathname.startsWith("/") ? pathname : "/" + pathname) + search;
+    window.history.pushState(null, "", fullPath);
+    setPath(fullPath);
+    setRefreshKey((k) => k + 1);
+  }, []);
+
   React.useEffect(() => {
     const handler = () => {
       const pathname = window.location.pathname;
@@ -91,7 +101,7 @@ function useRouter() {
     return () => window.removeEventListener("popstate", handler);
   }, []);
 
-  return { navigate, path, refreshKey };
+  return { navigate, navigateNoReload, path, refreshKey };
 }
 
 function AppInner() {
@@ -101,7 +111,7 @@ function AppInner() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const setCharacterId = useCharacterStore((s) => s.setCharacterId);
 
-  const { navigate, path, refreshKey } = useRouter();
+  const { navigate, navigateNoReload, path, refreshKey } = useRouter();
   const [loadingHeroAfterAuth, setLoadingHeroAfterAuth] = React.useState(false);
   
   // Логуємо API_URL при ініціалізації App (тільки в DEV)
@@ -114,6 +124,7 @@ function AppInner() {
   }, []);
 
   // Після входу (наприклад /admin/login) є accessToken, але hero null — на "/" підтягуємо персонажа й редірект у город
+  // Використовуємо navigateNoReload, щоб не губити токен при переході (особливо після адмін-логіну)
   React.useEffect(() => {
     const pathname = window.location.pathname.replace(/\?.*$/, "");
     if (pathname !== "/" || hero || !isAuthenticated) return;
@@ -129,9 +140,9 @@ function AppInner() {
           setCharacterId(chars[0].id);
           const h = await loadHeroFromAPI();
           if (alive && h) setHero(h);
-          if (alive) navigate("/city");
+          if (alive) navigateNoReload("/city");
         } else {
-          navigate("/register");
+          navigateNoReload("/register");
         }
       } catch {
         if (alive) navigate("/");
@@ -140,7 +151,7 @@ function AppInner() {
       }
     })();
     return () => { alive = false; };
-  }, [isAuthenticated, hero, navigate, setCharacterId, setHero]);
+  }, [isAuthenticated, hero, navigate, navigateNoReload, setCharacterId, setHero]);
 
   // Фаза завантаження
   const [isLoading, setIsLoading] = React.useState(true);
@@ -456,7 +467,7 @@ function AppInner() {
     case "/admin/login":
       return (
         <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="admin-login-layout">
-          <AdminLogin navigate={navigate} key={`admin-login-${refreshKey}`} />
+          <AdminLogin navigate={navigate} navigateNoReload={navigateNoReload} key={`admin-login-${refreshKey}`} />
         </Layout>
       );
 
