@@ -14,6 +14,7 @@ import { itemsDBC } from './itemsDB_c';
 import { itemsDBB } from './itemsDB_b';
 import { itemsDBA } from './itemsDB_a';
 import { itemsDBS } from './itemsDB_s';
+import { itemsDBQuestShop } from './itemsDB_quest_shop';
 import { starterKitItems } from '../starterKitItems';
 
 // Експортуємо тип для зручності використання
@@ -32,6 +33,7 @@ export const itemsDB: Record<string, ItemDefinition> = {
   ...itemsDBB,
   ...itemsDBA,
   ...itemsDBS,
+  ...itemsDBQuestShop,
 };
 
 // Об'єднуємо itemsDB з starterKitItems для стартового набору
