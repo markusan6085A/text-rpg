@@ -1,7 +1,7 @@
 import React from "react";
 import type { HeroInventoryItem } from "../../../types/Hero";
 import { QUESTS } from "../../../data/quests";
-import { itemsDB } from "../../../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
 
 interface QuestItemModalProps {
   item: HeroInventoryItem;
@@ -14,6 +14,10 @@ export default function QuestItemModal({
   hero,
   onClose,
 }: QuestItemModalProps) {
+  const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
+  const displayName = itemDef?.name || item.name || item.id;
+  const displayDesc = itemDef?.description || item.description;
+  const displayIcon = itemDef?.icon ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`) : item.icon;
   // Знаходимо квест, який використовує цей предмет
   const quest = QUESTS.find((q) =>
     q.questDrops?.some((drop) => drop.itemId === item.id)
@@ -60,10 +64,10 @@ export default function QuestItemModal({
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {item.icon && (
+            {(displayIcon || item.icon) && (
               <img
-                src={item.icon}
-                alt={item.name}
+                src={displayIcon || item.icon}
+                alt={displayName}
                 className="w-8 h-8 object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
@@ -71,7 +75,7 @@ export default function QuestItemModal({
               />
             )}
             <h2 className="text-lg font-semibold text-[#b8860b]">
-              {item.name}
+              {displayName}
             </h2>
           </div>
           <button
@@ -83,10 +87,10 @@ export default function QuestItemModal({
         </div>
 
         <div className="space-y-3 text-xs mb-4">
-          {item.description && (
+          {(displayDesc || item.description) && (
             <div>
               <div className="text-sm font-semibold text-[#b8860b] mb-2">Опис:</div>
-              <div className="text-gray-300">{item.description}</div>
+              <div className="text-gray-300">{displayDesc || item.description}</div>
             </div>
           )}
 
@@ -134,7 +138,7 @@ export default function QuestItemModal({
 
           {!quest && (
             <div className="text-gray-400 text-[11px]">
-              Цей предмет не пов'язаний з жодним квестом.
+              {itemDef ? "Предмет з квест-шопу або матеріал." : "Цей предмет не пов'язаний з жодним квестом."}
             </div>
           )}
 

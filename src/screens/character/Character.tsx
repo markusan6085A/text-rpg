@@ -41,9 +41,8 @@ export default function Character() {
       if (!characterId || !hero) return;
       try {
         const data = await getSevenSealsRank(characterId);
-        if (data.rank && data.rank >= 1 && data.rank <= 3) {
+        if (data.rank != null && data.rank >= 1 && data.rank <= 3) {
           setSevenSealsRank(data.rank);
-          // Якщо ще не отримано нагороду — запитуємо claim (сервер згенерує рандомні стати)
           const heroJson = (hero as any)?.heroJson || {};
           if (!heroJson.sevenSealsBonus) {
             try {
@@ -56,6 +55,8 @@ export default function Character() {
               // ignore claim errors
             }
           }
+        } else {
+          setSevenSealsRank(null);
         }
       } catch {
         // ignore

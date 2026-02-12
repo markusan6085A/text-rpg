@@ -60,6 +60,7 @@ export default function InventoryItemModal({
   const isQuestItem = QUESTS.some((q) =>
     q.questDrops?.some((drop) => drop.itemId === item.id)
   );
+  const isQuestSlot = normalizedSlot === "quest";
 
   // Модалка для заточок
   if (isEnchantScroll) {
@@ -144,8 +145,8 @@ export default function InventoryItemModal({
     );
   }
 
-  // Модалка для квестових предметів
-  if (isQuestItem) {
+  // Модалка для квестових предметів або предметів з квест-шопу (slot=quest — показуємо характеристики з itemsDB)
+  if (isQuestItem || isQuestSlot) {
     return (
       <QuestItemModal
         item={item}

@@ -71,12 +71,24 @@ export async function characterRoutes(app: FastifyInstance) {
       }
     }
 
-    // Convert BigInt/Date for JSON serialization; bannedUntil/blockedUntil не в select — завжди null до міграції + нового деплою
+    let banMap: Record<string, { bannedUntil: string | null; blockedUntil: string | null }> = {};
+    try {
+      const rows = await prisma.$queryRaw<Array<{ id: string; bannedUntil: Date | null; blockedUntil: Date | null }>>`
+        SELECT id, "bannedUntil", "blockedUntil" FROM "Character" WHERE "accountId" = ${auth.accountId}
+      `;
+      for (const r of rows) {
+        banMap[r.id] = {
+          bannedUntil: r.bannedUntil ? r.bannedUntil.toISOString() : null,
+          blockedUntil: r.blockedUntil ? r.blockedUntil.toISOString() : null,
+        };
+      }
+    } catch (_) {}
+
     const serializedChars = chars.map(char => ({
       ...char,
       exp: Number(char.exp),
-      bannedUntil: null as string | null,
-      blockedUntil: null as string | null,
+      bannedUntil: banMap[char.id]?.bannedUntil ?? null,
+      blockedUntil: banMap[char.id]?.blockedUntil ?? null,
     }));
 
     return { ok: true, characters: serializedChars };
@@ -425,6 +437,20 @@ export async function characterRoutes(app: FastifyInstance) {
 
     if (!char) return reply.code(404).send({ error: "character not found" });
 
+    let bannedUntil: string | null = null;
+    let blockedUntil: string | null = null;
+    try {
+      const rows = await prisma.$queryRaw<Array<{ bannedUntil: Date | null; blockedUntil: Date | null }>>`
+        SELECT "bannedUntil", "blockedUntil" FROM "Character" WHERE id = ${id} AND "accountId" = ${auth.accountId}
+      `;
+      if (rows[0]) {
+        bannedUntil = rows[0].bannedUntil ? rows[0].bannedUntil.toISOString() : null;
+        blockedUntil = rows[0].blockedUntil ? rows[0].blockedUntil.toISOString() : null;
+      }
+    } catch (_) {
+      // Колонки можуть відсутні до міграції
+    }
+
     // 🔥 Оновлюємо lastActivityAt при завантаженні героя — гравець одразу в онлайні
     prisma.character.update({
       where: { id: char.id },
@@ -434,8 +460,8 @@ export async function characterRoutes(app: FastifyInstance) {
     const serialized = {
       ...char,
       exp: Number(char.exp),
-      bannedUntil: null as string | null,
-      blockedUntil: null as string | null,
+      bannedUntil,
+      blockedUntil,
     };
 
     return { ok: true, character: serialized };

@@ -200,11 +200,14 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       const points = row?.points ?? 0;
       const seal = row?.seal ?? null;
 
-      // rank = 1 + кількість персонажів з points строго більше
-      const aboveCount = await prisma.sevenSealsScore.count({
-        where: { points: { gt: points } },
-      });
-      const rank = aboveCount + 1;
+      // Ранг тільки якщо персонаж брав участь (є запис). Інакше null — не показувати «Победитель»
+      let rank: number | null = null;
+      if (row) {
+        const aboveCount = await prisma.sevenSealsScore.count({
+          where: { points: { gt: points } },
+        });
+        rank = aboveCount + 1;
+      }
 
       return {
         ok: true,
@@ -212,7 +215,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         points,
         seal,
         rank,
-        medalCount: points, // backward compat для фронту
+        medalCount: points,
         updatedAt: row?.updatedAt ?? null,
       };
     } catch (error) {

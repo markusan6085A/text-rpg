@@ -38,6 +38,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       const body = req.body as any;
       const itemId = String(body?.itemId ?? "").trim();
       const qty = Math.max(1, Math.min(999, Number(body?.qty ?? 1)));
+      const slot = String(body?.slot ?? "").trim() || "other";
       if (!characterId || !itemId) return reply.code(400).send({ error: "characterId and itemId required" });
 
       const char = await prisma.character.findUnique({
@@ -52,7 +53,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       if (existing) {
         existing.count = (existing.count ?? 1) + qty;
       } else {
-        inventory.push({ id: itemId, name: itemId, slot: "inventory", count: qty });
+        inventory.push({ id: itemId, name: itemId, slot, count: qty });
       }
       const newHeroJson = {
         ...heroJson,

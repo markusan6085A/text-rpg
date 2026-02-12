@@ -955,10 +955,10 @@ export async function adminFindPlayerByName(name: string): Promise<{ ok: boolean
   return data as any;
 }
 
-/** Адмін: видати/забрати предмет */
-export async function adminGiveItem(characterId: string, itemId: string, qty: number): Promise<{ ok: boolean }> {
+/** Адмін: видати/забрати предмет (slot опційно — з itemsDB для коректного відображення) */
+export async function adminGiveItem(characterId: string, itemId: string, qty: number, slot?: string): Promise<{ ok: boolean }> {
   const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/give-item`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ itemId, qty }), credentials: "include",
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ itemId, qty, slot }), credentials: "include",
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");

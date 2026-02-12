@@ -12,6 +12,7 @@ import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBa
 import { loadHero } from "./heroLoad";
 import { hydrateHero } from "./heroHydration";
 import { getRateLimitRemainingMs } from "../heroStore";
+import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
 // 🔥 ВИДАЛЕНО: window.__lastServerExp та глобальні змінні
 // Тепер використовуємо serverState з heroStore
@@ -168,11 +169,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Логуємо mobsKilled для діагностики (завжди, не тільки в DEV)
     console.log('[loadHeroFromAPI] mobsKilled from heroJson:', mobsKilledFromData, 'heroData keys:', heroData ? Object.keys(heroData).slice(0, 20) : 'no heroData');
     
-    // Логуємо інвентар при завантаженні
-    if (heroData?.inventory) {
+    // Нормалізуємо слот інвентаря з itemsDB (адмінка дає slot "inventory" або "other" — підставляємо правильний)
+    if (heroData?.inventory && Array.isArray(heroData.inventory)) {
+      heroData.inventory = heroData.inventory.map((it: any) => {
+        if (it.slot === "inventory" || !it.slot) {
+          const def = itemsDB[it.id || it.itemId] || itemsDBWithStarter[it.id || it.itemId];
+          if (def) return { ...it, slot: def.slot || "other", name: it.name || def.name };
+        }
+        return it;
+      });
       console.log('[loadHeroFromAPI] Inventory found in heroJson:', {
         count: heroData.inventory.length,
-        items: heroData.inventory.map((i: any) => ({ id: i.id, count: i.count }))
+        items: heroData.inventory.map((i: any) => ({ id: i.id, count: i.count, slot: i.slot }))
       });
     } else {
       console.warn('[loadHeroFromAPI] No inventory found in heroJson');

@@ -1,6 +1,9 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { adminFindPlayerByName, adminGiveItem, adminTakeItem } from "../../utils/api";
 import { itemsDB } from "../../data/items/itemsDB";
+import { useCharacterStore } from "../../state/characterStore";
+import { useHeroStore } from "../../state/heroStore";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 const style = { color: "#c7ad80" };
 
@@ -71,8 +74,14 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     setLoading(true);
     try {
       const { character } = await adminFindPlayerByName(nick.trim());
-      await adminGiveItem(character.id, itemId.trim(), num);
+      const def = itemsDB[itemId.trim()];
+      const slot = def?.slot || def?.kind || "other";
+      await adminGiveItem(character.id, itemId.trim(), num, slot);
       setMessage(`Видано: ${itemId} x${num}`);
+      if (useCharacterStore.getState().characterId === character.id) {
+        const loaded = await loadHeroFromAPI();
+        if (loaded) useHeroStore.getState().setHero(loaded);
+      }
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
