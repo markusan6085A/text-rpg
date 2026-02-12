@@ -114,23 +114,41 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (localHasMoreProgress) {
         const reason = localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress');
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
-        // 🔥 hp/mp/cp з сервера тільки якщо серверні max не застарілі — інакше після F5 падають до старих значень
+        // 🔥 КРИТИЧНО: перераховуємо maxHp/maxMp/maxCp по локальному герою (екіп + скіли), інакше після F5 залишається старий max
+        const now = Date.now();
+        const savedBattle = loadBattle(hydratedLocalHero.name);
+        const heroJsonBuffs = Array.isArray((hydratedLocalHero as any).heroBuffs) ? (hydratedLocalHero as any).heroBuffs : Array.isArray((hydratedLocalHero as any).heroJson?.heroBuffs) ? (hydratedLocalHero as any).heroJson.heroBuffs : [];
+        const savedBattleBuffs = savedBattle?.heroBuffs || [];
+        const allBuffs = [...heroJsonBuffs, ...savedBattleBuffs];
+        const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
+        const bestByKey = new Map<string, any>();
+        for (const b of allBuffs) {
+          const key = byKey(b);
+          const cur = bestByKey.get(key);
+          const exp = b.expiresAt ?? 0;
+          if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
+        }
+        const savedBuffs = cleanupBuffs(Array.from(bestByKey.values()), now);
+        const recalculated = recalculateAllStats(hydratedLocalHero, []);
+        const baseMax = { maxHp: recalculated.resources.maxHp, maxMp: recalculated.resources.maxMp, maxCp: recalculated.resources.maxCp };
+        const buffedMax = computeBuffedMaxResources(baseMax, savedBuffs);
         const heroData = character.heroJson as any;
         const serverMaxHp = heroData?.maxHp != null ? Number(heroData.maxHp) : 0;
         const serverMaxMp = heroData?.maxMp != null ? Number(heroData.maxMp) : 0;
         const serverMaxCp = heroData?.maxCp != null ? Number(heroData.maxCp) : 0;
         const localMaxHp = hydratedLocalHero.maxHp ?? 0;
-        const localMaxMp = hydratedLocalHero.maxMp ?? 0;
-        const localMaxCp = hydratedLocalHero.maxCp ?? 0;
-        const serverMaxNotStale = serverMaxHp >= localMaxHp * 0.9 && serverMaxMp >= localMaxMp * 0.9 && serverMaxCp >= localMaxCp * 0.9;
+        const serverMaxNotStale = serverMaxHp >= localMaxHp * 0.9 && serverMaxMp >= (hydratedLocalHero.maxMp ?? 0) * 0.9 && serverMaxCp >= (hydratedLocalHero.maxCp ?? 0) * 0.9;
         const serverHp = serverMaxNotStale && heroData?.hp != null ? Number(heroData.hp) : undefined;
         const serverMp = serverMaxNotStale && heroData?.mp != null ? Number(heroData.mp) : undefined;
         const serverCp = serverMaxNotStale && heroData?.cp != null ? Number(heroData.cp) : undefined;
         const mergedHero: Hero = {
           ...hydratedLocalHero,
-          ...(serverHp !== undefined ? { hp: serverHp } : {}),
-          ...(serverMp !== undefined ? { mp: serverMp } : {}),
-          ...(serverCp !== undefined ? { cp: serverCp } : {}),
+          maxHp: recalculated.resources.maxHp,
+          maxMp: recalculated.resources.maxMp,
+          maxCp: recalculated.resources.maxCp,
+          hp: serverHp !== undefined ? Math.min(serverHp, buffedMax.maxHp) : Math.min(hydratedLocalHero.hp ?? buffedMax.maxHp, buffedMax.maxHp),
+          mp: serverMp !== undefined ? Math.min(serverMp, buffedMax.maxMp) : Math.min(hydratedLocalHero.mp ?? buffedMax.maxMp, buffedMax.maxMp),
+          cp: serverCp !== undefined ? Math.min(serverCp, buffedMax.maxCp) : Math.min(hydratedLocalHero.cp ?? buffedMax.maxCp, buffedMax.maxCp),
         };
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
           saveHeroToLocalStorage(mergedHero).catch((err: any) => {
