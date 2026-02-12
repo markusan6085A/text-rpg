@@ -252,22 +252,24 @@ export function applyPassiveSkillsToCombat(
     stats.mCrit = stats.skillCritRate;
   }
 
-  // Застосовуємо кожен пасивний скіл послідовно
+  const ADDITIONAL_SKILL_IDS = [130, 279, 401, 429, 481, 763, 794, 820, 6319, 9999];
+
   for (const learned of learnedSkills) {
-    const skillDef = getSkillDef(learned.id);
+    const skillId = Number(learned.id);
+    if (!skillId || isNaN(skillId)) continue;
+    const skillDef = getSkillDef(skillId);
     if (!skillDef) {
-      // Діагностика для додаткових скілів
-      if (learned.id === 130 || learned.id === 429 || learned.id === 401) {
-        console.warn(`[applyPassiveSkillsToCombat] ⚠️ Додатковий скіл ID ${learned.id} не знайдено через getSkillDef!`);
+      if (ADDITIONAL_SKILL_IDS.includes(skillId)) {
+        console.warn(`[applyPassiveSkillsToCombat] ⚠️ Додатковий скіл ID ${skillId} не знайдено через getSkillDef!`);
       }
       continue;
     }
     if (skillDef.category !== "passive") continue;
-    
+
     // 🔍 ДІАГНОСТИКА для скіла 231 (Heavy Armor Mastery) - завжди виводимо
-    if (learned.id === 231) {
+    if (skillId === 231) {
       console.log(`[applyPassiveSkillsToCombat] 🔍 Skill 231 (Heavy Armor Mastery) DEBUG:`, {
-        skillId: learned.id,
+        skillId,
         skillDefId: skillDef.id,
         skillName: skillDef.name,
         requiresArmor: skillDef.requiresArmor,
@@ -282,7 +284,7 @@ export function applyPassiveSkillsToCombat(
     // 🔍 ДІАГНОСТИКА ПЕРЕД перевіркою умов для ВСІХ скілів з requiresArmor
     if (skillDef.requiresArmor) {
       console.log(`[applyPassiveSkillsToCombat] 🔍 BEFORE checkSkillConditions:`, {
-        skillId: learned.id,
+        skillId,
         skillDefId: skillDef.id,
         skillName: skillDef.name,
         requiresArmor: skillDef.requiresArmor,
@@ -299,7 +301,7 @@ export function applyPassiveSkillsToCombat(
     // 🔍 ДІАГНОСТИКА ПІСЛЯ перевірки умов для ВСІХ скілів з requiresArmor
     if (skillDef.requiresArmor) {
       console.log(`[applyPassiveSkillsToCombat] 🔍 AFTER checkSkillConditions:`, {
-        skillId: learned.id,
+        skillId,
         skillName: skillDef.name,
         requiresArmor: skillDef.requiresArmor,
         conditionsMet: conditionsMet,
@@ -308,11 +310,11 @@ export function applyPassiveSkillsToCombat(
     }
     
     // Діагностика для Light/Heavy Armor Mastery
-    if (skillDef.requiresArmor && (learned.id === 227 || learned.id === 231)) {
+    if (skillDef.requiresArmor && (skillId === 227 || skillId === 231)) {
       const armorType = getArmorTypeFromEquipment(equipment);
       if (!conditionsMet) {
         console.log(`[applyPassiveSkillsToCombat] ❌ Armor Mastery SKIPPED:`, {
-          skillId: learned.id,
+          skillId,
           skillName: skillDef.name,
           requiresArmor: skillDef.requiresArmor,
           detectedArmorType: armorType,
@@ -322,7 +324,7 @@ export function applyPassiveSkillsToCombat(
         });
       } else {
         console.log(`[applyPassiveSkillsToCombat] ✅ Armor Mastery WILL BE APPLIED:`, {
-          skillId: learned.id,
+          skillId,
           skillName: skillDef.name,
           requiresArmor: skillDef.requiresArmor,
           detectedArmorType: armorType,
@@ -332,44 +334,30 @@ export function applyPassiveSkillsToCombat(
     }
     
     if (!conditionsMet) {
-      // Скіл не активний через невиконання умов (немає потрібної броні/зброї)
-      if (skillDef.requiresArmor && (learned.id === 227 || learned.id === 231)) {
-        console.log(`[applyPassiveSkillsToCombat] ⛔ SKIPPING skill ${skillDef.name} (ID: ${learned.id}) - conditions not met`);
+      if (skillDef.requiresArmor && (skillId === 227 || skillId === 231)) {
+        console.log(`[applyPassiveSkillsToCombat] ⛔ SKIPPING skill ${skillDef.name} (ID: ${skillId}) - conditions not met`);
       }
       continue;
-    }
-    
-    // Діагностика для додаткових скілів
-    if (learned.id === 130 || learned.id === 429 || learned.id === 401) {
-      console.log(`[applyPassiveSkillsToCombat] ✅ Обробляємо додатковий пасивний скіл: ${skillDef.name} (ID: ${learned.id}, level: ${learned.level})`);
     }
 
-    // 🔍 ДІАГНОСТИКА: перевіряємо, чи є рівень в масиві levels
-    const foundLevelDef = skillDef.levels.find((l) => l.level === learned.level);
-    
-    // Якщо точного рівня немає, шукаємо найближчий рівень
+    const learnedLevel = Number(learned.level) || 1;
+    const foundLevelDef = skillDef.levels.find((l) => l.level === learnedLevel);
+
     let levelDef = foundLevelDef;
     if (!levelDef) {
-      // Сортуємо рівні за зменшенням і знаходимо найбільший рівень, який <= learned.level
       const sortedLevels = [...skillDef.levels].sort((a, b) => b.level - a.level);
-      levelDef = sortedLevels.find((l) => l.level <= learned.level);
-      
-      // Якщо learned.level менше за всі рівні, використовуємо найменший рівень
-      if (!levelDef && skillDef.levels.length > 0) {
-        const sortedAsc = [...skillDef.levels].sort((a, b) => a.level - b.level);
-        levelDef = sortedAsc[0];
-      }
+      levelDef = sortedLevels.find((l) => l.level <= learnedLevel) ?? skillDef.levels[0];
     }
-    
+
     if (!levelDef) {
-      console.warn(`[applyPassiveSkillsToCombat] LevelDef not found for skill ${learned.id} level ${learned.level}`);
+      console.warn(`[applyPassiveSkillsToCombat] LevelDef not found for skill ${skillId} level ${learnedLevel}`);
       continue;
     }
-    
+
     // 🔍 ДІАГНОСТИКА для Fast Spell Casting (skill 228)
-    if (learned.id === 228) {
+    if (skillId === 228) {
       console.log(`[applyPassiveSkillsToCombat] Fast Spell Casting DEBUG:`, {
-        learnedLevel: learned.level,
+        learnedLevel,
         foundLevelDef: foundLevelDef ? { level: foundLevelDef.level, power: foundLevelDef.power } : null,
         fallbackLevelDef: skillDef.levels[0] ? { level: skillDef.levels[0].level, power: skillDef.levels[0].power } : null,
         usedLevelDef: { level: levelDef.level, power: levelDef.power },
@@ -379,7 +367,7 @@ export function applyPassiveSkillsToCombat(
     }
 
     // 🔍 ДІАГНОСТИКА для Anti Magic: перевіряємо всі рівні
-    if (learned.id === 146) {
+    if (skillId === 146) {
       console.log(`[PASSIVE] Anti Magic DEBUG:`, {
         learnedLevel: learned.level,
         foundLevelDef: foundLevelDef ? { level: foundLevelDef.level, power: foundLevelDef.power } : null,
@@ -460,7 +448,7 @@ export function applyPassiveSkillsToCombat(
     stats = applySinglePassive(stats, skillDef, levelDef);
 
     // Діагностика для Anti Magic
-    if (learned.id === 146) {
+    if (skillId === 146) {
       console.log(`[applyPassiveSkillsToCombat] Anti Magic AFTER applySinglePassive:`, {
         mDefBefore: statsBefore.mDef,
         mDefAfter: stats.mDef,
@@ -551,34 +539,27 @@ export function applyPassiveSkillsToResources(
     maxCp: resources.maxCp,
   };
 
-  // Застосовуємо кожен пасивний скіл послідовно
+  // ID/level з API або localStorage можуть бути рядками — нормалізуємо до числа, щоб getSkillDef і levelDef знаходили скіл
+  const ADDITIONAL_SKILL_IDS = [130, 279, 401, 429, 481, 763, 794, 820, 6319, 9999];
+
   for (const learned of learnedSkills) {
-    const skillDef = getSkillDef(learned.id);
+    const skillId = Number(learned.id);
+    if (!skillId || isNaN(skillId)) continue;
+    const skillDef = getSkillDef(skillId);
     if (!skillDef) {
-      // Діагностика для додаткових скілів
-      if (learned.id === 130 || learned.id === 429 || learned.id === 401) {
-        console.warn(`[applyPassiveSkillsToResources] ⚠️ Додатковий скіл ID ${learned.id} не знайдено через getSkillDef!`);
+      if (ADDITIONAL_SKILL_IDS.includes(skillId)) {
+        console.warn(`[applyPassiveSkillsToResources] ⚠️ Додатковий скіл ID ${skillId} не знайдено через getSkillDef!`);
       }
       continue;
     }
     if (skillDef.category !== "passive") continue;
-    
-    // Перевіряємо умови для пасивного скіла (броня/зброя)
-    // Для ресурсів також перевіряємо умови (наприклад, MP regen в робі)
-    if (!checkSkillConditions(skillDef, equipment)) {
-      // Скіл не активний через невиконання умов (немає потрібної броні/зброї)
-      continue;
-    }
-    
-    // Діагностика для додаткових скілів
-    if (learned.id === 130 || learned.id === 429 || learned.id === 401) {
-      console.log(`[applyPassiveSkillsToResources] ✅ Обробляємо додатковий пасивний скіл: ${skillDef.name} (ID: ${learned.id}, level: ${learned.level})`);
-    }
 
-    const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
+    if (!checkSkillConditions(skillDef, equipment)) continue;
+
+    const learnedLevel = Number(learned.level) || 1;
+    const levelDef = skillDef.levels.find((l) => l.level === learnedLevel) ?? skillDef.levels[0];
     if (!levelDef) continue;
 
-    // Застосовуємо скіл до stats - повертає НОВИЙ об'єкт
     stats = applySinglePassive(stats, skillDef, levelDef);
   }
 
