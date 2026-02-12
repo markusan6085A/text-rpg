@@ -164,6 +164,11 @@ function AppInner() {
     let alive = true;
     const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
+    // Захист: якщо щось зависне — через 8 сек примусово показуємо UI
+    const fallbackTimer = setTimeout(() => {
+      if (alive) setIsLoading(false);
+    }, 8000);
+
     (async () => {
       try {
         // 1) Bootstrap: отримуємо accessToken через refresh cookie (без localStorage)
@@ -173,6 +178,7 @@ function AppInner() {
             const d = await r.json();
             if (d?.accessToken && alive) setAccessToken(d.accessToken);
           }
+          // при 401 просто продовжуємо без токена — герой з localStorage
         } catch (_) {}
 
         // 2) Ініціалізуємо character store
@@ -254,7 +260,7 @@ function AppInner() {
         const localHero = getHeroFromLocalStorage();
         const heroToShow = hydrateHero(localHero) ?? localHero;
         if (heroToShow && alive) setHero(heroToShow);
-        else if (alive) loadHero(); // loadHero також викликає setHero через heroStore
+        else if (alive) loadHero(); // store action: зчитує з localStorage і setHero
 
         // 2) Показуємо UI одразу (не чекаємо API)
         if (alive) setIsLoading(false);
@@ -300,6 +306,7 @@ function AppInner() {
     // Cleanup при unmount
     return () => {
       alive = false;
+      clearTimeout(fallbackTimer);
       try {
         stopWarmup();
       } catch (err) {
