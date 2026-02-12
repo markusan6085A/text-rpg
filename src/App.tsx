@@ -145,7 +145,8 @@ function AppInner() {
           navigateNoReload("/register");
         }
       } catch {
-        if (alive) navigate("/");
+        // Не викликати navigate("/") — ми вже на "/", це дає reload → цикл оновлень (особливо на телефоні)
+        if (alive) setLoadingHeroAfterAuth(false);
       } finally {
         if (alive) setLoadingHeroAfterAuth(false);
       }
