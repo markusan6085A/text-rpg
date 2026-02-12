@@ -344,6 +344,24 @@ function AppInner() {
     );
   }
 
+  // Блок: якщо персонаж заблокований — тільки екран "Ваш персонаж заблокирован" та кнопка Вихід
+  const isBlocked = hero?.blockedUntil && new Date(hero.blockedUntil).getTime() > Date.now();
+  if (hero && isBlocked && pathname !== "/admin" && pathname !== "/admin/login") {
+    const logout = useAuthStore.getState().logout;
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-[#c7ad80] p-4">
+        <p className="text-xl font-semibold mb-6">Ваш персонаж заблокирован</p>
+        <button
+          type="button"
+          onClick={() => { logout(); navigate("/"); }}
+          className="px-6 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+        >
+          Вихід
+        </button>
+      </div>
+    );
+  }
+
   // Router: Layout без refreshKey у key — стабільний, не ремонтується при кожному кліку (прибирає шторм GET/таймерів)
   const renderWithLayout = (children: React.ReactNode) => (
     <Layout navigate={navigate} key={`layout-${pathname}`}>{children}</Layout>

@@ -47,6 +47,8 @@ export interface Character {
   aa: number;
   coinLuck: number;
   heroJson: any;
+  bannedUntil?: string | null;
+  blockedUntil?: string | null;
   createdAt: string;
   updatedAt?: string;
   lastActivityAt?: string; // 🔥 Для показу "Останній раз був"
@@ -942,5 +944,105 @@ export async function adminMuteChatUser(characterId: string, durationMinutes: nu
     err.status = res.status;
     throw err;
   }
+  return { ok: true };
+}
+
+/** Адмін: знайти гравця за ніком */
+export async function adminFindPlayerByName(name: string): Promise<{ ok: boolean; character: { id: string; name: string; accountId: string; level: number; adena: number; coinLuck: number; bannedUntil: string | null; blockedUntil: string | null } }> {
+  const res = await fetch(`${API_URL}/admin/player/find-by-name?name=${encodeURIComponent(name)}`, { method: "GET", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: видати/забрати предмет */
+export async function adminGiveItem(characterId: string, itemId: string, qty: number): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/give-item`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ itemId, qty }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+export async function adminTakeItem(characterId: string, itemId: string, qty: number): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/take-item`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ itemId, qty }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: встановити рівень (0–80) */
+export async function adminSetLevel(characterId: string, level: number): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/set-level`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ level }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: адена (delta або set) */
+export async function adminAdena(characterId: string, delta?: number, set?: number): Promise<{ ok: boolean; adena?: number }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/adena`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delta, set }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: Coin of Luck (delta або set) */
+export async function adminCoinLuck(characterId: string, delta?: number, set?: number): Promise<{ ok: boolean; coinLuck?: number }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/coin-luck`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delta, set }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: force logout за ніком або characterId */
+export async function adminForceLogout(characterIdOrName: string): Promise<{ ok: boolean }> {
+  const isLikelyCuid = characterIdOrName.length > 20 && characterIdOrName.includes("-");
+  const body = isLikelyCuid ? { characterId: characterIdOrName } : { name: characterIdOrName };
+  const res = await fetch(`${API_URL}/admin/player/force-logout`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: бан / розбан */
+export async function adminBan(characterId: string, durationMinutes: number): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/ban`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ durationMinutes }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+export async function adminUnban(characterId: string): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/unban`, { method: "POST", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: блок / розблок */
+export async function adminBlock(characterId: string, durationMinutes: number): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/block`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ durationMinutes }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+export async function adminUnblock(characterId: string): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/unblock`, { method: "POST", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
   return { ok: true };
 }

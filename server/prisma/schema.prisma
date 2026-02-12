@@ -56,6 +56,10 @@ model Character {
   // 🔥 Відстеження активності для онлайн
   lastActivityAt DateTime @default(now()) @updatedAt
 
+  // Адмін: бан (не може писати в общ/торг/клан), блок (не може грати)
+  bannedUntil  DateTime?
+  blockedUntil DateTime?
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

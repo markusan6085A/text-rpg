@@ -29,6 +29,7 @@ export async function characterRoutes(app: FastifyInstance) {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
+    type CharRow = { id: string; name: string; race: string; classId: string; sex: string; level: number; exp: bigint; sp: number; adena: number; aa: number; coinLuck: number; heroJson: unknown; bannedUntil: Date | null; blockedUntil: Date | null; createdAt: Date; updatedAt: Date };
     const chars = await prisma.character.findMany({
       where: { accountId: auth.accountId },
       orderBy: { createdAt: "asc" },
@@ -45,10 +46,12 @@ export async function characterRoutes(app: FastifyInstance) {
         aa: true,
         coinLuck: true,
         heroJson: true,
+        bannedUntil: true,
+        blockedUntil: true,
         createdAt: true,
         updatedAt: true,
-      },
-    });
+      } as Prisma.CharacterSelect,
+    }) as unknown as CharRow[];
 
     // ❗ ВАЖЛИВО: Додаємо heroRevision до персонажів, які його не мають
     // Це забезпечує сумісність зі старими записами
@@ -71,10 +74,12 @@ export async function characterRoutes(app: FastifyInstance) {
       }
     }
 
-    // Convert BigInt to Number for JSON serialization
+    // Convert BigInt/Date for JSON serialization
     const serializedChars = chars.map(char => ({
       ...char,
       exp: Number(char.exp),
+      bannedUntil: char.bannedUntil?.toISOString() ?? null,
+      blockedUntil: char.blockedUntil?.toISOString() ?? null,
     }));
 
     return { ok: true, characters: serializedChars };
@@ -400,6 +405,7 @@ export async function characterRoutes(app: FastifyInstance) {
 
     if (!id) return reply.code(400).send({ error: "character id required" });
 
+    type CharRow = { id: string; name: string; race: string; classId: string; sex: string; level: number; exp: bigint; sp: number; adena: number; aa: number; coinLuck: number; heroJson: unknown; bannedUntil: Date | null; blockedUntil: Date | null; createdAt: Date; updatedAt: Date };
     const char = await prisma.character.findFirst({
       where: {
         id,
@@ -418,10 +424,12 @@ export async function characterRoutes(app: FastifyInstance) {
         aa: true,
         coinLuck: true,
         heroJson: true,
+        bannedUntil: true,
+        blockedUntil: true,
         createdAt: true,
         updatedAt: true,
-      },
-    });
+      } as Prisma.CharacterSelect,
+    }) as unknown as CharRow | null;
 
     if (!char) return reply.code(404).send({ error: "character not found" });
 
@@ -431,10 +439,11 @@ export async function characterRoutes(app: FastifyInstance) {
       data: { lastActivityAt: new Date() },
     }).catch(() => {});
 
-    // Convert BigInt to Number for JSON serialization
     const serialized = {
       ...char,
       exp: Number(char.exp),
+      bannedUntil: char.bannedUntil?.toISOString() ?? null,
+      blockedUntil: char.blockedUntil?.toISOString() ?? null,
     };
 
     return { ok: true, character: serialized };

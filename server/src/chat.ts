@@ -152,15 +152,24 @@ export async function chatRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "message too long (max 500 characters)" });
     }
 
-    // Get user's character - only select id for faster query
+    // Get user's character
+    type CharBanRow = { id: string; name: string; bannedUntil: Date | null };
     const character = await prisma.character.findFirst({
       where: { accountId: auth.accountId },
       orderBy: { createdAt: "asc" },
-      select: { id: true, name: true }, // Only get what we need
-    });
+      select: { id: true, name: true, bannedUntil: true } as any,
+    }) as unknown as CharBanRow | null;
 
     if (!character) {
       return reply.code(404).send({ error: "character not found" });
+    }
+
+    const isBanned = character.bannedUntil && new Date(character.bannedUntil).getTime() > Date.now();
+    if (isBanned && (channel === "general" || channel === "trade" || channel === "clan")) {
+      return reply.code(403).send({
+        error: "banned",
+        message: "Чат заблоковано до кінця бана.",
+      });
     }
 
     const muteUntil = getMutedUntil(character.id);

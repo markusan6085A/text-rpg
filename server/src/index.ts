@@ -15,6 +15,7 @@ import { authRefreshRoutes } from "./routes/authRefresh";
 import { authLogoutRoutes } from "./routes/authLogout";
 import { adminAuthRoutes } from "./routes/adminAuth";
 import { adminRoutes } from "./routes/admin";
+import { adminPlayersRoutes } from "./routes/adminPlayers";
 
 // Отримуємо шлях до dist папки (frontend build)
 // Якщо сервер запускається з server/, то process.cwd() = server/
@@ -187,6 +188,7 @@ const start = async () => {
     // ✅ ADMIN
     await app.register(adminRoutes, { prefix: "/admin" });
     await app.register(adminAuthRoutes, { prefix: "/admin/auth" });
+    await app.register(adminPlayersRoutes, { prefix: "/admin/player" });
 
     await app.register(characterRoutes);
     await app.register(chatRoutes);
