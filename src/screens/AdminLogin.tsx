@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { adminLogin, adminMe } from "../utils/api";
+import { adminLogin, adminMe, listCharacters } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
+import { useCharacterStore } from "../state/characterStore";
+import { useHeroStore } from "../state/heroStore";
+import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 
 interface AdminLoginProps {
   navigate: (path: string) => void;
@@ -29,8 +32,17 @@ export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginPro
       const data = await adminLogin(login.trim(), password);
       if (data.accessToken) {
         useAuthStore.getState().setAccessToken(data.accessToken);
-        // Без перезавантаження, щоб токен не губився і не кидало на головну
-        (navigateNoReload ?? navigate)("/");
+        const go = navigateNoReload ?? navigate;
+        // Завантажуємо персонажа одразу тут, не переходимо на "/" — інакше ефект може отримати 401 і скинути токен
+        const chars = await listCharacters();
+        if (chars.length === 0) {
+          go("/register");
+          return;
+        }
+        useCharacterStore.getState().setCharacterId(chars[0].id);
+        const hero = await loadHeroFromAPI();
+        if (hero) useHeroStore.getState().setHero(hero);
+        go("/city");
       } else {
         navigate("/admin");
       }
