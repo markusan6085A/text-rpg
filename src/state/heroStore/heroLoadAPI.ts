@@ -114,11 +114,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (localHasMoreProgress) {
         const reason = localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress');
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
-        // 🔥 hp/mp/cp беремо з СЕРВЕРА — щоб не перезаписати heal/buff з side-effect endpoints
+        // 🔥 hp/mp/cp з сервера тільки якщо серверні max не застарілі — інакше після F5 падають до старих значень
         const heroData = character.heroJson as any;
-        const serverHp = heroData?.hp !== undefined && heroData?.hp !== null ? Number(heroData.hp) : undefined;
-        const serverMp = heroData?.mp !== undefined && heroData?.mp !== null ? Number(heroData.mp) : undefined;
-        const serverCp = heroData?.cp !== undefined && heroData?.cp !== null ? Number(heroData.cp) : undefined;
+        const serverMaxHp = heroData?.maxHp != null ? Number(heroData.maxHp) : 0;
+        const serverMaxMp = heroData?.maxMp != null ? Number(heroData.maxMp) : 0;
+        const serverMaxCp = heroData?.maxCp != null ? Number(heroData.maxCp) : 0;
+        const localMaxHp = hydratedLocalHero.maxHp ?? 0;
+        const localMaxMp = hydratedLocalHero.maxMp ?? 0;
+        const localMaxCp = hydratedLocalHero.maxCp ?? 0;
+        const serverMaxNotStale = serverMaxHp >= localMaxHp * 0.9 && serverMaxMp >= localMaxMp * 0.9 && serverMaxCp >= localMaxCp * 0.9;
+        const serverHp = serverMaxNotStale && heroData?.hp != null ? Number(heroData.hp) : undefined;
+        const serverMp = serverMaxNotStale && heroData?.mp != null ? Number(heroData.mp) : undefined;
+        const serverCp = serverMaxNotStale && heroData?.cp != null ? Number(heroData.cp) : undefined;
         const mergedHero: Hero = {
           ...hydratedLocalHero,
           ...(serverHp !== undefined ? { hp: serverHp } : {}),
@@ -293,18 +300,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
 
+    // Якщо сервер повернув старі/менші max (наприклад до ап рівня) — при F5 hp/mp/cp не повинні падати
     const oldMaxHp = fixedHero.maxHp ?? 0;
     const oldMaxMp = fixedHero.maxMp ?? 0;
     const oldMaxCp = fixedHero.maxCp ?? 0;
-    const wasFullHp = oldMaxHp <= 0 || (fixedHero.hp ?? 0) >= oldMaxHp * 0.99;
-    const wasFullMp = oldMaxMp <= 0 || (fixedHero.mp ?? 0) >= oldMaxMp * 0.99;
-    const wasFullCp = oldMaxCp <= 0 || (fixedHero.cp ?? 0) >= oldMaxCp * 0.99;
     const newMaxIncreasedHp = recalculated.resources.maxHp > oldMaxHp * 1.05;
     const newMaxIncreasedMp = recalculated.resources.maxMp > oldMaxMp * 1.05;
     const newMaxIncreasedCp = recalculated.resources.maxCp > oldMaxCp * 1.05;
-    const fillHp = newMaxIncreasedHp && (wasFullHp || oldMaxHp === 0);
-    const fillMp = newMaxIncreasedMp && (wasFullMp || oldMaxMp === 0);
-    const fillCp = newMaxIncreasedCp && (wasFullCp || oldMaxCp === 0);
+    // Заповнюємо до нового max, якщо він виріс (рівень/екіп змінились) — щоб після F5 не було 390/6000
+    const fillHp = newMaxIncreasedHp || oldMaxHp <= 0;
+    const fillMp = newMaxIncreasedMp || oldMaxMp <= 0;
+    const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
 
     const finalHp =
       fillHp ||
