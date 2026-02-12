@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
-import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import { addNews } from "./news";
 import { validateHeroJson, addVersioning, checkRevision } from "./heroJsonValidator";
@@ -25,62 +24,31 @@ function getAuth(req: any): { accountId: string; login: string } | null {
 
 export async function characterRoutes(app: FastifyInstance) {
   // GET /characters  (Bearer token)
+  // Не використовуємо bannedUntil/blockedUntil в select — старий Prisma client на деплої їх не знає (Unknown field)
   app.get("/characters", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    type CharRow = { id: string; name: string; race: string; classId: string; sex: string; level: number; exp: bigint; sp: number; adena: number; aa: number; coinLuck: number; heroJson: unknown; bannedUntil: Date | null; blockedUntil: Date | null; createdAt: Date; updatedAt: Date };
-    const fullSelect = {
-      id: true,
-      name: true,
-      race: true,
-      classId: true,
-      sex: true,
-      level: true,
-      exp: true,
-      sp: true,
-      adena: true,
-      aa: true,
-      coinLuck: true,
-      heroJson: true,
-      bannedUntil: true,
-      blockedUntil: true,
-      createdAt: true,
-      updatedAt: true,
-    } as Prisma.CharacterSelect;
-
-    let chars: CharRow[];
-    try {
-      chars = await prisma.character.findMany({
-        where: { accountId: auth.accountId },
-        orderBy: { createdAt: "asc" },
-        select: fullSelect,
-      }) as unknown as CharRow[];
-    } catch (err) {
-      // Fallback: БД ще без колонок bannedUntil/blockedUntil (міграція не застосована)
-      app.log.warn(err, "GET /characters: fallback without bannedUntil/blockedUntil");
-      const legacy = await prisma.character.findMany({
-        where: { accountId: auth.accountId },
-        orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          name: true,
-          race: true,
-          classId: true,
-          sex: true,
-          level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          heroJson: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
-      chars = legacy.map((c) => ({ ...c, bannedUntil: null as Date | null, blockedUntil: null as Date | null })) as CharRow[];
-    }
+    const chars = await prisma.character.findMany({
+      where: { accountId: auth.accountId },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        name: true,
+        race: true,
+        classId: true,
+        sex: true,
+        level: true,
+        exp: true,
+        sp: true,
+        adena: true,
+        aa: true,
+        coinLuck: true,
+        heroJson: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     // ❗ ВАЖЛИВО: Додаємо heroRevision до персонажів, які його не мають
     // Це забезпечує сумісність зі старими записами
@@ -103,12 +71,12 @@ export async function characterRoutes(app: FastifyInstance) {
       }
     }
 
-    // Convert BigInt/Date for JSON serialization
+    // Convert BigInt/Date for JSON serialization; bannedUntil/blockedUntil не в select — завжди null до міграції + нового деплою
     const serializedChars = chars.map(char => ({
       ...char,
       exp: Number(char.exp),
-      bannedUntil: char.bannedUntil?.toISOString() ?? null,
-      blockedUntil: char.blockedUntil?.toISOString() ?? null,
+      bannedUntil: null as string | null,
+      blockedUntil: null as string | null,
     }));
 
     return { ok: true, characters: serializedChars };
@@ -425,6 +393,7 @@ export async function characterRoutes(app: FastifyInstance) {
   });
 
   // GET /characters/:id  (Bearer token)
+  // Не використовуємо bannedUntil/blockedUntil в select — старий Prisma client на деплої їх не знає (Unknown field)
   app.get("/characters/:id", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -434,57 +403,25 @@ export async function characterRoutes(app: FastifyInstance) {
 
     if (!id) return reply.code(400).send({ error: "character id required" });
 
-    type CharRow = { id: string; name: string; race: string; classId: string; sex: string; level: number; exp: bigint; sp: number; adena: number; aa: number; coinLuck: number; heroJson: unknown; bannedUntil: Date | null; blockedUntil: Date | null; createdAt: Date; updatedAt: Date };
-    const where = { id, accountId: auth.accountId } as const;
-    const fullSelect = {
-      id: true,
-      name: true,
-      race: true,
-      classId: true,
-      sex: true,
-      level: true,
-      exp: true,
-      sp: true,
-      adena: true,
-      aa: true,
-      coinLuck: true,
-      heroJson: true,
-      bannedUntil: true,
-      blockedUntil: true,
-      createdAt: true,
-      updatedAt: true,
-    } as Prisma.CharacterSelect;
-
-    let char: CharRow | null;
-    try {
-      char = await prisma.character.findFirst({
-        where,
-        select: fullSelect,
-      }) as unknown as CharRow | null;
-    } catch (err) {
-      // Fallback: БД ще без колонок bannedUntil/blockedUntil (міграція не застосована)
-      app.log.warn(err, "GET /characters/:id: fallback without bannedUntil/blockedUntil");
-      const legacy = await prisma.character.findFirst({
-        where,
-        select: {
-          id: true,
-          name: true,
-          race: true,
-          classId: true,
-          sex: true,
-          level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          heroJson: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
-      char = legacy ? ({ ...legacy, bannedUntil: null, blockedUntil: null } as CharRow) : null;
-    }
+    const char = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+      select: {
+        id: true,
+        name: true,
+        race: true,
+        classId: true,
+        sex: true,
+        level: true,
+        exp: true,
+        sp: true,
+        adena: true,
+        aa: true,
+        coinLuck: true,
+        heroJson: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     if (!char) return reply.code(404).send({ error: "character not found" });
 
@@ -497,8 +434,8 @@ export async function characterRoutes(app: FastifyInstance) {
     const serialized = {
       ...char,
       exp: Number(char.exp),
-      bannedUntil: char.bannedUntil?.toISOString() ?? null,
-      blockedUntil: char.blockedUntil?.toISOString() ?? null,
+      bannedUntil: null as string | null,
+      blockedUntil: null as string | null,
     };
 
     return { ok: true, character: serialized };
