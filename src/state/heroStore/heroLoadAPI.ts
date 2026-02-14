@@ -488,13 +488,19 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         buffNames: savedBuffs.map((b: any) => b.name || b.id).slice(0, 5),
       });
 
-      // 🔥 КРИТИЧНО: Преміум — беремо з локального, якщо там новіше (після покупки преміуму F5 не має скидати)
+      // 🔥 КРИТИЧНО: Преміум + Coin of Luck — беремо з локального, якщо там новіший преміум (після покупки F5 не має відкатувати)
       if (hydratedLocalHero) {
         const localPremiumUntil = (hydratedLocalHero as any).premiumUntil ?? (hydratedLocalHero as any).heroJson?.premiumUntil;
         const serverPremiumUntil = (hydratedHero as any).premiumUntil ?? (hydratedHero as any).heroJson?.premiumUntil;
         if (localPremiumUntil != null && Number(localPremiumUntil) > Number(serverPremiumUntil || 0)) {
           (hydratedHero as any).premiumUntil = localPremiumUntil;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, premiumUntil: localPremiumUntil };
+          // Після покупки преміуму коіни вже зняті локально — не перезаписувати серверним значенням
+          const localCoinOfLuck = (hydratedLocalHero as any).coinOfLuck ?? (hydratedLocalHero as any).heroJson?.coinOfLuck;
+          if (localCoinOfLuck !== undefined && localCoinOfLuck !== null) {
+            (hydratedHero as any).coinOfLuck = localCoinOfLuck;
+            (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, coinOfLuck: localCoinOfLuck };
+          }
         }
       }
       // 🔥 КРИТИЧНО: Якщо локально більше предметів/екіпу — беремо з локального героя, щоб не втрачати покупки після F5

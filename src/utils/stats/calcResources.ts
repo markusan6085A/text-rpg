@@ -123,12 +123,13 @@ export function calcResources(
     maxCp = Math.max(1, maxCp);
   }
   
+  // ❗ calcResources = формула MAX, не поточний стан. HP/MP/CP — runtime state, не задаємо тут.
   return {
-    hp: maxHp,
+    hp: 0,
     maxHp,
-    mp: maxMp,
+    mp: 0,
     maxMp,
-    cp: maxCp,
+    cp: 0,
     maxCp,
   };
 }
