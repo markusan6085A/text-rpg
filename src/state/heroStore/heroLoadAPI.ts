@@ -488,8 +488,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         buffNames: savedBuffs.map((b: any) => b.name || b.id).slice(0, 5),
       });
 
+      // 🔥 КРИТИЧНО: Преміум — беремо з локального, якщо там новіше (після покупки преміуму F5 не має скидати)
+      if (hydratedLocalHero) {
+        const localPremiumUntil = (hydratedLocalHero as any).premiumUntil ?? (hydratedLocalHero as any).heroJson?.premiumUntil;
+        const serverPremiumUntil = (hydratedHero as any).premiumUntil ?? (hydratedHero as any).heroJson?.premiumUntil;
+        if (localPremiumUntil != null && Number(localPremiumUntil) > Number(serverPremiumUntil || 0)) {
+          (hydratedHero as any).premiumUntil = localPremiumUntil;
+          (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, premiumUntil: localPremiumUntil };
+        }
+      }
       // 🔥 КРИТИЧНО: Якщо локально більше предметів/екіпу — беремо з локального героя, щоб не втрачати покупки після F5
-      // (збереження на API з затримкою, сервер може повернути старий heroJson без куплених речей)
       if (hydratedLocalHero) {
         const localInv = hydratedLocalHero.inventory ?? [];
         const serverInv = hydratedHero.inventory ?? [];
@@ -502,7 +510,6 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         if (localInvLen > serverInvLen) {
           (hydratedHero as any).inventory = localInv;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: localInv };
-          // Щоб після покупки в Shop/QuestShop не «поверталась» стара adena з сервера — беремо локальну
           if (hydratedLocalHero.adena !== undefined && hydratedLocalHero.adena !== null) {
             (hydratedHero as any).adena = hydratedLocalHero.adena;
             (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, adena: hydratedLocalHero.adena };
