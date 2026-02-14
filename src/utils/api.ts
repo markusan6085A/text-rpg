@@ -280,6 +280,69 @@ export async function buyPremium(
   return response;
 }
 
+export interface ColorizeNickResponse {
+  ok: boolean;
+  character: {
+    id: string;
+    coinLuck: number;
+    nickColor: string | null;
+    heroJson: any;
+    name?: string;
+    level?: number;
+    exp?: number;
+    sp?: number;
+    adena?: number;
+    aa?: number;
+    updatedAt?: string;
+  };
+}
+
+export async function colorizeNick(
+  characterId: string,
+  nickColor: string,
+  expectedRevision?: number
+): Promise<ColorizeNickResponse> {
+  const response = await apiRequest<ColorizeNickResponse>(
+    `/characters/${characterId}/colorize-nick`,
+    {
+      method: "POST",
+      body: JSON.stringify({ nickColor, expectedRevision }),
+    }
+  );
+  return response;
+}
+
+export interface RenameNickResponse {
+  ok: boolean;
+  character: {
+    id: string;
+    coinLuck: number;
+    name: string;
+    heroJson: any;
+    level?: number;
+    exp?: number;
+    sp?: number;
+    adena?: number;
+    aa?: number;
+    updatedAt?: string;
+  };
+}
+
+export async function renameNick(
+  characterId: string,
+  name: string,
+  expectedRevision?: number
+): Promise<RenameNickResponse> {
+  const response = await apiRequest<RenameNickResponse>(
+    `/characters/${characterId}/rename-nick`,
+    {
+      method: "POST",
+      body: JSON.stringify({ name, expectedRevision }),
+    }
+  );
+  return response;
+}
+
 // Chat API
 export interface ChatMessage {
   id: string;

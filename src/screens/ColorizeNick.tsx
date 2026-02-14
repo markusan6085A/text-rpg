@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
-import { updateCharacter } from "../utils/api";
+import { colorizeNick } from "../utils/api";
 
 interface ColorizeNickProps {
   navigate: (path: string) => void;
@@ -148,27 +148,44 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
 
                 setIsApplying(true);
                 try {
-                  // Update character with new nick color and deduct coins
-                  await updateCharacter(characterId, {
-                    coinLuck: coins - 50,
-                    heroJson: {
-                      ...hero,
-                      coinOfLuck: coins - 50,
-                      nickColor: selectedColor,
-                    },
-                  });
+                  const res = await colorizeNick(
+                    characterId,
+                    selectedColor,
+                    (hero as any)?.heroJson?.heroRevision
+                  );
+                  if (!res.ok || !res.character) {
+                    alert("Ошибка при изменении цвета ника");
+                    return;
+                  }
+                  const { coinLuck, nickColor: newNickColor, heroJson: heroJsonFromRes } = res.character;
+
+                  // Update serverState (coinLuck) to avoid PUT sending old coinLuck
+                  const { useHeroStore } = await import("../state/heroStore");
+                  useHeroStore.getState().updateServerState?.({ coinLuck });
 
                   // Update hero in store
                   updateHero({
-                    coinOfLuck: coins - 50,
-                    nickColor: selectedColor,
+                    coinOfLuck: coinLuck,
+                    nickColor: newNickColor ?? selectedColor,
+                    heroJson: {
+                      ...(hero as any)?.heroJson,
+                      nickColor: newNickColor ?? selectedColor,
+                      heroRevision: heroJsonFromRes?.heroRevision,
+                    },
                   });
 
                   alert("Цвет ника изменен!");
                   navigate("/about");
                 } catch (err: any) {
-                  console.error('[ColorizeNick] Failed to change nick color:', err);
-                  alert(err?.message || "Ошибка при изменении цвета ника");
+                  const body = err?.body || {};
+                  if (err?.status === 400 && body.error === "not enough coinLuck") {
+                    alert(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coins}`);
+                  } else if (err?.status === 409) {
+                    alert("Конфликт версий. Перезавантажте сторінку і спробуйте знову.");
+                  } else {
+                    console.error('[ColorizeNick] Failed to change nick color:', err);
+                    alert(body.error || err?.message || "Ошибка при изменении цвета ника");
+                  }
                 } finally {
                   setIsApplying(false);
                 }

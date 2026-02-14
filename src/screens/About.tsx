@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getOnlinePlayers, updateCharacter } from "../utils/api";
+import { getOnlinePlayers, renameNick } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 
@@ -145,28 +145,26 @@ export default function About({ navigate }: { navigate: Navigate }) {
 
                     setIsChanging(true);
                     try {
-                      // Update character name and deduct coins
-                      await updateCharacter(characterId, {
-                        coinLuck: coins - 50,
-                        heroJson: {
-                          ...hero,
-                          name: newNickname.trim(),
-                          coinOfLuck: coins - 50,
-                        },
-                      });
-
-                      // Update hero in store
+                      const res = await renameNick(characterId, newNickname.trim(), (hero as any)?.heroJson?.heroRevision);
+                      const { coinLuck, name: newName, heroJson: heroJsonFromRes } = res.character;
+                      // Оновлюємо serverState (coinLuck) щоб PUT не відправляв старий coinLuck
+                      useHeroStore.getState().updateServerState?.({ coinLuck });
                       updateHero({
-                        name: newNickname.trim(),
-                        coinOfLuck: coins - 50,
+                        name: newName,
+                        coinOfLuck: coinLuck,
+                        heroJson: { ...(hero as any)?.heroJson, name: newName, heroRevision: heroJsonFromRes?.heroRevision },
                       });
-
                       setShowChangeNickModal(false);
                       setNewNickname("");
                       alert("Ник успешно изменен!");
                     } catch (err: any) {
-                      console.error('[About] Failed to change nickname:', err);
-                      alert(err?.message || "Ошибка при изменении ника");
+                      const body = err?.body ?? {};
+                      if (err?.status === 400 && body.error === "not enough coinLuck") {
+                        alert(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coins}`);
+                      } else {
+                        console.error('[About] Failed to change nickname:', err);
+                        alert(err?.message || "Ошибка при изменении ника");
+                      }
                     } finally {
                       setIsChanging(false);
                     }

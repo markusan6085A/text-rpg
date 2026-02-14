@@ -183,6 +183,128 @@ export async function characterRoutes(app: FastifyInstance) {
     }
   });
 
+  // POST /characters/:id/colorize-nick - зміна кольору ніка (50 Coin of Luck, має бути ПЕРЕД /characters/:id)
+  app.post("/characters/:id/colorize-nick", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const targetId = (req.params as any).id;
+    const body = req.body as { nickColor?: string; expectedRevision?: number };
+
+    if (!body.nickColor || typeof body.nickColor !== "string") {
+      return reply.code(400).send({ error: "nickColor required" });
+    }
+    const nickColor = body.nickColor.trim();
+    if (!/^#[0-9A-Fa-f]{6}$/.test(nickColor)) {
+      return reply.code(400).send({ error: "invalid nickColor (expected #RRGGBB)" });
+    }
+
+    const PRICE = 50;
+
+    try {
+      const ch = await prisma.character.findFirst({
+        where: { id: targetId, accountId: auth.accountId },
+        select: { id: true, coinLuck: true, heroJson: true },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+
+      const heroJson = (ch.heroJson ?? {}) as any;
+      const oldRevision = heroJson.heroRevision ?? 0;
+      if (body.expectedRevision !== undefined && body.expectedRevision !== oldRevision) {
+        return reply.code(409).send({ error: "revision_conflict", revision: oldRevision });
+      }
+
+      const currentCoinLuck = ch.coinLuck ?? 0;
+      if (currentCoinLuck < PRICE) {
+        return reply.code(400).send({ error: "not enough coinLuck", coinLuck: currentCoinLuck });
+      }
+
+      const { addVersioning } = await import("./heroJsonValidator");
+      const updatedHeroJson = addVersioning(
+        { ...heroJson, nickColor },
+        oldRevision
+      );
+
+      const updated = await prisma.character.update({
+        where: { id: ch.id },
+        data: {
+          coinLuck: { decrement: PRICE },
+          nickColor,
+          heroJson: updatedHeroJson,
+        },
+        select: { id: true, coinLuck: true, nickColor: true, heroJson: true, name: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
+      });
+
+      return reply.send({ ok: true, character: { ...updated, exp: Number(updated.exp) } });
+    } catch (error) {
+      app.log.error(error, "Error colorize-nick:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // POST /characters/:id/rename-nick - зміна ніка (50 Coin of Luck, має бути ПЕРЕД /characters/:id)
+  app.post("/characters/:id/rename-nick", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const targetId = (req.params as any).id;
+    const body = req.body as { name?: string; expectedRevision?: number };
+
+    const newName = (body.name ?? "").trim();
+    if (newName.length < 2) return reply.code(400).send({ error: "name too short" });
+    if (!/^[A-Za-z0-9_\- ]+$/.test(newName)) {
+      return reply.code(400).send({ error: "invalid name (use only A-Z, a-z, 0-9, _, -, space)" });
+    }
+
+    const PRICE = 50;
+
+    try {
+      const ch = await prisma.character.findFirst({
+        where: { id: targetId, accountId: auth.accountId },
+        select: { id: true, coinLuck: true, heroJson: true },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+
+      const heroJson = (ch.heroJson ?? {}) as any;
+      const oldRevision = heroJson.heroRevision ?? 0;
+      if (body.expectedRevision !== undefined && body.expectedRevision !== oldRevision) {
+        return reply.code(409).send({ error: "revision_conflict", revision: oldRevision });
+      }
+
+      const currentCoinLuck = ch.coinLuck ?? 0;
+      if (currentCoinLuck < PRICE) {
+        return reply.code(400).send({ error: "not enough coinLuck", coinLuck: currentCoinLuck });
+      }
+
+      const { addVersioning } = await import("./heroJsonValidator");
+      const updatedHeroJson = addVersioning(
+        { ...heroJson, name: newName, coinOfLuck: currentCoinLuck - PRICE },
+        oldRevision
+      );
+
+      const updated = await prisma.character.update({
+        where: { id: ch.id },
+        data: {
+          coinLuck: { decrement: PRICE },
+          name: newName,
+          heroJson: updatedHeroJson,
+        },
+        select: { id: true, coinLuck: true, name: true, heroJson: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
+      });
+
+      return reply.send({ ok: true, character: { ...updated, exp: Number(updated.exp) } });
+    } catch (error) {
+      app.log.error(error, "Error rename-nick:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   // POST /characters/:id/heal - лікування іншого гравця (має бути ПЕРЕД /characters/:id)
   app.post("/characters/:id/heal", async (req, reply) => {
     const auth = getAuth(req);
