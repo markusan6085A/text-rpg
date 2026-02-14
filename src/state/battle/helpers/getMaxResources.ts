@@ -26,18 +26,16 @@ export function getMaxResources(
     return { maxHp: 1, maxMp: 1, maxCp: 1 };
   }
 
-  const maxHp = hero.maxHp ?? hero.hp ?? 1;
-  const maxMp = hero.maxMp ?? hero.mp ?? 1;
-
-  // CP завжди залежить від HP, якщо явно не заданий
-  const maxCp =
-    hero.maxCp ??
-    Math.max(1, Math.round(maxHp * 0.6));
+  // ✅ base-first — завжди беремо base без бафів, щоб computeBuffedMaxResources додав бафи один раз
+  const heroAny = hero as any;
+  const baseMaxHp = Number(heroAny.baseMaxHp ?? heroAny.heroJson?.maxHp ?? hero.maxHp ?? hero.hp ?? 1);
+  const baseMaxMp = Number(heroAny.baseMaxMp ?? heroAny.heroJson?.maxMp ?? hero.maxMp ?? hero.mp ?? 1);
+  const baseMaxCp = Number(heroAny.baseMaxCp ?? heroAny.heroJson?.maxCp ?? hero.maxCp ?? Math.max(1, Math.round(baseMaxHp * 0.6)));
 
   return {
-    maxHp: Math.max(1, maxHp),
-    maxMp: Math.max(1, maxMp),
-    maxCp,
+    maxHp: Math.max(1, baseMaxHp),
+    maxMp: Math.max(1, baseMaxMp),
+    maxCp: Math.max(1, baseMaxCp),
   };
 }
 

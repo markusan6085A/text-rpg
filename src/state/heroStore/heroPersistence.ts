@@ -262,6 +262,15 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
+    // ✅ clamp hp/mp/cp до base max — сервер інакше робить Math.min(rawHp, maxHp) і "відкочує" після F5
+    const baseMaxHp = Number((hero as any).baseMaxHp ?? existingHeroJson.maxHp ?? hero.maxHp ?? 1);
+    const baseMaxMp = Number((hero as any).baseMaxMp ?? existingHeroJson.maxMp ?? hero.maxMp ?? 1);
+    const baseMaxCp = Number((hero as any).baseMaxCp ?? existingHeroJson.maxCp ?? hero.maxCp ?? Math.max(1, Math.round(baseMaxHp * 0.6)));
+
+    const hpToSave = Math.min(Math.max(0, Number(hero.hp ?? existingHeroJson.hp ?? 0)), baseMaxHp);
+    const mpToSave = Math.min(Math.max(0, Number(hero.mp ?? existingHeroJson.mp ?? 0)), baseMaxMp);
+    const cpToSave = Math.min(Math.max(0, Number(hero.cp ?? existingHeroJson.cp ?? 0)), baseMaxCp);
+
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
     // 🔥 КРИТИЧНО: inventory та equipment завжди беремо з hero, щоб стартовий набір не пропадав
     const heroJsonToSave = {
@@ -281,14 +290,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // 🔥 Прогрес (оновлюємо завжди) - значення будуть обчислені нижче з clamp
       level: Number(hero.level ?? existingHeroJson.level ?? 1),
       exp: Number(hero.exp ?? existingHeroJson.exp ?? 0),
-      // 🔥 Поточні ресурси (щоб після F5 HP/MP/CP не скидалися)
-      hp: Number(hero.hp ?? existingHeroJson.hp ?? 0),
-      mp: Number(hero.mp ?? existingHeroJson.mp ?? 0),
-      cp: Number(hero.cp ?? existingHeroJson.cp ?? 0),
-      // 🔥 maxHp/maxMp/maxCp — зберігаємо BASE (без бафів) для persistence; hero.maxHp може бути buffed
-      maxHp: Number((hero as any).baseMaxHp ?? hero.maxHp ?? existingHeroJson.maxHp ?? 0),
-      maxMp: Number((hero as any).baseMaxMp ?? hero.maxMp ?? existingHeroJson.maxMp ?? 0),
-      maxCp: Number((hero as any).baseMaxCp ?? hero.maxCp ?? existingHeroJson.maxCp ?? 0),
+      // ✅ hp/mp/cp завжди clamp до base max — сервер не буде "різати" і F5 не відкотить
+      hp: hpToSave,
+      mp: mpToSave,
+      cp: cpToSave,
+      maxHp: baseMaxHp,
+      maxMp: baseMaxMp,
+      maxCp: baseMaxCp,
       mobsKilled: Number(currentMobsKilled),
       coinOfLuck: Number(hero.coinOfLuck ?? existingHeroJson.coinOfLuck ?? 0),
       premiumUntil: hero.premiumUntil ?? existingHeroJson.premiumUntil ?? undefined,

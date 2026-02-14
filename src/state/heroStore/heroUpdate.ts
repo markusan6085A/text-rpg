@@ -69,7 +69,23 @@ export function updateHeroLogic(
     const now = Date.now();
     const savedBattle = loadBattle(updated.name);
     const inBattle = savedBattle?.status && savedBattle.status !== "idle";
-    const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
+
+    // ✅ беремо бафи і з heroJson, і з battle (міський/статуя баф зберігається в heroJson)
+    const heroJsonBuffs = Array.isArray((updated as any).heroJson?.heroBuffs)
+      ? (updated as any).heroJson.heroBuffs
+      : [];
+    const savedBattleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle!.heroBuffs : [];
+    const allBuffsRaw = [...heroJsonBuffs, ...savedBattleBuffs];
+    // ✅ дедуп "як у heroLoad" (по id/stackType/name і з max expiresAt)
+    const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
+    const bestByKey = new Map<string, any>();
+    for (const b of allBuffsRaw) {
+      const key = byKey(b);
+      const cur = bestByKey.get(key);
+      const exp = b.expiresAt ?? 0;
+      if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
+    }
+    const savedBuffs = cleanupBuffs(Array.from(bestByKey.values()), now);
     const recalculated = recalculateAllStats(updated, savedBuffs);
     
     if (!updated.baseStatsInitial) {
