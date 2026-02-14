@@ -368,16 +368,23 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       levelFromServer: serverLevelKnown !== null,
     });
     
-    const updatedCharacter = await updateCharacter(characterStore.characterId, {
+    // ❗ coinLuck надсилаємо тільки якщо >= серверного; зменшення — тільки через POST /premium/buy
+    const localCoinLuck = hero.coinOfLuck ?? 0;
+    const serverCoinLuck = serverState?.coinLuck ?? null;
+    const sendCoinLuck = serverCoinLuck === null || localCoinLuck >= serverCoinLuck;
+
+    const updatePayload: Parameters<typeof updateCharacter>[1] = {
       heroJson: heroJsonToSave,
       level: levelToSend,
-      exp: expToSend, // 🔥 Використовуємо clamped exp
-      sp: spToSend, // 🔥 Використовуємо clamped sp (замість hero.sp)
+      exp: expToSend,
+      sp: spToSend,
       adena: hero.adena,
       aa: hero.aa || 0,
-      coinLuck: hero.coinOfLuck || 0,
-      expectedRevision, // Передаємо для optimistic locking
-    });
+      expectedRevision,
+    };
+    if (sendCoinLuck) (updatePayload as any).coinLuck = localCoinLuck;
+
+    const updatedCharacter = await updateCharacter(characterStore.characterId, updatePayload);
     console.log('[saveHeroToLocalStorage] Hero saved successfully via API');
     
     // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision, exp, level, sp у store
@@ -396,9 +403,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const clampedSp = Math.max(currentHero.sp ?? 0, serverSp);
         // 🔥 КРИТИЧНО: clamp level — сервер може повертати level 1 (старий), не перезаписувати лвл 2→1
         const clampedLevel = Math.max(currentHero.level ?? 1, serverLevel);
+        const serverCoinLuck = Number((updatedCharacter as any).coinLuck ?? 0);
         useHeroStore.getState().applyServerSync(
           { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel } as any,
-          { exp: serverExp, level: clampedLevel, sp: serverSp, heroRevision: newRevision, updatedAt: Date.now() }
+          { exp: serverExp, level: clampedLevel, sp: serverSp, coinLuck: serverCoinLuck, heroRevision: newRevision, updatedAt: Date.now() }
         );
         console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, serverLevel });
       }

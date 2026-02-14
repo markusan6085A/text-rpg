@@ -250,6 +250,36 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
   return response.character;
 }
 
+export type PremiumPack = "3h" | "7h" | "12h" | "24h";
+
+export interface BuyPremiumResponse {
+  ok: boolean;
+  character: {
+    id: string;
+    coinLuck: number;
+    heroJson: any;
+    name?: string;
+    level?: number;
+    exp?: number;
+    sp?: number;
+    adena?: number;
+    aa?: number;
+    updatedAt?: string;
+  };
+}
+
+export async function buyPremium(
+  characterId: string,
+  pack: PremiumPack,
+  expectedRevision?: number
+): Promise<BuyPremiumResponse> {
+  const response = await apiRequest<BuyPremiumResponse>("/premium/buy", {
+    method: "POST",
+    body: JSON.stringify({ characterId, pack, expectedRevision }),
+  });
+  return response;
+}
+
 // Chat API
 export interface ChatMessage {
   id: string;

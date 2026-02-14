@@ -583,27 +583,18 @@ export async function characterRoutes(app: FastifyInstance) {
       if (typeof body.coinLuck !== 'number' || body.coinLuck < 0) {
         return reply.code(400).send({ error: "invalid coinLuck (must be >= 0)" });
       }
-      const currentCoinLuck = existing.coinLuck || 0;
-      const oldHeroJsonForCheck = (existing.heroJson as any) || {};
-      const isPremiumPurchase =
-        body.heroJson?.premiumUntil != null &&
-        Number(body.heroJson.premiumUntil || 0) > Number(oldHeroJsonForCheck.premiumUntil || 0) &&
-        Number(body.heroJson.premiumUntil || 0) > Date.now();
-      // Дозволяємо зменшення coinLuck тільки при покупці преміуму (Coin of Luck → преміум)
-      if (body.coinLuck < currentCoinLuck && !isPremiumPurchase) {
+      // ❗ coinLuck можна тільки збільшувати; зменшення — тільки через POST /premium/buy
+      if (body.coinLuck < (existing.coinLuck || 0)) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,
-          currentCoinLuck,
+          currentCoinLuck: existing.coinLuck || 0,
           attemptedCoinLuck: body.coinLuck,
-        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${currentCoinLuck} to ${body.coinLuck}`);
+        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${existing.coinLuck || 0} to ${body.coinLuck}`);
         return reply.code(400).send({ error: "coinLuck cannot be decreased" });
       }
     }
 
-    // Перевіряємо, чи була покупка преміуму (premiumUntil збільшився)
-    let premiumPurchased = false;
-    let premiumHours = 0;
     const oldHeroJson = existing.heroJson as any || {};
     const oldPremiumUntil = oldHeroJson.premiumUntil || 0;
     
@@ -692,20 +683,15 @@ export async function characterRoutes(app: FastifyInstance) {
 
       // 3. Перевірка, чи heroJson не порожній і має обов'язкові поля
       if (body.heroJson && typeof body.heroJson === 'object' && body.heroJson.name) {
-        const newPremiumUntil = body.heroJson.premiumUntil || 0;
-        // Якщо premiumUntil збільшився (нова покупка)
-        if (newPremiumUntil > oldPremiumUntil && newPremiumUntil > Date.now()) {
-          premiumPurchased = true;
-          // Обчислюємо тривалість в годинах
-          const now = Date.now();
-          const durationMs = newPremiumUntil - Math.max(now, oldPremiumUntil);
-          premiumHours = Math.round(durationMs / (1000 * 60 * 60));
-        }
+        // ❗ premiumUntil можна тільки зменшувати; збільшення — тільки через POST /premium/buy
+        const clientPremiumUntil = body.heroJson.premiumUntil != null ? Number(body.heroJson.premiumUntil) : oldPremiumUntil;
+        const clampedPremiumUntil = Math.min(clientPremiumUntil, oldPremiumUntil);
+        const heroJsonToSave = { ...body.heroJson, premiumUntil: clampedPremiumUntil };
         
         // 4. Додаємо/оновлюємо versioning
         // ❗ КРИТИЧНО: Сервер сам генерує нову ревізію на основі старої з БД
         const oldRevision = oldHeroJson.heroRevision || 0;
-        const versionedHeroJson = addVersioning(body.heroJson, oldRevision);
+        const versionedHeroJson = addVersioning(heroJsonToSave, oldRevision);
         updateData.heroJson = versionedHeroJson;
         app.log.info({
           accountId: auth.accountId,
@@ -927,18 +913,6 @@ export async function characterRoutes(app: FastifyInstance) {
           },
         });
       }
-    }
-
-    // Додаємо новину про покупку преміуму, якщо була покупка
-    if (premiumPurchased && premiumHours > 0) {
-      await addNews({
-        type: "premium_purchase",
-        characterId: updated.id,
-        characterName: updated.name,
-        metadata: { hours: premiumHours },
-      }).catch((err) => {
-        app.log.error(err, "Error adding premium purchase news:");
-      });
     }
 
     // Convert BigInt to Number for JSON serialization

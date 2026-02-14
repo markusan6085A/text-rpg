@@ -16,6 +16,7 @@ import { authLogoutRoutes } from "./routes/authLogout";
 import { adminAuthRoutes } from "./routes/adminAuth";
 import { adminRoutes } from "./routes/admin";
 import { adminPlayersRoutes } from "./routes/adminPlayers";
+import { premiumRoutes } from "./routes/premium";
 
 // Отримуємо шлях до dist папки (frontend build)
 // Якщо сервер запускається з server/, то process.cwd() = server/
@@ -191,6 +192,7 @@ const start = async () => {
     await app.register(adminPlayersRoutes, { prefix: "/admin/player" });
 
     await app.register(characterRoutes);
+    await app.register(premiumRoutes);
     await app.register(chatRoutes);
     await app.register(letterRoutes);
     await app.register(newsRoutes);
@@ -209,6 +211,7 @@ const start = async () => {
         request.url.startsWith("/news") ||
         request.url.startsWith("/seven-seals") ||
         request.url.startsWith("/clans") ||
+        request.url.startsWith("/premium") ||
         request.url.startsWith("/health") ||
         request.url.startsWith("/test-db")
       ) {

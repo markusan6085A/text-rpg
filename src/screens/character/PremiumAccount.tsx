@@ -1,6 +1,8 @@
 // src/screens/character/PremiumAccount.tsx
 import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
+import { useCharacterStore } from "../../state/characterStore";
+import { buyPremium, type PremiumPack } from "../../utils/api";
 
 interface Navigate {
   (path: string): void;
@@ -23,7 +25,9 @@ const PREMIUM_OPTIONS: PremiumOption[] = [
 export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
   const [selectedOption, setSelectedOption] = useState<PremiumOption | null>(null);
+  const [isBuying, setIsBuying] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
 
   // Оновлюємо час, що залишився
@@ -66,23 +70,49 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   const isPremiumActive = hero.premiumUntil && hero.premiumUntil > Date.now();
   const coinOfLuck = hero.coinOfLuck || 0;
 
-  const activatePremium = (option: PremiumOption) => {
+  const activatePremium = async (option: PremiumOption) => {
+    if (!characterId) {
+      alert("Персонаж не вибрано");
+      return;
+    }
     if (coinOfLuck < option.price) {
       alert(`Недостаточно Coin of Luck! Нужно: ${option.price}, у вас: ${coinOfLuck}`);
       return;
     }
 
-    const now = Date.now();
-    const currentUntil = hero.premiumUntil || 0;
-    const newUntil = Math.max(now, currentUntil) + option.hours * 60 * 60 * 1000;
-
-    updateHero({
-      premiumUntil: newUntil,
-      coinOfLuck: coinOfLuck - option.price,
-    });
-
-    setSelectedOption(null);
-    alert(`Преміум аккаунт активовано на ${option.label}!`);
+    setIsBuying(true);
+    try {
+      const res = await buyPremium(
+        characterId,
+        option.id as PremiumPack,
+        (hero as any)?.heroJson?.heroRevision
+      );
+      if (!res.ok || !res.character) {
+        alert("Помилка покупки преміуму");
+        return;
+      }
+      const { coinLuck, heroJson } = res.character;
+      const newPremiumUntil = heroJson?.premiumUntil;
+      useHeroStore.getState().updateServerState({ coinLuck });
+      updateHero({
+        premiumUntil: newPremiumUntil,
+        coinOfLuck: coinLuck,
+        heroJson: { ...(hero as any)?.heroJson, premiumUntil: newPremiumUntil, heroRevision: heroJson?.heroRevision },
+      });
+      setSelectedOption(null);
+      alert(`Преміум аккаунт активовано на ${option.label}!`);
+    } catch (err: any) {
+      const body = err?.body || {};
+      if (err?.status === 400 && body.error === "not enough coinLuck") {
+        alert(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coinOfLuck}`);
+      } else if (err?.status === 409) {
+        alert("Конфлікт версій. Перезавантажте сторінку і спробуйте знову.");
+      } else {
+        alert(body.error || err?.message || "Помилка покупки преміуму");
+      }
+    } finally {
+      setIsBuying(false);
+    }
   };
 
   return (
@@ -183,7 +213,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         <div className="flex justify-center">
           <button
             onClick={() => activatePremium(selectedOption)}
-            disabled={coinOfLuck < selectedOption.price}
+            disabled={coinOfLuck < selectedOption.price || isBuying}
             className={`px-4 py-2 text-xs rounded-md ${
               coinOfLuck >= selectedOption.price
                 ? "bg-green-700 text-white hover:bg-green-600"

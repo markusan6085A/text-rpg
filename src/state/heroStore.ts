@@ -19,6 +19,7 @@ export interface ServerState {
   exp: number;
   level: number;
   sp: number; // 🔥 Додано SP для синхронізації
+  coinLuck?: number; // coinLuck з сервера; не надсилаємо PUT якщо локальне < серверного (покупка преміуму)
   heroRevision?: number;
   updatedAt: number; // Timestamp останнього оновлення
 }
@@ -351,6 +352,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         exp: server.exp ?? current?.exp ?? 0,
         level: server.level ?? current?.level ?? 1,
         sp: server.sp ?? current?.sp ?? 0,
+        coinLuck: (server as any).coinLuck ?? current?.coinLuck,
         heroRevision: server.heroRevision ?? current?.heroRevision,
         updatedAt: server.updatedAt ?? current?.updatedAt ?? Date.now(),
       },
@@ -366,7 +368,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       serverState: {
         exp: state.exp ?? current?.exp ?? 0,
         level: state.level ?? current?.level ?? 1,
-        sp: state.sp ?? current?.sp ?? 0, // 🔥 Додано SP
+        sp: state.sp ?? current?.sp ?? 0,
+        coinLuck: state.coinLuck ?? current?.coinLuck,
         heroRevision: state.heroRevision ?? current?.heroRevision,
         updatedAt: state.updatedAt ?? current?.updatedAt ?? Date.now(),
       },
