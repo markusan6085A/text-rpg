@@ -253,12 +253,14 @@ export function recalculateAllStats(
   // Це гарантує, що hero.maxHp містить базове значення БЕЗ бафів
   // 6. caps / limits вже застосовані в calcCombatStats
 
-  // 7. Clamp поточні ресурси до нових max значень (L2: newHP = min(oldHP, newMaxHP), НЕ recalculated)
+  // 7. recalculateAllStats повертає базові пули як max (БЕЗ бафів).
+  // hero.hp живе в buffed space; finalResources.maxHp — base. Clamp hero.hp→base max дає штучне "падіння".
+  // heroLoad/heroUpdate вже роблять clamp по buffedMax — тут повертаємо тільки base max.
   const clampedResources = {
     ...finalResources,
-    hp: Math.min(hero.hp ?? finalResources.maxHp, finalResources.maxHp),
-    mp: Math.min(hero.mp ?? finalResources.maxMp, finalResources.maxMp),
-    cp: Math.min(hero.cp ?? finalResources.maxCp, finalResources.maxCp),
+    hp: finalResources.maxHp,
+    mp: finalResources.maxMp,
+    cp: finalResources.maxCp,
   };
 
   // 8. Застосовуємо бафи до статів для відображення в UI (Stats.tsx)

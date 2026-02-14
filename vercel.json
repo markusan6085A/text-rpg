@@ -1,12 +1,7 @@
 {
   "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://api.l2dop.com/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    {"source": "/api/premium/buy", "destination": "https://api.l2dop.com/premium/buy"},
+    {"source": "/api/:path*", "destination": "https://api.l2dop.com/:path*"},
+    {"source": "/(.*)", "destination": "/index.html"}
   ]
 }
