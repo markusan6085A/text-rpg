@@ -36,6 +36,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     level: hero.level ?? 1,
     sp: hero.sp ?? 0,
     adena: hero.adena ?? (hero as any).heroJson?.adena ?? 0,
+    coinOfLuck: hero.coinOfLuck ?? 0,
     skills: Array.isArray(hero.skills) ? hero.skills : [],
     mobsKilled,
     equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : {},
@@ -288,6 +289,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       maxMp: Number(hero.maxMp ?? existingHeroJson.maxMp ?? 0),
       maxCp: Number(hero.maxCp ?? existingHeroJson.maxCp ?? 0),
       mobsKilled: Number(currentMobsKilled),
+      coinOfLuck: Number(hero.coinOfLuck ?? existingHeroJson.coinOfLuck ?? 0),
       skills: Array.isArray(hero.skills) ? hero.skills : (Array.isArray(existingHeroJson.skills) ? existingHeroJson.skills : []),
       heroBuffs: Array.isArray(uniqueBuffs) ? uniqueBuffs : [],
       

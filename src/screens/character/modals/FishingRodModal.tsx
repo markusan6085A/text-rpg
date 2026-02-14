@@ -26,9 +26,12 @@ export default function FishingRodModal({
   const currentEnchantLevel = item.enchantLevel || 0;
   const maxEnchantLevel = 1000;
 
-  // Перевіряємо наявність Coin of Luck
-  const coinOfLuck = inventory.find((i) => i.id === "coin_of_luck");
-  const coinOfLuckCount = coinOfLuck?.count || 0;
+  // 🔥 КРИТИЧНО: Coin of Luck — hero.coinOfLuck (QuestShop, TreasureBox, DailyQuests) + inventory coin_of_luck (моб-дроп)
+  const heroCoins = hero.coinOfLuck || 0;
+  const invCoins = inventory
+    .filter((i) => i.id === "coin_of_luck")
+    .reduce((s, i) => s + (i.count || 0), 0);
+  const coinOfLuckCount = heroCoins + invCoins;
 
   // Розраховуємо стати з урахуванням заточки
   const basePAtk = item.stats?.pAtk || 1;
@@ -59,14 +62,19 @@ export default function FishingRodModal({
 
     const actualEnchantAmount = newEnchantLevel - currentEnchantLevel;
 
-    // Оновлюємо інвентар: видаляємо Coin of Luck
+    // Віднімаємо Coin of Luck: спочатку з hero.coinOfLuck, потім з inventory coin_of_luck
+    let remaining = actualEnchantAmount;
+    const newHeroCoins = Math.max(0, (currentHero.coinOfLuck || 0) - remaining);
+    remaining -= (currentHero.coinOfLuck || 0) - newHeroCoins;
+
     let updatedInventory = currentHero.inventory.map((i: HeroInventoryItem) => {
-      if (i.id === "coin_of_luck") {
-        const newCount = (i.count || 0) - actualEnchantAmount;
+      if (i.id === "coin_of_luck" && remaining > 0) {
+        const take = Math.min(i.count || 0, remaining);
+        remaining -= take;
+        const newCount = (i.count || 0) - take;
         return newCount > 0 ? { ...i, count: newCount } : null;
       }
       if (i.id === item.id) {
-        // Оновлюємо рівень заточки та стати
         return {
           ...i,
           enchantLevel: newEnchantLevel,
@@ -98,8 +106,9 @@ export default function FishingRodModal({
       };
     }
 
-    // Оновлюємо героя
+    // Оновлюємо героя (coinOfLuck + inventory)
     updateHero({
+      coinOfLuck: newHeroCoins,
       inventory: updatedInventory,
       equipmentEnchantLevels: updatedEquipmentEnchantLevels,
     });
