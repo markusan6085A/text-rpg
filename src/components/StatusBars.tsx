@@ -3,8 +3,8 @@ import { useHeroStore } from "../state/heroStore";
 import { getExpToNext } from "../data/expTable";
 import { useBattleStore } from "../state/battle/store";
 import { loadBattle, persistBattle } from "../state/battle/persist";
-import { cleanupBuffs } from "../state/battle/helpers";
-import { calculateMaxResourcesWithPassives } from "../utils/calculateHeroStats";
+import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
+import { getMaxResources } from "../state/battle/helpers/getMaxResources";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "./PlayerNameWithEmblem";
@@ -161,16 +161,10 @@ export default function StatusBars() {
       const currentHero = heroStore.hero;
       if (!currentHero) return;
       
-      const baseMaxHp = currentHero.maxHp || 1;
-      const baseMaxMp = currentHero.maxMp || 1;
-      const baseMaxCp = currentHero.maxCp ?? Math.round(baseMaxHp * 0.6);
-
+      const baseMax = getMaxResources(currentHero);
       const combinedBuffs = getCombinedBuffs();
       const { maxHp: buffedMaxHp, maxMp: buffedMaxMp, maxCp: buffedMaxCp } =
-        calculateMaxResourcesWithPassives(
-          { ...currentHero, maxHp: baseMaxHp, maxMp: baseMaxMp, maxCp: baseMaxCp },
-          combinedBuffs
-        );
+        computeBuffedMaxResources(baseMax, combinedBuffs);
 
       const hpRegen = Math.max(1, Math.round(buffedMaxHp * 0.02));
       const mpRegen = Math.max(1, Math.round(buffedMaxMp * 0.03));
@@ -253,21 +247,10 @@ export default function StatusBars() {
   // ВАЖЛИВО: Перевірка hero має бути ПІСЛЯ всіх хуків (useEffect тощо)
   if (!hero) return null;
 
-  // Завантажуємо бафи з battle state (включаючи бафи статуї) навіть поза боєм
-  const now = Date.now();
-  const savedBattle = loadBattle(hero.name);
-  const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
+  // Бази з hero, buffed max = base + бафи статуї/скілів (як у City та бою)
+  const baseMax = getMaxResources(hero);
   const battleBuffs = getCombinedBuffs();
-  
-  // Використовуємо hero.maxHp/maxMp/maxCp як базові значення (єдине джерело правди)
-  const baseMaxHp = hero.maxHp || 1;
-  const baseMaxMp = hero.maxMp || 1;
-  const baseMaxCp = hero.maxCp ?? Math.round(baseMaxHp * 0.6);
-  
-  const { maxHp, maxMp, maxCp } = calculateMaxResourcesWithPassives(
-    { ...hero, maxHp: baseMaxHp, maxMp: baseMaxMp, maxCp: baseMaxCp },
-    battleBuffs
-  );
+  const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, battleBuffs);
 
   // Читаємо ресурси з hero (єдине джерело правди)
   const hp = hero.hp ?? maxHp;

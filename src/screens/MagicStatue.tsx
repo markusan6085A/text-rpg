@@ -121,21 +121,21 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
       const newMp = Math.min(newMaxMp, currentHero.mp ?? newMaxMp);
       const newCp = Math.min(newMaxCp, currentHero.cp ?? newMaxCp);
       
-      // ❗ Оновлюємо hero з БАЗОВИМИ ресурсами БЕЗ бафів (бафи застосовуються в computeBuffedMaxResources)
-      // 🔥 КРИТИЧНО: Також зберігаємо бафи в heroJson для персистентності
+      // ❗ Зберігаємо в hero: max = BASE (для persistence), hp/mp/cp = з урахуванням бафів; бар рахує buffed через computeBuffedMaxResources
       const existingHeroJson = (currentHero as any).heroJson || {};
-      heroStore.updateHero({
-        maxHp: recalculated.resources.maxHp, // Базове значення БЕЗ бафів
+      const partial: any = {
+        maxHp: recalculated.resources.maxHp,
         maxMp: recalculated.resources.maxMp,
         maxCp: recalculated.resources.maxCp,
-        hp: newHp, // Але hp оновлюємо з урахуванням бафів
+        hp: newHp,
         mp: newMp,
         cp: newCp,
         heroJson: {
           ...existingHeroJson,
           heroBuffs: updatedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
-        } as any,
-      });
+        },
+      };
+      heroStore.updateHero(partial);
     }
 
     // Оновлюємо компонент для відображення
@@ -179,16 +179,16 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     const currentHero = heroStore.hero;
     if (currentHero) {
       const existingHeroJson = (currentHero as any).heroJson || {};
-      // Після зняття бафів max знижується — обрізаємо hp/mp/cp до базового max
+      // Після зняття бафів max = base; обрізаємо hp/mp/cp до base
       const baseMax = {
-        maxHp: currentHero.maxHp,
-        maxMp: currentHero.maxMp,
-        maxCp: currentHero.maxCp,
+        maxHp: currentHero.maxHp ?? 1,
+        maxMp: currentHero.maxMp ?? 1,
+        maxCp: currentHero.maxCp ?? 1,
       };
       heroStore.updateHero({
-        hp: Math.min(currentHero.hp, baseMax.maxHp),
-        mp: Math.min(currentHero.mp, baseMax.maxMp),
-        cp: Math.min(currentHero.cp, baseMax.maxCp),
+        hp: Math.min(currentHero.hp ?? baseMax.maxHp, baseMax.maxHp),
+        mp: Math.min(currentHero.mp ?? baseMax.maxMp, baseMax.maxMp),
+        cp: Math.min(currentHero.cp ?? baseMax.maxCp, baseMax.maxCp),
         heroJson: {
           ...existingHeroJson,
           heroBuffs: filteredBuffs,
