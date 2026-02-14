@@ -11,6 +11,7 @@ import { isMobOnRespawn, getRespawnTimeRemaining } from "../state/battle/mobResp
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { findSetForItem } from "../data/sets/armorSets";
 import { savePreviousLocation } from "../utils/locationNavigation";
+import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 
 type Navigate = (path: string) => void;
 
@@ -300,12 +301,18 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </div>
                 </div>
 
-                {/* Дроп */}
-                {selectedMob.drops && selectedMob.drops.length > 0 && (
+                {/* Дроп — для Floran зон використовуємо профіль дропу (опис = фактичний дроп) */}
+                {(() => {
+                  const isFloranZone = zone.id?.startsWith("floran");
+                  const floranProfile = isFloranZone ? getFloranMobDropProfile(selectedMob) : undefined;
+                  const displayDrops = floranProfile
+                    ? floranProfile.items.map((item) => ({ id: item.itemId, min: item.min, max: item.max, chance: item.chance }))
+                    : (selectedMob.drops ?? []);
+                  return displayDrops.length > 0 && (
                   <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
                     <div className="space-y-1">
-                      {selectedMob.drops.map((drop, idx) => {
+                      {displayDrops.map((drop: { id: string; min: number; max: number; chance: number }, idx: number) => {
                         const itemDef = itemsDB[drop.id];
                         const iconPath = itemDef?.icon 
                           ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
@@ -343,7 +350,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                       })}
                     </div>
                   </div>
-                )}
+                  );
+                })()}
 
                 {/* Спойл */}
                 {selectedMob.spoil && selectedMob.spoil.length > 0 && (

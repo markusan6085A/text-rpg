@@ -143,13 +143,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const serverCp = serverMaxNotStale && heroData?.cp != null ? Number(heroData.cp) : undefined;
         const mergedHero: Hero = {
           ...hydratedLocalHero,
-          maxHp: recalculated.resources.maxHp,
-          maxMp: recalculated.resources.maxMp,
-          maxCp: recalculated.resources.maxCp,
+          maxHp: buffedMax.maxHp,
+          maxMp: buffedMax.maxMp,
+          maxCp: buffedMax.maxCp,
           hp: serverHp !== undefined ? Math.min(serverHp, buffedMax.maxHp) : Math.min(hydratedLocalHero.hp ?? buffedMax.maxHp, buffedMax.maxHp),
           mp: serverMp !== undefined ? Math.min(serverMp, buffedMax.maxMp) : Math.min(hydratedLocalHero.mp ?? buffedMax.maxMp, buffedMax.maxMp),
           cp: serverCp !== undefined ? Math.min(serverCp, buffedMax.maxCp) : Math.min(hydratedLocalHero.cp ?? buffedMax.maxCp, buffedMax.maxCp),
         };
+        (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
+        (mergedHero as any).baseMaxMp = recalculated.resources.maxMp;
+        (mergedHero as any).baseMaxCp = recalculated.resources.maxCp;
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
           saveHeroToLocalStorage(mergedHero).catch((err: any) => {
             console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);
@@ -435,9 +438,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       baseStats: recalculated.originalBaseStats,
       baseStatsInitial: fixedHero.baseStatsInitial || recalculated.originalBaseStats,
       battleStats: recalculated.baseFinalStats,
-      maxHp: recalculated.resources.maxHp,
-      maxMp: recalculated.resources.maxMp,
-      maxCp: recalculated.resources.maxCp,
+      maxHp: finalMaxHp,
+      maxMp: finalMaxMp,
+      maxCp: finalMaxCp,
       hp: finalHp,
       mp: finalMp,
       cp: finalCp,
@@ -453,6 +456,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       ...(dailyQuestsCompleted !== undefined ? { dailyQuestsCompleted } : {}),
       ...(dailyQuestsResetDate !== undefined ? { dailyQuestsResetDate } : {}),
     };
+    (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
+    (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
+    (heroWithRecalculatedStats as any).baseMaxCp = recalculated.resources.maxCp;
     // 🔥 Зберігаємо повний heroJson з сервера (sevenSealsBonus, heroBuffs тощо)
     (heroWithRecalculatedStats as any).heroJson = heroData || (fixedHero as any).heroJson || {};
     

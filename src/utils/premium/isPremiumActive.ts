@@ -3,10 +3,13 @@ import type { Hero } from "../../types/Hero";
 
 /**
  * Перевіряє, чи активний преміум аккаунт
+ * premiumUntil може бути в hero.premiumUntil або hero.heroJson.premiumUntil (після load з API)
  */
 export function isPremiumActive(hero: Hero | null): boolean {
-  if (!hero || !hero.premiumUntil) return false;
-  return hero.premiumUntil > Date.now();
+  if (!hero) return false;
+  const until = hero.premiumUntil ?? (hero as any)?.heroJson?.premiumUntil;
+  if (!until) return false;
+  return until > Date.now();
 }
 
 /**

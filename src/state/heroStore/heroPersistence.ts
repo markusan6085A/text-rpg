@@ -37,6 +37,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     sp: hero.sp ?? 0,
     adena: hero.adena ?? (hero as any).heroJson?.adena ?? 0,
     coinOfLuck: hero.coinOfLuck ?? 0,
+    premiumUntil: hero.premiumUntil ?? (hero as any).heroJson?.premiumUntil,
     skills: Array.isArray(hero.skills) ? hero.skills : [],
     mobsKilled,
     equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : {},
@@ -284,12 +285,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       hp: Number(hero.hp ?? existingHeroJson.hp ?? 0),
       mp: Number(hero.mp ?? existingHeroJson.mp ?? 0),
       cp: Number(hero.cp ?? existingHeroJson.cp ?? 0),
-      // 🔥 Максимальні ресурси (щоб heal на сервері не падав до 100)
-      maxHp: Number(hero.maxHp ?? existingHeroJson.maxHp ?? 0),
-      maxMp: Number(hero.maxMp ?? existingHeroJson.maxMp ?? 0),
-      maxCp: Number(hero.maxCp ?? existingHeroJson.maxCp ?? 0),
+      // 🔥 maxHp/maxMp/maxCp — зберігаємо BASE (без бафів) для persistence; hero.maxHp може бути buffed
+      maxHp: Number((hero as any).baseMaxHp ?? hero.maxHp ?? existingHeroJson.maxHp ?? 0),
+      maxMp: Number((hero as any).baseMaxMp ?? hero.maxMp ?? existingHeroJson.maxMp ?? 0),
+      maxCp: Number((hero as any).baseMaxCp ?? hero.maxCp ?? existingHeroJson.maxCp ?? 0),
       mobsKilled: Number(currentMobsKilled),
       coinOfLuck: Number(hero.coinOfLuck ?? existingHeroJson.coinOfLuck ?? 0),
+      premiumUntil: hero.premiumUntil ?? existingHeroJson.premiumUntil ?? undefined,
       skills: Array.isArray(hero.skills) ? hero.skills : (Array.isArray(existingHeroJson.skills) ? existingHeroJson.skills : []),
       heroBuffs: Array.isArray(uniqueBuffs) ? uniqueBuffs : [],
       

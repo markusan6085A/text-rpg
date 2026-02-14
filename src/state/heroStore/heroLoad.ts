@@ -89,6 +89,7 @@ export function loadHero(): Hero | null {
       if (fixedHero.sp === undefined || fixedHero.sp === null) fixedHero.sp = Number(heroJson.sp ?? 0);
       if (fixedHero.adena === undefined || fixedHero.adena === null) fixedHero.adena = Number(heroJson.adena ?? 0);
       if ((fixedHero as any).coinOfLuck === undefined || (fixedHero as any).coinOfLuck === null) (fixedHero as any).coinOfLuck = Number((heroJson as any).coinOfLuck ?? 0);
+      if (fixedHero.premiumUntil === undefined || fixedHero.premiumUntil === null) (fixedHero as any).premiumUntil = Number((heroJson as any).premiumUntil ?? 0) || undefined;
       if (fixedHero.hp === undefined || fixedHero.hp === null) fixedHero.hp = Number(heroJson.hp ?? 0);
       if (fixedHero.mp === undefined || fixedHero.mp === null) fixedHero.mp = Number(heroJson.mp ?? 0);
       if (fixedHero.cp === undefined || fixedHero.cp === null) fixedHero.cp = Number(heroJson.cp ?? 0);
@@ -247,21 +248,22 @@ export function loadHero(): Hero | null {
         ? finalMaxCp
         : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0));
     
+    // ❗ hp і maxHp мають бути в одному просторі (обидва buffed), інакше clamp десь обріже hp
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,
-      baseStats: recalculated.originalBaseStats, // Оригінальні базові стати (не зрощені)
-      baseStatsInitial: fixedHero.baseStatsInitial || recalculated.originalBaseStats, // Зберігаємо оригінальні
+      baseStats: recalculated.originalBaseStats,
+      baseStatsInitial: fixedHero.baseStatsInitial || recalculated.originalBaseStats,
       battleStats: recalculated.baseFinalStats,
-      // ❗ ВАЖЛИВО: hero.maxHp має містити БАЗОВЕ значення БЕЗ бафів
-      // Бафи застосовуються в computeBuffedMaxResources при використанні
-      maxHp: recalculated.resources.maxHp, // Базове значення БЕЗ бафів
-      maxMp: recalculated.resources.maxMp, // Базове значення БЕЗ бафів
-      maxCp: recalculated.resources.maxCp, // Базове значення БЕЗ бафів
-      // ❗ hp/mp/cp можуть бути з урахуванням бафів (якщо були фул з бафами)
+      maxHp: finalMaxHp,
+      maxMp: finalMaxMp,
+      maxCp: finalMaxCp,
       hp: finalHp,
       mp: finalMp,
       cp: finalCp,
     };
+    (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
+    (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
+    (heroWithRecalculatedStats as any).baseMaxCp = recalculated.resources.maxCp;
     
     // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
     const hydratedHero = hydrateHero(heroWithRecalculatedStats);

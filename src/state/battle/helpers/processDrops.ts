@@ -1,6 +1,6 @@
 // src/state/battle/helpers/processDrops.ts
 import type { Mob } from "../../../data/world/types";
-import type { DropEntry } from "../../../data/combat/types";
+import type { DropEntry, DropKind } from "../../../data/combat/types";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { QUESTS } from "../../../data/quests";
@@ -9,6 +9,7 @@ import { INVENTORY_MAX_ITEMS } from "../../heroStore";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { reportMedalDrop } from "../../../utils/api";
 import { useCharacterStore } from "../../characterStore";
+import { getFloranMobDropProfile } from "../../../data/drop/floranMobDrops";
 
 // Функція для видалення грейдів з назв ресурсів
 // Грейди мають бути тільки в точках (enchant scrolls) та шмотках (equipment), але не в ресурсах
@@ -75,12 +76,26 @@ export function processMobDrops(
   const inventorySize = newInventory.filter(Boolean).length;
   const isInventoryFull = inventorySize >= INVENTORY_MAX_ITEMS;
 
+  // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) — щоб опис і фактичний дроп збігались
+  const isFloranMob = mob.id?.startsWith("fl_") || mob.id?.includes("floran") || mob.id?.startsWith("champ_floran");
+  const floranProfile = isFloranMob ? getFloranMobDropProfile(mob) : undefined;
+  const effectiveDrops: DropEntry[] = floranProfile
+    ? floranProfile.items.map((item) => {
+        const def = itemsDB[item.itemId];
+        let kind: DropKind = "resource";
+        if (item.itemId === "adena") kind = "adena";
+        else if (def?.slot === "weapon" || def?.slot === "armor") kind = "equipment";
+        else if (def?.slot) kind = "resource";
+        return { id: item.itemId, kind, chance: item.chance, min: item.min, max: item.max };
+      })
+    : (mob.drops ?? []);
+
   // Спочатку перевіряємо загальний шанс дропа
   const hasDrop = Math.random() < (mob.dropChance ?? 0.5);
 
-  if (hasDrop && mob.drops && mob.drops.length > 0) {
+  if (hasDrop && effectiveDrops.length > 0) {
     // Обробляємо кожен дроп
-    mob.drops.forEach((drop: DropEntry) => {
+    effectiveDrops.forEach((drop: DropEntry) => {
       const dropRoll = Math.random();
       if (dropRoll < drop.chance) {
         // Дроп випав!

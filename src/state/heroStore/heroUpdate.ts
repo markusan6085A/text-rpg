@@ -1,6 +1,6 @@
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { loadBattle } from "../battle/persist";
-import { cleanupBuffs } from "../battle/helpers";
+import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import type { Hero } from "../../types/Hero";
 import { hydrateHero } from "./heroHydration";
 
@@ -66,68 +66,61 @@ export function updateHeroLogic(
   }
 
   if (needsRecalc) {
-    // Перераховуємо ВСІ стати (ресурси + бойові) через централізовану функцію з урахуванням бафів
     const now = Date.now();
     const savedBattle = loadBattle(updated.name);
     const inBattle = savedBattle?.status && savedBattle.status !== "idle";
     const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
     const recalculated = recalculateAllStats(updated, savedBuffs);
     
-    // Зберігаємо оригінальні базові стати, якщо їх ще немає
     if (!updated.baseStatsInitial) {
       updated.baseStatsInitial = recalculated.originalBaseStats;
     }
     
-    // ❗ ВАЖЛИВО: hp/mp/cp НЕ чіпаємо під час бою - вони живуть тільки в BattleState
-    // Під час бою BattleState - єдине джерело правди для HP/MP/CP
-    // Поза боєм - оновлюємо тільки при level up (повністю відновлюємо до max)
-    const isLevelUp = partial.level !== undefined && partial.level !== prev.level;
+    const baseMax = {
+      maxHp: recalculated.resources.maxHp,
+      maxMp: recalculated.resources.maxMp,
+      maxCp: recalculated.resources.maxCp,
+    };
+    const buffedMax = computeBuffedMaxResources(baseMax, savedBuffs);
     
-    // hp/mp/cp оновлюємо ТІЛЬКИ якщо НЕ в бою АБО це level up
+    const isLevelUp = partial.level !== undefined && partial.level !== prev.level;
     const shouldUpdateResources = !inBattle || isLevelUp;
     
-    // ❗ Забороняємо hp/mp/cp міняти maxHp
-    // Якщо partial.hp передано - використовуємо його (з валідацією)
-    // Інакше використовуємо prev.hp (з валідацією)
+    // Клампимо по buffed max, щоб не обрізати hp при hp > base maxHp (бафи)
     const hpToUse = partial.hp !== undefined ? partial.hp : prev.hp;
     const safeHp =
-      hpToUse === undefined ||
-      hpToUse <= 0 ||
-      hpToUse >= recalculated.resources.maxHp
-        ? recalculated.resources.maxHp
-        : hpToUse;
+      hpToUse === undefined || hpToUse <= 0
+        ? buffedMax.maxHp
+        : Math.min(buffedMax.maxHp, Math.max(0, hpToUse));
     
     const mpToUse = partial.mp !== undefined ? partial.mp : prev.mp;
     const safeMp =
-      mpToUse === undefined ||
-      mpToUse <= 0 ||
-      mpToUse >= recalculated.resources.maxMp
-        ? recalculated.resources.maxMp
-        : mpToUse;
+      mpToUse === undefined || mpToUse <= 0
+        ? buffedMax.maxMp
+        : Math.min(buffedMax.maxMp, Math.max(0, mpToUse));
     
     const cpToUse = partial.cp !== undefined ? partial.cp : prev.cp;
     const safeCp =
-      cpToUse === undefined ||
-      cpToUse <= 0 ||
-      cpToUse >= recalculated.resources.maxCp
-        ? recalculated.resources.maxCp
-        : cpToUse;
+      cpToUse === undefined || cpToUse <= 0
+        ? buffedMax.maxCp
+        : Math.min(buffedMax.maxCp, Math.max(0, cpToUse));
     
     updated = {
       ...updated,
-      baseStats: recalculated.originalBaseStats, // Зберігаємо ОРИГІНАЛЬНІ базові стати (не зрощені)
-      maxHp: recalculated.resources.maxHp, // Явно встановлюємо maxHp
-      maxMp: recalculated.resources.maxMp, // Явно встановлюємо maxMp
-      maxCp: recalculated.resources.maxCp, // Явно встановлюємо maxCp
+      baseStats: recalculated.originalBaseStats,
+      maxHp: buffedMax.maxHp, // buffed — узгоджено з hp
+      maxMp: buffedMax.maxMp,
+      maxCp: buffedMax.maxCp,
       battleStats: recalculated.baseFinalStats,
-      // Оновлюємо hp/mp/cp тільки якщо потрібно (не в бою або level up)
-      // Використовуємо safeHp/safeMp/safeCp, щоб не перезаписати правильні значення
       ...(shouldUpdateResources ? {
-        hp: isLevelUp ? recalculated.resources.maxHp : safeHp,
-        mp: isLevelUp ? recalculated.resources.maxMp : safeMp,
-        cp: isLevelUp ? recalculated.resources.maxCp : safeCp,
+        hp: isLevelUp ? buffedMax.maxHp : safeHp,
+        mp: isLevelUp ? buffedMax.maxMp : safeMp,
+        cp: isLevelUp ? buffedMax.maxCp : safeCp,
       } : {}),
     };
+    (updated as any).baseMaxHp = recalculated.resources.maxHp;
+    (updated as any).baseMaxMp = recalculated.resources.maxMp;
+    (updated as any).baseMaxCp = recalculated.resources.maxCp;
   }
 
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
