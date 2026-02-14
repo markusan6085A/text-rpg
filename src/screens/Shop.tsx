@@ -97,11 +97,11 @@ export default function Shop({ navigate }: ShopProps) {
       return;
     }
 
-    // Використовуємо маппінг для знаходження itemsDBId
-    let itemsDBId: string | undefined = SHOP_ITEM_ID_MAPPING[item.itemId];
+    // 🔥 КРИТИЧНО: Спочатку item.id (унікальний для кожного предмета), інакше itemId→маппінг дає неправильні іконки
+    let itemsDBId: string | undefined = item.id && itemsDB[item.id] ? item.id : SHOP_ITEM_ID_MAPPING[item.itemId];
     let itemDef = itemsDBId ? itemsDB[itemsDBId] : undefined;
 
-    // Якщо не знайшли через маппінг, спробуємо знайти за назвою (fallback)
+    // Якщо не знайшли через id/маппінг, спробуємо знайти за назвою (fallback)
     if (!itemDef && item.name) {
       const itemNameLower = item.name.toLowerCase().replace(/\[.*?\]/g, '').trim();
       itemsDBId = Object.keys(itemsDB).find(key => {

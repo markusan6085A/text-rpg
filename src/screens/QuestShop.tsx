@@ -236,11 +236,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       return;
     }
 
-    // Використовуємо маппінг для знаходження itemsDBId
-    let itemsDBId: string | undefined = QUEST_SHOP_ITEM_MAPPING[item.itemId];
+    // 🔥 КРИТИЧНО: Спочатку використовуємо item.id з ShopItem (унікальний для кожного предмета)
+    // Багато A-grade зброї мають itemId 2500 (placeholder) — маппінг 2500→dark_legions_edge давав неправильну іконку
+    let itemsDBId: string | undefined = item.id && itemsDB[item.id] ? item.id : QUEST_SHOP_ITEM_MAPPING[item.itemId];
     let itemDef = itemsDBId ? itemsDB[itemsDBId] : undefined;
 
-    // Якщо не знайшли через маппінг, спробуємо знайти за назвою (fallback)
+    // Якщо не знайшли через id/маппінг, спробуємо знайти за назвою (fallback)
     if (!itemDef && item.name) {
       const itemNameLower = item.name.toLowerCase().replace(/\[.*?\]/g, '').trim();
       itemsDBId = Object.keys(itemsDB).find(key => {
@@ -316,8 +317,9 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     setBuyQuantity(1);
   };
 
-  // Отримання itemsDB ID з ShopItem
+  // Отримання itemsDB ID з ShopItem — спочатку item.id (унікальний), потім маппінг
   const getItemsDBId = (item: ShopItem): string | null => {
+    if (item.id && itemsDB[item.id]) return item.id;
     return QUEST_SHOP_ITEM_MAPPING[item.itemId] || null;
   };
 
@@ -376,16 +378,14 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     if (item.icon) {
       return item.icon.startsWith("/") ? item.icon : `/items/${item.icon}`;
     }
-    // Використовуємо itemId напряму для формування шляху до іконки
-    // Всі іконки тепер мають формат /items/drops/items/{ID}.jpg
-    if (item.itemId) {
-      return `/items/drops/items/${item.itemId}.jpg`;
-    }
-    // Якщо немає itemId, шукаємо в itemsDB через маппінг (fallback)
-    const itemsDBId = QUEST_SHOP_ITEM_MAPPING[item.itemId || 0];
-    if (itemsDBId && itemsDB[itemsDBId]) {
+    // 🔥 КРИТИЧНО: Використовуємо getItemsDBId (item.id спочатку) — itemId 2500 давав однакові іконки
+    const itemsDBId = getItemsDBId(item);
+    if (itemsDBId && itemsDB[itemsDBId]?.icon) {
       const icon = itemsDB[itemsDBId].icon;
       return icon.startsWith("/") ? icon : `/items/${icon}`;
+    }
+    if (item.itemId) {
+      return `/items/drops/items/${item.itemId}.jpg`;
     }
     return "/items/drops/Weapon_squires_sword_i00_0.jpg"; // дефолтна іконка
   };
