@@ -38,6 +38,8 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     adena: hero.adena ?? (hero as any).heroJson?.adena ?? 0,
     skills: Array.isArray(hero.skills) ? hero.skills : [],
     mobsKilled,
+    equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : {},
+    activeDyes: Array.isArray(hero.activeDyes) ? hero.activeDyes : [],
   };
 }
 
@@ -294,6 +296,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       inventory: Array.isArray(hero.inventory) ? hero.inventory : (Array.isArray(existingHeroJson.inventory) ? existingHeroJson.inventory : []),
       equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : (existingHeroJson.equipment && typeof existingHeroJson.equipment === 'object' ? existingHeroJson.equipment : {}),
       ...(hero.equipmentEnchantLevels && Object.keys(hero.equipmentEnchantLevels).length > 0 ? { equipmentEnchantLevels: hero.equipmentEnchantLevels } : {}),
+      activeDyes: Array.isArray(hero.activeDyes) && hero.activeDyes.length > 0 ? hero.activeDyes : (Array.isArray(existingHeroJson.activeDyes) ? existingHeroJson.activeDyes : []),
       // Щоденні завдання — завжди зберігаємо в heroJson (включно з порожніми після скидання)
       dailyQuestsProgress: hero.dailyQuestsProgress && typeof hero.dailyQuestsProgress === "object" ? hero.dailyQuestsProgress : (existingHeroJson.dailyQuestsProgress ?? {}),
       dailyQuestsCompleted: Array.isArray(hero.dailyQuestsCompleted) ? hero.dailyQuestsCompleted : (existingHeroJson.dailyQuestsCompleted ?? []),

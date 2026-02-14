@@ -92,21 +92,43 @@ export function loadHero(): Hero | null {
       if (fixedHero.mp === undefined || fixedHero.mp === null) fixedHero.mp = Number(heroJson.mp ?? 0);
       if (fixedHero.cp === undefined || fixedHero.cp === null) fixedHero.cp = Number(heroJson.cp ?? 0);
       const mobsKilled = (fixedHero as any).mobsKilled ?? heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? 0;
-      const skills = (Array.isArray(fixedHero.skills) && fixedHero.skills.length > 0)
-        ? fixedHero.skills
-        : (Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : []);
       (fixedHero as any).mobsKilled = mobsKilled;
-      fixedHero.skills = skills;
+      // 🔥 КРИТИЧНО: Union-merge equipment і skills — ніколи не губити плащ/пояс/тату/доп. скіли після F5
+      const heroEquip = fixedHero.equipment ?? {};
+      const jsonEquip = (heroJson as any).equipment ?? {};
+      fixedHero.equipment = { ...jsonEquip, ...heroEquip };
+      const heroEnch = fixedHero.equipmentEnchantLevels ?? {};
+      const jsonEnch = (heroJson as any).equipmentEnchantLevels ?? {};
+      fixedHero.equipmentEnchantLevels = { ...jsonEnch, ...heroEnch };
+      const heroSkills = Array.isArray(fixedHero.skills) ? fixedHero.skills : [];
+      const jsonSkills = Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : [];
+      const skillById = new Map<number, { id: number; level: number }>();
+      for (const s of jsonSkills) {
+        const id = Number((s as any).id);
+        const lvl = Number((s as any).level) || 1;
+        if (id) skillById.set(id, { id, level: lvl });
+      }
+      for (const s of heroSkills) {
+        const id = Number((s as any).id);
+        const lvl = Number((s as any).level) || 1;
+        if (!id) continue;
+        const cur = skillById.get(id);
+        if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
+      }
+      fixedHero.skills = skillById.size > 0 ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level })) : (heroSkills.length > 0 ? heroSkills : jsonSkills);
+      const heroDyes = Array.isArray(fixedHero.activeDyes) ? fixedHero.activeDyes : [];
+      const jsonDyes = Array.isArray((heroJson as any).activeDyes) ? (heroJson as any).activeDyes : [];
+      fixedHero.activeDyes = heroDyes.length >= jsonDyes.length ? heroDyes : jsonDyes;
       // Щоденні завдання — відновлюємо з heroJson при завантаженні з localStorage
       if ((fixedHero as any).dailyQuestsProgress === undefined && (heroJson as any).dailyQuestsProgress) (fixedHero as any).dailyQuestsProgress = (heroJson as any).dailyQuestsProgress;
       if ((fixedHero as any).dailyQuestsCompleted === undefined && Array.isArray((heroJson as any).dailyQuestsCompleted)) (fixedHero as any).dailyQuestsCompleted = (heroJson as any).dailyQuestsCompleted;
       if ((fixedHero as any).dailyQuestsResetDate === undefined && (heroJson as any).dailyQuestsResetDate) (fixedHero as any).dailyQuestsResetDate = (heroJson as any).dailyQuestsResetDate;
-      // Інвентар та екіпіровка — відновлюємо з heroJson, якщо на герої відсутні (щоб не втрачати покупки)
-      if ((!fixedHero.inventory || !Array.isArray(fixedHero.inventory) || fixedHero.inventory.length === 0) && Array.isArray((heroJson as any).inventory) && (heroJson as any).inventory.length > 0) {
-        fixedHero.inventory = (heroJson as any).inventory;
-      }
-      if ((!fixedHero.equipment || typeof fixedHero.equipment !== 'object') && (heroJson as any).equipment && typeof (heroJson as any).equipment === 'object' && Object.keys((heroJson as any).equipment).length > 0) {
-        fixedHero.equipment = (heroJson as any).equipment;
+      const heroInv = fixedHero.inventory ?? [];
+      const jsonInv = (heroJson as any).inventory ?? [];
+      if (Array.isArray(heroInv) && Array.isArray(jsonInv)) {
+        fixedHero.inventory = heroInv.length >= jsonInv.length ? heroInv : jsonInv;
+      } else if (Array.isArray(jsonInv) && jsonInv.length > 0 && (!heroInv || heroInv.length === 0)) {
+        fixedHero.inventory = jsonInv;
       }
 
       // Міграція: виправляємо предмети "Angel Slayer", які були куплені як лук
@@ -169,7 +191,18 @@ export function loadHero(): Hero | null {
     // Перераховуємо стати при завантаженні героя з урахуванням бафів
     const now = Date.now();
     const savedBattle = loadBattle(fixedHero.name);
-    const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
+    const heroJsonBuffs = Array.isArray((fixedHero as any).heroBuffs) ? (fixedHero as any).heroBuffs : Array.isArray((fixedHero as any).heroJson?.heroBuffs) ? (fixedHero as any).heroJson.heroBuffs : [];
+    const savedBattleBuffs = savedBattle?.heroBuffs || [];
+    const allBuffsRaw = [...heroJsonBuffs, ...savedBattleBuffs];
+    const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
+    const bestByKey = new Map<string, any>();
+    for (const b of allBuffsRaw) {
+      const key = byKey(b);
+      const cur = bestByKey.get(key);
+      const exp = b.expiresAt ?? 0;
+      if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
+    }
+    const savedBuffs = cleanupBuffs(Array.from(bestByKey.values()), now);
     const recalculated = recalculateAllStats(fixedHero, []);
     
     // ❗ ВАЖЛИВО: recalculated.resources.maxHp містить БАЗОВЕ значення БЕЗ бафів
