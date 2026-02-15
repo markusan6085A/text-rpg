@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db";
 import { addNews } from "./news";
+import { safeJsonStringify } from "./utils/sanitizeBigInt";
 import { validateHeroJson, addVersioning, checkRevision } from "./heroJsonValidator";
 import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 
@@ -893,7 +894,7 @@ export async function characterRoutes(app: FastifyInstance) {
 
           // Додаємо heroJson (завжди є, бо ми в блоці updateData.heroJson)
           setParts.push(`"heroJson" = $${paramIndex}::jsonb`);
-          params.push(JSON.stringify(updatedHeroJson));
+          params.push(safeJsonStringify(updatedHeroJson));
           paramIndex++;
 
           if (updateData.level !== undefined) {

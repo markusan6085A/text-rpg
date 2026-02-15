@@ -141,8 +141,7 @@ export async function addNews(params: {
     });
     console.log(`[News] Added news: type=${params.type}, characterName=${params.characterName}, id=${news.id}`);
   } catch (error) {
-    console.error("[News] Error adding news:", error);
-    console.error("[News] Params:", JSON.stringify(params, null, 2));
+    console.error("[News] Error adding news:", (error as Error)?.message, (error as { code?: string })?.code);
     // Перекидаємо помилку, щоб вона не тихо гасла
     throw error;
   }

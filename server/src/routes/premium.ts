@@ -91,10 +91,10 @@ export async function premiumRoutes(app: FastifyInstance) {
       return reply.code(404).send({ error: "character not found" });
     }
     if (result.kind === "conflict") {
-      return reply.code(409).send({ error: "revision_conflict", revision: result.revision });
+      return reply.code(409).send({ error: "revision_conflict", revision: Number(result.revision ?? 0) });
     }
     if (result.kind === "no_money") {
-      return reply.code(400).send({ error: "not enough coinLuck", coinLuck: result.coinLuck });
+      return reply.code(400).send({ error: "not enough coinLuck", coinLuck: Number(result.coinLuck ?? 0) });
     }
 
     const hours = Math.round(cfg.addMs / (1000 * 60 * 60));
