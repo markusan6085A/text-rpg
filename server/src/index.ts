@@ -4,6 +4,7 @@ import cookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import { prisma } from "./db";
+import { sanitizeBigInt } from "./utils/sanitizeBigInt";
 import { authRoutes } from "./auth";
 import { characterRoutes } from "./characters";
 import { chatRoutes } from "./chat";
@@ -42,6 +43,12 @@ const app = Fastify({
   logger: true,
   // 🔥 Дозволяємо DELETE без body
   bodyLimit: 1048576, // 1MB
+});
+
+// Глобально санитизуємо BigInt у всіх відповідях (Prisma повертає exp як BigInt)
+app.addHook("preSerialization", async (_request, _reply, payload) => {
+  if (payload === undefined || payload === null) return payload;
+  return sanitizeBigInt(payload);
 });
 
 // Root route - тільки для API запитів (з заголовком Accept: application/json)

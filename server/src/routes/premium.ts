@@ -4,19 +4,6 @@ import { prisma } from "../db";
 import { addVersioning } from "../heroJsonValidator";
 import { addNews } from "../news";
 
-/** Рекурсивно конвертує BigInt → Number для JSON-серіалізації */
-function sanitizeBigInt(obj: unknown): unknown {
-  if (obj === null || obj === undefined) return obj;
-  if (typeof obj === "bigint") return Number(obj);
-  if (Array.isArray(obj)) return obj.map(sanitizeBigInt);
-  if (typeof obj === "object") {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(obj)) out[k] = sanitizeBigInt(v);
-    return out;
-  }
-  return obj;
-}
-
 const PREMIUM_PACKAGES = {
   "3h": { addMs: 3 * 60 * 60 * 1000, price: 3 },
   "7h": { addMs: 7 * 60 * 60 * 1000, price: 5 },
@@ -120,11 +107,6 @@ export async function premiumRoutes(app: FastifyInstance) {
       req.log?.error?.(err, "Error adding premium purchase news");
     });
 
-    const c = result.character;
-    const serialized = sanitizeBigInt({
-      ...c,
-      exp: Number(c.exp ?? 0),
-    }) as typeof c;
-    return reply.send({ ok: true, character: serialized });
+    return reply.send({ ok: true, character: result.character });
   });
 }
