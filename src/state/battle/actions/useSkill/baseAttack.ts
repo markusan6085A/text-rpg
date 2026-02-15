@@ -349,6 +349,10 @@ export function handleBaseAttack(
     let heroHpAfter = nextHeroHP; // Використовуємо nextHeroHP, який вже враховує крадіжку HP
     let heroCpAfter = curHeroCP;
     let heroMpAfter = curHeroMP;
+    // 🔥 displayExp/Sp/Adena — для UI (враховуємо premium x2); базові якщо curHero немає
+    let displayExp = expGain;
+    let displaySp = spGain;
+    let displayAdena = adenaGain;
 
     if (adenaGain || expGain || spGain) {
       if (curHero) {
@@ -357,6 +361,9 @@ export function handleBaseAttack(
         const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
         const finalSpGain = Math.round(spGain * premiumMultiplier);
         const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
+        displayExp = finalExpGain;
+        displaySp = finalSpGain;
+        displayAdena = finalAdenaGain;
 
         // 🔥 КРИТИЧНО: Number() — API/мобільний може повертати exp/level як string; "67"+10="6710"
         // Також float: 67.999999 >= 68 = false — додаємо epsilon для порівняння
@@ -464,7 +471,7 @@ export function handleBaseAttack(
       lootMessages.push(`Whirlwind Attack: добыча умножена на ${lootMultiplier} (убито ${cleaveKills} дополнительных врагов)`);
     }
     
-    lootMessages.push(`Добыча: +${expGain} EXP, +${spGain} SP, +${adenaGain} адены`);
+    lootMessages.push(`Добыча: +${displayExp} EXP, +${displaySp} SP, +${displayAdena} адены`);
     
     // Додаємо повідомлення про дропи
     if (dropMessages.length > 0) {
@@ -511,7 +518,7 @@ export function handleBaseAttack(
         ...newLog,
       ].filter((msg) => msg !== null),
       cooldowns: state.cooldowns,
-      lastReward: { exp: expGain, sp: spGain, adena: adenaGain, mob: state.mob?.name ?? "", spoiled: mobSpoiled },
+      lastReward: { exp: displayExp, sp: displaySp, adena: displayAdena, mob: state.mob?.name ?? "", spoiled: mobSpoiled },
     });
     return true;
   }

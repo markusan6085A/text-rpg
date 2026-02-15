@@ -270,6 +270,9 @@ export function handleAttackSkill(
     let heroHpAfter = healedHeroHP;
     let heroCpAfter = hero.cp ?? 0;
     let heroMpAfter = nextHeroMP;
+    let displayExp = expGain;
+    let displaySp = spGain;
+    let displayAdena = adenaGain;
 
     if (adenaGain || expGain || spGain) {
       if (curHero) {
@@ -278,6 +281,9 @@ export function handleAttackSkill(
         const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
         const finalSpGain = Math.round(spGain * premiumMultiplier);
         const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
+        displayExp = finalExpGain;
+        displaySp = finalSpGain;
+        displayAdena = finalAdenaGain;
 
         // 🔥 КРИТИЧНО: Number() — API/мобільний може повертати exp/level як string
         let level = Number(curHero.level ?? 1) || 1;
@@ -366,12 +372,12 @@ export function handleAttackSkill(
       log: [
         `${state.mob?.name} повержен.`,
         mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
-        `Добыча: +${expGain} EXP, +${spGain} SP, +${adenaGain} адены`,
+        `Добыча: +${displayExp} EXP, +${displaySp} SP, +${displayAdena} адены`,
         ...(dropMessages.length > 0 ? dropMessages : []),
         ...newLog,
       ].filter((msg) => msg !== null).slice(0, 30),
       cooldowns: updatedCooldowns,
-      lastReward: { exp: expGain, sp: spGain, adena: adenaGain, mob: state.mob?.name ?? "", spoiled: mobSpoiled },
+      lastReward: { exp: displayExp, sp: displaySp, adena: displayAdena, mob: state.mob?.name ?? "", spoiled: mobSpoiled },
       heroBuffs: updatedBuffs,
     });
     return true;

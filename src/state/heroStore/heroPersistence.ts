@@ -500,15 +500,19 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
           // 1. Отримуємо актуального героя з сервера (GET /characters/:id)
           const characterStore = useCharacterStore.getState();
           const currentCharacter = await getCharacter(characterStore.characterId);
-          
+          const { useHeroStore } = await import('../heroStore');
+          const currentHero = useHeroStore.getState().hero;
+          // 🔥 КРИТИЧНО: використовуємо currentHero (зі store), а не hero (параметр) — hero може бути застарілим,
+          // якщо між запуском save і 409 викликався learnSkill (наприклад, при race з fixProfession на GuildScreen)
+          const localSource = currentHero ?? hero;
           if (currentCharacter) {
             // 2. Мержимо локальні дельти (exp/mobsKilled/skills/buffs) з серверним станом
             const serverHeroJson = currentCharacter.heroJson || {};
-            const localMobsKilled = (hero as any).mobsKilled ?? 0;
+            const localMobsKilled = (localSource as any).mobsKilled ?? (hero as any).mobsKilled ?? 0;
             const serverMobsKilled = serverHeroJson.mobsKilled ?? 0;
-            const localExp = hero.exp ?? 0;
+            const localExp = localSource.exp ?? hero.exp ?? 0;
             const serverExp = serverHeroJson.exp ?? Number(currentCharacter.exp) ?? 0;
-            const localSkills = hero.skills ?? [];
+            const localSkills = localSource.skills ?? hero.skills ?? [];
             const serverSkills = serverHeroJson.skills ?? [];
             
             // 🔥 КРИТИЧНО: Merge exp/mobsKilled - беремо більше значення (щоб не втратити прогрес)
@@ -533,10 +537,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             });
             
             // 🔥 КРИТИЧНО: Об'єднуємо бафи з нормалізацією та очищенням прострочених
-            const savedBattle = loadBattle(hero.name);
+            const heroName = localSource.name ?? hero.name;
+            const savedBattle = loadBattle(heroName);
             const battleBuffs = savedBattle?.heroBuffs || [];
             const serverBuffs = Array.isArray(serverHeroJson.heroBuffs) ? serverHeroJson.heroBuffs : [];
-            const localBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
+            const localBuffs = Array.isArray((localSource as any).heroJson?.heroBuffs) ? (localSource as any).heroJson.heroBuffs : Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
             const allBuffs = [...serverBuffs, ...localBuffs, ...battleBuffs];
             
             // Нормалізуємо бафи: об'єднуємо за buffId/source, беремо максимальний expiresAt
@@ -580,24 +585,23 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             const cleanedBuffs = cleanupBuffs(mergedBuffs, now);
             
             // 3. Оновлюємо hero в store з актуальною ревізією та змердженими даними
-            const { useHeroStore } = await import('../heroStore');
-            const currentHero = useHeroStore.getState().hero;
-            if (currentHero) {
-              const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision;
+            const heroBase = currentHero ?? hero;
+            if (heroBase) {
+              const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision || (serverHeroJson as any).heroRevision;
               const serverLevel = Number(currentCharacter.level ?? 1);
               const serverSp = Number(currentCharacter.sp ?? 0);
               // 🔥 clamp level — не перезаписувати лвл 2→1
-              const mergedLevel = Math.max(currentHero.level ?? 1, serverLevel);
+              const mergedLevel = Math.max(heroBase.level ?? 1, serverLevel);
 
               const mergedHero = {
-                ...currentHero,
+                ...heroBase,
                 exp: mergedExp,
                 level: mergedLevel,
                 mobsKilled: mergedMobsKilled as any,
                 skills: mergedSkills,
                 heroRevision: newRevision,
                 heroJson: {
-                  ...(currentHero as any).heroJson,
+                  ...(heroBase as any).heroJson,
                   ...serverHeroJson,
                   exp: mergedExp,
                   mobsKilled: mergedMobsKilled,

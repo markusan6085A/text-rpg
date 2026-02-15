@@ -718,6 +718,9 @@ export function processSummonAttack(
 
     let leveled = false;
     const updateHero = useHeroStore.getState().updateHero;
+    let displayExp = expGain;
+    let displaySp = spGain;
+    let displayAdena = adenaGain;
 
     if (curHero && (adenaGain || expGain || spGain)) {
       // Преміум множник
@@ -725,6 +728,9 @@ export function processSummonAttack(
       const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
       const finalSpGain = Math.round(spGain * premiumMultiplier);
       const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
+      displayExp = finalExpGain;
+      displaySp = finalSpGain;
+      displayAdena = finalAdenaGain;
 
       // Оновлюємо прогрес щоденних завдань: адена та вбиті моби (для сумонів)
       const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
@@ -791,14 +797,14 @@ export function processSummonAttack(
     updates.log = [
       `${mob.name} повержен.`,
       mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
-      `Добыча: +${expGain} EXP, +${spGain} SP, +${adenaGain} адены`,
+      `Добыча: +${displayExp} EXP, +${displaySp} SP, +${displayAdena} адены`,
       ...(dropMessages.length > 0 ? dropMessages : []),
       ...newLog,
     ].filter((msg) => msg !== null).slice(0, 30);
     updates.lastReward = { 
-      exp: expGain, 
-      sp: spGain, 
-      adena: adenaGain, 
+      exp: displayExp, 
+      sp: displaySp, 
+      adena: displayAdena, 
       mob: mob.name ?? "",
       spoiled: mobSpoiled
     };
