@@ -1155,12 +1155,14 @@ export async function characterRoutes(app: FastifyInstance) {
   });
 
   // POST /characters/heartbeat - оновлення активності (heartbeat)
+  // 🔥 КРИТИЧНО: raw SQL — оновлюємо ТІЛЬКИ lastActivityAt, БЕЗ updatedAt.
+  // Prisma update() тригерить updatedAt → optimistic lock (heroRevision) міг би "зламатися",
+  // бо інші процеси іноді прив'язують revision до оновлень рядка.
   app.post("/characters/heartbeat", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     try {
-      // Оновлюємо lastActivityAt для першого (активного) персонажа
       const character = await prisma.character.findFirst({
         where: { accountId: auth.accountId },
         orderBy: { createdAt: "asc" },
@@ -1171,13 +1173,7 @@ export async function characterRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "character not found" });
       }
 
-      // Оновлюємо lastActivityAt
-      await prisma.character.update({
-        where: { id: character.id },
-        data: {
-          lastActivityAt: new Date(),
-        },
-      });
+      await prisma.$executeRaw`UPDATE "Character" SET "lastActivityAt" = NOW() WHERE id = ${character.id}`;
 
       return {
         ok: true,

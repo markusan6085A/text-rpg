@@ -188,8 +188,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
-    // 🔥 Optimistic locking: передаємо поточну ревізію (hero або heroJson)
-    const expectedRevision = (hero as any).heroRevision ?? (hero as any).heroJson?.heroRevision;
+    // 🔥 Optimistic locking: єдине джерело — serverState.heroRevision (остання від сервера), потім hero
+    const heroStore = (await import('../heroStore')).useHeroStore;
+    const serverState = heroStore.getState().serverState;
+    const expectedRevision = serverState?.heroRevision ?? (hero as any).heroRevision ?? (hero as any).heroJson?.heroRevision;
     
     // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, а не на верхньому рівні hero
     // Переконуємося, що mobsKilled зберігається в heroJson
@@ -342,9 +344,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const localLevel = Number(hero.level ?? 1);
     const localSp = Number(hero.sp ?? 0); // 🔥 Додано SP
     
-    // 🔥 Отримуємо останні серверні значення з store (замість window/глобальних змінних)
-    const { useHeroStore } = await import('../heroStore');
-    const serverState = useHeroStore.getState().serverState;
+    // 🔥 Отримуємо останні серверні значення з store (serverState вже отримано вище для expectedRevision)
     const serverExpKnown = serverState?.exp ?? null;
     const serverLevelKnown = serverState?.level ?? null;
     const serverSpKnown = serverState?.sp ?? null; // 🔥 Додано SP
