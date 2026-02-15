@@ -107,6 +107,11 @@ export async function premiumRoutes(app: FastifyInstance) {
       req.log?.error?.(err, "Error adding premium purchase news");
     });
 
-    return reply.send({ ok: true, character: result.character });
+    const c = result.character;
+    const serialized = {
+      ...c,
+      exp: Number(c.exp ?? 0),
+    };
+    return reply.send({ ok: true, character: serialized });
   });
 }
