@@ -1,16 +1,11 @@
 /**
- * Рекурсивно конвертує BigInt → Number для JSON-серіалізації.
- * Використовується глобально через preSerialization hook — жодна відповідь не втече з BigInt.
+ * Перетворює об'єкт у JSON-safe: BigInt → string. Працює завжди.
+ * На фронті при потребі — Number().
  */
-export function sanitizeBigInt(obj: unknown): unknown {
+export function toJsonSafe<T>(obj: T): unknown {
   if (obj === null || obj === undefined) return obj;
-  if (typeof obj === "bigint") return Number(obj);
-  if (typeof obj !== "object") return obj; // string, number, boolean
-  if (obj instanceof Date) return obj;
-  if (Buffer.isBuffer(obj)) return obj; // Buffer не перетворюємо
-  if (typeof (obj as { pipe?: unknown }).pipe === "function") return obj; // Stream
-  if (Array.isArray(obj)) return obj.map(sanitizeBigInt);
-  const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(obj)) out[k] = sanitizeBigInt(v);
-  return out;
+  if (Buffer.isBuffer(obj) || typeof (obj as { pipe?: unknown }).pipe === "function") return obj;
+  return JSON.parse(
+    JSON.stringify(obj, (_, v) => (typeof v === "bigint" ? v.toString() : v))
+  );
 }
