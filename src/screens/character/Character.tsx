@@ -10,6 +10,7 @@ import CharacterBuffs from "./CharacterBuffs";
 import SevenSealsBonusModal from "../../components/SevenSealsBonusModal";
 import { listCharacters, getSevenSealsRank, claimSevenSealsReward, type Character } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
+import { isPremiumActive } from "../../utils/premium/isPremiumActive";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -173,6 +174,11 @@ export default function Character() {
               <div className="text-[12px] font-semibold text-[#d6c29a] leading-none">
                 Мой персонаж
               </div>
+              {isPremiumActive(hero) && (
+                <div className="text-[11px] text-[#22c55e] mt-1">
+                  включен премиум аккаунт х2
+                </div>
+              )}
               <div className="h-px bg-[#6b5b3f]/60 mt-2" />
             </div>
             <div className="flex flex-col gap-1.5 flex-shrink-0">

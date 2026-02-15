@@ -9,6 +9,7 @@ import { unequipItemLogic } from "../state/heroStore/heroInventory";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "./PlayerNameWithEmblem";
 import { getMyClan } from "../utils/api";
+import { isPremiumActive } from "../utils/premium/isPremiumActive";
 
 type BarKey = "CP" | "HP" | "MP" | "EXP";
 
@@ -275,13 +276,16 @@ export default function StatusBars() {
         <Bar label="MP" value={mp} max={maxMp} />
         <Bar label="EXP" value={expPercent} max={100} />
       </div>
-      <div className="mt-1 text-white text-[9px] font-semibold text-left">
+      <div className="mt-1 text-white text-[9px] font-semibold text-left flex items-center gap-1 flex-wrap">
         <PlayerNameWithEmblem
           playerName={hero.name}
           hero={hero}
           clan={myClan}
           size={8}
         />
+        {isPremiumActive(hero) && (
+          <span className="text-[#22c55e] font-bold" style={{ fontSize: "10px" }}>x2</span>
+        )}
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
       {/* Крапкова лінія під барами */}
