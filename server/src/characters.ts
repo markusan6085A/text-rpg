@@ -667,8 +667,9 @@ export async function characterRoutes(app: FastifyInstance) {
       if (typeof body.sp !== 'number' || body.sp < 0) {
         return reply.code(400).send({ error: "invalid sp (must be >= 0)" });
       }
-      // Захист від зменшення sp (можна тільки збільшувати)
-      if (body.sp < existing.sp) {
+      // Дозволяємо зменшення sp при оновленні heroJson.skills (learn skill)
+      const skillsChanging = body.heroJson?.skills !== undefined;
+      if (body.sp < existing.sp && !skillsChanging) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,

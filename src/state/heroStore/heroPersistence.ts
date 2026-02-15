@@ -354,15 +354,14 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     // 🔥 Отримуємо останні серверні значення з store (serverState вже отримано вище для expectedRevision)
     const serverExpKnown = serverState?.exp ?? null;
     const serverLevelKnown = serverState?.level ?? null;
-    const serverSpKnown = serverState?.sp ?? null; // 🔥 Додано SP
     
     // 🔥 Clamp ТІЛЬКИ для exp та sp (і mobsKilled) - level беремо з сервера як source of truth
     // Якщо level залежить від exp, то "максимальний level" може зробити стан неконсистентним
     // Краще правило: clamp робити тільки для exp та sp, а level хай приходить з сервера як істина
     const expToSend = serverExpKnown !== null ? Math.max(localExp, serverExpKnown) : localExp;
-    // 🔥 КРИТИЧНО: SP також clamp'имо - не дозволяємо зменшувати SP нижче серверного значення
-    // Це запобігає помилці "sp cannot be decreased" при вивченні скілів
-    const spToSend = serverSpKnown !== null ? Math.max(localSp, serverSpKnown) : localSp;
+    // 🔥 SP НЕ clamp'имо при learn skill: localSp < serverSp — це очікувано (списали SP за скіл).
+    // Clamp ламав: ми слали serverSp, сервер приймав, applyServerSync відкочував hero.sp назад.
+    const spToSend = localSp;
     // 🔥 ВАЖЛИВО: level НЕ clamp'имо - беремо з сервера як source of truth
     // Якщо сервер приймає level як похідне від exp - він сам перерахує
     // Якщо сервер приймає level як незалежне поле - передаємо локальне, але сервер перевірить
@@ -374,13 +373,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       localSp,
       serverExpKnown,
       serverLevelKnown,
-      serverSpKnown,
       expToSend,
       levelToSend,
       spToSend,
       expClamped: expToSend !== localExp,
-      spClamped: spToSend !== localSp,
-      levelFromServer: serverLevelKnown !== null,
     });
     
     // ❗ coinLuck надсилаємо тільки якщо >= серверного; зменшення — тільки через POST /premium/buy
