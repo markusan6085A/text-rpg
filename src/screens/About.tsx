@@ -148,13 +148,15 @@ export default function About({ navigate }: { navigate: Navigate }) {
                     try {
                       const res = await renameNick(characterId, newNickname.trim(), (hero as any)?.heroJson?.heroRevision);
                       const { coinLuck, name: newName, heroJson: heroJsonFromRes } = res.character;
-                      // Оновлюємо serverState (coinLuck) щоб PUT не відправляв старий coinLuck
-                      useHeroStore.getState().updateServerState?.({ coinLuck });
+                      const newRevision = heroJsonFromRes?.heroRevision;
+                      // Оновлюємо serverState (coinLuck + heroRevision) щоб PUT не відправляв застарілу ревізію
+                      useHeroStore.getState().updateServerState?.({ coinLuck, heroRevision: newRevision });
                       updateHero({
                         name: newName,
                         coinOfLuck: coinLuck,
-                        heroJson: { ...(hero as any)?.heroJson, name: newName, heroRevision: heroJsonFromRes?.heroRevision },
-                      });
+                        heroJson: { ...(hero as any)?.heroJson, name: newName, heroRevision: newRevision },
+                        ...(newRevision != null && { heroRevision: newRevision }),
+                      } as any);
                       setShowChangeNickModal(false);
                       setNewNickname("");
                       setSuccessModal({ show: true, message: `Поздравляю! Вы изменили ник на "${newNickname.trim()}"!` });

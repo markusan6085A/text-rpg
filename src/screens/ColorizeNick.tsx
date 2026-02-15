@@ -159,21 +159,23 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                     return;
                   }
                   const { coinLuck, nickColor: newNickColor, heroJson: heroJsonFromRes } = res.character;
+                  const newRevision = heroJsonFromRes?.heroRevision;
 
-                  // Update serverState (coinLuck) to avoid PUT sending old coinLuck
+                  // Update serverState (coinLuck + heroRevision) to avoid PUT sending stale revision
                   const { useHeroStore } = await import("../state/heroStore");
-                  useHeroStore.getState().updateServerState?.({ coinLuck });
+                  useHeroStore.getState().updateServerState?.({ coinLuck, heroRevision: newRevision });
 
-                  // Update hero in store
+                  // Update hero in store (heroRevision at top level for heroPersistence)
                   updateHero({
                     coinOfLuck: coinLuck,
                     nickColor: newNickColor ?? selectedColor,
                     heroJson: {
                       ...(hero as any)?.heroJson,
                       nickColor: newNickColor ?? selectedColor,
-                      heroRevision: heroJsonFromRes?.heroRevision,
+                      heroRevision: newRevision,
                     },
-                  });
+                    ...(newRevision != null && { heroRevision: newRevision }),
+                  } as any);
 
                   setSuccessModal({ show: true, message: "Поздравляю! Вы изменили цвет ника!" });
                 } catch (err: any) {

@@ -188,8 +188,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
-    // 🔥 Optimistic locking: передаємо поточну ревізію, якщо вона є
-    const expectedRevision = (hero as any).heroRevision;
+    // 🔥 Optimistic locking: передаємо поточну ревізію (hero або heroJson)
+    const expectedRevision = (hero as any).heroRevision ?? (hero as any).heroJson?.heroRevision;
     
     // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, а не на верхньому рівні hero
     // Переконуємося, що mobsKilled зберігається в heroJson

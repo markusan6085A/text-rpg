@@ -95,12 +95,15 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
       }
       const { coinLuck, heroJson } = res.character;
       const newPremiumUntil = heroJson?.premiumUntil;
-      useHeroStore.getState().updateServerState({ coinLuck });
+      const newRevision = heroJson?.heroRevision;
+      // 🔥 КРИТИЧНО: оновлюємо serverState + heroRevision, щоб heroPersistence надсилав правильний expectedRevision
+      useHeroStore.getState().updateServerState({ coinLuck, heroRevision: newRevision });
       updateHero({
         premiumUntil: newPremiumUntil,
         coinOfLuck: coinLuck,
-        heroJson: { ...(hero as any)?.heroJson, premiumUntil: newPremiumUntil, heroRevision: heroJson?.heroRevision },
-      });
+        heroJson: { ...(hero as any)?.heroJson, premiumUntil: newPremiumUntil, heroRevision: newRevision },
+        ...(newRevision != null && { heroRevision: newRevision }),
+      } as any);
       setSelectedOption(null);
       setSuccessModal({ show: true, message: `Поздравляю! Вы купили премиум на ${option.label}!` });
     } catch (err: any) {
