@@ -102,24 +102,19 @@ export function updateHeroLogic(
     const isLevelUp = partial.level !== undefined && partial.level !== prev.level;
     const shouldUpdateResources = !inBattle || isLevelUp;
     
-    // Клампимо по buffed max, щоб не обрізати hp при hp > base maxHp (бафи)
-    const hpToUse = partial.hp !== undefined ? partial.hp : prev.hp;
-    const safeHp =
-      hpToUse === undefined || hpToUse <= 0
-        ? buffedMax.maxHp
-        : Math.min(buffedMax.maxHp, Math.max(0, hpToUse));
-    
-    const mpToUse = partial.mp !== undefined ? partial.mp : prev.mp;
-    const safeMp =
-      mpToUse === undefined || mpToUse <= 0
-        ? buffedMax.maxMp
-        : Math.min(buffedMax.maxMp, Math.max(0, mpToUse));
-    
-    const cpToUse = partial.cp !== undefined ? partial.cp : prev.cp;
-    const safeCp =
-      cpToUse === undefined || cpToUse <= 0
-        ? buffedMax.maxCp
-        : Math.min(buffedMax.maxCp, Math.max(0, cpToUse));
+    // ⭐ preserve HP/MP/CP percent when maxHp changes (reload/gameplay) — prev.hp може бути обрізаний до base
+    const prevMaxHp = prev.maxHp ?? buffedMax.maxHp;
+    const prevMaxMp = prev.maxMp ?? buffedMax.maxMp;
+    const prevMaxCp = prev.maxCp ?? buffedMax.maxCp;
+    const hpPercent = prevMaxHp > 0 ? Math.min(1, Math.max(0, (prev.hp ?? 0) / prevMaxHp)) : 1;
+    const mpPercent = prevMaxMp > 0 ? Math.min(1, Math.max(0, (prev.mp ?? 0) / prevMaxMp)) : 1;
+    const cpPercent = prevMaxCp > 0 ? Math.min(1, Math.max(0, (prev.cp ?? 0) / prevMaxCp)) : 1;
+    const adjustedHp = partial.hp !== undefined ? partial.hp : Math.round(hpPercent * buffedMax.maxHp);
+    const adjustedMp = partial.mp !== undefined ? partial.mp : Math.round(mpPercent * buffedMax.maxMp);
+    const adjustedCp = partial.cp !== undefined ? partial.cp : Math.round(cpPercent * buffedMax.maxCp);
+    const safeHp = adjustedHp === undefined || adjustedHp <= 0 ? buffedMax.maxHp : Math.min(buffedMax.maxHp, Math.max(0, adjustedHp));
+    const safeMp = adjustedMp === undefined || adjustedMp <= 0 ? buffedMax.maxMp : Math.min(buffedMax.maxMp, Math.max(0, adjustedMp));
+    const safeCp = adjustedCp === undefined || adjustedCp <= 0 ? buffedMax.maxCp : Math.min(buffedMax.maxCp, Math.max(0, adjustedCp));
     
     updated = {
       ...updated,
