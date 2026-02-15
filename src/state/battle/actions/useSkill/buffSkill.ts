@@ -300,6 +300,12 @@ export function handleBuffSkill(
   const { maxHp, maxMp, maxCp } = computeMaxNow(newBuffs);
   let healedFromMax = Math.max(0, maxHp - curMaxHp);
   
+  const clamp = (v: number, m: number) => Math.min(m, Math.max(0, v));
+  const rh = def.resourceHeal;
+  const addHp = (rh?.hp ?? 0) + (rh?.hpPct ? Math.round(maxHp * rh.hpPct) : 0);
+  const addMp = (rh?.mp ?? 0) + (rh?.mpPct ? Math.round(maxMp * rh.mpPct) : 0);
+  const addCp = (rh?.cp ?? 0) + (rh?.cpPct ? Math.round(maxCp * rh.cpPct) : 0);
+  
   // Якщо spiritshot увімкнений на панелі - збільшуємо відновлення HP від бафа в 2 рази
   const spiritshotActive = hasSpiritshotActive(hero, state.loadoutSlots ?? [], state.activeChargeSlots ?? []);
   if (spiritshotActive && healedFromMax > 0) {
@@ -319,9 +325,10 @@ export function handleBuffSkill(
     });
   }
   
-  // ❗ Оновлюємо ресурси в hero.resources з урахуванням special ефектів
-  const newHeroHP = Math.max(0, Math.min(maxHp, curHeroHP + healedFromMax + specialHpChange));
-  const newHeroMP = Math.min(maxMp, nextHeroMP + specialMpChange);
+  // ❗ Оновлюємо ресурси в hero.resources з урахуванням special ефектів та resourceHeal
+  const newHeroHP = clamp(curHeroHP + healedFromMax + specialHpChange + addHp, maxHp);
+  const newHeroMP = clamp(nextHeroMP + specialMpChange + addMp, maxMp);
+  const newHeroCP = clamp(curHeroCP + addCp, maxCp);
   
   // Перераховуємо стати після зміни HP через бафи
   const heroWithNewHp = { ...hero, hp: newHeroHP, maxHp: maxHp };
@@ -335,14 +342,14 @@ export function handleBuffSkill(
     updateHero({ 
       hp: newHeroHP, 
       mp: newHeroMP, 
-      cp: Math.min(maxCp, curHeroCP),
+      cp: newHeroCP,
       battleStats: recalculated.baseFinalStats 
     });
   } else {
     updateHero({ 
       hp: newHeroHP, 
       mp: newHeroMP, 
-      cp: Math.min(maxCp, curHeroCP),
+      cp: newHeroCP,
     });
   }
   

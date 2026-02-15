@@ -12,6 +12,15 @@ import type { SkillScope, SkillTarget } from "./types/targets";
 import type { SkillStat } from "./types/stats";
 import type { SkillTrigger } from "./types/triggers";
 
+export type ResourceHealDef = {
+  hp?: number;
+  mp?: number;
+  cp?: number;
+  hpPct?: number;
+  mpPct?: number;
+  cpPct?: number;
+};
+
 export type SkillDefinition = {
   id: number;
   code: string;
@@ -55,6 +64,8 @@ export type SkillDefinition = {
   // Умови для пасивних скілів (тільки для category: "passive")
   requiresArmor?: "light" | "heavy" | "robe"; // Скіл працює тільки якщо надіта відповідна броня
   requiresWeapon?: "sword" | "bow" | "staff" | "club" | "dagger" | "polearm" | "fist" | "dualsword" | "dualdagger"; // Скіл працює тільки якщо екіпірована відповідна зброя
+
+  resourceHeal?: ResourceHealDef;
 
   levels: SkillLevelDefinition[];
 };

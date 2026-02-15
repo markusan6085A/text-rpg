@@ -2,8 +2,7 @@ import React from "react";
 import { useHeroStore } from "../state/heroStore";
 import { BUFFER_BUFFS, BUFFER_BUFF_DURATION_SEC } from "../data/bufferBuffs";
 import { loadBattle, persistBattle } from "../state/battle/persist";
-import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
-import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
+import { cleanupBuffs } from "../state/battle/helpers";
 import type { BattleBuff } from "../state/battle/types";
 import { useBattleStore } from "../state/battle/store";
 
@@ -92,50 +91,19 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
 
     // ❗ ВАЖЛИВО: Після застосування бафів статуї потрібно перерахувати стати
     // Але hero.maxHp має містити БАЗОВЕ значення БЕЗ бафів
-    // Бафи застосовуються в computeBuffedMaxResources при використанні
     const heroStore = useHeroStore.getState();
     const currentHero = heroStore.hero;
     if (currentHero) {
-      // Перераховуємо стати (бафи НЕ застосовуються до maxHp в recalculateAllStats)
-      const recalculated = recalculateAllStats(currentHero, updatedBuffs);
-      
-      // ❗ recalculated.resources.maxHp містить базове значення БЕЗ бафів
-      // Застосовуємо бафи вручну для обчислення нового maxHp з бафами
-      const baseMax = {
-        maxHp: recalculated.resources.maxHp,
-        maxMp: recalculated.resources.maxMp,
-        maxCp: recalculated.resources.maxCp,
-      };
-      const { maxHp: newMaxHp, maxMp: newMaxMp, maxCp: newMaxCp } = computeBuffedMaxResources(baseMax, updatedBuffs);
-      
-      // Якщо maxHp збільшився, але hp був фул - оновлюємо hp до нового maxHp
-      const oldMaxHp = currentHero.maxHp ?? 1;
-      // Обчислюємо старий maxHp з бафами для порівняння
-      const oldBuffedMax = computeBuffedMaxResources(
-        { maxHp: oldMaxHp, maxMp: currentHero.maxMp ?? 1, maxCp: currentHero.maxCp ?? 1 },
-        cleanupBuffs(saved?.heroBuffs || [], Date.now())
-      );
-      const wasFullHp = (currentHero.hp ?? 0) >= oldBuffedMax.maxHp;
-      
-      const newHp = wasFullHp ? newMaxHp : Math.min(newMaxHp, currentHero.hp ?? newMaxHp);
-      const newMp = Math.min(newMaxMp, currentHero.mp ?? newMaxMp);
-      const newCp = Math.min(newMaxCp, currentHero.cp ?? newMaxCp);
-      
-      // ❗ Зберігаємо в hero: max = BASE (для persistence), hp/mp/cp = з урахуванням бафів; бар рахує buffed через computeBuffedMaxResources
       const existingHeroJson = (currentHero as any).heroJson || {};
-      const partial: any = {
-        maxHp: recalculated.resources.maxHp,
-        maxMp: recalculated.resources.maxMp,
-        maxCp: recalculated.resources.maxCp,
-        hp: newHp,
-        mp: newMp,
-        cp: newCp,
-        heroJson: {
-          ...existingHeroJson,
-          heroBuffs: updatedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson
-        },
-      };
-      heroStore.updateHero(partial);
+      // ❗ hp/mp/cp=0 → heroUpdate заповнить до buffedMax (логіка hp<=0 ? buffedMax.maxHp)
+      // Передаємо equipment щоб спричинити needsRecalc (без цього hp=0 залишився б 0)
+      heroStore.updateHero({
+        hp: 0,
+        mp: 0,
+        cp: 0,
+        equipment: currentHero.equipment,
+        heroJson: { ...existingHeroJson, heroBuffs: updatedBuffs },
+      });
     }
 
     // Оновлюємо компонент для відображення
