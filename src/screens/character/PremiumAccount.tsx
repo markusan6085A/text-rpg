@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { buyPremium, type PremiumPack } from "../../utils/api";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 interface Navigate {
   (path: string): void;
@@ -29,6 +30,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   const [selectedOption, setSelectedOption] = useState<PremiumOption | null>(null);
   const [isBuying, setIsBuying] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
+  const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
 
   // Оновлюємо час, що залишився
   useEffect(() => {
@@ -100,13 +102,18 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         heroJson: { ...(hero as any)?.heroJson, premiumUntil: newPremiumUntil, heroRevision: heroJson?.heroRevision },
       });
       setSelectedOption(null);
-      alert(`Преміум аккаунт активовано на ${option.label}!`);
+      setSuccessModal({ show: true, message: `Поздравляю! Вы купили премиум на ${option.label}!` });
     } catch (err: any) {
       const body = err?.body || {};
-      if (err?.status === 400 && body.error === "not enough coinLuck") {
+      if (err?.status === 404) {
+        alert("Сервер оновлюється або ендпоінт недоступний (404). Спробуйте вийти і зайти знову, або пізніше.");
+      } else if (err?.status === 400 && body.error === "not enough coinLuck") {
         alert(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coinOfLuck}`);
       } else if (err?.status === 409) {
-        alert("Конфлікт версій. Перезавантажте сторінку і спробуйте знову.");
+        await loadHeroFromAPI();
+        alert("Дані оновлено. Спробуйте ще раз.");
+      } else if (err?.status === 401) {
+        alert("Сесія закінчилась. Вийдіть і зайдіть знову.");
       } else {
         alert(body.error || err?.message || "Помилка покупки преміуму");
       }
@@ -222,6 +229,29 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
           >
             Активировать премиум аккаунт
           </button>
+        </div>
+      )}
+
+      {/* Модалка успішної покупки */}
+      {successModal.show && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={() => setSuccessModal({ show: false, message: "" })}
+        >
+          <div
+            className="bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <div className="text-green-400 text-lg font-semibold mb-2">✓ {successModal.message}</div>
+              <button
+                onClick={() => setSuccessModal({ show: false, message: "" })}
+                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 text-sm"
+              >
+                OK
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -10,6 +10,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
   const [showChangeNickModal, setShowChangeNickModal] = useState(false);
   const [newNickname, setNewNickname] = useState("");
   const [isChanging, setIsChanging] = useState(false);
+  const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
@@ -156,7 +157,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
                       });
                       setShowChangeNickModal(false);
                       setNewNickname("");
-                      alert("Ник успешно изменен!");
+                      setSuccessModal({ show: true, message: `Поздравляю! Вы изменили ник на "${newNickname.trim()}"!` });
                     } catch (err: any) {
                       const body = err?.body ?? {};
                       if (err?.status === 400 && body.error === "not enough coinLuck") {
@@ -183,6 +184,29 @@ export default function About({ navigate }: { navigate: Navigate }) {
                   Отмена
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модалка успішної зміни ніка */}
+      {successModal.show && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={() => setSuccessModal({ show: false, message: "" })}
+        >
+          <div
+            className="bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <div className="text-green-400 text-lg font-semibold mb-2">✓ {successModal.message}</div>
+              <button
+                onClick={() => setSuccessModal({ show: false, message: "" })}
+                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 text-sm"
+              >
+                OK
+              </button>
             </div>
           </div>
         </div>

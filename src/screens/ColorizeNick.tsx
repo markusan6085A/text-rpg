@@ -77,6 +77,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
   const characterId = useCharacterStore((s) => s.characterId);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isApplying, setIsApplying] = useState(false);
+  const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
 
   if (!hero) {
     return <div className="text-white text-center mt-10">Загрузка...</div>;
@@ -174,8 +175,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                     },
                   });
 
-                  alert("Цвет ника изменен!");
-                  navigate("/about");
+                  setSuccessModal({ show: true, message: "Поздравляю! Вы изменили цвет ника!" });
                 } catch (err: any) {
                   const body = err?.body || {};
                   if (err?.status === 400 && body.error === "not enough coinLuck") {
@@ -196,6 +196,35 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
           </div>
         </div>
       </div>
+
+      {/* Модалка успішної зміни кольору ніка */}
+      {successModal.show && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={() => {
+            setSuccessModal({ show: false, message: "" });
+            navigate("/about");
+          }}
+        >
+          <div
+            className="bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <div className="text-green-400 text-lg font-semibold mb-2">✓ {successModal.message}</div>
+              <button
+                onClick={() => {
+                  setSuccessModal({ show: false, message: "" });
+                  navigate("/about");
+                }}
+                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 text-sm"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
