@@ -20,7 +20,7 @@ import { hydrateHero } from "./heroHydration";
 // 🔥 КРИТИЧНО: Глобальний "save mutex" для серіалізації збережень
 // Запобігає паралельним збереженням, які викликають revision_conflict
 let saving = false;
-let queued = false; // Прапорець, що є зміни для збереження (не snapshot!)
+let queuedHero: Hero | null = null; // Snapshot героя для відкладених збережень (не boolean!)
 let retryCount = 0;
 const MAX_RETRIES = 1; // Максимум 1 автоматичний retry при revision_conflict
 
@@ -81,10 +81,10 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
     return;
   }
   
-  // 🔥 КРИТИЧНО: Серіалізуємо збереження - якщо вже йде save, ставимо прапорець
+  // 🔥 КРИТИЧНО: Серіалізуємо збереження - якщо вже йде save, зберігаємо snapshot героя
   if (saving) {
-    console.log('[saveHeroToLocalStorage] Save already in progress, marking as queued');
-    queued = true; // Прапорець, що є зміни (не snapshot!)
+    console.log('[saveHeroToLocalStorage] Save already in progress, queuing hero snapshot');
+    queuedHero = hero; // Останній актуальний герой (snapshot для відкладеного save)
     return;
   }
   
@@ -97,24 +97,13 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
   } finally {
     saving = false;
     
-    // 🔥 КРИТИЧНО: Якщо була черга — беремо актуального героя зі store (не snapshot).
-    // applyServerSync не викликає save, тому queued тепер тільки коли зміни під час збереження.
-    if (queued) {
-      queued = false;
-      console.log('[saveHeroToLocalStorage] Processing queued save - getting current hero from store');
-      // Викликаємо асинхронно, щоб не блокувати
-      setTimeout(async () => {
-        try {
-          const { useHeroStore } = await import('../heroStore');
-          const currentHero = useHeroStore.getState().hero;
-          if (currentHero) {
-            // Беремо актуального героя зі store, а не snapshot
-            await saveHeroToLocalStorage(currentHero);
-          }
-        } catch (err) {
-          console.error('[saveHeroToLocalStorage] Failed to save queued hero:', err);
-        }
-      }, 100);
+    // 🔥 КРИТИЧНО: Якщо була черга — беремо snapshot героя (queuedHero), а НЕ currentHero зі store.
+    // currentHero міг би бути застарілим або мати старий heroRevision → 409.
+    if (queuedHero) {
+      const nextHero = queuedHero;
+      queuedHero = null;
+      console.log('[saveHeroToLocalStorage] Processing queued save with snapshot hero');
+      setTimeout(() => saveHeroToLocalStorage(nextHero), 100);
     }
   }
 }
@@ -188,10 +177,28 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
-    // 🔥 Optimistic locking: єдине джерело — serverState.heroRevision (остання від сервера), потім hero
+    // 🔥 КРИТИЧНО: expectedRevision ТІЛЬКИ з serverState — hero.heroRevision застарілий при race
     const heroStore = (await import('../heroStore')).useHeroStore;
     const serverState = heroStore.getState().serverState;
-    const expectedRevision = serverState?.heroRevision ?? (hero as any).heroRevision ?? (hero as any).heroJson?.heroRevision;
+    const expectedRevision = serverState?.heroRevision;
+    if (expectedRevision === undefined || expectedRevision === null) {
+      console.warn('[saveHeroToLocalStorage] No serverState.heroRevision — skipping PUT, saving to localStorage only');
+      const current = getJSON<string | null>("l2_current_user", null);
+      if (current && hero) {
+        const accounts = getJSON<any[]>("l2_accounts_v2", []);
+        const accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex !== -1) {
+          const heroWithTimestamp = {
+            ...hero,
+            lastSavedAt: Date.now(),
+            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
+          };
+          accounts[accIndex].hero = heroWithTimestamp;
+          setJSON("l2_accounts_v2", accounts);
+        }
+      }
+      return;
+    }
     
     // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, а не на верхньому рівні hero
     // Переконуємося, що mobsKilled зберігається в heroJson
@@ -398,7 +405,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision, exp, level, sp у store
     // Це запобігає наступним revision_conflict та "exp cannot be decreased" / "sp cannot be decreased"
     if (updatedCharacter) {
-      const newRevision = (updatedCharacter as any).heroRevision || (updatedCharacter as any).revision;
+      const newRevision = (updatedCharacter as any).heroRevision || (updatedCharacter as any).revision
+        || (updatedCharacter.heroJson as any)?.heroRevision;
       const serverExp = Number(updatedCharacter.exp ?? 0);
       const serverLevel = Number(updatedCharacter.level ?? 1);
       const serverSp = Number(updatedCharacter.sp ?? 0); // 🔥 Додано SP
@@ -418,6 +426,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         );
         console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, serverLevel });
       }
+      // 🔥 КРИТИЧНО: Скидаємо чергу та retry, щоб старі сейви не запускались з застарілою ревізією
+      queuedHero = null;
+      retryCount = 0;
     }
     
     // ❗ ВАЖЛИВО: Також зберігаємо в localStorage як backup (навіть якщо API працює)
