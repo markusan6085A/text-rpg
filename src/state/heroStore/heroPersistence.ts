@@ -63,10 +63,16 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
     arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
   );
+  const wasFullHp = Number(hydrated.hp ?? 0) >= Number(hydrated.maxHp ?? 1);
+  const wasFullMp = Number(hydrated.mp ?? 0) >= Number(hydrated.maxMp ?? 1);
+  const wasFullCp = Number(hydrated.cp ?? 0) >= Number(hydrated.maxCp ?? 1);
   const heroJson = {
     ...existingJson,
     ...buildBackupHeroJson(hydrated),
     heroBuffs: mergedBuffs.length ? mergedBuffs : (existingJson.heroBuffs ?? []),
+    hpFull: wasFullHp,
+    mpFull: wasFullMp,
+    cpFull: wasFullCp,
   };
   accounts[accIndex].hero = { ...hydrated, heroJson };
   setJSON("l2_accounts_v2", accounts);
@@ -280,6 +286,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const mpToSave = Math.min(Math.max(0, Number(hero.mp ?? existingHeroJson.mp ?? 0)), baseMaxMp);
     const cpToSave = Math.min(Math.max(0, Number(hero.cp ?? existingHeroJson.cp ?? 0)), baseMaxCp);
 
+    // 🔥 КРИТИЧНО: Прапорці "було фул" — щоб після F5 відновити фул по buffedMax (hp/mp/cp clamp'яться до base)
+    const wasFullHp = Number(hero.hp ?? 0) >= Number(hero.maxHp ?? 1);
+    const wasFullMp = Number(hero.mp ?? 0) >= Number(hero.maxMp ?? 1);
+    const wasFullCp = Number(hero.cp ?? 0) >= Number(hero.maxCp ?? 1);
+
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
     // 🔥 КРИТИЧНО: inventory та equipment завжди беремо з hero, щоб стартовий набір не пропадав
     const heroJsonToSave = {
@@ -306,6 +317,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       maxHp: baseMaxHp,
       maxMp: baseMaxMp,
       maxCp: baseMaxCp,
+      hpFull: wasFullHp,
+      mpFull: wasFullMp,
+      cpFull: wasFullCp,
       mobsKilled: Number(currentMobsKilled),
       coinOfLuck: Number(hero.coinOfLuck ?? existingHeroJson.coinOfLuck ?? 0),
       premiumUntil: hero.premiumUntil ?? existingHeroJson.premiumUntil ?? undefined,
@@ -437,7 +451,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
-          heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
+          heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero), hpFull: wasFullHp, mpFull: wasFullMp, cpFull: wasFullCp },
         };
         accounts[accIndex].hero = heroWithTimestamp;
         setJSON("l2_accounts_v2", accounts);

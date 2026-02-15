@@ -373,34 +373,29 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const newMaxIncreasedHp = recalculated.resources.maxHp > oldMaxHp * 1.05;
     const newMaxIncreasedMp = recalculated.resources.maxMp > oldMaxMp * 1.05;
     const newMaxIncreasedCp = recalculated.resources.maxCp > oldMaxCp * 1.05;
-    // Заповнюємо до нового max, якщо він виріс (рівень/екіп змінились) — щоб після F5 не було 390/6000
     const fillHp = newMaxIncreasedHp || oldMaxHp <= 0;
     const fillMp = newMaxIncreasedMp || oldMaxMp <= 0;
     const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
 
-    const finalHp =
-      fillHp ||
-      fixedHero.hp === undefined ||
-      fixedHero.hp <= 0 ||
-      fixedHero.hp >= finalMaxHp
-        ? finalMaxHp
-        : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0));
-
-    const finalMp =
-      fillMp ||
-      fixedHero.mp === undefined ||
-      fixedHero.mp <= 0 ||
-      fixedHero.mp >= finalMaxMp
-        ? finalMaxMp
-        : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0));
-
-    const finalCp =
-      fillCp ||
-      fixedHero.cp === undefined ||
-      fixedHero.cp <= 0 ||
-      fixedHero.cp >= finalMaxCp
-        ? finalMaxCp
-        : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0));
+    // hpFull/mpFull/cpFull — прапорець з heroJson (був фул при бафах, hp clamp'нувся до base при save)
+    const hpFull = Boolean(heroData?.hpFull);
+    const mpFull = Boolean(heroData?.mpFull);
+    const cpFull = Boolean(heroData?.cpFull);
+    const finalHp = hpFull
+      ? finalMaxHp
+      : (fillHp || fixedHero.hp === undefined || fixedHero.hp <= 0 || fixedHero.hp >= finalMaxHp
+          ? finalMaxHp
+          : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0)));
+    const finalMp = mpFull
+      ? finalMaxMp
+      : (fillMp || fixedHero.mp === undefined || fixedHero.mp <= 0 || fixedHero.mp >= finalMaxMp
+          ? finalMaxMp
+          : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0)));
+    const finalCp = cpFull
+      ? finalMaxCp
+      : (fillCp || fixedHero.cp === undefined || fixedHero.cp <= 0 || fixedHero.cp >= finalMaxCp
+          ? finalMaxCp
+          : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0)));
 
     // 🔥 КРИТИЧНО: Зберігаємо mobsKilled з fixedHero і гарантуємо, що воно є в heroJson
     // Перевіряємо всі можливі місця, де може бути mobsKilled

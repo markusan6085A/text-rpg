@@ -224,29 +224,25 @@ export function loadHero(): Hero | null {
     const finalMaxCp = buffedMax.maxCp;
     
     // ❗ КАНОНІЧНЕ ПРАВИЛО: HP ніколи не зменшується при reload
-    // Якщо hp >= maxHp (з бафами) або hp відсутнє/невалідне → встановлюємо hp = maxHp (з бафами)
-    // Якщо hp < maxHp (з бафами) → залишаємо як є (НЕ зменшуємо)
-    // Це гарантує, що якщо гравець був фул з бафами, він залишиться фул з бафами
-    const finalHp =
-      fixedHero.hp === undefined ||
-      fixedHero.hp <= 0 ||
-      fixedHero.hp >= finalMaxHp
-        ? finalMaxHp
-        : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0)); // Залишаємо як є, але не більше maxHp з бафами
-    
-    const finalMp =
-      fixedHero.mp === undefined ||
-      fixedHero.mp <= 0 ||
-      fixedHero.mp >= finalMaxMp
-        ? finalMaxMp
-        : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0));
-    
-    const finalCp =
-      fixedHero.cp === undefined ||
-      fixedHero.cp <= 0 ||
-      fixedHero.cp >= finalMaxCp
-        ? finalMaxCp
-        : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0));
+    // hpFull/mpFull/cpFull — прапорець збережений при save (був фул при бафах, але hp clamp'нувся до base)
+    const hpFull = Boolean((heroJson as any).hpFull);
+    const mpFull = Boolean((heroJson as any).mpFull);
+    const cpFull = Boolean((heroJson as any).cpFull);
+    const finalHp = hpFull
+      ? finalMaxHp
+      : (fixedHero.hp === undefined || fixedHero.hp <= 0 || fixedHero.hp >= finalMaxHp
+          ? finalMaxHp
+          : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0)));
+    const finalMp = mpFull
+      ? finalMaxMp
+      : (fixedHero.mp === undefined || fixedHero.mp <= 0 || fixedHero.mp >= finalMaxMp
+          ? finalMaxMp
+          : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0)));
+    const finalCp = cpFull
+      ? finalMaxCp
+      : (fixedHero.cp === undefined || fixedHero.cp <= 0 || fixedHero.cp >= finalMaxCp
+          ? finalMaxCp
+          : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0)));
     
     // ❗ hp і maxHp мають бути в одному просторі (обидва buffed), інакше clamp десь обріже hp
     const heroWithRecalculatedStats: Hero = {
