@@ -1,6 +1,12 @@
 /**
- * Refresh token cookie (httpOnly). Env: COOKIE_SECURE, COOKIE_DOMAIN, REFRESH_TTL_DAYS.
- * For production: COOKIE_SECURE=true, COOKIE_DOMAIN=your-domain.com
+ * Refresh token cookie (httpOnly).
+ * Env: COOKIE_SECURE, COOKIE_DOMAIN, REFRESH_TTL_DAYS, REFRESH_COOKIE_PATH, COOKIE_SAME_SITE.
+ *
+ * Якщо фронт на www.l2dop.com, а API на api.l2dop.com — браузер відправляє запити на www (через Vercel
+ * rewrite). Відповіді з Set-Cookie приходять від того ж origin (www), тому кукі зберігається для www.
+ * Якщо ж кукі було встановлено з Domain=api.l2dop.com — воно не відправляється на www → 401 після простою.
+ * Рішення: на сервері api.l2dop.com поставити COOKIE_DOMAIN=.l2dop.com, path=/, SameSite=None; Secure,
+ * щоб кукі ділилося між піддоменами (браузер тоді відправляє й на www, і на api).
  */
 import crypto from "node:crypto";
 import type { FastifyReply, FastifyRequest } from "fastify";
@@ -19,8 +25,8 @@ export function addDays(d: Date, days: number) {
   return x;
 }
 
-/** Path для refresh cookie: якщо фронт ходить через /api (проксі) — постав REFRESH_COOKIE_PATH=/api/auth/refresh */
-const REFRESH_COOKIE_PATH = process.env.REFRESH_COOKIE_PATH || "/auth/refresh";
+/** Path для refresh cookie. Якщо фронт через /api — краще path=/ або REFRESH_COOKIE_PATH=/ */
+const REFRESH_COOKIE_PATH = process.env.REFRESH_COOKIE_PATH || "/";
 
 export function setRefreshCookie(reply: FastifyReply, token: string) {
   const secure = process.env.COOKIE_SECURE === "true";
@@ -47,6 +53,7 @@ export function clearRefreshCookie(reply: FastifyReply) {
     domain,
     secure: sameSite === "none" ? true : secure,
     sameSite,
+    maxAge: 0,
   });
 }
 

@@ -20,7 +20,12 @@ export function AdminSectionCoinLuck() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      const { character } = data;
       if (mode === "set") {
         await adminCoinLuck(character.id, undefined, num);
         setMessage(`Coin of Luck встановлено: ${num}`);

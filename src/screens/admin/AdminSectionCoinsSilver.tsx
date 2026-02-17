@@ -20,7 +20,12 @@ export function AdminSectionCoinsSilver() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
+      const data = await adminFindPlayerByName(nick.trim());
+      const character = data?.character;
+      if (!character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
       if (mode === "set") {
         await adminCoinsSilver(character.id, undefined, num);
         setMessage(`Серебряные Монеты встановлено: ${num}`);

@@ -24,8 +24,12 @@ export function AdminSectionBlockUnblock() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
-      await adminBlock(character.id, durationMin);
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      await adminBlock(data.character.id, durationMin);
       setMessage("Гравця заблоковано (не зможе грати)");
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
@@ -43,8 +47,12 @@ export function AdminSectionBlockUnblock() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
-      await adminUnblock(character.id);
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      await adminUnblock(data.character.id);
       setMessage("Гравця розблоковано");
     } catch (err: any) {
       setMessage(err?.message || "Помилка");

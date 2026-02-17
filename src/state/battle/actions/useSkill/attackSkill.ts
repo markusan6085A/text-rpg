@@ -212,61 +212,39 @@ export function handleAttackSkill(
     const autoSpoilActive = hasAutoSpoilActive(updatedBuffs);
     const mobSpoiled = autoSpoilActive;
 
-    // Обробляємо дропи та спойли
+    // Дроп + адена + эксп + SP — один updateHero одразу
     const curHero = useHeroStore.getState().hero;
     let dropMessages: string[] = [];
-    
+    const victoryUpdates: Partial<Hero> = {};
+
     if (curHero && state.mob) {
       const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
-      
-      // Оновлюємо інвентар
       if (dropResult.newInventory !== curHero.inventory || dropResult.zaricheEquipped) {
-        const heroStore = useHeroStore.getState();
-        const updates: Partial<Hero> = { inventory: dropResult.newInventory };
-        
-        // Оновлюємо прогрес квестів, якщо є квестові дропи
+        victoryUpdates.inventory = dropResult.newInventory;
         if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
           const activeQuests = curHero.activeQuests || [];
-          const updatedQuests = activeQuests.map((aq) => {
-            // Знаходимо всі оновлення для цього квесту
-            const questUpdates = dropResult.questProgressUpdates?.filter(
-              (u) => u.questId === aq.questId
-            ) || [];
-            
+          victoryUpdates.activeQuests = activeQuests.map((aq) => {
+            const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
             if (questUpdates.length > 0) {
               const newProgress = { ...aq.progress };
               questUpdates.forEach((update) => {
-                const currentProgress = newProgress[update.itemId] || 0;
-                newProgress[update.itemId] = currentProgress + update.count;
+                newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
               });
-              return {
-                ...aq,
-                progress: newProgress,
-              };
+              return { ...aq, progress: newProgress };
             }
             return aq;
           });
-          updates.activeQuests = updatedQuests;
         }
-        
-        // Оновлюємо екіпіровку та таймер Зарича, якщо він випав
         if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
-          if (dropResult.newEquipment) {
-            updates.equipment = dropResult.newEquipment;
-          }
-          if (dropResult.newEquipmentEnchantLevels) {
-            updates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
-          }
-          updates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
+          if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
+          if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
+          victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
         }
-        
-        heroStore.updateHero(updates);
       }
     }
 
     let leveled = false;
-    // ❗ Читаємо поточні ресурси з hero.resources
     let heroHpAfter = healedHeroHP;
     let heroCpAfter = hero.cp ?? 0;
     let heroMpAfter = nextHeroMP;
@@ -274,78 +252,64 @@ export function handleAttackSkill(
     let displaySp = spGain;
     let displayAdena = adenaGain;
 
-    if (adenaGain || expGain || spGain) {
-      if (curHero) {
-        // Преміум множник
-        const premiumMultiplier = getPremiumMultiplier(curHero);
-        const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
-        const finalSpGain = Math.round(spGain * premiumMultiplier);
-        const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
-        displayExp = finalExpGain;
-        displaySp = finalSpGain;
-        displayAdena = finalAdenaGain;
+    if (curHero) {
+      const premiumMultiplier = getPremiumMultiplier(curHero);
+      const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
+      const finalSpGain = Math.round(spGain * premiumMultiplier);
+      const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
+      displayExp = finalExpGain;
+      displaySp = finalSpGain;
+      displayAdena = finalAdenaGain;
 
-        // 🔥 КРИТИЧНО: Number() — API/мобільний може повертати exp/level як string
-        let level = Number(curHero.level ?? 1) || 1;
-        let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;
-        const EPS = 0.001;
-        while (exp >= getExpToNext(level, XP_RATE) - EPS) {
-          const need = getExpToNext(level, XP_RATE);
-          if (need <= 0) break;
-          exp = Math.max(0, Math.floor(exp - need));
-          level += 1;
-          leveled = true;
-          if (level >= MAX_LEVEL) {
-            exp = 0;
-            break;
-          }
+      let level = Number(curHero.level ?? 1) || 1;
+      let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;
+      const EPS = 0.001;
+      while (exp >= getExpToNext(level, XP_RATE) - EPS) {
+        const need = getExpToNext(level, XP_RATE);
+        if (need <= 0) break;
+        exp = Math.max(0, Math.floor(exp - need));
+        level += 1;
+        leveled = true;
+        if (level >= MAX_LEVEL) {
+          exp = 0;
+          break;
         }
-        // Оновлюємо прогрес щоденних завдань: адена та вбиті моби
-        const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
-        const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
-        const combinedProgress = {
-          ...updatedProgress,
-          ...updatedProgressKills,
-        };
-
-        useHeroStore.getState().updateHero({
-          level,
-          exp,
-          sp: (curHero.sp ?? 0) + finalSpGain,
-          adena: (curHero.adena ?? 0) + finalAdenaGain,
-          dailyQuestsProgress: combinedProgress,
-        });
-
-        const updatedHero = useHeroStore.getState().hero;
-        const updMaxHp = updatedHero?.maxHp ?? curHero.maxHp ?? curHero.hp ?? 0;
-        const updMaxCp = updatedHero?.maxCp ?? curHero.maxCp ?? curHero.cp ?? 0;
-        const updMaxMp = updatedHero?.maxMp ?? curHero.maxMp ?? curHero.mp ?? 0;
-
-        if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
-
-        heroHpAfter = leveled ? updMaxHp : heroHpAfter;
-        heroCpAfter = leveled ? updMaxCp : heroCpAfter;
-        heroMpAfter = leveled ? updMaxMp : nextHeroMP;
       }
-    }
+      const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
+      const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
+      const combinedProgress = { ...updatedProgress, ...updatedProgressKills };
 
-    // Перераховуємо стати після зміни HP (через level up або інші причини)
-    const heroAfterLevel = useHeroStore.getState().hero;
-    if (heroAfterLevel) {
-      const heroWithNewHp = { ...heroAfterLevel, hp: heroHpAfter };
+      const updMaxHp = curHero.maxHp ?? curHero.hp ?? 0;
+      const updMaxCp = curHero.maxCp ?? curHero.cp ?? 0;
+      const updMaxMp = curHero.maxMp ?? curHero.mp ?? 0;
+      if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
+      heroHpAfter = leveled ? updMaxHp : heroHpAfter;
+      heroCpAfter = leveled ? updMaxCp : heroCpAfter;
+      heroMpAfter = leveled ? updMaxMp : nextHeroMP;
+
+      Object.assign(victoryUpdates, {
+        level,
+        exp,
+        sp: (curHero.sp ?? 0) + finalSpGain,
+        adena: (curHero.adena ?? 0) + finalAdenaGain,
+        dailyQuestsProgress: combinedProgress,
+        hp: heroHpAfter,
+        mp: heroMpAfter,
+        cp: heroCpAfter,
+      });
+      const heroWithNewHp = { ...curHero, ...victoryUpdates };
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
-      updateHero({ 
-        hp: heroHpAfter, 
-        mp: heroMpAfter, 
-        cp: heroCpAfter,
-        battleStats: recalculatedAfter.finalStats 
-      });
+      victoryUpdates.battleStats = recalculatedAfter.finalStats;
+      useHeroStore.getState().updateHero(victoryUpdates);
     } else {
-      updateHero({ 
-        hp: heroHpAfter, 
-        mp: heroMpAfter, 
-        cp: heroCpAfter,
-      });
+      const heroAfterLevel = useHeroStore.getState().hero;
+      if (heroAfterLevel) {
+        const heroWithNewHp = { ...heroAfterLevel, hp: heroHpAfter };
+        const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
+        updateHero({ hp: heroHpAfter, mp: heroMpAfter, cp: heroCpAfter, battleStats: recalculatedAfter.finalStats });
+      } else {
+        updateHero({ hp: heroHpAfter, mp: heroMpAfter, cp: heroCpAfter });
+      }
     }
 
     // Встановлюємо респавн моба: 5 сек для риб (fishing зона), 30 секунд для звичайних, 10 хвилин для чемпіонів, respawnTime для РБ

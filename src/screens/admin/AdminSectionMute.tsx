@@ -31,7 +31,12 @@ export function AdminSectionMute() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      const character = data.character;
       await adminMuteChatUser(character.id, durationMin);
       setSuccessModal({ playerName: character.name, durationMin });
     } catch (err: any) {

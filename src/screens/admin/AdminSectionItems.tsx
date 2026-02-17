@@ -73,7 +73,12 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      const character = data.character;
       const def = itemsDB[itemId.trim()];
       const slot = def?.slot || def?.kind || "other";
       await adminGiveItem(character.id, itemId.trim(), num, slot);
@@ -99,8 +104,12 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
-      await adminTakeItem(character.id, itemId.trim(), num);
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      await adminTakeItem(data.character.id, itemId.trim(), num);
       setMessage(`Забрано: ${itemId} x${num}`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");

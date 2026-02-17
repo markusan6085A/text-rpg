@@ -688,31 +688,21 @@ export function processSummonAttack(
     const autoSpoilActive = (state.heroBuffs || []).some((buff: any) => buff.id === 2541);
     const mobSpoiled = autoSpoilActive;
 
-    // Обробляємо дропи та спойли
+    // Дроп + адена + эксп + SP — один updateHero одразу
     const curHero = useHeroStore.getState().hero;
     let dropMessages: string[] = [];
-    
+    const victoryUpdates: Partial<typeof curHero> = {};
+
     if (curHero && mob) {
       const dropResult = processMobDrops(mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
-      
-      // Оновлюємо інвентар
       if (dropResult.newInventory !== curHero.inventory || dropResult.zaricheEquipped) {
-        const heroStore = useHeroStore.getState();
-        const updates: Partial<typeof curHero> = { inventory: dropResult.newInventory };
-        
-        // Оновлюємо екіпіровку та таймер Зарича, якщо він випав
+        victoryUpdates.inventory = dropResult.newInventory;
         if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
-          if (dropResult.newEquipment) {
-            updates.equipment = dropResult.newEquipment;
-          }
-          if (dropResult.newEquipmentEnchantLevels) {
-            updates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
-          }
-          updates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
+          if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
+          if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
+          victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
         }
-        
-        heroStore.updateHero(updates);
       }
     }
 
@@ -722,8 +712,7 @@ export function processSummonAttack(
     let displaySp = spGain;
     let displayAdena = adenaGain;
 
-    if (curHero && (adenaGain || expGain || spGain)) {
-      // Преміум множник
+    if (curHero) {
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
       const finalSpGain = Math.round(spGain * premiumMultiplier);
@@ -732,15 +721,10 @@ export function processSummonAttack(
       displaySp = finalSpGain;
       displayAdena = finalAdenaGain;
 
-      // Оновлюємо прогрес щоденних завдань: адена та вбиті моби (для сумонів)
       const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
       const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
-      const combinedProgress = {
-        ...updatedProgress,
-        ...updatedProgressKills,
-      };
-      
-      // 🔥 Number() — API/мобільний може повертати exp/level як string
+      const combinedProgress = { ...updatedProgress, ...updatedProgressKills };
+
       let level = Number(curHero.level ?? 1) || 1;
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;
       const EPS = 0.001;
@@ -755,11 +739,10 @@ export function processSummonAttack(
           break;
         }
       }
-      
       const baseMax = getMaxResources(curHero);
       const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, state.heroBuffs || []);
-      
-      updateHero({
+
+      Object.assign(victoryUpdates, {
         level,
         exp,
         sp: (curHero.sp ?? 0) + finalSpGain,
@@ -768,10 +751,8 @@ export function processSummonAttack(
         mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
         dailyQuestsProgress: combinedProgress,
       });
-
-      if (leveled) {
-        newLog.unshift(`Повышение уровня! ${level}`);
-      }
+      updateHero(victoryUpdates);
+      if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
     }
 
     // Встановлюємо респавн моба: 5 сек для риб (fishing зона), 30 секунд для звичайних, 10 хвилин для чемпіонів, respawnTime для РБ

@@ -20,7 +20,12 @@ export function AdminSectionAdena() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      const { character } = data;
       if (mode === "set") {
         await adminAdena(character.id, undefined, num);
         setMessage(`Адену встановлено: ${num}`);

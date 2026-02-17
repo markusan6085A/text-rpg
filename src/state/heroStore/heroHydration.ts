@@ -35,27 +35,40 @@ export function hydrateHero(hero: Hero | null): Hero | null {
 
   // 🔥 Синхронізуємо heroJson з hero (однонапрямкова синхронізація: hero → heroJson)
   // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass
+  // 🔥 dailyQuests — hero.dailyQuests* має пріоритет, інакше беремо з heroJson (для load)
+  const dailyQuestsProgress = (hero as any).dailyQuestsProgress !== undefined && typeof (hero as any).dailyQuestsProgress === "object"
+    ? (hero as any).dailyQuestsProgress
+    : (hj.dailyQuestsProgress && typeof hj.dailyQuestsProgress === "object" ? hj.dailyQuestsProgress : {});
+  const dailyQuestsCompleted = Array.isArray((hero as any).dailyQuestsCompleted) ? (hero as any).dailyQuestsCompleted
+    : (Array.isArray(hj.dailyQuestsCompleted) ? hj.dailyQuestsCompleted : []);
+  const dailyQuestsResetDate = (hero as any).dailyQuestsResetDate ?? hj.dailyQuestsResetDate ?? null;
+
   const hydratedHero: Hero = {
     ...hero,
     skills,
     mobsKilled: mobsKilled as any,
     exp,
     level,
+    dailyQuestsProgress: dailyQuestsProgress as any,
+    dailyQuestsCompleted: dailyQuestsCompleted as any,
+    dailyQuestsResetDate: dailyQuestsResetDate as any,
     heroJson: {
       ...hj,
       // 🔥 КРИТИЧНО: heroJson завжди синхронізований з hero (для серіалізації)
-      // Базові поля (обов'язкові для сервера)
       name: hero.name || hj.name || '',
       race: hero.race || hj.race || '',
       klass: hero.klass || hj.klass || '',
       classId: hero.klass || hj.classId || hj.klass || '',
       gender: hero.gender || hj.gender || '',
       profession: hero.profession || hj.profession || '',
-      // Прогрес (skills, mobsKilled, exp, level)
       skills,
       mobsKilled,
       exp,
       level,
+      // 🔥 Щоденні завдання — синхронізуємо в heroJson для збереження
+      dailyQuestsProgress,
+      dailyQuestsCompleted,
+      dailyQuestsResetDate,
     },
   };
 

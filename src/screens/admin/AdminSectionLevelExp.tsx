@@ -19,8 +19,12 @@ export function AdminSectionLevelExp() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
-      await adminSetLevel(character.id, lvl);
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      await adminSetLevel(data.character.id, lvl);
       setMessage(`Рівень встановлено: ${lvl}`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");

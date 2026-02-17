@@ -1058,7 +1058,7 @@ export async function adminMuteChatUser(characterId: string, durationMinutes: nu
 }
 
 /** Адмін: знайти гравця за ніком */
-export async function adminFindPlayerByName(name: string): Promise<{ ok: boolean; character: { id: string; name: string; accountId: string; level: number; adena: number; coinLuck: number; bannedUntil: string | null; blockedUntil: string | null } }> {
+export async function adminFindPlayerByName(name: string): Promise<{ ok: boolean; character?: { id: string; name: string; accountId: string; level: number; adena: number; coinLuck: number; coinsSilver?: number; bannedUntil: string | null; blockedUntil: string | null } }> {
   const res = await fetch(`${API_URL}/admin/player/find-by-name?name=${encodeURIComponent(name)}`, { method: "GET", credentials: "include" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");

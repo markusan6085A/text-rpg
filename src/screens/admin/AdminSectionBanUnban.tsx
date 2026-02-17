@@ -34,7 +34,12 @@ export function AdminSectionBanUnban() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      const character = data.character;
       await adminBan(character.id, durationMin);
       setSuccessPlayerName(character.name);
       setSuccessDurationMin(durationMin);
@@ -55,7 +60,12 @@ export function AdminSectionBanUnban() {
     }
     setLoading(true);
     try {
-      const { character } = await adminFindPlayerByName(nick.trim());
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      const character = data.character;
       await adminUnban(character.id);
       setSuccessPlayerName(character.name);
       setSuccessModal("unban");
