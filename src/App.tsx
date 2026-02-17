@@ -54,6 +54,7 @@ import { useAdminStore } from "./state/adminStore";
 import { loadHeroFromAPI } from "./state/heroStore/heroLoadAPI";
 import { loadHero as getHeroFromLocalStorage } from "./state/heroStore/heroLoad";
 import { hydrateHero } from "./state/heroStore/heroHydration";
+import { hydrateBattleStoreFromStorage } from "./state/battle/hydrateFromStorage";
 import { startWarmup, stopWarmup } from "./utils/warmup";
 
 function useRouter() {
@@ -115,6 +116,11 @@ function AppInner() {
   const { navigate, navigateNoReload, path, refreshKey } = useRouter();
   const [loadingHeroAfterAuth, setLoadingHeroAfterAuth] = React.useState(false);
   
+  // Відновлення battle store з localStorage після готовності hero (уникаємо TDZ у battle chunk)
+  React.useEffect(() => {
+    if (hero?.name) hydrateBattleStoreFromStorage();
+  }, [hero?.name]);
+
   // Логуємо API_URL при ініціалізації App (тільки в DEV)
   React.useEffect(() => {
     if (import.meta.env.DEV) {
