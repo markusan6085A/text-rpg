@@ -1,6 +1,7 @@
 import type { BattleState } from "../types";
-import { useHeroStore } from "../../heroStore";
 import { saveBattleLogs } from "../battleLogs";
+
+// Не імпортуємо heroStore — уникнення циклу: heroStore → heroLoadAPI → battle/helpers → heroStore
 
 // Minimal cleanup: drop only the Unicode replacement char; otherwise keep the log as-is.
 export const sanitizeLine = (line: string) =>
@@ -20,10 +21,9 @@ export const persistSnapshot = (
   partial?: Partial<BattleState>
 ) => {
   const merged = { ...get(), ...(partial || {}) };
-  // ❗ ВАЖЛИВО: Завжди читаємо heroName з heroStore (єдине джерело істини)
-  const hero = useHeroStore.getState().hero;
-  const heroName = hero?.name; // НЕ використовуємо merged.heroName - тільки з heroStore
-  
+  // heroName зі стану бою (встановлюється при startBattle / restore), щоб не імпортувати heroStore
+  const heroName = merged.heroName ?? null;
+
   if (!heroName) {
     if (import.meta.env.DEV) {
       console.warn("[battleStore] Cannot persist: heroName is not available");

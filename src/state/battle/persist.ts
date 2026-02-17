@@ -1,6 +1,5 @@
 import type { BattleState } from "./types";
 import { getJSON, removeItem, setJSON } from "../persistence";
-import { useHeroStore } from "../heroStore";
 
 // Версія battle state для міграцій
 export const BATTLE_VERSION = 1;
@@ -11,6 +10,7 @@ export type PersistedBattleState = Partial<BattleState> & {
 };
 
 // Battle state persistence key - тепер включає нік героя
+// Не імпортуємо heroStore тут, щоб уникнути циклу: heroStore → heroLoadAPI → battle/persist → heroStore
 const getBattleKey = (heroName?: string | null): string => {
   if (heroName) {
     return `l2_battle_state_v7_${heroName}`;
@@ -30,17 +30,8 @@ export const persistBattle = (data: Partial<BattleState>, heroName?: string | nu
 };
 
 export const loadBattle = (heroName?: string | null): PersistedBattleState | null => {
-  // ❗ ВАЖЛИВО: Завжди читаємо heroName з heroStore (єдине джерело істини)
-  let currentHeroName = heroName;
-  if (!currentHeroName) {
-    try {
-      const hero = useHeroStore.getState().hero;
-      currentHeroName = hero?.name;
-    } catch (e) {
-      // Якщо heroStore ще не ініціалізований, використовуємо старий ключ
-    }
-  }
-  
+  // heroName передається викликачем (heroLoadAPI, heroLoad, store.ts) — не читаємо heroStore, щоб уникнути циклічного імпорту
+  const currentHeroName = heroName ?? null;
   const key = getBattleKey(currentHeroName);
   const parsed = getJSON<PersistedBattleState | null>(key, null);
   
