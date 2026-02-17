@@ -50,6 +50,37 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     grade: "B",
     armorType: "robe",
   },
+  // B-Grade Shields (Shop)
+  avadon_shield: {
+    id: "avadon_shield",
+    name: "Avadon Shield",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_b/Shield_avadon_shield_i00_0.jpg",
+    description: "Щит Авадона B-grade.",
+    stats: { pDef: 200 },
+    grade: "B",
+  },
+  doom_shield: {
+    id: "doom_shield",
+    name: "Doom Shield",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_b/Shield_doom_shield_i00_0.jpg",
+    description: "Щит загибелі B-grade.",
+    stats: { pDef: 220 },
+    grade: "B",
+  },
+  shield_of_pledge: {
+    id: "shield_of_pledge",
+    name: "Shield of Pledge",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_b/Shield_shield_of_pledge_i00_0.jpg",
+    description: "Щит клятви B-grade.",
+    stats: { pDef: 240 },
+    grade: "B",
+  },
   // Doom Set (B-grade Magic Armor - Robe) - Quest Shop
   doom_helmet: {
     id: "doom_helmet",
