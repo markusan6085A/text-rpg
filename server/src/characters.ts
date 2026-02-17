@@ -552,6 +552,7 @@ export async function characterRoutes(app: FastifyInstance) {
         adena: true,
         aa: true,
         coinLuck: true,
+        coinsSilver: true,
         heroJson: true,
         createdAt: true,
         updatedAt: true,
@@ -614,6 +615,7 @@ export async function characterRoutes(app: FastifyInstance) {
       adena?: number;
       aa?: number;
       coinLuck?: number;
+      coinsSilver?: number;
       expectedRevision?: number; // Для optimistic locking
     };
 
@@ -703,12 +705,18 @@ export async function characterRoutes(app: FastifyInstance) {
       }
     }
 
+    if (body.coinsSilver !== undefined) {
+      if (typeof body.coinsSilver !== 'number' || body.coinsSilver < 0) {
+        return reply.code(400).send({ error: "invalid coinsSilver (must be >= 0)" });
+      }
+    }
+
     if (body.coinLuck !== undefined) {
       if (typeof body.coinLuck !== 'number' || body.coinLuck < 0) {
         return reply.code(400).send({ error: "invalid coinLuck (must be >= 0)" });
       }
       // ❗ coinLuck можна тільки збільшувати; зменшення — тільки через POST /premium/buy
-      if (body.coinLuck < (existing.coinLuck || 0)) {
+      if (body.coinLuck < ((existing as any).coinLuck || 0)) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,
@@ -836,6 +844,7 @@ export async function characterRoutes(app: FastifyInstance) {
     if (body.adena !== undefined) updateData.adena = body.adena;
     if (body.aa !== undefined) updateData.aa = body.aa;
     if (body.coinLuck !== undefined) updateData.coinLuck = body.coinLuck;
+    if (body.coinsSilver !== undefined) (updateData as any).coinsSilver = body.coinsSilver;
 
     // 🔥 Оновлюємо активність ТІЛЬКИ якщо оновлюється heroJson (основна активність)
     // Для інших полів (level, exp, тощо) активність оновлюється через heartbeat
@@ -928,6 +937,11 @@ export async function characterRoutes(app: FastifyInstance) {
             params.push(updateData.coinLuck);
             paramIndex++;
           }
+          if ((updateData as any).coinsSilver !== undefined) {
+            setParts.push(`"coinsSilver" = $${paramIndex}`);
+            params.push((updateData as any).coinsSilver);
+            paramIndex++;
+          }
           if (updateData.lastActivityAt) {
             setParts.push(`"lastActivityAt" = $${paramIndex}`);
             params.push(updateData.lastActivityAt);
@@ -973,6 +987,7 @@ export async function characterRoutes(app: FastifyInstance) {
               adena: true,
               aa: true,
               coinLuck: true,
+              coinsSilver: true,
               heroJson: true,
               updatedAt: true,
             },
@@ -1032,6 +1047,7 @@ export async function characterRoutes(app: FastifyInstance) {
             adena: true,
             aa: true,
             coinLuck: true,
+            coinsSilver: true,
             heroJson: true,
             updatedAt: true,
           },

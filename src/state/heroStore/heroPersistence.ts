@@ -408,6 +408,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       expectedRevision,
     };
     if (sendCoinLuck) (updatePayload as any).coinLuck = localCoinLuck;
+    if ((hero as any).coins_silver !== undefined) (updatePayload as any).coinsSilver = (hero as any).coins_silver;
 
     const updatedCharacter = await updateCharacter(characterStore.characterId, updatePayload);
     console.log('[saveHeroToLocalStorage] Hero saved successfully via API');
@@ -430,8 +431,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         // 🔥 КРИТИЧНО: clamp level — сервер може повертати level 1 (старий), не перезаписувати лвл 2→1
         const clampedLevel = Math.max(currentHero.level ?? 1, serverLevel);
         const serverCoinLuck = Number((updatedCharacter as any).coinLuck ?? 0);
+        const serverCoinsSilver = Number((updatedCharacter as any).coinsSilver ?? 0);
         useHeroStore.getState().applyServerSync(
-          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel } as any,
+          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, coins_silver: serverCoinsSilver } as any,
           { exp: serverExp, level: clampedLevel, sp: serverSp, coinLuck: serverCoinLuck, heroRevision: newRevision, updatedAt: Date.now() }
         );
         console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, serverLevel });

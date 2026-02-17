@@ -13,7 +13,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       if (!name) return reply.code(400).send({ error: "name required" });
       const character = await prisma.character.findFirst({
         where: { name: { equals: name, mode: "insensitive" } },
-        select: { id: true, name: true, accountId: true, level: true, adena: true, coinLuck: true, bannedUntil: true, blockedUntil: true } as any,
+        select: { id: true, name: true, accountId: true, level: true, adena: true, coinLuck: true, coinsSilver: true, bannedUntil: true, blockedUntil: true } as any,
       });
       if (!character)
         return reply.code(404).send({ error: "character not found" });
@@ -219,6 +219,37 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         data: { coinLuck: newCoinLuck },
       });
       return { ok: true, coinLuck: newCoinLuck };
+    }
+  );
+
+  // POST /admin/player/:characterId/coins-silver — { delta } або { set }
+  app.post<{ Params: { characterId: string }; Body: { delta?: number; set?: number } }>(
+    "/:characterId/coins-silver",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const characterId = String((req.params as any).characterId ?? "").trim();
+      const body = req.body as any;
+      if (!characterId) return reply.code(400).send({ error: "characterId required" });
+
+      const char = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, coinsSilver: true },
+      });
+      if (!char) return reply.code(404).send({ error: "character not found" });
+
+      const current = char.coinsSilver ?? 0;
+      let newCoinsSilver: number;
+      if (typeof body?.set === "number" && body.set >= 0) {
+        newCoinsSilver = Math.min(2_000_000_000, Math.floor(body.set));
+      } else {
+        const delta = Number(body?.delta ?? 0);
+        newCoinsSilver = Math.max(0, Math.min(2_000_000_000, current + delta));
+      }
+      await prisma.character.update({
+        where: { id: characterId },
+        data: { coinsSilver: newCoinsSilver },
+      });
+      return { ok: true, coinsSilver: newCoinsSilver };
     }
   );
 

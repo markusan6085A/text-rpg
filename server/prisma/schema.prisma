@@ -46,6 +46,7 @@ model Character {
   adena        Int      @default(0)
   aa           Int      @default(0)  // Ancient Adena
   coinLuck     Int      @default(0)
+  coinsSilver  Int      @default(0)  // Серебряные Монеты (валюта квест-шопу)
 
   // Один JSON під "героя" (статі, hp/mp/cp, бафи, позиція, що завгодно)
   heroJson     Json     @default("{}")

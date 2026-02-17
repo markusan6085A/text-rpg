@@ -46,6 +46,7 @@ export interface Character {
   adena: number;
   aa: number;
   coinLuck: number;
+  coinsSilver?: number;
   heroJson: any;
   bannedUntil?: string | null;
   blockedUntil?: string | null;
@@ -74,6 +75,7 @@ export interface UpdateCharacterRequest {
   adena?: number;
   aa?: number;
   coinLuck?: number;
+  coinsSilver?: number;
   expectedRevision?: number; // Для optimistic locking
 }
 
@@ -1104,6 +1106,16 @@ export async function adminAdena(characterId: string, delta?: number, set?: numb
 /** Адмін: Coin of Luck (delta або set) */
 export async function adminCoinLuck(characterId: string, delta?: number, set?: number): Promise<{ ok: boolean; coinLuck?: number }> {
   const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/coin-luck`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delta, set }), credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: Серебряные Монеты (delta або set) */
+export async function adminCoinsSilver(characterId: string, delta?: number, set?: number): Promise<{ ok: boolean; coinsSilver?: number }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/coins-silver`, {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delta, set }), credentials: "include",
   });
   const data = await res.json().catch(() => ({}));

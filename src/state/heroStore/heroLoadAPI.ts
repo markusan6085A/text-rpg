@@ -234,6 +234,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       fixedHero.sp = character.sp;
       fixedHero.adena = character.adena;
       fixedHero.coinOfLuck = character.coinLuck;
+      (fixedHero as any).coins_silver = (character as any).coinsSilver ?? 0;
       fixedHero.aa = character.aa || 0;
       // 🔥 КРИТИЧНО: Зберігаємо mobsKilled, level, exp навіть для нового героя (якщо воно було в heroData)
       const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
@@ -270,6 +271,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         sp: character.sp,
         adena: character.adena,
         coinOfLuck: character.coinLuck,
+        coins_silver: (character as any).coinsSilver ?? 0,
         aa: character.aa || 0,
         name: character.name,
         race: character.race,
