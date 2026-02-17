@@ -1,0 +1,97 @@
+---
+description: Джерела істини героя/валюти, Merge Policy heroLoadAPI, Register flow, запис l2_accounts_v2, правило мінімальних патчів
+alwaysApply: true
+---
+
+# Герой, валюта, merge, storage — не ламати
+
+## 1) Мапінг валюти coinOfLuck (hero) ↔ coinLuck (API)
+
+**Де робиться мапінг:**
+
+| Напрямок | Файл | Функція / місце |
+|----------|------|------------------|
+| API → Hero | `src/state/heroStore/heroLoadAPI.ts` | При зборі `fixedHero` з `character`: `coinOfLuck: character.coinLuck` (рядки 236, 272). Після GET: `updateServerState({ coinLuck: char?.coinLuck ?? hydratedHero.coinOfLuck })` (рядок 538). Блок «local premium новіший» (488–501): перезапис `hydratedHero.coinOfLuck` з локального. |
+| Hero → API | `src/state/heroStore/heroPersistence.ts` | `buildBackupHeroJson`: `coinOfLuck: hero.coinOfLuck`. Перед PUT: `localCoinLuck = hero.coinOfLuck`, `sendCoinLuck` тільки якщо `localCoinLuck >= serverCoinLuck`; `(updatePayload as any).coinLuck = localCoinLuck` (396–410). Після PUT: `serverCoinLuck = (updatedCharacter as any).coinLuck`, передається в `applyServerSync` (432–435). |
+| localStorage → Hero | `src/state/heroStore/heroLoad.ts` | Заповнення з heroJson: `(fixedHero as any).coinOfLuck = Number((heroJson as any).coinOfLuck ?? 0)` (рядок 91). |
+
+**Канонічне поле в Hero:**  
+`hero.coinOfLuck` (тип у `src/types/Hero.ts`: `coinOfLuck?: number`).
+
+**Що очікує сервер у PATCH/PUT `/characters/:id`:**  
+Тіло запиту: поле **`coinLuck`** (number). Код: `server/src/characters.ts` — `body.coinLuck`, валідація «тільки збільшувати» (рядки 706–719, 838).
+
+**Розбіжність (не баг):**  
+Різні назви на клієнті (`coinOfLuck`) і на API (`coinLuck`) — це навмисно; мапінг виконується у heroLoadAPI (при читанні) та heroPersistence (при записі). Плутати поля (наприклад слати `coinOfLuck` у body або читати `character.coinOfLuck`) — баг.
+
+---
+
+## 2) Merge Policy Table (heroLoadAPI)
+
+**Змінювати правила merge заборонено без явного «OK» від користувача.**
+
+| Поле | Правило | Причина |
+|------|---------|--------|
+| exp | **max** (local vs server, як критерій «local preferred»; при server path — з character/heroJson) | Накопичувальний прогрес, не втрачати. |
+| level | **max** (так само; при server path — finalLevel = max(heroJson.level, character.level)) | Похідний від exp, не відкатувати. |
+| sp | **max** (критерій local preferred; при server path — character.sp) | Накопичувальний. |
+| adena | **max** (критерій local preferred; при server path — character.adena) | Валюта, не втрачати. |
+| aa | **serverWins** (у merge не входить у localHasMoreProgress; fixedHero з character.aa) | Серверний лічильник; зменшення заборонене на API. |
+| coinOfLuck / coinLuck | **serverWins** за замовчуванням; **localWins** лише якщо `localPremiumUntil > serverPremiumUntil` (тоді також перезаписуємо coinOfLuck з локального) | Зменшення тільки через POST /premium/buy; після покупки преміуму не відкатувати. |
+| inventory | **localWins** якщо `localInvLen >= serverInvLen`, інакше **serverWins**; окремо при «local preferred» не змінюється (лишаємо локального героя) | Не губити покупки/дроп після F5. |
+| equipment | **mergeById** (об'єднання слотів): `{ ...serverEquip, ...localEquip }` — локаль має пріоритет на конфлікт | Плащ/пояс/тату не губити. |
+| skills | **mergeById** (по skill id), рівень = **max** (локаль vs сервер) | Доп. скіли та підвищені рівні не губити. |
+| buffs | **dedupe** по ключу `id_stackType_name`, залишати баф з **більшим expiresAt**; джерела: heroJson.heroBuffs + loadBattle().heroBuffs; потім cleanupBuffs | Бафи статуї/бою не пропадати після GET. |
+| mobsKilled | **max** (критерій local preferred; при server path: `localMobsKilled > serverMobsKilled ? local : server`) | Накопичувальний лічильник. |
+| premiumUntil | **max** (локаль vs сервер); якщо локаль новіший — також перезаписуємо coinOfLuck з локального | Після покупки преміуму не відкатувати. |
+| hp, mp, cp | **replace** з логікою: hpFull/mpFull/cpFull → finalMax; інакше fill при збільшенні max, інакше clamp поточного значення в [0, finalMax] | Не зменшувати HP/MP/CP при F5 при зростанні max (бафи/екіп). |
+
+---
+
+## 3) Register flow — що відбувається при F5 одразу після реєстрації
+
+**По коду:**
+
+1. **Register** викликає: `setCharacterId(character.id)` → у localStorage пишеться `current_character_id`; `setHero(loadedHero)` або `setHero({ ...coreHero })`; **не** викликає `setJSON("l2_current_user", ...)`.
+2. **Після F5:**  
+   - Bootstrap: `initializeCharacter()` → `characterId` зчитується з `current_character_id` (є).  
+   - `getHeroFromLocalStorage()` = `loadHero()`: `username = getJSON("l2_current_user", null)` → **null** → `loadHero()` одразу повертає **null** (heroLoad.ts, ~рядки 25–27).  
+   - Локального героя немає → `setHero(null)` або `loadHero()` знову дає null, UI показується з hero null.  
+   - У фоні викликається `loadHeroFromAPI()`: `authStore.isAuthenticated` і `characterStore.characterId` є → GET `/characters/:id` → будується герой з сервера → `setHero(loadedHero)`. Користувач бачить героя з API.
+3. **Запис у localStorage:**  
+   При будь-якому подальшому `saveHeroToLocalStorageOnly(hero)` або шляху в `saveHeroToLocalStorage`, що пише в localStorage: `current = getJSON("l2_current_user", null)` залишається **null** → у heroPersistence виконується `if (!current) return` (saveHeroToLocalStorageOnly, ~рядки 52–53) або знаходиться `accIndex === -1` для масиву accounts → запис у **l2_accounts_v2 не відбувається**. Тобто після реєстрації без логіну через Landing у користувача **немає локального бекапу** героя в `l2_accounts_v2`.
+
+**Висновок:** Це не падає, але це **незапис у localStorage** для користувача, який тільки зареєструвався (ніколи не натискав «Войти» на Landing). Якщо потім API недоступний, `loadHero()` поверне null, `loadHeroFromAPI()` може не відпрацювати — герой не з’явиться.
+
+**Варіант A — зробити локальний акаунт одразу після реєстрації:**  
+Після успішного створення персонажа та отримання героя (loadedHero або fallback) викликати `setJSON("l2_current_user", username)` і додати запис у `l2_accounts_v2` (наприклад один раз записати `{ username, hero }` у масив accounts).  
+- **Ризики:** потрібно один раз створити запис у `l2_accounts_v2` узгоджено з heroLoad/heroPersistence (формат accounts); якщо запис буде неповний, heroLoad може повернути «сирого» героя.  
+- **Мінімальний diff:** у `Register.tsx` після `setHero(loadedHero)` (або після fallback `setHero({...})`) викликати `setJSON("l2_current_user", trimmedUsername)` і дописати в `l2_accounts_v2` новий елемент `{ username: trimmedUsername, hero: useHeroStore.getState().hero }` (або використати існуючу функцію з heroPersistence, якщо винести «додати/оновити запис» без PUT).
+
+**Варіант B — залишити як є:**  
+Не змінювати поведінку.  
+- **Ризики:** користувачі «тільки з реєстрації» не мають бекапу в localStorage; при проблемах з API можуть тимчасово не бачити героя.  
+- **Мінімальний diff:** немає.
+
+---
+
+## 4) Записи в l2_accounts_v2 — тільки дозволені місця
+
+**Усі виклики `setJSON("l2_accounts_v2", ...)` у проєкті:**
+
+| Файл | Контекст |
+|------|----------|
+| `src/state/heroStore/heroLoad.ts` | Міграції при читанні: fixProfession по акаунтах, Angel Slayer у інвентарі (рядки 70, 81, 156). |
+| `src/state/heroStore/heroPersistence.ts` | Єдине робоче місце запису героя: saveHeroToLocalStorageOnly та всі гілки saveHeroToLocalStorage (localStorage fallback, backup при 429/409, тощо) — багато викликів setJSON. |
+| `src/utils/fixProfession.ts` | `fixAllHeroProfessions()` — пише в l2_accounts_v2. Наразі **ніде не викликається** (тільки оголошення функції). |
+
+Інших записів у `l2_accounts_v2` у вихідному коді (src/server, без .md / тимчасових файлів) немає.  
+Правило: **новий код не повинен викликати setJSON("l2_accounts_v2", ...)** окрім heroPersistence та міграцій у heroLoad (і опційно виклику fixAllHeroProfessions, якщо його колись підключити).
+
+---
+
+## 5) Правило роботи далі
+
+- Усі правки — **тільки мінімальний патч**. Жодних рефакторів, перейменувань полів/файлів, «покращень архітектури» без явного запиту.
+- **Перед патчем:** коротко: план → список файлів → ризики.
+- **Після патчу:** чек-ліст «що перевірити» і перелік змінених файлів.
