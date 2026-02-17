@@ -109,17 +109,21 @@ export default function Battle({ navigate }: BattleProps) {
     }
   }, [zoneId, mobIndex, found, battleZoneId, battleMobIndex, startBattle, status, mob, hero]);
 
-  // Таймер для регенерації та атак мобів
+  // Таймер: атаки/нагороди кожні 250мс, реген раз на 1000мс
+  const BATTLE_TICK_MS = 250;
+  const REGEN_TICK_MS = 1000;
   React.useEffect(() => {
-    const interval = setInterval(() => {
-      const currentTime = Date.now();
-      setNow(currentTime);
-      if (status === "fighting") {
-        regenTick();
-        processMobAttack();
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+    const battleInterval = setInterval(() => {
+      setNow(Date.now());
+      if (status === "fighting") processMobAttack();
+    }, BATTLE_TICK_MS);
+    const regenInterval = setInterval(() => {
+      if (status === "fighting") regenTick();
+    }, REGEN_TICK_MS);
+    return () => {
+      clearInterval(battleInterval);
+      clearInterval(regenInterval);
+    };
   }, [status, regenTick, processMobAttack]);
 
   // Якщо зона або моб не знайдені
