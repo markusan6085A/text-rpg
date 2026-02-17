@@ -95,6 +95,7 @@ export default function Character() {
   const profession = hero?.profession || "";
   const adena = hero?.adena || 0;
   const coins = hero?.coinOfLuck || 0;
+  const silverCoins = hero?.coins_silver ?? 0;
 
   // -----------------------------
   // EXP calculation
@@ -251,6 +252,10 @@ export default function Character() {
           <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
             <img src="/icons/col (1).png" alt="Coin of Luck" className="w-3 h-3 object-contain" />
             <span>Coin of Luck: <span className="text-yellow-300">{coins}</span></span>
+          </div>
+          <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
+            <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
+            <span>Серебряные Монеты: <span className="text-yellow-300">{silverCoins}</span></span>
           </div>
 
           <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">

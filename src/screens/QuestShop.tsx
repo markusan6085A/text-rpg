@@ -227,10 +227,8 @@ export default function QuestShop({ navigate }: QuestShopProps) {
 
     const totalPrice = item.price * quantity;
 
-    // Перевіряємо наявність Серебряных Монет
-    const silverCoins = hero.inventory?.find(item => item.id === "coins_silver");
-    const coinCount = silverCoins?.count || 0;
-
+    // Перевіряємо наявність Серебряных Монет (валюта hero.coins_silver)
+    const coinCount = hero.coins_silver ?? 0;
     if (coinCount < totalPrice) {
       alert("Недостаточно Серебряных Монет!");
       return;
@@ -260,19 +258,8 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       return;
     }
 
-    // Видаляємо Серебряные Монеты та додаємо предмет до інвентаря
+    // Списання Серебряных Монет (валюта) та додаємо предмет до інвентаря
     const newInventory = [...(hero.inventory || [])];
-    
-    // Видаляємо монети
-    const coinIndex = newInventory.findIndex(item => item.id === "coins_silver");
-    if (coinIndex >= 0) {
-      const coin = newInventory[coinIndex];
-      if (coin.count && coin.count > totalPrice) {
-        newInventory[coinIndex] = { ...coin, count: coin.count - totalPrice };
-      } else {
-        newInventory.splice(coinIndex, 1);
-      }
-    }
 
     // Використовуємо стати з ShopItem, якщо вони є, інакше з itemsDB
     const finalStats = item.stats || itemDef.stats;
@@ -310,8 +297,11 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       });
     }
     
-    // Оновлюємо інвентар з усіма змінами
-    updateHero({ inventory: newInventory });
+    // Оновлюємо валюту coins_silver та інвентар
+    updateHero({
+      coins_silver: (hero.coins_silver ?? 0) - totalPrice,
+      inventory: newInventory,
+    });
     
     setSelectedItem(null);
     setBuyQuantity(1);
@@ -409,10 +399,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
           }}
         />
         <span className="text-yellow-400 font-semibold">
-          {(() => {
-            const silverCoins = hero?.inventory?.find(item => item.id === "coins_silver");
-            return (silverCoins?.count || 0).toLocaleString();
-          })()}
+          {(hero?.coins_silver ?? 0).toLocaleString()}
         </span>{" "}
         Серебряные Монеты
       </div>
@@ -555,8 +542,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             <button
               onClick={() => {
                 if (!hero) return;
-                const silverCoins = hero.inventory?.find(item => item.id === "coins_silver");
-                const coinCount = silverCoins?.count || 0;
+                const coinCount = hero.coins_silver ?? 0;
                 if (coinCount < 10) {
                   return;
                 }
@@ -582,8 +568,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             <button
               onClick={() => {
                 if (!hero) return;
-                const silverCoins = hero.inventory?.find(item => item.id === "coins_silver");
-                const coinCount = silverCoins?.count || 0;
+                const coinCount = hero.coins_silver ?? 0;
                 if (coinCount < 10) {
                   return;
                 }
@@ -609,8 +594,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             <button
               onClick={() => {
                 if (!hero) return;
-                const silverCoins = hero.inventory?.find(item => item.id === "coins_silver");
-                const coinCount = silverCoins?.count || 0;
+                const coinCount = hero.coins_silver ?? 0;
                 if (coinCount < 10) {
                   return;
                 }
@@ -636,8 +620,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             <button
               onClick={() => {
                 if (!hero) return;
-                const silverCoins = hero.inventory?.find(item => item.id === "coins_silver");
-                const coinCount = silverCoins?.count || 0;
+                const coinCount = hero.coins_silver ?? 0;
                 if (coinCount < 10) {
                   return;
                 }
@@ -937,27 +920,16 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               <button
                 onClick={() => {
                   if (!hero) return;
-                  const silverCoins = hero.inventory?.find(item => item.id === "coins_silver");
-                  const coinCount = silverCoins?.count || 0;
+                  const coinCount = hero.coins_silver ?? 0;
                   if (coinCount < 10) {
                     setConfirmExchange(null);
                     return;
                   }
                   
-                  // Видаляємо 10 Срібних Монет
-                  const newInventory = [...(hero.inventory || [])];
-                  const coinIndex = newInventory.findIndex(item => item.id === "coins_silver");
-                  if (coinIndex >= 0) {
-                    const coin = newInventory[coinIndex];
-                    if (coin.count && coin.count > 10) {
-                      newInventory[coinIndex] = { ...coin, count: coin.count - 10 };
-                    } else {
-                      newInventory.splice(coinIndex, 1);
-                    }
-                  }
-                  
-                  // Додаємо відповідну нагороду
-                  const updates: Partial<Hero> = { inventory: newInventory };
+                  // Списання 10 Серебряных Монет (валюта) та додаємо нагороду
+                  const updates: Partial<Hero> = {
+                    coins_silver: (hero.coins_silver ?? 0) - 10,
+                  };
                   if (confirmExchange.type === "adena") {
                     updates.adena = (hero.adena || 0) + 50000;
                   } else if (confirmExchange.type === "exp") {

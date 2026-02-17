@@ -83,6 +83,7 @@ export interface Hero {
   // Валюта
   adena: number;
   coinOfLuck?: number;
+  coins_silver?: number; // Серебряные Монеты (валюта квест-шопу)
   aa?: number; // Ancient Adena (Adena Adena)
 
   // Кольор ніка
