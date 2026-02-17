@@ -165,6 +165,7 @@ export default function Register({ navigate }: RegisterProps) {
       const loadedHero = await loadHeroFromAPI();
       if (loadedHero) {
         setHero(loadedHero);
+        setJSON("l2_current_user", trimmedUsername);
         navigate("/city");
       } else {
         // Fallback: встановлюємо героя вручну
@@ -174,6 +175,7 @@ export default function Register({ navigate }: RegisterProps) {
           skills: [],
           battleStats: {} as any,
         } as any);
+        setJSON("l2_current_user", trimmedUsername);
         navigate("/city");
       }
     } catch (err: any) {
