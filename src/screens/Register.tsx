@@ -166,16 +166,26 @@ export default function Register({ navigate }: RegisterProps) {
       if (loadedHero) {
         setHero(loadedHero);
         setJSON("l2_current_user", trimmedUsername);
+        if (trimmedUsername) {
+          const accounts = getJSON<any[]>("l2_accounts_v2", []);
+          const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
+          if (idx === -1) accounts.push({ username: trimmedUsername, hero: loadedHero });
+          else accounts[idx].hero = loadedHero;
+          setJSON("l2_accounts_v2", accounts);
+        }
         navigate("/city");
       } else {
         // Fallback: встановлюємо героя вручну
-        setHero({
-          ...coreHero,
-          sp: 0,
-          skills: [],
-          battleStats: {} as any,
-        } as any);
+        const fallbackHero = { ...coreHero, sp: 0, skills: [], battleStats: {} as any } as any;
+        setHero(fallbackHero);
         setJSON("l2_current_user", trimmedUsername);
+        if (trimmedUsername) {
+          const accounts = getJSON<any[]>("l2_accounts_v2", []);
+          const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
+          if (idx === -1) accounts.push({ username: trimmedUsername, hero: fallbackHero });
+          else accounts[idx].hero = fallbackHero;
+          setJSON("l2_accounts_v2", accounts);
+        }
         navigate("/city");
       }
     } catch (err: any) {
