@@ -48,13 +48,18 @@ export function clearRefreshCookie(reply: FastifyReply) {
   const domain = process.env.COOKIE_DOMAIN || undefined;
   const sameSite = (process.env.COOKIE_SAME_SITE as "strict" | "lax" | "none") || "lax";
 
-  reply.clearCookie("refresh_token", {
-    path: REFRESH_COOKIE_PATH,
+  const cookieOpts = {
     domain,
     secure: sameSite === "none" ? true : secure,
     sameSite,
     maxAge: 0,
-  });
+  };
+
+  // Current path (new)
+  reply.clearCookie("refresh_token", { ...cookieOpts, path: "/" });
+
+  // Legacy path (old deployments had refresh cookie scoped here)
+  reply.clearCookie("refresh_token", { ...cookieOpts, path: "/api/auth/refresh" });
 }
 
 export function getRefreshCookie(req: FastifyRequest) {
