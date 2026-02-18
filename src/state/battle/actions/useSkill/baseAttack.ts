@@ -363,6 +363,10 @@ export function handleBaseAttack(
       const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
       // Важливо: спочатку kills, потім adena — щоб обидва оновлення не перезаписували одне одного
       const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
+      // Як у Воїна/Болтуна — окремий updateHero для daily progress, щоб гарантовано зберегти
+      if (Object.keys(combinedProgress).length > 0) {
+        useHeroStore.getState().updateHero({ dailyQuestsProgress: combinedProgress });
+      }
       const currentMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? (curHero as any).killedMobs ?? (curHero as any).totalKills ?? 0;
       const newMobsKilled = currentMobsKilled + 1;
 

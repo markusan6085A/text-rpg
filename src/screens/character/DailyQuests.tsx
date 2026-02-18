@@ -11,11 +11,11 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
 
-  // Скидаємо щоденні завдання тільки коли дата останнього резету строго раніше за сьогодні (не коли дати немає — інакше прогрес губився)
+  // Скидаємо щоденні завдання по ігровому часу (Europe/Warsaw)
   useEffect(() => {
     if (!hero) return;
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`; // YYYY-MM-DD (локально)
+    const formatter = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit" });
+    const today = formatter.format(new Date()); // YYYY-MM-DD (ігровий час)
     const rawReset = hero.dailyQuestsResetDate;
     const resetDate = rawReset ? String(rawReset).slice(0, 10) : ""; // нормалізуємо ISO до YYYY-MM-DD
 

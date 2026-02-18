@@ -725,6 +725,10 @@ export function processSummonAttack(
       const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
       // Важливо: спочатку kills, потім adena — щоб обидва оновлення не перезаписували одне одного
       const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
+      // Як у Воїна/Болтуна — окремий updateHero для daily progress, щоб гарантовано зберегти
+      if (Object.keys(combinedProgress).length > 0) {
+        useHeroStore.getState().updateHero({ dailyQuestsProgress: combinedProgress });
+      }
 
       let level = Number(curHero.level ?? 1) || 1;
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;
