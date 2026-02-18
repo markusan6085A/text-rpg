@@ -16,23 +16,25 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
     if (!hero) return;
     const formatter = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit" });
     const today = formatter.format(new Date()); // YYYY-MM-DD (ігровий час)
-    const rawReset = hero.dailyQuestsResetDate;
-    const resetDate = rawReset ? String(rawReset).slice(0, 10) : ""; // нормалізуємо ISO до YYYY-MM-DD
+    const resetDate = typeof hero.dailyQuestsResetDate === "string" ? hero.dailyQuestsResetDate.slice(0, 10) : "";
 
-    // Якщо дати немає — лише виставляємо сьогодні, не очищаємо прогрес (щоб не стерти після F5/API)
+    // Якщо дати відсутня (""/null) — НЕ зносимо прогрес, тільки ініціалізуємо дату
     if (!resetDate) {
-      updateHero({ dailyQuestsResetDate: today });
+      if (hero.dailyQuestsResetDate !== today) {
+        updateHero({ dailyQuestsResetDate: today });
+      }
       return;
     }
-    // Якщо дата в минулому (інший день) — скидаємо прогрес і ставимо сьогодні
-    if (resetDate < today) {
+
+    // Новий день: ресет (не використовуємо < — уникнути пасток з "", null, лексикографією)
+    if (resetDate !== today) {
       updateHero({
         dailyQuestsProgress: {},
         dailyQuestsCompleted: [],
         dailyQuestsResetDate: today,
       });
     }
-  }, [hero, updateHero]);
+  }, [hero?.dailyQuestsResetDate, hero?.id, updateHero]);
 
   if (!hero) {
     return (
