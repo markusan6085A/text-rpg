@@ -721,7 +721,7 @@ export function processSummonAttack(
       displaySp = finalSpGain;
       displayAdena = finalAdenaGain;
 
-      // Щоденні завдання — послідовне оновлення, щоб kills не перетирався adena
+      // Щоденні завдання — в один updateHero разом з victoryUpdates
       const curHeroForDaily = useHeroStore.getState().hero;
       if (curHeroForDaily) {
         const p1 = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
@@ -730,7 +730,7 @@ export function processSummonAttack(
           "daily_adena_farm",
           finalAdenaGain
         );
-        useHeroStore.getState().updateHero({ dailyQuestsProgress: p2 });
+        (victoryUpdates as any).dailyQuestsProgress = p2;
       }
 
       let level = Number(curHero.level ?? 1) || 1;

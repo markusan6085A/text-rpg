@@ -359,7 +359,7 @@ export function handleBaseAttack(
           break;
         }
       }
-      // Щоденні завдання — послідовне оновлення, щоб kills не перетирався adena
+      // Щоденні завдання — в один updateHero разом з victoryUpdates
       const curHeroForDaily = useHeroStore.getState().hero;
       if (curHeroForDaily) {
         const p1 = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
@@ -368,7 +368,7 @@ export function handleBaseAttack(
           "daily_adena_farm",
           finalAdenaGain
         );
-        useHeroStore.getState().updateHero({ dailyQuestsProgress: p2 });
+        (victoryUpdates as any).dailyQuestsProgress = p2;
       }
       const currentMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? (curHero as any).killedMobs ?? (curHero as any).totalKills ?? 0;
       const newMobsKilled = currentMobsKilled + 1;
