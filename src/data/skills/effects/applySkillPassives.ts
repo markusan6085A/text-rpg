@@ -36,6 +36,37 @@ export type BattleStats = {
   [key: string]: number | undefined;
 };
 
+/** Safe base when stat is missing/0 so percent/multiplier never produce undefined. maxHp/maxMp/maxCp >= 1. */
+const SAFE_BASE_RESOURCES: Record<string, number> = {
+  maxHp: 1,
+  maxMp: 1,
+  maxCp: 1,
+};
+const SAFE_BASE_COMBAT: Record<string, number> = {
+  pDef: 0,
+  mDef: 0,
+  pAtk: 0,
+  mAtk: 0,
+  attackSpeed: 200,
+  atkSpeed: 200,
+  castSpeed: 0,
+  crit: 4,
+  critRate: 4,
+  mCrit: 4,
+  skillCritRate: 4,
+  critPower: 50,
+  critDamage: 50,
+};
+
+function getSafeBaseForStat(targetStat: string, mode: "percent" | "multiplier"): number {
+  if (SAFE_BASE_RESOURCES[targetStat] !== undefined) return SAFE_BASE_RESOURCES[targetStat];
+  return SAFE_BASE_COMBAT[targetStat] ?? 0;
+}
+
+function isResourceStat(targetStat: string): boolean {
+  return targetStat === "maxHp" || targetStat === "maxMp" || targetStat === "maxCp";
+}
+
 /**
  * Застосовує один пасивний скіл до stats
  * Повертає НОВИЙ об'єкт, не мутує вхідний
@@ -249,16 +280,20 @@ export function applySinglePassive(
       // Застосовуємо модифікатор залежно від режиму
       if (mod.mode === "flat") {
         // Flat додавання - використовуємо level.power (який містить значення з XML)
-        const newValue = current + modValue;
+        const raw = (typeof current === "number" && Number.isFinite(current) ? current : 0) + modValue;
+        let newValue = Number.isFinite(raw) ? raw : 0;
+        if (isResourceStat(targetStat)) {
+          newValue = Math.max(1, Math.round(newValue));
+        }
         stats[targetStat] = newValue;
-        
+
         // Синхронізуємо attackSpeed та atkSpeed після застосування flat модифікатора
         if (targetStat === "atkSpeed") {
           (stats as any).attackSpeed = stats[targetStat];
         } else if (stat === "attackSpeed") {
           (stats as any).atkSpeed = stats[targetStat];
         }
-        
+
         // Синхронізуємо critDamage та critPower після застосування flat модифікатора
         if (targetStat === "critDamage") {
           (stats as any).critPower = stats[targetStat];
@@ -278,50 +313,46 @@ export function applySinglePassive(
           });
         }
       } else if (mod.mode === "percent") {
-        // Percent mode: завжди множимо поточне значення
-        // Якщо current = 0, то результат також буде 0 (це нормально для percent mode)
-        // Але для castSpeed, atkSpeed, crit та mCrit потрібно мати базове значення > 0, щоб percent працював
-        if (current > 0) {
-          stats[targetStat] = current * (1 + modValue / 100);
-        } else if ((targetStat === "castSpeed" || targetStat === "atkSpeed" || targetStat === "critRate" || targetStat === "skillCritRate") && modValue > 0) {
-          // Для castSpeed, atkSpeed, crit та mCrit, якщо поточне значення = 0, встановлюємо базове значення з percent бонусу
-          // Це дозволяє percent скілам працювати навіть якщо базова castSpeed/atkSpeed/crit/mCrit = 0
-          stats[targetStat] = modValue;
+        // Percent mode: never use undefined/0 base for maxHp/maxMp/maxCp/pDef/mDef — use safe base so result is never undefined.
+        const base = (typeof current === "number" && Number.isFinite(current) && current > 0)
+          ? current
+          : getSafeBaseForStat(targetStat, "percent");
+        let newVal = base * (1 + modValue / 100);
+        newVal = Number.isFinite(newVal) ? newVal : base;
+        if (isResourceStat(targetStat)) {
+          newVal = Math.max(1, Math.round(newVal));
         }
-        
+        stats[targetStat] = newVal;
+
         // Синхронізуємо attackSpeed та atkSpeed після застосування percent модифікатора
         if (targetStat === "atkSpeed") {
           (stats as any).attackSpeed = stats[targetStat];
         } else if (stat === "attackSpeed") {
           (stats as any).atkSpeed = stats[targetStat];
         }
-        
+
         // Синхронізуємо critDamage та critPower після застосування percent модифікатора
         if (targetStat === "critDamage") {
           (stats as any).critPower = stats[targetStat];
         }
-        
+
         // Синхронізуємо critRate та crit після застосування percent модифікатора
         if (targetStat === "critRate") {
           (stats as any).crit = stats[targetStat];
         }
-        
+
         // Синхронізуємо skillCritRate та mCrit після застосування percent модифікатора
-        // ❗ ВАЖЛИВО: mCrit має синхронізуватися з skillCritRate, але не перезаписуватися
-        // Якщо mCrit вже має значення, воно має залишатися, а skillCritRate має бути джерелом правди
-        if (targetStat === "skillCritRate") {
-          // Синхронізуємо mCrit з skillCritRate, але тільки якщо skillCritRate має значення
-          if (stats[targetStat] !== undefined && stats[targetStat] !== null) {
-            (stats as any).mCrit = stats[targetStat];
-          }
+        if (targetStat === "skillCritRate" && stats[targetStat] !== undefined && stats[targetStat] !== null) {
+          (stats as any).mCrit = stats[targetStat];
         }
-        
+
         // 🔍 ДІАГНОСТИКА для Fast Spell Casting, Boost Attack Speed та Critical Chance
         if (skill.id === 228 || skill.id === 168 || skill.id === 137) {
           console.log(`[applySinglePassive] ${skill.name} percent applied:`, {
             stat,
             targetStat,
             current,
+            base,
             modValue,
             newValue: stats[targetStat],
             levelNumber: level.level,
@@ -330,23 +361,32 @@ export function applySinglePassive(
             critRate: stats.critRate,
           });
         }
-        
+
         // 🔍 ДІАГНОСТИКА для додаткових скілів
         if (skill.id === 130 || skill.id === 429 || skill.id === 401) {
           console.log(`[applySinglePassive] Додатковий скіл ${skill.name} percent applied:`, {
             stat,
             targetStat,
             current,
+            base,
             modValue,
             newValue: stats[targetStat],
             levelNumber: level.level,
-            calculation: `${current} * (1 + ${modValue} / 100) = ${stats[targetStat]}`,
+            calculation: `${base} * (1 + ${modValue} / 100) = ${stats[targetStat]}`,
           });
         }
       } else if (mod.mode === "multiplier") {
-        // Multiplier - використовуємо mod.multiplier якщо є, інакше level.power
+        // Multiplier: same safe base when current is 0/undefined so we never write undefined.
         const multiplier = mod.multiplier !== undefined ? mod.multiplier : (level.power !== undefined && !isNaN(level.power) ? level.power : 1);
-        stats[targetStat] = current * multiplier;
+        const base = (typeof current === "number" && Number.isFinite(current) && current >= 0)
+          ? current
+          : getSafeBaseForStat(targetStat, "multiplier");
+        let newVal = base * multiplier;
+        newVal = Number.isFinite(newVal) ? newVal : base;
+        if (isResourceStat(targetStat)) {
+          newVal = Math.max(1, Math.round(newVal));
+        }
+        stats[targetStat] = newVal;
         
         // Синхронізуємо attackSpeed та atkSpeed після застосування multiplier модифікатора
         if (targetStat === "atkSpeed") {

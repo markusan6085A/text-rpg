@@ -539,6 +539,15 @@ export function applyPassiveSkillsToResources(
     maxCp: resources.maxCp,
   };
 
+  if (import.meta.env.DEV) {
+    console.log("[applyPassiveSkillsToResources] before passive apply:", {
+      maxHp: stats.maxHp,
+      maxMp: stats.maxMp,
+      maxCp: stats.maxCp,
+      keys: Object.keys(stats),
+    });
+  }
+
   // ID/level з API або localStorage можуть бути рядками — нормалізуємо до числа, щоб getSkillDef і levelDef знаходили скіл
   const ADDITIONAL_SKILL_IDS = [130, 279, 401, 429, 481, 763, 794, 820, 6319, 9999];
 
@@ -566,11 +575,23 @@ export function applyPassiveSkillsToResources(
   // ❗ НЕ застосовуємо бафи тут - вони застосовуються в computeBuffedMaxResources
   // Це гарантує, що hero.maxHp містить базове значення БЕЗ бафів
 
+  const finalMaxHp = Math.max(1, Math.round(Number(stats.maxHp) || resources.maxHp || 1));
+  const finalMaxMp = Math.max(1, Math.round(Number(stats.maxMp) || resources.maxMp || 1));
+  const finalMaxCp = Math.max(1, Math.round(Number(stats.maxCp) || resources.maxCp || 1));
+
+  if (import.meta.env.DEV) {
+    console.log("[applyPassiveSkillsToResources] after passive apply:", {
+      maxHp: finalMaxHp,
+      maxMp: finalMaxMp,
+      maxCp: finalMaxCp,
+    });
+  }
+
   return {
     ...resources,
-    maxHp: Math.max(1, Math.round(stats.maxHp ?? resources.maxHp)),
-    maxMp: Math.max(1, Math.round(stats.maxMp ?? resources.maxMp)),
-    maxCp: Math.max(1, Math.round(stats.maxCp ?? resources.maxCp)),
+    maxHp: finalMaxHp,
+    maxMp: finalMaxMp,
+    maxCp: finalMaxCp,
   };
 }
 
