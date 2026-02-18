@@ -32,7 +32,7 @@ interface HeroState {
 
   loadHero: () => void;
 
-  updateHero: (partial: Partial<Hero>, opts?: { persist?: boolean }) => void;
+  updateHero: (partialOrUpdater: Partial<Hero> | ((prev: Hero | null) => Partial<Hero>), opts?: { persist?: boolean }) => void;
 
   /** Оновлення героя після серверного sync (PUT/409) без запуску persistence — не викликати updateHero */
   applyServerSync: (partial: Partial<Hero>, server: Partial<ServerState>) => void;
@@ -297,9 +297,14 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     // 🔥 НЕ пишемо в localStorage з loadHero — запис тільки в updateHero / heroPersistence
   },
 
-  updateHero: (partial, opts) => {
+  updateHero: (partialOrUpdater, opts) => {
     const prev = get().hero;
     if (!prev) return;
+
+    // 🔥 Functional update: дозволяє рахувати partial від актуального hero (усуває race condition у battle)
+    const partial = typeof partialOrUpdater === "function"
+      ? (partialOrUpdater as (prev: Hero | null) => Partial<Hero>)(prev)
+      : (partialOrUpdater || {});
 
     // TRAP: лог + trace коли хтось виставляє hp/mp/cp в 0 (без блокування)
     const p: any = partial || {};

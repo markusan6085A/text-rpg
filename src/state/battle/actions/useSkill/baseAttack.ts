@@ -359,17 +359,6 @@ export function handleBaseAttack(
           break;
         }
       }
-      // Щоденні завдання — в один updateHero разом з victoryUpdates
-      const curHeroForDaily = useHeroStore.getState().hero;
-      if (curHeroForDaily) {
-        const p1 = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
-        const p2 = updateDailyQuestProgress(
-          { ...curHeroForDaily, dailyQuestsProgress: p1 },
-          "daily_adena_farm",
-          finalAdenaGain
-        );
-        (victoryUpdates as any).dailyQuestsProgress = p2;
-      }
       const currentMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? (curHero as any).killedMobs ?? (curHero as any).totalKills ?? 0;
       const newMobsKilled = currentMobsKilled + 1;
 
@@ -395,7 +384,17 @@ export function handleBaseAttack(
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
       (victoryUpdates as any).battleStats = recalculatedAfter.baseFinalStats;
 
-      useHeroStore.getState().updateHero(victoryUpdates as any);
+      // Functional update — рахуємо dailyQuestsProgress від актуального hero (усуває race з regen/damage tick)
+      useHeroStore.getState().updateHero((prevHero) => {
+        if (!prevHero) return victoryUpdates as any;
+        const p1 = updateDailyQuestProgress(prevHero, "daily_kills", 1);
+        const p2 = updateDailyQuestProgress(
+          { ...prevHero, dailyQuestsProgress: p1 },
+          "daily_adena_farm",
+          finalAdenaGain
+        );
+        return { ...victoryUpdates, dailyQuestsProgress: p2 } as any;
+      });
     }
 
     const maxAfter = computeMaxNow(activeBuffs);

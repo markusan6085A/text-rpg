@@ -275,18 +275,6 @@ export function handleAttackSkill(
           break;
         }
       }
-      // Щоденні завдання — в один updateHero разом з victoryUpdates
-      const curHeroForDaily = useHeroStore.getState().hero;
-      if (curHeroForDaily) {
-        const p1 = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
-        const p2 = updateDailyQuestProgress(
-          { ...curHeroForDaily, dailyQuestsProgress: p1 },
-          "daily_adena_farm",
-          finalAdenaGain
-        );
-        (victoryUpdates as any).dailyQuestsProgress = p2;
-      }
-
       const updMaxHp = curHero.maxHp ?? curHero.hp ?? 0;
       const updMaxCp = curHero.maxCp ?? curHero.cp ?? 0;
       const updMaxMp = curHero.maxMp ?? curHero.mp ?? 0;
@@ -307,7 +295,17 @@ export function handleAttackSkill(
       const heroWithNewHp = { ...curHero, ...victoryUpdates };
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
       victoryUpdates.battleStats = recalculatedAfter.finalStats;
-      useHeroStore.getState().updateHero(victoryUpdates);
+      // Functional update — dailyQuestsProgress від актуального hero (усуває race)
+      useHeroStore.getState().updateHero((prevHero) => {
+        if (!prevHero) return victoryUpdates;
+        const p1 = updateDailyQuestProgress(prevHero, "daily_kills", 1);
+        const p2 = updateDailyQuestProgress(
+          { ...prevHero, dailyQuestsProgress: p1 },
+          "daily_adena_farm",
+          finalAdenaGain
+        );
+        return { ...victoryUpdates, dailyQuestsProgress: p2 };
+      });
     } else {
       const heroAfterLevel = useHeroStore.getState().hero;
       if (heroAfterLevel) {

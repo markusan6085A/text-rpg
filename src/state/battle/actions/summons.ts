@@ -721,18 +721,6 @@ export function processSummonAttack(
       displaySp = finalSpGain;
       displayAdena = finalAdenaGain;
 
-      // Щоденні завдання — в один updateHero разом з victoryUpdates
-      const curHeroForDaily = useHeroStore.getState().hero;
-      if (curHeroForDaily) {
-        const p1 = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
-        const p2 = updateDailyQuestProgress(
-          { ...curHeroForDaily, dailyQuestsProgress: p1 },
-          "daily_adena_farm",
-          finalAdenaGain
-        );
-        (victoryUpdates as any).dailyQuestsProgress = p2;
-      }
-
       let level = Number(curHero.level ?? 1) || 1;
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;
       const EPS = 0.001;
@@ -758,7 +746,17 @@ export function processSummonAttack(
         hp: leveled ? maxHp : Math.min(maxHp, curHero.hp ?? maxHp),
         mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
       });
-      updateHero(victoryUpdates);
+      // Functional update — dailyQuestsProgress від актуального hero (усуває race)
+      updateHero((prevHero) => {
+        if (!prevHero) return victoryUpdates as any;
+        const p1 = updateDailyQuestProgress(prevHero, "daily_kills", 1);
+        const p2 = updateDailyQuestProgress(
+          { ...prevHero, dailyQuestsProgress: p1 },
+          "daily_adena_farm",
+          finalAdenaGain
+        );
+        return { ...victoryUpdates, dailyQuestsProgress: p2 } as any;
+      });
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
     }
 
