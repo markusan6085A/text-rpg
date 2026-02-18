@@ -26,11 +26,29 @@ export function getMaxResources(
     return { maxHp: 1, maxMp: 1, maxCp: 1 };
   }
 
-  // ✅ base-first — завжди беремо base без бафів, щоб computeBuffedMaxResources додав бафи один раз
+  // ✅ Не повертаємо max менший за вже наявний у героя (hero.maxHp/baseMaxHp); heroJson — лише fallback, не пріоритет.
+  // Інакше тік (regenTick/processMobAttack) робить curHP = min(maxHp, hero.hp) і HP "падає" після F5.
   const heroAny = hero as any;
-  const baseMaxHp = Number(heroAny.baseMaxHp ?? heroAny.heroJson?.maxHp ?? hero.maxHp ?? hero.hp ?? 1);
-  const baseMaxMp = Number(heroAny.baseMaxMp ?? heroAny.heroJson?.maxMp ?? hero.maxMp ?? hero.mp ?? 1);
-  const baseMaxCp = Number(heroAny.baseMaxCp ?? heroAny.heroJson?.maxCp ?? hero.maxCp ?? Math.max(1, Math.round(baseMaxHp * 0.6)));
+  const candidatesHp = [
+    heroAny.baseMaxHp,
+    hero.maxHp,
+    heroAny.heroJson?.maxHp,
+    hero.hp,
+  ].map((v) => Number(v)).filter((v) => Number.isFinite(v) && v > 0);
+  const candidatesMp = [
+    heroAny.baseMaxMp,
+    hero.maxMp,
+    heroAny.heroJson?.maxMp,
+    hero.mp,
+  ].map((v) => Number(v)).filter((v) => Number.isFinite(v) && v > 0);
+  const baseMaxHp = candidatesHp.length ? Math.max(...candidatesHp) : 1;
+  const baseMaxMp = candidatesMp.length ? Math.max(...candidatesMp) : 1;
+  const candidatesCp = [
+    heroAny.baseMaxCp,
+    hero.maxCp,
+    heroAny.heroJson?.maxCp,
+  ].map((v) => Number(v)).filter((v) => Number.isFinite(v) && v > 0);
+  const baseMaxCp = candidatesCp.length ? Math.max(...candidatesCp) : Math.max(1, Math.round(baseMaxHp * 0.6));
 
   return {
     maxHp: Math.max(1, baseMaxHp),
