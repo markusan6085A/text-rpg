@@ -276,6 +276,11 @@ export const createStartBattle =
       }
     }
     
+    // Заряди (soulshot/spiritshot): пріоритет saved → prevState → get(), щоб при "Следующий моб" вони ніколи не скидалися
+    const activeChargeSlotsForNewBattle = Array.isArray((saved as any)?.activeChargeSlots) && (saved as any).activeChargeSlots.length > 0
+      ? (saved as any).activeChargeSlots
+      : (prevState.activeChargeSlots?.length ? prevState.activeChargeSlots : (get().activeChargeSlots ?? []));
+
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,
@@ -293,7 +298,7 @@ export const createStartBattle =
       log: preservedLog,
       cooldowns: availableCooldowns,
       loadoutSlots: loadLoadout(heroName),
-      activeChargeSlots: get().activeChargeSlots ?? [], // Читаємо останній стан — заряди лишаються увімкненими поки гравець сам не вимкне
+      activeChargeSlots: activeChargeSlotsForNewBattle,
       lastReward: undefined,
       heroBuffs: preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332),
       mobBuffs: [],
