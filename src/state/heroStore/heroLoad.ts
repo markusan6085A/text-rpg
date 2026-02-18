@@ -223,38 +223,52 @@ export function loadHero(): Hero | null {
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
     
-    // ❗ КАНОНІЧНЕ ПРАВИЛО: HP ніколи не зменшується при reload
-    // hpFull/mpFull/cpFull — прапорець збережений при save (був фул при бафах, але hp clamp'нувся до base)
-    const hpFull = Boolean((heroJson as any).hpFull);
-    const mpFull = Boolean((heroJson as any).mpFull);
-    const cpFull = Boolean((heroJson as any).cpFull);
-    let finalHp = hpFull
-      ? finalMaxHp
-      : (fixedHero.hp === undefined || fixedHero.hp <= 0 || fixedHero.hp >= finalMaxHp
-          ? finalMaxHp
-          : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0)));
-    let finalMp = mpFull
-      ? finalMaxMp
-      : (fixedHero.mp === undefined || fixedHero.mp <= 0 || fixedHero.mp >= finalMaxMp
-          ? finalMaxMp
-          : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0)));
-    let finalCp = cpFull
-      ? finalMaxCp
-      : (fixedHero.cp === undefined || fixedHero.cp <= 0 || fixedHero.cp >= finalMaxCp
-          ? finalMaxCp
-          : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0)));
-
+    // ❗ hpPercent — головне джерело; hpFull лише похідний fallback. Не ставимо HP=MAX по hpFull, якщо є hpPercent < 1.
     const hpPercent = Number((heroJson as any).hpPercent);
     const mpPercent = Number((heroJson as any).mpPercent);
     const cpPercent = Number((heroJson as any).cpPercent);
+    const hpFull = Boolean((heroJson as any).hpFull);
+    const mpFull = Boolean((heroJson as any).mpFull);
+    const cpFull = Boolean((heroJson as any).cpFull);
+
+    let finalHp: number;
     if (Number.isFinite(hpPercent)) {
       finalHp = Math.min(finalMaxHp, Math.max(0, Math.round(hpPercent * finalMaxHp)));
+    } else if (hpFull) {
+      finalHp = finalMaxHp;
+    } else {
+      finalHp = fixedHero.hp === undefined || fixedHero.hp <= 0 || fixedHero.hp >= finalMaxHp
+        ? finalMaxHp
+        : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0));
     }
+    let finalMp: number;
     if (Number.isFinite(mpPercent)) {
       finalMp = Math.min(finalMaxMp, Math.max(0, Math.round(mpPercent * finalMaxMp)));
+    } else if (mpFull) {
+      finalMp = finalMaxMp;
+    } else {
+      finalMp = fixedHero.mp === undefined || fixedHero.mp <= 0 || fixedHero.mp >= finalMaxMp
+        ? finalMaxMp
+        : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0));
     }
+    let finalCp: number;
     if (Number.isFinite(cpPercent)) {
       finalCp = Math.min(finalMaxCp, Math.max(0, Math.round(cpPercent * finalMaxCp)));
+    } else if (cpFull) {
+      finalCp = finalMaxCp;
+    } else {
+      finalCp = fixedHero.cp === undefined || fixedHero.cp <= 0 || fixedHero.cp >= finalMaxCp
+        ? finalMaxCp
+        : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0));
+    }
+
+    if (import.meta.env.DEV) {
+      console.log("[heroLoad] load HP snapshot:", {
+        finalMaxHp,
+        hpPercent: (heroJson as any).hpPercent,
+        finalHp,
+        expect: Number.isFinite(hpPercent) ? Math.round(hpPercent * finalMaxHp) : "n/a",
+      });
     }
 
     // ❗ hp і maxHp мають бути в одному просторі (обидва buffed), інакше clamp десь обріже hp

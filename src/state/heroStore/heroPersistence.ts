@@ -15,6 +15,7 @@ import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
 import { loadBattle } from "../battle/persist";
+import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { hydrateHero } from "./heroHydration";
 
 // 🔥 КРИТИЧНО: Глобальний "save mutex" для серіалізації збережень
@@ -284,9 +285,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const baseMaxMp = Math.max(1, Number((hero as any).baseMaxMp ?? existingHeroJson.maxMp ?? hero.maxMp ?? 1) || 1);
     const baseMaxCp = Math.max(1, Number((hero as any).baseMaxCp ?? existingHeroJson.maxCp ?? hero.maxCp ?? Math.max(1, Math.round(baseMaxHp * 0.6))) || 1);
 
-    const runtimeMaxHp = Math.max(1, Number(hero.maxHp ?? baseMaxHp) || baseMaxHp);
-    const runtimeMaxMp = Math.max(1, Number(hero.maxMp ?? baseMaxMp) || baseMaxMp);
-    const runtimeMaxCp = Math.max(1, Number(hero.maxCp ?? baseMaxCp) || baseMaxCp);
+    const baseMax = { maxHp: baseMaxHp, maxMp: baseMaxMp, maxCp: baseMaxCp };
+    const now = Date.now();
+    const activeBuffs = cleanupBuffs(uniqueBuffs, now);
+    const buffedMax = computeBuffedMaxResources(baseMax, activeBuffs);
+    const runtimeMaxHp = Math.max(1, buffedMax.maxHp);
+    const runtimeMaxMp = Math.max(1, buffedMax.maxMp);
+    const runtimeMaxCp = Math.max(1, buffedMax.maxCp);
 
     const hpNow = Math.max(0, Number(hero.hp ?? 0) || 0);
     const mpNow = Math.max(0, Number(hero.mp ?? 0) || 0);
@@ -303,6 +308,18 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const wasFullHp = hpPercent >= 1;
     const wasFullMp = mpPercent >= 1;
     const wasFullCp = cpPercent >= 1;
+
+    if (import.meta.env.DEV) {
+      console.log("[heroPersistence] save HP snapshot:", {
+        baseMaxHp,
+        runtimeMaxHp,
+        hpNow,
+        hpPercent,
+        hpToSave,
+        expect: Math.round(hpPercent * baseMaxHp),
+        buffsCount: activeBuffs.length,
+      });
+    }
 
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
     // 🔥 КРИТИЧНО: inventory та equipment завжди беремо з hero, щоб стартовий набір не пропадав
