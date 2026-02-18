@@ -136,21 +136,34 @@ export function updateHeroLogic(
 
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
   const hydrated = hydrateHero(updated);
-  
-  // 🔥 Зберігаємо heroBuffs в heroJson (якщо передано в partial)
-  if (hydrated) {
-    const existingHeroJson = (hydrated as any).heroJson || {};
-    const newHeroBuffs = (partial as any).heroJson?.heroBuffs !== undefined 
-      ? (partial as any).heroJson.heroBuffs 
+  const result = hydrated || updated;
+  const finalHp = Number(result?.hp ?? 0);
+
+  // 🔥 При кожному оживленні або збільшенні HP скидаємо isDead/deadAt у heroJson, щоб смерть не «липла»
+  if (finalHp > 0) {
+    const hj = (result as any).heroJson || {};
+    (result as any).heroJson = {
+      ...hj,
+      ...((partial as any).heroJson || {}),
+      isDead: false,
+      deadAt: 0,
+      heroBuffs: (partial as any).heroJson?.heroBuffs !== undefined
+        ? (partial as any).heroJson.heroBuffs
+        : (hj.heroBuffs ?? (prev as any).heroJson?.heroBuffs ?? []),
+    };
+  } else {
+    const target = (result as any);
+    const existingHeroJson = target.heroJson || {};
+    const newHeroBuffs = (partial as any).heroJson?.heroBuffs !== undefined
+      ? (partial as any).heroJson.heroBuffs
       : (existingHeroJson.heroBuffs || (prev as any).heroJson?.heroBuffs || []);
-    
-    (hydrated as any).heroJson = {
+    target.heroJson = {
       ...existingHeroJson,
-      ...((partial as any).heroJson || {}), // Додаємо зміни з partial.heroJson (якщо є)
-      heroBuffs: newHeroBuffs, // 🔥 КРИТИЧНО: Зберігаємо heroBuffs в heroJson
+      ...((partial as any).heroJson || {}),
+      heroBuffs: newHeroBuffs,
     };
   }
 
-  return hydrated || updated;
+  return result;
 }
 

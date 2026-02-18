@@ -1,8 +1,10 @@
 /**
- * Єдина перевірка "герой мертвий" тільки з heroJson (НЕ hp<=0), щоб короткий "0" під час апдейтів
- * не закріплював себе. Для тіків (idle regen, regenTick, processMobAttack) та load.
+ * Єдина перевірка "герой мертвий".
+ * Якщо hero.hp > 0 — завжди живий (щоб реген/збереження не обнуляли HP, навіть якщо heroJson.isDead ще не скинуто).
+ * Інакше — за heroJson.isDead / deadAt.
  */
 export function isHeroDead(hero: any): boolean {
+  if (Number(hero?.hp ?? 0) > 0) return false;
   const hj = hero?.heroJson || {};
   return Boolean(hj.isDead) || Number(hj.deadAt || 0) > 0;
 }

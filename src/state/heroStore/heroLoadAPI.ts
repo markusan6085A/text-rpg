@@ -505,11 +505,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
     (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
     (heroWithRecalculatedStats as any).baseMaxCp = recalculated.resources.maxCp;
-    // 🔥 Зберігаємо повний heroJson з сервера; при isDead — бафи пусті; при preferLocalAlive — зберігаємо оживлення
+    // 🔥 Зберігаємо повний heroJson; якщо finalHp > 0 — вважаємо живим (isDead: false), щоб локальний стан перекривав застарілий серверний
     const loadedHeroJson = heroData || (fixedHero as any).heroJson || {};
     (heroWithRecalculatedStats as any).heroJson = {
       ...loadedHeroJson,
-      ...(preferLocalAlive ? { isDead: false, deadAt: 0 } : {}),
+      ...(preferLocalAlive || finalHp > 0 ? { isDead: false, deadAt: 0 } : {}),
       heroBuffs: isDead ? [] : (loadedHeroJson.heroBuffs ?? finalBuffs),
     };
     
