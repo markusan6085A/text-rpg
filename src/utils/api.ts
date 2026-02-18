@@ -113,15 +113,19 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+/** Options for apiRequest; _retry is internal to prevent infinite refresh loop. */
+type ApiRequestOptions = RequestInit & { _retry?: boolean };
+
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: ApiRequestOptions = {}
 ): Promise<T> {
+  const { _retry, ...fetchOptions } = options;
   const headers: HeadersInit = {
-    ...(options.headers || {}),
+    ...(fetchOptions.headers || {}),
   };
 
-  if (options.method === "DELETE") {
+  if (fetchOptions.method === "DELETE") {
     delete (headers as Record<string, string>)["Content-Type"];
     delete (headers as Record<string, string>)["content-type"];
   } else {
@@ -134,7 +138,7 @@ async function apiRequest<T>(
     const h = { ...headers };
     if (token) (h as Record<string, string>)["Authorization"] = `Bearer ${token}`;
     return fetch(`${API_URL}${endpoint}`, {
-      ...options,
+      ...fetchOptions,
       headers: h,
       credentials: "include",
     });
@@ -143,16 +147,31 @@ async function apiRequest<T>(
   let token = getAccessToken();
   let response = await doFetch(token);
 
-  if (response.status === 401) {
+  const isAuthEndpoint = endpoint === "/auth/login" || endpoint === "/auth/refresh";
+  let retried = !!_retry;
+  if (response.status === 401 && !retried && !isAuthEndpoint) {
+    retried = true;
     const newToken = await refreshAccessToken();
     if (newToken) {
       response = await doFetch(newToken);
+    } else {
+      useAuthStore.getState().logout();
+      try {
+        const { useAdminStore } = await import("../state/adminStore");
+        useAdminStore.getState().resetAdmin();
+      } catch (_) {}
+      adminLogout().catch(() => {});
+      const error: ApiError = await response.json().catch(() => ({ error: "unauthorized" }));
+      const err = new Error(error.error || "unauthorized") as any;
+      err.status = 401;
+      err.unauthorized = true;
+      throw err;
     }
   }
 
   if (!response.ok) {
     if (response.status === 401) {
-      useAuthStore.getState().setAccessToken(null);
+      useAuthStore.getState().logout();
       try {
         const { useAdminStore } = await import("../state/adminStore");
         useAdminStore.getState().resetAdmin();
