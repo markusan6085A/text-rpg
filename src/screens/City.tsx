@@ -53,6 +53,9 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   const lowHp = maxHp > 0 && hp / maxHp < 0.3;
 
+  // Діагностика: якщо buffedMaxHp > hero.maxHp — реген може зупинятися на hero.maxHp, полоса не 100%
+  const buffedMaxHp = maxHp;
+
   // 🔥 ВИДАЛЕНО: Регенерація HP/MP/CP - вона вже є в StatusBars (глобальний компонент)
   // Це запобігає дублюванню регенерації та зайвим збереженням
   // StatusBars вже обробляє регенерацію для всіх сторінок
@@ -94,6 +97,11 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           </div>
         </div>
         <div className="border-b border-black/70"></div>
+        {import.meta.env.DEV && (
+          <div className="text-[10px] text-gray-500 px-2 pt-1">
+            maxHp: {hero.maxHp} | buffed: {buffedMaxHp}
+          </div>
+        )}
       </div>
 
       {/* Название города */}

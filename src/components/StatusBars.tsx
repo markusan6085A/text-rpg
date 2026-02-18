@@ -77,17 +77,19 @@ export default function StatusBars() {
   
   const inBattle = battleStatus !== "idle";
 
-  const getCombinedBuffs = React.useCallback(() => {
-    if (!hero?.name) return [];
+  // Бафи для конкретного героя (поза інтервалом використовувати currentHero, щоб не було stale closure).
+  // У бою реген використовує buffed max (computeBuffedMaxResources); поза боєм реген/стоп/hpFull мають порівнювати з buffedMaxHp, інакше реген зупиняється на hero.maxHp і полоса не доходить до 100%.
+  const getCombinedBuffsFor = React.useCallback((h: typeof hero, inBattleNow: boolean) => {
+    if (!h?.name) return [];
     const now = Date.now();
-    const savedBattle = loadBattle(hero.name);
+    const savedBattle = loadBattle(h.name);
     const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
     const battleBuffs = cleanupBuffs(useBattleStore.getState().heroBuffs || [], now);
-    const heroJson = (hero as any)?.heroJson || {};
+    const heroJson = (h as any)?.heroJson || {};
     const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
     const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => b?.expiresAt && b.expiresAt > now);
 
-    const baseBuffs = inBattle ? battleBuffs : savedBuffs;
+    const baseBuffs = inBattleNow ? battleBuffs : savedBuffs;
     const all = [...baseBuffs, ...activeHeroJsonBuffs];
     return all.filter((buff, index, self) =>
       index === self.findIndex((b) =>
@@ -95,7 +97,9 @@ export default function StatusBars() {
         (!b.id && !buff.id && b.name === buff.name)
       )
     );
-  }, [hero?.name, inBattle]);
+  }, []);
+
+  const getCombinedBuffs = React.useCallback(() => getCombinedBuffsFor(hero, inBattle), [hero, inBattle, getCombinedBuffsFor]);
 
   // Завантажуємо клан для відображення емблеми
   // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан тільки один раз при зміні hero, не поллимо
@@ -161,29 +165,52 @@ export default function StatusBars() {
       const heroStore = useHeroStore.getState();
       const currentHero = heroStore.hero;
       if (!currentHero) return;
-      
+
+      const inBattleNow = useBattleStore.getState().status !== "idle";
       const baseMax = getMaxResources(currentHero);
-      const combinedBuffs = getCombinedBuffs();
+      const combinedBuffs = getCombinedBuffsFor(currentHero, inBattleNow);
       const { maxHp: buffedMaxHp, maxMp: buffedMaxMp, maxCp: buffedMaxCp } =
         computeBuffedMaxResources(baseMax, combinedBuffs);
 
+      // Idle regen: везде використовуємо buffedMaxHp (стоп, hpFull, clamp), не hero.maxHp
+      const curHp = currentHero.hp ?? buffedMaxHp;
       const hpRegen = Math.max(1, Math.round(buffedMaxHp * 0.02));
       const mpRegen = Math.max(1, Math.round(buffedMaxMp * 0.03));
       const cpRegen = Math.max(1, Math.round(buffedMaxCp * 0.05));
 
-      const nextHp = Math.min(buffedMaxHp, (currentHero.hp ?? buffedMaxHp) + hpRegen);
+      const nextHp = Math.min(buffedMaxHp, curHp + hpRegen);
       const nextMp = Math.min(buffedMaxMp, (currentHero.mp ?? buffedMaxMp) + mpRegen);
       const nextCp = Math.min(buffedMaxCp, (currentHero.cp ?? buffedMaxCp) + cpRegen);
 
-      // 🔥 ОПТИМІЗАЦІЯ: Не викликаємо updateHero, якщо ресурси вже на максимумі
-      // Це запобігає зайвим збереженням, коли HP/MP/CP вже повні
-      const isAtMax = (nextHp >= buffedMaxHp && nextMp >= buffedMaxMp && nextCp >= buffedMaxCp) &&
-                      (currentHero.hp ?? buffedMaxHp) >= buffedMaxHp &&
-                      (currentHero.mp ?? buffedMaxMp) >= buffedMaxMp &&
-                      (currentHero.cp ?? buffedMaxCp) >= buffedMaxCp;
-      
+      if (import.meta.env.DEV) {
+        console.log("[idleRegen] snapshot", {
+          hp: currentHero.hp,
+          heroMaxHp: currentHero.maxHp,
+          baseMaxHp: baseMax.maxHp,
+          buffedMaxHp,
+          hpFull: (currentHero as any).heroJson?.hpFull,
+          hpPercent: (currentHero as any).heroJson?.hpPercent,
+          buffsCount: combinedBuffs?.length,
+        });
+      }
+      if (import.meta.env.DEV && !inBattleNow) {
+        console.log("[buffs] outside battle", {
+          heroBuffs: (currentHero as any).heroJson?.heroBuffs?.length,
+          battleBuffs: combinedBuffs?.length,
+        });
+      }
+
+      // Стоп регену: порівнюємо з buffedMaxHp, не з hero.maxHp
+      const isAtMax =
+        (nextHp >= buffedMaxHp && nextMp >= buffedMaxMp && nextCp >= buffedMaxCp) &&
+        (currentHero.hp ?? 0) >= buffedMaxHp &&
+        (currentHero.mp ?? buffedMaxMp) >= buffedMaxMp &&
+        (currentHero.cp ?? buffedMaxCp) >= buffedMaxCp;
+
       if (isAtMax) {
-        // Ресурси вже на максимумі - не оновлюємо
+        if (import.meta.env.DEV) {
+          console.log("[idleRegen] stop (at buffedMax)", { buffedMaxHp, hp: currentHero.hp });
+        }
         return;
       }
 
