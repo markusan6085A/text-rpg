@@ -293,7 +293,44 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const prev = get().hero;
     if (!prev) return;
 
-    const updated = updateHeroLogic(prev, partial);
+    // TRAP: хто виставляє hp/mp/cp в 0 — лог stack + payload
+    const hjPrev = (prev as any)?.heroJson || {};
+    const prevDead = Boolean(hjPrev.isDead) || Number(hjPrev.deadAt || 0) > 0;
+    const p: any = partial || {};
+    const pHj = p.heroJson || {};
+    const nextDead =
+      p.heroJson !== undefined
+        ? Boolean(pHj.isDead) || Number(pHj.deadAt || 0) > 0
+        : prevDead;
+    const setsZero =
+      (p.hp !== undefined && Number(p.hp) === 0) ||
+      (p.mp !== undefined && Number(p.mp) === 0) ||
+      (p.cp !== undefined && Number(p.cp) === 0);
+
+    if (setsZero) {
+      console.groupCollapsed("[TRAP updateHero] sets zero resources");
+      console.log("partial:", p);
+      console.log("prev:", {
+        hp: (prev as any)?.hp,
+        mp: (prev as any)?.mp,
+        cp: (prev as any)?.cp,
+        isDead: hjPrev.isDead,
+        deadAt: hjPrev.deadAt,
+      });
+      console.log("nextDead computed:", nextDead);
+      console.trace("stack");
+      console.groupEnd();
+    }
+
+    // ДЕБАГ-ГУАРД: якщо не dead, але хтось ставить 0 — не застосовувати, щоб не перетирало
+    let effectivePartial = partial;
+    if (setsZero && !nextDead) {
+      console.warn("[TRAP updateHero] BLOCKED zero write while NOT dead", p);
+      const { hp, mp, cp, ...rest } = partial || {};
+      effectivePartial = rest as Partial<Hero>;
+    }
+
+    const updated = updateHeroLogic(prev, effectivePartial);
 
     // 🔥 Реген HP/MP/CP — тільки store + localStorage, без API. Критерій: partial лише hp/mp/cp (максимум status).
     const keys = Object.keys(partial);

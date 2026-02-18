@@ -286,9 +286,20 @@ export function loadHero(): Hero | null {
     const hydratedHero = hydrateHero(heroWithRecalculatedStats);
     
     // 🔥 ЄДИНЕ ДЖЕРЕЛО ПРАВДИ: НЕ пишемо hero в localStorage тут.
-    // Запис hero робить тільки heroPersistence (при збереженні прогресу). Тут лише читаємо і нормалізуємо в пам'яті.
-    // Інакше кожен loadHero() перезаписував би localStorage і міг би затерти новіший стан від heroPersistence.
-    return hydratedHero || heroWithRecalculatedStats;
+    const result = hydratedHero || heroWithRecalculatedStats;
+    if (import.meta.env.DEV && result) {
+      const hj = (result as any)?.heroJson || {};
+      console.log("[LOAD SNAPSHOT] heroLoad", {
+        hp: result.hp,
+        mp: result.mp,
+        cp: result.cp,
+        maxHp: result.maxHp,
+        isDead: hj.isDead,
+        deadAt: hj.deadAt,
+        buffs: Array.isArray(hj.heroBuffs) ? hj.heroBuffs.length : 0,
+      });
+    }
+    return result;
   }
   
   return null;

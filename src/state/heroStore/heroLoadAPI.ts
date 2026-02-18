@@ -159,6 +159,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
             console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);
           });
         });
+        if (import.meta.env.DEV) {
+          const hj = (mergedHero as any)?.heroJson || {};
+          console.log("[LOAD SNAPSHOT]", {
+            hp: mergedHero.hp,
+            mp: mergedHero.mp,
+            cp: mergedHero.cp,
+            maxHp: mergedHero.maxHp,
+            isDead: hj.isDead,
+            deadAt: hj.deadAt,
+            buffs: Array.isArray(hj.heroBuffs) ? hj.heroBuffs.length : 0,
+            hpPercent: hj.hpPercent,
+            mpPercent: hj.mpPercent,
+            cpPercent: hj.cpPercent,
+          });
+        }
         return mergedHero;
       }
       
@@ -607,7 +622,23 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       console.log('[loadHeroFromAPI] heroJson exists, NOT overwriting with new hero');
     }
 
-    return hydratedHero || heroWithRecalculatedStats;
+    const finalHero = hydratedHero || heroWithRecalculatedStats;
+    if (import.meta.env.DEV && finalHero) {
+      const hj = (finalHero as any)?.heroJson || {};
+      console.log("[LOAD SNAPSHOT]", {
+        hp: finalHero.hp,
+        mp: finalHero.mp,
+        cp: finalHero.cp,
+        maxHp: finalHero.maxHp,
+        isDead: hj.isDead,
+        deadAt: hj.deadAt,
+        buffs: Array.isArray(hj.heroBuffs) ? hj.heroBuffs.length : 0,
+        hpPercent: hj.hpPercent,
+        mpPercent: hj.mpPercent,
+        cpPercent: hj.cpPercent,
+      });
+    }
+    return finalHero;
   } catch (error) {
     console.error('[loadHeroFromAPI] Failed to load hero from API:', error);
     console.warn('[loadHeroFromAPI] Returning null - will fallback to localStorage');
