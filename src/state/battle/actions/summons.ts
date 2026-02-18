@@ -721,13 +721,15 @@ export function processSummonAttack(
       displaySp = finalSpGain;
       displayAdena = finalAdenaGain;
 
-      const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
-      const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
-      // Важливо: спочатку kills, потім adena — щоб обидва оновлення не перезаписували одне одного
-      const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
-      // Як у Воїна/Болтуна — окремий updateHero для daily progress, щоб гарантовано зберегти
-      if (Object.keys(combinedProgress).length > 0) {
-        useHeroStore.getState().updateHero({ dailyQuestsProgress: combinedProgress });
+      // Щоденні завдання — окремий updateHero ПЕРЕД victoryUpdates (як Воїн/Болтун)
+      const curHeroForDaily = useHeroStore.getState().hero;
+      if (curHeroForDaily) {
+        const updatedProgress = updateDailyQuestProgress(curHeroForDaily, "daily_adena_farm", finalAdenaGain);
+        const updatedProgressKills = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
+        const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
+        if (Object.keys(combinedProgress).length > 0) {
+          useHeroStore.getState().updateHero({ dailyQuestsProgress: combinedProgress });
+        }
       }
 
       let level = Number(curHero.level ?? 1) || 1;
@@ -754,7 +756,6 @@ export function processSummonAttack(
         adena: (curHero.adena ?? 0) + finalAdenaGain,
         hp: leveled ? maxHp : Math.min(maxHp, curHero.hp ?? maxHp),
         mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
-        dailyQuestsProgress: combinedProgress,
       });
       updateHero(victoryUpdates);
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
