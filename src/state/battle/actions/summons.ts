@@ -723,7 +723,8 @@ export function processSummonAttack(
 
       const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
       const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
-      const combinedProgress = { ...updatedProgress, ...updatedProgressKills };
+      // Важливо: спочатку kills, потім adena — щоб обидва оновлення не перезаписували одне одного
+      const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
 
       let level = Number(curHero.level ?? 1) || 1;
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;

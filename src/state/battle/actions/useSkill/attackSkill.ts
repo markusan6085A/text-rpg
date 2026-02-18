@@ -277,7 +277,8 @@ export function handleAttackSkill(
       }
       const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
       const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
-      const combinedProgress = { ...updatedProgress, ...updatedProgressKills };
+      // Важливо: спочатку kills, потім adena — щоб обидва оновлення не перезаписували одне одного
+      const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
 
       const updMaxHp = curHero.maxHp ?? curHero.hp ?? 0;
       const updMaxCp = curHero.maxCp ?? curHero.cp ?? 0;

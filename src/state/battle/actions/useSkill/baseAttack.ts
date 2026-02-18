@@ -361,7 +361,8 @@ export function handleBaseAttack(
       }
       const updatedProgress = updateDailyQuestProgress(curHero, "daily_adena_farm", finalAdenaGain);
       const updatedProgressKills = updateDailyQuestProgress(curHero, "daily_kills", 1);
-      const combinedProgress = { ...updatedProgress, ...updatedProgressKills };
+      // Важливо: спочатку kills, потім adena — щоб обидва оновлення не перезаписували одне одного
+      const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
       const currentMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? (curHero as any).killedMobs ?? (curHero as any).totalKills ?? 0;
       const newMobsKilled = currentMobsKilled + 1;
 
