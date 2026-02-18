@@ -6,6 +6,7 @@ import { persistBattle } from "../persist";
 import type { BattleState } from "../types";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
 import { resurrectCharacter } from "../../../utils/api";
+import { saveHeroToLocalStorage } from "../../heroStore/heroPersistence";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -69,9 +70,11 @@ export const createResurrect =
     const characterId = useCharacterStore.getState().characterId;
     if (characterId) {
       resurrectCharacter(characterId)
-        .then((char) => {
-          if (!char?.heroJson) return;
-          const hj = char.heroJson as any;
+        .then((raw) => {
+          // API повертає { ok, character }; resurrectCharacter() віддає response.character — але підстраховуємо обидві форми
+          const char = (raw as any)?.character ?? raw;
+          const hj = char?.heroJson;
+          if (!hj) return;
           const heroStore = useHeroStore.getState();
           const currentHero = heroStore.hero;
           if (currentHero) {
@@ -84,6 +87,9 @@ export const createResurrect =
               },
               { persist: false }
             );
+            // Відразу відправляємо "живий" стан на сервер, щоб старий autosave не перезаписав isDead:true
+            const heroAfterSync = useHeroStore.getState().hero;
+            if (heroAfterSync) saveHeroToLocalStorage(heroAfterSync).catch(() => {});
           }
         })
         .catch((e) => console.warn("[resurrect] API failed", e));
