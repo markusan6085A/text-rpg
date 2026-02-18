@@ -225,24 +225,7 @@ export function loadHero(): Hero | null {
     const finalMaxCp = buffedMax.maxCp;
     
     const heroJsonAny = heroJson as any;
-    const hpPercentRaw = Number(heroJsonAny.hpPercent);
-    const mpPercentRaw = Number(heroJsonAny.mpPercent);
-    const cpPercentRaw = Number(heroJsonAny.cpPercent);
-    const savedHp = Number(fixedHero.hp ?? heroJsonAny.hp);
-    const savedMp = Number(fixedHero.mp ?? heroJsonAny.mp);
-    const savedCp = Number(fixedHero.cp ?? heroJsonAny.cp);
-    const isDeadHp =
-      Boolean(heroJsonAny.isDead) ||
-      Number(heroJsonAny.deadAt) > 0 ||
-      (Number.isFinite(hpPercentRaw) && hpPercentRaw === 0 && savedHp === 0);
-    const isDeadMp =
-      Boolean(heroJsonAny.isDead) ||
-      Number(heroJsonAny.deadAt) > 0 ||
-      (Number.isFinite(mpPercentRaw) && mpPercentRaw === 0 && savedMp === 0);
-    const isDeadCp =
-      Boolean(heroJsonAny.isDead) ||
-      Number(heroJsonAny.deadAt) > 0 ||
-      (Number.isFinite(cpPercentRaw) && cpPercentRaw === 0 && savedCp === 0);
+    const isDead = Boolean(heroJsonAny.isDead) || Number(heroJsonAny.deadAt) > 0;
 
     const finalHp = restoreFromPercentOrFallback({
       percentRaw: heroJsonAny.hpPercent,
@@ -250,7 +233,7 @@ export function loadHero(): Hero | null {
       savedValueRaw: fixedHero.hp,
       savedMaxRaw: heroJsonAny.maxHp,
       finalMax: finalMaxHp,
-      isDead: isDeadHp,
+      isDead,
     });
     const finalMp = restoreFromPercentOrFallback({
       percentRaw: heroJsonAny.mpPercent,
@@ -258,7 +241,7 @@ export function loadHero(): Hero | null {
       savedValueRaw: fixedHero.mp,
       savedMaxRaw: heroJsonAny.maxMp,
       finalMax: finalMaxMp,
-      isDead: isDeadMp,
+      isDead,
     });
     const finalCp = restoreFromPercentOrFallback({
       percentRaw: heroJsonAny.cpPercent,
@@ -266,7 +249,7 @@ export function loadHero(): Hero | null {
       savedValueRaw: fixedHero.cp,
       savedMaxRaw: heroJsonAny.maxCp,
       finalMax: finalMaxCp,
-      isDead: isDeadCp,
+      isDead,
     });
 
     if (import.meta.env.DEV) {
@@ -274,7 +257,7 @@ export function loadHero(): Hero | null {
         finalMaxHp,
         hpPercent: heroJsonAny.hpPercent,
         finalHp,
-        isDeadHp,
+        isDead,
       });
     }
 

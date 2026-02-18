@@ -25,19 +25,14 @@ export function restoreFromPercentOrFallback({
   const savedValue = Number(savedValueRaw);
   const savedMax = Number(savedMaxRaw);
 
+  if (isDead) return 0;
+
   if (hasPercent) {
     const p = clamp01(percentNum);
-
-    if (p === 0 && !isDead) {
-      if (Number.isFinite(savedValue) && Number.isFinite(savedMax) && savedMax > 0 && savedValue > 0) {
-        const legacyP = clamp01(savedValue / savedMax);
-        return Math.min(finalMaxSafe, Math.round(legacyP * finalMaxSafe));
-      }
-      return finalMaxSafe;
-    }
-
-    return Math.min(finalMaxSafe, Math.max(0, Math.round(p * finalMaxSafe)));
+    if (p > 0) return Math.min(finalMaxSafe, Math.max(0, Math.round(p * finalMaxSafe)));
   }
+
+  // percent === 0 для живого — invalid/legacy, ігноруємо; fallback нижче
 
   if (fullFlag) return finalMaxSafe;
 
