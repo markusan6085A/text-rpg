@@ -15,6 +15,7 @@ import { getJSON, getString, removeItem, setJSON } from "../persistence";
 import type { Hero } from "../../types/Hero";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { hydrateHero } from "./heroHydration";
+import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 
 export function loadHero(): Hero | null {
   // Міграція: видаляємо старий ключ l2_progress (більше не використовується)
@@ -223,51 +224,42 @@ export function loadHero(): Hero | null {
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
     
-    // ❗ hpPercent — головне джерело; hpFull лише похідний fallback. Не ставимо HP=MAX по hpFull, якщо є hpPercent < 1.
-    const hpPercent = Number((heroJson as any).hpPercent);
-    const mpPercent = Number((heroJson as any).mpPercent);
-    const cpPercent = Number((heroJson as any).cpPercent);
-    const hpFull = Boolean((heroJson as any).hpFull);
-    const mpFull = Boolean((heroJson as any).mpFull);
-    const cpFull = Boolean((heroJson as any).cpFull);
+    const heroJsonAny = heroJson as any;
+    const isDeadHp = Number(heroJsonAny.hp) === 0;
+    const isDeadMp = Number(heroJsonAny.mp) === 0;
+    const isDeadCp = Number(heroJsonAny.cp) === 0;
 
-    let finalHp: number;
-    if (Number.isFinite(hpPercent)) {
-      finalHp = Math.min(finalMaxHp, Math.max(0, Math.round(hpPercent * finalMaxHp)));
-    } else if (hpFull) {
-      finalHp = finalMaxHp;
-    } else {
-      finalHp = fixedHero.hp === undefined || fixedHero.hp <= 0 || fixedHero.hp >= finalMaxHp
-        ? finalMaxHp
-        : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0));
-    }
-    let finalMp: number;
-    if (Number.isFinite(mpPercent)) {
-      finalMp = Math.min(finalMaxMp, Math.max(0, Math.round(mpPercent * finalMaxMp)));
-    } else if (mpFull) {
-      finalMp = finalMaxMp;
-    } else {
-      finalMp = fixedHero.mp === undefined || fixedHero.mp <= 0 || fixedHero.mp >= finalMaxMp
-        ? finalMaxMp
-        : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0));
-    }
-    let finalCp: number;
-    if (Number.isFinite(cpPercent)) {
-      finalCp = Math.min(finalMaxCp, Math.max(0, Math.round(cpPercent * finalMaxCp)));
-    } else if (cpFull) {
-      finalCp = finalMaxCp;
-    } else {
-      finalCp = fixedHero.cp === undefined || fixedHero.cp <= 0 || fixedHero.cp >= finalMaxCp
-        ? finalMaxCp
-        : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0));
-    }
+    const finalHp = restoreFromPercentOrFallback({
+      percentRaw: heroJsonAny.hpPercent,
+      fullFlag: Boolean(heroJsonAny.hpFull),
+      savedValueRaw: fixedHero.hp,
+      savedMaxRaw: heroJsonAny.maxHp,
+      finalMax: finalMaxHp,
+      isDead: isDeadHp,
+    });
+    const finalMp = restoreFromPercentOrFallback({
+      percentRaw: heroJsonAny.mpPercent,
+      fullFlag: Boolean(heroJsonAny.mpFull),
+      savedValueRaw: fixedHero.mp,
+      savedMaxRaw: heroJsonAny.maxMp,
+      finalMax: finalMaxMp,
+      isDead: isDeadMp,
+    });
+    const finalCp = restoreFromPercentOrFallback({
+      percentRaw: heroJsonAny.cpPercent,
+      fullFlag: Boolean(heroJsonAny.cpFull),
+      savedValueRaw: fixedHero.cp,
+      savedMaxRaw: heroJsonAny.maxCp,
+      finalMax: finalMaxCp,
+      isDead: isDeadCp,
+    });
 
     if (import.meta.env.DEV) {
       console.log("[heroLoad] load HP snapshot:", {
         finalMaxHp,
-        hpPercent: (heroJson as any).hpPercent,
+        hpPercent: heroJsonAny.hpPercent,
         finalHp,
-        expect: Number.isFinite(hpPercent) ? Math.round(hpPercent * finalMaxHp) : "n/a",
+        isDeadHp,
       });
     }
 

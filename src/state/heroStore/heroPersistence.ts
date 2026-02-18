@@ -293,9 +293,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const runtimeMaxMp = Math.max(1, buffedMax.maxMp);
     const runtimeMaxCp = Math.max(1, buffedMax.maxCp);
 
-    const hpNow = Math.max(0, Number(hero.hp ?? 0) || 0);
-    const mpNow = Math.max(0, Number(hero.mp ?? 0) || 0);
-    const cpNow = Math.max(0, Number(hero.cp ?? 0) || 0);
+    const safeNow = (raw: any, fallback: number) => {
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : fallback;
+    };
+    const hpNow = safeNow(hero.hp, runtimeMaxHp);
+    const mpNow = safeNow(hero.mp, runtimeMaxMp);
+    const cpNow = safeNow(hero.cp, runtimeMaxCp);
 
     const hpPercent = clamp01(runtimeMaxHp > 0 ? hpNow / runtimeMaxHp : 1);
     const mpPercent = clamp01(runtimeMaxMp > 0 ? mpNow / runtimeMaxMp : 1);
