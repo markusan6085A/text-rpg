@@ -275,15 +275,17 @@ export function handleAttackSkill(
           break;
         }
       }
-      // Щоденні завдання — окремий updateHero ПЕРЕД victoryUpdates (як Воїн/Болтун)
+      // Щоденні завдання — мерджимо з існуючим прогресом, не перезаписуємо повністю
       const curHeroForDaily = useHeroStore.getState().hero;
       if (curHeroForDaily) {
-        const updatedProgress = updateDailyQuestProgress(curHeroForDaily, "daily_adena_farm", finalAdenaGain);
-        const updatedProgressKills = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
-        const combinedProgress = { ...updatedProgressKills, ...updatedProgress };
-        if (Object.keys(combinedProgress).length > 0) {
-          useHeroStore.getState().updateHero({ dailyQuestsProgress: combinedProgress });
-        }
+        const updatedKills = updateDailyQuestProgress(curHeroForDaily, "daily_kills", 1);
+        const updatedAdena = updateDailyQuestProgress(curHeroForDaily, "daily_adena_farm", finalAdenaGain);
+        const mergedProgress = {
+          ...(curHeroForDaily.dailyQuestsProgress ?? {}),
+          ...updatedKills,
+          ...updatedAdena,
+        };
+        useHeroStore.getState().updateHero({ dailyQuestsProgress: mergedProgress });
       }
 
       const updMaxHp = curHero.maxHp ?? curHero.hp ?? 0;
