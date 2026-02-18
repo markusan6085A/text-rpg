@@ -217,8 +217,9 @@ export function loadHero(): Hero | null {
     };
     const heroJsonAny = heroJson as any;
     let isDead = Boolean(heroJsonAny.isDead) || Number(heroJsonAny.deadAt) > 0;
-    // Якщо hp > 0 — вважаємо героя живим (пріоритет живому стану, обнуляємо смерть при невідповідності)
-    if (Number(fixedHero.hp ?? 0) > 0) isDead = false;
+    // Якщо hp > 0 (з героя або heroJson) — вважаємо живим, щоб після resurrect F5 не давав 0
+    const loadedHp = Number(fixedHero.hp ?? heroJsonAny.hp ?? 0);
+    if (loadedHp > 0) isDead = false;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
     

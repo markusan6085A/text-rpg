@@ -71,6 +71,12 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const heroJson = {
     ...currentJson,
     ...buildBackupHeroJson(hydrated),
+    hp: Number(hydrated.hp ?? 0),
+    mp: Number(hydrated.mp ?? 0),
+    cp: Number(hydrated.cp ?? 0),
+    maxHp: Number(hydrated.maxHp ?? 1),
+    maxMp: Number(hydrated.maxMp ?? 1),
+    maxCp: Number(hydrated.maxCp ?? 1),
     isDead: Boolean(currentJson.isDead),
     deadAt: Number(currentJson.deadAt) || 0,
     heroBuffs: mergedBuffs.length ? mergedBuffs : (currentJson.heroBuffs ?? []),
