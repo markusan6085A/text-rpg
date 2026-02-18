@@ -364,7 +364,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       maxCp: recalculated.resources.maxCp,
     };
     const heroDataAny = heroData as any;
-    const isDead = Boolean(heroDataAny?.isDead) || Number(heroDataAny?.deadAt) > 0;
+    const serverIsDead = Boolean(heroDataAny?.isDead) || Number(heroDataAny?.deadAt) > 0;
+    const localJson = (hydratedLocalHero as any)?.heroJson || {};
+    const localIsDead = Boolean(localJson.isDead) || Number(localJson.deadAt || 0) > 0;
+    const localHp = Number(hydratedLocalHero?.hp ?? 0);
+    // Якщо сервер ще має isDead (resurrect не встиг зберегтися), а локально герой вже живий — не перезаписувати hp на 0
+    const preferLocalAlive = serverIsDead && !localIsDead && localHp > 0;
+    const isDead = preferLocalAlive ? false : serverIsDead;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
 
@@ -383,30 +389,39 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const fillMp = newMaxIncreasedMp || oldMaxMp <= 0;
     const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
 
-    const finalHp = restoreFromPercentOrFallback({
-      percentRaw: heroDataAny?.hpPercent,
-      fullFlag: Boolean(heroData?.hpFull) || fillHp,
-      savedValueRaw: fixedHero.hp,
-      savedMaxRaw: heroDataAny?.maxHp,
-      finalMax: finalMaxHp,
-      isDead,
-    });
-    const finalMp = restoreFromPercentOrFallback({
-      percentRaw: heroDataAny?.mpPercent,
-      fullFlag: Boolean(heroData?.mpFull) || fillMp,
-      savedValueRaw: fixedHero.mp,
-      savedMaxRaw: heroDataAny?.maxMp,
-      finalMax: finalMaxMp,
-      isDead,
-    });
-    const finalCp = restoreFromPercentOrFallback({
-      percentRaw: heroDataAny?.cpPercent,
-      fullFlag: Boolean(heroData?.cpFull) || fillCp,
-      savedValueRaw: fixedHero.cp,
-      savedMaxRaw: heroDataAny?.maxCp,
-      finalMax: finalMaxCp,
-      isDead,
-    });
+    let finalHp: number;
+    let finalMp: number;
+    let finalCp: number;
+    if (preferLocalAlive) {
+      finalHp = Math.min(finalMaxHp, Math.max(1, localHp));
+      finalMp = Math.min(finalMaxMp, Math.max(0, Number(hydratedLocalHero?.mp ?? 0)));
+      finalCp = Math.min(finalMaxCp, Math.max(0, Number(hydratedLocalHero?.cp ?? 0)));
+    } else {
+      finalHp = restoreFromPercentOrFallback({
+        percentRaw: heroDataAny?.hpPercent,
+        fullFlag: Boolean(heroData?.hpFull) || fillHp,
+        savedValueRaw: fixedHero.hp,
+        savedMaxRaw: heroDataAny?.maxHp,
+        finalMax: finalMaxHp,
+        isDead,
+      });
+      finalMp = restoreFromPercentOrFallback({
+        percentRaw: heroDataAny?.mpPercent,
+        fullFlag: Boolean(heroData?.mpFull) || fillMp,
+        savedValueRaw: fixedHero.mp,
+        savedMaxRaw: heroDataAny?.maxMp,
+        finalMax: finalMaxMp,
+        isDead,
+      });
+      finalCp = restoreFromPercentOrFallback({
+        percentRaw: heroDataAny?.cpPercent,
+        fullFlag: Boolean(heroData?.cpFull) || fillCp,
+        savedValueRaw: fixedHero.cp,
+        savedMaxRaw: heroDataAny?.maxCp,
+        finalMax: finalMaxCp,
+        isDead,
+      });
+    }
 
     if (import.meta.env.DEV) {
       console.log("[loadHeroFromAPI] load HP snapshot:", {
@@ -414,6 +429,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         hpPercent: heroDataAny?.hpPercent,
         finalHp,
         isDead,
+        preferLocalAlive: preferLocalAlive || undefined,
       });
     }
 
@@ -474,10 +490,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
     (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
     (heroWithRecalculatedStats as any).baseMaxCp = recalculated.resources.maxCp;
-    // 🔥 Зберігаємо повний heroJson з сервера; при isDead — бафи пусті
+    // 🔥 Зберігаємо повний heroJson з сервера; при isDead — бафи пусті; при preferLocalAlive — зберігаємо оживлення
     const loadedHeroJson = heroData || (fixedHero as any).heroJson || {};
     (heroWithRecalculatedStats as any).heroJson = {
       ...loadedHeroJson,
+      ...(preferLocalAlive ? { isDead: false, deadAt: 0 } : {}),
       heroBuffs: isDead ? [] : (loadedHeroJson.heroBuffs ?? finalBuffs),
     };
     

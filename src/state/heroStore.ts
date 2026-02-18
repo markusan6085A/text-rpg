@@ -318,6 +318,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       });
     }
 
+    const heroJsonPartial = (partial as any).heroJson;
+    const isResurrect = heroJsonPartial && (heroJsonPartial.isDead === false || Number(heroJsonPartial.deadAt) === 0);
     const isCriticalChange = (partial as any).mobsKilled !== undefined ||
                              partial.skills !== undefined ||
                              partial.sp !== undefined ||
@@ -329,7 +331,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
                              (partial as any).aa !== undefined ||
                              (partial as any).level !== undefined ||
                              (partial as any).exp !== undefined ||
-                             (partial as any).heroJson?.heroBuffs !== undefined;
+                             (partial as any).heroJson?.heroBuffs !== undefined ||
+                             isResurrect;
 
     if (isCriticalChange) {
       if (import.meta.env.DEV && ((partial as any).level !== undefined || (partial as any).exp !== undefined)) {
