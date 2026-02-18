@@ -480,9 +480,24 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const finalSkills = finalSkillsForRecalc;
     const finalMobsKilled = localMobsKilled > serverMobsKilled ? localMobsKilled : (serverMobsKilled > 0 ? serverMobsKilled : currentMobsKilled);
     
-    // Щоденні завдання: зберігаємо з hero (сервер або локаль), щоб не втрачати прогрес
-    const dailyQuestsProgress = (fixedHero as any).dailyQuestsProgress ?? (heroData as any)?.dailyQuestsProgress ?? hydratedLocalHero?.dailyQuestsProgress;
-    const dailyQuestsCompleted = (fixedHero as any).dailyQuestsCompleted ?? (heroData as any)?.dailyQuestsCompleted ?? hydratedLocalHero?.dailyQuestsCompleted;
+    // Щоденні завдання: завжди беремо максимум з локального та серверного прогресу, щоб прогрес оновлювався миттєво і не перезаписувався старим API
+    const serverProgress = (fixedHero as any).dailyQuestsProgress ?? (heroData as any)?.dailyQuestsProgress ?? {};
+    const localProgress = (hydratedLocalHero as any)?.dailyQuestsProgress ?? {};
+    const mergedProgress: Record<string, number> = {};
+    const allKeys = new Set([...Object.keys(serverProgress || {}), ...Object.keys(localProgress || {})]);
+    allKeys.forEach((id) => {
+      mergedProgress[id] = Math.max(
+        Number((serverProgress as any)?.[id]) || 0,
+        Number((localProgress as any)?.[id]) || 0
+      );
+    });
+    const dailyQuestsProgress = Object.keys(mergedProgress).length > 0 ? mergedProgress : undefined;
+    const serverCompleted = (fixedHero as any).dailyQuestsCompleted ?? (heroData as any)?.dailyQuestsCompleted ?? [];
+    const localCompleted = (hydratedLocalHero as any)?.dailyQuestsCompleted ?? [];
+    const dailyQuestsCompleted = Array.from(new Set([
+      ...(Array.isArray(serverCompleted) ? serverCompleted : []),
+      ...(Array.isArray(localCompleted) ? localCompleted : []),
+    ]));
     const dailyQuestsResetDate = (fixedHero as any).dailyQuestsResetDate ?? (heroData as any)?.dailyQuestsResetDate ?? hydratedLocalHero?.dailyQuestsResetDate;
 
     const heroWithRecalculatedStats: Hero = {

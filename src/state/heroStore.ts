@@ -354,6 +354,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
                              (partial as any).level !== undefined ||
                              (partial as any).exp !== undefined ||
                              (partial as any).heroJson?.heroBuffs !== undefined ||
+                             (partial as any).dailyQuestsProgress !== undefined ||
                              isResurrect;
 
     if (isCriticalChange) {
