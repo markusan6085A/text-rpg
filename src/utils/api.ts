@@ -147,7 +147,8 @@ async function apiRequest<T>(
   let token = getAccessToken();
   let response = await doFetch(token);
 
-  const isAuthEndpoint = endpoint === "/auth/login" || endpoint === "/auth/refresh";
+  const isAuthEndpoint =
+    endpoint.startsWith("/auth/") || endpoint.startsWith("/admin/auth/");
   let retried = !!_retry;
   if (response.status === 401 && !retried && !isAuthEndpoint) {
     retried = true;
@@ -170,19 +171,6 @@ async function apiRequest<T>(
   }
 
   if (!response.ok) {
-    if (response.status === 401) {
-      useAuthStore.getState().logout();
-      try {
-        const { useAdminStore } = await import("../state/adminStore");
-        useAdminStore.getState().resetAdmin();
-      } catch (_) {}
-      adminLogout().catch(() => {});
-      const error: ApiError = await response.json().catch(() => ({ error: "unauthorized" }));
-      const err = new Error(error.error || "unauthorized") as any;
-      err.status = 401;
-      err.unauthorized = true;
-      throw err;
-    }
     const errorBody = await response.json().catch(() => ({
       error: `HTTP ${response.status}: ${response.statusText}`,
     }));
@@ -191,6 +179,18 @@ async function apiRequest<T>(
     errorWithStatus.status = response.status;
     errorWithStatus.details = (errorBody as any).details || (errorBody as any).errors;
     errorWithStatus.body = errorBody;
+
+    if (response.status === 401 || response.status === 403) {
+      useAuthStore.getState().logout();
+      try {
+        const { useAdminStore } = await import("../state/adminStore");
+        useAdminStore.getState().resetAdmin();
+      } catch (_) {}
+      adminLogout().catch(() => {});
+      errorWithStatus.unauthorized = true;
+      throw errorWithStatus;
+    }
+
     if (response.status === 429) {
       const retryAfter = Number((error as any).retryAfter);
       const sec = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 60;
