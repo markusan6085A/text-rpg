@@ -36,16 +36,18 @@ export const createResurrect =
         : cleanedBuffs;
 
     const updateHero = useHeroStore.getState().updateHero;
-    
+    const existingJson = (hero as any).heroJson || {};
+
     // Перераховуємо стати після воскресіння, щоб активувати/деактивувати пасивні скіли з hpThreshold
     const heroWithResurrectedHp = { ...hero, hp: nextHP, maxHp: maxHp };
     const recalculated = recalculateAllStats(heroWithResurrectedHp, updatedBuffs);
-    
-    updateHero({ 
-      hp: nextHP, 
-      mp: nextMP, 
+
+    updateHero({
+      hp: nextHP,
+      mp: nextMP,
       cp: nextCP,
-      battleStats: recalculated.baseFinalStats 
+      battleStats: recalculated.baseFinalStats,
+      heroJson: { ...existingJson, isDead: false, deadAt: 0 } as any,
     });
 
     const updates: Partial<BattleState> = {

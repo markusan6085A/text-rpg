@@ -33,7 +33,7 @@ export function restoreFromPercentOrFallback({
         const legacyP = clamp01(savedValue / savedMax);
         return Math.min(finalMaxSafe, Math.round(legacyP * finalMaxSafe));
       }
-      return fullFlag ? finalMaxSafe : Math.min(finalMaxSafe, Math.max(1, Math.round(0.9 * finalMaxSafe)));
+      return finalMaxSafe;
     }
 
     return Math.min(finalMaxSafe, Math.max(0, Math.round(p * finalMaxSafe)));

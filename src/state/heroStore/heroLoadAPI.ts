@@ -191,10 +191,47 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // Extract hero data from character.heroJson
     const heroData = character.heroJson as any;
-    
+
+    // Одноразова міграція: полікувати зіпсовані акаунти (hpPercent=0 при живому герої)
+    if (heroData && typeof heroData === "object" && Object.keys(heroData).length > 0) {
+      const heroDataAny = heroData as any;
+      const shouldRepairHp =
+        !heroDataAny.isDead &&
+        Number(heroDataAny.hpPercent) === 0 &&
+        Number(heroDataAny.maxHp) > 0;
+      const shouldRepairMp =
+        !heroDataAny.isDead &&
+        Number(heroDataAny.mpPercent) === 0 &&
+        Number(heroDataAny.maxMp) > 0;
+      const shouldRepairCp =
+        !heroDataAny.isDead &&
+        Number(heroDataAny.cpPercent) === 0 &&
+        Number(heroDataAny.maxCp) > 0;
+      if (shouldRepairHp || shouldRepairMp || shouldRepairCp) {
+        if (shouldRepairHp) {
+          heroDataAny.hpPercent = 1;
+          heroDataAny.hpFull = true;
+          heroDataAny.hp = heroDataAny.maxHp;
+        }
+        if (shouldRepairMp) {
+          heroDataAny.mpPercent = 1;
+          heroDataAny.mpFull = true;
+          heroDataAny.mp = heroDataAny.maxMp;
+        }
+        if (shouldRepairCp) {
+          heroDataAny.cpPercent = 1;
+          heroDataAny.cpFull = true;
+          heroDataAny.cp = heroDataAny.maxCp;
+        }
+        updateCharacter(character.id, { heroJson: heroData }).catch((err: any) => {
+          console.warn("[loadHeroFromAPI] Repair PUT failed:", err?.message || err);
+        });
+      }
+    }
+
     // 🔥 КРИТИЧНО: Читаємо mobsKilled ДО будь-яких маніпуляцій з heroData
     const mobsKilledFromData = heroData?.mobsKilled ?? heroData?.mobs_killed ?? heroData?.killedMobs ?? heroData?.totalKills ?? undefined;
-    
+
     // Логуємо mobsKilled для діагностики (завжди, не тільки в DEV)
     console.log('[loadHeroFromAPI] mobsKilled from heroJson:', mobsKilledFromData, 'heroData keys:', heroData ? Object.keys(heroData).slice(0, 20) : 'no heroData');
     
@@ -381,9 +418,24 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
 
     const heroDataAny = heroData as any;
-    const isDeadHp = Number(heroDataAny?.hp) === 0;
-    const isDeadMp = Number(heroDataAny?.mp) === 0;
-    const isDeadCp = Number(heroDataAny?.cp) === 0;
+    const hpPercentRaw = Number(heroDataAny?.hpPercent);
+    const mpPercentRaw = Number(heroDataAny?.mpPercent);
+    const cpPercentRaw = Number(heroDataAny?.cpPercent);
+    const savedHp = Number(fixedHero.hp ?? heroDataAny?.hp);
+    const savedMp = Number(fixedHero.mp ?? heroDataAny?.mp);
+    const savedCp = Number(fixedHero.cp ?? heroDataAny?.cp);
+    const isDeadHp =
+      Boolean(heroDataAny?.isDead) ||
+      Number(heroDataAny?.deadAt) > 0 ||
+      (Number.isFinite(hpPercentRaw) && hpPercentRaw === 0 && savedHp === 0);
+    const isDeadMp =
+      Boolean(heroDataAny?.isDead) ||
+      Number(heroDataAny?.deadAt) > 0 ||
+      (Number.isFinite(mpPercentRaw) && mpPercentRaw === 0 && savedMp === 0);
+    const isDeadCp =
+      Boolean(heroDataAny?.isDead) ||
+      Number(heroDataAny?.deadAt) > 0 ||
+      (Number.isFinite(cpPercentRaw) && cpPercentRaw === 0 && savedCp === 0);
 
     const finalHp = restoreFromPercentOrFallback({
       percentRaw: heroDataAny?.hpPercent,

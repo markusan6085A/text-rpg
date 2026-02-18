@@ -225,9 +225,24 @@ export function loadHero(): Hero | null {
     const finalMaxCp = buffedMax.maxCp;
     
     const heroJsonAny = heroJson as any;
-    const isDeadHp = Number(heroJsonAny.hp) === 0;
-    const isDeadMp = Number(heroJsonAny.mp) === 0;
-    const isDeadCp = Number(heroJsonAny.cp) === 0;
+    const hpPercentRaw = Number(heroJsonAny.hpPercent);
+    const mpPercentRaw = Number(heroJsonAny.mpPercent);
+    const cpPercentRaw = Number(heroJsonAny.cpPercent);
+    const savedHp = Number(fixedHero.hp ?? heroJsonAny.hp);
+    const savedMp = Number(fixedHero.mp ?? heroJsonAny.mp);
+    const savedCp = Number(fixedHero.cp ?? heroJsonAny.cp);
+    const isDeadHp =
+      Boolean(heroJsonAny.isDead) ||
+      Number(heroJsonAny.deadAt) > 0 ||
+      (Number.isFinite(hpPercentRaw) && hpPercentRaw === 0 && savedHp === 0);
+    const isDeadMp =
+      Boolean(heroJsonAny.isDead) ||
+      Number(heroJsonAny.deadAt) > 0 ||
+      (Number.isFinite(mpPercentRaw) && mpPercentRaw === 0 && savedMp === 0);
+    const isDeadCp =
+      Boolean(heroJsonAny.isDead) ||
+      Number(heroJsonAny.deadAt) > 0 ||
+      (Number.isFinite(cpPercentRaw) && cpPercentRaw === 0 && savedCp === 0);
 
     const finalHp = restoreFromPercentOrFallback({
       percentRaw: heroJsonAny.hpPercent,
