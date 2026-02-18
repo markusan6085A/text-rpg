@@ -383,8 +383,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const localJson = (hydratedLocalHero as any)?.heroJson || {};
     const localIsDead = Boolean(localJson.isDead) || Number(localJson.deadAt || 0) > 0;
     const localHp = Number(hydratedLocalHero?.hp ?? 0);
-    // Якщо сервер ще має isDead (resurrect не встиг зберегтися), а локально герой вже живий — не перезаписувати hp на 0
-    const preferLocalAlive = serverIsDead && !localIsDead && localHp > 0;
+    // Якщо сервер мертвий, а локально hp > 0 — вважаємо живим (пріоритет живому стану після resurrect)
+    const preferLocalAlive = serverIsDead && localHp > 0;
     const isDead = preferLocalAlive ? false : serverIsDead;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);

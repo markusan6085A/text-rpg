@@ -57,11 +57,11 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const accounts = getJSON<any[]>("l2_accounts_v2", []);
   const accIndex = accounts.findIndex((a: any) => a.username === current);
   if (accIndex === -1) return;
-  // 🔥 КРИТИЧНО: isDead/deadAt тільки з поточного hero.heroJson (ніколи з existingJson/localStorage) — прибирає "липкість" смерті після resurrect
-  const currentHeroJson = (hydrated as any).heroJson || {};
+  // 🔥 КРИТИЧНО: isDead/deadAt тільки з поточного героя — не з попереднього snapshot; після оживлення смерть не "липне" в localStorage
+  const currentJson = (hero as any).heroJson ?? {};
   const battleState = loadBattle(hydrated.name);
   const battleBuffs = Array.isArray(battleState?.heroBuffs) ? battleState.heroBuffs : [];
-  const jsonBuffs = Array.isArray(currentHeroJson.heroBuffs) ? currentHeroJson.heroBuffs : [];
+  const jsonBuffs = Array.isArray(currentJson.heroBuffs) ? currentJson.heroBuffs : [];
   const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
     arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
   );
@@ -69,11 +69,11 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const wasFullMp = Number(hydrated.mp ?? 0) >= Number(hydrated.maxMp ?? 1);
   const wasFullCp = Number(hydrated.cp ?? 0) >= Number(hydrated.maxCp ?? 1);
   const heroJson = {
-    ...currentHeroJson,
+    ...currentJson,
     ...buildBackupHeroJson(hydrated),
-    isDead: Boolean((hero as any).heroJson?.isDead),
-    deadAt: Number((hero as any).heroJson?.deadAt) || 0,
-    heroBuffs: mergedBuffs.length ? mergedBuffs : (currentHeroJson.heroBuffs ?? []),
+    isDead: Boolean(currentJson.isDead),
+    deadAt: Number(currentJson.deadAt) || 0,
+    heroBuffs: mergedBuffs.length ? mergedBuffs : (currentJson.heroBuffs ?? []),
     hpFull: wasFullHp,
     mpFull: wasFullMp,
     cpFull: wasFullCp,

@@ -216,7 +216,9 @@ export function loadHero(): Hero | null {
       maxCp: recalculated.resources.maxCp,
     };
     const heroJsonAny = heroJson as any;
-    const isDead = Boolean(heroJsonAny.isDead) || Number(heroJsonAny.deadAt) > 0;
+    let isDead = Boolean(heroJsonAny.isDead) || Number(heroJsonAny.deadAt) > 0;
+    // Якщо hp > 0 — вважаємо героя живим (пріоритет живому стану, обнуляємо смерть при невідповідності)
+    if (Number(fixedHero.hp ?? 0) > 0) isDead = false;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
     

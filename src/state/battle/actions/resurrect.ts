@@ -6,7 +6,7 @@ import { persistBattle } from "../persist";
 import type { BattleState } from "../types";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
 import { resurrectCharacter } from "../../../utils/api";
-import { saveHeroToLocalStorage } from "../../heroStore/heroPersistence";
+import { saveHeroToLocalStorage, saveHeroToLocalStorageOnly } from "../../heroStore/heroPersistence";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -56,6 +56,9 @@ export const createResurrect =
       },
       { persist: true }
     );
+    // 🔥 Одразу пишемо "живий" стан у localStorage, щоб F5 до завершення PUT не підняв мертвого (isDead більше не липне)
+    const heroAfterUpdate = useHeroStore.getState().hero;
+    if (heroAfterUpdate) saveHeroToLocalStorageOnly(heroAfterUpdate);
 
     const updates: Partial<BattleState> = {
       status: "fighting",
