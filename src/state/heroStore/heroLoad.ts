@@ -222,38 +222,47 @@ export function loadHero(): Hero | null {
     if (loadedHp > 0) isDead = false;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
-    
-    // ❗ КАНОНІЧНЕ ПРАВИЛО: HP ніколи не зменшується при reload
-    // finalMaxHp - це maxHp З бафами (для порівняння з hp)
-    // Але hero.maxHp зберігаємо БЕЗ бафів (базове значення)
     const finalMaxHp = buffedMax.maxHp;
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
 
-    const finalHp = restoreFromPercentOrFallback({
-      percentRaw: heroJsonAny.hpPercent,
-      fullFlag: Boolean(heroJsonAny.hpFull),
-      savedValueRaw: fixedHero.hp,
-      savedMaxRaw: heroJsonAny.maxHp,
-      finalMax: finalMaxHp,
-      isDead,
-    });
-    const finalMp = restoreFromPercentOrFallback({
-      percentRaw: heroJsonAny.mpPercent,
-      fullFlag: Boolean(heroJsonAny.mpFull),
-      savedValueRaw: fixedHero.mp,
-      savedMaxRaw: heroJsonAny.maxMp,
-      finalMax: finalMaxMp,
-      isDead,
-    });
-    const finalCp = restoreFromPercentOrFallback({
-      percentRaw: heroJsonAny.cpPercent,
-      fullFlag: Boolean(heroJsonAny.cpFull),
-      savedValueRaw: fixedHero.cp,
-      savedMaxRaw: heroJsonAny.maxCp,
-      finalMax: finalMaxCp,
-      isDead,
-    });
+    // Після оновлення сторінки після смерті: відновлюємо HP/MP/CP до 70% max — герой не лишається мертвим
+    const RESURRECT_ON_LOAD_RATIO = 0.7;
+    let finalHp: number;
+    let finalMp: number;
+    let finalCp: number;
+    let isAliveAfterLoad = isDead;
+    if (isDead) {
+      finalHp = Math.max(1, Math.round(finalMaxHp * RESURRECT_ON_LOAD_RATIO));
+      finalMp = Math.max(0, Math.round(finalMaxMp * RESURRECT_ON_LOAD_RATIO));
+      finalCp = Math.max(0, Math.round(finalMaxCp * RESURRECT_ON_LOAD_RATIO));
+      isAliveAfterLoad = true;
+    } else {
+      finalHp = restoreFromPercentOrFallback({
+        percentRaw: heroJsonAny.hpPercent,
+        fullFlag: Boolean(heroJsonAny.hpFull),
+        savedValueRaw: fixedHero.hp,
+        savedMaxRaw: heroJsonAny.maxHp,
+        finalMax: finalMaxHp,
+        isDead: false,
+      });
+      finalMp = restoreFromPercentOrFallback({
+        percentRaw: heroJsonAny.mpPercent,
+        fullFlag: Boolean(heroJsonAny.mpFull),
+        savedValueRaw: fixedHero.mp,
+        savedMaxRaw: heroJsonAny.maxMp,
+        finalMax: finalMaxMp,
+        isDead: false,
+      });
+      finalCp = restoreFromPercentOrFallback({
+        percentRaw: heroJsonAny.cpPercent,
+        fullFlag: Boolean(heroJsonAny.cpFull),
+        savedValueRaw: fixedHero.cp,
+        savedMaxRaw: heroJsonAny.maxCp,
+        finalMax: finalMaxCp,
+        isDead: false,
+      });
+    }
 
     if (import.meta.env.DEV) {
       console.log("[heroLoad] load HP snapshot:", {
@@ -277,11 +286,11 @@ export function loadHero(): Hero | null {
       mp: finalMp,
       cp: finalCp,
     };
-    // 🔥 Якщо герой живий (hp > 0) — heroJson має містити isDead: false, deadAt: 0, інакше при наступному save смерть знову «липне»
+    // 🔥 Якщо герой живий (hp > 0 або відновлено 70% після смерті при reload) — heroJson isDead: false
     (heroWithRecalculatedStats as any).heroJson = {
       ...heroJsonAny,
-      ...((loadedHp > 0 || finalHp > 0) ? { isDead: false, deadAt: 0 } : {}),
-      heroBuffs: isDead ? [] : (heroJsonAny.heroBuffs ?? finalBuffs),
+      ...((loadedHp > 0 || finalHp > 0 || isAliveAfterLoad) ? { isDead: false, deadAt: 0 } : {}),
+      heroBuffs: isDead && !isAliveAfterLoad ? [] : (heroJsonAny.heroBuffs ?? finalBuffs),
     };
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
     (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;

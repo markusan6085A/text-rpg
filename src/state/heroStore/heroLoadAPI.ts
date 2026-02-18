@@ -388,12 +388,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const isDead = preferLocalAlive ? false : serverIsDead;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
-
     const finalMaxHp = buffedMax.maxHp;
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
 
-    // Якщо сервер повернув старі/менші max (наприклад до ап рівня) — при F5 hp/mp/cp не повинні падати
     const oldMaxHp = fixedHero.maxHp ?? 0;
     const oldMaxMp = fixedHero.maxMp ?? 0;
     const oldMaxCp = fixedHero.maxCp ?? 0;
@@ -404,13 +402,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const fillMp = newMaxIncreasedMp || oldMaxMp <= 0;
     const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
 
+    const RESURRECT_ON_LOAD_RATIO = 0.7;
     let finalHp: number;
     let finalMp: number;
     let finalCp: number;
+    let isAliveAfterLoad = isDead;
     if (preferLocalAlive) {
       finalHp = Math.min(finalMaxHp, Math.max(1, localHp));
       finalMp = Math.min(finalMaxMp, Math.max(0, Number(hydratedLocalHero?.mp ?? 0)));
       finalCp = Math.min(finalMaxCp, Math.max(0, Number(hydratedLocalHero?.cp ?? 0)));
+    } else if (isDead) {
+      // Після оновлення сторінки після смерті: відновлюємо до 70% max — герой не лишається мертвим
+      finalHp = Math.max(1, Math.round(finalMaxHp * RESURRECT_ON_LOAD_RATIO));
+      finalMp = Math.max(0, Math.round(finalMaxMp * RESURRECT_ON_LOAD_RATIO));
+      finalCp = Math.max(0, Math.round(finalMaxCp * RESURRECT_ON_LOAD_RATIO));
+      isAliveAfterLoad = true;
     } else {
       finalHp = restoreFromPercentOrFallback({
         percentRaw: heroDataAny?.hpPercent,
@@ -418,7 +424,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         savedValueRaw: fixedHero.hp,
         savedMaxRaw: heroDataAny?.maxHp,
         finalMax: finalMaxHp,
-        isDead,
+        isDead: false,
       });
       finalMp = restoreFromPercentOrFallback({
         percentRaw: heroDataAny?.mpPercent,
@@ -426,7 +432,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         savedValueRaw: fixedHero.mp,
         savedMaxRaw: heroDataAny?.maxMp,
         finalMax: finalMaxMp,
-        isDead,
+        isDead: false,
       });
       finalCp = restoreFromPercentOrFallback({
         percentRaw: heroDataAny?.cpPercent,
@@ -434,7 +440,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         savedValueRaw: fixedHero.cp,
         savedMaxRaw: heroDataAny?.maxCp,
         finalMax: finalMaxCp,
-        isDead,
+        isDead: false,
       });
     }
 
@@ -505,12 +511,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
     (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
     (heroWithRecalculatedStats as any).baseMaxCp = recalculated.resources.maxCp;
-    // 🔥 Зберігаємо повний heroJson; якщо finalHp > 0 — вважаємо живим (isDead: false), щоб локальний стан перекривав застарілий серверний
+    // 🔥 Якщо живий або відновлено 70% після смерті при reload — heroJson isDead: false
     const loadedHeroJson = heroData || (fixedHero as any).heroJson || {};
     (heroWithRecalculatedStats as any).heroJson = {
       ...loadedHeroJson,
-      ...(preferLocalAlive || finalHp > 0 ? { isDead: false, deadAt: 0 } : {}),
-      heroBuffs: isDead ? [] : (loadedHeroJson.heroBuffs ?? finalBuffs),
+      ...(preferLocalAlive || finalHp > 0 || isAliveAfterLoad ? { isDead: false, deadAt: 0 } : {}),
+      heroBuffs: isDead && !isAliveAfterLoad ? [] : (loadedHeroJson.heroBuffs ?? finalBuffs),
     };
     
     // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
