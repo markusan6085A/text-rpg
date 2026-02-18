@@ -17,7 +17,6 @@ import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
 import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { hydrateHero } from "./heroHydration";
-import { getMaxResources, buildResourceFieldsForSave } from "./heroResources";
 
 // 🔥 КРИТИЧНО: Глобальний "save mutex" для серіалізації збережень
 // Запобігає паралельним збереженням, які викликають revision_conflict
@@ -65,14 +64,18 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
     arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
   );
-  const baseMax = getMaxResources(hydrated);
-  const buffedMax = computeBuffedMaxResources(baseMax, mergedBuffs);
-  const resourceFields = buildResourceFieldsForSave(hydrated, baseMax, buffedMax);
+  const wasFullHp = Number(hydrated.hp ?? 0) >= Number(hydrated.maxHp ?? 1);
+  const wasFullMp = Number(hydrated.mp ?? 0) >= Number(hydrated.maxMp ?? 1);
+  const wasFullCp = Number(hydrated.cp ?? 0) >= Number(hydrated.maxCp ?? 1);
   const heroJson = {
     ...existingJson,
     ...buildBackupHeroJson(hydrated),
-    ...resourceFields,
+    isDead: Boolean(existingJson.isDead),
+    deadAt: Number(existingJson.deadAt) || 0,
     heroBuffs: mergedBuffs.length ? mergedBuffs : (existingJson.heroBuffs ?? []),
+    hpFull: wasFullHp,
+    mpFull: wasFullMp,
+    cpFull: wasFullCp,
   };
   accounts[accIndex].hero = { ...hydrated, heroJson };
   setJSON("l2_accounts_v2", accounts);
@@ -151,15 +154,6 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     if (getRateLimitRemainingMs() > 0) {
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
-        const savedBattle = loadBattle(hero.name);
-        const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-        const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
-        const merged = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
-          arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
-        );
-        const baseMax = getMaxResources(hero);
-        const buffedMax = computeBuffedMaxResources(baseMax, merged);
-        const resourceFields = buildResourceFieldsForSave(hero, baseMax, buffedMax);
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
         const accIndex = accounts.findIndex((a: any) => a.username === current);
         if (accIndex !== -1) {
@@ -167,12 +161,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             ...hero,
             lastSavedAt: Date.now(),
             _rateLimitSkip: true,
-            heroJson: {
-              ...((hero as any).heroJson || {}),
-              ...buildBackupHeroJson(hero),
-              ...resourceFields,
-              heroBuffs: merged.length ? merged : ((hero as any).heroJson?.heroBuffs ?? []),
-            },
+            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
           };
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
@@ -205,27 +194,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       console.warn('[saveHeroToLocalStorage] No serverState.heroRevision — skipping PUT, saving to localStorage only');
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
-        const savedBattle = loadBattle(hero.name);
-        const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-        const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
-        const merged = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
-          arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
-        );
-        const baseMax = getMaxResources(hero);
-        const buffedMax = computeBuffedMaxResources(baseMax, merged);
-        const resourceFields = buildResourceFieldsForSave(hero, baseMax, buffedMax);
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
         const accIndex = accounts.findIndex((a: any) => a.username === current);
         if (accIndex !== -1) {
           const heroWithTimestamp = {
             ...hero,
             lastSavedAt: Date.now(),
-            heroJson: {
-              ...((hero as any).heroJson || {}),
-              ...buildBackupHeroJson(hero),
-              ...resourceFields,
-              heroBuffs: merged.length ? merged : ((hero as any).heroJson?.heroBuffs ?? []),
-            },
+            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
           };
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
@@ -305,37 +280,87 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
-    // Єдине джерело правди для HP/MP/CP при збереженні — heroResources
-    const baseMax = getMaxResources(hero);
+    // Зберігаємо HP/MP/CP як відсоток від buffed max, запис у heroJson у base-просторі — щоб F5 не "різав" HP.
+    const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+
+    const baseMaxHp = Math.max(1, Number((hero as any).baseMaxHp ?? existingHeroJson.maxHp ?? hero.maxHp ?? 1) || 1);
+    const baseMaxMp = Math.max(1, Number((hero as any).baseMaxMp ?? existingHeroJson.maxMp ?? hero.maxMp ?? 1) || 1);
+    const baseMaxCp = Math.max(1, Number((hero as any).baseMaxCp ?? existingHeroJson.maxCp ?? hero.maxCp ?? Math.max(1, Math.round(baseMaxHp * 0.6))) || 1);
+
+    const baseMax = { maxHp: baseMaxHp, maxMp: baseMaxMp, maxCp: baseMaxCp };
     const now = Date.now();
     const activeBuffs = cleanupBuffs(uniqueBuffs, now);
     const buffedMax = computeBuffedMaxResources(baseMax, activeBuffs);
-    const resourceFields = buildResourceFieldsForSave(hero, baseMax, buffedMax);
+    const runtimeMaxHp = Math.max(1, buffedMax.maxHp);
+    const runtimeMaxMp = Math.max(1, buffedMax.maxMp);
+    const runtimeMaxCp = Math.max(1, buffedMax.maxCp);
+
+    const safeNow = (raw: any, fallback: number) => {
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : fallback;
+    };
+    const hpNow = safeNow(hero.hp, runtimeMaxHp);
+    const mpNow = safeNow(hero.mp, runtimeMaxMp);
+    const cpNow = safeNow(hero.cp, runtimeMaxCp);
+
+    const hpPercent = clamp01(runtimeMaxHp > 0 ? hpNow / runtimeMaxHp : 1);
+    const mpPercent = clamp01(runtimeMaxMp > 0 ? mpNow / runtimeMaxMp : 1);
+    const cpPercent = clamp01(runtimeMaxCp > 0 ? cpNow / runtimeMaxCp : 1);
+
+    const hpToSave = Math.min(baseMaxHp, Math.max(0, Math.round(hpPercent * baseMaxHp)));
+    const mpToSave = Math.min(baseMaxMp, Math.max(0, Math.round(mpPercent * baseMaxMp)));
+    const cpToSave = Math.min(baseMaxCp, Math.max(0, Math.round(cpPercent * baseMaxCp)));
+
+    const wasFullHp = hpPercent >= 1;
+    const wasFullMp = mpPercent >= 1;
+    const wasFullCp = cpPercent >= 1;
 
     if (import.meta.env.DEV) {
       console.log("[heroPersistence] save HP snapshot:", {
-        baseMaxHp: baseMax.maxHp,
-        runtimeMaxHp: buffedMax.maxHp,
-        hpNow: hero.hp,
-        hpPercent: resourceFields.hpPercent,
-        hpToSave: resourceFields.hp,
+        baseMaxHp,
+        runtimeMaxHp,
+        hpNow,
+        hpPercent,
+        hpToSave,
+        expect: Math.round(hpPercent * baseMaxHp),
         buffsCount: activeBuffs.length,
       });
     }
 
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
+    // 🔥 КРИТИЧНО: isDead/deadAt завжди з поточного hero — не перезаписувати старими даними зі смерті
+    const currentHeroJson = (hero as any).heroJson || {};
     const heroJsonToSave = {
       ...existingHeroJson,
-      ...resourceFields,
+      isDead: Boolean(currentHeroJson.isDead),
+      deadAt: Number(currentHeroJson.deadAt) || 0,
       // 🔒 Обов'язкові поля — гарантуємо завжди (з існуючого або з hero) і завжди строки!
       name: requiredName,
       race: requiredRace,
+      // Сервер приймає або classId, або klass — передаємо обидва для надійності
       classId: requiredClassId,
       klass: requiredKlass,
+      
+      // Додаткові базові поля (якщо є)
       ...(hero.gender ? { gender: String(hero.gender) } : {}),
       ...(hero.profession ? { profession: String(hero.profession) } : {}),
+      
+      // 🔥 Прогрес (оновлюємо завжди) - значення будуть обчислені нижче з clamp
       level: Number(hero.level ?? existingHeroJson.level ?? 1),
       exp: Number(hero.exp ?? existingHeroJson.exp ?? 0),
+      // ✅ hp/mp/cp завжди clamp до base max — сервер не буде "різати" і F5 не відкотить
+      hp: hpToSave,
+      mp: mpToSave,
+      cp: cpToSave,
+      maxHp: baseMaxHp,
+      maxMp: baseMaxMp,
+      maxCp: baseMaxCp,
+      hpFull: wasFullHp,
+      mpFull: wasFullMp,
+      cpFull: wasFullCp,
+      hpPercent,
+      mpPercent,
+      cpPercent,
       mobsKilled: Number(currentMobsKilled),
       coinOfLuck: Number(hero.coinOfLuck ?? existingHeroJson.coinOfLuck ?? 0),
       premiumUntil: hero.premiumUntil ?? existingHeroJson.premiumUntil ?? undefined,
@@ -460,29 +485,16 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     }
     
     // ❗ ВАЖЛИВО: Також зберігаємо в localStorage як backup (навіть якщо API працює)
+    // Це гарантує, що дані не втрачаться при проблемах з API
     const current = getJSON<string | null>("l2_current_user", null);
     if (current) {
       const accounts = getJSON<any[]>("l2_accounts_v2", []);
       const accIndex = accounts.findIndex((a: any) => a.username === current);
       if (accIndex !== -1) {
-        const savedBattle = loadBattle(hero.name);
-        const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-        const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
-        const mergedBuffsBackup = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
-          arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
-        );
-        const baseMaxBackup = getMaxResources(hero);
-        const buffedMaxBackup = computeBuffedMaxResources(baseMaxBackup, mergedBuffsBackup);
-        const resourceFieldsBackup = buildResourceFieldsForSave(hero, baseMaxBackup, buffedMaxBackup);
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
-          heroJson: {
-            ...((hero as any).heroJson || {}),
-            ...buildBackupHeroJson(hero),
-            ...resourceFieldsBackup,
-            heroBuffs: mergedBuffsBackup.length ? mergedBuffsBackup : ((hero as any).heroJson?.heroBuffs ?? []),
-          },
+          heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero), hpFull: wasFullHp, mpFull: wasFullMp, cpFull: wasFullCp },
         };
         accounts[accIndex].hero = heroWithTimestamp;
         setJSON("l2_accounts_v2", accounts);
@@ -513,13 +525,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
           arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
         );
-        const baseMaxRl = getMaxResources(hero);
-        const buffedMaxRl = computeBuffedMaxResources(baseMaxRl, mergedBuffs);
-        const resourceFieldsRl = buildResourceFieldsForSave(hero, baseMaxRl, buffedMaxRl);
         const heroJson = {
           ...((hero as any).heroJson || {}),
           ...buildBackupHeroJson(hero),
-          ...resourceFieldsRl,
           heroBuffs: mergedBuffs.length ? mergedBuffs : ((hero as any).heroJson?.heroBuffs ?? []),
         };
         const heroWithTimestamp = {
@@ -709,15 +717,6 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
-        const savedBattle = loadBattle(hero.name);
-        const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-        const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
-        const mergedBuffs409 = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
-          arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
-        );
-        const baseMax409 = getMaxResources(hero);
-        const buffedMax409 = computeBuffedMaxResources(baseMax409, mergedBuffs409);
-        const resourceFields409 = buildResourceFieldsForSave(hero, baseMax409, buffedMax409);
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
         const accIndex = accounts.findIndex((a: any) => a.username === current);
         if (accIndex !== -1) {
@@ -726,12 +725,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             lastSavedAt: Date.now(),
             _conflictBackup: true,
             _conflictServerState: error.details?.serverState || null,
-            heroJson: {
-              ...((hero as any).heroJson || {}),
-              ...buildBackupHeroJson(hero),
-              ...resourceFields409,
-              heroBuffs: mergedBuffs409.length ? mergedBuffs409 : ((hero as any).heroJson?.heroBuffs ?? []),
-            },
+            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
           };
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
@@ -749,28 +743,14 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     
     // Fallback to localStorage on error - ВАЖЛИВО для збереження даних!
     const current = getJSON<string | null>("l2_current_user", null);
-    if (current && hero) {
-      const savedBattle = loadBattle(hero.name);
-      const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-      const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
-      const mergedBuffsFb = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
-        arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
-      );
-      const baseMaxFb = getMaxResources(hero);
-      const buffedMaxFb = computeBuffedMaxResources(baseMaxFb, mergedBuffsFb);
-      const resourceFieldsFb = buildResourceFieldsForSave(hero, baseMaxFb, buffedMaxFb);
+    if (current) {
       const accounts = getJSON<any[]>("l2_accounts_v2", []);
       const accIndex = accounts.findIndex((a: any) => a.username === current);
       if (accIndex !== -1) {
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
-          heroJson: {
-            ...((hero as any).heroJson || {}),
-            ...buildBackupHeroJson(hero),
-            ...resourceFieldsFb,
-            heroBuffs: mergedBuffsFb.length ? mergedBuffsFb : ((hero as any).heroJson?.heroBuffs ?? []),
-          },
+          heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
         };
         accounts[accIndex].hero = heroWithTimestamp;
         setJSON("l2_accounts_v2", accounts);

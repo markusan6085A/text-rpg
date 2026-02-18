@@ -11,7 +11,7 @@ import type { Hero } from "../../types/Hero";
 import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBackup } from "./syncPolicy";
 import { loadHero } from "./heroLoad";
 import { hydrateHero } from "./heroHydration";
-import { isDeadFromHeroJson, getFinalResourcesOnLoad } from "./heroResources";
+import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs } from "../heroStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
@@ -379,24 +379,30 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       maxCp: recalculated.resources.maxCp,
     };
     const heroDataAny = heroData as any;
-    const serverIsDead = isDeadFromHeroJson(heroDataAny);
+    const serverIsDead = Boolean(heroDataAny?.isDead) || Number(heroDataAny?.deadAt) > 0;
     const localJson = (hydratedLocalHero as any)?.heroJson || {};
-    const localIsDead = isDeadFromHeroJson(localJson);
+    const localIsDead = Boolean(localJson.isDead) || Number(localJson.deadAt || 0) > 0;
     const localHp = Number(hydratedLocalHero?.hp ?? 0);
+    // Якщо сервер ще має isDead (resurrect не встиг зберегтися), а локально герой вже живий — не перезаписувати hp на 0
     const preferLocalAlive = serverIsDead && !localIsDead && localHp > 0;
     const isDead = preferLocalAlive ? false : serverIsDead;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
+
     const finalMaxHp = buffedMax.maxHp;
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
 
+    // Якщо сервер повернув старі/менші max (наприклад до ап рівня) — при F5 hp/mp/cp не повинні падати
     const oldMaxHp = fixedHero.maxHp ?? 0;
     const oldMaxMp = fixedHero.maxMp ?? 0;
     const oldMaxCp = fixedHero.maxCp ?? 0;
-    const fillHp = recalculated.resources.maxHp > oldMaxHp * 1.05 || oldMaxHp <= 0;
-    const fillMp = recalculated.resources.maxMp > oldMaxMp * 1.05 || oldMaxMp <= 0;
-    const fillCp = recalculated.resources.maxCp > oldMaxCp * 1.05 || oldMaxCp <= 0;
+    const newMaxIncreasedHp = recalculated.resources.maxHp > oldMaxHp * 1.05;
+    const newMaxIncreasedMp = recalculated.resources.maxMp > oldMaxMp * 1.05;
+    const newMaxIncreasedCp = recalculated.resources.maxCp > oldMaxCp * 1.05;
+    const fillHp = newMaxIncreasedHp || oldMaxHp <= 0;
+    const fillMp = newMaxIncreasedMp || oldMaxMp <= 0;
+    const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
 
     let finalHp: number;
     let finalMp: number;
@@ -406,10 +412,30 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       finalMp = Math.min(finalMaxMp, Math.max(0, Number(hydratedLocalHero?.mp ?? 0)));
       finalCp = Math.min(finalMaxCp, Math.max(0, Number(hydratedLocalHero?.cp ?? 0)));
     } else {
-      const res = getFinalResourcesOnLoad(heroDataAny, baseMax, buffedMax, isDead, { hp: fillHp, mp: fillMp, cp: fillCp });
-      finalHp = res.finalHp;
-      finalMp = res.finalMp;
-      finalCp = res.finalCp;
+      finalHp = restoreFromPercentOrFallback({
+        percentRaw: heroDataAny?.hpPercent,
+        fullFlag: Boolean(heroData?.hpFull) || fillHp,
+        savedValueRaw: fixedHero.hp,
+        savedMaxRaw: heroDataAny?.maxHp,
+        finalMax: finalMaxHp,
+        isDead,
+      });
+      finalMp = restoreFromPercentOrFallback({
+        percentRaw: heroDataAny?.mpPercent,
+        fullFlag: Boolean(heroData?.mpFull) || fillMp,
+        savedValueRaw: fixedHero.mp,
+        savedMaxRaw: heroDataAny?.maxMp,
+        finalMax: finalMaxMp,
+        isDead,
+      });
+      finalCp = restoreFromPercentOrFallback({
+        percentRaw: heroDataAny?.cpPercent,
+        fullFlag: Boolean(heroData?.cpFull) || fillCp,
+        savedValueRaw: fixedHero.cp,
+        savedMaxRaw: heroDataAny?.maxCp,
+        finalMax: finalMaxCp,
+        isDead,
+      });
     }
 
     if (import.meta.env.DEV) {

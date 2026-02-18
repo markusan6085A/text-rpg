@@ -1,5 +1,5 @@
 import { useHeroStore } from "../../heroStore";
-import { isHeroDead, getDeathHeroJsonPatch } from "../../heroStore/heroResources";
+import { isHeroDead } from "../../heroStore/isHeroDead";
 import {
   applyBuffsToStats,
   cleanupBuffs,
@@ -514,7 +514,7 @@ export const createProcessMobAttack =
           equipment: equipmentAfterDeath,
           equipmentEnchantLevels: equipmentEnchantLevelsAfterDeath,
           zaricheEquippedUntil: zaricheEquippedUntilAfterDeath,
-          heroJson: { ...existingJson, ...getDeathHeroJsonPatch(deadAt) } as any,
+          heroJson: { ...existingJson, heroBuffs: [], isDead: true, deadAt } as any,
         },
         { persist: true }
       );

@@ -15,7 +15,7 @@ import { getJSON, getString, removeItem, setJSON } from "../persistence";
 import type { Hero } from "../../types/Hero";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { hydrateHero } from "./heroHydration";
-import { isDeadFromHeroJson, getFinalResourcesOnLoad } from "./heroResources";
+import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 
 export function loadHero(): Hero | null {
   // Міграція: видаляємо старий ключ l2_progress (більше не використовується)
@@ -216,13 +216,41 @@ export function loadHero(): Hero | null {
       maxCp: recalculated.resources.maxCp,
     };
     const heroJsonAny = heroJson as any;
-    const isDead = isDeadFromHeroJson(heroJsonAny);
+    const isDead = Boolean(heroJsonAny.isDead) || Number(heroJsonAny.deadAt) > 0;
     const finalBuffs = isDead ? [] : savedBuffs;
     const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
+    
+    // ❗ КАНОНІЧНЕ ПРАВИЛО: HP ніколи не зменшується при reload
+    // finalMaxHp - це maxHp З бафами (для порівняння з hp)
+    // Але hero.maxHp зберігаємо БЕЗ бафів (базове значення)
     const finalMaxHp = buffedMax.maxHp;
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
-    const { finalHp, finalMp, finalCp } = getFinalResourcesOnLoad(heroJsonAny, baseMax, buffedMax, isDead);
+
+    const finalHp = restoreFromPercentOrFallback({
+      percentRaw: heroJsonAny.hpPercent,
+      fullFlag: Boolean(heroJsonAny.hpFull),
+      savedValueRaw: fixedHero.hp,
+      savedMaxRaw: heroJsonAny.maxHp,
+      finalMax: finalMaxHp,
+      isDead,
+    });
+    const finalMp = restoreFromPercentOrFallback({
+      percentRaw: heroJsonAny.mpPercent,
+      fullFlag: Boolean(heroJsonAny.mpFull),
+      savedValueRaw: fixedHero.mp,
+      savedMaxRaw: heroJsonAny.maxMp,
+      finalMax: finalMaxMp,
+      isDead,
+    });
+    const finalCp = restoreFromPercentOrFallback({
+      percentRaw: heroJsonAny.cpPercent,
+      fullFlag: Boolean(heroJsonAny.cpFull),
+      savedValueRaw: fixedHero.cp,
+      savedMaxRaw: heroJsonAny.maxCp,
+      finalMax: finalMaxCp,
+      isDead,
+    });
 
     if (import.meta.env.DEV) {
       console.log("[heroLoad] load HP snapshot:", {

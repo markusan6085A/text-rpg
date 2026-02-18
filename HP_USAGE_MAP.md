@@ -1,10 +1,5 @@
 # Карта використання HP у проєкті
 
-**Єдине джерело правди для HP/MP/CP:** `src/state/heroStore/heroResources.ts`  
-Там зібрано: `getMaxResources`, `isHeroDead`, `restoreFromPercentOrFallback`, `buildResourceFieldsForSave`, `getFinalResourcesOnLoad`, `getDeathHeroJsonPatch`, `getResurrectHeroJsonPatch`. Load/save/death/resurrect беруть дані звідти.
-
----
-
 Усі місця, де використовується `hp`, `maxHp`, `baseMaxHp` або пов’язані значення. По кілька рядків коду на файл.
 
 ---

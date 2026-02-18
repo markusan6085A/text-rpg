@@ -1,8 +1,7 @@
 import { useHeroStore } from "../../heroStore";
 import { useCharacterStore } from "../../characterStore";
-import { cleanupBuffs, computeBuffedMaxResources, persistSnapshot } from "../helpers";
+import { applyBuffsToStats, cleanupBuffs, computeBuffedMaxResources, persistSnapshot } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
-import { getResurrectHeroJsonPatch } from "../../heroStore/heroResources";
 import { persistBattle } from "../persist";
 import type { BattleState } from "../types";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
@@ -28,7 +27,9 @@ export const createResurrect =
     const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, cleanedBuffs);
 
     const ratio = Math.max(0, Math.min(1, resurrection.ratio || 0.7));
-    const resurrectPatch = getResurrectHeroJsonPatch(ratio, maxHp, maxMp, maxCp, hero.cp);
+    const nextHP = Math.max(1, Math.round(maxHp * ratio));
+    const nextMP = Math.max(1, Math.round(maxMp * ratio));
+    const nextCP = Math.min(maxCp, hero.cp ?? maxCp);
 
     const updatedBuffs =
       resurrection.sourceBuffId !== undefined
@@ -37,16 +38,17 @@ export const createResurrect =
 
     const updateHero = useHeroStore.getState().updateHero;
     const existingJson = (hero as any).heroJson || {};
-    const heroWithResurrectedHp = { ...hero, hp: resurrectPatch.hp, maxHp: maxHp };
+
+    const heroWithResurrectedHp = { ...hero, hp: nextHP, maxHp: maxHp };
     const recalculated = recalculateAllStats(heroWithResurrectedHp, updatedBuffs);
 
     updateHero(
       {
-        hp: resurrectPatch.hp,
-        mp: resurrectPatch.mp,
-        cp: resurrectPatch.cp,
+        hp: nextHP,
+        mp: nextMP,
+        cp: nextCP,
         battleStats: recalculated.baseFinalStats,
-        heroJson: { ...existingJson, ...resurrectPatch } as any,
+        heroJson: { ...existingJson, isDead: false, deadAt: 0, heroBuffs: [] } as any,
       },
       { persist: true }
     );
