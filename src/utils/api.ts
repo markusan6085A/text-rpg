@@ -271,6 +271,14 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
   return response.character;
 }
 
+/** Resurrect: сервер атомарно скидає isDead/deadAt, ставить hp/mp/cp на max, heroBuffs=[]. Повертає оновленого character. */
+export async function resurrectCharacter(id: string): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(`/characters/${id}/resurrect`, {
+    method: 'POST',
+  });
+  return response.character;
+}
+
 export type PremiumPack = "3h" | "7h" | "12h" | "24h";
 
 export interface BuyPremiumResponse {

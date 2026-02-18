@@ -1,9 +1,11 @@
 import { useHeroStore } from "../../heroStore";
+import { useCharacterStore } from "../../characterStore";
 import { applyBuffsToStats, cleanupBuffs, computeBuffedMaxResources, persistSnapshot } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { persistBattle } from "../persist";
 import type { BattleState } from "../types";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
+import { resurrectCharacter } from "../../../utils/api";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -21,7 +23,6 @@ export const createResurrect =
     const resurrection = state.resurrection;
     if (!resurrection) return;
 
-    // Отримуємо базові max ресурси через централізовану функцію
     const baseMax = getMaxResources(hero);
     const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, cleanedBuffs);
 
@@ -38,7 +39,6 @@ export const createResurrect =
     const updateHero = useHeroStore.getState().updateHero;
     const existingJson = (hero as any).heroJson || {};
 
-    // Перераховуємо стати після воскресіння, щоб активувати/деактивувати пасивні скіли з hpThreshold
     const heroWithResurrectedHp = { ...hero, hp: nextHP, maxHp: maxHp };
     const recalculated = recalculateAllStats(heroWithResurrectedHp, updatedBuffs);
 
@@ -64,6 +64,28 @@ export const createResurrect =
 
     set((prev) => ({ ...(prev as any), ...(updates as any) }));
     persistSnapshot(get, persistBattle, updates);
-    // Щоб не підтягнуло старі бафи з persist після F5
     persistBattle({ ...get(), heroBuffs: [] }, hero.name);
+
+    const characterId = useCharacterStore.getState().characterId;
+    if (characterId) {
+      resurrectCharacter(characterId)
+        .then((char) => {
+          if (!char?.heroJson) return;
+          const hj = char.heroJson as any;
+          const heroStore = useHeroStore.getState();
+          const currentHero = heroStore.hero;
+          if (currentHero) {
+            heroStore.updateHero(
+              {
+                hp: Number(hj.hp) || currentHero.maxHp,
+                mp: Number(hj.mp) || currentHero.maxMp,
+                cp: Number(hj.cp) || currentHero.maxCp,
+                heroJson: { ...(currentHero as any).heroJson, ...hj, isDead: false, deadAt: 0, heroBuffs: hj.heroBuffs ?? [] },
+              },
+              { persist: false }
+            );
+          }
+        })
+        .catch((e) => console.warn("[resurrect] API failed", e));
+    }
   };

@@ -70,6 +70,8 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const heroJson = {
     ...existingJson,
     ...buildBackupHeroJson(hydrated),
+    isDead: Boolean(existingJson.isDead),
+    deadAt: Number(existingJson.deadAt) || 0,
     heroBuffs: mergedBuffs.length ? mergedBuffs : (existingJson.heroBuffs ?? []),
     hpFull: wasFullHp,
     mpFull: wasFullMp,
@@ -326,10 +328,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     }
 
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
-    // 🔥 КРИТИЧНО: inventory та equipment завжди беремо з hero, щоб стартовий набір не пропадав
+    // 🔥 КРИТИЧНО: isDead/deadAt завжди з поточного hero — не перезаписувати старими даними зі смерті
+    const currentHeroJson = (hero as any).heroJson || {};
     const heroJsonToSave = {
-      ...existingHeroJson, // 🔥 КРИТИЧНО: Зберігаємо всі існуючі поля з heroJson
-      
+      ...existingHeroJson,
+      isDead: Boolean(currentHeroJson.isDead),
+      deadAt: Number(currentHeroJson.deadAt) || 0,
       // 🔒 Обов'язкові поля — гарантуємо завжди (з існуючого або з hero) і завжди строки!
       name: requiredName,
       race: requiredRace,

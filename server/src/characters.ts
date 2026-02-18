@@ -527,6 +527,61 @@ export async function characterRoutes(app: FastifyInstance) {
     }
   });
 
+  // POST /characters/:id/resurrect — атомарно скидає смерть, ставить ресурси на max (має бути ПЕРЕД GET /characters/:id)
+  app.post("/characters/:id/resurrect", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const targetId = (req.params as any).id;
+    if (!targetId) return reply.code(400).send({ error: "character id required" });
+
+    try {
+      const ch = await prisma.character.findFirst({
+        where: { id: targetId, accountId: auth.accountId },
+        select: { id: true, name: true, race: true, classId: true, sex: true, level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true, heroJson: true, updatedAt: true },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+
+      const heroJson = (ch.heroJson ?? {}) as any;
+      const maxHp = Math.max(1, Number(heroJson.maxHp) || 100);
+      const maxMp = Math.max(1, Number(heroJson.maxMp) || 50);
+      const maxCp = Math.max(1, Number(heroJson.maxCp) || Math.round(maxHp * 0.6));
+
+      const patchedHeroJson = {
+        ...heroJson,
+        isDead: false,
+        deadAt: 0,
+        hp: maxHp,
+        mp: maxMp,
+        cp: maxCp,
+        hpFull: true,
+        mpFull: true,
+        cpFull: true,
+        hpPercent: 1,
+        mpPercent: 1,
+        cpPercent: 1,
+        heroBuffs: [],
+      };
+
+      const oldRevision = heroJson.heroRevision || 0;
+      const versionedHeroJson = addVersioning(patchedHeroJson, oldRevision);
+
+      const updated = await prisma.character.update({
+        where: { id: ch.id },
+        data: { heroJson: versionedHeroJson, lastActivityAt: new Date() },
+        select: { id: true, name: true, race: true, classId: true, sex: true, level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true, heroJson: true, updatedAt: true },
+      });
+
+      return reply.send({ ok: true, character: { ...updated, exp: Number(updated.exp) } });
+    } catch (error) {
+      app.log.error(error, "Error resurrect character:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   // GET /characters/:id  (Bearer token)
   // Не використовуємо bannedUntil/blockedUntil в select — старий Prisma client на деплої їх не знає (Unknown field)
   app.get("/characters/:id", async (req, reply) => {
