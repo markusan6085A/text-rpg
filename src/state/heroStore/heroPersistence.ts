@@ -83,6 +83,10 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
     hpFull: wasFullHp,
     mpFull: wasFullMp,
     cpFull: wasFullCp,
+    // Щоденні завдання — завжди в heroJson при кожному sync-збереженні, щоб після F5 прогрес не гублявся
+    dailyQuestsProgress: (hydrated as any).dailyQuestsProgress && typeof (hydrated as any).dailyQuestsProgress === "object" ? (hydrated as any).dailyQuestsProgress : (currentJson.dailyQuestsProgress ?? {}),
+    dailyQuestsCompleted: Array.isArray((hydrated as any).dailyQuestsCompleted) ? (hydrated as any).dailyQuestsCompleted : (Array.isArray(currentJson.dailyQuestsCompleted) ? currentJson.dailyQuestsCompleted : []),
+    dailyQuestsResetDate: (hydrated as any).dailyQuestsResetDate ?? currentJson.dailyQuestsResetDate ?? null,
   };
   accounts[accIndex].hero = { ...hydrated, heroJson };
   setJSON("l2_accounts_v2", accounts);

@@ -11,15 +11,21 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
 
-  // Перевіряємо, чи потрібно скинути щоденні завдання (якщо змінився день) — використовуємо локальну дату
+  // Скидаємо щоденні завдання тільки коли дата останнього резету строго раніше за сьогодні (не коли дати немає — інакше прогрес губився)
   useEffect(() => {
     if (!hero) return;
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`; // YYYY-MM-DD (локально)
     const rawReset = hero.dailyQuestsResetDate;
-    const resetDate = rawReset ? String(rawReset).slice(0, 10) : ""; // нормалізуємо ISO (2025-02-01T...) до YYYY-MM-DD
-    
-    if (resetDate !== today) {
+    const resetDate = rawReset ? String(rawReset).slice(0, 10) : ""; // нормалізуємо ISO до YYYY-MM-DD
+
+    // Якщо дати немає — лише виставляємо сьогодні, не очищаємо прогрес (щоб не стерти після F5/API)
+    if (!resetDate) {
+      updateHero({ dailyQuestsResetDate: today });
+      return;
+    }
+    // Якщо дата в минулому (інший день) — скидаємо прогрес і ставимо сьогодні
+    if (resetDate < today) {
       updateHero({
         dailyQuestsProgress: {},
         dailyQuestsCompleted: [],
