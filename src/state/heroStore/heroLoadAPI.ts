@@ -383,21 +383,34 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const hpFull = Boolean(heroData?.hpFull);
     const mpFull = Boolean(heroData?.mpFull);
     const cpFull = Boolean(heroData?.cpFull);
-    const finalHp = hpFull
+    let finalHp = hpFull
       ? finalMaxHp
       : (fillHp || fixedHero.hp === undefined || fixedHero.hp <= 0 || fixedHero.hp >= finalMaxHp
           ? finalMaxHp
           : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0)));
-    const finalMp = mpFull
+    let finalMp = mpFull
       ? finalMaxMp
       : (fillMp || fixedHero.mp === undefined || fixedHero.mp <= 0 || fixedHero.mp >= finalMaxMp
           ? finalMaxMp
           : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0)));
-    const finalCp = cpFull
+    let finalCp = cpFull
       ? finalMaxCp
       : (fillCp || fixedHero.cp === undefined || fixedHero.cp <= 0 || fixedHero.cp >= finalMaxCp
           ? finalMaxCp
           : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0)));
+
+    const hpPercent = Number((heroData as any)?.hpPercent);
+    const mpPercent = Number((heroData as any)?.mpPercent);
+    const cpPercent = Number((heroData as any)?.cpPercent);
+    if (Number.isFinite(hpPercent)) {
+      finalHp = Math.min(finalMaxHp, Math.max(0, Math.round(hpPercent * finalMaxHp)));
+    }
+    if (Number.isFinite(mpPercent)) {
+      finalMp = Math.min(finalMaxMp, Math.max(0, Math.round(mpPercent * finalMaxMp)));
+    }
+    if (Number.isFinite(cpPercent)) {
+      finalCp = Math.min(finalMaxCp, Math.max(0, Math.round(cpPercent * finalMaxCp)));
+    }
 
     // 🔥 КРИТИЧНО: Зберігаємо mobsKilled з fixedHero і гарантуємо, що воно є в heroJson
     // Перевіряємо всі можливі місця, де може бути mobsKilled

@@ -26,34 +26,22 @@ export function getMaxResources(
     return { maxHp: 1, maxMp: 1, maxCp: 1 };
   }
 
-  // ✅ Не повертаємо max менший за вже наявний у героя (hero.maxHp/baseMaxHp); heroJson — лише fallback, не пріоритет.
-  // Інакше тік (regenTick/processMobAttack) робить curHP = min(maxHp, hero.hp) і HP "падає" після F5.
-  const heroAny = hero as any;
-  const candidatesHp = [
-    heroAny.baseMaxHp,
-    hero.maxHp,
-    heroAny.heroJson?.maxHp,
-    hero.hp,
-  ].map((v) => Number(v)).filter((v) => Number.isFinite(v) && v > 0);
-  const candidatesMp = [
-    heroAny.baseMaxMp,
-    hero.maxMp,
-    heroAny.heroJson?.maxMp,
-    hero.mp,
-  ].map((v) => Number(v)).filter((v) => Number.isFinite(v) && v > 0);
-  const baseMaxHp = candidatesHp.length ? Math.max(...candidatesHp) : 1;
-  const baseMaxMp = candidatesMp.length ? Math.max(...candidatesMp) : 1;
-  const candidatesCp = [
-    heroAny.baseMaxCp,
-    hero.maxCp,
-    heroAny.heroJson?.maxCp,
-  ].map((v) => Number(v)).filter((v) => Number.isFinite(v) && v > 0);
-  const baseMaxCp = candidatesCp.length ? Math.max(...candidatesCp) : Math.max(1, Math.round(baseMaxHp * 0.6));
+  // baseMax* — єдиний стабільний base-джерело. heroJson.maxHp теж base. hero.maxHp може бути buffed — лише останній fallback.
+  // Не використовуємо hero.hp як кандидат для max (підміна).
+  const h = hero as any;
+  const baseMaxHp = Number(h.baseMaxHp ?? h.heroJson?.maxHp ?? h.maxHp ?? 1);
+  const baseMaxMp = Number(h.baseMaxMp ?? h.heroJson?.maxMp ?? h.maxMp ?? 1);
+  const baseMaxCp = Number(
+    h.baseMaxCp ??
+      h.heroJson?.maxCp ??
+      h.maxCp ??
+      Math.max(1, Math.round((Number.isFinite(baseMaxHp) ? baseMaxHp : 1) * 0.6))
+  );
 
   return {
-    maxHp: Math.max(1, baseMaxHp),
-    maxMp: Math.max(1, baseMaxMp),
-    maxCp: Math.max(1, baseMaxCp),
+    maxHp: Math.max(1, Number.isFinite(baseMaxHp) ? baseMaxHp : 1),
+    maxMp: Math.max(1, Number.isFinite(baseMaxMp) ? baseMaxMp : 1),
+    maxCp: Math.max(1, Number.isFinite(baseMaxCp) ? baseMaxCp : 1),
   };
 }
 

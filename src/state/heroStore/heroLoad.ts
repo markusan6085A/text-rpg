@@ -228,22 +228,35 @@ export function loadHero(): Hero | null {
     const hpFull = Boolean((heroJson as any).hpFull);
     const mpFull = Boolean((heroJson as any).mpFull);
     const cpFull = Boolean((heroJson as any).cpFull);
-    const finalHp = hpFull
+    let finalHp = hpFull
       ? finalMaxHp
       : (fixedHero.hp === undefined || fixedHero.hp <= 0 || fixedHero.hp >= finalMaxHp
           ? finalMaxHp
           : Math.min(finalMaxHp, Math.max(fixedHero.hp, 0)));
-    const finalMp = mpFull
+    let finalMp = mpFull
       ? finalMaxMp
       : (fixedHero.mp === undefined || fixedHero.mp <= 0 || fixedHero.mp >= finalMaxMp
           ? finalMaxMp
           : Math.min(finalMaxMp, Math.max(fixedHero.mp, 0)));
-    const finalCp = cpFull
+    let finalCp = cpFull
       ? finalMaxCp
       : (fixedHero.cp === undefined || fixedHero.cp <= 0 || fixedHero.cp >= finalMaxCp
           ? finalMaxCp
           : Math.min(finalMaxCp, Math.max(fixedHero.cp, 0)));
-    
+
+    const hpPercent = Number((heroJson as any).hpPercent);
+    const mpPercent = Number((heroJson as any).mpPercent);
+    const cpPercent = Number((heroJson as any).cpPercent);
+    if (Number.isFinite(hpPercent)) {
+      finalHp = Math.min(finalMaxHp, Math.max(0, Math.round(hpPercent * finalMaxHp)));
+    }
+    if (Number.isFinite(mpPercent)) {
+      finalMp = Math.min(finalMaxMp, Math.max(0, Math.round(mpPercent * finalMaxMp)));
+    }
+    if (Number.isFinite(cpPercent)) {
+      finalCp = Math.min(finalMaxCp, Math.max(0, Math.round(cpPercent * finalMaxCp)));
+    }
+
     // ❗ hp і maxHp мають бути в одному просторі (обидва buffed), інакше clamp десь обріже hp
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,

@@ -277,19 +277,32 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
-    // ✅ clamp hp/mp/cp до base max — сервер інакше робить Math.min(rawHp, maxHp) і "відкочує" після F5
-    const baseMaxHp = Number((hero as any).baseMaxHp ?? existingHeroJson.maxHp ?? hero.maxHp ?? 1);
-    const baseMaxMp = Number((hero as any).baseMaxMp ?? existingHeroJson.maxMp ?? hero.maxMp ?? 1);
-    const baseMaxCp = Number((hero as any).baseMaxCp ?? existingHeroJson.maxCp ?? hero.maxCp ?? Math.max(1, Math.round(baseMaxHp * 0.6)));
+    // Зберігаємо HP/MP/CP як відсоток від buffed max, запис у heroJson у base-просторі — щоб F5 не "різав" HP.
+    const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
-    const hpToSave = Math.min(Math.max(0, Number(hero.hp ?? existingHeroJson.hp ?? 0)), baseMaxHp);
-    const mpToSave = Math.min(Math.max(0, Number(hero.mp ?? existingHeroJson.mp ?? 0)), baseMaxMp);
-    const cpToSave = Math.min(Math.max(0, Number(hero.cp ?? existingHeroJson.cp ?? 0)), baseMaxCp);
+    const baseMaxHp = Math.max(1, Number((hero as any).baseMaxHp ?? existingHeroJson.maxHp ?? hero.maxHp ?? 1) || 1);
+    const baseMaxMp = Math.max(1, Number((hero as any).baseMaxMp ?? existingHeroJson.maxMp ?? hero.maxMp ?? 1) || 1);
+    const baseMaxCp = Math.max(1, Number((hero as any).baseMaxCp ?? existingHeroJson.maxCp ?? hero.maxCp ?? Math.max(1, Math.round(baseMaxHp * 0.6))) || 1);
 
-    // 🔥 КРИТИЧНО: Прапорці "було фул" — щоб після F5 відновити фул по buffedMax (hp/mp/cp clamp'яться до base)
-    const wasFullHp = Number(hero.hp ?? 0) >= Number(hero.maxHp ?? 1);
-    const wasFullMp = Number(hero.mp ?? 0) >= Number(hero.maxMp ?? 1);
-    const wasFullCp = Number(hero.cp ?? 0) >= Number(hero.maxCp ?? 1);
+    const runtimeMaxHp = Math.max(1, Number(hero.maxHp ?? baseMaxHp) || baseMaxHp);
+    const runtimeMaxMp = Math.max(1, Number(hero.maxMp ?? baseMaxMp) || baseMaxMp);
+    const runtimeMaxCp = Math.max(1, Number(hero.maxCp ?? baseMaxCp) || baseMaxCp);
+
+    const hpNow = Math.max(0, Number(hero.hp ?? 0) || 0);
+    const mpNow = Math.max(0, Number(hero.mp ?? 0) || 0);
+    const cpNow = Math.max(0, Number(hero.cp ?? 0) || 0);
+
+    const hpPercent = clamp01(runtimeMaxHp > 0 ? hpNow / runtimeMaxHp : 1);
+    const mpPercent = clamp01(runtimeMaxMp > 0 ? mpNow / runtimeMaxMp : 1);
+    const cpPercent = clamp01(runtimeMaxCp > 0 ? cpNow / runtimeMaxCp : 1);
+
+    const hpToSave = Math.min(baseMaxHp, Math.max(0, Math.round(hpPercent * baseMaxHp)));
+    const mpToSave = Math.min(baseMaxMp, Math.max(0, Math.round(mpPercent * baseMaxMp)));
+    const cpToSave = Math.min(baseMaxCp, Math.max(0, Math.round(cpPercent * baseMaxCp)));
+
+    const wasFullHp = hpPercent >= 1;
+    const wasFullMp = mpPercent >= 1;
+    const wasFullCp = cpPercent >= 1;
 
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
     // 🔥 КРИТИЧНО: inventory та equipment завжди беремо з hero, щоб стартовий набір не пропадав
@@ -320,6 +333,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       hpFull: wasFullHp,
       mpFull: wasFullMp,
       cpFull: wasFullCp,
+      hpPercent,
+      mpPercent,
+      cpPercent,
       mobsKilled: Number(currentMobsKilled),
       coinOfLuck: Number(hero.coinOfLuck ?? existingHeroJson.coinOfLuck ?? 0),
       premiumUntil: hero.premiumUntil ?? existingHeroJson.premiumUntil ?? undefined,
