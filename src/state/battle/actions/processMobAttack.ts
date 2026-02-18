@@ -515,13 +515,10 @@ export const createProcessMobAttack =
         heroBuffsBlockedUntil,
         heroSkillsBlockedUntil,
         lastMobDamage: Math.round(heroDamage),
+        activeChargeSlots: [], // Скидаємо заряди тільки при смерті героя
       };
       set((prev) => ({ ...(prev as any), ...(updates as any) }));
       persistSnapshot(get, persistBattle, updates);
-      persistBattle(
-        { status: "idle", heroBuffs: [], mobBuffs: [], mobNextAttackAt: 0 },
-        hero.name
-      );
       return;
     }
 
@@ -546,6 +543,7 @@ export const createProcessMobAttack =
       heroBuffsBlockedUntil,
       heroSkillsBlockedUntil,
       lastMobDamage: Math.round(heroDamage),
+      activeChargeSlots: state.activeChargeSlots ?? [], // Заряди лишаються увімкненими після вбивства моба
     };
     set((prev) => ({ ...(prev as any), ...(updates as any) }));
     persistSnapshot(get, persistBattle, updates);

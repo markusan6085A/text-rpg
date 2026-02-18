@@ -21,10 +21,15 @@ const getBattleKey = (heroName?: string | null): string => {
 
 export const persistBattle = (data: Partial<BattleState>, heroName?: string | null) => {
   const key = getBattleKey(heroName);
+  const resolvedHeroName = heroName || data.heroName;
+  // Мерджимо з уже збереженим станом, щоб ніколи не втратити activeChargeSlots при частковому оновленні
+  const existing = resolvedHeroName ? getJSON<PersistedBattleState | null>(key, null) : null;
+  const base = existing && typeof existing === "object" ? existing : {};
   const dataWithHeroName = {
+    ...base,
     ...data,
-    heroName: heroName || data.heroName, // Зберігаємо нік героя в battle state
-    version: BATTLE_VERSION, // Додаємо версію для міграцій
+    heroName: resolvedHeroName,
+    version: BATTLE_VERSION,
   };
   setJSON(key, dataWithHeroName);
 };
