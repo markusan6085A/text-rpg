@@ -277,8 +277,10 @@ export function loadHero(): Hero | null {
       mp: finalMp,
       cp: finalCp,
     };
+    // 🔥 Якщо герой живий (hp > 0) — heroJson має містити isDead: false, deadAt: 0, інакше при наступному save смерть знову «липне»
     (heroWithRecalculatedStats as any).heroJson = {
       ...heroJsonAny,
+      ...((loadedHp > 0 || finalHp > 0) ? { isDead: false, deadAt: 0 } : {}),
       heroBuffs: isDead ? [] : (heroJsonAny.heroBuffs ?? finalBuffs),
     };
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
