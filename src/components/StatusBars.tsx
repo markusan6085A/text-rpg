@@ -4,6 +4,7 @@ import { getExpToNext } from "../data/expTable";
 import { useBattleStore } from "../state/battle/store";
 import { loadBattle, persistBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
+import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { getMaxResources } from "../state/battle/helpers/getMaxResources";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -165,6 +166,15 @@ export default function StatusBars() {
       const heroStore = useHeroStore.getState();
       const currentHero = heroStore.hero;
       if (!currentHero) return;
+      if (import.meta.env.DEV) {
+        console.log("[DEAD CHECK]", {
+          hp: currentHero.hp,
+          isDead: (currentHero as any).heroJson?.isDead,
+          deadAt: (currentHero as any).heroJson?.deadAt,
+          buffsHeroJson: ((currentHero as any).heroJson?.heroBuffs || []).length,
+        });
+      }
+      if (isHeroDead(currentHero)) return; // мертвий — не регенимо, не персистимо
 
       const inBattleNow = useBattleStore.getState().status !== "idle";
       const baseMax = getMaxResources(currentHero);

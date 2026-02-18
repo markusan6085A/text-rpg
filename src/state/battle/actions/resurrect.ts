@@ -42,13 +42,16 @@ export const createResurrect =
     const heroWithResurrectedHp = { ...hero, hp: nextHP, maxHp: maxHp };
     const recalculated = recalculateAllStats(heroWithResurrectedHp, updatedBuffs);
 
-    updateHero({
-      hp: nextHP,
-      mp: nextMP,
-      cp: nextCP,
-      battleStats: recalculated.baseFinalStats,
-      heroJson: { ...existingJson, isDead: false, deadAt: 0 } as any,
-    });
+    updateHero(
+      {
+        hp: nextHP,
+        mp: nextMP,
+        cp: nextCP,
+        battleStats: recalculated.baseFinalStats,
+        heroJson: { ...existingJson, isDead: false, deadAt: 0, heroBuffs: [] } as any,
+      },
+      { persist: true }
+    );
 
     const updates: Partial<BattleState> = {
       status: "fighting",
@@ -61,4 +64,6 @@ export const createResurrect =
 
     set((prev) => ({ ...(prev as any), ...(updates as any) }));
     persistSnapshot(get, persistBattle, updates);
+    // Щоб не підтягнуло старі бафи з persist після F5
+    persistBattle({ ...get(), heroBuffs: [] }, hero.name);
   };

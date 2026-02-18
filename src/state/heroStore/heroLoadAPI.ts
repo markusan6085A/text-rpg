@@ -363,7 +363,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       maxMp: recalculated.resources.maxMp,
       maxCp: recalculated.resources.maxCp,
     };
-    const buffedMax = computeBuffedMaxResources(baseMax, savedBuffs);
+    const heroDataAny = heroData as any;
+    const isDead = Boolean(heroDataAny?.isDead) || Number(heroDataAny?.deadAt) > 0;
+    const finalBuffs = isDead ? [] : savedBuffs;
+    const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
 
     const finalMaxHp = buffedMax.maxHp;
     const finalMaxMp = buffedMax.maxMp;
@@ -379,9 +382,6 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const fillHp = newMaxIncreasedHp || oldMaxHp <= 0;
     const fillMp = newMaxIncreasedMp || oldMaxMp <= 0;
     const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
-
-    const heroDataAny = heroData as any;
-    const isDead = Boolean(heroDataAny?.isDead) || Number(heroDataAny?.deadAt) > 0;
 
     const finalHp = restoreFromPercentOrFallback({
       percentRaw: heroDataAny?.hpPercent,
@@ -474,8 +474,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
     (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
     (heroWithRecalculatedStats as any).baseMaxCp = recalculated.resources.maxCp;
-    // 🔥 Зберігаємо повний heroJson з сервера (sevenSealsBonus, heroBuffs тощо)
-    (heroWithRecalculatedStats as any).heroJson = heroData || (fixedHero as any).heroJson || {};
+    // 🔥 Зберігаємо повний heroJson з сервера; при isDead — бафи пусті
+    const loadedHeroJson = heroData || (fixedHero as any).heroJson || {};
+    (heroWithRecalculatedStats as any).heroJson = {
+      ...loadedHeroJson,
+      heroBuffs: isDead ? [] : (loadedHeroJson.heroBuffs ?? finalBuffs),
+    };
     
     // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
     const hydratedHero = hydrateHero(heroWithRecalculatedStats);
@@ -487,12 +491,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       (hydratedHero as any).id = character.id;
       (hydratedHero as any).heroRevision = (heroData as any)?.heroRevision || (character as any)?.heroRevision || undefined;
       
-      // 🔥 КРИТИЧНО: Синхронізуємо heroBuffs в heroJson
-      // Бафи можуть бути в heroJson.heroBuffs (з сервера) або в savedBattle.heroBuffs (localStorage)
-      // Використовуємо об'єднані savedBuffs (вже оброблені через cleanupBuffs)
+      // 🔥 КРИТИЧНО: Синхронізуємо heroBuffs в heroJson; при isDead — бафи пусті
       (hydratedHero as any).heroJson = {
         ...(hydratedHero as any).heroJson,
-        heroBuffs: savedBuffs, // 🔥 КРИТИЧНО: Зберігаємо бафи в heroJson для збереження на сервері
+        heroBuffs: isDead ? [] : savedBuffs,
       };
       
       // 🔥 Логуємо для діагностики

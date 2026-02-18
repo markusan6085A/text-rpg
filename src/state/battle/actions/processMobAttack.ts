@@ -1,4 +1,5 @@
 import { useHeroStore } from "../../heroStore";
+import { isHeroDead } from "../../heroStore/isHeroDead";
 import {
   applyBuffsToStats,
   cleanupBuffs,
@@ -60,6 +61,7 @@ export const createProcessMobAttack =
 
     const hero = useHeroStore.getState().hero;
     if (!hero) return;
+    if (isHeroDead(hero)) return; // вже мертвий — моб не оновлює hp/snapshot
 
     const cleanedBuffs = cleanupBuffs(state.heroBuffs || [], now);
     const cleanedMobBuffs = cleanupBuffs(state.mobBuffs || [], now); // Очищаємо застарілі debuff мобів
@@ -484,8 +486,9 @@ export const createProcessMobAttack =
         lastMobDamage: Math.round(heroDamage), // 🔥 Зберігаємо останній урон моба
       };
     } else if (nextHeroHP <= 0) {
-      // ❗ ВАЖЛИВО: При смерті видаляємо ВСІ бафи (і від статуї, і від скілів)
-      const buffsAfterDeath: any[] = []; // Всі бафи видаляються при смерті
+      // ❗ На смерть: очищаємо бафи всюди (heroJson + battle persist), isDead=true, hp/mp/cp=0, зупиняємо бойовий статус
+      const buffsAfterDeath: any[] = [];
+      const deadAt = Date.now();
       
       // ❗ ЗНЯТТЯ ЗАРИЧА ПРИ СМЕРТІ
       let equipmentAfterDeath = hero.equipment;
@@ -493,32 +496,34 @@ export const createProcessMobAttack =
       let zaricheEquippedUntilAfterDeath = hero.zaricheEquippedUntil;
       
       if (hero.equipment?.weapon === "zariche") {
-        // Знімаємо Зарича
         const heroWithoutZariche = unequipItemLogic(hero, "weapon");
         equipmentAfterDeath = heroWithoutZariche.equipment;
         equipmentEnchantLevelsAfterDeath = heroWithoutZariche.equipmentEnchantLevels;
         zaricheEquippedUntilAfterDeath = undefined;
       }
       
-      // Перераховуємо стати навіть при смерті (на випадок, якщо є скіли, що активуються при 0 HP)
       const heroWithZeroHp = { ...hero, hp: 0, maxHp: maxHp, equipment: equipmentAfterDeath };
       const recalculatedDead = recalculateAllStats(heroWithZeroHp, buffsAfterDeath);
-      // ❗ При смерті очищаємо всі бафи і в hero (heroJson), щоб вони не лишались після респа
       const existingJson = (hero as any).heroJson || {};
-      updateHero({
-        hp: 0,
-        battleStats: recalculatedDead.finalStats,
-        equipment: equipmentAfterDeath,
-        equipmentEnchantLevels: equipmentEnchantLevelsAfterDeath,
-        zaricheEquippedUntil: zaricheEquippedUntilAfterDeath,
-        heroJson: { ...existingJson, heroBuffs: [], isDead: true, deadAt: Date.now() } as any,
-      });
-      
+      updateHero(
+        {
+          hp: 0,
+          mp: 0,
+          cp: 0,
+          battleStats: recalculatedDead.finalStats,
+          equipment: equipmentAfterDeath,
+          equipmentEnchantLevels: equipmentEnchantLevelsAfterDeath,
+          zaricheEquippedUntil: zaricheEquippedUntilAfterDeath,
+          heroJson: { ...existingJson, heroBuffs: [], isDead: true, deadAt } as any,
+        },
+        { persist: true }
+      );
+
       updates = {
         status: finalMobHP <= 0 ? "victory" : "idle",
         mobHP: finalMobHP,
         mobNextAttackAt: null,
-        heroBuffs: buffsAfterDeath, // Всі бафи видалені при смерті
+        heroBuffs: buffsAfterDeath,
         mobBuffs: cleanedMobBuffs,
         log: ["Вы мертвы.", ...finalLog].slice(0, 30),
         cooldowns: state.cooldowns || {},
@@ -526,8 +531,16 @@ export const createProcessMobAttack =
         heroStunnedUntil,
         heroBuffsBlockedUntil,
         heroSkillsBlockedUntil,
-        lastMobDamage: Math.round(heroDamage), // 🔥 Зберігаємо останній урон моба
+        lastMobDamage: Math.round(heroDamage),
       };
+      set((prev) => ({ ...(prev as any), ...(updates as any) }));
+      persistSnapshot(get, persistBattle, updates);
+      // Критично: скидаємо battle persist (бафи, статус), щоб F5/load не підтягнув fighting
+      persistBattle(
+        { status: "idle", heroBuffs: [], mobBuffs: [], mobNextAttackAt: 0 },
+        hero.name
+      );
+      return;
     } else {
       // Стати вже перераховані вище після зняття бафів
       updates = {

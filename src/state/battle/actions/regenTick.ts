@@ -1,4 +1,5 @@
 import { useHeroStore } from "../../heroStore";
+import { isHeroDead } from "../../heroStore/isHeroDead";
 import {
   applyBuffsToStats,
   cleanupBuffs,
@@ -42,7 +43,7 @@ export const createRegenTick =
     const state = get();
     const hero = useHeroStore.getState().hero;
     if (!hero) return;
-    if ((hero.hp ?? 0) <= 0) return;
+    if (isHeroDead(hero)) return; // мертвий — не оновлюємо hp/mp/cp і не персистимо snapshot
 
     const now = Date.now();
     const cleanedBuffs = cleanupBuffs(state.heroBuffs || [], now);

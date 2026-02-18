@@ -215,7 +215,10 @@ export function loadHero(): Hero | null {
       maxMp: recalculated.resources.maxMp,
       maxCp: recalculated.resources.maxCp,
     };
-    const buffedMax = computeBuffedMaxResources(baseMax, savedBuffs);
+    const heroJsonAny = heroJson as any;
+    const isDead = Boolean(heroJsonAny.isDead) || Number(heroJsonAny.deadAt) > 0;
+    const finalBuffs = isDead ? [] : savedBuffs;
+    const buffedMax = computeBuffedMaxResources(baseMax, finalBuffs);
     
     // ❗ КАНОНІЧНЕ ПРАВИЛО: HP ніколи не зменшується при reload
     // finalMaxHp - це maxHp З бафами (для порівняння з hp)
@@ -223,9 +226,6 @@ export function loadHero(): Hero | null {
     const finalMaxHp = buffedMax.maxHp;
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
-    
-    const heroJsonAny = heroJson as any;
-    const isDead = Boolean(heroJsonAny.isDead) || Number(heroJsonAny.deadAt) > 0;
 
     const finalHp = restoreFromPercentOrFallback({
       percentRaw: heroJsonAny.hpPercent,
@@ -273,6 +273,10 @@ export function loadHero(): Hero | null {
       hp: finalHp,
       mp: finalMp,
       cp: finalCp,
+    };
+    (heroWithRecalculatedStats as any).heroJson = {
+      ...heroJsonAny,
+      heroBuffs: isDead ? [] : (heroJsonAny.heroBuffs ?? finalBuffs),
     };
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
     (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
