@@ -66,6 +66,12 @@ const RATE_LIMIT_COOLDOWN_MS = 60000; // 60 секунд після rate limit
 let criticalSaveQueue: Hero | null = null;
 let criticalSaveTimeout: NodeJS.Timeout | null = null;
 
+// 🔥 Блокуємо autosave під час виклику resurrectCharacter(), щоб старий стан не перетер новий (race condition)
+let resurrectInProgress = false;
+export function setResurrectInProgress(value: boolean) {
+  resurrectInProgress = value;
+}
+
 // 🔥 Експортуємо функцію для встановлення rate limit cooldown (використовується в heroPersistence)
 export function setRateLimitCooldown(durationMs: number = RATE_LIMIT_COOLDOWN_MS) {
   rateLimitUntil = Date.now() + durationMs;
@@ -114,6 +120,7 @@ function scheduleCriticalSaveAfterCooldown() {
 }
 
 function debouncedSave(hero: Hero) {
+  if (resurrectInProgress) return;
   // 🔥 Перевіряємо, чи не в rate limit cooldown
   const now = Date.now();
   if (now < rateLimitUntil) {
@@ -146,6 +153,7 @@ function debouncedSave(hero: Hero) {
 
 // 🔥 Критичні зміни (як mobsKilled, skills, sp) зберігаємо одразу, але з перевіркою rate limit
 function immediateSave(hero: Hero) {
+  if (resurrectInProgress) return;
   // 🔥 Перевіряємо, чи не в rate limit cooldown
   const now = Date.now();
   if (now < rateLimitUntil) {
@@ -318,6 +326,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
 
     const persist = opts?.persist !== false;
     if (!persist) return;
+    if (resurrectInProgress) return; // ⛔ Під час resurrect не пишемо в localStorage/API — save лише після успішної відповіді API
 
     saveHeroToLocalStorageOnly(updated);
     if (onlyRegen) return; // ⛔ НІЯКОГО debouncedSave/immediateSave для регену
@@ -373,8 +382,10 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         updatedAt: server.updatedAt ?? current?.updatedAt ?? Date.now(),
       },
     });
-    // Бафи: saveHeroToLocalStorageOnly мерджить heroJson.heroBuffs + loadBattle().heroBuffs — залізобетон як раніше
-    saveHeroToLocalStorageOnly(merged);
+    if (!resurrectInProgress) {
+      // Бафи: saveHeroToLocalStorageOnly мерджить heroJson.heroBuffs + loadBattle().heroBuffs — залізобетон як раніше
+      saveHeroToLocalStorageOnly(merged);
+    }
   },
 
   // 🔥 Оновлюємо серверний стан після GET/PATCH

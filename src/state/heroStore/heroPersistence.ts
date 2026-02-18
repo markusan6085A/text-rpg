@@ -57,7 +57,7 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const accounts = getJSON<any[]>("l2_accounts_v2", []);
   const accIndex = accounts.findIndex((a: any) => a.username === current);
   if (accIndex === -1) return;
-  // 🔥 КРИТИЧНО: isDead/deadAt тільки з поточного стану героя (ніколи з localStorage/accounts) — інакше смерть "залипає" після resurrect
+  // 🔥 КРИТИЧНО: isDead/deadAt тільки з поточного hero.heroJson (ніколи з existingJson/localStorage) — прибирає "липкість" смерті після resurrect
   const currentHeroJson = (hydrated as any).heroJson || {};
   const battleState = loadBattle(hydrated.name);
   const battleBuffs = Array.isArray(battleState?.heroBuffs) ? battleState.heroBuffs : [];
@@ -71,8 +71,8 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const heroJson = {
     ...currentHeroJson,
     ...buildBackupHeroJson(hydrated),
-    isDead: Boolean(currentHeroJson.isDead),
-    deadAt: Number(currentHeroJson.deadAt) || 0,
+    isDead: Boolean((hero as any).heroJson?.isDead),
+    deadAt: Number((hero as any).heroJson?.deadAt) || 0,
     heroBuffs: mergedBuffs.length ? mergedBuffs : (currentHeroJson.heroBuffs ?? []),
     hpFull: wasFullHp,
     mpFull: wasFullMp,
@@ -329,7 +329,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     }
 
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
-    // 🔥 КРИТИЧНО: isDead/deadAt змінюються ТІЛЬКИ в death/resurrect handlers; persistence лише передає поточний hero.heroJson (єдине джерело)
+    // 🔥 КРИТИЧНО: isDead/deadAt не мерджимо з existingHeroJson — тільки з поточного hero.heroJson; змінюються лише в death/resurrect handlers
     const currentHeroJson = (hero as any).heroJson || {};
     const heroJsonToSave = {
       ...existingHeroJson,

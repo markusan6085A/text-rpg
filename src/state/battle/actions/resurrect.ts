@@ -1,4 +1,4 @@
-import { useHeroStore } from "../../heroStore";
+import { useHeroStore, setResurrectInProgress } from "../../heroStore";
 import { useCharacterStore } from "../../characterStore";
 import { applyBuffsToStats, cleanupBuffs, computeBuffedMaxResources, persistSnapshot } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
@@ -23,6 +23,9 @@ export const createResurrect =
     const cleanedBuffs = cleanupBuffs(state.heroBuffs || [], now);
     const resurrection = state.resurrection;
     if (!resurrection) return;
+
+    // 🔥 Блокуємо autosave до завершення resurrectCharacter() — save лише після успішної відповіді API
+    setResurrectInProgress(true);
 
     const baseMax = getMaxResources(hero);
     const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, cleanedBuffs);
@@ -71,9 +74,10 @@ export const createResurrect =
     if (characterId) {
       resurrectCharacter(characterId)
         .then((raw) => {
-          // API повертає { ok, character }; resurrectCharacter() віддає response.character — але підстраховуємо обидві форми
+          // API повертає { ok, character }; resurrectCharacter() віддає response.character — підстраховуємо обидві форми
           const char = (raw as any)?.character ?? raw;
           const hj = char?.heroJson;
+          setResurrectInProgress(false);
           if (!hj) return;
           const heroStore = useHeroStore.getState();
           const currentHero = heroStore.hero;
@@ -87,11 +91,16 @@ export const createResurrect =
               },
               { persist: false }
             );
-            // Відразу відправляємо "живий" стан на сервер, щоб старий autosave не перезаписав isDead:true
+            // Save лише після успішної відповіді API — уникаємо race, коли старий стан перетирає новий
             const heroAfterSync = useHeroStore.getState().hero;
             if (heroAfterSync) saveHeroToLocalStorage(heroAfterSync).catch(() => {});
           }
         })
-        .catch((e) => console.warn("[resurrect] API failed", e));
+        .catch((e) => {
+          setResurrectInProgress(false);
+          console.warn("[resurrect] API failed", e);
+        });
+    } else {
+      setResurrectInProgress(false);
     }
   };
