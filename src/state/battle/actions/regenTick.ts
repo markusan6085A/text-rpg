@@ -1,7 +1,7 @@
 import { useHeroStore } from "../../heroStore";
 import { isHeroDead } from "../../heroStore/isHeroDead";
+import { getHeroRegenPerSecond } from "../../heroStore/heroRegen";
 import {
-  applyBuffsToStats,
   cleanupBuffs,
   computeBuffedMaxResources,
   persistSnapshot,
@@ -74,10 +74,7 @@ export const createRegenTick =
     const baseMax = getMaxResources(heroAfterTicks);
     const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, mergedHeroBuffs);
 
-    const heroStats = applyBuffsToStats(heroAfterTicks.battleStats || {}, mergedHeroBuffs);
-    const hpRegen = Math.max(0, heroStats.hpRegen ?? 0);
-    const mpRegen = Math.max(0, heroStats.mpRegen ?? 0);
-    const cpRegen = Math.max(0, heroStats.cpRegen ?? 0);
+    const { hpRegen, mpRegen, cpRegen } = getHeroRegenPerSecond(heroAfterTicks, mergedHeroBuffs);
 
     // Читаємо поточні ресурси з hero (єдине джерело правди)
     const curHP = Math.min(maxHp, heroAfterTicks.hp ?? maxHp);

@@ -1,5 +1,6 @@
 import React from "react";
 import { useHeroStore } from "../state/heroStore";
+import { getHeroRegenPerSecond } from "../state/heroStore/heroRegen";
 import { getExpToNext } from "../data/expTable";
 import { useBattleStore } from "../state/battle/store";
 import { loadBattle, persistBattle } from "../state/battle/persist";
@@ -182,11 +183,9 @@ export default function StatusBars() {
       const { maxHp: buffedMaxHp, maxMp: buffedMaxMp, maxCp: buffedMaxCp } =
         computeBuffedMaxResources(baseMax, combinedBuffs);
 
-      // Idle regen: везде використовуємо buffedMaxHp (стоп, hpFull, clamp), не hero.maxHp
+      // Реген повсюди з одного джерела правди (heroRegen)
+      const { hpRegen, mpRegen, cpRegen } = getHeroRegenPerSecond(currentHero, combinedBuffs);
       const curHp = currentHero.hp ?? buffedMaxHp;
-      const hpRegen = Math.max(1, Math.round(buffedMaxHp * 0.02));
-      const mpRegen = Math.max(1, Math.round(buffedMaxMp * 0.03));
-      const cpRegen = Math.max(1, Math.round(buffedMaxCp * 0.05));
 
       const nextHp = Math.min(buffedMaxHp, curHp + hpRegen);
       const nextMp = Math.min(buffedMaxMp, (currentHero.mp ?? buffedMaxMp) + mpRegen);

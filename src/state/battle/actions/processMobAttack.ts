@@ -425,21 +425,6 @@ export const createProcessMobAttack =
       }
     }
 
-    // Перераховуємо стати після зміни HP та можливого зняття бафів
-    // Це активує пасивні скіли з hpThreshold (наприклад, Final Frenzy)
-    const heroWithNewHp = { ...hero, hp: nextHeroHP, maxHp: maxHp };
-    const recalculated = recalculateAllStats(heroWithNewHp, nextBuffsAfterDispel);
-    
-    // Оновлюємо battleStats в heroStore, щоб вони відображалися правильно
-    if (recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk) {
-      updateHero({ 
-        hp: nextHeroHP,
-        battleStats: recalculated.baseFinalStats 
-      });
-    } else {
-      updateHero({ hp: nextHeroHP });
-    }
-
     // Додаємо повідомлення про спеціальні ефекти до логу
     const finalLog = specialEffectsLog.length > 0 
       ? [...specialEffectsLog, ...newLog].slice(0, 30)
@@ -447,11 +432,10 @@ export const createProcessMobAttack =
 
     const salvationBuff = nextBuffsAfterDispel.find((b) => b.effects?.some?.((e: any) => e.stat === "salvation"));
     let updates: Partial<BattleState>;
-
-    // Оновлюємо HP моба, якщо відбиття спрацювало (для всіх випадків)
     const finalMobHP = reflectResult.reflected ? nextMobHP : state.mobHP;
-    const finalStatus = finalMobHP <= 0 ? "victory" : (nextHeroHP <= 0 ? "idle" : state.status);
+    const finalStatus = finalMobHP <= 0 ? "victory" : state.status;
 
+    // Спасіння: якщо майже вмерли і є баф — відновлюємо до ratio (наприклад 70%) і продовжуємо бій
     if (nextHeroHP <= 0 && salvationBuff) {
       const ratio =
         typeof salvationBuff.effects?.find?.((e: any) => e.stat === "salvation")?.value === "number"
@@ -485,79 +469,37 @@ export const createProcessMobAttack =
         heroSkillsBlockedUntil,
         lastMobDamage: Math.round(heroDamage), // 🔥 Зберігаємо останній урон моба
       };
-    } else if (nextHeroHP <= 0) {
-      // ❗ На смерть: очищаємо бафи всюди (heroJson + battle persist), isDead=true, hp/mp/cp=0, зупиняємо бойовий статус
-      const buffsAfterDeath: any[] = [];
-      const deadAt = Date.now();
-      
-      // ❗ ЗНЯТТЯ ЗАРИЧА ПРИ СМЕРТІ
-      let equipmentAfterDeath = hero.equipment;
-      let equipmentEnchantLevelsAfterDeath = hero.equipmentEnchantLevels;
-      let zaricheEquippedUntilAfterDeath = hero.zaricheEquippedUntil;
-      
-      if (hero.equipment?.weapon === "zariche") {
-        const heroWithoutZariche = unequipItemLogic(hero, "weapon");
-        equipmentAfterDeath = heroWithoutZariche.equipment;
-        equipmentEnchantLevelsAfterDeath = heroWithoutZariche.equipmentEnchantLevels;
-        zaricheEquippedUntilAfterDeath = undefined;
-      }
-      
-      const heroWithZeroHp = { ...hero, hp: 0, maxHp: maxHp, equipment: equipmentAfterDeath };
-      const recalculatedDead = recalculateAllStats(heroWithZeroHp, buffsAfterDeath);
-      const existingJson = (hero as any).heroJson || {};
-      updateHero(
-        {
-          hp: 0,
-          mp: 0,
-          cp: 0,
-          battleStats: recalculatedDead.finalStats,
-          equipment: equipmentAfterDeath,
-          equipmentEnchantLevels: equipmentEnchantLevelsAfterDeath,
-          zaricheEquippedUntil: zaricheEquippedUntilAfterDeath,
-          heroJson: { ...existingJson, heroBuffs: [], isDead: true, deadAt } as any,
-        },
-        { persist: true }
-      );
-
-      updates = {
-        status: finalMobHP <= 0 ? "victory" : "idle",
-        mobHP: finalMobHP,
-        mobNextAttackAt: null,
-        heroBuffs: buffsAfterDeath,
-        mobBuffs: cleanedMobBuffs,
-        log: ["Вы мертвы.", ...finalLog].slice(0, 30),
-        cooldowns: state.cooldowns || {},
-        summon: nextSummon,
-        heroStunnedUntil,
-        heroBuffsBlockedUntil,
-        heroSkillsBlockedUntil,
-        lastMobDamage: Math.round(heroDamage),
-      };
       set((prev) => ({ ...(prev as any), ...(updates as any) }));
       persistSnapshot(get, persistBattle, updates);
-      // Критично: скидаємо battle persist (бафи, статус), щоб F5/load не підтягнув fighting
-      persistBattle(
-        { status: "idle", heroBuffs: [], mobBuffs: [], mobNextAttackAt: 0 },
-        hero.name
-      );
       return;
-    } else {
-      // Стати вже перераховані вище після зняття бафів
-      updates = {
-        status: finalStatus,
-        mobHP: finalMobHP,
-        mobNextAttackAt: scheduleNext(now),
-        heroBuffs: nextBuffsAfterDispel, // Використовуємо бафи після можливого зняття
-        mobBuffs: cleanedMobBuffs,
-        log: finalLog,
-        cooldowns: state.cooldowns || {},
-        summon: nextSummon,
-        heroStunnedUntil,
-        heroBuffsBlockedUntil,
-        heroSkillsBlockedUntil,
-        lastMobDamage: Math.round(heroDamage), // 🔥 Зберігаємо останній урон моба
-      };
     }
+
+    // Замість смерті: залишаємо 70% max HP — герой не вважається мертвим
+    const effectiveHeroHP = nextHeroHP <= 0 ? Math.max(1, Math.round(maxHp * 0.7)) : nextHeroHP;
+
+    // Перераховуємо стати після зміни HP та можливого зняття бафів
+    const heroWithNewHp = { ...hero, hp: effectiveHeroHP, maxHp: maxHp };
+    const recalculated = recalculateAllStats(heroWithNewHp, nextBuffsAfterDispel);
+    if (recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk) {
+      updateHero({ hp: effectiveHeroHP, battleStats: recalculated.baseFinalStats });
+    } else {
+      updateHero({ hp: effectiveHeroHP });
+    }
+
+    updates = {
+      status: finalStatus,
+      mobHP: finalMobHP,
+      mobNextAttackAt: scheduleNext(now),
+      heroBuffs: nextBuffsAfterDispel,
+      mobBuffs: cleanedMobBuffs,
+      log: finalLog,
+      cooldowns: state.cooldowns || {},
+      summon: nextSummon,
+      heroStunnedUntil,
+      heroBuffsBlockedUntil,
+      heroSkillsBlockedUntil,
+      lastMobDamage: Math.round(heroDamage),
+    };
 
     set((prev) => ({ ...(prev as any), ...(updates as any) }));
     persistSnapshot(get, persistBattle, updates);
