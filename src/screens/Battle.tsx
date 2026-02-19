@@ -71,6 +71,11 @@ export default function Battle({ navigate }: BattleProps) {
   const [now, setNow] = React.useState(Date.now());
   const found = zoneId ? findZoneWithCity(zoneId) : undefined;
 
+  // Рибалка тепер окрема сторінка — редірект зі старого посилання
+  React.useEffect(() => {
+    if (zoneId === "fishing") navigate("/fishing");
+  }, [zoneId, navigate]);
+
   const lineGold = "border-t border-[#c7ad80]/80";
   const lineGoldThick = "border-t-2 border-[#c7ad80]";
   const pad = "px-3";

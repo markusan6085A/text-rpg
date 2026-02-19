@@ -3,6 +3,14 @@ import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../../state/heroStore";
 import type { ItemDefinition } from "../../../data/items/itemsDB.types";
+import { NG_GRADE_SHOP_ITEMS } from "../../../data/shop/ngGradeShop";
+import { D_GRADE_SHOP_ITEMS } from "../../../data/shop/dGradeShop";
+import { C_GRADE_SHOP_ITEMS } from "../../../data/shop/cGradeShop";
+import { B_GRADE_SHOP_ITEMS } from "../../../data/shop/bGradeShop";
+import { A_GRADE_SHOP_ITEMS } from "../../../data/shop/aGradeShop";
+import { S_GRADE_SHOP_ITEMS } from "../../../data/shop/sGradeShop";
+import { CONSUMABLES_SHOP_ITEMS } from "../../../data/shop/consumablesShop";
+import { SHOP_ITEM_ID_MAPPING } from "../../../data/shop/itemMappings";
 
 interface FishItemModalProps {
   item: HeroInventoryItem;
@@ -13,46 +21,14 @@ interface FishItemModalProps {
   updateHero: (partial: Partial<Hero>) => void;
 }
 
-// Функція для отримання всіх D і C грід зброї
-function getDAndCGradeWeapons(): ItemDefinition[] {
-  const weapons: ItemDefinition[] = [];
-  Object.values(itemsDB).forEach((item) => {
-    if (item.kind === "weapon" && (item.grade === "D" || item.grade === "C")) {
-      weapons.push(item);
-    }
-  });
-  return weapons;
-}
-
-// Функція для отримання всіх D і C грід частинок броні
-function getDAndCGradeArmorPieces(): ItemDefinition[] {
-  const armorPieces: ItemDefinition[] = [];
-  Object.values(itemsDB).forEach((item) => {
-    if (
-      (item.kind === "armor" ||
-        item.kind === "helmet" ||
-        item.kind === "boots" ||
-        item.kind === "gloves" ||
-        item.kind === "shield") &&
-      (item.grade === "D" || item.grade === "C")
-    ) {
-      armorPieces.push(item);
-    }
-  });
-  return armorPieces;
-}
-
-// Функція для отримання всіх ресурсів (без квестових)
+// Всі види ресурсів (без риби та квестових)
 function getAllResources(): ItemDefinition[] {
   const resources: ItemDefinition[] = [];
   Object.values(itemsDB).forEach((item) => {
-    // Виключаємо рибу та квестові ресурси
     if (
       item.kind === "resource" &&
       !item.id.startsWith("fish_") &&
       !item.id.startsWith("quest_") &&
-      !item.description?.toLowerCase().includes("квестовий предмет") &&
-      !item.description?.toLowerCase().includes("квест") &&
       item.slot !== "quest"
     ) {
       resources.push(item);
@@ -61,52 +37,68 @@ function getAllResources(): ItemDefinition[] {
   return resources;
 }
 
-// Функція розділки риби з дропом
+// ID предметів з простого магазину (для дропу 0.3%)
+function getSimpleShopItemIds(): string[] {
+  const allShop = [
+    ...NG_GRADE_SHOP_ITEMS,
+    ...D_GRADE_SHOP_ITEMS,
+    ...C_GRADE_SHOP_ITEMS,
+    ...B_GRADE_SHOP_ITEMS,
+    ...A_GRADE_SHOP_ITEMS,
+    ...S_GRADE_SHOP_ITEMS,
+    ...CONSUMABLES_SHOP_ITEMS,
+  ];
+  const ids = new Set<string>();
+  allShop.forEach((shopItem) => {
+    const id = SHOP_ITEM_ID_MAPPING[shopItem.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
+    if (id && itemsDB[id]) ids.add(id);
+  });
+  return Array.from(ids);
+}
+
+// Розділка риби: 1 риба = 1% кожен ресурс, 0.5% Coin of Luck, 5% адена 10000, 0.3% кожен предмет з простого магазину
 function processFishDrop(fishCount: number): {
   adena: number;
+  coinOfLuck: number;
   weapons: Array<{ id: string; count: number }>;
   armorPieces: Array<{ id: string; count: number }>;
   resources: Array<{ id: string; count: number }>;
 } {
   let totalAdena = 0;
+  let totalCoinOfLuck = 0;
   const weapons: Record<string, number> = {};
   const armorPieces: Record<string, number> = {};
   const resources: Record<string, number> = {};
 
-  const allWeapons = getDAndCGradeWeapons();
-  const allArmorPieces = getDAndCGradeArmorPieces();
   const allResources = getAllResources();
+  const simpleShopIds = getSimpleShopItemIds();
 
-  // Обробляємо кожну рибу
   for (let i = 0; i < fishCount; i++) {
-    // Адена: 1000-100000 з шансом 2%
-    if (Math.random() * 100 < 2) {
-      const adena = Math.floor(1000 + Math.random() * (100000 - 1000 + 1));
-      totalAdena += adena;
-    }
-
-    // Зброя D і C грід: шанс 1%
-    if (Math.random() * 100 < 1 && allWeapons.length > 0) {
-      const randomWeapon = allWeapons[Math.floor(Math.random() * allWeapons.length)];
-      weapons[randomWeapon.id] = (weapons[randomWeapon.id] || 0) + 1;
-    }
-
-    // Частинки броні D і C грід: шанс 2%
-    if (Math.random() * 100 < 2 && allArmorPieces.length > 0) {
-      const randomArmor = allArmorPieces[Math.floor(Math.random() * allArmorPieces.length)];
-      armorPieces[randomArmor.id] = (armorPieces[randomArmor.id] || 0) + 1;
-    }
-
-    // Ресурси: шанс 4% кожен (незалежно)
-    allResources.forEach((resource) => {
-      if (Math.random() * 100 < 4) {
-        resources[resource.id] = (resources[resource.id] || 0) + 1;
+    // Всі види ресурсів: 1% за 1 рибу
+    allResources.forEach((res) => {
+      if (Math.random() * 100 < 1) {
+        resources[res.id] = (resources[res.id] || 0) + 1;
+      }
+    });
+    // Coin of Luck: 0.5%
+    if (Math.random() * 100 < 0.5) totalCoinOfLuck += 1;
+    // Адена 10 000: 5%
+    if (Math.random() * 100 < 5) totalAdena += 10_000;
+    // Всі види шмоток з простого магазину: 0.3% кожен
+    simpleShopIds.forEach((id) => {
+      if (Math.random() * 100 < 0.3) {
+        const def = itemsDB[id];
+        if (def?.kind === "weapon") weapons[id] = (weapons[id] || 0) + 1;
+        else if (def && ["armor", "helmet", "boots", "gloves", "shield"].includes(def.kind ?? ""))
+          armorPieces[id] = (armorPieces[id] || 0) + 1;
+        else resources[id] = (resources[id] || 0) + 1;
       }
     });
   }
 
   return {
     adena: totalAdena,
+    coinOfLuck: totalCoinOfLuck,
     weapons: Object.entries(weapons).map(([id, count]) => ({ id, count })),
     armorPieces: Object.entries(armorPieces).map(([id, count]) => ({ id, count })),
     resources: Object.entries(resources).map(([id, count]) => ({ id, count })),
@@ -229,9 +221,12 @@ export default function FishItemModal({
       }
     });
 
+    const newCoinOfLuck = (currentHero.coinOfLuck ?? 0) + (result.coinOfLuck ?? 0);
+
     // Оновлюємо героя
     updateHero({
       adena: newAdena,
+      coinOfLuck: newCoinOfLuck,
       inventory: updatedInventory,
     });
 
@@ -264,6 +259,12 @@ export default function FishItemModal({
               <div className="flex items-center gap-2">
                 <span className="text-gray-400">Адена:</span>
                 <span className="text-yellow-400">{dismantleResult.adena.toLocaleString()}</span>
+              </div>
+            )}
+            {((dismantleResult as { coinOfLuck?: number }).coinOfLuck ?? 0) > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">Coin of Luck:</span>
+                <span className="text-[#e0c68a]">+{(dismantleResult as { coinOfLuck?: number }).coinOfLuck}</span>
               </div>
             )}
 
@@ -442,6 +443,7 @@ export default function FishItemModal({
             )}
 
             {dismantleResult.adena === 0 &&
+              ((dismantleResult as { coinOfLuck?: number }).coinOfLuck ?? 0) === 0 &&
               dismantleResult.weapons.length === 0 &&
               dismantleResult.armorPieces.length === 0 &&
               dismantleResult.resources.length === 0 && (
