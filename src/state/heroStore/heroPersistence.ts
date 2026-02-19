@@ -90,9 +90,10 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
     dailyQuestsResetDate: (hydrated as any).dailyQuestsResetDate ?? currentJson.dailyQuestsResetDate ?? null,
     activeQuests: Array.isArray((hydrated as any).activeQuests) ? (hydrated as any).activeQuests : (Array.isArray(currentJson.activeQuests) ? currentJson.activeQuests : []),
   };
-  accounts[accIndex].hero = { ...hydrated, heroJson };
+  const activeQuestsToStore = Array.isArray((hydrated as any).activeQuests) ? (hydrated as any).activeQuests : (Array.isArray((heroJson as any).activeQuests) ? (heroJson as any).activeQuests : []);
+  accounts[accIndex].hero = { ...hydrated, heroJson, activeQuests: activeQuestsToStore };
   setJSON("l2_accounts_v2", accounts);
-  console.log('[saveHeroToLocalStorageOnly] Saved hero to localStorage (level:', hydrated.level, 'exp:', hydrated.exp, 'buffs:', mergedBuffs.length, ')');
+  console.log('[saveHeroToLocalStorageOnly] Saved hero to localStorage (level:', hydrated.level, 'exp:', hydrated.exp, 'buffs:', mergedBuffs.length, 'activeQuests:', activeQuestsToStore.length, ')');
 }
 
 // Try to save via API, fallback to localStorage if not authenticated
