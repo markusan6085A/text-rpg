@@ -3294,7 +3294,7 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     id: "quest_shop_tattoo_magic",
     itemId: 10001, // Унікальний ID
     name: "Тату Магії",
-    grade: "S",
+    grade: "D",
     type: "tattoo",
     category: "tattoo",
     price: 150, // Ціна в Серебряных Монетах
@@ -3310,7 +3310,7 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     id: "quest_shop_tattoo_physical",
     itemId: 10002, // Унікальний ID
     name: "Тату Фізики",
-    grade: "S",
+    grade: "D",
     type: "tattoo",
     category: "tattoo",
     price: 150, // Ціна в Серебряных Монетах
@@ -3326,7 +3326,7 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     id: "quest_shop_tattoo_defense",
     itemId: 10003, // Унікальний ID
     name: "Тату Захисту",
-    grade: "S",
+    grade: "D",
     type: "tattoo",
     category: "tattoo",
     price: 150, // Ціна в Серебряных Монетах
@@ -3347,7 +3347,7 @@ export const QUEST_SHOP_ACCESSORIES: ShopItem[] = [
     id: "quest_shop_belt",
     itemId: 10004, // Унікальний ID
     name: "Пояс Захисту",
-    grade: "S",
+    grade: "D",
     type: "armor",
     category: "belt",
     price: 150, // Ціна в Серебряных Монетах
@@ -3362,7 +3362,7 @@ export const QUEST_SHOP_ACCESSORIES: ShopItem[] = [
     id: "quest_shop_cloak",
     itemId: 10005, // Унікальний ID
     name: "Плащ Добра",
-    grade: "S",
+    grade: "D",
     type: "armor",
     category: "cloak",
     price: 150, // Ціна в Серебряных Монетах

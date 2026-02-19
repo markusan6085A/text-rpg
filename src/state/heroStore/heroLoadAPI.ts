@@ -144,6 +144,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const serverCp = serverMaxNotStale && heroData?.cp != null ? Number(heroData.cp) : undefined;
         const mergedHero: Hero = {
           ...hydratedLocalHero,
+          name: character.name,
           maxHp: buffedMax.maxHp,
           maxMp: buffedMax.maxMp,
           maxCp: buffedMax.maxCp,
@@ -151,6 +152,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           mp: serverMp !== undefined ? Math.min(serverMp, buffedMax.maxMp) : Math.min(hydratedLocalHero.mp ?? buffedMax.maxMp, buffedMax.maxMp),
           cp: serverCp !== undefined ? Math.min(serverCp, buffedMax.maxCp) : Math.min(hydratedLocalHero.cp ?? buffedMax.maxCp, buffedMax.maxCp),
         };
+        (mergedHero as any).username = character.name;
         (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
         (mergedHero as any).baseMaxMp = recalculated.resources.maxMp;
         (mergedHero as any).baseMaxCp = recalculated.resources.maxCp;
