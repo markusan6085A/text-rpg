@@ -296,29 +296,26 @@ export function handleBaseAttack(
       const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
       newInventory = dropResult.newInventory;
       dropMessages = dropResult.dropMessages;
-      
-      // Збираємо дроп в victoryUpdates — далі об'єднаємо з адена/експ/SP в один updateHero
-      if (dropResult.newInventory !== curHero.inventory || dropResult.zaricheEquipped) {
-        victoryUpdates.inventory = dropResult.newInventory;
-        if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-          const activeQuests = curHero.activeQuests || [];
-          victoryUpdates.activeQuests = activeQuests.map((aq) => {
-            const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
-            if (questUpdates.length > 0) {
-              const newProgress = { ...aq.progress };
-              questUpdates.forEach((update) => {
-                newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
-              });
-              return { ...aq, progress: newProgress };
-            }
-            return aq;
-          });
-        }
-        if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
-          if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
-          if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
-          victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
-        }
+      // Завжди застосовуємо інвентар з processMobDrops (звичайний + квестовий дроп), щоб квестові предмети не губились
+      victoryUpdates.inventory = dropResult.newInventory;
+      if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
+        const activeQuests = curHero.activeQuests || [];
+        victoryUpdates.activeQuests = activeQuests.map((aq) => {
+          const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
+          if (questUpdates.length > 0) {
+            const newProgress = { ...aq.progress };
+            questUpdates.forEach((update) => {
+              newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
+            });
+            return { ...aq, progress: newProgress };
+          }
+          return aq;
+        });
+      }
+      if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
+        if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
+        if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
+        victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
       }
     }
 

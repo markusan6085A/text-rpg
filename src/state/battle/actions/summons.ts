@@ -695,13 +695,25 @@ export function processSummonAttack(
     if (curHero && mob) {
       const dropResult = processMobDrops(mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
-      if (dropResult.newInventory !== curHero.inventory || dropResult.zaricheEquipped) {
-        victoryUpdates.inventory = dropResult.newInventory;
-        if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
-          if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
-          if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
-          victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
-        }
+      victoryUpdates.inventory = dropResult.newInventory;
+      if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
+        const activeQuests = curHero.activeQuests || [];
+        (victoryUpdates as any).activeQuests = activeQuests.map((aq: any) => {
+          const questUpdates = dropResult.questProgressUpdates?.filter((u: any) => u.questId === aq.questId) || [];
+          if (questUpdates.length > 0) {
+            const newProgress = { ...aq.progress };
+            questUpdates.forEach((update: any) => {
+              newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
+            });
+            return { ...aq, progress: newProgress };
+          }
+          return aq;
+        });
+      }
+      if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
+        if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
+        if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
+        victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
       }
     }
 
