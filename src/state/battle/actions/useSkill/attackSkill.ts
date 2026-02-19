@@ -3,7 +3,7 @@ import { calculateMagicDamage } from "../../../../data/skills/calculate/calculat
 import { calculatePhysicalDamage } from "../../../../data/skills/calculate/calculatePhysicalDamage";
 import { useAutoShot } from "./shotHelpers";
 import { useHeroStore } from "../../../heroStore";
-import { addDailyProgress, addDailyProgressVictory } from "../../../dailyQuestsProgress";
+import { addDailyProgress } from "../../../dailyQuestsProgress";
 import { processMobDrops } from "../../helpers/processDrops";
 import { clampChance, getCritMultiplier, XP_RATE, SONIC_FOCUS_ID, SONIC_CONSUMERS, SONIC_COST, FOCUSED_FORCE_ID, FOCUSED_FORCE_CONSUMERS, FOCUSED_FORCE_COST, MAX_FOCUSED_FORCE_STACKS, FOCUSED_FORCE_DURATION_MS, createCooldownEntry, checkSkillCritical, hasAutoSpoilActive } from "./helpers";
 import { processSkillEffects } from "./skillEffects";
@@ -291,8 +291,13 @@ export function handleAttackSkill(
       const heroWithNewHp = { ...curHero, ...victoryUpdates };
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
       victoryUpdates.battleStats = recalculatedAfter.finalStats;
+      const completed = curHero.dailyQuestsCompleted ?? [];
+      const cur = curHero.dailyQuestsProgress ?? {};
+      const nextProgress: Record<string, number> = { ...cur };
+      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
+      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+      (victoryUpdates as any).dailyQuestsProgress = nextProgress;
       useHeroStore.getState().updateHero(victoryUpdates);
-      addDailyProgressVictory(1, finalAdenaGain);
     } else {
       const heroAfterLevel = useHeroStore.getState().hero;
       if (heroAfterLevel) {

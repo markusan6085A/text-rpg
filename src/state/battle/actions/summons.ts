@@ -9,7 +9,6 @@ import { calcCooldownMs } from "../cooldowns";
 import { persistSnapshot } from "../helpers";
 import { persistBattle } from "../persist";
 import { useHeroStore } from "../../heroStore";
-import { addDailyProgressVictory } from "../../dailyQuestsProgress";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { computeBuffedMaxResources } from "../helpers";
 import { getExpToNext, MAX_LEVEL } from "../../../data/expTable";
@@ -746,8 +745,13 @@ export function processSummonAttack(
         hp: leveled ? maxHp : Math.min(maxHp, curHero.hp ?? maxHp),
         mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
       });
+      const completed = curHero.dailyQuestsCompleted ?? [];
+      const cur = curHero.dailyQuestsProgress ?? {};
+      const nextProgress: Record<string, number> = { ...cur };
+      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
+      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+      (victoryUpdates as any).dailyQuestsProgress = nextProgress;
       updateHero(victoryUpdates);
-      addDailyProgressVictory(1, finalAdenaGain);
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
     }
 

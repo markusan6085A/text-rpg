@@ -1,6 +1,6 @@
 import { getExpToNext, MAX_LEVEL } from "../../../../data/expTable";
 import { useHeroStore } from "../../../heroStore";
-import { addDailyProgress, addDailyProgressVictory } from "../../../dailyQuestsProgress";
+import { addDailyProgress } from "../../../dailyQuestsProgress";
 import { applyBuffsToStats, computeBuffedMaxResources } from "../../helpers";
 import { calcAutoAttackInterval } from "../../../../utils/combatSpeed";
 import { clampChance, getCritMultiplier, XP_RATE, hasAutoSpoilActive, hasWhirlwindAttackActive, type Setter } from "./helpers";
@@ -380,8 +380,14 @@ export function handleBaseAttack(
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
       (victoryUpdates as any).battleStats = recalculatedAfter.baseFinalStats;
 
+      const completed = curHero.dailyQuestsCompleted ?? [];
+      const cur = curHero.dailyQuestsProgress ?? {};
+      const nextProgress: Record<string, number> = { ...cur };
+      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
+      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+      (victoryUpdates as any).dailyQuestsProgress = nextProgress;
+
       useHeroStore.getState().updateHero(victoryUpdates);
-      addDailyProgressVictory(1, finalAdenaGain);
     }
 
     const maxAfter = computeMaxNow(activeBuffs);
