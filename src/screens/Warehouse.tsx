@@ -1,6 +1,7 @@
 // src/screens/Warehouse.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useHeroStore } from "../state/heroStore";
+import { useCharacterStore } from "../state/characterStore";
 import { INVENTORY_MAX_ITEMS } from "../state/heroStore";
 import type { HeroInventoryItem } from "../types/Hero";
 import {
@@ -29,6 +30,7 @@ interface LogEntry {
 export default function Warehouse({ navigate }: WarehouseProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
 
   const [view, setView] = useState<"inventory" | "warehouse">("inventory");
   const [warehouse, setWarehouse] = useState<(HeroInventoryItem | null)[]>([]);
@@ -41,10 +43,10 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   } | null>(null);
   const [quantityInput, setQuantityInput] = useState<string>("1");
 
-  // Завантажуємо склад при монтуванні компонента
+  // Завантажуємо склад по characterId (не по імені), щоб не губити при зміні ніка
   useEffect(() => {
-    if (hero?.name) {
-      const loadedWarehouse = loadWarehouse(hero.name);
+    if (characterId) {
+      const loadedWarehouse = loadWarehouse(characterId, hero?.name);
       // Переконаємося, що всі предмети мають icon (якщо відсутній, беремо з itemsDB)
       const warehouseWithIcons = loadedWarehouse.map((item) => {
         if (item && !item.icon) {
@@ -57,7 +59,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       });
       setWarehouse(warehouseWithIcons);
     }
-  }, [hero?.name]);
+  }, [characterId, hero?.name]);
 
   // Додаємо запис до логу
   const addLogEntry = (message: string) => {
@@ -116,7 +118,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
   // Функція для покладення предмета на склад
   const handlePutToWarehouse = (item: HeroInventoryItem, count?: number) => {
-    if (!hero.name) return;
+    if (!characterId) return;
 
     const itemCount = count || 1;
     const maxCount = item.count || 1;
@@ -202,8 +204,8 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         };
       }
 
-      // Зберігаємо на склад
-      saveItemToWarehouse(hero.name, targetSlotIndex, itemToStore);
+      // Зберігаємо на склад (по characterId)
+      saveItemToWarehouse(characterId, targetSlotIndex, itemToStore);
 
       // Оновлюємо стан
       const newWarehouse = [...warehouse];
@@ -242,7 +244,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
   // Функція для взяття предмета зі складу
   const handleTakeFromWarehouse = (slotIndex: number) => {
-    if (!hero.name) return;
+    if (!characterId) return;
 
     const item = warehouse[slotIndex];
     if (!item) return;
@@ -271,7 +273,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     }
 
     // Видаляємо предмет зі складу
-    saveItemToWarehouse(hero.name, slotIndex, null);
+    saveItemToWarehouse(characterId, slotIndex, null);
 
     // Оновлюємо стан
     const newWarehouse = [...warehouse];

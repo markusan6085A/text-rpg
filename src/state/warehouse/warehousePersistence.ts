@@ -6,17 +6,21 @@ const WAREHOUSE_KEY_PREFIX = "l2_warehouse_";
 const WAREHOUSE_MAX_SLOTS = 10;
 
 /**
- * Отримує ключ для зберігання складу для конкретного героя та слота
+ * Ключ складу: по characterId (не по імені), щоб склад не губився при зміні ніка.
  */
-function getWarehouseSlotKey(heroName: string, slotIndex: number): string {
+function getWarehouseSlotKey(characterId: string, slotIndex: number): string {
+  return `${WAREHOUSE_KEY_PREFIX}${characterId}_slot_${slotIndex}`;
+}
+
+function getWarehouseSlotKeyLegacy(heroName: string, slotIndex: number): string {
   return `${WAREHOUSE_KEY_PREFIX}${heroName}_slot_${slotIndex}`;
 }
 
 /**
- * Зберігає предмет на склад (в окремий файл для кожного слота)
+ * Зберігає предмет на склад (по characterId).
  */
 export function saveItemToWarehouse(
-  heroName: string,
+  characterId: string,
   slotIndex: number,
   item: HeroInventoryItem | null
 ): void {
@@ -25,47 +29,69 @@ export function saveItemToWarehouse(
     return;
   }
 
-  const key = getWarehouseSlotKey(heroName, slotIndex);
+  const key = getWarehouseSlotKey(characterId, slotIndex);
   if (item) {
     setJSON(key, item);
   } else {
-    // Видаляємо предмет зі складу
     setJSON(key, null);
   }
 }
 
 /**
- * Завантажує предмет зі складу
+ * Завантажує предмет зі складу по characterId.
  */
 export function loadItemFromWarehouse(
-  heroName: string,
+  characterId: string,
   slotIndex: number
 ): HeroInventoryItem | null {
   if (slotIndex < 0 || slotIndex >= WAREHOUSE_MAX_SLOTS) {
     return null;
   }
 
-  const key = getWarehouseSlotKey(heroName, slotIndex);
+  const key = getWarehouseSlotKey(characterId, slotIndex);
   return getJSON<HeroInventoryItem | null>(key, null);
 }
 
 /**
- * Завантажує весь склад (всі 10 слотів)
+ * Завантажує весь склад по characterId.
+ * Якщо по characterId порожньо — пробує legacy-ключ по heroName (міграція після зміни ніка/коду).
  */
-export function loadWarehouse(heroName: string): (HeroInventoryItem | null)[] {
+export function loadWarehouse(
+  characterId: string,
+  heroNameFallback?: string
+): (HeroInventoryItem | null)[] {
   const warehouse: (HeroInventoryItem | null)[] = [];
   for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
-    warehouse.push(loadItemFromWarehouse(heroName, i));
+    const item = getJSON<HeroInventoryItem | null>(
+      getWarehouseSlotKey(characterId, i),
+      null
+    );
+    warehouse.push(item);
   }
+
+  const isEmpty = warehouse.every((s) => s == null);
+  if (isEmpty && heroNameFallback) {
+    for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
+      const legacy = getJSON<HeroInventoryItem | null>(
+        getWarehouseSlotKeyLegacy(heroNameFallback, i),
+        null
+      );
+      if (legacy) {
+        warehouse[i] = legacy;
+        saveItemToWarehouse(characterId, i, legacy);
+      }
+    }
+  }
+
   return warehouse;
 }
 
 /**
- * Очищає весь склад
+ * Очищає весь склад по characterId.
  */
-export function clearWarehouse(heroName: string): void {
+export function clearWarehouse(characterId: string): void {
   for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
-    saveItemToWarehouse(heroName, i, null);
+    saveItemToWarehouse(characterId, i, null);
   }
 }
 
