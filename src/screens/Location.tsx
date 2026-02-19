@@ -12,6 +12,8 @@ import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { findSetForItem } from "../data/sets/armorSets";
 import { savePreviousLocation } from "../utils/locationNavigation";
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
+import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
+import { QUESTS } from "../data/quests";
 
 type Navigate = (path: string) => void;
 
@@ -70,6 +72,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   }
 
   const { zone, city } = found;
+
+  // Моби з активних квестів — показуємо сірим текстом
+  const activeQuests = hero?.activeQuests ?? [];
+  const questMobNames = React.useMemo(
+    () => getQuestMobNames(activeQuests, QUESTS),
+    [activeQuests]
+  );
 
   // ===== пагінація по мобах (15 на сторінку) =====
   const pageSize = 15;
@@ -162,7 +171,9 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </span>
                   <span
                     className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${
-                      isRaid
+                      questMobNames.has(mob.name)
+                        ? "text-gray-500"
+                        : isRaid
                         ? "text-red-500"
                         : isChampion
                         ? "text-blue-400"
