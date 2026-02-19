@@ -287,20 +287,24 @@ export function handleBaseAttack(
     const autoSpoilActive = hasAutoSpoilActive(activeBuffs);
     const mobSpoiled = autoSpoilActive;
 
-    // Обробляємо дропи та спойли; збираємо всі зміни в один updateHero — дроп + адена + эксп + SP одразу
-    // КРИТИЧНО: беремо героя з store безпосередньо перед дропом, щоб інвентар і activeQuests були актуальними (не обнулялись між кілами)
-    const curHero = useHeroStore.getState().hero;
+    // КРИТИЧНО: функціональний updateHero — базуємо оновлення на prev, щоб пізніші виклики (реген тощо) не затирали інвентар/exp/adena
     let dropMessages: string[] = [];
-    let newInventory = curHero?.inventory || [];
-    const victoryUpdates: Partial<Hero> = {};
+    let displayExp = expGain;
+    let displaySp = spGain;
+    let displayAdena = adenaGain;
+    let curHeroForLog: Hero | null = null;
 
-    if (curHero && state.mob) {
+    useHeroStore.getState().updateHero((prev) => {
+      const curHero = prev ?? useHeroStore.getState().hero;
+      if (!curHero || !state.mob) return {};
+      curHeroForLog = curHero;
+
       const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
-      newInventory = dropResult.newInventory;
       dropMessages = dropResult.dropMessages;
-      victoryUpdates.inventory = dropResult.newInventory;
+
+      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory };
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const baseActiveQuests = useHeroStore.getState().hero?.activeQuests || curHero.activeQuests || [];
+        const baseActiveQuests = curHero.activeQuests || [];
         victoryUpdates.activeQuests = baseActiveQuests.map((aq) => {
           const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
           if (questUpdates.length > 0) {
@@ -318,19 +322,7 @@ export function handleBaseAttack(
         if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
         victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
       }
-    }
 
-    let leveled = false;
-    let heroHpAfter = nextHeroHP; // Використовуємо nextHeroHP, який вже враховує крадіжку HP
-    let heroCpAfter = curHeroCP;
-    let heroMpAfter = curHeroMP;
-    // 🔥 displayExp/Sp/Adena — для UI (враховуємо premium x2); базові якщо curHero немає
-    let displayExp = expGain;
-    let displaySp = spGain;
-    let displayAdena = adenaGain;
-
-    // Завжди нараховуємо адена/експ/SP при перемозі (одразу в один updateHero разом з дропом)
-    if (curHero) {
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
       const finalSpGain = Math.round(spGain * premiumMultiplier);
@@ -363,6 +355,7 @@ export function handleBaseAttack(
       let level = Number(curHero.level ?? 1) || 1;
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
       const EPS = 0.001;
+      let leveled = false;
       while (exp >= getExpToNext(level, XP_RATE) - EPS) {
         const need = getExpToNext(level, XP_RATE);
         if (need <= 0) break;
@@ -381,13 +374,6 @@ export function handleBaseAttack(
       const updMaxCp = curHero.maxCp ?? curHero.cp ?? 0;
       const updMaxMp = curHero.maxMp ?? curHero.mp ?? 0;
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
-      heroHpAfter = leveled ? updMaxHp : heroHpAfter;
-      heroCpAfter = leveled ? updMaxCp : heroCpAfter;
-      heroMpAfter = leveled ? updMaxMp : heroMpAfter;
-
-      if (import.meta.env.DEV) {
-        console.log("[baseAttack] victory dailyQuestsProgress", { cur, nextProgress, finalAdenaGain });
-      }
 
       Object.assign(victoryUpdates, {
         level,
@@ -395,9 +381,9 @@ export function handleBaseAttack(
         sp: (curHero.sp ?? 0) + finalSpGain + rewardSp,
         adena: (curHero.adena ?? 0) + finalAdenaGain + rewardAdena,
         mobsKilled: newMobsKilled,
-        hp: heroHpAfter,
-        mp: heroMpAfter,
-        cp: heroCpAfter,
+        hp: leveled ? updMaxHp : nextHeroHP,
+        mp: leveled ? updMaxMp : curHeroMP,
+        cp: leveled ? updMaxCp : curHeroCP,
         dailyQuestsProgress: nextProgress,
         dailyQuestsCompleted: newCompleted,
         ...(rewardCoinOfLuck > 0 ? { coinOfLuck: ((curHero as any).coinOfLuck ?? 0) + rewardCoinOfLuck } : {}),
@@ -406,28 +392,14 @@ export function handleBaseAttack(
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
       (victoryUpdates as any).battleStats = recalculatedAfter.baseFinalStats;
 
-      useHeroStore.getState().updateHero(victoryUpdates);
-    }
+      return victoryUpdates;
+    });
 
     const maxAfter = computeMaxNow(activeBuffs);
-    // Обчислюємо наступний auto-attack (навіть якщо моб мертвий, для майбутнього бою)
-    // Для риболовлі: фіксований інтервал 0.4 сек (400 мс)
     const isFishingZoneVictory = state.zoneId === "fishing";
     const attackSpeed = buffedStats?.attackSpeed ?? buffedStats?.atkSpeed ?? 0;
     const autoAttackInterval = isFishingZoneVictory ? 400 : calcAutoAttackInterval(attackSpeed);
     const nextAutoAttackAt = now + autoAttackInterval;
-
-    // Якщо героя не було (напр. вийшли з бою), оновлюємо тільки hp/mp/cp
-    if (!curHero) {
-      const heroAfterLevel = useHeroStore.getState().hero;
-      if (heroAfterLevel) {
-        const heroWithNewHp = { ...heroAfterLevel, hp: heroHpAfter };
-        const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
-        updateHero({ hp: heroHpAfter, mp: heroMpAfter, cp: heroCpAfter, battleStats: recalculatedAfter.baseFinalStats });
-      } else {
-        updateHero({ hp: heroHpAfter, mp: heroMpAfter, cp: heroCpAfter });
-      }
-    }
     
     const lootMessages: (string | null)[] = [
       `${state.mob?.name} повержен.`,
@@ -465,10 +437,10 @@ export function handleBaseAttack(
     }
     
     // Фіксуємо вбивство raid boss в новинах
-    if (isRaidBoss && curHero) {
+    if (isRaidBoss && curHeroForLog) {
       reportRaidBossKill({
-        characterId: curHero.id,
-        characterName: curHero.name,
+        characterId: curHeroForLog.id,
+        characterName: curHeroForLog.name,
         bossName: state.mob?.name || "",
         bossLevel: state.mob?.level,
         bossDrops: state.mob?.drops || [],

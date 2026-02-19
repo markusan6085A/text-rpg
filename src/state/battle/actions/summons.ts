@@ -4,6 +4,7 @@
  */
 
 import type { BattleState, BattleBuff } from "../types";
+import type { Hero } from "../../../types/Hero";
 import type { SkillDefinition, SkillLevelDefinition } from "../../../data/skills/types";
 import { calcCooldownMs } from "../cooldowns";
 import { persistSnapshot } from "../helpers";
@@ -688,17 +689,21 @@ export function processSummonAttack(
     const autoSpoilActive = (state.heroBuffs || []).some((buff: any) => buff.id === 2541);
     const mobSpoiled = autoSpoilActive;
 
-    // Дроп + адена + эксп + SP — один updateHero одразу
-    const curHero = useHeroStore.getState().hero;
+    // Функціональний updateHero — базуємо на prev, щоб не затирати дроп/exp/adena
     let dropMessages: string[] = [];
-    const victoryUpdates: Partial<typeof curHero> = {};
+    let displayExp = expGain;
+    let displaySp = spGain;
+    let displayAdena = adenaGain;
 
-    if (curHero && mob) {
+    useHeroStore.getState().updateHero((prev) => {
+      const curHero = prev ?? useHeroStore.getState().hero;
+      if (!curHero || !mob) return {};
       const dropResult = processMobDrops(mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
-      victoryUpdates.inventory = dropResult.newInventory;
+
+      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory };
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const baseActiveQuests = useHeroStore.getState().hero?.activeQuests || curHero.activeQuests || [];
+        const baseActiveQuests = curHero.activeQuests || [];
         (victoryUpdates as any).activeQuests = baseActiveQuests.map((aq: any) => {
           const questUpdates = dropResult.questProgressUpdates?.filter((u: any) => u.questId === aq.questId) || [];
           if (questUpdates.length > 0) {
@@ -716,15 +721,7 @@ export function processSummonAttack(
         if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
         victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
       }
-    }
 
-    let leveled = false;
-    const updateHero = useHeroStore.getState().updateHero;
-    let displayExp = expGain;
-    let displaySp = spGain;
-    let displayAdena = adenaGain;
-
-    if (curHero) {
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
       const finalSpGain = Math.round(spGain * premiumMultiplier);
@@ -759,6 +756,7 @@ export function processSummonAttack(
       let level = Number(curHero.level ?? 1) || 1;
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
       const EPS = 0.001;
+      let leveled = false;
       while (exp >= getExpToNext(level, XP_RATE) - EPS) {
         const need = getExpToNext(level, XP_RATE);
         if (need <= 0) break;
@@ -772,6 +770,7 @@ export function processSummonAttack(
       }
       const baseMax = getMaxResources(curHero);
       const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, state.heroBuffs || []);
+      if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
 
       const curMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? 0;
       Object.assign(victoryUpdates, {
@@ -786,9 +785,8 @@ export function processSummonAttack(
         dailyQuestsCompleted: newCompleted,
         ...(rewardCoinOfLuck > 0 ? { coinOfLuck: ((curHero as any).coinOfLuck ?? 0) + rewardCoinOfLuck } : {}),
       });
-      updateHero(victoryUpdates);
-      if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
-    }
+      return victoryUpdates;
+    });
 
     // Встановлюємо респавн моба: 5 сек для риб (fishing зона), 30 секунд для звичайних, 10 хвилин для чемпіонів, respawnTime для РБ
     if (state.zoneId !== undefined && state.mobIndex !== undefined) {

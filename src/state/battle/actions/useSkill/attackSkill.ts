@@ -209,17 +209,21 @@ export function handleAttackSkill(
     const autoSpoilActive = hasAutoSpoilActive(updatedBuffs);
     const mobSpoiled = autoSpoilActive;
 
-    // Дроп + адена + эксп + SP — один updateHero одразу
-    const curHero = useHeroStore.getState().hero;
+    // Функціональний updateHero — базуємо на prev, щоб реген тощо не затирали дроп/exp/adena
     let dropMessages: string[] = [];
-    const victoryUpdates: Partial<Hero> = {};
+    let displayExp = expGain;
+    let displaySp = spGain;
+    let displayAdena = adenaGain;
 
-    if (curHero && state.mob) {
+    useHeroStore.getState().updateHero((prev) => {
+      const curHero = prev ?? useHeroStore.getState().hero;
+      if (!curHero || !state.mob) return {};
       const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
-      victoryUpdates.inventory = dropResult.newInventory;
+
+      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory };
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const baseActiveQuests = useHeroStore.getState().hero?.activeQuests || curHero.activeQuests || [];
+        const baseActiveQuests = curHero.activeQuests || [];
         victoryUpdates.activeQuests = baseActiveQuests.map((aq) => {
           const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
           if (questUpdates.length > 0) {
@@ -237,17 +241,7 @@ export function handleAttackSkill(
         if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
         victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
       }
-    }
 
-    let leveled = false;
-    let heroHpAfter = healedHeroHP;
-    let heroCpAfter = hero.cp ?? 0;
-    let heroMpAfter = nextHeroMP;
-    let displayExp = expGain;
-    let displaySp = spGain;
-    let displayAdena = adenaGain;
-
-    if (curHero) {
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
       const finalSpGain = Math.round(spGain * premiumMultiplier);
@@ -282,6 +276,7 @@ export function handleAttackSkill(
       let level = Number(curHero.level ?? 1) || 1;
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
       const EPS = 0.001;
+      let leveled = false;
       while (exp >= getExpToNext(level, XP_RATE) - EPS) {
         const need = getExpToNext(level, XP_RATE);
         if (need <= 0) break;
@@ -297,9 +292,6 @@ export function handleAttackSkill(
       const updMaxCp = curHero.maxCp ?? curHero.cp ?? 0;
       const updMaxMp = curHero.maxMp ?? curHero.mp ?? 0;
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
-      heroHpAfter = leveled ? updMaxHp : heroHpAfter;
-      heroCpAfter = leveled ? updMaxCp : heroCpAfter;
-      heroMpAfter = leveled ? updMaxMp : nextHeroMP;
 
       const curMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? 0;
       Object.assign(victoryUpdates, {
@@ -307,9 +299,9 @@ export function handleAttackSkill(
         exp,
         sp: (curHero.sp ?? 0) + finalSpGain + rewardSp,
         adena: (curHero.adena ?? 0) + finalAdenaGain + rewardAdena,
-        hp: heroHpAfter,
-        mp: heroMpAfter,
-        cp: heroCpAfter,
+        hp: leveled ? updMaxHp : healedHeroHP,
+        mp: leveled ? updMaxMp : nextHeroMP,
+        cp: leveled ? updMaxCp : (hero.cp ?? 0),
         mobsKilled: curMobsKilled + 1,
         dailyQuestsProgress: nextProgress,
         dailyQuestsCompleted: newCompleted,
@@ -318,17 +310,8 @@ export function handleAttackSkill(
       const heroWithNewHp = { ...curHero, ...victoryUpdates };
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
       victoryUpdates.battleStats = recalculatedAfter.finalStats;
-      useHeroStore.getState().updateHero(victoryUpdates);
-    } else {
-      const heroAfterLevel = useHeroStore.getState().hero;
-      if (heroAfterLevel) {
-        const heroWithNewHp = { ...heroAfterLevel, hp: heroHpAfter };
-        const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
-        updateHero({ hp: heroHpAfter, mp: heroMpAfter, cp: heroCpAfter, battleStats: recalculatedAfter.finalStats });
-      } else {
-        updateHero({ hp: heroHpAfter, mp: heroMpAfter, cp: heroCpAfter });
-      }
-    }
+      return victoryUpdates;
+    });
 
     // Встановлюємо респавн моба: 5 сек для риб (fishing зона), 30 секунд для звичайних, 10 хвилин для чемпіонів, respawnTime для РБ
     if (state.zoneId !== undefined && state.mobIndex !== undefined) {

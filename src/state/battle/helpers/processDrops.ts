@@ -270,9 +270,6 @@ export function processMobDrops(
   // ❗ ОБРОБКА КВЕСТОВИХ ДРОПІВ
   // Перевіряємо активні квести та додаємо квестові предмети, якщо моб відповідає
   const activeQuests = hero.activeQuests || [];
-  // Оновлюємо розмір інвентаря після дропів та спойлів
-  const currentInventorySizeForQuests = newInventory.filter(Boolean).length;
-  const isInventoryFullForQuests = currentInventorySizeForQuests >= INVENTORY_MAX_ITEMS;
 
   activeQuests.forEach((activeQuest) => {
     const questDef = QUESTS.find((q) => q.id === activeQuest.questId);
@@ -281,6 +278,10 @@ export function processMobDrops(
     // Перевіряємо, чи цей моб має квестові дропи
     questDef.questDrops.forEach((questDrop) => {
       if (mob.name === questDrop.mobName) {
+        // Перераховуємо розмір інвентаря перед кожним квестовим предметом (щоб кілька дропів підряд не переповнювали)
+        const currentInventorySizeForQuests = newInventory.filter(Boolean).length;
+        const isInventoryFullForQuests = currentInventorySizeForQuests >= INVENTORY_MAX_ITEMS;
+
         // Перевіряємо інвентар для поточного прогресу
         const inventoryItem = newInventory.find((item: HeroInventoryItem) => item.id === questDrop.itemId);
         const currentItemCount = inventoryItem?.count || 0;

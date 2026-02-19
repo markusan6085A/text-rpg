@@ -145,6 +145,13 @@ export function updateHeroLogic(
   if ((partial as any).activeQuests !== undefined && Array.isArray((partial as any).activeQuests)) {
     (updated as any).activeQuests = (partial as any).activeQuests;
   }
+  // 🔥 exp/level з partial не губити при мерджі (перемога в бою)
+  if (partial.exp !== undefined && partial.exp !== null) {
+    (updated as any).exp = Number(partial.exp);
+  }
+  if (partial.level !== undefined && partial.level !== null) {
+    (updated as any).level = Number(partial.level);
+  }
 
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
   const hydrated = hydrateHero(updated);
