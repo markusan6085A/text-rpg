@@ -53,21 +53,25 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
   // Завантажуємо склад по characterId (не по імені), щоб не губити при зміні ніка
   useEffect(() => {
-    if (characterId) {
+    if (!characterId) return;
+    try {
       const loadedWarehouse = loadWarehouse(characterId, hero?.name);
-      // Нормалізуємо предмети: name/icon з localStorage можуть бути об'єктом — приводимо до рядка
-      const warehouseWithIcons = loadedWarehouse.map((item) => {
+      const list = Array.isArray(loadedWarehouse) ? loadedWarehouse : [];
+      const warehouseWithIcons = list.map((item) => {
         if (!item) return null;
-        const iconVal = item.icon ?? itemsDB[item.id]?.icon;
-        const iconStr = typeof iconVal === "string" ? iconVal : undefined;
-        const nameStr = typeof item.name === "string" ? item.name : (item.name != null ? String(item.name) : "Предмет");
-        return {
-          ...item,
-          name: nameStr,
-          icon: iconStr,
-        };
+        try {
+          const iconVal = item.icon ?? (itemsDB && itemsDB[item.id]?.icon);
+          const iconStr = typeof iconVal === "string" ? iconVal : undefined;
+          const nameStr = typeof item.name === "string" ? item.name : (item.name != null ? String(item.name) : "Предмет");
+          return { ...item, name: nameStr, icon: iconStr };
+        } catch {
+          return { ...item, name: safeText(item.name), icon: undefined };
+        }
       });
       setWarehouse(warehouseWithIcons);
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn("[Warehouse] loadWarehouse failed:", e);
+      setWarehouse([]);
     }
   }, [characterId, hero?.name]);
 
@@ -103,23 +107,27 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   }
 
   const warehouseCapacity = Math.min(
-    hero.warehouseCapacity || DEFAULT_WAREHOUSE_CAPACITY,
+    Number(hero.warehouseCapacity) || DEFAULT_WAREHOUSE_CAPACITY,
     MAX_WAREHOUSE_CAPACITY
   );
+
+  const warehouseArr = Array.isArray(warehouse) ? warehouse : [];
   
   // Рахуємо реальну кількість предметів на складі (сума всіх count)
-  const warehouseUsed = warehouse.reduce((total, item) => {
+  const warehouseUsed = warehouseArr.reduce((total, item) => {
     if (item) {
-      return total + (item.count || 1);
+      return total + (Number(item.count) || 1);
     }
     return total;
   }, 0);
 
-  // Фільтрація предметів інвентаря
+  // Фільтрація предметів інвентаря (hero.inventory може бути не масивом з API/localStorage)
   const filteredInventoryItems = useMemo(() => {
-    if (!hero || !hero.inventory) return [];
+    if (!hero) return [];
+    const inv = Array.isArray(hero.inventory) ? hero.inventory : [];
     const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
-    return hero.inventory.filter((item: any) => item && category.test(item));
+    if (!category || typeof category.test !== "function") return inv;
+    return inv.filter((item: any) => item && category.test(item));
   }, [hero, currentCategory]);
 
   // Пагінація: показуємо 10 предметів на сторінку
@@ -515,10 +523,10 @@ export default function Warehouse({ navigate }: WarehouseProps) {
             // Склад - показуємо тільки 10 предметів
             <div className="space-y-2">
               {(() => {
-                const warehouseItems = warehouse.filter(item => item !== null).slice(0, 10);
+                const warehouseItems = warehouseArr.filter(item => item !== null).slice(0, 10);
                 return warehouseItems.length > 0 ? (
                   warehouseItems.map((item, idx) => {
-                    const slotIndex = warehouse.findIndex(w => w !== null && w.id === item!.id);
+                    const slotIndex = warehouseArr.findIndex(w => w !== null && w.id === item!.id);
                     const iconVal = item!.icon ?? itemsDB[item!.id]?.icon;
                     const iconStr = typeof iconVal === "string" ? iconVal : "/items/drops/Weapon_squires_sword_i00_0.jpg";
                     const src = iconStr.startsWith("/") ? iconStr : `/items/${iconStr}`;
