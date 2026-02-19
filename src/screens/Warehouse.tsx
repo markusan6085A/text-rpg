@@ -75,6 +75,32 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     }
   }, [characterId, hero?.name]);
 
+  // Усі хуки обов'язково викликаються до будь-якого return (Rules of Hooks)
+  const warehouseArr = Array.isArray(warehouse) ? warehouse : [];
+  const warehouseCapacity = hero
+    ? Math.min(Number(hero.warehouseCapacity) || DEFAULT_WAREHOUSE_CAPACITY, MAX_WAREHOUSE_CAPACITY)
+    : MAX_WAREHOUSE_CAPACITY;
+
+  const filteredInventoryItems = useMemo(() => {
+    if (!hero) return [];
+    const inv = Array.isArray(hero.inventory) ? hero.inventory : [];
+    const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
+    if (!category || typeof category.test !== "function") return inv;
+    return inv.filter((item: any) => item && category.test(item));
+  }, [hero, currentCategory]);
+
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.max(1, Math.ceil(filteredInventoryItems.length / ITEMS_PER_PAGE));
+  const paginatedItems = useMemo(() => {
+    const start = (inventoryPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return filteredInventoryItems.slice(start, end);
+  }, [filteredInventoryItems, inventoryPage]);
+
+  useEffect(() => {
+    setInventoryPage(1);
+  }, [currentCategory]);
+
   // Додаємо запис до логу
   const addLogEntry = (message: string) => {
     const newEntry: LogEntry = {
@@ -88,6 +114,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     });
   };
 
+  // Після всіх хуків — умовні return
   if (!hero) {
     return (
       <div className="flex items-center justify-center text-xs text-gray-400">
@@ -96,7 +123,6 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     );
   }
 
-  // Склад прив'язаний до персонажа; без characterId не завантажити/зберегти дані
   if (!characterId) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 text-center p-4 text-gray-400">
@@ -106,43 +132,12 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     );
   }
 
-  const warehouseCapacity = Math.min(
-    Number(hero.warehouseCapacity) || DEFAULT_WAREHOUSE_CAPACITY,
-    MAX_WAREHOUSE_CAPACITY
-  );
-
-  const warehouseArr = Array.isArray(warehouse) ? warehouse : [];
-  
-  // Рахуємо реальну кількість предметів на складі (сума всіх count)
   const warehouseUsed = warehouseArr.reduce((total, item) => {
     if (item) {
       return total + (Number(item.count) || 1);
     }
     return total;
   }, 0);
-
-  // Фільтрація предметів інвентаря (hero.inventory може бути не масивом з API/localStorage)
-  const filteredInventoryItems = useMemo(() => {
-    if (!hero) return [];
-    const inv = Array.isArray(hero.inventory) ? hero.inventory : [];
-    const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
-    if (!category || typeof category.test !== "function") return inv;
-    return inv.filter((item: any) => item && category.test(item));
-  }, [hero, currentCategory]);
-
-  // Пагінація: показуємо 10 предметів на сторінку
-  const ITEMS_PER_PAGE = 10;
-  const totalPages = Math.ceil(filteredInventoryItems.length / ITEMS_PER_PAGE);
-  const paginatedItems = useMemo(() => {
-    const start = (inventoryPage - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    return filteredInventoryItems.slice(start, end);
-  }, [filteredInventoryItems, inventoryPage]);
-
-  // Скидаємо сторінку при зміні категорії
-  useEffect(() => {
-    setInventoryPage(1);
-  }, [currentCategory]);
 
   // Функція для покладення предмета на склад
   const handlePutToWarehouse = (item: HeroInventoryItem, count?: number) => {
