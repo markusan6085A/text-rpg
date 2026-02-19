@@ -550,7 +550,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     name: "Bone Arrow",
     grade: "D",
     type: "consumable",
-    category: "bigblunt",
+    category: "arrow",
     price: 5, // Ціна за 1 стрілу
     icon: "/items/drops/resources/etc_bone_quiver_i00.png",
     description: "Кістяна стріла D-грейду",

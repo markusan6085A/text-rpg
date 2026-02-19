@@ -312,7 +312,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     name: "Shining Arrow",
     grade: "S",
     type: "consumable",
-    category: "dagger",
+    category: "arrow",
     price: 120, // Ціна за 1 стрілу
     icon: "/items/drops/resources/etc_shining_quiver_i00.png",
     description: "Сяюча стріла S-грейду",
