@@ -68,7 +68,16 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
     );
   }
 
-  const progress = hero.dailyQuestsProgress ?? {};
+  // Джерело правди: hero.dailyQuestsProgress; як резерв — heroJson (щоб не втратити відображення після load)
+  const fromHero = hero.dailyQuestsProgress ?? {};
+  const fromJson = (hero as any).heroJson?.dailyQuestsProgress;
+  const progress: Record<string, number> = {};
+  const allKeys = new Set([...Object.keys(fromHero), ...Object.keys(fromJson || {})]);
+  allKeys.forEach((id) => {
+    const a = typeof fromHero[id] === "number" ? fromHero[id] : 0;
+    const b = typeof (fromJson as any)?.[id] === "number" ? (fromJson as any)[id] : 0;
+    progress[id] = Math.max(a, b);
+  });
   const completed = hero.dailyQuestsCompleted ?? [];
 
   const getQuestProgress = (quest: DailyQuest): number => {
