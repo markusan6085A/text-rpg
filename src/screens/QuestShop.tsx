@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { QUEST_SHOP_ITEMS } from "../data/shop/questShop";
 import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
+import { addDailyProgress } from "../state/dailyQuestsProgress";
 import { itemsDB } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
@@ -940,7 +941,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                   }
                   
                   updateHero(updates);
-                  useHeroStore.getState().addDailyQuestProgress("daily_exchange", 1);
+                  addDailyProgress("daily_exchange", 1);
                   setConfirmExchange(null);
                 }}
                 className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer"

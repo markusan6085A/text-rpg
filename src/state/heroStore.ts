@@ -10,7 +10,6 @@ import { learnSkillLogic } from "./heroStore/heroSkills";
 import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
 import { itemsDB } from "../data/items/itemsDB";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
-import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestProgress";
 
 export const INVENTORY_MAX_ITEMS = 100;
 
@@ -52,9 +51,6 @@ interface HeroState {
   updateAdena: (amount: number) => void;
 
   addItemToInventory: (itemId: string, count?: number) => void;
-
-  /** Єдине джерело правди для прогресу щоденних завдань: читає hero з store, додає amount до questId, зберігає через updateHero */
-  addDailyQuestProgress: (questId: string, amount: number) => void;
 }
 
 // 🔥 Debouncing для збереження - щоб уникнути rate limiting
@@ -510,14 +506,5 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     }
 
     get().updateHero({ inventory: newInventory });
-  },
-
-  addDailyQuestProgress: (questId: string, amount: number) => {
-    if (amount === 0) return;
-    get().updateHero((prev) => {
-      if (!prev) return {};
-      const next = updateDailyQuestProgress(prev, questId, amount);
-      return { dailyQuestsProgress: next };
-    });
   },
 }));

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { postChatMessage, deleteChatMessage, adminDeleteChatMessage, adminMuteChatUser, getChatRestriction } from "../utils/api";
 import type { ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
+import { addDailyProgress } from "../state/dailyQuestsProgress";
 import { useAdminStore } from "../state/adminStore";
 import { useChatMessages } from "../hooks/useChatMessages";
 
@@ -389,7 +390,7 @@ export default function Chat({ navigate }: ChatProps) {
         prev.map((m) => (m.id === tempId ? ({ ...m, status: "sent" } as const) : m))
       );
 
-      useHeroStore.getState().addDailyQuestProgress("daily_chat", 1);
+      addDailyProgress("daily_chat", 1);
 
       // 🔥 ВАЖЛИВО: НЕ викликаємо refresh() після відправки!
       // Outbox залишиться, а коли сервер підтвердить (через ручний refresh або auto-refresh),

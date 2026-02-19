@@ -3,6 +3,7 @@ import { calculateMagicDamage } from "../../../../data/skills/calculate/calculat
 import { calculatePhysicalDamage } from "../../../../data/skills/calculate/calculatePhysicalDamage";
 import { useAutoShot } from "./shotHelpers";
 import { useHeroStore } from "../../../heroStore";
+import { addDailyProgress } from "../../../dailyQuestsProgress";
 import { processMobDrops } from "../../helpers/processDrops";
 import { clampChance, getCritMultiplier, XP_RATE, SONIC_FOCUS_ID, SONIC_CONSUMERS, SONIC_COST, FOCUSED_FORCE_ID, FOCUSED_FORCE_CONSUMERS, FOCUSED_FORCE_COST, MAX_FOCUSED_FORCE_STACKS, FOCUSED_FORCE_DURATION_MS, createCooldownEntry, checkSkillCritical, hasAutoSpoilActive } from "./helpers";
 import { processSkillEffects } from "./skillEffects";
@@ -100,7 +101,7 @@ export function handleAttackSkill(
   const totalDamage = isCrit ? Math.round(damageWithShot * critMult) : damageWithShot;
 
   if (totalDamage > 0) {
-    useHeroStore.getState().addDailyQuestProgress("daily_damage", totalDamage);
+    addDailyProgress("daily_damage", totalDamage);
   }
 
   // Обробляємо спеціальні ефекти скілу (stun, hold, sleep тощо)
@@ -291,8 +292,8 @@ export function handleAttackSkill(
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
       victoryUpdates.battleStats = recalculatedAfter.finalStats;
       useHeroStore.getState().updateHero(victoryUpdates);
-      useHeroStore.getState().addDailyQuestProgress("daily_kills", 1);
-      useHeroStore.getState().addDailyQuestProgress("daily_adena_farm", finalAdenaGain);
+      addDailyProgress("daily_kills", 1);
+      addDailyProgress("daily_adena_farm", finalAdenaGain);
     } else {
       const heroAfterLevel = useHeroStore.getState().hero;
       if (heroAfterLevel) {

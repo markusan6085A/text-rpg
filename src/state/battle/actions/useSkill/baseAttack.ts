@@ -1,5 +1,6 @@
 import { getExpToNext, MAX_LEVEL } from "../../../../data/expTable";
 import { useHeroStore } from "../../../heroStore";
+import { addDailyProgress } from "../../../dailyQuestsProgress";
 import { applyBuffsToStats, computeBuffedMaxResources } from "../../helpers";
 import { calcAutoAttackInterval } from "../../../../utils/combatSpeed";
 import { clampChance, getCritMultiplier, XP_RATE, hasAutoSpoilActive, hasWhirlwindAttackActive, type Setter } from "./helpers";
@@ -174,9 +175,8 @@ export function handleBaseAttack(
     });
   }
 
-  // Єдине джерело правди: прогрес щоденних через store
   if (damage > 0) {
-    useHeroStore.getState().addDailyQuestProgress("daily_damage", damage);
+    addDailyProgress("daily_damage", damage);
   }
   const curHero = useHeroStore.getState().hero;
 
@@ -381,8 +381,8 @@ export function handleBaseAttack(
       (victoryUpdates as any).battleStats = recalculatedAfter.baseFinalStats;
 
       useHeroStore.getState().updateHero(victoryUpdates);
-      useHeroStore.getState().addDailyQuestProgress("daily_kills", 1);
-      useHeroStore.getState().addDailyQuestProgress("daily_adena_farm", finalAdenaGain);
+      addDailyProgress("daily_kills", 1);
+      addDailyProgress("daily_adena_farm", finalAdenaGain);
     }
 
     const maxAfter = computeMaxNow(activeBuffs);
