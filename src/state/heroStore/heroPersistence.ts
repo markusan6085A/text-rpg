@@ -508,8 +508,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         );
         console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, serverLevel });
       }
-      // 🔥 КРИТИЧНО: Скидаємо чергу та retry, щоб старі сейви не запускались з застарілою ревізією
-      queuedHero = null;
+      // НЕ скидаємо queuedHero тут — якщо під час цього save прийшов новий updateHero (перемога), черга містить актуального героя; finally виконає save з ним
       retryCount = 0;
     }
     
