@@ -503,7 +503,7 @@ export default function Shop({ navigate }: ShopProps) {
                     (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
                   }}
                 />
-                {/* Назва - клікабельна */}
+                {/* Назва - клікабельна; для стріл показуємо грейд [NG]/[D]/[C]/[B]/[A]/[S] */}
                 <div 
                   className="flex-1 text-[12px] text-[#e0c68a] cursor-pointer hover:text-[#f4e2b8]"
                   onClick={() => {
@@ -511,7 +511,9 @@ export default function Shop({ navigate }: ShopProps) {
                     setBuyQuantity(1);
                   }}
                 >
-                  {item.name}
+                  {selectedCategory === "consumables" && selectedConsumablesSubcategory === "arrows" && item.grade
+                    ? `${item.name} [${item.grade}]`
+                    : item.name}
                 </div>
                 {/* Ціна */}
                 <div className="text-[12px] text-[#f4e2b8] font-semibold">
