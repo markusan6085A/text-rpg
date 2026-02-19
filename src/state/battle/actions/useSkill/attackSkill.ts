@@ -100,12 +100,13 @@ export function handleAttackSkill(
   const isCrit = isAttack && Math.random() * 100 < critChance;
   const totalDamage = isCrit ? Math.round(damageWithShot * critMult) : damageWithShot;
 
-  // Оновлюємо прогрес щоденних завдань: урон
-  if (hero && totalDamage > 0) {
-    const updatedProgress = updateDailyQuestProgress(hero, "daily_damage", totalDamage);
-    if (updatedProgress !== hero.dailyQuestsProgress) {
-      useHeroStore.getState().updateHero({ dailyQuestsProgress: updatedProgress });
-    }
+  // Оновлюємо прогрес щоденних завдань: урон (functional update — актуальний state, без race)
+  if (totalDamage > 0) {
+    useHeroStore.getState().updateHero((prevHero) => {
+      if (!prevHero) return {};
+      const updated = updateDailyQuestProgress(prevHero, "daily_damage", totalDamage);
+      return { dailyQuestsProgress: updated };
+    });
   }
 
   // Обробляємо спеціальні ефекти скілу (stun, hold, sleep тощо)

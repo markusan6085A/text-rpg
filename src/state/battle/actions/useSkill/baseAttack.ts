@@ -175,14 +175,15 @@ export function handleBaseAttack(
     });
   }
 
-  // Оновлюємо прогрес щоденних завдань: урон
-  const curHero = useHeroStore.getState().hero;
-  if (curHero && damage > 0) {
-    const updatedProgress = updateDailyQuestProgress(curHero, "daily_damage", damage);
-    if (updatedProgress !== curHero.dailyQuestsProgress) {
-      useHeroStore.getState().updateHero({ dailyQuestsProgress: updatedProgress });
-    }
+  // Оновлюємо прогрес щоденних завдань: урон (functional update — актуальний state, без race)
+  if (damage > 0) {
+    useHeroStore.getState().updateHero((prevHero) => {
+      if (!prevHero) return {};
+      const updated = updateDailyQuestProgress(prevHero, "daily_damage", damage);
+      return { dailyQuestsProgress: updated };
+    });
   }
+  const curHero = useHeroStore.getState().hero;
 
   // Обробка крадіжки HP (vampirism) для базової атаки
   const vampirismPercent = buffedStats?.vampirism ?? 0;
