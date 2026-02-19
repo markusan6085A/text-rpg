@@ -376,6 +376,13 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const prev = get().hero;
     if (!prev) return;
     const merged = hydrateHero({ ...prev, ...partial } as any) ?? ({ ...prev, ...partial } as Hero);
+    // Щоденні завдання: не перезаписувати порожнім/undefined з partial (джерело правди — hero)
+    if ((merged as any).dailyQuestsProgress == null && prev.dailyQuestsProgress && typeof prev.dailyQuestsProgress === "object") {
+      (merged as any).dailyQuestsProgress = prev.dailyQuestsProgress;
+    }
+    if (!Array.isArray((merged as any).dailyQuestsCompleted) && Array.isArray(prev.dailyQuestsCompleted)) {
+      (merged as any).dailyQuestsCompleted = prev.dailyQuestsCompleted;
+    }
     set({ hero: merged });
     const current = get().serverState;
     set({

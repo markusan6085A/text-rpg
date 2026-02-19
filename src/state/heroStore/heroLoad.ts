@@ -122,9 +122,11 @@ export function loadHero(): Hero | null {
       const heroDyes = Array.isArray(fixedHero.activeDyes) ? fixedHero.activeDyes : [];
       const jsonDyes = Array.isArray((heroJson as any).activeDyes) ? (heroJson as any).activeDyes : [];
       fixedHero.activeDyes = heroDyes.length >= jsonDyes.length ? heroDyes : jsonDyes;
-      // Щоденні завдання — відновлюємо з heroJson при завантаженні з localStorage
-      if ((fixedHero as any).dailyQuestsProgress === undefined && (heroJson as any).dailyQuestsProgress) (fixedHero as any).dailyQuestsProgress = (heroJson as any).dailyQuestsProgress;
+      // Щоденні завдання — відновлюємо з heroJson при завантаженні з localStorage; завжди маємо об'єкт/масив
+      if ((fixedHero as any).dailyQuestsProgress === undefined && (heroJson as any).dailyQuestsProgress && typeof (heroJson as any).dailyQuestsProgress === "object") (fixedHero as any).dailyQuestsProgress = (heroJson as any).dailyQuestsProgress;
+      if ((fixedHero as any).dailyQuestsProgress === undefined) (fixedHero as any).dailyQuestsProgress = {};
       if ((fixedHero as any).dailyQuestsCompleted === undefined && Array.isArray((heroJson as any).dailyQuestsCompleted)) (fixedHero as any).dailyQuestsCompleted = (heroJson as any).dailyQuestsCompleted;
+      if (!Array.isArray((fixedHero as any).dailyQuestsCompleted)) (fixedHero as any).dailyQuestsCompleted = [];
       if ((fixedHero as any).dailyQuestsResetDate === undefined && (heroJson as any).dailyQuestsResetDate) (fixedHero as any).dailyQuestsResetDate = (heroJson as any).dailyQuestsResetDate;
       const heroInv = fixedHero.inventory ?? [];
       const jsonInv = (heroJson as any).inventory ?? [];

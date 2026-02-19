@@ -491,7 +491,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         Number((localProgress as any)?.[id]) || 0
       );
     });
-    const dailyQuestsProgress = Object.keys(mergedProgress).length > 0 ? mergedProgress : undefined;
+    // Завжди задаємо dailyQuestsProgress (об'єкт), щоб UI та victory-блок не отримували undefined
+    const dailyQuestsProgress: Record<string, number> = Object.keys(mergedProgress).length > 0 ? mergedProgress : {};
     const serverCompleted = (fixedHero as any).dailyQuestsCompleted ?? (heroData as any)?.dailyQuestsCompleted ?? [];
     const localCompleted = (hydratedLocalHero as any)?.dailyQuestsCompleted ?? [];
     const dailyQuestsCompleted = Array.from(new Set([
@@ -518,9 +519,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // Адмін: блок/бан — показуємо екран або блокуємо чат
       ...((character as any).blockedUntil ? { blockedUntil: (character as any).blockedUntil } : {}),
       ...((character as any).bannedUntil ? { bannedUntil: (character as any).bannedUntil } : {}),
-      // Щоденні завдання — щоб працювали після завантаження з API
-      ...(dailyQuestsProgress !== undefined ? { dailyQuestsProgress } : {}),
-      ...(dailyQuestsCompleted !== undefined ? { dailyQuestsCompleted } : {}),
+      // Щоденні завдання — завжди встановлюємо (об'єкт/масив), щоб не губити після load з API
+      dailyQuestsProgress,
+      dailyQuestsCompleted,
       ...(dailyQuestsResetDate !== undefined ? { dailyQuestsResetDate } : {}),
     };
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;

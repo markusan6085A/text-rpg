@@ -371,6 +371,9 @@ export function handleBaseAttack(
       const nextProgress: Record<string, number> = { ...cur };
       if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
       if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+      if (import.meta.env.DEV) {
+        console.log("[baseAttack] victory dailyQuestsProgress", { cur, nextProgress, finalAdenaGain });
+      }
 
       Object.assign(victoryUpdates, {
         level,
