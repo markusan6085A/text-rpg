@@ -36,9 +36,9 @@ export function hydrateHero(hero: Hero | null): Hero | null {
   // 🔥 Синхронізуємо heroJson з hero (однонапрямкова синхронізація: hero → heroJson)
   // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass
   // 🔥 dailyQuests — hero.dailyQuests* має пріоритет, інакше беремо з heroJson (для load)
-  const dailyQuestsProgress = (hero as any).dailyQuestsProgress !== undefined && typeof (hero as any).dailyQuestsProgress === "object"
+  const dailyQuestsProgress = (hero as any).dailyQuestsProgress != null && typeof (hero as any).dailyQuestsProgress === "object"
     ? (hero as any).dailyQuestsProgress
-    : (hj.dailyQuestsProgress && typeof hj.dailyQuestsProgress === "object" ? hj.dailyQuestsProgress : {});
+    : (hj.dailyQuestsProgress != null && typeof hj.dailyQuestsProgress === "object" ? hj.dailyQuestsProgress : {});
   const dailyQuestsCompleted = Array.isArray((hero as any).dailyQuestsCompleted) ? (hero as any).dailyQuestsCompleted
     : (Array.isArray(hj.dailyQuestsCompleted) ? hj.dailyQuestsCompleted : []);
   const dailyQuestsResetDate = (hero as any).dailyQuestsResetDate ?? hj.dailyQuestsResetDate ?? null;

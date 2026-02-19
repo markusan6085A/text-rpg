@@ -134,9 +134,18 @@ export function updateHeroLogic(
     (updated as any).baseMaxCp = recalculated.resources.maxCp;
   }
 
+  // 🔥 КРИТИЧНО: dailyQuestsProgress з partial не повинен губитися при merge/needsRecalc
+  if ((partial as any).dailyQuestsProgress !== undefined && typeof (partial as any).dailyQuestsProgress === "object") {
+    (updated as any).dailyQuestsProgress = (partial as any).dailyQuestsProgress;
+  }
+
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
   const hydrated = hydrateHero(updated);
   const result = hydrated || updated;
+  // 🔥 Гарантуємо, що dailyQuestsProgress з partial потрапляє у фінальний result (на випадок перезатирання в hydrate)
+  if ((partial as any).dailyQuestsProgress !== undefined && typeof (partial as any).dailyQuestsProgress === "object") {
+    (result as any).dailyQuestsProgress = (partial as any).dailyQuestsProgress;
+  }
   const finalHp = Number(result?.hp ?? 0);
 
   // 🔥 При кожному оживленні або збільшенні HP скидаємо isDead/deadAt у heroJson, щоб смерть не «липла»
