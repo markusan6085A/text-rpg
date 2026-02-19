@@ -60,6 +60,37 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
     }
   }, [hero?.id, hero?.dailyQuestsResetDate, updateHero]);
 
+  // Автоматично видати нагороди за щоденні завдання, які вже виконані (прогрес >= цілі), але ще не отримані
+  useEffect(() => {
+    if (!hero) return;
+    const progress = hero.dailyQuestsProgress ?? {};
+    const done = hero.dailyQuestsCompleted ?? [];
+    let rewardAdena = 0;
+    let rewardExp = 0;
+    let rewardSp = 0;
+    let rewardCoinOfLuck = 0;
+    const toComplete: string[] = [];
+    for (const quest of DAILY_QUESTS) {
+      const cur = progress[quest.id] ?? 0;
+      if (cur >= quest.target && !done.includes(quest.id)) {
+        toComplete.push(quest.id);
+        rewardAdena += quest.rewards.adena ?? 0;
+        rewardExp += quest.rewards.exp ?? 0;
+        rewardSp += quest.rewards.sp ?? 0;
+        rewardCoinOfLuck += quest.rewards.coinOfLuck ?? 0;
+      }
+    }
+    if (toComplete.length === 0) return;
+    const newCompleted = [...done, ...toComplete];
+    updateHero({
+      adena: (hero.adena ?? 0) + rewardAdena,
+      exp: Math.floor(Number(hero.exp ?? 0)) + rewardExp,
+      sp: (hero.sp ?? 0) + rewardSp,
+      dailyQuestsCompleted: newCompleted,
+      ...(rewardCoinOfLuck > 0 ? { coinOfLuck: ((hero as any).coinOfLuck ?? 0) + rewardCoinOfLuck } : {}),
+    });
+  }, [hero?.id, hero?.dailyQuestsProgress, hero?.dailyQuestsCompleted, updateHero]);
+
   if (!hero) {
     return (
       <div className="w-full flex items-center justify-center text-xs text-gray-400">

@@ -18,6 +18,7 @@ import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonB
 import { processMobDrops } from "../helpers/processDrops";
 import { hasSpiritshotActive } from "./useSkill/shotHelpers";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
+import { DAILY_QUESTS } from "../../../data/dailyQuests";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -732,8 +733,31 @@ export function processSummonAttack(
       displaySp = finalSpGain;
       displayAdena = finalAdenaGain;
 
+      const completed = curHero.dailyQuestsCompleted ?? [];
+      const cur = curHero.dailyQuestsProgress ?? {};
+      const nextProgress: Record<string, number> = { ...cur };
+      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
+      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+      const newCompleted = [...completed];
+      let rewardAdena = 0;
+      let rewardExp = 0;
+      let rewardSp = 0;
+      let rewardCoinOfLuck = 0;
+      for (const q of DAILY_QUESTS) {
+        if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
+          newCompleted.push(q.id);
+          rewardAdena += q.rewards.adena ?? 0;
+          rewardExp += q.rewards.exp ?? 0;
+          rewardSp += q.rewards.sp ?? 0;
+          rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
+        }
+      }
+      if (import.meta.env.DEV) {
+        console.log("[summons] victory dailyQuestsProgress", { cur, nextProgress, finalAdenaGain });
+      }
+
       let level = Number(curHero.level ?? 1) || 1;
-      let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain;
+      let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
       const EPS = 0.001;
       while (exp >= getExpToNext(level, XP_RATE) - EPS) {
         const need = getExpToNext(level, XP_RATE);
@@ -749,25 +773,18 @@ export function processSummonAttack(
       const baseMax = getMaxResources(curHero);
       const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, state.heroBuffs || []);
 
-      const completed = curHero.dailyQuestsCompleted ?? [];
-      const cur = curHero.dailyQuestsProgress ?? {};
-      const nextProgress: Record<string, number> = { ...cur };
-      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
-      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
-      if (import.meta.env.DEV) {
-        console.log("[summons] victory dailyQuestsProgress", { cur, nextProgress, finalAdenaGain });
-      }
-
       const curMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? 0;
       Object.assign(victoryUpdates, {
         level,
         exp,
-        sp: (curHero.sp ?? 0) + finalSpGain,
-        adena: (curHero.adena ?? 0) + finalAdenaGain,
+        sp: (curHero.sp ?? 0) + finalSpGain + rewardSp,
+        adena: (curHero.adena ?? 0) + finalAdenaGain + rewardAdena,
         hp: leveled ? maxHp : Math.min(maxHp, curHero.hp ?? maxHp),
         mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
         mobsKilled: curMobsKilled + 1,
         dailyQuestsProgress: nextProgress,
+        dailyQuestsCompleted: newCompleted,
+        ...(rewardCoinOfLuck > 0 ? { coinOfLuck: ((curHero as any).coinOfLuck ?? 0) + rewardCoinOfLuck } : {}),
       });
       updateHero(victoryUpdates);
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
