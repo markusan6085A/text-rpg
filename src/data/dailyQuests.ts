@@ -25,6 +25,8 @@ export const DAILY_QUESTS: DailyQuest[] = [
     target: 100000,
     rewards: {
       sp: 50000,
+      adena: 100000,
+      coinOfLuck: 1,
     },
   },
   {
@@ -57,7 +59,7 @@ export const DAILY_QUESTS: DailyQuest[] = [
     target: 1000,
     rewards: {
       coinOfLuck: 1,
-      adena: 15000,
+      adena: 150000,
     },
   },
   {
@@ -67,7 +69,7 @@ export const DAILY_QUESTS: DailyQuest[] = [
     type: "chat",
     target: 10,
     rewards: {
-      adena: 10000,
+      adena: 300000,
     },
   },
 ];
