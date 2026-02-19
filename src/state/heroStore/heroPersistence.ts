@@ -338,6 +338,20 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       });
     }
 
+    // 🔥 Race-condition fix: якщо зберігаємо "старий" snapshot (напр. було "Save already in progress"),
+    // поточний store може мати новіший dailyQuestsProgress (daily_kills, daily_adena_farm з перемоги).
+    // Беремо максимум по кожному ключу, щоб ніколи не відправити на сервер прогрес без daily_kills/daily_adena_farm.
+    const storeHero = heroStore.getState().hero;
+    const progressFromHero = hero.dailyQuestsProgress && typeof hero.dailyQuestsProgress === "object" ? hero.dailyQuestsProgress : {};
+    const progressFromStore = storeHero?.dailyQuestsProgress && typeof storeHero.dailyQuestsProgress === "object" ? storeHero.dailyQuestsProgress : {};
+    const mergedDailyProgress: Record<string, number> = { ...(existingHeroJson.dailyQuestsProgress && typeof existingHeroJson.dailyQuestsProgress === "object" ? existingHeroJson.dailyQuestsProgress : {}) };
+    new Set([...Object.keys(progressFromHero), ...Object.keys(progressFromStore)]).forEach((key) => {
+      const a = Number(progressFromHero[key]) || 0;
+      const b = Number(progressFromStore[key]) || 0;
+      mergedDailyProgress[key] = Math.max(mergedDailyProgress[key] ?? 0, a, b);
+    });
+    const dailyQuestsProgressToSave = Object.keys(mergedDailyProgress).length > 0 ? mergedDailyProgress : {};
+
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
     // 🔥 КРИТИЧНО: isDead/deadAt не мерджимо з existingHeroJson — тільки з поточного hero.heroJson; змінюються лише в death/resurrect handlers
     const currentHeroJson = (hero as any).heroJson || {};
@@ -351,11 +365,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // Сервер приймає або classId, або klass — передаємо обидва для надійності
       classId: requiredClassId,
       klass: requiredKlass,
-      
+
       // Додаткові базові поля (якщо є)
       ...(hero.gender ? { gender: String(hero.gender) } : {}),
       ...(hero.profession ? { profession: String(hero.profession) } : {}),
-      
+
       // 🔥 Прогрес (оновлюємо завжди) - значення будуть обчислені нижче з clamp
       level: Number(hero.level ?? existingHeroJson.level ?? 1),
       exp: Number(hero.exp ?? existingHeroJson.exp ?? 0),
@@ -377,15 +391,15 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       premiumUntil: hero.premiumUntil ?? existingHeroJson.premiumUntil ?? undefined,
       skills: Array.isArray(hero.skills) ? hero.skills : (Array.isArray(existingHeroJson.skills) ? existingHeroJson.skills : []),
       heroBuffs: Array.isArray(uniqueBuffs) ? uniqueBuffs : [],
-      
+
       // 🔥 КРИТИЧНО: Завжди зберігаємо inventory та equipment з hero (не лишаємо тільки з existingHeroJson)
       // Інакше стартовий набір може зникнути, якщо сервер колись повернув порожній heroJson
       inventory: Array.isArray(hero.inventory) ? hero.inventory : (Array.isArray(existingHeroJson.inventory) ? existingHeroJson.inventory : []),
       equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : (existingHeroJson.equipment && typeof existingHeroJson.equipment === 'object' ? existingHeroJson.equipment : {}),
       ...(hero.equipmentEnchantLevels && Object.keys(hero.equipmentEnchantLevels).length > 0 ? { equipmentEnchantLevels: hero.equipmentEnchantLevels } : {}),
       activeDyes: Array.isArray(hero.activeDyes) && hero.activeDyes.length > 0 ? hero.activeDyes : (Array.isArray(existingHeroJson.activeDyes) ? existingHeroJson.activeDyes : []),
-      // Щоденні завдання — завжди зберігаємо в heroJson (включно з порожніми після скидання)
-      dailyQuestsProgress: hero.dailyQuestsProgress && typeof hero.dailyQuestsProgress === "object" ? hero.dailyQuestsProgress : (existingHeroJson.dailyQuestsProgress ?? {}),
+      // Щоденні завдання — мерджимо з store, щоб при race не губити daily_kills/daily_adena_farm
+      dailyQuestsProgress: dailyQuestsProgressToSave,
       dailyQuestsCompleted: Array.isArray(hero.dailyQuestsCompleted) ? hero.dailyQuestsCompleted : (existingHeroJson.dailyQuestsCompleted ?? []),
       dailyQuestsResetDate: hero.dailyQuestsResetDate ?? existingHeroJson.dailyQuestsResetDate ?? null,
     };
