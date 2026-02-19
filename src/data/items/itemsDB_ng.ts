@@ -450,7 +450,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
   // Currency (Валюта)
   coins_silver: {
     id: "coins_silver",
-    name: "Срібні Монети",
+    name: "Серебряные Монеты",
     kind: "resource",
     slot: "resource",
     icon: "/items/drops/resources/etc_coins_silver_i00.png",

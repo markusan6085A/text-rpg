@@ -387,7 +387,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
         Квест-Шоп
       </div>
 
-      {/* Баланс Срібних Монет */}
+      {/* Баланс Серебряных Монет */}
       <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-1">
         У вас с собой{" "}
         <img 
