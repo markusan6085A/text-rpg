@@ -335,12 +335,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const serverDyes = fixedHero.activeDyes ?? [];
     const mergedActiveDyes = (localDyes.length >= serverDyes.length ? localDyes : serverDyes) as any;
 
+    const serverActiveQuests = Array.isArray((heroData as any)?.activeQuests) ? (heroData as any).activeQuests : [];
+    const localActiveQuests = Array.isArray(hydratedLocalHero?.activeQuests) ? hydratedLocalHero.activeQuests : [];
+    const mergedActiveQuests = serverActiveQuests.length > 0 ? serverActiveQuests : localActiveQuests;
+
     const heroForRecalc: Hero = {
       ...fixedHero,
       skills: finalSkillsForRecalc,
       equipment: mergedEquipment,
       inventory: mergedInventory,
       activeDyes: mergedActiveDyes,
+      activeQuests: mergedActiveQuests,
     };
 
     // Recalculate stats (same logic as localStorage version)
@@ -519,10 +524,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // Адмін: блок/бан — показуємо екран або блокуємо чат
       ...((character as any).blockedUntil ? { blockedUntil: (character as any).blockedUntil } : {}),
       ...((character as any).bannedUntil ? { bannedUntil: (character as any).bannedUntil } : {}),
-      // Щоденні завдання — завжди встановлюємо (об'єкт/масив), щоб не губити після load з API
+      // Щоденні завдання та активні квести — завжди встановлюємо, щоб не губити після F5
       dailyQuestsProgress,
       dailyQuestsCompleted,
       ...(dailyQuestsResetDate !== undefined ? { dailyQuestsResetDate } : {}),
+      activeQuests: mergedActiveQuests,
     };
     (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
     (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;

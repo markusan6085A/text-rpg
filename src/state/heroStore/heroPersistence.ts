@@ -43,6 +43,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     mobsKilled,
     equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : {},
     activeDyes: Array.isArray(hero.activeDyes) ? hero.activeDyes : [],
+    activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : [],
   };
 }
 
@@ -87,6 +88,7 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
     dailyQuestsProgress: (hydrated as any).dailyQuestsProgress && typeof (hydrated as any).dailyQuestsProgress === "object" ? (hydrated as any).dailyQuestsProgress : (currentJson.dailyQuestsProgress ?? {}),
     dailyQuestsCompleted: Array.isArray((hydrated as any).dailyQuestsCompleted) ? (hydrated as any).dailyQuestsCompleted : (Array.isArray(currentJson.dailyQuestsCompleted) ? currentJson.dailyQuestsCompleted : []),
     dailyQuestsResetDate: (hydrated as any).dailyQuestsResetDate ?? currentJson.dailyQuestsResetDate ?? null,
+    activeQuests: Array.isArray((hydrated as any).activeQuests) ? (hydrated as any).activeQuests : (Array.isArray(currentJson.activeQuests) ? currentJson.activeQuests : []),
   };
   accounts[accIndex].hero = { ...hydrated, heroJson };
   setJSON("l2_accounts_v2", accounts);
@@ -402,6 +404,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       dailyQuestsProgress: dailyQuestsProgressToSave,
       dailyQuestsCompleted: Array.isArray(hero.dailyQuestsCompleted) ? hero.dailyQuestsCompleted : (existingHeroJson.dailyQuestsCompleted ?? []),
       dailyQuestsResetDate: hero.dailyQuestsResetDate ?? existingHeroJson.dailyQuestsResetDate ?? null,
+      activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : (Array.isArray(existingHeroJson.activeQuests) ? existingHeroJson.activeQuests : []),
     };
     
     // Логуємо для діагностики

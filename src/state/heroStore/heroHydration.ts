@@ -42,6 +42,8 @@ export function hydrateHero(hero: Hero | null): Hero | null {
   const dailyQuestsCompleted = Array.isArray((hero as any).dailyQuestsCompleted) ? (hero as any).dailyQuestsCompleted
     : (Array.isArray(hj.dailyQuestsCompleted) ? hj.dailyQuestsCompleted : []);
   const dailyQuestsResetDate = (hero as any).dailyQuestsResetDate ?? hj.dailyQuestsResetDate ?? null;
+  const activeQuests = Array.isArray(hero.activeQuests) ? hero.activeQuests
+    : (Array.isArray(hj.activeQuests) ? hj.activeQuests : []);
 
   const hydratedHero: Hero = {
     ...hero,
@@ -52,6 +54,7 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     dailyQuestsProgress: dailyQuestsProgress as any,
     dailyQuestsCompleted: dailyQuestsCompleted as any,
     dailyQuestsResetDate: dailyQuestsResetDate as any,
+    activeQuests: activeQuests as any,
     heroJson: {
       ...hj,
       // 🔥 КРИТИЧНО: heroJson завжди синхронізований з hero (для серіалізації)
@@ -65,10 +68,11 @@ export function hydrateHero(hero: Hero | null): Hero | null {
       mobsKilled,
       exp,
       level,
-      // 🔥 Щоденні завдання — синхронізуємо в heroJson для збереження
+      // 🔥 Щоденні завдання та активні квести — синхронізуємо в heroJson для збереження
       dailyQuestsProgress,
       dailyQuestsCompleted,
       dailyQuestsResetDate,
+      activeQuests,
     },
   };
 

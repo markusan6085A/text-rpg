@@ -128,6 +128,8 @@ export function loadHero(): Hero | null {
       if ((fixedHero as any).dailyQuestsCompleted === undefined && Array.isArray((heroJson as any).dailyQuestsCompleted)) (fixedHero as any).dailyQuestsCompleted = (heroJson as any).dailyQuestsCompleted;
       if (!Array.isArray((fixedHero as any).dailyQuestsCompleted)) (fixedHero as any).dailyQuestsCompleted = [];
       if ((fixedHero as any).dailyQuestsResetDate === undefined && (heroJson as any).dailyQuestsResetDate) (fixedHero as any).dailyQuestsResetDate = (heroJson as any).dailyQuestsResetDate;
+      if ((fixedHero as any).activeQuests === undefined && Array.isArray((heroJson as any).activeQuests)) (fixedHero as any).activeQuests = (heroJson as any).activeQuests;
+      if (!Array.isArray((fixedHero as any).activeQuests)) (fixedHero as any).activeQuests = [];
       const heroInv = fixedHero.inventory ?? [];
       const jsonInv = (heroJson as any).inventory ?? [];
       if (Array.isArray(heroInv) && Array.isArray(jsonInv)) {

@@ -383,6 +383,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     if (!Array.isArray((merged as any).dailyQuestsCompleted) && Array.isArray(prev.dailyQuestsCompleted)) {
       (merged as any).dailyQuestsCompleted = prev.dailyQuestsCompleted;
     }
+    if (!Array.isArray((merged as any).activeQuests) && Array.isArray(prev.activeQuests)) {
+      (merged as any).activeQuests = prev.activeQuests;
+    }
     set({ hero: merged });
     const current = get().serverState;
     set({
