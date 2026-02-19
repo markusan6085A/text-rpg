@@ -11,6 +11,7 @@ import Stats from "./screens/character/Stats";
 import About from "./screens/About";
 import Battle from "./screens/Battle";
 import Layout from "./components/Layout";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import MageGuild from "./screens/City/MageGuild";
 
 // Inventory & Equipment
@@ -434,7 +435,18 @@ function AppInner() {
       return renderWithLayout(<QuestShop navigate={navigate} key={`quest-shop-${refreshKey}`} />);
 
     case "/warehouse":
-      return renderWithLayout(<Warehouse navigate={navigate} key={`warehouse-${refreshKey}`} />);
+      return renderWithLayout(
+        <ErrorBoundary
+          fallback={
+            <div className="flex flex-col items-center justify-center gap-2 p-4 text-center text-gray-400">
+              <p className="text-sm">Склад тимчасово недоступний.</p>
+              <p className="text-xs">Оновіть сторінку або зайдіть з головної.</p>
+            </div>
+          }
+        >
+          <Warehouse navigate={navigate} key={`warehouse-${refreshKey}`} />
+        </ErrorBoundary>
+      );
 
     case "/daily-quests":
       return renderWithLayout(<DailyQuests navigate={navigate} key={`daily-quests-${refreshKey}`} />);

@@ -82,6 +82,16 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     );
   }
 
+  // Склад прив'язаний до персонажа; без characterId не завантажити/зберегти дані
+  if (!characterId) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 text-center p-4 text-gray-400">
+        <p className="text-sm">Склад недоступний.</p>
+        <p className="text-xs">Увійдіть у гру з головної сторінки та оберіть персонажа.</p>
+      </div>
+    );
+  }
+
   const warehouseCapacity = Math.min(
     hero.warehouseCapacity || DEFAULT_WAREHOUSE_CAPACITY,
     MAX_WAREHOUSE_CAPACITY
