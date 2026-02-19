@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { requireAdmin } from "./adminGuard";
 import { prisma } from "../db";
 import { setMuted } from "../chatMute";
+import { EXP_TABLE } from "../expTable";
 
 export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
   // GET /admin/player/find-by-name?name=Nick — повертає character id, name, accountId (для інших дій)
@@ -127,8 +128,8 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       });
       if (!char) return reply.code(404).send({ error: "character not found" });
 
-      // exp для рівня: можна захардкодити 0 для level 1, або просту формулу
-      const expForLevel = level <= 1 ? 0 : BigInt(Math.min(Number.MAX_SAFE_INTEGER, (level - 1) * 1000));
+      // exp для рівня: та сама таблиця, що на клієнті (EXP_TABLE), щоб «Опыт» відображався коректно
+      const expForLevel = level <= 1 ? 0 : (EXP_TABLE[Math.min(level - 1, EXP_TABLE.length - 1)] ?? 0);
       const heroJson = (char.heroJson as any) || {};
       const lvl = Math.max(1, level);
       const baseStats = heroJson.baseStats || heroJson.baseStatsInitial || {};
@@ -143,8 +144,8 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       const maxCp = Math.max(1, Math.round(maxHp * 0.6));
       const updatedHeroJson = {
         ...heroJson,
-        level,
-        exp: Number(expForLevel),
+        level: lvl,
+        exp: expForLevel,
         heroRevision: Date.now(),
         heroJsonVersion: heroJson.heroJsonVersion || 1,
         hp: maxHp,
@@ -156,7 +157,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       };
       await prisma.character.update({
         where: { id: characterId },
-        data: { level, exp: expForLevel, heroJson: updatedHeroJson },
+        data: { level: lvl, exp: BigInt(expForLevel), heroJson: updatedHeroJson },
       });
       return { ok: true };
     }
