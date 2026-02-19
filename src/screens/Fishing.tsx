@@ -70,16 +70,16 @@ export default function Fishing({ navigate }: FishingProps) {
   const handleStartFishing = () => {
     if (!hero || !characterId) return;
     if (!hasRod) {
-      alert("Потрібна удочка! Надіньте удочку (Baby Duck Rod) в слот зброї.");
+      alert("Нужна удочка! Наденьте удочку (Baby Duck Rod) в слот оружия.");
       return;
     }
     if (!hasBait) {
-      alert("Потрібна наживка! Купіть наживку (Gludio) в магазині.");
+      alert("Нужна наживка! Купите наживку (Gludio) в магазине.");
       return;
     }
     if (!canAfford) {
       alert(
-        `Недостатньо ресурсів. Потрібно: ${FISHING_COST_SP.toLocaleString()} SP та ${FISHING_COST_ADENA.toLocaleString()} адени.`
+        `Недостаточно ресурсов. Нужно: ${FISHING_COST_SP.toLocaleString()} SP и ${FISHING_COST_ADENA.toLocaleString()} аден.`
       );
       return;
     }
@@ -123,32 +123,30 @@ export default function Fishing({ navigate }: FishingProps) {
   }
 
   return (
-    <div className="w-full text-[#b8860b] px-2 pb-4 flex flex-col items-center">
-      {/* Картинка на весь екран для сторінки — фон задається Layout customBackground="/icons/fishing.jpg" */}
-
+    <div className="w-full min-h-[calc(100vh-12rem)] flex flex-col items-center justify-center text-[#b8860b] px-2 pb-4">
       <div className="w-full max-w-[360px] rounded-lg border border-[#c7ad80]/40 bg-black/50 p-4 text-center">
         <h1 className="text-lg font-semibold text-[#b8860b] border-b border-white/30 pb-2 mb-3">
-          Рибалка
+          Рыбалка
         </h1>
 
         <p className="text-xs text-gray-300 text-left mb-4">
-          Тут можна провести годину на березі: один заброс коштує {FISHING_COST_SP.toLocaleString()} SP та{" "}
-          {FISHING_COST_ADENA.toLocaleString()} адени. Потрібні удочка та наживка. Після години збирай улов — від 100 до 300 риб.
+          Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
+          {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от 100 до 300 рыб.
         </p>
 
         {!session && (
           <>
             <div className="text-left text-xs space-y-1 mb-4">
               <p className={hasRod ? "text-green-400" : "text-red-400"}>
-                {hasRod ? "✓ Удочка надіта" : "✗ Надіньте удочку (Baby Duck Rod)"}
+                {hasRod ? "✓ Удочка надета" : "✗ Наденьте удочку (Baby Duck Rod)"}
               </p>
               <p className={hasBait ? "text-green-400" : "text-red-400"}>
-                {hasBait ? `✓ Наживка є (${baitCount})` : "✗ Потрібна наживка (Gludio)"}
+                {hasBait ? `✓ Наживка есть (${baitCount})` : "✗ Нужна наживка (Gludio)"}
               </p>
               <p className={canAfford ? "text-green-400" : "text-red-400"}>
                 {canAfford
                   ? `✓ SP: ${sp.toLocaleString()}, Адена: ${adena.toLocaleString()}`
-                  : `✗ Потрібно ${FISHING_COST_SP.toLocaleString()} SP та ${FISHING_COST_ADENA.toLocaleString()} адени`}
+                  : `✗ Нужно ${FISHING_COST_SP.toLocaleString()} SP и ${FISHING_COST_ADENA.toLocaleString()} аден`}
               </p>
             </div>
             <button
@@ -163,16 +161,16 @@ export default function Fishing({ navigate }: FishingProps) {
 
         {session && !ready && (
           <div className="space-y-2">
-            <p className="text-sm text-gray-300">Рибалка йде. Залишилось: {remainingStr}</p>
-            <p className="text-xs text-gray-500">Поверніться через годину та натисніть «Забрать улов».</p>
+            <p className="text-sm text-gray-300">Рыбалка идёт. Осталось: {remainingStr}</p>
+            <p className="text-xs text-gray-500">Вернитесь через час и нажмите «Забрать улов».</p>
           </div>
         )}
 
         {ready && fishCount > 0 && (
           <div className="space-y-3">
-            <p className="text-sm text-green-400">Улов готовий!</p>
+            <p className="text-sm text-green-400">Улов готов!</p>
             <p className="text-xs text-gray-300">
-              Риб: <span className="text-[#b8860b] font-semibold">{fishCount}</span>
+              Рыб: <span className="text-[#b8860b] font-semibold">{fishCount}</span>
             </p>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-green-500/50 text-green-400 hover:bg-[#3a3a3a]"
