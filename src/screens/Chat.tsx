@@ -4,7 +4,6 @@ import type { ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useAdminStore } from "../state/adminStore";
 import { useChatMessages } from "../hooks/useChatMessages";
-import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestProgress";
 
 // Types
 import type { ChatProps, ChatChannel } from "./chat/types";
@@ -390,14 +389,7 @@ export default function Chat({ navigate }: ChatProps) {
         prev.map((m) => (m.id === tempId ? ({ ...m, status: "sent" } as const) : m))
       );
 
-      // Daily quest progress
-      const curHero = useHeroStore.getState().hero;
-      if (curHero) {
-        const updatedProgress = updateDailyQuestProgress(curHero, "daily_chat", 1);
-        if (updatedProgress !== curHero.dailyQuestsProgress) {
-          useHeroStore.getState().updateHero({ dailyQuestsProgress: updatedProgress });
-        }
-      }
+      useHeroStore.getState().addDailyQuestProgress("daily_chat", 1);
 
       // 🔥 ВАЖЛИВО: НЕ викликаємо refresh() після відправки!
       // Outbox залишиться, а коли сервер підтвердить (через ручний refresh або auto-refresh),

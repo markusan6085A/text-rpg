@@ -13,7 +13,6 @@ import { recalculateAllStats } from "../../../../utils/stats/recalculateAllStats
 import { setMobRespawn } from "../../mobRespawns";
 import { canAttackWithBow, useArrow, isBowEquipped, getWeaponGrade } from "./arrowHelpers";
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
-import { updateDailyQuestProgress } from "../../../../utils/dailyQuests/updateDailyQuestProgress";
 import { getPremiumMultiplier } from "../../../../utils/premium/isPremiumActive";
 
 export function handleAttackSkill(
@@ -100,13 +99,8 @@ export function handleAttackSkill(
   const isCrit = isAttack && Math.random() * 100 < critChance;
   const totalDamage = isCrit ? Math.round(damageWithShot * critMult) : damageWithShot;
 
-  // Оновлюємо прогрес щоденних завдань: урон (functional update — актуальний state, без race)
   if (totalDamage > 0) {
-    useHeroStore.getState().updateHero((prevHero) => {
-      if (!prevHero) return {};
-      const updated = updateDailyQuestProgress(prevHero, "daily_damage", totalDamage);
-      return { dailyQuestsProgress: updated };
-    });
+    useHeroStore.getState().addDailyQuestProgress("daily_damage", totalDamage);
   }
 
   // Обробляємо спеціальні ефекти скілу (stun, hold, sleep тощо)
@@ -296,17 +290,9 @@ export function handleAttackSkill(
       const heroWithNewHp = { ...curHero, ...victoryUpdates };
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
       victoryUpdates.battleStats = recalculatedAfter.finalStats;
-      // Functional update — dailyQuestsProgress від актуального hero (усуває race)
-      useHeroStore.getState().updateHero((prevHero) => {
-        if (!prevHero) return victoryUpdates;
-        const p1 = updateDailyQuestProgress(prevHero, "daily_kills", 1);
-        const p2 = updateDailyQuestProgress(
-          { ...prevHero, dailyQuestsProgress: p1 },
-          "daily_adena_farm",
-          finalAdenaGain
-        );
-        return { ...victoryUpdates, dailyQuestsProgress: p2 };
-      });
+      useHeroStore.getState().updateHero(victoryUpdates);
+      useHeroStore.getState().addDailyQuestProgress("daily_kills", 1);
+      useHeroStore.getState().addDailyQuestProgress("daily_adena_farm", finalAdenaGain);
     } else {
       const heroAfterLevel = useHeroStore.getState().hero;
       if (heroAfterLevel) {

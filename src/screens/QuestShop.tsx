@@ -8,7 +8,6 @@ import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { QUEST_SHOP_ITEM_MAPPING as BASE_QUEST_MAPPING } from "../data/shop/itemMappings";
 import type { Hero } from "../types/Hero";
-import { updateDailyQuestProgress } from "../utils/dailyQuests/updateDailyQuestProgress";
 
 type Navigate = (path: string) => void;
 
@@ -940,13 +939,8 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                     updates.coinOfLuck = (hero.coinOfLuck || 0) + 1;
                   }
                   
-                  // Оновлюємо прогрес щоденних завдань: обмін Quest Items
-                  const updatedProgress = updateDailyQuestProgress(hero, "daily_exchange", 1);
-                  if (updatedProgress !== hero.dailyQuestsProgress) {
-                    updates.dailyQuestsProgress = updatedProgress;
-                  }
-                  
                   updateHero(updates);
+                  useHeroStore.getState().addDailyQuestProgress("daily_exchange", 1);
                   setConfirmExchange(null);
                 }}
                 className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer"

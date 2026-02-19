@@ -17,7 +17,6 @@ import { setMobRespawn } from "../mobRespawns";
 import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonBuffs";
 import { processMobDrops } from "../helpers/processDrops";
 import { hasSpiritshotActive } from "./useSkill/shotHelpers";
-import { updateDailyQuestProgress } from "../../../utils/dailyQuests/updateDailyQuestProgress";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 
 type Setter = (
@@ -746,17 +745,9 @@ export function processSummonAttack(
         hp: leveled ? maxHp : Math.min(maxHp, curHero.hp ?? maxHp),
         mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
       });
-      // Functional update — dailyQuestsProgress від актуального hero (усуває race)
-      updateHero((prevHero) => {
-        if (!prevHero) return victoryUpdates as any;
-        const p1 = updateDailyQuestProgress(prevHero, "daily_kills", 1);
-        const p2 = updateDailyQuestProgress(
-          { ...prevHero, dailyQuestsProgress: p1 },
-          "daily_adena_farm",
-          finalAdenaGain
-        );
-        return { ...victoryUpdates, dailyQuestsProgress: p2 } as any;
-      });
+      updateHero(victoryUpdates);
+      useHeroStore.getState().addDailyQuestProgress("daily_kills", 1);
+      useHeroStore.getState().addDailyQuestProgress("daily_adena_farm", finalAdenaGain);
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
     }
 

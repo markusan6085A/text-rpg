@@ -12,7 +12,6 @@ import { useAutoShot } from "./shotHelpers";
 import { processMobDrops } from "../../helpers/processDrops";
 import { setMobRespawn } from "../../mobRespawns";
 import { canAttackWithBow, useArrow, getWeaponGrade } from "./arrowHelpers";
-import { updateDailyQuestProgress } from "../../../../utils/dailyQuests/updateDailyQuestProgress";
 import { getPremiumMultiplier } from "../../../../utils/premium/isPremiumActive";
 import { itemsDB } from "../../../../data/items/itemsDB";
 import { reportRaidBossKill } from "../../../../utils/api";
@@ -175,13 +174,9 @@ export function handleBaseAttack(
     });
   }
 
-  // Оновлюємо прогрес щоденних завдань: урон (functional update — актуальний state, без race)
+  // Єдине джерело правди: прогрес щоденних через store
   if (damage > 0) {
-    useHeroStore.getState().updateHero((prevHero) => {
-      if (!prevHero) return {};
-      const updated = updateDailyQuestProgress(prevHero, "daily_damage", damage);
-      return { dailyQuestsProgress: updated };
-    });
+    useHeroStore.getState().addDailyQuestProgress("daily_damage", damage);
   }
   const curHero = useHeroStore.getState().hero;
 
@@ -385,17 +380,9 @@ export function handleBaseAttack(
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, activeBuffs);
       (victoryUpdates as any).battleStats = recalculatedAfter.baseFinalStats;
 
-      // Functional update — рахуємо dailyQuestsProgress від актуального hero (усуває race з regen/damage tick)
-      useHeroStore.getState().updateHero((prevHero) => {
-        if (!prevHero) return victoryUpdates as any;
-        const p1 = updateDailyQuestProgress(prevHero, "daily_kills", 1);
-        const p2 = updateDailyQuestProgress(
-          { ...prevHero, dailyQuestsProgress: p1 },
-          "daily_adena_farm",
-          finalAdenaGain
-        );
-        return { ...victoryUpdates, dailyQuestsProgress: p2 } as any;
-      });
+      useHeroStore.getState().updateHero(victoryUpdates);
+      useHeroStore.getState().addDailyQuestProgress("daily_kills", 1);
+      useHeroStore.getState().addDailyQuestProgress("daily_adena_farm", finalAdenaGain);
     }
 
     const maxAfter = computeMaxNow(activeBuffs);
