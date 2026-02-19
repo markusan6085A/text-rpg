@@ -1,5 +1,6 @@
 // src/screens/character/DailyQuests.tsx
-import React, { useEffect } from "react";
+// Ежедневные задания — один екран, мінімум логіки ресету
+import React, { useEffect, useRef } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { DAILY_QUESTS, type DailyQuest } from "../../data/dailyQuests";
 
@@ -7,32 +8,57 @@ interface Navigate {
   (path: string): void;
 }
 
+const WARSAW_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  timeZone: "Europe/Warsaw",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+};
+
+function getTodayWarsaw(): string {
+  return new Intl.DateTimeFormat("en-CA", WARSAW_DATE_OPTIONS).format(new Date());
+}
+
+function isYYYYMMDD(s: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(s);
+}
+
 export default function DailyQuests({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const lastResetCheck = useRef<string | null>(null);
 
-  // Скидаємо щоденні завдання по ігровому часу (Europe/Warsaw)
+  // Ресет тільки коли справді новий день. Не чіпаємо прогрес, якщо дата не валідна або вже сьогодні.
   useEffect(() => {
-    if (!hero) return;
-    const formatter = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit" });
-    const today = formatter.format(new Date()); // YYYY-MM-DD (ігровий час)
-    const rawReset = hero.dailyQuestsResetDate;
-    const resetDate = rawReset ? String(rawReset).slice(0, 10) : ""; // нормалізуємо ISO до YYYY-MM-DD
+    if (!hero?.id) return;
 
-    // Якщо дати немає — лише виставляємо сьогодні, не очищаємо прогрес (щоб не стерти після F5/API)
-    if (!resetDate) {
+    const today = getTodayWarsaw();
+    const raw = hero.dailyQuestsResetDate;
+    const resetDate =
+      typeof raw === "string" && raw.length >= 10
+        ? String(raw).slice(0, 10)
+        : "";
+
+    // Вже перевіряли сьогодні — не викликаємо updateHero знову
+    if (lastResetCheck.current === today) return;
+
+    if (!resetDate || !isYYYYMMDD(resetDate)) {
+      lastResetCheck.current = today;
       updateHero({ dailyQuestsResetDate: today });
       return;
     }
-    // Якщо дата в минулому (інший день) — скидаємо прогрес і ставимо сьогодні
+
     if (resetDate < today) {
+      lastResetCheck.current = today;
       updateHero({
         dailyQuestsProgress: {},
         dailyQuestsCompleted: [],
         dailyQuestsResetDate: today,
       });
+    } else {
+      lastResetCheck.current = today;
     }
-  }, [hero, updateHero]);
+  }, [hero?.id, hero?.dailyQuestsResetDate, updateHero]);
 
   if (!hero) {
     return (
@@ -42,64 +68,37 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
     );
   }
 
-  const progress = hero.dailyQuestsProgress || {};
-  const completed = hero.dailyQuestsCompleted || [];
+  const progress = hero.dailyQuestsProgress ?? {};
+  const completed = hero.dailyQuestsCompleted ?? [];
 
-  // Обчислюємо поточний прогрес для кожного завдання
   const getQuestProgress = (quest: DailyQuest): number => {
-    const currentProgress = progress[quest.id] || 0;
-    return Math.min(currentProgress, quest.target);
+    const v = progress[quest.id];
+    const n = typeof v === "number" && !Number.isNaN(v) ? v : 0;
+    return Math.min(n, quest.target);
   };
 
-  // Перевіряємо, чи завдання завершене
-  const isQuestCompleted = (quest: DailyQuest): boolean => {
-    return completed.includes(quest.id) || getQuestProgress(quest) >= quest.target;
-  };
+  const isQuestCompleted = (quest: DailyQuest): boolean =>
+    completed.includes(quest.id) || getQuestProgress(quest) >= quest.target;
 
-  // Функція для завершення завдання
   const completeQuest = (quest: DailyQuest) => {
-    const currentHero = useHeroStore.getState().hero;
-    if (!currentHero) return;
-    const currentProgress = currentHero.dailyQuestsProgress?.[quest.id] ?? 0;
-    const currentCompleted = currentHero.dailyQuestsCompleted || [];
-    
-    if (currentCompleted.includes(quest.id) || currentProgress < quest.target) {
-      return;
-    }
+    const h = useHeroStore.getState().hero;
+    if (!h) return;
+    const cur = h.dailyQuestsProgress?.[quest.id] ?? 0;
+    const done = h.dailyQuestsCompleted ?? [];
+    if (done.includes(quest.id) || cur < quest.target) return;
 
-    const rewards = quest.rewards || {};
-    let newAdena = currentHero.adena || 0;
-    let newExp = currentHero.exp || 0;
-    let newSp = currentHero.sp || 0;
-    let newCoinOfLuck = currentHero.coinOfLuck || 0;
-
-    // Додаємо нагороди
-    if (rewards.adena) {
-      newAdena += rewards.adena;
-    }
-    if (rewards.exp) {
-      newExp += rewards.exp;
-    }
-    if (rewards.sp) {
-      newSp += rewards.sp;
-    }
-    if (rewards.coinOfLuck) {
-      newCoinOfLuck += rewards.coinOfLuck;
-    }
-
-    // Оновлюємо героя
+    const r = quest.rewards ?? {};
     updateHero({
-      adena: newAdena,
-      exp: newExp,
-      sp: newSp,
-      coinOfLuck: newCoinOfLuck,
-      dailyQuestsCompleted: [...currentCompleted, quest.id],
+      adena: (h.adena ?? 0) + (r.adena ?? 0),
+      exp: (h.exp ?? 0) + (r.exp ?? 0),
+      sp: (h.sp ?? 0) + (r.sp ?? 0),
+      coinOfLuck: (h.coinOfLuck ?? 0) + (r.coinOfLuck ?? 0),
+      dailyQuestsCompleted: [...done, quest.id],
     });
   };
 
   return (
     <div className="w-full text-[#f4e2b8] px-1 py-2">
-      {/* Заголовок */}
       <div className="flex items-center gap-2 mb-2">
         <button
           onClick={() => navigate("/character")}
@@ -107,63 +106,67 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
         >
           ← Назад
         </button>
-        <div className="text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div
+          className="text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1"
+          style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
+        >
           Ежедневные задания
         </div>
       </div>
 
-      {/* Список щоденних завдань */}
       {DAILY_QUESTS.length > 0 ? (
         <div className="space-y-2">
           {DAILY_QUESTS.map((quest) => {
             const currentProgress = getQuestProgress(quest);
-            const completed = isQuestCompleted(quest);
-            const canComplete = currentProgress >= quest.target && !completed;
+            const done = isQuestCompleted(quest);
+            const canComplete = currentProgress >= quest.target && !done;
 
             return (
               <div
                 key={quest.id}
-                className={`border-b border-solid border-white/50 py-2 ${completed ? "opacity-60" : ""}`}
+                className={`border-b border-solid border-white/50 py-2 ${done ? "opacity-60" : ""}`}
               >
                 <div className="flex items-center gap-2 mb-1">
                   {quest.icon && (
                     <img src={quest.icon} alt={quest.name} className="w-4 h-4 object-contain" />
                   )}
                   <span className="text-orange-400 text-xs font-semibold">{quest.name}</span>
-                  {completed && (
+                  {done && (
                     <span className="text-green-400 text-[10px] ml-2">✓ Завершено</span>
                   )}
                 </div>
-                <div className="text-gray-400 text-[11px] mb-2">
-                  {quest.description}
-                </div>
-                
-                {/* Прогрес */}
+                <div className="text-gray-400 text-[11px] mb-2">{quest.description}</div>
                 <div className="text-[#b8860b]/60 text-[10px] mb-2">
                   <div className="font-semibold mb-1">Прогрес:</div>
                   <div className="ml-2">
                     {currentProgress.toLocaleString("ru-RU")} / {quest.target.toLocaleString("ru-RU")}
                     <div className="w-full bg-gray-700 rounded-full h-1.5 mt-1">
                       <div
-                        className={`h-1.5 rounded-full ${completed ? "bg-green-500" : "bg-yellow-500"}`}
-                        style={{ width: `${Math.min(100, (currentProgress / quest.target) * 100)}%` }}
+                        className={`h-1.5 rounded-full ${done ? "bg-green-500" : "bg-yellow-500"}`}
+                        style={{
+                          width: `${Math.min(100, (currentProgress / quest.target) * 100)}%`,
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-
-                {/* Нагороди */}
                 {quest.rewards && (
                   <div className="text-[#ff8c00] text-[10px] mb-2">
                     <span className="font-semibold">Нагороди: </span>
-                    {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
-                    {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
-                    {quest.rewards.sp && <span>SP: {quest.rewards.sp.toLocaleString("ru-RU")} </span>}
-                    {quest.rewards.coinOfLuck && <span>Coin of Luck: {quest.rewards.coinOfLuck} </span>}
+                    {quest.rewards.exp && (
+                      <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>
+                    )}
+                    {quest.rewards.adena && (
+                      <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>
+                    )}
+                    {quest.rewards.sp && (
+                      <span>SP: {quest.rewards.sp.toLocaleString("ru-RU")} </span>
+                    )}
+                    {quest.rewards.coinOfLuck && (
+                      <span>Coin of Luck: {quest.rewards.coinOfLuck} </span>
+                    )}
                   </div>
                 )}
-
-                {/* Кнопка завершення */}
                 {canComplete && (
                   <button
                     className="mt-2 px-3 py-1 text-[10px] bg-[#0f0a06] text-green-400 border border-white/50 rounded-md hover:bg-[#1a1208]"
@@ -184,4 +187,3 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
     </div>
   );
 }
-
