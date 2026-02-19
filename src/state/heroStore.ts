@@ -513,9 +513,11 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   },
 
   addDailyQuestProgress: (questId: string, amount: number) => {
-    const hero = get().hero;
-    if (!hero || amount === 0) return;
-    const next = updateDailyQuestProgress(hero, questId, amount);
-    get().updateHero({ dailyQuestsProgress: next });
+    if (amount === 0) return;
+    get().updateHero((prev) => {
+      if (!prev) return {};
+      const next = updateDailyQuestProgress(prev, questId, amount);
+      return { dailyQuestsProgress: next };
+    });
   },
 }));
