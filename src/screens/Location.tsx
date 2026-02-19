@@ -73,11 +73,12 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
   const { zone, city } = found;
 
-  // Моби з активних квестів — показуємо сірим текстом
+  // Моби з активних квестів — показуємо сірим текстом (стабільна залежність для useMemo)
   const activeQuests = hero?.activeQuests ?? [];
+  const activeQuestIdsKey = activeQuests.map((aq) => aq.questId).join(",");
   const questMobNames = React.useMemo(
     () => getQuestMobNames(activeQuests, QUESTS),
-    [activeQuests]
+    [activeQuestIdsKey, activeQuests]
   );
 
   // ===== пагінація по мобах (15 на сторінку) =====
@@ -142,12 +143,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               const heroLevel = hero?.level || 1;
               const levelDiff = Math.abs(heroLevel - mob.level);
               const isLevelDiffTooHigh = levelDiff > 10;
+              const isQuestMob = questMobNames.has(mob.name);
 
               return (
                 <div
                   key={globalIndex}
                   className={`flex items-center gap-2 py-1 border-b border-solid border-white/50 text-xs ${
-                    isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
+                    !isQuestMob && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
                   }`}
                 >
                   {mob.icon && (
@@ -171,7 +173,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </span>
                   <span
                     className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${
-                      questMobNames.has(mob.name)
+                      isQuestMob
                         ? "text-gray-500"
                         : isRaid
                         ? "text-red-500"
