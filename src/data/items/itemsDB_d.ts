@@ -253,6 +253,25 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Стародавня Адена з катакомб Floran. Дорогоцінна валюта.",
     grade: "D",
   },
+  // ===== D-GRADE DROP PIECES (дроп мобів) =====
+  d_weapon_piece: {
+    id: "d_weapon_piece",
+    name: "D-grade Weapon Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_blessed_scrl_of_ench_wp_d_i01.png",
+    description: "Уламок зброї D-грейду. Матеріал для крафту.",
+    grade: "D",
+  },
+  d_armor_piece: {
+    id: "d_armor_piece",
+    name: "D-grade Armor Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_blessed_scrl_of_ench_am_d_i01.png",
+    description: "Уламок броні D-грейду. Матеріал для крафту.",
+    grade: "D",
+  },
   // ===== D-GRADE WEAPONS (з папки weapon_d) =====
   d_atuba_hammer: {
     id: "d_atuba_hammer",

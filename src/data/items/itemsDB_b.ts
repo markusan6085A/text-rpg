@@ -50,7 +50,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     grade: "B",
     armorType: "robe",
   },
-  // B-Grade Shields (Shop)
+    // B-Grade Shields (Shop)
   avadon_shield: {
     id: "avadon_shield",
     name: "Avadon Shield",
@@ -374,6 +374,25 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     slot: "consumable",
     icon: "/items/drops/resources/Etc_spell_shot_red_i01_0.jpg",
     description: "Спірітшот B-грейду для магів",
+    grade: "B",
+  },
+  // ===== B-GRADE DROP PIECES (дроп мобів) =====
+  b_weapon_piece: {
+    id: "b_weapon_piece",
+    name: "B-grade Weapon Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i03.png",
+    description: "Уламок зброї B-грейду. Матеріал для крафту.",
+    grade: "B",
+  },
+  b_armor_piece: {
+    id: "b_armor_piece",
+    name: "B-grade Armor Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i03.png",
+    description: "Уламок броні B-грейду. Матеріал для крафту.",
     grade: "B",
   },
   // B-Grade

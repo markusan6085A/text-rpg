@@ -35,6 +35,25 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     description: "Дерев'яна стріла NG-грейду",
     grade: "NG",
   },
+  // ===== NG-GRADE DROP PIECES (дроп мобів) =====
+  ng_sword_piece: {
+    id: "ng_sword_piece",
+    name: "NG-grade Weapon Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_wooden_quiver_i00.png",
+    description: "Уламок зброї NG-грейду. Матеріал для крафту.",
+    grade: "NG",
+  },
+  ng_armor_piece: {
+    id: "ng_armor_piece",
+    name: "NG-grade Armor Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_lesser_potion_red_i00.png",
+    description: "Уламок броні NG-грейду. Матеріал для крафту.",
+    grade: "NG",
+  },
   // ===== POTIONS (БУТИЛКИ) =====
   // HP Potions
   lesser_healing_potion: {
@@ -446,6 +465,15 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     slot: "resource",
     icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у чемпіонів Floran Peaks.",
+  },
+  // Adena (валюта, для відображення в дропі)
+  adena: {
+    id: "adena",
+    name: "Adena",
+    kind: "resource",
+    slot: "resource",
+    icon: "/icons/adena.png",
+    description: "Основна валюта.",
   },
   // Currency (Валюта)
   coins_silver: {

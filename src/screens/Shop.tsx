@@ -14,6 +14,9 @@ import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 
+// У категорії «Стрелы» тільки стріли грейдів NG, D, C, B, A, S (один тип на грейд)
+const ARROW_GRADE_IDS = ["wooden_arrow", "bone_arrow", "fine_steel_arrow", "silver_arrow", "mithril_arrow", "shining_arrow"];
+
 type Navigate = (path: string) => void;
 
 interface ShopProps {
@@ -69,7 +72,11 @@ export default function Shop({ navigate }: ShopProps) {
     if (selectedCategory === "consumables") {
       if (selectedConsumablesSubcategory === "enchant_scroll" && item.category !== "enchant_scroll") return false;
       if (selectedConsumablesSubcategory === "charges" && item.category !== "soulshot" && item.category !== "spiritshot") return false;
-      if (selectedConsumablesSubcategory === "arrows" && item.category !== "arrow") return false;
+      if (selectedConsumablesSubcategory === "arrows") {
+        if (item.category !== "arrow") return false;
+        const itemsDBId = SHOP_ITEM_ID_MAPPING[item.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
+        if (!itemsDBId || !ARROW_GRADE_IDS.includes(itemsDBId)) return false;
+      }
       if (selectedConsumablesSubcategory === "potions" && item.category !== "potion") return false;
       // Якщо підкатегорія не вибрана, показуємо всі расходники
     }

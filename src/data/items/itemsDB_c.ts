@@ -308,6 +308,25 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Спірітшот C-грейду для магів",
     grade: "C",
   },
+  // ===== C-GRADE DROP PIECES (дроп мобів) =====
+  c_weapon_piece: {
+    id: "c_weapon_piece",
+    name: "C-grade Weapon Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i02.png",
+    description: "Уламок зброї C-грейду. Матеріал для крафту.",
+    grade: "C",
+  },
+  c_armor_piece: {
+    id: "c_armor_piece",
+    name: "C-grade Armor Piece",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i02.png",
+    description: "Уламок броні C-грейду. Матеріал для крафту.",
+    grade: "C",
+  },
   // C-Grade
   fine_steel_arrow: {
     id: "fine_steel_arrow",
