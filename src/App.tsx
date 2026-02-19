@@ -370,7 +370,7 @@ function AppInner() {
       return renderWithLayout(<City navigate={navigate} key={`city-${refreshKey}`} />);
 
     case "/character":
-      return renderWithLayout(<Character key={`character-${refreshKey}`} />);
+      return renderWithLayout(<Character navigate={navigate} key={`character-${refreshKey}`} />);
 
     case "/gk":
       return (

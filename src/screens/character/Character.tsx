@@ -17,15 +17,18 @@ const formatNumber = (num: number) => {
   return num.toLocaleString("ru-RU");
 };
 
-export default function Character() {
+interface CharacterProps {
+  navigate?: (path: string) => void;
+}
+
+export default function Character({ navigate: navigateProp }: CharacterProps = {}) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
-  
-  // Навігація для кнопки "Умения"
-  const navigate = (path: string) => {
+
+  const navigate = navigateProp ?? ((path: string) => {
     window.history.pushState({}, "", path);
     window.dispatchEvent(new PopStateEvent("popstate"));
-  };
+  });
 
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
