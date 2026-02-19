@@ -77,21 +77,23 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         
         {/* Кнопка Квести та кв-шоп */}
         <div className="mb-3 flex items-center gap-2 border-b border-solid border-white/50 pb-1.5">
-          <button
-            className="flex-1 text-left text-[12px] py-1.5 hover:opacity-80 flex items-center gap-2"
-            onClick={() => navigate("/quests")}
-            style={{ color: "#ffd700", textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
-          >
-            <img src="/assets/quest.png" alt="Квести" className="w-3 h-3 object-contain" />
-            <span className="font-semibold">Квести</span>
-          </button>
-          <button
-            className="text-[13px] text-[#ff8c00] py-1.5 hover:text-[#ffa500] px-2 flex items-center gap-1"
-            onClick={() => navigate("/quest-shop")}
-          >
-            <img src="/icons/col.png" alt="кв-шоп" className="w-3 h-3 object-contain" />
-            <span>кв-шоп</span>
-          </button>
+          <div className="flex items-center gap-2 rounded-md border-2 border-[#cc6600] px-2 py-1">
+            <button
+              className="flex-1 text-left text-[12px] py-1 hover:opacity-80 flex items-center gap-2"
+              onClick={() => navigate("/quests")}
+              style={{ color: "#ffd700", textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
+            >
+              <img src="/assets/quest.png" alt="Квести" className="w-3 h-3 object-contain" />
+              <span className="font-semibold">Квести</span>
+            </button>
+            <button
+              className="text-[13px] text-[#ff8c00] py-1 hover:text-[#ffa500] px-2 flex items-center gap-1"
+              onClick={() => navigate("/quest-shop")}
+            >
+              <img src="/icons/col.png" alt="кв-шоп" className="w-3 h-3 object-contain" />
+              <span>кв-шоп</span>
+            </button>
+          </div>
         </div>
         
         
