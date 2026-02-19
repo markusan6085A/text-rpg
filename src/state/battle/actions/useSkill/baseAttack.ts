@@ -287,6 +287,7 @@ export function handleBaseAttack(
     const mobSpoiled = autoSpoilActive;
 
     // Обробляємо дропи та спойли; збираємо всі зміни в один updateHero — дроп + адена + эксп + SP одразу
+    // КРИТИЧНО: беремо героя з store безпосередньо перед дропом, щоб інвентар і activeQuests були актуальними (не обнулялись між кілами)
     const curHero = useHeroStore.getState().hero;
     let dropMessages: string[] = [];
     let newInventory = curHero?.inventory || [];
@@ -296,14 +297,13 @@ export function handleBaseAttack(
       const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
       newInventory = dropResult.newInventory;
       dropMessages = dropResult.dropMessages;
-      // Завжди застосовуємо інвентар з processMobDrops (звичайний + квестовий дроп), щоб квестові предмети не губились
       victoryUpdates.inventory = dropResult.newInventory;
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const activeQuests = curHero.activeQuests || [];
-        victoryUpdates.activeQuests = activeQuests.map((aq) => {
+        const baseActiveQuests = useHeroStore.getState().hero?.activeQuests || curHero.activeQuests || [];
+        victoryUpdates.activeQuests = baseActiveQuests.map((aq) => {
           const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
           if (questUpdates.length > 0) {
-            const newProgress = { ...aq.progress };
+            const newProgress = { ...(aq.progress || {}) };
             questUpdates.forEach((update) => {
               newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
             });

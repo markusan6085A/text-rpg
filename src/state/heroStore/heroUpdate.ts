@@ -138,6 +138,13 @@ export function updateHeroLogic(
   if ((partial as any).dailyQuestsProgress !== undefined && typeof (partial as any).dailyQuestsProgress === "object") {
     (updated as any).dailyQuestsProgress = (partial as any).dailyQuestsProgress;
   }
+  // 🔥 Інвентар та активні квести з partial не губити (квестові дропи після кожного кіла)
+  if (partial.inventory !== undefined && Array.isArray(partial.inventory)) {
+    (updated as any).inventory = partial.inventory;
+  }
+  if ((partial as any).activeQuests !== undefined && Array.isArray((partial as any).activeQuests)) {
+    (updated as any).activeQuests = (partial as any).activeQuests;
+  }
 
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
   const hydrated = hydrateHero(updated);

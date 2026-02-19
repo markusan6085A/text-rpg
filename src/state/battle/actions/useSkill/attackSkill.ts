@@ -218,11 +218,11 @@ export function handleAttackSkill(
       dropMessages = dropResult.dropMessages;
       victoryUpdates.inventory = dropResult.newInventory;
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const activeQuests = curHero.activeQuests || [];
-        victoryUpdates.activeQuests = activeQuests.map((aq) => {
+        const baseActiveQuests = useHeroStore.getState().hero?.activeQuests || curHero.activeQuests || [];
+        victoryUpdates.activeQuests = baseActiveQuests.map((aq) => {
           const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
           if (questUpdates.length > 0) {
-            const newProgress = { ...aq.progress };
+            const newProgress = { ...(aq.progress || {}) };
             questUpdates.forEach((update) => {
               newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
             });

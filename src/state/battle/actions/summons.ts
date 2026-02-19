@@ -697,11 +697,11 @@ export function processSummonAttack(
       dropMessages = dropResult.dropMessages;
       victoryUpdates.inventory = dropResult.newInventory;
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const activeQuests = curHero.activeQuests || [];
-        (victoryUpdates as any).activeQuests = activeQuests.map((aq: any) => {
+        const baseActiveQuests = useHeroStore.getState().hero?.activeQuests || curHero.activeQuests || [];
+        (victoryUpdates as any).activeQuests = baseActiveQuests.map((aq: any) => {
           const questUpdates = dropResult.questProgressUpdates?.filter((u: any) => u.questId === aq.questId) || [];
           if (questUpdates.length > 0) {
-            const newProgress = { ...aq.progress };
+            const newProgress = { ...(aq.progress || {}) };
             questUpdates.forEach((update: any) => {
               newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
             });
