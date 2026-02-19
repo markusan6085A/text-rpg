@@ -737,6 +737,13 @@ export function processSummonAttack(
       const baseMax = getMaxResources(curHero);
       const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, state.heroBuffs || []);
 
+      const completed = curHero.dailyQuestsCompleted ?? [];
+      const cur = curHero.dailyQuestsProgress ?? {};
+      const nextProgress: Record<string, number> = { ...cur };
+      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
+      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+
+      const curMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? 0;
       Object.assign(victoryUpdates, {
         level,
         exp,
@@ -744,13 +751,9 @@ export function processSummonAttack(
         adena: (curHero.adena ?? 0) + finalAdenaGain,
         hp: leveled ? maxHp : Math.min(maxHp, curHero.hp ?? maxHp),
         mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
+        mobsKilled: curMobsKilled + 1,
+        dailyQuestsProgress: nextProgress,
       });
-      const completed = curHero.dailyQuestsCompleted ?? [];
-      const cur = curHero.dailyQuestsProgress ?? {};
-      const nextProgress: Record<string, number> = { ...cur };
-      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
-      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
-      (victoryUpdates as any).dailyQuestsProgress = nextProgress;
       updateHero(victoryUpdates);
       if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
     }

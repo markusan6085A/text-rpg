@@ -279,6 +279,13 @@ export function handleAttackSkill(
       heroCpAfter = leveled ? updMaxCp : heroCpAfter;
       heroMpAfter = leveled ? updMaxMp : nextHeroMP;
 
+      const completed = curHero.dailyQuestsCompleted ?? [];
+      const cur = curHero.dailyQuestsProgress ?? {};
+      const nextProgress: Record<string, number> = { ...cur };
+      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
+      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+
+      const curMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? 0;
       Object.assign(victoryUpdates, {
         level,
         exp,
@@ -287,16 +294,12 @@ export function handleAttackSkill(
         hp: heroHpAfter,
         mp: heroMpAfter,
         cp: heroCpAfter,
+        mobsKilled: curMobsKilled + 1,
+        dailyQuestsProgress: nextProgress,
       });
       const heroWithNewHp = { ...curHero, ...victoryUpdates };
       const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
       victoryUpdates.battleStats = recalculatedAfter.finalStats;
-      const completed = curHero.dailyQuestsCompleted ?? [];
-      const cur = curHero.dailyQuestsProgress ?? {};
-      const nextProgress: Record<string, number> = { ...cur };
-      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
-      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
-      (victoryUpdates as any).dailyQuestsProgress = nextProgress;
       useHeroStore.getState().updateHero(victoryUpdates);
     } else {
       const heroAfterLevel = useHeroStore.getState().hero;
