@@ -21,6 +21,14 @@ const DEFAULT_WAREHOUSE_CAPACITY = 100;
 const MAX_WAREHOUSE_CAPACITY = 100;
 const LOG_MAX_ENTRIES = 10;
 
+/** Безпечний текст для рендеру: дані з localStorage/API можуть бути об'єктом — React не приймає об'єкти як child. */
+function safeText(val: unknown): string {
+  if (val == null) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number") return String(val);
+  return String(val);
+}
+
 interface LogEntry {
   id: string;
   message: string;
@@ -47,15 +55,17 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   useEffect(() => {
     if (characterId) {
       const loadedWarehouse = loadWarehouse(characterId, hero?.name);
-      // Переконаємося, що всі предмети мають icon (якщо відсутній, беремо з itemsDB)
+      // Нормалізуємо предмети: name/icon з localStorage можуть бути об'єктом — приводимо до рядка
       const warehouseWithIcons = loadedWarehouse.map((item) => {
-        if (item && !item.icon) {
-          return {
-            ...item,
-            icon: itemsDB[item.id]?.icon,
-          };
-        }
-        return item;
+        if (!item) return null;
+        const iconVal = item.icon ?? itemsDB[item.id]?.icon;
+        const iconStr = typeof iconVal === "string" ? iconVal : undefined;
+        const nameStr = typeof item.name === "string" ? item.name : (item.name != null ? String(item.name) : "Предмет");
+        return {
+          ...item,
+          name: nameStr,
+          icon: iconStr,
+        };
       });
       setWarehouse(warehouseWithIcons);
     }
@@ -436,28 +446,31 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                     >
                       <img
                         src={
-                          item.icon?.startsWith("/") 
-                            ? item.icon 
-                            : item.icon 
-                            ? `/items/${item.icon}` 
-                            : itemsDB[item.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                          (() => {
+                            const iconVal = item.icon ?? itemsDB[item.id]?.icon;
+                            const s = typeof iconVal === "string" ? iconVal : "";
+                            if (!s) return "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                            return s.startsWith("/") ? s : `/items/${s}`;
+                          })()
                         }
-                        alt={item.name}
+                        alt={safeText(item.name)}
                         className="w-6 h-6 object-contain"
                         onError={(e) => {
                           // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
                           const itemDef = itemsDB[item.id];
-                          if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
-                            (e.target as HTMLImageElement).src = itemDef.icon;
+                          const icon = itemDef?.icon;
+                          const iconStr = typeof icon === "string" ? icon : "";
+                          if (iconStr && (e.target as HTMLImageElement).src !== iconStr) {
+                            (e.target as HTMLImageElement).src = iconStr.startsWith("/") ? iconStr : `/items/${iconStr}`;
                           } else {
                             (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
                           }
                         }}
                       />
                       <div className="flex-1 text-[12px] text-[#cfcfcc]">
-                        <div>{item.name}</div>
-                        {item.count && item.count > 1 && (
-                          <div className="text-[10px] text-gray-400">x{item.count}</div>
+                        <div>{safeText(item.name)}</div>
+                        {item.count != null && Number(item.count) > 1 && (
+                          <div className="text-[10px] text-gray-400">x{Number(item.count)}</div>
                         )}
                       </div>
                       <button
@@ -505,35 +518,31 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                 const warehouseItems = warehouse.filter(item => item !== null).slice(0, 10);
                 return warehouseItems.length > 0 ? (
                   warehouseItems.map((item, idx) => {
-                    const slotIndex = warehouse.findIndex(w => w !== null && w.id === item.id);
+                    const slotIndex = warehouse.findIndex(w => w !== null && w.id === item!.id);
+                    const iconVal = item!.icon ?? itemsDB[item!.id]?.icon;
+                    const iconStr = typeof iconVal === "string" ? iconVal : "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                    const src = iconStr.startsWith("/") ? iconStr : `/items/${iconStr}`;
                     return (
                       <div
-                        key={slotIndex}
+                        key={`slot-${slotIndex}-${idx}`}
                         className="flex items-center gap-2 py-1 border-b border-solid border-white/30"
                       >
                         <img
-                          src={
-                            item.icon?.startsWith("/") 
-                              ? item.icon 
-                              : item.icon 
-                              ? `/items/${item.icon}` 
-                              : itemsDB[item.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"
-                          }
-                          alt={item.name}
+                          src={src}
+                          alt={safeText(item!.name)}
                           className="w-6 h-6 object-contain"
                           onError={(e) => {
-                            const itemDef = itemsDB[item.id];
-                            if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
-                              (e.target as HTMLImageElement).src = itemDef.icon;
-                            } else {
-                              (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                            }
+                            const itemDef = itemsDB[item!.id];
+                            const fallback = typeof itemDef?.icon === "string"
+                              ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
+                              : "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                            (e.target as HTMLImageElement).src = fallback;
                           }}
                         />
                         <div className="flex-1 text-[12px] text-[#cfcfcc]">
-                          <div>{item.name}</div>
-                          {item.count && item.count > 1 && (
-                            <div className="text-[10px] text-gray-400">x{item.count}</div>
+                          <div>{safeText(item!.name)}</div>
+                          {item!.count != null && Number(item!.count) > 1 && (
+                            <div className="text-[10px] text-gray-400">x{Number(item!.count)}</div>
                           )}
                         </div>
                         <button
@@ -563,7 +572,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
               const entry = log[index];
               return (
                 <div key={entry?.id || `log-empty-${index}`} className="text-[10px] text-gray-400 min-h-[14px]">
-                  {entry ? entry.message : "\u00A0"}
+                  {entry ? safeText(entry.message) : "\u00A0"}
                 </div>
               );
             })}
@@ -597,7 +606,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
             {/* Заголовок */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-[#b8860b]">
-                Положить на склад: {quantityModal.item.name}
+                Положить на склад: {safeText(quantityModal.item.name)}
               </h2>
               <button
                 className="text-gray-400 hover:text-white text-xl"
@@ -613,8 +622,14 @@ export default function Warehouse({ navigate }: WarehouseProps) {
             {/* Іконка предмета */}
             <div className="flex items-center gap-3 mb-4">
               <img
-                src={quantityModal.item.icon?.startsWith("/") ? quantityModal.item.icon : `/items/${quantityModal.item.icon}`}
-                alt={quantityModal.item.name}
+                src={
+                  typeof quantityModal.item.icon === "string"
+                    ? quantityModal.item.icon.startsWith("/")
+                      ? quantityModal.item.icon
+                      : `/items/${quantityModal.item.icon}`
+                    : "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                }
+                alt={safeText(quantityModal.item.name)}
                 className="w-16 h-16 object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
@@ -622,11 +637,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
               />
               <div className="flex-1">
                 <div className="text-white text-base font-semibold mb-1">
-                  {quantityModal.item.name}
+                  {safeText(quantityModal.item.name)}
                 </div>
-                {quantityModal.item.count && quantityModal.item.count > 1 && (
+                {quantityModal.item.count != null && Number(quantityModal.item.count) > 1 && (
                   <div className="text-gray-400 text-sm">
-                    У вас: {quantityModal.item.count}
+                    У вас: {Number(quantityModal.item.count)}
                   </div>
                 )}
               </div>
@@ -635,7 +650,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
             {/* Поле вводу кількості */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-[#b8860b] mb-2">
-                Количество (макс: {quantityModal.maxCount}):
+                Количество (макс: {Number(quantityModal.maxCount)}):
               </label>
               <input
                 type="number"
