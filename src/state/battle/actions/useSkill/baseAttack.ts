@@ -1,6 +1,6 @@
 import { getExpToNext, MAX_LEVEL } from "../../../../data/expTable";
 import { useHeroStore } from "../../../heroStore";
-import { addDailyProgress } from "../../../dailyQuestsProgress";
+import { addDailyProgress, addDailyProgressVictory } from "../../../dailyQuestsProgress";
 import { applyBuffsToStats, computeBuffedMaxResources } from "../../helpers";
 import { calcAutoAttackInterval } from "../../../../utils/combatSpeed";
 import { clampChance, getCritMultiplier, XP_RATE, hasAutoSpoilActive, hasWhirlwindAttackActive, type Setter } from "./helpers";
@@ -381,8 +381,7 @@ export function handleBaseAttack(
       (victoryUpdates as any).battleStats = recalculatedAfter.baseFinalStats;
 
       useHeroStore.getState().updateHero(victoryUpdates);
-      addDailyProgress("daily_kills", 1);
-      addDailyProgress("daily_adena_farm", finalAdenaGain);
+      addDailyProgressVictory(1, finalAdenaGain);
     }
 
     const maxAfter = computeMaxNow(activeBuffs);
