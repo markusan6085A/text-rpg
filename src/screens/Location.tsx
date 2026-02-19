@@ -73,8 +73,14 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
   const { zone, city } = found;
 
-  // Моби з активних квестів — показуємо сірим текстом (стабільна залежність для useMemo)
-  const activeQuests = hero?.activeQuests ?? [];
+  // Моби з активних квестів — показуємо сірим текстом (беремо з hero та heroJson на випадок гідрації)
+  const activeQuests = React.useMemo(() => {
+    const fromHero = hero?.activeQuests;
+    const fromJson = (hero as any)?.heroJson?.activeQuests;
+    if (Array.isArray(fromHero) && fromHero.length > 0) return fromHero;
+    if (Array.isArray(fromJson) && fromJson.length > 0) return fromJson;
+    return [];
+  }, [hero?.activeQuests, (hero as any)?.heroJson?.activeQuests]);
   const activeQuestIdsKey = activeQuests.map((aq) => aq.questId).join(",");
   const questMobNames = React.useMemo(
     () => getQuestMobNames(activeQuests, QUESTS),
@@ -173,16 +179,17 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </span>
                   <span
                     className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${
-                      isQuestMob
-                        ? "text-gray-500"
-                        : isRaid
+                      !isQuestMob && isRaid
                         ? "text-red-500"
-                        : isChampion
+                        : !isQuestMob && isChampion
                         ? "text-blue-400"
-                        : isLevelDiffTooHigh
+                        : !isQuestMob && isLevelDiffTooHigh
                         ? "text-red-500"
-                        : "text-[#c7ad80]"
+                        : !isQuestMob
+                        ? "text-[#c7ad80]"
+                        : ""
                     }`}
+                    style={isQuestMob ? { color: "#6b7280" } : undefined}
                     onClick={() => openBattle(globalIndex)}
                   >
                     {mob.name}
