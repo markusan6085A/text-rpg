@@ -75,6 +75,17 @@ export function isShotConsumable(itemId: string, shotType: "soulshot" | "spirits
   return itemId.startsWith(shotType);
 }
 
+/** Грейд заряду з itemId (soulshot_ng → NG, spiritshot_d → D тощо) */
+function getShotGrade(itemId: string): "NG" | "D" | "C" | "B" | "A" | "S" | null {
+  const id = itemId.toLowerCase();
+  if (id.endsWith("_ng_silver") || id.endsWith("_ng")) return "NG";
+  const suffix = id.split("_").pop() ?? "";
+  const gradeMap: Record<string, "NG" | "D" | "C" | "B" | "A" | "S"> = {
+    ng: "NG", d: "D", c: "C", b: "B", a: "A", s: "S",
+  };
+  return gradeMap[suffix] ?? null;
+}
+
 /**
  * Використовує soulshot/spiritshot тільки якщо гравець увімкнув заряд на панелі (клік по слоту).
  * @param hero - герой
@@ -99,12 +110,18 @@ export function useAutoShot(
     return { used: false, multiplier: 1.0, shotType: null };
   }
 
-  // Шукаємо слот з відповідним зарядом, який увімкнений
+  const weaponGrade = getWeaponGrade(hero);
+  if (!weaponGrade) {
+    return { used: false, multiplier: 1.0, shotType: null };
+  }
+
+  // Шукаємо слот з зарядом того ж грейду, що й зброя, який увімкнений
   for (const slotIndex of activeChargeSlots) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
     const itemId = slotId.replace("consumable:", "");
     if (!isShotConsumable(itemId, shotType)) continue;
+    if (getShotGrade(itemId) !== weaponGrade) continue;
     const invItem = hero.inventory.find((i: any) => i.id === itemId && (i.count ?? 0) > 0);
     if (!invItem) continue;
 

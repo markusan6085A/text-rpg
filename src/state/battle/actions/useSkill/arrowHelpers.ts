@@ -12,6 +12,13 @@ export function getWeaponGrade(itemId: string | null | undefined): "NG" | "D" | 
   if (!itemId) return null;
   
   const id = itemId.toLowerCase();
+  // Зброя типу weapon_iron_hammer_ng, weapon_sword_d — грейд в кінці
+  if (id.endsWith("_ng")) return "NG";
+  if (id.endsWith("_d")) return "D";
+  if (id.endsWith("_c")) return "C";
+  if (id.endsWith("_b")) return "B";
+  if (id.endsWith("_a")) return "A";
+  if (id.endsWith("_s")) return "S";
   if (id.startsWith("s_") || id.includes("_s_")) return "S";
   if (id.startsWith("a_") || id.includes("_a_")) return "A";
   if (id.startsWith("b_") || id.includes("_b_")) return "B";

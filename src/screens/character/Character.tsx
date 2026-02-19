@@ -111,14 +111,14 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   const currentLevelExp = level > 1 ? (EXP_TABLE[level - 1] ?? 0) : 0;
   // Current EXP on this level
   const expCurrent = Math.max(0, totalExp - currentLevelExp);
-  // EXP needed for next level
+  // EXP needed for next level (дельта до наступного лвл)
   const expToNext = getExpToNext(level);
-  // If max level, show the total exp needed to reach max level (5 000 000 000 for level 80)
+  // Друге число: всього потрібно за рівень (для макс. лвл — поріг 5e9)
   const expToNextDisplay = level >= MAX_LEVEL 
     ? (EXP_TABLE[MAX_LEVEL - 1] ?? 0) 
     : expToNext;
-  // EXP remaining to next level (скільки ще треба опиту до нового лвл)
-  const expRemaining = Math.max(0, expToNextDisplay - expCurrent);
+  // Перше число: скільки ще потрібно до наступного лвл (на макс. лвл = 0)
+  const expRemaining = level >= MAX_LEVEL ? 0 : Math.max(0, expToNextDisplay - expCurrent);
   const expPercent = expToNextDisplay > 0 
     ? Math.min(100, Math.floor((expCurrent / expToNextDisplay) * 100)) 
     : 100;
