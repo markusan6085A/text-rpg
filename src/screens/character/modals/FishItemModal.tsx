@@ -37,8 +37,18 @@ function getAllResources(): ItemDefinition[] {
   return resources;
 }
 
-// ID предметів з простого магазину (для дропу 0.3%)
-function getSimpleShopItemIds(): string[] {
+// Зброя, броня, бижутерія з простого магазину
+function getShopWeaponIds(): string[] {
+  return getShopIdsByType("weapon");
+}
+function getShopArmorIds(): string[] {
+  return getShopIdsByType("armor");
+}
+function getShopJewelryIds(): string[] {
+  return getShopIdsByType("jewelry");
+}
+
+function getShopIdsByType(type: string): string[] {
   const allShop = [
     ...NG_GRADE_SHOP_ITEMS,
     ...D_GRADE_SHOP_ITEMS,
@@ -46,17 +56,17 @@ function getSimpleShopItemIds(): string[] {
     ...B_GRADE_SHOP_ITEMS,
     ...A_GRADE_SHOP_ITEMS,
     ...S_GRADE_SHOP_ITEMS,
-    ...CONSUMABLES_SHOP_ITEMS,
   ];
-  const ids = new Set<string>();
+  const ids: string[] = [];
   allShop.forEach((shopItem) => {
+    if (shopItem.type !== type) return;
     const id = SHOP_ITEM_ID_MAPPING[shopItem.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
-    if (id && itemsDB[id]) ids.add(id);
+    if (id && itemsDB[id]) ids.push(id);
   });
-  return Array.from(ids);
+  return ids;
 }
 
-// Розділка риби: 1 риба = 1% кожен ресурс, 0.5% Coin of Luck, 5% адена 10000, 0.3% кожен предмет з простого магазину
+// Розділка риби: Coin 0.7%, зброя 0.3%, броня 0.5%, ресурси 2%, бижутерія 0.6%, скарбничка 0.3%, адена 2%, срібні монети 1%
 function processFishDrop(fishCount: number): {
   adena: number;
   coinOfLuck: number;
@@ -71,29 +81,38 @@ function processFishDrop(fishCount: number): {
   const resources: Record<string, number> = {};
 
   const allResources = getAllResources();
-  const simpleShopIds = getSimpleShopItemIds();
+  const shopWeapons = getShopWeaponIds();
+  const shopArmor = getShopArmorIds();
+  const shopJewelry = getShopJewelryIds();
 
   for (let i = 0; i < fishCount; i++) {
-    // Всі види ресурсів: 1% за 1 рибу
+    // Coin of Luck: 0.7%
+    if (Math.random() * 100 < 0.7) totalCoinOfLuck += 1;
+    // Зброя: 0.3%
+    if (Math.random() * 100 < 0.3 && shopWeapons.length > 0) {
+      const id = shopWeapons[Math.floor(Math.random() * shopWeapons.length)];
+      weapons[id] = (weapons[id] || 0) + 1;
+    }
+    // Броня: 0.5%
+    if (Math.random() * 100 < 0.5 && shopArmor.length > 0) {
+      const id = shopArmor[Math.floor(Math.random() * shopArmor.length)];
+      armorPieces[id] = (armorPieces[id] || 0) + 1;
+    }
+    // Ресурси: 2% кожен
     allResources.forEach((res) => {
-      if (Math.random() * 100 < 1) {
-        resources[res.id] = (resources[res.id] || 0) + 1;
-      }
+      if (Math.random() * 100 < 2) resources[res.id] = (resources[res.id] || 0) + 1;
     });
-    // Coin of Luck: 0.5%
-    if (Math.random() * 100 < 0.5) totalCoinOfLuck += 1;
-    // Адена 10 000: 5%
-    if (Math.random() * 100 < 5) totalAdena += 10_000;
-    // Всі види шмоток з простого магазину: 0.3% кожен
-    simpleShopIds.forEach((id) => {
-      if (Math.random() * 100 < 0.3) {
-        const def = itemsDB[id];
-        if (def?.kind === "weapon") weapons[id] = (weapons[id] || 0) + 1;
-        else if (def && ["armor", "helmet", "boots", "gloves", "shield"].includes(def.kind ?? ""))
-          armorPieces[id] = (armorPieces[id] || 0) + 1;
-        else resources[id] = (resources[id] || 0) + 1;
-      }
-    });
+    // Бижутерія: 0.6%
+    if (Math.random() * 100 < 0.6 && shopJewelry.length > 0) {
+      const id = shopJewelry[Math.floor(Math.random() * shopJewelry.length)];
+      resources[id] = (resources[id] || 0) + 1;
+    }
+    // Скарбничка: 0.3%
+    if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
+    // Адена: 2%
+    if (Math.random() * 100 < 2) totalAdena += 10_000;
+    // Срібні монети: 1%
+    if (Math.random() * 100 < 1) resources["coins_silver"] = (resources["coins_silver"] || 0) + 1;
   }
 
   return {
