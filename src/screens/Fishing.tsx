@@ -152,10 +152,12 @@ export default function Fishing({ navigate }: FishingProps) {
     <div className="w-full text-white px-4 py-2">
       <div className="w-full max-w-[360px] mx-auto">
         <div className="space-y-3">
-          {/* Банер (як на Clan/GK — всередині рамки) */}
           <div className="border-t border-white/50"></div>
-          <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">Рыбалка</div>
-          <div className="border-b border-white/50"></div>
+          <div className="text-center text-[16px] font-semibold" style={{ color: "#4488ff" }}>Рыбалка</div>
+          <p className="text-xs text-left" style={{ color: "#c7ad80" }}>
+            Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
+            {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от 100 до 300 рыб.
+          </p>
           <div className="flex justify-start -ml-1">
             <div className="relative overflow-hidden rounded shadow-[inset_0_0_25px_10px_rgba(0,0,0,0.65)]">
               <img
@@ -169,26 +171,32 @@ export default function Fishing({ navigate }: FishingProps) {
             </div>
           </div>
 
-          <p className="text-xs text-[#cfcfcc]">
-            Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
-            {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от 100 до 300 рыб.
-          </p>
+          <div className="border-t-2" style={{ borderColor: "#c7ad80" }}></div>
 
         {!session && (
-          <div className="text-[12px] text-[#cfcfcc] space-y-3 border-b border-white/50 pb-3">
-            <div className="text-left text-xs space-y-1">
-              <p className={hasRod ? "text-green-400" : "text-red-400"}>
-                {hasRod ? "✓ Удочка надета" : "✗ Наденьте удочку (Baby Duck Rod)"}
-              </p>
-              <p className={hasBait ? "text-green-400" : "text-red-400"}>
-                {hasBait ? `✓ Наживка есть (${baitCount})` : "✗ Нужна наживка (Gludio)"}
-              </p>
-              <p className={canAfford ? "text-green-400" : "text-red-400"}>
-                {canAfford
-                  ? `✓ SP: ${sp.toLocaleString()}, Адена: ${adena.toLocaleString()}`
-                  : `✗ Нужно ${FISHING_COST_SP.toLocaleString()} SP и ${FISHING_COST_ADENA.toLocaleString()} аден`}
-              </p>
-            </div>
+          <div className="text-[12px] space-y-2">
+            {!hasRod && (
+              <>
+                <p className="text-red-400">Наденьте удочку (Baby Duck Rod)</p>
+                <div className="border-t" style={{ borderColor: "#c7ad80" }}></div>
+              </>
+            )}
+            {hasBait ? (
+              <p className="text-green-400">✓ Наживка есть ({baitCount})</p>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-red-400">Нужна наживка</span>
+                <button
+                  onClick={() => navigate("/shop?category=materials")}
+                  className="px-2 py-1 text-[11px] rounded border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/20"
+                >
+                  Магазин
+                </button>
+              </div>
+            )}
+            <p className="text-[#cfcfcc]">
+              SP: {FISHING_COST_SP.toLocaleString()} · Адена: {FISHING_COST_ADENA.toLocaleString()}
+            </p>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-[#c7ad80]/50 text-[#c7ad80] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!hasRod || !hasBait || !canAfford || actionLoading}
@@ -196,20 +204,28 @@ export default function Fishing({ navigate }: FishingProps) {
             >
               {actionLoading ? "..." : "Начать рыбалку"}
             </button>
+            <div className="rounded border border-[#c7ad80]/50 px-3 py-2 flex items-center justify-between gap-2">
+              <span style={{ color: "#ff8c00" }}>SP: {sp.toLocaleString()}</span>
+              <span style={{ color: "#ffd700" }}>Адена: {adena.toLocaleString()}</span>
+            </div>
           </div>
         )}
 
         {session && !ready && (
-          <div className="space-y-2 text-[12px] text-[#cfcfcc] border-b border-white/50 pb-3">
-            <p className="text-sm">Рыбалка идёт. Осталось: {remainingStr}</p>
-            <p className="text-xs text-gray-500">Вернитесь через час и нажмите «Забрать улов».</p>
+          <div className="space-y-2 text-[12px]">
+            <p className="text-[#cfcfcc]">Рыбалка идёт. Осталось: {remainingStr}</p>
+            <p className="text-gray-500">Вернитесь через час и нажмите «Забрать улов».</p>
+            <div className="rounded border border-[#c7ad80]/50 px-3 py-2 flex items-center justify-between gap-2">
+              <span style={{ color: "#ff8c00" }}>SP: {sp.toLocaleString()}</span>
+              <span style={{ color: "#ffd700" }}>Адена: {adena.toLocaleString()}</span>
+            </div>
           </div>
         )}
 
         {ready && (
-          <div className="space-y-3 text-[12px] text-[#cfcfcc] border-b border-white/50 pb-3">
-            <p className="text-sm text-green-400">Улов готов!</p>
-            <p className="text-xs">Рыб: 100–300 (случайно)</p>
+          <div className="space-y-3 text-[12px]">
+            <p className="text-green-400">Улов готов!</p>
+            <p className="text-[#cfcfcc]">Рыб: 100–300 (случайно)</p>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-green-500/50 text-green-400 hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleCollect}
@@ -217,6 +233,10 @@ export default function Fishing({ navigate }: FishingProps) {
             >
               {actionLoading ? "..." : "Забрать улов"}
             </button>
+            <div className="rounded border border-[#c7ad80]/50 px-3 py-2 flex items-center justify-between gap-2">
+              <span style={{ color: "#ff8c00" }}>SP: {sp.toLocaleString()}</span>
+              <span style={{ color: "#ffd700" }}>Адена: {adena.toLocaleString()}</span>
+            </div>
           </div>
         )}
 

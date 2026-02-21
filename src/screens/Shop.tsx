@@ -1,5 +1,5 @@
 // src/screens/Shop.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NG_GRADE_SHOP_ITEMS } from "../data/shop/ngGradeShop";
 import { D_GRADE_SHOP_ITEMS } from "../data/shop/dGradeShop";
 import { C_GRADE_SHOP_ITEMS } from "../data/shop/cGradeShop";
@@ -32,6 +32,14 @@ export default function Shop({ navigate }: ShopProps) {
 
   const [selectedCategory, setSelectedCategory] = useState<string>("weapons");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
+
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const cat = q.get("category");
+    if (cat === "materials") {
+      setSelectedCategory("materials");
+    }
+  }, []);
   const [selectedArmorSubcategory, setSelectedArmorSubcategory] = useState<string | null>(null);
   const [selectedJewelrySubcategory, setSelectedJewelrySubcategory] = useState<string | null>(null);
   const [selectedConsumablesSubcategory, setSelectedConsumablesSubcategory] = useState<string | null>(null);
