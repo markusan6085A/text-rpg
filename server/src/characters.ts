@@ -582,6 +582,188 @@ export async function characterRoutes(app: FastifyInstance) {
     }
   });
 
+  // --- Fishing (має бути ПЕРЕД GET /characters/:id) ---
+  const FISHING_COST_SP = 5000;
+  const FISHING_COST_ADENA = 5_000_000;
+  const FISHING_DURATION_MS = 60 * 60 * 1000;
+  const ROD_ITEM_ID = "baby_duck_rod";
+  const BAIT_ITEM_ID = "gludio_fish_lure";
+  const FISH_ITEM_ID = "fish_seawater";
+  const FISH_MIN = 100;
+  const FISH_MAX = 300;
+
+  app.get("/characters/:id/fishing", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const id = (req.params as any).id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    try {
+      const ch = await prisma.character.findFirst({
+        where: { id, accountId: auth.accountId },
+        select: { heroJson: true },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+      const heroJson = (ch.heroJson ?? {}) as any;
+      const session = heroJson.fishingSession ?? null;
+      return reply.send({ ok: true, session });
+    } catch (error) {
+      app.log.error(error, "GET /characters/:id/fishing");
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+
+  app.post("/characters/:id/fishing/start", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const id = (req.params as any).id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    try {
+      const ch = await prisma.character.findFirst({
+        where: { id, accountId: auth.accountId },
+        select: { id: true, sp: true, adena: true, heroJson: true },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+
+      const heroJson = (ch.heroJson ?? {}) as any;
+      if (heroJson.fishingSession) {
+        return reply.code(400).send({ error: "fishing already in progress" });
+      }
+
+      const equipment = heroJson.equipment ?? {};
+      const hasRod =
+        equipment["weapon"] === ROD_ITEM_ID ||
+        equipment["lrhand"] === ROD_ITEM_ID ||
+        equipment["shield"] === ROD_ITEM_ID;
+      if (!hasRod) {
+        return reply.code(400).send({ error: "rod required (Baby Duck Rod)" });
+      }
+
+      const inv: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+      const baitIdx = inv.findIndex((i: any) => (i?.id ?? i?.itemId) === BAIT_ITEM_ID && (Number(i?.count) ?? 0) > 0);
+      if (baitIdx < 0) {
+        return reply.code(400).send({ error: "bait required (Gludio Fish Lure)" });
+      }
+
+      const sp = Number(ch.sp) ?? 0;
+      const adena = Number(ch.adena) ?? 0;
+      if (sp < FISHING_COST_SP || adena < FISHING_COST_ADENA) {
+        return reply.code(400).send({ error: `need ${FISHING_COST_SP} SP and ${FISHING_COST_ADENA} adena` });
+      }
+
+      const newInv = inv.map((item: any, idx: number) => {
+        if (idx !== baitIdx) return item;
+        const c = Math.max(0, (Number(item.count) ?? 1) - 1);
+        return c > 0 ? { ...item, count: c } : null;
+      }).filter(Boolean) as any[];
+
+      const oldRevision = heroJson.heroRevision ?? 0;
+      const updatedHeroJson = addVersioning(
+        {
+          ...heroJson,
+          inventory: newInv,
+          fishingSession: { startedAt: Date.now() },
+        },
+        oldRevision
+      );
+
+      const [updated] = await prisma.$transaction([
+        prisma.character.update({
+          where: { id: ch.id },
+          data: {
+            sp: { decrement: FISHING_COST_SP },
+            adena: { decrement: FISHING_COST_ADENA },
+            heroJson: updatedHeroJson,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true, level: true,
+            exp: true, sp: true, adena: true, aa: true, coinLuck: true, heroJson: true, updatedAt: true,
+          },
+        }),
+      ]);
+
+      const session = { startedAt: (updated.heroJson as any).fishingSession?.startedAt ?? Date.now() };
+      return reply.send({
+        ok: true,
+        character: { ...updated, exp: Number(updated.exp) },
+        session,
+      });
+    } catch (error) {
+      app.log.error(error, "POST /characters/:id/fishing/start");
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+
+  app.post("/characters/:id/fishing/collect", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const id = (req.params as any).id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    try {
+      const ch = await prisma.character.findFirst({
+        where: { id, accountId: auth.accountId },
+        select: { id: true, heroJson: true },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+
+      const heroJson = (ch.heroJson ?? {}) as any;
+      const session = heroJson.fishingSession;
+      if (!session || typeof session.startedAt !== "number") {
+        return reply.code(400).send({ error: "no active fishing session" });
+      }
+
+      const elapsed = Date.now() - session.startedAt;
+      if (elapsed < FISHING_DURATION_MS) {
+        return reply.code(400).send({ error: "fishing not ready yet (1 hour required)" });
+      }
+
+      const fishCount = FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
+      const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+      const existing = inv.find((i: any) => (i?.id ?? i?.itemId) === FISH_ITEM_ID);
+      if (existing) {
+        existing.count = (Number(existing.count) ?? 0) + fishCount;
+      } else {
+        inv.push({
+          id: FISH_ITEM_ID,
+          name: "fish_seawater",
+          icon: "/items/drops/resources/Etc_fish_seawater_i01_0.jpg",
+          slot: "resource",
+          count: fishCount,
+        });
+      }
+
+      const { fishingSession: _, ...restHero } = heroJson;
+      const oldRevision = heroJson.heroRevision ?? 0;
+      const updatedHeroJson = addVersioning(
+        { ...restHero, inventory: inv },
+        oldRevision
+      );
+
+      const [updated] = await prisma.$transaction([
+        prisma.character.update({
+          where: { id: ch.id },
+          data: { heroJson: updatedHeroJson, lastActivityAt: new Date() },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true, level: true,
+            exp: true, sp: true, adena: true, aa: true, coinLuck: true, heroJson: true, updatedAt: true,
+          },
+        }),
+      ]);
+
+      return reply.send({
+        ok: true,
+        character: { ...updated, exp: Number(updated.exp) },
+        fishCount,
+      });
+    } catch (error) {
+      app.log.error(error, "POST /characters/:id/fishing/collect");
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+
   // GET /characters/:id  (Bearer token)
   // Не використовуємо bannedUntil/blockedUntil в select — старий Prisma client на деплої їх не знає (Unknown field)
   app.get("/characters/:id", async (req, reply) => {

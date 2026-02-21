@@ -1,23 +1,17 @@
 // src/screens/Fishing.tsx
 // Рибалка: повноекранний фон, опис, перевірка удочки/наживки, 1 заброс = 5000 SP + 5M адени, 1 год, улов 100–300 риб
+// Сесія зберігається на сервері — один акаунт = одна сесія на всіх пристроях
 import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
-import {
-  getFishingSession,
-  setFishingSession,
-  isFishingReady,
-  getOrRollFishCount,
-} from "../state/fishing/fishingPersistence";
-import { itemsDB } from "../data/items/itemsDB";
+import { fetchFishingSession, isFishingReady } from "../state/fishing/fishingPersistence";
+import * as api from "../utils/api";
 
 const FISHING_COST_SP = 5000;
 const FISHING_COST_ADENA = 5_000_000;
 const FISHING_DURATION_MS = 60 * 60 * 1000;
 const ROD_ITEM_ID = "baby_duck_rod";
 const BAIT_ITEM_ID = "gludio_fish_lure";
-const FISH_ITEM_ID = "fish_seawater";
-const FISH_ICON = "/items/drops/resources/Etc_fish_seawater_i01_0.jpg";
 
 type Navigate = (path: string) => void;
 
@@ -30,12 +24,21 @@ export default function Fishing({ navigate }: FishingProps) {
   const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
 
-  const [session, setSessionState] = useState<ReturnType<typeof getFishingSession>>(null);
+  const [session, setSessionState] = useState<api.FishingSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    if (!characterId) return;
-    setSessionState(getFishingSession(characterId));
+    if (!characterId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetchFishingSession(characterId).then((s) => {
+      setSessionState(s);
+      setLoading(false);
+    });
   }, [characterId]);
 
   useEffect(() => {
@@ -60,15 +63,14 @@ export default function Fishing({ navigate }: FishingProps) {
   const canAfford = sp >= FISHING_COST_SP && adena >= FISHING_COST_ADENA;
 
   const ready = session && isFishingReady(session);
-  const fishCount = ready && characterId ? getOrRollFishCount(characterId) : 0;
   const remainingMs = session && !ready ? Math.max(0, FISHING_DURATION_MS - (now - session.startedAt)) : 0;
   const remainingStr =
     remainingMs > 0
       ? `${Math.floor(remainingMs / 60000)}:${String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, "0")}`
       : "";
 
-  const handleStartFishing = () => {
-    if (!hero || !characterId) return;
+  const handleStartFishing = async () => {
+    if (!hero || !characterId || actionLoading) return;
     if (!hasRod) {
       alert("Нужна удочка! Наденьте удочку (Baby Duck Rod) в слот оружия.");
       return;
@@ -83,41 +85,55 @@ export default function Fishing({ navigate }: FishingProps) {
       );
       return;
     }
-    const baitIndex = inv.findIndex((i) => i.id === BAIT_ITEM_ID && (i.count ?? 0) > 0);
-    if (baitIndex < 0) return;
-    const newInv = inv.map((item, idx) => {
-      if (idx !== baitIndex) return item;
-      const c = (item.count ?? 1) - 1;
-      return c > 0 ? { ...item, count: c } : null;
-    }).filter(Boolean) as typeof inv;
-    setFishingSession(characterId, { startedAt: Date.now() });
-    setSessionState(getFishingSession(characterId));
-    updateHero({
-      sp: sp - FISHING_COST_SP,
-      adena: adena - FISHING_COST_ADENA,
-      inventory: newInv,
-    });
+    setActionLoading(true);
+    try {
+      const res = await api.startFishing(characterId);
+      setSessionState(res.session);
+      const hj = res.character.heroJson as any;
+      updateHero({
+        sp: res.character.sp,
+        adena: res.character.adena,
+        inventory: hj?.inventory ?? hero.inventory ?? [],
+        heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: res.session },
+      });
+    } catch (e: any) {
+      alert(e?.message || e?.error || "Не удалось начать рыбалку");
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleCollect = () => {
-    if (!hero || !characterId || fishCount <= 0) return;
-    const fishDef = itemsDB[FISH_ITEM_ID];
-    const name = fishDef?.name ?? "Морська риба";
-    const icon = fishDef?.icon ?? FISH_ICON;
-    const slot = fishDef?.slot ?? "resource";
-    const existing = inv.find((i) => i.id === FISH_ITEM_ID);
-    const newInv = existing
-      ? inv.map((i) => (i.id === FISH_ITEM_ID ? { ...i, count: (i.count ?? 0) + fishCount } : i))
-      : [...inv, { id: FISH_ITEM_ID, name, icon, slot, count: fishCount }];
-    setFishingSession(characterId, null);
-    setSessionState(null);
-    updateHero({ inventory: newInv });
+  const handleCollect = async () => {
+    if (!hero || !characterId || !ready || actionLoading) return;
+    setActionLoading(true);
+    try {
+      const res = await api.collectFishing(characterId);
+      setSessionState(null);
+      const hj = res.character.heroJson as any;
+      updateHero({
+        inventory: hj?.inventory ?? hero.inventory ?? [],
+        heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: undefined },
+      });
+      alert(`Улов: ${res.fishCount} рыб`);
+    } catch (e: any) {
+      alert(e?.message || e?.error || "Не удалось забрать улов");
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (!hero) {
     return (
       <div className="flex items-center justify-center min-h-[40vh] text-[#b8860b]">
         Загрузка...
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh] text-[#b8860b]">
+        Загрузка сессии...
       </div>
     );
   }
@@ -152,10 +168,10 @@ export default function Fishing({ navigate }: FishingProps) {
             </div>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-[#b8860b]/50 text-[#b8860b] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!hasRod || !hasBait || !canAfford}
+              disabled={!hasRod || !hasBait || !canAfford || actionLoading}
               onClick={handleStartFishing}
             >
-              Начать рыбалку
+              {actionLoading ? "..." : "Начать рыбалку"}
             </button>
           </div>
         )}
@@ -167,17 +183,16 @@ export default function Fishing({ navigate }: FishingProps) {
           </div>
         )}
 
-        {ready && fishCount > 0 && (
+        {ready && (
           <div className="px-4 py-3 border-b border-black/70 space-y-3 text-[12px] text-[#cfcfcc]">
             <p className="text-sm text-green-400">Улов готов!</p>
-            <p className="text-xs">
-              Рыб: <span className="text-[#b8860b] font-semibold">{fishCount}</span>
-            </p>
+            <p className="text-xs">Рыб: 100–300 (случайно)</p>
             <button
-              className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-green-500/50 text-green-400 hover:bg-[#3a3a3a]"
+              className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-green-500/50 text-green-400 hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleCollect}
+              disabled={actionLoading}
             >
-              Забрать улов
+              {actionLoading ? "..." : "Забрать улов"}
             </button>
           </div>
         )}

@@ -279,6 +279,48 @@ export async function resurrectCharacter(id: string): Promise<Character> {
   return response.character;
 }
 
+// Fishing API (session on server, one per account)
+export interface FishingSession {
+  startedAt: number;
+  fishCount?: number;
+}
+
+export interface FishingSessionResponse {
+  ok: boolean;
+  session: FishingSession | null;
+}
+
+export interface FishingStartResponse {
+  ok: boolean;
+  character: Character;
+  session: { startedAt: number };
+}
+
+export interface FishingCollectResponse {
+  ok: boolean;
+  character: Character;
+  fishCount: number;
+}
+
+export async function getFishingSession(characterId: string): Promise<FishingSession | null> {
+  const response = await apiRequest<FishingSessionResponse>(`/characters/${characterId}/fishing`, {
+    method: 'GET',
+  });
+  return response.session;
+}
+
+export async function startFishing(characterId: string): Promise<FishingStartResponse> {
+  return apiRequest<FishingStartResponse>(`/characters/${characterId}/fishing/start`, {
+    method: 'POST',
+  });
+}
+
+export async function collectFishing(characterId: string): Promise<FishingCollectResponse> {
+  return apiRequest<FishingCollectResponse>(`/characters/${characterId}/fishing/collect`, {
+    method: 'POST',
+  });
+}
+
 export type PremiumPack = "3h" | "7h" | "12h" | "24h";
 
 export interface BuyPremiumResponse {
