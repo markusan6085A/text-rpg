@@ -455,11 +455,7 @@ function AppInner() {
       return renderWithLayout(<PremiumAccount navigate={navigate} key={`premium-account-${refreshKey}`} />);
 
     case "/fishing":
-      return (
-        <Layout navigate={navigate} customBackground="/icons/fishing.jpg" key="fishing-layout">
-          <Fishing navigate={navigate} key={`fishing-${refreshKey}`} />
-        </Layout>
-      );
+      return renderWithLayout(<Fishing navigate={navigate} key={`fishing-${refreshKey}`} />);
 
     case "/chat":
       return renderWithLayout(<Chat navigate={navigate} key={`chat-${refreshKey}`} />);

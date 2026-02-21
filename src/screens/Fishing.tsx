@@ -144,21 +144,32 @@ export default function Fishing({ navigate }: FishingProps) {
   }
 
   return (
-    <div className="w-full flex items-start justify-center">
-      <div className="w-full max-w-md mt-5 mb-10 px-3">
-        <div className="px-4 py-3 border-b border-black/70">
-          <h1 className="text-lg font-semibold text-[#b8860b] text-center mb-3">
-            Рыбалка
-          </h1>
-          <p className="text-xs text-[#cfcfcc] text-left">
+    <div className="w-full text-white px-4 py-2">
+      <div className="w-full max-w-[360px] mx-auto">
+        <div className="space-y-3">
+          {/* Банер (як на Clan/GK — всередині рамки) */}
+          <div className="border-t border-white/50"></div>
+          <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">Рыбалка</div>
+          <div className="border-b border-white/50"></div>
+          <div className="flex justify-center">
+            <img
+              src="/icons/fishing.jpg"
+              alt="Рыбалка"
+              className="w-48 h-48 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/icons/clanns.png";
+              }}
+            />
+          </div>
+
+          <p className="text-xs text-[#cfcfcc]">
             Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
             {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от 100 до 300 рыб.
           </p>
-        </div>
 
         {!session && (
-          <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc]">
-            <div className="text-left text-xs space-y-1 mb-4">
+          <div className="text-[12px] text-[#cfcfcc] space-y-3 border-b border-white/50 pb-3">
+            <div className="text-left text-xs space-y-1">
               <p className={hasRod ? "text-green-400" : "text-red-400"}>
                 {hasRod ? "✓ Удочка надета" : "✗ Наденьте удочку (Baby Duck Rod)"}
               </p>
@@ -172,7 +183,7 @@ export default function Fishing({ navigate }: FishingProps) {
               </p>
             </div>
             <button
-              className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-[#b8860b]/50 text-[#b8860b] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-[#c7ad80]/50 text-[#c7ad80] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!hasRod || !hasBait || !canAfford || actionLoading}
               onClick={handleStartFishing}
             >
@@ -182,14 +193,14 @@ export default function Fishing({ navigate }: FishingProps) {
         )}
 
         {session && !ready && (
-          <div className="px-4 py-3 border-b border-black/70 space-y-2 text-[12px] text-[#cfcfcc]">
+          <div className="space-y-2 text-[12px] text-[#cfcfcc] border-b border-white/50 pb-3">
             <p className="text-sm">Рыбалка идёт. Осталось: {remainingStr}</p>
             <p className="text-xs text-gray-500">Вернитесь через час и нажмите «Забрать улов».</p>
           </div>
         )}
 
         {ready && (
-          <div className="px-4 py-3 border-b border-black/70 space-y-3 text-[12px] text-[#cfcfcc]">
+          <div className="space-y-3 text-[12px] text-[#cfcfcc] border-b border-white/50 pb-3">
             <p className="text-sm text-green-400">Улов готов!</p>
             <p className="text-xs">Рыб: 100–300 (случайно)</p>
             <button
@@ -202,13 +213,14 @@ export default function Fishing({ navigate }: FishingProps) {
           </div>
         )}
 
-        <div className="px-4 py-2">
-          <button
-            className="w-full text-center text-[12px] text-[#ff8c00] hover:text-[#ffa500] underline py-2"
-            onClick={() => navigate("/city")}
-          >
-            Назад
-          </button>
+          <div className="mt-4 flex justify-center">
+            <span
+              onClick={() => navigate("/city")}
+              className="text-sm text-red-600 cursor-pointer hover:text-red-500"
+            >
+              В город
+            </span>
+          </div>
         </div>
       </div>
     </div>
