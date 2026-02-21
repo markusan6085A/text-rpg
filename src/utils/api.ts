@@ -312,12 +312,14 @@ export async function getFishingSession(characterId: string): Promise<FishingSes
 export async function startFishing(characterId: string): Promise<FishingStartResponse> {
   return apiRequest<FishingStartResponse>(`/characters/${characterId}/fishing/start`, {
     method: 'POST',
+    body: JSON.stringify({}),
   });
 }
 
 export async function collectFishing(characterId: string): Promise<FishingCollectResponse> {
   return apiRequest<FishingCollectResponse>(`/characters/${characterId}/fishing/collect`, {
     method: 'POST',
+    body: JSON.stringify({}),
   });
 }
 
