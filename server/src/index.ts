@@ -18,6 +18,7 @@ import { adminAuthRoutes } from "./routes/adminAuth";
 import { adminRoutes } from "./routes/admin";
 import { adminPlayersRoutes } from "./routes/adminPlayers";
 import { premiumRoutes } from "./routes/premium";
+import { runSevenSealsMailJob } from "./sevenSealsMail";
 
 // Отримуємо шлях до dist папки (frontend build)
 // Якщо сервер запускається з server/, то process.cwd() = server/
@@ -270,6 +271,18 @@ const start = async () => {
         app.log.error(err, "Error cleaning up old letters:");
       }
     }, 60 * 60 * 1000); // Кожні 1 годину
+
+    // 🔥 Розсилка листів топ-3 переможцям 7 Печатей щосуботи 00:00 (Europe/Warsaw) від Existence
+    setInterval(async () => {
+      try {
+        await runSevenSealsMailJob((msg, meta) => {
+          if (meta) app.log.info(meta as any, msg);
+          else app.log.info(msg);
+        });
+      } catch (err) {
+        app.log.error(err, "Seven Seals mail job error:");
+      }
+    }, 5 * 60 * 1000); // Кожні 5 хвилин
 
     // Запускаємо очистку одразу при старті
     setTimeout(async () => {

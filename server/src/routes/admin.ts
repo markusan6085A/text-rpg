@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { requireAdmin } from "./adminGuard";
 import { prisma } from "../db";
 import { setMuted } from "../chatMute";
+import { runSevenSealsMailJob } from "../sevenSealsMail";
 
 export const adminRoutes: FastifyPluginAsync = async (app) => {
   // GET /ping → /admin/ping з prefix
@@ -24,6 +25,12 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     if (!message) return reply.code(404).send({ error: "message not found" });
     await prisma.chatMessage.delete({ where: { id: messageId } });
     return { ok: true };
+  });
+
+  // POST /admin/seven-seals/send-mail — примусова розсилка листів топ-3 (для тесту)
+  app.post("/seven-seals/send-mail", { preHandler: [requireAdmin] }, async (req, reply) => {
+    const r = await runSevenSealsMailJob(() => {}, true);
+    return { ok: true, sent: r.sent, skipped: r.skipped || undefined };
   });
 
   // POST /admin/chat/mute — адмін мут гравця в чаті (characterId, durationMinutes)
