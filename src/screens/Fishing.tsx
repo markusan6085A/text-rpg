@@ -22,6 +22,7 @@ interface FishingProps {
 export default function Fishing({ navigate }: FishingProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const updateServerState = useHeroStore((s) => s.updateServerState);
   const characterId = useCharacterStore((s) => s.characterId);
 
   const [session, setSessionState] = useState<api.FishingSession | null>(null);
@@ -95,6 +96,8 @@ export default function Fishing({ navigate }: FishingProps) {
       const res = await api.startFishing(characterId);
       setSessionState(res.session);
       const hj = res.character.heroJson as any;
+      const newRev = hj?.heroRevision;
+      if (newRev != null) updateServerState({ heroRevision: newRev });
       updateHero({
         sp: res.character.sp,
         adena: res.character.adena,
@@ -115,6 +118,8 @@ export default function Fishing({ navigate }: FishingProps) {
       const res = await api.collectFishing(characterId);
       setSessionState(null);
       const hj = res.character.heroJson as any;
+      const newRev = hj?.heroRevision;
+      if (newRev != null) updateServerState({ heroRevision: newRev });
       updateHero({
         inventory: hj?.inventory ?? hero.inventory ?? [],
         heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: undefined },
