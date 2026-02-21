@@ -123,19 +123,20 @@ export default function Fishing({ navigate }: FishingProps) {
   }
 
   return (
-    <div className="w-full min-h-[calc(100vh-12rem)] flex flex-col items-center justify-center text-[#b8860b] px-2 pb-4">
-      <div className="w-full max-w-[360px] rounded-lg border border-[#c7ad80]/40 bg-black/50 p-4 text-center">
-        <h1 className="text-lg font-semibold text-[#b8860b] border-b border-white/30 pb-2 mb-3">
-          Рыбалка
-        </h1>
-
-        <p className="text-xs text-gray-300 text-left mb-4">
-          Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
-          {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от 100 до 300 рыб.
-        </p>
+    <div className="w-full flex items-start justify-center">
+      <div className="w-full max-w-md mt-5 mb-10 px-3">
+        <div className="px-4 py-3 border-b border-black/70">
+          <h1 className="text-lg font-semibold text-[#b8860b] text-center mb-3">
+            Рыбалка
+          </h1>
+          <p className="text-xs text-[#cfcfcc] text-left">
+            Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
+            {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от 100 до 300 рыб.
+          </p>
+        </div>
 
         {!session && (
-          <>
+          <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc]">
             <div className="text-left text-xs space-y-1 mb-4">
               <p className={hasRod ? "text-green-400" : "text-red-400"}>
                 {hasRod ? "✓ Удочка надета" : "✗ Наденьте удочку (Baby Duck Rod)"}
@@ -156,20 +157,20 @@ export default function Fishing({ navigate }: FishingProps) {
             >
               Начать рыбалку
             </button>
-          </>
+          </div>
         )}
 
         {session && !ready && (
-          <div className="space-y-2">
-            <p className="text-sm text-gray-300">Рыбалка идёт. Осталось: {remainingStr}</p>
+          <div className="px-4 py-3 border-b border-black/70 space-y-2 text-[12px] text-[#cfcfcc]">
+            <p className="text-sm">Рыбалка идёт. Осталось: {remainingStr}</p>
             <p className="text-xs text-gray-500">Вернитесь через час и нажмите «Забрать улов».</p>
           </div>
         )}
 
         {ready && fishCount > 0 && (
-          <div className="space-y-3">
+          <div className="px-4 py-3 border-b border-black/70 space-y-3 text-[12px] text-[#cfcfcc]">
             <p className="text-sm text-green-400">Улов готов!</p>
-            <p className="text-xs text-gray-300">
+            <p className="text-xs">
               Рыб: <span className="text-[#b8860b] font-semibold">{fishCount}</span>
             </p>
             <button
@@ -180,15 +181,15 @@ export default function Fishing({ navigate }: FishingProps) {
             </button>
           </div>
         )}
-      </div>
 
-      <div className="mt-4">
-        <button
-          className="text-xs text-gray-400 hover:text-[#b8860b] underline"
-          onClick={() => navigate("/city")}
-        >
-          Назад
-        </button>
+        <div className="px-4 py-2">
+          <button
+            className="w-full text-center text-[12px] text-[#ff8c00] hover:text-[#ffa500] underline py-2"
+            onClick={() => navigate("/city")}
+          >
+            Назад
+          </button>
+        </div>
       </div>
     </div>
   );
