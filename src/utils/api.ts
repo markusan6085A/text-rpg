@@ -293,7 +293,7 @@ export interface FishingSessionResponse {
 export interface FishingStartResponse {
   ok: boolean;
   character: Character;
-  session: { startedAt: number };
+  session: { startedAt: number; fishCount?: number };
 }
 
 export interface FishingCollectResponse {

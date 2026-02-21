@@ -225,7 +225,7 @@ export default function Fishing({ navigate }: FishingProps) {
         {ready && (
           <div className="space-y-3 text-[12px]">
             <p className="text-green-400">Улов готов!</p>
-            <p className="text-[#cfcfcc]">Рыб: 100–300 (случайно)</p>
+            <p className="text-[#cfcfcc]">Рыб: {typeof session?.fishCount === "number" ? session.fishCount : "100–300"}</p>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-green-500/50 text-green-400 hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleCollect}

@@ -658,12 +658,13 @@ export async function characterRoutes(app: FastifyInstance) {
         return c > 0 ? { ...item, count: c } : null;
       }).filter(Boolean) as any[];
 
+      const fishCount = FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
       const oldRevision = heroJson.heroRevision ?? 0;
       const updatedHeroJson = addVersioning(
         {
           ...heroJson,
           inventory: newInv,
-          fishingSession: { startedAt: Date.now() },
+          fishingSession: { startedAt: Date.now(), fishCount },
         },
         oldRevision
       );
@@ -684,7 +685,8 @@ export async function characterRoutes(app: FastifyInstance) {
         }),
       ]);
 
-      const session = { startedAt: (updated.heroJson as any).fishingSession?.startedAt ?? Date.now() };
+      const fs = (updated.heroJson as any).fishingSession;
+      const session = { startedAt: fs?.startedAt ?? Date.now(), fishCount: fs?.fishCount ?? fishCount };
       return reply.send({
         ok: true,
         character: { ...updated, exp: Number(updated.exp) },
@@ -720,7 +722,7 @@ export async function characterRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "fishing not ready yet (1 hour required)" });
       }
 
-      const fishCount = FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
+      const fishCount = typeof session.fishCount === "number" ? session.fishCount : FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
       const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
       const existing = inv.find((i: any) => (i?.id ?? i?.itemId) === FISH_ITEM_ID);
       if (existing) {
