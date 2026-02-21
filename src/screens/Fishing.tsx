@@ -35,10 +35,15 @@ export default function Fishing({ navigate }: FishingProps) {
       return;
     }
     setLoading(true);
-    fetchFishingSession(characterId).then((s) => {
-      setSessionState(s);
-      setLoading(false);
-    });
+    fetchFishingSession(characterId)
+      .then((s) => {
+        setSessionState(s);
+        setLoading(false);
+      })
+      .catch(() => {
+        setSessionState(null);
+        setLoading(false);
+      });
   }, [characterId]);
 
   useEffect(() => {
