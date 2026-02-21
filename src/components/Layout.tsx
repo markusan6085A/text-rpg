@@ -243,8 +243,6 @@ export default function Layout({
 
   return (
     <div className="min-h-screen bg-black flex justify-center p-2 sm:p-4">
-      {/* Бари зверху екрана (поза блоком з position: relative) */}
-      {showStatusBars && <StatusBars />}
       <div
         className={`w-full max-w-[380px] flex flex-col relative min-h-full ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
@@ -264,6 +262,7 @@ export default function Layout({
               }
         }
       >
+        {showStatusBars && <StatusBars />}
         {cooldownSec > 0 && (
           <div className="fixed top-14 left-0 right-0 z-50 bg-amber-900/95 text-amber-200 text-center text-xs py-1.5 px-2">
             Забагато запитів. Зачекайте {cooldownSec} сек.
