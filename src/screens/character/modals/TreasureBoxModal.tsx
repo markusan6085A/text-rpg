@@ -96,39 +96,20 @@ export default function TreasureBoxModal({
       return i;
     }).filter(Boolean) as HeroInventoryItem[];
 
-    // Додаємо adena
+    // Додаємо adena (валюта персонажа)
     const newAdena = (currentHero.adena || 0) + totalAdena;
 
-    // Додаємо Coin of Luck (окреме поле в Hero)
+    // Додаємо Coin of Luck (валюта персонажа)
     const newCoinOfLuck = (currentHero.coinOfLuck || 0) + totalCoinOfLuck;
 
-    // Додаємо coins_silver до інвентаря
-    if (totalCoinsSilver > 0) {
-      const coinsSilverId = "coins_silver";
-      const coinsSilverDef = itemsDB[coinsSilverId];
-      if (coinsSilverDef) {
-        const existingCoinsIndex = updatedInventory.findIndex((i) => i.id === coinsSilverId);
-        if (existingCoinsIndex >= 0) {
-          updatedInventory = updatedInventory.map((i) =>
-            i.id === coinsSilverId ? { ...i, count: (i.count ?? 1) + totalCoinsSilver } : i
-          );
-        } else {
-          updatedInventory.push({
-            id: coinsSilverId,
-            name: coinsSilverDef.name,
-            icon: coinsSilverDef.icon,
-            slot: coinsSilverDef.slot,
-            count: totalCoinsSilver,
-            description: coinsSilverDef.description,
-          });
-        }
-      }
-    }
+    // Додаємо Серебряные Монеты (валюта персонажа hero.coins_silver)
+    const newCoinsSilver = (currentHero.coins_silver ?? (currentHero as any).coinsSilver ?? 0) + totalCoinsSilver;
 
     // Оновлюємо героя
     updateHero({
       adena: newAdena,
       coinOfLuck: newCoinOfLuck,
+      coins_silver: newCoinsSilver,
       inventory: updatedInventory,
     });
 

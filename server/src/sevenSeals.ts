@@ -239,7 +239,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     try {
       const character = await prisma.character.findFirst({
         where: { id: characterId, accountId: auth.accountId },
-        select: { id: true, heroJson: true },
+        select: { id: true, heroJson: true, coinLuck: true },
       });
       if (!character) return reply.code(404).send({ error: "character not found" });
 
@@ -265,18 +265,20 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         });
       }
 
-      const RANGES: Record<number, { pAtk: [number, number]; pDef: [number, number] }> = {
-        1: { pAtk: [125, 750], pDef: [154, 456] },
-        2: { pAtk: [100, 500], pDef: [100, 400] },
-        3: { pAtk: [80, 300], pDef: [80, 300] },
+      const RANGES: Record<number, { pAtk: [number, number]; pDef: [number, number]; coinLuck: [number, number] }> = {
+        1: { pAtk: [125, 750], pDef: [154, 456], coinLuck: [5, 20] },
+        2: { pAtk: [100, 500], pDef: [100, 400], coinLuck: [5, 15] },
+        3: { pAtk: [80, 300], pDef: [80, 300], coinLuck: [5, 10] },
       };
       const r = RANGES[rank] || RANGES[3];
       const rand = (min: number, max: number) => Math.floor(min + Math.random() * (max - min + 1));
+      const coinLuckReward = rand(r.coinLuck[0], r.coinLuck[1]);
       const sevenSealsBonus = {
         pAtk: rand(r.pAtk[0], r.pAtk[1]),
         mAtk: rand(r.pAtk[0], r.pAtk[1]),
         pDef: rand(r.pDef[0], r.pDef[1]),
         mDef: rand(r.pDef[0], r.pDef[1]),
+        coinLuck: coinLuckReward,
         rank,
       };
 
@@ -286,7 +288,10 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       };
       await prisma.character.update({
         where: { id: characterId },
-        data: { heroJson: updatedHeroJson },
+        data: {
+          heroJson: updatedHeroJson,
+          coinLuck: { increment: coinLuckReward },
+        },
       });
 
       return reply.send({

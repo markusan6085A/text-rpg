@@ -20,7 +20,7 @@ interface SevenSealsBonusModalProps {
   rank: 1 | 2 | 3;
   playerName?: string;
   /** Реальні отримані стати (якщо вже отримано нагороду) */
-  bonus?: { pAtk: number; mAtk: number; pDef: number; mDef: number };
+  bonus?: { pAtk: number; mAtk: number; pDef: number; mDef: number; coinLuck?: number };
   onClose: () => void;
 }
 
@@ -49,6 +49,7 @@ export default function SevenSealsBonusModal({ rank, playerName, bonus, onClose 
               <div className="text-green-400 font-semibold mb-1">Ваш бонус:</div>
               <div>Физ/Маг атака: +{bonus!.pAtk} / +{bonus!.mAtk}</div>
               <div>Физ/Маг защита: +{bonus!.pDef} / +{bonus!.mDef}</div>
+              {bonus!.coinLuck != null && <div>Кол (Coin of Luck): +{bonus!.coinLuck}</div>}
             </>
           ) : (
             rangesText

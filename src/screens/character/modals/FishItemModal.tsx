@@ -66,16 +66,18 @@ function getShopIdsByType(type: string): string[] {
   return ids;
 }
 
-// Розділка риби: Coin 0.7%, зброя 0.3%, броня 0.5%, ресурси 2%, бижутерія 0.6%, скарбничка 0.3%, адена 2%, срібні монети 1%
+// Розділка риби: Coin 0.7%, зброя 0.3%, броня 0.5%, ресурси 2%, бижутерія 0.6%, скарбничка 0.3%, адена 2%, срібні монети 1% (→ hero.coins_silver)
 function processFishDrop(fishCount: number): {
   adena: number;
   coinOfLuck: number;
+  coinsSilver: number;
   weapons: Array<{ id: string; count: number }>;
   armorPieces: Array<{ id: string; count: number }>;
   resources: Array<{ id: string; count: number }>;
 } {
   let totalAdena = 0;
   let totalCoinOfLuck = 0;
+  let totalCoinsSilver = 0;
   const weapons: Record<string, number> = {};
   const armorPieces: Record<string, number> = {};
   const resources: Record<string, number> = {};
@@ -86,7 +88,7 @@ function processFishDrop(fishCount: number): {
   const shopJewelry = getShopJewelryIds();
 
   for (let i = 0; i < fishCount; i++) {
-    // Coin of Luck: 0.7%
+    // Coin of Luck: 0.7% (→ hero.coinOfLuck)
     if (Math.random() * 100 < 0.7) totalCoinOfLuck += 1;
     // Зброя: 0.3%
     if (Math.random() * 100 < 0.3 && shopWeapons.length > 0) {
@@ -109,15 +111,16 @@ function processFishDrop(fishCount: number): {
     }
     // Скарбничка: 0.3%
     if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
-    // Адена: 2%
+    // Адена: 2% (→ hero.adena)
     if (Math.random() * 100 < 2) totalAdena += 10_000;
-    // Срібні монети: 1%
-    if (Math.random() * 100 < 1) resources["coins_silver"] = (resources["coins_silver"] || 0) + 1;
+    // Срібні монети: 1% (→ hero.coins_silver)
+    if (Math.random() * 100 < 1) totalCoinsSilver += 1;
   }
 
   return {
     adena: totalAdena,
     coinOfLuck: totalCoinOfLuck,
+    coinsSilver: totalCoinsSilver,
     weapons: Object.entries(weapons).map(([id, count]) => ({ id, count })),
     armorPieces: Object.entries(armorPieces).map(([id, count]) => ({ id, count })),
     resources: Object.entries(resources).map(([id, count]) => ({ id, count })),
@@ -241,11 +244,13 @@ export default function FishItemModal({
     });
 
     const newCoinOfLuck = (currentHero.coinOfLuck ?? 0) + (result.coinOfLuck ?? 0);
+    const newCoinsSilver = (currentHero.coins_silver ?? (currentHero as any).coinsSilver ?? 0) + (result.coinsSilver ?? 0);
 
     // Оновлюємо героя
     updateHero({
       adena: newAdena,
       coinOfLuck: newCoinOfLuck,
+      coins_silver: newCoinsSilver,
       inventory: updatedInventory,
     });
 
@@ -284,6 +289,12 @@ export default function FishItemModal({
               <div className="flex items-center gap-2">
                 <span className="text-gray-400">Coin of Luck:</span>
                 <span className="text-[#e0c68a]">+{(dismantleResult as { coinOfLuck?: number }).coinOfLuck}</span>
+              </div>
+            )}
+            {((dismantleResult as { coinsSilver?: number }).coinsSilver ?? 0) > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">Серебряные Монеты:</span>
+                <span className="text-gray-300">+{(dismantleResult as { coinsSilver?: number }).coinsSilver}</span>
               </div>
             )}
 
@@ -463,6 +474,7 @@ export default function FishItemModal({
 
             {dismantleResult.adena === 0 &&
               ((dismantleResult as { coinOfLuck?: number }).coinOfLuck ?? 0) === 0 &&
+              ((dismantleResult as { coinsSilver?: number }).coinsSilver ?? 0) === 0 &&
               dismantleResult.weapons.length === 0 &&
               dismantleResult.armorPieces.length === 0 &&
               dismantleResult.resources.length === 0 && (

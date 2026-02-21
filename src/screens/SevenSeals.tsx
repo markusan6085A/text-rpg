@@ -50,8 +50,8 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
     return dayOfWeek >= 1 && dayOfWeek <= 6; // Понеділок-субота
   };
 
-  // Обмежуємо рейтинг до топ-10
-  const topRanking = ranking.slice(0, 10);
+  // Тільки 3 переможці отримують нагороди
+  const topRanking = ranking.slice(0, 3);
 
   return (
     <div className="w-full text-gray-100 flex flex-col">
