@@ -156,15 +156,17 @@ export default function Fishing({ navigate }: FishingProps) {
           <div className="border-t border-white/50"></div>
           <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">Рыбалка</div>
           <div className="border-b border-white/50"></div>
-          <div className="flex justify-center">
-            <img
-              src="/icons/fishing.jpg"
-              alt="Рыбалка"
-              className="w-48 h-48 object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/icons/clanns.png";
-              }}
-            />
+          <div className="flex justify-start -ml-1">
+            <div className="relative overflow-hidden rounded shadow-[inset_0_0_25px_10px_rgba(0,0,0,0.65)]">
+              <img
+                src="/icons/fishing.jpg"
+                alt="Рыбалка"
+                className="max-h-44 w-auto object-cover object-left block"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/icons/clanns.png";
+                }}
+              />
+            </div>
           </div>
 
           <p className="text-xs text-[#cfcfcc]">
