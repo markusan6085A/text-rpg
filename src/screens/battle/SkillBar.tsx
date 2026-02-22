@@ -136,7 +136,7 @@ export function SkillBar() {
       : category === "item"
       ? equippableItems
       : category === "remove"
-      ? loadoutSlots.map((id, idx) => ({ id, idx })).filter((s) => s.id !== null)
+      ? (loadoutSlots || []).map((id, idx) => ({ id, idx })).filter((s) => s.id !== null)
       : [];
 
   const openRemovePicker = () => {
