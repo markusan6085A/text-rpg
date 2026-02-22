@@ -1,7 +1,7 @@
 // src/screens/Battle.tsx
 import React from "react";
 import { useBattleStore } from "../state/battle/store";
-import { useBattleQuery, findZoneWithCity } from "./battle/battleUtils";
+import { findZoneWithCity } from "./battle/battleUtils";
 import { TargetCard } from "./battle/TargetCard";
 import { SkillBar } from "./battle/SkillBar";
 import { BattleLog } from "./battle/BattleLog";

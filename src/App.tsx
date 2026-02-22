@@ -192,8 +192,8 @@ function AppInner() {
         // 2) Ініціалізуємо character store
         initializeCharacter();
 
-        // 2.1) Адмін: хто я (для кнопок Адмін у грі)
-        useAdminStore.getState().checkAdmin().catch(() => {});
+        // 2.1) Адмін: хто я (відкладаємо, щоб не тригерити 401 під час завантаження бою)
+        setTimeout(() => useAdminStore.getState().checkAdmin().catch(() => {}), 1500);
 
         // 2.2) Optional warm-up (fire-and-forget, не блокує)
         try {
@@ -397,7 +397,7 @@ function AppInner() {
             <div className="flex flex-col items-center justify-center gap-3 p-4 text-center text-gray-300">
               <p className="text-sm">Помилка завантаження бою.</p>
               <button
-                onClick={() => navigate("/location")}
+                onClick={() => { window.location.href = "/location"; }}
                 className="px-4 py-2 rounded bg-yellow-600 text-black text-sm hover:bg-yellow-500"
               >
                 Повернутися в локацію
