@@ -281,7 +281,7 @@ export async function characterRoutes(app: FastifyInstance) {
         return reply.code(409).send({ error: "revision_conflict", revision: oldRevision });
       }
 
-      const currentCoinLuck = ch.coinLuck ?? 0;
+      const currentCoinLuck = Number(ch.coinLuck ?? 0);
       if (currentCoinLuck < PRICE) {
         return reply.code(400).send({ error: "not enough coinLuck", coinLuck: currentCoinLuck });
       }

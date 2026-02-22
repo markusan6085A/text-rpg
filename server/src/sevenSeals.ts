@@ -205,9 +205,9 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
 
       const heroJson = (char?.heroJson ?? {}) as Record<string, unknown>;
       const sevenSealsBonus = heroJson.sevenSealsBonus as { rank?: number; expiresAt?: number } | undefined;
-      const claimedRank = sevenSealsBonus && typeof sevenSealsBonus === "object" && sevenSealsBonus.rank;
+      const claimedRank = sevenSealsBonus && typeof sevenSealsBonus === "object" ? sevenSealsBonus.rank : undefined;
       const expiresAt = sevenSealsBonus?.expiresAt ?? 0;
-      if (claimedRank >= 1 && claimedRank <= 3 && expiresAt > Date.now()) {
+      if (typeof claimedRank === "number" && claimedRank >= 1 && claimedRank <= 3 && expiresAt > Date.now()) {
         return {
           ok: true,
           characterId,
