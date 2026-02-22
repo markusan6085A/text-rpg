@@ -3,6 +3,7 @@ import { useHeroStore } from "../../state/heroStore";
 import { INVENTORY_MAX_ITEMS } from "../../state/heroStore";
 import Equipment from "./Equipment";
 import InventoryFilters, { CATEGORIES } from "./InventoryFilters";
+import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import InventoryItemList from "./InventoryItemList";
 import InventoryItemModal from "./modals/InventoryItemModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
@@ -18,6 +19,7 @@ export default function Inventory() {
   console.log('[Inventory] Component rendered, hero:', hero ? 'exists' : 'null');
 
   const [currentCategory, setCurrentCategory] = useState("all");
+  const [currentGrade, setCurrentGrade] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<{ item: any; amount: number } | null>(null);
@@ -28,8 +30,16 @@ export default function Inventory() {
   const filteredItems = useMemo(() => {
     if (!hero || !hero.inventory) return [];
     const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
-    return hero.inventory.filter((item: any) => item && category.test(item));
-  }, [hero, currentCategory]);
+    let items = hero.inventory.filter((item: any) => item && category.test(item));
+    if (currentGrade) {
+      const gradeUpper = currentGrade.toUpperCase();
+      items = items.filter((item: any) => {
+        const def = itemsDB[item.id] || itemsDBWithStarter[item.id];
+        return def?.grade?.toUpperCase() === gradeUpper;
+      });
+    }
+    return items;
+  }, [hero, currentCategory, currentGrade]);
 
   // Пагінація
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
@@ -159,8 +169,14 @@ export default function Inventory() {
         {/* Фільтри */}
         <InventoryFilters
           currentCategory={currentCategory}
+          currentGrade={currentGrade}
           onCategoryChange={(category) => {
             setCurrentCategory(category);
+            setCurrentGrade("");
+            setCurrentPage(1);
+          }}
+          onGradeChange={(grade) => {
+            setCurrentGrade(grade);
             setCurrentPage(1);
           }}
         />

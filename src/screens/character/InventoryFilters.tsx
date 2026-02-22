@@ -36,18 +36,25 @@ export const CATEGORIES = [
   { key: "book", label: "Книги", test: (item: any) => item.slot === "book" },
 ];
 
+const GRADE_KEYS = ["ng", "d", "c", "b", "a", "s"] as const;
+const GRADE_CATEGORIES = ["weapon", "armor", "bijou"];
+
 interface InventoryFiltersProps {
   currentCategory: string;
+  currentGrade: string;
   onCategoryChange: (category: string) => void;
+  onGradeChange: (grade: string) => void;
 }
 
 export default function InventoryFilters({
   currentCategory,
+  currentGrade,
   onCategoryChange,
+  onGradeChange,
 }: InventoryFiltersProps) {
-  // Розділяємо таби на 2 ряди
-  const firstRow = CATEGORIES.slice(0, 5); // Перші 5 табів
-  const secondRow = CATEGORIES.slice(5); // Решта табів
+  const firstRow = CATEGORIES.slice(0, 5);
+  const secondRow = CATEGORIES.slice(5);
+  const showGradeSub = GRADE_CATEGORIES.includes(currentCategory);
 
   return (
     <div className="flex flex-col gap-1 mb-3 text-[10px] border-b border-white/50 pb-1" style={{ color: "#d9d9d9" }}>
@@ -91,6 +98,28 @@ export default function InventoryFilters({
           </React.Fragment>
         ))}
       </div>
+      {/* Підкатегорії ng d c b a s для Оружие, Броня, Биж */}
+      {showGradeSub && (
+        <div className="flex items-center gap-0 mt-1 pt-1 border-t border-white/20">
+          {GRADE_KEYS.map((g, idx) => (
+            <React.Fragment key={g}>
+              <button
+                onClick={() => onGradeChange(currentGrade === g ? "" : g)}
+                className={`px-1.5 py-0.5 ${
+                  currentGrade === g
+                    ? "text-[#b8860b] font-semibold"
+                    : "text-[#9a9a9a] hover:text-[#d9d9d9]"
+                }`}
+              >
+                {g}
+              </button>
+              {idx < GRADE_KEYS.length - 1 && (
+                <span className="text-[#5a4424] mx-0.5">|</span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
