@@ -115,8 +115,8 @@ export function getSellPrice(itemId: string, itemDef?: ItemDefinition | null): n
   const def = itemDef ?? itemsDB[itemId];
   if (!def) return null;
 
-  // Валюта та медаль печатей — не продаються
-  if (["adena", "coin_of_luck", "coins_silver", "ancient_adena", "seven_seals_medal"].includes(itemId)) return null;
+  // Валюта, медаль печатей, Festival Adena — не продаються
+  if (["adena", "coin_of_luck", "coins_silver", "ancient_adena", "seven_seals_medal", "coin_of_fair"].includes(itemId)) return null;
 
   // Ресурси — 1–1000
   if (isResourceItem(def)) return getResourceSellPrice(itemId);
