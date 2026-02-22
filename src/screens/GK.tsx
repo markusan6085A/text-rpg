@@ -6,7 +6,7 @@ import {
 } from "../data/world";
 import type { Zone } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
-import { savePreviousLocation, clearPreviousLocation } from "../utils/locationNavigation";
+import { savePreviousLocation, savePreviousCity, getPreviousCity, clearPreviousLocation } from "../utils/locationNavigation";
 
 type Navigate = (path: string) => void;
 
@@ -36,6 +36,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   const defaultCityId =
     q.get("city") ||
+    getPreviousCity() ||
     WORLD_CITIES.find((c) => c.id === "floran")?.id ||
     WORLD_CITIES[0].id;
 
@@ -54,6 +55,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const goToZone = (zoneId: string) => {
+    // 🔥 Зберігаємо поточне місто — щоб City та ТП пам'ятали останнє місто
+    savePreviousCity(selectedCity.id);
     // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
     window.scrollTo(0, 0);
     // 🔥 Очищаємо попередню локацію при виході з міста через телепорт

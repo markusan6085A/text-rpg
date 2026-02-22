@@ -9,6 +9,7 @@ import type { BattleState, CooldownMap } from "../types";
 import { isMobOnRespawn, getRespawnTimeRemaining, clearMobRespawn } from "../mobRespawns";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { loadBattleLogs, saveBattleLogs } from "../battleLogs";
+import { savePreviousCity } from "../../../utils/locationNavigation";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -274,6 +275,8 @@ export const createStartBattle =
           location: zone.name, // 🔥 Додаємо location для збереження в heroJson
         } as any);
       }
+      // 🔥 Зберігаємо місто зони — щоб City та ТП показували правильне місто
+      savePreviousCity(zone.cityId);
     }
     
     // Заряди (soulshot/spiritshot): пріоритет saved → prevState → get(), щоб при "Следующий моб" вони ніколи не скидалися

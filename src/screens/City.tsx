@@ -5,6 +5,8 @@ import { useAdminStore } from "../state/adminStore";
 import { setString } from "../state/persistence";
 import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
+import { getPreviousCity } from "../utils/locationNavigation";
+import { cities as WORLD_CITIES, getCityById } from "../data/world";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -104,11 +106,17 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         )}
       </div>
 
-      {/* Название города */}
-          <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2">
-            <img src="/assets/gk.jpg" alt="Talking Island Village" className="w-6 h-6 object-contain" />
-            <span className="font-semibold">Talking Island Village</span>
-          </div>
+      {/* Название города — поточне місто гравця */}
+          {(() => {
+            const cityId = getPreviousCity() || WORLD_CITIES[0]?.id;
+            const currentCity = getCityById(cityId) || WORLD_CITIES[0];
+            return (
+              <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2">
+                <img src="/assets/gk.jpg" alt={currentCity?.name} className="w-6 h-6 object-contain" />
+                <span className="font-semibold">{currentCity?.name || "Floran"}</span>
+              </div>
+            );
+          })()}
 
           {/* Сервисы */}
           <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#645b45]">

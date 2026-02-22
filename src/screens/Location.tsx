@@ -10,7 +10,7 @@ import { itemsDB } from "../data/items/itemsDB";
 import { isMobOnRespawn, getRespawnTimeRemaining } from "../state/battle/mobRespawns";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { findSetForItem } from "../data/sets/armorSets";
-import { savePreviousLocation } from "../utils/locationNavigation";
+import { savePreviousLocation, savePreviousCity } from "../utils/locationNavigation";
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
@@ -108,8 +108,9 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const handleBackToCity = () => {
+    // 🔥 Зберігаємо місто поточної зони — щоб City та ТП показували правильне місто
+    savePreviousCity(city.id);
     // 🔥 Зберігаємо попередню локацію при переході в місто через телепорт
-    // (щоб потім заблокувати прямий повернення назад)
     if (zoneId) {
       savePreviousLocation(zoneId);
     }
