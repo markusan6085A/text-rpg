@@ -173,57 +173,80 @@ export default function Inventory() {
           onEquipItem={equipItem}
         />
 
-        {/* Пагінація */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-1 text-[10px]" style={{ color: "#d9d9d9" }}>
-            <button
-              onClick={() => setCurrentPage(1)}
-              disabled={currentPage === 1}
-              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ color: "#d9d9d9" }}
-            >
-              &lt;&lt;
-            </button>
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ color: "#d9d9d9" }}
-            >
-              &lt;
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        {/* Пагінація: << < [вікно сторінок] > >> — завжди можна перейти на 1-шу та останню */}
+        {totalPages > 1 && (() => {
+          const WINDOW = 5; // скільки номерів показувати
+          const half = Math.floor(WINDOW / 2);
+          let start = Math.max(1, currentPage - half);
+          let end = Math.min(totalPages, start + WINDOW - 1);
+          if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
+          const pages: (number | "…")[] = [];
+          if (start > 1) {
+            pages.push(1);
+            if (start > 2) pages.push("…");
+          }
+          for (let p = start; p <= end; p++) pages.push(p);
+          if (end < totalPages) {
+            if (end < totalPages - 1) pages.push("…");
+            pages.push(totalPages);
+          }
+          return (
+            <div className="flex flex-wrap justify-center items-center gap-1 text-[10px]" style={{ color: "#d9d9d9" }}>
               <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-1.5 py-0.5 ${
-                  currentPage === page
-                    ? "bg-[#5a4424] text-[#f5d7a1] font-semibold"
-                    : ""
-                }`}
-                style={currentPage !== page ? { color: "#d9d9d9" } : {}}
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                style={{ color: "#d9d9d9" }}
+                title="На першу"
               >
-                {page}
+                &lt;&lt;
               </button>
-            ))}
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ color: "#d9d9d9" }}
-            >
-              &gt;
-            </button>
-            <button
-              onClick={() => setCurrentPage(totalPages)}
-              disabled={currentPage === totalPages}
-              className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ color: "#d9d9d9" }}
-            >
-              &gt;&gt;
-            </button>
-          </div>
-        )}
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                style={{ color: "#d9d9d9" }}
+                title="Попередня"
+              >
+                &lt;
+              </button>
+              {pages.map((p, i) =>
+                p === "…" ? (
+                  <span key={`ellipsis-${i}`} className="px-0.5">…</span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setCurrentPage(p as number)}
+                    className={`px-1.5 py-0.5 shrink-0 ${
+                      currentPage === p ? "bg-[#5a4424] text-[#f5d7a1] font-semibold" : ""
+                    }`}
+                    style={currentPage !== p ? { color: "#d9d9d9" } : {}}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                style={{ color: "#d9d9d9" }}
+                title="Наступна"
+              >
+                &gt;
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                style={{ color: "#d9d9d9" }}
+                title="На останню"
+              >
+                &gt;&gt;
+              </button>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Модалки залежно від типу предмета */}
