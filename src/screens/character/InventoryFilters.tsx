@@ -123,7 +123,7 @@ export default function InventoryFilters({
                     : "text-[#9a9a9a] hover:text-[#d9d9d9]"
                 }`}
               >
-                {g}
+                {g.toUpperCase()}
               </button>
               {idx < GRADE_KEYS.length - 1 && (
                 <span className="text-[#5a4424] mx-0.5">|</span>
