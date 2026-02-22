@@ -9,11 +9,12 @@ interface AdminState {
   resetAdmin: () => void;
 }
 
-export const useAdminStore = create<AdminState>((set) => ({
+export const useAdminStore = create<AdminState>((set, get) => ({
   isAdmin: false,
   checked: false,
 
   checkAdmin: async () => {
+    if (get().checked) return; // Вже перевірено — уникаємо зайвих запитів і оновлень
     try {
       await adminMe();
       set({ isAdmin: true, checked: true });

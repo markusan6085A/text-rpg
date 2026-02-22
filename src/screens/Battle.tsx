@@ -16,37 +16,33 @@ interface BattleProps {
 }
 
 export default function Battle({ navigate }: BattleProps) {
-  // Використовуємо стан для відстеження змін URL
+  // Використовуємо стан для відстеження змін URL (без залежності urlParams — уникаємо циклу оновлень)
   const [urlParams, setUrlParams] = React.useState(() => new URLSearchParams(location.search));
   
   React.useEffect(() => {
-    // Оновлюємо параметри URL при зміні
     const checkUrl = () => {
       const currentParams = new URLSearchParams(location.search);
       const currentZone = currentParams.get("zone") || "";
       const currentIdx = currentParams.get("idx") || "";
-      const prevZone = urlParams.get("zone") || "";
-      const prevIdx = urlParams.get("idx") || "";
-      
-      if (currentZone !== prevZone || currentIdx !== prevIdx) {
-        setUrlParams(currentParams);
-      }
+      setUrlParams((prev) => {
+        const prevZone = prev.get("zone") || "";
+        const prevIdx = prev.get("idx") || "";
+        if (currentZone !== prevZone || currentIdx !== prevIdx) {
+          return currentParams;
+        }
+        return prev;
+      });
     };
-    
-    // Перевіряємо зміни URL кожні 50мс
-    const interval = setInterval(checkUrl, 50);
-    
-    // Слухаємо події навігації
+    const interval = setInterval(checkUrl, 100);
     const handlePopState = () => {
       setUrlParams(new URLSearchParams(location.search));
     };
-    window.addEventListener('popstate', handlePopState);
-    
+    window.addEventListener("popstate", handlePopState);
     return () => {
       clearInterval(interval);
-      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener("popstate", handlePopState);
     };
-  }, [urlParams]);
+  }, []);
   
   const zoneId = urlParams.get("zone") || "";
   const mobIndexStr = urlParams.get("idx") || "";
