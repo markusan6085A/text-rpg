@@ -8,6 +8,7 @@ import RecipeBookButton from "./RecipeBookButton";
 import CharacterQuests from "./CharacterQuests";
 import CharacterBuffs from "./CharacterBuffs";
 import SevenSealsBonusModal from "../../components/SevenSealsBonusModal";
+import { getActiveSevenSealsRank } from "../../utils/sevenSealsBonus";
 import { listCharacters, getSevenSealsRank, claimSevenSealsReward, type Character } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
@@ -39,9 +40,8 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
 
   const characterId = useCharacterStore((s) => s.characterId);
 
-  // Визначаємо Seven Seals ранг: heroJson.sevenSealsBonus (вже забрали) або API (топ-3 по медалях)
-  const sevenSealsRankFromHero = (hero as any)?.heroJson?.sevenSealsBonus?.rank;
-  const isSevenSealsWinner = sevenSealsRankFromHero >= 1 && sevenSealsRankFromHero <= 3;
+  const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus;
+  const sevenSealsRankFromHero = getActiveSevenSealsRank(sevenSealsBonus);
 
   useEffect(() => {
     if (sevenSealsRankFromHero != null) {

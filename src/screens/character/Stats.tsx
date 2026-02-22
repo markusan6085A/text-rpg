@@ -3,6 +3,7 @@ import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { useHeroStore } from "../../state/heroStore";
 import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
+import { getActiveSevenSealsRank } from "../../utils/sevenSealsBonus";
 import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
@@ -141,7 +142,7 @@ export default function Stats() {
               playerName={hero.name || "Без имени"}
               hero={hero}
               clan={playerClan}
-              sevenSealsWinnerRank={(hero as any)?.heroJson?.sevenSealsBonus?.rank}
+              sevenSealsWinnerRank={getActiveSevenSealsRank((hero as any)?.heroJson?.sevenSealsBonus)}
               size={14}
             />
           </div>

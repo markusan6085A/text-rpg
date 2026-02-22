@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getPublicCharacter, getCharacterByName, getSevenSealsRank, type Character } from "../utils/api";
+import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
 import WriteLetterModal from "../components/WriteLetterModal";
@@ -67,10 +68,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     loadPlayerProfile();
   }, [playerId, playerName]);
 
-  // Seven Seals: heroJson.sevenSealsBonus (забрали нагороду) або API (топ-3 по медалях)
-  const sevenSealsFromChar = (character?.heroJson as any)?.sevenSealsBonus?.rank;
+  const sevenSealsBonus = (character?.heroJson as any)?.sevenSealsBonus;
+  const sevenSealsFromChar = getActiveSevenSealsRank(sevenSealsBonus);
   useEffect(() => {
-    if (sevenSealsFromChar >= 1 && sevenSealsFromChar <= 3) {
+    if (sevenSealsFromChar != null) {
       setSevenSealsRank(sevenSealsFromChar);
       return;
     }

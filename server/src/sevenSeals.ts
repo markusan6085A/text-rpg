@@ -29,6 +29,12 @@ function getWeekStartPoland(): Date {
   ));
 }
 
+// Кінець поточного тижня (неділя 23:59:59.999) — бонус діє до кінця неділі
+function getWeekEndPoland(): number {
+  const weekStart = getWeekStartPoland();
+  return weekStart.getTime() + 7 * 24 * 60 * 60 * 1000 - 1;
+}
+
 // Інклюзивний фільтр: включає медалі з понеділка мінус 2 дні (на випадок timezone різниці)
 function getWeekStartInclusive(): Date {
   const weekStart = getWeekStartPoland();
@@ -198,9 +204,10 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       });
 
       const heroJson = (char?.heroJson ?? {}) as Record<string, unknown>;
-      const sevenSealsBonus = heroJson.sevenSealsBonus;
-      const claimedRank = sevenSealsBonus && typeof sevenSealsBonus === "object" && (sevenSealsBonus as { rank?: number }).rank;
-      if (claimedRank >= 1 && claimedRank <= 3) {
+      const sevenSealsBonus = heroJson.sevenSealsBonus as { rank?: number; expiresAt?: number } | undefined;
+      const claimedRank = sevenSealsBonus && typeof sevenSealsBonus === "object" && sevenSealsBonus.rank;
+      const expiresAt = sevenSealsBonus?.expiresAt ?? 0;
+      if (claimedRank >= 1 && claimedRank <= 3 && expiresAt > Date.now()) {
         return {
           ok: true,
           characterId,
@@ -275,7 +282,10 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       }
 
       const heroJson = (character.heroJson as Record<string, unknown>) || {};
-      if (heroJson.sevenSealsBonus && typeof heroJson.sevenSealsBonus === "object") {
+      const existing = heroJson.sevenSealsBonus as { expiresAt?: number } | undefined;
+      const now = Date.now();
+      const expiresAt = getWeekEndPoland();
+      if (existing && typeof existing === "object" && (existing.expiresAt ?? 0) > now) {
         return reply.send({
           ok: true,
           alreadyClaimed: true,
@@ -298,6 +308,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         mDef: rand(r.pDef[0], r.pDef[1]),
         coinLuck: coinLuckReward,
         rank,
+        expiresAt,
       };
 
       const updatedHeroJson = {

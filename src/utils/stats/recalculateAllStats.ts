@@ -141,17 +141,20 @@ export function recalculateAllStats(
     hero.activeDyes
   );
 
-  // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати з heroJson
-  const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus;
+  // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати до кінця неділі
+  const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus as { pAtk?: number; mAtk?: number; pDef?: number; mDef?: number; expiresAt?: number } | undefined;
   if (sevenSealsBonus && typeof sevenSealsBonus === "object") {
-    const b = sevenSealsBonus as { pAtk?: number; mAtk?: number; pDef?: number; mDef?: number };
-    combatStats = {
-      ...combatStats,
-      pAtk: combatStats.pAtk + (Number(b.pAtk) || 0),
-      mAtk: combatStats.mAtk + (Number(b.mAtk) || 0),
-      pDef: combatStats.pDef + (Number(b.pDef) || 0),
-      mDef: combatStats.mDef + (Number(b.mDef) || 0),
-    };
+    const expiresAt = sevenSealsBonus.expiresAt ?? 0;
+    if (expiresAt > Date.now()) {
+      const b = sevenSealsBonus;
+      combatStats = {
+        ...combatStats,
+        pAtk: combatStats.pAtk + (Number(b.pAtk) || 0),
+        mAtk: combatStats.mAtk + (Number(b.mAtk) || 0),
+        pDef: combatStats.pDef + (Number(b.pDef) || 0),
+        mDef: combatStats.mDef + (Number(b.mDef) || 0),
+      };
+    }
   }
 
   // 🔍 ДІАГНОСТИКА: перевіряємо mDef ПІСЛЯ екіпіровки, ПЕРЕД пасивками
