@@ -12,6 +12,17 @@ const FISHING_COST_ADENA = 5_000_000;
 const FISHING_DURATION_MS = 60 * 60 * 1000;
 const ROD_ITEM_ID = "baby_duck_rod";
 const BAIT_ITEM_ID = "gludio_fish_lure";
+// Улов залежить від заточки удочки (+0..+1000)
+const FISH_BY_ROD_ENCHANT: Array<{ min: number; max: number }> = [
+  { min: 100, max: 300 }, { min: 110, max: 300 }, { min: 120, max: 300 },
+  { min: 130, max: 310 }, { min: 130, max: 320 }, { min: 130, max: 330 },
+  { min: 140, max: 350 }, { min: 140, max: 360 }, { min: 150, max: 370 },
+  { min: 150, max: 380 }, { min: 160, max: 400 },
+];
+function getFishRangeByRodEnchant(enchant: number): { min: number; max: number } {
+  const idx = Math.min(10, Math.floor(Math.max(0, enchant) / 100));
+  return FISH_BY_ROD_ENCHANT[idx];
+}
 
 type Navigate = (path: string) => void;
 
@@ -53,10 +64,14 @@ export default function Fishing({ navigate }: FishingProps) {
   }, []);
 
   const equipment = hero?.equipment ?? {};
-  const rodEquipped =
-    equipment["weapon"] === ROD_ITEM_ID ||
-    equipment["lrhand"] === ROD_ITEM_ID ||
-    equipment["shield"] === ROD_ITEM_ID;
+  const encLevels = hero?.equipmentEnchantLevels ?? {};
+  const rodSlot =
+    equipment["weapon"] === ROD_ITEM_ID ? "weapon" :
+    equipment["lrhand"] === ROD_ITEM_ID ? "lrhand" :
+    equipment["shield"] === ROD_ITEM_ID ? "shield" : null;
+  const rodEquipped = rodSlot !== null;
+  const rodEnchant = rodSlot ? (Number(encLevels[rodSlot]) || 0) : 0;
+  const fishRange = getFishRangeByRodEnchant(rodEnchant);
   const inv = Array.isArray(hero?.inventory) ? hero.inventory : [];
   const baitCount = inv
     .filter((i) => i?.id === BAIT_ITEM_ID)
@@ -155,7 +170,7 @@ export default function Fishing({ navigate }: FishingProps) {
           <div className="text-center text-[16px] font-semibold" style={{ color: "#4488ff" }}>Рыбалка</div>
           <p className="text-xs text-left" style={{ color: "#c7ad80" }}>
             Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
-            {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от 100 до 300 рыб.
+            {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб.
           </p>
           <div className="flex justify-start -ml-1">
             <div className="relative overflow-hidden rounded shadow-[inset_0_0_25px_10px_rgba(0,0,0,0.65)]">
@@ -224,7 +239,7 @@ export default function Fishing({ navigate }: FishingProps) {
         {ready && (
           <div className="space-y-3 text-[12px]">
             <p className="text-green-400">Улов готов!</p>
-            <p className="text-[#cfcfcc]">Рыб: {typeof session?.fishCount === "number" ? session.fishCount : "100–300"}</p>
+            <p className="text-[#cfcfcc]">Рыб: {typeof session?.fishCount === "number" ? session.fishCount : `${fishRange.min}–${fishRange.max}`}</p>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-green-500/50 text-green-400 hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleCollect}

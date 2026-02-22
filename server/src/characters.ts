@@ -595,8 +595,24 @@ export async function characterRoutes(app: FastifyInstance) {
   const ROD_ITEM_ID = "baby_duck_rod";
   const BAIT_ITEM_ID = "gludio_fish_lure";
   const FISH_ITEM_ID = "fish_seawater";
-  const FISH_MIN = 100;
-  const FISH_MAX = 300;
+  // Залежність улову від заточки удочки (+0..+1000)
+  const FISH_BY_ROD_ENCHANT: Array<{ min: number; max: number }> = [
+    { min: 100, max: 300 },   // +0
+    { min: 110, max: 300 },   // +100
+    { min: 120, max: 300 },   // +200
+    { min: 130, max: 310 },   // +300
+    { min: 130, max: 320 },   // +400
+    { min: 130, max: 330 },   // +500
+    { min: 140, max: 350 },   // +600
+    { min: 140, max: 360 },   // +700
+    { min: 150, max: 370 },   // +800
+    { min: 150, max: 380 },   // +900
+    { min: 160, max: 400 },   // +1000
+  ];
+  function getFishRangeByRodEnchant(enchant: number): { min: number; max: number } {
+    const idx = Math.min(10, Math.floor(Math.max(0, enchant) / 100));
+    return FISH_BY_ROD_ENCHANT[idx];
+  }
 
   app.get("/characters/:id/fishing", async (req, reply) => {
     const auth = getAuth(req);
@@ -616,7 +632,15 @@ export async function characterRoutes(app: FastifyInstance) {
       if (session && typeof session.startedAt === "number") {
         const elapsed = Date.now() - session.startedAt;
         if (elapsed >= FISHING_DURATION_MS && typeof session.fishCount !== "number") {
-          const fishCount = FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
+          const equipment = heroJson.equipment ?? {};
+          const encLevels = heroJson.equipmentEnchantLevels ?? {};
+          const rodSlot =
+            equipment["weapon"] === ROD_ITEM_ID ? "weapon" :
+            equipment["lrhand"] === ROD_ITEM_ID ? "lrhand" :
+            equipment["shield"] === ROD_ITEM_ID ? "shield" : null;
+          const rodEnchant = rodSlot ? (Number(encLevels[rodSlot]) || 0) : 0;
+          const { min: fishMin, max: fishMax } = getFishRangeByRodEnchant(rodEnchant);
+          const fishCount = fishMin + Math.floor(Math.random() * (fishMax - fishMin + 1));
           const updatedHeroJson = { ...heroJson, fishingSession: { ...session, fishCount } };
           await prisma.character.update({
             where: { id: ch.id },
@@ -651,13 +675,15 @@ export async function characterRoutes(app: FastifyInstance) {
       }
 
       const equipment = heroJson.equipment ?? {};
-      const hasRod =
-        equipment["weapon"] === ROD_ITEM_ID ||
-        equipment["lrhand"] === ROD_ITEM_ID ||
-        equipment["shield"] === ROD_ITEM_ID;
-      if (!hasRod) {
+      const encLevels = heroJson.equipmentEnchantLevels ?? {};
+      const rodSlot =
+        equipment["weapon"] === ROD_ITEM_ID ? "weapon" :
+        equipment["lrhand"] === ROD_ITEM_ID ? "lrhand" :
+        equipment["shield"] === ROD_ITEM_ID ? "shield" : null;
+      if (!rodSlot) {
         return reply.code(400).send({ error: "rod required (Baby Duck Rod)" });
       }
+      const rodEnchant = Number(encLevels[rodSlot]) || 0;
 
       const inv: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
       const baitIdx = inv.findIndex((i: any) => (i?.id ?? i?.itemId) === BAIT_ITEM_ID && (Number(i?.count) ?? 0) > 0);
@@ -677,7 +703,8 @@ export async function characterRoutes(app: FastifyInstance) {
         return c > 0 ? { ...item, count: c } : null;
       }).filter(Boolean) as any[];
 
-      const fishCount = FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
+      const { min: fishMin, max: fishMax } = getFishRangeByRodEnchant(rodEnchant);
+      const fishCount = fishMin + Math.floor(Math.random() * (fishMax - fishMin + 1));
       const oldRevision = heroJson.heroRevision ?? 0;
       const updatedHeroJson = addVersioning(
         {
@@ -741,7 +768,20 @@ export async function characterRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "fishing not ready yet (1 hour required)" });
       }
 
-      const fishCount = typeof session.fishCount === "number" ? session.fishCount : FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
+      let fishCount: number;
+      if (typeof session.fishCount === "number") {
+        fishCount = session.fishCount;
+      } else {
+        const equipment = heroJson.equipment ?? {};
+        const encLevels = heroJson.equipmentEnchantLevels ?? {};
+        const rodSlot =
+          equipment["weapon"] === ROD_ITEM_ID ? "weapon" :
+          equipment["lrhand"] === ROD_ITEM_ID ? "lrhand" :
+          equipment["shield"] === ROD_ITEM_ID ? "shield" : null;
+        const rodEnchant = rodSlot ? (Number(encLevels[rodSlot]) || 0) : 0;
+        const { min: fishMin, max: fishMax } = getFishRangeByRodEnchant(rodEnchant);
+        fishCount = fishMin + Math.floor(Math.random() * (fishMax - fishMin + 1));
+      }
       const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
       const existing = inv.find((i: any) => (i?.id ?? i?.itemId) === FISH_ITEM_ID);
       if (existing) {
