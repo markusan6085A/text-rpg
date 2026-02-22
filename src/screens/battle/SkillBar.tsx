@@ -19,10 +19,11 @@ function useLearnedActive(): LearnedSkill[] {
   if (!hero) return [];
   const learned = Array.isArray(hero.skills) ? hero.skills : [];
 
+  const skillsList = Array.isArray(allSkills) ? allSkills : [];
   const actives =
     learned
       .map((ls: any) => {
-        const def = allSkills.find((s) => s.id === ls.id);
+        const def = skillsList.find((s) => s.id === ls.id);
         if (!def) return null;
         if (def.category === "passive") return null;
         const lvl = def.levels.find((l) => l.level === ls.level) ?? def.levels[0];

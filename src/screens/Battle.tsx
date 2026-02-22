@@ -149,6 +149,18 @@ export default function Battle({ navigate }: BattleProps) {
 
   const { zone, city } = found;
 
+  // SkillBar потребує hero — якщо hero ще не завантажений, показуємо завантаження
+  if (!hero && mob) {
+    return (
+      <div className="text-white flex items-center justify-center px-4 py-8">
+        <div className="space-y-3 max-w-[380px] text-center">
+          <h1 className="text-xl font-bold">Завантаження...</h1>
+          <p className="text-sm text-gray-300">Підготовка бою...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Якщо моб не завантажений (але не при перемозі - там модалка показує нагороду)
   if (!mob && status !== "victory") {
     // Якщо є помилка в лозі (наприклад, немає удочки/наживки або моб на респавні)
