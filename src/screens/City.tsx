@@ -106,9 +106,12 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         )}
       </div>
 
-      {/* Название города — поточне місто гравця */}
+      {/* Название города — поточне місто гравця (heroJson → localStorage → Floran) */}
           {(() => {
-            const cityId = getPreviousCity() || WORLD_CITIES[0]?.id;
+            const cityId =
+              (hero?.heroJson as any)?.currentCityId ||
+              getPreviousCity() ||
+              WORLD_CITIES[0]?.id;
             const currentCity = getCityById(cityId) || WORLD_CITIES[0];
             return (
               <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2">

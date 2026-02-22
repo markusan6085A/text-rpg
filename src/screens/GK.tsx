@@ -36,6 +36,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   const defaultCityId =
     q.get("city") ||
+    (hero?.heroJson as any)?.currentCityId ||
     getPreviousCity() ||
     WORLD_CITIES.find((c) => c.id === "floran")?.id ||
     WORLD_CITIES[0].id;
@@ -49,6 +50,12 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   const handleCityChange = (cityId: string) => {
     setSelectedCityId(cityId);
+    savePreviousCity(cityId); // localStorage (per-account)
+    // Зберігаємо в hero для синхронізації з сервером та City/ТП
+    if (hero) {
+      const hj = (hero as any).heroJson || {};
+      useHeroStore.getState().updateHero({ heroJson: { ...hj, currentCityId: cityId } } as any);
+    }
     const params = new URLSearchParams(location.search);
     params.set("city", cityId);
     history.replaceState(null, "", `/gk?${params.toString()}`);

@@ -408,6 +408,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : (Array.isArray(existingHeroJson.activeQuests) ? existingHeroJson.activeQuests : []),
       // 🔥 Локація гравця (оновлюється в startBattle) — для відображення в профілі іншим гравцям
       ...((hero as any).location || existingHeroJson.location ? { location: (hero as any).location || existingHeroJson.location } : {}),
+      // 🔥 Поточне місто (вибір в ТП) — для City та GK
+      ...(currentHeroJson.currentCityId || existingHeroJson.currentCityId ? { currentCityId: currentHeroJson.currentCityId || existingHeroJson.currentCityId } : {}),
     };
     
     // Логуємо для діагностики

@@ -1,12 +1,17 @@
 // Утиліти для навігації між локаціями та містом
-import { getString, setString, removeItem } from "../state/persistence";
+import { getString, setString, removeItem, getJSON } from "../state/persistence";
 
 const PREV_LOCATION_KEY = "l2_prev_location";
-const PREV_CITY_KEY = "l2_prev_city";
+const PREV_CITY_KEY_PREFIX = "l2_prev_city_";
+
+function getCityKey(): string {
+  const username = getJSON<string | null>("l2_current_user", null);
+  return username ? `${PREV_CITY_KEY_PREFIX}${username}` : "l2_prev_city";
+}
 
 export function savePreviousCity(cityId: string): void {
   try {
-    setString(PREV_CITY_KEY, cityId);
+    setString(getCityKey(), cityId);
   } catch (err) {
     console.error("[locationNavigation] Failed to save previous city:", err);
   }
@@ -14,7 +19,7 @@ export function savePreviousCity(cityId: string): void {
 
 export function getPreviousCity(): string | null {
   try {
-    return getString(PREV_CITY_KEY, null);
+    return getString(getCityKey(), null);
   } catch (err) {
     console.error("[locationNavigation] Failed to get previous city:", err);
     return null;
