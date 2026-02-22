@@ -25,6 +25,13 @@ export default function SellItems({ navigate }: SellItemsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [confirmSell, setConfirmSell] = useState<{
+    type: "single" | "all" | "batch";
+    item?: any;
+    amount?: number;
+    totalPrice?: number;
+    onConfirm: () => void;
+  } | null>(null);
 
   const filteredItems = useMemo(() => {
     if (!hero || !hero.inventory) return [];
@@ -55,7 +62,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
     });
   };
 
-  const handleSellSelected = () => {
+  const doSellSelected = () => {
     if (!hero || !hero.inventory || selectedIndices.size === 0) return;
     const indices = Array.from(selectedIndices).sort((a, b) => a - b);
     let totalAdena = 0;
@@ -91,6 +98,26 @@ export default function SellItems({ navigate }: SellItemsProps) {
     updateHero({ inventory: newInv, adena: (hero.adena || 0) + totalAdena });
     setSelectedIndices(new Set());
     setSelectMode(false);
+    setConfirmSell(null);
+  };
+
+  const showSellSelectedConfirm = () => {
+    if (!hero || selectedIndices.size === 0) return;
+    const indices = Array.from(selectedIndices).sort((a, b) => a - b);
+    let totalAdena = 0;
+    indices.forEach((idx) => {
+      const item = filteredItems[idx];
+      if (!item) return;
+      const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
+      const amount = item.count ?? 1;
+      if (price != null && price > 0) totalAdena += price * amount;
+    });
+    if (totalAdena === 0) return;
+    setConfirmSell({
+      type: "batch",
+      totalPrice: totalAdena,
+      onConfirm: doSellSelected,
+    });
   };
 
   const handleSell = (item: any, amount: number) => {
@@ -119,6 +146,22 @@ export default function SellItems({ navigate }: SellItemsProps) {
     const newAdena = (hero.adena || 0) + totalGain;
 
     updateHero({ inventory: updatedInventory, adena: newAdena });
+    setConfirmSell(null);
+  };
+
+  const showSellConfirm = (item: any, amount: number) => {
+    const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
+    if (price == null || price <= 0) return;
+    const totalPrice = price * amount;
+    const def = itemsDB[item.id] || itemsDBWithStarter[item.id];
+    const name = item.name || def?.name || item.id;
+    setConfirmSell({
+      type: amount > 1 ? "all" : "single",
+      item: { ...item, name },
+      amount,
+      totalPrice,
+      onConfirm: () => handleSell(item, amount),
+    });
   };
 
   if (!hero) {
@@ -162,7 +205,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
           </button>
           {selectMode && selectedIndices.size > 0 && (
             <button
-              onClick={handleSellSelected}
+              onClick={showSellSelectedConfirm}
               className="px-2 py-1 text-xs rounded bg-[#7c6847] text-white"
             >
               Продать выбранные ({selectedIndices.size})
@@ -223,14 +266,14 @@ export default function SellItems({ navigate }: SellItemsProps) {
                   {canSell && (
                     <div className="flex flex-col gap-0.5 flex-shrink-0">
                       <button
-                        onClick={() => handleSell(item, 1)}
+                        onClick={() => showSellConfirm(item, 1)}
                         className="px-2 py-1 bg-[#7c6847] hover:bg-[#8b7756] text-white text-[10px] rounded"
                       >
                         Продать
                       </button>
                       {count > 1 && (
                         <button
-                          onClick={() => handleSell(item, count)}
+                          onClick={() => showSellConfirm(item, count)}
                           className="px-2 py-1 bg-[#5a4a35] hover:bg-[#6b5a45] text-[#c9b896] text-[10px] rounded"
                         >
                           Всё
@@ -287,6 +330,40 @@ export default function SellItems({ navigate }: SellItemsProps) {
           Вернуться в магазин
         </button>
       </div>
+
+      {confirmSell && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          onClick={() => setConfirmSell(null)}
+        >
+          <div
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[280px] w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-sm text-gray-200 mb-3">
+              {confirmSell.type === "batch" ? (
+                <>Вы уверены, что хотите продать эти предметы?<br />Итого: <span className="text-yellow-400 font-semibold">{confirmSell.totalPrice?.toLocaleString()}</span> Adena</>
+              ) : (
+                <>Вы уверены, что хотите продать <span className="text-[#e0c68a]">{confirmSell.item?.name}</span>{confirmSell.amount && confirmSell.amount > 1 ? ` x${confirmSell.amount}` : ""} за <span className="text-yellow-400 font-semibold">{(confirmSell.totalPrice ?? 0).toLocaleString()}</span> Adena?</>
+              )}
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setConfirmSell(null)}
+                className="px-3 py-1.5 text-sm rounded bg-[#5a4a35] text-gray-300 hover:bg-[#6b5a45]"
+              >
+                Нет
+              </button>
+              <button
+                onClick={() => confirmSell.onConfirm()}
+                className="px-3 py-1.5 text-sm rounded bg-[#7c6847] text-white hover:bg-[#8b7756]"
+              >
+                Продать
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
