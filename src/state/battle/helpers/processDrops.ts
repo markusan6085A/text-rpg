@@ -405,12 +405,12 @@ export function processMobDrops(
     }
   }
 
-  // 🔥 Медальки 7 Печатей (5% шанс, тільки понеділок-субота польський час)
+  // 🔥 Медальки 7 Печатей (5% шанс, тільки понеділок-п'ятниця польський час; в суботу 00:00 зникають)
   const isEventActive = () => {
     const now = new Date();
     const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
     const dayOfWeek = polandTime.getDay();
-    return dayOfWeek >= 1 && dayOfWeek <= 6; // Понеділок-субота
+    return dayOfWeek >= 1 && dayOfWeek <= 5; // Понеділок-п'ятниця
   };
 
   if (isEventActive() && Math.random() < 0.05) {

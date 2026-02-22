@@ -10,10 +10,23 @@ import type { Hero } from "../../types/Hero";
  * - hero.skills, hero.mobsKilled, hero.exp, hero.level - офіційні поля
  * - heroJson.* - синхронізовані копії для збереження
  */
+/** Субота/неділя (польський час) — медалі 7 Печатей зникають */
+function isSevenSealsOffPeriod(): boolean {
+  const polandTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
+  const day = polandTime.getDay();
+  return day === 0 || day === 6; // Неділя або субота
+}
+
 export function hydrateHero(hero: Hero | null): Hero | null {
   if (!hero) return null;
 
   const hj = (hero as any).heroJson ?? {};
+
+  // 🔥 Медалі 7 Печатей: в суботу 00:00 зникають, з понеділка знову падають
+  let inventory = hero.inventory;
+  if (isSevenSealsOffPeriod() && Array.isArray(inventory) && inventory.length > 0) {
+    inventory = inventory.filter((item: any) => item && item.id !== "seven_seals_medal") as Hero["inventory"];
+  }
   
   // 🔥 Правило: hero.* має пріоритет, але якщо його немає - беремо з heroJson (для міграції)
   const skills = Array.isArray(hero.skills) && hero.skills.length > 0
@@ -47,6 +60,7 @@ export function hydrateHero(hero: Hero | null): Hero | null {
 
   const hydratedHero: Hero = {
     ...hero,
+    inventory: inventory ?? hero.inventory,
     skills,
     mobsKilled: mobsKilled as any,
     exp,

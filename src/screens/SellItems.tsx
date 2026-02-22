@@ -11,6 +11,7 @@ type Navigate = (path: string) => void;
 
 const ITEMS_PER_PAGE = 25;
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
+const NO_SELL_IDS = new Set(["seven_seals_medal"]);
 
 interface SellItemsProps {
   navigate: Navigate;
@@ -37,7 +38,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
     if (!hero || !hero.inventory) return [];
     const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
     let items = hero.inventory.filter(
-      (item: any) => item && !CURRENCY_IDS.has(item.id) && category.test(item)
+      (item: any) => item && !CURRENCY_IDS.has(item.id) && !NO_SELL_IDS.has(item.id) && category.test(item)
     );
     if (currentGrade) {
       const gradeUpper = currentGrade.toUpperCase();
