@@ -21,6 +21,7 @@ import MagicStatue from "./screens/MagicStatue";
 import LearnedSkillsScreen from "./screens/character/LearnedSkillsScreen";
 import AdditionalSkillsScreen from "./screens/City/AdditionalSkillsScreen";
 import Shop from "./screens/Shop";
+import SellItems from "./screens/SellItems";
 import QuestsScreen from "./screens/Quests";
 import QuestShop from "./screens/QuestShop";
 import Warehouse from "./screens/Warehouse";
@@ -421,6 +422,9 @@ function AppInner() {
 
     case "/shop":
       return renderWithLayout(<Shop navigate={navigate} key={`shop-${refreshKey}`} />);
+
+    case "/shop/sell":
+      return renderWithLayout(<SellItems navigate={navigate} key={`sell-items-${refreshKey}`} />);
 
     case "/gm-shop":
       return renderWithLayout(<GMShop navigate={navigate} key={`gm-shop-${refreshKey}`} />);

@@ -583,7 +583,7 @@ export default function Shop({ navigate }: ShopProps) {
       {/* Кнопка продажу */}
       <div className="px-4 py-2">
         <button
-          onClick={() => navigate("/inventory")}
+          onClick={() => navigate("/shop/sell")}
           className="w-full text-left text-[12px] text-[#99e074] py-1.5 hover:text-[#bbff97]"
         >
           Продать вещи

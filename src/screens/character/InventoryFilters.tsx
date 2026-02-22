@@ -36,6 +36,14 @@ export const CATEGORIES = [
     }
     return false;
   }},
+  { key: "enchantment", label: "Заточки", test: (item: any) => {
+    const id = item.id || "";
+    return (
+      id.includes("enchant_weapon_scroll") ||
+      id.includes("enchant_armor_scroll") ||
+      id.includes("blessed_scroll_enchant")
+    );
+  }},
   { key: "consumable", label: "Расходники", test: (item: any) => {
     if (item.slot === "consumable") return true;
     if (item.id === "treasure_box") return true;
@@ -49,7 +57,7 @@ export const CATEGORIES = [
 ];
 
 const GRADE_KEYS = ["ng", "d", "c", "b", "a", "s"] as const;
-const GRADE_CATEGORIES = ["weapon", "armor", "bijou"];
+const GRADE_CATEGORIES = ["weapon", "armor", "bijou", "enchantment"];
 
 interface InventoryFiltersProps {
   currentCategory: string;
