@@ -9,7 +9,7 @@ import { getSellPrice } from "../utils/sellPrices";
 
 type Navigate = (path: string) => void;
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 25;
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
 
 interface SellItemsProps {
@@ -23,6 +23,8 @@ export default function SellItems({ navigate }: SellItemsProps) {
   const [currentCategory, setCurrentCategory] = useState("all");
   const [currentGrade, setCurrentGrade] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
   const filteredItems = useMemo(() => {
     if (!hero || !hero.inventory) return [];
@@ -43,6 +45,53 @@ export default function SellItems({ navigate }: SellItemsProps) {
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const toggleSelect = (globalIndex: number) => {
+    setSelectedIndices((prev) => {
+      const next = new Set(prev);
+      if (next.has(globalIndex)) next.delete(globalIndex);
+      else next.add(globalIndex);
+      return next;
+    });
+  };
+
+  const handleSellSelected = () => {
+    if (!hero || !hero.inventory || selectedIndices.size === 0) return;
+    const indices = Array.from(selectedIndices).sort((a, b) => a - b);
+    let totalAdena = 0;
+    const toRemove: { id: string; amount: number }[] = [];
+    indices.forEach((idx) => {
+      const item = filteredItems[idx];
+      if (!item) return;
+      const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
+      const amount = item.count ?? 1;
+      if (price != null && price > 0) {
+        totalAdena += price * amount;
+        toRemove.push({ id: item.id, amount });
+      }
+    });
+    if (totalAdena === 0) return;
+    const inv = [...hero.inventory];
+    const remaining = new Map<string, number>();
+    toRemove.forEach(({ id, amount }) => {
+      remaining.set(id, (remaining.get(id) ?? 0) + amount);
+    });
+    const newInv = inv.map((i: any) => {
+      if (!i) return i;
+      const need = remaining.get(i.id);
+      if (need == null || need <= 0) return i;
+      const cnt = i.count ?? 1;
+      if (cnt <= need) {
+        remaining.set(i.id, need - cnt);
+        return null;
+      }
+      remaining.set(i.id, 0);
+      return { ...i, count: cnt - need };
+    }).filter(Boolean) as typeof hero.inventory;
+    updateHero({ inventory: newInv, adena: (hero.adena || 0) + totalAdena });
+    setSelectedIndices(new Set());
+    setSelectMode(false);
+  };
 
   const handleSell = (item: any, amount: number) => {
     if (!hero || !hero.inventory) return;
@@ -100,37 +149,64 @@ export default function SellItems({ navigate }: SellItemsProps) {
         <InventoryFilters
           currentCategory={currentCategory}
           currentGrade={currentGrade}
-          onCategoryChange={(cat) => { setCurrentCategory(cat); setCurrentGrade(""); setCurrentPage(1); }}
-          onGradeChange={(g) => { setCurrentGrade(g); setCurrentPage(1); }}
+          onCategoryChange={(cat) => { setCurrentCategory(cat); setCurrentGrade(""); setCurrentPage(1); setSelectedIndices(new Set()); }}
+          onGradeChange={(g) => { setCurrentGrade(g); setCurrentPage(1); setSelectedIndices(new Set()); }}
         />
+
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => { setSelectMode(!selectMode); if (selectMode) setSelectedIndices(new Set()); }}
+            className={`px-2 py-1 text-xs rounded ${selectMode ? "bg-[#b8860b] text-white" : "bg-[#5a4a35] text-[#c9b896]"}`}
+          >
+            {selectMode ? "Отменить" : "Выбрать предмет"}
+          </button>
+          {selectMode && selectedIndices.size > 0 && (
+            <button
+              onClick={handleSellSelected}
+              className="px-2 py-1 text-xs rounded bg-[#7c6847] text-white"
+            >
+              Продать выбранные ({selectedIndices.size})
+            </button>
+          )}
+        </div>
 
         <div
           className="space-y-1 mb-3 rounded-xl border-2 overflow-y-auto"
           style={{
             backgroundColor: "#0f0c08",
             borderColor: "rgba(255,255,255,0.5)",
-            minHeight: "280px",
-            maxHeight: "400px",
+            minHeight: "420px",
+            maxHeight: "580px",
           }}
         >
           {paginatedItems.length === 0 ? (
             <div className="text-center text-gray-400 py-8 text-sm">Нет предметов для продажи</div>
           ) : (
             paginatedItems.map((item: any, idx: number) => {
+              const globalIdx = startIndex + idx;
               const def = itemsDB[item.id] || itemsDBWithStarter[item.id];
               const sellPrice = getSellPrice(item.id, def);
               const count = item.count ?? 1;
               const canSell = sellPrice != null && sellPrice > 0;
+              const isSelected = selectMode && selectedIndices.has(globalIdx);
 
               return (
                 <div
                   key={`${item.id}-${idx}-${startIndex}`}
-                  className="flex items-center gap-2 py-2 px-2 border-b border-white/10 last:border-0"
+                  className={`flex items-center gap-2 py-1.5 px-2 border-b border-white/10 last:border-0 ${isSelected ? "bg-[#b8860b]/30" : ""}`}
                 >
+                  {selectMode && canSell && (
+                    <button
+                      onClick={() => toggleSelect(globalIdx)}
+                      className={`w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center ${isSelected ? "bg-[#b8860b] border-[#b8860b]" : "border-white/50"}`}
+                    >
+                      {isSelected && <span className="text-white text-xs">✓</span>}
+                    </button>
+                  )}
                   <img
                     src={(item.icon || def?.icon || "").startsWith("/") ? (item.icon || def?.icon) : `/items/${item.icon || def?.icon}`}
                     alt=""
-                    className="w-10 h-10 object-contain flex-shrink-0"
+                    className="w-5 h-5 object-contain flex-shrink-0"
                     onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }}
                   />
                   <div className="flex-1 min-w-0">

@@ -40,16 +40,35 @@ function buildShopPriceMap(): Record<string, number> {
   return map;
 }
 
+/** Базові ціни по грейду для екіпу (30% від типової ціни магазину) — fallback для дроп-предметів */
+const GRADE_BASE_SELL: Record<string, number> = {
+  NG: 300,
+  D: 15000,
+  C: 45000,
+  B: 150000,
+  A: 450000,
+  S: 1500000,
+};
+
 /** Ціна продажу для зброї/броні/біжутерії/заточок: 30% від ціни в магазині */
-export function getEquipmentSellPrice(itemId: string): number | null {
+export function getEquipmentSellPrice(itemId: string, def?: ItemDefinition | null): number | null {
   const map = buildShopPriceMap();
-  const shopPrice = map[itemId];
-  if (shopPrice == null) return null;
-  return Math.floor(shopPrice * 0.3);
+  let shopPrice = map[itemId];
+  if (shopPrice == null) {
+    // Спробувати без префіксу shop_/quest_
+    const altId = itemId.replace(/^(shop_|quest_)/, "");
+    shopPrice = map[altId];
+  }
+  if (shopPrice != null) return Math.floor(shopPrice * 0.3);
+  // Fallback для дроп-екіпу: за грейдом
+  const grade = def?.grade?.toUpperCase() || "D";
+  return GRADE_BASE_SELL[grade] ?? 15000;
 }
 
 /** Ресурси: ціна 1–1000 залежно від «рідкості». Без централізованого шансу дропу використовуємо хеш id. */
 const RESOURCE_PRICE_OVERRIDE: Record<string, number> = {
+  soulshot_ng: 200,
+  spiritshot_ng: 200,
   // Рідкісні (високий шанс)
   soulstone_s: 900,
   soulstone_a: 800,
@@ -102,15 +121,22 @@ export function getSellPrice(itemId: string, itemDef?: ItemDefinition | null): n
   // Ресурси — 1–1000
   if (isResourceItem(def)) return getResourceSellPrice(itemId);
 
-  // Зброя, броня, біжутерія, заточки — 30% від магазину
-  const equipPrice = getEquipmentSellPrice(itemId);
-  if (equipPrice != null) return equipPrice;
+  // Зброя, броня, біжутерія, щити, заточки — 30% від магазину (або fallback за грейдом)
+  const isEquipment =
+    def.kind === "weapon" || def.kind === "armor" || def.kind === "shield" ||
+    def.kind === "jewelry" ||
+    ["weapon", "lrhand", "head", "armor", "legs", "gloves", "boots", "belt", "shield", "lhand",
+     "necklace", "earring", "ring", "jewelry"].includes(def.slot || "");
+  if (isEquipment) return getEquipmentSellPrice(itemId, def);
 
-  // Інші расходники (зелья, стріли тощо) — 30% від магазину
-  const consumablePrice = getEquipmentSellPrice(itemId);
-  if (consumablePrice != null) return consumablePrice;
+  // Інші расходники (зелья, стріли, soulshot, spiritshot) — магазин або override
+  const consumablePrice = getEquipmentSellPrice(itemId, def);
+  if (consumablePrice != null && consumablePrice > 0) return consumablePrice;
 
-  // Невідомий предмет — ресурс за замовчуванням (наприклад quest material)
+  // Soulshot/Spiritshot NG — 200
+  if (itemId === "soulshot_ng" || itemId === "spiritshot_ng") return 200;
+
+  // Невідомий consumable/resource — ресурс за замовчуванням
   if (def.slot === "consumable" || def.slot === "resource") {
     return getResourceSellPrice(itemId);
   }
