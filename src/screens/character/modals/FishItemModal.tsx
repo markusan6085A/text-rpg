@@ -177,60 +177,65 @@ export default function FishItemModal({
     // Додаємо адену
     const newAdena = (currentHero.adena || 0) + result.adena;
 
-    // Додаємо зброю
+    const shopJewelryIds = new Set(getShopJewelryIds());
+
+    // Додаємо зброю — завжди по 1 предмету (не стакається)
     result.weapons.forEach(({ id, count }) => {
-      const existingItem = updatedInventory.find((i) => i.id === id);
-      if (existingItem) {
-        updatedInventory = updatedInventory.map((i) =>
-          i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
-        );
-      } else {
-        const itemDef = itemsDB[id];
-        if (itemDef) {
+      const itemDef = itemsDB[id];
+      if (itemDef) {
+        for (let i = 0; i < count; i++) {
           updatedInventory.push({
             id,
             name: itemDef.name,
             icon: itemDef.icon,
             slot: itemDef.slot,
-            count,
+            count: 1,
             description: itemDef.description,
           });
         }
       }
     });
 
-    // Додаємо частинки броні
+    // Додаємо броню — завжди по 1 предмету (не стакається)
     result.armorPieces.forEach(({ id, count }) => {
-      const existingItem = updatedInventory.find((i) => i.id === id);
-      if (existingItem) {
-        updatedInventory = updatedInventory.map((i) =>
-          i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
-        );
-      } else {
-        const itemDef = itemsDB[id];
-        if (itemDef) {
+      const itemDef = itemsDB[id];
+      if (itemDef) {
+        for (let i = 0; i < count; i++) {
           updatedInventory.push({
             id,
             name: itemDef.name,
             icon: itemDef.icon,
             slot: itemDef.slot,
-            count,
+            count: 1,
             description: itemDef.description,
           });
         }
       }
     });
 
-    // Додаємо ресурси
+    // Додаємо ресурси: бижутерія — по 1, інше — стакається
     result.resources.forEach(({ id, count }) => {
-      const existingItem = updatedInventory.find((i) => i.id === id);
-      if (existingItem) {
-        updatedInventory = updatedInventory.map((i) =>
-          i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
-        );
+      const itemDef = itemsDB[id];
+      if (!itemDef) return;
+      const isJewelry = shopJewelryIds.has(id);
+      if (isJewelry) {
+        for (let i = 0; i < count; i++) {
+          updatedInventory.push({
+            id,
+            name: itemDef.name,
+            icon: itemDef.icon,
+            slot: itemDef.slot,
+            count: 1,
+            description: itemDef.description,
+          });
+        }
       } else {
-        const itemDef = itemsDB[id];
-        if (itemDef) {
+        const existingItem = updatedInventory.find((i) => i.id === id);
+        if (existingItem) {
+          updatedInventory = updatedInventory.map((i) =>
+            i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
+          );
+        } else {
           updatedInventory.push({
             id,
             name: itemDef.name,
@@ -522,6 +527,19 @@ export default function FishItemModal({
               <div className="text-gray-300">{itemDef.description}</div>
             </div>
           )}
+          <div>
+            <div className="text-sm font-semibold text-[#b8860b] mb-2">Шанси дропу (за 1 рибу):</div>
+            <div className="text-gray-400 text-[11px] space-y-0.5">
+              <div>Coin of Luck: 0.7%</div>
+              <div>Зброя: 0.3%</div>
+              <div>Броня: 0.5%</div>
+              <div>Бижутерія: 0.6%</div>
+              <div>Ресурси: 2% кожен тип</div>
+              <div>Скарбничка: 0.3%</div>
+              <div>Адена (10 000): 2%</div>
+              <div>Серебряные Монеты: 1%</div>
+            </div>
+          </div>
         </div>
 
         <div className="border-t border-white/50 pt-2 mt-2 mb-4 space-y-3">
