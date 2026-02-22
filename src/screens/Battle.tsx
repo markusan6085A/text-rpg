@@ -16,33 +16,8 @@ interface BattleProps {
 }
 
 export default function Battle({ navigate }: BattleProps) {
-  // Використовуємо стан для відстеження змін URL (без залежності urlParams — уникаємо циклу оновлень)
-  const [urlParams, setUrlParams] = React.useState(() => new URLSearchParams(location.search));
-  
-  React.useEffect(() => {
-    const checkUrl = () => {
-      const currentParams = new URLSearchParams(location.search);
-      const currentZone = currentParams.get("zone") || "";
-      const currentIdx = currentParams.get("idx") || "";
-      setUrlParams((prev) => {
-        const prevZone = prev.get("zone") || "";
-        const prevIdx = prev.get("idx") || "";
-        if (currentZone !== prevZone || currentIdx !== prevIdx) {
-          return currentParams;
-        }
-        return prev;
-      });
-    };
-    const interval = setInterval(checkUrl, 100);
-    const handlePopState = () => {
-      setUrlParams(new URLSearchParams(location.search));
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, []);
+  // navigate() робить full reload — URL не змінюється під час сесії, тому читаємо один раз (без полінгу)
+  const urlParams = React.useMemo(() => new URLSearchParams(typeof window !== "undefined" ? location.search : ""), []);
   
   const zoneId = urlParams.get("zone") || "";
   const mobIndexStr = urlParams.get("idx") || "";
@@ -65,7 +40,7 @@ export default function Battle({ navigate }: BattleProps) {
 
   const hero = useHeroStore((s) => s.hero);
   const [now, setNow] = React.useState(Date.now());
-  const found = zoneId ? findZoneWithCity(zoneId) : undefined;
+  const found = React.useMemo(() => (zoneId ? findZoneWithCity(zoneId) : undefined), [zoneId]);
 
   // Рибалка тепер окрема сторінка — редірект зі старого посилання
   React.useEffect(() => {
@@ -87,28 +62,26 @@ export default function Battle({ navigate }: BattleProps) {
     "w-full text-center text-[12px] py-2 rounded-lg border border-[#3bd16f]/70 " +
     "text-[#3bd16f] hover:bg-[#102314] transition-colors";
 
-  // Ініціалізація бою
+  // Ініціалізація бою (hero?.name — щоб не тригерити ефект на кожне оновлення hero)
+  const heroName = hero?.name;
   React.useEffect(() => {
     if (zoneId && mobIndex >= 0 && found) {
-      // Чекаємо hero перед стартом (API може завантажувати після reload)
-      if (!hero) return;
+      if (!heroName) return;
 
       const isSameBattle = battleZoneId === zoneId && battleMobIndex === mobIndex;
       const hasError = status === "idle" && !mob;
 
-      // Якщо була помилка "Hero not found", а тепер hero завантажився — повторити startBattle
-      if (isSameBattle && hasError && hero) {
+      if (isSameBattle && hasError && heroName) {
         startBattle(zoneId, mobIndex);
         return;
       }
-      if (isSameBattle && hasError) return; // Інша помилка — не повторюємо
+      if (isSameBattle && hasError) return;
 
-      // Викликаємо startBattle для нового бою або коли бій ще не ініціалізовано
       if (!isSameBattle || status === undefined) {
         startBattle(zoneId, mobIndex);
       }
     }
-  }, [zoneId, mobIndex, found, battleZoneId, battleMobIndex, startBattle, status, mob, hero]);
+  }, [zoneId, mobIndex, found, battleZoneId, battleMobIndex, startBattle, status, mob, heroName]);
 
   // Таймер: атаки/нагороди кожні 250мс, реген раз на 1000мс
   const BATTLE_TICK_MS = 250;
