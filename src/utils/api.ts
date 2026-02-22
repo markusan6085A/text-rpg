@@ -275,7 +275,7 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
 export async function payToViewPlayerStats(targetCharacterId: string): Promise<{ ok: boolean; newAdena: number }> {
   const response = await apiRequest<{ ok: boolean; newAdena: number }>(
     `/characters/${targetCharacterId}/pay-view-stats`,
-    { method: "POST" }
+    { method: "POST", body: JSON.stringify({}) }
   );
   return response;
 }

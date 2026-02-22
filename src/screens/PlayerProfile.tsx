@@ -412,7 +412,6 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             </div>
           </div>
           <div className="border-t-2 border-b-2 border-[#c7ad80] my-1" />
-          <div className="border-t-2 border-b-2 border-[#c7ad80] my-1" />
           <div className={`${lineThin} py-1`}>
             <div className={boxPad}>
               <span
