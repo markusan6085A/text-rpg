@@ -10,6 +10,7 @@ import { C_GRADE_SHOP_ITEMS } from "../../../data/shop/cGradeShop";
 import { B_GRADE_SHOP_ITEMS } from "../../../data/shop/bGradeShop";
 import { A_GRADE_SHOP_ITEMS } from "../../../data/shop/aGradeShop";
 import { S_GRADE_SHOP_ITEMS } from "../../../data/shop/sGradeShop";
+import { QUEST_SHOP_WEAPONS, QUEST_SHOP_SETS, QUEST_SHOP_ACCESSORIES } from "../../../data/shop/questShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../../../data/shop/consumablesShop";
 import { SHOP_ITEM_ID_MAPPING } from "../../../data/shop/itemMappings";
 
@@ -67,7 +68,7 @@ function getShopIdsByType(type: string): string[] {
   return ids;
 }
 
-// Зброя/броня/бижутерія згруповані по грейду
+// Зброя/броня/бижутерія згруповані по грейду (звичайний магазин + квест-шоп)
 function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
   const allShop = [
     { items: D_GRADE_SHOP_ITEMS, grade: "D" },
@@ -76,7 +77,13 @@ function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
     { items: A_GRADE_SHOP_ITEMS, grade: "A" },
     { items: S_GRADE_SHOP_ITEMS, grade: "S" },
   ];
+  const questItems = [
+    ...QUEST_SHOP_WEAPONS,
+    ...QUEST_SHOP_SETS,
+    ...QUEST_SHOP_ACCESSORIES,
+  ];
   const byGrade: Record<string, string[]> = {};
+
   allShop.forEach(({ items, grade }) => {
     const ids: string[] = [];
     items.forEach((shopItem: any) => {
@@ -86,6 +93,17 @@ function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
     });
     if (ids.length > 0) byGrade[grade] = ids;
   });
+
+  questItems.forEach((shopItem: any) => {
+    if (shopItem.type !== type) return;
+    const grade = shopItem.grade || "D";
+    const id = shopItem.id;
+    if (id && itemsDB[id]) {
+      if (!byGrade[grade]) byGrade[grade] = [];
+      if (!byGrade[grade].includes(id)) byGrade[grade].push(id);
+    }
+  });
+
   return byGrade;
 }
 

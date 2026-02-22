@@ -45,8 +45,8 @@ export default function FishingCatchInfoModal({ onClose }: FishingCatchInfoModal
           <div>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Что выпадает из рыбы (при разделке)</div>
             <div className="border border-white/30 rounded p-3 bg-[#1a1a1a] space-y-2 text-gray-300">
-              <div>• <span className="text-yellow-300">Зброя/Броня/Бижутерія</span> D/C: 0.7% за грейд</div>
-              <div>• <span className="text-yellow-300">Зброя/Броня/Бижутерія</span> B/A/S: 0.1% за грейд</div>
+              <div>• <span className="text-yellow-300">Зброя/Броня/Бижутерія</span> D/C: 0.7% (магазин + квест)</div>
+              <div>• <span className="text-yellow-300">Зброя/Броня/Бижутерія</span> B/A/S: 0.1% (магазин + квест)</div>
               <div>• <span className="text-green-400">Ресурси</span>: 0.8% кожен тип</div>
               <div>• <span className="text-amber-400">Скарбничка</span>: 0.3%</div>
             </div>

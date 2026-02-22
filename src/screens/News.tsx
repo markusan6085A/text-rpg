@@ -96,15 +96,19 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
   const hero = useHeroStore((s) => s.hero);
   const [items, setItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [gameTime, setGameTime] = useState<string>("00:00");
   const [selectedBossDrop, setSelectedBossDrop] = useState<{ bossName: string; bossLevel?: number; drops?: any[] } | null>(null);
 
   useEffect(() => {
+    setLoading(true);
     const loadNews = async () => {
       if (getRateLimitRemainingMs() > 0) return;
       try {
-        const data = await getNews();
+        const data = await getNews({ page, limit: 20 });
         setItems(data.news || []);
+        setTotalPages(data.totalPages ?? 1);
       } catch (err) {
         console.error("Error loading news:", err);
       } finally {
@@ -116,7 +120,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
     const interval = setInterval(loadNews, 30000); // Оновлюємо кожні 30 секунд
 
     return () => clearInterval(interval);
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     // Оновлюємо польський час кожну секунду
@@ -262,7 +266,30 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             Новостей пока нет.
           </div>
         ) : (
-          <div>{items.map(renderLine)}</div>
+          <>
+            <div>{items.map(renderLine)}</div>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-3">
+                <button
+                  className="px-2 py-1 rounded border border-yellow-700/70 bg-black/40 disabled:opacity-40"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  ←
+                </button>
+                <span className="text-[12px] text-gray-400">
+                  {page} / {totalPages}
+                </span>
+                <button
+                  className="px-2 py-1 rounded border border-yellow-700/70 bg-black/40 disabled:opacity-40"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -16,13 +16,21 @@ function getAuth(req: any): { accountId: string; login: string } | null {
 }
 
 export async function newsRoutes(app: FastifyInstance) {
-  // GET /news - отримати всі новини
+  // GET /news - отримати новини (20 на сторінку, max 100 всього)
+  // ?page=1 (default), ?limit=20
   app.get("/news", async (req, reply) => {
     try {
-      const news = await prisma.news.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 100, // Останні 100 новин
-        select: {
+      const query = req.query as { page?: string; limit?: string };
+      const page = Math.max(1, parseInt(query.page || "1", 10) || 1);
+      const limit = Math.min(20, Math.max(1, parseInt(query.limit || "20", 10) || 20));
+      const skip = (page - 1) * limit;
+
+      const [news, total] = await Promise.all([
+        prisma.news.findMany({
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+          select: {
           id: true,
           type: true,
           characterId: true,
@@ -43,10 +51,16 @@ export async function newsRoutes(app: FastifyInstance) {
             },
           },
         },
-      });
+      }),
+        prisma.news.count(),
+      ]);
 
       return {
         ok: true,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
         news: news.map((n) => ({
           id: n.id,
           type: n.type,
@@ -123,7 +137,10 @@ export async function newsRoutes(app: FastifyInstance) {
   });
 }
 
+const NEWS_MAX_TOTAL = 100;
+
 // Функція для додавання новин (викликається з інших модулів)
+// Максимум 100 новин — старі видаляються при додаванні нових
 export async function addNews(params: {
   type: "new_player" | "premium_purchase" | "raid_boss_kill";
   characterId?: string;
@@ -131,6 +148,21 @@ export async function addNews(params: {
   metadata?: any;
 }): Promise<void> {
   try {
+    // Видаляємо найстаріші, якщо вже є 100+
+    const count = await prisma.news.count();
+    if (count >= NEWS_MAX_TOTAL) {
+      const oldest = await prisma.news.findMany({
+        orderBy: { createdAt: "asc" },
+        take: count - NEWS_MAX_TOTAL + 1,
+        select: { id: true },
+      });
+      if (oldest.length > 0) {
+        await prisma.news.deleteMany({
+          where: { id: { in: oldest.map((n) => n.id) } },
+        });
+      }
+    }
+
     const news = await prisma.news.create({
       data: {
         type: params.type,

@@ -679,11 +679,19 @@ export interface NewsItem {
 export interface NewsResponse {
   ok: boolean;
   news: NewsItem[];
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
 }
 
-export async function getNews(): Promise<NewsResponse> {
-  const response = await apiRequest<NewsResponse>('/news', {
-    method: 'GET',
+export async function getNews(params?: { page?: number; limit?: number }): Promise<NewsResponse> {
+  const q = new URLSearchParams();
+  if (params?.page != null) q.set("page", String(params.page));
+  if (params?.limit != null) q.set("limit", String(params.limit));
+  const query = q.toString();
+  const response = await apiRequest<NewsResponse>(`/news${query ? `?${query}` : ""}`, {
+    method: "GET",
   });
   return response;
 }
