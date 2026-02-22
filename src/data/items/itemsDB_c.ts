@@ -323,7 +323,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     name: "C-grade Armor Piece",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i02.png",
+    icon: "/items/drops/resources/Gemstone_C.jpg",
     description: "Уламок броні C-грейду. Матеріал для крафту.",
     grade: "C",
   },
