@@ -26,7 +26,7 @@ VPS_HOST=api.l2dop.com ./scripts/push-and-deploy-vps.sh
 У репозиторії є маршрути:
 - `POST /premium/buy` — покупка преміуму (файл `src/routes/premium.ts`)
 - `POST /auth/refresh` — оновлення access token по refresh cookie
-- `POST /characters/:id/colorize-nick`, `POST /characters/:id/rename-nick` — в `src/characters.ts`
+- `POST /characters/:id/colorize-nick`, `POST /characters/:id/rename-nick`, `POST /characters/:targetId/pay-view-stats` — в `src/characters.ts`
 
 Після змін у сервері обов’язково **перезбирай і перезапускай** API на хостингу (Railway, VPS тощо).
 
