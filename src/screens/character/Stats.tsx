@@ -141,6 +141,7 @@ export default function Stats() {
               playerName={hero.name || "Без имени"}
               hero={hero}
               clan={playerClan}
+              sevenSealsWinnerRank={(hero as any)?.heroJson?.sevenSealsBonus?.rank}
               size={14}
             />
           </div>

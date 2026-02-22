@@ -39,8 +39,15 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
 
   const characterId = useCharacterStore((s) => s.characterId);
 
-  // Завантажуємо Seven Seals ранг для badge "Победитель 7 печатей" + auto-claim нагороди
+  // Визначаємо Seven Seals ранг: heroJson.sevenSealsBonus (вже забрали) або API (топ-3 по медалях)
+  const sevenSealsRankFromHero = (hero as any)?.heroJson?.sevenSealsBonus?.rank;
+  const isSevenSealsWinner = sevenSealsRankFromHero >= 1 && sevenSealsRankFromHero <= 3;
+
   useEffect(() => {
+    if (sevenSealsRankFromHero != null) {
+      setSevenSealsRank(sevenSealsRankFromHero);
+      return;
+    }
     const load = async () => {
       if (!characterId || !hero) return;
       try {
@@ -63,11 +70,11 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
           setSevenSealsRank(null);
         }
       } catch {
-        // ignore
+        setSevenSealsRank(null);
       }
     };
     load();
-  }, [characterId, hero?.name]);
+  }, [characterId, hero?.name, sevenSealsRankFromHero]);
 
   // Завантажуємо Character для отримання createdAt
   useEffect(() => {

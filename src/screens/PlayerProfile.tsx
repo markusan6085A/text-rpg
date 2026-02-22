@@ -67,23 +67,24 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     loadPlayerProfile();
   }, [playerId, playerName]);
 
-  // Завантажуємо Seven Seals ранг для badge "Победитель 7 печатей"
+  // Seven Seals: heroJson.sevenSealsBonus (забрали нагороду) або API (топ-3 по медалях)
+  const sevenSealsFromChar = (character?.heroJson as any)?.sevenSealsBonus?.rank;
   useEffect(() => {
+    if (sevenSealsFromChar >= 1 && sevenSealsFromChar <= 3) {
+      setSevenSealsRank(sevenSealsFromChar);
+      return;
+    }
     const load = async () => {
       if (!character?.id) return;
       try {
         const data = await getSevenSealsRank(character.id);
-        if (data.rank && data.rank >= 1 && data.rank <= 3) {
-          setSevenSealsRank(data.rank);
-        } else {
-          setSevenSealsRank(null);
-        }
+        setSevenSealsRank((data.rank >= 1 && data.rank <= 3) ? data.rank : null);
       } catch {
         setSevenSealsRank(null);
       }
     };
     load();
-  }, [character?.id]);
+  }, [character?.id, sevenSealsFromChar]);
 
   // ❗ Оновлюємо дані при поверненні на сторінку (коли сторінка стає видимою)
   useEffect(() => {
@@ -286,6 +287,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                   hero={hero}
                   clan={playerClan}
                   nickColor={heroData?.nickColor || undefined}
+                  sevenSealsWinnerRank={sevenSealsRank ?? undefined}
                   size={10}
                 />
               </div>

@@ -317,6 +317,7 @@ export default function StatusBars() {
           playerName={hero.name}
           hero={hero}
           clan={myClan}
+          sevenSealsWinnerRank={(hero as any)?.heroJson?.sevenSealsBonus?.rank}
           size={8}
         />
         {isPremiumActive(hero) && (

@@ -182,8 +182,8 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /seven-seals/rank/:characterId — ранг персонажа (SevenSealsScore)
-  // Якщо рядка нема → points:0, rank:1 (без 404)
+  // GET /seven-seals/rank/:characterId — ранг персонажа (медалі поточного тижня або heroJson.sevenSealsBonus)
+  // Переможці = топ-3 по медалях; якщо є sevenSealsBonus — вже забрали нагороду
   app.get("/seven-seals/rank/:characterId", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -192,31 +192,47 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     if (!characterId) return reply.code(400).send({ error: "characterId required" });
 
     try {
-      const row = await prisma.sevenSealsScore.findUnique({
-        where: { characterId },
-        select: { points: true, seal: true, updatedAt: true },
+      const char = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { heroJson: true },
       });
 
-      const points = row?.points ?? 0;
-      const seal = row?.seal ?? null;
-
-      // Ранг тільки якщо персонаж брав участь (є запис). Інакше null — не показувати «Победитель»
-      let rank: number | null = null;
-      if (row) {
-        const aboveCount = await prisma.sevenSealsScore.count({
-          where: { points: { gt: points } },
-        });
-        rank = aboveCount + 1;
+      const heroJson = (char?.heroJson ?? {}) as Record<string, unknown>;
+      const sevenSealsBonus = heroJson.sevenSealsBonus;
+      const claimedRank = sevenSealsBonus && typeof sevenSealsBonus === "object" && (sevenSealsBonus as { rank?: number }).rank;
+      if (claimedRank >= 1 && claimedRank <= 3) {
+        return {
+          ok: true,
+          characterId,
+          rank: claimedRank,
+          medalCount: 0,
+          fromClaimedBonus: true,
+        };
       }
+
+      const weekStartInclusive = getWeekStartInclusive();
+      const weekEnd = new Date(weekStartInclusive.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      const medals = await prisma.sevenSealsMedal.findMany({
+        where: {
+          weekStart: { gte: weekStartInclusive, lt: weekEnd },
+        },
+        select: { characterId: true },
+      });
+
+      const medalCounts = new Map<string, number>();
+      medals.forEach((m) => medalCounts.set(m.characterId, (medalCounts.get(m.characterId) ?? 0) + 1));
+
+      const myMedals = medalCounts.get(characterId) ?? 0;
+      const aboveCount = Array.from(medalCounts.values()).filter((c) => c > myMedals).length;
+      const rank = myMedals > 0 ? aboveCount + 1 : null;
 
       return {
         ok: true,
         characterId,
-        points,
-        seal,
-        rank,
-        medalCount: points,
-        updatedAt: row?.updatedAt ?? null,
+        rank: rank && rank <= 3 ? rank : null,
+        medalCount: myMedals,
+        fromClaimedBonus: false,
       };
     } catch (error) {
       app.log.error(error, "Error fetching Seven Seals rank:");
@@ -227,7 +243,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
-  // POST /seven-seals/claim — отримати нагороду за 1-3 місце (рандомні стати в межах діапазону)
+  // POST /seven-seals/claim — отримати нагороду за 1-3 місце (топ-3 по медалях тижня)
   app.post("/seven-seals/claim", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -243,17 +259,19 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       });
       if (!character) return reply.code(404).send({ error: "character not found" });
 
-      const points = await prisma.sevenSealsScore.findUnique({
-        where: { characterId },
-        select: { points: true },
-      }).then(r => r?.points ?? 0);
-
-      const aboveCount = await prisma.sevenSealsScore.count({
-        where: { points: { gt: points } },
+      const weekStartInclusive = getWeekStartInclusive();
+      const weekEnd = new Date(weekStartInclusive.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const medals = await prisma.sevenSealsMedal.findMany({
+        where: { weekStart: { gte: weekStartInclusive, lt: weekEnd } },
+        select: { characterId: true },
       });
-      const rank = aboveCount + 1;
+      const medalCounts = new Map<string, number>();
+      medals.forEach((m) => medalCounts.set(m.characterId, (medalCounts.get(m.characterId) ?? 0) + 1));
+      const myMedals = medalCounts.get(characterId) ?? 0;
+      const aboveCount = Array.from(medalCounts.values()).filter((c) => c > myMedals).length;
+      const rank = myMedals > 0 ? aboveCount + 1 : 0;
       if (rank < 1 || rank > 3) {
-        return reply.code(400).send({ error: "only rank 1-3 can claim rewards" });
+        return reply.code(400).send({ error: "only rank 1-3 (by medals) can claim rewards" });
       }
 
       const heroJson = (character.heroJson as Record<string, unknown>) || {};

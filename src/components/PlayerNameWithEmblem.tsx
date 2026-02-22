@@ -9,6 +9,7 @@ interface PlayerNameWithEmblemProps {
   hero?: Hero | null;
   clan?: Clan | null;
   nickColor?: string | null;
+  sevenSealsWinnerRank?: number | null;
   size?: number;
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
@@ -22,13 +23,14 @@ export function PlayerNameWithEmblem({
   hero,
   clan,
   nickColor,
+  sevenSealsWinnerRank,
   size = 10,
   className = "",
   onClick,
 }: PlayerNameWithEmblemProps) {
   const emblem = clan?.emblem || null;
 
-  const style = getNickColorStyle(playerName, hero || null, nickColor || undefined);
+  const style = getNickColorStyle(playerName, hero || null, nickColor || undefined, sevenSealsWinnerRank);
   const adminClass = isAdminNickName(playerName) ? ` ${ADMIN_NICK_CLASS}` : "";
 
   return (
