@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getPublicCharacter, getCharacterByName, getSevenSealsRank, type Character } from "../utils/api";
+import { getPublicCharacter, getCharacterByName, getSevenSealsRank, payToViewPlayerStats, type Character } from "../utils/api";
 import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
@@ -10,6 +10,8 @@ import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { getMyClan } from "../utils/api";
 import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
+import PlayerStatsModal from "../components/PlayerStatsModal";
+import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -27,6 +29,9 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [playerClan, setPlayerClan] = useState<any>(null);
   const [sevenSealsRank, setSevenSealsRank] = useState<number | null>(null);
   const [showSevenSealsModal, setShowSevenSealsModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [viewedStats, setViewedStats] = useState<ReturnType<typeof recalculateAllStats> | null>(null);
+  const [statsLoadError, setStatsLoadError] = useState<string | null>(null);
   // 🔥 Таймер — перерендер щосекунди, щоб бафи інших гравців зникали при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -133,6 +138,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       profession: professionRaw, // Зберігаємо оригінальний регістр для відображення
       status: heroJson.status || "",
       equipment: heroJson.equipment || {},
+      equipmentEnchantLevels: heroJson.equipmentEnchantLevels || {},
+      activeDyes: heroJson.activeDyes || [],
+      skills: Array.isArray(heroJson.skills) ? heroJson.skills : [],
+      heroJson,
       inventory: heroJson.inventory || [],
       adena: character.adena,
       coinOfLuck: character.coinLuck,
@@ -237,6 +246,27 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       'heroData.location': heroData?.location,
     });
   }
+  const handleViewStats = async () => {
+    if (!character || !heroData || !hero) return;
+    const cost = 1_000_000;
+    if ((hero.adena ?? 0) < cost) {
+      setStatsLoadError(`Недостаточно адены. Нужно ${cost.toLocaleString()}`);
+      return;
+    }
+    setStatsLoadError(null);
+    try {
+      const res = await payToViewPlayerStats(character.id);
+      if (res.ok) {
+        useHeroStore.getState().updateHero({ adena: res.newAdena });
+        const statsResult = recalculateAllStats(heroData, []);
+        setViewedStats(statsResult);
+        setShowStatsModal(true);
+      }
+    } catch (e: any) {
+      setStatsLoadError(e?.message || e?.error || "Ошибка");
+    }
+  };
+
   const premiumActive = stats.premiumActive || false;
   const premiumExpiresAt = stats.premiumExpiresAt || null;
   const giftsCount = stats.giftsCount || stats.gifts_count || 0;
@@ -381,6 +411,21 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </span>
             </div>
           </div>
+          <div className="border-t-2 border-b-2 border-[#c7ad80] my-1" />
+          <div className="border-t-2 border-b-2 border-[#c7ad80] my-1" />
+          <div className={`${lineThin} py-1`}>
+            <div className={boxPad}>
+              <span
+                onClick={handleViewStats}
+                className="cursor-pointer hover:text-yellow-300 transition-colors text-[12px] text-yellow-400 text-center block"
+              >
+                Подсмотреть характеристики за 1 000 000
+              </span>
+            </div>
+            {statsLoadError && (
+              <div className="text-red-400 text-[10px] text-center mt-1">{statsLoadError}</div>
+            )}
+          </div>
         </div>
 
         {/* Активні бафи гравця */}
@@ -451,6 +496,19 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             playerName={character.name}
             bonus={(character?.heroJson as any)?.sevenSealsBonus}
             onClose={() => setShowSevenSealsModal(false)}
+          />
+        )}
+
+        {/* Модалка характеристик іншого гравця */}
+        {showStatsModal && viewedStats && heroData && (
+          <PlayerStatsModal
+            playerName={character.name}
+            stats={viewedStats}
+            hero={heroData}
+            onClose={() => {
+              setShowStatsModal(false);
+              setViewedStats(null);
+            }}
           />
         )}
 

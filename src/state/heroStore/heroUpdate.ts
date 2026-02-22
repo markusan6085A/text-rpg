@@ -152,6 +152,11 @@ export function updateHeroLogic(
   if (partial.level !== undefined && partial.level !== null) {
     (updated as any).level = Number(partial.level);
   }
+  // 🔥 location — зберігаємо в heroJson для відображення в профілі іншим гравцям
+  if ((partial as any).location !== undefined) {
+    const hj = (updated as any).heroJson || {};
+    (updated as any).heroJson = { ...hj, location: (partial as any).location };
+  }
 
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
   const hydrated = hydrateHero(updated);

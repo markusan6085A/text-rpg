@@ -271,6 +271,15 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
   return response.character;
 }
 
+/** Сплатити 1M аден для перегляду характеристик іншого гравця */
+export async function payToViewPlayerStats(targetCharacterId: string): Promise<{ ok: boolean; newAdena: number }> {
+  const response = await apiRequest<{ ok: boolean; newAdena: number }>(
+    `/characters/${targetCharacterId}/pay-view-stats`,
+    { method: "POST" }
+  );
+  return response;
+}
+
 /** Resurrect: сервер атомарно скидає isDead/deadAt, ставить hp/mp/cp на max, heroBuffs=[]. Повертає оновленого character. */
 export async function resurrectCharacter(id: string): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/${id}/resurrect`, {

@@ -406,6 +406,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       dailyQuestsCompleted: Array.isArray(hero.dailyQuestsCompleted) ? hero.dailyQuestsCompleted : (existingHeroJson.dailyQuestsCompleted ?? []),
       dailyQuestsResetDate: hero.dailyQuestsResetDate ?? existingHeroJson.dailyQuestsResetDate ?? null,
       activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : (Array.isArray(existingHeroJson.activeQuests) ? existingHeroJson.activeQuests : []),
+      // 🔥 Локація гравця (оновлюється в startBattle) — для відображення в профілі іншим гравцям
+      ...((hero as any).location || existingHeroJson.location ? { location: (hero as any).location || existingHeroJson.location } : {}),
     };
     
     // Логуємо для діагностики

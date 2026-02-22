@@ -1471,6 +1471,37 @@ export async function characterRoutes(app: FastifyInstance) {
     }
   });
 
+  const VIEW_STATS_COST = 1_000_000;
+
+  // POST /characters/:targetId/pay-view-stats - сплатити 1M аден для перегляду характеристик іншого гравця
+  app.post("/characters/:targetId/pay-view-stats", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const targetId = (req.params as { targetId?: string }).targetId;
+    if (!targetId) return reply.code(400).send({ error: "targetId required" });
+
+    try {
+      const myChar = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, adena: true },
+      });
+      if (!myChar) return reply.code(404).send({ error: "character not found" });
+      const currentAdena = Number(myChar.adena ?? 0);
+      if (currentAdena < VIEW_STATS_COST) {
+        return reply.code(400).send({ error: "not enough adena", needed: VIEW_STATS_COST, have: currentAdena });
+      }
+      await prisma.character.update({
+        where: { id: myChar.id },
+        data: { adena: { decrement: VIEW_STATS_COST } },
+      });
+      return reply.send({ ok: true, newAdena: currentAdena - VIEW_STATS_COST });
+    } catch (error) {
+      app.log.error(error, "POST /characters/:targetId/pay-view-stats");
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+
   // GET /characters/public/:id - публічний профіль гравця (без авторизації)
   app.get("/characters/public/:id", async (req, reply) => {
     const params = req.params as { id?: string };
