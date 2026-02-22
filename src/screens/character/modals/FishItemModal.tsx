@@ -21,7 +21,9 @@ interface FishItemModalProps {
   updateHero: (partial: Partial<Hero>) => void;
 }
 
-// Всі види ресурсів (без риби та квестових)
+const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena", "coin_of_fair"]);
+
+// Всі види ресурсів (без риби, квестових, валют)
 function getAllResources(): ItemDefinition[] {
   const resources: ItemDefinition[] = [];
   Object.values(itemsDB).forEach((item) => {
@@ -29,7 +31,8 @@ function getAllResources(): ItemDefinition[] {
       item.kind === "resource" &&
       !item.id.startsWith("fish_") &&
       !item.id.startsWith("quest_") &&
-      item.slot !== "quest"
+      item.slot !== "quest" &&
+      !CURRENCY_IDS.has(item.id)
     ) {
       resources.push(item);
     }
@@ -88,10 +91,10 @@ function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
   return byGrade;
 }
 
-// Шанси за грейд для зброї/броні/біжутерії: D/C 0.7%, B 0.6%, A 0.5%, S 0.3%
-const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.6, A: 0.5, S: 0.3 };
+// Шанси за грейд для зброї/броні/біжутерії: D/C без змін, B/A/S — 0.1%
+const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.1, A: 0.1, S: 0.1 };
 
-// Розділка риби: Coin 0.7%, зброя/броня/бижутерія по грейду, ресурси 2%, скарбничка 0.3%, адена 2%, срібні монети 1%
+// Розділка риби: B/A/S зброя/броня/бижутерія 0.1%, ресурси 0.8%, скарбничка 0.3%. Без адени, коінів, срібних монет.
 function processFishDrop(fishCount: number): {
   adena: number;
   coinOfLuck: number;
@@ -113,9 +116,7 @@ function processFishDrop(fishCount: number): {
   const jewelryByGrade = getShopIdsByTypeAndGrade("jewelry");
 
   for (let i = 0; i < fishCount; i++) {
-    // Coin of Luck: 0.7% (→ hero.coinOfLuck)
-    if (Math.random() * 100 < 0.7) totalCoinOfLuck += 1;
-    // Зброя/Броня/Бижутерія — за грейдом: D/C 0.7%, B 0.6%, A 0.5%, S 0.3%
+    // Зброя/Броня/Бижутерія — за грейдом: D/C 0.7%, B/A/S 0.1%
     (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
       const chance = GRADE_CHANCE[grade];
       const weaponIds = weaponsByGrade[grade];
@@ -134,16 +135,13 @@ function processFishDrop(fishCount: number): {
         resources[id] = (resources[id] || 0) + 1;
       }
     });
-    // Ресурси: 2% кожен тип
+    // Ресурси: 0.8% кожен тип
     allResources.forEach((res) => {
-      if (Math.random() * 100 < 2) resources[res.id] = (resources[res.id] || 0) + 1;
+      if (Math.random() * 100 < 0.8) resources[res.id] = (resources[res.id] || 0) + 1;
     });
     // Скарбничка: 0.3%
     if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
-    // Адена: 2% (→ hero.adena)
-    if (Math.random() * 100 < 2) totalAdena += 10_000;
-    // Срібні монети: 1% (→ hero.coins_silver)
-    if (Math.random() * 100 < 1) totalCoinsSilver += 1;
+    // Адена, Coin of Luck, Срібні монети — прибрано з дропу
   }
 
   return {
@@ -559,14 +557,10 @@ export default function FishItemModal({
           <div>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Шанси дропу (за 1 рибу):</div>
             <div className="text-gray-400 text-[11px] space-y-0.5">
-              <div>Coin of Luck: 0.7%</div>
-              <div>Зброя: 0.3%</div>
-              <div>Броня: 0.5%</div>
-              <div>Бижутерія: 0.6%</div>
-              <div>Ресурси: 2% кожен тип</div>
+              <div>Зброя/Броня/Бижутерія D/C: 0.7%</div>
+              <div>Зброя/Броня/Бижутерія B/A/S: 0.1%</div>
+              <div>Ресурси: 0.8% кожен тип</div>
               <div>Скарбничка: 0.3%</div>
-              <div>Адена (10 000): 2%</div>
-              <div>Серебряные Монеты: 1%</div>
             </div>
           </div>
         </div>
