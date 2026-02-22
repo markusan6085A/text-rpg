@@ -13,7 +13,14 @@ export const CATEGORIES = [
     }
     return false;
   }},
-  { key: "armor", label: "Броня", test: (item: any) => ["head", "armor", "legs", "gloves", "boots", "belt", "shield"].includes(item.slot) },
+  { key: "armor", label: "Броня", test: (item: any) => {
+    if (["head", "armor", "legs", "gloves", "boots", "belt", "shield"].includes(item.slot)) return true;
+    if (item.slot === "lhand") {
+      const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
+      return itemDef?.kind === "shield";
+    }
+    return false;
+  }},
   { key: "bijou", label: "Биж", test: (item: any) => {
     const slot = item.slot || "";
     // Перевіряємо стандартні слоти
@@ -29,7 +36,12 @@ export const CATEGORIES = [
     }
     return false;
   }},
-  { key: "consumable", label: "Расходники", test: (item: any) => item.slot === "consumable" },
+  { key: "consumable", label: "Расходники", test: (item: any) => {
+    if (item.slot === "consumable") return true;
+    if (item.id === "treasure_box") return true;
+    if (typeof item.id === "string" && item.id.startsWith("fish_")) return true;
+    return false;
+  }},
   { key: "resource", label: "Рес", test: (item: any) => item.slot === "resource" },
   { key: "recipe", label: "Рецепты", test: (item: any) => item.slot === "recipe" },
   { key: "quest", label: "Квест", test: (item: any) => item.slot === "quest" },

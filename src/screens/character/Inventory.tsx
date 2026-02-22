@@ -10,6 +10,9 @@ import DeleteConfirmModal from "./DeleteConfirmModal";
 
 const ITEMS_PER_PAGE = 10;
 
+// Валюта — показується в балансі персонажа, не в інвентарі
+const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
+
 export default function Inventory() {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
@@ -30,7 +33,9 @@ export default function Inventory() {
   const filteredItems = useMemo(() => {
     if (!hero || !hero.inventory) return [];
     const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
-    let items = hero.inventory.filter((item: any) => item && category.test(item));
+    let items = hero.inventory.filter(
+      (item: any) => item && !CURRENCY_IDS.has(item.id) && category.test(item)
+    );
     if (currentGrade) {
       const gradeUpper = currentGrade.toUpperCase();
       items = items.filter((item: any) => {

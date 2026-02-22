@@ -66,7 +66,32 @@ function getShopIdsByType(type: string): string[] {
   return ids;
 }
 
-// Розділка риби: Coin 0.7%, зброя 0.3%, броня 0.5%, ресурси 2%, бижутерія 0.6%, скарбничка 0.3%, адена 2%, срібні монети 1% (→ hero.coins_silver)
+// Зброя/броня/бижутерія згруповані по грейду
+function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
+  const allShop = [
+    { items: D_GRADE_SHOP_ITEMS, grade: "D" },
+    { items: C_GRADE_SHOP_ITEMS, grade: "C" },
+    { items: B_GRADE_SHOP_ITEMS, grade: "B" },
+    { items: A_GRADE_SHOP_ITEMS, grade: "A" },
+    { items: S_GRADE_SHOP_ITEMS, grade: "S" },
+  ];
+  const byGrade: Record<string, string[]> = {};
+  allShop.forEach(({ items, grade }) => {
+    const ids: string[] = [];
+    items.forEach((shopItem: any) => {
+      if (shopItem.type !== type) return;
+      const id = SHOP_ITEM_ID_MAPPING[shopItem.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
+      if (id && itemsDB[id]) ids.push(id);
+    });
+    if (ids.length > 0) byGrade[grade] = ids;
+  });
+  return byGrade;
+}
+
+// Шанси за грейд для зброї/броні/біжутерії: D/C 0.7%, B 0.6%, A 0.5%, S 0.3%
+const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.6, A: 0.5, S: 0.3 };
+
+// Розділка риби: Coin 0.7%, зброя/броня/бижутерія по грейду, ресурси 2%, скарбничка 0.3%, адена 2%, срібні монети 1%
 function processFishDrop(fishCount: number): {
   adena: number;
   coinOfLuck: number;
@@ -83,32 +108,36 @@ function processFishDrop(fishCount: number): {
   const resources: Record<string, number> = {};
 
   const allResources = getAllResources();
-  const shopWeapons = getShopWeaponIds();
-  const shopArmor = getShopArmorIds();
-  const shopJewelry = getShopJewelryIds();
+  const weaponsByGrade = getShopIdsByTypeAndGrade("weapon");
+  const armorByGrade = getShopIdsByTypeAndGrade("armor");
+  const jewelryByGrade = getShopIdsByTypeAndGrade("jewelry");
 
   for (let i = 0; i < fishCount; i++) {
     // Coin of Luck: 0.7% (→ hero.coinOfLuck)
     if (Math.random() * 100 < 0.7) totalCoinOfLuck += 1;
-    // Зброя: 0.3%
-    if (Math.random() * 100 < 0.3 && shopWeapons.length > 0) {
-      const id = shopWeapons[Math.floor(Math.random() * shopWeapons.length)];
-      weapons[id] = (weapons[id] || 0) + 1;
-    }
-    // Броня: 0.5%
-    if (Math.random() * 100 < 0.5 && shopArmor.length > 0) {
-      const id = shopArmor[Math.floor(Math.random() * shopArmor.length)];
-      armorPieces[id] = (armorPieces[id] || 0) + 1;
-    }
-    // Ресурси: 2% кожен
+    // Зброя/Броня/Бижутерія — за грейдом: D/C 0.7%, B 0.6%, A 0.5%, S 0.3%
+    (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
+      const chance = GRADE_CHANCE[grade];
+      const weaponIds = weaponsByGrade[grade];
+      const armorIds = armorByGrade[grade];
+      const jewelryIds = jewelryByGrade[grade];
+      if (weaponIds?.length && Math.random() * 100 < chance) {
+        const id = weaponIds[Math.floor(Math.random() * weaponIds.length)];
+        weapons[id] = (weapons[id] || 0) + 1;
+      }
+      if (armorIds?.length && Math.random() * 100 < chance) {
+        const id = armorIds[Math.floor(Math.random() * armorIds.length)];
+        armorPieces[id] = (armorPieces[id] || 0) + 1;
+      }
+      if (jewelryIds?.length && Math.random() * 100 < chance) {
+        const id = jewelryIds[Math.floor(Math.random() * jewelryIds.length)];
+        resources[id] = (resources[id] || 0) + 1;
+      }
+    });
+    // Ресурси: 2% кожен тип
     allResources.forEach((res) => {
       if (Math.random() * 100 < 2) resources[res.id] = (resources[res.id] || 0) + 1;
     });
-    // Бижутерія: 0.6%
-    if (Math.random() * 100 < 0.6 && shopJewelry.length > 0) {
-      const id = shopJewelry[Math.floor(Math.random() * shopJewelry.length)];
-      resources[id] = (resources[id] || 0) + 1;
-    }
     // Скарбничка: 0.3%
     if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
     // Адена: 2% (→ hero.adena)
