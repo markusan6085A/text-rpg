@@ -124,7 +124,6 @@ export default function Fishing({ navigate }: FishingProps) {
         inventory: hj?.inventory ?? hero.inventory ?? [],
         heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: undefined },
       });
-      alert(`Улов: ${res.fishCount} рыб`);
     } catch (e: any) {
       alert(e?.message || e?.error || "Не удалось забрать улов");
     } finally {
