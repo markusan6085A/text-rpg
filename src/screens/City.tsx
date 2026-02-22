@@ -7,6 +7,7 @@ import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
 import { getPreviousCity } from "../utils/locationNavigation";
 import { cities as WORLD_CITIES, getCityById } from "../data/world";
+import { isFishingReady } from "../state/fishing/fishingPersistence";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -262,7 +263,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
                 }}
               >
                 <img src="/assets/quest.png" alt="Рыбак" className="w-3 h-3 object-contain" />
-                <span>Рыбак</span>
+                <span>Рыбак{isFishingReady((hero?.heroJson as any)?.fishingSession ?? null) && <span className="text-green-500 font-bold ml-0.5">+</span>}</span>
               </button>
 
               <button
