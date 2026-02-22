@@ -475,7 +475,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       level: levelToSend,
       exp: expToSend,
       sp: spToSend,
-      adena: hero.adena,
+      adena: Number(hero.adena ?? 0), // завжди number (API може повертати BigInt як string)
       aa: hero.aa || 0,
       expectedRevision,
     };

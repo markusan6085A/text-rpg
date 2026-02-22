@@ -945,9 +945,12 @@ export async function characterRoutes(app: FastifyInstance) {
     }
 
     if (body.adena !== undefined) {
-      if (typeof body.adena !== 'number' || body.adena < 0) {
+      // BigInt серіалізується як string у JSON — приймаємо і number, і numeric string
+      const adenaNum = typeof body.adena === "string" ? Number(body.adena) : body.adena;
+      if (typeof adenaNum !== "number" || isNaN(adenaNum) || adenaNum < 0) {
         return reply.code(400).send({ error: "invalid adena (must be >= 0)" });
       }
+      (body as any).adena = adenaNum; // нормалізуємо для подальшої обробки
       // Дозволяємо зменшення adena — потрібно для покупок в магазині, клані тощо
     }
 
