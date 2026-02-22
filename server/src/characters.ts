@@ -601,11 +601,24 @@ export async function characterRoutes(app: FastifyInstance) {
     try {
       const ch = await prisma.character.findFirst({
         where: { id, accountId: auth.accountId },
-        select: { heroJson: true },
+        select: { id: true, heroJson: true },
       });
       if (!ch) return reply.code(404).send({ error: "character not found" });
       const heroJson = (ch.heroJson ?? {}) as any;
-      const session = heroJson.fishingSession ?? null;
+      let session = heroJson.fishingSession ?? null;
+      // Для старих сесій без fishCount: якщо улов готовий — генеруємо і зберігаємо
+      if (session && typeof session.startedAt === "number") {
+        const elapsed = Date.now() - session.startedAt;
+        if (elapsed >= FISHING_DURATION_MS && typeof session.fishCount !== "number") {
+          const fishCount = FISH_MIN + Math.floor(Math.random() * (FISH_MAX - FISH_MIN + 1));
+          const updatedHeroJson = { ...heroJson, fishingSession: { ...session, fishCount } };
+          await prisma.character.update({
+            where: { id: ch.id },
+            data: { heroJson: updatedHeroJson },
+          });
+          session = { ...session, fishCount };
+        }
+      }
       return reply.send({ ok: true, session });
     } catch (error) {
       app.log.error(error, "GET /characters/:id/fishing");

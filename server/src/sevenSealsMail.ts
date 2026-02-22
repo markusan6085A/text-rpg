@@ -31,8 +31,16 @@ function getWeekStartInclusive(weekStart: Date): Date {
 /** Чи зараз субота 00:00–00:59 за ігровим часом (Europe/Warsaw) */
 function isSaturdayMidnight(): boolean {
   const now = new Date();
-  const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
-  return polandTime.getDay() === 6 && polandTime.getHours() === 0;
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Warsaw",
+    weekday: "short",
+    hour: "numeric",
+    hour12: false,
+  });
+  const parts = fmt.formatToParts(now);
+  const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
+  const hour = parseInt(parts.find((p) => p.type === "hour")?.value ?? "0", 10);
+  return weekday === "Sat" && hour === 0;
 }
 
 const WINNER_MESSAGES: Record<number, string> = {
