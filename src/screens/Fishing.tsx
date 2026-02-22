@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { fetchFishingSession, isFishingReady } from "../state/fishing/fishingPersistence";
+import { getFishRangeByRodEnchant } from "../data/fishing/fishingCatchInfo";
+import FishingCatchInfoModal from "./character/modals/FishingCatchInfoModal";
 import * as api from "../utils/api";
 
 const FISHING_COST_SP = 5000;
@@ -12,17 +14,6 @@ const FISHING_COST_ADENA = 5_000_000;
 const FISHING_DURATION_MS = 60 * 60 * 1000;
 const ROD_ITEM_ID = "baby_duck_rod";
 const BAIT_ITEM_ID = "gludio_fish_lure";
-// Улов залежить від заточки удочки (+0..+1000)
-const FISH_BY_ROD_ENCHANT: Array<{ min: number; max: number }> = [
-  { min: 100, max: 300 }, { min: 110, max: 300 }, { min: 120, max: 300 },
-  { min: 130, max: 310 }, { min: 130, max: 320 }, { min: 130, max: 330 },
-  { min: 140, max: 350 }, { min: 140, max: 360 }, { min: 150, max: 370 },
-  { min: 150, max: 380 }, { min: 160, max: 400 },
-];
-function getFishRangeByRodEnchant(enchant: number): { min: number; max: number } {
-  const idx = Math.min(10, Math.floor(Math.max(0, enchant) / 100));
-  return FISH_BY_ROD_ENCHANT[idx];
-}
 
 type Navigate = (path: string) => void;
 
@@ -40,6 +31,7 @@ export default function Fishing({ navigate }: FishingProps) {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
 
   useEffect(() => {
     if (!characterId) {
@@ -168,6 +160,14 @@ export default function Fishing({ navigate }: FishingProps) {
         <div className="space-y-3">
           <div className="border-t border-white/50"></div>
           <div className="text-center text-[16px] font-semibold" style={{ color: "#4488ff" }}>Рыбалка</div>
+          <div className="border-t-2" style={{ borderColor: "#c7ad80" }}></div>
+          <button
+            onClick={() => setShowCatchInfoModal(true)}
+            className="w-full py-2 rounded border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/20 text-sm"
+          >
+            Информация об улове
+          </button>
+          {showCatchInfoModal && <FishingCatchInfoModal onClose={() => setShowCatchInfoModal(false)} />}
           <p className="text-xs text-left" style={{ color: "#c7ad80" }}>
             Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
             {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб.

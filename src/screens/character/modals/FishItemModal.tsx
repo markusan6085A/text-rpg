@@ -3,6 +3,7 @@ import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../../state/heroStore";
 import type { ItemDefinition } from "../../../data/items/itemsDB.types";
+import FishingCatchInfoModal from "./FishingCatchInfoModal";
 import { NG_GRADE_SHOP_ITEMS } from "../../../data/shop/ngGradeShop";
 import { D_GRADE_SHOP_ITEMS } from "../../../data/shop/dGradeShop";
 import { C_GRADE_SHOP_ITEMS } from "../../../data/shop/cGradeShop";
@@ -46,9 +47,6 @@ function getShopWeaponIds(): string[] {
 }
 function getShopArmorIds(): string[] {
   return getShopIdsByType("armor");
-}
-function getShopJewelryIds(): string[] {
-  return getShopIdsByType("jewelry");
 }
 
 function getShopIdsByType(type: string): string[] {
@@ -101,6 +99,7 @@ function processFishDrop(fishCount: number): {
   coinsSilver: number;
   weapons: Array<{ id: string; count: number }>;
   armorPieces: Array<{ id: string; count: number }>;
+  jewelryPieces: Array<{ id: string; count: number }>;
   resources: Array<{ id: string; count: number }>;
 } {
   let totalAdena = 0;
@@ -108,6 +107,7 @@ function processFishDrop(fishCount: number): {
   let totalCoinsSilver = 0;
   const weapons: Record<string, number> = {};
   const armorPieces: Record<string, number> = {};
+  const jewelryPieces: Record<string, number> = {};
   const resources: Record<string, number> = {};
 
   const allResources = getAllResources();
@@ -132,7 +132,7 @@ function processFishDrop(fishCount: number): {
       }
       if (jewelryIds?.length && Math.random() * 100 < chance) {
         const id = jewelryIds[Math.floor(Math.random() * jewelryIds.length)];
-        resources[id] = (resources[id] || 0) + 1;
+        jewelryPieces[id] = (jewelryPieces[id] || 0) + 1;
       }
     });
     // Ресурси: 0.8% кожен тип
@@ -150,6 +150,7 @@ function processFishDrop(fishCount: number): {
     coinsSilver: totalCoinsSilver,
     weapons: Object.entries(weapons).map(([id, count]) => ({ id, count })),
     armorPieces: Object.entries(armorPieces).map(([id, count]) => ({ id, count })),
+    jewelryPieces: Object.entries(jewelryPieces).map(([id, count]) => ({ id, count })),
     resources: Object.entries(resources).map(([id, count]) => ({ id, count })),
   };
 }
@@ -168,6 +169,7 @@ export default function FishItemModal({
   const [dismantleAmount, setDismantleAmount] = useState(1);
   const [showDismantleResult, setShowDismantleResult] = useState(false);
   const [dismantleResult, setDismantleResult] = useState<ReturnType<typeof processFishDrop> | null>(null);
+  const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
 
   const handleTransfer = () => {
     if (transferAmount < 1 || transferAmount > maxCount) return;
@@ -204,7 +206,22 @@ export default function FishItemModal({
     // Додаємо адену
     const newAdena = (currentHero.adena || 0) + result.adena;
 
-    const shopJewelryIds = new Set(getShopJewelryIds());
+    // Додаємо бижутерію — окремий слот, завжди по 1 предмету (не стакається)
+    result.jewelryPieces.forEach(({ id, count }) => {
+      const itemDef = itemsDB[id];
+      if (itemDef) {
+        for (let i = 0; i < count; i++) {
+          updatedInventory.push({
+            id,
+            name: itemDef.name,
+            icon: itemDef.icon,
+            slot: itemDef.slot,
+            count: 1,
+            description: itemDef.description,
+          });
+        }
+      }
+    });
 
     // Додаємо зброю — завжди по 1 предмету (не стакається)
     result.weapons.forEach(({ id, count }) => {
@@ -240,38 +257,24 @@ export default function FishItemModal({
       }
     });
 
-    // Додаємо ресурси: бижутерія — по 1, інше — стакається
+    // Додаємо ресурси (без бижутерії — вона вже в jewelryPieces): стакається
     result.resources.forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
       if (!itemDef) return;
-      const isJewelry = shopJewelryIds.has(id);
-      if (isJewelry) {
-        for (let i = 0; i < count; i++) {
-          updatedInventory.push({
-            id,
-            name: itemDef.name,
-            icon: itemDef.icon,
-            slot: itemDef.slot,
-            count: 1,
-            description: itemDef.description,
-          });
-        }
+      const existingItem = updatedInventory.find((i) => i.id === id);
+      if (existingItem) {
+        updatedInventory = updatedInventory.map((i) =>
+          i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
+        );
       } else {
-        const existingItem = updatedInventory.find((i) => i.id === id);
-        if (existingItem) {
-          updatedInventory = updatedInventory.map((i) =>
-            i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
-          );
-        } else {
-          updatedInventory.push({
-            id,
-            name: itemDef.name,
-            icon: itemDef.icon,
-            slot: itemDef.slot,
-            count,
-            description: itemDef.description,
-          });
-        }
+        updatedInventory.push({
+          id,
+          name: itemDef.name,
+          icon: itemDef.icon,
+          slot: itemDef.slot,
+          count,
+          description: itemDef.description,
+        });
       }
     });
 
@@ -375,6 +378,55 @@ export default function FishItemModal({
                                 <span className="text-gray-400">Скорость боя:</span>
                                 <span className="text-yellow-400">+{stats.pAtkSpd}</span>
                               </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {dismantleResult.jewelryPieces.length > 0 && (
+              <div>
+                <div className="text-sm font-semibold text-[#b8860b] mb-2">Бижутерия:</div>
+                <div className="space-y-2">
+                  {dismantleResult.jewelryPieces.map(({ id, count }) => {
+                    const jewelryDef = itemsDB[id];
+                    const stats = jewelryDef?.stats || {};
+                    return (
+                      <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
+                        <div className="flex items-center gap-2 mb-1">
+                          {jewelryDef?.icon && (
+                            <img
+                              src={jewelryDef.icon.startsWith("/") ? jewelryDef.icon : `/items/${jewelryDef.icon}`}
+                              alt={jewelryDef.name}
+                              className="w-5 h-5 object-contain"
+                            />
+                          )}
+                          <span className="text-gray-300 font-semibold">{jewelryDef?.name || id}</span>
+                          <span className="text-green-400 ml-auto">x{count}</span>
+                        </div>
+                        {Object.keys(stats).length > 0 && (
+                          <div className="pl-7 space-y-0.5 text-xs">
+                            {(stats as any).STR && (
+                              <div className="flex justify-between"><span className="text-gray-400">STR:</span><span className="text-yellow-300">+{(stats as any).STR}</span></div>
+                            )}
+                            {(stats as any).DEX && (
+                              <div className="flex justify-between"><span className="text-gray-400">DEX:</span><span className="text-yellow-300">+{(stats as any).DEX}</span></div>
+                            )}
+                            {(stats as any).CON && (
+                              <div className="flex justify-between"><span className="text-gray-400">CON:</span><span className="text-yellow-300">+{(stats as any).CON}</span></div>
+                            )}
+                            {(stats as any).INT && (
+                              <div className="flex justify-between"><span className="text-gray-400">INT:</span><span className="text-yellow-300">+{(stats as any).INT}</span></div>
+                            )}
+                            {(stats as any).WIT && (
+                              <div className="flex justify-between"><span className="text-gray-400">WIT:</span><span className="text-yellow-300">+{(stats as any).WIT}</span></div>
+                            )}
+                            {(stats as any).MEN && (
+                              <div className="flex justify-between"><span className="text-gray-400">MEN:</span><span className="text-yellow-300">+{(stats as any).MEN}</span></div>
                             )}
                           </div>
                         )}
@@ -509,6 +561,7 @@ export default function FishItemModal({
               ((dismantleResult as { coinsSilver?: number }).coinsSilver ?? 0) === 0 &&
               dismantleResult.weapons.length === 0 &&
               dismantleResult.armorPieces.length === 0 &&
+              dismantleResult.jewelryPieces.length === 0 &&
               dismantleResult.resources.length === 0 && (
                 <div className="text-gray-400 text-center py-4">Нічого не випало</div>
               )}
@@ -562,6 +615,13 @@ export default function FishItemModal({
               <div>Ресурси: 0.8% кожен тип</div>
               <div>Скарбничка: 0.3%</div>
             </div>
+            <button
+              onClick={() => setShowCatchInfoModal(true)}
+              className="mt-2 py-1.5 px-2 rounded border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/20 text-[11px]"
+            >
+              Информация об улове
+            </button>
+            {showCatchInfoModal && <FishingCatchInfoModal onClose={() => setShowCatchInfoModal(false)} />}
           </div>
         </div>
 
