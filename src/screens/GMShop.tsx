@@ -982,6 +982,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                       const val = parseInt(e.target.value) || 1;
                       setExchangeQuantity(Math.max(1, val));
                     }}
+                    onFocus={(e) => e.target.select()}
                     className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-center text-[12px]"
                   />
                   <button
@@ -1100,11 +1101,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                       const numVal = parseInt(val) || 1;
                       setBuyQuantity(Math.max(1, numVal));
                     }}
-                    onFocus={(e) => {
-                      if (e.target.value === "0") {
-                        e.target.select();
-                      }
-                    }}
+                    onFocus={(e) => e.target.select()}
                     className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-center text-[12px]"
                   />
                   <button

@@ -670,11 +670,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                     setQuantityInput(val);
                   }
                 }}
-                onFocus={(e) => {
-                  if (e.target.value === "0") {
-                    e.target.select();
-                  }
-                }}
+                onFocus={(e) => e.target.select()}
                 className="w-full px-3 py-2 bg-[#2a2a2a] border border-white/50 text-sm text-[#cfcfcc] rounded focus:outline-none focus:ring-1 focus:ring-[#b8860b]"
                 autoFocus
               />

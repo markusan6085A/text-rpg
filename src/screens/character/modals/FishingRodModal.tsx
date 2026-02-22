@@ -222,11 +222,7 @@ export default function FishingRodModal({
                     maxEnchantLevel - currentEnchantLevel
                   )}
                   value={enchantAmount}
-                  onFocus={(e) => {
-                    if (e.target.value === "0") {
-                      e.target.select();
-                    }
-                  }}
+                  onFocus={(e) => e.target.select()}
                   onChange={(e) => {
                     let val = e.target.value;
                     if (val.startsWith("0") && val.length > 1) {

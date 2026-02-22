@@ -763,11 +763,7 @@ export default function Shop({ navigate }: ShopProps) {
                         const numVal = parseInt(val) || 1;
                         setBuyQuantity(Math.max(1, Math.min(30000, numVal)));
                       }}
-                      onFocus={(e) => {
-                        if (e.target.value === "0") {
-                          e.target.select();
-                        }
-                      }}
+                      onFocus={(e) => e.target.select()}
                       className="w-16 h-6 px-2 bg-[#1a1a1a] text-white text-[12px] text-center border border-white/50 rounded"
                     />
                     <button

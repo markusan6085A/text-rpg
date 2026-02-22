@@ -541,11 +541,7 @@ export default function FishItemModal({
                   const numVal = parseInt(val) || 1;
                   setTransferAmount(Math.max(1, Math.min(maxCount, numVal)));
                 }}
-                onFocus={(e) => {
-                  if (e.target.value === "0") {
-                    e.target.select();
-                  }
-                }}
+                onFocus={(e) => e.target.select()}
                 className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
               />
               <button
@@ -573,11 +569,7 @@ export default function FishItemModal({
                   const numVal = parseInt(val) || 1;
                   setDeleteAmount(Math.max(1, Math.min(maxCount, numVal)));
                 }}
-                onFocus={(e) => {
-                  if (e.target.value === "0") {
-                    e.target.select();
-                  }
-                }}
+                onFocus={(e) => e.target.select()}
                 className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
               />
               <button
@@ -605,11 +597,7 @@ export default function FishItemModal({
                   const numVal = parseInt(val) || 1;
                   setDismantleAmount(Math.max(1, Math.min(maxCount, numVal)));
                 }}
-                onFocus={(e) => {
-                  if (e.target.value === "0") {
-                    e.target.select();
-                  }
-                }}
+                onFocus={(e) => e.target.select()}
                 className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
               />
               <button
