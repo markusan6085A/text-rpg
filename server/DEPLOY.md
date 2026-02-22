@@ -57,6 +57,16 @@ REFRESH_TTL_DAYS=30
 
 Якщо все одно 404 — переконайся, що на api.l2dop.com крутиться саме цей репо з маршрутом `POST /premium/buy`.
 
-## 4. 7 Печатей — розсилка листів
+## 4. Міграція BigInt для валюти
+
+Після оновлення коду **обов'язково** застосуй міграцію (якщо ще не зроблено):
+
+```bash
+cd server && npx prisma migrate deploy
+```
+
+Міграція `20260217130000_currency_to_bigint` переводить `adena`, `aa`, `coinLuck`, `coinsSilver` з 32-bit INTEGER на 64-bit BIGINT — інакше при сумі Adena > 2.1 млрд буде помилка "integer out of range" при продажу предметів.
+
+## 5. 7 Печатей — розсилка листів
 
 Щосуботи о 00:00 за ігровим часом (Europe/Warsaw) топ-3 переможці отримують лист у пошті від персонажа **Existence**. Потрібно, щоб у БД існував персонаж з іменем "Existence". Час визначається через `Intl.DateTimeFormat` (Europe/Warsaw). Якщо розсилка не спрацювала — вручну: `POST /admin/seven-seals/send-mail` (Bearer адмін-токен). Якщо вже відправлено цього тижня — Kv `seven_seals_mail_last_week` блокує повтор; для повторного тесту видаліть цей запис з Kv.

@@ -178,12 +178,13 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       });
       if (!char) return reply.code(404).send({ error: "character not found" });
 
+      const currentAdena = Number(char.adena ?? 0);
       let newAdena: number;
       if (typeof body?.set === "number" && body.set >= 0) {
         newAdena = Math.min(2_000_000_000, Math.floor(body.set));
       } else {
         const delta = Number(body?.delta ?? 0);
-        newAdena = Math.max(0, Math.min(2_000_000_000, char.adena + delta));
+        newAdena = Math.max(0, Math.min(2_000_000_000, currentAdena + delta));
       }
       await prisma.character.update({
         where: { id: characterId },
@@ -208,12 +209,13 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       });
       if (!char) return reply.code(404).send({ error: "character not found" });
 
+      const currentCoinLuck = Number(char.coinLuck ?? 0);
       let newCoinLuck: number;
       if (typeof body?.set === "number" && body.set >= 0) {
         newCoinLuck = Math.min(2_000_000_000, Math.floor(body.set));
       } else {
         const delta = Number(body?.delta ?? 0);
-        newCoinLuck = Math.max(0, Math.min(2_000_000_000, char.coinLuck + delta));
+        newCoinLuck = Math.max(0, Math.min(2_000_000_000, currentCoinLuck + delta));
       }
       await prisma.character.update({
         where: { id: characterId },
@@ -238,7 +240,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       });
       if (!char) return reply.code(404).send({ error: "character not found" });
 
-      const current = char.coinsSilver ?? 0;
+      const current = Number(char.coinsSilver ?? 0);
       let newCoinsSilver: number;
       if (typeof body?.set === "number" && body.set >= 0) {
         newCoinsSilver = Math.min(2_000_000_000, Math.floor(body.set));

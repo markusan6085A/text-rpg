@@ -88,6 +88,9 @@ export async function characterRoutes(app: FastifyInstance) {
     const serializedChars = chars.map(char => ({
       ...char,
       exp: Number(char.exp),
+      adena: Number(char.adena ?? 0),
+      aa: Number(char.aa ?? 0),
+      coinLuck: Number(char.coinLuck ?? 0),
       bannedUntil: banMap[char.id]?.bannedUntil ?? null,
       blockedUntil: banMap[char.id]?.blockedUntil ?? null,
     }));
@@ -154,6 +157,9 @@ export async function characterRoutes(app: FastifyInstance) {
       const serialized = {
         ...created,
         exp: Number(created.exp),
+        adena: Number(created.adena ?? 0),
+        aa: Number(created.aa ?? 0),
+        coinLuck: Number(created.coinLuck ?? 0),
       };
 
       // Додаємо новину про нового гравця
@@ -836,6 +842,10 @@ export async function characterRoutes(app: FastifyInstance) {
     const serialized = {
       ...char,
       exp: Number(char.exp),
+      adena: Number(char.adena ?? 0),
+      aa: Number(char.aa ?? 0),
+      coinLuck: Number(char.coinLuck ?? 0),
+      coinsSilver: Number((char as any).coinsSilver ?? 0),
       bannedUntil,
       blockedUntil,
     };
@@ -946,7 +956,7 @@ export async function characterRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "invalid aa (must be >= 0)" });
       }
       // Захист від зменшення aa (можна тільки збільшувати)
-      if (body.aa < (existing.aa || 0)) {
+      if (body.aa < Number(existing.aa ?? 0)) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,
@@ -968,7 +978,7 @@ export async function characterRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "invalid coinLuck (must be >= 0)" });
       }
       // ❗ coinLuck можна тільки збільшувати; зменшення — тільки через POST /premium/buy
-      if (body.coinLuck < ((existing as any).coinLuck || 0)) {
+      if (body.coinLuck < Number((existing as any).coinLuck ?? 0)) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,
@@ -1311,6 +1321,10 @@ export async function characterRoutes(app: FastifyInstance) {
     const serialized = {
       ...updated,
       exp: Number(updated.exp),
+      adena: Number((updated as any).adena ?? 0),
+      aa: Number((updated as any).aa ?? 0),
+      coinLuck: Number((updated as any).coinLuck ?? 0),
+      coinsSilver: Number((updated as any).coinsSilver ?? 0),
     };
 
     return { ok: true, character: serialized };

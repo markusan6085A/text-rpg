@@ -43,10 +43,10 @@ model Character {
   exp          BigInt   @default(0)
   sp           Int      @default(0)
 
-  adena        Int      @default(0)
-  aa           Int      @default(0)  // Ancient Adena
-  coinLuck     Int      @default(0)
-  coinsSilver  Int      @default(0)  // Серебряные Монеты (валюта квест-шопу)
+  adena        BigInt   @default(0)  // Int overflow > 2.1B
+  aa           BigInt   @default(0)  // Ancient Adena
+  coinLuck     BigInt   @default(0)
+  coinsSilver  BigInt   @default(0)  // Серебряные Монеты
 
   // Один JSON під "героя" (статі, hp/mp/cp, бафи, позиція, що завгодно)
   heroJson     Json     @default("{}")
@@ -181,8 +181,8 @@ model Clan {
   name        String   @unique // Назва клану (унікальна)
   level       Int      @default(1)
   reputation  Int      @default(0) // Репутація клану
-  adena       Int      @default(0) // Адена клану
-  coinLuck    Int      @default(0) // Coin of Luck клану
+  adena       BigInt   @default(0) // Адена клану
+  coinLuck    BigInt   @default(0) // Coin of Luck клану
   emblem      String?  // Емблема клану (назва файлу)
   creatorId   String   @unique // ID гравця, який створив клан (один гравець = один клан)
   createdAt   DateTime @default(now())
