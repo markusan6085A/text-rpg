@@ -258,7 +258,12 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       const res = await payToViewPlayerStats(character.id);
       if (res.ok) {
         useHeroStore.getState().updateHero({ adena: res.newAdena });
-        const statsResult = recalculateAllStats(heroData, []);
+        const hj = character.heroJson || {};
+        const rawBuffs = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : (Array.isArray((character as any).heroBuffs) ? (character as any).heroBuffs : []);
+        const nowMs = Date.now();
+        const getExp = (b: any) => { const v = b.expiresAt; if (v == null) return Number.MAX_SAFE_INTEGER; if (typeof v === "number") return v; const n = Number(v); return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER; };
+        const activeBuffsForStats = rawBuffs.filter((b: any) => { const exp = getExp(b); return exp >= Number.MAX_SAFE_INTEGER - 1 || exp > nowMs; });
+        const statsResult = recalculateAllStats(heroData, activeBuffsForStats);
         setViewedStats(statsResult);
         setShowStatsModal(true);
       }
@@ -427,28 +432,28 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
         </div>
 
-        {/* Активні бафи гравця */}
+        {/* Активні бафи гравця — джерело: heroJson.heroBuffs або character.heroBuffs; реальний час по expiresAt */}
         {(() => {
           const heroJson = character.heroJson || {};
-          const allBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+          const fromJson = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+          const fromChar = Array.isArray((character as any).heroBuffs) ? (character as any).heroBuffs : [];
+          const allBuffs = fromJson.length ? fromJson : fromChar;
+
+          const getExpiresAt = (b: any): number => {
+            const v = b.expiresAt;
+            if (v == null) return Number.MAX_SAFE_INTEGER; // без expiresAt = постійний (показуємо)
+            if (typeof v === "number") return v;
+            const n = Number(v);
+            return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER;
+          };
+
           const activeBuffs = allBuffs.filter((b: any) => {
-            if (!b.expiresAt) return false;
-            return b.expiresAt > now; // now — з state, оновлюється щосекунди
+            const exp = getExpiresAt(b);
+            if (exp >= Number.MAX_SAFE_INTEGER - 1) return true; // toggle або постійний
+            return exp > now;
           });
 
-          // ❗ Додаємо логування для діагностики
-          if (import.meta.env.DEV) {
-            console.log('[PlayerProfile] Buffs check:', {
-              allBuffsCount: allBuffs.length,
-              activeBuffsCount: activeBuffs.length,
-              allBuffs: allBuffs,
-              activeBuffs: activeBuffs,
-              heroJson: heroJson,
-            });
-          }
-
-          // ❗ Показуємо секцію навіть якщо бафів немає, але є хоча б один баф в списку (для діагностики)
-          if (activeBuffs.length === 0 && allBuffs.length === 0) return null;
+          if (allBuffs.length === 0) return null;
 
           return (
             <div className="mb-4 border-t border-solid border-white/50 pt-3">
