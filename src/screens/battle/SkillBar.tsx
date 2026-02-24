@@ -59,8 +59,15 @@ export function SkillBar() {
   const [now, setNow] = React.useState(Date.now());
   const [pickerSlot, setPickerSlot] = React.useState<number | null>(null);
   const [category, setCategory] = React.useState<"magic" | "consumable" | "item" | "remove">("magic");
+  const [justActivatedCharge, setJustActivatedCharge] = React.useState<number | null>(null);
 
   const learnedActive = useLearnedActive();
+
+  React.useEffect(() => {
+    if (justActivatedCharge === null) return;
+    const t = setTimeout(() => setJustActivatedCharge(null), 450);
+    return () => clearTimeout(t);
+  }, [justActivatedCharge]);
   const slotsToShow = (loadoutSlots || []).slice(0, MAX_VISIBLE_SLOTS);
 
   React.useEffect(() => {
@@ -230,6 +237,7 @@ export function SkillBar() {
               const handleSlotClick = () => {
                 if (isCharge) {
                   toggleChargeSlot(idx);
+                  setJustActivatedCharge(idx);
                 } else if (isItem && itemId) {
                   const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
                   if (invItem) equipItem(invItem);
@@ -261,6 +269,9 @@ export function SkillBar() {
                   title={slotInfo?.name}
                 >
                   {isActive && <div className="absolute inset-0 bg-black/30 rounded-md pointer-events-none z-[1]" aria-hidden />}
+                  {isChargeActive && justActivatedCharge === idx && (
+                    <div className="absolute inset-0 rounded-md bg-amber-400/60 pointer-events-none z-[2]" aria-hidden />
+                  )}
                   {slotInfo ? (
                     <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm relative z-0" alt="" />
                   ) : (
@@ -318,6 +329,7 @@ export function SkillBar() {
               const handleSlotClick2 = () => {
                 if (isCharge) {
                   toggleChargeSlot(slotIndex);
+                  setJustActivatedCharge(slotIndex);
                 } else if (isItem && itemId) {
                   const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
                   if (invItem) equipItem(invItem);
@@ -349,6 +361,9 @@ export function SkillBar() {
                   title={slotInfo?.name}
                 >
                   {isActive2 && <div className="absolute inset-0 bg-black/30 rounded-md pointer-events-none z-[1]" aria-hidden />}
+                  {isChargeActive && justActivatedCharge === slotIndex && (
+                    <div className="absolute inset-0 rounded-md bg-amber-400/60 pointer-events-none z-[2]" aria-hidden />
+                  )}
                   {slotInfo ? (
                     <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm relative z-0" alt="" />
                   ) : (
