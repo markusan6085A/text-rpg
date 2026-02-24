@@ -23,14 +23,14 @@ export function handleEnchantScroll(
   hero: Hero,
   setAndPersist: (updates: Partial<BattleState>) => void,
   updateHero: (partial: Partial<Hero>) => void
-): boolean {
+): { applied: false } | { applied: true; success: boolean; newLevel: number } {
   const heroStore = useHeroStore.getState();
   const currentHero = heroStore.hero;
   if (!currentHero) {
     setAndPersist({
       log: [`Помилка: герой не знайдено`, ...state.log].slice(0, 30),
     });
-    return false;
+    return { applied: false };
   }
 
   // Перевіряємо чи є заточка в інвентарі
@@ -39,7 +39,7 @@ export function handleEnchantScroll(
     setAndPersist({
       log: [`Немає заточки в інвентарі`, ...state.log].slice(0, 30),
     });
-    return false;
+    return { applied: false };
   }
 
   // Визначаємо тип заточки (зброя чи броня)
@@ -50,7 +50,7 @@ export function handleEnchantScroll(
     setAndPersist({
       log: [`Невідомий тип заточки`, ...state.log].slice(0, 30),
     });
-    return false;
+    return { applied: false };
   }
 
   // Знаходимо предмет для заточки
@@ -64,7 +64,7 @@ export function handleEnchantScroll(
       setAndPersist({
         log: [`Предмет не знайдено в слоті ${targetSlot}`, ...state.log].slice(0, 30),
       });
-      return false;
+      return { applied: false };
     }
     currentEnchantLevel = hero.equipmentEnchantLevels?.[targetSlot] ?? 0;
   } else {
@@ -74,7 +74,7 @@ export function handleEnchantScroll(
       setAndPersist({
         log: [`Предмет не знайдено в інвентарі`, ...state.log].slice(0, 30),
       });
-      return false;
+      return { applied: false };
     }
     currentEnchantLevel = targetItem.enchantLevel ?? 0;
   }
@@ -85,7 +85,7 @@ export function handleEnchantScroll(
     setAndPersist({
       log: [`Предмет не знайдено в базі даних`, ...state.log].slice(0, 30),
     });
-    return false;
+    return { applied: false };
   }
 
   const isWeapon = itemDef.kind === "weapon";
@@ -97,14 +97,14 @@ export function handleEnchantScroll(
     setAndPersist({
       log: [`Ця заточка тільки для зброї!`, ...state.log].slice(0, 30),
     });
-    return false;
+    return { applied: false };
   }
 
   if (isArmorScroll && !isArmor) {
     setAndPersist({
       log: [`Ця заточка тільки для броні!`, ...state.log].slice(0, 30),
     });
-    return false;
+    return { applied: false };
   }
 
   // Перевіряємо грейд заточки та предмета (броня/зброя мають grade в itemDef, бижутерія — часто в id)
@@ -115,7 +115,7 @@ export function handleEnchantScroll(
     setAndPersist({
       log: [`Грейд заточки (${scrollGrade}) не відповідає грейду предмета (${itemGrade})!`, ...state.log].slice(0, 30),
     });
-    return false;
+    return { applied: false };
   }
 
   // Видаляємо заточку з інвентаря
@@ -149,7 +149,7 @@ export function handleEnchantScroll(
       setAndPersist({
         log: [`⚠️ ${itemDef.name} вже має максимальну заточку +40!`, ...state.log].slice(0, 30),
       });
-      return false;
+      return { applied: false };
     }
   } else {
     // Броня/біжутерія/пояс/плащ: максимальна заточка +30
@@ -167,7 +167,7 @@ export function handleEnchantScroll(
       setAndPersist({
         log: [`⚠️ ${itemDef.name} вже має максимальну заточку +30!`, ...state.log].slice(0, 30),
       });
-      return false;
+      return { applied: false };
     }
   }
 
@@ -206,7 +206,7 @@ export function handleEnchantScroll(
     setAndPersist({
       log: [`✅ Заточка успішна! ${itemDef.name} тепер +${newEnchantLevel}`, ...state.log].slice(0, 30),
     });
-    return true;
+    return { applied: true, success: true, newLevel: newEnchantLevel };
   } else {
     // Невдача
     let newEnchantLevelAfterFail: number;
@@ -273,7 +273,7 @@ export function handleEnchantScroll(
         log: [`❌ Заточка невдала! ${itemDef.name} залишилася +${currentEnchantLevel} (безпечна заточка)`, ...state.log].slice(0, 30),
       });
     }
-    return true;
+    return { applied: true, success: false, newLevel: newEnchantLevelAfterFail };
   }
 }
 

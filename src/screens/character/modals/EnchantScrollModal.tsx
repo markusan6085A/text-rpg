@@ -23,6 +23,7 @@ export default function EnchantScrollModal({
   updateHero,
 }: EnchantScrollModalProps) {
   const [enchantTargetItem, setEnchantTargetItem] = useState<HeroInventoryItem | null>(null);
+  const [lastEnchantResult, setLastEnchantResult] = useState<{ itemId: string; success: boolean; newLevel: number } | null>(null);
 
   const scrollGrade = getGradeFromScrollId(scrollItem.id);
   const isWeaponScroll = scrollItem.id?.includes("weapon");
@@ -52,29 +53,29 @@ export default function EnchantScrollModal({
   const handleEnchant = () => {
     if (!enchantTargetItem || !hero) return;
     
-    // Створюємо фейковий BattleState для handleEnchantScroll
     const fakeState: BattleState = {
       log: [],
       cooldowns: {},
       heroBuffs: [],
     } as unknown as BattleState;
     
-    const success = handleEnchantScroll(
+    const result = handleEnchantScroll(
       scrollItem.id,
       enchantTargetItem.id,
-      null, // Предмет в інвентарі
+      null,
       fakeState,
       hero,
-      (updates) => {
-        if (updates.log && updates.log.length > 0) {
-          alert(updates.log[0]);
-        }
-      }, // setAndPersist - показуємо логи заточки через alert
+      () => {}, // лог не показуємо — тільки кольорова підсвітка
       (partial) => updateHero(partial)
     );
     
-    if (success) {
-      onEnchantSuccess();
+    if (result.applied && result.newLevel !== undefined) {
+      setLastEnchantResult({
+        itemId: enchantTargetItem.id,
+        success: result.success,
+        newLevel: result.newLevel,
+      });
+      // Модалку не закриваємо — інвентар оновиться через updateHero у store
     }
   };
 
@@ -117,7 +118,13 @@ export default function EnchantScrollModal({
             ) : (
               suitableItems.map((item: any, idx: number) => {
                 const iconPath = item.icon?.startsWith("/") ? item.icon : `/items/${item.icon}`;
-                const currentEnchant = item.enchantLevel ?? 0;
+                const isJustEnchanted = lastEnchantResult?.itemId === item.id;
+                const displayLevel = isJustEnchanted ? lastEnchantResult.newLevel : (item.enchantLevel ?? 0);
+                const levelColor = isJustEnchanted
+                  ? lastEnchantResult.success
+                    ? "text-green-400 font-semibold"
+                    : "text-red-400 font-semibold"
+                  : "text-gray-400";
                 return (
                   <button
                     key={idx}
@@ -131,7 +138,7 @@ export default function EnchantScrollModal({
                     <img src={iconPath} alt={item.name} className="w-8 h-8 object-contain" />
                     <div className="flex-1 text-left">
                       <div className="text-white text-sm">{item.name}</div>
-                      <div className="text-gray-400 text-xs">Заточка: +{currentEnchant}</div>
+                      <div className={`text-xs ${levelColor}`}>Заточка: +{displayLevel}</div>
                     </div>
                   </button>
                 );
