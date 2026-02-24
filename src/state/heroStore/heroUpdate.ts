@@ -148,12 +148,15 @@ export function updateHeroLogic(
   if ((partial as any).activeQuests !== undefined && Array.isArray((partial as any).activeQuests)) {
     (updated as any).activeQuests = (partial as any).activeQuests;
   }
-  // 🔥 exp/level з partial не губити при мерджі (перемога в бою)
+  // 🔥 exp/level/adena з partial не губити при мерджі (перемога в бою, продаж у магазині)
   if (partial.exp !== undefined && partial.exp !== null) {
     (updated as any).exp = Number(partial.exp);
   }
   if (partial.level !== undefined && partial.level !== null) {
     (updated as any).level = Number(partial.level);
+  }
+  if (partial.adena !== undefined && partial.adena !== null) {
+    (updated as any).adena = Number(partial.adena);
   }
   // 🔥 location — зберігаємо в heroJson для відображення в профілі іншим гравцям
   if ((partial as any).location !== undefined) {
