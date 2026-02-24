@@ -177,6 +177,8 @@ function AppInner() {
       if (alive) setIsLoading(false);
     }, 8000);
 
+    let adminCheckTimer: NodeJS.Timeout | undefined;
+
     (async () => {
       try {
         // 1) Bootstrap: отримуємо accessToken через refresh cookie (без localStorage)
@@ -193,7 +195,7 @@ function AppInner() {
         initializeCharacter();
 
         // 2.1) Адмін: хто я (відкладаємо, щоб не тригерити 401 під час завантаження бою)
-        const adminCheckTimer = setTimeout(() => useAdminStore.getState().checkAdmin().catch(() => {}), 1500);
+        adminCheckTimer = setTimeout(() => useAdminStore.getState().checkAdmin().catch(() => {}), 1500);
 
         // 2.2) Optional warm-up (fire-and-forget, не блокує)
         try {
