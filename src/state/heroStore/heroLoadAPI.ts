@@ -508,8 +508,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     ]));
     const dailyQuestsResetDate = (fixedHero as any).dailyQuestsResetDate ?? (heroData as any)?.dailyQuestsResetDate ?? hydratedLocalHero?.dailyQuestsResetDate;
 
+    // 🔥 КРИТИЧНО: adena — max(локаль, сервер), щоб після продажу GET не перезаписував нову адена старим значенням з API
+    const serverAdenaVal = Number(fixedHero.adena ?? (heroData as any)?.adena ?? 0);
+    const localAdenaVal = Number(hydratedLocalHero?.adena ?? (hydratedLocalHero as any)?.heroJson?.adena ?? 0);
+    const finalAdena = Math.max(serverAdenaVal, localAdenaVal);
+
     const heroWithRecalculatedStats: Hero = {
       ...fixedHero,
+      adena: finalAdena,
       baseStats: recalculated.originalBaseStats,
       baseStatsInitial: fixedHero.baseStatsInitial || recalculated.originalBaseStats,
       battleStats: recalculated.baseFinalStats,

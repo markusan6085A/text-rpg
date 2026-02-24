@@ -96,7 +96,8 @@ export default function SellItems({ navigate }: SellItemsProps) {
       remaining.set(i.id, 0);
       return { ...i, count: cnt - need };
     }).filter(Boolean) as typeof hero.inventory;
-    updateHero({ inventory: newInv, adena: (hero.adena || 0) + totalAdena });
+    const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
+    updateHero({ inventory: newInv, adena: currentAdena + totalAdena });
     setSelectedIndices(new Set());
     setSelectMode(false);
     setConfirmSell(null);
@@ -144,7 +145,8 @@ export default function SellItems({ navigate }: SellItemsProps) {
     }
 
     const updatedInventory = inv.filter(Boolean) as typeof hero.inventory;
-    const newAdena = (hero.adena || 0) + totalGain;
+    const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
+    const newAdena = currentAdena + totalGain;
 
     updateHero({ inventory: updatedInventory, adena: newAdena });
     setConfirmSell(null);

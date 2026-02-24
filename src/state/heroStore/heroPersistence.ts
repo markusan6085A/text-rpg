@@ -513,8 +513,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const clampedLevel = Math.max(currentHero.level ?? 1, serverLevel);
         const serverCoinLuck = Number((updatedCharacter as any).coinLuck ?? 0);
         const serverCoinsSilver = Number((updatedCharacter as any).coinsSilver ?? 0);
+        const serverAdena = Number((updatedCharacter as any).adena ?? 0);
+        const clampedAdena = Math.max(Number(currentHero.adena ?? 0), serverAdena);
         useHeroStore.getState().applyServerSync(
-          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, coins_silver: serverCoinsSilver } as any,
+          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, coins_silver: serverCoinsSilver, adena: clampedAdena } as any,
           { exp: serverExp, level: clampedLevel, sp: serverSp, coinLuck: serverCoinLuck, heroRevision: newRevision, updatedAt: Date.now() }
         );
         console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, serverLevel });
