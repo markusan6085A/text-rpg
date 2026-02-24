@@ -88,18 +88,21 @@ function getShotGrade(itemId: string): "NG" | "D" | "C" | "B" | "A" | "S" | null
 
 /**
  * Використовує soulshot/spiritshot тільки якщо гравець увімкнув заряд на панелі (клік по слоту).
+ * Удар: 1 заряд. Ударний скіл: 2 заряди.
  * @param hero - герой
  * @param isPhysical - чи це фізична атака
  * @param isMagic - чи це магічна атака
  * @param loadoutSlots - слоти панелі
  * @param activeChargeSlots - індекси слотів, де заряд увімкнено
+ * @param consumeCount - скільки зарядів витратити (1 = удар, 2 = ударний скіл)
  */
 export function useAutoShot(
   hero: Hero,
   isPhysical: boolean,
   isMagic: boolean,
   loadoutSlots: (number | string | null)[] = [],
-  activeChargeSlots: number[] = []
+  activeChargeSlots: number[] = [],
+  consumeCount: number = 1
 ): ShotResult {
   if (!hero?.inventory) {
     return { used: false, multiplier: 1.0, shotType: null };
@@ -115,21 +118,23 @@ export function useAutoShot(
     return { used: false, multiplier: 1.0, shotType: null };
   }
 
-  // Шукаємо слот з зарядом того ж грейду, що й зброя, який увімкнений
+  const toConsume = Math.max(1, Math.min(10, consumeCount));
+
+  // Шукаємо слот з зарядом того ж грейду, що й зброя, який увімкнений і має достатньо зарядів
   for (const slotIndex of activeChargeSlots) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
     const itemId = slotId.replace("consumable:", "");
     if (!isShotConsumable(itemId, shotType)) continue;
     if (getShotGrade(itemId) !== weaponGrade) continue;
-    const invItem = hero.inventory.find((i: any) => i.id === itemId && (i.count ?? 0) > 0);
+    const invItem = hero.inventory.find((i: any) => i.id === itemId && (i.count ?? 0) >= toConsume);
     if (!invItem) continue;
 
-    // Використовуємо один заряд
+    // Витрачаємо заряди (1 за удар, 2 за ударний скіл)
     const heroStore = useHeroStore.getState();
     const updatedInventory = hero.inventory.map((inv: any) => {
       if (inv.id !== itemId) return inv;
-      const newCount = (inv.count ?? 1) - 1;
+      const newCount = (inv.count ?? 1) - toConsume;
       return newCount > 0 ? { ...inv, count: newCount } : null;
     }).filter(Boolean) as any[];
     heroStore.updateHero({ inventory: updatedInventory });
