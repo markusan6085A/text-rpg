@@ -6,7 +6,7 @@ import path from "path";
 import { prisma } from "./db";
 import { toJsonSafe } from "./utils/sanitizeBigInt";
 import { authRoutes } from "./auth";
-import { characterRoutes } from "./characters";
+import { characterRoutes } from "./routes/character";
 import { chatRoutes } from "./chat";
 import { letterRoutes } from "./letters";
 import { newsRoutes } from "./news";
