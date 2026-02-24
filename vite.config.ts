@@ -8,6 +8,8 @@ export default defineConfig({
     pure: ['console.log', 'console.debug', 'console.info', 'console.warn'],
   },
   build: {
+    sourcemap: false, // Приховує оригінальний код і структуру папок у DevTools (Sources)
+    minify: 'esbuild', // Стискає та мініфікує код (вже увімкнено за замовчуванням у Vite, але додаємо для певності)
     rollupOptions: {
       output: {
         manualChunks(id) {
