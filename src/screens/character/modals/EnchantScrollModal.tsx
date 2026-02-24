@@ -57,7 +57,7 @@ export default function EnchantScrollModal({
       log: [],
       cooldowns: {},
       heroBuffs: [],
-    } as BattleState;
+    } as unknown as BattleState;
     
     const success = handleEnchantScroll(
       scrollItem.id,
@@ -65,7 +65,11 @@ export default function EnchantScrollModal({
       null, // Предмет в інвентарі
       fakeState,
       hero,
-      () => {}, // setAndPersist - не потрібен для інвентаря
+      (updates) => {
+        if (updates.log && updates.log.length > 0) {
+          alert(updates.log[0]);
+        }
+      }, // setAndPersist - показуємо логи заточки через alert
       (partial) => updateHero(partial)
     );
     

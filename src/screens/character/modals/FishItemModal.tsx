@@ -25,7 +25,7 @@ interface FishItemModalProps {
 
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena", "coin_of_fair"]);
 
-// Всі види ресурсів (без риби, квестових, валют)
+// Всі види ресурсів (без риби, квестових, валют та заточок)
 function getAllResources(): ItemDefinition[] {
   const resources: ItemDefinition[] = [];
   Object.values(itemsDB).forEach((item) => {
@@ -33,6 +33,9 @@ function getAllResources(): ItemDefinition[] {
       item.kind === "resource" &&
       !item.id.startsWith("fish_") &&
       !item.id.startsWith("quest_") &&
+      !item.id.includes("enchant_weapon_scroll") &&
+      !item.id.includes("enchant_armor_scroll") &&
+      !item.id.includes("blessed_scroll_enchant") &&
       item.slot !== "quest" &&
       !CURRENCY_IDS.has(item.id)
     ) {
@@ -159,7 +162,7 @@ function processFishDrop(fishCount: number): {
     });
     // Скарбничка: 0.3%
     if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
-    // Адена, Coin of Luck, Срібні монети — прибрано з дропу
+    // Адена, Coin of Luck, Срібні монети, Заточки — прибрано з дропу
   }
 
   return {

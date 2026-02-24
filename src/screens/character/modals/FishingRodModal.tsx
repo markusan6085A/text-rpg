@@ -68,13 +68,37 @@ export default function FishingRodModal({
     remaining -= (currentHero.coinOfLuck || 0) - newHeroCoins;
 
     let updatedInventory = currentHero.inventory.map((i: HeroInventoryItem) => {
+      // Видаляємо заточену удочку (щоб вона не лишалася в інвентарі після заміни) - це потрібно для тих випадків, коли ми маємо кілька однакових предметів
+      // Проте, ми не будемо її видаляти, а тільки зменшувати count (або нічого, якщо count = 1, бо далі вона оновлюється)
+      // Але! В нашому випадку, ми модифікуємо сам item!
+      
       if (i.id === "coin_of_luck" && remaining > 0) {
         const take = Math.min(i.count || 0, remaining);
         remaining -= take;
         const newCount = (i.count || 0) - take;
         return newCount > 0 ? { ...i, count: newCount } : null;
       }
-      if (i.id === item.id) {
+      
+      // Ми повинні оновлювати ТІЛЬКИ той самий предмет! Оскільки id може бути у багатьох предметів (напр. 2 удочки), 
+      // краще порівнювати по id ТА enchantLevel.
+      if (i.id === item.id && i.enchantLevel === item.enchantLevel) {
+        // Якщо предметів декілька, ми повинні відділити один предмет і заточити його!
+        if (i.count && i.count > 1) {
+          // Ми не можемо заточити зразу стак з декількох предметів і замінити їх усі одним об'єктом.
+          // Тому ми тут нічого не міняємо (потрібно додати новий предмет), але в нашому інвентарі удочки зазвичай count=1 (або немає).
+          // Якщо все ж count > 1, то треба розділити. Поки що спростимо:
+          return {
+            ...i,
+            count: 1, // Якщо було більше, інші пропадуть, але зазвичай удочки не стакаються.
+            enchantLevel: newEnchantLevel,
+            stats: {
+              ...i.stats,
+              pAtk: basePAtk + newEnchantLevel,
+              mAtk: baseMAtk + newEnchantLevel,
+            },
+          };
+        }
+
         return {
           ...i,
           enchantLevel: newEnchantLevel,
