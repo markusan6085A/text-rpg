@@ -246,7 +246,7 @@ export function SkillBar() {
                 borderColor: "rgba(60,45,25,0.9)",
               };
               const slotActiveStyle = (isChargeActive || isItemEquipped)
-                ? { boxShadow: "inset 0 3px 12px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.5)" as React.CSSProperties }
+                ? { boxShadow: "inset 0 3px 12px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.5)" }
                 : {};
 
               const isActive = isChargeActive || isItemEquipped;
@@ -334,7 +334,7 @@ export function SkillBar() {
                 borderColor: "rgba(60,45,25,0.9)",
               };
               const slotActiveStyle2 = (isChargeActive || isItemEquipped)
-                ? { boxShadow: "inset 0 3px 12px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.5)" as React.CSSProperties }
+                ? { boxShadow: "inset 0 3px 12px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.5)" }
                 : {};
 
               const isActive2 = isChargeActive || isItemEquipped;
