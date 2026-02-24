@@ -454,7 +454,7 @@ export default function Chat({ navigate }: ChatProps) {
       console.log("[chat] Message deleted successfully:", messageId);
       // Refresh cache after successful deletion
       refresh();
-      const timer = setTimeout(() => refresh(), 800);
+      setTimeout(() => refresh(), 800);
       deletingRef.current.delete(messageId);
     } catch (err: any) {
       console.error("[chat] Error deleting message:", err);
@@ -490,7 +490,7 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       await adminDeleteChatMessage(messageId);
       refresh();
-      const timer = setTimeout(() => refresh(), 500);
+      setTimeout(() => refresh(), 500);
       deletingRef.current.delete(messageId);
     } catch (err: any) {
       setDeletedIds((prev) => {
