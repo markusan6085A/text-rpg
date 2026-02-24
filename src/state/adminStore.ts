@@ -15,13 +15,17 @@ export const useAdminStore = create<AdminState>((set, get) => ({
 
   checkAdmin: async () => {
     if (get().checked) return; // Вже перевірено — уникаємо зайвих запитів і оновлень
+    // Prevent concurrent checks
+    if ((get() as any)._checking) return;
+    set({ _checking: true } as any);
+    
     try {
       await adminMe();
-      set({ isAdmin: true, checked: true });
+      set({ isAdmin: true, checked: true, _checking: false } as any);
     } catch {
-      set({ isAdmin: false, checked: true });
+      set({ isAdmin: false, checked: true, _checking: false } as any);
     }
   },
 
-  resetAdmin: () => set({ isAdmin: false, checked: true }),
+  resetAdmin: () => set({ isAdmin: false, checked: true, _checking: false } as any),
 }));

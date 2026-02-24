@@ -454,7 +454,8 @@ export default function Chat({ navigate }: ChatProps) {
       console.log("[chat] Message deleted successfully:", messageId);
       // Refresh cache after successful deletion
       refresh();
-      setTimeout(() => refresh(), 800);
+      const timer = setTimeout(() => refresh(), 800);
+      deletingRef.current.delete(messageId);
     } catch (err: any) {
       console.error("[chat] Error deleting message:", err);
 
@@ -471,7 +472,6 @@ export default function Chat({ navigate }: ChatProps) {
         });
         alert(err?.message || "Помилка видалення повідомлення");
       }
-    } finally {
       deletingRef.current.delete(messageId);
     }
   };
@@ -490,7 +490,8 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       await adminDeleteChatMessage(messageId);
       refresh();
-      setTimeout(() => refresh(), 500);
+      const timer = setTimeout(() => refresh(), 500);
+      deletingRef.current.delete(messageId);
     } catch (err: any) {
       setDeletedIds((prev) => {
         const next = new Set(prev);
@@ -498,7 +499,6 @@ export default function Chat({ navigate }: ChatProps) {
         return next;
       });
       alert(err?.message || "Помилка видалення");
-    } finally {
       deletingRef.current.delete(messageId);
     }
   };

@@ -2,7 +2,7 @@ import React from "react";
 import type { City, Zone } from "../../data/world/types";
 import { cities as WORLD_CITIES, locations as WORLD_LOCATIONS } from "../../data/world";
 
-export function useBattleQuery() {
+  export function useBattleQuery() {
   // Використовуємо стан для відстеження змін URL
   const [search, setSearch] = React.useState(() => location.search);
   
@@ -10,9 +10,13 @@ export function useBattleQuery() {
     // Оновлюємо при зміні URL через navigate()
     const checkUrl = () => {
       const currentSearch = location.search;
-      if (currentSearch !== search) {
-        setSearch(currentSearch);
-      }
+      // We don't read `search` directly to avoid infinite loops when we depend on it
+      setSearch((prevSearch) => {
+        if (currentSearch !== prevSearch) {
+          return currentSearch;
+        }
+        return prevSearch;
+      });
     };
     
     // Перевіряємо зміни URL кожні 50мс
@@ -20,7 +24,7 @@ export function useBattleQuery() {
     
     // Також слухаємо події навігації
     const handlePopState = () => {
-      setSearch(location.search);
+      checkUrl();
     };
     window.addEventListener('popstate', handlePopState);
     
@@ -36,7 +40,7 @@ export function useBattleQuery() {
       window.removeEventListener('popstate', handlePopState);
       window.history.pushState = originalPushState;
     };
-  }, [search]);
+  }, []); // Remove `search` from deps
   
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }

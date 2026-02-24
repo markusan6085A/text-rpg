@@ -66,6 +66,14 @@ const RATE_LIMIT_COOLDOWN_MS = 60000; // 60 секунд після rate limit
 let criticalSaveQueue: Hero | null = null;
 let criticalSaveTimeout: NodeJS.Timeout | null = null;
 
+// Ensure we clean up on module reload (HMR) or if we ever unmount
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", () => {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    if (criticalSaveTimeout) clearTimeout(criticalSaveTimeout);
+  });
+}
+
 // 🔥 Блокуємо autosave під час виклику resurrectCharacter(), щоб старий стан не перетер новий (race condition)
 let resurrectInProgress = false;
 export function setResurrectInProgress(value: boolean) {

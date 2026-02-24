@@ -193,7 +193,7 @@ function AppInner() {
         initializeCharacter();
 
         // 2.1) Адмін: хто я (відкладаємо, щоб не тригерити 401 під час завантаження бою)
-        setTimeout(() => useAdminStore.getState().checkAdmin().catch(() => {}), 1500);
+        const adminCheckTimer = setTimeout(() => useAdminStore.getState().checkAdmin().catch(() => {}), 1500);
 
         // 2.2) Optional warm-up (fire-and-forget, не блокує)
         try {
@@ -291,6 +291,7 @@ function AppInner() {
     return () => {
       alive = false;
       clearTimeout(fallbackTimer);
+      clearTimeout(adminCheckTimer);
       try {
         stopWarmup();
       } catch (err) {

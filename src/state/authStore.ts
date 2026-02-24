@@ -23,7 +23,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
-    fetch(`${API_URL}/auth/logout`, { method: "POST", credentials: "include" }).catch(() => {});
+    fetch(`${API_URL}/auth/logout`, { method: "POST", credentials: "include" }).catch((err) => {
+      console.error("Logout request failed:", err);
+    });
     useCharacterStore.getState().setCharacterId(null);
     set({ accessToken: null, isAuthenticated: false });
   },

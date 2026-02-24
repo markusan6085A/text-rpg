@@ -126,7 +126,13 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
       const nextHero = queuedHero;
       queuedHero = null;
       console.log('[saveHeroToLocalStorage] Processing queued save with snapshot hero');
-      setTimeout(() => saveHeroToLocalStorage(nextHero), 100);
+      
+      // Clear previous timeout if exists to prevent overlapping saves
+      if ((saveHeroToLocalStorage as any)._timeoutId) {
+        clearTimeout((saveHeroToLocalStorage as any)._timeoutId);
+      }
+      
+      (saveHeroToLocalStorage as any)._timeoutId = setTimeout(() => saveHeroToLocalStorage(nextHero), 100);
     }
   }
 }

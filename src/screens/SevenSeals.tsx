@@ -23,23 +23,29 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
   const [showRewards, setShowRewards] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
     const loadRanking = async () => {
       if (getRateLimitRemainingMs() > 0) return;
       setLoading(true);
       try {
         const data = await getSevenSealsRanking();
+        if (!mounted) return;
         setRanking(data.ranking || []);
         setMyRank(data.myRank || null);
         setMyMedals(data.myMedals || 0);
       } catch (err: any) {
+        if (!mounted) return;
         console.error("Error loading Seven Seals ranking:", err);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     loadRanking();
     const interval = setInterval(loadRanking, 30000); // Оновлюємо кожні 30 секунд
-    return () => clearInterval(interval);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Перевіряємо, чи зараз понеділок-субота (польський час)

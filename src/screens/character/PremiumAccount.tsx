@@ -32,9 +32,11 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
 
-  // Оновлюємо час, що залишився
   useEffect(() => {
-    if (!hero?.premiumUntil) return;
+    if (!hero?.premiumUntil) {
+      setTimeRemaining("");
+      return;
+    }
 
     const updateTime = () => {
       const now = Date.now();

@@ -16,13 +16,16 @@ export default function About({ navigate }: { navigate: Navigate }) {
   const characterId = useCharacterStore((s) => s.characterId);
 
   useEffect(() => {
+    let mounted = true;
     const loadOnlineCount = async () => {
       if (getRateLimitRemainingMs() > 0) return;
       try {
         const data = await getOnlinePlayers();
+        if (!mounted) return;
         const count = data.count ?? data.players?.length ?? 0;
         setOnlineCount(count);
       } catch (err: any) {
+        if (!mounted) return;
         // ❗ Ігноруємо 401 помилки (неавторизований) - це нормально
         if (err?.status === 401 || err?.unauthorized) {
           setOnlineCount(0);
@@ -35,6 +38,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
     const startTimeout = setTimeout(loadOnlineCount, 3000); // Перший через 3 с — показуємо реальний онлайн швидше
     const interval = setInterval(loadOnlineCount, 60000); // Далі кожні 60 с
     return () => {
+      mounted = false;
       clearTimeout(startTimeout);
       clearInterval(interval);
     };
