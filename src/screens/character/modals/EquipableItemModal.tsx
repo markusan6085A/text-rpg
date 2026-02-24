@@ -17,6 +17,7 @@ export default function EquipableItemModal({
 }: EquipableItemModalProps) {
   const enchantedStats = calculateEnchantedStats(item);
   const { pAtk, mAtk, pDef, mDef, baseStats, enchantLevel, isWeapon, isArmor, enchantMultiplier, armorEnchantMultiplier } = enchantedStats;
+  const hasAnyStats = Object.keys(baseStats).length > 0 || pAtk !== undefined || mAtk !== undefined || pDef !== undefined || mDef !== undefined;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
@@ -62,8 +63,8 @@ export default function EquipableItemModal({
           </div>
         </div>
 
-        {/* Стати */}
-        {item.stats && (
+        {/* Стати (з предмета або з itemsDB для дропу з риби) */}
+        {hasAnyStats && (
           <div className="border-t border-white/50 pt-2 mt-2 mb-4">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -111,29 +112,69 @@ export default function EquipableItemModal({
                   </span>
                 </div>
               )}
-              {item.stats.rCrit !== undefined && (
+              {baseStats.rCrit !== undefined && (
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400">Крит:</span>
-                  <span className="text-purple-400">{item.stats.rCrit}</span>
+                  <span className="text-purple-400">{baseStats.rCrit}</span>
                 </div>
               )}
-              {item.stats.pAtkSpd !== undefined && (
+              {baseStats.pAtkSpd !== undefined && (
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400">Скорость боя:</span>
-                  <span className="text-yellow-400">{item.stats.pAtkSpd}</span>
+                  <span className="text-yellow-400">{baseStats.pAtkSpd}</span>
                 </div>
               )}
-              {item.stats.maxHp !== undefined && (
+              {baseStats.maxHp !== undefined && (
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400">Max HP:</span>
-                  <span className="text-red-400">+{item.stats.maxHp}</span>
+                  <span className="text-red-400">+{baseStats.maxHp}</span>
                 </div>
               )}
-              {item.stats.maxMp !== undefined && (
+              {baseStats.maxMp !== undefined && (
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400">Max MP:</span>
-                  <span className="text-blue-400">+{item.stats.maxMp}</span>
+                  <span className="text-blue-400">+{baseStats.maxMp}</span>
                 </div>
+              )}
+              {(baseStats.STR !== undefined || baseStats.DEX !== undefined || baseStats.CON !== undefined || baseStats.INT !== undefined || baseStats.WIT !== undefined || baseStats.MEN !== undefined) && (
+                <>
+                  {baseStats.STR !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">STR:</span>
+                      <span className="text-yellow-300">+{baseStats.STR}</span>
+                    </div>
+                  )}
+                  {baseStats.DEX !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">DEX:</span>
+                      <span className="text-yellow-300">+{baseStats.DEX}</span>
+                    </div>
+                  )}
+                  {baseStats.CON !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">CON:</span>
+                      <span className="text-yellow-300">+{baseStats.CON}</span>
+                    </div>
+                  )}
+                  {baseStats.INT !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">INT:</span>
+                      <span className="text-yellow-300">+{baseStats.INT}</span>
+                    </div>
+                  )}
+                  {baseStats.WIT !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">WIT:</span>
+                      <span className="text-yellow-300">+{baseStats.WIT}</span>
+                    </div>
+                  )}
+                  {baseStats.MEN !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">MEN:</span>
+                      <span className="text-yellow-300">+{baseStats.MEN}</span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

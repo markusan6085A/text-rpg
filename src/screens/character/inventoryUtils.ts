@@ -116,8 +116,8 @@ export function calculateEnchantedStats(item: any) {
   
   const enchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.03)) : 1;
   const armorEnchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.02)) : 1;
-  
-  const stats = item.stats || {};
+  // Дроп з риби та інші предмети можуть не мати item.stats — беремо з itemsDB
+  const stats = item.stats || itemDef?.stats || {};
   
   return {
     pAtk: stats.pAtk !== undefined 
