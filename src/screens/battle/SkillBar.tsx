@@ -245,21 +245,26 @@ export function SkillBar() {
                 border: "2px solid",
                 borderColor: "rgba(60,45,25,0.9)",
               };
-              const slotActiveStyle = (isChargeActive || isItemEquipped) ? { borderColor: "rgba(212,175,55,0.9)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(212,175,55,0.35)" as any } : {};
+              const slotActiveStyle = (isChargeActive || isItemEquipped)
+                ? { boxShadow: "inset 0 3px 12px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.5)" as React.CSSProperties }
+                : {};
+
+              const isActive = isChargeActive || isItemEquipped;
 
               return (
                 <button
                   key={`slot-${idx}`}
                   onClick={handleSlotClick}
                   disabled={disabled || consumableDisabled}
-                  className={`${slotBaseClass} ${disabled || consumableDisabled ? "opacity-50 saturate-50" : ""} ${isChargeActive || isItemEquipped ? "bg-amber-950/50" : "bg-[#0d0a06]"}`}
+                  className={`${slotBaseClass} ${disabled || consumableDisabled ? "opacity-50 saturate-50" : ""} ${isActive ? "bg-[#0a0805]" : "bg-[#0d0a06]"}`}
                   style={{ ...slotL2Style, ...slotActiveStyle }}
                   title={slotInfo?.name}
                 >
+                  {isActive && <div className="absolute inset-0 bg-black/30 rounded-md pointer-events-none z-[1]" aria-hidden />}
                   {slotInfo ? (
-                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm" alt="" />
+                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm relative z-0" alt="" />
                   ) : (
-                    <span className="text-[#caa777] text-xs">?</span>
+                    <span className="text-[#caa777] text-xs relative z-0">?</span>
                   )}
                   {slotInfo?.type === "skill" && cdLeft > 0 && (
                     <div className="absolute inset-0 bg-black/70 text-white text-xs flex items-center justify-center font-semibold">
@@ -328,21 +333,26 @@ export function SkillBar() {
                 border: "2px solid",
                 borderColor: "rgba(60,45,25,0.9)",
               };
-              const slotActiveStyle2 = (isChargeActive || isItemEquipped) ? { borderColor: "rgba(212,175,55,0.9)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(212,175,55,0.35)" as any } : {};
+              const slotActiveStyle2 = (isChargeActive || isItemEquipped)
+                ? { boxShadow: "inset 0 3px 12px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.5)" as React.CSSProperties }
+                : {};
+
+              const isActive2 = isChargeActive || isItemEquipped;
 
               return (
                 <button
                   key={`slot-${slotIndex}`}
                   onClick={handleSlotClick2}
                   disabled={disabled || consumableDisabled}
-                  className={`${slotBaseClass} ${disabled || consumableDisabled ? "opacity-50 saturate-50" : ""} ${isChargeActive || isItemEquipped ? "bg-amber-950/50" : "bg-[#0d0a06]"}`}
+                  className={`${slotBaseClass} ${disabled || consumableDisabled ? "opacity-50 saturate-50" : ""} ${isActive2 ? "bg-[#0a0805]" : "bg-[#0d0a06]"}`}
                   style={{ ...slotL2Style2, ...slotActiveStyle2 }}
                   title={slotInfo?.name}
                 >
+                  {isActive2 && <div className="absolute inset-0 bg-black/30 rounded-md pointer-events-none z-[1]" aria-hidden />}
                   {slotInfo ? (
-                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm" alt="" />
+                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm relative z-0" alt="" />
                   ) : (
-                    <span className="text-[#caa777] text-xs">?</span>
+                    <span className="text-[#caa777] text-xs relative z-0">?</span>
                   )}
                   {slotInfo?.type === "skill" && cdLeft > 0 && (
                     <div className="absolute inset-0 bg-black/70 text-white text-xs flex items-center justify-center font-semibold">
