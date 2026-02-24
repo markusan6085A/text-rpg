@@ -19,10 +19,18 @@ export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginPro
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     adminMe()
-      .then(() => navigate("/admin"))
-      .catch(() => {})
-      .finally(() => setChecking(false));
+      .then(() => {
+        if (mounted) navigate("/admin");
+      })
+      .catch((err) => {
+        console.error("Admin check failed on login page:", err);
+      })
+      .finally(() => {
+        if (mounted) setChecking(false);
+      });
+    return () => { mounted = false; };
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {

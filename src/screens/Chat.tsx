@@ -105,20 +105,19 @@ export default function Chat({ navigate }: ChatProps) {
     setPage(1);
     // Очищаємо кеш при зміні каналу, щоб уникнути змішування повідомлень
     // Використовуємо setTimeout, щоб уникнути проблем з залежностями
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       refresh();
     }, 100);
-  }, [channel]); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => clearTimeout(timer);
+  }, [channel, refresh]);
 
-  // 🔥 ВАЖЛИВО: Оновлюємо повідомлення при зміні сторінки
-  // Це гарантує, що при переході на сторінку 2+ завантажаться актуальні повідомлення
   useEffect(() => {
     // Затримка для уникнення конфліктів з іншими useEffect
     const timer = setTimeout(() => {
       refresh();
     }, 100);
     return () => clearTimeout(timer);
-  }, [page, refresh]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, refresh]);
 
   // ---------- Helpers ----------
   const normName = (s?: string) => (s || "").trim().toLowerCase();

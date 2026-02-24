@@ -121,13 +121,11 @@ export default function StatusBars() {
           setMyClan(null);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Failed to load clan info:", err);
         setMyClan(null);
       });
-    
-    // 🔥 НЕ додаємо setInterval - клан завантажується тільки при зміні hero
-    // Якщо потрібно оновити клан - це має робитися через окремий endpoint або при навігації
-  }, [hero?.name]); // Завантажуємо тільки при зміні імені героя
+  }, [hero?.name]);
 
   // Регенерація HP/MP/CP (тільки поза боєм) та перевірка таймера Зарича
   // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання

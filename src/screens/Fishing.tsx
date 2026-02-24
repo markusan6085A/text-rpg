@@ -44,7 +44,8 @@ export default function Fishing({ navigate }: FishingProps) {
         setSessionState(s);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Failed to load fishing session:", err);
         setSessionState(null);
         setLoading(false);
       });

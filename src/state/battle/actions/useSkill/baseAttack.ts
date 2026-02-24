@@ -356,16 +356,18 @@ export function handleBaseAttack(
       let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
       const EPS = 0.001;
       let leveled = false;
-      while (exp >= getExpToNext(level, XP_RATE) - EPS) {
+      let levelUps = 0;
+      const MAX_LEVEL_UPS_PER_TICK = 10;
+      while (exp >= getExpToNext(level, XP_RATE) - EPS && levelUps < MAX_LEVEL_UPS_PER_TICK) {
         const need = getExpToNext(level, XP_RATE);
-        if (need <= 0) break;
+        if (need <= 0 || level >= MAX_LEVEL) {
+          if (level >= MAX_LEVEL) exp = 0;
+          break;
+        }
         exp = Math.max(0, Math.floor(exp - need));
         level += 1;
         leveled = true;
-        if (level >= MAX_LEVEL) {
-          exp = 0;
-          break;
-        }
+        levelUps++;
       }
       const currentMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? (curHero as any).killedMobs ?? (curHero as any).totalKills ?? 0;
       const newMobsKilled = currentMobsKilled + 1;

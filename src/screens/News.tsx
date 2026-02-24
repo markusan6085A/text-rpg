@@ -266,10 +266,10 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             Новостей пока нет.
           </div>
         ) : (
-          <>
-            <div>{items.map(renderLine)}</div>
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-3">
+            <>
+              <div>{items.map((item, idx) => renderLine(item, idx))}</div>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-3">
                 <button
                   className="px-2 py-1 rounded border border-yellow-700/70 bg-black/40 disabled:opacity-40"
                   disabled={page <= 1}

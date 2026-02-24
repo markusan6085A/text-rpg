@@ -166,28 +166,28 @@ export default function Register({ navigate }: RegisterProps) {
       if (loadedHero) {
         setHero(loadedHero);
         setJSON("l2_current_user", trimmedUsername);
-        if (trimmedUsername) {
-          const raw = getJSON<any[]>("l2_accounts_v2", []);
-          const accounts = Array.isArray(raw) ? raw : [];
-          const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
-          if (idx === -1) accounts.push({ username: trimmedUsername, hero: loadedHero });
-          else accounts[idx].hero = loadedHero;
-          setJSON("l2_accounts_v2", accounts);
-        }
+        
+        const raw = getJSON<any[]>("l2_accounts_v2", []);
+        const accounts = Array.isArray(raw) ? raw : [];
+        const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
+        if (idx === -1) accounts.push({ username: trimmedUsername, hero: loadedHero });
+        else accounts[idx].hero = loadedHero;
+        setJSON("l2_accounts_v2", accounts);
+        
         navigate("/city");
       } else {
         // Fallback: встановлюємо героя вручну
         const fallbackHero = { ...coreHero, name: trimmedUsername, username: trimmedUsername, sp: 0, skills: [], battleStats: {} as any } as any;
         setHero(fallbackHero);
         setJSON("l2_current_user", trimmedUsername);
-        if (trimmedUsername) {
-          const raw = getJSON<any[]>("l2_accounts_v2", []);
-          const accounts = Array.isArray(raw) ? raw : [];
-          const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
-          if (idx === -1) accounts.push({ username: trimmedUsername, hero: fallbackHero });
-          else accounts[idx].hero = fallbackHero;
-          setJSON("l2_accounts_v2", accounts);
-        }
+        
+        const raw = getJSON<any[]>("l2_accounts_v2", []);
+        const accounts = Array.isArray(raw) ? raw : [];
+        const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
+        if (idx === -1) accounts.push({ username: trimmedUsername, hero: fallbackHero });
+        else accounts[idx].hero = fallbackHero;
+        setJSON("l2_accounts_v2", accounts);
+        
         navigate("/city");
       }
     } catch (err: any) {

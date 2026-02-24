@@ -1,4 +1,4 @@
-# Зібраний код: battle, hero, UI
+Зібраний код: battle, hero, UI
 
 Усі зазначені файли в одному документі для огляду.
 
@@ -19,7 +19,7 @@ import { createResurrect } from "./actions/resurrect";
 
 export const createBattleActions: StateCreator<BattleState, [], [], Partial<BattleState>> = (
   set,
-  get,
+  get,# 
   _api
 ) => ({
   startBattle: createStartBattle(set, get),

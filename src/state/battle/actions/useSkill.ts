@@ -53,6 +53,14 @@ export const createUseSkill =
     const updateHero = heroStore.updateHero;
     if (!hero) return;
 
+    if (hero.hp !== undefined && hero.hp <= 0) {
+      const setAndPersist = createSetAndPersist(set, get);
+      setAndPersist({
+        log: ["Вы мертвы и не можете использовать навыки.", ...state.log].slice(0, 30),
+      });
+      return;
+    }
+
     const now = Date.now();
 
     // Перевірка на stun гравця (крім базової атаки)

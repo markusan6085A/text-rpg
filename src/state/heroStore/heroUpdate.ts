@@ -52,16 +52,19 @@ export function updateHeroLogic(
   // Але при хілі/регені partial.hp може бути з урахуванням бафів
   // Тому НЕ обмежуємо hp до hero.maxHp, якщо partial.hp передано явно
   if (!needsRecalc && (partial.hp !== undefined || partial.mp !== undefined || partial.cp !== undefined)) {
+    const maxHp = prev.maxHp ?? 1;
+    const maxMp = prev.maxMp ?? 1;
+    const maxCp = prev.maxCp ?? 1;
     // Валідуємо ресурси тільки якщо вони невалідні (<= 0)
     // НЕ обмежуємо до hero.maxHp, бо він може бути без бафів, а partial.hp - з бафами
     if (partial.hp !== undefined) {
-      updated.hp = Math.max(0, partial.hp); // Тільки перевіряємо, що не від'ємне
+      updated.hp = Math.max(0, Math.min(maxHp, partial.hp));
     }
     if (partial.mp !== undefined) {
-      updated.mp = Math.max(0, partial.mp);
+      updated.mp = Math.max(0, Math.min(maxMp, partial.mp));
     }
     if (partial.cp !== undefined) {
-      updated.cp = Math.max(0, partial.cp);
+      updated.cp = Math.max(0, Math.min(maxCp, partial.cp));
     }
   }
 

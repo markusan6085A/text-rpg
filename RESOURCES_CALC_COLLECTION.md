@@ -26,7 +26,7 @@ export function calcResources(
 ): Resources {
   // Level scaling: CON/MEN бонуси
   const conBonus = 1 + (baseStats.CON - 40) * 0.01;
-  const menBonus = 1 + (baseStats.MEN - 25) * 0.01;
+  const menBonus = 1 + (baseStats.MEN - 25) * 0.01;пуш завжди пуш
   const baseHp = 200 + lvl * 56;
   const baseMp = 100 + lvl * 8;
 

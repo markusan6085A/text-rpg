@@ -52,27 +52,27 @@ export default function Mail({ navigate }: MailProps) {
 
   const heroId = hero?.id;
 
-  const loadLetters = async () => {
-    if (getRateLimitRemainingMs() > 0) return;
-    const isInitialLoad = letters.length === 0;
-    if (isInitialLoad) {
-      setLoading(true);
-      // ❗ ОПТИМІЗАЦІЯ: Показуємо skeleton одразу, не чекаємо API
-      // Це покращує відчуття швидкості навіть при cold start
-    }
+    const loadLetters = React.useCallback(async () => {
+      if (getRateLimitRemainingMs() > 0) return;
+      const isInitialLoad = letters.length === 0;
+      if (isInitialLoad) {
+        setLoading(true);
+        // ❗ ОПТИМІЗАЦІЯ: Показуємо skeleton одразу, не чекаємо API
+        // Це покращує відчуття швидкості навіть при cold start
+      }
 
-    setError(null);
-    try {
-      const data = await getLetters(page, 50);
-      setLetters(data.letters || []);
-      setTotal(data.total || 0);
-      setUnreadCount(data.unreadCount || 0);
-    } catch (err: any) {
-      setError(err?.message || "Помилка завантаження листів");
-    } finally {
-      setLoading(false);
-    }
-  };
+      setError(null);
+      try {
+        const data = await getLetters(page, 50);
+        setLetters(data.letters || []);
+        setTotal(data.total || 0);
+        setUnreadCount(data.unreadCount || 0);
+      } catch (err: any) {
+        setError(err?.message || "Помилка завантаження листів");
+      } finally {
+        setLoading(false);
+      }
+    }, [page, letters.length]);
 
   useEffect(() => {
     // ❗ ОПТИМІЗАЦІЯ: Завантажуємо листи (критично) - чекаємо
@@ -102,7 +102,7 @@ export default function Mail({ navigate }: MailProps) {
     };
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, loadLetters]);
 
   // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
   const onlinePlayersIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -397,37 +397,51 @@ export default function Mail({ navigate }: MailProps) {
 
           {conversationTotal > 10 && (
             <div className="flex items-center justify-center gap-2 mt-4 text-[6px] text-white">
-              <button
-                onClick={() => loadConversationLetters(selectedConversation.playerId, 1)}
-                disabled={conversationPage === 1}
-                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                &lt;&lt;
-              </button>
-              <button
-                onClick={() => loadConversationLetters(selectedConversation.playerId, conversationPage - 1)}
-                disabled={conversationPage === 1}
-                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                &lt;
-              </button>
-              <span className="font-bold">{conversationPage}</span>
-              <button
-                onClick={() => loadConversationLetters(selectedConversation.playerId, conversationPage + 1)}
-                disabled={conversationPage * 10 >= conversationTotal}
-                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                &gt;
-              </button>
-              <button
-                onClick={() =>
-                  loadConversationLetters(selectedConversation.playerId, Math.ceil(conversationTotal / 10))
-                }
-                disabled={conversationPage * 10 >= conversationTotal}
-                className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                &gt;&gt;
-              </button>
+          <button
+            onClick={() => {
+              if (selectedConversation) {
+                loadConversationLetters(selectedConversation.playerId, 1);
+              }
+            }}
+            disabled={conversationPage === 1}
+            className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            &lt;&lt;
+          </button>
+          <button
+            onClick={() => {
+              if (selectedConversation) {
+                loadConversationLetters(selectedConversation.playerId, conversationPage - 1);
+              }
+            }}
+            disabled={conversationPage === 1}
+            className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            &lt;
+          </button>
+          <span className="font-bold">{conversationPage}</span>
+          <button
+            onClick={() => {
+              if (selectedConversation) {
+                loadConversationLetters(selectedConversation.playerId, conversationPage + 1);
+              }
+            }}
+            disabled={conversationPage * 10 >= conversationTotal}
+            className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            &gt;
+          </button>
+          <button
+            onClick={() => {
+              if (selectedConversation) {
+                loadConversationLetters(selectedConversation.playerId, Math.ceil(conversationTotal / 10));
+              }
+            }}
+            disabled={conversationPage * 10 >= conversationTotal}
+            className="hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            &gt;&gt;
+          </button>
             </div>
           )}
         </div>

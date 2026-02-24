@@ -11,10 +11,19 @@ export function AdminActionsModal({ onClose, navigate }: AdminActionsModalProps)
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     adminStats()
-      .then((d) => setStats(d))
-      .catch(() => setStats(null))
-      .finally(() => setLoading(false));
+      .then((d) => {
+        if (mounted) setStats(d);
+      })
+      .catch((err) => {
+        console.error("Failed to load admin stats:", err);
+        if (mounted) setStats(null);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => { mounted = false; };
   }, []);
 
   return (

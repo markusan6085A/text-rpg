@@ -85,7 +85,9 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
       const accessToken = await login(nick, pass);
       setAccessToken(accessToken);
       // Перевіряємо адмін-сесію: якщо є валідний адмін-кукі — кнопка «Адмін» з’явиться в місті
-      useAdminStore.getState().checkAdmin().catch(() => {});
+      useAdminStore.getState().checkAdmin().catch((err) => {
+        console.error("Admin check failed after login:", err);
+      });
 
       // 2. Отримуємо список персонажів
       const characters = await listCharacters();

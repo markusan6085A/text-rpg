@@ -33,7 +33,8 @@ export default function CharacterBuffs() {
           : [];
 
         if (!disposed && JSON.stringify(serverBuffs) !== JSON.stringify(localBuffs)) {
-          updateHero({ heroJson: { heroBuffs: serverBuffs } }, { persist: false });
+          // Use current state to avoid stale closures
+          useHeroStore.getState().updateHero({ heroJson: { heroBuffs: serverBuffs } }, { persist: false });
         }
       } catch {
         // ignore
@@ -81,12 +82,12 @@ export default function CharacterBuffs() {
   return (
     <div className="mt-2 border-t border-solid border-white/50 pt-2">
       <div className="flex flex-wrap gap-1.5">
-        {uniqueBuffs.map((buff: any, idx: number) => {
+        {uniqueBuffs.map((buff: any) => {
           let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
           
           return (
             <img
-              key={idx}
+              key={buff.id ? `id_${buff.id}` : `name_${buff.name}_${buff.expiresAt}`}
               src={iconSrc}
               alt={buff.name || "Buff"}
               className="w-5 h-5 object-contain"
