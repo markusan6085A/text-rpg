@@ -168,7 +168,7 @@ export default function Inventory() {
 
         {/* Інвентар нижче */}
         {/* Верхня частина: кількість слотів + кнопка збільшення */}
-        <div className="flex justify-end items-center gap-2 mb-2" style={{ color: "#d9d9d9" }}>
+        <div className="flex justify-end items-center gap-2 mb-1" style={{ color: "#d9d9d9" }}>
           <div className="text-xs">{itemsUsed}/{maxSlots}</div>
           <button
             type="button"
@@ -177,6 +177,20 @@ export default function Inventory() {
           >
             Увеличить вместимость инвентаря
           </button>
+        </div>
+        <div className="space-y-0.5 mb-2 text-left text-[11px]">
+          <div className="flex justify-between">
+            <span style={{ color: "#c7ad80" }}>Аден:</span>
+            <span className="text-gray-400">{(hero?.adena ?? 0).toLocaleString("ru-RU")}</span>
+          </div>
+          <div className="flex justify-between">
+            <span style={{ color: "#c7ad80" }}>Coin of Luck:</span>
+            <span className="text-gray-400">{hero?.coinOfLuck ?? 0}</span>
+          </div>
+          <div className="flex justify-between">
+            <span style={{ color: "#c7ad80" }}>Серебряные Монеты:</span>
+            <span className="text-gray-400">{(hero as any)?.coins_silver ?? 0}</span>
+          </div>
         </div>
 
         {/* Фільтри */}

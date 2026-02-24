@@ -28,9 +28,6 @@ export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryMod
     onClose();
   };
 
-  const adena = hero?.adena ?? 0;
-  const coinsSilver = (hero as any)?.coins_silver ?? 0;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
       <div
@@ -47,7 +44,7 @@ export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryMod
           Сейчас: <span className="text-gray-300">{maxSlots}</span> слотов. У вас:{" "}
           <span className="text-yellow-400">{coins}</span> Coin of Luck.
         </p>
-        <div className="flex items-center gap-2 mb-3 text-left">
+        <div className="flex items-center gap-2 mb-4 text-left">
           <label className="text-[11px] text-[#c7ad80]">Количество слотов:</label>
           <input
             type="number"
@@ -57,20 +54,6 @@ export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryMod
             onChange={(e) => setQuantity(Math.max(1, Math.min(coins, parseInt(e.target.value, 10) || 1)))}
             className="w-14 py-0.5 px-1 text-xs rounded bg-[#0d0a06] text-gray-300 border border-[#4a4a4a]"
           />
-        </div>
-        <div className="space-y-1 mb-4 text-left text-[11px]">
-          <div className="flex justify-between">
-            <span style={{ color: "#c7ad80" }}>Аден:</span>
-            <span className="text-gray-400">{adena.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span style={{ color: "#c7ad80" }}>Coin of Luck:</span>
-            <span className="text-gray-400">{coins}</span>
-          </div>
-          <div className="flex justify-between">
-            <span style={{ color: "#c7ad80" }}>Серебряные Монеты:</span>
-            <span className="text-gray-400">{coinsSilver}</span>
-          </div>
         </div>
         <div className="flex gap-2 justify-end">
           <button
