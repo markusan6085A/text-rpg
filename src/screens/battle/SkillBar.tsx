@@ -192,6 +192,8 @@ export function SkillBar() {
     return null;
   };
 
+  const slotBaseClass = "relative w-9 h-9 rounded-md overflow-hidden flex items-center justify-center transition-all";
+
   return (
     <div className="space-y-2">
       <div className="h-[1px] w-full bg-[#1a120c]" />
@@ -217,7 +219,8 @@ export function SkillBar() {
                   <button
                     key={`slot-${idx}`}
                     onClick={() => setPickerSlot(idx)}
-                    className="w-8 h-8 rounded border border-dashed border-white/50 bg-[#120d08] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 transition"
+                    className="w-9 h-9 rounded-md border-2 border-dashed border-amber-900/70 bg-[#0d0a06] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 hover:border-amber-700/60 transition-all shadow-[inset_0_2px_6px_rgba(0,0,0,0.6)]"
+                    style={{ boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)" }}
                   >
                     +
                   </button>
@@ -237,22 +240,24 @@ export function SkillBar() {
                 }
               };
 
+              const slotL2Style: React.CSSProperties = {
+                boxShadow: "inset 0 2px 8px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.06), 0 1px 0 rgba(0,0,0,0.5)",
+                border: "2px solid",
+                borderColor: "rgba(60,45,25,0.9)",
+              };
+              const slotActiveStyle = (isChargeActive || isItemEquipped) ? { borderColor: "rgba(212,175,55,0.9)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(212,175,55,0.35)" as any } : {};
+
               return (
                 <button
                   key={`slot-${idx}`}
                   onClick={handleSlotClick}
                   disabled={disabled || consumableDisabled}
-                  className={`relative w-8 h-8 rounded border overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50 transition-colors ${
-                    isChargeActive
-                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
-                      : isItemEquipped
-                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
-                      : "border-white/50 bg-[#0f0c09]"
-                  }`}
+                  className={`${slotBaseClass} ${disabled || consumableDisabled ? "opacity-50 saturate-50" : ""} ${isChargeActive || isItemEquipped ? "bg-amber-950/50" : "bg-[#0d0a06]"}`}
+                  style={{ ...slotL2Style, ...slotActiveStyle }}
                   title={slotInfo?.name}
                 >
                   {slotInfo ? (
-                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-full h-full object-cover" />
+                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm" alt="" />
                   ) : (
                     <span className="text-[#caa777] text-xs">?</span>
                   )}
@@ -262,7 +267,7 @@ export function SkillBar() {
                     </div>
                   )}
                   {isConsumable && slotInfo.count !== undefined && slotInfo.count > 1 && (
-                    <div className="absolute bottom-0 right-0 bg-black/70 text-white text-[8px] px-0.5 rounded">
+                    <div className="absolute bottom-0 right-0 bg-black/80 text-amber-200 text-[9px] px-1 rounded-tl font-semibold">
                       {slotInfo.count}
                     </div>
                   )}
@@ -271,7 +276,8 @@ export function SkillBar() {
             })}
             <button
               onClick={openRemovePicker}
-              className="w-8 h-8 rounded border border-white/50 bg-[#1a1814] text-[#caa777] text-[11px] flex items-center justify-center hover:brightness-110 transition"
+              className="w-9 h-9 rounded-md border-2 border-amber-900/60 bg-[#0d0a06] text-[#caa777] text-[11px] flex items-center justify-center hover:brightness-110 hover:border-amber-700/50 transition-all"
+              style={{ boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)" }}
               title="Убрать скиллы"
             >
               Убр.
@@ -296,14 +302,15 @@ export function SkillBar() {
                   <button
                     key={`slot-${slotIndex}`}
                     onClick={() => setPickerSlot(slotIndex)}
-                    className="w-8 h-8 rounded border border-dashed border-white/50 bg-[#120d08] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 transition"
+                    className="w-9 h-9 rounded-md border-2 border-dashed border-amber-900/70 bg-[#0d0a06] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 hover:border-amber-700/60 transition-all"
+                    style={{ boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)" }}
                   >
                     +
                   </button>
                 );
               }
 
-              const handleSlotClick = () => {
+              const handleSlotClick2 = () => {
                 if (isCharge) {
                   toggleChargeSlot(slotIndex);
                 } else if (isItem && itemId) {
@@ -316,22 +323,24 @@ export function SkillBar() {
                 }
               };
 
+              const slotL2Style2: React.CSSProperties = {
+                boxShadow: "inset 0 2px 8px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.06), 0 1px 0 rgba(0,0,0,0.5)",
+                border: "2px solid",
+                borderColor: "rgba(60,45,25,0.9)",
+              };
+              const slotActiveStyle2 = (isChargeActive || isItemEquipped) ? { borderColor: "rgba(212,175,55,0.9)", boxShadow: "inset 0 2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(212,175,55,0.35)" as any } : {};
+
               return (
                 <button
                   key={`slot-${slotIndex}`}
-                  onClick={handleSlotClick}
+                  onClick={handleSlotClick2}
                   disabled={disabled || consumableDisabled}
-                  className={`relative w-8 h-8 rounded border overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50 transition-colors ${
-                    isChargeActive
-                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
-                      : isItemEquipped
-                      ? "border-amber-400 bg-amber-900/40 ring-1 ring-amber-400/80"
-                      : "border-white/50 bg-[#0f0c09]"
-                  }`}
+                  className={`${slotBaseClass} ${disabled || consumableDisabled ? "opacity-50 saturate-50" : ""} ${isChargeActive || isItemEquipped ? "bg-amber-950/50" : "bg-[#0d0a06]"}`}
+                  style={{ ...slotL2Style2, ...slotActiveStyle2 }}
                   title={slotInfo?.name}
                 >
                   {slotInfo ? (
-                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-full h-full object-cover" />
+                    <img src={slotInfo.icon || "/skills/attack.jpg"} className="w-[26px] h-[26px] object-cover rounded-sm" alt="" />
                   ) : (
                     <span className="text-[#caa777] text-xs">?</span>
                   )}
@@ -341,7 +350,7 @@ export function SkillBar() {
                     </div>
                   )}
                   {isConsumable && slotInfo.count !== undefined && slotInfo.count > 1 && (
-                    <div className="absolute bottom-0 right-0 bg-black/70 text-white text-[8px] px-0.5 rounded">
+                    <div className="absolute bottom-0 right-0 bg-black/80 text-amber-200 text-[9px] px-1 rounded-tl font-semibold">
                       {slotInfo.count}
                     </div>
                   )}
