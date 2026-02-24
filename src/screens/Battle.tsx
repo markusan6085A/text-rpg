@@ -96,16 +96,16 @@ export default function Battle({ navigate }: BattleProps) {
   React.useEffect(() => {
     const battleInterval = setInterval(() => {
       setNow(Date.now());
-      if (status === "fighting") processMobAttackRef.current();
+      if (useBattleStore.getState().status === "fighting") processMobAttackRef.current();
     }, BATTLE_TICK_MS);
     const regenInterval = setInterval(() => {
-      if (status === "fighting") regenTickRef.current();
+      if (useBattleStore.getState().status === "fighting") regenTickRef.current();
     }, REGEN_TICK_MS);
     return () => {
       clearInterval(battleInterval);
       clearInterval(regenInterval);
     };
-  }, [status]);
+  }, []);
 
   // Якщо зона або моб не знайдені
   if (!found || mobIndex < 0) {
