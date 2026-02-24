@@ -25,6 +25,48 @@ interface FishItemModalProps {
 
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena", "coin_of_fair"]);
 
+const STAT_LABELS: Record<string, string> = {
+  pAtk: "Физ. атака",
+  mAtk: "Маг. атака",
+  rCrit: "Крит",
+  pAtkSpd: "Швидкість бою",
+  castSpeed: "Швидкість касту",
+  pDef: "Физ. захист",
+  mDef: "Маг. захист",
+  maxHp: "Max HP",
+  maxMp: "Max MP",
+  maxCp: "Max CP",
+  maxHpPercent: "Max HP %",
+  maxMpPercent: "Max MP %",
+  pDefPercent: "Физ. захист %",
+  mDefPercent: "Маг. захист %",
+  pAtkPercent: "Физ. атака %",
+  mAtkPercent: "Маг. атака %",
+  STR: "STR",
+  DEX: "DEX",
+  CON: "CON",
+  INT: "INT",
+  WIT: "WIT",
+  MEN: "MEN",
+};
+
+function renderStatsBlock(stats: Record<string, unknown>) {
+  const entries = Object.entries(stats).filter(
+    ([, v]) => v !== undefined && v !== null && (typeof v === "number" || typeof v === "string")
+  ) as [string, number | string][];
+  if (entries.length === 0) return null;
+  return (
+    <div className="pl-7 space-y-0.5 text-xs">
+      {entries.map(([key, value]) => (
+        <div key={key} className="flex justify-between">
+          <span className="text-gray-400">{STAT_LABELS[key] || key}:</span>
+          <span className="text-yellow-300">{typeof value === "number" && value >= 0 ? `+${value}` : String(value)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // Всі види ресурсів (без риби, квестових, валют та заточок)
 function getAllResources(): ItemDefinition[] {
   const resources: ItemDefinition[] = [];
@@ -374,34 +416,7 @@ export default function FishItemModal({
                           <span className="text-gray-300 font-semibold">{weaponDef?.name || id}</span>
                           <span className="text-green-400 ml-auto">x{count}</span>
                         </div>
-                        {Object.keys(stats).length > 0 && (
-                          <div className="pl-7 space-y-0.5 text-xs">
-                            {stats.pAtk !== undefined && stats.pAtk !== null && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Физ. атака:</span>
-                                <span className="text-red-400">+{stats.pAtk}</span>
-                              </div>
-                            )}
-                            {stats.mAtk !== undefined && stats.mAtk !== null && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Маг. атака:</span>
-                                <span className="text-purple-400">+{stats.mAtk}</span>
-                              </div>
-                            )}
-                            {stats.rCrit !== undefined && stats.rCrit !== null && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Крит:</span>
-                                <span className="text-purple-400">+{stats.rCrit}</span>
-                              </div>
-                            )}
-                            {stats.pAtkSpd !== undefined && stats.pAtkSpd !== null && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Скорость боя:</span>
-                                <span className="text-yellow-400">+{stats.pAtkSpd}</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        {renderStatsBlock(stats)}
                       </div>
                     );
                   })}
@@ -429,28 +444,7 @@ export default function FishItemModal({
                           <span className="text-gray-300 font-semibold">{jewelryDef?.name || id}</span>
                           <span className="text-green-400 ml-auto">x{count}</span>
                         </div>
-                        {Object.keys(stats).length > 0 && (
-                          <div className="pl-7 space-y-0.5 text-xs">
-                            {(stats as any).STR && (
-                              <div className="flex justify-between"><span className="text-gray-400">STR:</span><span className="text-yellow-300">+{(stats as any).STR}</span></div>
-                            )}
-                            {(stats as any).DEX && (
-                              <div className="flex justify-between"><span className="text-gray-400">DEX:</span><span className="text-yellow-300">+{(stats as any).DEX}</span></div>
-                            )}
-                            {(stats as any).CON && (
-                              <div className="flex justify-between"><span className="text-gray-400">CON:</span><span className="text-yellow-300">+{(stats as any).CON}</span></div>
-                            )}
-                            {(stats as any).INT && (
-                              <div className="flex justify-between"><span className="text-gray-400">INT:</span><span className="text-yellow-300">+{(stats as any).INT}</span></div>
-                            )}
-                            {(stats as any).WIT && (
-                              <div className="flex justify-between"><span className="text-gray-400">WIT:</span><span className="text-yellow-300">+{(stats as any).WIT}</span></div>
-                            )}
-                            {(stats as any).MEN && (
-                              <div className="flex justify-between"><span className="text-gray-400">MEN:</span><span className="text-yellow-300">+{(stats as any).MEN}</span></div>
-                            )}
-                          </div>
-                        )}
+                        {renderStatsBlock(stats)}
                       </div>
                     );
                   })}
@@ -478,74 +472,7 @@ export default function FishItemModal({
                           <span className="text-gray-300 font-semibold">{armorDef?.name || id}</span>
                           <span className="text-green-400 ml-auto">x{count}</span>
                         </div>
-                        {(stats.pDef || stats.mDef || stats.maxHp || stats.maxMp) && (
-                          <div className="pl-7 space-y-0.5 text-xs">
-                            {stats.pDef && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Физ. защита:</span>
-                                <span className="text-blue-400">+{stats.pDef}</span>
-                              </div>
-                            )}
-                            {stats.mDef && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Маг. защита:</span>
-                                <span className="text-cyan-400">+{stats.mDef}</span>
-                              </div>
-                            )}
-                            {stats.maxHp && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Max HP:</span>
-                                <span className="text-red-400">+{stats.maxHp}</span>
-                              </div>
-                            )}
-                            {stats.maxMp && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-400">Max MP:</span>
-                                <span className="text-blue-400">+{stats.maxMp}</span>
-                              </div>
-                            )}
-                            {(stats.STR || stats.DEX || stats.CON || stats.INT || stats.WIT || stats.MEN) && (
-                              <>
-                                {stats.STR && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">STR:</span>
-                                    <span className="text-yellow-300">+{stats.STR}</span>
-                                  </div>
-                                )}
-                                {stats.DEX && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">DEX:</span>
-                                    <span className="text-yellow-300">+{stats.DEX}</span>
-                                  </div>
-                                )}
-                                {stats.CON && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">CON:</span>
-                                    <span className="text-yellow-300">+{stats.CON}</span>
-                                  </div>
-                                )}
-                                {stats.INT && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">INT:</span>
-                                    <span className="text-yellow-300">+{stats.INT}</span>
-                                  </div>
-                                )}
-                                {stats.WIT && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">WIT:</span>
-                                    <span className="text-yellow-300">+{stats.WIT}</span>
-                                  </div>
-                                )}
-                                {stats.MEN && (
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-400">MEN:</span>
-                                    <span className="text-yellow-300">+{stats.MEN}</span>
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        )}
+                        {renderStatsBlock(stats)}
                       </div>
                     );
                   })}

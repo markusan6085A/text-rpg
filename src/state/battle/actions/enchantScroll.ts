@@ -107,9 +107,9 @@ export function handleEnchantScroll(
     return false;
   }
 
-  // Перевіряємо грейд заточки та предмета
+  // Перевіряємо грейд заточки та предмета (броня/зброя мають grade в itemDef, бижутерія — часто в id)
   const scrollGrade = getGradeFromScrollId(scrollItemId);
-  const itemGrade = getGradeFromItemId(targetItemId);
+  const itemGrade = itemDef.grade ?? getGradeFromItemId(targetItemId);
 
   if (scrollGrade && itemGrade && scrollGrade !== itemGrade) {
     setAndPersist({

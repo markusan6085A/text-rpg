@@ -34,9 +34,9 @@ export default function EnchantScrollModal({
       if (!item || !item.id) return false;
       const itemDef = itemsDB[item.id];
       if (!itemDef) return false;
-      
-      const itemGrade = getGradeFromItemId(item.id);
-      if (itemGrade !== scrollGrade) return false;
+      // Грейд з опису предмета (armor/weapon мають grade), інакше з id (наприклад shop_jewelry_d_...)
+      const itemGrade = itemDef.grade ?? getGradeFromItemId(item.id);
+      if (scrollGrade && itemGrade && itemGrade !== scrollGrade) return false;
       
       if (isWeaponScroll && itemDef.kind === "weapon") return true;
       // Заточки для броні працюють з: бронею, шоломом, рукавицями, чоботами, щитом, біжутерією, поясом, плащем
