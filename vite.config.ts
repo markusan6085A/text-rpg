@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  esbuild: {
+    // Вирізає console.log, info, debug та warn у продакшен-білді, залишає console.error
+    pure: ['console.log', 'console.debug', 'console.info', 'console.warn'],
+  },
   build: {
     rollupOptions: {
       output: {
