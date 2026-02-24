@@ -395,7 +395,10 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     // 🔥 Адена: ніколи не зменшувати — якщо PUT від попереднього продажу прийшов пізно, не перезаписати новішу adena
     const prevAdena = Number(prev.adena ?? 0);
     const partialAdena = Number((partial as any).adena ?? 0);
-    (merged as any).adena = Math.max(prevAdena, partialAdena);
+    const maxAdena = Math.max(prevAdena, partialAdena);
+    if (!Number.isNaN(maxAdena)) {
+      (merged as any).adena = maxAdena;
+    }
     // Щоденні завдання: partial ніколи не містить їх з сервера — завжди беремо з prev, щоб не перезаписати порожнім
     if ((partial as any).dailyQuestsProgress === undefined && prev.dailyQuestsProgress != null && typeof prev.dailyQuestsProgress === "object") {
       (merged as any).dailyQuestsProgress = prev.dailyQuestsProgress;

@@ -156,7 +156,10 @@ export function updateHeroLogic(
     (updated as any).level = Number(partial.level);
   }
   if (partial.adena !== undefined && partial.adena !== null) {
-    (updated as any).adena = Number(partial.adena);
+    const parsedAdena = Number(partial.adena);
+    if (!Number.isNaN(parsedAdena)) {
+      (updated as any).adena = parsedAdena;
+    }
   }
   // 🔥 location — зберігаємо в heroJson для відображення в профілі іншим гравцям
   if ((partial as any).location !== undefined) {
