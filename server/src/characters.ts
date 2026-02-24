@@ -1020,15 +1020,16 @@ export async function characterRoutes(app: FastifyInstance) {
       if (typeof body.coinLuck !== 'number' || body.coinLuck < 0) {
         return reply.code(400).send({ error: "invalid coinLuck (must be >= 0)" });
       }
-      // ❗ coinLuck можна тільки збільшувати; зменшення — тільки через POST /premium/buy
+      // ❗ coinLuck можна тільки збільшувати; зменшення — тільки через POST /premium/buy та заточку удочки
       if (body.coinLuck < Number((existing as any).coinLuck ?? 0)) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,
           currentCoinLuck: existing.coinLuck || 0,
           attemptedCoinLuck: body.coinLuck,
-        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${existing.coinLuck || 0} to ${body.coinLuck}`);
-        return reply.code(400).send({ error: "coinLuck cannot be decreased" });
+        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${existing.coinLuck || 0} to ${body.coinLuck} (allowing for enchant)`);
+        // Дозволяємо зменшувати coinLuck (напр. для заточки удочки)
+        // return reply.code(400).send({ error: "coinLuck cannot be decreased" });
       }
     }
 

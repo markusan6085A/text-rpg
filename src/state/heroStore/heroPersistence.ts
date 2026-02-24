@@ -473,10 +473,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       expClamped: expToSend !== localExp,
     });
     
-    // ❗ coinLuck надсилаємо тільки якщо >= серверного; зменшення — тільки через POST /premium/buy
+    // ❗ Дозволяємо надсилати coinLuck завжди (щоб заточка удочки працювала)
     const localCoinLuck = hero.coinOfLuck ?? 0;
-    const serverCoinLuck = serverState?.coinLuck ?? null;
-    const sendCoinLuck = serverCoinLuck === null || localCoinLuck >= serverCoinLuck;
+    const sendCoinLuck = true;
 
     const updatePayload: Parameters<typeof updateCharacter>[1] = {
       heroJson: heroJsonToSave,
