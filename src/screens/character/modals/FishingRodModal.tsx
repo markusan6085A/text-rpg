@@ -76,12 +76,15 @@ export default function FishingRodModal({
         const take = Math.min(i.count || 0, remaining);
         remaining -= take;
         const newCount = (i.count || 0) - take;
-        return newCount > 0 ? { ...i, count: newCount } : null;
+        if (newCount > 0) {
+          return { ...i, count: newCount };
+        }
+        return null;
       }
       
       // Ми повинні оновлювати ТІЛЬКИ той самий предмет! Оскільки id може бути у багатьох предметів (напр. 2 удочки), 
       // краще порівнювати по id ТА enchantLevel.
-      if (i.id === item.id && i.enchantLevel === item.enchantLevel) {
+      if (i.id === item.id && (i.enchantLevel || 0) === (item.enchantLevel || 0)) {
         // Якщо предметів декілька, ми повинні відділити один предмет і заточити його!
         if (i.count && i.count > 1) {
           // Ми не можемо заточити зразу стак з декількох предметів і замінити їх усі одним об'єктом.
