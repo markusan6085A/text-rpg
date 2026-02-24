@@ -75,6 +75,8 @@ export interface Hero {
   // Екіпіровка та інвентар
   equipment: Record<string, string | null>;
   inventory: HeroInventoryItem[];
+  /** Максимум слотів інвентаря (за замовчуванням 100). Купується за Coin of Luck. */
+  inventoryCapacity?: number;
   equipmentEnchantLevels?: Record<string, number>; // Рівні заточки для екіпірованих предметів (ключ - слот)
 
   // Скіли

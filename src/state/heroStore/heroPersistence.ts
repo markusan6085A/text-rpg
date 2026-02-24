@@ -32,6 +32,7 @@ const MAX_RETRIES = 1; // Максимум 1 автоматичний retry пр
 // щоб при local-first / порівнянні не було відкату через старі значення
 function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
   const mobsKilled = (hero as any).mobsKilled ?? (hero as any).mobs_killed ?? (hero as any).killedMobs ?? (hero as any).totalKills ?? 0;
+  const inventoryCapacity = typeof (hero as any).inventoryCapacity === "number" && (hero as any).inventoryCapacity >= 100 ? (hero as any).inventoryCapacity : undefined;
   return {
     exp: hero.exp ?? 0,
     level: hero.level ?? 1,
@@ -44,6 +45,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : {},
     activeDyes: Array.isArray(hero.activeDyes) ? hero.activeDyes : [],
     activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : [],
+    ...(inventoryCapacity !== undefined ? { inventoryCapacity } : {}),
   };
 }
 

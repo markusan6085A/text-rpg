@@ -96,6 +96,8 @@ export function loadHero(): Hero | null {
       if (fixedHero.cp === undefined || fixedHero.cp === null) fixedHero.cp = Number(heroJson.cp ?? 0);
       const mobsKilled = (fixedHero as any).mobsKilled ?? heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? 0;
       (fixedHero as any).mobsKilled = mobsKilled;
+      const cap = Number((heroJson as any).inventoryCapacity);
+      (fixedHero as any).inventoryCapacity = Number.isFinite(cap) && cap >= 100 ? cap : undefined;
       // 🔥 КРИТИЧНО: Union-merge equipment і skills — ніколи не губити плащ/пояс/тату/доп. скіли після F5
       const heroEquip = fixedHero.equipment ?? {};
       const jsonEquip = (heroJson as any).equipment ?? {};

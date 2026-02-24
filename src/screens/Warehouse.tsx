@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
-import { INVENTORY_MAX_ITEMS } from "../state/heroStore";
+import { getInventoryMax } from "../state/heroStore";
 import type { HeroInventoryItem } from "../types/Hero";
 import {
   loadWarehouse,
@@ -274,8 +274,9 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
     // Перевіряємо, чи є місце в інвентарі
     const inventorySize = (hero.inventory || []).length;
-    if (inventorySize >= INVENTORY_MAX_ITEMS) {
-      alert(`Инвентарь переполнен! Максимум ${INVENTORY_MAX_ITEMS} слотов.`);
+    const maxSlots = getInventoryMax(hero);
+    if (inventorySize >= maxSlots) {
+      alert(`Инвентарь переполнен! Максимум ${maxSlots} слотов.`);
       return;
     }
 

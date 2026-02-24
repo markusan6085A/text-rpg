@@ -279,22 +279,24 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       const existingItem = newInventory[existingItemIndex];
       existingItem.count = (existingItem.count || 1) + quantity;
     } else {
-      // Додаємо новий предмет зі статами з ShopItem
+      // Екіп (зброя, броня, удочка тощо) — не стакаємо: кожна одиниця окремим слотом (count: 1)
       const grade = itemDef.grade || autoDetectGrade(itemsDBId);
       const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
-      
-      newInventory.push({
+      const baseItem = {
         id: itemDef.id,
         name: itemDef.name,
         slot: itemDef.slot,
         kind: itemDef.kind,
         icon: itemDef.icon,
         description: itemDef.description,
-        stats: finalStats, // Використовуємо стати з ShopItem
-        count: quantity,
+        stats: finalStats,
+        count: 1,
         grade: grade,
         armorType: armorType,
-      });
+      };
+      for (let i = 0; i < quantity; i++) {
+        newInventory.push({ ...baseItem });
+      }
     }
     
     // Оновлюємо валюту coins_silver та інвентар

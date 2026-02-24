@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { INVENTORY_MAX_ITEMS, useHeroStore } from "../state/heroStore";
+import { getInventoryMax, useHeroStore } from "../state/heroStore";
 import { itemsDB } from "../data/items/itemsDB";
 
 type InventoryPanelProps = {
@@ -146,7 +146,7 @@ export default function InventoryPanel({
       <div className="w-full flex flex-col gap-1 mb-3">
         <div className="text-center font-bold text-yellow-400 text-base">{title}</div>
         <div className="flex justify-between text-[12px] text-[#d9caa3]">
-          <span>РџСЂРµРґРјРµС‚РѕРІ: {itemsUsed}/{INVENTORY_MAX_ITEMS}</span>
+          <span>Предметов: {itemsUsed}/{getInventoryMax(hero)}</span>
           <span>РђРґРµРЅР°: {hero.adena ?? 0}</span>
         </div>
       </div>

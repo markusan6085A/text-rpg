@@ -5,7 +5,7 @@ import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { QUESTS } from "../../../data/quests";
 import { equipItemLogic } from "../../heroStore/heroInventory";
-import { INVENTORY_MAX_ITEMS } from "../../heroStore";
+import { getInventoryMax } from "../../heroStore";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { reportMedalDrop } from "../../../utils/api";
 import { useCharacterStore } from "../../characterStore";
@@ -72,9 +72,10 @@ export function processMobDrops(
   const dropMessages: string[] = [];
   const questProgressUpdates: Array<{ questId: string; itemId: string; count: number }> = [];
 
-  // Перевіряємо, чи інвентар не повний
+  // Перевіряємо, чи інвентар не повний (максимум слотів — 100+ куплені за Coin of Luck)
+  const maxSlots = getInventoryMax(hero);
   const inventorySize = newInventory.filter(Boolean).length;
-  const isInventoryFull = inventorySize >= INVENTORY_MAX_ITEMS;
+  const isInventoryFull = inventorySize >= maxSlots;
 
   // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) — щоб опис і фактичний дроп збігались
   const isFloranMob = mob.id?.startsWith("fl_") || mob.id?.includes("floran") || mob.id?.startsWith("champ_floran");
@@ -170,7 +171,7 @@ export function processMobDrops(
         const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === treasureBoxId);
         const canAddToExisting = canStack && existingItemIndex >= 0;
         const currentInventorySize = newInventory.filter(Boolean).length;
-        const isInventoryFullNow = currentInventorySize >= INVENTORY_MAX_ITEMS;
+        const isInventoryFullNow = currentInventorySize >= maxSlots;
 
         // Якщо інвентар повний і не можна додати до існуючого предмета, пропускаємо
         if (!isInventoryFullNow || canAddToExisting) {
@@ -207,7 +208,7 @@ export function processMobDrops(
   if (spoiled && mob.spoil && mob.spoil.length > 0) {
     // Оновлюємо розмір інвентаря після дропів
     const currentInventorySize = newInventory.filter(Boolean).length;
-    const isInventoryFullNow = currentInventorySize >= INVENTORY_MAX_ITEMS;
+    const isInventoryFullNow = currentInventorySize >= maxSlots;
 
     mob.spoil.forEach((spoil: DropEntry) => {
       const spoilRoll = Math.random();
@@ -280,7 +281,7 @@ export function processMobDrops(
       if (mob.name === questDrop.mobName) {
         // Перераховуємо розмір інвентаря перед кожним квестовим предметом (щоб кілька дропів підряд не переповнювали)
         const currentInventorySizeForQuests = newInventory.filter(Boolean).length;
-        const isInventoryFullForQuests = currentInventorySizeForQuests >= INVENTORY_MAX_ITEMS;
+        const isInventoryFullForQuests = currentInventorySizeForQuests >= maxSlots;
 
         // Перевіряємо інвентар для поточного прогресу
         const inventoryItem = newInventory.find((item: HeroInventoryItem) => item.id === questDrop.itemId);

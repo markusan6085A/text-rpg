@@ -1,14 +1,15 @@
 import React, { useState, useMemo } from "react";
 import { useHeroStore } from "../../state/heroStore";
-import { INVENTORY_MAX_ITEMS } from "../../state/heroStore";
+import { getInventoryMax } from "../../state/heroStore";
 import Equipment from "./Equipment";
 import InventoryFilters, { CATEGORIES } from "./InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import InventoryItemList from "./InventoryItemList";
 import InventoryItemModal from "./modals/InventoryItemModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import IncreaseInventoryModal from "./modals/IncreaseInventoryModal";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 25;
 
 // Валюта — показується в балансі персонажа, не в інвентарі
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
@@ -19,13 +20,12 @@ export default function Inventory() {
   const equipItem = useHeroStore((s) => s.equipItem);
   const unequipItem = useHeroStore((s) => s.unequipItem);
 
-  console.log('[Inventory] Component rendered, hero:', hero ? 'exists' : 'null');
-
   const [currentCategory, setCurrentCategory] = useState("all");
   const [currentGrade, setCurrentGrade] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<{ item: any; amount: number } | null>(null);
+  const [showIncreaseCapacityModal, setShowIncreaseCapacityModal] = useState(false);
 
   // Hero вже завантажений в App.tsx, не потрібно завантажувати тут
 
@@ -51,8 +51,9 @@ export default function Inventory() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Кількість зайнятих слотів
+  // Кількість зайнятих слотів та максимум (100 + куплені за Coin of Luck)
   const itemsUsed = hero?.inventory?.filter(Boolean).length ?? 0;
+  const maxSlots = getInventoryMax(hero);
 
   // Обробники для модалок
   const handleItemClick = (item: any) => {
@@ -166,9 +167,16 @@ export default function Inventory() {
         <Equipment compact={true} />
 
         {/* Інвентар нижче */}
-        {/* Верхня частина: кількість слотів */}
-        <div className="flex justify-end items-center mb-2" style={{ color: "#d9d9d9" }}>
-          <div className="text-xs">{itemsUsed}/{INVENTORY_MAX_ITEMS}</div>
+        {/* Верхня частина: кількість слотів + кнопка збільшення */}
+        <div className="flex justify-end items-center gap-2 mb-2" style={{ color: "#d9d9d9" }}>
+          <div className="text-xs">{itemsUsed}/{maxSlots}</div>
+          <button
+            type="button"
+            onClick={() => setShowIncreaseCapacityModal(true)}
+            className="text-[11px] px-2 py-1 rounded border border-[#6b6b6b] bg-[#4a4a4a] text-[#c0c0c0] hover:bg-[#5a5a5a] hover:border-[#7a7a7a] transition-colors"
+          >
+            Увеличить вместимость инвентаря
+          </button>
         </div>
 
         {/* Фільтри */}
@@ -292,6 +300,11 @@ export default function Inventory() {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteConfirmItem(null)}
         />
+      )}
+
+      {/* Модалка збільшення інвентаря (1 Coin of Luck = +1 слот) */}
+      {showIncreaseCapacityModal && (
+        <IncreaseInventoryModal onClose={() => setShowIncreaseCapacityModal(false)} />
       )}
     </div>
   );

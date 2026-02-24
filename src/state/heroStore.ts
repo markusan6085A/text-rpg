@@ -13,6 +13,13 @@ import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectA
 
 export const INVENTORY_MAX_ITEMS = 100;
 
+/** Максимум слотів інвентаря для героя (базовий 100, можна збільшити за Coin of Luck). */
+export function getInventoryMax(hero: { inventoryCapacity?: number } | null): number {
+  if (!hero) return INVENTORY_MAX_ITEMS;
+  const cap = hero.inventoryCapacity;
+  return typeof cap === "number" && cap >= INVENTORY_MAX_ITEMS ? cap : INVENTORY_MAX_ITEMS;
+}
+
 // 🔥 КРИТИЧНО: Серверний стан для синхронізації exp/level/sp
 // Замість глобальних змінних та window - зберігаємо в store
 export interface ServerState {
