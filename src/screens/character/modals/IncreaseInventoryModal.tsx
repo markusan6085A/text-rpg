@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useHeroStore } from "../../../state/heroStore";
 import { INVENTORY_MAX_ITEMS, getInventoryMax } from "../../../state/heroStore";
 
@@ -11,20 +11,25 @@ interface IncreaseInventoryModalProps {
 export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryModalProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const [quantity, setQuantity] = useState(1);
 
   const maxSlots = getInventoryMax(hero);
   const coins = hero?.coinOfLuck ?? 0;
-  const canBuy = coins >= COST_PER_SLOT;
+  const totalCost = quantity * COST_PER_SLOT;
+  const canBuy = quantity >= 1 && coins >= totalCost;
 
   const handleBuy = () => {
     if (!hero || !canBuy) return;
     const currentCap = hero.inventoryCapacity ?? INVENTORY_MAX_ITEMS;
     updateHero({
-      inventoryCapacity: currentCap + 1,
-      coinOfLuck: (hero.coinOfLuck ?? 0) - COST_PER_SLOT,
+      inventoryCapacity: currentCap + quantity,
+      coinOfLuck: (hero.coinOfLuck ?? 0) - totalCost,
     });
     onClose();
   };
+
+  const adena = hero?.adena ?? 0;
+  const coinsSilver = (hero as any)?.coins_silver ?? 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
@@ -32,21 +37,46 @@ export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryMod
         className="bg-[#1a1510] border border-[#c7ad80]/60 rounded-lg p-4 max-w-[280px] w-full shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="text-[#dec28e] font-semibold mb-2 border-b border-[#c7ad80]/50 pb-2">
+        <div className="text-[#dec28e] font-semibold text-sm border-b border-[#c7ad80]/50 pb-1 pt-0.5 -mx-4 px-4 mb-2">
           Увеличить вместимость инвентаря
         </div>
-        <p className="text-[#d9d9d9] text-sm mb-3">
-          +1 слот стоит <span className="text-yellow-400">1 Coin of Luck</span>.
+        <p className="text-[#d9d9d9] text-xs mb-2">
+          +1 слот = 1 Coin of Luck.
         </p>
-        <p className="text-[#b0a090] text-xs mb-4">
-          Сейчас: <span className="text-white">{maxSlots}</span> слотов. У вас:{" "}
+        <p className="text-[#b0a090] text-[11px] mb-2 text-left">
+          Сейчас: <span className="text-gray-300">{maxSlots}</span> слотов. У вас:{" "}
           <span className="text-yellow-400">{coins}</span> Coin of Luck.
         </p>
+        <div className="flex items-center gap-2 mb-3 text-left">
+          <label className="text-[11px] text-[#c7ad80]">Количество слотов:</label>
+          <input
+            type="number"
+            min={1}
+            max={Math.max(1, Math.floor(coins / COST_PER_SLOT))}
+            value={quantity}
+            onChange={(e) => setQuantity(Math.max(1, Math.min(coins, parseInt(e.target.value, 10) || 1)))}
+            className="w-14 py-0.5 px-1 text-xs rounded bg-[#0d0a06] text-gray-300 border border-[#4a4a4a]"
+          />
+        </div>
+        <div className="space-y-1 mb-4 text-left text-[11px]">
+          <div className="flex justify-between">
+            <span style={{ color: "#c7ad80" }}>Аден:</span>
+            <span className="text-gray-400">{adena.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span style={{ color: "#c7ad80" }}>Coin of Luck:</span>
+            <span className="text-gray-400">{coins}</span>
+          </div>
+          <div className="flex justify-between">
+            <span style={{ color: "#c7ad80" }}>Серебряные Монеты:</span>
+            <span className="text-gray-400">{coinsSilver}</span>
+          </div>
+        </div>
         <div className="flex gap-2 justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 rounded border border-[#c7ad80]/50 text-[#c7ad80] text-sm hover:bg-white/5"
+            className="px-2.5 py-1 rounded text-[11px] bg-[#4a4a4a] text-gray-300 hover:bg-[#5a5a5a]"
           >
             Отмена
           </button>
@@ -54,9 +84,9 @@ export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryMod
             type="button"
             onClick={handleBuy}
             disabled={!canBuy}
-            className="px-3 py-1.5 rounded bg-[#5a4a3a] text-[#f5d7a1] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#6a5a4a]"
+            className="px-2.5 py-1 rounded text-[11px] bg-[#2d4a2d] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#3d5a3d]"
           >
-            Купить слот (−1 Coin of Luck)
+            Купить слот{quantity > 1 ? ` (${quantity})` : ""} (−{totalCost} Coin of Luck)
           </button>
         </div>
       </div>
