@@ -1,29 +1,20 @@
 import React, { useState, useMemo } from "react";
 import { useHeroStore } from "../../state/heroStore";
-<<<<<<< HEAD
 import { getInventoryMax } from "../../state/heroStore";
-=======
-import { INVENTORY_MAX_ITEMS } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
->>>>>>> b2c15950 (fix: enable inventory transfer and remove development placeholder)
 import Equipment from "./Equipment";
 import InventoryFilters, { CATEGORIES } from "./InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import InventoryItemList from "./InventoryItemList";
 import InventoryItemModal from "./modals/InventoryItemModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
-<<<<<<< HEAD
+import { loadWarehouse, saveItemToWarehouse } from "../../state/warehouse/warehousePersistence";
 import IncreaseInventoryModal from "./modals/IncreaseInventoryModal";
 
 const ITEMS_PER_PAGE = 25;
-=======
-import { loadWarehouse, saveItemToWarehouse } from "../../state/warehouse/warehousePersistence";
-
-const ITEMS_PER_PAGE = 10;
 const WAREHOUSE_MAX_SLOTS = 10;
 const DEFAULT_WAREHOUSE_CAPACITY = 100;
 const MAX_WAREHOUSE_CAPACITY = 100;
->>>>>>> b2c15950 (fix: enable inventory transfer and remove development placeholder)
 
 // Валюта — показується в балансі персонажа, не в інвентарі
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
@@ -34,6 +25,8 @@ export default function Inventory() {
   const equipItem = useHeroStore((s) => s.equipItem);
   const unequipItem = useHeroStore((s) => s.unequipItem);
   const characterId = useCharacterStore((s) => s.characterId);
+
+  console.log('[Inventory] Component rendered, hero:', hero ? 'exists' : 'null');
 
   const [currentCategory, setCurrentCategory] = useState("all");
   const [currentGrade, setCurrentGrade] = useState("");
@@ -66,7 +59,7 @@ export default function Inventory() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Кількість зайнятих слотів та максимум (100 + куплені за Coin of Luck)
+  // Кількість зайнятих слотів
   const itemsUsed = hero?.inventory?.filter(Boolean).length ?? 0;
   const maxSlots = getInventoryMax(hero);
 
