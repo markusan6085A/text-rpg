@@ -119,7 +119,12 @@ export default function EnchantScrollModal({
               </div>
             ) : (
               suitableItems.map((item: any, idx: number) => {
-                const iconPath = item.icon?.startsWith("/") ? item.icon : `/items/${item.icon}`;
+                const itemDef = itemsDB[item.id];
+                const displayName = item.name || itemDef?.name || item.id;
+                const iconRaw = item.icon || itemDef?.icon;
+                const iconPath = typeof iconRaw === "string"
+                  ? (iconRaw.startsWith("/") ? iconRaw : `/items/${iconRaw}`)
+                  : "/items/drops/Weapon_squires_sword_i00_0.jpg";
                 const isJustEnchanted = lastEnchantResult?.itemId === item.id;
                 const displayLevel = isJustEnchanted ? lastEnchantResult.newLevel : (item.enchantLevel ?? 0);
                 const levelColor = isJustEnchanted
@@ -137,9 +142,16 @@ export default function EnchantScrollModal({
                         : "border-white/50 bg-[#1a1a1a]"
                     }`}
                   >
-                    <img src={iconPath} alt={item.name} className="w-8 h-8 object-contain" />
+                    <img
+                      src={iconPath}
+                      alt={displayName}
+                      className="w-8 h-8 object-contain"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                      }}
+                    />
                     <div className="flex-1 text-left">
-                      <div className="text-white text-sm">{item.name}</div>
+                      <div className="text-white text-sm">{displayName}</div>
                       <div className={`text-xs ${levelColor}`}>Заточка: +{displayLevel}</div>
                     </div>
                   </button>
