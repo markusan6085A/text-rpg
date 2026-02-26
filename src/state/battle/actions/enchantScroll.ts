@@ -194,11 +194,17 @@ export function handleEnchantScroll(
       });
     } else if (targetItem) {
       // Оновлюємо рівень заточки предмета в інвентарі
-      const updatedInventoryWithEnchant = updatedInventory.map((i: HeroInventoryItem) => {
-        if (i.id === targetItemId) {
-          return { ...i, enchantLevel: newEnchantLevel };
+      let itemEnchanted = false;
+      const updatedInventoryWithEnchant = updatedInventory.flatMap((i: HeroInventoryItem) => {
+        if (!itemEnchanted && i.id === targetItemId && (i.enchantLevel || 0) === currentEnchantLevel) {
+          itemEnchanted = true;
+          const enchantedItem = { ...i, count: 1, enchantLevel: newEnchantLevel };
+          if (i.count && i.count > 1) {
+            return [enchantedItem, { ...i, count: i.count - 1 }];
+          }
+          return [enchantedItem];
         }
-        return i;
+        return [i];
       });
       updateHero({ inventory: updatedInventoryWithEnchant });
     }
@@ -251,11 +257,17 @@ export function handleEnchantScroll(
       });
     } else if (targetItem) {
       // Оновлюємо рівень заточки предмета в інвентарі
-      const updatedInventoryWithEnchant = updatedInventory.map((i: HeroInventoryItem) => {
-        if (i.id === targetItemId) {
-          return { ...i, enchantLevel: newEnchantLevelAfterFail };
+      let itemEnchanted = false;
+      const updatedInventoryWithEnchant = updatedInventory.flatMap((i: HeroInventoryItem) => {
+        if (!itemEnchanted && i.id === targetItemId && (i.enchantLevel || 0) === currentEnchantLevel) {
+          itemEnchanted = true;
+          const enchantedItem = { ...i, count: 1, enchantLevel: newEnchantLevelAfterFail };
+          if (i.count && i.count > 1) {
+            return [enchantedItem, { ...i, count: i.count - 1 }];
+          }
+          return [enchantedItem];
         }
-        return i;
+        return [i];
       });
       updateHero({ inventory: updatedInventoryWithEnchant });
     }
