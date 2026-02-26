@@ -15,16 +15,25 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
   const updateHero = useHeroStore((s) => s.updateHero);
   
   const [recipientName, setRecipientName] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(Math.max(1, Number(item.count) || 1));
   const [isTransferring, setIsTransferring] = useState(false);
 
   if (!currentHero) return null;
 
-  const isStackable = item.kind === "resource" || item.kind === "consumable" || item.kind === "quest" || item.kind === "scroll";
+  const itemDef = itemsDB[item.id];
+  const itemKind = (item as any).kind || itemDef?.kind;
+  const itemSlot = item.slot || itemDef?.slot;
+  const isStackable =
+    itemKind === "resource" ||
+    itemKind === "consumable" ||
+    itemKind === "quest" ||
+    itemKind === "scroll" ||
+    itemSlot === "resource" ||
+    itemSlot === "consumable" ||
+    itemSlot === "quest";
   const maxQuantity = item.count || 1;
 
   // Визначаємо вартість (беремо з бази, якщо немає в самому предметі)
-  const itemDef = itemsDB[item.id];
   const itemPrice = item.stats?.price || itemDef?.stats?.price || 100;
   const transferFee = Math.max(1, Math.floor((itemPrice * quantity) * 0.05));
 
