@@ -1,15 +1,29 @@
 import React, { useState, useMemo } from "react";
 import { useHeroStore } from "../../state/heroStore";
+<<<<<<< HEAD
 import { getInventoryMax } from "../../state/heroStore";
+=======
+import { INVENTORY_MAX_ITEMS } from "../../state/heroStore";
+import { useCharacterStore } from "../../state/characterStore";
+>>>>>>> b2c15950 (fix: enable inventory transfer and remove development placeholder)
 import Equipment from "./Equipment";
 import InventoryFilters, { CATEGORIES } from "./InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import InventoryItemList from "./InventoryItemList";
 import InventoryItemModal from "./modals/InventoryItemModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+<<<<<<< HEAD
 import IncreaseInventoryModal from "./modals/IncreaseInventoryModal";
 
 const ITEMS_PER_PAGE = 25;
+=======
+import { loadWarehouse, saveItemToWarehouse } from "../../state/warehouse/warehousePersistence";
+
+const ITEMS_PER_PAGE = 10;
+const WAREHOUSE_MAX_SLOTS = 10;
+const DEFAULT_WAREHOUSE_CAPACITY = 100;
+const MAX_WAREHOUSE_CAPACITY = 100;
+>>>>>>> b2c15950 (fix: enable inventory transfer and remove development placeholder)
 
 // Валюта — показується в балансі персонажа, не в інвентарі
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
@@ -19,6 +33,7 @@ export default function Inventory() {
   const updateHero = useHeroStore((s) => s.updateHero);
   const equipItem = useHeroStore((s) => s.equipItem);
   const unequipItem = useHeroStore((s) => s.unequipItem);
+  const characterId = useCharacterStore((s) => s.characterId);
 
   const [currentCategory, setCurrentCategory] = useState("all");
   const [currentGrade, setCurrentGrade] = useState("");
@@ -61,8 +76,86 @@ export default function Inventory() {
   };
 
   const handleTransfer = (item: any, amount: number) => {
-    // TODO: Реалізувати передачу предметів
-    alert(`Передача ${amount} ${item.name} (в розробці)`);
+    if (!hero || !characterId) return;
+
+    const itemCount = Math.max(1, Number(amount) || 1);
+    const currentInventory = Array.isArray(hero.inventory) ? [...hero.inventory] : [];
+    const maxCount = Number(item.count || 1);
+    if (itemCount > maxCount) {
+      alert(`У вас тільки ${maxCount} ${item.name}`);
+      return;
+    }
+
+    const warehouse = loadWarehouse(characterId, hero.name);
+    const warehouseCapacity = Math.min(
+      Number(hero.warehouseCapacity) || DEFAULT_WAREHOUSE_CAPACITY,
+      MAX_WAREHOUSE_CAPACITY
+    );
+    const warehouseUsed = warehouse.reduce((total, slotItem) => {
+      if (!slotItem) return total;
+      return total + (Number(slotItem.count) || 1);
+    }, 0);
+
+    if (warehouseUsed + itemCount > warehouseCapacity) {
+      alert(`Склад переповнений! Місткість: ${warehouseUsed}/${warehouseCapacity}.`);
+      return;
+    }
+
+    const isStackable = item.slot === "resource" || item.slot === "consumable";
+    let targetSlotIndex = -1;
+
+    if (isStackable) {
+      for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
+        const existing = warehouse[i];
+        if (existing && existing.id === item.id) {
+          targetSlotIndex = i;
+          break;
+        }
+      }
+    }
+    if (targetSlotIndex === -1) {
+      targetSlotIndex = warehouse.findIndex((slotItem) => slotItem == null);
+    }
+    if (targetSlotIndex === -1) {
+      alert("Склад переповнений! Максимум 10 слотів.");
+      return;
+    }
+
+    let itemIndex = currentInventory.findIndex((i: any) => i === item);
+    if (itemIndex === -1) {
+      itemIndex = currentInventory.findIndex(
+        (i: any) => i.id === item.id && (i.enchantLevel ?? 0) === (item.enchantLevel ?? 0)
+      );
+    }
+    if (itemIndex === -1) {
+      itemIndex = currentInventory.findIndex((i: any) => i.id === item.id);
+    }
+    if (itemIndex === -1) return;
+
+    const sourceItem = currentInventory[itemIndex];
+    const newCount = (sourceItem.count ?? 1) - itemCount;
+    if (newCount > 0) {
+      currentInventory[itemIndex] = { ...sourceItem, count: newCount };
+    } else {
+      currentInventory.splice(itemIndex, 1);
+    }
+
+    const existingWarehouseItem = warehouse[targetSlotIndex];
+    const itemToStore =
+      existingWarehouseItem && existingWarehouseItem.id === item.id
+        ? {
+            ...existingWarehouseItem,
+            count: (existingWarehouseItem.count || 1) + itemCount,
+            icon: existingWarehouseItem.icon || item.icon || itemsDB[item.id]?.icon,
+          }
+        : {
+            ...item,
+            count: itemCount,
+            icon: item.icon || itemsDB[item.id]?.icon,
+          };
+
+    saveItemToWarehouse(characterId, targetSlotIndex, itemToStore);
+    updateHero({ inventory: currentInventory });
   };
 
   const handleDeleteRequest = (item: any, amount: number) => {

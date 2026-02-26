@@ -39,6 +39,7 @@ export default function InventoryItemModal({
   const isFishingRod = item.id === "baby_duck_rod";
   // Перевіряємо, чи це скарбничка
   const isTreasureBox = item.id === "treasure_box";
+  const isSevenSealsMedal = item.id === "seven_seals_medal";
   // Нормалізуємо слот для щитів (lhand -> shield) та зброї (lrhand -> weapon)
   let normalizedSlot = item.slot;
   if (item.slot === "lhand") {
@@ -61,6 +62,7 @@ export default function InventoryItemModal({
     q.questDrops?.some((drop) => drop.itemId === item.id)
   );
   const isQuestSlot = normalizedSlot === "quest";
+  const canTransfer = !isQuestItem && !isQuestSlot && !isSevenSealsMedal;
 
   // Модалка для заточок
   if (isEnchantScroll) {
@@ -71,6 +73,7 @@ export default function InventoryItemModal({
         inventory={inventory}
         onClose={onClose}
         onEnchantSuccess={onClose}
+        onTransfer={() => onTransfer(item, 1)}
         updateHero={updateHero}
       />
     );
@@ -182,6 +185,16 @@ export default function InventoryItemModal({
             </div>
           )}
         </div>
+        {canTransfer && (
+          <div className="flex justify-center pb-2 border-t border-white/50 pt-2">
+            <button
+              onClick={() => onTransfer(item, 1)}
+              className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            >
+              Передать
+            </button>
+          </div>
+        )}
         <div className="flex justify-center pt-2 border-t border-white/50">
           <button
             onClick={onClose}

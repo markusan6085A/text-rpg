@@ -11,6 +11,7 @@ interface EnchantScrollModalProps {
   inventory: HeroInventoryItem[];
   onClose: () => void;
   onEnchantSuccess: () => void;
+  onTransfer: () => void;
   updateHero: (partial: Partial<Hero>) => void;
 }
 
@@ -20,6 +21,7 @@ export default function EnchantScrollModal({
   inventory,
   onClose,
   onEnchantSuccess,
+  onTransfer,
   updateHero,
 }: EnchantScrollModalProps) {
   const [enchantTargetItem, setEnchantTargetItem] = useState<HeroInventoryItem | null>(null);
@@ -156,6 +158,12 @@ export default function EnchantScrollModal({
               Заточить
             </button>
           )}
+          <button
+            onClick={onTransfer}
+            className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+          >
+            Передать
+          </button>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
