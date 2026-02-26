@@ -41,6 +41,10 @@ export async function letterRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "message is required" });
     }
 
+    if (body.subject === "[ITEM_TRANSFER]") {
+      return reply.code(400).send({ error: "Reserved subject" });
+    }
+
     try {
       // Знаходимо свій character
       const fromCharacter = await prisma.character.findFirst({
@@ -107,6 +111,76 @@ export async function letterRoutes(app: FastifyInstance) {
       return { ok: true, letter };
     } catch (error) {
       app.log.error(error, "Error sending letter:");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // POST /letters/transfer - відправити предмет
+  app.post("/letters/transfer", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.letters, "letters_transfer")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const body = req.body as {
+      toCharacterName: string;
+      itemPayload: string; // JSON string of the item
+    };
+
+    if (!body.itemPayload || !body.toCharacterName) {
+      return reply.code(400).send({ error: "toCharacterName and itemPayload are required" });
+    }
+
+    try {
+      const fromCharacter = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+
+      if (!fromCharacter) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const toCharacter = await prisma.character.findFirst({
+        where: { name: { equals: body.toCharacterName, mode: 'insensitive' } },
+        select: { id: true },
+      });
+
+      if (!toCharacter) {
+        return reply.code(404).send({ error: "recipient character not found" });
+      }
+
+      if (fromCharacter.id === toCharacter.id) {
+        return reply.code(400).send({ error: "cannot transfer to yourself" });
+      }
+
+      const letter = await prisma.letter.create({
+        data: {
+          fromCharacterId: fromCharacter.id,
+          toCharacterId: toCharacter.id,
+          subject: "[ITEM_TRANSFER]",
+          message: body.itemPayload,
+        },
+        select: {
+          id: true,
+          subject: true,
+          message: true,
+          createdAt: true,
+          toCharacter: { select: { id: true, name: true } },
+          fromCharacter: { select: { id: true, name: true } },
+        },
+      });
+
+      app.log.info({ fromCharacterId: fromCharacter.id, toCharacterId: toCharacter.id }, "Item transfer sent");
+      return { ok: true, letter };
+    } catch (error) {
+      app.log.error(error, "Error sending item transfer:");
       return reply.code(500).send({
         error: "Internal Server Error",
         message: error instanceof Error ? error.message : "Unknown error",
