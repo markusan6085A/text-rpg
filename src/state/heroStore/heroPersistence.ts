@@ -437,6 +437,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       ...((hero as any).location || existingHeroJson.location ? { location: (hero as any).location || existingHeroJson.location } : {}),
       // 🔥 Поточне місто (вибір в ТП) — для City та GK
       ...(currentHeroJson.currentCityId || existingHeroJson.currentCityId ? { currentCityId: currentHeroJson.currentCityId || existingHeroJson.currentCityId } : {}),
+      // 🔥 Вмістимість інвентарю
+      ...(hero.inventoryCapacity !== undefined || existingHeroJson.inventoryCapacity !== undefined ? { inventoryCapacity: hero.inventoryCapacity ?? existingHeroJson.inventoryCapacity } : {}),
     };
     
     // Логуємо для діагностики

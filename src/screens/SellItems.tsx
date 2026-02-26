@@ -67,33 +67,36 @@ export default function SellItems({ navigate }: SellItemsProps) {
     if (!hero || !hero.inventory || selectedIndices.size === 0) return;
     const indices = Array.from(selectedIndices).sort((a, b) => a - b);
     let totalAdena = 0;
-    const toRemove: { id: string; amount: number }[] = [];
+    const toRemove: { id: string; enchantLevel: number; amount: number }[] = [];
     indices.forEach((idx) => {
       const item = filteredItems[idx];
       if (!item) return;
       const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
       const amount = item.count ?? 1;
+      const enchantLevel = item.enchantLevel || 0;
       if (price != null && price > 0) {
         totalAdena += price * amount;
-        toRemove.push({ id: item.id, amount });
+        toRemove.push({ id: item.id, enchantLevel, amount });
       }
     });
     if (totalAdena === 0) return;
     const inv = [...hero.inventory];
     const remaining = new Map<string, number>();
-    toRemove.forEach(({ id, amount }) => {
-      remaining.set(id, (remaining.get(id) ?? 0) + amount);
+    toRemove.forEach(({ id, enchantLevel, amount }) => {
+      const key = `${id}_${enchantLevel}`;
+      remaining.set(key, (remaining.get(key) ?? 0) + amount);
     });
     const newInv = inv.map((i: any) => {
       if (!i) return i;
-      const need = remaining.get(i.id);
+      const key = `${i.id}_${i.enchantLevel || 0}`;
+      const need = remaining.get(key);
       if (need == null || need <= 0) return i;
       const cnt = i.count ?? 1;
       if (cnt <= need) {
-        remaining.set(i.id, need - cnt);
+        remaining.set(key, need - cnt);
         return null;
       }
-      remaining.set(i.id, 0);
+      remaining.set(key, 0);
       return { ...i, count: cnt - need };
     }).filter(Boolean) as typeof hero.inventory;
     const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
