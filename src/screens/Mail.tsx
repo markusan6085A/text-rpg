@@ -5,6 +5,7 @@ import {
   sendLetter,
   getConversationLetters,
   getUnreadCount,
+  deleteLetter,
   type Letter,
 } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
@@ -288,6 +289,48 @@ export default function Mail({ navigate }: MailProps) {
     }
   };
 
+  const [claimingLetterId, setClaimingLetterId] = useState<string | null>(null);
+
+  const handleClaimItem = async (letter: any, itemPayload: any) => {
+    if (!hero) return;
+    setClaimingLetterId(letter.id);
+    try {
+      // Спочатку видаляємо лист, щоб уникнути дюпів
+      await deleteLetter(letter.id);
+
+      // Додаємо предмет в інвентар
+      const newInventory = [...(hero.inventory || [])];
+      
+      const isStackable = itemPayload.kind === "resource" || itemPayload.kind === "consumable" || itemPayload.kind === "quest" || itemPayload.kind === "scroll";
+      
+      if (isStackable) {
+        const existingItemIndex = newInventory.findIndex((i) => i.id === itemPayload.id);
+        if (existingItemIndex !== -1) {
+          newInventory[existingItemIndex] = {
+            ...newInventory[existingItemIndex],
+            count: (newInventory[existingItemIndex].count || 1) + (itemPayload.count || 1)
+          };
+        } else {
+          newInventory.push(itemPayload);
+        }
+      } else {
+        // Для зброї, броні тощо просто додаємо
+        newInventory.push(itemPayload);
+      }
+
+      useHeroStore.getState().updateHero({ inventory: newInventory });
+      
+      // Оновлюємо переписку (видаляємо цей лист з UI)
+      setConversationLetters(prev => prev.filter(l => l.id !== letter.id));
+      alert(`Ви успішно отримали: ${itemPayload.name}`);
+    } catch (err: any) {
+      console.error("Claim error:", err);
+      alert(err?.message || "Помилка при отриманні предмета");
+    } finally {
+      setClaimingLetterId(null);
+    }
+  };
+
   const formatTime = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -389,7 +432,44 @@ export default function Mail({ navigate }: MailProps) {
                     <span className="text-gray-500 text-[9px]">{formatTime(letter.createdAt)}</span>
                   </div>
 
-                  <div className="text-white text-[10px]">{letter.message}</div>
+                  {letter.subject === "[ITEM_TRANSFER]" ? (
+                    <div className="mt-2 p-2 bg-[#2a1b0b]/50 border border-[#b8860b]/50 rounded-md flex flex-col items-center gap-2">
+                      {(() => {
+                        try {
+                          const payload = JSON.parse(letter.message);
+                          const item = payload.item;
+                          return (
+                            <>
+                              <div className="text-[#b8860b] text-[10px] font-bold">
+                                {isOwn ? "Ви передали предмет:" : "Вам передали предмет:"}
+                              </div>
+                              <div className="flex items-center gap-2 bg-black/40 p-1 rounded w-full">
+                                <img src={item.icon?.startsWith("/") ? item.icon : `/items/${item.icon}`} className="w-6 h-6 object-contain" onError={(e) => (e.currentTarget.src = "/items/drops/Weapon_squires_sword_i00_0.jpg")} />
+                                <div className="flex-1">
+                                  <div className="text-white text-[10px] leading-tight">{item.name}</div>
+                                  {item.enchantLevel > 0 && <div className="text-yellow-400 text-[9px]">+{item.enchantLevel}</div>}
+                                  {item.count > 1 && <div className="text-gray-400 text-[9px]">{item.count} шт.</div>}
+                                </div>
+                              </div>
+                              {!isOwn && (
+                                <button 
+                                  onClick={() => handleClaimItem(letter, item)}
+                                  disabled={claimingLetterId === letter.id}
+                                  className="w-full mt-1 bg-green-700 hover:bg-green-600 text-white font-bold py-1 rounded text-[10px] transition-colors"
+                                >
+                                  {claimingLetterId === letter.id ? "Отримання..." : "Забрати"}
+                                </button>
+                              )}
+                            </>
+                          );
+                        } catch (e) {
+                          return <div className="text-gray-400">Помилка завантаження предмета</div>;
+                        }
+                      })()}
+                    </div>
+                  ) : (
+                    <div className="text-white text-[10px]">{letter.message}</div>
+                  )}
                 </div>
               );
             })}

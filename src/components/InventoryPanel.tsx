@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { getInventoryMax, useHeroStore } from "../state/heroStore";
 import { itemsDB } from "../data/items/itemsDB";
+import TransferItemModal from "../screens/character/modals/TransferItemModal";
 
 type InventoryPanelProps = {
   title?: string;
@@ -72,6 +73,7 @@ export default function InventoryPanel({
   const [activeCat, setActiveCat] = useState<string>("all");
   const [selectedItem, setSelectedItem] = useState<InvItem | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
 
   // 🔥 НЕ викликати loadHero() тут — воно перезаписує store з localStorage і дає миттєвий відкат
   // після вбивства моба (store оновлений, save ще async/429, loadHero() читає старий localStorage → set(hero) → відкат).
@@ -267,7 +269,13 @@ export default function InventoryPanel({
                 onClick={() => setConfirmDelete(true)}
                 className="bg-red-700 text-white text-[11px] py-1 rounded"
               >
-                РЈРґР°Р»РёС‚СЊ
+                Удалить
+              </button>
+              <button
+                onClick={() => setShowTransferModal(true)}
+                className="bg-yellow-700 text-white text-[11px] py-1 rounded"
+              >
+                Передать
               </button>
               <button
                 onClick={() => setSelectedItem(null)}
@@ -307,6 +315,17 @@ export default function InventoryPanel({
             </div>
           </div>
         </div>
+      )}
+      
+      {showTransferModal && selectedItem && (
+        <TransferItemModal
+          item={selectedItem as any}
+          onClose={() => setShowTransferModal(false)}
+          onSuccess={() => {
+            setShowTransferModal(false);
+            setSelectedItem(null);
+          }}
+        />
       )}
     </div>
   );

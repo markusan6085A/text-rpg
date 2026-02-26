@@ -626,6 +626,19 @@ export async function sendLetter(request: SendLetterRequest): Promise<Letter> {
   return response.letter;
 }
 
+export interface SendItemTransferRequest {
+  toCharacterName: string;
+  itemPayload: string;
+}
+
+export async function sendItemTransferLetter(request: SendItemTransferRequest): Promise<Letter> {
+  const response = await apiRequest<LetterResponse>('/letters/transfer', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+  return response.letter;
+}
+
 export async function getLetters(page: number = 1, limit: number = 50): Promise<LettersResponse> {
   const response = await apiRequest<LettersResponse>(`/letters?page=${page}&limit=${limit}`, {
     method: 'GET',
