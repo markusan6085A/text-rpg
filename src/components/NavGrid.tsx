@@ -26,6 +26,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [clanUnreadCount, setClanUnreadCount] = useState(0);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const previousUnreadRef = useRef(0);
 
   // Завантажуємо кількість непрочитаних листів
   // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
@@ -34,6 +35,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
   useEffect(() => {
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
     if (!isAuthenticated) {
+      previousUnreadRef.current = 0;
       setUnreadCount(0);
       return; // Cleanup спрацює автоматично через return нижче
     }
@@ -42,7 +44,13 @@ export default function NavGrid({ navigate }: NavGridProps) {
       if (getRateLimitRemainingMs() > 0) return;
       try {
         const data = await getUnreadCount();
-        setUnreadCount(data.unreadCount || 0);
+        const nextUnread = data.unreadCount || 0;
+        const prevUnread = previousUnreadRef.current;
+        if (nextUnread > prevUnread && prevUnread > 0) {
+          window.alert("Вам прийшло нове повідомлення на пошту");
+        }
+        previousUnreadRef.current = nextUnread;
+        setUnreadCount(nextUnread);
       } catch (err: any) {
         console.error('[NavGrid] Failed to load unread count:', err);
         setUnreadCount(0);

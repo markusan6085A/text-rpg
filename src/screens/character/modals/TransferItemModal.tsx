@@ -15,7 +15,8 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
   const updateHero = useHeroStore((s) => s.updateHero);
   
   const [recipientName, setRecipientName] = useState("");
-  const [quantity, setQuantity] = useState(Math.max(1, Number(item.count) || 1));
+  const initialQuantity = Math.max(1, Number((item as any).__initialQuantity) || 1);
+  const [quantity, setQuantity] = useState(initialQuantity);
   const [isTransferring, setIsTransferring] = useState(false);
 
   if (!currentHero) return null;
@@ -31,11 +32,15 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
     itemSlot === "resource" ||
     itemSlot === "consumable" ||
     itemSlot === "quest";
-  const maxQuantity = item.count || 1;
+  const maxQuantity = Math.max(
+    1,
+    Number((item as any).__maxAvailableCount) || Number(item.count) || 1
+  );
 
   // Визначаємо вартість (беремо з бази, якщо немає в самому предметі)
   const itemPrice = item.stats?.price || itemDef?.stats?.price || 100;
-  const transferFee = Math.max(1, Math.floor((itemPrice * quantity) * 0.05));
+  const transferFeePerItem = Math.floor(itemPrice * 0.05);
+  const transferFee = transferFeePerItem * quantity;
 
   const handleTransfer = async () => {
     if (!recipientName.trim()) {
@@ -178,7 +183,10 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
           )}
 
           <div className="text-center text-xs mt-2 p-2 bg-[#2a0808]/50 border border-red-900/50 rounded">
-            <div className="text-gray-300">Комісія за передачу (5%):</div>
+            <div className="text-gray-300">Комісія 5% за 1 предмет × кількість:</div>
+            <div className="text-gray-400">
+              {transferFeePerItem.toLocaleString()} × {quantity}
+            </div>
             <div className="text-yellow-400 font-bold">{transferFee.toLocaleString()} Аден</div>
           </div>
 

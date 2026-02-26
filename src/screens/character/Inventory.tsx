@@ -67,7 +67,11 @@ export default function Inventory() {
     const itemCount = Math.max(1, Number(amount) || 1);
     const maxCount = Number(item.count || 1);
     const preparedCount = Math.max(1, Math.min(maxCount, itemCount));
-    setTransferModalItem({ ...item, count: preparedCount });
+    setTransferModalItem({
+      ...item,
+      __initialQuantity: preparedCount,
+      __maxAvailableCount: maxCount,
+    });
   };
 
   const handleDeleteRequest = (item: any, amount: number) => {
