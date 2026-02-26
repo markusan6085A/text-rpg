@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useHeroStore } from "../../state/heroStore";
-import { HeroInventoryItem } from "../../types/Hero";
-import { sendItemTransferLetter } from "../../utils/api";
-import { itemsDB } from "../../data/items/itemsDB";
+import { useHeroStore } from "../../../state/heroStore";
+import { HeroInventoryItem } from "../../../types/Hero";
+import { sendItemTransferLetter } from "../../../utils/api";
+import { itemsDB } from "../../../data/items/itemsDB";
 
 interface TransferItemModalProps {
   item: HeroInventoryItem;
