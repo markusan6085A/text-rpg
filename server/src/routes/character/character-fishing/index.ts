@@ -197,6 +197,16 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         const { min: fishMin, max: fishMax } = getFishRangeByRodEnchant(rodEnchant);
         fishCount = fishMin + Math.floor(Math.random() * (fishMax - fishMin + 1));
       }
+      let expGained = 0;
+      const r = Math.random();
+      if (r < 0.20) {
+        expGained = 600000 + Math.floor(Math.random() * 400001); // 600,000 - 1,000,000
+      } else if (r < 0.60) {
+        expGained = 400000 + Math.floor(Math.random() * 200001); // 400,000 - 600,000
+      } else {
+        expGained = 100000 + Math.floor(Math.random() * 300001); // 100,000 - 400,000
+      }
+
       const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
       const existing = inv.find((i: any) => (i?.id ?? i?.itemId) === FISH_ITEM_ID);
       if (existing) {
@@ -221,7 +231,11 @@ export async function characterFishingRoutes(app: FastifyInstance) {
       const [updated] = await prisma.$transaction([
         prisma.character.update({
           where: { id: ch.id },
-          data: { heroJson: updatedHeroJson, lastActivityAt: new Date() },
+          data: { 
+            exp: { increment: expGained },
+            heroJson: updatedHeroJson, 
+            lastActivityAt: new Date() 
+          },
           select: {
             id: true, name: true, race: true, classId: true, sex: true, level: true,
             exp: true, sp: true, adena: true, aa: true, coinLuck: true, heroJson: true, updatedAt: true,
@@ -233,6 +247,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         ok: true,
         character: { ...updated, exp: Number(updated.exp) },
         fishCount,
+        expGained,
       });
     } catch (error) {
       app.log.error(error, "POST /characters/:id/fishing/collect");

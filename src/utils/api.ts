@@ -309,6 +309,7 @@ export interface FishingCollectResponse {
   ok: boolean;
   character: Character;
   fishCount: number;
+  expGained?: number;
 }
 
 export async function getFishingSession(characterId: string): Promise<FishingSession | null> {

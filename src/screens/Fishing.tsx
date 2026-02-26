@@ -32,6 +32,7 @@ export default function Fishing({ navigate }: FishingProps) {
   const [actionLoading, setActionLoading] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
+  const [catchResult, setCatchResult] = useState<{ fishCount: number, expGained: number } | null>(null);
 
   useEffect(() => {
     if (!characterId) {
@@ -129,9 +130,11 @@ export default function Fishing({ navigate }: FishingProps) {
       const newRev = hj?.heroRevision;
       if (newRev != null) updateServerState({ heroRevision: newRev });
       updateHero({
+        exp: res.character.exp,
         inventory: hj?.inventory ?? hero.inventory ?? [],
         heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: undefined },
       });
+      setCatchResult({ fishCount: res.fishCount, expGained: res.expGained || 0 });
     } catch (e: any) {
       alert(e?.message || e?.error || "Не удалось забрать улов");
     } finally {
@@ -188,7 +191,7 @@ export default function Fishing({ navigate }: FishingProps) {
 
           <div className="border-t-2" style={{ borderColor: "#c7ad80" }}></div>
 
-        {!session && (
+        {!session && !catchResult && (
           <div className="text-[12px] space-y-2">
             {!hasRod && (
               <>
@@ -223,6 +226,23 @@ export default function Fishing({ navigate }: FishingProps) {
               <span style={{ color: "#ff8c00" }}>SP: {sp.toLocaleString()}</span>
               <span style={{ color: "#ffd700" }}>Адена: {adena.toLocaleString()}</span>
             </div>
+          </div>
+        )}
+
+        {catchResult && (
+          <div className="space-y-3 text-[12px] text-center bg-[#1a1a1a] p-4 rounded border border-[#c7ad80]/50">
+            <p className="text-green-400 font-bold">Вы выловили {catchResult.fishCount} рыб!</p>
+            {catchResult.expGained > 0 && (
+              <p className="text-gray-400">
+                вы получили <span className="text-yellow-400">{catchResult.expGained.toLocaleString()}</span> опыта
+              </p>
+            )}
+            <button
+              className="w-full py-2 mt-2 rounded-md bg-[#2a2a2a] ring-1 ring-[#c7ad80]/50 text-[#c7ad80] hover:bg-[#3a3a3a]"
+              onClick={() => setCatchResult(null)}
+            >
+              Продолжить
+            </button>
           </div>
         )}
 
