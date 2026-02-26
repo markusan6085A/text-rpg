@@ -26,6 +26,7 @@ export default function Fishing({ navigate }: FishingProps) {
   const updateHero = useHeroStore((s) => s.updateHero);
   const updateServerState = useHeroStore((s) => s.updateServerState);
   const characterId = useCharacterStore((s) => s.characterId);
+  const activeCharacterId = characterId || hero?.id || null;
 
   const [session, setSessionState] = useState<api.FishingSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,12 +36,12 @@ export default function Fishing({ navigate }: FishingProps) {
   const [catchResult, setCatchResult] = useState<{ fishCount: number, expGained: number } | null>(null);
 
   useEffect(() => {
-    if (!characterId) {
+    if (!activeCharacterId) {
       setLoading(false);
       return;
     }
     setLoading(true);
-    fetchFishingSession(characterId)
+    fetchFishingSession(activeCharacterId)
       .then((s) => {
         setSessionState(s);
         setLoading(false);
@@ -50,7 +51,7 @@ export default function Fishing({ navigate }: FishingProps) {
         setSessionState(null);
         setLoading(false);
       });
-  }, [characterId]);
+  }, [activeCharacterId]);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -85,7 +86,7 @@ export default function Fishing({ navigate }: FishingProps) {
       : "";
 
   const handleStartFishing = async () => {
-    if (!hero || !characterId || actionLoading) return;
+    if (!hero || !activeCharacterId || actionLoading) return;
     if (!hasRod) {
       alert("Нужна удочка! Наденьте удочку (Baby Duck Rod) в слот оружия.");
       return;
@@ -102,7 +103,7 @@ export default function Fishing({ navigate }: FishingProps) {
     }
     setActionLoading(true);
     try {
-      const res = await api.startFishing(characterId);
+      const res = await api.startFishing(activeCharacterId);
       setSessionState(res.session);
       const hj = res.character.heroJson as any;
       const newRev = hj?.heroRevision;
@@ -121,10 +122,10 @@ export default function Fishing({ navigate }: FishingProps) {
   };
 
   const handleCollect = async () => {
-    if (!hero || !characterId || !ready || actionLoading) return;
+    if (!hero || !activeCharacterId || !ready || actionLoading) return;
     setActionLoading(true);
     try {
-      const res = await api.collectFishing(characterId);
+      const res = await api.collectFishing(activeCharacterId);
       setSessionState(null);
       const hj = res.character.heroJson as any;
       const newRev = hj?.heroRevision;
