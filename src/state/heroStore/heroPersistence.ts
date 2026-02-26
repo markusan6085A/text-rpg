@@ -58,8 +58,11 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const current = getJSON<string | null>("l2_current_user", null);
   if (!current) return;
   const accounts = getJSON<any[]>("l2_accounts_v2", []);
-  const accIndex = accounts.findIndex((a: any) => a.username === current);
-  if (accIndex === -1) return;
+  let accIndex = accounts.findIndex((a: any) => a.username === current);
+  if (accIndex === -1) {
+    accounts.push({ username: current, hero: {} });
+    accIndex = accounts.length - 1;
+  }
   // 🔥 КРИТИЧНО: isDead/deadAt тільки з поточного героя — не з попереднього snapshot; після оживлення смерть не "липне" в localStorage
   const currentJson = (hero as any).heroJson ?? {};
   const battleState = loadBattle(hydrated.name);
@@ -160,8 +163,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     if (!current) return;
 
     const accounts = getJSON<any[]>("l2_accounts_v2", []);
-    const accIndex = accounts.findIndex((a: any) => a.username === current);
-    if (accIndex !== -1) {
+    let accIndex = accounts.findIndex((a: any) => a.username === current);
+    if (accIndex === -1) {
+      accounts.push({ username: current, hero: {} });
+      accIndex = accounts.length - 1;
+    }
+    {
       accounts[accIndex].hero = hero;
       setJSON("l2_accounts_v2", accounts);
     }
@@ -177,8 +184,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
-        const accIndex = accounts.findIndex((a: any) => a.username === current);
-        if (accIndex !== -1) {
+        let accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex === -1) {
+          accounts.push({ username: current, hero: {} });
+          accIndex = accounts.length - 1;
+        }
+        {
           const heroWithTimestamp = {
             ...hero,
             lastSavedAt: Date.now(),
@@ -217,8 +228,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
-        const accIndex = accounts.findIndex((a: any) => a.username === current);
-        if (accIndex !== -1) {
+        let accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex === -1) {
+          accounts.push({ username: current, hero: {} });
+          accIndex = accounts.length - 1;
+        }
+        {
           const heroWithTimestamp = {
             ...hero,
             lastSavedAt: Date.now(),
@@ -292,8 +307,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const current = getJSON<string | null>("l2_current_user", null);
       if (current) {
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
-        const accIndex = accounts.findIndex((a: any) => a.username === current);
-        if (accIndex !== -1) {
+        let accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex === -1) {
+          accounts.push({ username: current, hero: {} });
+          accIndex = accounts.length - 1;
+        }
+        {
           accounts[accIndex].hero = hero;
           setJSON("l2_accounts_v2", accounts);
           console.warn('[saveHeroToLocalStorage] Saved to localStorage only (missing required fields)');
@@ -530,8 +549,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const current = getJSON<string | null>("l2_current_user", null);
     if (current) {
       const accounts = getJSON<any[]>("l2_accounts_v2", []);
-      const accIndex = accounts.findIndex((a: any) => a.username === current);
-      if (accIndex !== -1) {
+      let accIndex = accounts.findIndex((a: any) => a.username === current);
+      if (accIndex === -1) {
+        accounts.push({ username: current, hero: {} });
+        accIndex = accounts.length - 1;
+      }
+      {
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
@@ -578,8 +601,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
           heroJson,
         };
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
-        const accIndex = accounts.findIndex((a: any) => a.username === current);
-        if (accIndex !== -1) {
+        let accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex === -1) {
+          accounts.push({ username: current, hero: {} });
+          accIndex = accounts.length - 1;
+        }
+        {
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
           console.log('[saveHeroToLocalStorage] Saved to localStorage due to rate limit (buffs:', mergedBuffs.length, ')');
@@ -759,8 +786,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
-        const accIndex = accounts.findIndex((a: any) => a.username === current);
-        if (accIndex !== -1) {
+        let accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex === -1) {
+          accounts.push({ username: current, hero: {} });
+          accIndex = accounts.length - 1;
+        }
+        {
           const heroWithTimestamp = {
             ...hero,
             lastSavedAt: Date.now(),
@@ -786,8 +817,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const current = getJSON<string | null>("l2_current_user", null);
     if (current) {
       const accounts = getJSON<any[]>("l2_accounts_v2", []);
-      const accIndex = accounts.findIndex((a: any) => a.username === current);
-      if (accIndex !== -1) {
+      let accIndex = accounts.findIndex((a: any) => a.username === current);
+      if (accIndex === -1) {
+        accounts.push({ username: current, hero: {} });
+        accIndex = accounts.length - 1;
+      }
+      {
         const heroWithTimestamp = {
           ...hero,
           lastSavedAt: Date.now(),
