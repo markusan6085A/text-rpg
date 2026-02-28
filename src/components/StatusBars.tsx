@@ -154,8 +154,12 @@ export default function StatusBars() {
           if (Number.isFinite(nextHp) && nextHp >= 0 && nextHp < Number(currentHero.hp ?? 0)) patch.hp = nextHp;
           if (Number.isFinite(nextMp) && nextMp >= 0 && nextMp < Number(currentHero.mp ?? 0)) patch.mp = nextMp;
         }
-        if (Number.isFinite(Number(st.maxHp)) && Number(st.maxHp) > 0) patch.maxHp = Number(st.maxHp);
-        if (Number.isFinite(Number(st.maxMp)) && Number(st.maxMp) > 0) patch.maxMp = Number(st.maxMp);
+        // maxHp/maxMp з PK endpoint теж чіпаємо тільки під час активного PK sync.
+        // Інакше після F5 можемо перетерти бафнуті max на "базові" серверні значення.
+        if (allowPkSync) {
+          if (Number.isFinite(Number(st.maxHp)) && Number(st.maxHp) > 0) patch.maxHp = Number(st.maxHp);
+          if (Number.isFinite(Number(st.maxMp)) && Number(st.maxMp) > 0) patch.maxMp = Number(st.maxMp);
+        }
 
         patch.heroJson = {
           ...((currentHero as any).heroJson || {}),
