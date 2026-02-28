@@ -64,7 +64,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           session = { ...session, fishCount };
         }
       }
-      return reply.send({ ok: true, session });
+      return reply.send({ ok: true, session, serverNow: Date.now() });
     } catch (error) {
       app.log.error(error, "GET /characters/:id/fishing");
       return reply.code(500).send({ error: "Internal Server Error" });
@@ -152,6 +152,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         ok: true,
         character: { ...updated, exp: Number(updated.exp) },
         session,
+        serverNow: Date.now(),
       });
     } catch (error) {
       app.log.error(error, "POST /characters/:id/fishing/start");

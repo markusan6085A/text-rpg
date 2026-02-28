@@ -297,12 +297,14 @@ export interface FishingSession {
 export interface FishingSessionResponse {
   ok: boolean;
   session: FishingSession | null;
+  serverNow: number;
 }
 
 export interface FishingStartResponse {
   ok: boolean;
   character: Character;
   session: { startedAt: number; fishCount?: number };
+  serverNow: number;
 }
 
 export interface FishingCollectResponse {
@@ -312,11 +314,11 @@ export interface FishingCollectResponse {
   expGained?: number;
 }
 
-export async function getFishingSession(characterId: string): Promise<FishingSession | null> {
+export async function getFishingSession(characterId: string): Promise<FishingSessionResponse> {
   const response = await apiRequest<FishingSessionResponse>(`/characters/${characterId}/fishing`, {
     method: 'GET',
   });
-  return response.session;
+  return response;
 }
 
 export async function startFishing(characterId: string): Promise<FishingStartResponse> {

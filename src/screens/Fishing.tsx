@@ -21,6 +21,11 @@ interface FishingProps {
   navigate: Navigate;
 }
 
+function isUnauthorizedError(err: any): boolean {
+  const msg = String(err?.message || err?.error || "").toLowerCase();
+  return err?.unauthorized === true || err?.status === 401 || msg.includes("unauthorized");
+}
+
 export default function Fishing({ navigate }: FishingProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
@@ -32,23 +37,31 @@ export default function Fishing({ navigate }: FishingProps) {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [serverOffsetMs, setServerOffsetMs] = useState(0);
   const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
   const [catchResult, setCatchResult] = useState<{ fishCount: number, expGained: number } | null>(null);
 
   useEffect(() => {
     if (!activeCharacterId) {
       setLoading(false);
+      setServerOffsetMs(0);
       return;
     }
     setLoading(true);
     fetchFishingSession(activeCharacterId)
-      .then((s) => {
-        setSessionState(s);
+      .then((res) => {
+        setSessionState(res.session);
+        setServerOffsetMs((res.serverNow ?? Date.now()) - Date.now());
         setLoading(false);
       })
       .catch((err) => {
+        if (isUnauthorizedError(err)) {
+          setLoading(false);
+          return;
+        }
         console.error("Failed to load fishing session:", err);
         setSessionState(null);
+        setServerOffsetMs(0);
         setLoading(false);
       });
   }, [activeCharacterId]);
@@ -78,8 +91,9 @@ export default function Fishing({ navigate }: FishingProps) {
   const adena = hero?.adena ?? 0;
   const canAfford = sp >= FISHING_COST_SP && adena >= FISHING_COST_ADENA;
 
-  const ready = session && isFishingReady(session);
-  const remainingMs = session && !ready ? Math.max(0, FISHING_DURATION_MS - (now - session.startedAt)) : 0;
+  const estimatedServerNow = now + serverOffsetMs;
+  const ready = session && isFishingReady(session, estimatedServerNow);
+  const remainingMs = session && !ready ? Math.max(0, FISHING_DURATION_MS - (estimatedServerNow - session.startedAt)) : 0;
   const remainingStr =
     remainingMs > 0
       ? `${Math.floor(remainingMs / 60000)}:${String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, "0")}`
@@ -105,6 +119,7 @@ export default function Fishing({ navigate }: FishingProps) {
     try {
       const res = await api.startFishing(activeCharacterId);
       setSessionState(res.session);
+      setServerOffsetMs((res.serverNow ?? Date.now()) - Date.now());
       const hj = res.character.heroJson as any;
       const newRev = hj?.heroRevision;
       if (newRev != null) updateServerState({ heroRevision: newRev });
@@ -115,6 +130,11 @@ export default function Fishing({ navigate }: FishingProps) {
         heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: res.session },
       });
     } catch (e: any) {
+      if (isUnauthorizedError(e)) {
+        alert("Сессия истекла. Войдите снова.");
+        navigate("/");
+        return;
+      }
       alert(e?.message || e?.error || "Не удалось начать рыбалку");
     } finally {
       setActionLoading(false);
@@ -137,6 +157,11 @@ export default function Fishing({ navigate }: FishingProps) {
       });
       setCatchResult({ fishCount: res.fishCount, expGained: res.expGained || 0 });
     } catch (e: any) {
+      if (isUnauthorizedError(e)) {
+        alert("Сессия истекла. Войдите снова.");
+        navigate("/");
+        return;
+      }
       alert(e?.message || e?.error || "Не удалось забрать улов");
     } finally {
       setActionLoading(false);
