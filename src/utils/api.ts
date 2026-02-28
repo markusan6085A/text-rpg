@@ -299,6 +299,67 @@ export async function resolvePkResult(request: ResolvePkResultRequest): Promise<
   });
 }
 
+export interface PkSessionSkill {
+  id: number;
+  level: number;
+  mpCost: number;
+  cooldownMs: number;
+  powerBonus: number;
+}
+
+export interface PkSessionFighter {
+  id: string;
+  name: string;
+  hp: number;
+  maxHp: number;
+  mp: number;
+  maxMp: number;
+  pAtk: number;
+  pDef: number;
+  mAtk: number;
+  mDef: number;
+  prefersMagic: boolean;
+  skills: PkSessionSkill[];
+}
+
+export interface PkSessionState {
+  id: string;
+  attackerId: string;
+  defenderId: string;
+  attacker: PkSessionFighter;
+  defender: PkSessionFighter;
+  cooldowns: Record<number, number>;
+  log: string[];
+  ended: boolean;
+  winnerId: string | null;
+  updatedAt: number;
+}
+
+export interface PkSessionResponse {
+  ok: boolean;
+  session: PkSessionState;
+}
+
+export async function startPkSession(attackerId: string, targetId: string): Promise<PkSessionResponse> {
+  return apiRequest<PkSessionResponse>("/characters/pk/session/start", {
+    method: "POST",
+    body: JSON.stringify({ attackerId, targetId }),
+  });
+}
+
+export async function getPkSession(sessionId: string): Promise<PkSessionResponse> {
+  return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}`, {
+    method: "GET",
+  });
+}
+
+export async function actPkSession(sessionId: string, skillId?: number): Promise<PkSessionResponse> {
+  return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/act`, {
+    method: "POST",
+    body: JSON.stringify({ skillId }),
+  });
+}
+
 /** Resurrect: сервер атомарно скидає isDead/deadAt, ставить hp/mp/cp на max, heroBuffs=[]. Повертає оновленого character. */
 export async function resurrectCharacter(id: string): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/${id}/resurrect`, {

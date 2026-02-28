@@ -1,109 +1,339 @@
 import type { FastifyInstance } from "fastify";
+import { randomUUID } from "crypto";
 import { prisma } from "../../../db";
 import { getAuth } from "../auth";
 import { addVersioning } from "../../../heroJsonValidator";
 
+type PkSkill = {
+  id: number;
+  level: number;
+  mpCost: number;
+  cooldownMs: number;
+  powerBonus: number;
+};
+
+type PkFighter = {
+  id: string;
+  name: string;
+  hp: number;
+  maxHp: number;
+  mp: number;
+  maxMp: number;
+  pAtk: number;
+  pDef: number;
+  mAtk: number;
+  mDef: number;
+  prefersMagic: boolean;
+  skills: PkSkill[];
+};
+
+type PkSession = {
+  id: string;
+  attackerId: string;
+  defenderId: string;
+  attacker: PkFighter;
+  defender: PkFighter;
+  attackerCooldowns: Record<number, number>;
+  defenderCooldowns: Record<number, number>;
+  log: string[];
+  ended: boolean;
+  winnerId?: string;
+  createdAt: number;
+  updatedAt: number;
+  saved: boolean;
+};
+
+const PK_SESSION_TTL_MS = 10 * 60 * 1000;
+const pkSessions = new Map<string, PkSession>();
+
+function getLocation(heroJson: any): string {
+  return String(heroJson?.location ?? heroJson?.currentLocation ?? heroJson?.zone ?? "").trim();
+}
+
+function isOnline(lastActivityAt: Date | null | undefined): boolean {
+  if (!lastActivityAt) return false;
+  return new Date(lastActivityAt).getTime() >= Date.now() - 10 * 60 * 1000;
+}
+
+function normalizeSkills(heroJson: any): PkSkill[] {
+  const raw = Array.isArray(heroJson?.skills) ? heroJson.skills : [];
+  const bestById = new Map<number, number>();
+  for (const s of raw) {
+    const id = Number((s as any)?.id);
+    const level = Math.max(1, Number((s as any)?.level) || 1);
+    if (!id) continue;
+    const prev = bestById.get(id) || 0;
+    if (level > prev) bestById.set(id, level);
+  }
+  return Array.from(bestById.entries()).map(([id, level]) => ({
+    id,
+    level,
+    mpCost: Math.max(0, 6 + level * 2),
+    cooldownMs: Math.max(1000, (2 + Math.floor(level / 5)) * 1000),
+    powerBonus: 10 + level * 8,
+  }));
+}
+
+function buildPkFighter(character: {
+  id: string;
+  name: string;
+  level: number;
+  heroJson: unknown;
+}): PkFighter {
+  const heroJson = (character.heroJson as any) || {};
+  const level = Math.max(1, Number(character.level || 1));
+  const battleStats = heroJson?.battleStats || {};
+
+  const maxHp = Math.max(1, Number(heroJson?.maxHp ?? 180 + level * 24) || 1);
+  const maxMp = Math.max(1, Number(heroJson?.maxMp ?? 100 + level * 10) || 1);
+  const hp = Math.max(1, Math.min(maxHp, Number(heroJson?.hp ?? maxHp) || maxHp));
+  const mp = Math.max(0, Math.min(maxMp, Number(heroJson?.mp ?? maxMp) || maxMp));
+
+  const pAtk = Math.max(10, Number(battleStats?.pAtk ?? 40 + level * 6) || 10);
+  const pDef = Math.max(5, Number(battleStats?.pDef ?? 25 + level * 4) || 5);
+  const mAtk = Math.max(10, Number(battleStats?.mAtk ?? 35 + level * 5) || 10);
+  const mDef = Math.max(5, Number(battleStats?.mDef ?? 20 + level * 4) || 5);
+
+  const prefersMagic = mAtk > pAtk * 1.15;
+  const skills = normalizeSkills(heroJson);
+
+  return {
+    id: character.id,
+    name: character.name,
+    hp,
+    maxHp,
+    mp,
+    maxMp,
+    pAtk,
+    pDef,
+    mAtk,
+    mDef,
+    prefersMagic,
+    skills,
+  };
+}
+
+function cleanupPkSessions(now = Date.now()) {
+  for (const [id, s] of pkSessions.entries()) {
+    if (now - s.updatedAt > PK_SESSION_TTL_MS) pkSessions.delete(id);
+  }
+}
+
+function serializePkSession(session: PkSession) {
+  return {
+    ok: true,
+    session: {
+      id: session.id,
+      attackerId: session.attackerId,
+      defenderId: session.defenderId,
+      attacker: session.attacker,
+      defender: session.defender,
+      cooldowns: session.attackerCooldowns,
+      log: session.log,
+      ended: session.ended,
+      winnerId: session.winnerId ?? null,
+      updatedAt: session.updatedAt,
+    },
+  };
+}
+
+function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: number, useMagic: boolean): number {
+  const atk = useMagic ? attacker.mAtk : attacker.pAtk;
+  const def = useMagic ? defender.mDef : defender.pDef;
+  const base = Math.max(1, atk - def * 0.35);
+  const randomMul = 0.9 + Math.random() * 0.25;
+  const powerMul = 1 + Math.max(0, powerBonus) / 100;
+  return Math.max(1, Math.floor(base * randomMul * powerMul));
+}
+
+async function savePkResultIfNeeded(session: PkSession) {
+  if (!session.ended || !session.winnerId || session.saved) return;
+  const loserId = session.winnerId === session.attackerId ? session.defenderId : session.attackerId;
+
+  await prisma.$transaction(async (tx) => {
+    const ids = [session.winnerId as string, loserId].sort();
+    await tx.$queryRawUnsafe(
+      `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
+      ids[0],
+      ids[1]
+    );
+
+    const chars = await tx.character.findMany({
+      where: { id: { in: [session.winnerId as string, loserId] } },
+      select: { id: true, heroJson: true },
+    });
+    if (chars.length !== 2) return;
+
+    const patchPvp = (heroJson: any, isWin: boolean) => {
+      const wins = Number(heroJson?.pvpWins ?? heroJson?.pvp_wins ?? 0);
+      const losses = Number(heroJson?.pvpLosses ?? heroJson?.pvp_losses ?? 0);
+      const nextWins = isWin ? wins + 1 : wins;
+      const nextLosses = isWin ? losses : losses + 1;
+      return {
+        ...heroJson,
+        pvpWins: nextWins,
+        pvpLosses: nextLosses,
+        pvp_wins: nextWins,
+        pvp_losses: nextLosses,
+      };
+    };
+
+    for (const c of chars) {
+      const heroJson = ((c.heroJson as any) || {}) as any;
+      const patched = patchPvp(heroJson, c.id === session.winnerId);
+      const versioned = addVersioning(patched, Number(heroJson.heroRevision ?? 0) || 0);
+      await tx.character.update({
+        where: { id: c.id },
+        data: { heroJson: versioned, lastActivityAt: new Date() },
+      });
+    }
+  });
+
+  session.saved = true;
+}
+
 export async function characterActionsRoutes(app: FastifyInstance) {
-  app.post("/characters/pk/resolve", async (req, reply) => {
+  app.post("/characters/pk/session/start", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const body = (req.body ?? {}) as { attackerId?: string; targetId?: string; winnerId?: string };
+    cleanupPkSessions();
+
+    const body = (req.body ?? {}) as { attackerId?: string; targetId?: string };
     const attackerId = String(body.attackerId ?? "").trim();
     const targetId = String(body.targetId ?? "").trim();
-    const winnerId = String(body.winnerId ?? "").trim();
+    if (!attackerId || !targetId) return reply.code(400).send({ error: "attackerId and targetId are required" });
+    if (attackerId === targetId) return reply.code(400).send({ error: "self pk is not allowed" });
 
-    if (!attackerId || !targetId || !winnerId) {
-      return reply.code(400).send({ error: "attackerId, targetId and winnerId are required" });
+    const chars = await prisma.character.findMany({
+      where: { id: { in: [attackerId, targetId] } },
+      select: { id: true, accountId: true, name: true, level: true, heroJson: true, lastActivityAt: true },
+    });
+    if (chars.length !== 2) return reply.code(404).send({ error: "character not found" });
+    const attackerChar = chars.find((c) => c.id === attackerId);
+    const defenderChar = chars.find((c) => c.id === targetId);
+    if (!attackerChar || !defenderChar) return reply.code(404).send({ error: "character not found" });
+    if (attackerChar.accountId !== auth.accountId) return reply.code(403).send({ error: "attacker does not belong to current account" });
+    if (!isOnline(attackerChar.lastActivityAt) || !isOnline(defenderChar.lastActivityAt)) return reply.code(400).send({ error: "both players must be online" });
+
+    const attackerLoc = getLocation(attackerChar.heroJson as any);
+    const defenderLoc = getLocation(defenderChar.heroJson as any);
+    if (!attackerLoc || attackerLoc !== defenderLoc) return reply.code(400).send({ error: "players must be in the same zone" });
+
+    const sessionId = randomUUID();
+    const session: PkSession = {
+      id: sessionId,
+      attackerId,
+      defenderId: targetId,
+      attacker: buildPkFighter(attackerChar),
+      defender: buildPkFighter(defenderChar),
+      attackerCooldowns: {},
+      defenderCooldowns: {},
+      log: [`PK бой начат: ${attackerChar.name} vs ${defenderChar.name}`],
+      ended: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      saved: false,
+    };
+    pkSessions.set(sessionId, session);
+    return reply.send(serializePkSession(session));
+  });
+
+  app.get("/characters/pk/session/:id", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    cleanupPkSessions();
+
+    const sessionId = String((req.params as any)?.id ?? "").trim();
+    const session = pkSessions.get(sessionId);
+    if (!session) return reply.code(404).send({ error: "pk session not found" });
+
+    const myAttacker = await prisma.character.findFirst({
+      where: { id: session.attackerId, accountId: auth.accountId },
+      select: { id: true },
+    });
+    if (!myAttacker) return reply.code(403).send({ error: "forbidden" });
+
+    return reply.send(serializePkSession(session));
+  });
+
+  app.post("/characters/pk/session/:id/act", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    cleanupPkSessions();
+
+    const sessionId = String((req.params as any)?.id ?? "").trim();
+    const body = (req.body ?? {}) as { skillId?: number };
+    const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
+
+    const session = pkSessions.get(sessionId);
+    if (!session) return reply.code(404).send({ error: "pk session not found" });
+
+    const myAttacker = await prisma.character.findFirst({
+      where: { id: session.attackerId, accountId: auth.accountId },
+      select: { id: true },
+    });
+    if (!myAttacker) return reply.code(403).send({ error: "forbidden" });
+    if (session.ended) return reply.send(serializePkSession(session));
+
+    const now = Date.now();
+
+    const pickSkill = (fighter: PkFighter, cooldowns: Record<number, number>, requestedSkillId?: number): PkSkill | null => {
+      if (requestedSkillId !== undefined) {
+        const requested = fighter.skills.find((s) => s.id === requestedSkillId);
+        if (!requested) return null;
+        if ((cooldowns[requested.id] ?? 0) > now) return null;
+        if (fighter.mp < requested.mpCost) return null;
+        return requested;
+      }
+      const usable = fighter.skills.filter((s) => (cooldowns[s.id] ?? 0) <= now && fighter.mp >= s.mpCost);
+      if (usable.length === 0) return null;
+      return usable[Math.floor(Math.random() * usable.length)];
+    };
+
+    const doTurn = (
+      attacker: PkFighter,
+      defender: PkFighter,
+      cooldowns: Record<number, number>,
+      requestedSkillId?: number
+    ) => {
+      const skill = pickSkill(attacker, cooldowns, requestedSkillId);
+      const useMagic = skill ? attacker.prefersMagic : false;
+      const powerBonus = skill?.powerBonus ?? 0;
+      const dmg = computeDamage(attacker, defender, powerBonus, useMagic);
+      defender.hp = Math.max(0, defender.hp - dmg);
+      if (skill) {
+        attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
+        cooldowns[skill.id] = now + skill.cooldownMs;
+        session.log.unshift(`${attacker.name} использует skill#${skill.id} и наносит ${dmg} урона`);
+      } else {
+        session.log.unshift(`${attacker.name} атакует и наносит ${dmg} урона`);
+      }
+      session.log = session.log.slice(0, 30);
+    };
+
+    doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId);
+    if (session.defender.hp <= 0) {
+      session.ended = true;
+      session.winnerId = session.attackerId;
+      session.updatedAt = now;
+      await savePkResultIfNeeded(session);
+      return reply.send(serializePkSession(session));
     }
-    if (attackerId === targetId) {
-      return reply.code(400).send({ error: "self pk is not allowed" });
+
+    doTurn(session.defender, session.attacker, session.defenderCooldowns);
+    if (session.attacker.hp <= 0) {
+      session.ended = true;
+      session.winnerId = session.defenderId;
     }
-    if (winnerId !== attackerId && winnerId !== targetId) {
-      return reply.code(400).send({ error: "winnerId must be attackerId or targetId" });
-    }
+    session.updatedAt = Date.now();
 
-    try {
-      const result = await prisma.$transaction(async (tx) => {
-        const ids = [attackerId, targetId].sort();
-        await tx.$queryRawUnsafe(
-          `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
-          ids[0],
-          ids[1]
-        );
+    await savePkResultIfNeeded(session);
+    return reply.send(serializePkSession(session));
+  });
 
-        const chars = await tx.character.findMany({
-          where: { id: { in: [attackerId, targetId] } },
-          select: { id: true, accountId: true, heroJson: true, lastActivityAt: true },
-        });
-        if (chars.length !== 2) return { ok: false as const, code: 404, error: "character not found" };
-
-        const attacker = chars.find((c) => c.id === attackerId);
-        const target = chars.find((c) => c.id === targetId);
-        if (!attacker || !target) return { ok: false as const, code: 404, error: "character not found" };
-
-        if (attacker.accountId !== auth.accountId) {
-          return { ok: false as const, code: 403, error: "attacker does not belong to current account" };
-        }
-
-        const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
-        const attackerOnline = attacker.lastActivityAt ? new Date(attacker.lastActivityAt).getTime() >= tenMinutesAgo : false;
-        const targetOnline = target.lastActivityAt ? new Date(target.lastActivityAt).getTime() >= tenMinutesAgo : false;
-        if (!attackerOnline || !targetOnline) {
-          return { ok: false as const, code: 400, error: "both players must be online" };
-        }
-
-        const attackerHero = ((attacker.heroJson as any) || {}) as any;
-        const targetHero = ((target.heroJson as any) || {}) as any;
-        const attackerLocation = String(attackerHero.location ?? attackerHero.currentLocation ?? attackerHero.zone ?? "").trim();
-        const targetLocation = String(targetHero.location ?? targetHero.currentLocation ?? targetHero.zone ?? "").trim();
-        if (!attackerLocation || attackerLocation !== targetLocation) {
-          return { ok: false as const, code: 400, error: "players must be in the same zone" };
-        }
-
-        const loserId = winnerId === attackerId ? targetId : attackerId;
-
-        const patchPvp = (heroJson: any, isWin: boolean) => {
-          const wins = Number(heroJson?.pvpWins ?? heroJson?.pvp_wins ?? 0);
-          const losses = Number(heroJson?.pvpLosses ?? heroJson?.pvp_losses ?? 0);
-          const nextWins = isWin ? wins + 1 : wins;
-          const nextLosses = isWin ? losses : losses + 1;
-          return {
-            ...heroJson,
-            pvpWins: nextWins,
-            pvpLosses: nextLosses,
-            pvp_wins: nextWins,
-            pvp_losses: nextLosses,
-          };
-        };
-
-        const attackerPatched = patchPvp(attackerHero, winnerId === attackerId);
-        const targetPatched = patchPvp(targetHero, winnerId === targetId);
-
-        const attackerVersioned = addVersioning(attackerPatched, Number(attackerHero.heroRevision ?? 0) || 0);
-        const targetVersioned = addVersioning(targetPatched, Number(targetHero.heroRevision ?? 0) || 0);
-
-        await tx.character.update({
-          where: { id: attackerId },
-          data: { heroJson: attackerVersioned, lastActivityAt: new Date() },
-        });
-        await tx.character.update({
-          where: { id: targetId },
-          data: { heroJson: targetVersioned, lastActivityAt: new Date() },
-        });
-
-        return { ok: true as const, winnerId, loserId };
-      });
-
-      if (!result.ok) return reply.code(result.code).send({ error: result.error });
-      return reply.send(result);
-    } catch (error) {
-      app.log.error(error, "Error /characters/pk/resolve");
-      return reply.code(500).send({
-        error: "Internal Server Error",
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
+  app.post("/characters/pk/resolve", async (req, reply) => {
+    return reply.code(410).send({ error: "deprecated", message: "Use /characters/pk/session/* endpoints" });
   });
 
   // POST /characters/:id/colorize-nick - зміна кольору ніка (50 Coin of Luck)
