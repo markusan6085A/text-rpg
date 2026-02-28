@@ -340,6 +340,26 @@ export interface PkSessionResponse {
   session: PkSessionState;
 }
 
+export interface PkIncomingNotice {
+  attackerId: string;
+  attackerName: string;
+  attackerNickColor?: string;
+  sessionId?: string;
+  until: number;
+}
+
+export interface PkStateResponse {
+  ok: boolean;
+  hp: number;
+  mp: number;
+  cp: number;
+  maxHp: number;
+  maxMp: number;
+  maxCp: number;
+  nickColor: string | null;
+  pkIncoming: PkIncomingNotice | null;
+}
+
 export async function startPkSession(attackerId: string, targetId: string): Promise<PkSessionResponse> {
   return apiRequest<PkSessionResponse>("/characters/pk/session/start", {
     method: "POST",
@@ -357,6 +377,12 @@ export async function actPkSession(sessionId: string, skillId?: number): Promise
   return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/act`, {
     method: "POST",
     body: JSON.stringify({ skillId }),
+  });
+}
+
+export async function getPkState(characterId: string): Promise<PkStateResponse> {
+  return apiRequest<PkStateResponse>(`/characters/${encodeURIComponent(characterId)}/pk/state`, {
+    method: "GET",
   });
 }
 

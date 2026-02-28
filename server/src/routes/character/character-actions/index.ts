@@ -38,6 +38,8 @@ type PkSession = {
   log: string[];
   ended: boolean;
   winnerId?: string;
+  attackerHasHit?: boolean;
+  defenderHasHit?: boolean;
   createdAt: number;
   updatedAt: number;
   saved: boolean;
@@ -210,6 +212,91 @@ function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: num
   return Math.max(1, Math.floor(base * randomMul * powerMul));
 }
 
+function getEffectivePkNickColor(heroJson: any, now = Date.now()): string | undefined {
+  const forcedColor = String(heroJson?.pkForcedNickColor ?? "").trim();
+  const forcedUntilRaw = heroJson?.pkForcedNickColorUntil;
+  const forcedUntil = Number(forcedUntilRaw);
+  if (forcedColor) {
+    if (!Number.isFinite(forcedUntil) || forcedUntil > now) return forcedColor;
+  }
+  const combatColor = String(heroJson?.pkCombatNickColor ?? "").trim();
+  const combatUntil = Number(heroJson?.pkCombatNickColorUntil);
+  if (combatColor && Number.isFinite(combatUntil) && combatUntil > now) return combatColor;
+  const baseColor = String(heroJson?.nickColor ?? "").trim();
+  return baseColor || undefined;
+}
+
+async function syncPkRealtimeState(session: PkSession, actorRole: "attacker" | "defender", now = Date.now()) {
+  const actorId = actorRole === "attacker" ? session.attackerId : session.defenderId;
+  const targetId = actorRole === "attacker" ? session.defenderId : session.attackerId;
+  const actorState = actorRole === "attacker" ? session.attacker : session.defender;
+  const targetState = actorRole === "attacker" ? session.defender : session.attacker;
+
+  await prisma.$transaction(async (tx) => {
+    const ids = [actorId, targetId].sort();
+    await tx.$queryRawUnsafe(
+      `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
+      ids[0],
+      ids[1]
+    );
+    const chars = await tx.character.findMany({
+      where: { id: { in: [actorId, targetId] } },
+      select: { id: true, heroJson: true },
+    });
+    if (chars.length !== 2) return;
+
+    const actorChar = chars.find((c) => c.id === actorId);
+    const targetChar = chars.find((c) => c.id === targetId);
+    if (!actorChar || !targetChar) return;
+
+    const actorJson = ((actorChar.heroJson as any) || {}) as any;
+    const targetJson = ((targetChar.heroJson as any) || {}) as any;
+
+    const combatColor = "#FC0FC0";
+    const combatUntil = now + 10_000;
+    const actorDisplayColor = getEffectivePkNickColor({ ...actorJson, pkCombatNickColor: combatColor, pkCombatNickColorUntil: combatUntil }, now) || combatColor;
+
+    const nextActorJson = addVersioning(
+      {
+        ...actorJson,
+        hp: actorState.hp,
+        mp: actorState.mp,
+        maxHp: actorState.maxHp,
+        maxMp: actorState.maxMp,
+        pkCombatNickColor: combatColor,
+        pkCombatNickColorUntil: combatUntil,
+      },
+      Number(actorJson.heroRevision ?? 0) || 0
+    );
+    const nextTargetJson = addVersioning(
+      {
+        ...targetJson,
+        hp: targetState.hp,
+        mp: targetState.mp,
+        maxHp: targetState.maxHp,
+        maxMp: targetState.maxMp,
+        pkIncoming: {
+          attackerId: actorId,
+          attackerName: actorState.name,
+          attackerNickColor: actorDisplayColor,
+          sessionId: session.id,
+          until: now + 10_000,
+        },
+      },
+      Number(targetJson.heroRevision ?? 0) || 0
+    );
+
+    await tx.character.update({
+      where: { id: actorId },
+      data: { heroJson: nextActorJson, lastActivityAt: new Date() },
+    });
+    await tx.character.update({
+      where: { id: targetId },
+      data: { heroJson: nextTargetJson, lastActivityAt: new Date() },
+    });
+  });
+}
+
 async function savePkResultIfNeeded(session: PkSession) {
   if (!session.ended || !session.winnerId || session.saved) return;
   const loserId = session.winnerId === session.attackerId ? session.defenderId : session.attackerId;
@@ -245,7 +332,17 @@ async function savePkResultIfNeeded(session: PkSession) {
     for (const c of chars) {
       const heroJson = ((c.heroJson as any) || {}) as any;
       const patched = patchPvp(heroJson, c.id === session.winnerId);
-      const versioned = addVersioning(patched, Number(heroJson.heroRevision ?? 0) || 0);
+      const isWinner = c.id === session.winnerId;
+      const winnerIsAttacker = session.winnerId === session.attackerId;
+      const winnerHitBack = winnerIsAttacker ? Boolean(session.defenderHasHit) : Boolean(session.attackerHasHit);
+      const withPkColor = isWinner && !winnerHitBack
+        ? {
+            ...patched,
+            pkForcedNickColor: "#800000",
+            pkForcedNickColorUntil: Date.now() + 10 * 60 * 1000,
+          }
+        : patched;
+      const versioned = addVersioning(withPkColor, Number(heroJson.heroRevision ?? 0) || 0);
       await tx.character.update({
         where: { id: c.id },
         data: { heroJson: versioned, lastActivityAt: new Date() },
@@ -314,6 +411,8 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       defenderCooldowns: {},
       log: [`PK бой начат: ${attackerChar.name} vs ${defenderChar.name}`],
       ended: false,
+      attackerHasHit: false,
+      defenderHasHit: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       saved: false,
@@ -361,14 +460,18 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
     if (!session) return reply.code(404).send({ error: "pk session not found" });
 
-    const myAttacker = await prisma.character.findFirst({
-      where: { id: session.attackerId, accountId: auth.accountId },
+    const me = await prisma.character.findFirst({
+      where: {
+        accountId: auth.accountId,
+        id: { in: [session.attackerId, session.defenderId] as any },
+      },
       select: { id: true },
     });
-    if (!myAttacker) return reply.code(403).send({ error: "forbidden" });
+    if (!me) return reply.code(403).send({ error: "forbidden" });
     if (session.ended) return reply.send(serializePkSession(session));
 
     const now = Date.now();
+    const actorRole: "attacker" | "defender" = me.id === session.attackerId ? "attacker" : "defender";
 
     const pickSkill = (fighter: PkFighter, cooldowns: Record<number, number>, requestedSkillId?: number): PkSkill | null => {
       if (requestedSkillId !== undefined) {
@@ -388,7 +491,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       defender: PkFighter,
       cooldowns: Record<number, number>,
       requestedSkillId?: number
-    ) => {
+    ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
       const useMagic = skill ? attacker.prefersMagic : false;
       const powerBonus = skill?.powerBonus ?? 0;
@@ -402,28 +505,64 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         session.log.unshift(`${attacker.name} атакует и наносит ${dmg} урона`);
       }
       session.log = session.log.slice(0, 30);
+      return dmg;
     };
 
-    doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId);
-    if (session.defender.hp <= 0) {
-      session.ended = true;
-      session.winnerId = session.attackerId;
-      session.updatedAt = now;
-      await savePkResultIfNeeded(session);
-      await savePkSessionToDb(session);
-      return reply.send(serializePkSession(session));
-    }
-
-    doTurn(session.defender, session.attacker, session.defenderCooldowns);
-    if (session.attacker.hp <= 0) {
-      session.ended = true;
-      session.winnerId = session.defenderId;
+    if (session.attackerHasHit === undefined) session.attackerHasHit = false;
+    if (session.defenderHasHit === undefined) session.defenderHasHit = false;
+    if (actorRole === "attacker") {
+      doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId);
+      session.attackerHasHit = true;
+      if (session.defender.hp <= 0) {
+        session.ended = true;
+        session.winnerId = session.attackerId;
+      }
+    } else {
+      doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId);
+      session.defenderHasHit = true;
+      if (session.attacker.hp <= 0) {
+        session.ended = true;
+        session.winnerId = session.defenderId;
+      }
     }
     session.updatedAt = Date.now();
 
+    await syncPkRealtimeState(session, actorRole, now);
     await savePkResultIfNeeded(session);
     await savePkSessionToDb(session);
     return reply.send(serializePkSession(session));
+  });
+
+  app.get("/characters/:id/pk/state", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const id = String((req.params as any)?.id ?? "").trim();
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const char = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+      select: { id: true, heroJson: true, nickColor: true },
+    });
+    if (!char) return reply.code(404).send({ error: "character not found" });
+
+    const heroJson = ((char.heroJson as any) || {}) as any;
+    const now = Date.now();
+    const pkIncoming = heroJson?.pkIncoming && Number(heroJson.pkIncoming?.until ?? 0) > now
+      ? heroJson.pkIncoming
+      : null;
+    const effectiveNickColor = getEffectivePkNickColor({ ...heroJson, nickColor: char.nickColor }, now) || null;
+
+    return reply.send({
+      ok: true,
+      hp: Number(heroJson.hp ?? 0),
+      mp: Number(heroJson.mp ?? 0),
+      cp: Number(heroJson.cp ?? 0),
+      maxHp: Number(heroJson.maxHp ?? 0),
+      maxMp: Number(heroJson.maxMp ?? 0),
+      maxCp: Number(heroJson.maxCp ?? 0),
+      nickColor: effectiveNickColor,
+      pkIncoming,
+    });
   });
 
   app.post("/characters/pk/resolve", async (req, reply) => {

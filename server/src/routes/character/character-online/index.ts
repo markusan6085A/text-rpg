@@ -2,6 +2,18 @@ import type { FastifyInstance } from "fastify";
 import { prisma } from "../../../db";
 import { getAuth } from "../auth";
 
+function getEffectiveNickColor(heroJson: any, fallback?: string | null): string | undefined {
+  const now = Date.now();
+  const forced = String(heroJson?.pkForcedNickColor ?? "").trim();
+  const forcedUntil = Number(heroJson?.pkForcedNickColorUntil);
+  if (forced && (!Number.isFinite(forcedUntil) || forcedUntil > now)) return forced;
+  const combat = String(heroJson?.pkCombatNickColor ?? "").trim();
+  const combatUntil = Number(heroJson?.pkCombatNickColorUntil);
+  if (combat && Number.isFinite(combatUntil) && combatUntil > now) return combat;
+  const base = String(heroJson?.nickColor ?? fallback ?? "").trim();
+  return base || undefined;
+}
+
 export async function characterOnlineRoutes(app: FastifyInstance) {
   // GET /characters/online - список онлайн гравців (активні за останні 10 хвилин)
   app.get("/characters/online", async (req, reply) => {
@@ -26,6 +38,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
             name: true,
             level: true,
             lastActivityAt: true,
+            nickColor: true,
             heroJson: true,
             clanMember: {
               select: {
@@ -55,6 +68,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
             name: true,
             level: true,
             updatedAt: true,
+            nickColor: true,
             heroJson: true,
             clanMember: {
               select: {
@@ -73,7 +87,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
         const heroJson = (char.heroJson as any) || {};
         const location = heroJson.location || "Unknown";
         const power = heroJson.power || 0;
-        const nickColor = heroJson.nickColor;
+        const nickColor = getEffectiveNickColor(heroJson, (char as any).nickColor);
         const lastActivityAt = char.lastActivityAt || char.updatedAt;
         const emblem = char.clanMember?.clan?.emblem || null;
 

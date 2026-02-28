@@ -49,7 +49,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const [selectedDropItem, setSelectedDropItem] = React.useState<string | null>(null);
   const [now, setNow] = React.useState(Date.now());
   const [zonePlayers, setZonePlayers] = React.useState<OnlinePlayer[]>([]);
-  const [zonePlayerIdx, setZonePlayerIdx] = React.useState(0);
 
   // Оновлюємо час кожну секунду для відображення таймера респавну
   React.useEffect(() => {
@@ -91,10 +90,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           (p) => normalize(String(p.location || "")) === zoneName && String(p.id || "").trim() !== myId
         );
         setZonePlayers(players);
-        setZonePlayerIdx((prev) => {
-          if (players.length === 0) return 0;
-          return Math.min(prev, players.length - 1);
-        });
       } catch {
         if (mounted) setZonePlayers([]);
       }
@@ -158,13 +153,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     params.set("id", zone.id);
     params.set("page", String(safe));
     history.replaceState(null, "", `/location?${params.toString()}`);
-  };
-
-  const currentZonePlayer = zonePlayers.length > 0 ? zonePlayers[zonePlayerIdx] : null;
-  const goZonePlayer = (delta: number) => {
-    if (zonePlayers.length <= 1) return;
-    const next = (zonePlayerIdx + delta + zonePlayers.length) % zonePlayers.length;
-    setZonePlayerIdx(next);
   };
 
   const handleBackToCity = () => {
@@ -284,36 +272,25 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           </div>
         )}
 
-        {currentZonePlayer && (
-          <div className="flex items-center justify-center gap-2 mt-2 text-[#c7ad80] text-xs">
-            <button
-              className="disabled:opacity-40"
-              disabled={zonePlayers.length <= 1}
-              onClick={() => goZonePlayer(-1)}
-            >
-              &lt;&lt;&lt;
-            </button>
-            <span>|</span>
-            <button
-              className="hover:text-[#f4e2b8]"
-              onClick={() => navigate(`/player/${encodeURIComponent(currentZonePlayer.id)}?pk=1`)}
-            >
-              {currentZonePlayer.name}
-            </button>
-            <button
-              className="px-1 border border-[#c7ad80]/70 rounded hover:bg-[#2a2015]"
-              onClick={() => navigate(`/player/${encodeURIComponent(currentZonePlayer.id)}?pk=1`)}
-            >
-              [pk]
-            </button>
-            <span>|</span>
-            <button
-              className="disabled:opacity-40"
-              disabled={zonePlayers.length <= 1}
-              onClick={() => goZonePlayer(1)}
-            >
-              &gt;&gt;&gt;
-            </button>
+        {zonePlayers.length > 0 && (
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
+            {zonePlayers.map((p) => (
+              <div key={p.id} className="inline-flex items-center gap-1 text-[#c7ad80]">
+                <button
+                  className="hover:text-[#f4e2b8]"
+                  style={p.nickColor ? { color: p.nickColor } : undefined}
+                  onClick={() => navigate(`/player/${encodeURIComponent(p.id)}?pk=1`)}
+                >
+                  {p.name}
+                </button>
+                <button
+                  className="text-red-500 hover:text-red-400"
+                  onClick={() => navigate(`/player/${encodeURIComponent(p.id)}?pk=1`)}
+                >
+                  [pk]
+                </button>
+              </div>
+            ))}
           </div>
         )}
 

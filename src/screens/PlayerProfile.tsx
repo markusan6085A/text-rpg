@@ -12,7 +12,7 @@ import { getMyClan } from "../utils/api";
 import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
 import PlayerStatsModal from "../components/PlayerStatsModal";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
-import { allSkills } from "../data/skills";
+import PkProfileView from "./player/PkProfileView";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -169,12 +169,6 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     };
   }, [character]);
 
-  const skillNames = useMemo(() => {
-    const m = new Map<number, string>();
-    for (const s of allSkills) m.set(s.id, s.name);
-    return m;
-  }, []);
-
   useEffect(() => {
     let cancelled = false;
     const start = async () => {
@@ -284,6 +278,22 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const profId = normalizeProfessionId(profession as any);
   const profDef = profId ? getProfessionDefinition(profId) : null;
   const professionLabel = profDef?.label || profession || "Нет";
+
+  if (isPkMode && hero && heroData) {
+    return (
+      <PkProfileView
+        character={character}
+        heroData={heroData}
+        professionLabel={professionLabel}
+        pkSession={pkSession}
+        pkLoading={pkLoading}
+        pkActing={pkActing}
+        pkError={pkError}
+        now={now}
+        onUseSkill={handlePkUseSkill}
+      />
+    );
+  }
 
   // Статистика з heroJson (якщо є) - перевіряємо всі можливі варіанти назв полів
   const stats = (character.heroJson || {}) as any;
@@ -451,82 +461,6 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             }}
           />
         </div>
-
-        {isPkMode && hero && heroData && (
-          <div className="mb-4 border border-solid border-[#c7ad80]/60 rounded p-2 bg-black/20">
-            <div className="text-[12px] text-red-400 font-semibold text-center mb-2">
-              PK бой
-            </div>
-
-            {!pkSession ? (
-              <div className="text-center text-[11px] text-gray-400">
-                {pkLoading ? "Создание PK сессии..." : (pkError || "PK сессия недоступна")}
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2 text-[11px]">
-                  <div>
-                    <div className="flex justify-between text-[#c7ad80]">
-                      <span>{pkSession.attacker.name}</span>
-                      <span>{pkSession.attacker.hp}/{pkSession.attacker.maxHp}</span>
-                    </div>
-                    <div className="h-2 bg-[#2a2a2a] rounded overflow-hidden border border-white/20">
-                      <div
-                        className="h-full bg-red-600"
-                        style={{ width: `${Math.max(0, Math.min(100, (pkSession.attacker.hp / Math.max(1, pkSession.attacker.maxHp)) * 100))}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[#c7ad80]">
-                      <span>{pkSession.defender.name}</span>
-                      <span>{pkSession.defender.hp}/{pkSession.defender.maxHp}</span>
-                    </div>
-                    <div className="h-2 bg-[#2a2a2a] rounded overflow-hidden border border-white/20">
-                      <div
-                        className="h-full bg-red-700"
-                        style={{ width: `${Math.max(0, Math.min(100, (pkSession.defender.hp / Math.max(1, pkSession.defender.maxHp)) * 100))}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-2 grid grid-cols-2 gap-1">
-                  {pkSession.attacker.skills.slice(0, 8).map((s) => {
-                    const cdLeft = Math.max(0, Math.ceil(((pkSession.cooldowns[s.id] ?? 0) - now) / 1000));
-                    const disabled = pkSession.ended || pkActing || pkSession.attacker.mp < s.mpCost || cdLeft > 0;
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => handlePkUseSkill(s.id)}
-                        className="text-[10px] px-1 py-1 rounded border border-[#c7ad80]/50 disabled:opacity-40 hover:bg-[#2a2015]"
-                      >
-                        {skillNames.get(s.id) || `skill#${s.id}`} {cdLeft > 0 ? `(${cdLeft})` : ""}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-2 border border-white/20 rounded p-2 max-h-[140px] overflow-y-auto text-[11px]">
-                  {pkSession.log.map((line, idx) => (
-                    <div key={idx} className="text-[#d9c4a3]">{line}</div>
-                  ))}
-                </div>
-
-                {pkSession.ended && (
-                  <div className="mt-2 text-center text-[11px]">
-                    <div className={pkSession.winnerId === pkSession.attackerId ? "text-green-400" : "text-red-400"}>
-                      {pkSession.winnerId === pkSession.attackerId ? "Вы победили" : "Вы проиграли"}
-                    </div>
-                  </div>
-                )}
-                {pkError && <div className="mt-1 text-center text-[11px] text-red-400">{pkError}</div>}
-              </>
-            )}
-          </div>
-        )}
 
         {/* Модалка характеристик предмета */}
         {selectedItem && (

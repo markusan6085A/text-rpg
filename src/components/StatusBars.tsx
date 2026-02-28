@@ -11,7 +11,7 @@ import { unequipItemLogic } from "../state/heroStore/heroInventory";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "./PlayerNameWithEmblem";
 import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
-import { getMyClan } from "../utils/api";
+import { getMyClan, getPkState } from "../utils/api";
 import { isPremiumActive } from "../utils/premium/isPremiumActive";
 
 type BarKey = "CP" | "HP" | "MP" | "EXP";
@@ -77,6 +77,7 @@ export default function StatusBars() {
   const updateHero = useHeroStore((s) => s.updateHero);
   const battleStatus = useBattleStore((s) => s.status);
   const [myClan, setMyClan] = React.useState<any>(null);
+  const [pkIncomingNotice, setPkIncomingNotice] = React.useState<any>(null);
   
   const inBattle = battleStatus !== "idle";
 
@@ -126,6 +127,51 @@ export default function StatusBars() {
         setMyClan(null);
       });
   }, [hero?.name]);
+
+  // PK realtime sync: підтягувати серверний HP/MP і вхідну атаку, щоб бари падали всюди.
+  React.useEffect(() => {
+    if (!hero?.id) {
+      setPkIncomingNotice(null);
+      return;
+    }
+    let mounted = true;
+    const sync = async () => {
+      try {
+        const st = await getPkState(hero.id);
+        if (!mounted) return;
+        const currentHero = useHeroStore.getState().hero;
+        if (!currentHero) return;
+
+        const nextHp = Number(st.hp);
+        const nextMp = Number(st.mp);
+        const patch: any = {};
+
+        // Не піднімаємо ресурси примусово тут — тільки зменшуємо, щоб не ламати інші джерела оновлень.
+        if (Number.isFinite(nextHp) && nextHp >= 0 && nextHp < Number(currentHero.hp ?? 0)) patch.hp = nextHp;
+        if (Number.isFinite(nextMp) && nextMp >= 0 && nextMp < Number(currentHero.mp ?? 0)) patch.mp = nextMp;
+        if (Number.isFinite(Number(st.maxHp)) && Number(st.maxHp) > 0) patch.maxHp = Number(st.maxHp);
+        if (Number.isFinite(Number(st.maxMp)) && Number(st.maxMp) > 0) patch.maxMp = Number(st.maxMp);
+
+        patch.heroJson = {
+          ...((currentHero as any).heroJson || {}),
+          pkIncoming: st.pkIncoming ?? null,
+        };
+        if (st.nickColor) patch.nickColor = st.nickColor;
+
+        useHeroStore.getState().updateHero(patch, { persist: false });
+        setPkIncomingNotice(st.pkIncoming ?? null);
+      } catch {
+        // silent: endpoint може бути тимчасово недоступним
+      }
+    };
+
+    sync();
+    const t = setInterval(sync, 1000);
+    return () => {
+      mounted = false;
+      clearInterval(t);
+    };
+  }, [hero?.id]);
 
   // Регенерація HP/MP/CP (тільки поза боєм) та перевірка таймера Зарича
   // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
@@ -297,6 +343,10 @@ export default function StatusBars() {
   const expCurrent = Number(hero.exp ?? 0) || 0;
   const expNeed = getExpToNext(level);
   const expPercent = expNeed > 0 ? Math.min(100, Math.floor((expCurrent / expNeed) * 100)) : 100;
+  const activeIncoming =
+    pkIncomingNotice && Number(pkIncomingNotice.until ?? 0) > Date.now()
+      ? pkIncomingNotice
+      : null;
 
   return (
     <div 
@@ -324,6 +374,14 @@ export default function StatusBars() {
         )}
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
+      {activeIncoming && (
+        <div className="mt-1 px-1 py-[2px] border border-white/25 bg-black/55 text-[9px] text-[#d9c4a3] w-fit max-w-[180px]">
+          <span>Атакує: </span>
+          <span style={activeIncoming.attackerNickColor ? { color: activeIncoming.attackerNickColor } : undefined}>
+            {activeIncoming.attackerName}
+          </span>
+        </div>
+      )}
       {/* Крапкова лінія під барами */}
       <div className="mt-1 w-full border-t border-solid border-white/35"></div>
     </div>
