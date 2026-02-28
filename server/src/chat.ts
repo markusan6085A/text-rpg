@@ -132,7 +132,7 @@ export async function chatRoutes(app: FastifyInstance) {
       // колонка може ще не існувати
     }
 
-    const muteUntil = getMutedUntil(character.id);
+    const muteUntil = await getMutedUntil(character.id);
     const now = Date.now();
     return {
       ok: true,
@@ -192,7 +192,7 @@ export async function chatRoutes(app: FastifyInstance) {
       });
     }
 
-    const muteUntil = getMutedUntil(character.id);
+    const muteUntil = await getMutedUntil(character.id);
     if (muteUntil != null) {
       const secLeft = Math.ceil((muteUntil - Date.now()) / 1000);
       return reply.code(403).send({

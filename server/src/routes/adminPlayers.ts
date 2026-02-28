@@ -621,7 +621,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         await logAdminFailed(req, "admin.mute", { message: "character not found", targetCharacterId: characterId });
         return reply.code(404).send({ error: "character not found" });
       }
-      setMuted(characterId, durationMinutes);
+      await setMuted(characterId, durationMinutes);
       await logAdminSuccess(req, "admin.mute", {
         targetCharacterId: characterId,
         metadata: { durationMinutes },

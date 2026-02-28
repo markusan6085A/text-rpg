@@ -38,7 +38,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const characterId = String((req.body as any)?.characterId ?? "").trim();
     const durationMinutes = Math.min(60 * 24, Math.max(1, Number((req.body as any)?.durationMinutes ?? 10)));
     if (!characterId) return reply.code(400).send({ error: "characterId required" });
-    setMuted(characterId, durationMinutes);
+    await setMuted(characterId, durationMinutes);
     return { ok: true };
   });
 };
