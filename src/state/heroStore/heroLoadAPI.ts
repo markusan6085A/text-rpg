@@ -14,9 +14,25 @@ import { hydrateHero } from "./heroHydration";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs } from "../heroStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
+import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
 
 // 🔥 ВИДАЛЕНО: window.__lastServerExp та глобальні змінні
 // Тепер використовуємо serverState з heroStore
+
+function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number {
+  const levelNum = Math.max(1, Math.min(MAX_LEVEL, Number(levelRaw) || 1));
+  const currentLevelTotal = Number(EXP_TABLE[levelNum - 1] ?? 0);
+  const need = Math.max(0, Number(getExpToNext(levelNum)) || 0);
+  let exp = Math.max(0, Number(rawExp) || 0);
+
+  // Якщо exp схожий на cumulative (загальний), конвертуємо в прогрес поточного рівня.
+  if (levelNum > 1 && exp >= currentLevelTotal) {
+    exp = exp - currentLevelTotal;
+  }
+
+  if (need <= 0 || levelNum >= MAX_LEVEL) return 0;
+  return Math.max(0, Math.min(exp, Math.max(0, need - 1)));
+}
 
 export async function loadHeroFromAPI(): Promise<Hero | null> {
   const authStore = useAuthStore.getState();
@@ -76,8 +92,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const serverMobsKilled = Number(heroData?.mobsKilled ?? 0);
       const localMobsKilled = Number((hydratedLocalHero as any).mobsKilled ?? (hydratedLocalHero as any).heroJson?.mobsKilled ?? 0);
       // 🔥 КРИТИЧНО: Всі значення в Number() — API може повертати рядки, інакше localExp > serverExp дає хибний результат
-      const serverExp = Number(character.exp ?? heroData?.exp ?? 0);
-      const localExp = Number(hydratedLocalHero.exp ?? (hydratedLocalHero as any).heroJson?.exp ?? 0);
+      const serverExp = normalizeExpToLevelProgress(
+        character.exp ?? heroData?.exp ?? 0,
+        character.level ?? heroData?.level ?? 1
+      );
+      const localExp = normalizeExpToLevelProgress(
+        hydratedLocalHero.exp ?? (hydratedLocalHero as any).heroJson?.exp ?? 0,
+        hydratedLocalHero.level ?? (hydratedLocalHero as any).heroJson?.level ?? 1
+      );
       const serverLevel = Number(character.level ?? heroData?.level ?? 1);
       const localLevel = Number(hydratedLocalHero.level ?? (hydratedLocalHero as any).heroJson?.level ?? 1);
       const serverSp = Number(character.sp ?? heroData?.sp ?? 0);
@@ -274,10 +296,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         : character.level;
       
       // 🔥 КРИТИЧНО: EXP також може бути в heroJson
-      const heroJsonExp = (heroData as any).exp;
-      const finalExp = heroJsonExp !== undefined && heroJsonExp > Number(character.exp)
-        ? heroJsonExp
-        : Number(character.exp);
+      const heroJsonExp = normalizeExpToLevelProgress((heroData as any).exp, finalLevel);
+      const characterExp = normalizeExpToLevelProgress(character.exp, finalLevel);
+      const finalExp = Math.max(heroJsonExp, characterExp);
       
       // 🔥 КРИТИЧНО: Не посилатися на fixedHero до його ініціалізації (ReferenceError якщо heroData.skills порожні)
       const serverSkillsArr = Array.isArray((heroData as any).skills) ? (heroData as any).skills : [];

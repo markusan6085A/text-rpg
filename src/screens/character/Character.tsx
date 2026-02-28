@@ -110,14 +110,8 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   // -----------------------------
   // EXP calculation
   // -----------------------------
-  const totalExp = hero?.exp ?? 0;
-  // EXP needed to reach current level (EXP_TABLE[level-1] is the exp needed to reach level)
-  // For level 1: EXP_TABLE[0] = 0
-  // For level 2: EXP_TABLE[1] = 68
-  // For level 80: EXP_TABLE[79] = 3 726 116 782
-  const currentLevelExp = level > 1 ? (EXP_TABLE[level - 1] ?? 0) : 0;
-  // Current EXP on this level
-  const expCurrent = Math.max(0, totalExp - currentLevelExp);
+  // В проекті hero.exp — прогрес у межах поточного рівня (не cumulative).
+  const expCurrent = Math.max(0, Number(hero?.exp ?? 0));
   // EXP needed for next level (дельта до наступного лвл)
   const expToNext = getExpToNext(level);
   // Друге число: всього потрібно за рівень (для макс. лвл — поріг 5e9)
