@@ -650,10 +650,10 @@ export async function getOnlinePlayers(): Promise<OnlinePlayersResponse> {
   return response;
 }
 
-export async function sendHeartbeat(): Promise<{ ok: boolean; message: string }> {
+export async function sendHeartbeat(characterId?: string, location?: string): Promise<{ ok: boolean; message: string }> {
   const response = await apiRequest<{ ok: boolean; message: string }>('/characters/heartbeat', {
     method: 'POST',
-    body: JSON.stringify({ ts: Date.now() }),
+    body: JSON.stringify({ ts: Date.now(), characterId, location }),
   });
   return response;
 }

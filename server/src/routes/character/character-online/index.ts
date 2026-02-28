@@ -112,17 +112,36 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     try {
-      const character = await prisma.character.findFirst({
-        where: { accountId: auth.accountId },
-        orderBy: { createdAt: "asc" },
-        select: { id: true },
-      });
+      const body = (req.body ?? {}) as { characterId?: string; location?: string };
+      const requestedCharacterId = String(body.characterId ?? "").trim();
+      const requestedLocation = String(body.location ?? "").trim();
+      const character = requestedCharacterId
+        ? await prisma.character.findFirst({
+            where: { id: requestedCharacterId, accountId: auth.accountId },
+            select: { id: true, heroJson: true },
+          })
+        : await prisma.character.findFirst({
+            where: { accountId: auth.accountId },
+            orderBy: { createdAt: "asc" },
+            select: { id: true, heroJson: true },
+          });
 
       if (!character) {
         return reply.code(404).send({ error: "character not found" });
       }
 
-      await prisma.$executeRaw`UPDATE "Character" SET "lastActivityAt" = NOW() WHERE id = ${character.id}`;
+      if (requestedLocation.length > 0) {
+        const heroJson = ((character as any).heroJson as any) || {};
+        await prisma.character.update({
+          where: { id: character.id },
+          data: {
+            lastActivityAt: new Date(),
+            heroJson: { ...heroJson, location: requestedLocation },
+          },
+        });
+      } else {
+        await prisma.$executeRaw`UPDATE "Character" SET "lastActivityAt" = NOW() WHERE id = ${character.id}`;
+      }
 
       return {
         ok: true,

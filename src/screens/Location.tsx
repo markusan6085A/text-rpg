@@ -14,7 +14,7 @@ import { savePreviousLocation, savePreviousCity } from "../utils/locationNavigat
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
-import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
+import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 
 type Navigate = (path: string) => void;
 
@@ -69,10 +69,20 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   }, [found?.zone?.name, hero?.id, updateHero]);
 
   React.useEffect(() => {
+    if (!found?.zone?.name || !hero?.id) return;
+    // Додаємо heartbeat з characterId + location, щоб серверний online список
+    // відображав саме активного персонажа/твіна в правильній окрестності.
+    sendHeartbeat(hero.id, found.zone.name).catch(() => {});
+  }, [found?.zone?.name, hero?.id]);
+
+  React.useEffect(() => {
     let mounted = true;
     const normalize = (v: string) => v.trim().toLowerCase();
     const load = async () => {
       try {
+        if (hero?.id && found?.zone?.name) {
+          await sendHeartbeat(hero.id, found.zone.name);
+        }
         const data = await getOnlinePlayers();
         if (!mounted) return;
         const myId = String((hero as any)?.id ?? "").trim();

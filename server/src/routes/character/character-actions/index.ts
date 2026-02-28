@@ -112,9 +112,10 @@ function getLocation(heroJson: any): string {
   return String(heroJson?.location ?? heroJson?.currentLocation ?? heroJson?.zone ?? "").trim();
 }
 
-function isOnline(lastActivityAt: Date | null | undefined): boolean {
-  if (!lastActivityAt) return false;
-  return new Date(lastActivityAt).getTime() >= Date.now() - 10 * 60 * 1000;
+function isOnline(lastActivityAt: Date | null | undefined, updatedAt?: Date | null): boolean {
+  const effective = lastActivityAt ?? updatedAt ?? null;
+  if (!effective) return false;
+  return new Date(effective).getTime() >= Date.now() - 10 * 60 * 1000;
 }
 
 function normalizeSkills(heroJson: any): PkSkill[] {
@@ -268,16 +269,35 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (!attackerId || !targetId) return reply.code(400).send({ error: "attackerId and targetId are required" });
     if (attackerId === targetId) return reply.code(400).send({ error: "self pk is not allowed" });
 
-    const chars = await prisma.character.findMany({
-      where: { id: { in: [attackerId, targetId] } },
-      select: { id: true, accountId: true, name: true, level: true, heroJson: true, lastActivityAt: true },
-    });
+    let chars: Array<{
+      id: string;
+      accountId: string;
+      name: string;
+      level: number;
+      heroJson: unknown;
+      lastActivityAt?: Date | null;
+      updatedAt?: Date | null;
+    }> = [];
+    try {
+      chars = await prisma.character.findMany({
+        where: { id: { in: [attackerId, targetId] } },
+        select: { id: true, accountId: true, name: true, level: true, heroJson: true, lastActivityAt: true, updatedAt: true },
+      });
+    } catch {
+      // Fallback для БД, де ще немає колонки lastActivityAt.
+      chars = await prisma.character.findMany({
+        where: { id: { in: [attackerId, targetId] } },
+        select: { id: true, accountId: true, name: true, level: true, heroJson: true, updatedAt: true },
+      });
+    }
     if (chars.length !== 2) return reply.code(404).send({ error: "character not found" });
     const attackerChar = chars.find((c) => c.id === attackerId);
     const defenderChar = chars.find((c) => c.id === targetId);
     if (!attackerChar || !defenderChar) return reply.code(404).send({ error: "character not found" });
     if (attackerChar.accountId !== auth.accountId) return reply.code(403).send({ error: "attacker does not belong to current account" });
-    if (!isOnline(attackerChar.lastActivityAt) || !isOnline(defenderChar.lastActivityAt)) return reply.code(400).send({ error: "both players must be online" });
+    if (!isOnline(attackerChar.lastActivityAt, attackerChar.updatedAt) || !isOnline(defenderChar.lastActivityAt, defenderChar.updatedAt)) {
+      return reply.code(400).send({ error: "both players must be online" });
+    }
 
     const attackerLoc = getLocation(attackerChar.heroJson as any);
     const defenderLoc = getLocation(defenderChar.heroJson as any);
