@@ -1,7 +1,7 @@
 import React from "react";
 import type { Character, PkSessionState } from "../../utils/api";
-import { allSkills } from "../../data/skills";
 import CharacterEquipmentFrame from "../character/CharacterEquipmentFrame";
+import PkSkillLoadoutBar from "./PkSkillLoadoutBar";
 
 interface PkProfileViewProps {
   character: Character;
@@ -28,13 +28,6 @@ export default function PkProfileView({
 }: PkProfileViewProps) {
   const boxBlue =
     "rounded-lg border-2 border-[#4aa3ff]/70 bg-black/25 shadow-[inset_0_0_12px_rgba(74,163,255,0.18)] overflow-hidden";
-  const skillMeta = React.useMemo(() => {
-    const m = new Map<number, { name: string; icon: string }>();
-    for (const s of allSkills) {
-      m.set(s.id, { name: s.name, icon: s.icon || "/skills/attack.jpg" });
-    }
-    return m;
-  }, []);
 
   return (
     <div className="w-full text-[#c7ad80] text-[12px]">
@@ -80,31 +73,16 @@ export default function PkProfileView({
             </div>
           </div>
 
-          <div className="mt-2 grid grid-cols-3 gap-1.5">
-            {pkSession.attacker.skills.slice(0, 6).map((s) => {
-              const cdLeft = Math.max(0, Math.ceil(((pkSession.cooldowns[s.id] ?? 0) - now) / 1000));
-              const disabled = pkSession.ended || pkActing || pkSession.attacker.mp < s.mpCost || cdLeft > 0;
-              const meta = skillMeta.get(s.id);
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => onUseSkill(s.id)}
-                  className="rounded border border-[#c7ad80]/45 bg-[#17120e] px-1 py-1 disabled:opacity-40 hover:bg-[#2a2015]"
-                  title={meta?.name || `skill#${s.id}`}
-                >
-                  <div className="flex flex-col items-center gap-0.5">
-                    <img src={meta?.icon || "/skills/attack.jpg"} alt={meta?.name || `skill#${s.id}`} className="w-5 h-5 object-contain" />
-                    <span className="text-[8px] leading-tight text-[#d9c4a3] truncate w-full">
-                      {(meta?.name || `skill#${s.id}`).slice(0, 14)}
-                    </span>
-                    {cdLeft > 0 && <span className="text-[8px] text-red-400">({cdLeft})</span>}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+          <PkSkillLoadoutBar
+            ownerId={character.id}
+            skills={pkSession.attacker.skills}
+            cooldowns={pkSession.cooldowns}
+            currentMp={pkSession.attacker.mp}
+            ended={pkSession.ended}
+            acting={pkActing}
+            now={now}
+            onUseSkill={onUseSkill}
+          />
 
           <div className="mt-3">
             <div className="text-[12px] text-[#c7ad80] font-semibold mb-1">Лог бою:</div>
