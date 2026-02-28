@@ -146,7 +146,7 @@ export default function StatusBars() {
         const nextHp = Number(st.hp);
         const nextMp = Number(st.mp);
         const patch: any = {};
-        const allowPkSync = Boolean(st.pkSyncActive) || Boolean(st.pkIncoming);
+        const allowPkSync = Boolean(st.pkIncoming);
 
         // ВАЖЛИВО: синкаємо HP/MP з PK endpoint тільки під час активного PK-синку.
         // Інакше застаріле server значення може "відкотити" HP після релогу.
@@ -154,12 +154,7 @@ export default function StatusBars() {
           if (Number.isFinite(nextHp) && nextHp >= 0 && nextHp < Number(currentHero.hp ?? 0)) patch.hp = nextHp;
           if (Number.isFinite(nextMp) && nextMp >= 0 && nextMp < Number(currentHero.mp ?? 0)) patch.mp = nextMp;
         }
-        // maxHp/maxMp з PK endpoint теж чіпаємо тільки під час активного PK sync.
-        // Інакше після F5 можемо перетерти бафнуті max на "базові" серверні значення.
-        if (allowPkSync) {
-          if (Number.isFinite(Number(st.maxHp)) && Number(st.maxHp) > 0) patch.maxHp = Number(st.maxHp);
-          if (Number.isFinite(Number(st.maxMp)) && Number(st.maxMp) > 0) patch.maxMp = Number(st.maxMp);
-        }
+        // maxHp/maxMp тут НЕ синкаємо: це ламає buffed max (6k -> 4k) при вході в PK.
 
         patch.heroJson = {
           ...((currentHero as any).heroJson || {}),
