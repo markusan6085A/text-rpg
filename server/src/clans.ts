@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import jwt from "jsonwebtoken";
 import { prisma } from "./db";
+import { getAuth } from "./routes/character/auth";
 
 // Функція для перевірки та створення таблиці ClanWarehouse, якщо вона не існує
 async function ensureClanWarehouseTable(app: FastifyInstance): Promise<void> {
@@ -103,23 +103,6 @@ async function ensureClanWarehouseTable(app: FastifyInstance): Promise<void> {
       app.log.error({ error: error.message, code: error.code }, "Unexpected error checking ClanWarehouse table");
       // Не кидаємо помилку, спробуємо продовжити
     }
-  }
-}
-
-function getAuth(req: any): { accountId: string; login: string; characterId?: string } | null {
-  const header = req.headers?.authorization || "";
-  const [type, token] = String(header).split(" ");
-  if (type !== "Bearer" || !token) return null;
-
-  const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error("JWT_SECRET is missing in .env");
-
-  try {
-    const payload = jwt.verify(token, secret) as any;
-    if (!payload?.accountId) return null;
-    return { accountId: payload.accountId, login: payload.login, characterId: payload.characterId };
-  } catch {
-    return null;
   }
 }
 

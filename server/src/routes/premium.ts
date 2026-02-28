@@ -1,8 +1,8 @@
 import type { FastifyInstance } from "fastify";
-import jwt from "jsonwebtoken";
 import { prisma } from "../db";
 import { addVersioning } from "../heroJsonValidator";
 import { addNews } from "../news";
+import { getAuth } from "./character/auth";
 
 const PREMIUM_PACKAGES = {
   "3h": { addMs: 3 * 60 * 60 * 1000, price: 3 },
@@ -13,21 +13,6 @@ const PREMIUM_PACKAGES = {
 
 type PremiumPack = keyof typeof PREMIUM_PACKAGES;
 const VALID_PACKS: PremiumPack[] = ["3h", "7h", "12h", "24h"];
-
-function getAuth(req: any): { accountId: string; login: string } | null {
-  const header = req.headers?.authorization || "";
-  const [type, token] = String(header).split(" ");
-  if (type !== "Bearer" || !token) return null;
-  const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error("JWT_SECRET is missing in .env");
-  try {
-    const payload = jwt.verify(token, secret) as any;
-    if (!payload?.accountId) return null;
-    return { accountId: payload.accountId, login: payload.login };
-  } catch {
-    return null;
-  }
-}
 
 export async function premiumRoutes(app: FastifyInstance) {
   app.post<{

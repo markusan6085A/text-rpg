@@ -42,6 +42,11 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
   const transferFeePerItem = Math.floor(itemPrice * 0.05);
   const transferFee = transferFeePerItem * quantity;
 
+  const isUnauthorizedError = (err: any): boolean => {
+    const msg = String(err?.message || err?.error || "").toLowerCase();
+    return err?.unauthorized === true || err?.status === 401 || msg.includes("unauthorized");
+  };
+
   const handleTransfer = async () => {
     if (!recipientName.trim()) {
       alert("Введіть нікнейм отримувача");
@@ -79,36 +84,27 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
         sender: currentHero.name,
       });
 
-      // 2. Відправляємо на сервер
-      await sendItemTransferLetter({
+      // 2. Сервер атомарно: списує item у відправника + створює лист
+      const transferRes = await sendItemTransferLetter({
         toCharacterName: recipientName.trim(),
         itemPayload: payload,
       });
 
-      // 3. Знімаємо предмет та комісію у відправника
-      const newAdena = currentAdena - transferFee;
-      
-      let itemRemoved = false;
-      const newInventory = currentHero.inventory.flatMap((i) => {
-        // Знаходимо саме цей предмет за id та рівнем заточки
-        if (!itemRemoved && i.id === item.id && (i.enchantLevel || 0) === (item.enchantLevel || 0)) {
-          itemRemoved = true;
-          if (i.count && i.count > quantity) {
-            return [{ ...i, count: i.count - quantity }];
-          }
-          return []; // Видаляємо повністю
-        }
-        return [i];
-      });
-
+      // 3. Оновлюємо локального героя тільки з серверного snapshot
+      const serverHeroJson = transferRes.character?.heroJson || {};
       updateHero({
-        adena: newAdena,
-        inventory: newInventory,
+        adena: Number(transferRes.character?.adena ?? currentAdena - transferFee),
+        inventory: Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : [],
       });
 
       alert(`Предмет успішно відправлено гравцю ${recipientName}!`);
       onSuccess();
     } catch (err: any) {
+      if (isUnauthorizedError(err)) {
+        alert("Сессия истекла. Войдите снова.");
+        window.location.href = "/";
+        return;
+      }
       console.error("Transfer error:", err);
       alert(err?.message || "Помилка передачі предмета. Можливо, такого гравця не існує.");
     } finally {

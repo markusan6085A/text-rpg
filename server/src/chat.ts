@@ -1,25 +1,8 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import jwt from "jsonwebtoken";
 import { prisma } from "./db";
 import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 import { getMutedUntil } from "./chatMute";
-
-function getAuth(req: any): { accountId: string; login: string } | null {
-  const header = req.headers?.authorization || "";
-  const [type, token] = String(header).split(" ");
-  if (type !== "Bearer" || !token) return null;
-
-  const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error("JWT_SECRET is missing in .env");
-
-  try {
-    const payload = jwt.verify(token, secret) as any;
-    if (!payload?.accountId) return null;
-    return { accountId: payload.accountId, login: payload.login };
-  } catch {
-    return null;
-  }
-}
+import { getAuth } from "./routes/character/auth";
 
 export async function chatRoutes(app: FastifyInstance) {
   // GET /chat/messages?channel=general&page=1&limit=50

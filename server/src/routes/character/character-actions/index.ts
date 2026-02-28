@@ -137,42 +137,45 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
 
     try {
-      const targetChar = await prisma.character.findUnique({
-        where: { id: targetId },
-        select: { id: true, level: true, heroJson: true },
+      const result = await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM "Character" WHERE id = ${targetId} FOR UPDATE`;
+
+        const targetChar = await tx.character.findUnique({
+          where: { id: targetId },
+          select: { id: true, level: true, heroJson: true },
+        });
+        if (!targetChar) throw new Error("target character not found");
+
+        const heroJson = (targetChar.heroJson as any) || {};
+        const rawMaxHp = Number(
+          heroJson.maxHp ?? heroJson.maxHP ?? heroJson.max_hp ??
+          heroJson?.resources?.maxHp ?? heroJson?.battleStats?.maxHp ?? 0
+        );
+        const level = Number(targetChar.level ?? 1);
+        const maxHp = rawMaxHp > 100 ? rawMaxHp : Math.max(100, 150 + level * 12);
+        const rawHp = Number(heroJson.hp ?? 0);
+        const currentHp = rawHp > 0 ? Math.min(rawHp, maxHp) : maxHp;
+        const newHp = Math.min(maxHp, currentHp + body.power);
+
+        const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+        const updatedHeroJson = addVersioning(
+          { ...heroJson, hp: newHp, maxHp },
+          oldRevision
+        );
+
+        await tx.character.update({
+          where: { id: targetId },
+          data: { heroJson: updatedHeroJson },
+        });
+
+        return { healedHp: newHp - currentHp, currentHp: newHp };
       });
 
-      if (!targetChar) {
+      return { ok: true, healedHp: result.healedHp, currentHp: result.currentHp };
+    } catch (error) {
+      if (error instanceof Error && error.message === "target character not found") {
         return reply.code(404).send({ error: "target character not found" });
       }
-
-      const heroJson = (targetChar.heroJson as any) || {};
-      const rawMaxHp = Number(
-        heroJson.maxHp ?? heroJson.maxHP ?? heroJson.max_hp ??
-        heroJson?.resources?.maxHp ?? heroJson?.battleStats?.maxHp ?? 0
-      );
-      const level = Number(targetChar.level ?? 1);
-      const maxHp = rawMaxHp > 100 ? rawMaxHp : Math.max(100, 150 + level * 12);
-      const rawHp = Number(heroJson.hp ?? 0);
-      const currentHp = rawHp > 0 ? Math.min(rawHp, maxHp) : maxHp;
-      const newHp = Math.min(maxHp, currentHp + body.power);
-
-      const oldRevision = heroJson.heroRevision || 0;
-      const updatedHeroJson = {
-        ...heroJson,
-        hp: newHp,
-        maxHp: maxHp,
-        heroRevision: Date.now() > oldRevision ? Date.now() : oldRevision + 1,
-        heroJsonVersion: heroJson.heroJsonVersion || 1,
-      };
-
-      await prisma.character.update({
-        where: { id: targetId },
-        data: { heroJson: updatedHeroJson },
-      });
-
-      return { ok: true, healedHp: newHp - currentHp, currentHp: newHp };
-    } catch (error) {
       app.log.error(error, "Error healing character:");
       return reply.code(500).send({
         error: "Internal Server Error",
@@ -197,104 +200,109 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
 
     try {
-      const targetChar = await prisma.character.findUnique({
-        where: { id: targetId },
-        select: { id: true, heroJson: true },
-      });
+      const result = await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM "Character" WHERE id = ${targetId} FOR UPDATE`;
 
-      if (!targetChar) {
-        return reply.code(404).send({ error: "target character not found" });
-      }
+        const targetChar = await tx.character.findUnique({
+          where: { id: targetId },
+          select: { id: true, heroJson: true },
+        });
+        if (!targetChar) throw new Error("target character not found");
 
-      const heroJson = (targetChar.heroJson as any) || {};
-      const currentBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
-      
-      const newBuff = {
-        id: body.skillId,
-        name: body.buffData.name || "",
-        icon: body.buffData.icon || "",
-        effects: body.buffData.effects || [],
-        expiresAt: body.buffData.expiresAt || (Date.now() + (body.buffData.duration || 0) * 1000),
-        startedAt: Date.now(),
-        durationMs: (body.buffData.duration || 0) * 1000,
-        source: "skill" as const,
-        buffGroup: body.buffData.buffGroup,
-        stackType: body.buffData.stackType,
-      };
-      
-      let filteredBuffs = currentBuffs.filter((b: any) => {
-        if (b.id === body.skillId) return false;
-        if (newBuff.buffGroup && b.buffGroup === newBuff.buffGroup) {
-          return false;
-        }
-        return true;
-      });
-      
-      const existingBuff = currentBuffs.find((b: any) => b.id === body.skillId);
-      if (existingBuff) {
-        const newTotalPower = (newBuff.effects || []).reduce((sum: number, eff: any) => {
-          if (eff.mode === "multiplier") {
-            return sum + (eff.multiplier || 1);
-          } else if (eff.mode === "percent") {
-            return sum + Math.abs(eff.value || 0);
-          } else {
-            return sum + Math.abs(eff.value || 0);
+        const heroJson = (targetChar.heroJson as any) || {};
+        const currentBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+
+        const newBuff = {
+          id: body.skillId,
+          name: body.buffData.name || "",
+          icon: body.buffData.icon || "",
+          effects: body.buffData.effects || [],
+          expiresAt: body.buffData.expiresAt || (Date.now() + (body.buffData.duration || 0) * 1000),
+          startedAt: Date.now(),
+          durationMs: (body.buffData.duration || 0) * 1000,
+          source: "skill" as const,
+          buffGroup: body.buffData.buffGroup,
+          stackType: body.buffData.stackType,
+        };
+
+        let filteredBuffs = currentBuffs.filter((b: any) => {
+          if (b.id === body.skillId) return false;
+          if (newBuff.buffGroup && b.buffGroup === newBuff.buffGroup) {
+            return false;
           }
-        }, 0);
-        
-        const oldTotalPower = (existingBuff.effects || []).reduce((sum: number, eff: any) => {
-          if (eff.mode === "multiplier") {
-            return sum + (eff.multiplier || 1);
-          } else if (eff.mode === "percent") {
-            return sum + Math.abs(eff.value || 0);
-          } else {
-            return sum + Math.abs(eff.value || 0);
+          return true;
+        });
+
+        const existingBuff = currentBuffs.find((b: any) => b.id === body.skillId);
+        if (existingBuff) {
+          const newTotalPower = (newBuff.effects || []).reduce((sum: number, eff: any) => {
+            if (eff.mode === "multiplier") {
+              return sum + (eff.multiplier || 1);
+            } else if (eff.mode === "percent") {
+              return sum + Math.abs(eff.value || 0);
+            } else {
+              return sum + Math.abs(eff.value || 0);
+            }
+          }, 0);
+
+          const oldTotalPower = (existingBuff.effects || []).reduce((sum: number, eff: any) => {
+            if (eff.mode === "multiplier") {
+              return sum + (eff.multiplier || 1);
+            } else if (eff.mode === "percent") {
+              return sum + Math.abs(eff.value || 0);
+            } else {
+              return sum + Math.abs(eff.value || 0);
+            }
+          }, 0);
+
+          if (oldTotalPower >= newTotalPower) {
+            app.log.info(
+              {
+                targetId,
+                skillId: body.skillId,
+                reason: "existing_buff_better",
+                oldPower: oldTotalPower,
+                newPower: newTotalPower,
+              },
+              '[POST /characters/:id/buff] Keeping existing buff (better than new)'
+            );
+            return { skipped: true };
           }
-        }, 0);
-        
-        if (oldTotalPower >= newTotalPower) {
+
           app.log.info(
             {
               targetId,
               skillId: body.skillId,
-              reason: "existing_buff_better",
+              reason: "replacing_with_better",
               oldPower: oldTotalPower,
               newPower: newTotalPower,
             },
-            '[POST /characters/:id/buff] Keeping existing buff (better than new)'
+            '[POST /characters/:id/buff] Replacing buff with better version'
           );
-          return reply.code(200).send({ ok: true, message: "Existing buff is better, keeping it" });
         }
-        
-        app.log.info(
-          {
-            targetId,
-            skillId: body.skillId,
-            reason: "replacing_with_better",
-            oldPower: oldTotalPower,
-            newPower: newTotalPower,
-          },
-          '[POST /characters/:id/buff] Replacing buff with better version'
-        );
-      }
-      
-      const updatedBuffs = [...filteredBuffs, newBuff];
-      
-      const oldRevision = heroJson.heroRevision || 0;
-      const updatedHeroJson = {
-        ...heroJson,
-        heroBuffs: updatedBuffs,
-        heroRevision: Date.now() > oldRevision ? Date.now() : oldRevision + 1,
-        heroJsonVersion: heroJson.heroJsonVersion || 1,
-      };
 
-      await prisma.character.update({
-        where: { id: targetId },
-        data: { heroJson: updatedHeroJson },
+        const updatedBuffs = [...filteredBuffs, newBuff];
+        const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+        const updatedHeroJson = addVersioning(
+          { ...heroJson, heroBuffs: updatedBuffs },
+          oldRevision
+        );
+
+        await tx.character.update({
+          where: { id: targetId },
+          data: { heroJson: updatedHeroJson },
+        });
+
+        return { skipped: false, updatedBuffs, newBuff };
       });
-      
+
+      if (result.skipped) {
+        return reply.code(200).send({ ok: true, message: "Existing buff is better, keeping it" });
+      }
+
+      const updatedBuffs = result.updatedBuffs ?? [];
       const skillId = body.skillId;
-      const buffName = newBuff.name;
+      const buffName = result.newBuff?.name || "";
       const totalBuffs = updatedBuffs.length;
       app.log.info(
         {
@@ -310,9 +318,12 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         },
         '[POST /characters/:id/buff] Buff applied'
       );
-      
+
       return { ok: true, message: "Buff applied successfully" };
     } catch (error) {
+      if (error instanceof Error && error.message === "target character not found") {
+        return reply.code(404).send({ error: "target character not found" });
+      }
       app.log.error(error, "Error buffing character:");
       return reply.code(500).send({
         error: "Internal Server Error",

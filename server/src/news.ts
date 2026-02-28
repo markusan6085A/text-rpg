@@ -1,19 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "./db";
-
-function getAuth(req: any): { accountId: string; login: string } | null {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return null;
-  }
-  try {
-    const token = authHeader.substring(7);
-    const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
-    return { accountId: payload.accountId, login: payload.login };
-  } catch {
-    return null;
-  }
-}
+import { getAuth } from "./routes/character/auth";
 
 export async function newsRoutes(app: FastifyInstance) {
   // GET /news - отримати новини (20 на сторінку, max 100 всього)

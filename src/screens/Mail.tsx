@@ -5,7 +5,7 @@ import {
   sendLetter,
   getConversationLetters,
   getUnreadCount,
-  deleteLetter,
+  collectItemFromLetter,
   type Letter,
 } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
@@ -24,6 +24,11 @@ interface Conversation {
   unreadCount: number;
   lastMessage: Letter;
   lastMessageTime: string;
+}
+
+function isUnauthorizedError(err: any): boolean {
+  const msg = String(err?.message || err?.error || "").toLowerCase();
+  return err?.unauthorized === true || err?.status === 401 || msg.includes("unauthorized");
 }
 
 export default function Mail({ navigate }: MailProps) {
@@ -69,6 +74,11 @@ export default function Mail({ navigate }: MailProps) {
         setTotal(data.total || 0);
         setUnreadCount(data.unreadCount || 0);
       } catch (err: any) {
+        if (isUnauthorizedError(err)) {
+          setError("Сессия истекла. Войдите снова.");
+          navigate("/");
+          return;
+        }
         setError(err?.message || "Помилка завантаження листів");
       } finally {
         setLoading(false);
@@ -220,6 +230,11 @@ export default function Mail({ navigate }: MailProps) {
           console.warn('[Mail] Failed to update unread count:', err);
         });
     } catch (err: any) {
+      if (isUnauthorizedError(err)) {
+        alert("Сессия истекла. Войдите снова.");
+        navigate("/");
+        return;
+      }
       console.error("Error loading conversation:", err);
       setError(err?.message || "Помилка завантаження переписки");
     }
@@ -282,6 +297,11 @@ export default function Mail({ navigate }: MailProps) {
           console.warn('[Mail] Failed to update unread count:', err);
         });
     } catch (err: any) {
+      if (isUnauthorizedError(err)) {
+        alert("Сессия истекла. Войдите снова.");
+        navigate("/");
+        return;
+      }
       console.error("Error sending reply:", err);
       alert(err?.message || "Помилка відправки повідомлення");
     } finally {
@@ -295,35 +315,21 @@ export default function Mail({ navigate }: MailProps) {
     if (!hero) return;
     setClaimingLetterId(letter.id);
     try {
-      // Спочатку видаляємо лист, щоб уникнути дюпів
-      await deleteLetter(letter.id);
-
-      // Додаємо предмет в інвентар
-      const newInventory = [...(hero.inventory || [])];
-      
-      const isStackable = itemPayload.kind === "resource" || itemPayload.kind === "consumable" || itemPayload.kind === "quest" || itemPayload.kind === "scroll";
-      
-      if (isStackable) {
-        const existingItemIndex = newInventory.findIndex((i) => i.id === itemPayload.id);
-        if (existingItemIndex !== -1) {
-          newInventory[existingItemIndex] = {
-            ...newInventory[existingItemIndex],
-            count: (newInventory[existingItemIndex].count || 1) + (itemPayload.count || 1)
-          };
-        } else {
-          newInventory.push(itemPayload);
-        }
-      } else {
-        // Для зброї, броні тощо просто додаємо
-        newInventory.push(itemPayload);
-      }
-
-      useHeroStore.getState().updateHero({ inventory: newInventory });
+      const claimRes = await collectItemFromLetter(letter.id);
+      const serverHeroJson = claimRes.character?.heroJson || {};
+      useHeroStore.getState().updateHero({
+        inventory: Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : [],
+      });
       
       // Оновлюємо переписку (видаляємо цей лист з UI)
       setConversationLetters(prev => prev.filter(l => l.id !== letter.id));
-      alert(`Ви успішно отримали: ${itemPayload.name}`);
+      alert(`Ви успішно отримали: ${claimRes.item?.name || itemPayload?.name || "предмет"}`);
     } catch (err: any) {
+      if (isUnauthorizedError(err)) {
+        alert("Сессия истекла. Войдите снова.");
+        navigate("/");
+        return;
+      }
       console.error("Claim error:", err);
       alert(err?.message || "Помилка при отриманні предмета");
     } finally {

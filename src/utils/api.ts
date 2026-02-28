@@ -633,12 +633,48 @@ export interface SendItemTransferRequest {
   itemPayload: string;
 }
 
-export async function sendItemTransferLetter(request: SendItemTransferRequest): Promise<Letter> {
-  const response = await apiRequest<LetterResponse>('/letters/transfer', {
+export interface CharacterTransferSnapshot {
+  id: string;
+  name: string;
+  race: string;
+  classId: string;
+  sex: string;
+  level: number;
+  exp: number;
+  sp: number;
+  adena: number;
+  aa: number;
+  coinLuck: number;
+  coinsSilver?: number;
+  heroJson: any;
+  updatedAt?: string;
+}
+
+export interface ItemTransferLetterResponse {
+  ok: boolean;
+  letter: Letter;
+  character?: CharacterTransferSnapshot;
+}
+
+export interface CollectItemFromLetterResponse {
+  ok: boolean;
+  character: CharacterTransferSnapshot;
+  item: any;
+}
+
+export async function sendItemTransferLetter(request: SendItemTransferRequest): Promise<ItemTransferLetterResponse> {
+  const response = await apiRequest<ItemTransferLetterResponse>('/letters/transfer', {
     method: 'POST',
     body: JSON.stringify(request),
   });
-  return response.letter;
+  return response;
+}
+
+export async function collectItemFromLetter(letterId: string): Promise<CollectItemFromLetterResponse> {
+  return apiRequest<CollectItemFromLetterResponse>(`/letters/${encodeURIComponent(letterId)}/collect-item`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
 }
 
 export async function getLetters(page: number = 1, limit: number = 50): Promise<LettersResponse> {
