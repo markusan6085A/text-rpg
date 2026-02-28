@@ -37,13 +37,20 @@ export default function PkSkillLoadoutBar({
   onUseSkill,
 }: PkSkillLoadoutBarProps) {
   const skillMap = React.useMemo(() => {
-    const m = new Map<number, { name: string; icon: string }>();
-    for (const s of allSkills) m.set(s.id, { name: s.name, icon: s.icon || "/skills/attack.jpg" });
+    const m = new Map<number, { name: string; icon: string; category?: string }>();
+    for (const s of allSkills) m.set(s.id, { name: s.name, icon: s.icon || "/skills/attack.jpg", category: s.category });
     return m;
   }, []);
 
-  const availableIds = React.useMemo(() => skills.map((s) => s.id), [skills]);
-  const [configureMode, setConfigureMode] = React.useState(false);
+  // PK bar: тільки активні скіли (без passive), як на звичайній панелі бою.
+  const activeSkills = React.useMemo(() => {
+    return skills.filter((s) => {
+      const meta = skillMap.get(s.id);
+      if (!meta) return false;
+      return meta.category !== "passive";
+    });
+  }, [skills, skillMap]);
+  const availableIds = React.useMemo(() => activeSkills.map((s) => s.id), [activeSkills]);
   const [pickerSlot, setPickerSlot] = React.useState<number | null>(null);
   const [slots, setSlots] = React.useState<Array<number | null>>(() => {
     const fallback = [...availableIds.slice(0, SLOT_COUNT)];
@@ -103,7 +110,7 @@ export default function PkSkillLoadoutBar({
           key={`pk-slot-${idx}`}
           type="button"
           onClick={() => setPickerSlot(idx)}
-          className="w-7 h-7 rounded border border-dashed border-[#6d5a3b] text-[#c7ad80]/80 bg-[#0f0c09]"
+          className="w-9 h-9 rounded-md border-2 border-dashed border-amber-900/70 bg-[#0d0a06] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 hover:border-amber-700/60 transition-all shadow-[inset_0_2px_6px_rgba(0,0,0,0.6)]"
           title="Выбрать скил"
         >
           +
@@ -111,7 +118,7 @@ export default function PkSkillLoadoutBar({
       );
     }
 
-    const skill = skills.find((s) => s.id === skillId);
+    const skill = activeSkills.find((s) => s.id === skillId);
     if (!skill) {
       return (
         <button
@@ -135,19 +142,23 @@ export default function PkSkillLoadoutBar({
         key={`pk-slot-${idx}`}
         type="button"
         onClick={() => {
-          if (configureMode) {
-            setPickerSlot(idx);
-            return;
-          }
-          onUseSkill(skill.id);
+            onUseSkill(skill.id);
         }}
-        disabled={!configureMode && disabled}
-        className="relative w-7 h-7 rounded overflow-hidden border border-[#5e4a2e] bg-[#0f0c09] disabled:opacity-40"
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setPickerSlot(idx);
+          }}
+          disabled={disabled}
+          className={`relative w-9 h-9 rounded-md overflow-hidden flex items-center justify-center transition-all ${disabled ? "opacity-50 saturate-50" : ""} bg-[#0d0a06]`}
+          style={{
+            boxShadow: "inset 0 2px 8px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.06), 0 1px 0 rgba(0,0,0,0.5)",
+            border: "2px solid rgba(60,45,25,0.9)",
+          }}
         title={meta?.name || `skill#${skill.id}`}
       >
         <img src={meta?.icon || "/skills/attack.jpg"} alt={meta?.name || `skill#${skill.id}`} className="w-full h-full object-cover" />
         {cdLeft > 0 && (
-          <span className="absolute inset-0 bg-black/55 text-[8px] text-red-300 flex items-center justify-center">
+          <span className="absolute inset-0 bg-black/55 text-[10px] text-red-300 flex items-center justify-center">
             {cdLeft}
           </span>
         )}
@@ -157,42 +168,28 @@ export default function PkSkillLoadoutBar({
 
   return (
     <div className="mt-2">
-      <div className="flex items-center justify-between mb-1">
-        <div className="text-[10px] text-[#c7ad80]/80">Панель скілів</div>
-        <button
-          type="button"
-          onClick={() => {
-            setConfigureMode((v) => !v);
-            setPickerSlot(null);
-          }}
-          className={`text-[10px] px-1.5 py-[1px] rounded border ${configureMode ? "border-[#3bd16f] text-[#3bd16f]" : "border-[#6d5a3b] text-[#c7ad80]"}`}
-        >
-          {configureMode ? "Готово" : "Выбор"}
-        </button>
-      </div>
-
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         {slots.map((id, idx) => renderSlot(id, idx))}
       </div>
 
       {pickerSlot !== null && (
         <div className="mt-2 border border-[#4aa3ff]/60 rounded p-2 bg-black/30">
-          <div className="text-[10px] text-[#c7ad80] mb-1">Слот {pickerSlot + 1}</div>
-          <div className="flex flex-wrap gap-1">
+          <div className="text-[10px] text-[#c7ad80] mb-1">Выбор скіла для слота {pickerSlot + 1}</div>
+          <div className="flex flex-wrap gap-1.5">
             <button
               type="button"
-              className="text-[10px] px-2 py-1 rounded border border-[#6d5a3b] text-[#c7ad80]"
+              className="text-[10px] px-2 py-1 rounded border border-[#6d5a3b] text-[#c7ad80] hover:bg-[#2a2015]"
               onClick={() => pickForSlot(pickerSlot, null)}
             >
               Очистить
             </button>
-            {skills.map((s) => {
+            {activeSkills.map((s) => {
               const meta = skillMap.get(s.id);
               return (
                 <button
                   key={`pick-skill-${s.id}`}
                   type="button"
-                  className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded border border-[#6d5a3b] text-[#d9c4a3]"
+                  className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded border border-[#6d5a3b] text-[#d9c4a3] hover:bg-[#2a2015]"
                   onClick={() => pickForSlot(pickerSlot, s.id)}
                 >
                   <img src={meta?.icon || "/skills/attack.jpg"} alt={meta?.name || `skill#${s.id}`} className="w-3 h-3 object-contain" />
@@ -200,6 +197,13 @@ export default function PkSkillLoadoutBar({
                 </button>
               );
             })}
+            <button
+              type="button"
+              className="text-[10px] px-2 py-1 rounded border border-[#6d5a3b] text-[#c7ad80] hover:bg-[#2a2015]"
+              onClick={() => setPickerSlot(null)}
+            >
+              Закрыть
+            </button>
           </div>
         </div>
       )}
