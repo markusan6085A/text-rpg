@@ -119,9 +119,15 @@ export default function PkProfileView({
 
           {pkSession.ended && (
             <div className="mt-2 text-center text-[11px]">
-              <div className={pkSession.winnerId === pkSession.attackerId ? "text-green-400" : "text-red-400"}>
-                {pkSession.winnerId === pkSession.attackerId ? "Вы победили" : "Вы проиграли"}
-              </div>
+              {pkSession.winnerId === pkSession.attackerId ? (
+                <div className="text-green-400">Вы победили</div>
+              ) : pkSession.winnerId === pkSession.defenderId ? (
+                <div className="text-red-400">Вы проиграли</div>
+              ) : pkSession.escapedByName ? (
+                <div className="text-yellow-300">{pkSession.escapedByName} сбежал!</div>
+              ) : (
+                <div className="text-gray-300">Бой завершен</div>
+              )}
             </div>
           )}
           {pkError && <div className="mt-1 text-center text-[11px] text-red-400">{pkError}</div>}

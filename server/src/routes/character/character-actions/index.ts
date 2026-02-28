@@ -31,6 +31,7 @@ type PkSession = {
   id: string;
   attackerId: string;
   defenderId: string;
+  startLocation?: string;
   attacker: PkFighter;
   defender: PkFighter;
   attackerCooldowns: Record<number, number>;
@@ -43,6 +44,8 @@ type PkSession = {
   lastHitDamage?: number;
   lastHitById?: string;
   lastHitByName?: string;
+  escapedById?: string;
+  escapedByName?: string;
   createdAt: number;
   updatedAt: number;
   saved: boolean;
@@ -201,18 +204,33 @@ function serializePkSession(session: PkSession) {
       log: session.log,
       ended: session.ended,
       winnerId: session.winnerId ?? null,
+      escapedById: session.escapedById ?? null,
+      escapedByName: session.escapedByName ?? null,
       updatedAt: session.updatedAt,
     },
   };
 }
 
 function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: number, useMagic: boolean): number {
-  const atk = useMagic ? attacker.mAtk : attacker.pAtk;
-  const def = useMagic ? defender.mDef : defender.pDef;
-  const base = Math.max(1, atk - def * 0.35);
-  const randomMul = 0.9 + Math.random() * 0.25;
-  const powerMul = 1 + Math.max(0, powerBonus) / 100;
-  return Math.max(1, Math.floor(base * randomMul * powerMul));
+  const pAtk = Math.max(1, Number(attacker.pAtk || 1));
+  const mAtk = Math.max(1, Number(attacker.mAtk || 1));
+  const pDef = Math.max(1, Number(defender.pDef || 1));
+  const mDef = Math.max(1, Number(defender.mDef || 1));
+  const skillPower = Math.max(1, Number(powerBonus || 1));
+
+  if (useMagic) {
+    const ratio = mAtk / mDef;
+    const heroBaseDamage = mAtk * 0.8 * (1 + ratio * 0.05);
+    const base = skillPower + heroBaseDamage;
+    const variance = 0.9 + Math.random() * 0.2; // 0.9 - 1.1
+    return Math.max(1, Math.floor(base * variance));
+  }
+
+  const ratio = pAtk / pDef;
+  const heroBaseDamage = pAtk * 0.2 * (1 + ratio * 0.05);
+  const base = skillPower + heroBaseDamage;
+  const variance = 0.8 + Math.random() * 0.4; // 0.8 - 1.2
+  return Math.max(1, Math.floor(base * variance));
 }
 
 function getEffectivePkNickColor(heroJson: any, now = Date.now()): string | undefined {
@@ -440,6 +458,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       id: sessionId,
       attackerId,
       defenderId: targetId,
+      startLocation: attackerLoc,
       attacker: buildPkFighter(attackerChar),
       defender: buildPkFighter(defenderChar),
       attackerCooldowns: {},
@@ -507,6 +526,39 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
     const now = Date.now();
     const actorRole: "attacker" | "defender" = me.id === session.attackerId ? "attacker" : "defender";
+
+    // Якщо хтось вийшов з окресності/офлайн — завершуємо PK як "втеча" без PvP win/loss.
+    const charsLive = await prisma.character.findMany({
+      where: { id: { in: [session.attackerId, session.defenderId] } },
+      select: { id: true, name: true, heroJson: true, lastActivityAt: true, updatedAt: true },
+    });
+    const liveAttacker = charsLive.find((c) => c.id === session.attackerId);
+    const liveDefender = charsLive.find((c) => c.id === session.defenderId);
+    const baseLoc = String(session.startLocation ?? "").trim() || getLocation(liveAttacker?.heroJson as any) || getLocation(liveDefender?.heroJson as any);
+    session.startLocation = baseLoc || session.startLocation;
+    const attackerLocNow = getLocation(liveAttacker?.heroJson as any);
+    const defenderLocNow = getLocation(liveDefender?.heroJson as any);
+    const attackerOnline = isOnline(liveAttacker?.lastActivityAt as any, liveAttacker?.updatedAt as any);
+    const defenderOnline = isOnline(liveDefender?.lastActivityAt as any, liveDefender?.updatedAt as any);
+    const attackerEscaped = !!baseLoc && attackerLocNow !== baseLoc;
+    const defenderEscaped = !!baseLoc && defenderLocNow !== baseLoc;
+    const someoneEscaped = !attackerOnline || !defenderOnline || attackerEscaped || defenderEscaped;
+    if (someoneEscaped) {
+      const escapedChar =
+        (!defenderOnline || defenderEscaped)
+          ? liveDefender
+          : liveAttacker;
+      const escapedName = String(escapedChar?.name ?? "Игрок").trim() || "Игрок";
+      session.ended = true;
+      session.winnerId = undefined;
+      session.escapedById = escapedChar?.id;
+      session.escapedByName = escapedName;
+      session.log.unshift(`${escapedName} сбежал!`);
+      session.log = session.log.slice(0, 30);
+      session.updatedAt = now;
+      await savePkSessionToDb(session);
+      return reply.send(serializePkSession(session));
+    }
 
     const pickSkill = (fighter: PkFighter, cooldowns: Record<number, number>, requestedSkillId?: number): PkSkill | null => {
       if (requestedSkillId !== undefined) {

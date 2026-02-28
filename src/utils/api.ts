@@ -332,6 +332,8 @@ export interface PkSessionState {
   log: string[];
   ended: boolean;
   winnerId: string | null;
+  escapedById?: string | null;
+  escapedByName?: string | null;
   updatedAt: number;
 }
 
