@@ -348,6 +348,16 @@ export interface PkIncomingNotice {
   until: number;
 }
 
+export interface PkDeathNotice {
+  killerId: string;
+  killerName: string;
+  killerNickColor?: string | null;
+  lastDamage?: number;
+  log?: string[];
+  at: number;
+  until: number;
+}
+
 export interface PkStateResponse {
   ok: boolean;
   hp: number;
@@ -358,6 +368,7 @@ export interface PkStateResponse {
   maxCp: number;
   nickColor: string | null;
   pkIncoming: PkIncomingNotice | null;
+  pkDeathNotice: PkDeathNotice | null;
 }
 
 export async function startPkSession(attackerId: string, targetId: string): Promise<PkSessionResponse> {

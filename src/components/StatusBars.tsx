@@ -78,6 +78,7 @@ export default function StatusBars() {
   const battleStatus = useBattleStore((s) => s.status);
   const [myClan, setMyClan] = React.useState<any>(null);
   const [pkIncomingNotice, setPkIncomingNotice] = React.useState<any>(null);
+  const [pkDeathNotice, setPkDeathNotice] = React.useState<any>(null);
   
   const inBattle = battleStatus !== "idle";
 
@@ -155,11 +156,13 @@ export default function StatusBars() {
         patch.heroJson = {
           ...((currentHero as any).heroJson || {}),
           pkIncoming: st.pkIncoming ?? null,
+          pkDeathNotice: st.pkDeathNotice ?? null,
         };
         if (st.nickColor) patch.nickColor = st.nickColor;
 
         useHeroStore.getState().updateHero(patch, { persist: false });
         setPkIncomingNotice(st.pkIncoming ?? null);
+        setPkDeathNotice(st.pkDeathNotice ?? null);
       } catch {
         // silent: endpoint може бути тимчасово недоступним
       }
@@ -347,6 +350,10 @@ export default function StatusBars() {
     pkIncomingNotice && Number(pkIncomingNotice.until ?? 0) > Date.now()
       ? pkIncomingNotice
       : null;
+  const activeDeath =
+    pkDeathNotice && Number(pkDeathNotice.until ?? 0) > Date.now()
+      ? pkDeathNotice
+      : null;
 
   return (
     <div 
@@ -380,6 +387,17 @@ export default function StatusBars() {
           <span style={activeIncoming.attackerNickColor ? { color: activeIncoming.attackerNickColor } : undefined}>
             {activeIncoming.attackerName}
           </span>
+        </div>
+      )}
+      {activeDeath && (
+        <div className="mt-1 px-1 py-[2px] border border-red-400/50 bg-black/65 text-[9px] text-[#f5d2d2] w-fit max-w-[210px]">
+          <div>
+            Вас убил{" "}
+            <span style={activeDeath.killerNickColor ? { color: activeDeath.killerNickColor } : undefined}>
+              {activeDeath.killerName}
+            </span>
+            {Number(activeDeath.lastDamage ?? 0) > 0 ? ` (${Number(activeDeath.lastDamage)} урона)` : ""}
+          </div>
         </div>
       )}
       {/* Крапкова лінія під барами */}

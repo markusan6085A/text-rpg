@@ -26,6 +26,8 @@ export default function PkProfileView({
   now,
   onUseSkill,
 }: PkProfileViewProps) {
+  const boxBlue =
+    "rounded-lg border-2 border-[#4aa3ff]/70 bg-black/25 shadow-[inset_0_0_12px_rgba(74,163,255,0.18)] overflow-hidden";
   const skillMeta = React.useMemo(() => {
     const m = new Map<number, { name: string; icon: string }>();
     for (const s of allSkills) {
@@ -78,8 +80,8 @@ export default function PkProfileView({
             </div>
           </div>
 
-          <div className="mt-2 grid grid-cols-4 gap-1">
-            {pkSession.attacker.skills.slice(0, 8).map((s) => {
+          <div className="mt-2 grid grid-cols-3 gap-1.5">
+            {pkSession.attacker.skills.slice(0, 6).map((s) => {
               const cdLeft = Math.max(0, Math.ceil(((pkSession.cooldowns[s.id] ?? 0) - now) / 1000));
               const disabled = pkSession.ended || pkActing || pkSession.attacker.mp < s.mpCost || cdLeft > 0;
               const meta = skillMeta.get(s.id);
@@ -89,25 +91,30 @@ export default function PkProfileView({
                   type="button"
                   disabled={disabled}
                   onClick={() => onUseSkill(s.id)}
-                  className="rounded border border-[#3c2d19] bg-[#0d0a06] px-1 py-1 disabled:opacity-40 hover:bg-[#2a2015]"
+                  className="rounded border border-[#c7ad80]/45 bg-[#17120e] px-1 py-1 disabled:opacity-40 hover:bg-[#2a2015]"
                   title={meta?.name || `skill#${s.id}`}
                 >
                   <div className="flex flex-col items-center gap-0.5">
-                    <img src={meta?.icon || "/skills/attack.jpg"} alt={meta?.name || `skill#${s.id}`} className="w-6 h-6 object-contain" />
-                    <span className="text-[9px] leading-tight text-[#d9c4a3] truncate w-full">
-                      {meta?.name || `skill#${s.id}`}
+                    <img src={meta?.icon || "/skills/attack.jpg"} alt={meta?.name || `skill#${s.id}`} className="w-5 h-5 object-contain" />
+                    <span className="text-[8px] leading-tight text-[#d9c4a3] truncate w-full">
+                      {(meta?.name || `skill#${s.id}`).slice(0, 14)}
                     </span>
-                    {cdLeft > 0 && <span className="text-[9px] text-red-400">({cdLeft})</span>}
+                    {cdLeft > 0 && <span className="text-[8px] text-red-400">({cdLeft})</span>}
                   </div>
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-2 border border-white/20 rounded p-2 max-h-[140px] overflow-y-auto text-[11px]">
-            {pkSession.log.map((line, idx) => (
-              <div key={idx} className="text-[#d9c4a3]">{line}</div>
-            ))}
+          <div className="mt-3">
+            <div className="text-[12px] text-[#c7ad80] font-semibold mb-1">Лог бою:</div>
+            <div className={`${boxBlue} w-full`}>
+              <div className="px-2 py-2 max-h-[140px] overflow-y-auto text-[11px] space-y-1">
+                {pkSession.log.map((line, idx) => (
+                  <div key={idx} className="text-[#d9c4a3]">{line}</div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {pkSession.ended && (

@@ -40,6 +40,9 @@ type PkSession = {
   winnerId?: string;
   attackerHasHit?: boolean;
   defenderHasHit?: boolean;
+  lastHitDamage?: number;
+  lastHitById?: string;
+  lastHitByName?: string;
   createdAt: number;
   updatedAt: number;
   saved: boolean;
@@ -329,19 +332,51 @@ async function savePkResultIfNeeded(session: PkSession) {
       };
     };
 
+    const winnerChar = chars.find((c) => c.id === session.winnerId);
+    const winnerHeroJson = ((winnerChar?.heroJson as any) || {}) as any;
+    const winnerNickColor = getEffectivePkNickColor(winnerHeroJson) || String(winnerHeroJson?.nickColor ?? "").trim() || undefined;
+    const deathLog = Array.isArray(session.log) ? session.log.slice(0, 12) : [];
+
     for (const c of chars) {
       const heroJson = ((c.heroJson as any) || {}) as any;
       const patched = patchPvp(heroJson, c.id === session.winnerId);
       const isWinner = c.id === session.winnerId;
       const winnerIsAttacker = session.winnerId === session.attackerId;
       const winnerHitBack = winnerIsAttacker ? Boolean(session.defenderHasHit) : Boolean(session.attackerHasHit);
-      const withPkColor = isWinner && !winnerHitBack
-        ? {
+      const now = Date.now();
+      const withPkColor = isWinner
+        ? (
+          !winnerHitBack
+            ? {
+                ...patched,
+                pkForcedNickColor: "#800000",
+                pkForcedNickColorUntil: now + 10 * 60 * 1000,
+                pkIncoming: null,
+              }
+            : {
+                ...patched,
+                pkIncoming: null,
+              }
+        )
+        : {
             ...patched,
-            pkForcedNickColor: "#800000",
-            pkForcedNickColorUntil: Date.now() + 10 * 60 * 1000,
-          }
-        : patched;
+            // Після PK смерті не залишаємо персонажа "мертвим" — даємо піднятися одразу.
+            hp: Math.max(1, Number((session.winnerId === session.attackerId ? session.defender.maxHp : session.attacker.maxHp) || heroJson.maxHp || 1)),
+            mp: Math.max(0, Number((session.winnerId === session.attackerId ? session.defender.maxMp : session.attacker.maxMp) || heroJson.maxMp || 0)),
+            cp: Math.max(0, Number(heroJson.maxCp ?? heroJson.cp ?? 0)),
+            isDead: false,
+            deadAt: 0,
+            pkIncoming: null,
+            pkDeathNotice: {
+              killerId: session.winnerId,
+              killerName: winnerChar?.id === session.attackerId ? session.attacker.name : session.defender.name,
+              killerNickColor: winnerNickColor || null,
+              lastDamage: Number(session.lastHitDamage ?? 0),
+              log: deathLog,
+              at: now,
+              until: now + 20_000,
+            },
+          };
       const versioned = addVersioning(withPkColor, Number(heroJson.heroRevision ?? 0) || 0);
       await tx.character.update({
         where: { id: c.id },
@@ -511,14 +546,20 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (session.attackerHasHit === undefined) session.attackerHasHit = false;
     if (session.defenderHasHit === undefined) session.defenderHasHit = false;
     if (actorRole === "attacker") {
-      doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId);
+      const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId);
+      session.lastHitDamage = dmg;
+      session.lastHitById = session.attackerId;
+      session.lastHitByName = session.attacker.name;
       session.attackerHasHit = true;
       if (session.defender.hp <= 0) {
         session.ended = true;
         session.winnerId = session.attackerId;
       }
     } else {
-      doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId);
+      const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId);
+      session.lastHitDamage = dmg;
+      session.lastHitById = session.defenderId;
+      session.lastHitByName = session.defender.name;
       session.defenderHasHit = true;
       if (session.attacker.hp <= 0) {
         session.ended = true;
@@ -550,6 +591,9 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const pkIncoming = heroJson?.pkIncoming && Number(heroJson.pkIncoming?.until ?? 0) > now
       ? heroJson.pkIncoming
       : null;
+    const pkDeathNotice = heroJson?.pkDeathNotice && Number(heroJson.pkDeathNotice?.until ?? 0) > now
+      ? heroJson.pkDeathNotice
+      : null;
     const effectiveNickColor = getEffectivePkNickColor({ ...heroJson, nickColor: char.nickColor }, now) || null;
 
     return reply.send({
@@ -562,6 +606,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       maxCp: Number(heroJson.maxCp ?? 0),
       nickColor: effectiveNickColor,
       pkIncoming,
+      pkDeathNotice,
     });
   });
 
