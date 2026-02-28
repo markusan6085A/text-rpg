@@ -280,6 +280,25 @@ export async function payToViewPlayerStats(targetCharacterId: string): Promise<{
   return response;
 }
 
+export interface ResolvePkResultRequest {
+  attackerId: string;
+  targetId: string;
+  winnerId: string;
+}
+
+export interface ResolvePkResultResponse {
+  ok: boolean;
+  winnerId: string;
+  loserId: string;
+}
+
+export async function resolvePkResult(request: ResolvePkResultRequest): Promise<ResolvePkResultResponse> {
+  return apiRequest<ResolvePkResultResponse>("/characters/pk/resolve", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
 /** Resurrect: сервер атомарно скидає isDead/deadAt, ставить hp/mp/cp на max, heroBuffs=[]. Повертає оновленого character. */
 export async function resurrectCharacter(id: string): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/${id}/resurrect`, {

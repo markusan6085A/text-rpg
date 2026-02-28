@@ -4,6 +4,108 @@ import { getAuth } from "../auth";
 import { addVersioning } from "../../../heroJsonValidator";
 
 export async function characterActionsRoutes(app: FastifyInstance) {
+  app.post("/characters/pk/resolve", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const body = (req.body ?? {}) as { attackerId?: string; targetId?: string; winnerId?: string };
+    const attackerId = String(body.attackerId ?? "").trim();
+    const targetId = String(body.targetId ?? "").trim();
+    const winnerId = String(body.winnerId ?? "").trim();
+
+    if (!attackerId || !targetId || !winnerId) {
+      return reply.code(400).send({ error: "attackerId, targetId and winnerId are required" });
+    }
+    if (attackerId === targetId) {
+      return reply.code(400).send({ error: "self pk is not allowed" });
+    }
+    if (winnerId !== attackerId && winnerId !== targetId) {
+      return reply.code(400).send({ error: "winnerId must be attackerId or targetId" });
+    }
+
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        const ids = [attackerId, targetId].sort();
+        await tx.$queryRawUnsafe(
+          `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
+          ids[0],
+          ids[1]
+        );
+
+        const chars = await tx.character.findMany({
+          where: { id: { in: [attackerId, targetId] } },
+          select: { id: true, accountId: true, heroJson: true, lastActivityAt: true },
+        });
+        if (chars.length !== 2) return { ok: false as const, code: 404, error: "character not found" };
+
+        const attacker = chars.find((c) => c.id === attackerId);
+        const target = chars.find((c) => c.id === targetId);
+        if (!attacker || !target) return { ok: false as const, code: 404, error: "character not found" };
+
+        if (attacker.accountId !== auth.accountId) {
+          return { ok: false as const, code: 403, error: "attacker does not belong to current account" };
+        }
+
+        const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+        const attackerOnline = attacker.lastActivityAt ? new Date(attacker.lastActivityAt).getTime() >= tenMinutesAgo : false;
+        const targetOnline = target.lastActivityAt ? new Date(target.lastActivityAt).getTime() >= tenMinutesAgo : false;
+        if (!attackerOnline || !targetOnline) {
+          return { ok: false as const, code: 400, error: "both players must be online" };
+        }
+
+        const attackerHero = ((attacker.heroJson as any) || {}) as any;
+        const targetHero = ((target.heroJson as any) || {}) as any;
+        const attackerLocation = String(attackerHero.location ?? attackerHero.currentLocation ?? attackerHero.zone ?? "").trim();
+        const targetLocation = String(targetHero.location ?? targetHero.currentLocation ?? targetHero.zone ?? "").trim();
+        if (!attackerLocation || attackerLocation !== targetLocation) {
+          return { ok: false as const, code: 400, error: "players must be in the same zone" };
+        }
+
+        const loserId = winnerId === attackerId ? targetId : attackerId;
+
+        const patchPvp = (heroJson: any, isWin: boolean) => {
+          const wins = Number(heroJson?.pvpWins ?? heroJson?.pvp_wins ?? 0);
+          const losses = Number(heroJson?.pvpLosses ?? heroJson?.pvp_losses ?? 0);
+          const nextWins = isWin ? wins + 1 : wins;
+          const nextLosses = isWin ? losses : losses + 1;
+          return {
+            ...heroJson,
+            pvpWins: nextWins,
+            pvpLosses: nextLosses,
+            pvp_wins: nextWins,
+            pvp_losses: nextLosses,
+          };
+        };
+
+        const attackerPatched = patchPvp(attackerHero, winnerId === attackerId);
+        const targetPatched = patchPvp(targetHero, winnerId === targetId);
+
+        const attackerVersioned = addVersioning(attackerPatched, Number(attackerHero.heroRevision ?? 0) || 0);
+        const targetVersioned = addVersioning(targetPatched, Number(targetHero.heroRevision ?? 0) || 0);
+
+        await tx.character.update({
+          where: { id: attackerId },
+          data: { heroJson: attackerVersioned, lastActivityAt: new Date() },
+        });
+        await tx.character.update({
+          where: { id: targetId },
+          data: { heroJson: targetVersioned, lastActivityAt: new Date() },
+        });
+
+        return { ok: true as const, winnerId, loserId };
+      });
+
+      if (!result.ok) return reply.code(result.code).send({ error: result.error });
+      return reply.send(result);
+    } catch (error) {
+      app.log.error(error, "Error /characters/pk/resolve");
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   // POST /characters/:id/colorize-nick - зміна кольору ніка (50 Coin of Luck)
   app.post("/characters/:id/colorize-nick", async (req, reply) => {
     const auth = getAuth(req);

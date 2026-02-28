@@ -14,6 +14,7 @@ import { savePreviousLocation, savePreviousCity } from "../utils/locationNavigat
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
+import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
 
 type Navigate = (path: string) => void;
 
@@ -46,6 +47,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const [selectedMob, setSelectedMob] = React.useState<Mob | null>(null);
   const [selectedDropItem, setSelectedDropItem] = React.useState<string | null>(null);
   const [now, setNow] = React.useState(Date.now());
+  const [zonePlayers, setZonePlayers] = React.useState<OnlinePlayer[]>([]);
+  const [zonePlayerIdx, setZonePlayerIdx] = React.useState(0);
 
   // Оновлюємо час кожну секунду для відображення таймера респавну
   React.useEffect(() => {
@@ -54,6 +57,34 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await getOnlinePlayers();
+        if (!mounted) return;
+        const myId = String((hero as any)?.id ?? "");
+        const players = (data.players || []).filter(
+          (p) => p.location === (found?.zone?.name || "") && p.id !== myId
+        );
+        setZonePlayers(players);
+        setZonePlayerIdx((prev) => {
+          if (players.length === 0) return 0;
+          return Math.min(prev, players.length - 1);
+        });
+      } catch {
+        if (mounted) setZonePlayers([]);
+      }
+    };
+
+    if (found?.zone?.name) load();
+    const interval = setInterval(load, 30000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [found?.zone?.name, (hero as any)?.id]);
 
   if (!found) {
     return (
@@ -105,6 +136,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     params.set("id", zone.id);
     params.set("page", String(safe));
     history.replaceState(null, "", `/location?${params.toString()}`);
+  };
+
+  const currentZonePlayer = zonePlayers.length > 0 ? zonePlayers[zonePlayerIdx] : null;
+  const goZonePlayer = (delta: number) => {
+    if (zonePlayers.length <= 1) return;
+    const next = (zonePlayerIdx + delta + zonePlayers.length) % zonePlayers.length;
+    setZonePlayerIdx(next);
   };
 
   const handleBackToCity = () => {
@@ -218,6 +256,39 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               className="disabled:opacity-40"
               disabled={currentPage >= totalPages}
               onClick={() => goPage(currentPage + 1)}
+            >
+              &gt;&gt;&gt;
+            </button>
+          </div>
+        )}
+
+        {currentZonePlayer && (
+          <div className="flex items-center justify-center gap-2 mt-2 text-[#c7ad80] text-xs">
+            <button
+              className="disabled:opacity-40"
+              disabled={zonePlayers.length <= 1}
+              onClick={() => goZonePlayer(-1)}
+            >
+              &lt;&lt;&lt;
+            </button>
+            <span>|</span>
+            <button
+              className="hover:text-[#f4e2b8]"
+              onClick={() => navigate(`/player/${encodeURIComponent(currentZonePlayer.id)}?pk=1`)}
+            >
+              {currentZonePlayer.name}
+            </button>
+            <button
+              className="px-1 border border-[#c7ad80]/70 rounded hover:bg-[#2a2015]"
+              onClick={() => navigate(`/player/${encodeURIComponent(currentZonePlayer.id)}?pk=1`)}
+            >
+              [pk]
+            </button>
+            <span>|</span>
+            <button
+              className="disabled:opacity-40"
+              disabled={zonePlayers.length <= 1}
+              onClick={() => goZonePlayer(1)}
             >
               &gt;&gt;&gt;
             </button>

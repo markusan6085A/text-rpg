@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getPublicCharacter, getCharacterByName, getSevenSealsRank, payToViewPlayerStats, type Character } from "../utils/api";
+import { getPublicCharacter, getCharacterByName, getSevenSealsRank, payToViewPlayerStats, resolvePkResult, type Character } from "../utils/api";
 import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
@@ -12,6 +12,7 @@ import { getMyClan } from "../utils/api";
 import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
 import PlayerStatsModal from "../components/PlayerStatsModal";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
+import { allSkills } from "../data/skills";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -32,11 +33,31 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [viewedStats, setViewedStats] = useState<ReturnType<typeof recalculateAllStats> | null>(null);
   const [statsLoadError, setStatsLoadError] = useState<string | null>(null);
+  const isPkMode = useMemo(
+    () => new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("pk") === "1",
+    []
+  );
+  const [pkMyHp, setPkMyHp] = useState(0);
+  const [pkMyMp, setPkMyMp] = useState(0);
+  const [pkEnemyHp, setPkEnemyHp] = useState(0);
+  const [pkEnemyMp, setPkEnemyMp] = useState(0);
+  const [pkLog, setPkLog] = useState<string[]>([]);
+  const [pkEnded, setPkEnded] = useState(false);
+  const [pkWinnerId, setPkWinnerId] = useState<string | null>(null);
+  const [pkSaving, setPkSaving] = useState(false);
+  const [pkSaved, setPkSaved] = useState(false);
+  const [pkError, setPkError] = useState<string | null>(null);
+  const [pkCd, setPkCd] = useState<Record<number, number>>({});
   // 🔥 Таймер — перерендер щосекунди, щоб бафи інших гравців зникали при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(timer);
   }, []);
 
   const loadPlayerProfile = async () => {
@@ -159,6 +180,142 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       nickColor: heroJson.nickColor || undefined,
     };
   }, [character]);
+
+  const myBattleStats = useMemo(() => {
+    if (!hero) return null;
+    return recalculateAllStats(hero as any, []);
+  }, [hero]);
+
+  const targetBattleStats = useMemo(() => {
+    if (!heroData) return null;
+    return recalculateAllStats(heroData as any, []);
+  }, [heroData]);
+
+  const myLearnedPkSkills = useMemo(() => {
+    const learned = Array.isArray(hero?.skills) ? hero.skills : [];
+    return learned
+      .map((s: any) => {
+        const def = allSkills.find((x) => x.id === Number(s?.id));
+        if (!def || def.category === "passive") return null;
+        const lvlDef = def.levels.find((l) => l.level === Number(s?.level)) || def.levels[0];
+        if (!lvlDef) return null;
+        return { id: def.id, name: def.name, category: def.category || "physical_attack", mpCost: Number(lvlDef.mpCost ?? 0), power: Number(lvlDef.power ?? 0), cooldown: Number(def.cooldown ?? 2) };
+      })
+      .filter(Boolean)
+      .slice(0, 12) as Array<{ id: number; name: string; category: string; mpCost: number; power: number; cooldown: number }>;
+  }, [hero?.skills]);
+
+  const enemyLearnedPkSkills = useMemo(() => {
+    const learned = Array.isArray(heroData?.skills) ? heroData.skills : [];
+    return learned
+      .map((s: any) => {
+        const def = allSkills.find((x) => x.id === Number(s?.id));
+        if (!def || def.category === "passive") return null;
+        const lvlDef = def.levels.find((l) => l.level === Number(s?.level)) || def.levels[0];
+        if (!lvlDef) return null;
+        return { id: def.id, name: def.name, category: def.category || "physical_attack", mpCost: Number(lvlDef.mpCost ?? 0), power: Number(lvlDef.power ?? 0) };
+      })
+      .filter(Boolean) as Array<{ id: number; name: string; category: string; mpCost: number; power: number }>;
+  }, [heroData?.skills]);
+
+  const appendPkLog = (line: string) => {
+    setPkLog((prev) => [line, ...prev].slice(0, 20));
+  };
+
+  const calcPkDamage = (
+    atk: any,
+    def: any,
+    category: string,
+    power: number
+  ) => {
+    const a = category === "magic_attack" ? Number(atk?.finalStats?.mAtk ?? atk?.baseFinalStats?.mAtk ?? 10) : Number(atk?.finalStats?.pAtk ?? atk?.baseFinalStats?.pAtk ?? 10);
+    const d = category === "magic_attack" ? Number(def?.finalStats?.mDef ?? def?.baseFinalStats?.mDef ?? 5) : Number(def?.finalStats?.pDef ?? def?.baseFinalStats?.pDef ?? 5);
+    const base = Math.max(1, Math.floor(a - d * 0.35));
+    const multiplier = 1 + Math.max(0, power) / 100;
+    const random = 0.85 + Math.random() * 0.3;
+    return Math.max(1, Math.floor(base * multiplier * random));
+  };
+
+  useEffect(() => {
+    if (!isPkMode || !hero || !heroData) return;
+    setPkMyHp(Number(hero.hp ?? hero.maxHp ?? 1));
+    setPkMyMp(Number(hero.mp ?? hero.maxMp ?? 0));
+    setPkEnemyHp(Number(heroData.hp ?? heroData.maxHp ?? 1));
+    setPkEnemyMp(Number(heroData.mp ?? heroData.maxMp ?? 0));
+    setPkLog([`PK бой начат: ${hero.name} vs ${heroData.name}`]);
+    setPkEnded(false);
+    setPkWinnerId(null);
+    setPkSaving(false);
+    setPkSaved(false);
+    setPkError(null);
+    setPkCd({});
+  }, [isPkMode, hero?.id, heroData?.id]);
+
+  const finishPk = async (winner: string, loser: string) => {
+    setPkEnded(true);
+    setPkWinnerId(winner);
+    appendPkLog(`Бой завершен. Победитель: ${winner === hero?.id ? hero?.name : heroData?.name}`);
+    if (!hero?.id || !heroData?.id || pkSaved || pkSaving) return;
+    setPkSaving(true);
+    try {
+      await resolvePkResult({ attackerId: hero.id, targetId: heroData.id, winnerId: winner });
+      setPkSaved(true);
+      appendPkLog(`PvP статистика обновлена (${winner === hero.id ? "победа" : "поражение"})`);
+    } catch (e: any) {
+      const msg = e?.message || "Не удалось сохранить PK результат";
+      setPkError(msg);
+      appendPkLog(msg);
+    } finally {
+      setPkSaving(false);
+    }
+  };
+
+  const enemyTurn = async (nextEnemyHp: number, nextMyMp: number) => {
+    if (!hero || !heroData || !myBattleStats || !targetBattleStats) return;
+    if (nextEnemyHp <= 0) return finishPk(hero.id, heroData.id);
+    const enemySkill = enemyLearnedPkSkills.length > 0
+      ? enemyLearnedPkSkills[Math.floor(Math.random() * enemyLearnedPkSkills.length)]
+      : null;
+    const canUse = enemySkill && nextMyMp >= 0 && pkEnemyMp >= enemySkill.mpCost;
+    const usedCategory = canUse ? enemySkill.category : "physical_attack";
+    const usedPower = canUse ? enemySkill.power : 0;
+    const dmg = calcPkDamage(targetBattleStats, myBattleStats, usedCategory, usedPower);
+    const afterMyHp = Math.max(0, pkMyHp - dmg);
+    setPkMyHp(afterMyHp);
+    if (canUse) {
+      setPkEnemyMp((v) => Math.max(0, v - enemySkill.mpCost));
+      appendPkLog(`${heroData.name} использует ${enemySkill.name} и наносит ${dmg} урона`);
+    } else {
+      appendPkLog(`${heroData.name} атакует и наносит ${dmg} урона`);
+    }
+    if (afterMyHp <= 0) return finishPk(heroData.id, hero.id);
+  };
+
+  const handlePkUseSkill = async (skillId: number) => {
+    if (!hero || !heroData || !myBattleStats || !targetBattleStats || pkEnded) return;
+    const skill = myLearnedPkSkills.find((s) => s.id === skillId);
+    if (!skill) return;
+    const readyAt = pkCd[skill.id] ?? 0;
+    if (readyAt > Date.now()) return;
+    if (pkMyMp < skill.mpCost) {
+      appendPkLog(`Недостаточно MP для ${skill.name}`);
+      return;
+    }
+
+    const dmg = calcPkDamage(myBattleStats, targetBattleStats, skill.category, skill.power);
+    const afterEnemyHp = Math.max(0, pkEnemyHp - dmg);
+    const afterMyMp = Math.max(0, pkMyMp - skill.mpCost);
+    setPkEnemyHp(afterEnemyHp);
+    setPkMyMp(afterMyMp);
+    setPkCd((prev) => ({ ...prev, [skill.id]: Date.now() + skill.cooldown * 1000 }));
+    appendPkLog(`${hero.name} использует ${skill.name} и наносит ${dmg} урона`);
+
+    if (afterEnemyHp <= 0) {
+      await finishPk(hero.id, heroData.id);
+      return;
+    }
+    await enemyTurn(afterEnemyHp, afterMyMp);
+  };
 
   // Перевіряємо чи гравець онлайн (активний за останні 10 хвилин)
   const isOnline = useMemo(() => {
@@ -383,6 +540,75 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             }}
           />
         </div>
+
+        {isPkMode && hero && heroData && (
+          <div className="mb-4 border border-solid border-[#c7ad80]/60 rounded p-2 bg-black/20">
+            <div className="text-[12px] text-red-400 font-semibold text-center mb-2">
+              PK бой
+            </div>
+
+            <div className="space-y-2 text-[11px]">
+              <div>
+                <div className="flex justify-between text-[#c7ad80]">
+                  <span>{hero.name}</span>
+                  <span>{pkMyHp}/{Number(hero.maxHp ?? hero.hp ?? 1)}</span>
+                </div>
+                <div className="h-2 bg-[#2a2a2a] rounded overflow-hidden border border-white/20">
+                  <div
+                    className="h-full bg-red-600"
+                    style={{ width: `${Math.max(0, Math.min(100, (pkMyHp / Math.max(1, Number(hero.maxHp ?? hero.hp ?? 1))) * 100))}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-[#c7ad80]">
+                  <span>{heroData.name}</span>
+                  <span>{pkEnemyHp}/{Number(heroData.maxHp ?? heroData.hp ?? 1)}</span>
+                </div>
+                <div className="h-2 bg-[#2a2a2a] rounded overflow-hidden border border-white/20">
+                  <div
+                    className="h-full bg-red-700"
+                    style={{ width: `${Math.max(0, Math.min(100, (pkEnemyHp / Math.max(1, Number(heroData.maxHp ?? heroData.hp ?? 1))) * 100))}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-2 grid grid-cols-2 gap-1">
+              {myLearnedPkSkills.slice(0, 8).map((s) => {
+                const cdLeft = Math.max(0, Math.ceil(((pkCd[s.id] ?? 0) - now) / 1000));
+                const disabled = pkEnded || pkMyMp < s.mpCost || cdLeft > 0;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => handlePkUseSkill(s.id)}
+                    className="text-[10px] px-1 py-1 rounded border border-[#c7ad80]/50 disabled:opacity-40 hover:bg-[#2a2015]"
+                  >
+                    {s.name} {cdLeft > 0 ? `(${cdLeft})` : ""}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-2 border border-white/20 rounded p-2 max-h-[140px] overflow-y-auto text-[11px]">
+              {pkLog.map((line, idx) => (
+                <div key={idx} className="text-[#d9c4a3]">{line}</div>
+              ))}
+            </div>
+
+            {pkEnded && (
+              <div className="mt-2 text-center text-[11px]">
+                <div className={pkWinnerId === hero.id ? "text-green-400" : "text-red-400"}>
+                  {pkWinnerId === hero.id ? "Вы победили" : "Вы проиграли"}
+                </div>
+                {pkSaving && <div className="text-gray-400">Сохранение результата...</div>}
+                {pkError && <div className="text-red-400">{pkError}</div>}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Модалка характеристик предмета */}
         {selectedItem && (
