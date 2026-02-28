@@ -33,6 +33,7 @@ function findZoneById(zoneId: string): { zone: Zone; city: City } | undefined {
 export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const q = useQuery();
   const hero = useHeroStore((s) => s.hero);
+  const updateHero = useHeroStore((s) => s.updateHero);
 
   // Підтримуємо і ?id=, і ?zone= на всяк випадок
   const zoneId = q.get("id") || q.get("zone") || "";
@@ -59,14 +60,25 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   }, []);
 
   React.useEffect(() => {
+    if (!found?.zone?.name || !hero) return;
+    const currentLocation = String((hero as any)?.location ?? (hero as any)?.currentLocation ?? (hero as any)?.zone ?? "").trim();
+    if (currentLocation !== found.zone.name) {
+      // Синхронізуємо location одразу при вході в окрестность, щоб /characters/online бачив правильну зону.
+      updateHero({ location: found.zone.name } as any);
+    }
+  }, [found?.zone?.name, hero?.id, updateHero]);
+
+  React.useEffect(() => {
     let mounted = true;
+    const normalize = (v: string) => v.trim().toLowerCase();
     const load = async () => {
       try {
         const data = await getOnlinePlayers();
         if (!mounted) return;
-        const myId = String((hero as any)?.id ?? "");
+        const myId = String((hero as any)?.id ?? "").trim();
+        const zoneName = normalize(found?.zone?.name || "");
         const players = (data.players || []).filter(
-          (p) => p.location === (found?.zone?.name || "") && p.id !== myId
+          (p) => normalize(String(p.location || "")) === zoneName && String(p.id || "").trim() !== myId
         );
         setZonePlayers(players);
         setZonePlayerIdx((prev) => {

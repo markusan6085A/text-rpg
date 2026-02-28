@@ -147,7 +147,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "invalid exp (must be >= 0)" });
       }
       const currentExp = Number(existing.exp);
-      if (body.exp < currentExp) {
+      const requestedLevel = body.level !== undefined ? Number(body.level) : Number(existing.level);
+      const isLevelUpRequest = requestedLevel > Number(existing.level);
+      // exp у грі зберігається як прогрес поточного рівня, тому після level-up exp може "скинутися".
+      // Забороняємо зменшення exp тільки якщо рівень НЕ підвищується.
+      if (body.exp < currentExp && !isLevelUpRequest) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,
