@@ -275,6 +275,7 @@ async function syncPkRealtimeState(session: PkSession, actorRole: "attacker" | "
 
     const combatColor = "#FC0FC0";
     const combatUntil = now + 10_000;
+    const pkSyncUntil = now + 15_000;
     const actorDisplayColor = getEffectivePkNickColor({ ...actorJson, pkCombatNickColor: combatColor, pkCombatNickColorUntil: combatUntil }, now) || combatColor;
 
     const nextActorJson = addVersioning(
@@ -286,6 +287,7 @@ async function syncPkRealtimeState(session: PkSession, actorRole: "attacker" | "
         maxMp: actorState.maxMp,
         pkCombatNickColor: combatColor,
         pkCombatNickColorUntil: combatUntil,
+        pkSyncUntil,
       },
       Number(actorJson.heroRevision ?? 0) || 0
     );
@@ -303,6 +305,7 @@ async function syncPkRealtimeState(session: PkSession, actorRole: "attacker" | "
           sessionId: session.id,
           until: now + 10_000,
         },
+        pkSyncUntil,
       },
       Number(targetJson.heroRevision ?? 0) || 0
     );
@@ -370,10 +373,12 @@ async function savePkResultIfNeeded(session: PkSession) {
                 pkForcedNickColor: "#800000",
                 pkForcedNickColorUntil: now + 10 * 60 * 1000,
                 pkIncoming: null,
+                pkSyncUntil: 0,
               }
             : {
                 ...patched,
                 pkIncoming: null,
+                pkSyncUntil: 0,
               }
         )
         : {
@@ -385,6 +390,7 @@ async function savePkResultIfNeeded(session: PkSession) {
             isDead: false,
             deadAt: 0,
             pkIncoming: null,
+            pkSyncUntil: 0,
             pkDeathNotice: {
               killerId: session.winnerId,
               killerName: winnerChar?.id === session.attackerId ? session.attacker.name : session.defender.name,
@@ -556,6 +562,33 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       session.log.unshift(`${escapedName} сбежал!`);
       session.log = session.log.slice(0, 30);
       session.updatedAt = now;
+      await prisma.$transaction(async (tx) => {
+        const ids = [session.attackerId, session.defenderId].sort();
+        await tx.$queryRawUnsafe(
+          `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
+          ids[0],
+          ids[1]
+        );
+        const chars = await tx.character.findMany({
+          where: { id: { in: [session.attackerId, session.defenderId] } },
+          select: { id: true, heroJson: true },
+        });
+        for (const c of chars) {
+          const heroJson = ((c.heroJson as any) || {}) as any;
+          const cleaned = addVersioning(
+            {
+              ...heroJson,
+              pkIncoming: null,
+              pkSyncUntil: 0,
+            },
+            Number(heroJson.heroRevision ?? 0) || 0
+          );
+          await tx.character.update({
+            where: { id: c.id },
+            data: { heroJson: cleaned, lastActivityAt: new Date() },
+          });
+        }
+      });
       await savePkSessionToDb(session);
       return reply.send(serializePkSession(session));
     }
@@ -647,11 +680,12 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       ? heroJson.pkDeathNotice
       : null;
     const effectiveNickColor = getEffectivePkNickColor({ ...heroJson, nickColor: char.nickColor }, now) || null;
+    const pkSyncActive = Number(heroJson?.pkSyncUntil ?? 0) > now;
 
     return reply.send({
       ok: true,
-      hp: Number(heroJson.hp ?? 0),
-      mp: Number(heroJson.mp ?? 0),
+      hp: Number(heroJson.hp ?? heroJson.maxHp ?? 0),
+      mp: Number(heroJson.mp ?? heroJson.maxMp ?? 0),
       cp: Number(heroJson.cp ?? 0),
       maxHp: Number(heroJson.maxHp ?? 0),
       maxMp: Number(heroJson.maxMp ?? 0),
@@ -659,6 +693,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       nickColor: effectiveNickColor,
       pkIncoming,
       pkDeathNotice,
+      pkSyncActive,
     });
   });
 

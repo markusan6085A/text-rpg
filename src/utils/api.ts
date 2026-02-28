@@ -371,6 +371,7 @@ export interface PkStateResponse {
   nickColor: string | null;
   pkIncoming: PkIncomingNotice | null;
   pkDeathNotice: PkDeathNotice | null;
+  pkSyncActive: boolean;
 }
 
 export async function startPkSession(attackerId: string, targetId: string): Promise<PkSessionResponse> {
