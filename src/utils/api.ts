@@ -1158,6 +1158,61 @@ export async function adminStats(): Promise<{ ok: boolean; uptimeSec?: number; n
   return data;
 }
 
+export interface AdminActionLog {
+  id: string;
+  createdAt: string;
+  adminLogin: string;
+  action: string;
+  targetCharacterId?: string | null;
+  targetCharacterName?: string | null;
+  status: string;
+  message?: string | null;
+  before?: any;
+  after?: any;
+  metadata?: any;
+}
+
+export interface AdminActionLogsResponse {
+  ok: boolean;
+  logs: AdminActionLog[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export async function getAdminActionLogs(params?: {
+  action?: string;
+  adminLogin?: string;
+  target?: string;
+  status?: string;
+  from?: string;
+  to?: string;
+  page?: number;
+  limit?: number;
+}): Promise<AdminActionLogsResponse> {
+  const q = new URLSearchParams();
+  if (params?.action) q.set("action", params.action);
+  if (params?.adminLogin) q.set("adminLogin", params.adminLogin);
+  if (params?.target) q.set("target", params.target);
+  if (params?.status) q.set("status", params.status);
+  if (params?.from) q.set("from", params.from);
+  if (params?.to) q.set("to", params.to);
+  if (params?.page != null) q.set("page", String(params.page));
+  if (params?.limit != null) q.set("limit", String(params.limit));
+  const query = q.toString();
+  const res = await fetch(`${API_URL}/admin/logs${query ? `?${query}` : ""}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return data as AdminActionLogsResponse;
+}
+
 export async function adminLogout(): Promise<void> {
   await fetch(`${API_URL}/admin/auth/logout`, {
     method: "POST",

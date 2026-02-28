@@ -279,3 +279,23 @@ model AdminRefreshToken {
 
   @@index([login, expiresAt])
 }
+
+model AdminActionLog {
+  id                  String   @id @default(cuid())
+  createdAt           DateTime @default(now())
+  adminLogin          String
+  action              String
+  targetCharacterId   String?
+  targetCharacterName String?
+  status              String
+  message             String?
+  before              Json?
+  after               Json?
+  metadata            Json     @default("{}")
+
+  @@index([createdAt])
+  @@index([adminLogin, createdAt])
+  @@index([action, createdAt])
+  @@index([targetCharacterId, createdAt])
+  @@index([status, createdAt])
+}

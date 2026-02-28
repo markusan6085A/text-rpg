@@ -9,6 +9,7 @@ import { AdminSectionBlockUnblock } from "./admin/AdminSectionBlockUnblock";
 import { AdminSectionMute } from "./admin/AdminSectionMute";
 import { AdminSectionCoinLuck } from "./admin/AdminSectionCoinLuck";
 import { AdminSectionCoinsSilver } from "./admin/AdminSectionCoinsSilver";
+import { AdminSectionAuditLog } from "./admin/AdminSectionAuditLog";
 
 interface AdminDashboardProps {
   navigate: (path: string) => void;
@@ -79,6 +80,7 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
           <AdminSectionMute />
           <AdminSectionCoinLuck />
           <AdminSectionCoinsSilver />
+          <AdminSectionAuditLog />
         </div>
 
         <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-[#c7ad80]/30">

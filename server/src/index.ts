@@ -17,6 +17,7 @@ import { authLogoutRoutes } from "./routes/authLogout";
 import { adminAuthRoutes } from "./routes/adminAuth";
 import { adminRoutes } from "./routes/admin";
 import { adminPlayersRoutes } from "./routes/adminPlayers";
+import { adminLogsRoutes } from "./routes/adminLogs";
 import { premiumRoutes } from "./routes/premium";
 import { runSevenSealsMailJob } from "./sevenSealsMail";
 
@@ -198,6 +199,7 @@ const start = async () => {
     await app.register(adminRoutes, { prefix: "/admin" });
     await app.register(adminAuthRoutes, { prefix: "/admin/auth" });
     await app.register(adminPlayersRoutes, { prefix: "/admin/player" });
+    await app.register(adminLogsRoutes, { prefix: "/admin/logs" });
 
     await app.register(characterRoutes);
     await app.register(premiumRoutes);
