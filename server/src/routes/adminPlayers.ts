@@ -2,7 +2,6 @@ import type { FastifyPluginAsync } from "fastify";
 import { requireAdmin } from "./adminGuard";
 import { prisma } from "../db";
 import { setMuted } from "../chatMute";
-import { EXP_TABLE } from "../expTable";
 
 export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
   // GET /admin/player/find-by-name?name=Nick — повертає character id, name, accountId (для інших дій)
@@ -113,7 +112,9 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
-  // POST /admin/player/:characterId/set-level — { level } 0–80, exp підлаштовується під рівень
+  // POST /admin/player/:characterId/set-level — { level } 0–80
+  // ВАЖЛИВО: у клієнтській бойовій/рибальській логіці hero.exp — це прогрес В МЕЖАХ поточного рівня (не cumulative).
+  // Тому після адмін-зміни рівня скидаємо exp до 0, щоб EXP знову коректно додавався.
   app.post<{ Params: { characterId: string }; Body: { level?: number } }>(
     "/:characterId/set-level",
     { preHandler: [requireAdmin] },
@@ -128,8 +129,8 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       });
       if (!char) return reply.code(404).send({ error: "character not found" });
 
-      // exp для рівня: та сама таблиця, що на клієнті (EXP_TABLE), щоб «Опыт» відображався коректно
-      const expForLevel = level <= 1 ? 0 : (EXP_TABLE[Math.min(level - 1, EXP_TABLE.length - 1)] ?? 0);
+      // Після ручної зміни рівня стартуємо з 0 прогресу поточного рівня.
+      const expForLevel = 0;
       const heroJson = (char.heroJson as any) || {};
       const lvl = Math.max(1, level);
       const baseStats = heroJson.baseStats || heroJson.baseStatsInitial || {};
