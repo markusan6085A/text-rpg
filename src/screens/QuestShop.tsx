@@ -274,10 +274,31 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     const canStack = stackableSlots.includes(itemDef.slot);
     const existingItemIndex = newInventory.findIndex((item) => item.id === itemsDBId);
 
-    if (existingItemIndex >= 0 && canStack) {
-      // Тільки стакаємо, якщо предмет може стакатися
-      const existingItem = newInventory[existingItemIndex];
-      existingItem.count = (existingItem.count || 1) + quantity;
+    if (canStack) {
+      if (existingItemIndex >= 0) {
+        // Стакаємо з існуючим
+        const existingItem = newInventory[existingItemIndex];
+        newInventory[existingItemIndex] = {
+          ...existingItem,
+          count: (existingItem.count || 1) + quantity
+        };
+      } else {
+        // Додаємо новий стакаємий предмет з повною кількістю
+        const grade = itemDef.grade || autoDetectGrade(itemsDBId);
+        const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
+        newInventory.push({
+          id: itemDef.id,
+          name: itemDef.name,
+          slot: itemDef.slot,
+          kind: itemDef.kind,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          stats: finalStats,
+          count: quantity,
+          grade: grade,
+          armorType: armorType,
+        });
+      }
     } else {
       // Екіп (зброя, броня, удочка тощо) — не стакаємо: кожна одиниця окремим слотом (count: 1)
       const grade = itemDef.grade || autoDetectGrade(itemsDBId);

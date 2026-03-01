@@ -116,8 +116,8 @@ function removeItemFromInventory(
   if (itemIndex !== -1) {
     const existingItem = newInventory[itemIndex];
     if (existingItem.count && existingItem.count > 1) {
-      existingItem.count = existingItem.count - 1;
-      console.log(`[equipItemLogic] Decreased count to ${existingItem.count}`);
+      newInventory[itemIndex] = { ...existingItem, count: existingItem.count - 1 };
+      console.log(`[equipItemLogic] Decreased count to ${newInventory[itemIndex].count}`);
     } else {
       newInventory.splice(itemIndex, 1);
       console.log(`[equipItemLogic] Removed item from inventory, new length: ${newInventory.length}`);
@@ -465,7 +465,7 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
       if (legsItemIndex !== -1) {
         const existingLegsItem = newInventory[legsItemIndex];
         if (existingLegsItem.count && existingLegsItem.count > 1) {
-          existingLegsItem.count = existingLegsItem.count - 1;
+          newInventory[legsItemIndex] = { ...existingLegsItem, count: existingLegsItem.count - 1 };
         } else {
           newInventory.splice(legsItemIndex, 1);
         }

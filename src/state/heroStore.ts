@@ -517,11 +517,14 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const canStack = stackableSlots.includes(itemDef.slot);
 
     const newInventory = [...(hero.inventory || [])];
-    const existingItem = newInventory.find((item) => item.id === itemId);
+    const existingItemIndex = newInventory.findIndex((item) => item.id === itemId);
 
-    if (existingItem && canStack) {
-      // Тільки стакаємо, якщо предмет може стакатися
-      existingItem.count = (existingItem.count || 1) + count;
+    if (existingItemIndex >= 0 && canStack) {
+      // Тільки стакаємо, якщо предмет може стакатися (змінюємо референс об'єкта для React)
+      newInventory[existingItemIndex] = {
+        ...newInventory[existingItemIndex],
+        count: (newInventory[existingItemIndex].count || 1) + count
+      };
     } else {
       // Якщо предмет не може стакатися або його немає в інвентарі, додаємо новий
       // Автоматично визначаємо grade та armorType, якщо вони не вказані в itemsDB

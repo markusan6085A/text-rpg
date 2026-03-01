@@ -162,11 +162,33 @@ export default function Shop({ navigate }: ShopProps) {
       inventoryLength: newInventory.length,
     });
 
-    if (existingItemIndex >= 0 && canStack) {
-      // Тільки стакаємо, якщо предмет може стакатися (consumable, resource, quest)
-      const existingItem = newInventory[existingItemIndex];
-      existingItem.count = (existingItem.count || 1) + quantity;
-      console.log(`[Shop] Stacked item:`, { id: existingItem.id, newCount: existingItem.count });
+    if (canStack) {
+      if (existingItemIndex >= 0) {
+        // Стакаємо з існуючим
+        const existingItem = newInventory[existingItemIndex];
+        newInventory[existingItemIndex] = {
+          ...existingItem,
+          count: (existingItem.count || 1) + quantity
+        };
+        console.log(`[Shop] Stacked item:`, { id: existingItem.id, newCount: newInventory[existingItemIndex].count });
+      } else {
+        // Додаємо новий стакаємий предмет з повною кількістю
+        const grade = itemDef.grade || autoDetectGrade(itemsDBId);
+        const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
+        newInventory.push({
+          id: itemDef.id,
+          name: itemDef.name,
+          slot: itemDef.slot,
+          kind: itemDef.kind,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          stats: finalStats,
+          count: quantity,
+          grade: grade,
+          armorType: armorType,
+        });
+        console.log(`[Shop] Added new stackable item:`, itemDef.id, "count:", quantity);
+      }
     } else {
       // Екіп (зброя, броня, удочка тощо) — не стакаємо: кожна одиниця окремим слотом (count: 1)
       const grade = itemDef.grade || autoDetectGrade(itemsDBId);
