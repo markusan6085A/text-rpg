@@ -2,6 +2,28 @@ import type { FastifyInstance } from "fastify";
 import { prisma } from "../../../db";
 import { getAuth } from "../auth";
 import { addVersioning } from "../../../heroJsonValidator";
+import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
+
+function getExpToNext(level: number): number {
+  const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
+  if (lvl >= MAX_LEVEL) return 0;
+  return Math.max(0, Number(EXP_TABLE[lvl] ?? 0) - Number(EXP_TABLE[lvl - 1] ?? 0));
+}
+
+function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number {
+  const levelNum = Math.max(1, Math.min(MAX_LEVEL, Number(levelRaw) || 1));
+  const currentLevelTotal = Number(EXP_TABLE[levelNum - 1] ?? 0);
+  const need = Math.max(0, Number(getExpToNext(levelNum)) || 0);
+  let exp = Math.max(0, Number(rawExp) || 0);
+
+  // Підтримка старих даних: якщо exp збережений як cumulative, конвертуємо в прогрес рівня.
+  if (levelNum > 1 && exp >= currentLevelTotal) {
+    exp = exp - currentLevelTotal;
+  }
+
+  if (need <= 0 || levelNum >= MAX_LEVEL) return 0;
+  return Math.max(0, exp);
+}
 
 export async function characterFishingRoutes(app: FastifyInstance) {
   // --- Fishing ---
@@ -175,7 +197,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
 
         const ch = await tx.character.findUnique({
           where: { id: owner.id },
-          select: { id: true, heroJson: true },
+          select: { id: true, heroJson: true, level: true, exp: true },
         });
         if (!ch) throw new Error("character not found");
 
@@ -203,6 +225,16 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           expGained = 100000 + Math.floor(Math.random() * 300001); // 100,000 - 400,000
         }
 
+        let nextLevel = Math.max(1, Math.min(MAX_LEVEL, Number(ch.level) || 1));
+        let nextExp = normalizeExpToLevelProgress(ch.exp, nextLevel) + expGained;
+        while (nextLevel < MAX_LEVEL) {
+          const need = getExpToNext(nextLevel);
+          if (need <= 0 || nextExp < need) break;
+          nextExp -= need;
+          nextLevel += 1;
+        }
+        if (nextLevel >= MAX_LEVEL) nextExp = 0;
+
         const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
         const existing = inv.find((i: any) => (i?.id ?? i?.itemId) === FISH_ITEM_ID);
         if (existing) {
@@ -227,7 +259,8 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         const updated = await tx.character.update({
           where: { id: ch.id },
           data: {
-            exp: { increment: expGained },
+            level: nextLevel,
+            exp: Math.max(0, Math.floor(nextExp)),
             heroJson: updatedHeroJson,
             lastActivityAt: new Date(),
           },

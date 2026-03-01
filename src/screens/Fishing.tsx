@@ -151,6 +151,7 @@ export default function Fishing({ navigate }: FishingProps) {
       const newRev = hj?.heroRevision;
       if (newRev != null) updateServerState({ heroRevision: newRev });
       updateHero({
+        level: Number(res.character.level ?? hero.level ?? 1),
         exp: res.character.exp,
         inventory: hj?.inventory ?? hero.inventory ?? [],
         heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: undefined },
