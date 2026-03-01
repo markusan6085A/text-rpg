@@ -64,19 +64,23 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   // StatusBars вже обробляє регенерацію для всіх сторінок
 
   const handleToCharacter = () => {
+    updateHero({ location: "" } as any);
     window.scrollTo(0, 0);
     navigate("/character");
   };
   const handleToStats = () => {
+    updateHero({ location: "" } as any);
     window.scrollTo(0, 0);
     navigate("/stats");
   };
   const handleToCity = () => {
+    updateHero({ location: "" } as any);
     window.scrollTo(0, 0);
     navigate("/city");
   };
 
   const openFeature = (title: string) => {
+    updateHero({ location: "" } as any);
     window.scrollTo(0, 0);
     setString("l2_last_feature", title);
     navigate("/wip");

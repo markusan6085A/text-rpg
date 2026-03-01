@@ -144,7 +144,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "character not found" });
       }
 
-      if (requestedLocation.length > 0) {
+      if (requestedLocation !== undefined) {
         const heroJson = ((character as any).heroJson as any) || {};
         await prisma.character.update({
           where: { id: character.id },

@@ -59,11 +59,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   }, []);
 
   React.useEffect(() => {
-    if (!found?.zone?.name || !hero) return;
+    if (!hero) return;
+    const loc = found?.zone?.name || "";
+    // Завжди оновлюємо location в hero. Якщо ми не у found (тобто вийшли з окрестності/перейшли в місто),
+    // loc буде "". Це дозволить серверу знати, що ми вже не в зоні, і прибрати нас зі списку.
     const currentLocation = String((hero as any)?.location ?? (hero as any)?.currentLocation ?? (hero as any)?.zone ?? "").trim();
-    if (currentLocation !== found.zone.name) {
-      // Синхронізуємо location одразу при вході в окрестность, щоб /characters/online бачив правильну зону.
-      updateHero({ location: found.zone.name } as any);
+    if (currentLocation !== loc) {
+      updateHero({ location: loc } as any);
     }
   }, [found?.zone?.name, hero?.id, updateHero]);
 
@@ -96,7 +98,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     };
 
     if (found?.zone?.name) load();
-    const interval = setInterval(load, 30000);
+    // Оновлюємо список гравців кожні 3 секунди замість 30 секунд для швидшої реакції
+    const interval = setInterval(load, 3000);
     return () => {
       mounted = false;
       clearInterval(interval);
