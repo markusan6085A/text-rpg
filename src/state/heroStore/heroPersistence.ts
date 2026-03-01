@@ -620,34 +620,36 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     }
     
     // 🔥 Обробка конфлікту ревізії (409 Conflict або revision_conflict)
-    if (error?.status === 409 || (error?.message && (error.message.includes('revision_conflict') || error.message.includes('revision conflict')))) {
+    if (error?.status === 409 || (error?.message && (error.message.includes('revision_conflict') || error.message.includes('revision conflict') || error.message.includes('Character was modified')))) {
       console.warn('[saveHeroToLocalStorage] Revision conflict detected - character was modified by another session');
       
-      // 🔥 КРИТИЧНО: Автоматично "rehydrate + retry один раз"
-      // Правильний UX: користувач навіть не помітить конфлікт
-      // 🔥 ВАЖЛИВО: Перевіряємо лічильник, щоб не створити цикл
-      if (retryCount < MAX_RETRIES) {
-        retryCount++;
-        console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
-        
-        try {
-          // 1. Отримуємо актуального героя з сервера (GET /characters/:id)
-          const characterStore = useCharacterStore.getState();
-          const currentCharacter = await getCharacter(characterStore.characterId);
-          const { useHeroStore } = await import('../heroStore');
-          const currentHero = useHeroStore.getState().hero;
-          // 🔥 КРИТИЧНО: використовуємо currentHero (зі store), а не hero (параметр) — hero може бути застарілим,
-          // якщо між запуском save і 409 викликався learnSkill (наприклад, при race з fixProfession на GuildScreen)
-          const localSource = currentHero ?? hero;
-          if (currentCharacter) {
-            // 2. Мержимо локальні дельти (exp/mobsKilled/skills/buffs) з серверним станом
-            const serverHeroJson = currentCharacter.heroJson || {};
-            const localMobsKilled = (localSource as any).mobsKilled ?? (hero as any).mobsKilled ?? 0;
-            const serverMobsKilled = serverHeroJson.mobsKilled ?? 0;
-            const localExp = localSource.exp ?? hero.exp ?? 0;
-            const serverExp = serverHeroJson.exp ?? Number(currentCharacter.exp) ?? 0;
-            const localSkills = localSource.skills ?? hero.skills ?? [];
-            const serverSkills = serverHeroJson.skills ?? [];
+      // Ігноруємо якщо це просто конфлікт при фоновому збереженні
+      // Ми не хочемо спамити користувачу alert-ами
+      if (retryCount >= MAX_RETRIES) {
+          console.warn('[saveHeroToLocalStorage] Max retries reached for revision conflict, skipping to avoid infinite loop');
+          return;
+      }
+      retryCount++;
+      console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
+      
+      try {
+        // 1. Отримуємо актуального героя з сервера (GET /characters/:id)
+        const characterStore = useCharacterStore.getState();
+        const currentCharacter = await getCharacter(characterStore.characterId);
+        const { useHeroStore } = await import('../heroStore');
+        const currentHero = useHeroStore.getState().hero;
+        // 🔥 КРИТИЧНО: використовуємо currentHero (зі store), а не hero (параметр) — hero може бути застарілим,
+        // якщо між запуском save і 409 викликався learnSkill (наприклад, при race з fixProfession на GuildScreen)
+        const localSource = currentHero ?? hero;
+        if (currentCharacter) {
+          // 2. Мержимо локальні дельти (exp/mobsKilled/skills/buffs) з серверним станом
+          const serverHeroJson = currentCharacter.heroJson || {};
+          const localMobsKilled = (localSource as any).mobsKilled ?? (hero as any).mobsKilled ?? 0;
+          const serverMobsKilled = serverHeroJson.mobsKilled ?? 0;
+          const localExp = localSource.exp ?? hero.exp ?? 0;
+          const serverExp = serverHeroJson.exp ?? Number(currentCharacter.exp) ?? 0;
+          const localSkills = localSource.skills ?? hero.skills ?? [];
+          const serverSkills = serverHeroJson.skills ?? [];
             
             // 🔥 КРИТИЧНО: Merge exp/mobsKilled - беремо більше значення (щоб не втратити прогрес)
             // Для mobsKilled це ок, бо це лічильник "назавжди"
@@ -768,7 +770,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             console.error('[saveHeroToLocalStorage] Retry also failed with revision_conflict - stopping auto-retry');
             // Можна показати toast/notification користувачу: "Оновіть сторінку"
             if (typeof window !== 'undefined' && window.alert) {
-              window.alert('Конфлікт версій персонажа. Будь ласка, оновіть сторінку (F5) для синхронізації.');
+              // Не виводимо alert, щоб не спамити
+              console.warn('Конфлікт версій персонажа. (тиха помилка)');
             }
           }
           
@@ -778,7 +781,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         // 🔥 КРИТИЧНО: Якщо досягнуто максимум retry - показуємо попередження
         console.error('[saveHeroToLocalStorage] Maximum retries reached, stopping auto-retry');
         if (typeof window !== 'undefined' && window.alert) {
-          window.alert('Не вдалося зберегти дані через конфлікт версій. Будь ласка, оновіть сторінку (F5).');
+          // Не виводимо alert, щоб не спамити користувачу в PK режимі та при використанні банок
+          console.warn('Не вдалося зберегти дані через конфлікт версій (тиха помилка)');
         }
       }
       
