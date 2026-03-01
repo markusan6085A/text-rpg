@@ -292,6 +292,21 @@ function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: num
     const base = raw + skillBonus;
     return { dmg: Math.max(1, Math.floor(base * variance * critMult * shotMultiplier)), isCrit, isMiss: false };
   }
+  
+  // Base attack interval logic from client:
+  // (We use a normalized attackSpeed value on the server, if available, otherwise assume 200)
+  // Let's use 1.0 as base multiplier for 1.5s interval
+  let attackSpeedMult = 1.0;
+  if (powerBonus === 0) { // basic attack
+    const attackSpeed = attacker.attackSpeed || attacker.atkSpeed || 200;
+    // A standard attack speed of 200 means 1.5 / (1 + 200/1000) = 1.25s
+    // 500 means 1.5 / (1 + 500/1000) = 1.0s
+    // We adjust damage proportionally to attack speed to simulate "DPS" 
+    // since the client is hitting faster.
+    // However, the client calls this route per hit, so we don't multiply damage here 
+    // based on speed, the speed is purely a cooldown on the client side.
+  }
+
   const raw = Math.max(0, pAtk - pDef);
   const base = raw + skillBonus;
   return { dmg: Math.max(1, Math.floor(base * variance * critMult * shotMultiplier)), isCrit, isMiss: false };
