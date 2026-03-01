@@ -65,6 +65,8 @@ export function loadHero(): Hero | null {
         acc.hero = fixedHero;
         updated = true;
       }
+    }
+
     // Міграція: об'єднуємо стакабельні предмети (соски, ресурси, квест-айтеми, банки)
     if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {
       let inventoryConsolidated = false;
