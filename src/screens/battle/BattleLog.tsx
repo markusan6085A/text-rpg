@@ -13,12 +13,14 @@ export function replaceSkillIdsWithNames(line: string): string {
   });
 }
 
-/** Колір рядка логу в PK: мій урон — зелений, урон противника — червоний */
+/** Колір рядка логу в PK: мій урон — зелений, урон по мені (противника) — червоний */
 export function getColorForPkLine(line: string, myHeroName: string): string {
+  const norm = (s: string) => String(s ?? "").trim().toLowerCase();
+  const myName = norm(myHeroName);
   const m = line.match(/^(\S+)\s+(использует|атакует)/);
-  const actorName = m?.[1] ?? "";
-  if (actorName && actorName === myHeroName) return "#22c55e"; // green-500 (мій урон)
-  if (line.includes("наносит") && line.includes("урона")) return "#ef4444"; // red-500 (урон противника)
+  const actorName = norm(m?.[1] ?? "");
+  if (actorName && actorName === myName) return "#22c55e"; // green (мій урон)
+  if (line.includes("наносит") && line.includes("урона")) return "#ef4444"; // red (урон по мені / противника)
   if (line.includes("сбежал")) return "#9ca3af";
   return "#d9c4a3";
 }
