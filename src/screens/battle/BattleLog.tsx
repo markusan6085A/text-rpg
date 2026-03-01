@@ -129,10 +129,11 @@ const parseDobychaLine = (line: string) => {
 
 const LOG_MAX_LINES = 10;
 
-export function BattleLog({ noBorder }: { noBorder?: boolean }) {
+export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; lines?: string[] }) {
   const { log } = useBattleStore();
   // Лог зберігається як [найновіше, ...старіші]. Показуємо перші 10 = 10 останніх повідомлень; нові з’являються, старі зникають.
-  const lines = [...(Array.isArray(log) ? log : [])].slice(0, LOG_MAX_LINES);
+  const fromStore = [...(Array.isArray(log) ? log : [])].slice(0, LOG_MAX_LINES);
+  const lines = linesProp != null ? linesProp.slice(0, LOG_MAX_LINES) : fromStore;
   const content = (
     <div className="space-y-1 text-[12px] leading-[1.2]">
       {lines.map((line, idx) => {

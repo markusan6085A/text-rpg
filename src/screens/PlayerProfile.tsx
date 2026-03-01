@@ -280,6 +280,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const professionLabel = profDef?.label || profession || "Нет";
 
   if (isPkMode && hero && heroData) {
+    const backToProfile = () => {
+      if (playerId) navigate(`/player/${playerId}`);
+      else if (playerName) navigate(`/player?name=${encodeURIComponent(playerName)}`);
+    };
     return (
       <PkProfileView
         character={character}
@@ -291,6 +295,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         pkError={pkError}
         now={now}
         onUseSkill={handlePkUseSkill}
+        onBack={backToProfile}
       />
     );
   }

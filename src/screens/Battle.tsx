@@ -2,10 +2,9 @@
 import React from "react";
 import { useBattleStore } from "../state/battle/store";
 import { findZoneWithCity } from "./battle/battleUtils";
-import { TargetCard } from "./battle/TargetCard";
 import { SkillBar } from "./battle/SkillBar";
 import { BattleLog } from "./battle/BattleLog";
-import { BuffBar } from "./battle/BuffBar";
+import { BattlePanel } from "./battle/BattlePanel";
 import { useHeroStore } from "../state/heroStore";
 import { isMobOnRespawn } from "../state/battle/mobRespawns";
 
@@ -29,6 +28,7 @@ export default function Battle({ navigate }: BattleProps) {
     regenTick,
     status,
     mob,
+    mobHP,
     zoneId: battleZoneId,
     mobIndex: battleMobIndex,
     heroBuffs,
@@ -236,9 +236,8 @@ export default function Battle({ navigate }: BattleProps) {
       // Ця кнопка просто закриває екран перемоги
     };
 
-    return (
-      <div className="w-full text-white py-2">
-        <div className="w-full max-w-[360px] mx-auto">
+    const victoryContent = (
+      <>
           {/* Інформація про моба */}
           <div className={`${lineGold} pt-2`}>
             <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
@@ -342,70 +341,40 @@ export default function Battle({ navigate }: BattleProps) {
             </button>
             <div className="px-3">{dividerGold}</div>
           </div>
-        </div>
-      </div>
+        </>
+    );
+    return (
+      <BattlePanel
+        target={{ name: mob.name, level: mob.level, currentHp: 0, maxHp: mob.hp }}
+        buffs={[]}
+        now={now}
+        victoryContent={victoryContent}
+      />
     );
   }
 
+  const battleTarget = mob
+    ? {
+        name: mob.name,
+        level: mob.level,
+        currentHp: Number.isFinite(mobHP) ? mobHP : mob.hp,
+        maxHp: mob.hp,
+      }
+    : { name: "", level: 1, currentHp: 0, maxHp: 1 };
+
   return (
-    <div className="w-full text-white pt-0 pb-2">
-      <div className="w-full max-w-[360px] mx-auto">
-        {/* Картка цілі (моб) */}
-        {mob && (
-          <>
-            <div className={`${lineGold} pt-2`}>
-              <div className={pad}>
-                <div className="flex justify-center -mt-1">
-                  <TargetCard zone={zone} city={city} mob={mob} />
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Бари бафів — відступ зверху від HP моба */}
-        <div className={`${lineGold} pt-3`}>
-          <div className={pad}>
-            <BuffBar buffs={heroBuffs || []} now={now} />
-          </div>
-        </div>
-
-        {/* Панель навичок */}
-        <div className={lineGold}>
-          <div className={pad}>
-            <SkillBar />
-          </div>
-        </div>
-
-        {/* Лог бою — без лінії під рамкою */}
-        <div className="mt-3 px-3">
-          <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
-          <div className={`${boxBlue} w-full`}>
-            <div className="px-3 py-2 text-[11px] leading-4">
-              <BattleLog noBorder />
-            </div>
-          </div>
-        </div>
-
-        {/* Нижній блок + лінія під ним */}
-        <div className="mt-4">
-          <div className={`${pad} flex gap-2 justify-center`}>
-            {status === "idle" && (
-              <button
-                type="button"
-                onClick={() => {
-                  reset();
-                  navigate(`/location?id=${zone.id}`);
-                }}
-                className="px-4 py-2 bg-yellow-600 rounded text-black text-sm"
-              >
-                Повернутися в локацію
-              </button>
-            )}
-          </div>
-          <div className={pad}>{dividerGold}</div>
-        </div>
-      </div>
-    </div>
+    <BattlePanel
+      target={battleTarget}
+      buffs={heroBuffs || []}
+      now={now}
+      backLabel="Повернутися в локацію"
+      showBackButton={status === "idle"}
+      onBack={() => {
+        reset();
+        navigate(`/location?id=${zone.id}`);
+      }}
+    >
+      <SkillBar />
+    </BattlePanel>
   );
 }
