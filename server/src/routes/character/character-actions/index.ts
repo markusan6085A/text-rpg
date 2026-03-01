@@ -298,7 +298,7 @@ function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: num
   // Let's use 1.0 as base multiplier for 1.5s interval
   let attackSpeedMult = 1.0;
   if (powerBonus === 0) { // basic attack
-    const attackSpeed = attacker.attackSpeed || attacker.atkSpeed || 200;
+    const attackSpeed = (attacker as any).attackSpeed || (attacker as any).atkSpeed || 200;
     // A standard attack speed of 200 means 1.5 / (1 + 200/1000) = 1.25s
     // 500 means 1.5 / (1 + 500/1000) = 1.0s
     // We adjust damage proportionally to attack speed to simulate "DPS" 
