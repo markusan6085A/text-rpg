@@ -6,6 +6,7 @@ import { addVersioning } from "../../../heroJsonValidator";
 
 type PkSkill = {
   id: number;
+  name?: string;
   level: number;
   mpCost: number;
   cooldownMs: number;
@@ -23,6 +24,11 @@ type PkFighter = {
   pDef: number;
   mAtk: number;
   mDef: number;
+  accuracy: number;
+  evasion: number;
+  crit: number;
+  mCrit: number;
+  critPower: number;
   prefersMagic: boolean;
   skills: PkSkill[];
 };
@@ -165,6 +171,12 @@ function buildPkFighter(character: {
   const mAtk = Math.max(10, Number(battleStats?.mAtk ?? 35 + level * 5) || 10);
   const mDef = Math.max(5, Number(battleStats?.mDef ?? 20 + level * 4) || 5);
 
+  const accuracy = Number(battleStats?.accuracy || 0);
+  const evasion = Number(battleStats?.evasion || 0);
+  const crit = Number(battleStats?.crit || 40);
+  const mCrit = Number(battleStats?.mCrit || 4);
+  const critPower = Number(battleStats?.critPower ?? battleStats?.critDamage ?? 100);
+
   const prefersMagic = mAtk > pAtk * 1.15;
   const skills = normalizeSkills(heroJson);
 
@@ -179,6 +191,11 @@ function buildPkFighter(character: {
     pDef,
     mAtk,
     mDef,
+    accuracy,
+    evasion,
+    crit,
+    mCrit,
+    critPower,
     prefersMagic,
     skills,
   };
@@ -245,22 +262,39 @@ function serializePkSession(session: PkSession) {
 }
 
 /** Урон як у клієнті: простий удар = pAtk - pDef, скіл = трохи більше (+ powerBonus). */
-function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: number, useMagic: boolean): number {
+function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: number, useMagic: boolean): { dmg: number; isCrit: boolean; isMiss: boolean } {
   const pAtk = Math.max(1, Number(attacker.pAtk || 1));
   const mAtk = Math.max(1, Number(attacker.mAtk || 1));
   const pDef = Math.max(1, Number(defender.pDef || 1));
   const mDef = Math.max(1, Number(defender.mDef || 1));
   const skillBonus = Math.max(0, Number(powerBonus || 0));
+
+  // Перевірка на промах (тільки для фізичних атак, скіли не промахуються)
+  if (!useMagic && powerBonus === 0) {
+    const hitChance = Math.max(20, Math.min(100, 90 + (attacker.accuracy || 0) - (defender.evasion || 0)));
+    if (Math.random() * 100 > hitChance) {
+      return { dmg: 0, isCrit: false, isMiss: true };
+    }
+  }
+
+  const critChanceRaw = useMagic ? (attacker.mCrit || 4) : (attacker.crit || 40);
+  const critChance = Math.min(80, critChanceRaw);
+  const isCrit = Math.random() * 100 < critChance;
+  
+  const critPower = attacker.critPower || 100;
+  // Для скілів максимальний множник вищий (3.0), для простих атак (2.0)
+  const critMult = isCrit ? (powerBonus > 0 ? Math.min(3.0, 2.0 + critPower / 1500) : Math.min(2.0, 1.5 + critPower / 5000)) : 1.0;
+
   const variance = 0.92 + Math.random() * 0.16; // 0.92 - 1.08
 
   if (useMagic) {
     const raw = Math.max(0, mAtk - mDef);
     const base = raw + skillBonus;
-    return Math.max(1, Math.floor(base * variance));
+    return { dmg: Math.max(1, Math.floor(base * variance * critMult)), isCrit, isMiss: false };
   }
   const raw = Math.max(0, pAtk - pDef);
   const base = raw + skillBonus;
-  return Math.max(1, Math.floor(base * variance));
+  return { dmg: Math.max(1, Math.floor(base * variance * critMult)), isCrit, isMiss: false };
 }
 
 function getEffectivePkNickColor(heroJson: any, now = Date.now()): string | undefined {
@@ -737,14 +771,19 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
       const useMagic = skill ? attacker.prefersMagic : false;
       const powerBonus = skill?.powerBonus ?? 0;
-      const dmg = computeDamage(attacker, defender, powerBonus, useMagic);
+      const { dmg, isCrit, isMiss } = computeDamage(attacker, defender, powerBonus, useMagic);
       defender.hp = Math.max(0, defender.hp - dmg);
-      if (skill) {
+      
+      const critText = isCrit ? " (критический удар!)" : "";
+
+      if (isMiss) {
+        session.log.unshift(`${attacker.name} промахивается по ${defender.name}!`);
+      } else if (skill) {
         attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
         cooldowns[skill.id] = now + skill.cooldownMs;
-        session.log.unshift(`${attacker.name} использует ${skill.name || `skill#${skill.id}`} и наносит ${dmg} урона`);
+        session.log.unshift(`${attacker.name} использует ${skill.name || `skill#${skill.id}`} и наносит ${dmg} урона${critText}`);
       } else {
-        session.log.unshift(`${attacker.name} атакует (простая атака) и наносит ${dmg} урона`);
+        session.log.unshift(`${attacker.name} атакует (простая атака) и наносит ${dmg} урона${critText}`);
       }
       session.log = session.log.slice(0, 30);
       return dmg;
@@ -838,27 +877,27 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     
     // Якщо в пам'яті немає, спробуємо знайти в БД
     if (currentHp === null) {
-       const activeSession = await prisma.pkSession.findFirst({
-         where: {
-            OR: [
-              { attackerId: id },
-              { defenderId: id }
-            ],
-            ended: false
+       try {
+         const rows = await prisma.$queryRawUnsafe<Array<{ payload: unknown }>>(
+           `SELECT "payload" FROM "PkSessionStore" WHERE "expiresAt" >= $1 AND ("payload"->>'attackerId' = $2 OR "payload"->>'defenderId' = $2) AND ("payload"->>'ended')::boolean = false LIMIT 1`,
+           Date.now(),
+           id
+         );
+         if (rows[0]?.payload) {
+            const sessionData = typeof rows[0].payload === "string" ? JSON.parse(rows[0].payload) : (rows[0].payload as any);
+            if (sessionData) {
+               const isAttacker = sessionData.attackerId === id;
+               const meFighter = isAttacker ? sessionData.attacker : sessionData.defender;
+               if (meFighter) {
+                  currentHp = meFighter.hp;
+                  currentMp = meFighter.mp;
+                  currentMaxHp = meFighter.maxHp;
+                  currentMaxMp = meFighter.maxMp;
+               }
+            }
          }
-       });
-       if (activeSession && activeSession.data) {
-          const sessionData = activeSession.data as any;
-          if (sessionData) {
-             const isAttacker = sessionData.attackerId === id;
-             const meFighter = isAttacker ? sessionData.attacker : sessionData.defender;
-             if (meFighter) {
-                currentHp = meFighter.hp;
-                currentMp = meFighter.mp;
-                currentMaxHp = meFighter.maxHp;
-                currentMaxMp = meFighter.maxMp;
-             }
-          }
+       } catch (err) {
+         // ignore
        }
     }
 
