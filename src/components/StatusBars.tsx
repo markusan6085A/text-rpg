@@ -385,7 +385,13 @@ export default function StatusBars() {
         <span className="text-gray-400"> — {level} ур.</span>
       </div>
       {activeIncoming && (
-        <div className="mt-1 px-1 py-[2px] border border-white/25 bg-black/55 text-[9px] text-[#d9c4a3] w-fit max-w-[180px]">
+        <div 
+          className="mt-1 px-1 py-[2px] border border-white/25 bg-black/55 text-[9px] text-[#d9c4a3] w-fit max-w-[180px] cursor-pointer"
+          style={{ pointerEvents: 'auto' }}
+          onClick={() => {
+            window.location.href = `/player/${activeIncoming.attackerId}?pk=1&session=${activeIncoming.sessionId}`;
+          }}
+        >
           <span>Атакує: </span>
           <span style={activeIncoming.attackerNickColor ? { color: activeIncoming.attackerNickColor } : undefined}>
             {activeIncoming.attackerName}

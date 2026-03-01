@@ -530,6 +530,31 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const defenderLoc = getLocation(defenderChar.heroJson as any);
     if (!attackerLoc || attackerLoc !== defenderLoc) return reply.code(400).send({ error: "players must be in the same zone" });
 
+    // Check if there is an existing active session between these two players
+    try {
+      const existingRows = await prisma.$queryRawUnsafe<Array<{ payload: unknown }>>(
+        `SELECT "payload" FROM "PkSessionStore" 
+         WHERE "expiresAt" >= $1 
+           AND ("payload"->>'ended')::boolean = false 
+           AND (
+             ("payload"->>'attackerId' = $2 AND "payload"->>'defenderId' = $3) OR 
+             ("payload"->>'attackerId' = $3 AND "payload"->>'defenderId' = $2)
+           ) 
+         LIMIT 1`,
+        Date.now(),
+        attackerId,
+        targetId
+      );
+      if (existingRows.length > 0 && existingRows[0]?.payload) {
+        const parsed = typeof existingRows[0].payload === "string" ? JSON.parse(existingRows[0].payload as string) : existingRows[0].payload;
+        const existingSession = parsed as PkSession;
+        pkSessions.set(existingSession.id, existingSession);
+        return reply.send(serializePkSession(existingSession));
+      }
+    } catch (err) {
+      // ignore
+    }
+
     const sessionId = randomUUID();
     const session: PkSession = {
       id: sessionId,
