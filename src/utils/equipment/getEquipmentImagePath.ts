@@ -39,7 +39,7 @@ export function getEquipmentImagePath({
 }: GetEquipmentImagePathOptions): string | null {
   const equipmentFileId = getEquipmentFileId(itemId);
   if (equipmentFileId === null) {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.warn(`[Equipment] No mapping found for item: ${itemId}`);
     }
     return null;
@@ -51,7 +51,7 @@ export function getEquipmentImagePath({
 
   const path = `${basePath}/${view}/${folderPath}/${equipmentFileId}.png`;
   
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     console.log(`[Equipment] Path for ${itemId}: ${path}`);
   }
 

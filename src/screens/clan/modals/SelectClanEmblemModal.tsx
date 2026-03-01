@@ -21,7 +21,7 @@ export default function SelectClanEmblemModal({
 
   // Діагностика: виводимо шляхи в консоль
   React.useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log('[SelectClanEmblemModal] Current emblems:', currentEmblems);
       currentEmblems.forEach((emblem) => {
         const path = getEmblemPath(emblem);
@@ -81,7 +81,7 @@ export default function SelectClanEmblemModal({
                     }}
                     onLoad={() => {
                       // Діагностика: виводимо в консоль, коли зображення завантажилося
-                      if (process.env.NODE_ENV === 'development') {
+                      if (import.meta.env.DEV) {
                         console.log(`[SelectClanEmblemModal] Successfully loaded emblem: ${emblemPath}`);
                       }
                     }}

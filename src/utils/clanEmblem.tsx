@@ -145,7 +145,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         }}
         onLoad={() => {
           // Діагностика: виводимо в консоль, коли зображення завантажилося
-          if (process.env.NODE_ENV === 'development') {
+          if (import.meta.env.DEV) {
             console.log(`[ClanEmblem] Successfully loaded emblem: ${emblemPath}`, {
               processed: !!processedSrc,
               error: processingError

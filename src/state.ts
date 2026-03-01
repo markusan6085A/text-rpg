@@ -47,7 +47,9 @@ export function loadProgress(): Progress {
       }
       return p;
     }
-  } catch {}
+  } catch (e) {
+    if (import.meta.env.DEV) console.error("[state] loadProgress failed:", e);
+  }
   const init = { level: 0, exp: 0, sp: 0, adena: 0, totalKills: 0, hp: maxHP(0), mp: maxMP(0) };
   localStorage.setItem(LS_PROGRESS, JSON.stringify(init));
   return init;
