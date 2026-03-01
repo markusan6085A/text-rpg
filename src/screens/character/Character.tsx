@@ -118,8 +118,8 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   const expToNextDisplay = level >= MAX_LEVEL 
     ? (EXP_TABLE[MAX_LEVEL - 1] ?? 0) 
     : expToNext;
-  // Перше число: скільки ще потрібно до наступного лвл (на макс. лвл = 0)
-  const expRemaining = level >= MAX_LEVEL ? 0 : Math.max(0, expToNextDisplay - expCurrent);
+  // Перше число: поточний досвід
+  const expCurrentDisplay = level >= MAX_LEVEL ? expToNextDisplay : expCurrent;
   const expPercent = expToNextDisplay > 0 
     ? Math.min(100, Math.floor((expCurrent / expToNextDisplay) * 100)) 
     : 100;
@@ -265,7 +265,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
           <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
             <img src="/icons/star.png" alt="Experience" className="w-3 h-3 object-contain" />
             <span>
-              Опыт: <span className="text-orange-400">{formatNumber(expRemaining)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
+              Опыт: <span className="text-orange-400">{formatNumber(expCurrentDisplay)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
             </span>
           </div>
 

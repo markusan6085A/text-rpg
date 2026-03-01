@@ -21,6 +21,18 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const updateHero = useHeroStore((s) => s.updateHero);
   const isAdmin = useAdminStore((s) => s.isAdmin);
 
+  React.useEffect(() => {
+    if (hero) {
+      const currentLocation = String((hero as any)?.location ?? (hero as any)?.heroJson?.location ?? "").trim();
+      if (currentLocation !== "") {
+        updateHero({ location: "" } as any);
+        import("../utils/api").then(({ sendHeartbeat }) => {
+           sendHeartbeat(hero.id, "").catch(() => {});
+        });
+      }
+    }
+  }, [hero?.id]);
+
   if (!hero) {
     return (
       <div className="flex items-center justify-center text-xs text-gray-400">
@@ -48,11 +60,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const hp = hero.hp ?? maxHp;
   const mp = hero.mp ?? maxMp;
   const cp = hero.cp ?? maxCp;
-
-  const expCurrent = hero.exp ?? 0;
-  const expToNext = 100000 + level * 7500;
-  const expPercent =
-    expToNext > 0 ? Math.min(100, Math.floor((expCurrent / expToNext) * 100)) : 0;
 
   const lowHp = maxHp > 0 && hp / maxHp < 0.3;
 
