@@ -53,9 +53,10 @@ function useLearnedActive(): LearnedSkill[] {
 interface SkillBarProps {
   /** У режимі PK: викликати цей callback замість useSkill (той самий вигляд, інша логіка — API) */
   onUseSkillOverride?: (skillId: number) => void;
+  onAttackOverride?: () => void;
 }
 
-export function SkillBar({ onUseSkillOverride }: SkillBarProps = {}) {
+export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps = {}) {
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const hero = useHeroStore((s) => s.hero);
   const equipItem = useHeroStore((s) => s.equipItem);
@@ -239,8 +240,14 @@ export function SkillBar({ onUseSkillOverride }: SkillBarProps = {}) {
                   const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
                   if (invItem) equipItem(invItem);
                 } else if (id !== null) {
-                  if (onUseSkillOverride && typeof id === "number") {
-                    onUseSkillOverride(id);
+                  if (typeof id === "number") {
+                    if (id === 0 && onAttackOverride) {
+                      onAttackOverride();
+                    } else if (onUseSkillOverride) {
+                      onUseSkillOverride(id);
+                    } else {
+                      useSkill(id as any);
+                    }
                   } else {
                     useSkill(id as any);
                   }
@@ -328,8 +335,14 @@ export function SkillBar({ onUseSkillOverride }: SkillBarProps = {}) {
                   const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
                   if (invItem) equipItem(invItem);
                 } else if (id !== null) {
-                  if (onUseSkillOverride && typeof id === "number") {
-                    onUseSkillOverride(id);
+                  if (typeof id === "number") {
+                    if (id === 0 && onAttackOverride) {
+                      onAttackOverride();
+                    } else if (onUseSkillOverride) {
+                      onUseSkillOverride(id);
+                    } else {
+                      useSkill(id as any);
+                    }
                   } else {
                     useSkill(id as any);
                   }

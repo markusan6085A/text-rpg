@@ -333,8 +333,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     // Predictive cooldown to block UI immediately
     const skillDef = getSkillDefForBattle(hero?.profession || null, hero?.klass, hero?.race, skillId);
     if (skillDef?.cooldown) {
+      // Використовуємо calcPhysicalSkillCooldown якщо це фізичний скіл
+      let cooldownMs = skillDef.cooldown * 1000;
+      if (!(skillDef as any).isMagic && skillDef.type !== "buff" && skillDef.type !== "buff_statue" && skillDef.type !== "toggle") {
+        const attackSpeed = hero?.attackSpeed ?? hero?.atkSpeed ?? 200;
+        cooldownMs = Math.max(cooldownMs * 0.3, Math.round(cooldownMs / (1 + attackSpeed / 1000)));
+      }
+      
       useBattleStore.setState((s) => ({
-        cooldowns: { ...s.cooldowns, [skillId]: Date.now() + skillDef.cooldown * 1000 },
+        cooldowns: { ...s.cooldowns, [skillId]: Date.now() + cooldownMs },
       }));
     }
 
@@ -371,6 +378,61 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         isToggle,
         name: skillDef?.name,
         target: skillDef?.target,
+        shotMultiplier,
+        shotName
+      });
+      if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
+      setPkSession(res.session);
+      if (res.session.ended) {
+        setTimeout(() => {
+          loadPlayerProfile();
+        }, 300);
+      }
+    } catch (e: any) {
+      setPkError(e?.message || "Ошибка PK действия");
+    } finally {
+      setPkActing(false);
+    }
+  };
+
+  const handlePkAttack = async () => {
+    if (!pkSession || pkSession.ended || pkActing) return;
+    setPkActing(true);
+    setPkError(null);
+
+    // Predictive cooldown (basic attack is skillId=0)
+    // Розраховуємо інтервал на основі швидкості атаки (як у calcAutoAttackInterval)
+    const attackSpeed = hero?.attackSpeed ?? hero?.atkSpeed ?? 200;
+    const intervalMs = Math.max(300, Math.round(1500 / (1 + attackSpeed / 1000)));
+
+    useBattleStore.setState((s) => ({
+      cooldowns: { ...s.cooldowns, [0]: Date.now() + intervalMs },
+    }));
+
+    try {
+      let shotMultiplier = 1.0;
+      let shotName: string | undefined;
+
+      if (hero) {
+        const battleState = useBattleStore.getState();
+        const isMagic = false; // Basic attack is physical
+        
+        const shotResult = useAutoShot(
+          hero as any,
+          true, // isPhysical
+          isMagic,
+          battleState.loadoutSlots,
+          battleState.activeChargeSlots,
+          1 // consume 1 shot
+        );
+
+        if (shotResult.used) {
+          shotMultiplier = shotResult.multiplier;
+          shotName = shotResult.shotType === "soulshot" ? "Soulshot" : "Spiritshot";
+        }
+      }
+
+      const res = await actPkSession(pkSession.id, undefined, {
         shotMultiplier,
         shotName
       });
@@ -467,6 +529,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         now={now}
         serverTimeDrift={serverTimeDrift}
         onUseSkill={handlePkUseSkill}
+        onAttack={handlePkAttack}
         onBack={backToLocation}
       />
     );

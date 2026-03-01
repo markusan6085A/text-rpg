@@ -20,6 +20,7 @@ interface PkProfileViewProps {
   now: number;
   serverTimeDrift?: number;
   onUseSkill: (skillId: number) => void;
+  onAttack?: () => void;
   /** Повернутися до профілю (без PK) */
   onBack?: () => void;
 }
@@ -54,6 +55,7 @@ export default function PkProfileView({
   now,
   serverTimeDrift = 0,
   onUseSkill,
+  onAttack,
   onBack,
 }: PkProfileViewProps) {
   const myHero = useHeroStore((s) => s.hero);
@@ -136,7 +138,7 @@ export default function PkProfileView({
         onBack={handleBack}
         showBackButton={true}
       >
-        <SkillBar onUseSkillOverride={onUseSkill} />
+        <SkillBar onUseSkillOverride={onUseSkill} onAttackOverride={onAttack} />
       </BattlePanel>
 
       {pkSession.ended && (
