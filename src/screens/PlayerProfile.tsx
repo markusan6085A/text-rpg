@@ -274,12 +274,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     const isAttacker = hero.id === pkSession.attackerId;
     const myFighter = isAttacker ? pkSession.attacker : pkSession.defender;
     
-    // Відправляємо на сервер тільки якщо наше локальне ХП/МП БІЛЬШЕ (наприклад, використали зілля)
-    // або якщо змінилися максимуми (бафи).
-    // Щоб не перетирати серверний урон, якщо ми ще не отримали його в клієнт.
+    // Відправляємо на сервер ТІЛЬКИ якщо змінилися максимуми (бафи).
+    // Ми більше не відправляємо hp/mp автоматично, щоб не затирати урон від противника!
+    // (hp/mp відправляються лише при використанні зілля з useConsumable.ts)
     const needsSync = 
-      hero.hp > (myFighter?.hp || 0) || 
-      hero.mp > (myFighter?.mp || 0) || 
       hero.maxHp !== myFighter?.maxHp || 
       hero.maxMp !== myFighter?.maxMp;
 
@@ -302,7 +300,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     return () => {
       cancelled = true;
     };
-  }, [isPkMode, pkSession?.id, hero?.id, hero?.hp, hero?.maxHp, hero?.mp, hero?.maxMp]);
+  }, [isPkMode, pkSession?.id, hero?.id, hero?.maxHp, hero?.maxMp]);
 
   const handlePkUseSkill = async (skillId: number) => {
     if (!pkSession || pkSession.ended || pkActing) return;

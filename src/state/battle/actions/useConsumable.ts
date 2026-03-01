@@ -109,6 +109,18 @@ export function handleConsumable(
       // Оновлюємо HP та інвентар (важливо: оновлюємо обидва одночасно)
       updateHero({ hp: newHp, inventory: updatedInventory });
       
+      // Якщо ми в PK, негайно відправляємо нове HP на сервер
+      if (state.pkSessionId) {
+         import("../../../utils/api").then(({ syncPkStats }) => {
+            syncPkStats(state.pkSessionId as string, { 
+              hp: newHp, 
+              maxHp, 
+              mp: Math.min(maxMp, hero.mp ?? maxMp), 
+              maxMp 
+            }).catch(() => {});
+         });
+      }
+      
       // Встановлюємо КД
       setAndPersist({
         log: [`Ви використали ${itemDef.name} (+${healAmount} HP)`, ...state.log].slice(0, 30),
@@ -151,6 +163,18 @@ export function handleConsumable(
 
       // Оновлюємо MP та інвентар (важливо: оновлюємо обидва одночасно)
       updateHero({ mp: newMp, inventory: updatedInventory });
+      
+      // Якщо ми в PK, негайно відправляємо нове MP на сервер
+      if (state.pkSessionId) {
+         import("../../../utils/api").then(({ syncPkStats }) => {
+            syncPkStats(state.pkSessionId as string, { 
+              hp: Math.min(maxHp, hero.hp ?? maxHp), 
+              maxHp, 
+              mp: newMp, 
+              maxMp 
+            }).catch(() => {});
+         });
+      }
       
       // Встановлюємо КД
       setAndPersist({

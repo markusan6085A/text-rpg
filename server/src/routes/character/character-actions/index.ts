@@ -675,6 +675,61 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     });
     if (!myChar) return reply.code(403).send({ error: "forbidden" });
 
+    if (!session.ended) {
+      const now = Date.now();
+      const charsLive = await prisma.character.findMany({
+        where: { id: { in: [session.attackerId, session.defenderId] } },
+        select: { id: true, name: true, heroJson: true, lastActivityAt: true, updatedAt: true },
+      });
+      const liveAttacker = charsLive.find((c) => c.id === session.attackerId);
+      const liveDefender = charsLive.find((c) => c.id === session.defenderId);
+      const baseLoc = String(session.startLocation ?? "").trim() || getLocation(liveAttacker?.heroJson as any) || getLocation(liveDefender?.heroJson as any);
+      session.startLocation = baseLoc || session.startLocation;
+      const attackerLocNow = getLocation(liveAttacker?.heroJson as any);
+      const defenderLocNow = getLocation(liveDefender?.heroJson as any);
+      const attackerOnline = isOnline(liveAttacker?.lastActivityAt as any, liveAttacker?.updatedAt as any);
+      const defenderOnline = isOnline(liveDefender?.lastActivityAt as any, liveDefender?.updatedAt as any);
+      const attackerEscaped = !!baseLoc && attackerLocNow !== baseLoc;
+      const defenderEscaped = !!baseLoc && defenderLocNow !== baseLoc;
+      const someoneEscaped = !attackerOnline || !defenderOnline || attackerEscaped || defenderEscaped;
+      
+      if (someoneEscaped) {
+        const escapedChar = (!defenderOnline || defenderEscaped) ? liveDefender : liveAttacker;
+        const escapedName = String(escapedChar?.name ?? "Игрок").trim() || "Игрок";
+        session.ended = true;
+        session.winnerId = undefined;
+        session.escapedById = escapedChar?.id;
+        session.escapedByName = escapedName;
+        session.log.unshift(`${escapedName} сбежал!`);
+        session.log = session.log.slice(0, 30);
+        session.updatedAt = now;
+        await prisma.$transaction(async (tx) => {
+          const ids = [session.attackerId, session.defenderId].sort();
+          await tx.$queryRawUnsafe(
+            `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
+            ids[0],
+            ids[1]
+          );
+          for (const c of charsLive) {
+            const heroJson = ((c.heroJson as any) || {}) as any;
+            const cleaned = addVersioning(
+              {
+                ...heroJson,
+                pkIncoming: null,
+                pkSyncUntil: 0,
+              },
+              Number(heroJson.heroRevision ?? 0) || 0
+            );
+            await tx.character.update({
+              where: { id: c.id },
+              data: { heroJson: cleaned, lastActivityAt: new Date() },
+            });
+          }
+        });
+        await savePkSessionToDb(session);
+      }
+    }
+
     await refreshPkFighterStatsFromDb(session);
     return reply.send(serializePkSession(session));
   });
