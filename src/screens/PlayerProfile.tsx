@@ -403,7 +403,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     // Predictive cooldown (basic attack is skillId=0)
     // Розраховуємо інтервал на основі швидкості атаки (як у calcAutoAttackInterval)
     const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
-    const intervalMs = Math.max(300, Math.round(1500 / (1 + attackSpeed / 1000)));
+    const baseInterval = 1500; // Base 1.5 seconds minimum for attack, reduced by attack speed (like in startBattle.ts / calcAutoAttackInterval)
+    const intervalMs = Math.max(300, Math.round(baseInterval / (1 + attackSpeed / 1000)));
 
     useBattleStore.setState((s) => ({
       cooldowns: { ...s.cooldowns, [0]: Date.now() + intervalMs },
