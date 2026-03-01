@@ -316,8 +316,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     }
 
     try {
-      const isBuff = skillDef?.type === "buff";
-      const isToggle = skillDef?.type === "toggle";
+      const isBuff = (skillDef?.type as any) === "buff" || (skillDef?.type as any) === "buff_statue";
+      const isToggle = (skillDef?.type as any) === "toggle";
       const res = await actPkSession(pkSession.id, skillId, {
         isBuff,
         isToggle,
