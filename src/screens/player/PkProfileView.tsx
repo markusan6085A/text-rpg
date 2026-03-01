@@ -70,11 +70,11 @@ export default function PkProfileView({
 
   // Синхронізуємо PK-сесію з battle store — той самий store, що й при бою з мобом (лог, відкати, HP цілі)
   useEffect(() => {
-    if (!pkSession) return;
-    const defender = pkSession.defender;
+    if (!pkSession || !myHero?.id) return;
+    const isAttacker = myHero.id === pkSession.attackerId;
+    const targetFighter = isAttacker ? pkSession.defender : pkSession.attacker;
     const level = character.level ?? 1;
-    const mob = defenderToMob(defender, level);
-    const isAttacker = character.id === pkSession.attackerId;
+    const mob = defenderToMob(targetFighter, level);
     const rawCd = isAttacker
       ? (pkSession.attackerCooldowns ?? pkSession.cooldowns ?? {})
       : (pkSession.defenderCooldowns ?? {});
@@ -88,13 +88,13 @@ export default function PkProfileView({
     useBattleStore.setState({
       pkSessionId: pkSession.id,
       mob,
-      mobHP: Math.max(0, defender.hp ?? 0),
+      mobHP: Math.max(0, targetFighter.hp ?? 0),
       log: pkSession.log ?? [],
       cooldowns,
       status: pkSession.ended ? "victory" : "fighting",
       heroBuffs: uniqueBuffs,
     });
-  }, [pkSession, character.id, character.level, uniqueBuffs]);
+  }, [pkSession, myHero?.id, character.level, uniqueBuffs]);
 
   const handleBack = () => {
     useBattleStore.getState().reset();
@@ -115,12 +115,13 @@ export default function PkProfileView({
     );
   }
 
-  const defender = pkSession.defender;
+  const isAttacker = myHero?.id === pkSession.attackerId;
+  const targetFighter = isAttacker ? pkSession.defender : pkSession.attacker;
   const target = {
-    name: defender.name,
+    name: targetFighter.name,
     level: character.level ?? 1,
-    currentHp: Math.max(0, defender.hp ?? 0),
-    maxHp: Math.max(1, defender.maxHp ?? 1),
+    currentHp: Math.max(0, targetFighter.hp ?? 0),
+    maxHp: Math.max(1, targetFighter.maxHp ?? 1),
   };
 
   return (
