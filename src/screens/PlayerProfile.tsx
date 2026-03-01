@@ -190,6 +190,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             setPkSession(res.session);
           }
         } else if (hero?.id) {
+          const myLevel = hero?.level || 1;
+          const targetLevel = character?.level || 1;
+          const diff = Math.abs(myLevel - targetLevel);
+          if (diff > 20) {
+             setPkError(`Нельзя атаковать игрока, если разница уровней больше 20! (Ваш ур: ${myLevel}, Его ур: ${targetLevel})`);
+             setPkLoading(false);
+             return;
+          }
+
           const attackerStats = {
             hp: hero.hp,
             maxHp: hero.maxHp,

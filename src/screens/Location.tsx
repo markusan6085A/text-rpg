@@ -288,7 +288,14 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 </button>
                 <button
                   className="text-red-500 hover:text-red-400"
-                  onClick={() => navigate(`/player/${encodeURIComponent(p.id)}?pk=1`)}
+                  onClick={() => {
+                    const diff = Math.abs((hero?.level || 1) - p.level);
+                    if (diff > 20) {
+                      alert(`Нельзя атаковать игрока, если разница уровней больше 20!`);
+                      return;
+                    }
+                    navigate(`/player/${encodeURIComponent(p.id)}?pk=1`);
+                  }}
                 >
                   [pk]
                 </button>

@@ -9,8 +9,8 @@ import { computeBuffedMaxResources } from "../helpers";
 import { cleanupBuffs } from "../helpers";
 import { handleEnchantScroll } from "./enchantScroll";
 
-// КД для банок HP/MP (1 секунда = 1000 мс)
-const POTION_COOLDOWN_MS = 1000;
+// КД для банок у PvE (1 секунда)
+const DEFAULT_POTION_COOLDOWN_MS = 1000;
 
 export function handleConsumable(
   consumableId: string, // "consumable:ng_small_hp_potion"
@@ -62,9 +62,18 @@ export function handleConsumable(
   if (isHpPotion || isMpPotion || isCpPotion) {
     // Перевірка КД для банок HP/MP/CP (використовуємо cooldowns map)
     const cooldownKey = isHpPotion ? -100 : (isMpPotion ? -101 : -102); // Унікальні ID для КД банок
+    
+    // Динамічний КД залежно від режиму (PvE чи PK) та типу банки
+    let cooldownMs = DEFAULT_POTION_COOLDOWN_MS;
+    if (state.pkSessionId) {
+      if (isHpPotion) cooldownMs = 2000;
+      else if (isMpPotion) cooldownMs = 1000;
+      else if (isCpPotion) cooldownMs = 1000;
+    }
+
     const lastUsed = state.cooldowns?.[cooldownKey];
-    if (lastUsed && now - lastUsed < POTION_COOLDOWN_MS) {
-      const remaining = Math.ceil((POTION_COOLDOWN_MS - (now - lastUsed)) / 1000);
+    if (lastUsed && now - lastUsed < cooldownMs) {
+      const remaining = Math.ceil((cooldownMs - (now - lastUsed)) / 1000);
       setAndPersist({
         log: [`КД: ${remaining} сек`, ...state.log].slice(0, 30),
       });

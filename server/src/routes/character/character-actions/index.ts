@@ -530,6 +530,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const defenderLoc = getLocation(defenderChar.heroJson as any);
     if (!attackerLoc || attackerLoc !== defenderLoc) return reply.code(400).send({ error: "players must be in the same zone" });
 
+    const diff = Math.abs((attackerChar.level || 1) - (defenderChar.level || 1));
+    if (diff > 20) {
+      return reply.code(400).send({ error: "Нельзя атаковать игрока, если разница уровней больше 20!" });
+    }
+
     // Check if there is an existing active session between these two players
     try {
       const existingRows = await prisma.$queryRawUnsafe<Array<{ payload: unknown }>>(
