@@ -916,10 +916,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       session.attackerHasHit = true;
       
       // Оновлюємо ХП в базі даних захисника, щоб після F5 воно не відновилось
+      // Не збільшуємо heroRevision (addVersioning), щоб не викликати 409 revision_conflict у клієнта
       const defenderChar = await prisma.character.findUnique({ where: { id: session.defenderId }, select: { heroJson: true }});
       if (defenderChar) {
          let defHeroJson = ((defenderChar.heroJson as any) || {}) as any;
-         defHeroJson = addVersioning({ ...defHeroJson, hp: session.defender.hp, mp: session.defender.mp, maxHp: session.defender.maxHp, maxMp: session.defender.maxMp }, Number(defHeroJson.heroRevision ?? 0) || 0);
+         defHeroJson = { ...defHeroJson, hp: session.defender.hp, mp: session.defender.mp, maxHp: session.defender.maxHp, maxMp: session.defender.maxMp };
          await prisma.character.update({ where: { id: session.defenderId }, data: { heroJson: defHeroJson }});
       }
       
@@ -935,10 +936,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       session.defenderHasHit = true;
       
       // Оновлюємо ХП в базі даних атакуючого, щоб після F5 воно не відновилось
+      // Не збільшуємо heroRevision (addVersioning), щоб не викликати 409 revision_conflict у клієнта
       const attackerChar = await prisma.character.findUnique({ where: { id: session.attackerId }, select: { heroJson: true }});
       if (attackerChar) {
          let attHeroJson = ((attackerChar.heroJson as any) || {}) as any;
-         attHeroJson = addVersioning({ ...attHeroJson, hp: session.attacker.hp, mp: session.attacker.mp, maxHp: session.attacker.maxHp, maxMp: session.attacker.maxMp }, Number(attHeroJson.heroRevision ?? 0) || 0);
+         attHeroJson = { ...attHeroJson, hp: session.attacker.hp, mp: session.attacker.mp, maxHp: session.attacker.maxHp, maxMp: session.attacker.maxMp };
          await prisma.character.update({ where: { id: session.attackerId }, data: { heroJson: attHeroJson }});
       }
 
@@ -1027,16 +1029,13 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     let heroJson = ((char.heroJson as any) || {}) as any;
     
     if (currentHp !== null && currentMp !== null) {
-      heroJson = addVersioning(
-        {
-          ...heroJson,
-          hp: currentHp,
-          mp: currentMp,
-          maxHp: currentMaxHp ?? heroJson.maxHp,
-          maxMp: currentMaxMp ?? heroJson.maxMp,
-        },
-        Number(heroJson.heroRevision ?? 0) || 0
-      );
+      heroJson = {
+        ...heroJson,
+        hp: currentHp,
+        mp: currentMp,
+        maxHp: currentMaxHp ?? heroJson.maxHp,
+        maxMp: currentMaxMp ?? heroJson.maxMp,
+      };
       // Оновлюємо в базі, щоб інші клієнти теж бачили
       await prisma.character.update({
         where: { id },
