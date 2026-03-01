@@ -116,7 +116,8 @@ export function handleConsumable(
               hp: newHp, 
               maxHp, 
               mp: Math.min(maxMp, hero.mp ?? maxMp), 
-              maxMp 
+              maxMp,
+              logMessage: `использует ${itemDef.name}`
             }).catch(() => {});
          });
       }
@@ -171,7 +172,8 @@ export function handleConsumable(
               hp: Math.min(maxHp, hero.hp ?? maxHp), 
               maxHp, 
               mp: newMp, 
-              maxMp 
+              maxMp,
+              logMessage: `использует ${itemDef.name}`
             }).catch(() => {});
          });
       }

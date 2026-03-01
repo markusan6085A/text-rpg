@@ -606,7 +606,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       select: { id: true, heroJson: true },
     });
     if (!me) return reply.code(403).send({ error: "forbidden" });
-    const body = (req.body ?? {}) as { hp?: number; maxHp?: number; mp?: number; maxMp?: number };
+    const body = (req.body ?? {}) as { hp?: number; maxHp?: number; mp?: number; maxMp?: number; logMessage?: string };
     const isAttacker = me.id === session.attackerId;
     const fighter = isAttacker ? session.attacker : session.defender;
     if (typeof body.maxHp === "number" && body.maxHp >= 1) {
@@ -617,25 +617,14 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       fighter.maxMp = body.maxMp;
       if (typeof body.mp === "number" && body.mp >= 0) fighter.mp = Math.min(body.mp, fighter.maxMp);
     } else if (typeof body.mp === "number" && body.mp >= 0) fighter.mp = Math.min(body.mp, fighter.maxMp);
+    
+    if (body.logMessage) {
+      session.log.unshift(`${fighter.name} ${body.logMessage}`);
+      session.log = session.log.slice(0, 30);
+    }
+    
     session.updatedAt = Date.now();
     await savePkSessionToDb(session);
-    
-    // Оновлюємо також HP в базі даних героя (heroJson), щоб після оновлення сторінки HP не падало
-    let heroJson = ((me.heroJson as any) || {}) as any;
-    heroJson = addVersioning(
-      {
-        ...heroJson,
-        hp: fighter.hp,
-        mp: fighter.mp,
-        maxHp: fighter.maxHp,
-        maxMp: fighter.maxMp,
-      },
-      Number(heroJson.heroRevision ?? 0) || 0
-    );
-    await prisma.character.update({
-      where: { id: me.id },
-      data: { heroJson }
-    });
     
     // Якщо противник - бот, ми його не оновлюємо, але якщо він живий, то можемо оновити його ХП у кеші
     if (session.defenderId !== me.id) {

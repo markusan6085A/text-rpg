@@ -238,6 +238,17 @@ export default function StatusBars() {
       const { hpRegen, mpRegen, cpRegen } = getHeroRegenPerSecond(currentHero, combinedBuffs);
       const curHp = currentHero.hp ?? buffedMaxHp;
 
+      // Зупиняємо реген якщо ми в PK бою (або нас атакують, або ми на сторінці бою)
+      const isPkBattle = Boolean((currentHero as any).heroJson?.pkIncoming) || 
+                         window.location.search.includes('pk=1') || 
+                         window.location.search.includes('session=') ||
+                         Boolean(useBattleStore.getState().pkSessionId);
+
+      if (isPkBattle) {
+        if (import.meta.env.DEV) console.log("[idleRegen] stop (in PK battle)");
+        return;
+      }
+
       const nextHp = Math.min(buffedMaxHp, curHp + hpRegen);
       const nextMp = Math.min(buffedMaxMp, (currentHero.mp ?? buffedMaxMp) + mpRegen);
       const nextCp = Math.min(buffedMaxCp, (currentHero.cp ?? buffedMaxCp) + cpRegen);

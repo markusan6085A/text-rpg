@@ -399,7 +399,7 @@ export async function startPkSession(
 
 export async function syncPkStats(
   sessionId: string,
-  stats: { hp?: number; maxHp?: number; mp?: number; maxMp?: number }
+  stats: { hp?: number; maxHp?: number; mp?: number; maxMp?: number; logMessage?: string }
 ): Promise<PkSessionResponse> {
   return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/sync-stats`, {
     method: "POST",
