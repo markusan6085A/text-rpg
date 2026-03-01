@@ -65,6 +65,47 @@ export function loadHero(): Hero | null {
         acc.hero = fixedHero;
         updated = true;
       }
+    // Міграція: об'єднуємо стакабельні предмети (соски, ресурси, квест-айтеми, банки)
+    if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {
+      let inventoryConsolidated = false;
+      const consolidatedInventory: any[] = [];
+      const itemMap = new Map<string, any>();
+
+      fixedHero.inventory.forEach((item: any) => {
+        if (!item || !item.id) return;
+        
+        // Список слотів, які можуть стакатися
+        const stackableSlots = ["consumable", "resource", "quest"];
+        const canStack = stackableSlots.includes(item.slot) || 
+                         item.id.includes("shot") || 
+                         item.id.includes("potion") ||
+                         item.type === "consumable" ||
+                         item.type === "resource" ||
+                         item.type === "quest";
+
+        if (canStack) {
+          if (itemMap.has(item.id)) {
+            // Знайшли дублікат, додаємо кількість
+            const existing = itemMap.get(item.id);
+            existing.count = (existing.count || 1) + (item.count || 1);
+            inventoryConsolidated = true;
+          } else {
+            // Перший такий предмет
+            itemMap.set(item.id, { ...item, count: item.count || 1 });
+            consolidatedInventory.push(itemMap.get(item.id));
+          }
+        } else {
+          // Не стакабельний (наприклад, зброя) - додаємо як є
+          consolidatedInventory.push(item);
+        }
+      });
+
+      if (inventoryConsolidated) {
+        fixedHero.inventory = consolidatedInventory;
+        acc.hero = fixedHero;
+        updated = true;
+        console.log(`[heroLoad] Зроблено консолідацію інвентаря для ${acc.username}, було: ${fixedHero.inventory.length}, стало: ${consolidatedInventory.length}`);
+      }
     }
   });
   if (updated) {
