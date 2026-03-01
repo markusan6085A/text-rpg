@@ -685,12 +685,13 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       const liveDefender = charsLive.find((c) => c.id === session.defenderId);
       const baseLoc = String(session.startLocation ?? "").trim() || getLocation(liveAttacker?.heroJson as any) || getLocation(liveDefender?.heroJson as any);
       session.startLocation = baseLoc || session.startLocation;
-      const attackerLocNow = getLocation(liveAttacker?.heroJson as any);
-      const defenderLocNow = getLocation(liveDefender?.heroJson as any);
       const attackerOnline = isOnline(liveAttacker?.lastActivityAt as any, liveAttacker?.updatedAt as any);
       const defenderOnline = isOnline(liveDefender?.lastActivityAt as any, liveDefender?.updatedAt as any);
-      const attackerEscaped = !!baseLoc && attackerLocNow !== baseLoc;
-      const defenderEscaped = !!baseLoc && defenderLocNow !== baseLoc;
+      const attackerLocNow = attackerOnline ? getLocation(liveAttacker?.heroJson as any) : null;
+      const defenderLocNow = defenderOnline ? getLocation(liveDefender?.heroJson as any) : null;
+      // Вважаємо, що гравець втік, якщо його локація пуста (пішов в місто) або змінилася
+      const attackerEscaped = !!baseLoc && (!attackerLocNow || attackerLocNow !== baseLoc);
+      const defenderEscaped = !!baseLoc && (!defenderLocNow || defenderLocNow !== baseLoc);
       const someoneEscaped = !attackerOnline || !defenderOnline || attackerEscaped || defenderEscaped;
       
       if (someoneEscaped) {
