@@ -15,6 +15,7 @@ import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import PkProfileView from "./player/PkProfileView";
 import { locations as WORLD_LOCATIONS } from "../data/world";
 import { useAutoShot } from "../state/battle/actions/useSkill/shotHelpers";
+import { calcAutoAttackInterval, calcPhysicalSkillCooldown } from "../utils/combatSpeed";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -337,7 +338,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       let cooldownMs = skillDef.cooldown * 1000;
       if (!(skillDef as any).isMagic && (skillDef.type as any) !== "buff" && (skillDef.type as any) !== "buff_statue" && (skillDef.type as any) !== "toggle") {
         const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
-        cooldownMs = Math.max(cooldownMs * 0.3, Math.round(cooldownMs / (1 + attackSpeed / 1000)));
+        cooldownMs = calcPhysicalSkillCooldown(skillDef.cooldown, attackSpeed);
       }
       
       useBattleStore.setState((s) => ({
@@ -403,8 +404,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     // Predictive cooldown (basic attack is skillId=0)
     // Розраховуємо інтервал на основі швидкості атаки (як у calcAutoAttackInterval)
     const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
-    const baseInterval = 1500; // Base 1.5 seconds minimum for attack, reduced by attack speed (like in startBattle.ts / calcAutoAttackInterval)
-    const intervalMs = Math.max(300, Math.round(baseInterval / (1 + attackSpeed / 1000)));
+    const intervalMs = calcAutoAttackInterval(attackSpeed);
 
     useBattleStore.setState((s) => ({
       cooldowns: { ...s.cooldowns, [0]: Date.now() + intervalMs },
