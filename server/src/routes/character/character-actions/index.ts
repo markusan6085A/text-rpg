@@ -529,25 +529,29 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     return reply.send(serializePkSession(session));
   });
 
+  // POST /characters/pk/session/:id/sync-stats
   app.post("/characters/pk/session/:id/sync-stats", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
     await cleanupPkSessions();
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    let session = await loadPkSessionFromDb(sessionId);
-    if (session) pkSessions.set(sessionId, session);
-    else session = pkSessions.get(sessionId);
+    let session = pkSessions.get(sessionId);
+    if (!session) {
+      session = await loadPkSessionFromDb(sessionId);
+      if (session) pkSessions.set(sessionId, session);
+    }
     if (!session) return reply.code(404).send({ error: "pk session not found" });
     const me = await prisma.character.findFirst({
       where: {
         accountId: auth.accountId,
         id: { in: [session.attackerId, session.defenderId] as any },
       },
-      select: { id: true },
+      select: { id: true, heroJson: true },
     });
     if (!me) return reply.code(403).send({ error: "forbidden" });
     const body = (req.body ?? {}) as { hp?: number; maxHp?: number; mp?: number; maxMp?: number };
-    const fighter = me.id === session.attackerId ? session.attacker : session.defender;
+    const isAttacker = me.id === session.attackerId;
+    const fighter = isAttacker ? session.attacker : session.defender;
     if (typeof body.maxHp === "number" && body.maxHp >= 1) {
       fighter.maxHp = body.maxHp;
       if (typeof body.hp === "number" && body.hp >= 0) fighter.hp = Math.min(body.hp, fighter.maxHp);
@@ -558,6 +562,39 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     } else if (typeof body.mp === "number" && body.mp >= 0) fighter.mp = Math.min(body.mp, fighter.maxMp);
     session.updatedAt = Date.now();
     await savePkSessionToDb(session);
+    
+    // Оновлюємо також HP в базі даних героя (heroJson), щоб після оновлення сторінки HP не падало
+    let heroJson = ((me.heroJson as any) || {}) as any;
+    heroJson = addVersioning(
+      {
+        ...heroJson,
+        hp: fighter.hp,
+        mp: fighter.mp,
+        maxHp: fighter.maxHp,
+        maxMp: fighter.maxMp,
+      },
+      Number(heroJson.heroRevision ?? 0) || 0
+    );
+    await prisma.character.update({
+      where: { id: me.id },
+      data: { heroJson }
+    });
+    
+    // Якщо противник - бот, ми його не оновлюємо, але якщо він живий, то можемо оновити його ХП у кеші
+    if (session.defenderId !== me.id) {
+       // Це атакуючий синхронізує статс
+       session.attacker.hp = fighter.hp;
+       session.attacker.mp = fighter.mp;
+       session.attacker.maxHp = fighter.maxHp;
+       session.attacker.maxMp = fighter.maxMp;
+    } else {
+       // Це захисник синхронізує статс
+       session.defender.hp = fighter.hp;
+       session.defender.mp = fighter.mp;
+       session.defender.maxHp = fighter.maxHp;
+       session.defender.maxMp = fighter.maxMp;
+    }
+
     return reply.send(serializePkSession(session));
   });
 
@@ -567,9 +604,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     await cleanupPkSessions();
 
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    let session = await loadPkSessionFromDb(sessionId);
-    if (session) pkSessions.set(sessionId, session);
-    else session = pkSessions.get(sessionId);
+    let session = pkSessions.get(sessionId);
+    if (!session) {
+      session = await loadPkSessionFromDb(sessionId);
+      if (session) pkSessions.set(sessionId, session);
+    }
     if (!session) return reply.code(404).send({ error: "pk session not found" });
 
     const myChar = await prisma.character.findFirst({
@@ -594,9 +633,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const body = (req.body ?? {}) as { skillId?: number };
     const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
 
-    let session = await loadPkSessionFromDb(sessionId);
-    if (session) pkSessions.set(sessionId, session);
-    else session = pkSessions.get(sessionId);
+    let session = pkSessions.get(sessionId);
+    if (!session) {
+      session = await loadPkSessionFromDb(sessionId);
+      if (session) pkSessions.set(sessionId, session);
+    }
     if (!session) return reply.code(404).send({ error: "pk session not found" });
 
     const me = await prisma.character.findFirst({
@@ -684,7 +725,9 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         if (fighter.mp < requested.mpCost) return null;
         return requested;
       }
-      const usable = fighter.skills.filter((s) => (cooldowns[s.id] ?? 0) <= now && fighter.mp >= s.mpCost);
+      const usable = fighter.skills.filter((s) => {
+        return (cooldowns[s.id] ?? 0) <= now && fighter.mp >= s.mpCost;
+      });
       if (usable.length === 0) return null;
       return usable[Math.floor(Math.random() * usable.length)];
     };
@@ -703,7 +746,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       if (skill) {
         attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
         cooldowns[skill.id] = now + skill.cooldownMs;
-        session.log.unshift(`${attacker.name} использует skill#${skill.id} и наносит ${dmg} урона`);
+        session.log.unshift(`${attacker.name} использует ${skill.name || `skill#${skill.id}`} и наносит ${dmg} урона`);
       } else {
         session.log.unshift(`${attacker.name} атакует (простая атака) и наносит ${dmg} урона`);
       }
@@ -719,6 +762,15 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       session.lastHitById = session.attackerId;
       session.lastHitByName = session.attacker.name;
       session.attackerHasHit = true;
+      
+      // Оновлюємо ХП в базі даних захисника, щоб після F5 воно не відновилось
+      const defenderChar = await prisma.character.findUnique({ where: { id: session.defenderId }, select: { heroJson: true }});
+      if (defenderChar) {
+         let defHeroJson = ((defenderChar.heroJson as any) || {}) as any;
+         defHeroJson = addVersioning({ ...defHeroJson, hp: session.defender.hp, mp: session.defender.mp, maxHp: session.defender.maxHp, maxMp: session.defender.maxMp }, Number(defHeroJson.heroRevision ?? 0) || 0);
+         await prisma.character.update({ where: { id: session.defenderId }, data: { heroJson: defHeroJson }});
+      }
+      
       if (session.defender.hp <= 0) {
         session.ended = true;
         session.winnerId = session.attackerId;
@@ -729,6 +781,15 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       session.lastHitById = session.defenderId;
       session.lastHitByName = session.defender.name;
       session.defenderHasHit = true;
+      
+      // Оновлюємо ХП в базі даних атакуючого, щоб після F5 воно не відновилось
+      const attackerChar = await prisma.character.findUnique({ where: { id: session.attackerId }, select: { heroJson: true }});
+      if (attackerChar) {
+         let attHeroJson = ((attackerChar.heroJson as any) || {}) as any;
+         attHeroJson = addVersioning({ ...attHeroJson, hp: session.attacker.hp, mp: session.attacker.mp, maxHp: session.attacker.maxHp, maxMp: session.attacker.maxMp }, Number(attHeroJson.heroRevision ?? 0) || 0);
+         await prisma.character.update({ where: { id: session.attackerId }, data: { heroJson: attHeroJson }});
+      }
+
       if (session.attacker.hp <= 0) {
         session.ended = true;
         session.winnerId = session.defenderId;
@@ -749,13 +810,88 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const id = String((req.params as any)?.id ?? "").trim();
     if (!id) return reply.code(400).send({ error: "character id required" });
 
+    // Під час запиту стану PK ми повинні також оновити heroJson, якщо є активна сесія PK.
+    // Це потрібно для того, щоб якщо хп змінюється в сесії, воно також змінювалось в БД і клієнт бачив актуальне хп.
+    let currentHp = null;
+    let currentMp = null;
+    let currentMaxHp = null;
+    let currentMaxMp = null;
+    
+    const getHpMpFromSession = (idToFind: string, session: typeof pkSessions extends Map<any, infer V> ? V : any) => {
+       const isAttacker = session.attackerId === idToFind;
+       const meFighter = isAttacker ? session.attacker : session.defender;
+       return {
+         hp: meFighter.hp,
+         mp: meFighter.mp,
+         maxHp: meFighter.maxHp,
+         maxMp: meFighter.maxMp
+       };
+    };
+
+    // Спробуємо знайти активну сесію де ми беремо участь
+    for (const session of pkSessions.values()) {
+      if (!session.ended && (session.attackerId === id || session.defenderId === id)) {
+        const stats = getHpMpFromSession(id, session);
+        currentHp = stats.hp;
+        currentMp = stats.mp;
+        currentMaxHp = stats.maxHp;
+        currentMaxMp = stats.maxMp;
+        break;
+      }
+    }
+    
+    // Якщо в пам'яті немає, спробуємо знайти в БД
+    if (currentHp === null) {
+       const activeSession = await prisma.pkSession.findFirst({
+         where: {
+            OR: [
+              { attackerId: id },
+              { defenderId: id }
+            ],
+            ended: false
+         }
+       });
+       if (activeSession && activeSession.data) {
+          const sessionData = activeSession.data as any;
+          if (sessionData) {
+             const isAttacker = sessionData.attackerId === id;
+             const meFighter = isAttacker ? sessionData.attacker : sessionData.defender;
+             if (meFighter) {
+                currentHp = meFighter.hp;
+                currentMp = meFighter.mp;
+                currentMaxHp = meFighter.maxHp;
+                currentMaxMp = meFighter.maxMp;
+             }
+          }
+       }
+    }
+
     const char = await prisma.character.findFirst({
       where: { id, accountId: auth.accountId },
       select: { id: true, heroJson: true, nickColor: true },
     });
     if (!char) return reply.code(404).send({ error: "character not found" });
 
-    const heroJson = ((char.heroJson as any) || {}) as any;
+    let heroJson = ((char.heroJson as any) || {}) as any;
+    
+    if (currentHp !== null && currentMp !== null) {
+      heroJson = addVersioning(
+        {
+          ...heroJson,
+          hp: currentHp,
+          mp: currentMp,
+          maxHp: currentMaxHp ?? heroJson.maxHp,
+          maxMp: currentMaxMp ?? heroJson.maxMp,
+        },
+        Number(heroJson.heroRevision ?? 0) || 0
+      );
+      // Оновлюємо в базі, щоб інші клієнти теж бачили
+      await prisma.character.update({
+        where: { id },
+        data: { heroJson }
+      });
+    }
+
     const now = Date.now();
     const pkIncoming = heroJson?.pkIncoming && Number(heroJson.pkIncoming?.until ?? 0) > now
       ? heroJson.pkIncoming
