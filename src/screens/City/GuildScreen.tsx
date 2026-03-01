@@ -514,7 +514,7 @@ export default function GuildScreen({
                       <div className="pt-1">
                         {canLearn ? (
                           <span
-                            onClick={() => learnSkill(skill.id)}
+                            onClick={() => handleLearnSkill(skill.id, requiredLevel, spCost)}
                             className="text-[11px] text-orange-500 cursor-pointer hover:text-orange-400"
                           >
                             {learnLabel}

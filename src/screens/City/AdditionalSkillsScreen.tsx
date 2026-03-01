@@ -184,10 +184,20 @@ export default function AdditionalSkillsScreen({
 
     // Оновлюємо героя: додаємо скіл та віднімаємо адену
     // CP бонуси додаються автоматично через пасивні ефекти (maxCp)
-    updateHero({
-      skills,
-      adena: heroAdena - adenaCost,
-    });
+    try {
+      updateHero({
+        skills,
+        adena: heroAdena - adenaCost,
+      });
+      // Не показуємо alert після вивчення, щоб не заважати
+    } catch (e: any) {
+      // Ігноруємо помилки revision_conflict, якщо вони спливають до UI
+      if (e?.message && (e.message.includes('revision_conflict') || e.message.includes('Character was modified'))) {
+          console.warn('Ігноруємо revision conflict при вивченні скіла');
+      } else {
+          console.error(e);
+      }
+    }
   };
 
   return (
