@@ -802,17 +802,17 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             ...hero,
             lastSavedAt: Date.now(),
             _conflictBackup: true,
-            _conflictServerState: error.details?.serverState || null,
+            _conflictServerState: error?.details?.serverState || null,
             heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
           };
           accounts[accIndex].hero = heroWithTimestamp;
           setJSON("l2_accounts_v2", accounts);
-          console.warn('[saveHeroToLocalStorage] Local version saved as backup due to 409 conflict');
+          // console.warn('[saveHeroToLocalStorage] Local version saved as backup due to 409 conflict');
         }
       }
       
       // Не викидаємо помилку - дані збережені в localStorage
-      console.warn('[saveHeroToLocalStorage] 409 conflict handled, data saved to localStorage');
+      // console.warn('[saveHeroToLocalStorage] 409 conflict handled, data saved to localStorage');
       return;
     }
     
