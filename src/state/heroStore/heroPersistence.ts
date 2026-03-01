@@ -821,8 +821,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         return;
     }
     
-    console.error('[saveHeroToLocalStorage] Failed to save hero via API:', error);
-    console.warn('[saveHeroToLocalStorage] Falling back to localStorage (API недоступний)');
+    console.error('[saveHeroToLocalStorage] Failed to save hero via API:', error?.message || error);
     
     // Fallback to localStorage on error - ВАЖЛИВО для збереження даних!
     const current = getJSON<string | null>("l2_current_user", null);
