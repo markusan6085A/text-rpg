@@ -342,37 +342,32 @@ async function syncPkRealtimeState(session: PkSession, actorRole: "attacker" | "
     const pkSyncUntil = now + 15_000;
     const actorDisplayColor = getEffectivePkNickColor({ ...actorJson, pkCombatNickColor: combatColor, pkCombatNickColorUntil: combatUntil }, now) || combatColor;
 
-    const nextActorJson = addVersioning(
-      {
-        ...actorJson,
-        hp: actorState.hp,
-        mp: actorState.mp,
-        maxHp: actorState.maxHp,
-        maxMp: actorState.maxMp,
-        pkCombatNickColor: combatColor,
-        pkCombatNickColorUntil: combatUntil,
-        pkSyncUntil,
+    const nextActorJson = {
+      ...actorJson,
+      hp: actorState.hp,
+      mp: actorState.mp,
+      maxHp: actorState.maxHp,
+      maxMp: actorState.maxMp,
+      pkCombatNickColor: combatColor,
+      pkCombatNickColorUntil: combatUntil,
+      pkSyncUntil,
+    };
+    
+    const nextTargetJson = {
+      ...targetJson,
+      hp: targetState.hp,
+      mp: targetState.mp,
+      maxHp: targetState.maxHp,
+      maxMp: targetState.maxMp,
+      pkIncoming: {
+        attackerId: actorId,
+        attackerName: actorState.name,
+        attackerNickColor: actorDisplayColor,
+        sessionId: session.id,
+        until: now + 10_000,
       },
-      Number(actorJson.heroRevision ?? 0) || 0
-    );
-    const nextTargetJson = addVersioning(
-      {
-        ...targetJson,
-        hp: targetState.hp,
-        mp: targetState.mp,
-        maxHp: targetState.maxHp,
-        maxMp: targetState.maxMp,
-        pkIncoming: {
-          attackerId: actorId,
-          attackerName: actorState.name,
-          attackerNickColor: actorDisplayColor,
-          sessionId: session.id,
-          until: now + 10_000,
-        },
-        pkSyncUntil,
-      },
-      Number(targetJson.heroRevision ?? 0) || 0
-    );
+      pkSyncUntil,
+    };
 
     await tx.character.update({
       where: { id: actorId },
