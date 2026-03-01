@@ -327,7 +327,12 @@ export interface PkSessionState {
   defenderId: string;
   attacker: PkSessionFighter;
   defender: PkSessionFighter;
+  /** Cooldowns атакуючого (для зворотної сумісності) */
   cooldowns: Record<number, number>;
+  /** Відкати атакуючого */
+  attackerCooldowns?: Record<number, number>;
+  /** Відкати захищаючого */
+  defenderCooldowns?: Record<number, number>;
   log: string[];
   ended: boolean;
   winnerId: string | null;

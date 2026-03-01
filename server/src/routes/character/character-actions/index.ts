@@ -201,6 +201,8 @@ function serializePkSession(session: PkSession) {
       attacker: session.attacker,
       defender: session.defender,
       cooldowns: session.attackerCooldowns,
+      attackerCooldowns: session.attackerCooldowns,
+      defenderCooldowns: session.defenderCooldowns ?? {},
       log: session.log,
       ended: session.ended,
       winnerId: session.winnerId ?? null,
@@ -211,25 +213,22 @@ function serializePkSession(session: PkSession) {
   };
 }
 
+/** Урон як у клієнті: простий удар = pAtk - pDef, скіл = трохи більше (+ powerBonus). */
 function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: number, useMagic: boolean): number {
   const pAtk = Math.max(1, Number(attacker.pAtk || 1));
   const mAtk = Math.max(1, Number(attacker.mAtk || 1));
   const pDef = Math.max(1, Number(defender.pDef || 1));
   const mDef = Math.max(1, Number(defender.mDef || 1));
-  const skillPower = Math.max(1, Number(powerBonus || 1));
+  const skillBonus = Math.max(0, Number(powerBonus || 0));
+  const variance = 0.92 + Math.random() * 0.16; // 0.92 - 1.08
 
   if (useMagic) {
-    const ratio = mAtk / mDef;
-    const heroBaseDamage = mAtk * 0.8 * (1 + ratio * 0.05);
-    const base = skillPower + heroBaseDamage;
-    const variance = 0.9 + Math.random() * 0.2; // 0.9 - 1.1
+    const raw = Math.max(0, mAtk - mDef);
+    const base = raw + skillBonus;
     return Math.max(1, Math.floor(base * variance));
   }
-
-  const ratio = pAtk / pDef;
-  const heroBaseDamage = pAtk * 0.2 * (1 + ratio * 0.05);
-  const base = skillPower + heroBaseDamage;
-  const variance = 0.8 + Math.random() * 0.4; // 0.8 - 1.2
+  const raw = Math.max(0, pAtk - pDef);
+  const base = raw + skillBonus;
   return Math.max(1, Math.floor(base * variance));
 }
 

@@ -74,16 +74,20 @@ export default function PkProfileView({
     const defender = pkSession.defender;
     const level = character.level ?? 1;
     const mob = defenderToMob(defender, level);
+    const isAttacker = character.id === pkSession.attackerId;
+    const cooldowns = isAttacker
+      ? (pkSession.attackerCooldowns ?? pkSession.cooldowns ?? {})
+      : (pkSession.defenderCooldowns ?? {});
     useBattleStore.setState({
       pkSessionId: pkSession.id,
       mob,
       mobHP: Math.max(0, defender.hp ?? 0),
       log: pkSession.log ?? [],
-      cooldowns: pkSession.cooldowns ?? {},
+      cooldowns,
       status: pkSession.ended ? "victory" : "fighting",
       heroBuffs: uniqueBuffs,
     });
-  }, [pkSession, character.level, uniqueBuffs]);
+  }, [pkSession, character.id, character.level, uniqueBuffs]);
 
   const handleBack = () => {
     useBattleStore.getState().reset();
