@@ -164,7 +164,12 @@ export function updateHeroLogic(
   // 🔥 location — зберігаємо в heroJson для відображення в профілі іншим гравцям
   if ((partial as any).location !== undefined) {
     const hj = (updated as any).heroJson || {};
+    // Видаляємо всі можливі варіанти локації, щоб залишився тільки один правильний (або порожній)
+    delete hj.currentLocation;
+    delete hj.zone;
     (updated as any).heroJson = { ...hj, location: (partial as any).location };
+    // Також оновлюємо на самому hero
+    (updated as any).location = (partial as any).location;
   }
 
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
