@@ -413,10 +413,14 @@ export async function getPkSession(sessionId: string): Promise<PkSessionResponse
   });
 }
 
-export async function actPkSession(sessionId: string, skillId?: number): Promise<PkSessionResponse> {
+export async function actPkSession(
+  sessionId: string, 
+  skillId?: number, 
+  options?: { isBuff?: boolean; isToggle?: boolean; name?: string; target?: string }
+): Promise<PkSessionResponse> {
   return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/act`, {
     method: "POST",
-    body: JSON.stringify({ skillId }),
+    body: JSON.stringify({ skillId, ...options }),
   });
 }
 

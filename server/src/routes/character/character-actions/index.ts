@@ -730,8 +730,12 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     await cleanupPkSessions();
 
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    const body = (req.body ?? {}) as { skillId?: number };
+    const body = (req.body ?? {}) as { skillId?: number; isBuff?: boolean; isToggle?: boolean; name?: string; target?: string };
     const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
+    const isBuff = body.isBuff;
+    const isToggle = body.isToggle;
+    const skillName = body.name;
+    const skillTarget = body.target;
 
     let session = pkSessions.get(sessionId);
     if (!session) {
@@ -836,9 +840,26 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       attacker: PkFighter,
       defender: PkFighter,
       cooldowns: Record<number, number>,
-      requestedSkillId?: number
+      requestedSkillId?: number,
+      reqIsBuff?: boolean,
+      reqIsToggle?: boolean,
+      reqSkillName?: string
     ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
+      
+      if (skill && (reqIsBuff || reqIsToggle)) {
+        attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
+        cooldowns[skill.id] = now + skill.cooldownMs;
+        const sName = reqSkillName || skill.name || `skill#${skill.id}`;
+        if (reqIsToggle) {
+          session.log.unshift(`${attacker.name} использует переключаемое умение ${sName}`);
+        } else {
+          session.log.unshift(`${attacker.name} использует бафф ${sName}`);
+        }
+        session.log = session.log.slice(0, 30);
+        return 0; // 0 damage
+      }
+
       const useMagic = skill ? attacker.prefersMagic : false;
       const powerBonus = skill?.powerBonus ?? 0;
       const { dmg, isCrit, isMiss } = computeDamage(attacker, defender, powerBonus, useMagic);
@@ -851,7 +872,8 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       } else if (skill) {
         attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
         cooldowns[skill.id] = now + skill.cooldownMs;
-        session.log.unshift(`${attacker.name} использует ${skill.name || `skill#${skill.id}`} и наносит ${dmg} урона${critText}`);
+        const sName = reqSkillName || skill.name || `skill#${skill.id}`;
+        session.log.unshift(`${attacker.name} использует ${sName} и наносит ${dmg} урона${critText}`);
       } else {
         session.log.unshift(`${attacker.name} атакует (простая атака) и наносит ${dmg} урона${critText}`);
       }
@@ -862,7 +884,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (session.attackerHasHit === undefined) session.attackerHasHit = false;
     if (session.defenderHasHit === undefined) session.defenderHasHit = false;
     if (actorRole === "attacker") {
-      const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId);
+      const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId, isBuff, isToggle, skillName);
       session.lastHitDamage = dmg;
       session.lastHitById = session.attackerId;
       session.lastHitByName = session.attacker.name;
@@ -881,7 +903,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         session.winnerId = session.attackerId;
       }
     } else {
-      const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId);
+      const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId, isBuff, isToggle, skillName);
       session.lastHitDamage = dmg;
       session.lastHitById = session.defenderId;
       session.lastHitByName = session.defender.name;

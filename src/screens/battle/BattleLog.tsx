@@ -16,15 +16,33 @@ export function replaceSkillIdsWithNames(line: string): string {
 /** Колір рядка логу в PK: мій урон — зелений, урон по мені (противника) — червоний */
 export function getColorForPkLine(line: string, myHeroName: string): string {
   const norm = (s: string) => String(s ?? "").trim().toLowerCase();
+  const lower = norm(line);
   const myName = norm(myHeroName);
-  const isDamageLine = line.includes("наносит") && line.includes("урона");
+
+  // Банки (HP, MP, CP)
+  if (lower.includes("восстанавливает")) {
+    if (lower.includes("hp")) return "#FF6600";
+    if (lower.includes("mp")) return "#000080";
+    if (lower.includes("cp")) return "#FF9900";
+  }
+
+  // Промах
+  if (lower.includes("промахивается")) return "#C0C0C0";
+
+  // Крит
+  if (lower.includes("критический удар!")) return "#C71585";
+
+  // Проста атака
+  if (lower.includes("простая атака")) return "#40826D";
+
+  const isDamageLine = lower.includes("наносит") && lower.includes("урона");
   if (isDamageLine) {
-    const m = line.match(/^(\S+)\s+(использует|атакует)/);
-    const actorName = norm(m?.[1] ?? "");
+    const m = lower.match(/^(\S+)\s+(использует|атакует)/);
+    const actorName = m?.[1] ?? "";
     if (myName && actorName === myName) return "#22c55e"; // green — мій урон
     return "#ef4444"; // red — урон по мені (противник бʼє)
   }
-  if (line.includes("сбежал")) return "#9ca3af";
+  if (lower.includes("сбежал")) return "#9ca3af";
   return "#d9c4a3";
 }
 

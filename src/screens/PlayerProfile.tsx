@@ -316,7 +316,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     }
 
     try {
-      const res = await actPkSession(pkSession.id, skillId);
+      const isBuff = skillDef?.type === "buff";
+      const isToggle = skillDef?.type === "toggle";
+      const res = await actPkSession(pkSession.id, skillId, {
+        isBuff,
+        isToggle,
+        name: skillDef?.name,
+        target: skillDef?.target,
+      });
       if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
       setPkSession(res.session);
       if (res.session.ended) {
