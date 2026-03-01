@@ -432,6 +432,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         }
       }
 
+      // Відправляємо на сервер
       const res = await actPkSession(pkSession.id, undefined, {
         shotMultiplier,
         shotName
