@@ -652,8 +652,8 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       }
     } catch (e: any) {
       // Ігноруємо помилки оптимістичного блокування при фоновій синхронізації
-      if (e?.code === 'P2025' || String(e).includes('revision_conflict')) {
-         console.warn("[syncPkStats] revision conflict handled gracefully");
+      if (e?.code === 'P2025' || String(e).includes('revision_conflict') || String(e).includes('Character was modified')) {
+         // console.warn("[syncPkStats] revision conflict handled gracefully");
          // Не кидаємо 409, просто повертаємо поточну сесію, бо це просто фонова синхронізація статів
          return reply.send(serializePkSession(session));
       } else {
