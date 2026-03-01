@@ -17,10 +17,13 @@ export function replaceSkillIdsWithNames(line: string): string {
 export function getColorForPkLine(line: string, myHeroName: string): string {
   const norm = (s: string) => String(s ?? "").trim().toLowerCase();
   const myName = norm(myHeroName);
-  const m = line.match(/^(\S+)\s+(использует|атакует)/);
-  const actorName = norm(m?.[1] ?? "");
-  if (actorName && actorName === myName) return "#22c55e"; // green (мій урон)
-  if (line.includes("наносит") && line.includes("урона")) return "#ef4444"; // red (урон по мені / противника)
+  const isDamageLine = line.includes("наносит") && line.includes("урона");
+  if (isDamageLine) {
+    const m = line.match(/^(\S+)\s+(использует|атакует)/);
+    const actorName = norm(m?.[1] ?? "");
+    if (myName && actorName === myName) return "#22c55e"; // green — мій урон
+    return "#ef4444"; // red — урон по мені (противник бʼє)
+  }
   if (line.includes("сбежал")) return "#9ca3af";
   return "#d9c4a3";
 }
@@ -167,7 +170,7 @@ export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; 
           return <div key={idx}>{dobychaLine}</div>;
         }
         const displayLine = isPk ? replaceSkillIdsWithNames(line) : line;
-        const color = isPk && heroName ? getColorForPkLine(displayLine, heroName) : getColor(line);
+        const color = isPk ? getColorForPkLine(displayLine, heroName ?? "") : getColor(line);
         return (
           <div key={idx} style={{ color }}>
             {displayLine}

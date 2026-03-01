@@ -78,7 +78,8 @@ export default function PkProfileView({
     const rawCd = isAttacker
       ? (pkSession.attackerCooldowns ?? pkSession.cooldowns ?? {})
       : (pkSession.defenderCooldowns ?? {});
-    const cooldowns: Record<number, number> = {};
+    const prev = useBattleStore.getState().cooldowns ?? {};
+    const cooldowns: Record<number, number> = { ...prev };
     Object.entries(rawCd).forEach(([k, v]) => {
       const id = Number(k);
       const readyAt = Number(v);
