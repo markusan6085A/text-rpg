@@ -171,20 +171,47 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
   useEffect(() => {
     let cancelled = false;
-    const start = async () => {
-      if (!isPkMode || !hero?.id || !character?.id) return;
+    const run = async () => {
+      if (!isPkMode || !character?.id) return;
+      const sessionIdFromUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search || "").get("session") : null;
       setPkLoading(true);
       setPkError(null);
       try {
-        const res = await startPkSession(hero.id, character.id);
-        if (!cancelled) setPkSession(res.session);
+        if (sessionIdFromUrl) {
+          const res = await getPkSession(sessionIdFromUrl);
+          if (!cancelled) setPkSession(res.session);
+        } else if (hero?.id) {
+          const res = await startPkSession(hero.id, character.id);
+          if (!cancelled) {
+            setPkSession(res.session);
+            const url = new URL(window.location.href);
+            url.searchParams.set("session", res.session.id);
+            window.history.replaceState(null, "", url.pathname + url.search);
+          }
+        }
       } catch (e: any) {
-        if (!cancelled) setPkError(e?.message || "Не удалось начать PK бой");
+        if (!cancelled) {
+          if (sessionIdFromUrl && hero?.id) {
+            try {
+              const res = await startPkSession(hero.id, character.id);
+              if (!cancelled) {
+                setPkSession(res.session);
+                const url = new URL(window.location.href);
+                url.searchParams.set("session", res.session.id);
+                window.history.replaceState(null, "", url.pathname + url.search);
+              }
+            } catch (e2: any) {
+              setPkError(e2?.message || "Не удалось начать PK бой");
+            }
+          } else {
+            setPkError(e?.message || "Не удалось начать PK бой");
+          }
+        }
       } finally {
         if (!cancelled) setPkLoading(false);
       }
     };
-    start();
+    run();
     return () => {
       cancelled = true;
     };

@@ -494,11 +494,14 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
     if (!session) return reply.code(404).send({ error: "pk session not found" });
 
-    const myAttacker = await prisma.character.findFirst({
-      where: { id: session.attackerId, accountId: auth.accountId },
+    const myChar = await prisma.character.findFirst({
+      where: {
+        id: { in: [session.attackerId, session.defenderId] as any },
+        accountId: auth.accountId,
+      },
       select: { id: true },
     });
-    if (!myAttacker) return reply.code(403).send({ error: "forbidden" });
+    if (!myChar) return reply.code(403).send({ error: "forbidden" });
 
     return reply.send(serializePkSession(session));
   });

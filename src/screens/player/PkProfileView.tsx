@@ -122,7 +122,7 @@ export default function PkProfileView({
         target={target}
         buffs={uniqueBuffs}
         now={nowTs}
-        backLabel="Назад к профилю"
+        backLabel="Назад в окресность!"
         onBack={handleBack}
         showBackButton={true}
       >
