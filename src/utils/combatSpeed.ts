@@ -1,6 +1,6 @@
 // Мінімальні ліміти
 const MIN_AUTO_ATTACK_MS = 300;
-const BASE_AUTO_ATTACK_MS = 1000;
+const BASE_AUTO_ATTACK_MS = 1500; // База для воїнів 1.5 сек
 
 const MIN_PHYSICAL_SKILL_CD_MULT = 0.3;
 
