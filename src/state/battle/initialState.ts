@@ -6,6 +6,7 @@ export const initialState: BattleState = {
   mob: undefined,
   mobIndex: undefined,
   mobHP: 0,
+  pkSessionId: null,
   // ❗ Ресурси (HP/MP/CP) тепер ТІЛЬКИ в heroStore.hero - не дублюємо тут
   mobStunnedUntil: undefined,
   heroStunnedUntil: undefined,

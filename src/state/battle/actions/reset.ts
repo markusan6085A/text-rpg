@@ -34,6 +34,7 @@ export const createReset =
       mob: undefined,
       mobIndex: undefined,
       mobHP: 0,
+      pkSessionId: null,
       mobStunnedUntil: undefined, // Скидаємо stun при reset
       heroStunnedUntil: undefined, // Скидаємо stun гравця при reset
       heroBuffsBlockedUntil: undefined, // Скидаємо блокування бафів при reset

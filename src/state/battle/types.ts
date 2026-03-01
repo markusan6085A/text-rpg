@@ -29,6 +29,8 @@ export type BattleState = {
   mob?: Mob;
   mobIndex?: number;
   mobHP: number;
+  /** Якщо задано — режим PK: дані (mob, log, cooldowns) синхронізуються з PK-сесією, useSkill викликає API */
+  pkSessionId?: string | null;
   aggressiveMobs?: Array<{ mob: Mob; mobIndex: number; mobHP: number }>; // Агресивні моби з тієї ж групи на сторінці
   // ❗ Ресурси (HP/MP/CP) тепер ТІЛЬКИ в heroStore.hero - не дублюємо тут
   mobStunnedUntil?: number; // Timestamp до якого моб оглушений (stun ефект)

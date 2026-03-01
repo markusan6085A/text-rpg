@@ -50,7 +50,12 @@ function useLearnedActive(): LearnedSkill[] {
   return hasBase ? actives : [baseAttack, ...actives];
 }
 
-export function SkillBar() {
+interface SkillBarProps {
+  /** У режимі PK: викликати цей callback замість useSkill (той самий вигляд, інша логіка — API) */
+  onUseSkillOverride?: (skillId: number) => void;
+}
+
+export function SkillBar({ onUseSkillOverride }: SkillBarProps = {}) {
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const hero = useHeroStore((s) => s.hero);
   const equipItem = useHeroStore((s) => s.equipItem);
@@ -234,7 +239,11 @@ export function SkillBar() {
                   const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
                   if (invItem) equipItem(invItem);
                 } else if (id !== null) {
-                  useSkill(id as any);
+                  if (onUseSkillOverride && typeof id === "number") {
+                    onUseSkillOverride(id);
+                  } else {
+                    useSkill(id as any);
+                  }
                 } else {
                   setPickerSlot(idx);
                 }
@@ -319,7 +328,11 @@ export function SkillBar() {
                   const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
                   if (invItem) equipItem(invItem);
                 } else if (id !== null) {
-                  useSkill(id as any);
+                  if (onUseSkillOverride && typeof id === "number") {
+                    onUseSkillOverride(id);
+                  } else {
+                    useSkill(id as any);
+                  }
                 } else {
                   setPickerSlot(slotIndex);
                 }

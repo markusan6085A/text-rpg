@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { Character, PkSessionState } from "../../utils/api";
-import PkSkillLoadoutBar from "./PkSkillLoadoutBar";
+import type { Mob } from "../../data/world/types";
 import { useHeroStore } from "../../state/heroStore";
-import { cleanupBuffs, computeBuffedMaxResources } from "../../state/battle/helpers";
+import { useBattleStore } from "../../state/battle/store";
+import { cleanupBuffs } from "../../state/battle/helpers";
 import { loadBattle } from "../../state/battle/persist";
 import { BattlePanel } from "../battle/BattlePanel";
+import { SkillBar } from "../battle/SkillBar";
 import type { BattleBuff } from "../../state/battle/types";
 
 interface PkProfileViewProps {
@@ -19,6 +21,25 @@ interface PkProfileViewProps {
   onUseSkill: (skillId: number) => void;
   /** Повернутися до профілю (без PK) */
   onBack?: () => void;
+}
+
+/** Мапимо defender (PK) у форму Mob для battle store — той самий вигляд і логіка відображення */
+function defenderToMob(defender: PkSessionState["defender"], level: number): Mob {
+  return {
+    id: defender.id,
+    name: defender.name,
+    level,
+    hp: Math.max(1, defender.maxHp ?? 1),
+    mp: defender.maxMp ?? 0,
+    pAtk: defender.pAtk ?? 0,
+    mAtk: defender.mAtk ?? 0,
+    pDef: defender.pDef ?? 0,
+    mDef: defender.mDef ?? 0,
+    exp: 0,
+    adenaMin: 0,
+    adenaMax: 0,
+    dropChance: 0,
+  };
 }
 
 export default function PkProfileView({
@@ -47,6 +68,28 @@ export default function PkProfileView({
     )
   ) as BattleBuff[];
 
+  // Синхронізуємо PK-сесію з battle store — той самий store, що й при бою з мобом (лог, відкати, HP цілі)
+  useEffect(() => {
+    if (!pkSession) return;
+    const defender = pkSession.defender;
+    const level = character.level ?? 1;
+    const mob = defenderToMob(defender, level);
+    useBattleStore.setState({
+      pkSessionId: pkSession.id,
+      mob,
+      mobHP: Math.max(0, defender.hp ?? 0),
+      log: pkSession.log ?? [],
+      cooldowns: pkSession.cooldowns ?? {},
+      status: pkSession.ended ? "victory" : "fighting",
+      heroBuffs: uniqueBuffs,
+    });
+  }, [pkSession, character.level, uniqueBuffs]);
+
+  const handleBack = () => {
+    useBattleStore.getState().reset();
+    onBack?.();
+  };
+
   if (!pkSession) {
     return (
       <div className="w-full text-white py-2">
@@ -64,7 +107,7 @@ export default function PkProfileView({
   const defender = pkSession.defender;
   const target = {
     name: defender.name,
-    level: (defender as any).level ?? character.level ?? 1,
+    level: character.level ?? 1,
     currentHp: Math.max(0, defender.hp ?? 0),
     maxHp: Math.max(1, defender.maxHp ?? 1),
   };
@@ -75,21 +118,11 @@ export default function PkProfileView({
         target={target}
         buffs={uniqueBuffs}
         now={nowTs}
-        log={pkSession.log}
         backLabel="Назад к профилю"
-        onBack={onBack}
+        onBack={handleBack}
         showBackButton={true}
       >
-        <PkSkillLoadoutBar
-          ownerId={character.id}
-          skills={pkSession.attacker.skills}
-          cooldowns={pkSession.cooldowns}
-          currentMp={pkSession.attacker.mp}
-          ended={pkSession.ended}
-          acting={pkActing}
-          now={now}
-          onUseSkill={onUseSkill}
-        />
+        <SkillBar onUseSkillOverride={onUseSkill} />
       </BattlePanel>
 
       {pkSession.ended && (
