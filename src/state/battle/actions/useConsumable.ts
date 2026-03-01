@@ -117,7 +117,7 @@ export function handleConsumable(
               maxHp, 
               mp: Math.min(maxMp, hero.mp ?? maxMp), 
               maxMp,
-              logMessage: `использует ${itemDef.name}`
+              logMessage: `использует ${itemDef.name} и восстанавливает ${healAmount} HP`
             }).catch(() => {});
          });
       }
@@ -173,7 +173,7 @@ export function handleConsumable(
               maxHp, 
               mp: newMp, 
               maxMp,
-              logMessage: `использует ${itemDef.name}`
+              logMessage: `использует ${itemDef.name} и восстанавливает ${restoreAmount} MP`
             }).catch(() => {});
          });
       }
@@ -216,6 +216,19 @@ export function handleConsumable(
 
       // Оновлюємо CP та інвентар (важливо: оновлюємо обидва одночасно)
       updateHero({ cp: newCp, inventory: updatedInventory });
+      
+      // Якщо ми в PK, негайно відправляємо нове CP (якщо сервер колись підтримуватиме CP) на сервер
+      if (state.pkSessionId) {
+         import("../../../utils/api").then(({ syncPkStats }) => {
+            syncPkStats(state.pkSessionId as string, { 
+              hp: Math.min(maxHp, hero.hp ?? maxHp), 
+              maxHp, 
+              mp: Math.min(maxMp, hero.mp ?? maxMp), 
+              maxMp,
+              logMessage: `использует ${itemDef.name} и восстанавливает ${restoreAmount} CP`
+            }).catch(() => {});
+         });
+      }
       
       // Встановлюємо КД
       setAndPersist({

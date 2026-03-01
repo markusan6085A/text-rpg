@@ -128,7 +128,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
     try {
       const body = (req.body ?? {}) as { characterId?: string; location?: string };
       const requestedCharacterId = String(body.characterId ?? "").trim();
-      const requestedLocation = String(body.location ?? "").trim();
+      const requestedLocation = body.location !== undefined ? String(body.location).trim() : undefined;
       const character = requestedCharacterId
         ? await prisma.character.findFirst({
             where: { id: requestedCharacterId, accountId: auth.accountId },
