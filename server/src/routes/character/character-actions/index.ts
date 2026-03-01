@@ -191,6 +191,36 @@ async function cleanupPkSessions(now = Date.now()) {
   await cleanupPkSessionsDb(now);
 }
 
+/** Оновлює maxHp/maxMp у сесії з поточного heroJson в БД, щоб HP було однакове всюди */
+async function refreshPkFighterStatsFromDb(session: PkSession): Promise<void> {
+  const chars = await prisma.character.findMany({
+    where: { id: { in: [session.attackerId, session.defenderId] } },
+    select: { id: true, heroJson: true, level: true },
+  });
+  const attackerChar = chars.find((c) => c.id === session.attackerId);
+  const defenderChar = chars.find((c) => c.id === session.defenderId);
+  if (attackerChar?.heroJson) {
+    const heroJson = (attackerChar.heroJson as any) || {};
+    const level = Math.max(1, Number(attackerChar.level || 1));
+    const maxHp = Math.max(1, Number(heroJson?.maxHp ?? 180 + level * 24) || 1);
+    const maxMp = Math.max(1, Number(heroJson?.maxMp ?? 100 + level * 10) || 1);
+    session.attacker.maxHp = maxHp;
+    session.attacker.maxMp = maxMp;
+    session.attacker.hp = Math.min(session.attacker.hp, maxHp);
+    session.attacker.mp = Math.min(session.attacker.mp, maxMp);
+  }
+  if (defenderChar?.heroJson) {
+    const heroJson = (defenderChar.heroJson as any) || {};
+    const level = Math.max(1, Number(defenderChar.level || 1));
+    const maxHp = Math.max(1, Number(heroJson?.maxHp ?? 180 + level * 24) || 1);
+    const maxMp = Math.max(1, Number(heroJson?.maxMp ?? 100 + level * 10) || 1);
+    session.defender.maxHp = maxHp;
+    session.defender.maxMp = maxMp;
+    session.defender.hp = Math.min(session.defender.hp, maxHp);
+    session.defender.mp = Math.min(session.defender.mp, maxMp);
+  }
+}
+
 function serializePkSession(session: PkSession) {
   return {
     ok: true,
@@ -503,6 +533,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     });
     if (!myChar) return reply.code(403).send({ error: "forbidden" });
 
+    await refreshPkFighterStatsFromDb(session);
     return reply.send(serializePkSession(session));
   });
 
@@ -530,7 +561,10 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       select: { id: true },
     });
     if (!me) return reply.code(403).send({ error: "forbidden" });
-    if (session.ended) return reply.send(serializePkSession(session));
+    if (session.ended) {
+      await refreshPkFighterStatsFromDb(session);
+      return reply.send(serializePkSession(session));
+    }
 
     const now = Date.now();
     const actorRole: "attacker" | "defender" = me.id === session.attackerId ? "attacker" : "defender";
@@ -592,6 +626,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         }
       });
       await savePkSessionToDb(session);
+      await refreshPkFighterStatsFromDb(session);
       return reply.send(serializePkSession(session));
     }
 
@@ -658,6 +693,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     await syncPkRealtimeState(session, actorRole, now);
     await savePkResultIfNeeded(session);
     await savePkSessionToDb(session);
+    await refreshPkFighterStatsFromDb(session);
     return reply.send(serializePkSession(session));
   });
 
