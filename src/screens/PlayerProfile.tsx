@@ -20,6 +20,9 @@ interface PlayerProfileProps {
   playerName?: string;
 }
 
+import { getSkillDefForBattle } from "../state/battle/loadout";
+import { useBattleStore } from "../state/battle/store";
+
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
   const hero = useHeroStore((s) => s.hero);
   const [character, setCharacter] = useState<Character | null>(null);
@@ -37,6 +40,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     () => new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("pk") === "1",
     []
   );
+  const [serverTimeDrift, setServerTimeDrift] = useState<number>(0);
   const [pkSession, setPkSession] = useState<PkSessionState | null>(null);
   const [pkLoading, setPkLoading] = useState(false);
   const [pkActing, setPkActing] = useState(false);
@@ -179,7 +183,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       try {
         if (sessionIdFromUrl) {
           const res = await getPkSession(sessionIdFromUrl);
-          if (!cancelled) setPkSession(res.session);
+          if (!cancelled) {
+            if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
+            setPkSession(res.session);
+          }
         } else if (hero?.id) {
           const attackerStats = {
             hp: hero.hp,
@@ -189,6 +196,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           };
           const res = await startPkSession(hero.id, character.id, attackerStats);
           if (!cancelled) {
+            if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
             setPkSession(res.session);
             const url = new URL(window.location.href);
             url.searchParams.set("session", res.session.id);
@@ -206,6 +214,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                 maxMp: hero.maxMp,
               });
               if (!cancelled) {
+                if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
                 setPkSession(res.session);
                 const url = new URL(window.location.href);
                 url.searchParams.set("session", res.session.id);
@@ -233,6 +242,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     const timer = setInterval(async () => {
       try {
         const res = await getPkSession(pkSession.id);
+        if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
         setPkSession(res.session);
       } catch {
         // keep previous state on intermittent errors
@@ -252,7 +262,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       maxMp: hero.maxMp,
     })
       .then((res) => {
-        if (!cancelled) setPkSession(res.session);
+        if (!cancelled) {
+          if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
+          setPkSession(res.session);
+        }
       })
       .catch(() => {});
     return () => {
@@ -264,8 +277,18 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     if (!pkSession || pkSession.ended || pkActing) return;
     setPkActing(true);
     setPkError(null);
+
+    // Predictive cooldown to block UI immediately
+    const skillDef = getSkillDefForBattle(hero?.profession || null, hero?.klass, hero?.race, skillId);
+    if (skillDef?.cooldown) {
+      useBattleStore.setState((s) => ({
+        cooldowns: { ...s.cooldowns, [skillId]: Date.now() + skillDef.cooldown * 1000 },
+      }));
+    }
+
     try {
       const res = await actPkSession(pkSession.id, skillId);
+      if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
       setPkSession(res.session);
       if (res.session.ended) {
         setTimeout(() => {
@@ -348,6 +371,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         pkActing={pkActing}
         pkError={pkError}
         now={now}
+        serverTimeDrift={serverTimeDrift}
         onUseSkill={handlePkUseSkill}
         onBack={backToLocation}
       />

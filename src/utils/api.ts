@@ -343,6 +343,7 @@ export interface PkSessionState {
 
 export interface PkSessionResponse {
   ok: boolean;
+  serverNow?: number;
   session: PkSessionState;
 }
 

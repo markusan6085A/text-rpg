@@ -224,6 +224,7 @@ async function refreshPkFighterStatsFromDb(session: PkSession): Promise<void> {
 function serializePkSession(session: PkSession) {
   return {
     ok: true,
+    serverNow: Date.now(),
     session: {
       id: session.id,
       attackerId: session.attackerId,

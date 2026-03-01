@@ -18,6 +18,7 @@ interface PkProfileViewProps {
   pkActing: boolean;
   pkError: string | null;
   now: number;
+  serverTimeDrift?: number;
   onUseSkill: (skillId: number) => void;
   /** Повернутися до профілю (без PK) */
   onBack?: () => void;
@@ -51,6 +52,7 @@ export default function PkProfileView({
   pkActing,
   pkError,
   now,
+  serverTimeDrift = 0,
   onUseSkill,
   onBack,
 }: PkProfileViewProps) {
@@ -82,7 +84,7 @@ export default function PkProfileView({
     const cooldowns: Record<number, number> = { ...prev };
     Object.entries(rawCd).forEach(([k, v]) => {
       const id = Number(k);
-      const readyAt = Number(v);
+      const readyAt = Number(v) + serverTimeDrift;
       if (!Number.isNaN(id) && !Number.isNaN(readyAt)) cooldowns[id] = readyAt;
     });
     useBattleStore.setState({
