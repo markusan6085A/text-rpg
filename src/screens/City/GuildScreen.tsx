@@ -8,6 +8,7 @@ import {
   ProfessionId,
 } from "../../data/skills";
 import { fixHeroProfession } from "../../utils/fixProfession";
+import { learnSkillLogic } from "../../state/heroStore/heroSkills";
 
 interface GuildScreenProps {
   navigate: (path: string) => void;
@@ -140,9 +141,9 @@ export default function GuildScreen({
   const hero = useHeroStore((s) => s.hero);
   const handleLearnSkill = (skillId: number, reqLevel: number, spCost: number) => {
     try {
-      const res = learnSkillLogic(hero, skillId, reqLevel, spCost);
-      if (res.error) {
-        alert(res.error);
+      const res = learnSkillLogic(hero, skillId);
+      if (!res.success) {
+        alert("Не вдалося вивчити скіл. Можливо, не вистачає SP або рівня.");
         return;
       }
       if (res.updatedHero) {
