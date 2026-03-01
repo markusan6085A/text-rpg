@@ -1,6 +1,27 @@
 import React from "react";
 import { useBattleStore } from "../../state/battle/store";
+import { useHeroStore } from "../../state/heroStore";
+import { getSkillDef } from "../../state/battle/loadout";
 import { sanitizeLine } from "../../state/battle/helpers";
+
+/** Замінює skill#N у рядку на назву скіла з skillsDB */
+export function replaceSkillIdsWithNames(line: string): string {
+  return line.replace(/skill#(\d+)/gi, (_, idStr) => {
+    const id = parseInt(idStr, 10);
+    const def = getSkillDef(id);
+    return def?.name ?? `skill#${id}`;
+  });
+}
+
+/** Колір рядка логу в PK: мій урон — зелений, урон противника — червоний */
+export function getColorForPkLine(line: string, myHeroName: string): string {
+  const m = line.match(/^(\S+)\s+(использует|атакует)/);
+  const actorName = m?.[1] ?? "";
+  if (actorName && actorName === myHeroName) return "#22c55e"; // green-500 (мій урон)
+  if (line.includes("наносит") && line.includes("урона")) return "#ef4444"; // red-500 (урон противника)
+  if (line.includes("сбежал")) return "#9ca3af";
+  return "#d9c4a3";
+}
 
 export const getColor = (line: string) => {
   const lower = line.toLowerCase();
@@ -130,7 +151,9 @@ const parseDobychaLine = (line: string) => {
 const LOG_MAX_LINES = 10;
 
 export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; lines?: string[] }) {
-  const { log } = useBattleStore();
+  const { log, pkSessionId } = useBattleStore();
+  const heroName = useHeroStore((s) => s.hero?.name ?? "");
+  const isPk = Boolean(pkSessionId);
   // Лог зберігається як [найновіше, ...старіші]. Показуємо перші 10 = 10 останніх повідомлень; нові з’являються, старі зникають.
   const fromStore = [...(Array.isArray(log) ? log : [])].slice(0, LOG_MAX_LINES);
   const lines = linesProp != null ? linesProp.slice(0, LOG_MAX_LINES) : fromStore;
@@ -141,10 +164,11 @@ export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; 
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
         }
-        const color = getColor(line);
+        const displayLine = isPk ? replaceSkillIdsWithNames(line) : line;
+        const color = isPk && heroName ? getColorForPkLine(displayLine, heroName) : getColor(line);
         return (
           <div key={idx} style={{ color }}>
-            {line}
+            {displayLine}
           </div>
         );
       })}

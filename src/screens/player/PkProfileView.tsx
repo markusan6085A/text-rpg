@@ -75,9 +75,15 @@ export default function PkProfileView({
     const level = character.level ?? 1;
     const mob = defenderToMob(defender, level);
     const isAttacker = character.id === pkSession.attackerId;
-    const cooldowns = isAttacker
+    const rawCd = isAttacker
       ? (pkSession.attackerCooldowns ?? pkSession.cooldowns ?? {})
       : (pkSession.defenderCooldowns ?? {});
+    const cooldowns: Record<number, number> = {};
+    Object.entries(rawCd).forEach(([k, v]) => {
+      const id = Number(k);
+      const readyAt = Number(v);
+      if (!Number.isNaN(id) && !Number.isNaN(readyAt)) cooldowns[id] = readyAt;
+    });
     useBattleStore.setState({
       pkSessionId: pkSession.id,
       mob,
