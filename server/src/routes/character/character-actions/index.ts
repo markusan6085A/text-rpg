@@ -641,6 +641,21 @@ export async function characterActionsRoutes(app: FastifyInstance) {
        session.defender.maxMp = fighter.maxMp;
     }
 
+    try {
+      if (body.logMessage || typeof body.hp === "number" || typeof body.mp === "number" || typeof body.maxHp === "number" || typeof body.maxMp === "number") {
+        await syncPkRealtimeState(session, isAttacker ? "attacker" : "defender", Date.now());
+      }
+    } catch (e: any) {
+      // Ігноруємо помилки оптимістичного блокування при фоновій синхронізації
+      if (e?.code === 'P2025' || String(e).includes('revision_conflict')) {
+         console.warn("[syncPkStats] revision conflict handled gracefully");
+         // Не кидаємо 409, просто повертаємо поточну сесію, бо це просто фонова синхронізація статів
+         return reply.send(serializePkSession(session));
+      } else {
+         throw e;
+      }
+    }
+
     return reply.send(serializePkSession(session));
   });
 

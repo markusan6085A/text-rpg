@@ -295,10 +295,22 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       .then((res) => {
         if (!cancelled) {
           if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
-          setPkSession(res.session);
+          // Оновлюємо сесію тільки якщо немає помилок конфлікту версій
+          if (res.ok && res.session) {
+             setPkSession(res.session);
+          } else if ((res as any).error === "revision_conflict") {
+            // Ігноруємо на клієнті
+          }
         }
       })
-      .catch(() => {});
+      .catch((e) => {
+        // Ігноруємо помилки конфлікту версій (revision_conflict) при фоновій синхронізації
+        if (e?.message?.includes("revision_conflict") || e?.error === "revision_conflict") {
+          // Не виводимо в консоль щоб не спамити, ігноруємо
+        } else {
+          console.error("[PlayerProfile] syncPkStats error:", e);
+        }
+      });
     return () => {
       cancelled = true;
     };
