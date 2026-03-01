@@ -357,6 +357,13 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
   
+  // Перевіряємо, чи є предмет в інвентарі взагалі
+  const itemIndex = newInventory.findIndex((i: any) => i && i.id === item.id);
+  if (itemIndex === -1) {
+    console.warn(`[equipItemLogic] ⚠️ ITEM NOT FOUND IN INVENTORY! Aborting equip.`, { itemId: item.id });
+    return hero;
+  }
+  
   // Видаляємо предмет з інвентаря
   newInventory = removeItemFromInventory(newInventory, item, isTwoHandedInBothSlots);
 

@@ -486,6 +486,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     get().updateHero({
       equipment: updated.equipment,
       inventory: updated.inventory,
+      equipmentEnchantLevels: updated.equipmentEnchantLevels,
     });
   },
 
