@@ -251,9 +251,40 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     return () => clearInterval(timer);
   }, [pkSession?.id, isPkMode]);
 
+  // Оновлюємо локальне HP/MP з pkSession, якщо воно змінилося (наприклад, ми отримали урон)
+  useEffect(() => {
+    if (!isPkMode || !pkSession || !hero) return;
+    const isAttacker = hero.id === pkSession.attackerId;
+    const myFighter = isAttacker ? pkSession.attacker : pkSession.defender;
+    
+    // Якщо серверне значення відрізняється більше ніж на 2 (щоб уникнути спаму від мікро-регену) і воно МЕНШЕ локального 
+    // (отримали урон), або ми юзнули скіл і впало MP — оновлюємо локальний стейт.
+    if (myFighter && (myFighter.hp < hero.hp || myFighter.mp < hero.mp)) {
+      useHeroStore.getState().updateHero({
+        hp: myFighter.hp,
+        mp: myFighter.mp,
+      });
+    }
+  }, [pkSession, isPkMode]);
+
   // Синхронізуємо поточні HP/MP (з бафами) у PK-сесію, щоб у бою було як у барах
   useEffect(() => {
     if (!isPkMode || !pkSession?.id || !hero) return;
+    
+    const isAttacker = hero.id === pkSession.attackerId;
+    const myFighter = isAttacker ? pkSession.attacker : pkSession.defender;
+    
+    // Відправляємо на сервер тільки якщо наше локальне ХП/МП БІЛЬШЕ (наприклад, використали зілля)
+    // або якщо змінилися максимуми (бафи).
+    // Щоб не перетирати серверний урон, якщо ми ще не отримали його в клієнт.
+    const needsSync = 
+      hero.hp > (myFighter?.hp || 0) || 
+      hero.mp > (myFighter?.mp || 0) || 
+      hero.maxHp !== myFighter?.maxHp || 
+      hero.maxMp !== myFighter?.maxMp;
+
+    if (!needsSync) return;
+
     let cancelled = false;
     syncPkStats(pkSession.id, {
       hp: hero.hp,

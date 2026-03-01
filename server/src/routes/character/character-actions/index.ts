@@ -535,11 +535,9 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
     await cleanupPkSessions();
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    let session = pkSessions.get(sessionId);
-    if (!session) {
-      session = await loadPkSessionFromDb(sessionId);
-      if (session) pkSessions.set(sessionId, session);
-    }
+    let session = await loadPkSessionFromDb(sessionId);
+    if (session) pkSessions.set(sessionId, session);
+    else session = pkSessions.get(sessionId);
     if (!session) return reply.code(404).send({ error: "pk session not found" });
     const me = await prisma.character.findFirst({
       where: {
@@ -604,11 +602,9 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     await cleanupPkSessions();
 
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    let session = pkSessions.get(sessionId);
-    if (!session) {
-      session = await loadPkSessionFromDb(sessionId);
-      if (session) pkSessions.set(sessionId, session);
-    }
+    let session = await loadPkSessionFromDb(sessionId);
+    if (session) pkSessions.set(sessionId, session);
+    else session = pkSessions.get(sessionId);
     if (!session) return reply.code(404).send({ error: "pk session not found" });
 
     const myChar = await prisma.character.findFirst({
