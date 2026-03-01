@@ -62,6 +62,8 @@ export function processMobDrops(
 ): {
   newInventory: HeroInventoryItem[];
   dropMessages: string[];
+  /** Адена з таблиці дропу (профіль Floran або mob.drops) — додавати до hero.adena, не в інвентар */
+  adenaFromDrops: number;
   questProgressUpdates?: Array<{ questId: string; itemId: string; count: number }>;
   zaricheEquipped?: boolean; // Чи був одягнутий Зарич
   zaricheEquippedUntil?: number; // Timestamp коли Зарич буде знятий
@@ -70,6 +72,7 @@ export function processMobDrops(
 } {
   const newInventory = [...(hero.inventory || [])];
   const dropMessages: string[] = [];
+  let adenaFromDrops = 0;
   const questProgressUpdates: Array<{ questId: string; itemId: string; count: number }> = [];
 
   // Перевіряємо, чи інвентар не повний (максимум слотів — 100+ куплені за Coin of Luck)
@@ -102,7 +105,16 @@ export function processMobDrops(
         // Дроп випав!
         let itemCount = Math.floor(Math.random() * (drop.max - drop.min + 1)) + drop.min;
         const itemDef = itemsDB[drop.id];
-        
+
+        // Адена йде в hero.adena, не в інвентар
+        if (drop.id === "adena" || drop.kind === "adena") {
+          const premiumMultiplier = getPremiumMultiplier(hero);
+          const amount = Math.round(itemCount * premiumMultiplier);
+          adenaFromDrops += amount;
+          dropMessages.push(`Дроп: Адена x${amount}`);
+          return;
+        }
+
         // Преміум множник для ресурсів (тільки consumable, resource, quest)
         if (itemDef) {
           const resourceSlots = ["consumable", "resource", "quest"];
@@ -114,13 +126,11 @@ export function processMobDrops(
 
         if (itemDef) {
           // Перевіряємо, чи інвентар не повний
-          // Якщо предмет може стакатися, перевіряємо, чи є вже такий предмет
           const stackableSlots = ["consumable", "resource", "quest"];
           const canStack = stackableSlots.includes(itemDef.slot);
           const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id);
           const canAddToExisting = canStack && existingItemIndex >= 0;
 
-          // Якщо інвентар повний і не можна додати до існуючого предмета, пропускаємо дроп
           if (isInventoryFull && !canAddToExisting) {
             const displayName = removeGradeFromResourceName(itemDef.name);
             dropMessages.push(`Дроп: ${displayName} x${itemCount} (инвентарь полон!)`);
@@ -128,14 +138,12 @@ export function processMobDrops(
           }
 
           if (existingItemIndex >= 0) {
-            // Якщо предмет вже є, збільшуємо кількість
             const existingItem = newInventory[existingItemIndex];
             newInventory[existingItemIndex] = {
               ...existingItem,
               count: (existingItem.count ?? 1) + itemCount,
             };
           } else {
-            // Якщо предмета немає, додаємо новий
             newInventory.push({
               id: itemDef.id,
               name: itemDef.name,
@@ -460,6 +468,7 @@ export function processMobDrops(
   return {
     newInventory,
     dropMessages,
+    adenaFromDrops,
     questProgressUpdates: questProgressUpdates.length > 0 ? questProgressUpdates : undefined,
     zaricheEquipped,
     zaricheEquippedUntil,

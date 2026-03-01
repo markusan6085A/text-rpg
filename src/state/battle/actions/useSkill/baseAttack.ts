@@ -326,7 +326,10 @@ export function handleBaseAttack(
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
       const finalSpGain = Math.round(spGain * premiumMultiplier);
-      const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
+      // Якщо адена прийшла з таблиці дропу (Floran профіль або mob.drops) — використовуємо її, інакше з mob.adenaMin/Max
+      const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
+        ? dropResult.adenaFromDrops
+        : Math.round(adenaGain * premiumMultiplier);
       displayExp = finalExpGain;
       displaySp = finalSpGain;
       displayAdena = finalAdenaGain;

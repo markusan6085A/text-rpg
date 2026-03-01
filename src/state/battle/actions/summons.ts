@@ -725,7 +725,9 @@ export function processSummonAttack(
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
       const finalSpGain = Math.round(spGain * premiumMultiplier);
-      const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
+      const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
+        ? dropResult.adenaFromDrops
+        : Math.round(adenaGain * premiumMultiplier);
       displayExp = finalExpGain;
       displaySp = finalSpGain;
       displayAdena = finalAdenaGain;
