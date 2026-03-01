@@ -112,8 +112,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && (playerId || playerName)) {
-        // Перезавантажуємо дані при поверненні на сторінку
-        loadPlayerProfile();
+        // Перезавантажуємо дані при поверненні на сторінку, якщо не в PK-режимі
+        if (!isPkMode) {
+          loadPlayerProfile();
+        }
       }
     };
 
@@ -122,7 +124,9 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     // Також оновлюємо при фокусі на вікно
     const handleFocus = () => {
       if (playerId || playerName) {
-        loadPlayerProfile();
+        if (!isPkMode) {
+          loadPlayerProfile();
+        }
       }
     };
     window.addEventListener('focus', handleFocus);
