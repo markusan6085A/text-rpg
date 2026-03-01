@@ -273,7 +273,7 @@ export function SkillBar({ onUseSkillOverride }: SkillBarProps = {}) {
                     <span className="text-[#caa777] text-xs relative z-0">?</span>
                   )}
                   {slotInfo?.type === "skill" && cdLeft > 0 && (
-                    <div className="absolute inset-0 bg-black/70 text-white text-xs flex items-center justify-center font-semibold">
+                    <div className="absolute inset-0 z-10 bg-black/75 text-white text-xs flex items-center justify-center font-bold rounded-md" style={{ minHeight: "100%" }}>
                       {cdLeft}
                     </div>
                   )}
@@ -362,7 +362,7 @@ export function SkillBar({ onUseSkillOverride }: SkillBarProps = {}) {
                     <span className="text-[#caa777] text-xs relative z-0">?</span>
                   )}
                   {slotInfo?.type === "skill" && cdLeft > 0 && (
-                    <div className="absolute inset-0 bg-black/70 text-white text-xs flex items-center justify-center font-semibold">
+                    <div className="absolute inset-0 z-10 bg-black/75 text-white text-xs flex items-center justify-center font-bold rounded-md" style={{ minHeight: "100%" }}>
                       {cdLeft}
                     </div>
                   )}

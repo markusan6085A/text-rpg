@@ -169,8 +169,16 @@ export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; 
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
         }
-        const displayLine = isPk ? replaceSkillIdsWithNames(line) : line;
+        let displayLine = isPk ? replaceSkillIdsWithNames(line) : line;
         const color = isPk ? getColorForPkLine(displayLine, heroName ?? "") : getColor(line);
+        const isIncoming = isPk && line.includes("наносит") && line.includes("урона") && (() => {
+          const norm = (s: string) => String(s ?? "").trim().toLowerCase();
+          const m = line.match(/^(\S+)\s+(использует|атакует)/);
+          const actorName = norm(m?.[1] ?? "");
+          const myName = norm(heroName ?? "");
+          return myName && actorName !== myName;
+        })();
+        if (isIncoming) displayLine = "По вам: " + displayLine;
         return (
           <div key={idx} style={{ color }}>
             {displayLine}

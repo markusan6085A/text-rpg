@@ -710,7 +710,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         cooldowns[skill.id] = now + skill.cooldownMs;
         session.log.unshift(`${attacker.name} использует skill#${skill.id} и наносит ${dmg} урона`);
       } else {
-        session.log.unshift(`${attacker.name} атакует и наносит ${dmg} урона`);
+        session.log.unshift(`${attacker.name} атакует (простая атака) и наносит ${dmg} урона`);
       }
       session.log = session.log.slice(0, 30);
       return dmg;

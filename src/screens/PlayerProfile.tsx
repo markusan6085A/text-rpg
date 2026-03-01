@@ -237,7 +237,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       } catch {
         // keep previous state on intermittent errors
       }
-    }, 1500);
+    }, 1000);
     return () => clearInterval(timer);
   }, [pkSession?.id, isPkMode]);
 
