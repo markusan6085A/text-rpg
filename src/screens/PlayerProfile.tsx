@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { getPublicCharacter, getCharacterByName, getSevenSealsRank, payToViewPlayerStats, startPkSession, getPkSession, actPkSession, type Character, type PkSessionState } from "../utils/api";
+import { getPublicCharacter, getCharacterByName, getSevenSealsRank, payToViewPlayerStats, startPkSession, getPkSession, actPkSession, syncPkStats, type Character, type PkSessionState } from "../utils/api";
 import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
@@ -181,7 +181,13 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           const res = await getPkSession(sessionIdFromUrl);
           if (!cancelled) setPkSession(res.session);
         } else if (hero?.id) {
-          const res = await startPkSession(hero.id, character.id);
+          const attackerStats = {
+            hp: hero.hp,
+            maxHp: hero.maxHp,
+            mp: hero.mp,
+            maxMp: hero.maxMp,
+          };
+          const res = await startPkSession(hero.id, character.id, attackerStats);
           if (!cancelled) {
             setPkSession(res.session);
             const url = new URL(window.location.href);
@@ -193,7 +199,12 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         if (!cancelled) {
           if (sessionIdFromUrl && hero?.id) {
             try {
-              const res = await startPkSession(hero.id, character.id);
+              const res = await startPkSession(hero.id, character.id, {
+                hp: hero.hp,
+                maxHp: hero.maxHp,
+                mp: hero.mp,
+                maxMp: hero.maxMp,
+              });
               if (!cancelled) {
                 setPkSession(res.session);
                 const url = new URL(window.location.href);
@@ -229,6 +240,25 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     }, 1500);
     return () => clearInterval(timer);
   }, [pkSession?.id, isPkMode]);
+
+  // Синхронізуємо поточні HP/MP (з бафами) у PK-сесію, щоб у бою було як у барах
+  useEffect(() => {
+    if (!isPkMode || !pkSession?.id || !hero) return;
+    let cancelled = false;
+    syncPkStats(pkSession.id, {
+      hp: hero.hp,
+      maxHp: hero.maxHp,
+      mp: hero.mp,
+      maxMp: hero.maxMp,
+    })
+      .then((res) => {
+        if (!cancelled) setPkSession(res.session);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isPkMode, pkSession?.id, hero?.id, hero?.hp, hero?.maxHp, hero?.mp, hero?.maxMp]);
 
   const handlePkUseSkill = async (skillId: number) => {
     if (!pkSession || pkSession.ended || pkActing) return;

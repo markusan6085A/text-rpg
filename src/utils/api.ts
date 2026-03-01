@@ -378,10 +378,31 @@ export interface PkStateResponse {
   pkSyncActive: boolean;
 }
 
-export async function startPkSession(attackerId: string, targetId: string): Promise<PkSessionResponse> {
+export async function startPkSession(
+  attackerId: string,
+  targetId: string,
+  attackerStats?: { hp?: number; maxHp?: number; mp?: number; maxMp?: number }
+): Promise<PkSessionResponse> {
   return apiRequest<PkSessionResponse>("/characters/pk/session/start", {
     method: "POST",
-    body: JSON.stringify({ attackerId, targetId }),
+    body: JSON.stringify({
+      attackerId,
+      targetId,
+      ...(attackerStats?.maxHp != null && { attackerMaxHp: attackerStats.maxHp }),
+      ...(attackerStats?.hp != null && { attackerHp: attackerStats.hp }),
+      ...(attackerStats?.maxMp != null && { attackerMaxMp: attackerStats.maxMp }),
+      ...(attackerStats?.mp != null && { attackerMp: attackerStats.mp }),
+    }),
+  });
+}
+
+export async function syncPkStats(
+  sessionId: string,
+  stats: { hp?: number; maxHp?: number; mp?: number; maxMp?: number }
+): Promise<PkSessionResponse> {
+  return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/sync-stats`, {
+    method: "POST",
+    body: JSON.stringify(stats),
   });
 }
 

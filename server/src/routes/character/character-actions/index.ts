@@ -448,7 +448,14 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
     await cleanupPkSessions();
 
-    const body = (req.body ?? {}) as { attackerId?: string; targetId?: string };
+    const body = (req.body ?? {}) as {
+      attackerId?: string;
+      targetId?: string;
+      attackerHp?: number;
+      attackerMaxHp?: number;
+      attackerMp?: number;
+      attackerMaxMp?: number;
+    };
     const attackerId = String(body.attackerId ?? "").trim();
     const targetId = String(body.targetId ?? "").trim();
     if (!attackerId || !targetId) return reply.code(400).send({ error: "attackerId and targetId are required" });
@@ -506,7 +513,51 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       updatedAt: Date.now(),
       saved: false,
     };
+    if (typeof body.attackerMaxHp === "number" && body.attackerMaxHp >= 1) {
+      session.attacker.maxHp = body.attackerMaxHp;
+      if (typeof body.attackerHp === "number" && body.attackerHp >= 0)
+        session.attacker.hp = Math.min(body.attackerHp, session.attacker.maxHp);
+    }
+    if (typeof body.attackerMaxMp === "number" && body.attackerMaxMp >= 0) {
+      session.attacker.maxMp = body.attackerMaxMp;
+      if (typeof body.attackerMp === "number" && body.attackerMp >= 0)
+        session.attacker.mp = Math.min(body.attackerMp, session.attacker.maxMp);
+    }
     pkSessions.set(sessionId, session);
+    await savePkSessionToDb(session);
+    return reply.send(serializePkSession(session));
+  });
+
+  app.post("/characters/pk/session/:id/sync-stats", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    await cleanupPkSessions();
+    const sessionId = String((req.params as any)?.id ?? "").trim();
+    let session = pkSessions.get(sessionId);
+    if (!session) {
+      session = await loadPkSessionFromDb(sessionId);
+      if (session) pkSessions.set(sessionId, session);
+    }
+    if (!session) return reply.code(404).send({ error: "pk session not found" });
+    const me = await prisma.character.findFirst({
+      where: {
+        accountId: auth.accountId,
+        id: { in: [session.attackerId, session.defenderId] as any },
+      },
+      select: { id: true },
+    });
+    if (!me) return reply.code(403).send({ error: "forbidden" });
+    const body = (req.body ?? {}) as { hp?: number; maxHp?: number; mp?: number; maxMp?: number };
+    const fighter = me.id === session.attackerId ? session.attacker : session.defender;
+    if (typeof body.maxHp === "number" && body.maxHp >= 1) {
+      fighter.maxHp = body.maxHp;
+      if (typeof body.hp === "number" && body.hp >= 0) fighter.hp = Math.min(body.hp, fighter.maxHp);
+    } else if (typeof body.hp === "number" && body.hp >= 0) fighter.hp = Math.min(body.hp, fighter.maxHp);
+    if (typeof body.maxMp === "number" && body.maxMp >= 0) {
+      fighter.maxMp = body.maxMp;
+      if (typeof body.mp === "number" && body.mp >= 0) fighter.mp = Math.min(body.mp, fighter.maxMp);
+    } else if (typeof body.mp === "number" && body.mp >= 0) fighter.mp = Math.min(body.mp, fighter.maxMp);
+    session.updatedAt = Date.now();
     await savePkSessionToDb(session);
     return reply.send(serializePkSession(session));
   });
