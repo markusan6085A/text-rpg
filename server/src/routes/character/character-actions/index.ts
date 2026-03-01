@@ -262,7 +262,7 @@ function serializePkSession(session: PkSession) {
 }
 
 /** Урон як у клієнті: простий удар = pAtk - pDef, скіл = трохи більше (+ powerBonus). */
-function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: number, useMagic: boolean): { dmg: number; isCrit: boolean; isMiss: boolean } {
+function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: number, useMagic: boolean, shotMultiplier: number = 1.0): { dmg: number; isCrit: boolean; isMiss: boolean } {
   const pAtk = Math.max(1, Number(attacker.pAtk || 1));
   const mAtk = Math.max(1, Number(attacker.mAtk || 1));
   const pDef = Math.max(1, Number(defender.pDef || 1));
@@ -290,11 +290,11 @@ function computeDamage(attacker: PkFighter, defender: PkFighter, powerBonus: num
   if (useMagic) {
     const raw = Math.max(0, mAtk - mDef);
     const base = raw + skillBonus;
-    return { dmg: Math.max(1, Math.floor(base * variance * critMult)), isCrit, isMiss: false };
+    return { dmg: Math.max(1, Math.floor(base * variance * critMult * shotMultiplier)), isCrit, isMiss: false };
   }
   const raw = Math.max(0, pAtk - pDef);
   const base = raw + skillBonus;
-  return { dmg: Math.max(1, Math.floor(base * variance * critMult)), isCrit, isMiss: false };
+  return { dmg: Math.max(1, Math.floor(base * variance * critMult * shotMultiplier)), isCrit, isMiss: false };
 }
 
 function getEffectivePkNickColor(heroJson: any, now = Date.now()): string | undefined {
@@ -730,12 +730,14 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     await cleanupPkSessions();
 
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    const body = (req.body ?? {}) as { skillId?: number; isBuff?: boolean; isToggle?: boolean; name?: string; target?: string };
+    const body = (req.body ?? {}) as { skillId?: number; isBuff?: boolean; isToggle?: boolean; name?: string; target?: string; shotMultiplier?: number; shotName?: string };
     const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
     const isBuff = body.isBuff;
     const isToggle = body.isToggle;
     const skillName = body.name;
     const skillTarget = body.target;
+    const shotMultiplier = typeof body.shotMultiplier === "number" ? body.shotMultiplier : 1.0;
+    const shotName = body.shotName;
 
     let session = pkSessions.get(sessionId);
     if (!session) {
@@ -843,7 +845,9 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       requestedSkillId?: number,
       reqIsBuff?: boolean,
       reqIsToggle?: boolean,
-      reqSkillName?: string
+      reqSkillName?: string,
+      reqShotMultiplier: number = 1.0,
+      reqShotName?: string
     ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
       
@@ -862,10 +866,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
       const useMagic = skill ? attacker.prefersMagic : false;
       const powerBonus = skill?.powerBonus ?? 0;
-      const { dmg, isCrit, isMiss } = computeDamage(attacker, defender, powerBonus, useMagic);
+      const { dmg, isCrit, isMiss } = computeDamage(attacker, defender, powerBonus, useMagic, reqShotMultiplier);
       defender.hp = Math.max(0, defender.hp - dmg);
       
       const critText = isCrit ? " (критический удар!)" : "";
+      const shotText = reqShotName ? ` Используя ${reqShotName},` : "";
 
       if (isMiss) {
         session.log.unshift(`${attacker.name} промахивается по ${defender.name}!`);
@@ -873,9 +878,9 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
         cooldowns[skill.id] = now + skill.cooldownMs;
         const sName = reqSkillName || skill.name || `skill#${skill.id}`;
-        session.log.unshift(`${attacker.name} использует ${sName} и наносит ${dmg} урона${critText}`);
+        session.log.unshift(`${attacker.name} использует ${sName}.${shotText} Наносит ${dmg} урона${critText}`);
       } else {
-        session.log.unshift(`${attacker.name} атакует (простая атака) и наносит ${dmg} урона${critText}`);
+        session.log.unshift(`${attacker.name} атакует (простая атака).${shotText} Наносит ${dmg} урона${critText}`);
       }
       session.log = session.log.slice(0, 30);
       return dmg;
@@ -884,7 +889,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (session.attackerHasHit === undefined) session.attackerHasHit = false;
     if (session.defenderHasHit === undefined) session.defenderHasHit = false;
     if (actorRole === "attacker") {
-      const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId, isBuff, isToggle, skillName);
+      const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName);
       session.lastHitDamage = dmg;
       session.lastHitById = session.attackerId;
       session.lastHitByName = session.attacker.name;
@@ -903,7 +908,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         session.winnerId = session.attackerId;
       }
     } else {
-      const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId, isBuff, isToggle, skillName);
+      const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName);
       session.lastHitDamage = dmg;
       session.lastHitById = session.defenderId;
       session.lastHitByName = session.defender.name;

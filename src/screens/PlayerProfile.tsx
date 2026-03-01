@@ -13,6 +13,8 @@ import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
 import PlayerStatsModal from "../components/PlayerStatsModal";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import PkProfileView from "./player/PkProfileView";
+import { locations as WORLD_LOCATIONS } from "../data/world";
+import { useAutoShot } from "../state/battle/actions/useSkill/shotHelpers";
 
 interface PlayerProfileProps {
   navigate: (path: string) => void;
@@ -318,11 +320,38 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     try {
       const isBuff = (skillDef?.type as any) === "buff" || (skillDef?.type as any) === "buff_statue";
       const isToggle = (skillDef?.type as any) === "toggle";
+
+      let shotMultiplier = 1.0;
+      let shotName: string | undefined;
+
+      if (hero && !isBuff && !isToggle) {
+        const battleState = useBattleStore.getState();
+        const isPhysical = !(skillDef as any)?.isMagic;
+        const isMagic = !!(skillDef as any)?.isMagic;
+        const consumeCount = skillId === 1 ? 1 : 2;
+        
+        const shotResult = useAutoShot(
+          hero as any,
+          isPhysical,
+          isMagic,
+          battleState.loadoutSlots,
+          battleState.activeChargeSlots,
+          consumeCount
+        );
+
+        if (shotResult.used) {
+          shotMultiplier = shotResult.multiplier;
+          shotName = shotResult.shotType === "soulshot" ? "Soulshot" : "Spiritshot";
+        }
+      }
+
       const res = await actPkSession(pkSession.id, skillId, {
         isBuff,
         isToggle,
         name: skillDef?.name,
         target: skillDef?.target,
+        shotMultiplier,
+        shotName
       });
       if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
       setPkSession(res.session);
@@ -396,7 +425,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const professionLabel = profDef?.label || profession || "Нет";
 
   if (isPkMode && hero && heroData) {
-    const backToLocation = () => navigate("/location");
+    const backToLocation = () => {
+      const heroLoc = String((hero as any)?.location ?? (hero as any)?.currentLocation ?? (hero as any)?.zone ?? "").trim();
+      const zone = WORLD_LOCATIONS.find((z) => z.name === heroLoc);
+      if (zone) {
+        navigate(`/location?zone=${zone.id}`);
+      } else {
+        navigate("/location");
+      }
+    };
     return (
       <PkProfileView
         character={character}
