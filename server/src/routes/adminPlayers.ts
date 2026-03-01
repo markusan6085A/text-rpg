@@ -86,6 +86,31 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
+  // GET /admin/player/:characterId/inventory — повертає інвентар гравця
+  app.get<{ Params: { characterId: string } }>(
+    "/:characterId/inventory",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const characterId = String((req.params as any).characterId ?? "").trim();
+      if (!characterId) return reply.code(400).send({ error: "characterId required" });
+
+      const character = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, name: true, heroJson: true },
+      });
+
+      if (!character) return reply.code(404).send({ error: "character not found" });
+
+      const heroJson = (character.heroJson as any) || {};
+      const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+
+      return {
+        ok: true,
+        inventory,
+      };
+    }
+  );
+
   // POST /admin/player/:characterId/give-item — { itemId, qty }
   app.post<{ Params: { characterId: string }; Body: { itemId?: string; qty?: number } }>(
     "/:characterId/give-item",

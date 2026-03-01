@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { adminFindPlayerByName, adminGiveItem, adminTakeItem } from "../../utils/api";
+import { adminFindPlayerByName, adminGiveItem, adminTakeItem, adminGetPlayerInventory } from "../../utils/api";
 import { itemsDB } from "../../data/items/itemsDB";
 import { useCharacterStore } from "../../state/characterStore";
 import { useHeroStore } from "../../state/heroStore";
@@ -39,6 +39,8 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
   const [itemId, setItemId] = useState("");
   const [qty, setQty] = useState("1");
   const [showPicker, setShowPicker] = useState(false);
+  const [showPlayerInv, setShowPlayerInv] = useState(false);
+  const [playerInv, setPlayerInv] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -62,6 +64,24 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     for (const arr of Object.values(map)) arr.sort((a, b) => (a.grade || "").localeCompare(b.grade || "") || a.name.localeCompare(b.name));
     return map;
   }, []);
+
+  const playerInvByCategory = useMemo(() => {
+    const map: Record<string, Array<{ id: string; name: string; count: number; icon?: string }>> = {};
+    for (const item of playerInv) {
+      if (!item) continue;
+      const def = itemsDB[item.id || item.itemId];
+      const cat = getCategory(def?.kind || def?.slot || item.type || "other");
+      if (!map[cat]) map[cat] = [];
+      map[cat].push({
+        id: item.id || item.itemId,
+        name: def?.name || item.name || item.id,
+        count: item.count || 1,
+        icon: def?.icon || item.icon,
+      });
+    }
+    for (const arr of Object.values(map)) arr.sort((a, b) => a.name.localeCompare(b.name));
+    return map;
+  }, [playerInv]);
 
   const handleGive = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +107,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
         const loaded = await loadHeroFromAPI();
         if (loaded) useHeroStore.getState().setHero(loaded);
       }
+      if (showPlayerInv) handleLoadInv(character.id);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -94,11 +115,12 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     }
   };
 
-  const handleTake = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleTake = async (e?: React.FormEvent, directItemId?: string, directQty?: number) => {
+    if (e) e.preventDefault();
     setMessage(null);
-    const num = Math.max(1, Math.floor(Number(qty)));
-    if (!nick.trim() || !itemId.trim()) {
+    const targetItemId = directItemId || itemId.trim();
+    const num = directQty ?? Math.max(1, Math.floor(Number(qty)));
+    if (!nick.trim() || !targetItemId) {
       setMessage("Введіть нік та id предмета");
       return;
     }
@@ -109,13 +131,46 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
         setMessage("Персонажа не знайдено");
         return;
       }
-      await adminTakeItem(data.character.id, itemId.trim(), num);
-      setMessage(`Забрано: ${itemId} x${num}`);
+      await adminTakeItem(data.character.id, targetItemId, num);
+      setMessage(`Забрано: ${targetItemId} x${num}`);
+      if (showPlayerInv) handleLoadInv(data.character.id);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLoadInvBtn = async () => {
+    if (!nick.trim()) {
+      setMessage("Введіть нік гравця");
+      return;
+    }
+    if (showPlayerInv) {
+      setShowPlayerInv(false);
+      return;
+    }
+    setLoading(true);
+    setMessage(null);
+    try {
+      const data = await adminFindPlayerByName(nick.trim());
+      if (!data?.character?.id) {
+        setMessage("Персонажа не знайдено");
+        return;
+      }
+      await handleLoadInv(data.character.id);
+      setShowPlayerInv(true);
+      setShowPicker(false);
+    } catch (err: any) {
+      setMessage(err?.message || "Помилка");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoadInv = async (characterId: string) => {
+    const invData = await adminGetPlayerInventory(characterId);
+    setPlayerInv(invData.inventory || []);
   };
 
   const inputCl = "text-sm py-1 px-2 rounded bg-black/40 border border-[#c7ad80]/30 text-white placeholder-gray-500 w-32";
@@ -132,9 +187,10 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
           <input type="text" value={itemId} onChange={(e) => setItemId(e.target.value)} placeholder="ID предмета" className={`${inputCl} w-40`} />
           <input type="number" min={1} max={999} value={qty} onChange={(e) => setQty(e.target.value)} placeholder="К-сть" className={`${inputCl} w-14`} />
           <button type="button" onClick={() => navigate("/admin/items")} className={btnCl}>Вибір предметів</button>
-          <button type="button" onClick={() => setShowPicker((s) => !s)} className={btnCl}>{showPicker ? "Сховати" : "Список"}</button>
+          <button type="button" onClick={() => { setShowPicker((s) => !s); setShowPlayerInv(false); }} className={btnCl}>{showPicker ? "Сховати предмети" : "Всі предмети"}</button>
+          <button type="button" onClick={handleLoadInvBtn} className={btnCl}>{showPlayerInv ? "Сховати інвентар" : "Інвентар гравця"}</button>
           <button type="button" onClick={handleGive} disabled={loading} className={btnGreen}>Видати</button>
-          <button type="button" onClick={handleTake} disabled={loading} className={btnDanger}>Забрати</button>
+          <button type="button" onClick={(e) => handleTake(e)} disabled={loading} className={btnDanger}>Забрати</button>
         </div>
         {showPicker && (
           <div className="max-h-48 overflow-y-auto rounded bg-black/30 p-2 text-xs border border-[#c7ad80]/20">
@@ -151,6 +207,48 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {showPlayerInv && (
+          <div className="max-h-64 overflow-y-auto rounded bg-black/30 p-2 text-xs border border-[#c7ad80]/20">
+            {Object.keys(playerInvByCategory).length === 0 ? (
+              <div className="text-gray-400">Інвентар порожній</div>
+            ) : (
+              Object.entries(playerInvByCategory).map(([cat, list]) => (
+                <div key={cat} className="mb-3">
+                  <div className="font-medium mb-1 border-b border-[#c7ad80]/20 pb-0.5" style={style}>{cat}</div>
+                  <div className="flex flex-col gap-1">
+                    {list.map((item, idx) => (
+                      <div key={`${item.id}-${idx}`} className="flex items-center justify-between py-1 px-2 rounded bg-black/40 border border-white/5 hover:border-white/10">
+                        <div className="flex items-center gap-2">
+                          <img src={getItemIcon(item.icon)} alt="" className="w-6 h-6 object-contain" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }} />
+                          <div className="flex flex-col">
+                            <span className="text-[#e0c68a] text-sm">{item.name}</span>
+                            <span className="text-gray-400 text-[10px]">ID: {item.id}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-white">x{item.count}</span>
+                          <button 
+                            type="button" 
+                            onClick={(e) => {
+                              const amount = window.prompt(`Скільки ${item.name} забрати? (макс ${item.count})`, String(item.count));
+                              if (amount && !isNaN(Number(amount))) {
+                                handleTake(e, item.id, Number(amount));
+                              }
+                            }}
+                            disabled={loading} 
+                            className="px-2 py-1 rounded bg-red-900/60 hover:bg-red-800 text-white text-[10px]"
+                          >
+                            Забрати
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
       </form>

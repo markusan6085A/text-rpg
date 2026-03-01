@@ -1410,6 +1410,13 @@ export async function adminFindPlayerByName(name: string): Promise<{ ok: boolean
   return data as any;
 }
 
+export async function adminGetPlayerInventory(characterId: string): Promise<{ ok: boolean; inventory: any[] }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/inventory`, { method: "GET", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
 /** Адмін: видати/забрати предмет (slot опційно — з itemsDB для коректного відображення) */
 export async function adminGiveItem(characterId: string, itemId: string, qty: number, slot?: string): Promise<{ ok: boolean }> {
   const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/give-item`, {
