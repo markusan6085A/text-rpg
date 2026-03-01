@@ -621,16 +621,16 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     
     // 🔥 Обробка конфлікту ревізії (409 Conflict або revision_conflict)
     if (error?.status === 409 || (error?.message && (error.message.includes('revision_conflict') || error.message.includes('revision conflict') || error.message.includes('Character was modified')))) {
-      console.warn('[saveHeroToLocalStorage] Revision conflict detected - character was modified by another session');
+      // console.warn('[saveHeroToLocalStorage] Revision conflict detected - character was modified by another session');
       
       // Ігноруємо якщо це просто конфлікт при фоновому збереженні
       // Ми не хочемо спамити користувачу alert-ами
       if (retryCount >= MAX_RETRIES) {
-          console.warn('[saveHeroToLocalStorage] Max retries reached for revision conflict, skipping to avoid infinite loop');
+          // console.warn('[saveHeroToLocalStorage] Max retries reached for revision conflict, skipping to avoid infinite loop');
           return;
       }
       retryCount++;
-      console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
+      // console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
       
       try {
         // 1. Отримуємо актуального героя з сервера (GET /characters/:id)
@@ -746,7 +746,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
                 },
               };
 
-              // 🔥 applyServerSync замість setHero — оновлює store без запуску persistence; retry з поточного hero
+              // applyServerSync замість setHero — оновлює store без запуску persistence; retry з поточного hero
               useHeroStore.getState().applyServerSync(mergedHero as any, {
                 exp: mergedExp,
                 level: mergedLevel,
@@ -754,40 +754,40 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
                 heroRevision: newRevision,
                 updatedAt: Date.now(),
               });
-              console.log('[saveHeroToLocalStorage] Hero rehydrated and merged, retrying save with revision:', newRevision);
+              // console.log('[saveHeroToLocalStorage] Hero rehydrated and merged, retrying save with revision:', newRevision);
 
               const heroToSave = useHeroStore.getState().hero;
               if (heroToSave) await saveHeroOnce(heroToSave);
-              console.log('[saveHeroToLocalStorage] Successfully saved after retry');
+              // console.log('[saveHeroToLocalStorage] Successfully saved after retry');
               return; // Успішно збережено після retry
             }
           }
         } catch (reloadError: any) {
-          console.error('[saveHeroToLocalStorage] Failed to reload and retry after revision conflict:', reloadError);
+          // console.error('[saveHeroToLocalStorage] Failed to reload and retry after revision conflict:', reloadError);
           
           // 🔥 КРИТИЧНО: Якщо retry теж отримав 409 - показуємо попередження і зупиняємося
           if (reloadError?.status === 409 || (reloadError?.message && reloadError.message.includes('revision_conflict'))) {
             console.error('[saveHeroToLocalStorage] Retry also failed with revision_conflict - stopping auto-retry');
             // Можна показати toast/notification користувачу: "Оновіть сторінку"
             if (typeof window !== 'undefined' && window.alert) {
-              // Не виводимо alert, щоб не спамити
-              console.warn('Конфлікт версій персонажа. (тиха помилка)');
-            }
-          }
-          
-          retryCount = MAX_RETRIES; // Не намагаємося більше
+          // Не виводимо alert, щоб не спамити
+          // console.warn('Конфлікт версій персонажа. (тиха помилка)');
         }
+      }
+      
+      retryCount = MAX_RETRIES; // Не намагаємося більше
+    }
       } else {
         // 🔥 КРИТИЧНО: Якщо досягнуто максимум retry - показуємо попередження
-        console.error('[saveHeroToLocalStorage] Maximum retries reached, stopping auto-retry');
+        // console.error('[saveHeroToLocalStorage] Maximum retries reached, stopping auto-retry');
         if (typeof window !== 'undefined' && window.alert) {
           // Не виводимо alert, щоб не спамити користувачу в PK режимі та при використанні банок
-          console.warn('Не вдалося зберегти дані через конфлікт версій (тиха помилка)');
+          // console.warn('Не вдалося зберегти дані через конфлікт версій (тиха помилка)');
         }
       }
       
       // Якщо retry не вдався або досягнуто максимум - зберігаємо локальну версію як backup
-      console.warn('[saveHeroToLocalStorage] Revision conflict - saving to localStorage as backup');
+      // console.warn('[saveHeroToLocalStorage] Revision conflict - saving to localStorage as backup');
       
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
@@ -814,6 +814,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // Не викидаємо помилку - дані збережені в localStorage
       console.warn('[saveHeroToLocalStorage] 409 conflict handled, data saved to localStorage');
       return;
+    }
+    
+    // Ігноруємо якщо це просто конфлікт при фоновому збереженні
+    if (error?.message && (error.message.includes('revision_conflict') || error.message.includes('Character was modified'))) {
+        return;
     }
     
     console.error('[saveHeroToLocalStorage] Failed to save hero via API:', error);
