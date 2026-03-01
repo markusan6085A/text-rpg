@@ -335,8 +335,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     if (skillDef?.cooldown) {
       // Використовуємо calcPhysicalSkillCooldown якщо це фізичний скіл
       let cooldownMs = skillDef.cooldown * 1000;
-      if (!(skillDef as any).isMagic && skillDef.type !== "buff" && skillDef.type !== "buff_statue" && skillDef.type !== "toggle") {
-        const attackSpeed = hero?.attackSpeed ?? hero?.atkSpeed ?? 200;
+      if (!(skillDef as any).isMagic && (skillDef.type as any) !== "buff" && (skillDef.type as any) !== "buff_statue" && (skillDef.type as any) !== "toggle") {
+        const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
         cooldownMs = Math.max(cooldownMs * 0.3, Math.round(cooldownMs / (1 + attackSpeed / 1000)));
       }
       
@@ -402,7 +402,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
     // Predictive cooldown (basic attack is skillId=0)
     // Розраховуємо інтервал на основі швидкості атаки (як у calcAutoAttackInterval)
-    const attackSpeed = hero?.attackSpeed ?? hero?.atkSpeed ?? 200;
+    const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
     const intervalMs = Math.max(300, Math.round(1500 / (1 + attackSpeed / 1000)));
 
     useBattleStore.setState((s) => ({
