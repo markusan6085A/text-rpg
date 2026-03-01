@@ -160,19 +160,32 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const serverMaxMp = heroData?.maxMp != null ? Number(heroData.maxMp) : 0;
         const serverMaxCp = heroData?.maxCp != null ? Number(heroData.maxCp) : 0;
         const localMaxHp = hydratedLocalHero.maxHp ?? 0;
-        const serverMaxNotStale = serverMaxHp >= localMaxHp * 0.9 && serverMaxMp >= (hydratedLocalHero.maxMp ?? 0) * 0.9 && serverMaxCp >= (hydratedLocalHero.maxCp ?? 0) * 0.9;
-        const serverHp = serverMaxNotStale && heroData?.hp != null ? Number(heroData.hp) : undefined;
-        const serverMp = serverMaxNotStale && heroData?.mp != null ? Number(heroData.mp) : undefined;
-        const serverCp = serverMaxNotStale && heroData?.cp != null ? Number(heroData.cp) : undefined;
+        const localHp = hydratedLocalHero.hp ?? buffedMax.maxHp;
+        const localMaxHpSafeguard = hydratedLocalHero.maxHp ?? buffedMax.maxHp;
+        const localHpPercent = localMaxHpSafeguard > 0 ? Math.max(0, Math.min(1, localHp / localMaxHpSafeguard)) : 1;
+        const finalHp = Math.round(localHpPercent * buffedMax.maxHp);
+
+        const localMp = hydratedLocalHero.mp ?? buffedMax.maxMp;
+        const localMaxMp = hydratedLocalHero.maxMp ?? buffedMax.maxMp;
+        const localMpPercent = localMaxMp > 0 ? Math.max(0, Math.min(1, localMp / localMaxMp)) : 1;
+        const finalMp = Math.round(localMpPercent * buffedMax.maxMp);
+
+        const localCp = hydratedLocalHero.cp ?? buffedMax.maxCp;
+        const localMaxCp = hydratedLocalHero.maxCp ?? buffedMax.maxCp;
+        const localCpPercent = localMaxCp > 0 ? Math.max(0, Math.min(1, localCp / localMaxCp)) : 1;
+        const finalCp = Math.round(localCpPercent * buffedMax.maxCp);
+        
+        // Для локально пріоритетного героя відновлюємо HP/MP/CP з урахуванням відсотка від старого макс.,
+        // щоб при зміні maxHp (напр. зникли бафи або змінився екіп) відсоток здоров'я зберігався.
         const mergedHero: Hero = {
           ...hydratedLocalHero,
           name: character.name,
           maxHp: buffedMax.maxHp,
           maxMp: buffedMax.maxMp,
           maxCp: buffedMax.maxCp,
-          hp: serverHp !== undefined ? Math.min(serverHp, buffedMax.maxHp) : Math.min(hydratedLocalHero.hp ?? buffedMax.maxHp, buffedMax.maxHp),
-          mp: serverMp !== undefined ? Math.min(serverMp, buffedMax.maxMp) : Math.min(hydratedLocalHero.mp ?? buffedMax.maxMp, buffedMax.maxMp),
-          cp: serverCp !== undefined ? Math.min(serverCp, buffedMax.maxCp) : Math.min(hydratedLocalHero.cp ?? buffedMax.maxCp, buffedMax.maxCp),
+          hp: Math.min(finalHp, buffedMax.maxHp),
+          mp: Math.min(finalMp, buffedMax.maxMp),
+          cp: Math.min(finalCp, buffedMax.maxCp),
         };
         (mergedHero as any).username = character.name;
         (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
