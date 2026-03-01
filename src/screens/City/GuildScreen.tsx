@@ -138,7 +138,24 @@ export default function GuildScreen({
   backLabel = "В город",
 }: GuildScreenProps) {
   const hero = useHeroStore((s) => s.hero);
-  const learnSkill = useHeroStore((s) => s.learnSkill);
+  const handleLearnSkill = (skillId: number, reqLevel: number, spCost: number) => {
+    try {
+      const res = learnSkillLogic(hero, skillId, reqLevel, spCost);
+      if (res.error) {
+        alert(res.error);
+        return;
+      }
+      if (res.updatedHero) {
+        updateHero(res.updatedHero);
+      }
+    } catch (e: any) {
+      if (e?.message && (e.message.includes('revision_conflict') || e.message.includes('Character was modified'))) {
+          console.warn('Ігноруємо revision conflict при вивченні скіла');
+      } else {
+          console.error(e);
+      }
+    }
+  };
   const updateHero = useHeroStore((s) => s.updateHero);
 
   if (!hero) {
