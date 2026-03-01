@@ -127,7 +127,13 @@ export function handleConsumable(
               mp: Math.min(maxMp, hero.mp ?? maxMp), 
               maxMp,
               logMessage: `использует ${itemDef.name} и восстанавливает ${healAmount} HP`
-            }).catch(() => {});
+            }).catch((e: any) => {
+               if (e?.message && (e.message.includes('revision_conflict') || e.message.includes('Character was modified'))) {
+                  console.warn('Ігноруємо revision conflict при використанні зілля');
+               } else {
+                  console.error(e);
+               }
+            });
          });
       }
       
@@ -183,7 +189,13 @@ export function handleConsumable(
               mp: newMp, 
               maxMp,
               logMessage: `использует ${itemDef.name} и восстанавливает ${restoreAmount} MP`
-            }).catch(() => {});
+            }).catch((e: any) => {
+               if (e?.message && (e.message.includes('revision_conflict') || e.message.includes('Character was modified'))) {
+                  console.warn('Ігноруємо revision conflict при використанні зілля');
+               } else {
+                  console.error(e);
+               }
+            });
          });
       }
       
@@ -235,7 +247,13 @@ export function handleConsumable(
               mp: Math.min(maxMp, hero.mp ?? maxMp), 
               maxMp,
               logMessage: `использует ${itemDef.name} и восстанавливает ${restoreAmount} CP`
-            }).catch(() => {});
+            }).catch((e: any) => {
+               if (e?.message && (e.message.includes('revision_conflict') || e.message.includes('Character was modified'))) {
+                  console.warn('Ігноруємо revision conflict при використанні зілля');
+               } else {
+                  console.error(e);
+               }
+            });
          });
       }
       
