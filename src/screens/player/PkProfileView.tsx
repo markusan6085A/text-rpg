@@ -90,13 +90,13 @@ export default function PkProfileView({
     useBattleStore.setState({
       pkSessionId: pkSession.id,
       mob,
-      mobHP: Math.max(0, targetFighter.hp ?? 0),
+      mobHP: Math.round(Math.max(0, targetFighter.hp ?? 0)),
       log: pkSession.log ?? [],
       cooldowns,
       status: pkSession.ended ? "victory" : "fighting",
       heroBuffs: uniqueBuffs,
     });
-  }, [pkSession, myHero?.id, character.level, uniqueBuffs]);
+  }, [pkSession, myHero?.id, character.level, uniqueBuffs, serverTimeDrift]);
 
   const handleBack = () => {
     useBattleStore.getState().reset();
@@ -122,8 +122,8 @@ export default function PkProfileView({
   const target = {
     name: targetFighter.name,
     level: character.level ?? 1,
-    currentHp: Math.max(0, targetFighter.hp ?? 0),
-    maxHp: Math.max(1, targetFighter.maxHp ?? 1),
+    currentHp: Math.round(Math.max(0, targetFighter.hp ?? 0)),
+    maxHp: Math.round(Math.max(1, targetFighter.maxHp ?? 1)),
   };
 
   return (

@@ -10,8 +10,8 @@ export interface BattleTargetCardProps {
 }
 
 export function BattleTargetCard({ name, level, currentHp, maxHp, compact = false }: BattleTargetCardProps) {
-  const max = Math.max(1, maxHp);
-  const clamped = Math.max(0, Math.min(max, currentHp));
+  const max = Math.round(Math.max(1, maxHp));
+  const clamped = Math.round(Math.max(0, Math.min(max, currentHp)));
   const hpPercent = max > 0 ? Math.max(0, Math.min(100, Math.round((clamped / max) * 100))) : 0;
 
   const nameStyle = { color: "#c7ad80" };
