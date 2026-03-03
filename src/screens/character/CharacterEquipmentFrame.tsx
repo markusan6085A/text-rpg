@@ -68,7 +68,7 @@ export default function CharacterEquipmentFrame({
       console.log(`[CharacterEquipmentFrame] No hero, returning empty image`);
       return "";
     }
-    if (hero?.name === "Existence") return "/characters/admin.png";
+    if (hero?.name?.toLowerCase() === "existence") return "/characters/admin.png";
 
     const profession = hero.profession?.toLowerCase() || hero.klass?.toLowerCase() || "";
     const gender = hero.gender?.toLowerCase() || "male";

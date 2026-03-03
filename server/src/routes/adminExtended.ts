@@ -19,12 +19,29 @@ async function getSystemCharacterId(): Promise<string> {
   const existing = await prisma.kv.findUnique({ where: { key: "system_character_id" } });
   if (existing?.value) return existing.value;
 
-  const bcrypt = await import("bcrypt");
-  const passHash = await bcrypt.hash("__system__" + Date.now(), 10);
-  const account = await prisma.account.create({
-    data: { login: "__system__", passHash },
+  // Може вже існувати з попереднього запуску
+  const existingSystem = await prisma.character.findFirst({
+    where: { name: "[Система]" },
     select: { id: true },
   });
+  if (existingSystem) {
+    await prisma.kv.upsert({
+      where: { key: "system_character_id" },
+      create: { key: "system_character_id", value: existingSystem.id, updatedAt: new Date() },
+      update: { value: existingSystem.id, updatedAt: new Date() },
+    });
+    return existingSystem.id;
+  }
+
+  const bcrypt = await import("bcrypt");
+  const passHash = await bcrypt.hash("__system__" + Date.now(), 10);
+  let account = await prisma.account.findUnique({ where: { login: "__system__" }, select: { id: true } });
+  if (!account) {
+    account = await prisma.account.create({
+      data: { login: "__system__", passHash },
+      select: { id: true },
+    });
+  }
   const character = await prisma.character.create({
     data: {
       accountId: account.id,

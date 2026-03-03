@@ -16,9 +16,13 @@ export function AdminSectionClans() {
 
   const load = () => {
     setLoading(true);
+    setMessage(null);
     adminGetClans()
       .then((res) => setClans(res.clans || []))
-      .catch(() => setClans([]))
+      .catch((err: any) => {
+        setClans([]);
+        setMessage(err?.message || "Помилка завантаження. Перевірте, що ви залогінені в адмінку.");
+      })
       .finally(() => setLoading(false));
   };
 

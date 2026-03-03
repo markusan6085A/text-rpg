@@ -9,6 +9,7 @@ import {
   type Letter,
 } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
+import { useCharacterStore } from "../state/characterStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
@@ -33,6 +34,7 @@ function isUnauthorizedError(err: any): boolean {
 
 export default function Mail({ navigate }: MailProps) {
   const hero = useHeroStore((s) => s.hero);
+  const characterId = useCharacterStore((s) => s.characterId);
 
   const [letters, setLetters] = useState<Letter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function Mail({ navigate }: MailProps) {
 
       setError(null);
       try {
-        const data = await getLetters(page, 50);
+        const data = await getLetters(page, 50, characterId ?? undefined);
         setLetters(data.letters || []);
         setTotal(data.total || 0);
         setUnreadCount(data.unreadCount || 0);
@@ -83,7 +85,7 @@ export default function Mail({ navigate }: MailProps) {
       } finally {
         setLoading(false);
       }
-    }, [page, letters.length]);
+    }, [page, letters.length, characterId]);
 
   useEffect(() => {
     // ❗ ОПТИМІЗАЦІЯ: Завантажуємо листи (критично) - чекаємо

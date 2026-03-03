@@ -827,8 +827,10 @@ export async function collectItemFromLetter(letterId: string): Promise<CollectIt
   });
 }
 
-export async function getLetters(page: number = 1, limit: number = 50): Promise<LettersResponse> {
-  const response = await apiRequest<LettersResponse>(`/letters?page=${page}&limit=${limit}`, {
+export async function getLetters(page: number = 1, limit: number = 50, characterId?: string): Promise<LettersResponse> {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (characterId) params.set("characterId", characterId);
+  const response = await apiRequest<LettersResponse>(`/letters?${params}`, {
     method: 'GET',
   });
   return response;

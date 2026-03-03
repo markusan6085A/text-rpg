@@ -391,6 +391,7 @@ export async function letterRoutes(app: FastifyInstance) {
     const query = req.query as {
       page?: string;
       limit?: string;
+      characterId?: string;
     };
 
     const page = Math.max(1, parseInt(query.page || "1", 10));
@@ -398,11 +399,21 @@ export async function letterRoutes(app: FastifyInstance) {
     const skip = (page - 1) * limit;
 
     try {
-      const character = await prisma.character.findFirst({
-        where: { accountId: auth.accountId },
-        orderBy: { createdAt: "asc" },
-        select: { id: true },
-      });
+      let character: { id: string } | null = null;
+      if (query.characterId?.trim()) {
+        const c = await prisma.character.findFirst({
+          where: { id: query.characterId.trim(), accountId: auth.accountId },
+          select: { id: true },
+        });
+        character = c;
+      }
+      if (!character) {
+        character = await prisma.character.findFirst({
+          where: { accountId: auth.accountId },
+          orderBy: { createdAt: "asc" },
+          select: { id: true },
+        });
+      }
 
       if (!character) {
         return reply.code(404).send({ error: "character not found" });

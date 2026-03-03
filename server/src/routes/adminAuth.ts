@@ -37,8 +37,8 @@ function isProd(): boolean {
 }
 
 function cookieOpts(): { path: string; httpOnly: boolean; secure: boolean; sameSite: "lax" } {
-  // Якщо фронт ходить напряму на api.l2dop.com → шлях /admin. Якщо через проксі l2dop.com/api/... → /api/admin
-  const path = process.env.ADMIN_COOKIE_PATH || "/api/admin";
+  // path "/" — cookie відправляється для всіх запитів до домену (працює і з /admin, і з /api/admin, і в dev на localhost)
+  const path = process.env.ADMIN_COOKIE_PATH || "/";
   return {
     path,
     httpOnly: true,

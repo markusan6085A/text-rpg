@@ -10,12 +10,17 @@ const style = { color: "#c7ad80" };
 export function AdminSectionOnline() {
   const [chars, setChars] = useState<Array<{ id: string; name: string; level: number; lastActivityAt: string | null; clan: string | null }>>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = () => {
     setLoading(true);
+    setError(null);
     adminGetOnlinePlayers()
       .then((res) => setChars(res.characters || []))
-      .catch(() => setChars([]))
+      .catch((err: any) => {
+        setChars([]);
+        setError(err?.message || "Помилка. Перевірте логін в адмінку.");
+      })
       .finally(() => setLoading(false));
   };
 
@@ -31,6 +36,7 @@ export function AdminSectionOnline() {
       <p className="text-xs text-gray-500 mb-2">
         Список персонажей, активных за последние 10 минут. Обновляется каждую минуту.
       </p>
+      {error && <p className="text-xs text-red-400 mb-2">{error}</p>}
       {loading ? (
         <p className="text-xs text-gray-500">Загрузка...</p>
       ) : (
