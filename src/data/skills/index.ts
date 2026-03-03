@@ -804,6 +804,11 @@ const professionDefinitions: Record<ProfessionId, ProfessionDefinition> = {
   },
 };
 
+/** Список професій для селектів (admin change class тощо) */
+export const PROFESSION_OPTIONS: { id: ProfessionId; label: string }[] = Object.values(professionDefinitions).map(
+  (d) => ({ id: d.id, label: d.label })
+);
+
 const skillModules: Record<ProfessionId, Record<string, SkillDefinition>> = Object.fromEntries(
   Object.entries(professionDefinitions).map(([id, def]) => [id, def.skillModule])
 ) as Record<ProfessionId, Record<string, SkillDefinition>>;

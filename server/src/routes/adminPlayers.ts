@@ -777,6 +777,66 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
+  // POST /admin/player/:characterId/change-class — { newProfession: string, skills?: { id: number; level: number }[] }
+  app.post<{ Params: { characterId: string }; Body: { newProfession?: string; skills?: Array<{ id: number; level?: number }> } }>(
+    "/:characterId/change-class",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const characterId = String((req.params as any).characterId ?? "").trim();
+      const body = req.body as any;
+      const newProfession = String(body?.newProfession ?? "").trim();
+      const skills = Array.isArray(body?.skills) ? body.skills : [];
+
+      if (!characterId) {
+        await logAdminFailed(req, "admin.change_class", { message: "characterId required" });
+        return reply.code(400).send({ error: "characterId required" });
+      }
+      if (!newProfession) {
+        await logAdminFailed(req, "admin.change_class", { message: "newProfession required" });
+        return reply.code(400).send({ error: "newProfession required" });
+      }
+
+      const char = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, name: true, heroJson: true, classId: true, race: true },
+      });
+      if (!char) {
+        await logAdminFailed(req, "admin.change_class", { message: "character not found", targetCharacterId: characterId });
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const heroJson = (char.heroJson as any) || {};
+      const newClassId = newProfession.toLowerCase().includes("mystic") ? "Маг" : "Воїн";
+      const newSkills = skills
+        .filter((s: any) => s && typeof s.id === "number")
+        .map((s: any) => ({ id: Number(s.id), level: Math.max(1, Math.min(15, Number(s.level ?? 1) || 1)) }));
+
+      const patched = addVersioning(
+        {
+          ...heroJson,
+          profession: newProfession,
+          classId: newClassId,
+          klass: newClassId,
+          skills: newSkills,
+        },
+        Number(heroJson.heroRevision ?? 0) || 0
+      );
+
+      await prisma.character.update({
+        where: { id: characterId },
+        data: { heroJson: patched, classId: newClassId },
+      });
+
+      await logAdminSuccess(req, "admin.change_class", {
+        targetCharacterId: characterId,
+        targetCharacterName: char.name,
+        before: { profession: heroJson.profession, classId: char.classId },
+        after: { profession: newProfession, classId: newClassId, skillsCount: newSkills.length },
+      });
+      return { ok: true };
+    }
+  );
+
   // POST /admin/player/:characterId/mute — { durationMinutes } (дубль до /admin/chat/mute, але по characterId в URL)
   app.post<{ Params: { characterId: string }; Body: { durationMinutes?: number } }>(
     "/:characterId/mute",

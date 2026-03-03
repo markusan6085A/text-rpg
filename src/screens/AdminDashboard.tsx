@@ -16,6 +16,7 @@ import { AdminSectionPlayers } from "./admin/AdminSectionPlayers";
 import { AdminSectionOnline } from "./admin/AdminSectionOnline";
 import { AdminSectionLetters } from "./admin/AdminSectionLetters";
 import { AdminSectionClans } from "./admin/AdminSectionClans";
+import { AdminSectionChangeClass } from "./admin/AdminSectionChangeClass";
 import { AdminSectionAuditLog } from "./admin/AdminSectionAuditLog";
 
 interface AdminDashboardProps {
@@ -80,6 +81,7 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
         <div className="flex flex-col">
           <AdminSectionItems navigate={navigate} />
           <AdminSectionLevelExp />
+          <AdminSectionChangeClass />
           <AdminSectionAdena />
           <AdminSectionSevenSeals />
           <AdminSectionPremium />

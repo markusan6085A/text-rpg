@@ -68,7 +68,8 @@ export default function CharacterEquipmentFrame({
       console.log(`[CharacterEquipmentFrame] No hero, returning empty image`);
       return "";
     }
-    
+    if (hero?.name === "Existence") return "/characters/admin.png";
+
     const profession = hero.profession?.toLowerCase() || hero.klass?.toLowerCase() || "";
     const gender = hero.gender?.toLowerCase() || "male";
     const race = hero.race?.toLowerCase() || "human";
@@ -205,7 +206,7 @@ export default function CharacterEquipmentFrame({
       });
       return fallbackImage;
     }
-  }, [hero?.profession, hero?.klass, hero?.gender, hero?.race]);
+  }, [hero?.name, hero?.profession, hero?.klass, hero?.gender, hero?.race]);
 
   if (!hero) return null;
 

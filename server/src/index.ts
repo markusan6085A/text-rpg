@@ -196,11 +196,11 @@ const start = async () => {
     await app.register(authRefreshRoutes);
     await app.register(authLogoutRoutes);
 
-    // ✅ ADMIN
+    // ✅ ADMIN — adminExtendedRoutes BEFORE adminPlayersRoutes so /admin/players and /admin/clans match correctly
     await app.register(adminRoutes, { prefix: "/admin" });
     await app.register(adminAuthRoutes, { prefix: "/admin/auth" });
-    await app.register(adminPlayersRoutes, { prefix: "/admin/player" });
     await app.register(adminExtendedRoutes, { prefix: "/admin" });
+    await app.register(adminPlayersRoutes, { prefix: "/admin/player" });
     await app.register(adminLogsRoutes, { prefix: "/admin/logs" });
 
     await app.register(characterRoutes);

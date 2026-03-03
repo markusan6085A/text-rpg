@@ -1549,6 +1549,23 @@ export async function adminSetPremium(characterId: string, days?: number, until?
   return data as any;
 }
 
+/** Адмін: змінити клас/професію персонажа */
+export async function adminChangeClass(
+  characterId: string,
+  newProfession: string,
+  skills: Array<{ id: number; level: number }>
+): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/change-class`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ newProfession, skills }),
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
 /** Адмін: пошук персонажів */
 export async function adminSearchPlayers(params?: { name?: string; page?: number; limit?: number }): Promise<{
   ok: boolean;
