@@ -1,8 +1,14 @@
 import { allSkills, getSkillDefForProfession, getDefaultProfessionForKlass } from "../../data/skills";
-import { getJSON, setJSON } from "../persistence";
+import { getJSON, removeItem, setJSON } from "../persistence";
 
 export const BASE_ATTACK_ID = 0;
 export const MAX_SLOTS = 60;
+
+/** Очищає loadout (викликати при зміні професії) */
+export const clearLoadout = (heroName?: string): void => {
+  if (!heroName) return;
+  removeItem(`l2_loadout_${heroName}`);
+};
 
 export const loadLoadout = (heroName?: string): (number | string | null)[] => {
   if (!heroName) return [BASE_ATTACK_ID, null];

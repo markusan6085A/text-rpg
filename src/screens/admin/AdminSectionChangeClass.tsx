@@ -4,11 +4,35 @@ import { PROFESSION_OPTIONS, getSkillsForProfession } from "../../data/skills";
 
 const style = { color: "#c7ad80" };
 
+const SEX_OPTIONS = [
+  { value: "", label: "— Стать —" },
+  { value: "male", label: "Чоловіча" },
+  { value: "female", label: "Жіноча" },
+];
+
 export function AdminSectionChangeClass() {
   const [nick, setNick] = useState("");
   const [newProfession, setNewProfession] = useState("");
+  const [newSex, setNewSex] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const handleSearch = async () => {
+    if (!nick.trim()) return;
+    setMessage(null);
+    try {
+      const data = await adminFindPlayerByName(nick.trim());
+      if (data?.character) {
+        const sex = (data.character as any).sex;
+        if (sex === "male" || sex === "female") setNewSex(sex);
+        setMessage(`Знайдено: ${data.character.name}`);
+      } else {
+        setMessage("Персонажа не знайдено");
+      }
+    } catch (err: any) {
+      setMessage(err?.message || "Помилка");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +45,10 @@ export function AdminSectionChangeClass() {
       setMessage("Оберіть професію");
       return;
     }
+    if (!newSex) {
+      setMessage("Оберіть стать");
+      return;
+    }
     setLoading(true);
     try {
       const data = await adminFindPlayerByName(nick.trim());
@@ -29,11 +57,15 @@ export function AdminSectionChangeClass() {
         return;
       }
       const skillDefs = getSkillsForProfession(newProfession as any);
-      const skills = skillDefs.map((d) => ({
-        id: d.id,
-        level: (d.levels as any)?.[0]?.level ?? 1,
-      }));
-      await adminChangeClass(data.character.id, newProfession, skills);
+      const skills = skillDefs.map((d) => {
+          const levels = Array.isArray(d.levels) ? d.levels : [];
+          const firstLevel = levels[0];
+          return {
+            id: d.id,
+            level: (firstLevel && typeof firstLevel.level === "number" ? firstLevel.level : 1),
+          };
+        });
+      await adminChangeClass(data.character.id, newProfession, skills, newSex);
       setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
@@ -60,6 +92,14 @@ export function AdminSectionChangeClass() {
           placeholder="Нік"
           className={`${inputCl} w-28`}
         />
+        <button
+          type="button"
+          onClick={handleSearch}
+          disabled={loading || !nick.trim()}
+          className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+        >
+          Знайти
+        </button>
         <select
           value={newProfession}
           onChange={(e) => setNewProfession(e.target.value)}
@@ -69,6 +109,17 @@ export function AdminSectionChangeClass() {
           {PROFESSION_OPTIONS.map((p) => (
             <option key={p.id} value={p.id}>
               {p.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={newSex}
+          onChange={(e) => setNewSex(e.target.value)}
+          className={inputCl}
+        >
+          {SEX_OPTIONS.map((o) => (
+            <option key={o.value || "empty"} value={o.value}>
+              {o.label}
             </option>
           ))}
         </select>

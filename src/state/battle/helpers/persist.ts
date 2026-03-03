@@ -38,8 +38,8 @@ export const persistSnapshot = (
     saveBattleLogs(sanitizedLog, heroName);
   }
   
-  persist({
-    heroName, // Зберігаємо heroName для перевірки при завантаженні
+  const toPersist: Record<string, unknown> = {
+    heroName,
     zoneId: merged.zoneId,
     mob: merged.mob,
     mobIndex: merged.mobIndex,
@@ -57,6 +57,10 @@ export const persistSnapshot = (
     baseSummonStats: merged.baseSummonStats,
     summonLastAttackAt: merged.summonLastAttackAt,
     resurrection: merged.resurrection,
-  }, heroName);
+  };
+  if ((merged as any).professionForLoadout != null) {
+    toPersist.professionForLoadout = (merged as any).professionForLoadout;
+  }
+  persist(toPersist as Partial<BattleState>, heroName);
 };
 

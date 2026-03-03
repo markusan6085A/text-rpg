@@ -7,6 +7,7 @@ export const BATTLE_VERSION = 1;
 // Тип для збереженого стану (включає version для міграцій)
 export type PersistedBattleState = Partial<BattleState> & {
   version?: number;
+  professionForLoadout?: string; // Професія, для якої збережено loadout; при зміні професії — скидаємо loadout
 };
 
 // Battle state persistence key - тепер включає нік героя

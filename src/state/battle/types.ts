@@ -25,6 +25,7 @@ export type BattleBuff = {
 
 export type BattleState = {
   heroName?: string; // Нік героя, якому належить цей battle state
+  professionForLoadout?: string; // Професія при збереженні loadout; при зміні — скидаємо
   zoneId?: string;
   mob?: Mob;
   mobIndex?: number;

@@ -1557,12 +1557,15 @@ export async function adminSetPremium(characterId: string, days?: number, until?
 export async function adminChangeClass(
   characterId: string,
   newProfession: string,
-  skills: Array<{ id: number; level: number }>
+  skills: Array<{ id: number; level: number }>,
+  sex?: string
 ): Promise<{ ok: boolean }> {
+  const body: { newProfession: string; skills: Array<{ id: number; level: number }>; sex?: string } = { newProfession, skills };
+  if (sex) body.sex = sex;
   const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/change-class`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ newProfession, skills }),
+    body: JSON.stringify(body),
     credentials: "include",
   });
   const data = await res.json().catch(() => ({}));

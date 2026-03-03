@@ -1,7 +1,7 @@
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import type { Mob, Zone } from "../../../data/world/types";
 import { useHeroStore } from "../../heroStore";
-import { loadLoadout } from "../loadout";
+import { BASE_ATTACK_ID, loadLoadout, clearLoadout } from "../loadout";
 import { loadBattle, persistBattle } from "../persist";
 import { cleanupBuffs, persistSnapshot, applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
@@ -141,6 +141,30 @@ export const createStartBattle =
         ? saved.heroNextAttackAt 
         : now + autoAttackIntervalResume;
 
+      const professionChanged =
+        heroName &&
+        hero?.profession &&
+        (saved as any)?.professionForLoadout &&
+        (saved as any).professionForLoadout !== hero.profession;
+      let loadoutSlotsResume: (number | string | null)[];
+      if (professionChanged) {
+        clearLoadout(heroName);
+        loadoutSlotsResume = loadLoadout(heroName);
+      } else {
+        const rawSlots = Array.isArray(saved.loadoutSlots)
+          ? saved.loadoutSlots
+          : heroName
+          ? loadLoadout(heroName)
+          : [];
+        const heroSkillIds = new Set((hero?.skills ?? []).map((s: any) => s?.id).filter((id: any) => typeof id === "number"));
+        loadoutSlotsResume = rawSlots.map((s) =>
+          typeof s === "number" ? (s === BASE_ATTACK_ID || heroSkillIds.has(s) ? s : null) : s
+        );
+        if (loadoutSlotsResume[0] !== BASE_ATTACK_ID && loadoutSlotsResume[0] !== null) {
+          loadoutSlotsResume[0] = BASE_ATTACK_ID;
+        }
+      }
+
       set({
         heroName: heroName,
         zoneId,
@@ -153,11 +177,8 @@ export const createStartBattle =
         status: saved.status === "victory" ? "victory" : saved.status ?? "fighting",
         log: [`Fight resumed with ${saved.mob?.name || mob.name}`],
         cooldowns,
-        loadoutSlots: Array.isArray(saved.loadoutSlots)
-          ? saved.loadoutSlots
-          : heroName
-          ? loadLoadout(heroName)
-          : [],
+        loadoutSlots: loadoutSlotsResume,
+        professionForLoadout: hero?.profession ?? undefined,
         activeChargeSlots: Array.isArray((saved as any).activeChargeSlots) ? (saved as any).activeChargeSlots : (get().activeChargeSlots ?? []),
         lastReward: saved.lastReward,
         heroBuffs,
@@ -286,6 +307,26 @@ export const createStartBattle =
       ? (saved as any).activeChargeSlots
       : (prevState.activeChargeSlots?.length ? prevState.activeChargeSlots : (get().activeChargeSlots ?? []));
 
+    const professionChangedNew =
+      heroName &&
+      hero?.profession &&
+      (saved as any)?.professionForLoadout &&
+      (saved as any).professionForLoadout !== hero.profession;
+    let loadoutSlotsNew: (number | string | null)[];
+    if (professionChangedNew) {
+      clearLoadout(heroName);
+      loadoutSlotsNew = loadLoadout(heroName);
+    } else {
+      const rawNew = loadLoadout(heroName);
+      const heroSkillIdsNew = new Set((hero?.skills ?? []).map((s: any) => s?.id).filter((id: any) => typeof id === "number"));
+      loadoutSlotsNew = rawNew.map((s) =>
+        typeof s === "number" ? (s === BASE_ATTACK_ID || heroSkillIdsNew.has(s) ? s : null) : s
+      );
+      if (loadoutSlotsNew[0] !== BASE_ATTACK_ID && loadoutSlotsNew[0] !== null) {
+        loadoutSlotsNew[0] = BASE_ATTACK_ID;
+      }
+    }
+
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,
@@ -302,7 +343,8 @@ export const createStartBattle =
       status: "fighting",
       log: preservedLog,
       cooldowns: availableCooldowns,
-      loadoutSlots: loadLoadout(heroName),
+      loadoutSlots: loadoutSlotsNew,
+      professionForLoadout: hero?.profession ?? undefined,
       activeChargeSlots: activeChargeSlotsForNewBattle,
       lastReward: undefined,
       heroBuffs: preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332),

@@ -64,7 +64,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       }
       const character = await prisma.character.findFirst({
         where: { name: { equals: name, mode: "insensitive" } },
-        select: { id: true, name: true, accountId: true, level: true, adena: true, coinLuck: true, coinsSilver: true, bannedUntil: true, blockedUntil: true } as any,
+        select: { id: true, name: true, accountId: true, level: true, adena: true, coinLuck: true, coinsSilver: true, bannedUntil: true, blockedUntil: true, sex: true } as any,
       });
       if (!character) {
         await logAdminFailed(req, "admin.find_player_by_name", { message: "character not found", targetCharacterName: name });
@@ -777,8 +777,8 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
-  // POST /admin/player/:characterId/change-class — { newProfession: string, skills?: { id: number; level: number }[] }
-  app.post<{ Params: { characterId: string }; Body: { newProfession?: string; skills?: Array<{ id: number; level?: number }> } }>(
+  // POST /admin/player/:characterId/change-class — { newProfession: string, skills?: { id: number; level: number }[], sex?: string }
+  app.post<{ Params: { characterId: string }; Body: { newProfession?: string; skills?: Array<{ id: number; level?: number }>; sex?: string } }>(
     "/:characterId/change-class",
     { preHandler: [requireAdmin] },
     async (req, reply) => {
@@ -786,6 +786,8 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       const body = req.body as any;
       const newProfession = String(body?.newProfession ?? "").trim();
       const skills = Array.isArray(body?.skills) ? body.skills : [];
+      const newSexRaw = String(body?.sex ?? "").trim().toLowerCase();
+      const newSex = newSexRaw === "male" || newSexRaw === "female" ? newSexRaw : null;
 
       if (!characterId) {
         await logAdminFailed(req, "admin.change_class", { message: "characterId required" });
@@ -795,10 +797,14 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         await logAdminFailed(req, "admin.change_class", { message: "newProfession required" });
         return reply.code(400).send({ error: "newProfession required" });
       }
+      if (!newSex) {
+        await logAdminFailed(req, "admin.change_class", { message: "sex required (male or female)" });
+        return reply.code(400).send({ error: "sex required (male or female)" });
+      }
 
       const char = await prisma.character.findUnique({
         where: { id: characterId },
-        select: { id: true, name: true, heroJson: true, classId: true, race: true },
+        select: { id: true, name: true, heroJson: true, classId: true, race: true, sex: true },
       });
       if (!char) {
         await logAdminFailed(req, "admin.change_class", { message: "character not found", targetCharacterId: characterId });
@@ -818,20 +824,24 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
           classId: newClassId,
           klass: newClassId,
           skills: newSkills,
+          gender: newSex,
         },
         Number(heroJson.heroRevision ?? 0) || 0
       );
 
+      const updateData: { heroJson: any; classId: string; sex?: string } = { heroJson: patched, classId: newClassId };
+      updateData.sex = newSex;
+
       await prisma.character.update({
         where: { id: characterId },
-        data: { heroJson: patched, classId: newClassId },
+        data: updateData,
       });
 
       await logAdminSuccess(req, "admin.change_class", {
         targetCharacterId: characterId,
         targetCharacterName: char.name,
-        before: { profession: heroJson.profession, classId: char.classId },
-        after: { profession: newProfession, classId: newClassId, skillsCount: newSkills.length },
+        before: { profession: heroJson.profession, classId: char.classId, sex: char.sex },
+        after: { profession: newProfession, classId: newClassId, sex: newSex, skillsCount: newSkills.length },
       });
       return { ok: true };
     }
