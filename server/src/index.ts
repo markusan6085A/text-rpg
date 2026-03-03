@@ -12,6 +12,7 @@ import { letterRoutes } from "./letters";
 import { newsRoutes } from "./news";
 import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
+import { forumRoutes } from "./forum";
 import { authRefreshRoutes } from "./routes/authRefresh";
 import { authLogoutRoutes } from "./routes/authLogout";
 import { adminAuthRoutes } from "./routes/adminAuth";
@@ -210,6 +211,7 @@ const start = async () => {
     await app.register(newsRoutes);
     await app.register(sevenSealsRoutes);
     await app.register(clanRoutes);
+    await app.register(forumRoutes);
 
     // ✅ ТІЛЬКИ ТУТ:
     app.setNotFoundHandler(async (request, reply) => {

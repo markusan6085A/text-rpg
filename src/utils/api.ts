@@ -916,6 +916,46 @@ export async function reportRaidBossKill(params: {
   return response;
 }
 
+// Forum API
+export async function getForumCategories(): Promise<{ ok: boolean; categories: any[] }> {
+  return apiRequest<{ ok: boolean; categories: any[] }>('/forum/categories', { method: 'GET' });
+}
+
+export async function getForumTopics(categoryId: string, page = 1, limit = 20): Promise<{
+  ok: boolean; topics: any[]; total: number; page: number; limit: number;
+}> {
+  return apiRequest(`/forum/categories/${encodeURIComponent(categoryId)}/topics?page=${page}&limit=${limit}`, { method: 'GET' });
+}
+
+export async function getForumTopic(topicId: string, page = 1, limit = 15): Promise<{
+  ok: boolean; topic: any; posts: any[]; total: number; page: number; limit: number;
+}> {
+  return apiRequest(`/forum/topics/${encodeURIComponent(topicId)}?page=${page}&limit=${limit}`, { method: 'GET' });
+}
+
+export async function createForumTopic(params: {
+  categoryId: string;
+  title: string;
+  message: string;
+  characterId: string;
+}): Promise<{ ok: boolean; topic: any }> {
+  return apiRequest('/forum/topics', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
+export async function createForumPost(params: {
+  topicId: string;
+  message: string;
+  characterId: string;
+}): Promise<{ ok: boolean; post: any }> {
+  return apiRequest('/forum/posts', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+}
+
 // Seven Seals API
 export interface SevenSealsRankingResponse {
   ok: boolean;

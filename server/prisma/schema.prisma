@@ -75,6 +75,8 @@ model Character {
   clanMember   ClanMember?
   clanChatMessages ClanChat[]
   clanLogs     ClanLog[]
+  forumTopics  ForumTopic[]
+  forumPosts   ForumPost[]
 
   @@index([accountId])
   @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
@@ -278,6 +280,49 @@ model AdminRefreshToken {
   login     String
 
   @@index([login, expiresAt])
+}
+
+model ForumCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  topics ForumTopic[]
+
+  @@index([sortOrder])
+}
+
+model ForumTopic {
+  id          String   @id @default(cuid())
+  categoryId  String
+  characterId String
+  title       String
+  postCount   Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category  ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  character Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  posts     ForumPost[]
+
+  @@index([categoryId, updatedAt])
+  @@index([characterId])
+}
+
+model ForumPost {
+  id          String   @id @default(cuid())
+  topicId     String
+  characterId String
+  message     String
+  createdAt   DateTime @default(now())
+
+  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  character Character  @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([topicId, createdAt])
+  @@index([characterId])
 }
 
 model AdminActionLog {
