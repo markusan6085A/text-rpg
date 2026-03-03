@@ -107,7 +107,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
         const loaded = await loadHeroFromAPI();
         if (loaded) useHeroStore.getState().setHero(loaded);
       }
-      if (showPlayerInv) handleLoadInv(character.id);
+      if (showPlayerInv) handleLoadInv(character.id).catch(() => {});
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -133,7 +133,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
       }
       await adminTakeItem(data.character.id, targetItemId, num);
       setMessage(`Забрано: ${targetItemId} x${num}`);
-      if (showPlayerInv) handleLoadInv(data.character.id);
+      if (showPlayerInv) handleLoadInv(data.character.id).catch(() => {});
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {

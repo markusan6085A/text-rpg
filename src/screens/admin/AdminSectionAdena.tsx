@@ -18,6 +18,10 @@ export function AdminSectionAdena() {
       setMessage("Введіть нік та коректну кількість");
       return;
     }
+    if (mode !== "set" && num === 0) {
+      setMessage("Для видачі/зняття введіть кількість > 0");
+      return;
+    }
     setLoading(true);
     try {
       const data = await adminFindPlayerByName(nick.trim());
