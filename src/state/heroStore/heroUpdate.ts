@@ -48,15 +48,15 @@ export function updateHeroLogic(
 
   // ❗ ВАЖЛИВО: Навіть якщо needsRecalc = false, ми все одно повинні валідувати hp/mp/cp
   // щоб вони не перевищували maxHp/maxMp/maxCp
-  // ❗ ВАЖЛИВО: hero.maxHp містить БАЗОВЕ значення БЕЗ бафів
-  // Але при хілі/регені partial.hp може бути з урахуванням бафів
-  // Тому НЕ обмежуємо hp до hero.maxHp, якщо partial.hp передано явно
+  // ❗ hero.maxHp — базове без бафів; partial.hp може бути до buffedMax (хіл/реген під бафами)
+  // Використовуємо buffedMax для clamp, щоб не втрачати HP при бафах
   if (!needsRecalc && (partial.hp !== undefined || partial.mp !== undefined || partial.cp !== undefined)) {
-    const maxHp = prev.maxHp ?? 1;
-    const maxMp = prev.maxMp ?? 1;
-    const maxCp = prev.maxCp ?? 1;
-    // Валідуємо ресурси тільки якщо вони невалідні (<= 0)
-    // НЕ обмежуємо до hero.maxHp, бо він може бути без бафів, а partial.hp - з бафами
+    const baseMax = { maxHp: prev.maxHp ?? 1, maxMp: prev.maxMp ?? 1, maxCp: prev.maxCp ?? 1 };
+    const savedBattle = loadBattle(updated.name);
+    const heroJsonBuffs = Array.isArray((prev as any).heroJson?.heroBuffs) ? (prev as any).heroJson.heroBuffs : [];
+    const savedBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
+    const allBuffs = cleanupBuffs([...heroJsonBuffs, ...savedBuffs], Date.now());
+    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, allBuffs);
     if (partial.hp !== undefined) {
       updated.hp = Math.max(0, Math.min(maxHp, partial.hp));
     }

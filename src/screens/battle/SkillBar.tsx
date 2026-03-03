@@ -245,8 +245,6 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                       onAttackOverride();
                     } else if (id !== 0 && onUseSkillOverride) {
                       onUseSkillOverride(id);
-                    } else if (onUseSkillOverride) {
-                      onUseSkillOverride(id); // fallback
                     } else {
                       useSkill(id as any);
                     }
@@ -342,8 +340,6 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                       onAttackOverride();
                     } else if (id !== 0 && onUseSkillOverride) {
                       onUseSkillOverride(id);
-                    } else if (onUseSkillOverride) {
-                      onUseSkillOverride(id); // fallback
                     } else {
                       useSkill(id as any);
                     }
