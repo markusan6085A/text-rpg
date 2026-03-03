@@ -175,43 +175,6 @@ export const adminExtendedRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
-  // GET /admin/player/:characterId/letters — листи гравця (вхідні + вихідні)
-  app.get<{ Params: { characterId: string }; Querystring: { page?: string; limit?: string } }>(
-    "/player/:characterId/letters",
-    { preHandler: [requireAdmin] },
-    async (req, reply) => {
-      const characterId = String((req.params as any).characterId ?? "").trim();
-      const page = Math.max(1, Number.parseInt(String((req.query as any)?.page ?? "1"), 10) || 1);
-      const limit = Math.min(50, Math.max(1, Number.parseInt(String((req.query as any)?.limit ?? "20"), 10) || 20));
-      const skip = (page - 1) * limit;
-
-      const char = await prisma.character.findUnique({ where: { id: characterId }, select: { id: true } });
-      if (!char) return reply.code(404).send({ error: "character not found" });
-
-      const [letters, total] = await Promise.all([
-        prisma.letter.findMany({
-          where: {
-            OR: [{ fromCharacterId: characterId }, { toCharacterId: characterId }],
-          },
-          orderBy: { createdAt: "desc" },
-          skip,
-          take: limit,
-          include: {
-            fromCharacter: { select: { id: true, name: true } },
-            toCharacter: { select: { id: true, name: true } },
-          },
-        }),
-        prisma.letter.count({
-          where: {
-            OR: [{ fromCharacterId: characterId }, { toCharacterId: characterId }],
-          },
-        }),
-      ]);
-
-      return { ok: true, letters, total, page, limit };
-    }
-  );
-
   // GET /admin/clans — список кланів з членами
   app.get("/clans", { preHandler: [requireAdmin] }, async () => {
     const clans = await prisma.clan.findMany({

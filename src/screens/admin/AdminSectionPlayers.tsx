@@ -17,14 +17,17 @@ export function AdminSectionPlayers() {
     limit: number;
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await adminSearchPlayers({ name: name.trim() || undefined, page, limit: 15 });
       setResult({ characters: res.characters, total: res.total, limit: res.limit });
-    } catch {
+    } catch (err: any) {
       setResult(null);
+      setError(err?.message || "Помилка завантаження");
     } finally {
       setLoading(false);
     }
@@ -56,6 +59,7 @@ export function AdminSectionPlayers() {
           Поиск
         </button>
       </form>
+      {error && <p className="text-xs text-red-400 mb-2">{error}</p>}
       {result && (
         <>
           <div className="max-h-48 overflow-auto border border-[#c7ad80]/20 rounded text-xs">
@@ -69,16 +73,20 @@ export function AdminSectionPlayers() {
                 </tr>
               </thead>
               <tbody>
-                {result.characters.map((c) => (
-                  <tr key={c.id} className="border-t border-[#c7ad80]/10">
-                    <td className="px-2 py-1 text-gray-300">{c.name}</td>
-                    <td className="px-2 py-1 text-gray-400">{c.level}</td>
-                    <td className="px-2 py-1 text-gray-400">{c.clan?.name ?? "—"}</td>
-                    <td className="px-2 py-1">
-                      {c.bannedUntil ? <span className="text-red-400">Бан</span> : c.blockedUntil ? <span className="text-orange-400">Блок</span> : "—"}
-                    </td>
-                  </tr>
-                ))}
+                {result.characters.length === 0 ? (
+                  <tr><td colSpan={4} className="px-2 py-3 text-center text-gray-500 text-xs">Нічого не знайдено</td></tr>
+                ) : (
+                  result.characters.map((c) => (
+                    <tr key={c.id} className="border-t border-[#c7ad80]/10">
+                      <td className="px-2 py-1 text-gray-300">{c.name}</td>
+                      <td className="px-2 py-1 text-gray-400">{c.level}</td>
+                      <td className="px-2 py-1 text-gray-400">{c.clan?.name ?? "—"}</td>
+                      <td className="px-2 py-1">
+                        {c.bannedUntil ? <span className="text-red-400">Бан</span> : c.blockedUntil ? <span className="text-orange-400">Блок</span> : "—"}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

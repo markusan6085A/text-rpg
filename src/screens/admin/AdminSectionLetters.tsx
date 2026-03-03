@@ -38,7 +38,8 @@ export function AdminSectionLetters() {
       setMessageResult(`Лист відправлено: ${nick}`);
       setMessage("");
     } catch (err: any) {
-      setMessageResult(err?.message || "Помилка");
+      const msg = err?.message || "Помилка";
+      setMessageResult(msg.includes("not found") ? "Персонажа не знайдено. Перевірте нік." : msg);
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,8 @@ export function AdminSectionLetters() {
       setLettersTotal(res.total || 0);
       setShowInbox(true);
     } catch (err: any) {
-      setMessageResult(err?.message || "Помилка");
+      const msg = err?.message || "Помилка";
+      setMessageResult(msg.includes("not found") ? "Персонажа не знайдено. Перевірте нік." : msg);
     } finally {
       setLoading(false);
     }
