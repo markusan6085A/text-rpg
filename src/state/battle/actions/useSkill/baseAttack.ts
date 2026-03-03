@@ -95,7 +95,7 @@ export function handleBaseAttack(
   // Для риболовлі: споживаємо наживку замість стріл
   if (isFishingZone) {
     const hasLure = hero.inventory?.some(
-      (item) => item.id === "gludio_fish_lure" && (item.count ?? 0) > 0
+      (item) => (item.id === "gludio_fish_lure" || item.id === "shop_gludio_fish_lure") && (item.count ?? 0) > 0
     );
     
     if (!hasLure) {
@@ -109,7 +109,7 @@ export function handleBaseAttack(
 
     // Споживаємо наживку
     const updatedInventory = hero.inventory.map((item) => {
-      if (item.id === "gludio_fish_lure" && (item.count ?? 0) > 0) {
+      if ((item.id === "gludio_fish_lure" || item.id === "shop_gludio_fish_lure") && (item.count ?? 0) > 0) {
         const newCount = (item.count ?? 1) - 1;
         return newCount > 0 ? { ...item, count: newCount } : null;
       }

@@ -36,7 +36,7 @@ export default function InventoryItemModal({
   // Перевіряємо, чи це риба
   const isFish = item.id?.startsWith("fish_") || item.id === "fish_tuna" || item.id === "fish_seawater" || item.id === "fish_bream" || item.id === "fish_angler";
   // Перевіряємо, чи це удочка (для спеціальної заточки)
-  const isFishingRod = item.id === "baby_duck_rod";
+  const isFishingRod = item.id === "baby_duck_rod" || item.id === "shop_baby_duck_rod" || (item.id && item.id.toLowerCase().includes("rod"));
   // Перевіряємо, чи це скарбничка
   const isTreasureBox = item.id === "treasure_box";
   const isSevenSealsMedal = item.id === "seven_seals_medal";

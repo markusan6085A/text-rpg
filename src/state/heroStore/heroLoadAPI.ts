@@ -21,14 +21,8 @@ import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
 
 function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number {
   const levelNum = Math.max(1, Math.min(MAX_LEVEL, Number(levelRaw) || 1));
-  const currentLevelTotal = Number(EXP_TABLE[levelNum - 1] ?? 0);
   const need = Math.max(0, Number(getExpToNext(levelNum)) || 0);
   let exp = Math.max(0, Number(rawExp) || 0);
-
-  // Якщо exp схожий на cumulative (загальний), конвертуємо в прогрес поточного рівня.
-  if (levelNum > 1 && exp >= currentLevelTotal) {
-    exp = exp - currentLevelTotal;
-  }
 
   if (need <= 0 || levelNum >= MAX_LEVEL) return 0;
   return Math.max(0, Math.min(exp, Math.max(0, need - 1)));

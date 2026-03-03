@@ -73,16 +73,17 @@ export default function Fishing({ navigate }: FishingProps) {
 
   const equipment = hero?.equipment ?? {};
   const encLevels = hero?.equipmentEnchantLevels ?? {};
+  const isRod = (id: string | null | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
   const rodSlot =
-    equipment["weapon"] === ROD_ITEM_ID ? "weapon" :
-    equipment["lrhand"] === ROD_ITEM_ID ? "lrhand" :
-    equipment["shield"] === ROD_ITEM_ID ? "shield" : null;
+    isRod(equipment["weapon"]) ? "weapon" :
+    isRod(equipment["lrhand"]) ? "lrhand" :
+    isRod(equipment["shield"]) ? "shield" : null;
   const rodEquipped = rodSlot !== null;
   const rodEnchant = rodSlot ? (Number(encLevels[rodSlot]) || 0) : 0;
   const fishRange = getFishRangeByRodEnchant(rodEnchant);
   const inv = Array.isArray(hero?.inventory) ? hero.inventory : [];
   const baitCount = inv
-    .filter((i) => i?.id === BAIT_ITEM_ID)
+    .filter((i) => i?.id === "gludio_fish_lure" || i?.id === "shop_gludio_fish_lure")
     .reduce((sum, i) => sum + (Number(i.count) || 0), 0);
 
   const hasRod = rodEquipped;

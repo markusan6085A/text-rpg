@@ -188,7 +188,8 @@ export const createStartBattle =
     if (isFishingZone) {
       const weaponId = hero.equipment?.weapon;
       const rodItem = weaponId ? itemsDB[weaponId] : null;
-      const hasRod = rodItem && (rodItem.id === "baby_duck_rod" || weaponId?.toLowerCase().includes("rod"));
+      const isRod = (id: string | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
+      const hasRod = isRod(weaponId) || (rodItem && isRod(rodItem.id));
       
       if (!hasRod) {
         set({
@@ -204,7 +205,7 @@ export const createStartBattle =
 
       // Перевіряємо наявність наживки
       const hasLure = hero.inventory?.some(
-        (item) => item.id === "gludio_fish_lure" && (item.count ?? 0) > 0
+        (item) => (item.id === "gludio_fish_lure" || item.id === "shop_gludio_fish_lure") && (item.count ?? 0) > 0
       );
 
       if (!hasLure) {
@@ -224,7 +225,8 @@ export const createStartBattle =
     if (!isFishingZone) {
       const weaponId = hero.equipment?.weapon;
       const rodItem = weaponId ? itemsDB[weaponId] : null;
-      const hasRod = rodItem && (rodItem.id === "baby_duck_rod" || weaponId?.toLowerCase().includes("rod"));
+      const isRod = (id: string | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
+      const hasRod = isRod(weaponId) || (rodItem && isRod(rodItem.id));
       
       if (hasRod) {
         set({

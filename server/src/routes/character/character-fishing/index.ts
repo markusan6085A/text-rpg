@@ -12,14 +12,8 @@ function getExpToNext(level: number): number {
 
 function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number {
   const levelNum = Math.max(1, Math.min(MAX_LEVEL, Number(levelRaw) || 1));
-  const currentLevelTotal = Number(EXP_TABLE[levelNum - 1] ?? 0);
   const need = Math.max(0, Number(getExpToNext(levelNum)) || 0);
   let exp = Math.max(0, Number(rawExp) || 0);
-
-  // Підтримка старих даних: якщо exp збережений як cumulative, конвертуємо в прогрес рівня.
-  if (levelNum > 1 && exp >= currentLevelTotal) {
-    exp = exp - currentLevelTotal;
-  }
 
   if (need <= 0 || levelNum >= MAX_LEVEL) return 0;
   return Math.max(0, exp);
@@ -100,15 +94,19 @@ export async function characterFishingRoutes(app: FastifyInstance) {
 
         const equipment = heroJson.equipment ?? {};
         const encLevels = heroJson.equipmentEnchantLevels ?? {};
+        const isRod = (id: string | null | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
         const rodSlot =
-          equipment["weapon"] === ROD_ITEM_ID ? "weapon" :
-          equipment["lrhand"] === ROD_ITEM_ID ? "lrhand" :
-          equipment["shield"] === ROD_ITEM_ID ? "shield" : null;
+          isRod(equipment["weapon"]) ? "weapon" :
+          isRod(equipment["lrhand"]) ? "lrhand" :
+          isRod(equipment["shield"]) ? "shield" : null;
         if (!rodSlot) throw new Error("rod required (Baby Duck Rod)");
         const rodEnchant = Number(encLevels[rodSlot]) || 0;
 
         const inv: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
-        const baitIdx = inv.findIndex((i: any) => (i?.id ?? i?.itemId) === BAIT_ITEM_ID && (Number(i?.count) ?? 0) > 0);
+        const baitIdx = inv.findIndex((i: any) => {
+          const id = i?.id ?? i?.itemId;
+          return (id === "gludio_fish_lure" || id === "shop_gludio_fish_lure") && (Number(i?.count) ?? 0) > 0;
+        });
         if (baitIdx < 0) throw new Error("bait required (Gludio Fish Lure)");
 
         const sp = Number(ch.sp) ?? 0;
