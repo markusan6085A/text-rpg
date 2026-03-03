@@ -758,16 +758,17 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       if (!char) return reply.code(404).send({ error: "character not found" });
       const heroJson = (char.heroJson as any) || {};
       const now = Date.now();
+      const prevUntil = Number(heroJson.premiumUntil ?? 0) || 0;
       let until: number;
       if (typeof body?.until === "number" && body.until > now) {
         until = body.until;
       } else if (typeof body?.days === "number" && body.days > 0) {
-        until = now + body.days * 24 * 60 * 60 * 1000;
+        const base = Math.max(now, prevUntil);
+        until = base + body.days * 24 * 60 * 60 * 1000;
       } else {
         await logAdminFailed(req, "admin.set_premium", { message: "days or until required" });
         return reply.code(400).send({ error: "days (number) or until (timestamp) required" });
       }
-      const prevUntil = Number(heroJson.premiumUntil ?? 0) || 0;
       const patched = addVersioning({
         ...heroJson,
         premiumUntil: until,

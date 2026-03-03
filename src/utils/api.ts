@@ -1455,7 +1455,7 @@ export async function adminFindPlayerByName(name: string): Promise<{ ok: boolean
 }
 
 export async function adminGetPlayerInventory(characterId: string): Promise<{ ok: boolean; inventory: any[] }> {
-  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/inventory`, { method: "GET", credentials: "include" });
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/inventory`, { method: "GET", credentials: "include", cache: "no-store" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
   return data as any;
@@ -1679,7 +1679,7 @@ export async function adminGetPlayerLetters(characterId: string, page?: number, 
   const q = new URLSearchParams();
   if (page != null) q.set("page", String(page));
   if (limit != null) q.set("limit", String(limit));
-  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/letters${q.toString() ? `?${q}` : ""}`, { method: "GET", credentials: "include" });
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/letters${q.toString() ? `?${q}` : ""}`, { method: "GET", credentials: "include", cache: "no-store" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
   return data as any;
