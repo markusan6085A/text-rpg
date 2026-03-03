@@ -37,6 +37,7 @@ export function AdminSectionLevelExp() {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Змінити lvl/exp</h2>
+      <p className="text-xs text-gray-500 mb-2">Установить уровень персонажа (0–80). Опыт пересчитывается по таблице.</p>
       <div className="flex flex-wrap items-center gap-2">
         <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />
         <input type="number" min={0} max={80} value={level} onChange={(e) => setLevel(e.target.value)} placeholder="Рівень 0–80" className={`${inputCl} w-20`} />

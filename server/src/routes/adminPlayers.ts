@@ -3,6 +3,7 @@ import { requireAdmin } from "./adminGuard";
 import { prisma } from "../db";
 import { setMuted } from "../chatMute";
 import { writeAdminAuditLog } from "../adminAudit";
+import { addVersioning } from "../heroJsonValidator";
 
 function getAdminLogin(req: any): string {
   return String(req?.admin?.login || "unknown");
@@ -627,6 +628,121 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         after: { blockedUntil: null },
       });
       return { ok: true };
+    }
+  );
+
+  // POST /admin/player/:characterId/heal — повне лікування (hp/mp/cp = max)
+  app.post<{ Params: { characterId: string } }>(
+    "/:characterId/heal",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const characterId = String((req.params as any).characterId ?? "").trim();
+      if (!characterId) return reply.code(400).send({ error: "characterId required" });
+      const char = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, name: true, heroJson: true },
+      });
+      if (!char) return reply.code(404).send({ error: "character not found" });
+      const heroJson = (char.heroJson as any) || {};
+      const maxHp = Math.max(100, Number(heroJson.maxHp) || 100);
+      const maxMp = Math.max(50, Number(heroJson.maxMp) || 50);
+      const maxCp = Math.max(1, Number(heroJson.maxCp) || Math.round(maxHp * 0.6));
+      const patched = addVersioning({
+        ...heroJson,
+        hp: maxHp, mp: maxMp, cp: maxCp,
+        hpFull: true, mpFull: true, cpFull: true,
+        hpPercent: 1, mpPercent: 1, cpPercent: 1,
+      }, Number(heroJson.heroRevision ?? 0) || 0);
+      await prisma.character.update({
+        where: { id: characterId },
+        data: { heroJson: patched, lastActivityAt: new Date() },
+      });
+      await logAdminSuccess(req, "admin.heal", {
+        targetCharacterId: characterId,
+        targetCharacterName: char.name,
+        metadata: { maxHp, maxMp, maxCp },
+      });
+      return { ok: true };
+    }
+  );
+
+  // POST /admin/player/:characterId/resurrect — воскресити (скинути смерть, hp/mp/cp на max)
+  app.post<{ Params: { characterId: string } }>(
+    "/:characterId/resurrect",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const characterId = String((req.params as any).characterId ?? "").trim();
+      if (!characterId) return reply.code(400).send({ error: "characterId required" });
+      const ch = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, name: true, heroJson: true },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+      const heroJson = (ch.heroJson ?? {}) as any;
+      const maxHp = Math.max(1, Number(heroJson.maxHp) || 100);
+      const maxMp = Math.max(1, Number(heroJson.maxMp) || 50);
+      const maxCp = Math.max(1, Number(heroJson.maxCp) || Math.round(maxHp * 0.6));
+      const patched = addVersioning({
+        ...heroJson,
+        isDead: false, deadAt: 0,
+        hp: maxHp, mp: maxMp, cp: maxCp,
+        hpFull: true, mpFull: true, cpFull: true,
+        hpPercent: 1, mpPercent: 1, cpPercent: 1,
+        heroBuffs: [],
+      }, Number(heroJson.heroRevision ?? 0) || 0);
+      await prisma.character.update({
+        where: { id: characterId },
+        data: { heroJson: patched, lastActivityAt: new Date() },
+      });
+      await logAdminSuccess(req, "admin.resurrect", {
+        targetCharacterId: characterId,
+        targetCharacterName: ch.name,
+      });
+      return { ok: true };
+    }
+  );
+
+  // POST /admin/player/:characterId/premium — { days } або { until: timestamp }
+  app.post<{ Params: { characterId: string }; Body: { days?: number; until?: number } }>(
+    "/:characterId/premium",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const characterId = String((req.params as any).characterId ?? "").trim();
+      const body = req.body as any;
+      if (!characterId) return reply.code(400).send({ error: "characterId required" });
+      const char = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, name: true, heroJson: true },
+      });
+      if (!char) return reply.code(404).send({ error: "character not found" });
+      const heroJson = (char.heroJson as any) || {};
+      const now = Date.now();
+      let until: number;
+      if (typeof body?.until === "number" && body.until > now) {
+        until = body.until;
+      } else if (typeof body?.days === "number" && body.days > 0) {
+        until = now + body.days * 24 * 60 * 60 * 1000;
+      } else {
+        await logAdminFailed(req, "admin.set_premium", { message: "days or until required" });
+        return reply.code(400).send({ error: "days (number) or until (timestamp) required" });
+      }
+      const prevUntil = Number(heroJson.premiumUntil ?? 0) || 0;
+      const patched = addVersioning({
+        ...heroJson,
+        premiumUntil: until,
+      }, Number(heroJson.heroRevision ?? 0) || 0);
+      await prisma.character.update({
+        where: { id: characterId },
+        data: { heroJson: patched },
+      });
+      await logAdminSuccess(req, "admin.set_premium", {
+        targetCharacterId: characterId,
+        targetCharacterName: char.name,
+        before: { premiumUntil: prevUntil },
+        after: { premiumUntil: until },
+        metadata: { days: body?.days, until },
+      });
+      return { ok: true, premiumUntil: until };
     }
   );
 

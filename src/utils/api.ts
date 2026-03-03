@@ -1518,3 +1518,124 @@ export async function adminUnblock(characterId: string): Promise<{ ok: boolean }
   if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
   return { ok: true };
 }
+
+/** Адмін: повне лікування (hp/mp/cp = max) */
+export async function adminHeal(characterId: string): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/heal`, { method: "POST", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: воскресити персонажа */
+export async function adminResurrect(characterId: string): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/resurrect`, { method: "POST", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: встановити преміум (days або until timestamp) */
+export async function adminSetPremium(characterId: string, days?: number, until?: number): Promise<{ ok: boolean; premiumUntil?: number }> {
+  const body = days != null ? { days } : until != null ? { until } : {};
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/premium`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: пошук персонажів */
+export async function adminSearchPlayers(params?: { name?: string; page?: number; limit?: number }): Promise<{
+  ok: boolean;
+  characters: Array<{ id: string; name: string; level: number; createdAt: string; bannedUntil: string | null; blockedUntil: string | null; clan: { id: string; name: string } | null }>;
+  total: number;
+  page: number;
+  limit: number;
+}> {
+  const q = new URLSearchParams();
+  if (params?.name) q.set("name", params.name);
+  if (params?.page != null) q.set("page", String(params.page));
+  if (params?.limit != null) q.set("limit", String(params.limit));
+  const res = await fetch(`${API_URL}/admin/players${q.toString() ? `?${q}` : ""}`, { method: "GET", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: онлайн персонажі */
+export async function adminGetOnlinePlayers(): Promise<{
+  ok: boolean;
+  characters: Array<{ id: string; name: string; level: number; lastActivityAt: string | null; clan: string | null }>;
+}> {
+  const res = await fetch(`${API_URL}/admin/players/online`, { method: "GET", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: відправити системний лист */
+export async function adminSendLetter(params: { toCharacterId?: string; toCharacterName?: string; subject?: string; message: string }): Promise<{ ok: boolean; letterId?: string }> {
+  const res = await fetch(`${API_URL}/admin/letters`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: листи персонажа */
+export async function adminGetPlayerLetters(characterId: string, page?: number, limit?: number): Promise<{
+  ok: boolean;
+  letters: any[];
+  total: number;
+  page: number;
+  limit: number;
+}> {
+  const q = new URLSearchParams();
+  if (page != null) q.set("page", String(page));
+  if (limit != null) q.set("limit", String(limit));
+  const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/letters${q.toString() ? `?${q}` : ""}`, { method: "GET", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: список кланів */
+export async function adminGetClans(): Promise<{ ok: boolean; clans: any[] }> {
+  const res = await fetch(`${API_URL}/admin/clans`, { method: "GET", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
+/** Адмін: розпустити клан */
+export async function adminDisbandClan(clanId: string): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/clans/${encodeURIComponent(clanId)}/disband`, { method: "POST", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: вигнати гравця з клану */
+export async function adminKickFromClan(clanId: string, characterId: string): Promise<{ ok: boolean }> {
+  const res = await fetch(`${API_URL}/admin/clans/${encodeURIComponent(clanId)}/members/${encodeURIComponent(characterId)}/kick`, { method: "POST", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return { ok: true };
+}
+
+/** Адмін: Seven Seals — розіслати листи топ-3 */
+export async function adminSevenSealsSendMail(): Promise<{ ok: boolean; sent?: number; skipped?: number }> {
+  const res = await fetch(`${API_URL}/admin/seven-seals/send-mail`, { method: "POST", credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}

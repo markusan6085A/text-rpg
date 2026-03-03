@@ -30,6 +30,7 @@ export function AdminSectionForceLogout() {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Force logout</h2>
+      <p className="text-xs text-gray-500 mb-2">Принудительный выход — ревокация refresh-токенов, игрок должен войти заново.</p>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
         <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />
         <button type="submit" disabled={loading} className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50">

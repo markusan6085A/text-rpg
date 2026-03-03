@@ -49,6 +49,7 @@ export function AdminSectionCoinLuck() {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Coin of Luck</h2>
+      <p className="text-xs text-gray-500 mb-2">Валюта для премиум-покупок. Выдать, снять или установить.</p>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
         <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />
         {(["give", "take", "set"] as const).map((m) => (

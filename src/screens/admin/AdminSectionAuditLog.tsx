@@ -69,6 +69,12 @@ export function AdminSectionAuditLog() {
       "admin.block": "Блокировка",
       "admin.unblock": "Разблокировка",
       "admin.mute": "Мут",
+      "admin.heal": "Лікування",
+      "admin.resurrect": "Воскрешение",
+      "admin.set_premium": "Выдача премиума",
+      "admin.send_letter": "Системное письмо",
+      "admin.disband_clan": "Роспуск клана",
+      "admin.kick_from_clan": "Исключение из клана",
     }),
     []
   );
@@ -137,6 +143,7 @@ export function AdminSectionAuditLog() {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3">
       <h2 className="text-sm font-semibold mb-2" style={style}>Журнал действий админов</h2>
+      <p className="text-xs text-gray-500 mb-2">Лог всех админ-действий. Фильтры, экспорт CSV.</p>
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <input value={action} onChange={(e) => setAction(e.target.value)} placeholder="Код действия" className={`${inputCl} w-40`} />
         <input value={adminLogin} onChange={(e) => setAdminLogin(e.target.value)} placeholder="Логин админа" className={`${inputCl} w-36`} />

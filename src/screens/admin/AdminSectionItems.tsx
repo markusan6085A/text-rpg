@@ -181,6 +181,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Видати предмет / Забрати предмет</h2>
+      <p className="text-xs text-gray-500 mb-2">Выдача или изъятие предмета из инвентаря игрока. Выбор предмета — кнопка «Вибір предметів».</p>
       <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />

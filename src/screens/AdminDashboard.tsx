@@ -9,6 +9,13 @@ import { AdminSectionBlockUnblock } from "./admin/AdminSectionBlockUnblock";
 import { AdminSectionMute } from "./admin/AdminSectionMute";
 import { AdminSectionCoinLuck } from "./admin/AdminSectionCoinLuck";
 import { AdminSectionCoinsSilver } from "./admin/AdminSectionCoinsSilver";
+import { AdminSectionSevenSeals } from "./admin/AdminSectionSevenSeals";
+import { AdminSectionPremium } from "./admin/AdminSectionPremium";
+import { AdminSectionHealResurrect } from "./admin/AdminSectionHealResurrect";
+import { AdminSectionPlayers } from "./admin/AdminSectionPlayers";
+import { AdminSectionOnline } from "./admin/AdminSectionOnline";
+import { AdminSectionLetters } from "./admin/AdminSectionLetters";
+import { AdminSectionClans } from "./admin/AdminSectionClans";
 import { AdminSectionAuditLog } from "./admin/AdminSectionAuditLog";
 
 interface AdminDashboardProps {
@@ -74,12 +81,19 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
           <AdminSectionItems navigate={navigate} />
           <AdminSectionLevelExp />
           <AdminSectionAdena />
+          <AdminSectionSevenSeals />
+          <AdminSectionPremium />
+          <AdminSectionHealResurrect />
           <AdminSectionForceLogout />
           <AdminSectionBanUnban />
           <AdminSectionBlockUnblock />
           <AdminSectionMute />
           <AdminSectionCoinLuck />
           <AdminSectionCoinsSilver />
+          <AdminSectionPlayers />
+          <AdminSectionOnline />
+          <AdminSectionLetters />
+          <AdminSectionClans />
           <AdminSectionAuditLog />
         </div>
 
