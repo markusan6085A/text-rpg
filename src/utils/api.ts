@@ -1615,6 +1615,19 @@ export async function adminSendLetter(params: { toCharacterId?: string; toCharac
   return data as any;
 }
 
+/** Адмін: розіслати лист від Existence всім гравцям */
+export async function adminBroadcastLetter(params: { subject?: string; message: string }): Promise<{ ok: boolean; sent: number; total: number }> {
+  const res = await fetch(`${API_URL}/admin/letters/broadcast`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");
+  return data as any;
+}
+
 /** Адмін: листи персонажа */
 export async function adminGetPlayerLetters(characterId: string, page?: number, limit?: number): Promise<{
   ok: boolean;

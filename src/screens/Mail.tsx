@@ -589,36 +589,58 @@ export default function Mail({ navigate }: MailProps) {
           <div className="text-center text-gray-400 text-[7px] py-4">Нет переписок</div>
         ) : (
           <div className="space-y-1">
-            {conversations.map((conv) => (
-              <div
-                key={conv.playerId}
-                onClick={() => handleConversationClick(conv)}
-                className="flex items-center justify-between p-2 border-b border-solid border-white/50 cursor-pointer hover:bg-gray-800/30 transition-colors"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="font-semibold text-yellow-400 text-[9px]"
-                      style={getNickColorStyle(conv.playerName, hero, conv.nickColor)}
-                    >
-                      {conv.playerName}
-                    </span>
-                    {onlinePlayerIds.has(conv.playerId) ? (
-                      <span className="text-green-400 text-[8px]">[On]</span>
-                    ) : (
-                      <span className="text-gray-500 text-[8px]">[Off]</span>
-                    )}
+            {conversations.map((conv) => {
+              const lastMsg = conv.lastMessage as any;
+              let preview = "";
+              if (lastMsg?.subject === "[ITEM_TRANSFER]") {
+                try {
+                  const payload = JSON.parse(lastMsg?.message || "{}");
+                  const item = payload?.item;
+                  preview = item ? `📦 ${item.name || "предмет"}` : "📦 предмет";
+                } catch {
+                  preview = "📦 предмет";
+                }
+              } else {
+                const raw = (lastMsg?.message || lastMsg?.subject || "").trim();
+                preview = raw.length > 60 ? raw.slice(0, 57) + "..." : raw;
+              }
+              return (
+                <div
+                  key={conv.playerId}
+                  onClick={() => handleConversationClick(conv)}
+                  className="flex flex-col p-2 border-b border-solid border-white/50 cursor-pointer hover:bg-gray-800/30 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="font-semibold text-yellow-400 text-[9px] truncate"
+                          style={getNickColorStyle(conv.playerName, hero, conv.nickColor)}
+                        >
+                          {conv.playerName}
+                        </span>
+                        {onlinePlayerIds.has(conv.playerId) ? (
+                          <span className="text-green-400 text-[8px] shrink-0">[On]</span>
+                        ) : (
+                          <span className="text-gray-500 text-[8px] shrink-0">[Off]</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0 ml-1">
+                      {conv.unreadCount > 0 && (
+                        <span className="text-white text-[9px]">{conv.unreadCount}</span>
+                      )}
+                      <span className="text-gray-500 text-[8px]">{formatTime(conv.lastMessageTime)}</span>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex flex-col items-end gap-1">
-                  {conv.unreadCount > 0 && (
-                    <span className="text-white text-[9px]">{conv.unreadCount}</span>
+                  {preview && (
+                    <div className="text-gray-400 text-[8px] mt-0.5 truncate" title={preview}>
+                      {preview}
+                    </div>
                   )}
-                  <span className="text-gray-500 text-[8px]">{formatTime(conv.lastMessageTime)}</span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

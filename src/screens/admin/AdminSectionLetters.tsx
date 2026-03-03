@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { adminFindPlayerByName, adminSendLetter, adminGetPlayerLetters } from "../../utils/api";
+import { adminFindPlayerByName, adminSendLetter, adminGetPlayerLetters, adminBroadcastLetter } from "../../utils/api";
 
 const style = { color: "#c7ad80" };
 
@@ -7,6 +7,8 @@ const style = { color: "#c7ad80" };
  * Системные письма
  * Отправка письма от имени "[Система]" игроку.
  * Используется для предупреждений, объявлений, возврата предметов.
+ *
+ * Розсилка всім — лист від Existence всім гравцям.
  *
  * Просмотр писем игрока
  * Показывает входящие и исходящие письма выбранного игрока (для разбора жалоб).
@@ -20,6 +22,11 @@ export function AdminSectionLetters() {
   const [showInbox, setShowInbox] = useState(false);
   const [letters, setLetters] = useState<any[]>([]);
   const [lettersTotal, setLettersTotal] = useState(0);
+
+  const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [broadcastSubject, setBroadcastSubject] = useState("Existence");
+  const [broadcastLoading, setBroadcastLoading] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState<string | null>(null);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +49,27 @@ export function AdminSectionLetters() {
       setMessageResult(msg.includes("not found") ? "Персонажа не знайдено. Перевірте нік." : msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBroadcastResult(null);
+    if (!broadcastMessage.trim()) {
+      setBroadcastResult("Введіть текст повідомлення");
+      return;
+    }
+    setBroadcastLoading(true);
+    try {
+      const res = await adminBroadcastLetter({
+        subject: broadcastSubject.trim() || "Existence",
+        message: broadcastMessage.trim(),
+      });
+      setBroadcastResult(`Відправлено ${res.sent ?? 0} з ${res.total ?? 0} гравців`);
+    } catch (err: any) {
+      setBroadcastResult(err?.message || "Помилка");
+    } finally {
+      setBroadcastLoading(false);
     }
   };
 
@@ -91,6 +119,35 @@ export function AdminSectionLetters() {
         </div>
       </form>
       {messageResult && <p className="text-xs text-gray-500 mb-2">{messageResult}</p>}
+
+      <div className="border-t border-[#c7ad80]/20 pt-3 mt-3">
+        <div className="text-xs font-medium text-[#c7ad80] mb-2">Розсилка всім (від Existence)</div>
+        <form onSubmit={handleBroadcast} className="flex flex-col gap-2">
+          <input
+            type="text"
+            value={broadcastSubject}
+            onChange={(e) => setBroadcastSubject(e.target.value)}
+            placeholder="Тема листа"
+            className={inputCl}
+          />
+          <textarea
+            value={broadcastMessage}
+            onChange={(e) => setBroadcastMessage(e.target.value)}
+            placeholder="Текст — спасибі, оголошення тощо..."
+            className={`${inputCl} min-h-[60px]`}
+            rows={3}
+          />
+          <button
+            type="submit"
+            disabled={broadcastLoading || !broadcastMessage.trim()}
+            className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+          >
+            {broadcastLoading ? "..." : "Розіслати всім гравцям"}
+          </button>
+        </form>
+        {broadcastResult && <p className="text-xs text-gray-500 mt-1">{broadcastResult}</p>}
+      </div>
+
       {showInbox && (
         <div className="border border-[#c7ad80]/20 rounded p-2 max-h-48 overflow-auto">
           <div className="text-xs text-[#c7ad80] mb-1">Письма {nick} ({lettersTotal} всего)</div>

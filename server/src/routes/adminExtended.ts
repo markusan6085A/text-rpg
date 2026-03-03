@@ -192,6 +192,54 @@ export const adminExtendedRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
+  // POST /admin/letters/broadcast — розіслати лист від Existence всім гравцям
+  app.post<{ Body: { subject?: string; message?: string } }>(
+    "/letters/broadcast",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const body = req.body as any;
+      const subject = String(body?.subject ?? "Existence").trim() || "Existence";
+      const message = String(body?.message ?? "").trim();
+
+      if (!message) {
+        await logAdminFailed(req, "admin.broadcast_letter", { message: "message required" });
+        return reply.code(400).send({ error: "message is required" });
+      }
+
+      const sender = await prisma.character.findFirst({
+        where: { name: { equals: "Existence", mode: "insensitive" } },
+        select: { id: true, name: true },
+      });
+      if (!sender) {
+        await logAdminFailed(req, "admin.broadcast_letter", { message: "Existence character not found" });
+        return reply.code(404).send({ error: "Existence character not found in database" });
+      }
+
+      const allChars = await prisma.character.findMany({
+        where: { id: { not: sender.id } },
+        select: { id: true, name: true },
+      });
+
+      let sent = 0;
+      for (const toChar of allChars) {
+        await prisma.letter.create({
+          data: {
+            fromCharacterId: sender.id,
+            toCharacterId: toChar.id,
+            subject,
+            message,
+          },
+        });
+        sent++;
+      }
+
+      await logAdminSuccess(req, "admin.broadcast_letter", {
+        metadata: { sent, total: allChars.length, fromCharacter: sender.name },
+      });
+      return { ok: true, sent, total: allChars.length };
+    }
+  );
+
   // GET /admin/clans — список кланів з членами
   app.get("/clans", { preHandler: [requireAdmin] }, async () => {
     const clans = await prisma.clan.findMany({
