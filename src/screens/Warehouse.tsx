@@ -20,6 +20,8 @@ const WAREHOUSE_MAX_SLOTS = 10;
 const DEFAULT_WAREHOUSE_CAPACITY = 100;
 const MAX_WAREHOUSE_CAPACITY = 100;
 const LOG_MAX_ENTRIES = 10;
+// Валюта — показується в балансі персонажа, не в інвентарі/складі
+const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
 
 /** Безпечний текст для рендеру: дані з localStorage/API можуть бути об'єктом — React не приймає об'єкти як child. */
 function safeText(val: unknown): string {
@@ -86,8 +88,9 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     if (!hero) return [];
     const inv = Array.isArray(hero.inventory) ? hero.inventory : [];
     const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
-    if (!category || typeof category.test !== "function") return inv;
-    return inv.filter((item: any) => item && category.test(item));
+    const withoutCurrency = inv.filter((item: any) => item && !CURRENCY_IDS.has(item.id));
+    if (!category || typeof category.test !== "function") return withoutCurrency;
+    return withoutCurrency.filter((item: any) => category.test(item));
   }, [hero, currentCategory]);
 
   const ITEMS_PER_PAGE = 10;

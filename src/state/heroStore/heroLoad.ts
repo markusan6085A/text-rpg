@@ -67,7 +67,9 @@ export function loadHero(): Hero | null {
       }
     }
 
+    // Міграція: видаляємо legacy-валюту з інвентаря (adena, coin_of_luck, coins_silver — тепер у hero.*)
     // Міграція: об'єднуємо стакабельні предмети (соски, ресурси, квест-айтеми, банки)
+    const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
     if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {
       let inventoryConsolidated = false;
       const consolidatedInventory: any[] = [];
@@ -75,6 +77,10 @@ export function loadHero(): Hero | null {
 
       fixedHero.inventory.forEach((item: any) => {
         if (!item || !item.id) return;
+        if (CURRENCY_IDS.has(item.id)) {
+          inventoryConsolidated = true;
+          return;
+        }
         
         // Список слотів, які можуть стакатися
         const stackableSlots = ["consumable", "resource", "quest"];

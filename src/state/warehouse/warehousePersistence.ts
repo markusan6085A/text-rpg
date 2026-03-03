@@ -52,9 +52,12 @@ export function loadItemFromWarehouse(
   return getJSON<HeroInventoryItem | null>(key, null);
 }
 
+const LEGACY_CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
+
 /**
  * Завантажує весь склад по characterId.
  * Якщо по characterId порожньо — пробує legacy-ключ по heroName (міграція після зміни ніка/коду).
+ * Legacy-валюта (coins_silver, coin_of_luck тощо) — прибираємо, вони тепер у hero.*
  */
 export function loadWarehouse(
   characterId: string,
@@ -62,10 +65,14 @@ export function loadWarehouse(
 ): (HeroInventoryItem | null)[] {
   const warehouse: (HeroInventoryItem | null)[] = [];
   for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
-    const item = getJSON<HeroInventoryItem | null>(
+    let item = getJSON<HeroInventoryItem | null>(
       getWarehouseSlotKey(characterId, i),
       null
     );
+    if (item && LEGACY_CURRENCY_IDS.has((item as any).id || (item as any).itemId || "")) {
+      saveItemToWarehouse(characterId, i, null);
+      item = null;
+    }
     warehouse.push(item);
   }
 
