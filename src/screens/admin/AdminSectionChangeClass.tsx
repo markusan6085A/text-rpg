@@ -56,6 +56,10 @@ export function AdminSectionChangeClass() {
         setMessage("Персонажа не знайдено");
         return;
       }
+      if (data.character.profession && String(data.character.profession).toLowerCase() === String(newProfession).toLowerCase()) {
+        setMessage("Персонаж вже має цю професію. Оберіть іншу або натисніть «Знайти» щоб оновити дані.");
+        return;
+      }
       const skillDefs = getSkillsForProfession(newProfession as any);
       const skills = skillDefs.map((d) => {
           const levels = Array.isArray(d.levels) ? d.levels : [];
@@ -66,7 +70,7 @@ export function AdminSectionChangeClass() {
           };
         });
       await adminChangeClass(data.character.id, newProfession, skills, newSex);
-      setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}`);
+      setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}. Попроси гравця оновити сторінку (F5).`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {

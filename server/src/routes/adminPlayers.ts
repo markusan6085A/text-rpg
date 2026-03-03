@@ -64,13 +64,15 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       }
       const character = await prisma.character.findFirst({
         where: { name: { equals: name, mode: "insensitive" } },
-        select: { id: true, name: true, accountId: true, level: true, adena: true, coinLuck: true, coinsSilver: true, bannedUntil: true, blockedUntil: true, sex: true } as any,
+        select: { id: true, name: true, accountId: true, level: true, adena: true, coinLuck: true, coinsSilver: true, bannedUntil: true, blockedUntil: true, sex: true, heroJson: true } as any,
       });
       if (!character) {
         await logAdminFailed(req, "admin.find_player_by_name", { message: "character not found", targetCharacterName: name });
         return reply.code(404).send({ error: "character not found" });
       }
-      const row = character as { bannedUntil?: Date | null; blockedUntil?: Date | null; [k: string]: unknown };
+      const row = character as { bannedUntil?: Date | null; blockedUntil?: Date | null; heroJson?: any; [k: string]: unknown };
+      const heroJson = (row.heroJson as any) || {};
+      const profession = heroJson.profession || heroJson.klass || null;
       await logAdminSuccess(req, "admin.find_player_by_name", {
         targetCharacterId: String(character.id),
         targetCharacterName: String(character.name),
@@ -79,9 +81,17 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       return {
         ok: true,
         character: {
-          ...character,
+          id: character.id,
+          name: character.name,
+          accountId: character.accountId,
+          level: character.level,
+          adena: character.adena,
+          coinLuck: character.coinLuck,
+          coinsSilver: character.coinsSilver,
           bannedUntil: row.bannedUntil?.toISOString() ?? null,
           blockedUntil: row.blockedUntil?.toISOString() ?? null,
+          sex: character.sex,
+          profession,
         },
       };
     }
@@ -825,6 +835,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
           klass: newClassId,
           skills: newSkills,
           gender: newSex,
+          loadout: [],
         },
         Number(heroJson.heroRevision ?? 0) || 0
       );
