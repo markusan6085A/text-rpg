@@ -1389,13 +1389,16 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
   });
 
-  // POST /characters/:id/resurrect — атомарно скидає смерть, ставить ресурси на max
+  // POST /characters/:id/resurrect — атомарно скидає смерть, ставить ресурси (ratio 1=100%, 0.7=70% тощо)
   app.post("/characters/:id/resurrect", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const targetId = (req.params as any).id;
     if (!targetId) return reply.code(400).send({ error: "character id required" });
+
+    const body = (req.body as any) || {};
+    const ratio = Math.max(0, Math.min(1, Number(body.ratio) ?? 1));
 
     try {
       const ch = await prisma.character.findFirst({
@@ -1409,19 +1412,27 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       const maxMp = Math.max(1, Number(heroJson.maxMp) || 50);
       const maxCp = Math.max(1, Number(heroJson.maxCp) || Math.round(maxHp * 0.6));
 
+      const hp = Math.max(1, Math.round(maxHp * ratio));
+      const mp = Math.max(0, Math.round(maxMp * ratio));
+      const cp = Math.max(0, Math.round(maxCp * ratio));
+      const hpFull = ratio >= 1;
+      const mpFull = ratio >= 1;
+      const cpFull = ratio >= 1;
+      const pct = Math.max(0, Math.min(1, ratio));
+
       const patchedHeroJson = {
         ...heroJson,
         isDead: false,
         deadAt: 0,
-        hp: maxHp,
-        mp: maxMp,
-        cp: maxCp,
-        hpFull: true,
-        mpFull: true,
-        cpFull: true,
-        hpPercent: 1,
-        mpPercent: 1,
-        cpPercent: 1,
+        hp,
+        mp,
+        cp,
+        hpFull,
+        mpFull,
+        cpFull,
+        hpPercent: pct,
+        mpPercent: pct,
+        cpPercent: pct,
         heroBuffs: [],
       };
 

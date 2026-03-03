@@ -74,10 +74,16 @@ let criticalSaveQueue: Hero | null = null;
 let criticalSaveTimeout: NodeJS.Timeout | null = null;
 
 // Ensure we clean up on module reload (HMR) or if we ever unmount
+// 🔥 КРИТИЧНО: перед виходом зробити sync save в localStorage, щоб HP/MP/CP не відновлювалися при F5
 if (typeof window !== "undefined") {
   window.addEventListener("beforeunload", () => {
     if (saveTimeout) clearTimeout(saveTimeout);
     if (criticalSaveTimeout) clearTimeout(criticalSaveTimeout);
+    if (pendingSave && !resurrectInProgress) {
+      try {
+        saveHeroToLocalStorageOnly(pendingSave);
+      } catch (_) {}
+    }
   });
 }
 

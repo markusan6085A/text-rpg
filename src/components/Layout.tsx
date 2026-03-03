@@ -6,8 +6,10 @@ import SummonStatus from "./SummonStatus";
 // import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
-import { getRateLimitRemainingMs, useHeroStore } from "../state/heroStore";
-import { getOnlinePlayers, sendHeartbeat, adminLogout } from "../utils/api";
+import { getRateLimitRemainingMs, useHeroStore, setResurrectInProgress } from "../state/heroStore";
+import { getOnlinePlayers, sendHeartbeat, adminLogout, resurrectCharacter } from "../utils/api";
+import { isHeroDead } from "../state/heroStore/isHeroDead";
+import { useCharacterStore } from "../state/characterStore";
 import { useBattleStore } from "../state/battle/store";
 
 interface LayoutProps {
@@ -36,6 +38,35 @@ export default function Layout({
   const contentRef = useRef<HTMLDivElement>(null);
   const pathnameRef = useRef<string>('');
   const { processMobAttack, status: battleStatus, regenTick } = useBattleStore();
+  const hero = useHeroStore((s) => s.hero);
+  const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
+  const dead = hero ? isHeroDead(hero) : false;
+  const [resurrecting, setResurrecting] = useState(false);
+
+  const handleResurrectToCity = async () => {
+    if (!characterId || !navigate || resurrecting) return;
+    setResurrecting(true);
+    setResurrectInProgress(true);
+    try {
+      const char = await resurrectCharacter(characterId, 0.7);
+      const hj = (char as any)?.heroJson;
+      if (hj) {
+        updateHero({
+          hp: Number(hj.hp) || 1,
+          mp: Number(hj.mp) ?? 0,
+          cp: Number(hj.cp) ?? 0,
+          heroJson: { ...(hero as any)?.heroJson, ...hj, isDead: false, deadAt: 0, heroBuffs: [] } as any,
+        });
+      }
+      navigate("/city");
+    } catch (e) {
+      console.warn("[Layout] resurrect to city failed", e);
+    } finally {
+      setResurrectInProgress(false);
+      setResurrecting(false);
+    }
+  };
 
   // 🔥 Визначаємо "легкі" сторінки, для яких не потрібні важкі операції
   // 🔥 КРИТИЧНО: Використовуємо useMemo для стабілізації, щоб не тригерити useEffect при кожному рендері
@@ -262,6 +293,18 @@ export default function Layout({
         }
       >
         {showStatusBars && <StatusBars />}
+        {dead && navigate && (
+          <div className="fixed top-12 left-0 right-0 z-40 flex justify-center pt-1">
+            <button
+              type="button"
+              onClick={handleResurrectToCity}
+              disabled={resurrecting}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-60 text-black font-semibold text-sm rounded shadow-lg"
+            >
+              {resurrecting ? "..." : "В город (70% HP)"}
+            </button>
+          </div>
+        )}
         {cooldownSec > 0 && (
           <div className="fixed top-14 left-0 right-0 z-50 bg-amber-900/95 text-amber-200 text-center text-xs py-1.5 px-2">
             Забагато запитів. Зачекайте {cooldownSec} сек.

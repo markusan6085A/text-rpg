@@ -34,11 +34,12 @@ export function restoreFromPercentOrFallback({
 
   // percent === 0 для живого — invalid/legacy, ігноруємо; fallback нижче
 
-  if (fullFlag) return finalMaxSafe;
-
-  if (Number.isFinite(savedValue) && savedValue > 0) {
+  // 🔥 КРИТИЧНО: якщо savedValue валідний і менший за max — НЕ довіряти fullFlag (може бути застарілим)
+  if (Number.isFinite(savedValue) && savedValue > 0 && savedValue < finalMaxSafe) {
     return Math.min(finalMaxSafe, Math.max(0, Math.round(savedValue)));
   }
+
+  if (fullFlag) return finalMaxSafe;
 
   return finalMaxSafe;
 }

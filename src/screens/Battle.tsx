@@ -1,11 +1,14 @@
 // src/screens/Battle.tsx
 import React from "react";
 import { useBattleStore } from "../state/battle/store";
+import { useCharacterStore } from "../state/characterStore";
+import { useHeroStore, setResurrectInProgress } from "../state/heroStore";
+import { isHeroDead } from "../state/heroStore/isHeroDead";
+import { resurrectCharacter } from "../utils/api";
 import { findZoneWithCity } from "./battle/battleUtils";
 import { SkillBar } from "./battle/SkillBar";
 import { BattleLog } from "./battle/BattleLog";
 import { BattlePanel } from "./battle/BattlePanel";
-import { useHeroStore } from "../state/heroStore";
 import { isMobOnRespawn } from "../state/battle/mobRespawns";
 
 type Navigate = (path: string) => void;
@@ -39,7 +42,36 @@ export default function Battle({ navigate }: BattleProps) {
   } = useBattleStore();
 
   const hero = useHeroStore((s) => s.hero);
+  const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
+  const dead = hero ? isHeroDead(hero) : false;
+  const [resurrecting, setResurrecting] = React.useState(false);
   const [now, setNow] = React.useState(Date.now());
+
+  const handleResurrectToCity = async () => {
+    if (!characterId || !hero || resurrecting) return;
+    setResurrecting(true);
+    setResurrectInProgress(true);
+    try {
+      const char = await resurrectCharacter(characterId, 0.7);
+      const hj = (char as any)?.heroJson;
+      if (hj) {
+        updateHero({
+          hp: Number(hj.hp) || 1,
+          mp: Number(hj.mp) ?? 0,
+          cp: Number(hj.cp) ?? 0,
+          heroJson: { ...(hero as any)?.heroJson, ...hj, isDead: false, deadAt: 0, heroBuffs: [] } as any,
+        });
+      }
+      reset();
+      navigate("/city");
+    } catch (e) {
+      console.warn("[Battle] resurrect to city failed", e);
+    } finally {
+      setResurrectInProgress(false);
+      setResurrecting(false);
+    }
+  };
   const found = React.useMemo(() => (zoneId ? findZoneWithCity(zoneId) : undefined), [zoneId]);
 
   // Рибалка тепер окрема сторінка — редірект зі старого посилання
@@ -367,12 +399,9 @@ export default function Battle({ navigate }: BattleProps) {
       target={battleTarget}
       buffs={heroBuffs || []}
       now={now}
-      backLabel="Повернутися в локацію"
+      backLabel={dead ? (resurrecting ? "..." : "В город (70% HP)") : "Повернутися в локацію"}
       showBackButton={status === "idle"}
-      onBack={() => {
-        reset();
-        navigate(`/location?id=${zone.id}`);
-      }}
+      onBack={dead ? handleResurrectToCity : () => { reset(); navigate(`/location?id=${zone.id}`); }}
     >
       <SkillBar />
     </BattlePanel>

@@ -431,9 +431,11 @@ export async function getPkState(characterId: string): Promise<PkStateResponse> 
 }
 
 /** Resurrect: сервер атомарно скидає isDead/deadAt, ставить hp/mp/cp на max, heroBuffs=[]. Повертає оновленого character. */
-export async function resurrectCharacter(id: string): Promise<Character> {
+export async function resurrectCharacter(id: string, ratio?: number): Promise<Character> {
+  const body = ratio != null && ratio < 1 ? { ratio } : {};
   const response = await apiRequest<CharacterResponse>(`/characters/${id}/resurrect`, {
     method: 'POST',
+    body: Object.keys(body).length ? JSON.stringify(body) : undefined,
   });
   return response.character;
 }

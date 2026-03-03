@@ -37,6 +37,23 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
   // Отримуємо активні бафи статуї
   const activeBufferBuffs = currentBuffs.filter((b) => b.source === "buffer");
 
+  const restoreFullHpMpCp = () => {
+    const heroStore = useHeroStore.getState();
+    const currentHero = heroStore.hero;
+    if (!currentHero) return;
+    const maxHp = currentHero.maxHp ?? 1;
+    const maxMp = currentHero.maxMp ?? 1;
+    const maxCp = currentHero.maxCp ?? Math.round(maxHp * 0.6);
+    const existingJson = (currentHero as any).heroJson || {};
+    heroStore.updateHero({
+      hp: maxHp,
+      mp: maxMp,
+      cp: maxCp,
+      heroJson: { ...existingJson },
+    }, { persist: true });
+    setRefreshKey((k) => k + 1);
+  };
+
   const applyAllBufferBuffs = () => {
     const now = Date.now();
     const saved = loadBattle(hero.name);
@@ -214,6 +231,16 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
               </div>
             );
           })}
+        </div>
+
+        {/* Кнопка відновити HP/MP/CP безкоштовно */}
+        <div className="text-center">
+          <button
+            onClick={restoreFullHpMpCp}
+            className="text-[13px] text-green-400 hover:text-green-300 cursor-pointer"
+          >
+            Восстановить HP MP CP бесплатно до 100%
+          </button>
         </div>
 
         {/* Кнопка отримати всі бафи */}
