@@ -52,11 +52,16 @@ export function updateHeroLogic(
   // Використовуємо buffedMax для clamp, щоб не втрачати HP при бафах
   if (!needsRecalc && (partial.hp !== undefined || partial.mp !== undefined || partial.cp !== undefined)) {
     const baseMax = { maxHp: prev.maxHp ?? 1, maxMp: prev.maxMp ?? 1, maxCp: prev.maxCp ?? 1 };
-    const savedBattle = loadBattle(updated.name);
-    const heroJsonBuffs = Array.isArray((prev as any).heroJson?.heroBuffs) ? (prev as any).heroJson.heroBuffs : [];
-    const savedBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-    const allBuffs = cleanupBuffs([...heroJsonBuffs, ...savedBuffs], Date.now());
-    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, allBuffs);
+    let maxHp = baseMax.maxHp;
+    let maxMp = baseMax.maxMp;
+    let maxCp = baseMax.maxCp;
+    if (updated.name) {
+      const savedBattle = loadBattle(updated.name);
+      const heroJsonBuffs = Array.isArray((prev as any).heroJson?.heroBuffs) ? (prev as any).heroJson.heroBuffs : [];
+      const savedBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
+      const allBuffs = cleanupBuffs([...heroJsonBuffs, ...savedBuffs], Date.now());
+      ({ maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, allBuffs));
+    }
     if (partial.hp !== undefined) {
       updated.hp = Math.max(0, Math.min(maxHp, partial.hp));
     }
@@ -70,14 +75,14 @@ export function updateHeroLogic(
 
   if (needsRecalc) {
     const now = Date.now();
-    const savedBattle = loadBattle(updated.name);
+    const savedBattle = updated.name ? loadBattle(updated.name) : null;
     const inBattle = savedBattle?.status && savedBattle.status !== "idle";
 
     // ✅ беремо бафи і з heroJson, і з battle (міський/статуя баф зберігається в heroJson)
     const heroJsonBuffs = Array.isArray((updated as any).heroJson?.heroBuffs)
       ? (updated as any).heroJson.heroBuffs
       : [];
-    const savedBattleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle!.heroBuffs : [];
+    const savedBattleBuffs = (updated.name && savedBattle) ? (Array.isArray(savedBattle.heroBuffs) ? savedBattle.heroBuffs : []) : [];
     const allBuffsRaw = [...heroJsonBuffs, ...savedBattleBuffs];
     // ✅ дедуп "як у heroLoad" (по id/stackType/name і з max expiresAt)
     const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;

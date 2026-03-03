@@ -157,22 +157,24 @@ export function recalculateAllStats(
     }
   }
 
-  // 🔍 ДІАГНОСТИКА: перевіряємо mDef ПІСЛЯ екіпіровки, ПЕРЕД пасивками
-  console.log(`[recalculateAllStats] mDef after equipment:`, {
-    mDef: combatStats.mDef,
-    equipment: hero.equipment,
-  });
+  if (import.meta.env.DEV) {
+    console.log(`[recalculateAllStats] mDef after equipment:`, {
+      mDef: combatStats.mDef,
+      equipment: hero.equipment,
+    });
+  }
 
   // 4. passive skills -> combat stats
   const learnedSkills = Array.isArray(hero.skills) ? hero.skills : [];
   
-  // 🔍 ДІАГНОСТИКА: перевіряємо, чи є Anti Magic в learnedSkills
   const antiMagicSkill = learnedSkills.find((s: any) => s.id === 146);
-  console.log(`[recalculateAllStats] Anti Magic skill in learnedSkills:`, {
-    found: !!antiMagicSkill,
-    skill: antiMagicSkill,
-    allSkills: learnedSkills.map((s: any) => ({ id: s.id, level: s.level })),
-  });
+  if (import.meta.env.DEV) {
+    console.log(`[recalculateAllStats] Anti Magic skill in learnedSkills:`, {
+      found: !!antiMagicSkill,
+      skill: antiMagicSkill,
+      allSkills: learnedSkills.map((s: any) => ({ id: s.id, level: s.level })),
+    });
+  }
   
   // Отримуємо maxHp з бафами для правильної перевірки умови HP
   const baseMax = getMaxResources(hero);
@@ -202,7 +204,7 @@ export function recalculateAllStats(
     const skillDef = getSkillDef(s.id);
     return skillDef?.hpThreshold !== undefined;
   });
-  if (hasHpThresholdSkill) {
+  if (import.meta.env.DEV && hasHpThresholdSkill) {
     console.log(`[recalculateAllStats] HP check for hpThreshold skills:`, {
       heroHp: hero.hp,
       resourcesMaxHp: resources.maxHp,
@@ -211,10 +213,6 @@ export function recalculateAllStats(
       hpPercent: currentMaxHp > 0 ? (currentHp / currentMaxHp) : 1,
       buffsCount: buffs.length,
     });
-  }
-  
-  // Діагностика перед викликом applyPassiveSkillsToCombat
-  if (hasHpThresholdSkill) {
     console.log(`[recalculateAllStats] Calling applyPassiveSkillsToCombat with HP:`, {
       currentHp,
       currentMaxHp,
@@ -233,12 +231,13 @@ export function recalculateAllStats(
     hero.equipment
   );
 
-  // 🔍 ДІАГНОСТИКА: перевіряємо mDef ПІСЛЯ пасивок
-  console.log(`[recalculateAllStats] mDef after passives:`, {
-    mDefBefore: combatStats.mDef,
-    mDefAfter: finalCombatStats.mDef,
-    difference: finalCombatStats.mDef - combatStats.mDef,
-  });
+  if (import.meta.env.DEV) {
+    console.log(`[recalculateAllStats] mDef after passives:`, {
+      mDefBefore: combatStats.mDef,
+      mDefAfter: finalCombatStats.mDef,
+      difference: finalCombatStats.mDef - combatStats.mDef,
+    });
+  }
 
   // 4. passive skills -> resources (БЕЗ бафів - бафи застосовуються в computeBuffedMaxResources)
   const finalResources = applyPassiveSkillsToResources(

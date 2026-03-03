@@ -273,12 +273,19 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     const isAttacker = hero.id === pkSession.attackerId;
     const myFighter = isAttacker ? pkSession.attacker : pkSession.defender;
     
-    // Якщо серверне значення відрізняється більше ніж на 2 (щоб уникнути спаму від мікро-регену) і воно МЕНШЕ локального 
-    // (отримали урон), або ми юзнули скіл і впало MP — оновлюємо локальний стейт.
-    if (myFighter && (myFighter.hp < hero.hp || myFighter.mp < hero.mp)) {
+    // Якщо серверне значення МЕНШЕ локального (отримали урон / юзнули скіл) — оновлюємо локальний стейт.
+    // Перевіряємо myFighter.hp/mp на null/undefined, щоб уникнути (undefined < 100) === false
+    const serverHp = myFighter?.hp;
+    const serverMp = myFighter?.mp;
+    const localHp = hero.hp ?? Infinity;
+    const localMp = hero.mp ?? Infinity;
+    if (myFighter && (
+      (serverHp != null && serverHp < localHp) ||
+      (serverMp != null && serverMp < localMp)
+    )) {
       useHeroStore.getState().updateHero({
-        hp: myFighter.hp,
-        mp: myFighter.mp,
+        ...(serverHp != null && { hp: serverHp }),
+        ...(serverMp != null && { mp: serverMp }),
       });
     }
   }, [pkSession, isPkMode]);
