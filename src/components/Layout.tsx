@@ -6,7 +6,7 @@ import SummonStatus from "./SummonStatus";
 // import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
-import { getRateLimitRemainingMs } from "../state/heroStore";
+import { getRateLimitRemainingMs, useHeroStore } from "../state/heroStore";
 import { getOnlinePlayers, sendHeartbeat, adminLogout } from "../utils/api";
 import { useBattleStore } from "../state/battle/store";
 
@@ -235,9 +235,8 @@ export default function Layout({
       logout();
       adminLogout().catch(() => {});
       useAdminStore.getState().resetAdmin();
-      if (navigate) {
-        navigate("/");
-      }
+      useHeroStore.getState().setHero(null as any); // Очищаємо hero для SPA — щоб Landing показувався
+      if (navigate) navigate("/");
     }
   };
 

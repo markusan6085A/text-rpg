@@ -106,27 +106,28 @@ export default function StatusBars() {
 
   const getCombinedBuffs = React.useCallback(() => getCombinedBuffsFor(hero, inBattle), [hero, inBattle, getCombinedBuffsFor]);
 
-  // Завантажуємо клан для відображення емблеми
-  // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан тільки один раз при зміні hero, не поллимо
+  // Завантажуємо клан для відображення емблеми (відкладаємо 100ms, щоб бари відмалювалися першими)
+  // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан один раз при зміні hero, не поллимо
   React.useEffect(() => {
     if (!hero) {
       setMyClan(null);
       return;
     }
-
-    // Завантажуємо клан один раз при зміні hero
-    getMyClan()
-      .then((response) => {
-        if (response.ok && response.clan) {
-          setMyClan(response.clan);
-        } else {
+    const id = setTimeout(() => {
+      getMyClan()
+        .then((response) => {
+          if (response.ok && response.clan) {
+            setMyClan(response.clan);
+          } else {
+            setMyClan(null);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load clan info:", err);
           setMyClan(null);
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to load clan info:", err);
-        setMyClan(null);
-      });
+        });
+    }, 100);
+    return () => clearTimeout(id);
   }, [hero?.name]);
 
   // PK realtime sync: підтягувати серверний HP/MP і вхідну атаку, щоб бари падали всюди.
@@ -171,10 +172,12 @@ export default function StatusBars() {
       }
     };
 
-    sync();
+    // Відкладаємо перший sync на 150ms, щоб бари відмалювалися швидше
+    const firstSyncId = setTimeout(sync, 150);
     const t = setInterval(sync, 1000);
     return () => {
       mounted = false;
+      clearTimeout(firstSyncId);
       clearInterval(t);
     };
   }, [hero?.id]);

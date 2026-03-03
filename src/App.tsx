@@ -72,15 +72,17 @@ function useRouter() {
   const navigate = React.useCallback((newPath: string) => {
     const pathname = new URL(newPath, window.location.origin).pathname;
     const search = new URL(newPath, window.location.origin).search;
-    const fullPath = pathname + search;
+    const fullPath = (pathname.startsWith("/") ? pathname : "/" + pathname) + search;
     const currentPath = window.location.pathname + window.location.search;
-    // 🔥 Якщо клік по тому самому шляху — повне перезавантаження (як F5)
     if (fullPath === currentPath) {
-      window.location.reload();
+      window.location.reload(); // Той самий шлях — повне перезавантаження (F5)
       return;
     }
-    // 🔥 При переході на інший шлях — теж повне перезавантаження, щоб дані завжди свіжі (як F5)
-    window.location.href = fullPath.startsWith("/") ? fullPath : "/" + fullPath;
+    // SPA: перехід без перезавантаження — hero/state лишаються в пам'яті, швидша навігація
+    window.history.pushState(null, "", fullPath);
+    setPath(fullPath);
+    setRefreshKey((k) => k + 1);
+    window.scrollTo(0, 0);
   }, []);
 
   /** Перехід без перезавантаження сторінки (токен у пам'яті зберігається). Потрібно після адмін-логіну. */
@@ -344,12 +346,17 @@ function AppInner() {
   const isBlocked = hero?.blockedUntil && new Date(hero.blockedUntil).getTime() > Date.now();
   if (hero && isBlocked && pathname !== "/admin" && pathname !== "/admin/login" && pathname !== "/admin/items") {
     const logout = useAuthStore.getState().logout;
+    const handleBlockedLogout = () => {
+      logout();
+      useHeroStore.getState().setHero(null as any);
+      navigate("/");
+    };
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-[#c7ad80] p-4">
         <p className="text-xl font-semibold mb-6">Ваш персонаж заблокирован</p>
         <button
           type="button"
-          onClick={() => { logout(); navigate("/"); }}
+          onClick={handleBlockedLogout}
           className="px-6 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30"
         >
           Вихід
