@@ -237,7 +237,9 @@ export async function getPublicCharacter(id: string): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/public/${id}`, {
     method: 'GET',
   });
-  return response.character;
+  const char = response?.character;
+  if (!char?.id) throw new Error("Персонаж не знайдено");
+  return char;
 }
 
 export async function getCharacterByName(name: string): Promise<Character> {

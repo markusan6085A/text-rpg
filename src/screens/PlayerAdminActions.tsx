@@ -43,6 +43,10 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       } else {
         loadedCharacter = await getCharacterByName(playerName!);
       }
+      if (!loadedCharacter?.id) {
+        setError("Некоректна відповідь сервера");
+        return;
+      }
       setCharacter(loadedCharacter);
     } catch (err: any) {
       setError(err?.message || "Помилка завантаження профілю гравця");
@@ -58,76 +62,80 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
   // Конвертуємо Character в Hero формат; profession нормалізуємо для всіх професій (бафи відображаються коректно)
   const playerHero = useMemo(() => {
-    if (!character) return null;
+    if (!character?.id) return null;
+    try {
+      const heroJson = character.heroJson && typeof character.heroJson === "object" ? character.heroJson : {};
+      const professionRaw = heroJson.profession || character.classId || "";
+      const normalized = normalizeProfessionId(professionRaw);
+      const effectiveProfession =
+        (normalized && getProfessionDefinition(normalized))
+          ? normalized
+          : (getDefaultProfessionForKlass(character.classId || "", character.race) || professionRaw || "");
 
-    const heroJson = character.heroJson || {};
-    const professionRaw = heroJson.profession || character.classId || "";
-    const normalized = normalizeProfessionId(professionRaw);
-    const effectiveProfession =
-      (normalized && getProfessionDefinition(normalized))
-        ? normalized
-        : (getDefaultProfessionForKlass(character.classId || "", character.race) || professionRaw || "");
-
-    return {
-      id: character.id,
-      name: character.name,
-      race: character.race,
-      klass: character.classId,
-      profession: effectiveProfession,
-      level: character.level,
-      skills: heroJson.skills || [],
-      hp: heroJson.hp || heroJson.maxHp || 100,
-      maxHp: heroJson.maxHp || 100,
-      mp: heroJson.mp || heroJson.maxMp || 100,
-      maxMp: heroJson.maxMp || 100,
-    };
+      return {
+        id: character.id,
+        name: character.name,
+        race: character.race,
+        klass: character.classId,
+        profession: effectiveProfession,
+        level: character.level ?? 1,
+        skills: Array.isArray(heroJson.skills) ? heroJson.skills : [],
+        hp: heroJson.hp || heroJson.maxHp || 100,
+        maxHp: heroJson.maxHp || 100,
+        mp: heroJson.mp || heroJson.maxMp || 100,
+        maxMp: heroJson.maxMp || 100,
+      };
+    } catch (e) {
+      console.error("[PlayerAdminActions] playerHero useMemo error:", e);
+      return null;
+    }
   }, [character]);
 
   // Отримуємо вивчені бафи гравця
   const playerBuffs = useMemo(() => {
-    if (!playerHero || !playerHero.skills) {
-      console.log('[PlayerAdminActions] No playerHero or skills:', { playerHero: !!playerHero, skills: playerHero?.skills });
+    if (!playerHero?.skills?.length) return [];
+    try {
+      return playerHero.skills
+        .map((learned: any) => {
+          const id = Number(learned?.id ?? learned);
+          if (!Number.isFinite(id)) return null;
+          const skillDef = getSkillDefForBattle(
+            playerHero.profession ?? null,
+            playerHero.klass,
+            playerHero.race,
+            id
+          ) ?? getSkillDef(id);
+          if (!skillDef || skillDef.category !== "buff") return null;
+
+          const levelDef = skillDef.levels?.find((l: any) => l.level === learned.level) ?? skillDef.levels?.[0];
+          return {
+            id: learned.id,
+            name: skillDef.name,
+            description: skillDef.description,
+            icon: skillDef.icon,
+            level: learned.level,
+            castTime: skillDef.castTime,
+            cooldown: skillDef.cooldown,
+            duration: skillDef.duration,
+            mpCost: levelDef?.mpCost ?? 0,
+            skillDef,
+            levelDef,
+          };
+        })
+        .filter((s): s is NonNullable<typeof s> => s !== null)
+        .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } catch (e) {
+      console.error("[PlayerAdminActions] playerBuffs useMemo error:", e);
       return [];
     }
-
-    console.log('[PlayerAdminActions] Loading player buffs, skills count:', playerHero.skills.length);
-
-    return playerHero.skills
-      .map((learned: any) => {
-        const skillDef = getSkillDefForBattle(
-          playerHero.profession ?? null,
-          playerHero.klass,
-          playerHero.race,
-          learned.id
-        ) ?? getSkillDef(learned.id);
-        if (!skillDef || skillDef.category !== "buff") return null;
-
-        const levelDef = skillDef.levels.find((l) => l.level === learned.level) ?? skillDef.levels[0];
-        
-        return {
-          id: learned.id,
-          name: skillDef.name,
-          description: skillDef.description,
-          icon: skillDef.icon,
-          level: learned.level,
-          castTime: skillDef.castTime,
-          cooldown: skillDef.cooldown,
-          duration: skillDef.duration,
-          mpCost: levelDef?.mpCost ?? 0,
-          skillDef,
-          levelDef,
-        };
-      })
-      .filter((s): s is NonNullable<typeof s> => s !== null)
-      .sort((a, b) => a.name.localeCompare(b.name));
   }, [playerHero]);
 
   // Отримуємо buff скіли для застосування — завжди берём бафи поточного гравця (hero), щоб можна було бафати іншого гравця СВОЇМИ бафами.
   const myBuffSkills = useMemo(() => {
     const source = hero;
-    if (!source || !source.skills) return [];
-
-    return source.skills
+    if (!source?.skills?.length) return [];
+    try {
+      return source.skills
       .map((learned: any) => {
         const skillDef = getSkillDefForBattle(
           (source as any).profession ?? null,
@@ -156,14 +164,18 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         };
       })
       .filter((s): s is NonNullable<typeof s> => s !== null)
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [playerHero, hero, character]);
+      .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } catch (e) {
+      console.error("[PlayerAdminActions] myBuffSkills useMemo error:", e);
+      return [];
+    }
+  }, [hero]);
 
   // Отримуємо мої heal скіли
   const myHealSkills = useMemo(() => {
-    if (!hero || !hero.skills) return [];
-
-    return hero.skills
+    if (!hero?.skills?.length) return [];
+    try {
+      return hero.skills
       .map((learned: any) => {
         const skillDef = getSkillDef(learned.id);
         if (!skillDef || skillDef.category !== "heal") return null;
@@ -183,7 +195,11 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         };
       })
       .filter((s): s is NonNullable<typeof s> => s !== null)
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } catch (e) {
+      console.error("[PlayerAdminActions] myHealSkills useMemo error:", e);
+      return [];
+    }
   }, [hero]);
 
   // Функція для форматування значень бафа
