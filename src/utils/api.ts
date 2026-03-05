@@ -961,6 +961,59 @@ export async function deleteForumPost(postId: string, characterId: string): Prom
   });
 }
 
+export async function updateForumPost(
+  postId: string,
+  characterId: string,
+  message: string
+): Promise<{ ok: boolean; post: { id: string; message: string; createdAt: string; character?: { id: string; name: string; nickColor?: string } } }> {
+  return apiRequest(`/forum/posts/${encodeURIComponent(postId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ characterId, message }),
+  });
+}
+
+export type LeaderboardType = 'level' | 'sp' | 'clan';
+
+export interface LeaderboardItemLevel {
+  rank: number;
+  characterId: string;
+  name: string;
+  level: number;
+  exp: number;
+  nickColor?: string | null;
+  clanName?: string | null;
+}
+
+export interface LeaderboardItemSp {
+  rank: number;
+  characterId: string;
+  name: string;
+  level: number;
+  sp: number;
+  nickColor?: string | null;
+  clanName?: string | null;
+}
+
+export interface LeaderboardItemClan {
+  rank: number;
+  id: string;
+  name: string;
+  level: number;
+  reputation: number;
+  emblem?: string | null;
+  memberCount: number;
+}
+
+export interface LeaderboardResponse {
+  ok: boolean;
+  type: LeaderboardType;
+  items: LeaderboardItemLevel[] | LeaderboardItemSp[] | LeaderboardItemClan[];
+}
+
+export async function getLeaderboard(type: LeaderboardType = 'level', limit = 50): Promise<LeaderboardResponse> {
+  return apiRequest<LeaderboardResponse>(`/leaderboard?type=${encodeURIComponent(type)}&limit=${limit}`, { method: 'GET' });
+}
+
 // Seven Seals API
 export interface SevenSealsRankingResponse {
   ok: boolean;

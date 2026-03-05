@@ -7,6 +7,7 @@ import {
   createForumPost,
   deleteForumTopic,
   deleteForumPost,
+  updateForumPost,
 } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
@@ -59,6 +60,8 @@ export default function Forum({ navigate }: ForumProps) {
   const [newMessage, setNewMessage] = useState("");
   const [replyMessage, setReplyMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editMessage, setEditMessage] = useState("");
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
@@ -229,6 +232,33 @@ export default function Forum({ navigate }: ForumProps) {
     }
   };
 
+  const startEditPost = (p: { id: string; message: string }) => {
+    setEditingPostId(p.id);
+    setEditMessage(p.message);
+  };
+
+  const cancelEditPost = () => {
+    setEditingPostId(null);
+    setEditMessage("");
+  };
+
+  const handleSaveEditPost = async () => {
+    if (!editingPostId || !characterId || !editMessage.trim()) return;
+    setSending(true);
+    try {
+      await updateForumPost(editingPostId, characterId, editMessage.trim());
+      cancelEditPost();
+      await loadTopic(postsPage);
+    } catch (err: any) {
+      alert(err?.message || "Помилка збереження");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const canDeleteTopic = (topicCharId: string | undefined) => isForumAdmin || topicCharId === characterId;
+  const canDeleteOrEditPost = (postCharId: string | undefined) => isForumAdmin || postCharId === characterId;
+
   return (
     <div className="w-full text-white px-3 py-4">
       <div className="max-w-[360px] mx-auto border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
@@ -346,7 +376,7 @@ export default function Forum({ navigate }: ForumProps) {
                     <div className="flex justify-between items-start">
                       <span className="font-medium text-[#c7ad80] text-sm">{t.title}</span>
                       <div className="flex items-center gap-1">
-                        {isForumAdmin && (
+                        {canDeleteTopic(t.character?.id) && (
                           <button
                             onClick={(e) => handleDeleteTopic(e, t.id)}
                             disabled={sending}
@@ -408,7 +438,7 @@ export default function Forum({ navigate }: ForumProps) {
                 {" · "}
                 {topic.postCount} постів
               </div>
-              {isForumAdmin && (
+              {canDeleteTopic(topic.character?.id) && (
                 <button
                   onClick={handleDeleteTopicFromView}
                   disabled={sending}
@@ -434,20 +464,55 @@ export default function Forum({ navigate }: ForumProps) {
                           className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80"
                           onClick={() => p.character?.id && navigate(`/player/${p.character.id}`)}
                         />
-                        {isForumAdmin && (
-                          <button
-                            onClick={() => handleDeletePost(p.id)}
-                            disabled={sending}
-                            className="text-red-400/80 hover:text-red-400 text-[9px] px-1 py-0 rounded"
-                            title="Видалити"
-                          >
-                            ✕
-                          </button>
+                        {canDeleteOrEditPost(p.character?.id) && (
+                          <>
+                            <button
+                              onClick={() => startEditPost(p)}
+                              disabled={sending || !!editingPostId}
+                              className="text-amber-400/80 hover:text-amber-400 text-[9px] px-1 py-0 rounded"
+                              title="Редагувати"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              onClick={() => handleDeletePost(p.id)}
+                              disabled={sending}
+                              className="text-red-400/80 hover:text-red-400 text-[9px] px-1 py-0 rounded"
+                              title="Видалити"
+                            >
+                              ✕
+                            </button>
+                          </>
                         )}
                       </div>
                       <span className="text-gray-500 text-[9px]">{formatTime(p.createdAt)}</span>
                     </div>
-                    <div className="text-white text-[11px] whitespace-pre-wrap">{p.message}</div>
+                    {editingPostId === p.id ? (
+                      <div className="mt-1">
+                        <textarea
+                          value={editMessage}
+                          onChange={(e) => setEditMessage(e.target.value)}
+                          className={`${inputCl} w-full min-h-[60px] text-[11px]`}
+                          rows={3}
+                          maxLength={2000}
+                          autoFocus
+                        />
+                        <div className="flex gap-2 mt-1">
+                          <button
+                            onClick={handleSaveEditPost}
+                            disabled={!editMessage.trim() || sending}
+                            className="text-green-400 hover:text-green-300 text-[10px] font-bold disabled:opacity-50"
+                          >
+                            Зберегти
+                          </button>
+                          <button onClick={cancelEditPost} className="text-gray-400 hover:text-gray-300 text-[10px]">
+                            Скасувати
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-white text-[11px] whitespace-pre-wrap">{p.message}</div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -78,6 +78,18 @@ export default function About({ navigate }: { navigate: Navigate }) {
           >
             Покрасить ник
           </button>
+          <button
+            onClick={() => navigate("/achievements")}
+            className="text-left text-amber-400 hover:text-amber-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+          >
+            Досягнення
+          </button>
+          <button
+            onClick={() => navigate("/leaderboard")}
+            className="text-left text-yellow-400 hover:text-yellow-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+          >
+            Рейтинг
+          </button>
         </div>
       </div>
 

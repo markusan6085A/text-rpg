@@ -251,8 +251,11 @@ export async function forumRoutes(app: FastifyInstance) {
       if (!char) return reply.code(403).send({ error: "character not found or not yours" });
       if (!isForumAdmin(char.name)) return reply.code(403).send({ error: "only forum admin can delete topics" });
 
-      const topic = await prisma.forumTopic.findUnique({ where: { id: topicId }, select: { id: true } });
+      const topic = await prisma.forumTopic.findUnique({ where: { id: topicId }, select: { id: true, characterId: true } });
       if (!topic) return reply.code(404).send({ error: "topic not found" });
+
+      const canDelete = isForumAdmin(char.name) || topic.characterId === char.id;
+      if (!canDelete) return reply.code(403).send({ error: "only author or forum admin can delete topics" });
 
       await prisma.forumPost.deleteMany({ where: { topicId } });
       await prisma.forumTopic.delete({ where: { id: topicId } });
@@ -260,7 +263,7 @@ export async function forumRoutes(app: FastifyInstance) {
     }
   );
 
-  // DELETE /forum/posts/:postId — видалити пост (тільки Existence)
+  // DELETE /forum/posts/:postId — видалити пост (автор або Existence)
   app.delete<{ Params: { postId: string }; Querystring: { characterId?: string } }>(
     "/forum/posts/:postId",
     async (req, reply) => {
@@ -281,9 +284,12 @@ export async function forumRoutes(app: FastifyInstance) {
 
       const post = await prisma.forumPost.findUnique({
         where: { id: postId },
-        select: { id: true, topicId: true },
+        select: { id: true, topicId: true, characterId: true },
       });
       if (!post) return reply.code(404).send({ error: "post not found" });
+
+      const canDelete = isForumAdmin(char.name) || post.characterId === char.id;
+      if (!canDelete) return reply.code(403).send({ error: "only author or forum admin can delete posts" });
 
       await prisma.forumPost.delete({ where: { id: postId } });
       await prisma.forumTopic.update({
@@ -291,6 +297,50 @@ export async function forumRoutes(app: FastifyInstance) {
         data: { postCount: { decrement: 1 }, updatedAt: new Date() },
       });
       return { ok: true };
+    }
+  );
+
+  // PATCH /forum/posts/:postId — редагувати пост (тільки автор)
+  app.patch<{ Params: { postId: string }; Body: { message?: string; characterId?: string } }>(
+    "/forum/posts/:postId",
+    async (req, reply) => {
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const postId = String((req.params as any).postId ?? "").trim();
+      const body = req.body as any;
+      const message = String(body?.message ?? "").trim().slice(0, MAX_MESSAGE_LENGTH);
+      const characterId = String(body?.characterId ?? "").trim();
+
+      if (!postId || !message) return reply.code(400).send({ error: "postId and message are required" });
+      if (!characterId) return reply.code(400).send({ error: "characterId is required" });
+
+      const char = await prisma.character.findFirst({
+        where: { id: characterId, accountId: auth.accountId },
+        select: { id: true, name: true },
+      });
+      if (!char) return reply.code(403).send({ error: "character not found or not yours" });
+
+      const post = await prisma.forumPost.findUnique({
+        where: { id: postId },
+        select: { id: true, characterId: true },
+      });
+      if (!post) return reply.code(404).send({ error: "post not found" });
+
+      const canEdit = isForumAdmin(char.name) || post.characterId === char.id;
+      if (!canEdit) return reply.code(403).send({ error: "only author or forum admin can edit posts" });
+
+      const updated = await prisma.forumPost.update({
+        where: { id: postId },
+        data: { message },
+        select: {
+          id: true,
+          message: true,
+          createdAt: true,
+          character: { select: { id: true, name: true, nickColor: true } },
+        },
+      });
+      return { ok: true, post: updated };
     }
   );
 }

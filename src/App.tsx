@@ -38,6 +38,8 @@ import PlayerAdminActions from "./screens/PlayerAdminActions";
 import Mail from "./screens/Mail";
 import ColorizeNick from "./screens/ColorizeNick";
 import Forum from "./screens/Forum";
+import Achievements from "./screens/Achievements";
+import Leaderboard from "./screens/Leaderboard";
 import News from "./screens/News";
 import SevenSeals from "./screens/SevenSeals";
 import Clans from "./screens/Clans";
@@ -510,6 +512,12 @@ function AppInner() {
 
     case "/clans":
       return renderWithLayout(<Clans navigate={navigate} key={`clans-${refreshKey}`} />);
+
+    case "/achievements":
+      return renderWithLayout(<Achievements navigate={navigate} key={`achievements-${refreshKey}`} />);
+
+    case "/leaderboard":
+      return renderWithLayout(<Leaderboard navigate={navigate} key={`leaderboard-${refreshKey}`} />);
 
     case "/admin/login":
       return (

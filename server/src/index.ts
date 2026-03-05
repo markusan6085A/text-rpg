@@ -13,6 +13,7 @@ import { newsRoutes } from "./news";
 import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
 import { forumRoutes } from "./forum";
+import { leaderboardRoutes } from "./leaderboard";
 import { authRefreshRoutes } from "./routes/authRefresh";
 import { authLogoutRoutes } from "./routes/authLogout";
 import { adminAuthRoutes } from "./routes/adminAuth";
@@ -212,6 +213,7 @@ const start = async () => {
     await app.register(sevenSealsRoutes);
     await app.register(clanRoutes);
     await app.register(forumRoutes);
+    await app.register(leaderboardRoutes);
 
     // ✅ ТІЛЬКИ ТУТ:
     app.setNotFoundHandler(async (request, reply) => {
@@ -225,6 +227,8 @@ const start = async () => {
         request.url.startsWith("/news") ||
         request.url.startsWith("/seven-seals") ||
         request.url.startsWith("/clans") ||
+        request.url.startsWith("/forum") ||
+        request.url.startsWith("/leaderboard") ||
         request.url.startsWith("/premium") ||
         request.url.startsWith("/health") ||
         request.url.startsWith("/test-db")

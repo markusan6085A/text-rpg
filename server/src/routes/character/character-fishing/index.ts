@@ -248,9 +248,10 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         }
 
         const { fishingSession: _, ...restHero } = heroJson;
+        const prevTotal = Number(restHero.fishCaughtTotal ?? 0) || 0;
         const oldRevision = heroJson.heroRevision ?? 0;
         const updatedHeroJson = addVersioning(
-          { ...restHero, inventory: inv },
+          { ...restHero, inventory: inv, fishCaughtTotal: prevTotal + fishCount },
           oldRevision
         );
 
