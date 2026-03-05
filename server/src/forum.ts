@@ -280,7 +280,6 @@ export async function forumRoutes(app: FastifyInstance) {
         select: { id: true, name: true },
       });
       if (!char) return reply.code(403).send({ error: "character not found or not yours" });
-      if (!isForumAdmin(char.name)) return reply.code(403).send({ error: "only forum admin can delete posts" });
 
       const post = await prisma.forumPost.findUnique({
         where: { id: postId },

@@ -555,12 +555,29 @@ function AppInner() {
           return renderWithLayout(<Clan navigate={navigate} clanId={clanId} key={`clan-${clanId}-${refreshKey}`} />);
         }
       }
-      // Check if pathname matches /player/:id/admin pattern
-      if (pathname.startsWith("/player/") && pathname.endsWith("/admin")) {
-        const playerId = pathname.replace("/player/", "").replace("/admin", "").split("?")[0];
-        if (playerId) {
-          return renderWithLayout(<PlayerAdminActions navigate={navigate} playerId={playerId} key={`player-admin-${playerId}-${refreshKey}`} />);
-        }
+      // Check if pathname matches /player/:id/admin pattern (including optional trailing slash)
+      const playerAdminMatch = pathname.match(/^\/player\/([^/]+)\/admin\/?$/);
+      if (playerAdminMatch) {
+        const playerId = playerAdminMatch[1];
+        return (
+          <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="player-admin-layout">
+            <ErrorBoundary
+              fallback={
+                <div className="flex flex-col items-center justify-center gap-3 p-4 text-center text-gray-300 min-h-[200px]">
+                  <p className="text-sm">Помилка завантаження адмін-сторінки гравця.</p>
+                  <button
+                    onClick={() => navigate("/admin")}
+                    className="px-4 py-2 rounded bg-yellow-600 text-black text-sm hover:bg-yellow-500"
+                  >
+                    В адмінку
+                  </button>
+                </div>
+              }
+            >
+              <PlayerAdminActions navigate={navigate} playerId={playerId} key={`player-admin-${playerId}-${refreshKey}`} />
+            </ErrorBoundary>
+          </Layout>
+        );
       }
       // Check if pathname matches /player/:id pattern
       if (pathname.startsWith("/player/")) {

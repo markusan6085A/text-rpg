@@ -308,14 +308,24 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
 
   if (error || !character || !playerHero) {
     return (
-      <div className="w-full flex flex-col items-center text-white text-sm py-10">
+      <div className="w-full flex flex-col items-center text-white text-sm py-10 px-4">
         <div className="text-red-400 mb-4">{error || "Профіль не знайдено"}</div>
-        <button
-          onClick={() => navigate(`/player/${character?.id || ""}`)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
-        >
-          Назад
-        </button>
+        <div className="flex gap-2">
+          {character?.id && (
+            <button
+              onClick={() => navigate(`/player/${character.id}`)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
+            >
+              Профіль
+            </button>
+          )}
+          <button
+            onClick={() => navigate("/admin")}
+            className="px-4 py-2 bg-[#c7ad80]/30 hover:bg-[#c7ad80]/50 border border-[#c7ad80]/60 text-[#c7ad80] rounded"
+          >
+            В адмінку
+          </button>
+        </div>
       </div>
     );
   }
