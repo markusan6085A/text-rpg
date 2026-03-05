@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useHeroStore } from "../../../state/heroStore";
 import { type Clan } from "../../../utils/api";
 import { depositClanWarehouseItem } from "../../../utils/api";
@@ -7,28 +7,26 @@ import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
 
 interface DepositItemsModalProps {
   clan: Clan;
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
   onClose: () => void;
   onDepositSuccess: () => void;
 }
 
 export default function DepositItemsModal({
   clan,
-  selectedCategory,
-  onCategoryChange,
   onClose,
   onDepositSuccess,
 }: DepositItemsModalProps) {
   const hero = useHeroStore((s) => s.hero);
   const heroStore = useHeroStore();
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const handleDeposit = async (item: any) => {
     if (!clan) return;
     try {
+      const itemId = item.id || item.itemId;
       const response = await depositClanWarehouseItem(
         clan.id,
-        item.id,
+        itemId,
         item.count || 1,
         { name: item.name, slot: item.slot, icon: item.icon, kind: item.kind, enchantLevel: item.enchantLevel ?? 0 }
       );
@@ -39,7 +37,8 @@ export default function DepositItemsModal({
           const depositCount = item.count || 1;
           const updatedInventory = heroStore.hero.inventory
             .map((invItem: any) => {
-              if (invItem.id === item.id) {
+              const invId = invItem.id || invItem.itemId;
+              if (invId === itemId) {
                 const newCount = (invItem.count || 1) - depositCount;
                 if (newCount <= 0) {
                   return null; // Видаляємо предмет
@@ -70,7 +69,7 @@ export default function DepositItemsModal({
           {CATEGORIES.map((category) => (
             <button
               key={category.key}
-              onClick={() => onCategoryChange(category.key)}
+              onClick={() => setSelectedCategory(category.key)}
               className={`px-3 py-1 text-[11px] rounded transition-colors ${
                 selectedCategory === category.key
                   ? "bg-[#5a4424] text-[#f4e2b8]"
@@ -86,13 +85,14 @@ export default function DepositItemsModal({
           {filteredItems.length === 0 ? (
             <div className="text-[11px] text-[#9f8d73]">Нет предметов в этой категории</div>
           ) : (
-            filteredItems.map((item: any) => {
-              const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
+            filteredItems.map((item: any, idx: number) => {
+              const itemId = item.id || item.itemId;
+              const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
               const iconPath = item.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
               const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
               return (
                 <div
-                  key={item.id}
+                  key={`${itemId}-${idx}`}
                   className="flex items-center gap-2 text-[11px] text-[#c7ad80] border-b border-solid border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
                   onClick={() => handleDeposit(item)}
                 >

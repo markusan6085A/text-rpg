@@ -26,20 +26,22 @@ function getItemSlotAndKind(item: any): { slot: string; kind: string } {
     itemDef = itemsDB[lookupId] || itemsDBWithStarter[lookupId];
     if (itemDef) break;
   }
-  let slot = item?.slot ?? itemDef?.slot ?? "";
-  let kind = item?.kind ?? itemDef?.kind ?? "";
+  // Пріоритет itemsDB — надійніше для категорій, ніж slot/kind з інвентаря
+  let slot = itemDef?.slot ?? item?.slot ?? "";
+  let kind = itemDef?.kind ?? item?.kind ?? "";
   // Fallback: визначити з id за префіксом, якщо itemsDB не знайшов
-  if (!slot && !kind && typeof item?.id === "string") {
-    if (item.id.startsWith("shop_armor") || item.id.includes("_armor_") || item.id.includes("stockings") || item.id.includes("gauntlets") || item.id.includes("helmet") || item.id.includes("boots")) {
+  const itemIdStr = (item?.id || item?.itemId)?.toString?.();
+  if (!slot && !kind && typeof itemIdStr === "string") {
+    if (itemIdStr.startsWith("shop_armor") || itemIdStr.includes("_armor_") || itemIdStr.includes("stockings") || itemIdStr.includes("gauntlets") || itemIdStr.includes("helmet") || itemIdStr.includes("boots")) {
       kind = "armor";
       slot = "armor";
-    } else if (item.id.startsWith("shop_weapon") || item.id.includes("_weapon_")) {
+    } else if (itemIdStr.startsWith("shop_weapon") || itemIdStr.includes("_weapon_")) {
       kind = "weapon";
       slot = "weapon";
-    } else if (item.id.startsWith("shop_shield")) {
+    } else if (itemIdStr.startsWith("shop_shield")) {
       kind = "shield";
       slot = "shield";
-    } else if (item.id.startsWith("shop_jewelry") || item.id.includes("ring") || item.id.includes("earring") || item.id.includes("necklace")) {
+    } else if (itemIdStr.startsWith("shop_jewelry") || itemIdStr.includes("ring") || itemIdStr.includes("earring") || itemIdStr.includes("necklace")) {
       kind = "jewelry";
       slot = "ring";
     }
@@ -81,7 +83,7 @@ export const CATEGORIES = [
     return ["necklace", "ring", "earring", "jewelry", "cloak"].includes(defKind);
   }},
   { key: "enchantment", label: "Заточки", test: (item: any) => {
-    const id = item.id || "";
+    const id = String(item?.id || item?.itemId || "");
     return (
       id.includes("enchant_weapon_scroll") ||
       id.includes("enchant_armor_scroll") ||
@@ -90,9 +92,10 @@ export const CATEGORIES = [
   }},
   { key: "consumable", label: "Расходники", test: (item: any) => {
     const { slot } = getItemSlotAndKind(item);
+    const id = item?.id || item?.itemId;
     if (slot === "consumable") return true;
-    if (item.id === "treasure_box") return true;
-    if (typeof item.id === "string" && item.id.startsWith("fish_")) return true;
+    if (id === "treasure_box") return true;
+    if (typeof id === "string" && id.startsWith("fish_")) return true;
     return false;
   }},
   { key: "resource", label: "Рес", test: (item: any) => {

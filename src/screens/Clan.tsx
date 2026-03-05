@@ -73,7 +73,6 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [showApplicationsModal, setShowApplicationsModal] = useState(false);
   const [applications, setApplications] = useState<ClanApplication[]>([]);
-  const [selectedItemCategory, setSelectedItemCategory] = useState("all");
 
   // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функцій
   const loadChatMessages = useCallback(async () => {
@@ -652,12 +651,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       {showDepositItemsModal && (
         <DepositItemsModal
           clan={clan}
-          selectedCategory={selectedItemCategory}
-          onCategoryChange={setSelectedItemCategory}
-          onClose={() => {
-            setShowDepositItemsModal(false);
-            setSelectedItemCategory("all");
-          }}
+          onClose={() => setShowDepositItemsModal(false)}
           onDepositSuccess={loadStorage}
         />
       )}
