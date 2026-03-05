@@ -94,7 +94,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
             onClick={() => navigate("/help")}
             className="text-left text-cyan-400 hover:text-cyan-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
           >
-            Допомога
+            Помощь
           </button>
         </div>
       </div>

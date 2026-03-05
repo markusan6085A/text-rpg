@@ -40,8 +40,8 @@ export default function Help({ navigate }: HelpProps) {
       <div className="max-w-[360px] mx-auto border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-lg font-bold text-[#ffe9c0]">Допомога</div>
-            <div className="text-xs text-orange-400/90">Обучалка для нових гравців</div>
+            <div className="text-lg font-bold text-[#ffe9c0]">Помощь</div>
+            <div className="text-xs text-orange-400/90">Обучалка для новых игроков</div>
           </div>
           <button onClick={() => navigate("/about")} className="text-gray-400 hover:text-white text-[10px]">
             ← Меню
@@ -50,87 +50,87 @@ export default function Help({ navigate }: HelpProps) {
         <div className="w-full h-px bg-gray-600 mb-3" />
 
         <div className="space-y-0 max-h-[65vh] overflow-y-auto">
-          <Section title="Як рухатися" defaultOpen={true}>
-            <p><strong>Місто</strong> — головний хаб. Звідси відкриваються всі сервіси. <LinkBtn onClick={() => navigate("/city")}>→ Місто</LinkBtn></p>
-            <p><strong>Телепорт (GK)</strong> — перехід між локаціями для бою з мобами. <LinkBtn onClick={() => navigate("/gk")}>→ Телепорт</LinkBtn></p>
-            <p><strong>Локація</strong> — місце, де ви б'єтеся з мобами. Натисніть на моба, щоб почати бій.</p>
+          <Section title="Как перемещаться" defaultOpen={true}>
+            <p><strong>Город</strong> — главный хаб. Отсюда открываются все сервисы. <LinkBtn onClick={() => navigate("/city")}>→ Город</LinkBtn></p>
+            <p><strong>Телепорт (GK)</strong> — переход между локациями для боя с мобами. <LinkBtn onClick={() => navigate("/gk")}>→ Телепорт</LinkBtn></p>
+            <p><strong>Локация</strong> — место, где вы бьётесь с мобами. Нажмите на моба, чтобы начать бой.</p>
           </Section>
 
-          <Section title="HP, MP, CP — що це?">
-            <p><strong>HP</strong> — здоров'я. При нулі ви вмираєте. Відновлюється в місті (регенерація) або хілами.</p>
-            <p><strong>MP</strong> — мана для скілів. Витрачається при касті скілів, відновлюється автоматично.</p>
-            <p><strong>CP</strong> — заряд (Combat Points). Потрібен для деяких скілів.</p>
-            <p>Барі показуються зверху зліва. Регенерація працює поза боєм.</p>
+          <Section title="HP, MP, CP — что это?">
+            <p><strong>HP</strong> — здоровье. При нуле вы умираете. Восстанавливается в городе (регенерация) или хилами.</p>
+            <p><strong>MP</strong> — мана для скиллов. Тратится при касте скиллов, восстанавливается автоматически.</p>
+            <p><strong>CP</strong> — заряд (Combat Points). Нужен для некоторых скиллов.</p>
+            <p>Бары отображаются сверху слева. Регенерация работает вне боя.</p>
           </Section>
 
-          <Section title="Рівень та EXP">
-            <p>EXP (досвід) — отримуєте за вбивство мобів і рибалку. Набравши потрібну кількість — підвищуєте рівень.</p>
-            <p>З кожним рівнем зростають HP, MP, урон та захист.</p>
+          <Section title="Уровень и EXP">
+            <p>EXP (опыт) — получаете за убийство мобов и рыбалку. Набрав нужное количество — повышаете уровень.</p>
+            <p>С каждым уровнем растут HP, MP, урон и защита.</p>
           </Section>
 
           <Section title="SP (Skill Points)">
-            <p>SP — очки скілів. Накопичуються за вбивство мобів і рибалку.</p>
-            <p><strong>Гільдія магів</strong> — вивчення основних скілів (атака, хіл, бафи). <LinkBtn onClick={() => navigate("/guild")}>→ Гільдія магів</LinkBtn></p>
-            <p><strong>Додаткові скіли</strong> — розширені скіли за SP. <LinkBtn onClick={() => navigate("/additional-skills")}>→ Додаткові скіли</LinkBtn></p>
-            <p>Рибалка витрачає 5000 SP за один закид.</p>
+            <p>SP — очки скиллов. Накопичиваются за убийство мобов и рыбалку.</p>
+            <p><strong>Гильдия магов</strong> — изучение основных скиллов (атака, хил, бафы). <LinkBtn onClick={() => navigate("/guild")}>→ Гильдия магов</LinkBtn></p>
+            <p><strong>Дополнительные скиллы</strong> — расширенные скиллы за SP. <LinkBtn onClick={() => navigate("/additional-skills")}>→ Доп. скиллы</LinkBtn></p>
+            <p>Рыбалка тратит 5000 SP за один заброс.</p>
           </Section>
 
-          <Section title="Бій з мобами">
-            <p>1. Виберіть локацію через <LinkBtn onClick={() => navigate("/gk")}>Телепорт</LinkBtn>.</p>
-            <p>2. Натисніть на моба в списку.</p>
-            <p>3. Використовуйте скіли (атака, бафи, хіли) під час бою.</p>
-            <p>4. Після перемоги — EXP, SP, предмети в інвентар.</p>
-            <p>При смерті можна воскреснути в місті (70% HP) або чекати респавну.</p>
+          <Section title="Бой с мобами">
+            <p>1. Выберите локацию через <LinkBtn onClick={() => navigate("/gk")}>Телепорт</LinkBtn>.</p>
+            <p>2. Нажмите на моба в списке.</p>
+            <p>3. Используйте скиллы (атака, бафы, хилы) во время боя.</p>
+            <p>4. После победы — EXP, SP, предметы в инвентарь.</p>
+            <p>При смерти можно воскреснуть в городе (70% HP) или ждать респавна.</p>
           </Section>
 
-          <Section title="Екіпіровка та інвентар">
-            <p><LinkBtn onClick={() => navigate("/inventory")}>Інвентар</LinkBtn> — предмети. Екіпіруйте зброю, броню, аксесуари.</p>
-            <p><LinkBtn onClick={() => navigate("/equipment")}>Екіпіровка</LinkBtn> — слоты: зброя, голова, груди, ноги, рукавиці, чоботи тощо.</p>
-            <p>Деякі предмети дають бонуси до статів. Заточка (enchant) підсилює предмети.</p>
+          <Section title="Экипировка и инвентарь">
+            <p><LinkBtn onClick={() => navigate("/inventory")}>Инвентарь</LinkBtn> — предметы. Экипируйте оружие, броню, аксессуары.</p>
+            <p><LinkBtn onClick={() => navigate("/equipment")}>Экипировка</LinkBtn> — слоты: оружие, голова, грудь, ноги, перчатки, ботинки и т.д.</p>
+            <p>Некоторые предметы дают бонусы к статам. Заточка (enchant) усиливает предметы.</p>
           </Section>
 
-          <Section title="Рибалка">
-            <p><strong>Потрібно:</strong> удочка Baby Duck Rod (в слоті зброї), Gludio Fish Lure (в інвентарі), 5000 SP, 5 000 000 adena.</p>
-            <p><strong>Як:</strong> зайдіть у <LinkBtn onClick={() => navigate("/fishing")}>Рибалку</LinkBtn>, натисніть «Почати». Чекайте 1 годину, потім «Зібрати».</p>
-            <p>Улов залежить від заточки удочки. Рибалка дає EXP і рибу в інвентар.</p>
+          <Section title="Рыбалка">
+            <p><strong>Нужно:</strong> удочка Baby Duck Rod (в слоте оружия), Gludio Fish Lure (в инвентаре), 5000 SP, 5 000 000 adena.</p>
+            <p><strong>Как:</strong> зайдите в <LinkBtn onClick={() => navigate("/fishing")}>Рыбалку</LinkBtn>, нажмите «Начать». Ждите 1 час, затем «Собрать».</p>
+            <p>Улов зависит от заточки удочки. Рыбалка даёт EXP и рыбу в инвентарь.</p>
           </Section>
 
-          <Section title="Валюти">
-            <p><strong>Adena</strong> — основна валюта. За мобів, продаж предметів, покупки в магазині.</p>
-            <p><strong>Coin of Luck</strong> — преміум-валюта. Збільшення слотів інвентаря, емблема клану, premium-акаунт.</p>
-            <p><strong>Ancient Adena</strong> — спеціальна валюта для деяких сервісів.</p>
-            <p><strong>Преміум-акаунт</strong> — x2 до EXP. Купується за Coin of Luck.</p>
+          <Section title="Валюты">
+            <p><strong>Adena</strong> — основная валюта. За мобов, продажа предметов, покупки в магазине.</p>
+            <p><strong>Coin of Luck</strong> — премиум-валюта. Увеличение слотов инвентаря, эмблема клана, премиум-акаунт.</p>
+            <p><strong>Ancient Adena</strong> — специальная валюта для некоторых сервисов.</p>
+            <p><strong>Премиум-акаунт</strong> — x2 к EXP. Покупается за Coin of Luck.</p>
           </Section>
 
-          <Section title="Чат, пошта, форум">
-            <p><LinkBtn onClick={() => navigate("/chat")}>Чат</LinkBtn> — загальний, торгівля. Пишіть повідомлення в реальному часі.</p>
-            <p><LinkBtn onClick={() => navigate("/mail")}>Пошта</LinkBtn> — листи між гравцями. Відправка предметів, адени.</p>
-            <p><LinkBtn onClick={() => navigate("/forum")}>Форум</LinkBtn> — теми, пости. Можна створювати теми, відповідати, редагувати свої пости.</p>
+          <Section title="Чат, почта, форум">
+            <p><LinkBtn onClick={() => navigate("/chat")}>Чат</LinkBtn> — общий, торговля. Пишите сообщения в реальном времени.</p>
+            <p><LinkBtn onClick={() => navigate("/mail")}>Почта</LinkBtn> — письма между игроками. Отправка предметов, адены.</p>
+            <p><LinkBtn onClick={() => navigate("/forum")}>Форум</LinkBtn> — темы, посты. Можно создавать темы, отвечать, редактировать свои посты.</p>
           </Section>
 
-          <Section title="Клани">
-            <p><LinkBtn onClick={() => navigate("/clans")}>Клани</LinkBtn> — створення або вступ у клан.</p>
-            <p>У клані: чат, склад, емблема, репутація. Керування через сторінку клану.</p>
+          <Section title="Кланы">
+            <p><LinkBtn onClick={() => navigate("/clans")}>Кланы</LinkBtn> — создание или вступление в клан.</p>
+            <p>В клане: чат, склад, эмблема, репутация. Управление через страницу клана.</p>
           </Section>
 
-          <Section title="Магазини">
-            <p><LinkBtn onClick={() => navigate("/shop")}>Магазин вещей</LinkBtn> — покупка предметів за adena / Coin of Luck.</p>
-            <p><strong>GM-шоп</strong> — спеціальні предмети (потребує доступу).</p>
-            <p><strong>Магична статуя</strong> — безкоштовні бафи в місті.</p>
+          <Section title="Магазины">
+            <p><LinkBtn onClick={() => navigate("/shop")}>Магазин вещей</LinkBtn> — покупка предметов за adena / Coin of Luck.</p>
+            <p><strong>GM-шоп</strong> — специальные предметы (требует доступа).</p>
+            <p><strong>Магическая статуя</strong> — бесплатные бафы в городе.</p>
           </Section>
 
-          <Section title="Інше">
-            <p><LinkBtn onClick={() => navigate("/about")}>Меню</LinkBtn> — онлайн, зміна ніка, колір ніка, <LinkBtn onClick={() => navigate("/achievements")}>досягнення</LinkBtn>, <LinkBtn onClick={() => navigate("/leaderboard")}>рейтинг</LinkBtn>.</p>
-            <p><strong>Склад</strong> — зберігання предметів. Доступ з міста.</p>
-            <p><strong>Тату-майстер</strong> — зміна зовнішності.</p>
-            <p><strong>7 Печатей</strong> — сезонна подія з медалями та нагородами.</p>
+          <Section title="Прочее">
+            <p><LinkBtn onClick={() => navigate("/about")}>Меню</LinkBtn> — онлайн, смена ника, цвет ника, <LinkBtn onClick={() => navigate("/achievements")}>достижения</LinkBtn>, <LinkBtn onClick={() => navigate("/leaderboard")}>рейтинг</LinkBtn>.</p>
+            <p><strong>Склад</strong> — хранение предметов. Доступ из города.</p>
+            <p><strong>Тату-мастер</strong> — смена внешности.</p>
+            <p><strong>7 Печатей</strong> — сезонное событие с медалями и наградами.</p>
           </Section>
 
-          <Section title="Часті питання">
-            <p><strong>Де купити удочку і наживку?</strong> Магазин вещей → категорія «Матеріали» або пошук «rod», «lure».</p>
-            <p><strong>Помер — що робити?</strong> Кнопка «В город (70% HP)» з'явиться під барами. Або чекайте респавну.</p>
-            <p><strong>Як змінити нік?</strong> Меню → «Изменить ник». За coin of luck.</p>
-            <p><strong>Як змінити колір ніка?</strong> Меню → «Покрасить ник».</p>
+          <Section title="Частые вопросы">
+            <p><strong>Где купить удочку и наживку?</strong> Магазин вещей → категория «Материалы» или поиск «rod», «lure».</p>
+            <p><strong>Умер — что делать?</strong> Кнопка «В город (70% HP)» появится под барами. Или ждите респавна.</p>
+            <p><strong>Как изменить ник?</strong> Меню → «Изменить ник». За coin of luck.</p>
+            <p><strong>Как изменить цвет ника?</strong> Меню → «Покрасить ник».</p>
           </Section>
         </div>
       </div>

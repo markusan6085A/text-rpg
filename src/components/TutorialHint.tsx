@@ -47,7 +47,7 @@ export default function TutorialHint({
   return (
     <div className="w-full mt-[5px] px-2 py-1.5 flex items-center justify-between gap-2 bg-amber-900/40 border-b border-amber-700/50 text-amber-100 text-[11px]">
       <span>
-        Обучалка: <span className="text-amber-400 font-medium">Меню → Допомога</span> — повна довідка для нових гравців.
+        Обучалка: <span className="text-amber-400 font-medium">Меню → Помощь</span> — полная справка для новых игроков.
       </span>
       <div className="flex gap-1 flex-shrink-0">
         <button
@@ -60,7 +60,7 @@ export default function TutorialHint({
           onClick={handleClose}
           className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-amber-200 text-[10px]"
         >
-          Закрити
+          Закрыть
         </button>
       </div>
     </div>
