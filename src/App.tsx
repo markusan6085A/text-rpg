@@ -563,14 +563,14 @@ function AppInner() {
     default:
       // Check if pathname matches /clan-info/:id pattern (інформаційна сторінка)
       if (pathname.startsWith("/clan-info/")) {
-        const clanId = pathname.replace("/clan-info/", "").split("?")[0];
+        const clanId = pathname.replace("/clan-info/", "").split("?")[0].split("/")[0].trim();
         if (clanId) {
           return renderWithLayout(<ClanInfo navigate={navigate} clanId={clanId} key={`clan-info-${clanId}-${refreshKey}`} />);
         }
       }
       // Check if pathname matches /clan/:id pattern (повна сторінка управління)
       if (pathname.startsWith("/clan/")) {
-        const clanId = pathname.replace("/clan/", "").split("?")[0];
+        const clanId = pathname.replace("/clan/", "").split("?")[0].split("/")[0].trim();
         if (clanId) {
           return renderWithLayout(<Clan navigate={navigate} clanId={clanId} key={`clan-${clanId}-${refreshKey}`} />);
         }

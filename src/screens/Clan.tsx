@@ -91,12 +91,12 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   }, [clan?.id, chatPage]); // 🔥 Мінімальні dependencies - тільки clan.id та chatPage (примітиви)
 
-  // Завантажуємо клан (тільки при зміні clanId — hero?.name не потрібен, уникнення зайвих reload)
+  // Завантажуємо клан при зміні clanId або hero (hero може підвантажитися пізніше)
   useEffect(() => {
     if (clanId) {
       loadClan();
     }
-  }, [clanId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [clanId, hero?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Позначаємо повідомлення як прочитані при заході в клан
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     return () => clearInterval(interval);
   }, [activeTab, clan?.id, chatPage, loadChatMessages]);
 
-  const loadClan = async () => {
+  const loadClan = async (retryCount = 0) => {
     if (!clanId || !hero) {
       setLoading(false);
       return;
@@ -142,8 +142,13 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           loadStorage();
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("[Clan] Failed to load clan:", err);
+      // Повторна спроба при тимчасових помилках (мережа, 429 тощо)
+      if (retryCount < 1 && err?.status !== 404) {
+        await new Promise((r) => setTimeout(r, 1500));
+        return loadClan(retryCount + 1);
+      }
       alert("Клан не найден");
       navigate("/clans");
     } finally {

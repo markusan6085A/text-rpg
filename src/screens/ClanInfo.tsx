@@ -21,24 +21,23 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
   const [applying, setApplying] = useState(false);
 
   useEffect(() => {
-    loadClanInfo();
+    loadClanInfo(0);
   }, [clanId]);
 
-  const loadClanInfo = async () => {
+  const loadClanInfo = async (retryCount: number) => {
     try {
       setLoading(true);
       const clanResponse = await getClan(clanId);
       if (clanResponse.ok) {
         setClan(clanResponse.clan);
         // Використовуємо учасників з відповіді getClan (яка вже містить список членів)
-        // Конвертуємо формат з getClan до формату ClanMember
         if (clanResponse.clan.members && Array.isArray(clanResponse.clan.members)) {
           const leaderId = clanResponse.clan.creator?.id;
           const membersList = clanResponse.clan.members.map((m: any) => ({
             id: m.id,
             characterId: m.characterId,
             characterName: m.characterName,
-            characterLevel: 0, // getClan не повертає level
+            characterLevel: 0,
             title: m.title || null,
             isDeputy: m.isDeputy || false,
             isLeader: m.characterId === leaderId,
@@ -47,15 +46,18 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
           }));
           setMembers(membersList);
         } else {
-          // Якщо members немає, встановлюємо порожній список
           setMembers([]);
         }
       } else {
         alert("Клан не найден");
         navigate("/clans");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("[ClanInfo] Failed to load clan:", err);
+      if (retryCount < 1 && err?.status !== 404) {
+        await new Promise((r) => setTimeout(r, 1500));
+        return loadClanInfo(retryCount + 1);
+      }
       alert("Ошибка при загрузке информации о клане");
       navigate("/clans");
     } finally {
@@ -104,7 +106,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
     try {
       setApplying(true);
       await applyToClan(clan.id);
-      loadClanInfo();
+      loadClanInfo(0);
     } catch (err: any) {
       alert(err?.message || "Ошибка при подаче заявки");
     } finally {

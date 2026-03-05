@@ -134,18 +134,28 @@ export default function NavGrid({ navigate }: NavGridProps) {
     
     // Спеціальна обробка для кнопки "Клан"
     if (btn.label === "Клан" && navigate) {
+      const fetchClan = async (retries = 0): Promise<{ id: string } | null> => {
+        try {
+          const response = await getMyClan();
+          if (response.ok && response.clan?.id) return response.clan;
+          return null;
+        } catch (err) {
+          if (retries < 1) {
+            await new Promise((r) => setTimeout(r, 800));
+            return fetchClan(retries + 1);
+          }
+          throw err;
+        }
+      };
       try {
-        const response = await getMyClan();
-        if (response.ok && response.clan) {
-          // Якщо є клан - переходимо на детальну сторінку
-          navigate(`/clan/${response.clan.id}`);
+        const clan = await fetchClan();
+        if (clan) {
+          navigate(`/clan/${clan.id}`);
         } else {
-          // Якщо немає клану - переходимо на список кланів
           navigate("/clans");
         }
       } catch (err) {
         console.error("[NavGrid] Failed to check clan:", err);
-        // У разі помилки - переходимо на список кланів
         navigate("/clans");
       }
       return;
