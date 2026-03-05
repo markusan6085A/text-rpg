@@ -1,6 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "./db";
 import { getAuth } from "./routes/character/auth";
+import { addVersioning } from "./heroJsonValidator";
+import { removeItemFromInventory, addItemToInventory, pickSafeItemFields } from "./utils/inventoryHelpers";
 
 // Функція для перевірки та створення таблиці ClanWarehouse, якщо вона не існує
 async function ensureClanWarehouseTable(app: FastifyInstance): Promise<void> {
@@ -492,6 +494,7 @@ async function clanNestedRoutes(app: FastifyInstance) {
 
       const character = await prisma.character.findFirst({
         where: { accountId: auth.accountId },
+        select: { id: true, name: true, heroJson: true },
       });
 
       if (!character) {
@@ -514,6 +517,23 @@ async function clanNestedRoutes(app: FastifyInstance) {
 
       if (!isMember && !isCreator) {
         return reply.code(403).send({ error: "you are not a member of this clan" });
+      }
+
+      const qtyNum = Math.max(1, Math.floor(Number(qty) || 1));
+      const heroJson = (character.heroJson as any) || {};
+      const currentInventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+      let newInventory: any[];
+      let transferItem: any;
+      try {
+        const result = removeItemFromInventory(currentInventory, {
+          id: String(itemId),
+          count: qtyNum,
+          enchantLevel: (meta && typeof meta === "object" && Number(meta.enchantLevel)) || 0,
+        });
+        newInventory = result.newInventory;
+        transferItem = result.transferItem;
+      } catch (invErr: any) {
+        return reply.code(400).send({ error: invErr.message || "not enough items in inventory" });
       }
 
       // Перевіряємо ліміт складу (200 предметів)
@@ -549,20 +569,10 @@ async function clanNestedRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "clan warehouse is full (200 items max)" });
       }
 
-      // TODO: Перевірити, чи є предмет у гравця та забрати його
+      const metaData = (meta && typeof meta === "object" && !Array.isArray(meta))
+        ? meta
+        : { name: transferItem?.name, icon: transferItem?.icon, slot: transferItem?.slot };
 
-      // Переконуємося, що meta є об'єктом
-      let metaData: any = {};
-      try {
-        if (meta && typeof meta === 'object' && !Array.isArray(meta)) {
-          metaData = meta;
-        }
-      } catch (e) {
-        app.log.warn({ error: e }, "Failed to parse meta, using empty object");
-        metaData = {};
-      }
-
-      // Перевіряємо, чи клан існує
       const clanExists = await prisma.clan.findUnique({
         where: { id },
         select: { id: true },
@@ -572,36 +582,56 @@ async function clanNestedRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "clan not found" });
       }
 
-      app.log.info({ clanId: id, itemId, qty, metaData, depositedBy: character.id }, "Creating warehouse item");
+      app.log.info({ clanId: id, itemId, qty: qtyNum, metaData, depositedBy: character.id }, "Creating warehouse item");
 
       let warehouseItem;
       try {
-        warehouseItem = await prisma.clanWarehouse.create({
-          data: {
-            clanId: id,
-            itemId: String(itemId),
-            qty: Math.max(1, Math.floor(Number(qty) || 1)),
-            meta: metaData,
-            depositedBy: character.id,
-          },
+        warehouseItem = await prisma.$transaction(async (tx) => {
+          const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+          const updatedHeroJson = addVersioning(
+            { ...heroJson, inventory: newInventory },
+            oldRevision
+          );
+          await tx.character.update({
+            where: { id: character.id },
+            data: { heroJson: updatedHeroJson },
+          });
+          return tx.clanWarehouse.create({
+            data: {
+              clanId: id,
+              itemId: String(itemId),
+              qty: qtyNum,
+              meta: metaData,
+              depositedBy: character.id,
+            },
+          });
         });
       } catch (createError: any) {
         app.log.warn({ error: createError.message, code: createError.code }, "Error during warehouse create, checking if table exists...");
         if (createError?.message?.includes('does not exist') || createError?.code === '42P01' || createError?.message?.includes('ClanWarehouse')) {
           app.log.warn("ClanWarehouse table missing during create, ensuring it exists...");
           await ensureClanWarehouseTable(app);
-          // Невелика затримка, щоб дати базі час на створення таблиці
           await new Promise(resolve => setTimeout(resolve, 100));
-          // Спробуємо ще раз після створення таблиці
           try {
-            warehouseItem = await prisma.clanWarehouse.create({
-              data: {
-                clanId: id,
-                itemId: String(itemId),
-                qty: Math.max(1, Math.floor(Number(qty) || 1)),
-                meta: metaData,
-                depositedBy: character.id,
-              },
+            warehouseItem = await prisma.$transaction(async (tx) => {
+              const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+              const updatedHeroJson = addVersioning(
+                { ...heroJson, inventory: newInventory },
+                oldRevision
+              );
+              await tx.character.update({
+                where: { id: character.id },
+                data: { heroJson: updatedHeroJson },
+              });
+              return tx.clanWarehouse.create({
+                data: {
+                  clanId: id,
+                  itemId: String(itemId),
+                  qty: qtyNum,
+                  meta: metaData,
+                  depositedBy: character.id,
+                },
+              });
             });
             app.log.info({ warehouseItemId: warehouseItem.id }, "Create successful after table creation");
           } catch (retryError: any) {
@@ -649,6 +679,7 @@ async function clanNestedRoutes(app: FastifyInstance) {
   });
 
   // POST /clans/:id/warehouse/withdraw - забрати предмет зі складу
+  // itemId в body = id запису ClanWarehouse (warehouse row id), не itemId предмета
   app.post("/clans/:id/warehouse/withdraw", async (req, reply) => {
     try {
       await ensureClanWarehouseTable(app);
@@ -659,14 +690,15 @@ async function clanNestedRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const { id } = req.params as { id: string };
-    const { itemId } = req.body as { itemId?: string };
+    const { itemId: warehouseRowId } = req.body as { itemId?: string };
 
-    if (!itemId) {
+    if (!warehouseRowId) {
       return reply.code(400).send({ error: "itemId is required" });
     }
 
     const character = await prisma.character.findFirst({
       where: { accountId: auth.accountId },
+      select: { id: true, name: true, heroJson: true },
     });
 
     if (!character) {
@@ -694,7 +726,7 @@ async function clanNestedRoutes(app: FastifyInstance) {
     const warehouseItem = await prisma.clanWarehouse.findFirst({
       where: {
         clanId: id,
-        id: itemId,
+        id: warehouseRowId,
       },
     });
 
@@ -702,22 +734,46 @@ async function clanNestedRoutes(app: FastifyInstance) {
       return reply.code(404).send({ error: "item not found in warehouse" });
     }
 
-    await prisma.clanWarehouse.delete({
-      where: { id: warehouseItem.id },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "item_withdrawn",
-        characterId: character.id,
-        message: `${character.name} забрал предмет из склада`,
-        metadata: { itemId: warehouseItem.itemId, qty: warehouseItem.qty },
+    const meta = (warehouseItem.meta as any) || {};
+    const itemToAdd = pickSafeItemFields(
+      {
+        id: warehouseItem.itemId,
+        name: meta.name,
+        icon: meta.icon,
+        slot: meta.slot,
+        kind: meta.kind,
+        count: warehouseItem.qty,
       },
-    });
+      warehouseItem.qty
+    );
 
-    // TODO: Додати предмет гравцю
+    const heroJson = (character.heroJson as any) || {};
+    const currentInventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+    const newInventory = addItemToInventory(currentInventory, itemToAdd);
+    const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+    const updatedHeroJson = addVersioning(
+      { ...heroJson, inventory: newInventory },
+      oldRevision
+    );
+
+    await prisma.$transaction(async (tx) => {
+      await tx.character.update({
+        where: { id: character.id },
+        data: { heroJson: updatedHeroJson },
+      });
+      await tx.clanWarehouse.delete({
+        where: { id: warehouseItem.id },
+      });
+      await tx.clanLog.create({
+        data: {
+          clanId: id,
+          type: "item_withdrawn",
+          characterId: character.id,
+          message: `${character.name} забрал предмет из склада`,
+          metadata: { itemId: warehouseItem.itemId, qty: warehouseItem.qty },
+        },
+      });
+    });
 
     return { ok: true };
   });

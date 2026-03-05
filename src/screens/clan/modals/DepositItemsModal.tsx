@@ -30,7 +30,7 @@ export default function DepositItemsModal({
         clan.id,
         item.id,
         item.count || 1,
-        { name: item.name, slot: item.slot }
+        { name: item.name, slot: item.slot, icon: item.icon, kind: item.kind, enchantLevel: item.enchantLevel ?? 0 }
       );
       if (response.ok) {
         onClose();
