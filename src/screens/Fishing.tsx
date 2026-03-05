@@ -39,6 +39,7 @@ export default function Fishing({ navigate }: FishingProps) {
   const [now, setNow] = useState(Date.now());
   const [serverOffsetMs, setServerOffsetMs] = useState(0);
   const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
+  const [showRequirementsModal, setShowRequirementsModal] = useState(false);
   const [catchResult, setCatchResult] = useState<{ fishCount: number, expGained: number } | null>(null);
 
   useEffect(() => {
@@ -110,18 +111,9 @@ export default function Fishing({ navigate }: FishingProps) {
 
   const handleStartFishing = async () => {
     if (!hero || !activeCharacterId || actionLoading) return;
-    if (!hasRod) {
-      alert("Нужна удочка! Наденьте удочку (Baby Duck Rod) в слот оружия.");
-      return;
-    }
-    if (!hasBait) {
-      alert("Нужна наживка! Купите наживку (Gludio) в магазине.");
-      return;
-    }
-    if (!canAfford) {
-      alert(
-        `Недостаточно ресурсов. Нужно: ${FISHING_COST_SP.toLocaleString()} SP и ${FISHING_COST_ADENA.toLocaleString()} аден.`
-      );
+    const missing = !hasRod || !hasBait || !canAfford;
+    if (missing) {
+      setShowRequirementsModal(true);
       return;
     }
     setActionLoading(true);
@@ -208,6 +200,64 @@ export default function Fishing({ navigate }: FishingProps) {
             Информация об улове
           </button>
           {showCatchInfoModal && <FishingCatchInfoModal onClose={() => setShowCatchInfoModal(false)} />}
+          {showRequirementsModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setShowRequirementsModal(false)}>
+              <div
+                className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-[#b8860b]">Чого не вистачає</h2>
+                  <button className="text-gray-400 hover:text-white text-xl" onClick={() => setShowRequirementsModal(false)}>×</button>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-300">Удочка:</span>
+                    <span className={hasRod ? "text-green-400" : "text-red-400"}>
+                      {hasRod ? "✓ є" : "✗ немає"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-300">Наживка:</span>
+                    <span className={hasBait ? "text-green-400" : "text-red-400"}>
+                      {hasBait ? `✓ є (${baitCount})` : "✗ немає"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-gray-300">SP:</span>
+                    <span className={`text-right ${sp >= FISHING_COST_SP ? "text-green-400" : "text-red-400"}`}>
+                      {sp.toLocaleString()} / {FISHING_COST_SP.toLocaleString()}
+                      {sp >= FISHING_COST_SP ? " ✓" : " ✗"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-gray-300">Адена:</span>
+                    <span className={`text-right ${adena >= FISHING_COST_ADENA ? "text-green-400" : "text-red-400"}`}>
+                      {adena.toLocaleString()} / {FISHING_COST_ADENA.toLocaleString()}
+                      {adena >= FISHING_COST_ADENA ? " ✓" : " ✗"}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-white/30">
+                  <p className="text-xs text-[#c7ad80] mb-2">Не вистачає:</p>
+                  <ul className="text-xs text-red-400 space-y-1">
+                    {!hasRod && <li>• Удочка (Baby Duck Rod) — надіньте в слот зброї</li>}
+                    {!hasBait && <li>• Наживка (Gludio Fish Lure) — купіть у магазині</li>}
+                    {sp < FISHING_COST_SP && <li>• SP — потрібно ще {(FISHING_COST_SP - sp).toLocaleString()}</li>}
+                    {adena < FISHING_COST_ADENA && <li>• Адена — потрібно ще {(FISHING_COST_ADENA - adena).toLocaleString()}</li>}
+                  </ul>
+                </div>
+                <div className="flex justify-center pt-4 mt-4 border-t border-white/50">
+                  <button
+                    onClick={() => setShowRequirementsModal(false)}
+                    className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+                  >
+                    Закрити
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <p className="text-xs text-left" style={{ color: "#c7ad80" }}>
             Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
             {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб.
@@ -253,7 +303,7 @@ export default function Fishing({ navigate }: FishingProps) {
             </p>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-[#c7ad80]/50 text-[#c7ad80] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!hasRod || !hasBait || !canAfford || actionLoading}
+              disabled={actionLoading}
               onClick={handleStartFishing}
             >
               {actionLoading ? "..." : "Начать рыбалку"}
