@@ -18,6 +18,7 @@ import { AdminSectionLetters } from "./admin/AdminSectionLetters";
 import { AdminSectionClans } from "./admin/AdminSectionClans";
 import { AdminSectionChangeClass } from "./admin/AdminSectionChangeClass";
 import { AdminSectionAuditLog } from "./admin/AdminSectionAuditLog";
+import { AdminSectionQuickSearch } from "./admin/AdminSectionQuickSearch";
 
 interface AdminDashboardProps {
   navigate: (path: string) => void;
@@ -79,6 +80,7 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
         )}
 
         <div className="flex flex-col">
+          <AdminSectionQuickSearch navigate={navigate} />
           <AdminSectionItems navigate={navigate} />
           <AdminSectionLevelExp />
           <AdminSectionChangeClass />

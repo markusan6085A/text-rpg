@@ -1,5 +1,16 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { getPublicCharacter, getCharacterByName, type Character } from "../utils/api";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import {
+  getPublicCharacter,
+  getCharacterByName,
+  adminHeal,
+  adminResurrect,
+  adminBan,
+  adminUnban,
+  adminBlock,
+  adminUnblock,
+  adminMuteChatUser,
+  type Character,
+} from "../utils/api";
 import { getSkillDef, getSkillDefForBattle } from "../state/battle/loadout";
 import { normalizeProfessionId, getProfessionDefinition, getDefaultProfessionForKlass } from "../data/skills";
 import { useHeroStore } from "../state/heroStore";
@@ -18,33 +29,32 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBuffModal, setShowBuffModal] = useState(false);
+  const [adminActionLoading, setAdminActionLoading] = useState(false);
+  const [adminMessage, setAdminMessage] = useState<string | null>(null);
+
+  const loadPlayer = useCallback(async () => {
+    if (!playerId && !playerName) return;
+    setLoading(true);
+    setError(null);
+    try {
+      let loadedCharacter: Character;
+      if (playerId) {
+        loadedCharacter = await getPublicCharacter(playerId);
+      } else {
+        loadedCharacter = await getCharacterByName(playerName!);
+      }
+      setCharacter(loadedCharacter);
+    } catch (err: any) {
+      setError(err?.message || "Помилка завантаження профілю гравця");
+      console.error("[PlayerAdminActions] Error loading profile:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [playerId, playerName]);
 
   useEffect(() => {
-    const loadPlayer = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        let loadedCharacter: Character;
-        if (playerId) {
-          loadedCharacter = await getPublicCharacter(playerId);
-        } else if (playerName) {
-          loadedCharacter = await getCharacterByName(playerName);
-        } else {
-          throw new Error("playerId or playerName is required");
-        }
-        
-        setCharacter(loadedCharacter);
-      } catch (err: any) {
-        setError(err?.message || "Помилка завантаження профілю гравця");
-        console.error("[PlayerAdminActions] Error loading profile:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadPlayer();
-  }, [playerId, playerName]);
+  }, [loadPlayer]);
 
   // Конвертуємо Character в Hero формат; profession нормалізуємо для всіх професій (бафи відображаються коректно)
   const playerHero = useMemo(() => {
@@ -244,23 +254,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       
       if (result.ok) {
         alert(`Игроку ${character.name} відновлено ${result.healedHp || healPower} HP.`);
-        // Перезавантажуємо профіль
-        const loadPlayer = async () => {
-          try {
-            let loadedCharacter: Character;
-            if (playerId) {
-              loadedCharacter = await import("../utils/api").then(({ getPublicCharacter }) => getPublicCharacter(playerId));
-            } else if (playerName) {
-              loadedCharacter = await import("../utils/api").then(({ getCharacterByName }) => getCharacterByName(playerName));
-            } else {
-              return;
-            }
-            setCharacter(loadedCharacter);
-          } catch (err: any) {
-            console.error("[PlayerAdminActions] Error reloading:", err);
-          }
-        };
-        loadPlayer();
+        reloadCharacter();
       }
     } catch (err: any) {
       alert(`Ошибка лечения: ${err?.message || "Unknown error"}`);
@@ -295,25 +289,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       );
       
       if (result.ok) {
-        // ❗ Не показуємо alert, не закриваємо модалку - просто перезавантажуємо дані
-        // Перезавантажуємо профіль для оновлення бафів
-        const loadPlayer = async () => {
-          try {
-            let loadedCharacter: Character;
-            if (playerId) {
-              loadedCharacter = await import("../utils/api").then(({ getPublicCharacter }) => getPublicCharacter(playerId));
-            } else if (playerName) {
-              loadedCharacter = await import("../utils/api").then(({ getCharacterByName }) => getCharacterByName(playerName));
-            } else {
-              return;
-            }
-            setCharacter(loadedCharacter);
-          } catch (err: any) {
-            console.error("[PlayerAdminActions] Error reloading:", err);
-          }
-        };
-        loadPlayer();
-        // Модалку не закриваємо - залишаємо відкритою для подальших бафів
+        reloadCharacter();
       }
     } catch (err: any) {
       alert(`Ошибка применения бафа: ${err?.message || "Unknown error"}`);
@@ -349,6 +325,34 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
   const profDef = profId ? getProfessionDefinition(profId) : null;
   const professionLabel = profDef?.label || profession || "Нет";
 
+  const reloadCharacter = useCallback(async () => {
+    if (!playerId && !playerName) return;
+    try {
+      const loaded =
+        playerId
+          ? await getPublicCharacter(playerId)
+          : await getCharacterByName(playerName!);
+      setCharacter(loaded);
+    } catch (err: any) {
+      console.error("[PlayerAdminActions] Error reloading:", err);
+    }
+  }, [playerId, playerName]);
+
+  const runAdminAction = async (fn: () => Promise<any>, successMsg: string) => {
+    if (!character) return;
+    setAdminMessage(null);
+    setAdminActionLoading(true);
+    try {
+      await fn();
+      setAdminMessage(successMsg);
+      await reloadCharacter();
+    } catch (err: any) {
+      setAdminMessage(err?.message || "Помилка");
+    } finally {
+      setAdminActionLoading(false);
+    }
+  };
+
   return (
     <div className="w-full flex flex-col items-center text-white">
       <div className="w-full max-w-[420px] mt-2 px-3">
@@ -356,6 +360,73 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         <div className="text-center text-[#dec28e] text-lg font-semibold mb-4">
           <div style={getNickColorStyle(character.name, hero)}>{character.name}</div>
           <div className="text-sm text-gray-400">{professionLabel} - {character.level} ур.</div>
+        </div>
+
+        {/* Адмін-дії */}
+        <div className="mb-4">
+          <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-solid border-white/50 pb-1">
+            Адмін-дії
+          </div>
+          {adminMessage && (
+            <p className="text-xs text-green-400 mb-2">{adminMessage}</p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => runAdminAction(() => adminHeal(character.id), "Лікування виконано")}
+              disabled={adminActionLoading}
+              className="px-2 py-1 text-[10px] rounded bg-green-900/40 text-green-300 hover:bg-green-900/60 disabled:opacity-50"
+            >
+              Heal
+            </button>
+            <button
+              onClick={() => runAdminAction(() => adminResurrect(character.id), "Воскрешение виконано")}
+              disabled={adminActionLoading}
+              className="px-2 py-1 text-[10px] rounded bg-green-900/40 text-green-300 hover:bg-green-900/60 disabled:opacity-50"
+            >
+              Resurrect
+            </button>
+            <button
+              onClick={() => runAdminAction(() => adminBan(character.id, 60), "Бан 1 год застосовано")}
+              disabled={adminActionLoading}
+              className="px-2 py-1 text-[10px] rounded bg-red-900/40 text-red-300 hover:bg-red-900/60 disabled:opacity-50"
+            >
+              Бан 1 год
+            </button>
+            <button
+              onClick={() => runAdminAction(() => adminUnban(character.id), "Розбан виконано")}
+              disabled={adminActionLoading}
+              className="px-2 py-1 text-[10px] rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+            >
+              Розбан
+            </button>
+            <button
+              onClick={() => runAdminAction(() => adminBlock(character.id, 60), "Блок 1 год застосовано")}
+              disabled={adminActionLoading}
+              className="px-2 py-1 text-[10px] rounded bg-orange-900/40 text-orange-300 hover:bg-orange-900/60 disabled:opacity-50"
+            >
+              Блок 1 год
+            </button>
+            <button
+              onClick={() => runAdminAction(() => adminUnblock(character.id), "Розблок виконано")}
+              disabled={adminActionLoading}
+              className="px-2 py-1 text-[10px] rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+            >
+              Розблок
+            </button>
+            <button
+              onClick={() => runAdminAction(() => adminMuteChatUser(character.id, 60), "Mute 1 год застосовано")}
+              disabled={adminActionLoading}
+              className="px-2 py-1 text-[10px] rounded bg-amber-900/40 text-amber-300 hover:bg-amber-900/60 disabled:opacity-50"
+            >
+              Mute 1 год
+            </button>
+          </div>
+          <button
+            onClick={() => navigate("/admin")}
+            className="mt-2 text-[10px] text-[#c7ad80] hover:underline"
+          >
+            В адмінку (предмети, зміна класу, преміум...)
+          </button>
         </div>
 
         {/* Кнопка бафу */}

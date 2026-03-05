@@ -156,11 +156,7 @@ async function apiRequest<T>(
       response = await doFetch(newToken);
     } else {
       useAuthStore.getState().logout();
-      try {
-        const { useAdminStore } = await import("../state/adminStore");
-        useAdminStore.getState().resetAdmin();
-      } catch (_) {}
-      adminLogout().catch(() => {});
+      // ❗ Не скидаємо admin — game auth і admin auth окремі; 401 від game API не має виходити з адмінки
       const error: ApiError = await response.json().catch(() => ({ error: "unauthorized" }));
       const err = new Error(error.error || "unauthorized") as any;
       err.status = 401;
@@ -181,11 +177,7 @@ async function apiRequest<T>(
 
     if (response.status === 401 || response.status === 403) {
       useAuthStore.getState().logout();
-      try {
-        const { useAdminStore } = await import("../state/adminStore");
-        useAdminStore.getState().resetAdmin();
-      } catch (_) {}
-      adminLogout().catch(() => {});
+      // ❗ Не скидаємо admin — apiRequest тільки для game API; admin використовує cookies окремо
       errorWithStatus.unauthorized = true;
       throw errorWithStatus;
     }
