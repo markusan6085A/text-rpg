@@ -8,9 +8,9 @@ interface ClanEmblemProps {
 }
 
 /**
- * Функція для заміни чорного фону в зображенні на #252422 через Canvas
+ * Замінює чорний фон у зображенні на прозорий — фон успадковується з батька, як скрізь в інтерфейсі
  */
-function replaceBlackBackground(image: HTMLImageElement, targetColor: string): string {
+function replaceBlackWithTransparent(image: HTMLImageElement): string {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   if (!ctx) return image.src;
@@ -18,39 +18,23 @@ function replaceBlackBackground(image: HTMLImageElement, targetColor: string): s
   canvas.width = image.width;
   canvas.height = image.height;
 
-  // Малюємо оригінальне зображення
   ctx.drawImage(image, 0, 0);
 
-  // Отримуємо дані пікселів
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
 
-  // Конвертуємо targetColor (#252422) в RGB
-  const targetR = parseInt(targetColor.slice(1, 3), 16);
-  const targetG = parseInt(targetColor.slice(3, 5), 16);
-  const targetB = parseInt(targetColor.slice(5, 7), 16);
-
-  // Замінюємо чорні пікселі (близькі до #000000) на targetColor
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
-    const a = data[i + 3];
 
-    // Перевіряємо, чи піксель чорний (або дуже темний)
-    // Порог: якщо всі канали < 30, вважаємо чорним
-    if (r < 30 && g < 30 && b < 30 && a > 0) {
-      data[i] = targetR;     // R
-      data[i + 1] = targetG; // G
-      data[i + 2] = targetB; // B
-      // a залишаємо без змін
+    // Чорні/дуже темні пікселі — робимо прозорими, щоб видно було фон
+    if (r < 30 && g < 30 && b < 30) {
+      data[i + 3] = 0;
     }
   }
 
-  // Записуємо змінені дані назад
   ctx.putImageData(imageData, 0, 0);
-
-  // Повертаємо data URL
   return canvas.toDataURL();
 }
 
@@ -79,7 +63,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
           setProcessingError(true);
           return;
         }
-        const processed = replaceBlackBackground(img, "#252422");
+        const processed = replaceBlackWithTransparent(img);
         setProcessedSrc(processed);
       } catch (err) {
         console.error(`[ClanEmblem] Failed to process emblem: ${emblemPath}`, err);
@@ -102,7 +86,7 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         width: `${size}px`,
         height: `${size}px`,
         verticalAlign: "middle",
-        backgroundColor: "#252422", // Фон Layout (.l2-frame) - той самий що і на всіх сторінках
+        backgroundColor: "transparent", // Успадковує фон батька — однаковий з усім інтерфейсом
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
@@ -111,12 +95,12 @@ export function ClanEmblem({ emblem, size = 10, className = "" }: ClanEmblemProp
         overflow: "hidden",
       }}
     >
-      {/* 🔥 Фоновий шар з кольором #252422 - буде видно через прозорі частини зображення */}
+      {/* Фон прозорий — через прозорі частини зображення видно фон чату/сторінки */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          backgroundColor: "#252422",
+          backgroundColor: "transparent",
           zIndex: 0,
         }}
       />
