@@ -8,11 +8,12 @@ import PlayerItemModal from "../components/PlayerItemModal";
 import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
-import { getMyClan } from "../utils/api";
+import { getMyClan, inviteToClan, type Clan } from "../utils/api";
 import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
 import PlayerStatsModal from "../components/PlayerStatsModal";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import PkProfileView from "./player/PkProfileView";
+import InvitePlayerModal from "./clan/modals/InvitePlayerModal";
 import { locations as WORLD_LOCATIONS } from "../data/world";
 import { useAutoShot } from "../state/battle/actions/useSkill/shotHelpers";
 import { calcAutoAttackInterval, calcPhysicalSkillCooldown } from "../utils/combatSpeed";
@@ -51,6 +52,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [pkLoading, setPkLoading] = useState(false);
   const [pkActing, setPkActing] = useState(false);
   const [pkError, setPkError] = useState<string | null>(null);
+  const [myClan, setMyClan] = useState<Clan | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   // 🔥 Таймер — перерендер щосекунди, щоб бафи інших гравців зникали при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -91,6 +94,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   useEffect(() => {
     loadPlayerProfile();
   }, [playerId, playerName]);
+
+  useEffect(() => {
+    if (!hero?.id) return;
+    getMyClan().then((r) => {
+      if (r.ok && r.clan) setMyClan(r.clan);
+      else setMyClan(null);
+    });
+  }, [hero?.id]);
 
   const sevenSealsBonus = (character?.heroJson as any)?.sevenSealsBonus;
   const sevenSealsFromChar = getActiveSevenSealsRank(sevenSealsBonus);
@@ -772,6 +783,22 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </span>
             </div>
           </div>
+          {myClan &&
+            !playerClan &&
+            character.id !== hero?.id &&
+            (myClan.creator?.id === hero?.id ||
+              myClan.members?.some((m) => m.characterId === hero?.id && m.isDeputy)) && (
+            <div className={`${lineThin} py-1`}>
+              <div className={boxPad}>
+                <span
+                  onClick={() => setShowInviteModal(true)}
+                  className="cursor-pointer hover:text-amber-300 transition-colors text-[12px] text-amber-400 text-center block"
+                >
+                  Запросити в клан
+                </span>
+              </div>
+            </div>
+          )}
           {isAdmin && (
             <div className={`${lineThin} py-1`}>
               <div className={boxPad}>
@@ -894,6 +921,16 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               setShowWriteModal(false);
               // TODO: Можливо показати повідомлення про успішну відправку
             }}
+          />
+        )}
+
+        {showInviteModal && myClan && character && (
+          <InvitePlayerModal
+            playerName={character.name}
+            onInvite={async () => {
+              await inviteToClan(myClan.id, character.id);
+            }}
+            onClose={() => setShowInviteModal(false)}
           />
         )}
 

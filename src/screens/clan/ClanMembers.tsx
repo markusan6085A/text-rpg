@@ -13,6 +13,9 @@ interface ClanMembersProps {
   onSetDeputy: (characterId: string, isDeputy: boolean) => void;
   onEditingTitleChange: (editing: { characterId: string; title: string | null } | null) => void;
   onTabChange: () => void;
+  onLeave?: () => void;
+  onTransferLeadership?: (characterId: string) => void;
+  onShowApplications?: () => void;
 }
 
 export default function ClanMembers({
@@ -25,6 +28,9 @@ export default function ClanMembers({
   onSetDeputy,
   onEditingTitleChange,
   onTabChange,
+  onLeave,
+  onTransferLeadership,
+  onShowApplications,
 }: ClanMembersProps) {
   const hero = useHeroStore((s) => s.hero);
   // Обчислюємо максимум учасників на основі рівня клану
@@ -41,13 +47,32 @@ export default function ClanMembers({
 
   const maxMembers = getMaxMembers(clan.level);
 
+  const isDeputy = members.find((m) => m.characterId === hero?.id)?.isDeputy;
+
   return (
     <div className="space-y-2">
-      <div
-        className="text-[12px] text-[#c7ad80] mb-2 cursor-pointer hover:text-[#f4e2b8]"
-        onClick={onTabChange}
-      >
-        Состав ({members.length}/{maxMembers})
+      <div className="flex justify-between items-center mb-2">
+        <div
+          className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
+          onClick={onTabChange}
+        >
+          Состав ({members.length}/{maxMembers})
+        </div>
+        <div className="flex gap-2 text-[11px]">
+          {(isLeader || isDeputy) && onShowApplications && (
+            <span
+              className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
+              onClick={onShowApplications}
+            >
+              Заявки
+            </span>
+          )}
+          {onLeave && !isLeader && (
+            <span className="text-red-500 cursor-pointer hover:text-red-400" onClick={onLeave}>
+              Выйти
+            </span>
+          )}
+        </div>
       </div>
       <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
         {members.map((member) => {
@@ -80,7 +105,7 @@ export default function ClanMembers({
                 </div>
               </div>
               {isLeader && !member.isLeader && (
-                <div className="mt-1 flex gap-2 text-[10px]">
+                <div className="mt-1 flex gap-2 text-[10px] flex-wrap">
                   <span
                     className="text-red-500 cursor-pointer hover:text-red-400"
                     onClick={() => onKickMember(member.characterId, member.characterName)}
@@ -111,6 +136,14 @@ export default function ClanMembers({
                       onClick={() => onSetDeputy(member.characterId, true)}
                     >
                       Назначить зам.
+                    </span>
+                  )}
+                  {onTransferLeadership && (
+                    <span
+                      className="text-amber-500 cursor-pointer hover:text-amber-400"
+                      onClick={() => onTransferLeadership(member.characterId)}
+                    >
+                      Передать лидерство
                     </span>
                   )}
                 </div>

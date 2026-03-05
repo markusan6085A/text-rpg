@@ -80,6 +80,11 @@ export default function ClanHeader({
             {new Date(clan.createdAt).toLocaleDateString("ru-RU")}
           </span>
         </div>
+        {clan.announcement && clan.announcement.trim() && (
+          <div className="p-2 bg-[#1a1a1a] border border-white/30 rounded text-[11px] text-[#c7ad80] whitespace-pre-wrap">
+            {clan.announcement}
+          </div>
+        )}
         <div>
           <div className="flex justify-between">
             <span className="text-[#c7ad80]">Адена:</span>

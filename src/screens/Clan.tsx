@@ -16,11 +16,18 @@ import {
   depositClanCoinLuck,
   withdrawClanCoinLuck,
   setClanEmblem,
+  setClanAnnouncement,
+  leaveClan,
+  transferClanLeadership,
+  getClanApplicationsList,
+  acceptClanApplication,
+  declineClanApplication,
   type Clan,
   type ClanMember,
   type ClanChatMessage,
   type ClanLog,
   type ClanWarehouseItem,
+  type ClanApplication,
 } from "../utils/api";
 import ClanHeader from "./clan/ClanHeader";
 import ClanNavigation from "./clan/ClanNavigation";
@@ -33,6 +40,8 @@ import ClanQuests from "./clan/ClanQuests";
 import DepositItemsModal from "./clan/modals/DepositItemsModal";
 import WithdrawItemsModal from "./clan/modals/WithdrawItemsModal";
 import SelectClanEmblemModal from "./clan/modals/SelectClanEmblemModal";
+import ClanAnnouncementModal from "./clan/modals/ClanAnnouncementModal";
+import ClanApplicationsModal from "./clan/modals/ClanApplicationsModal";
 
 interface ClanProps {
   navigate: (path: string) => void;
@@ -61,6 +70,9 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [showDepositItemsModal, setShowDepositItemsModal] = useState(false);
   const [showWithdrawItemsModal, setShowWithdrawItemsModal] = useState(false);
   const [showEmblemModal, setShowEmblemModal] = useState(false);
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [showApplicationsModal, setShowApplicationsModal] = useState(false);
+  const [applications, setApplications] = useState<ClanApplication[]>([]);
   const [selectedItemCategory, setSelectedItemCategory] = useState("all");
 
   // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функцій
@@ -404,7 +416,61 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   };
 
   const handleAnnouncement = () => {
-    alert("Вывесить объявление - в разработке");
+    setShowAnnouncementModal(true);
+  };
+
+  const handleSaveAnnouncement = async (announcement: string) => {
+    if (!clan) return;
+    await setClanAnnouncement(clan.id, announcement);
+    loadClan();
+  };
+
+  const handleLeaveClan = async () => {
+    if (!clan) return;
+    if (!window.confirm("Ви впевнені, що хочете вийти з клану?")) return;
+    try {
+      await leaveClan(clan.id);
+      navigate("/clans");
+    } catch (err: any) {
+      alert(err?.message || "Помилка при виході");
+    }
+  };
+
+  const handleTransferLeadership = async (characterId: string) => {
+    if (!clan) return;
+    if (!window.confirm("Передати лідерство? Цю дію не можна скасувати.")) return;
+    try {
+      await transferClanLeadership(clan.id, characterId);
+      loadMembers();
+      loadClan();
+    } catch (err: any) {
+      alert(err?.message || "Помилка при передачі");
+    }
+  };
+
+  const handleShowApplications = async () => {
+    if (!clan) return;
+    try {
+      const res = await getClanApplicationsList(clan.id);
+      setApplications(res.applications);
+      setShowApplicationsModal(true);
+    } catch (err) {
+      console.error("[Clan] Failed to load applications:", err);
+    }
+  };
+
+  const handleAcceptApplication = async (characterId: string) => {
+    if (!clan) return;
+    await acceptClanApplication(clan.id, characterId);
+    setApplications((prev) => prev.filter((a) => a.characterId !== characterId));
+    loadMembers();
+    loadLogs();
+  };
+
+  const handleDeclineApplication = async (characterId: string) => {
+    if (!clan) return;
+    await declineClanApplication(clan.id, characterId);
+    setApplications((prev) => prev.filter((a) => a.characterId !== characterId));
   };
 
   const handleEmblem = () => {
@@ -559,6 +625,9 @@ export default function Clan({ navigate, clanId }: ClanProps) {
               onSetDeputy={handleSetDeputy}
               onEditingTitleChange={setEditingTitle}
               onTabChange={() => handleTabChange("members")}
+              onLeave={handleLeaveClan}
+              onTransferLeadership={handleTransferLeadership}
+              onShowApplications={handleShowApplications}
             />
           )}
 
@@ -602,6 +671,23 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           currentEmblem={clan.emblem || null}
           onSelect={handleSelectEmblem}
           onClose={() => setShowEmblemModal(false)}
+        />
+      )}
+
+      {showAnnouncementModal && clan && (
+        <ClanAnnouncementModal
+          clan={clan}
+          onSave={handleSaveAnnouncement}
+          onClose={() => setShowAnnouncementModal(false)}
+        />
+      )}
+
+      {showApplicationsModal && clan && (
+        <ClanApplicationsModal
+          applications={applications}
+          onAccept={handleAcceptApplication}
+          onDecline={handleDeclineApplication}
+          onClose={() => setShowApplicationsModal(false)}
         />
       )}
     </div>

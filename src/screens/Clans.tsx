@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../state/heroStore";
-import { getMyClan, createClan, listClans, type Clan } from "../utils/api";
+import { getMyClan, createClan, listClans, getClanInvites, respondClanInvite, type Clan, type ClanInvite } from "../utils/api";
 import CreateClanForm from "./clans/CreateClanForm";
 import ClanList from "./clans/ClanList";
+import ClanInvitesModal from "./clan/modals/ClanInvitesModal";
 
 interface ClansProps {
   navigate: (path: string) => void;
@@ -14,6 +15,8 @@ export default function Clans({ navigate }: ClansProps) {
   const [allClans, setAllClans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [invites, setInvites] = useState<ClanInvite[]>([]);
+  const [showInvitesModal, setShowInvitesModal] = useState(false);
   const [clanName, setClanName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -23,15 +26,14 @@ export default function Clans({ navigate }: ClansProps) {
     if (hero?.id) loadData();
   }, [hero?.id]);
 
-  const loadData = async () => {
+  const loadData = async (): Promise<Clan | null> => {
     if (!hero) {
       setLoading(false);
-      return;
+      return null;
     }
 
     try {
       setLoading(true);
-      // Завантажуємо мій клан
       const myClanResponse = await getMyClan();
       if (myClanResponse.ok && myClanResponse.clan) {
         setMyClan(myClanResponse.clan);
@@ -39,13 +41,19 @@ export default function Clans({ navigate }: ClansProps) {
         setMyClan(null);
       }
 
-      // Завантажуємо список всіх кланів
       const clansResponse = await listClans();
-      if (clansResponse.ok) {
-        setAllClans(clansResponse.clans);
+      if (clansResponse.ok) setAllClans(clansResponse.clans);
+
+      if (!myClanResponse.clan) {
+        const invRes = await getClanInvites();
+        setInvites(invRes.ok && invRes.invites.length > 0 ? invRes.invites : []);
+      } else {
+        setInvites([]);
       }
+      return myClanResponse.clan ?? null;
     } catch (err) {
       console.error("[Clans] Failed to load data:", err);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -135,6 +143,18 @@ export default function Clans({ navigate }: ClansProps) {
             />
           </div>
 
+          {/* Запрошення в клан */}
+          {!myClan && invites.length > 0 && (
+            <div className="mb-2 p-2 bg-[#2a2a2a] border border-amber-600/50 rounded">
+              <div
+                className="text-[12px] text-amber-400 cursor-pointer hover:text-amber-300"
+                onClick={() => setShowInvitesModal(true)}
+              >
+                У вас {invites.length} запрошен(ь) в клан
+              </div>
+            </div>
+          )}
+
           {/* Кнопка створення клану (тільки якщо немає клану) */}
           {!myClan && (
             <CreateClanForm
@@ -205,6 +225,19 @@ export default function Clans({ navigate }: ClansProps) {
           </div>
         </div>
       </div>
+
+      {showInvitesModal && (
+        <ClanInvitesModal
+          invites={invites}
+          onRespond={async (inviteId, accept) => {
+            await respondClanInvite(inviteId, accept);
+            setShowInvitesModal(false);
+            const myClan = await loadData();
+            if (accept && myClan) navigate(`/clan/${myClan.id}`);
+          }}
+          onClose={() => setShowInvitesModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -186,6 +186,7 @@ model Clan {
   adena       BigInt   @default(0) // Адена клану
   coinLuck    BigInt   @default(0) // Coin of Luck клану
   emblem      String?  // Емблема клану (назва файлу)
+  announcement String? @default("") // Оголошення від лідера
   creatorId   String   @unique // ID гравця, який створив клан (один гравець = один клан)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -195,9 +196,40 @@ model Clan {
   chatMessages ClanChat[]
   logs        ClanLog[]
   warehouse   ClanWarehouse[]
+  invites     ClanInvite[]
+  applications ClanApplication[]
 
   @@index([creatorId])
   @@index([name])
+}
+
+model ClanInvite {
+  id          String   @id @default(cuid())
+  clanId      String
+  characterId String   // Запрошений гравець
+  invitedBy   String   // Лідер або зам
+  status      String   @default("pending") // pending | accepted | declined
+  createdAt   DateTime @default(now())
+
+  clan        Clan     @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@unique([clanId, characterId]) // Один pending invite на пару
+  @@index([characterId])
+  @@index([clanId])
+}
+
+model ClanApplication {
+  id          String   @id @default(cuid())
+  clanId      String
+  characterId String   // Гравець, що подав заявку
+  status      String   @default("pending") // pending | accepted | declined
+  createdAt   DateTime @default(now())
+
+  clan        Clan     @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@unique([clanId, characterId]) // Одна pending заявка на пару
+  @@index([characterId])
+  @@index([clanId])
 }
 
 model ClanMember {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getClan, type Clan, type ClanMember } from "../utils/api";
+import { getClan, applyToClan, type Clan, type ClanMember } from "../utils/api";
 import { ClanNameWithEmblem } from "../components/ClanNameWithEmblem";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { useHeroStore } from "../state/heroStore";
@@ -18,6 +18,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
   const [membersPage, setMembersPage] = useState(1);
   const membersPerPage = 10;
   const [showMembersModal, setShowMembersModal] = useState(false);
+  const [applying, setApplying] = useState(false);
 
   useEffect(() => {
     loadClanInfo();
@@ -96,6 +97,20 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
 
   const maxMembers = getMaxMembers(clan.level);
   const totalPages = Math.max(1, Math.ceil(members.length / membersPerPage));
+  const canApply = !clan.isMember && members.length < maxMembers;
+
+  const handleApply = async () => {
+    if (!clan || !hero || applying) return;
+    try {
+      setApplying(true);
+      await applyToClan(clan.id);
+      loadClanInfo();
+    } catch (err: any) {
+      alert(err?.message || "Ошибка при подаче заявки");
+    } finally {
+      setApplying(false);
+    }
+  };
   const startIndex = (membersPage - 1) * membersPerPage;
   const endIndex = startIndex + membersPerPage;
   const currentMembers = members.slice(startIndex, endIndex);
@@ -255,6 +270,24 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
           </div>
 
           <div className="border-t border-white/40"></div>
+
+          {/* Оголошення */}
+          {clan.announcement && clan.announcement.trim() && (
+            <div className="p-2 bg-[#1a1a1a] border border-white/30 rounded text-[12px] text-[#c7ad80] whitespace-pre-wrap">
+              {clan.announcement}
+            </div>
+          )}
+
+          {/* Подати заявку */}
+          {canApply && (
+            <button
+              onClick={handleApply}
+              disabled={applying}
+              className="w-full py-2 bg-[#5a4424] text-white text-[12px] rounded hover:bg-[#6a5434] disabled:opacity-50"
+            >
+              {applying ? "..." : "Подать заявку"}
+            </button>
+          )}
 
           {/* Кнопка назад */}
           <div className="mt-4 flex justify-center">

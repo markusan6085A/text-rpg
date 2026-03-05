@@ -3,6 +3,9 @@ import { prisma } from "./db";
 import { getAuth } from "./routes/character/auth";
 import { addVersioning } from "./heroJsonValidator";
 import { removeItemFromInventory, addItemToInventory, pickSafeItemFields } from "./utils/inventoryHelpers";
+import { registerClanInviteRoutes, registerClanInviteNestedRoutes } from "./routes/clans/invites";
+import { registerClanApplicationRoutes, registerClanApplicationNestedRoutes } from "./routes/clans/applications";
+import { registerClanMemberNestedRoutes } from "./routes/clans/members";
 
 // Функція для перевірки та створення таблиці ClanWarehouse, якщо вона не існує
 async function ensureClanWarehouseTable(app: FastifyInstance): Promise<void> {
@@ -844,13 +847,53 @@ async function clanNestedRoutes(app: FastifyInstance) {
       clan: updatedClan,
     };
   });
+
+  // Invite, apply, leave, transfer
+  registerClanInviteNestedRoutes(app);
+  registerClanApplicationNestedRoutes(app);
+  registerClanMemberNestedRoutes(app);
+
+  // PATCH /clans/:id/announcement - оголошення клану (лідер/зам)
+  app.patch("/clans/:id/announcement", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { announcement } = req.body as { announcement?: string };
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const isLeader = await prisma.clan.findFirst({
+      where: { id, creatorId: character.id },
+    });
+    const isDeputy = await prisma.clanMember.findFirst({
+      where: { clanId: id, characterId: character.id, isDeputy: true },
+    });
+    if (!isLeader && !isDeputy) {
+      return reply.code(403).send({ error: "only leader or deputy can set announcement" });
+    }
+
+    const text = announcement != null ? String(announcement).slice(0, 500) : "";
+    const updated = await prisma.clan.update({
+      where: { id },
+      data: { announcement: text },
+    });
+
+    return { ok: true, announcement: updated.announcement };
+  });
 }
 
 export async function clanRoutes(app: FastifyInstance) {
-  // 🔥 КРИТИЧНО: Спочатку реєструємо вкладені роути (специфічні) з префіксом
-  // Використовуємо префікс, щоб гарантувати правильний порядок обробки
+  // 🔥 Invites/applications — до /clans/:id (щоб /clans/invites не матчилось як :id)
+  registerClanInviteRoutes(app);
+  registerClanApplicationRoutes(app);
+
+  // Вкладені роути /clans/:id/...
   await app.register(clanNestedRoutes, { prefix: "" });
-  
+
   // GET /clans - список всіх кланів
   app.get("/clans", async (req, reply) => {
     const auth = getAuth(req);
@@ -952,6 +995,7 @@ export async function clanRoutes(app: FastifyInstance) {
           adena: clan.adena,
           coinLuck: clan.coinLuck,
           emblem: (clan as any).emblem || null,
+          announcement: (clan as any).announcement ?? null,
           createdAt: clan.createdAt,
           creator: {
             id: clan.creator.id,
@@ -1139,14 +1183,15 @@ export async function clanRoutes(app: FastifyInstance) {
         level: clan.level,
         reputation: clan.reputation,
         adena: clan.adena,
-        coinLuck: clan.coinLuck,
-        emblem: (clan as any).emblem || null,
-        createdAt: clan.createdAt,
-        creator: {
-          id: clan.creator.id,
-          name: clan.creator.name,
-        },
-        members: members.map((m) => ({
+          coinLuck: clan.coinLuck,
+          emblem: (clan as any).emblem || null,
+          announcement: (clan as any).announcement ?? null,
+          createdAt: clan.createdAt,
+          creator: {
+            id: clan.creator.id,
+            name: clan.creator.name,
+          },
+          members: members.map((m) => ({
           id: m.id,
           characterId: m.character.id,
           characterName: m.character.name,

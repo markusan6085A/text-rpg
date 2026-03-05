@@ -1110,6 +1110,7 @@ export interface Clan {
   adena: number;
   coinLuck: number;
   emblem: string | null;
+  announcement?: string | null;
   createdAt: string;
   creator: {
     id: string;
@@ -1119,6 +1120,28 @@ export interface Clan {
   isLeader?: boolean;
   isMember?: boolean;
   memberCount?: number;
+}
+
+export interface ClanInvite {
+  id: string;
+  clanId: string;
+  clanName: string;
+  clanLevel: number;
+  clanEmblem: string | null;
+  invitedBy: string;
+  createdAt: string;
+}
+
+export interface ClanApplication {
+  id: string;
+  clanId: string;
+  clanName: string;
+  clanLevel: number;
+  clanEmblem: string | null;
+  characterId?: string;
+  characterName?: string;
+  characterLevel?: number;
+  createdAt: string;
 }
 
 export interface ClanMember {
@@ -1371,6 +1394,65 @@ export async function setClanEmblem(clanId: string, emblem: string): Promise<{ o
     body: JSON.stringify({ emblem }),
   });
   return response;
+}
+
+// Invite / Apply / Leave / Transfer
+export async function getClanInvites(): Promise<{ ok: boolean; invites: ClanInvite[] }> {
+  return apiRequest<{ ok: boolean; invites: ClanInvite[] }>('/clans/invites/mine', { method: 'GET' });
+}
+
+export async function respondClanInvite(inviteId: string, accept: boolean): Promise<{ ok: boolean; accepted: boolean }> {
+  return apiRequest<{ ok: boolean; accepted: boolean }>(`/clans/invites/${inviteId}/respond`, {
+    method: 'POST',
+    body: JSON.stringify({ accept }),
+  });
+}
+
+export async function inviteToClan(clanId: string, characterId: string): Promise<{ ok: boolean; invite?: { id: string } }> {
+  return apiRequest<{ ok: boolean; invite?: { id: string } }>(`/clans/${clanId}/invite`, {
+    method: 'POST',
+    body: JSON.stringify({ characterId }),
+  });
+}
+
+export async function applyToClan(clanId: string): Promise<{ ok: boolean; application?: { id: string } }> {
+  return apiRequest<{ ok: boolean; application?: { id: string } }>(`/clans/${clanId}/apply`, {
+    method: 'POST',
+  });
+}
+
+export async function getClanApplications(): Promise<{ ok: boolean; applications: ClanApplication[] }> {
+  return apiRequest<{ ok: boolean; applications: ClanApplication[] }>(`/clans/applications/mine`, { method: 'GET' });
+}
+
+export async function getClanApplicationsList(clanId: string): Promise<{ ok: boolean; applications: ClanApplication[] }> {
+  return apiRequest<{ ok: boolean; applications: ClanApplication[] }>(`/clans/${clanId}/applications`, { method: 'GET' });
+}
+
+export async function acceptClanApplication(clanId: string, characterId: string): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>(`/clans/${clanId}/applications/${characterId}/accept`, { method: 'POST' });
+}
+
+export async function declineClanApplication(clanId: string, characterId: string): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>(`/clans/${clanId}/applications/${characterId}/decline`, { method: 'POST' });
+}
+
+export async function leaveClan(clanId: string): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>(`/clans/${clanId}/leave`, { method: 'POST' });
+}
+
+export async function transferClanLeadership(clanId: string, newLeaderCharacterId: string): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>(`/clans/${clanId}/transfer`, {
+    method: 'POST',
+    body: JSON.stringify({ characterId: newLeaderCharacterId }),
+  });
+}
+
+export async function setClanAnnouncement(clanId: string, announcement: string): Promise<{ ok: boolean; announcement: string }> {
+  return apiRequest<{ ok: boolean; announcement: string }>(`/clans/${clanId}/announcement`, {
+    method: 'PATCH',
+    body: JSON.stringify({ announcement }),
+  });
 }
 
 // ——— Admin API (cookie admin_session, без токенів у фронті) ———
