@@ -5,45 +5,40 @@ import { describe, it, expect } from "vitest";
 import { autoSelectEarringOrRingSlot } from "./slotUtils";
 import type { Hero } from "../../types/Hero";
 
+function heroWithEquipment(equipment: Hero["equipment"]) {
+  return { equipment: equipment ?? {}, heroJson: {} } as unknown as Hero;
+}
+
 describe("autoSelectEarringOrRingSlot", () => {
   it("earring: empty equipment → earring_left", () => {
-    const hero: Hero = { equipment: {}, heroJson: {} } as Hero;
-    expect(autoSelectEarringOrRingSlot("earring", hero)).toBe("earring_left");
+    expect(autoSelectEarringOrRingSlot("earring", heroWithEquipment({}))).toBe("earring_left");
   });
 
   it("earring: only left taken → earring_right", () => {
-    const hero: Hero = { equipment: { earring_left: "item1" }, heroJson: {} } as Hero;
-    expect(autoSelectEarringOrRingSlot("earring", hero)).toBe("earring_right");
+    expect(autoSelectEarringOrRingSlot("earring", heroWithEquipment({ earring_left: "item1" }))).toBe("earring_right");
   });
 
   it("earring: both taken → replace earring_left", () => {
-    const hero: Hero = {
-      equipment: { earring_left: "a", earring_right: "b" },
-      heroJson: {},
-    } as Hero;
-    expect(autoSelectEarringOrRingSlot("earring", hero)).toBe("earring_left");
+    expect(
+      autoSelectEarringOrRingSlot("earring", heroWithEquipment({ earring_left: "a", earring_right: "b" }))
+    ).toBe("earring_left");
   });
 
   it("ring: empty equipment → ring_left", () => {
-    const hero: Hero = { equipment: {}, heroJson: {} } as Hero;
-    expect(autoSelectEarringOrRingSlot("ring", hero)).toBe("ring_left");
+    expect(autoSelectEarringOrRingSlot("ring", heroWithEquipment({}))).toBe("ring_left");
   });
 
   it("ring: only left taken → ring_right", () => {
-    const hero: Hero = { equipment: { ring_left: "item1" }, heroJson: {} } as Hero;
-    expect(autoSelectEarringOrRingSlot("ring", hero)).toBe("ring_right");
+    expect(autoSelectEarringOrRingSlot("ring", heroWithEquipment({ ring_left: "item1" }))).toBe("ring_right");
   });
 
   it("ring: both taken → replace ring_left", () => {
-    const hero: Hero = {
-      equipment: { ring_left: "a", ring_right: "b" },
-      heroJson: {},
-    } as Hero;
-    expect(autoSelectEarringOrRingSlot("ring", hero)).toBe("ring_left");
+    expect(autoSelectEarringOrRingSlot("ring", heroWithEquipment({ ring_left: "a", ring_right: "b" }))).toBe(
+      "ring_left"
+    );
   });
 
   it("other slot → returns unchanged", () => {
-    const hero: Hero = { equipment: {}, heroJson: {} } as Hero;
-    expect(autoSelectEarringOrRingSlot("weapon", hero)).toBe("weapon");
+    expect(autoSelectEarringOrRingSlot("weapon", heroWithEquipment({}))).toBe("weapon");
   });
 });
