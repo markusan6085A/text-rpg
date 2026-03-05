@@ -45,7 +45,7 @@ export default function TutorialHint({
   if (!shouldShow) return null;
 
   return (
-    <div className="w-full px-2 py-1.5 flex items-center justify-between gap-2 bg-amber-900/40 border-b border-amber-700/50 text-amber-100 text-[11px]">
+    <div className="w-full mt-[5px] px-2 py-1.5 flex items-center justify-between gap-2 bg-amber-900/40 border-b border-amber-700/50 text-amber-100 text-[11px]">
       <span>
         Обучалка: <span className="text-amber-400 font-medium">Меню → Допомога</span> — повна довідка для нових гравців.
       </span>
