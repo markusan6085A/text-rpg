@@ -196,7 +196,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
               </button>
               <button
                 type="button"
-                onClick={() => alert("Меню в разработке")}
+                onClick={() => navigate("/about")}
                 className="w-[76px] h-[22px] rounded-md border border-[#c7ad80] bg-[#1f1d1a]/80 text-[12px] text-[#e7d7b3] leading-none shadow-[inset_0_0_8px_rgba(0,0,0,0.75)] hover:bg-[#2a2723]/80 active:translate-y-[1px]"
               >
                 Меню
