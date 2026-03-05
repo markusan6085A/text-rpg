@@ -1030,7 +1030,11 @@ export async function clanRoutes(app: FastifyInstance) {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const { name, characterId: bodyCharacterId } = req.body as { name?: string; characterId?: string };
+    const body = req.body;
+    if (!body || typeof body !== "object") {
+      return reply.code(400).send({ error: "invalid request body" });
+    }
+    const { name, characterId: bodyCharacterId } = body as { name?: string; characterId?: string };
 
     if (!name || typeof name !== "string") {
       return reply.code(400).send({ error: "name is required" });
@@ -1127,9 +1131,12 @@ export async function clanRoutes(app: FastifyInstance) {
         },
       };
     } catch (e: any) {
-      app.log.error({ error: e.message, stack: e.stack, code: e.code }, "Error creating clan:");
+      app.log.error({ error: e.message, stack: e.stack, code: e.code, name: e.name }, "Error creating clan:");
       if (e.code === "P2002") {
         return reply.code(409).send({ error: "clan name already exists" });
+      }
+      if (e.code === "P2003") {
+        return reply.code(400).send({ error: "foreign key constraint failed", message: e.message });
       }
       return reply.code(500).send({ 
         error: "Internal Server Error",

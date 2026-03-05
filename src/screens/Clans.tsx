@@ -80,7 +80,8 @@ export default function Clans({ navigate }: ClansProps) {
       }
     } catch (err: any) {
       console.error("[Clans] Failed to create clan:", err);
-      const errorMessage = err?.body?.error || err?.message || "Ошибка при создании клана";
+      const msg = err?.body?.message || err?.body?.error || err?.message;
+      const errorMessage = msg || "Ошибка при создании клана";
       alert(errorMessage);
     }
   };
