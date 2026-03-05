@@ -202,6 +202,19 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
     }
   }, [hero]);
 
+  const reloadCharacter = useCallback(async () => {
+    if (!playerId && !playerName) return;
+    try {
+      const loaded =
+        playerId
+          ? await getPublicCharacter(playerId)
+          : await getCharacterByName(playerName!);
+      if (loaded?.id) setCharacter(loaded);
+    } catch (err: any) {
+      console.error("[PlayerAdminActions] Error reloading:", err);
+    }
+  }, [playerId, playerName]);
+
   // Функція для форматування значень бафа
   const formatBuffValues = (skillDef: any, levelDef: any) => {
     const parts: string[] = [];
@@ -350,19 +363,6 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
   const profId = normalizeProfessionId(profession as any);
   const profDef = profId ? getProfessionDefinition(profId) : null;
   const professionLabel = profDef?.label || profession || "Нет";
-
-  const reloadCharacter = useCallback(async () => {
-    if (!playerId && !playerName) return;
-    try {
-      const loaded =
-        playerId
-          ? await getPublicCharacter(playerId)
-          : await getCharacterByName(playerName!);
-      setCharacter(loaded);
-    } catch (err: any) {
-      console.error("[PlayerAdminActions] Error reloading:", err);
-    }
-  }, [playerId, playerName]);
 
   const runAdminAction = async (fn: () => Promise<any>, successMsg: string) => {
     if (!character) return;
