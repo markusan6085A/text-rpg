@@ -760,7 +760,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     await cleanupPkSessions();
 
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    const body = (req.body ?? {}) as { skillId?: number; isBuff?: boolean; isToggle?: boolean; name?: string; target?: string; shotMultiplier?: number; shotName?: string; buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>; buffCooldownMs?: number };
+    const body = (req.body ?? {}) as { skillId?: number; isBuff?: boolean; isToggle?: boolean; name?: string; target?: string; shotMultiplier?: number; shotName?: string; buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>; buffCooldownMs?: number; buffDurationSec?: number };
     const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
     const isBuff = body.isBuff;
     const isToggle = body.isToggle;
@@ -770,6 +770,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const shotName = body.shotName;
     const buffEffects = Array.isArray(body.buffEffects) ? body.buffEffects : [];
     const buffCooldownMs = typeof body.buffCooldownMs === "number" ? body.buffCooldownMs : undefined;
+    const buffDurationSec = typeof body.buffDurationSec === "number" && body.buffDurationSec > 0 ? body.buffDurationSec : 120;
 
     let session = pkSessions.get(sessionId);
     if (!session) {
@@ -902,6 +903,18 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
       
+      if ((reqIsBuff || reqIsToggle) && !skill) {
+        const sName = reqSkillName || `skill#${requestedSkillId ?? "?"}`;
+        const requested = requestedSkillId != null ? attacker.skills.find((s) => s.id === requestedSkillId) : null;
+        if (requested && attacker.mp < requested.mpCost) {
+          session.log.unshift(`${attacker.name}: не хватает MP для ${sName} (нужно ${requested.mpCost}).`);
+        } else {
+          session.log.unshift(`${attacker.name}: не удалось использовать ${sName}.`);
+        }
+        session.log = session.log.slice(0, 30);
+        return 0;
+      }
+      
       if (skill && (reqIsBuff || reqIsToggle)) {
         attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
         const cdMs = typeof reqBuffCooldownMs === "number" && reqBuffCooldownMs >= 0 ? reqBuffCooldownMs : skill.cooldownMs;
@@ -943,8 +956,10 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
     if (session.attackerHasHit === undefined) session.attackerHasHit = false;
     if (session.defenderHasHit === undefined) session.defenderHasHit = false;
+    let appliedBuffTurn = false;
     if (actorRole === "attacker") {
       const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName, buffEffects, buffCooldownMs);
+      appliedBuffTurn = dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0;
       session.lastHitDamage = dmg;
       session.lastHitById = session.attackerId;
       session.lastHitByName = session.attacker.name;
@@ -956,6 +971,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       }
     } else {
       const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName, buffEffects, buffCooldownMs);
+      appliedBuffTurn = dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0;
       session.lastHitDamage = dmg;
       session.lastHitById = session.defenderId;
       session.lastHitByName = session.defender.name;
@@ -968,11 +984,55 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
     session.updatedAt = Date.now();
 
+    let actorBuffs: any[] | undefined;
+    if (appliedBuffTurn && skillId && skillName) {
+      const actorId = actorRole === "attacker" ? session.attackerId : session.defenderId;
+      const durationMs = buffDurationSec * 1000;
+      const newBuff = {
+        id: skillId,
+        name: String(skillName || "").trim() || `skill#${skillId}`,
+        icon: "",
+        effects: buffEffects,
+        expiresAt: now + durationMs,
+        startedAt: now,
+        durationMs,
+        source: "skill" as const,
+        buffGroup: undefined as string | undefined,
+        stackType: undefined as string | undefined,
+      };
+      try {
+        const targetChar = await prisma.character.findUnique({
+          where: { id: actorId },
+          select: { id: true, heroJson: true },
+        });
+        if (targetChar) {
+          const heroJson = ((targetChar.heroJson as any) || {}) as any;
+          const currentBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+          let filteredBuffs = currentBuffs.filter((b: any) => b.id !== skillId);
+          const updatedBuffs = [...filteredBuffs, newBuff];
+          const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+          const updatedHeroJson = addVersioning(
+            { ...heroJson, heroBuffs: updatedBuffs },
+            oldRevision
+          );
+          await prisma.character.update({
+            where: { id: actorId },
+            data: { heroJson: updatedHeroJson },
+          });
+          actorBuffs = updatedBuffs;
+        }
+      } catch (e: any) {
+        app.log?.warn?.(e, "[actPkSession] Failed to persist heroBuffs");
+      }
+    }
+
     await syncPkRealtimeState(session, actorRole, now);
     await savePkResultIfNeeded(session);
     await savePkSessionToDb(session);
     await refreshPkFighterStatsFromDb(session);
-    return reply.send(serializePkSession(session));
+    const response = serializePkSession(session);
+    if (actorBuffs) (response as any).actorBuffs = actorBuffs;
+    return reply.send(response);
   });
 
   app.get("/characters/:id/pk/state", async (req, reply) => {

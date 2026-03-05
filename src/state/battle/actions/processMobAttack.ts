@@ -434,6 +434,7 @@ export const createProcessMobAttack =
     const salvationBuff = nextBuffsAfterDispel.find((b) => b.effects?.some?.((e: any) => e.stat === "salvation"));
     let updates: Partial<BattleState>;
     const finalMobHP = reflectResult.reflected ? nextMobHP : state.mobHP;
+    const mobHPChanged = reflectResult.reflected;
     const finalStatus = finalMobHP <= 0 ? "victory" : (nextHeroHP <= 0 ? "idle" : state.status);
 
     // Спасіння: якщо майже вмерли і є баф — відновлюємо до ratio (наприклад 70%) і продовжуємо бій
@@ -457,7 +458,7 @@ export const createProcessMobAttack =
       
       updates = {
         status: finalMobHP <= 0 ? "victory" : "fighting",
-        mobHP: finalMobHP,
+        ...(mobHPChanged ? { mobHP: finalMobHP } : {}),
         mobNextAttackAt: scheduleNext(now),
         heroBuffs: filteredBuffs,
         mobBuffs: cleanedMobBuffs,
@@ -505,7 +506,7 @@ export const createProcessMobAttack =
       );
       updates = {
         status: finalMobHP <= 0 ? "victory" : "idle",
-        mobHP: finalMobHP,
+        ...(mobHPChanged ? { mobHP: finalMobHP } : {}),
         mobNextAttackAt: null,
         heroBuffs: buffsAfterDeath,
         mobBuffs: cleanedMobBuffs,
@@ -533,7 +534,7 @@ export const createProcessMobAttack =
     }
     updates = {
       status: finalStatus,
-      mobHP: finalMobHP,
+      ...(mobHPChanged ? { mobHP: finalMobHP } : {}),
       mobNextAttackAt: scheduleNext(now),
       heroBuffs: nextBuffsAfterDispel,
       mobBuffs: cleanedMobBuffs,

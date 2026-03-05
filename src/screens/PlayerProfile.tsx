@@ -388,14 +388,19 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         }
       }
 
-      const buffEffects = isBuff || isToggle ? (() => {
-        if (!skillDef) return undefined;
-        const learned = hero?.skills?.find((s: any) => (s?.id ?? s) === skillId);
-        const skillLevel = (learned as any)?.level ?? 1;
-        const levelDef = skillDef.levels?.find((l: any) => l.level === skillLevel) ?? skillDef.levels?.[0];
-        if (!levelDef) return undefined;
-        return processSkillEffects(skillDef, levelDef);
-      })() : undefined;
+      let buffEffects: any[] | undefined;
+      let buffDurationSec: number | undefined;
+      if (isBuff || isToggle) {
+        if (!skillDef) {
+          buffEffects = undefined;
+        } else {
+          const learned = hero?.skills?.find((s: any) => (s?.id ?? s) === skillId);
+          const skillLevel = (learned as any)?.level ?? 1;
+          const levelDef = skillDef.levels?.find((l: any) => l.level === skillLevel) ?? skillDef.levels?.[0];
+          buffEffects = levelDef ? processSkillEffects(skillDef, levelDef) : undefined;
+          buffDurationSec = skillDef?.duration ?? 120;
+        }
+      }
 
       const res = await actPkSession(pkSession.id, skillId, {
         isBuff,
@@ -408,9 +413,23 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         buffCooldownMs: (isBuff || isToggle) && skillDef?.cooldown
           ? (skillDef.category === "toggle" ? 0 : skillDef.cooldown * 1000)
           : undefined,
+        buffDurationSec,
       });
       if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
       setPkSession(res.session);
+      if (res.actorBuffs?.length) {
+        useBattleStore.setState({
+          pkActorBuffs: res.actorBuffs.map((b) => ({ ...b, effects: b.effects ?? [] })),
+        });
+      }
+      const lastLog = res.session?.log?.[0] ?? "";
+      if (skillDef && (lastLog.includes("не хватает MP") || lastLog.includes("не удалось использовать")) && (isBuff || isToggle)) {
+        useBattleStore.setState((s) => {
+          const next = { ...(s.cooldowns || {}) };
+          delete next[skillId];
+          return { cooldowns: next };
+        });
+      }
       if (res.session.ended) {
         setTimeout(() => {
           loadPlayerProfile();

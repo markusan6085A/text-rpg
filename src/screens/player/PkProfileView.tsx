@@ -59,12 +59,14 @@ export default function PkProfileView({
   onBack,
 }: PkProfileViewProps) {
   const myHero = useHeroStore((s) => s.hero);
+  const pkActorBuffsFromStore = useBattleStore((s) => s.pkActorBuffs);
   const nowTs = now || Date.now();
   const heroJson = ((myHero as any)?.heroJson || {}) as any;
   const savedBattle = myHero?.name ? loadBattle(myHero.name) : null;
   const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], nowTs);
   const heroJsonBuffs = cleanupBuffs(Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [], nowTs);
-  const allBuffs = [...savedBuffs, ...heroJsonBuffs];
+  const pkActorBuffs = cleanupBuffs(pkActorBuffsFromStore || [], nowTs);
+  const allBuffs = [...savedBuffs, ...heroJsonBuffs, ...pkActorBuffs];
   const uniqueBuffs = allBuffs.filter((buff, idx, self) =>
     idx === self.findIndex((b) =>
       (b.id && buff.id && b.id === buff.id) ||
@@ -98,7 +100,7 @@ export default function PkProfileView({
       status: pkSession.ended ? "victory" : "fighting",
       heroBuffs: uniqueBuffs,
     });
-  }, [pkSession, myHero?.id, character.level, uniqueBuffs, serverTimeDrift]);
+  }, [pkSession, myHero?.id, character.level, uniqueBuffs, serverTimeDrift, pkActorBuffsFromStore]);
 
   const handleBack = () => {
     useBattleStore.getState().reset();

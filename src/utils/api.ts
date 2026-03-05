@@ -340,6 +340,8 @@ export interface PkSessionResponse {
   ok: boolean;
   serverNow?: number;
   session: PkSessionState;
+  /** Оновлені бафи актора після застосування баф-скілу в PK (для миттєвого відображення) */
+  actorBuffs?: Array<{ id?: number; name?: string; effects?: any[]; expiresAt: number; startedAt?: number; durationMs?: number }>;
 }
 
 export interface PkIncomingNotice {
@@ -411,7 +413,7 @@ export async function getPkSession(sessionId: string): Promise<PkSessionResponse
 export async function actPkSession(
   sessionId: string, 
   skillId?: number, 
-  options?: { isBuff?: boolean; isToggle?: boolean; name?: string; target?: string; shotMultiplier?: number; shotName?: string; buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>; buffCooldownMs?: number }
+  options?: { isBuff?: boolean; isToggle?: boolean; name?: string; target?: string; shotMultiplier?: number; shotName?: string; buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>; buffCooldownMs?: number; buffDurationSec?: number }
 ): Promise<PkSessionResponse> {
   return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/act`, {
     method: "POST",
