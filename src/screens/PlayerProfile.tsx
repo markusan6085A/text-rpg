@@ -24,6 +24,7 @@ interface PlayerProfileProps {
 }
 
 import { getSkillDefForBattle } from "../state/battle/loadout";
+import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 import { useBattleStore } from "../state/battle/store";
 import { useAdminStore } from "../state/adminStore";
 
@@ -349,7 +350,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     if (skillDef?.cooldown) {
       // Використовуємо calcPhysicalSkillCooldown якщо це фізичний скіл
       let cooldownMs = skillDef.cooldown * 1000;
-      if (!(skillDef as any).isMagic && (skillDef.type as any) !== "buff" && (skillDef.type as any) !== "buff_statue" && (skillDef.type as any) !== "toggle") {
+      if (!(skillDef as any).isMagic && (skillDef?.category as any) !== "buff" && (skillDef?.category as any) !== "toggle") {
         const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
         cooldownMs = calcPhysicalSkillCooldown(skillDef.cooldown, attackSpeed);
       }
@@ -360,8 +361,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     }
 
     try {
-      const isBuff = (skillDef?.type as any) === "buff" || (skillDef?.type as any) === "buff_statue";
-      const isToggle = (skillDef?.type as any) === "toggle";
+      const isBuff = (skillDef?.category as any) === "buff";
+      const isToggle = (skillDef?.category as any) === "toggle";
 
       let shotMultiplier = 1.0;
       let shotName: string | undefined;
@@ -387,13 +388,26 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         }
       }
 
+      const buffEffects = isBuff || isToggle ? (() => {
+        if (!skillDef) return undefined;
+        const learned = hero?.skills?.find((s: any) => (s?.id ?? s) === skillId);
+        const skillLevel = (learned as any)?.level ?? 1;
+        const levelDef = skillDef.levels?.find((l: any) => l.level === skillLevel) ?? skillDef.levels?.[0];
+        if (!levelDef) return undefined;
+        return processSkillEffects(skillDef, levelDef);
+      })() : undefined;
+
       const res = await actPkSession(pkSession.id, skillId, {
         isBuff,
         isToggle,
         name: skillDef?.name,
         target: skillDef?.target,
         shotMultiplier,
-        shotName
+        shotName,
+        buffEffects,
+        buffCooldownMs: (isBuff || isToggle) && skillDef?.cooldown
+          ? (skillDef.category === "toggle" ? 0 : skillDef.cooldown * 1000)
+          : undefined,
       });
       if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
       setPkSession(res.session);

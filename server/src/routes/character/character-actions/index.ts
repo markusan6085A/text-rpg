@@ -760,7 +760,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     await cleanupPkSessions();
 
     const sessionId = String((req.params as any)?.id ?? "").trim();
-    const body = (req.body ?? {}) as { skillId?: number; isBuff?: boolean; isToggle?: boolean; name?: string; target?: string; shotMultiplier?: number; shotName?: string };
+    const body = (req.body ?? {}) as { skillId?: number; isBuff?: boolean; isToggle?: boolean; name?: string; target?: string; shotMultiplier?: number; shotName?: string; buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>; buffCooldownMs?: number };
     const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
     const isBuff = body.isBuff;
     const isToggle = body.isToggle;
@@ -768,6 +768,8 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const skillTarget = body.target;
     const shotMultiplier = typeof body.shotMultiplier === "number" ? body.shotMultiplier : 1.0;
     const shotName = body.shotName;
+    const buffEffects = Array.isArray(body.buffEffects) ? body.buffEffects : [];
+    const buffCooldownMs = typeof body.buffCooldownMs === "number" ? body.buffCooldownMs : undefined;
 
     let session = pkSessions.get(sessionId);
     if (!session) {
@@ -854,18 +856,35 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
 
     const pickSkill = (fighter: PkFighter, cooldowns: Record<number, number>, requestedSkillId?: number): PkSkill | null => {
-      if (requestedSkillId !== undefined) {
-        const requested = fighter.skills.find((s) => s.id === requestedSkillId);
-        if (!requested) return null;
-        if ((cooldowns[requested.id] ?? 0) > now) return null;
-        if (fighter.mp < requested.mpCost) return null;
-        return requested;
+      if (requestedSkillId === undefined) {
+        return null;
       }
-      const usable = fighter.skills.filter((s) => {
-        return (cooldowns[s.id] ?? 0) <= now && fighter.mp >= s.mpCost;
-      });
-      if (usable.length === 0) return null;
-      return usable[Math.floor(Math.random() * usable.length)];
+      const requested = fighter.skills.find((s) => s.id === requestedSkillId);
+      if (!requested) return null;
+      if ((cooldowns[requested.id] ?? 0) > now) return null;
+      if (fighter.mp < requested.mpCost) return null;
+      return requested;
+    };
+
+    const applyBuffEffects = (fighter: PkFighter, effects: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>) => {
+      const statKeys = ["pAtk", "pDef", "mAtk", "mDef", "maxHp", "maxMp", "accuracy", "evasion", "crit", "mCrit", "critPower"];
+      for (const e of effects) {
+        const stat = String(e.stat || "").trim();
+        if (!stat || !statKeys.includes(stat)) continue;
+        const mode = String(e.mode || "flat").toLowerCase();
+        const map: Record<string, number> = { pAtk: fighter.pAtk, pDef: fighter.pDef, mAtk: fighter.mAtk, mDef: fighter.mDef, maxHp: fighter.maxHp, maxMp: fighter.maxMp, accuracy: fighter.accuracy, evasion: fighter.evasion, crit: fighter.crit, mCrit: fighter.mCrit, critPower: fighter.critPower };
+        if (!(stat in map)) continue;
+        let newVal = map[stat];
+        if (mode === "percent" && typeof e.value === "number") {
+          newVal = Math.round(newVal * (1 + e.value / 100));
+        } else if (mode === "flat" && typeof e.value === "number") {
+          newVal = Math.max(0, newVal + e.value);
+        } else if (mode === "multiplier" && (typeof e.multiplier === "number" || typeof e.value === "number")) {
+          const m = typeof e.multiplier === "number" ? e.multiplier : (1 + (e.value ?? 0) / 100);
+          newVal = Math.round(newVal * m);
+        }
+        (fighter as any)[stat] = newVal;
+      }
     };
 
     const doTurn = (
@@ -877,13 +896,19 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       reqIsToggle?: boolean,
       reqSkillName?: string,
       reqShotMultiplier: number = 1.0,
-      reqShotName?: string
+      reqShotName?: string,
+      reqBuffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>,
+      reqBuffCooldownMs?: number
     ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
       
       if (skill && (reqIsBuff || reqIsToggle)) {
         attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
-        cooldowns[skill.id] = now + skill.cooldownMs;
+        const cdMs = typeof reqBuffCooldownMs === "number" && reqBuffCooldownMs >= 0 ? reqBuffCooldownMs : skill.cooldownMs;
+        cooldowns[skill.id] = now + cdMs;
+        if (Array.isArray(reqBuffEffects) && reqBuffEffects.length > 0) {
+          applyBuffEffects(attacker, reqBuffEffects);
+        }
         const sName = reqSkillName || skill.name || `skill#${skill.id}`;
         if (reqIsToggle) {
           session.log.unshift(`${attacker.name} использует переключаемое умение ${sName}`);
@@ -919,7 +944,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (session.attackerHasHit === undefined) session.attackerHasHit = false;
     if (session.defenderHasHit === undefined) session.defenderHasHit = false;
     if (actorRole === "attacker") {
-      const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName);
+      const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName, buffEffects, buffCooldownMs);
       session.lastHitDamage = dmg;
       session.lastHitById = session.attackerId;
       session.lastHitByName = session.attacker.name;
@@ -930,7 +955,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         session.winnerId = session.attackerId;
       }
     } else {
-      const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName);
+      const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName, buffEffects, buffCooldownMs);
       session.lastHitDamage = dmg;
       session.lastHitById = session.defenderId;
       session.lastHitByName = session.defender.name;
