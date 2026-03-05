@@ -78,6 +78,7 @@ export async function newsRoutes(app: FastifyInstance) {
       bossName?: string;
       bossLevel?: number;
       bossDrops?: any[];
+      actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
     };
 
     if (!body.characterId || !body.bossName) {
@@ -101,7 +102,7 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "character not found" });
       }
 
-      // Додаємо новину
+      // Додаємо новину (хто кого убив і що отримав)
       await addNews({
         type: "raid_boss_kill",
         characterId: character.id,
@@ -110,6 +111,7 @@ export async function newsRoutes(app: FastifyInstance) {
           bossName: body.bossName,
           bossLevel: body.bossLevel,
           bossDrops: body.bossDrops || [],
+          actualDroppedItems: body.actualDroppedItems || [],
         },
       });
 
@@ -129,7 +131,7 @@ const NEWS_MAX_TOTAL = 100;
 // Функція для додавання новин (викликається з інших модулів)
 // Максимум 100 новин — старі видаляються при додаванні нових
 export async function addNews(params: {
-  type: "new_player" | "premium_purchase" | "raid_boss_kill";
+  type: "new_player" | "premium_purchase" | "raid_boss_kill" | "return_to_world" | "broadcast";
   characterId?: string;
   characterName?: string;
   metadata?: any;

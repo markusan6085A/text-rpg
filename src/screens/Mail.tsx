@@ -145,6 +145,23 @@ export default function Mail({ navigate }: MailProps) {
     };
   }, []); // 🔥 Порожній масив - interval створюється один раз при mount
 
+  // ❗ Оновлення листів кожні 15 сек — щоб одразу бачити нові повідомлення
+  const selectedConvRef = React.useRef(selectedConversation);
+  selectedConvRef.current = selectedConversation;
+  const conversationPageRef = React.useRef(conversationPage);
+  conversationPageRef.current = conversationPage;
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (getRateLimitRemainingMs() > 0) return;
+      loadLetters();
+      const conv = selectedConvRef.current;
+      if (conv) {
+        loadConversationLetters(conv.playerId, conversationPageRef.current);
+      }
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [loadLetters]);
+
   /**
    * ВАЖЛИВО:
    * - визначаємо "співрозмовника" як ІНШОГО учасника переписки

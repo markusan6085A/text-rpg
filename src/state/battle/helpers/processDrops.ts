@@ -69,9 +69,12 @@ export function processMobDrops(
   zaricheEquippedUntil?: number; // Timestamp коли Зарич буде знятий
   newEquipment?: Record<string, string | null>; // Оновлена екіпіровка (якщо Зарич випав)
   newEquipmentEnchantLevels?: Record<string, number>; // Оновлені рівні заточки (якщо Зарич випав)
+  /** Фактичні предмети що випали (для новин raid boss) */
+  actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
 } {
   const newInventory = [...(hero.inventory || [])];
   const dropMessages: string[] = [];
+  const actualDroppedItems: Array<{ id: string; name: string; count: number }> = [];
   let adenaFromDrops = 0;
   const questProgressUpdates: Array<{ questId: string; itemId: string; count: number }> = [];
 
@@ -112,6 +115,7 @@ export function processMobDrops(
           const amount = Math.round(itemCount * premiumMultiplier);
           adenaFromDrops += amount;
           dropMessages.push(`Дроп: Адена x${amount}`);
+          actualDroppedItems.push({ id: "adena", name: "Адена", count: amount });
           return;
         }
 
@@ -158,6 +162,7 @@ export function processMobDrops(
 
           const displayName = removeGradeFromResourceName(itemDef.name);
           dropMessages.push(`Дроп: ${displayName} x${itemCount}`);
+          actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
         }
       }
     });
@@ -207,6 +212,7 @@ export function processMobDrops(
           }
 
           dropMessages.push(`Дроп: ${itemDef.name} x${itemCount}`);
+          actualDroppedItems.push({ id: treasureBoxId, name: itemDef.name, count: itemCount });
         }
       }
     }
@@ -271,6 +277,7 @@ export function processMobDrops(
 
           const displayName = removeGradeFromResourceName(itemDef.name);
           dropMessages.push(`Спойл: ${displayName} x${itemCount}`);
+          actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
         }
       }
     });
@@ -474,6 +481,7 @@ export function processMobDrops(
     zaricheEquippedUntil,
     newEquipment,
     newEquipmentEnchantLevels,
+    actualDroppedItems,
   };
 }
 

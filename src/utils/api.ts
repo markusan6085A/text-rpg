@@ -864,7 +864,7 @@ export async function getUnreadCount(): Promise<{ ok: boolean; unreadCount: numb
 // News API
 export interface NewsItem {
   id: string;
-  type: "new_player" | "premium_purchase" | "raid_boss_kill";
+  type: "new_player" | "premium_purchase" | "raid_boss_kill" | "return_to_world" | "broadcast";
   characterId?: string;
   characterName?: string;
   emblem?: string; // Clan emblem
@@ -873,6 +873,10 @@ export interface NewsItem {
     bossName?: string;
     bossLevel?: number;
     bossDrops?: any[];
+    actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
+    hoursAbsent?: number;
+    subject?: string;
+    messagePreview?: string;
   };
   createdAt: string;
 }
@@ -903,6 +907,7 @@ export async function reportRaidBossKill(params: {
   bossName: string;
   bossLevel?: number;
   bossDrops?: any[];
+  actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
 }): Promise<{ ok: boolean }> {
   const response = await apiRequest<{ ok: boolean }>('/news/raid-boss-kill', {
     method: 'POST',

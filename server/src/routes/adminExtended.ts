@@ -237,6 +237,16 @@ export const adminExtendedRoutes: FastifyPluginAsync = async (app) => {
       await logAdminSuccess(req, "admin.broadcast_letter", {
         metadata: { sent, total: allChars.length, fromCharacter: sender.name },
       });
+
+      // Додаємо новину про розсилку — відображається в новостях
+      const { addNews } = await import("../news");
+      await addNews({
+        type: "broadcast",
+        characterId: sender.id,
+        characterName: sender.name,
+        metadata: { subject, messagePreview: message.slice(0, 100) },
+      }).catch((err) => app.log?.warn?.(err, "Failed to add broadcast news"));
+
       return { ok: true, sent, total: allChars.length };
     }
   );

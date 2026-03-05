@@ -30,10 +30,17 @@ interface RaidBossDropModalProps {
   bossName: string;
   bossLevel?: number;
   drops?: any[];
+  actualDrops?: Array<{ id: string; name: string; count: number }>;
+  killerName?: string;
+  killerId?: string;
   onClose: () => void;
+  navigate: (path: string) => void;
 }
 
-function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDropModalProps) {
+function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName, killerId, onClose, navigate }: RaidBossDropModalProps) {
+  const hero = useHeroStore((s) => s.hero);
+  const hasActualDrops = actualDrops && actualDrops.length > 0;
+  const displayDrops = hasActualDrops ? actualDrops! : (drops ?? []);
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
       <div 
@@ -41,17 +48,35 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-lg font-semibold text-[#b8860b] mb-2">{bossName}{bossLevel ? ` - ${bossLevel} ур.` : ""}</div>
+        {killerName && (
+          <div className="text-sm text-gray-300 mb-2">
+            Убив:{" "}
+            <PlayerNameWithEmblem
+              playerName={killerName}
+              hero={hero}
+              clan={null}
+              size={12}
+              className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors font-semibold"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (killerId) navigate(`/player/${killerId}`);
+                else navigate(`/player/${killerName}`);
+              }}
+            />
+          </div>
+        )}
         
-        {drops && drops.length > 0 && (
+        {displayDrops.length > 0 && (
           <div className="border-t border-white/40 pt-2 mt-2">
-            <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
+            <div className="text-sm font-semibold text-[#b8860b] mb-2">{hasActualDrops ? "Отримано:" : "Дроп:"}</div>
             <div className="space-y-1">
-              {drops.map((drop, idx) => {
+              {displayDrops.map((drop: any, idx: number) => {
                 const itemDef = itemsDB[drop.id];
                 const iconPath = itemDef?.icon 
                   ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
                   : "/items/default_item.png";
-                const itemName = itemDef?.name || drop.id;
+                const itemName = drop.name || itemDef?.name || drop.id;
+                const isActual = typeof drop.count === "number";
                 
                 return (
                   <div 
@@ -70,7 +95,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, onClose }: RaidBossDrop
                       {itemName}:
                     </span>
                     <span className="text-green-400">
-                      {drop.min}-{drop.max} ({Math.round((drop.chance || 0) * 100)}%)
+                      {isActual ? `x${drop.count}` : `${drop.min ?? 0}-${drop.max ?? 0} (${Math.round((drop.chance || 0) * 100)}%)`}
                     </span>
                   </div>
                 );
@@ -99,7 +124,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [gameTime, setGameTime] = useState<string>("00:00");
-  const [selectedBossDrop, setSelectedBossDrop] = useState<{ bossName: string; bossLevel?: number; drops?: any[] } | null>(null);
+  const [selectedBossDrop, setSelectedBossDrop] = useState<{ bossName: string; bossLevel?: number; drops?: any[]; actualDrops?: Array<{ id: string; name: string; count: number }>; killerName?: string; killerId?: string } | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -197,6 +222,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
       const bossName = item.metadata?.bossName || "Unknown";
       const bossLevel = item.metadata?.bossLevel;
       const drops = item.metadata?.bossDrops;
+      const actualDrops = item.metadata?.actualDroppedItems;
       text = (
         <>
           <PlayerNameWithEmblem
@@ -219,12 +245,40 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             className="text-yellow-300 cursor-pointer hover:opacity-80 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
-              setSelectedBossDrop({ bossName, bossLevel, drops });
+              setSelectedBossDrop({ bossName, bossLevel, drops, actualDrops, killerName: item.characterName || undefined, killerId: item.characterId });
             }}
           >
             {bossName}
           </span>
           {bossLevel ? ` ${bossLevel} ур.` : ""}
+        </>
+      );
+    } else if (item.type === "return_to_world") {
+      text = (
+        <>
+          <PlayerNameWithEmblem
+            playerName={item.characterName || "Unknown"}
+            hero={hero}
+            clan={item.emblem ? { emblem: item.emblem } as any : null}
+            size={12}
+            className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (item.characterId) navigate(`/player/${item.characterId}` as any);
+              else if (item.characterName) navigate(`/player/${item.characterName}` as any);
+            }}
+          />{" "}
+          повернувся в світ
+          {item.metadata?.hoursAbsent ? ` (був відсутній ${item.metadata.hoursAbsent} год.)` : ""}
+        </>
+      );
+    } else if (item.type === "broadcast") {
+      const preview = item.metadata?.messagePreview || "";
+      const subject = item.metadata?.subject || "";
+      text = (
+        <>
+          <span className="text-[#b8860b] font-semibold">{subject || "Existence"}</span>
+          {preview ? `: ${preview}${preview.length >= 100 ? "…" : ""}` : " — розсилка"}
         </>
       );
     }
@@ -304,7 +358,11 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
           bossName={selectedBossDrop.bossName}
           bossLevel={selectedBossDrop.bossLevel}
           drops={selectedBossDrop.drops}
+          actualDrops={selectedBossDrop.actualDrops}
+          killerName={selectedBossDrop.killerName}
+          killerId={selectedBossDrop.killerId}
           onClose={() => setSelectedBossDrop(null)}
+          navigate={navigate}
         />
       )}
     </div>

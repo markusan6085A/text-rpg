@@ -132,16 +132,32 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
       const character = requestedCharacterId
         ? await prisma.character.findFirst({
             where: { id: requestedCharacterId, accountId: auth.accountId },
-            select: { id: true, heroJson: true },
+            select: { id: true, name: true, heroJson: true, lastActivityAt: true },
           })
         : await prisma.character.findFirst({
             where: { accountId: auth.accountId },
             orderBy: { createdAt: "asc" },
-            select: { id: true, heroJson: true },
+            select: { id: true, name: true, heroJson: true, lastActivityAt: true },
           });
 
       if (!character) {
         return reply.code(404).send({ error: "character not found" });
+      }
+
+      // Перевірка повернення після 10+ годин — додаємо новину "такий то игрок вернулса в мир"
+      const TEN_HOURS_MS = 10 * 60 * 60 * 1000;
+      const lastAt = (character as any).lastActivityAt;
+      if (lastAt && typeof lastAt.getTime === "function") {
+        const gapMs = Date.now() - lastAt.getTime();
+        if (gapMs >= TEN_HOURS_MS) {
+          const { addNews } = await import("../../../news");
+          addNews({
+            type: "return_to_world",
+            characterId: character.id,
+            characterName: character.name,
+            metadata: { hoursAbsent: Math.round(gapMs / (60 * 60 * 1000)) },
+          }).catch((err) => app.log?.warn?.(err, "Failed to add return_to_world news"));
+        }
       }
 
       if (requestedLocation !== undefined) {

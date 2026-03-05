@@ -286,6 +286,7 @@ export function handleBaseAttack(
 
     // КРИТИЧНО: функціональний updateHero — базуємо оновлення на prev, щоб пізніші виклики (реген тощо) не затирали інвентар/exp/adena
     let dropMessages: string[] = [];
+    let actualDroppedItems: Array<{ id: string; name: string; count: number }> = [];
     let displayExp = expGain;
     let displaySp = spGain;
     let displayAdena = adenaGain;
@@ -298,6 +299,7 @@ export function handleBaseAttack(
 
       const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
+      actualDroppedItems = dropResult.actualDroppedItems ?? [];
 
       const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory };
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
@@ -439,7 +441,7 @@ export function handleBaseAttack(
       setMobRespawn(state.zoneId, state.mobIndex, respawnTime, heroName);
     }
     
-    // Фіксуємо вбивство raid boss в новинах
+    // Фіксуємо вбивство raid boss в новинах (хто кого убив і що отримав)
     if (isRaidBoss && curHeroForLog) {
       reportRaidBossKill({
         characterId: curHeroForLog.id,
@@ -447,6 +449,7 @@ export function handleBaseAttack(
         bossName: state.mob?.name || "",
         bossLevel: state.mob?.level,
         bossDrops: state.mob?.drops || [],
+        actualDroppedItems: actualDroppedItems.length > 0 ? actualDroppedItems : undefined,
       }).catch((err) => {
         console.error("Error reporting raid boss kill:", err);
       });
