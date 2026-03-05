@@ -17,6 +17,7 @@ import { getPremiumMultiplier } from "../../../../utils/premium/isPremiumActive"
 import { itemsDB } from "../../../../data/items/itemsDB";
 import { reportRaidBossKill } from "../../../../utils/api";
 import { DAILY_QUESTS } from "../../../../data/dailyQuests";
+import { getGameSettings } from "../../../../state/gameSettings";
 
 export function handleBaseAttack(
   state: BattleState,
@@ -324,7 +325,8 @@ export function handleBaseAttack(
       }
 
       const premiumMultiplier = getPremiumMultiplier(curHero);
-      const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
+      const expEnabled = getGameSettings().expEnabled !== false;
+      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier) : 0;
       const finalSpGain = Math.round(spGain * premiumMultiplier);
       // Якщо адена прийшла з таблиці дропу (Floran профіль або mob.drops) — використовуємо її, інакше з mob.adenaMin/Max
       const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
@@ -349,7 +351,7 @@ export function handleBaseAttack(
         if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
           newCompleted.push(q.id);
           rewardAdena += q.rewards.adena ?? 0;
-          rewardExp += q.rewards.exp ?? 0;
+          rewardExp += expEnabled ? (q.rewards.exp ?? 0) : 0;
           rewardSp += q.rewards.sp ?? 0;
           rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
         }

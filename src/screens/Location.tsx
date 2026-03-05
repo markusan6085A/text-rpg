@@ -15,6 +15,7 @@ import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
+import { getGameSettings } from "../state/gameSettings";
 
 type Navigate = (path: string) => void;
 
@@ -138,8 +139,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     [activeQuestIdsKey, activeQuests]
   );
 
-  // ===== пагінація по мобах (15 на сторінку) =====
-  const pageSize = 15;
+  // ===== пагінація по мобах (з налаштувань: 10 15 20 25 30) =====
+  const pageSize = getGameSettings().mobsPerPage ?? 15;
   const totalMobs = zone.mobs.length;
   const totalPages = Math.max(1, Math.ceil(totalMobs / pageSize));
   const currentPage = Math.min(page, totalPages);

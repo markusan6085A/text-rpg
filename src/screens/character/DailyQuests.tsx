@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { DAILY_QUESTS, type DailyQuest } from "../../data/dailyQuests";
+import { getGameSettings } from "../../state/gameSettings";
 
 interface Navigate {
   (path: string): void;
@@ -63,6 +64,7 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
   // Автоматично видати нагороди за щоденні завдання, які вже виконані (прогрес >= цілі), але ще не отримані
   useEffect(() => {
     if (!hero) return;
+    const expEnabled = getGameSettings().expEnabled !== false;
     const progress = hero.dailyQuestsProgress ?? {};
     const done = hero.dailyQuestsCompleted ?? [];
     let rewardAdena = 0;
@@ -75,7 +77,7 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
       if (cur >= quest.target && !done.includes(quest.id)) {
         toComplete.push(quest.id);
         rewardAdena += quest.rewards.adena ?? 0;
-        rewardExp += quest.rewards.exp ?? 0;
+        rewardExp += expEnabled ? (quest.rewards.exp ?? 0) : 0;
         rewardSp += quest.rewards.sp ?? 0;
         rewardCoinOfLuck += quest.rewards.coinOfLuck ?? 0;
       }
@@ -118,10 +120,11 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
     const done = h.dailyQuestsCompleted ?? [];
     if (done.includes(quest.id) || cur < quest.target) return;
 
+    const expEnabled = getGameSettings().expEnabled !== false;
     const r = quest.rewards ?? {};
     updateHero({
       adena: (h.adena ?? 0) + (r.adena ?? 0),
-      exp: (h.exp ?? 0) + (r.exp ?? 0),
+      exp: (h.exp ?? 0) + (expEnabled ? (r.exp ?? 0) : 0),
       sp: (h.sp ?? 0) + (r.sp ?? 0),
       coinOfLuck: (h.coinOfLuck ?? 0) + (r.coinOfLuck ?? 0),
       dailyQuestsCompleted: [...done, quest.id],

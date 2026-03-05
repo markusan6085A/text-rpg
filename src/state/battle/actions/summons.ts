@@ -20,6 +20,7 @@ import { processMobDrops } from "../helpers/processDrops";
 import { hasSpiritshotActive } from "./useSkill/shotHelpers";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { DAILY_QUESTS } from "../../../data/dailyQuests";
+import { getGameSettings } from "../../../state/gameSettings";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -723,7 +724,8 @@ export function processSummonAttack(
       }
 
       const premiumMultiplier = getPremiumMultiplier(curHero);
-      const finalExpGain = Math.round(expGain * XP_RATE * premiumMultiplier);
+      const expEnabled = getGameSettings().expEnabled !== false;
+      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier) : 0;
       const finalSpGain = Math.round(spGain * premiumMultiplier);
       const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
         ? dropResult.adenaFromDrops
@@ -746,7 +748,7 @@ export function processSummonAttack(
         if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
           newCompleted.push(q.id);
           rewardAdena += q.rewards.adena ?? 0;
-          rewardExp += q.rewards.exp ?? 0;
+          rewardExp += expEnabled ? (q.rewards.exp ?? 0) : 0;
           rewardSp += q.rewards.sp ?? 0;
           rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
         }
