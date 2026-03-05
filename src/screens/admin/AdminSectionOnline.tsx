@@ -65,7 +65,7 @@ export function AdminSectionOnline({ navigate }: AdminSectionOnlineProps) {
                           {" · "}
                           <span
                             className="cursor-pointer hover:text-[#c7ad80] hover:underline"
-                            onClick={(e) => { e.stopPropagation(); navigate(`/clan-info/${c.clanId}`); }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/clan/${c.clanId}`); }}
                           >
                             {c.clan}
                           </span>
