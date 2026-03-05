@@ -225,4 +225,72 @@ export async function forumRoutes(app: FastifyInstance) {
       return { ok: true, post };
     }
   );
+
+  const FORUM_ADMIN_NAME = "existence"; // нік адміна форуму (case-insensitive)
+
+  function isForumAdmin(characterName: string | null | undefined): boolean {
+    return !!characterName && String(characterName).toLowerCase().trim() === FORUM_ADMIN_NAME;
+  }
+
+  // DELETE /forum/topics/:topicId — видалити тему (тільки Existence)
+  app.delete<{ Params: { topicId: string }; Querystring: { characterId?: string } }>(
+    "/forum/topics/:topicId",
+    async (req, reply) => {
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const topicId = String((req.params as any).topicId ?? "").trim();
+      const characterId = String((req.query as any)?.characterId ?? "").trim();
+      if (!characterId) return reply.code(400).send({ error: "characterId is required" });
+      if (!topicId) return reply.code(400).send({ error: "topicId is required" });
+
+      const char = await prisma.character.findFirst({
+        where: { id: characterId, accountId: auth.accountId },
+        select: { id: true, name: true },
+      });
+      if (!char) return reply.code(403).send({ error: "character not found or not yours" });
+      if (!isForumAdmin(char.name)) return reply.code(403).send({ error: "only forum admin can delete topics" });
+
+      const topic = await prisma.forumTopic.findUnique({ where: { id: topicId }, select: { id: true } });
+      if (!topic) return reply.code(404).send({ error: "topic not found" });
+
+      await prisma.forumPost.deleteMany({ where: { topicId } });
+      await prisma.forumTopic.delete({ where: { id: topicId } });
+      return { ok: true };
+    }
+  );
+
+  // DELETE /forum/posts/:postId — видалити пост (тільки Existence)
+  app.delete<{ Params: { postId: string }; Querystring: { characterId?: string } }>(
+    "/forum/posts/:postId",
+    async (req, reply) => {
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const postId = String((req.params as any).postId ?? "").trim();
+      const characterId = String((req.query as any)?.characterId ?? "").trim();
+      if (!characterId) return reply.code(400).send({ error: "characterId is required" });
+      if (!postId) return reply.code(400).send({ error: "postId is required" });
+
+      const char = await prisma.character.findFirst({
+        where: { id: characterId, accountId: auth.accountId },
+        select: { id: true, name: true },
+      });
+      if (!char) return reply.code(403).send({ error: "character not found or not yours" });
+      if (!isForumAdmin(char.name)) return reply.code(403).send({ error: "only forum admin can delete posts" });
+
+      const post = await prisma.forumPost.findUnique({
+        where: { id: postId },
+        select: { id: true, topicId: true },
+      });
+      if (!post) return reply.code(404).send({ error: "post not found" });
+
+      await prisma.forumPost.delete({ where: { id: postId } });
+      await prisma.forumTopic.update({
+        where: { id: post.topicId },
+        data: { postCount: { decrement: 1 }, updatedAt: new Date() },
+      });
+      return { ok: true };
+    }
+  );
 }

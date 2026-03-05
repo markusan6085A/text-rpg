@@ -956,6 +956,18 @@ export async function createForumPost(params: {
   });
 }
 
+export async function deleteForumTopic(topicId: string, characterId: string): Promise<{ ok: boolean }> {
+  return apiRequest(`/forum/topics/${encodeURIComponent(topicId)}?characterId=${encodeURIComponent(characterId)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function deleteForumPost(postId: string, characterId: string): Promise<{ ok: boolean }> {
+  return apiRequest(`/forum/posts/${encodeURIComponent(postId)}?characterId=${encodeURIComponent(characterId)}`, {
+    method: 'DELETE',
+  });
+}
+
 // Seven Seals API
 export interface SevenSealsRankingResponse {
   ok: boolean;

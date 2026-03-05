@@ -5,6 +5,8 @@ import {
   getForumTopic,
   createForumTopic,
   createForumPost,
+  deleteForumTopic,
+  deleteForumPost,
 } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
@@ -185,6 +187,47 @@ export default function Forum({ navigate }: ForumProps) {
 
   const heroId = hero?.id || characterId;
   const canPost = !!heroId && !!characterId;
+  const isForumAdmin = !!hero?.name && String(hero.name).toLowerCase().trim() === "existence";
+
+  const handleDeleteTopic = async (e: React.MouseEvent, topicId: string) => {
+    e.stopPropagation();
+    if (!characterId || !confirm("Видалити цю тему і всі повідомлення?")) return;
+    setSending(true);
+    try {
+      await deleteForumTopic(topicId, characterId);
+      await loadTopics(topicsPage);
+    } catch (err: any) {
+      alert(err?.message || "Помилка видалення");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!characterId || !confirm("Видалити це повідомлення?")) return;
+    setSending(true);
+    try {
+      await deleteForumPost(postId, characterId);
+      await loadTopic(postsPage);
+    } catch (err: any) {
+      alert(err?.message || "Помилка видалення");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleDeleteTopicFromView = async () => {
+    if (!selectedTopicId || !characterId || !confirm("Видалити цю тему і всі повідомлення?")) return;
+    setSending(true);
+    try {
+      await deleteForumTopic(selectedTopicId, characterId);
+      handleBackToTopics();
+    } catch (err: any) {
+      alert(err?.message || "Помилка видалення");
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="w-full text-white px-3 py-4">
@@ -300,9 +343,21 @@ export default function Forum({ navigate }: ForumProps) {
                     onClick={() => handleTopicClick(t)}
                     className="flex flex-col p-2 border-b border-white/30 cursor-pointer hover:bg-white/5"
                   >
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-start">
                       <span className="font-medium text-[#c7ad80] text-sm">{t.title}</span>
-                      <span className="text-gray-500 text-xs">{t.postCount}</span>
+                      <div className="flex items-center gap-1">
+                        {isForumAdmin && (
+                          <button
+                            onClick={(e) => handleDeleteTopic(e, t.id)}
+                            disabled={sending}
+                            className="text-red-400/80 hover:text-red-400 text-[10px] px-1 py-0 rounded"
+                            title="Видалити тему"
+                          >
+                            ✕
+                          </button>
+                        )}
+                        <span className="text-gray-500 text-xs">{t.postCount}</span>
+                      </div>
                     </div>
                     <div className="flex justify-between text-xs text-gray-400">
                       <span
@@ -340,17 +395,28 @@ export default function Forum({ navigate }: ForumProps) {
 
         {view === "topic" && topic && (
           <>
-            <div className="mb-3 p-2 bg-black/20 rounded text-xs text-gray-400">
-              Автор:{" "}
-              <span
-                className="cursor-pointer hover:underline"
-                style={getNickColorStyle(topic.character?.name, hero, topic.character?.nickColor)}
-                onClick={() => topic.character?.id && navigate(`/player/${topic.character.id}`)}
-              >
-                {topic.character?.name ?? "—"}
-              </span>
-              {" · "}
-              {topic.postCount} постів
+            <div className="flex justify-between items-center mb-3 p-2 bg-black/20 rounded text-xs text-gray-400">
+              <div>
+                Автор:{" "}
+                <span
+                  className="cursor-pointer hover:underline"
+                  style={getNickColorStyle(topic.character?.name, hero, topic.character?.nickColor)}
+                  onClick={() => topic.character?.id && navigate(`/player/${topic.character.id}`)}
+                >
+                  {topic.character?.name ?? "—"}
+                </span>
+                {" · "}
+                {topic.postCount} постів
+              </div>
+              {isForumAdmin && (
+                <button
+                  onClick={handleDeleteTopicFromView}
+                  disabled={sending}
+                  className="text-red-400 hover:text-red-300 text-[10px] px-1.5 py-0.5 rounded border border-red-500/50 hover:bg-red-500/20 disabled:opacity-50"
+                >
+                  Видалити тему
+                </button>
+              )}
             </div>
             {loading ? (
               <div className="text-gray-400 text-sm">Завантаження...</div>
@@ -359,14 +425,26 @@ export default function Forum({ navigate }: ForumProps) {
                 {posts.map((p) => (
                   <div key={p.id} className="border-b border-white/20 pb-2">
                     <div className="flex justify-between items-center mb-1">
-                      <PlayerNameWithEmblem
-                        playerName={p.character?.name ?? "—"}
-                        hero={hero}
-                        nickColor={p.character?.nickColor}
-                        size={11}
-                        className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80"
-                        onClick={() => p.character?.id && navigate(`/player/${p.character.id}`)}
-                      />
+                      <div className="flex items-center gap-2">
+                        <PlayerNameWithEmblem
+                          playerName={p.character?.name ?? "—"}
+                          hero={hero}
+                          nickColor={p.character?.nickColor}
+                          size={11}
+                          className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80"
+                          onClick={() => p.character?.id && navigate(`/player/${p.character.id}`)}
+                        />
+                        {isForumAdmin && (
+                          <button
+                            onClick={() => handleDeletePost(p.id)}
+                            disabled={sending}
+                            className="text-red-400/80 hover:text-red-400 text-[9px] px-1 py-0 rounded"
+                            title="Видалити"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
                       <span className="text-gray-500 text-[9px]">{formatTime(p.createdAt)}</span>
                     </div>
                     <div className="text-white text-[11px] whitespace-pre-wrap">{p.message}</div>
