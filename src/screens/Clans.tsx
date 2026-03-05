@@ -71,7 +71,7 @@ export default function Clans({ navigate }: ClansProps) {
     }
 
     try {
-      const response = await createClan(clanName.trim());
+      const response = await createClan(clanName.trim(), hero?.id);
       if (response.ok) {
         setClanName("");
         setShowCreateForm(false);
@@ -80,7 +80,7 @@ export default function Clans({ navigate }: ClansProps) {
       }
     } catch (err: any) {
       console.error("[Clans] Failed to create clan:", err);
-      const errorMessage = err?.response?.data?.error || err?.message || "Ошибка при создании клана";
+      const errorMessage = err?.body?.error || err?.message || "Ошибка при создании клана";
       alert(errorMessage);
     }
   };

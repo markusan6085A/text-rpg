@@ -1030,7 +1030,7 @@ export async function clanRoutes(app: FastifyInstance) {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
-    const { name } = req.body as { name?: string };
+    const { name, characterId: bodyCharacterId } = req.body as { name?: string; characterId?: string };
 
     if (!name || typeof name !== "string") {
       return reply.code(400).send({ error: "name is required" });
@@ -1040,10 +1040,20 @@ export async function clanRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "name must be between 3 and 16 characters" });
     }
 
-    // Знаходимо персонажа
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
+    // Використовуємо characterId з body якщо передано (поточний персонаж гравця), інакше findFirst
+    let character;
+    if (bodyCharacterId && typeof bodyCharacterId === "string") {
+      character = await prisma.character.findUnique({
+        where: { id: bodyCharacterId },
+      });
+      if (!character || character.accountId !== auth.accountId) {
+        return reply.code(403).send({ error: "character does not belong to your account" });
+      }
+    } else {
+      character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+      });
+    }
 
     if (!character) {
       return reply.code(404).send({ error: "character not found" });

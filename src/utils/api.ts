@@ -1246,10 +1246,12 @@ export async function getClan(id: string): Promise<{ ok: boolean; clan: Clan }> 
   return response;
 }
 
-export async function createClan(name: string): Promise<{ ok: boolean; clan: Clan }> {
+export async function createClan(name: string, characterId?: string): Promise<{ ok: boolean; clan: Clan }> {
+  const body: { name: string; characterId?: string } = { name };
+  if (characterId) body.characterId = characterId;
   const response = await apiRequest<{ ok: boolean; clan: Clan }>('/clans', {
     method: 'POST',
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(body),
   });
   return response;
 }
