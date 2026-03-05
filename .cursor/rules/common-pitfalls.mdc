@@ -1,0 +1,63 @@
+---
+description: Типові помилки в проєкті — уникати повторення
+alwaysApply: true
+---
+
+# Типові помилки (не повторювати)
+
+## 1) TypeScript: `boolean | undefined` при присвоєнні
+
+**Проблема:** Вираз типу `x && (a || b) && c` може дати `undefined`, якщо `a` і `b` — `undefined`. Присвоєння в `let flag: boolean` дає TS2322.
+
+**Рішення:** Обгортати в `!!` або `Boolean()`:
+```ts
+// ❌ BAD
+appliedBuffTurn = dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0;
+
+// ✅ GOOD
+appliedBuffTurn = !!(dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0);
+```
+
+---
+
+## 2) processMobAttack перезаписує mobHP
+
+**Проблема:** `processMobAttack` викликається кожні 250 мс і завжди додавав `mobHP` до updates. Якщо між викликами гравець атакував (baseAttack/attackSkill) і оновив mobHP, processMobAttack перезаписував його старим значенням (state на початку tick).
+
+**Рішення:** Включати `mobHP` у updates тільки коли воно реально змінилося (наприклад, Physical Mirror — відбиття урону). Інакше не змінювати mobHP.
+
+---
+
+## 3) PK бафи: сервер не зберігає, клієнт не показує
+
+**Проблема:** У PK сервер застосовує бафи тільки в пам'яті (applyBuffEffects на PkFighter). heroJson.heroBuffs не оновлюється. Клієнт показує бафи з loadBattle + heroJson.heroBuffs — обидва джерела застарілі.
+
+**Рішення:** При застосуванні бафу в actPkSession:
+- Сервер зберігає новий баф у character.heroJson.heroBuffs
+- Відповідь містить actorBuffs — клієнт одразу їх показує через pkActorBuffs
+
+---
+
+## 4) Баф не вмикається, але йде відкат
+
+**Проблема:** У PK клієнт ставить predictive cooldown до виклику API. Якщо сервер відхиляє баф (наприклад, не вистачає MP), cooldown лишається, але баф не з'являється.
+
+**Рішення:**
+- Сервер: коли reqIsBuff/reqIsToggle і pickSkill повертає null (недостатньо MP), додати в лог повідомлення і return 0 без атаки
+- Клієнт: якщо в log є "не хватает MP" або "не удалось использовать", скинути cooldown для цього скіла
+
+---
+
+## 5) SkillLevelDefinition vs SkillDefinition
+
+**Проблема:** `SkillLevelDefinition` не має поля `duration`. Воно є тільки в `SkillDefinition`.
+
+**Рішення:** Використовувати `skillDef?.duration`, а не `levelDef?.duration`.
+
+---
+
+## 6) BattleBuff вимагає effects
+
+**Проблема:** Тип BattleBuff має `effects: any[]` (обов'язково). API може повертати `effects?: any[]`.
+
+**Рішення:** При мапінгу додавати fallback: `effects: b.effects ?? []`.
