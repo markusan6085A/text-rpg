@@ -126,7 +126,7 @@ export const adminExtendedRoutes: FastifyPluginAsync = async (app) => {
         name: true,
         level: true,
         lastActivityAt: true,
-        clanMember: { select: { clan: { select: { name: true } } } },
+        clanMember: { select: { clan: { select: { id: true, name: true } } } },
       },
     });
     return {
@@ -137,6 +137,7 @@ export const adminExtendedRoutes: FastifyPluginAsync = async (app) => {
         level: c.level,
         lastActivityAt: c.lastActivityAt?.toISOString() ?? null,
         clan: c.clanMember?.clan?.name ?? null,
+        clanId: c.clanMember?.clan?.id ?? null,
       })),
     };
   });

@@ -92,10 +92,10 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
           <AdminSectionMute />
           <AdminSectionCoinLuck />
           <AdminSectionCoinsSilver />
-          <AdminSectionPlayers />
-          <AdminSectionOnline />
+          <AdminSectionPlayers navigate={navigate} />
+          <AdminSectionOnline navigate={navigate} />
           <AdminSectionLetters />
-          <AdminSectionClans />
+          <AdminSectionClans navigate={navigate} />
           <AdminSectionAuditLog />
         </div>
 

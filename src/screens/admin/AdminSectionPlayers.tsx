@@ -3,12 +3,16 @@ import { adminSearchPlayers } from "../../utils/api";
 
 const style = { color: "#c7ad80" };
 
+interface AdminSectionPlayersProps {
+  navigate: (path: string) => void;
+}
+
 /**
  * Список персонажей
  * Поиск игроков по имени (частичное совпадение), пагинация.
  * Показывает: ник, уровень, клан, дату создания, бан/блок.
  */
-export function AdminSectionPlayers() {
+export function AdminSectionPlayers({ navigate }: AdminSectionPlayersProps) {
   const [name, setName] = useState("");
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<{
@@ -78,9 +82,27 @@ export function AdminSectionPlayers() {
                 ) : (
                   result.characters.map((c) => (
                     <tr key={c.id} className="border-t border-[#c7ad80]/10">
-                      <td className="px-2 py-1 text-gray-300">{c.name}</td>
+                      <td className="px-2 py-1">
+                        <span
+                          className="text-gray-300 cursor-pointer hover:text-[#c7ad80] hover:underline"
+                          onClick={() => navigate(`/player/${c.id}`)}
+                        >
+                          {c.name}
+                        </span>
+                      </td>
                       <td className="px-2 py-1 text-gray-400">{c.level}</td>
-                      <td className="px-2 py-1 text-gray-400">{c.clan?.name ?? "—"}</td>
+                      <td className="px-2 py-1">
+                        {c.clan ? (
+                          <span
+                            className="text-gray-400 cursor-pointer hover:text-[#c7ad80] hover:underline"
+                            onClick={() => navigate(`/clan/${c.clan!.id}`)}
+                          >
+                            {c.clan.name}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
                       <td className="px-2 py-1">
                         {c.bannedUntil ? <span className="text-red-400">Бан</span> : c.blockedUntil ? <span className="text-orange-400">Блок</span> : "—"}
                       </td>

@@ -3,12 +3,16 @@ import { adminGetOnlinePlayers } from "../../utils/api";
 
 const style = { color: "#c7ad80" };
 
+interface AdminSectionOnlineProps {
+  navigate: (path: string) => void;
+}
+
 /**
  * Онлайн игроки
  * Список персонажей, активных за последние 10 минут.
  */
-export function AdminSectionOnline() {
-  const [chars, setChars] = useState<Array<{ id: string; name: string; level: number; lastActivityAt: string | null; clan: string | null }>>([]);
+export function AdminSectionOnline({ navigate }: AdminSectionOnlineProps) {
+  const [chars, setChars] = useState<Array<{ id: string; name: string; level: number; lastActivityAt: string | null; clan: string | null; clanId?: string | null }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,9 +50,33 @@ export function AdminSectionOnline() {
           ) : (
             <ul className="p-2 space-y-0.5">
               {chars.map((c) => (
-                <li key={c.id} className="flex justify-between">
-                  <span className="text-gray-300">{c.name}</span>
-                  <span className="text-gray-500">Lvl {c.level}{c.clan ? ` · ${c.clan}` : ""}</span>
+                <li key={c.id} className="flex justify-between items-center">
+                  <span
+                    className="text-gray-300 cursor-pointer hover:text-[#c7ad80] hover:underline"
+                    onClick={() => navigate(`/player/${c.id}`)}
+                  >
+                    {c.name}
+                  </span>
+                  <span className="text-gray-500">
+                    Lvl {c.level}
+                    {c.clan ? (
+                      c.clanId ? (
+                        <>
+                          {" · "}
+                          <span
+                            className="cursor-pointer hover:text-[#c7ad80] hover:underline"
+                            onClick={(e) => { e.stopPropagation(); navigate(`/clan/${c.clanId}`); }}
+                          >
+                            {c.clan}
+                          </span>
+                        </>
+                      ) : (
+                        ` · ${c.clan}`
+                      )
+                    ) : (
+                      ""
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>

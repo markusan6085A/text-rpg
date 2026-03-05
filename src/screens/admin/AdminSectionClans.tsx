@@ -3,11 +3,15 @@ import { adminGetClans, adminDisbandClan, adminKickFromClan } from "../../utils/
 
 const style = { color: "#c7ad80" };
 
+interface AdminSectionClansProps {
+  navigate: (path: string) => void;
+}
+
 /**
  * Кланы
  * Список всех кланов. Роспуск клана. Исключение участника из клана.
  */
-export function AdminSectionClans() {
+export function AdminSectionClans({ navigate }: AdminSectionClansProps) {
   const [clans, setClans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -78,9 +82,24 @@ export function AdminSectionClans() {
                   className="flex justify-between items-center cursor-pointer"
                   onClick={() => setExpandedId(expandedId === clan.id ? null : clan.id)}
                 >
-                  <span className="text-gray-300 font-medium">{clan.name}</span>
+                  <span
+                    className="text-gray-300 font-medium hover:text-[#c7ad80] hover:underline"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/clan/${clan.id}`); }}
+                  >
+                    {clan.name}
+                  </span>
                   <span className="text-xs text-gray-500">
-                    Lvl {clan.level} · {clan._count?.members ?? 0} участ. · {clan.creator?.name ?? "—"}
+                    Lvl {clan.level} · {clan._count?.members ?? 0} участ. ·{" "}
+                    {clan.creator ? (
+                      <span
+                        className="cursor-pointer hover:text-[#c7ad80] hover:underline"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/player/${clan.creator!.id}`); }}
+                      >
+                        {clan.creator.name}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
                   </span>
                   <button
                     type="button"
@@ -94,7 +113,12 @@ export function AdminSectionClans() {
                   <div className="mt-2 pl-2 border-l border-[#c7ad80]/20 space-y-1 text-xs">
                     {clan.members.map((m: any) => (
                       <div key={m.id} className="flex justify-between">
-                        <span>{m.character?.name ?? m.characterId}</span>
+                        <span
+                          className="cursor-pointer hover:text-[#c7ad80] hover:underline"
+                          onClick={() => navigate(`/player/${m.characterId}`)}
+                        >
+                          {m.character?.name ?? m.characterId}
+                        </span>
                         {m.characterId !== clan.creatorId && (
                           <button
                             type="button"

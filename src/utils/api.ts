@@ -1646,7 +1646,7 @@ export async function adminSearchPlayers(params?: { name?: string; page?: number
 /** Адмін: онлайн персонажі */
 export async function adminGetOnlinePlayers(): Promise<{
   ok: boolean;
-  characters: Array<{ id: string; name: string; level: number; lastActivityAt: string | null; clan: string | null }>;
+  characters: Array<{ id: string; name: string; level: number; lastActivityAt: string | null; clan: string | null; clanId?: string | null }>;
 }> {
   const res = await fetch(`${API_URL}/admin/players/online`, { method: "GET", credentials: "include" });
   const data = await res.json().catch(() => ({}));
