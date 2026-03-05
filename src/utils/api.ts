@@ -198,6 +198,7 @@ async function apiRequest<T>(
         mod.setRateLimitCooldown(sec * 1000);
       } catch (_) {}
       errorWithStatus.retryAfter = sec;
+      errorWithStatus.message = `Забагато запитів. Зачекайте ${sec} сек.`;
     }
     throw errorWithStatus;
   }
