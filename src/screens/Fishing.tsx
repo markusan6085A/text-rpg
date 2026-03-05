@@ -73,11 +73,19 @@ export default function Fishing({ navigate }: FishingProps) {
 
   const equipment = hero?.equipment ?? {};
   const encLevels = hero?.equipmentEnchantLevels ?? {};
-  const isRod = (id: string | null | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
+  const getSlotId = (slot: string): string | null => {
+    const val = equipment[slot];
+    if (!val) return null;
+    if (typeof val === "string") return val;
+    if (val && typeof val === "object" && typeof (val as any).id === "string") return (val as any).id;
+    return null;
+  };
+  const isRod = (id: string | null | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && String(id).toLowerCase().includes("rod"));
   const rodSlot =
-    isRod(equipment["weapon"]) ? "weapon" :
-    isRod(equipment["lrhand"]) ? "lrhand" :
-    isRod(equipment["shield"]) ? "shield" : null;
+    isRod(getSlotId("weapon")) ? "weapon" :
+    isRod(getSlotId("lrhand")) ? "lrhand" :
+    isRod(getSlotId("shield")) ? "shield" :
+    isRod(getSlotId("rhand")) ? "rhand" : null;
   const rodEquipped = rodSlot !== null;
   const rodEnchant = rodSlot ? (Number(encLevels[rodSlot]) || 0) : 0;
   const fishRange = getFishRangeByRodEnchant(rodEnchant);

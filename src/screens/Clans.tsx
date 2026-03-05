@@ -18,10 +18,10 @@ export default function Clans({ navigate }: ClansProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Завантажуємо мій клан та список кланів
+  // Завантажуємо мій клан та список кланів (hero?.id — стабільна залежність, не hero-об'єкт)
   useEffect(() => {
-    loadData();
-  }, [hero]);
+    if (hero?.id) loadData();
+  }, [hero?.id]);
 
   const loadData = async () => {
     if (!hero) {

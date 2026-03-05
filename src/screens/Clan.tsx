@@ -79,12 +79,12 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   }, [clan?.id, chatPage]); // 🔥 Мінімальні dependencies - тільки clan.id та chatPage (примітиви)
 
-  // Завантажуємо клан
+  // Завантажуємо клан (тільки при зміні clanId — hero?.name не потрібен, уникнення зайвих reload)
   useEffect(() => {
     if (clanId) {
       loadClan();
     }
-  }, [clanId, hero?.name]); // 🔥 Мінімальні dependencies - тільки clanId та hero.name (примітив)
+  }, [clanId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Позначаємо повідомлення як прочитані при заході в клан
   useEffect(() => {
@@ -101,19 +101,12 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   }, [activeTab, clan?.id, chatPage, loadChatMessages]); // 🔥 Мінімальні dependencies
 
-  // Автооновлення чату кожні 3 секунди (тільки на першій сторінці)
+  // Автооновлення чату кожні 15 секунд (тільки на першій сторінці, щоб не лагати)
   useEffect(() => {
-    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
-    if (activeTab !== "chat" || !clan?.id || chatPage !== 1) {
-      return; // Cleanup спрацює автоматично через return нижче
-    }
-    
-    const interval = setInterval(() => {
-      loadChatMessages();
-    }, 3000);
-    
+    if (activeTab !== "chat" || !clan?.id || chatPage !== 1) return;
+    const interval = setInterval(() => loadChatMessages(), 15000);
     return () => clearInterval(interval);
-  }, [activeTab, clan?.id, chatPage, loadChatMessages]); // 🔥 Мінімальні dependencies - тільки примітиви та стабільна функція
+  }, [activeTab, clan?.id, chatPage, loadChatMessages]);
 
   const loadClan = async () => {
     if (!clanId || !hero) {
