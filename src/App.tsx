@@ -63,6 +63,18 @@ import { hydrateHero } from "./state/heroStore/heroHydration";
 import { hydrateBattleStoreFromStorage } from "./state/battle/hydrateFromStorage";
 import { startWarmup, stopWarmup } from "./utils/warmup";
 
+/** Редірект не-адміна з /player/:id/admin на /player/:id */
+function PlayerAdminRedirect({ navigate, playerId }: { navigate: (path: string) => void; playerId: string }) {
+  React.useEffect(() => {
+    navigate(`/player/${playerId}`);
+  }, [navigate, playerId]);
+  return (
+    <div className="min-h-[120px] flex items-center justify-center text-gray-400 text-sm">
+      Перенаправлення...
+    </div>
+  );
+}
+
 function useRouter() {
   const [path, setPath] = React.useState(() => {
     const pathname = window.location.pathname;
@@ -567,6 +579,11 @@ function AppInner() {
       const playerAdminMatch = pathname.match(/^\/player\/([^/]+)\/admin\/?$/);
       if (playerAdminMatch) {
         const playerId = playerAdminMatch[1];
+        const isAdmin = useAdminStore.getState().isAdmin;
+        // Тільки адмін може бачити адмін-дії (Heal, Resurrect, Ban...). Інакше редірект на профіль.
+        if (!isAdmin) {
+          return renderWithLayout(<PlayerAdminRedirect navigate={navigate} playerId={playerId} key={`player-redirect-${playerId}-${refreshKey}`} />);
+        }
         return (
           <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="player-admin-layout">
             <ErrorBoundary

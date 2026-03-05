@@ -14,6 +14,7 @@ import {
 import { getSkillDef, getSkillDefForBattle } from "../state/battle/loadout";
 import { normalizeProfessionId, getProfessionDefinition, getDefaultProfessionForKlass } from "../data/skills";
 import { useHeroStore } from "../state/heroStore";
+import { useAdminStore } from "../state/adminStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 
@@ -25,6 +26,7 @@ interface PlayerAdminActionsProps {
 
 export default function PlayerAdminActions({ navigate, playerId, playerName }: PlayerAdminActionsProps) {
   const hero = useHeroStore((s) => s.hero);
+  const isAdmin = useAdminStore((s) => s.isAdmin);
   const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -388,72 +390,74 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
           <div className="text-sm text-gray-400">{professionLabel} - {character.level} ур.</div>
         </div>
 
-        {/* Адмін-дії */}
-        <div className="mb-4">
-          <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-solid border-white/50 pb-1">
-            Адмін-дії
+        {/* Адмін-дії — тільки для адмінів */}
+        {isAdmin && (
+          <div className="mb-4">
+            <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-solid border-white/50 pb-1">
+              Адмін-дії
+            </div>
+            {adminMessage && (
+              <p className="text-xs text-green-400 mb-2">{adminMessage}</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => runAdminAction(() => adminHeal(character.id), "Лікування виконано")}
+                disabled={adminActionLoading}
+                className="px-2 py-1 text-[10px] rounded bg-green-900/40 text-green-300 hover:bg-green-900/60 disabled:opacity-50"
+              >
+                Heal
+              </button>
+              <button
+                onClick={() => runAdminAction(() => adminResurrect(character.id), "Воскрешение виконано")}
+                disabled={adminActionLoading}
+                className="px-2 py-1 text-[10px] rounded bg-green-900/40 text-green-300 hover:bg-green-900/60 disabled:opacity-50"
+              >
+                Resurrect
+              </button>
+              <button
+                onClick={() => runAdminAction(() => adminBan(character.id, 60), "Бан 1 год застосовано")}
+                disabled={adminActionLoading}
+                className="px-2 py-1 text-[10px] rounded bg-red-900/40 text-red-300 hover:bg-red-900/60 disabled:opacity-50"
+              >
+                Бан 1 год
+              </button>
+              <button
+                onClick={() => runAdminAction(() => adminUnban(character.id), "Розбан виконано")}
+                disabled={adminActionLoading}
+                className="px-2 py-1 text-[10px] rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+              >
+                Розбан
+              </button>
+              <button
+                onClick={() => runAdminAction(() => adminBlock(character.id, 60), "Блок 1 год застосовано")}
+                disabled={adminActionLoading}
+                className="px-2 py-1 text-[10px] rounded bg-orange-900/40 text-orange-300 hover:bg-orange-900/60 disabled:opacity-50"
+              >
+                Блок 1 год
+              </button>
+              <button
+                onClick={() => runAdminAction(() => adminUnblock(character.id), "Розблок виконано")}
+                disabled={adminActionLoading}
+                className="px-2 py-1 text-[10px] rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+              >
+                Розблок
+              </button>
+              <button
+                onClick={() => runAdminAction(() => adminMuteChatUser(character.id, 60), "Mute 1 год застосовано")}
+                disabled={adminActionLoading}
+                className="px-2 py-1 text-[10px] rounded bg-amber-900/40 text-amber-300 hover:bg-amber-900/60 disabled:opacity-50"
+              >
+                Mute 1 год
+              </button>
+            </div>
+            <button
+              onClick={() => navigate("/admin")}
+              className="mt-2 text-[10px] text-[#c7ad80] hover:underline"
+            >
+              В адмінку (предмети, зміна класу, преміум...)
+            </button>
           </div>
-          {adminMessage && (
-            <p className="text-xs text-green-400 mb-2">{adminMessage}</p>
-          )}
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => runAdminAction(() => adminHeal(character.id), "Лікування виконано")}
-              disabled={adminActionLoading}
-              className="px-2 py-1 text-[10px] rounded bg-green-900/40 text-green-300 hover:bg-green-900/60 disabled:opacity-50"
-            >
-              Heal
-            </button>
-            <button
-              onClick={() => runAdminAction(() => adminResurrect(character.id), "Воскрешение виконано")}
-              disabled={adminActionLoading}
-              className="px-2 py-1 text-[10px] rounded bg-green-900/40 text-green-300 hover:bg-green-900/60 disabled:opacity-50"
-            >
-              Resurrect
-            </button>
-            <button
-              onClick={() => runAdminAction(() => adminBan(character.id, 60), "Бан 1 год застосовано")}
-              disabled={adminActionLoading}
-              className="px-2 py-1 text-[10px] rounded bg-red-900/40 text-red-300 hover:bg-red-900/60 disabled:opacity-50"
-            >
-              Бан 1 год
-            </button>
-            <button
-              onClick={() => runAdminAction(() => adminUnban(character.id), "Розбан виконано")}
-              disabled={adminActionLoading}
-              className="px-2 py-1 text-[10px] rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
-            >
-              Розбан
-            </button>
-            <button
-              onClick={() => runAdminAction(() => adminBlock(character.id, 60), "Блок 1 год застосовано")}
-              disabled={adminActionLoading}
-              className="px-2 py-1 text-[10px] rounded bg-orange-900/40 text-orange-300 hover:bg-orange-900/60 disabled:opacity-50"
-            >
-              Блок 1 год
-            </button>
-            <button
-              onClick={() => runAdminAction(() => adminUnblock(character.id), "Розблок виконано")}
-              disabled={adminActionLoading}
-              className="px-2 py-1 text-[10px] rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
-            >
-              Розблок
-            </button>
-            <button
-              onClick={() => runAdminAction(() => adminMuteChatUser(character.id, 60), "Mute 1 год застосовано")}
-              disabled={adminActionLoading}
-              className="px-2 py-1 text-[10px] rounded bg-amber-900/40 text-amber-300 hover:bg-amber-900/60 disabled:opacity-50"
-            >
-              Mute 1 год
-            </button>
-          </div>
-          <button
-            onClick={() => navigate("/admin")}
-            className="mt-2 text-[10px] text-[#c7ad80] hover:underline"
-          >
-            В адмінку (предмети, зміна класу, преміум...)
-          </button>
-        </div>
+        )}
 
         {/* Кнопка бафу */}
         <div className="mb-4">

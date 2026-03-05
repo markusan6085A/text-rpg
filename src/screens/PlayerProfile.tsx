@@ -25,9 +25,11 @@ interface PlayerProfileProps {
 
 import { getSkillDefForBattle } from "../state/battle/loadout";
 import { useBattleStore } from "../state/battle/store";
+import { useAdminStore } from "../state/adminStore";
 
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
   const hero = useHeroStore((s) => s.hero);
+  const isAdmin = useAdminStore((s) => s.isAdmin);
   const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -737,16 +739,18 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </span>
             </div>
           </div>
-          <div className={`${lineThin} py-1`}>
-            <div className={boxPad}>
-              <span
-                onClick={() => navigate(`/player/${character.id}/admin`)}
-                className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
-              >
-                Забафнуть игрока
-              </span>
+          {isAdmin && (
+            <div className={`${lineThin} py-1`}>
+              <div className={boxPad}>
+                <span
+                  onClick={() => navigate(`/player/${character.id}/admin`)}
+                  className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
+                >
+                  Забафнуть игрока
+                </span>
+              </div>
             </div>
-          </div>
+          )}
           <div className="border-t-2 border-b-2 border-[#c7ad80] my-1" />
           <div className={`${lineThin} py-1`}>
             <div className={boxPad}>
