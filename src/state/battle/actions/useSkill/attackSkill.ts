@@ -17,6 +17,7 @@ import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassive
 import { getPremiumMultiplier } from "../../../../utils/premium/isPremiumActive";
 import { DAILY_QUESTS } from "../../../../data/dailyQuests";
 import { getGameSettings } from "../../../../state/gameSettings";
+import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE } from "../../../../data/balance";
 
 export function handleAttackSkill(
   skillId: number,
@@ -71,9 +72,11 @@ export function handleAttackSkill(
     }
   }
 
+  const mobPDefRaw = state.mob?.pDef ?? Math.round((state.mob?.level ?? 1) * 12);
+  const mobMDefRaw = state.mob?.mDef ?? Math.round((state.mob?.level ?? 1) * 10);
   const targetStats = {
-    pDef: state.mob?.pDef ?? Math.round((state.mob?.level ?? 1) * 8 + (state.mob?.hp ?? 0) * 0.15),
-    mDef: state.mob?.mDef ?? Math.round((state.mob?.level ?? 1) * 8 + (state.mob?.hp ?? 0) * 0.12),
+    pDef: Math.max(1, Math.round(mobPDefRaw * MOB_DEFENSE_MULTIPLIER)),
+    mDef: Math.max(1, Math.round(mobMDefRaw * MOB_DEFENSE_MULTIPLIER)),
   };
 
   // Заряди тільки якщо увімкнені на панелі (ударний скіл = 2 заряди)
@@ -245,8 +248,8 @@ export function handleAttackSkill(
 
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const expEnabled = getGameSettings().expEnabled !== false;
-      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier) : 0;
-      const finalSpGain = Math.round(spGain * premiumMultiplier);
+      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier * EXP_GAIN_RATE) : 0;
+      const finalSpGain = Math.round(spGain * premiumMultiplier * SP_GAIN_RATE);
       const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
         ? dropResult.adenaFromDrops
         : Math.round(adenaGain * premiumMultiplier);
@@ -268,8 +271,8 @@ export function handleAttackSkill(
         if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
           newCompleted.push(q.id);
           rewardAdena += q.rewards.adena ?? 0;
-          rewardExp += expEnabled ? (q.rewards.exp ?? 0) : 0;
-          rewardSp += q.rewards.sp ?? 0;
+          rewardExp += expEnabled ? Math.round((q.rewards.exp ?? 0) * EXP_GAIN_RATE) : 0;
+          rewardSp += Math.round((q.rewards.sp ?? 0) * SP_GAIN_RATE);
           rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
         }
       }

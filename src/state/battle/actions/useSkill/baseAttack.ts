@@ -18,6 +18,7 @@ import { itemsDB } from "../../../../data/items/itemsDB";
 import { reportRaidBossKill } from "../../../../utils/api";
 import { DAILY_QUESTS } from "../../../../data/dailyQuests";
 import { getGameSettings } from "../../../../state/gameSettings";
+import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE, HERO_VS_MOB_DEFENSE_FACTOR } from "../../../../data/balance";
 
 export function handleBaseAttack(
   state: BattleState,
@@ -139,16 +140,11 @@ export function handleBaseAttack(
   // Обчислюємо захист моба (для риб захист = 0, тому урон не зменшується)
   let damage = baseDmgWithShot;
   if (!isFishingZone && state.mob) {
-    const mobPDef = state.mob.pDef ?? Math.round((state.mob.level ?? 1) * 8 + (state.mob.hp ?? 0) * 0.15);
-    // Формула захисту: урон зменшується залежно від співвідношення атаки та захисту
-    // Використовуємо спрощену формулу для базової атаки
+    const mobPDefRaw = state.mob.pDef ?? Math.round((state.mob.level ?? 1) * 12);
+    const mobPDef = Math.max(1, Math.round(mobPDefRaw * MOB_DEFENSE_MULTIPLIER));
     const effectivePAtk = Math.max(1, pAtk);
     const effectivePDef = Math.max(1, mobPDef);
-    
-    // Якщо захист моба більший за атаку, урон зменшується
-    // Формула: damage = baseDamage * (pAtk / (pAtk + pDef * 0.5))
-    // Це дає більш реалістичне зменшення урону
-    const defenseReduction = effectivePAtk / (effectivePAtk + effectivePDef * 0.5);
+    const defenseReduction = effectivePAtk / (effectivePAtk + effectivePDef * HERO_VS_MOB_DEFENSE_FACTOR);
     // Мінімальний урон = 30% від базового
     const finalMultiplier = Math.max(0.3, Math.min(1.0, defenseReduction));
     damage = Math.max(1, Math.round(baseDmgWithShot * finalMultiplier));
@@ -326,8 +322,8 @@ export function handleBaseAttack(
 
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const expEnabled = getGameSettings().expEnabled !== false;
-      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier) : 0;
-      const finalSpGain = Math.round(spGain * premiumMultiplier);
+      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier * EXP_GAIN_RATE) : 0;
+      const finalSpGain = Math.round(spGain * premiumMultiplier * SP_GAIN_RATE);
       // Якщо адена прийшла з таблиці дропу (Floran профіль або mob.drops) — використовуємо її, інакше з mob.adenaMin/Max
       const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
         ? dropResult.adenaFromDrops
@@ -351,8 +347,8 @@ export function handleBaseAttack(
         if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
           newCompleted.push(q.id);
           rewardAdena += q.rewards.adena ?? 0;
-          rewardExp += expEnabled ? (q.rewards.exp ?? 0) : 0;
-          rewardSp += q.rewards.sp ?? 0;
+          rewardExp += expEnabled ? Math.round((q.rewards.exp ?? 0) * EXP_GAIN_RATE) : 0;
+          rewardSp += Math.round((q.rewards.sp ?? 0) * SP_GAIN_RATE);
           rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
         }
       }

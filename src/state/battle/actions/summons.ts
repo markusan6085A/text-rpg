@@ -21,6 +21,7 @@ import { hasSpiritshotActive } from "./useSkill/shotHelpers";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { DAILY_QUESTS } from "../../../data/dailyQuests";
 import { getGameSettings } from "../../../state/gameSettings";
+import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE } from "../../../data/balance";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -647,10 +648,12 @@ export function processSummonAttack(
     });
   }
   
-  // Mob defense is calculated based on level (similar to processMobAttack)
+  // Mob defense — fallback + balance multiplier (same as baseAttack/attackSkill)
   const mobLevel = mob.level ?? 1;
-  const mobPDef = (mob as any)?.pDef ?? Math.max(5, mobLevel * 8);
-  const mobMDef = (mob as any)?.mDef ?? Math.max(5, mobLevel * 8);
+  const mobPDefRaw = (mob as any)?.pDef ?? Math.round(mobLevel * 12);
+  const mobMDefRaw = (mob as any)?.mDef ?? Math.round(mobLevel * 10);
+  const mobPDef = Math.max(5, Math.round(mobPDefRaw * MOB_DEFENSE_MULTIPLIER));
+  const mobMDef = Math.max(5, Math.round(mobMDefRaw * MOB_DEFENSE_MULTIPLIER));
 
   // Summon uses physical or magic attack (50/50 chance or based on type)
   const useMagic = summonMAtk > summonPAtk || Math.random() > 0.5;
@@ -725,8 +728,8 @@ export function processSummonAttack(
 
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const expEnabled = getGameSettings().expEnabled !== false;
-      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier) : 0;
-      const finalSpGain = Math.round(spGain * premiumMultiplier);
+      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier * EXP_GAIN_RATE) : 0;
+      const finalSpGain = Math.round(spGain * premiumMultiplier * SP_GAIN_RATE);
       const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
         ? dropResult.adenaFromDrops
         : Math.round(adenaGain * premiumMultiplier);
@@ -748,8 +751,8 @@ export function processSummonAttack(
         if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
           newCompleted.push(q.id);
           rewardAdena += q.rewards.adena ?? 0;
-          rewardExp += expEnabled ? (q.rewards.exp ?? 0) : 0;
-          rewardSp += q.rewards.sp ?? 0;
+          rewardExp += expEnabled ? Math.round((q.rewards.exp ?? 0) * EXP_GAIN_RATE) : 0;
+          rewardSp += Math.round((q.rewards.sp ?? 0) * SP_GAIN_RATE);
           rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
         }
       }

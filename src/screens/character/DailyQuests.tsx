@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { DAILY_QUESTS, type DailyQuest } from "../../data/dailyQuests";
 import { getGameSettings } from "../../state/gameSettings";
+import { EXP_GAIN_RATE, SP_GAIN_RATE } from "../../data/balance";
 
 interface Navigate {
   (path: string): void;
@@ -77,8 +78,8 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
       if (cur >= quest.target && !done.includes(quest.id)) {
         toComplete.push(quest.id);
         rewardAdena += quest.rewards.adena ?? 0;
-        rewardExp += expEnabled ? (quest.rewards.exp ?? 0) : 0;
-        rewardSp += quest.rewards.sp ?? 0;
+        rewardExp += expEnabled ? Math.round((quest.rewards.exp ?? 0) * EXP_GAIN_RATE) : 0;
+        rewardSp += Math.round((quest.rewards.sp ?? 0) * SP_GAIN_RATE);
         rewardCoinOfLuck += quest.rewards.coinOfLuck ?? 0;
       }
     }

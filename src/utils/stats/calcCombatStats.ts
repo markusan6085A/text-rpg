@@ -5,6 +5,7 @@
 import type { HeroBaseStats } from "../../state/heroFactory";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { getActiveSetBonuses } from "../../data/sets/armorSets";
+import { HERO_STAT_MULTIPLIER } from "../../data/balance";
 
 export interface CombatStats {
   pAtk: number;
@@ -47,14 +48,11 @@ export function calcCombatStats(
   const levelMultiplierDef = 1 + (lvl - 1) * 0.01; // На 80 рівні: 1 + 79 * 0.01 = 1.79
   const levelMultiplierSecondary = 1 + (lvl - 1) * 0.008; // На 80 рівні: 1 + 79 * 0.008 = 1.632
   
-  // Зменшуємо бойові стати в половину для балансу
-  // (раніше були моби з x2 статами, і герой 5лвл вбивав мобів 20лвл)
-  const STAT_REDUCTION_MULTIPLIER = 0.5;
-  
-  let pAtk = Math.max(1, Math.round((baseStats.STR * 1.5 + baseStats.DEX * 0.5) * levelMultiplier * STAT_REDUCTION_MULTIPLIER));
-  let mAtk = Math.max(1, Math.round((baseStats.INT * 1.2 + baseStats.WIT * 0.8) * levelMultiplier * STAT_REDUCTION_MULTIPLIER));
-  let pDef = Math.max(1, Math.round((baseStats.CON * 1.8 + baseStats.DEX * 0.3) * levelMultiplierDef * STAT_REDUCTION_MULTIPLIER));
-  let mDef = Math.max(1, Math.round((baseStats.MEN * 1.5 + baseStats.WIT * 0.5) * levelMultiplierDef * STAT_REDUCTION_MULTIPLIER));
+  // Множник бойових статів з balance — різниця між класами (DPS/танк/маг) помітніша
+  let pAtk = Math.max(1, Math.round((baseStats.STR * 1.5 + baseStats.DEX * 0.5) * levelMultiplier * HERO_STAT_MULTIPLIER));
+  let mAtk = Math.max(1, Math.round((baseStats.INT * 1.2 + baseStats.WIT * 0.8) * levelMultiplier * HERO_STAT_MULTIPLIER));
+  let pDef = Math.max(1, Math.round((baseStats.CON * 1.8 + baseStats.DEX * 0.3) * levelMultiplierDef * HERO_STAT_MULTIPLIER));
+  let mDef = Math.max(1, Math.round((baseStats.MEN * 1.5 + baseStats.WIT * 0.5) * levelMultiplierDef * HERO_STAT_MULTIPLIER));
   let accuracy = Math.max(1, Math.round((baseStats.DEX * 2.5 + baseStats.WIT * 0.5) * levelMultiplierSecondary));
   let evasion = Math.max(1, Math.round((baseStats.DEX * 2.5 + baseStats.WIT * 0.5) * levelMultiplierSecondary));
   let crit = Math.max(1, Math.round((baseStats.DEX * 2.5 + baseStats.STR * 0.3) * levelMultiplierSecondary));

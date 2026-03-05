@@ -1,4 +1,5 @@
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
+import { MOB_HP_MULTIPLIER } from "../../../data/balance";
 import type { Mob, Zone } from "../../../data/world/types";
 import { useHeroStore } from "../../heroStore";
 import { BASE_ATTACK_ID, loadLoadout, clearLoadout } from "../loadout";
@@ -95,7 +96,7 @@ export const createStartBattle =
             aggressiveMobs.push({
               mob: otherMob,
               mobIndex: i,
-              mobHP: otherMob.hp,
+              mobHP: Math.round((otherMob.hp ?? 1) * MOB_HP_MULTIPLIER),
             });
             if (import.meta.env.DEV) {
               console.log(`[Aggressive Mobs] Додано агресивного моба: ${otherMob.name} (індекс ${i})`);
@@ -332,7 +333,7 @@ export const createStartBattle =
       zoneId,
       mob,
       mobIndex,
-      mobHP: mob.hp,
+      mobHP: Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER),
       aggressiveMobs: aggressiveMobs.length > 0 ? aggressiveMobs : undefined,
       mobStunnedUntil: undefined,
       heroStunnedUntil: undefined,

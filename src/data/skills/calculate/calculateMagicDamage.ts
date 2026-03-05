@@ -1,4 +1,5 @@
-﻿import { SkillDefinition, SkillLevelDefinition } from "../types";
+import { SkillDefinition, SkillLevelDefinition } from "../types";
+import { SKILL_MAGIC_ATK_FACTOR } from "../../../data/balance";
 
 export function calculateMagicDamage(
   caster: any,
@@ -13,12 +14,9 @@ export function calculateMagicDamage(
   // Базовий урон скіла = power скіла
   const skillBaseDamage = power;
   
-  // Базовий урон героя з урахуванням захисту
-  // Магічні скіли повинні наносити більше урону, ніж прості атаки
-  // Використовуємо 80% від mAtk для магічних скілів
+  // Базовий урон героя з урахуванням захисту — магічні скіли масштабуються з mAtk
   const ratio = mAtk / mDef;
-  // Для магічних скілів використовуємо 0.8 (80% від mAtk)
-  const heroBaseDamage = mAtk * 0.8 * (1 + ratio * 0.05); // Магічні скіли наносять 80% від mAtk
+  const heroBaseDamage = mAtk * SKILL_MAGIC_ATK_FACTOR * (1 + ratio * 0.05);
   
   // Сумарний базовий урон = урон скіла + базовий урон героя
   const base = skillBaseDamage + heroBaseDamage;

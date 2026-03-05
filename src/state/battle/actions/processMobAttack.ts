@@ -112,12 +112,13 @@ export const createProcessMobAttack =
     const isPhysicalAttack = (state.mob as any)?.attackType !== "magic";
     
     // Застосовуємо debuff до статів моба (зменшення pAtk/mAtk тощо)
-    // Тепер моби мають стати в собі, але якщо їх немає - використовуємо fallback
+    // Fallback без hp (як в baseAttack) — узгоджено з балансом
+    const mobLevel = state.mob.level ?? 1;
     const mobBaseStats = {
-      pAtk: state.mob.pAtk ?? (state.mob.level ?? 1) * 20,
-      pDef: state.mob.pDef ?? Math.round((state.mob.level ?? 1) * 8 + state.mob.hp * 0.15),
+      pAtk: state.mob.pAtk ?? mobLevel * 20,
+      pDef: state.mob.pDef ?? Math.round(mobLevel * 12),
       mAtk: state.mob.mAtk ?? 0,
-      mDef: state.mob.mDef ?? Math.round((state.mob.level ?? 1) * 8 + state.mob.hp * 0.12),
+      mDef: state.mob.mDef ?? Math.round(mobLevel * 10),
     };
     const mobStatsWithDebuffs = applyBuffsToStats(mobBaseStats, cleanedMobBuffs);
     const mobPAtk = Math.max(1, mobStatsWithDebuffs.pAtk ?? mobBaseStats.pAtk);

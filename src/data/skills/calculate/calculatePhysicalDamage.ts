@@ -1,4 +1,5 @@
-﻿import { SkillDefinition, SkillLevelDefinition } from "../types";
+import { SkillDefinition, SkillLevelDefinition } from "../types";
+import { SKILL_PHYSICAL_ATK_FACTOR } from "../../../data/balance";
 
 export function calculatePhysicalDamage(
   attacker: any,
@@ -13,10 +14,9 @@ export function calculatePhysicalDamage(
   // Базовий урон скіла = power скіла
   const skillBaseDamage = power;
   
-  // Базовий урон героя з урахуванням захисту
-  // Зменшений вплив pAtk на урон скілів (тільки невеликий бонус)
+  // Базовий урон героя з урахуванням захисту — скіли мають масштабуватися з pAtk
   const ratio = pAtk / pDef;
-  const heroBaseDamage = pAtk * 0.2 * (1 + ratio * 0.05); // Значно зменшений коефіцієнт для скілів
+  const heroBaseDamage = pAtk * SKILL_PHYSICAL_ATK_FACTOR * (1 + ratio * 0.05);
   
   // Сумарний базовий урон = урон скіла + базовий урон героя
   const base = skillBaseDamage + heroBaseDamage;
