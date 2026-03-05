@@ -959,7 +959,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     let appliedBuffTurn = false;
     if (actorRole === "attacker") {
       const dmg = doTurn(session.attacker, session.defender, session.attackerCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName, buffEffects, buffCooldownMs);
-      appliedBuffTurn = dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0;
+      appliedBuffTurn = !!(dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0);
       session.lastHitDamage = dmg;
       session.lastHitById = session.attackerId;
       session.lastHitByName = session.attacker.name;
@@ -971,7 +971,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       }
     } else {
       const dmg = doTurn(session.defender, session.attacker, session.defenderCooldowns, skillId, isBuff, isToggle, skillName, shotMultiplier, shotName, buffEffects, buffCooldownMs);
-      appliedBuffTurn = dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0;
+      appliedBuffTurn = !!(dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0);
       session.lastHitDamage = dmg;
       session.lastHitById = session.defenderId;
       session.lastHitByName = session.defender.name;
