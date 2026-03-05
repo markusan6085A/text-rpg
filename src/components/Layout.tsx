@@ -12,6 +12,7 @@ import { getOnlinePlayers, sendHeartbeat, adminLogout, resurrectCharacter } from
 import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { useCharacterStore } from "../state/characterStore";
 import { useBattleStore } from "../state/battle/store";
+import { getGameSettings } from "../state/gameSettings";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -262,6 +263,8 @@ export default function Layout({
     }
   };
 
+  const gameSettings = getGameSettings();
+
   const handleLogout = () => {
     if (window.confirm("Ви впевнені, що хочете вийти?")) {
       logout();
@@ -324,7 +327,11 @@ export default function Layout({
           <div className="flex-shrink-0 w-full" style={{ height: "14px" }} aria-hidden />
         ) : null}
         <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center pb-[8.5rem]">
-          <div className={`w-full max-w-[360px] px-3 mt-0`}>
+          <div
+            className={`w-full max-w-[360px] mt-0 ${
+              gameSettings.compactMode ? "px-2 py-1" : "px-3"
+            } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
+          >
             {children}
           </div>
         </div>

@@ -41,6 +41,7 @@ import Forum from "./screens/Forum";
 import Achievements from "./screens/Achievements";
 import Leaderboard from "./screens/Leaderboard";
 import Help from "./screens/Help";
+import Settings from "./screens/Settings";
 import News from "./screens/News";
 import SevenSeals from "./screens/SevenSeals";
 import Clans from "./screens/Clans";
@@ -405,6 +406,9 @@ function AppInner() {
 
     case "/help":
       return renderWithLayout(<Help navigate={navigate} key={`help-${refreshKey}`} />);
+
+    case "/settings":
+      return renderWithLayout(<Settings navigate={navigate} key={`settings-${refreshKey}`} />);
 
     case "/battle":
       return renderWithLayout(

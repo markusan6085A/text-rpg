@@ -96,6 +96,12 @@ export default function About({ navigate }: { navigate: Navigate }) {
           >
             Помощь
           </button>
+          <button
+            onClick={() => navigate("/settings")}
+            className="text-left text-slate-300 hover:text-slate-200 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+          >
+            Настройки
+          </button>
         </div>
       </div>
 

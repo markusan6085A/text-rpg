@@ -1,7 +1,8 @@
 import React from "react";
 import { getString, setString } from "../state/persistence";
+import { TUTORIAL_HINT_KEY } from "../state/gameSettings";
 
-const TUTORIAL_HINT_SEEN_KEY = "l2_tutorial_hint_seen";
+const TUTORIAL_HINT_SEEN_KEY = TUTORIAL_HINT_KEY;
 
 const TUTORIAL_PATHS = ["/city", "/location", "/character", "/gk"];
 
