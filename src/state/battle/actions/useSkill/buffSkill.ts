@@ -334,25 +334,6 @@ export function handleBuffSkill(
   const heroWithNewHp = { ...hero, hp: newHeroHP, maxHp: maxHp };
   const recalculated = recalculateAllStats(heroWithNewHp, newBuffs);
   
-  // Оновлюємо battleStats якщо вони змінилися
-  if (recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk ||
-      recalculated.baseFinalStats.mAtk !== hero.battleStats?.mAtk ||
-      recalculated.baseFinalStats.pDef !== hero.battleStats?.pDef ||
-      recalculated.baseFinalStats.mDef !== hero.battleStats?.mDef) {
-    updateHero({ 
-      hp: newHeroHP, 
-      mp: newHeroMP, 
-      cp: newHeroCP,
-      battleStats: recalculated.baseFinalStats 
-    });
-  } else {
-    updateHero({ 
-      hp: newHeroHP, 
-      mp: newHeroMP, 
-      cp: newHeroCP,
-    });
-  }
-  
   // Обробка бафів для сумонів
   const summonBuffsResult = handleSummonBuffs(def, state, effList, now, finalDurationSec);
   const newSummonBuffs = summonBuffsResult.newSummonBuffs;
@@ -382,7 +363,20 @@ export function handleBuffSkill(
     });
   }
   
+  // ❗ КРИТИЧНО: зберігаємо heroBuffs ПЕРЕД updateHero, щоб heroUpdate.loadBattle()
+  // отримав нові бафи і правильно обрізав hp за buffedMaxHp (інакше Battle Roar та інші maxHp-бафи обрізають хіл)
   set((prev) => ({ ...(prev as any), ...(merged as any) }));
   persistSnapshot(get, persistBattle, merged);
+  updateHero({
+    hp: newHeroHP,
+    mp: newHeroMP,
+    cp: newHeroCP,
+    ...(recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk ||
+      recalculated.baseFinalStats.mAtk !== hero.battleStats?.mAtk ||
+      recalculated.baseFinalStats.pDef !== hero.battleStats?.pDef ||
+      recalculated.baseFinalStats.mDef !== hero.battleStats?.mDef
+      ? { battleStats: recalculated.baseFinalStats }
+      : {}),
+  });
   return true;
 }
