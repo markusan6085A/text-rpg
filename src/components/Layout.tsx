@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
+import TutorialHint from "./TutorialHint";
 // 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно
 // import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
@@ -293,6 +294,12 @@ export default function Layout({
         }
       >
         {showStatusBars && <StatusBars />}
+        <TutorialHint
+          navigate={navigate}
+          showStatusBars={showStatusBars}
+          pathname={typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : ""}
+          hero={hero}
+        />
         {dead && navigate && (
           <div className="fixed top-12 left-0 right-0 z-40 flex justify-center pt-1">
             <button

@@ -40,6 +40,7 @@ import ColorizeNick from "./screens/ColorizeNick";
 import Forum from "./screens/Forum";
 import Achievements from "./screens/Achievements";
 import Leaderboard from "./screens/Leaderboard";
+import Help from "./screens/Help";
 import News from "./screens/News";
 import SevenSeals from "./screens/SevenSeals";
 import Clans from "./screens/Clans";
@@ -401,6 +402,9 @@ function AppInner() {
 
     case "/about":
       return renderWithLayout(<About navigate={navigate} key={`about-${refreshKey}`} />);
+
+    case "/help":
+      return renderWithLayout(<Help navigate={navigate} key={`help-${refreshKey}`} />);
 
     case "/battle":
       return renderWithLayout(
