@@ -1,6 +1,7 @@
 import React from "react";
 import { type ClanChatMessage } from "../../utils/api";
 import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
+import { EmojiText } from "../../components/EmojiText";
 import { useHeroStore } from "../../state/heroStore";
 
 interface ClanChatProps {
@@ -42,7 +43,7 @@ export default function ClanChat({
                 size={12}
                 className="font-semibold"
               />
-              <span className="text-white">: {msg.message}</span>
+              <span className="text-white">: <EmojiText>{msg.message}</EmojiText></span>
             </div>
           ))
         )}

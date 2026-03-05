@@ -4,6 +4,7 @@ import type { Hero } from "../../../types/Hero";
 import type { ChatChannel } from "../types";
 import { formatTime } from "../utils";
 import { PlayerNameWithEmblem } from "../../../components/PlayerNameWithEmblem";
+import { EmojiText } from "../../../components/EmojiText";
 
 interface ChatMessageItemProps {
   msg: ChatMessage;
@@ -108,7 +109,7 @@ export function ChatMessageItem({
             )}
           </div>
           <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-white"}`}>
-            {msg.message}
+            <EmojiText>{msg.message}</EmojiText>
           </div>
         </div>
       </div>
