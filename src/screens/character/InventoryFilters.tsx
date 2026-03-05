@@ -1,40 +1,44 @@
 import React from "react";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
+function getItemSlotAndKind(item: any): { slot: string; kind: string } {
+  const itemDef = itemsDB[item?.id] || itemsDBWithStarter[item?.id];
+  return {
+    slot: item?.slot ?? itemDef?.slot ?? "",
+    kind: item?.kind ?? itemDef?.kind ?? "",
+  };
+}
+
 export const CATEGORIES = [
   { key: "all", label: "Все", test: () => true },
   { key: "weapon", label: "Оружие", test: (item: any) => {
-    // Перевіряємо стандартний слот зброї
-    if (item.slot === "weapon") return true;
-    // Перевіряємо слот lrhand (дворучна зброя, включаючи удочки)
-    if (item.slot === "lrhand") {
+    const { slot, kind } = getItemSlotAndKind(item);
+    if (slot === "weapon" || kind === "weapon") return true;
+    if (slot === "lrhand") {
       const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
       return itemDef?.kind === "weapon";
     }
     return false;
   }},
   { key: "armor", label: "Броня", test: (item: any) => {
-    if (["head", "armor", "legs", "gloves", "boots", "belt", "shield"].includes(item.slot)) return true;
-    if (item.slot === "lhand") {
+    const { slot, kind } = getItemSlotAndKind(item);
+    const armorSlots = ["head", "armor", "legs", "gloves", "boots", "belt", "shield"];
+    const armorKinds = ["armor", "helmet", "boots", "gloves", "shield", "belt"];
+    if (armorSlots.includes(slot) || armorKinds.includes(kind)) return true;
+    if (slot === "lhand") {
       const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
       return itemDef?.kind === "shield";
     }
     return false;
   }},
   { key: "bijou", label: "Биж", test: (item: any) => {
-    const slot = item.slot || "";
-    // Перевіряємо стандартні слоти
-    if (["necklace", "earring", "earring_left", "earring_right", "ring", "ring_left", "ring_right", "jewelry", "tattoo"].includes(slot)) {
-      return true;
-    }
-    // Перевіряємо XML формат слотів (rear;lear для earring, rfinger;lfinger для ring)
-    if (slot.includes("rear") || slot.includes("lear") || slot === "rear;lear") {
-      return true; // earring
-    }
-    if (slot.includes("rfinger") || slot.includes("lfinger") || slot === "rfinger;lfinger") {
-      return true; // ring
-    }
-    return false;
+    const { slot } = getItemSlotAndKind(item);
+    const jewelrySlots = ["necklace", "earring", "earring_left", "earring_right", "ring", "ring_left", "ring_right", "jewelry", "tattoo"];
+    if (jewelrySlots.includes(slot)) return true;
+    if (slot.includes("rear") || slot.includes("lear") || slot === "rear;lear") return true;
+    if (slot.includes("rfinger") || slot.includes("lfinger") || slot === "rfinger;lfinger") return true;
+    const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
+    return ["necklace", "ring", "earring", "jewelry", "cloak"].includes(itemDef?.kind || "");
   }},
   { key: "enchantment", label: "Заточки", test: (item: any) => {
     const id = item.id || "";
@@ -45,15 +49,28 @@ export const CATEGORIES = [
     );
   }},
   { key: "consumable", label: "Расходники", test: (item: any) => {
-    if (item.slot === "consumable") return true;
+    const { slot } = getItemSlotAndKind(item);
+    if (slot === "consumable") return true;
     if (item.id === "treasure_box") return true;
     if (typeof item.id === "string" && item.id.startsWith("fish_")) return true;
     return false;
   }},
-  { key: "resource", label: "Рес", test: (item: any) => item.slot === "resource" },
-  { key: "recipe", label: "Рецепты", test: (item: any) => item.slot === "recipe" },
-  { key: "quest", label: "Квест", test: (item: any) => item.slot === "quest" },
-  { key: "book", label: "Книги", test: (item: any) => item.slot === "book" },
+  { key: "resource", label: "Рес", test: (item: any) => {
+    const { slot } = getItemSlotAndKind(item);
+    return slot === "resource";
+  }},
+  { key: "recipe", label: "Рецепты", test: (item: any) => {
+    const { slot } = getItemSlotAndKind(item);
+    return slot === "recipe";
+  }},
+  { key: "quest", label: "Квест", test: (item: any) => {
+    const { slot } = getItemSlotAndKind(item);
+    return slot === "quest";
+  }},
+  { key: "book", label: "Книги", test: (item: any) => {
+    const { slot } = getItemSlotAndKind(item);
+    return slot === "book";
+  }},
 ];
 
 const GRADE_KEYS = ["ng", "d", "c", "b", "a", "s"] as const;

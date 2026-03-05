@@ -259,7 +259,12 @@ export default function SellItems({ navigate }: SellItemsProps) {
                     onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm truncate">{item.name || def?.name}</div>
+                    <div className="text-white text-sm truncate">
+                      {item.name || def?.name}
+                      {(item.enchantLevel ?? 0) > 0 && (
+                        <span className="text-[#b8860b]"> +{item.enchantLevel}</span>
+                      )}
+                    </div>
                     <div className="text-gray-400 text-xs">
                       {count > 1 ? `x${count}` : ""}
                       {canSell && (
@@ -350,7 +355,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
               {confirmSell.type === "batch" ? (
                 <>Вы уверены, что хотите продать эти предметы?<br />Итого: <span className="text-yellow-400 font-semibold">{confirmSell.totalPrice?.toLocaleString()}</span> Adena</>
               ) : (
-                <>Вы уверены, что хотите продать <span className="text-[#e0c68a]">{confirmSell.item?.name}</span>{confirmSell.amount && confirmSell.amount > 1 ? ` x${confirmSell.amount}` : ""} за <span className="text-yellow-400 font-semibold">{(confirmSell.totalPrice ?? 0).toLocaleString()}</span> Adena?</>
+                <>Вы уверены, что хотите продать <span className="text-[#e0c68a]">{confirmSell.item?.name}{(confirmSell.item?.enchantLevel ?? 0) > 0 && <span className="text-[#b8860b]"> +{confirmSell.item.enchantLevel}</span>}</span>{confirmSell.amount && confirmSell.amount > 1 ? ` x${confirmSell.amount}` : ""} за <span className="text-yellow-400 font-semibold">{(confirmSell.totalPrice ?? 0).toLocaleString()}</span> Adena?</>
               )}
             </p>
             <div className="flex gap-2 justify-end">

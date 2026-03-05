@@ -43,6 +43,7 @@ export default function ClanStorage({
           items.map((item) => {
             const itemDef = itemsDBWithStarter[item.itemId] || itemsDB[item.itemId];
             const itemName = item.meta?.name || itemDef?.name || item.itemId;
+            const enchantLevel = (item.meta as any)?.enchantLevel ?? 0;
             const iconPath = item.meta?.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
             const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
             return (
@@ -55,7 +56,13 @@ export default function ClanStorage({
                     (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
                   }}
                 />
-                <span>{itemName} x{item.qty || 1}</span>
+                <span>
+                  {itemName}
+                  {enchantLevel > 0 && (
+                    <span className="text-[#b8860b]"> +{enchantLevel}</span>
+                  )}{" "}
+                  x{item.qty || 1}
+                </span>
               </div>
             );
           })

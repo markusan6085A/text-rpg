@@ -104,7 +104,13 @@ export default function DepositItemsModal({
                       (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
                     }}
                   />
-                  <span>{item.name || item.id} x{item.count || 1}</span>
+                  <span>
+                    {item.name || item.id}
+                    {(item.enchantLevel ?? 0) > 0 && (
+                      <span className="text-[#b8860b]"> +{item.enchantLevel}</span>
+                    )}{" "}
+                    x{item.count || 1}
+                  </span>
                 </div>
               );
             })
