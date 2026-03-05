@@ -84,7 +84,7 @@ export function AdminSectionClans({ navigate }: AdminSectionClansProps) {
                 >
                   <span
                     className="text-gray-300 font-medium hover:text-[#c7ad80] hover:underline"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/clan/${clan.id}`); }}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/clan-info/${clan.id}`); }}
                   >
                     {clan.name}
                   </span>

@@ -95,7 +95,7 @@ export function AdminSectionPlayers({ navigate }: AdminSectionPlayersProps) {
                         {c.clan ? (
                           <span
                             className="text-gray-400 cursor-pointer hover:text-[#c7ad80] hover:underline"
-                            onClick={() => navigate(`/clan/${c.clan!.id}`)}
+                            onClick={() => navigate(`/clan-info/${c.clan!.id}`)}
                           >
                             {c.clan.name}
                           </span>
