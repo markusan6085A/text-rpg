@@ -1,12 +1,58 @@
 import React from "react";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
+/** Розширені ключі для пошуку в itemsDB (shop_, quest_ і т.д. можуть не знаходитися напряму) */
+function resolveLookupIds(item: any): string[] {
+  const ids: string[] = [];
+  const id = item?.id || item?.itemId;
+  if (id) ids.push(String(id));
+  if (item?.itemId && typeof item.itemId === "string") ids.push(item.itemId);
+  // shop_armor_d_stockings_of_knowledge -> спробувати stockings_of_knowledge
+  if (typeof id === "string" && id.startsWith("shop_")) {
+    const match = id.match(/^shop_(?:weapon|armor|shield|jewelry)_[a-z]+_(.+)$/);
+    if (match) ids.push(match[1].trim());
+  }
+  // quest_shop_* -> спробувати без префіксу
+  if (typeof id === "string" && id.startsWith("quest_shop_")) {
+    ids.push(id.replace(/^quest_shop_/, ""));
+  }
+  return [...new Set(ids)];
+}
+
 function getItemSlotAndKind(item: any): { slot: string; kind: string } {
-  const itemDef = itemsDB[item?.id] || itemsDBWithStarter[item?.id];
-  return {
-    slot: item?.slot ?? itemDef?.slot ?? "",
-    kind: item?.kind ?? itemDef?.kind ?? "",
-  };
+  const ids = resolveLookupIds(item);
+  let itemDef = null;
+  for (const lookupId of ids) {
+    itemDef = itemsDB[lookupId] || itemsDBWithStarter[lookupId];
+    if (itemDef) break;
+  }
+  let slot = item?.slot ?? itemDef?.slot ?? "";
+  let kind = item?.kind ?? itemDef?.kind ?? "";
+  // Fallback: визначити з id за префіксом, якщо itemsDB не знайшов
+  if (!slot && !kind && typeof item?.id === "string") {
+    if (item.id.startsWith("shop_armor") || item.id.includes("_armor_") || item.id.includes("stockings") || item.id.includes("gauntlets") || item.id.includes("helmet") || item.id.includes("boots")) {
+      kind = "armor";
+      slot = "armor";
+    } else if (item.id.startsWith("shop_weapon") || item.id.includes("_weapon_")) {
+      kind = "weapon";
+      slot = "weapon";
+    } else if (item.id.startsWith("shop_shield")) {
+      kind = "shield";
+      slot = "shield";
+    } else if (item.id.startsWith("shop_jewelry") || item.id.includes("ring") || item.id.includes("earring") || item.id.includes("necklace")) {
+      kind = "jewelry";
+      slot = "ring";
+    }
+  }
+  return { slot, kind };
+}
+
+function getItemDef(item: any) {
+  for (const id of resolveLookupIds(item)) {
+    const def = itemsDB[id] || itemsDBWithStarter[id];
+    if (def) return def;
+  }
+  return null;
 }
 
 export const CATEGORIES = [
@@ -14,10 +60,7 @@ export const CATEGORIES = [
   { key: "weapon", label: "Оружие", test: (item: any) => {
     const { slot, kind } = getItemSlotAndKind(item);
     if (slot === "weapon" || kind === "weapon") return true;
-    if (slot === "lrhand") {
-      const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
-      return itemDef?.kind === "weapon";
-    }
+    if (slot === "lrhand") return getItemDef(item)?.kind === "weapon";
     return false;
   }},
   { key: "armor", label: "Броня", test: (item: any) => {
@@ -25,20 +68,17 @@ export const CATEGORIES = [
     const armorSlots = ["head", "armor", "legs", "gloves", "boots", "belt", "shield"];
     const armorKinds = ["armor", "helmet", "boots", "gloves", "shield", "belt"];
     if (armorSlots.includes(slot) || armorKinds.includes(kind)) return true;
-    if (slot === "lhand") {
-      const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
-      return itemDef?.kind === "shield";
-    }
+    if (slot === "lhand") return getItemDef(item)?.kind === "shield";
     return false;
   }},
   { key: "bijou", label: "Биж", test: (item: any) => {
-    const { slot } = getItemSlotAndKind(item);
+    const { slot, kind } = getItemSlotAndKind(item);
     const jewelrySlots = ["necklace", "earring", "earring_left", "earring_right", "ring", "ring_left", "ring_right", "jewelry", "tattoo"];
     if (jewelrySlots.includes(slot)) return true;
-    if (slot.includes("rear") || slot.includes("lear") || slot === "rear;lear") return true;
-    if (slot.includes("rfinger") || slot.includes("lfinger") || slot === "rfinger;lfinger") return true;
-    const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
-    return ["necklace", "ring", "earring", "jewelry", "cloak"].includes(itemDef?.kind || "");
+    if (slot?.includes("rear") || slot?.includes("lear") || slot === "rear;lear") return true;
+    if (slot?.includes("rfinger") || slot?.includes("lfinger") || slot === "rfinger;lfinger") return true;
+    const defKind = kind || getItemDef(item)?.kind || "";
+    return ["necklace", "ring", "earring", "jewelry", "cloak"].includes(defKind);
   }},
   { key: "enchantment", label: "Заточки", test: (item: any) => {
     const id = item.id || "";
