@@ -49,7 +49,7 @@ export default function Help({ navigate }: HelpProps) {
         </div>
         <div className="w-full h-px bg-gray-600 mb-3" />
 
-        <div className="space-y-0 max-h-[65vh] overflow-y-auto">
+        <div className="space-y-0 max-h-[65vh] overflow-y-auto pb-20">
           <Section title="Как перемещаться" defaultOpen={true}>
             <p><strong>Город</strong> — главный хаб. Отсюда открываются все сервисы. <LinkBtn onClick={() => navigate("/city")}>→ Город</LinkBtn></p>
             <p><strong>Телепорт (GK)</strong> — переход между локациями для боя с мобами. <LinkBtn onClick={() => navigate("/gk")}>→ Телепорт</LinkBtn></p>
