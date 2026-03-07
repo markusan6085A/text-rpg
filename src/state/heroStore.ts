@@ -13,13 +13,18 @@ import { showToast } from "./toastStore";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 
 export const INVENTORY_MAX_ITEMS = 100;
+export const INVENTORY_ABSOLUTE_MAX = 500;
 
-/** Максимум слотів інвентаря для героя (базовий 100, можна збільшити за Coin of Luck). */
+/** Максимум слотів інвентаря для героя (базовий 100, можна збільшити до 500 за Coin of Luck). */
 export function getInventoryMax(hero: { inventoryCapacity?: number } | null): number {
   if (!hero) return INVENTORY_MAX_ITEMS;
   const cap = hero.inventoryCapacity;
-  return typeof cap === "number" && cap >= INVENTORY_MAX_ITEMS ? cap : INVENTORY_MAX_ITEMS;
+  if (typeof cap !== "number" || cap < INVENTORY_MAX_ITEMS) return INVENTORY_MAX_ITEMS;
+  return Math.min(cap, INVENTORY_ABSOLUTE_MAX);
 }
+
+/** ID спеціального предмета «сундук переповнення» — займає останній слот. */
+export const OVERFLOW_CHEST_ID = "overflow_chest";
 
 // 🔥 КРИТИЧНО: Серверний стан для синхронізації exp/level/sp
 // Замість глобальних змінних та window - зберігаємо в store

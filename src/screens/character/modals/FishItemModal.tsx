@@ -13,6 +13,7 @@ import { S_GRADE_SHOP_ITEMS } from "../../../data/shop/sGradeShop";
 import { QUEST_SHOP_WEAPONS, QUEST_SHOP_SETS, QUEST_SHOP_ACCESSORIES } from "../../../data/shop/questShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../../../data/shop/consumablesShop";
 import { SHOP_ITEM_ID_MAPPING } from "../../../data/shop/itemMappings";
+import { addItemsWithOverflow } from "../../../state/heroStore/inventoryOverflow";
 
 interface FishItemModalProps {
   item: HeroInventoryItem;
@@ -284,7 +285,7 @@ export default function FishItemModal({
     const result = processFishDrop(dismantleAmount);
 
     // Оновлюємо інвентар: видаляємо рибу
-    let updatedInventory = inventory.map((i: HeroInventoryItem) => {
+    const inventoryAfterFish = inventory.map((i: HeroInventoryItem) => {
       if (i.id === item.id) {
         const newCount = (i.count ?? 1) - dismantleAmount;
         return newCount > 0 ? { ...i, count: newCount } : null;
@@ -292,112 +293,58 @@ export default function FishItemModal({
       return i;
     }).filter(Boolean) as HeroInventoryItem[];
 
-    // Додаємо адену
     const newAdena = (currentHero.adena || 0) + result.adena;
+    const newCoinOfLuck = (currentHero.coinOfLuck ?? 0) + (result.coinOfLuck ?? 0);
+    const newCoinsSilver = (currentHero.coins_silver ?? (currentHero as any).coinsSilver ?? 0) + (result.coinsSilver ?? 0);
 
-    // Додаємо бижутерію — окремий слот, завжди по 1 предмету (не стакається)
+    // Збираємо предмети для додавання (з overflow-логікою)
+    const itemsToAdd: HeroInventoryItem[] = [];
     result.jewelryPieces.forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
       if (itemDef) {
         for (let i = 0; i < count; i++) {
-          updatedInventory.push({
-            id,
-            name: itemDef.name,
-            icon: itemDef.icon,
-            slot: itemDef.slot,
-            count: 1,
-            description: itemDef.description,
-          });
+          itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count: 1, description: itemDef.description });
         }
       }
     });
-
-    // Додаємо зброю — завжди по 1 предмету (не стакається)
     result.weapons.forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
       if (itemDef) {
         for (let i = 0; i < count; i++) {
-          updatedInventory.push({
-            id,
-            name: itemDef.name,
-            icon: itemDef.icon,
-            slot: itemDef.slot,
-            count: 1,
-            description: itemDef.description,
-          });
+          itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count: 1, description: itemDef.description });
         }
       }
     });
-
-    // Додаємо броню — завжди по 1 предмету (не стакається)
     result.armorPieces.forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
       if (itemDef) {
         for (let i = 0; i < count; i++) {
-          updatedInventory.push({
-            id,
-            name: itemDef.name,
-            icon: itemDef.icon,
-            slot: itemDef.slot,
-            count: 1,
-            description: itemDef.description,
-          });
+          itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count: 1, description: itemDef.description });
         }
       }
     });
-
-    // Додаємо ресурси (без бижутерії — вона вже в jewelryPieces): стакається
     result.resources.forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
-      if (!itemDef) return;
-      const existingItem = updatedInventory.find((i) => i.id === id);
-      if (existingItem) {
-        updatedInventory = updatedInventory.map((i) =>
-          i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
-        );
-      } else {
-        updatedInventory.push({
-          id,
-          name: itemDef.name,
-          icon: itemDef.icon,
-          slot: itemDef.slot,
-          count,
-          description: itemDef.description,
-        });
+      if (itemDef) {
+        itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count, description: itemDef.description });
       }
     });
-
-    // Додаємо заточки (категорія «Заточки») — стакається
     (result.enchantScrolls || []).forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
-      if (!itemDef) return;
-      const existingItem = updatedInventory.find((i) => i.id === id);
-      if (existingItem) {
-        updatedInventory = updatedInventory.map((i) =>
-          i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
-        );
-      } else {
-        updatedInventory.push({
-          id,
-          name: itemDef.name,
-          icon: itemDef.icon,
-          slot: itemDef.slot,
-          kind: itemDef.kind,
-          count,
-          description: itemDef.description,
-        });
+      if (itemDef) {
+        itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, kind: itemDef.kind, count, description: itemDef.description });
       }
     });
 
-    const newCoinOfLuck = (currentHero.coinOfLuck ?? 0) + (result.coinOfLuck ?? 0);
-    const newCoinsSilver = (currentHero.coins_silver ?? (currentHero as any).coinsSilver ?? 0) + (result.coinsSilver ?? 0);
+    const heroForOverflow = { ...currentHero, inventory: inventoryAfterFish, overflowChest: currentHero.overflowChest ?? [] };
+    const { inventory: finalInventory, overflowChest: finalOverflow } = addItemsWithOverflow(heroForOverflow, itemsToAdd);
 
-    // Оновлюємо героя
     updateHero({
       adena: newAdena,
       coinOfLuck: newCoinOfLuck,
       coins_silver: newCoinsSilver,
-      inventory: updatedInventory,
+      inventory: finalInventory,
+      overflowChest: finalOverflow,
     });
 
     // Показуємо результат

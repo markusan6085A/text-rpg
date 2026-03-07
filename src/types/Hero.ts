@@ -77,6 +77,8 @@ export interface Hero {
   inventory: HeroInventoryItem[];
   /** Максимум слотів інвентаря (за замовчуванням 100). Купується за Coin of Luck. */
   inventoryCapacity?: number;
+  /** Предмети, що не вмістились в інвентар (сундук переповнення займає останній слот). */
+  overflowChest?: HeroInventoryItem[];
   equipmentEnchantLevels?: Record<string, number>; // Рівні заточки для екіпірованих предметів (ключ - слот)
 
   // Скіли

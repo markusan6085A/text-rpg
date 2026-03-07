@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHeroStore } from "../../../state/heroStore";
-import { INVENTORY_MAX_ITEMS, getInventoryMax } from "../../../state/heroStore";
+import { INVENTORY_MAX_ITEMS, INVENTORY_ABSOLUTE_MAX, getInventoryMax } from "../../../state/heroStore";
 
 const COST_PER_SLOT = 1; // 1 Coin of Luck = +1 слот
 
@@ -21,9 +21,13 @@ export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryMod
   const handleBuy = () => {
     if (!hero || !canBuy) return;
     const currentCap = hero.inventoryCapacity ?? INVENTORY_MAX_ITEMS;
+    const slotsToAdd = Math.min(quantity, INVENTORY_ABSOLUTE_MAX - currentCap);
+    if (slotsToAdd <= 0) return;
+    const actualCost = slotsToAdd * COST_PER_SLOT;
+    if ((hero.coinOfLuck ?? 0) < actualCost) return;
     updateHero({
-      inventoryCapacity: currentCap + quantity,
-      coinOfLuck: (hero.coinOfLuck ?? 0) - totalCost,
+      inventoryCapacity: currentCap + slotsToAdd,
+      coinOfLuck: (hero.coinOfLuck ?? 0) - actualCost,
     });
     onClose();
   };
@@ -49,7 +53,7 @@ export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryMod
           <input
             type="number"
             min={1}
-            max={Math.max(1, Math.floor(coins / COST_PER_SLOT))}
+            max={Math.max(1, Math.min(Math.floor(coins / COST_PER_SLOT), INVENTORY_ABSOLUTE_MAX - maxSlots))}
             value={quantity}
             onChange={(e) => setQuantity(Math.max(1, Math.min(coins, parseInt(e.target.value, 10) || 1)))}
             className="w-14 py-0.5 px-1 text-xs rounded bg-[#0d0a06] text-gray-300 border border-[#4a4a4a]"
