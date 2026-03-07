@@ -42,6 +42,7 @@ import WithdrawItemsModal from "./clan/modals/WithdrawItemsModal";
 import SelectClanEmblemModal from "./clan/modals/SelectClanEmblemModal";
 import ClanAnnouncementModal from "./clan/modals/ClanAnnouncementModal";
 import ClanApplicationsModal from "./clan/modals/ClanApplicationsModal";
+import ConfirmModal from "../components/ConfirmModal";
 import { showToast } from "../state/toastStore";
 
 interface ClanProps {
@@ -74,6 +75,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [showApplicationsModal, setShowApplicationsModal] = useState(false);
   const [applications, setApplications] = useState<ClanApplication[]>([]);
+  const [confirm, setConfirm] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
 
   // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функцій
   const loadChatMessages = useCallback(async () => {
@@ -198,23 +200,25 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   };
 
-  const handleDeleteClan = async () => {
+  const handleDeleteClan = () => {
     if (!clan) return;
-
-    if (!window.confirm(`Вы уверены, что хотите удалить клан "${clan.name}"? Это действие нельзя отменить!`)) {
-      return;
-    }
-
-    try {
-      const response = await deleteClan(clan.id);
-      if (response.ok) {
-        showToast("Клан успешно удален");
-        navigate("/clans");
-      }
-    } catch (err: any) {
-      console.error("[Clan] Failed to delete clan:", err);
-      showToast(err.message || "Ошибка при удалении клана");
-    }
+    setConfirm({
+      title: "Удалить клан",
+      message: `Вы уверены, что хотите удалить клан "${clan.name}"? Это действие нельзя отменить!`,
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          const response = await deleteClan(clan.id);
+          if (response.ok) {
+            showToast("Клан успешно удален");
+            navigate("/clans");
+          }
+        } catch (err: any) {
+          console.error("[Clan] Failed to delete clan:", err);
+          showToast(err.message || "Ошибка при удалении клана");
+        }
+      },
+    });
   };
 
   const handleSendChatMessage = async () => {
@@ -347,24 +351,26 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
   };
 
-  const handleKickMember = async (characterId: string, characterName: string) => {
+  const handleKickMember = (characterId: string, characterName: string) => {
     if (!clan) return;
-
-    if (!window.confirm(`Вы уверены, что хотите исключить ${characterName} из клана?`)) {
-      return;
-    }
-
-    try {
-      const response = await kickClanMember(clan.id, characterId);
-      if (response.ok) {
-        loadMembers();
-        loadLogs();
-        showToast(`${characterName} исключен из клана`);
-      }
-    } catch (err: any) {
-      console.error("[Clan] Failed to kick member:", err);
-      showToast(err.message || "Ошибка при исключении члена");
-    }
+    setConfirm({
+      title: "Исключить из клана",
+      message: `Вы уверены, что хотите исключить ${characterName} из клана?`,
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          const response = await kickClanMember(clan.id, characterId);
+          if (response.ok) {
+            loadMembers();
+            loadLogs();
+            showToast(`${characterName} исключен из клана`);
+          }
+        } catch (err: any) {
+          console.error("[Clan] Failed to kick member:", err);
+          showToast(err.message || "Ошибка при исключении члена");
+        }
+      },
+    });
   };
 
   const handleChangeTitle = async (characterId: string, newTitle: string | null) => {
@@ -430,27 +436,39 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     loadClan();
   };
 
-  const handleLeaveClan = async () => {
+  const handleLeaveClan = () => {
     if (!clan) return;
-    if (!window.confirm("Ви впевнені, що хочете вийти з клану?")) return;
-    try {
-      await leaveClan(clan.id);
-      navigate("/clans");
-    } catch (err: any) {
-      showToast(err?.message || "Помилка при виході");
-    }
+    setConfirm({
+      title: "Выйти из клана",
+      message: "Ви впевнені, що хочете вийти з клану?",
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          await leaveClan(clan.id);
+          navigate("/clans");
+        } catch (err: any) {
+          showToast(err?.message || "Помилка при виході");
+        }
+      },
+    });
   };
 
-  const handleTransferLeadership = async (characterId: string) => {
+  const handleTransferLeadership = (characterId: string) => {
     if (!clan) return;
-    if (!window.confirm("Передати лідерство? Цю дію не можна скасувати.")) return;
-    try {
-      await transferClanLeadership(clan.id, characterId);
-      loadMembers();
-      loadClan();
-    } catch (err: any) {
-      showToast(err?.message || "Помилка при передачі");
-    }
+    setConfirm({
+      title: "Передать лидерство",
+      message: "Передати лідерство? Цю дію не можна скасувати.",
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          await transferClanLeadership(clan.id, characterId);
+          loadMembers();
+          loadClan();
+        } catch (err: any) {
+          showToast(err?.message || "Помилка при передачі");
+        }
+      },
+    });
   };
 
   const handleShowApplications = async () => {
@@ -688,6 +706,21 @@ export default function Clan({ navigate, clanId }: ClanProps) {
           onAccept={handleAcceptApplication}
           onDecline={handleDeclineApplication}
           onClose={() => setShowApplicationsModal(false)}
+        />
+      )}
+
+      {confirm && (
+        <ConfirmModal
+          isOpen={true}
+          title={confirm.title}
+          message={confirm.message}
+          confirmLabel="Да"
+          cancelLabel="Нет"
+          onConfirm={() => {
+            setConfirm(null);
+            confirm.onConfirm();
+          }}
+          onCancel={() => setConfirm(null)}
         />
       )}
     </div>

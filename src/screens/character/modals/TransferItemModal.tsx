@@ -4,6 +4,7 @@ import { HeroInventoryItem } from "../../../types/Hero";
 import { sendItemTransferLetter } from "../../../utils/api";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { showToast } from "../../../state/toastStore";
+import { isUnauthorizedError } from "../../../utils/isUnauthorizedError";
 
 interface TransferItemModalProps {
   item: HeroInventoryItem;
@@ -42,11 +43,6 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
   const itemPrice = item.stats?.price || itemDef?.stats?.price || 100;
   const transferFeePerItem = Math.floor(itemPrice * 0.05);
   const transferFee = transferFeePerItem * quantity;
-
-  const isUnauthorizedError = (err: any): boolean => {
-    const msg = String(err?.message || err?.error || "").toLowerCase();
-    return err?.unauthorized === true || err?.status === 401 || msg.includes("unauthorized");
-  };
 
   const handleTransfer = async () => {
     if (!recipientName.trim()) {

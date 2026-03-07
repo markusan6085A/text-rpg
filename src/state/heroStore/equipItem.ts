@@ -15,25 +15,8 @@ export { isTwoHandedWeapon, getRequiredLevelForGrade } from "./weaponUtils";
 function validateItemGrade(hero: Hero, item: HeroInventoryItem, itemDef: any): boolean {
   const itemGrade = itemDef.grade || item.grade || autoDetectGrade(item.id);
   
-  console.log(`[equipItemLogic] 🔍 GRADE CHECK:`, {
-    itemId: item.id,
-    itemName: item.name,
-    itemDefGrade: itemDef.grade,
-    itemGrade: item.grade,
-    autoDetectedGrade: autoDetectGrade(item.id),
-    finalGrade: itemGrade,
-    heroLevel: hero.level,
-  });
-  
   if (itemGrade) {
     const requiredLevel = getRequiredLevelForGrade(itemGrade);
-    
-    console.log(`[equipItemLogic] 🔍 LEVEL CHECK:`, {
-      itemGrade,
-      requiredLevel,
-      heroLevel: hero.level,
-      canEquip: hero.level >= requiredLevel,
-    });
     
     if (hero.level < requiredLevel) {
       const gradeNames: Record<string, string> = {

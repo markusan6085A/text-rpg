@@ -4,10 +4,7 @@ export const API_URL =
   import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
   (import.meta.env.MODE === "production" ? "/api" : "http://localhost:3000");
 
-// Логуємо API_URL тільки в dev (у prod не розкриваємо конфіг)
 if (typeof window !== 'undefined' && import.meta.env.DEV) {
-  console.log('[API] API_URL:', API_URL);
-  console.log('[API] VITE_API_URL from env:', import.meta.env.VITE_API_URL || 'NOT SET (using localhost:3000)');
   (window as any).__API_URL__ = API_URL;
   (window as any).__VITE_API_URL__ = import.meta.env.VITE_API_URL || 'NOT SET';
 }
@@ -191,6 +188,10 @@ async function apiRequest<T>(
       } catch (_) {}
       errorWithStatus.retryAfter = sec;
       errorWithStatus.message = `Забагато запитів. Зачекайте ${sec} сек.`;
+      try {
+        const { showToast } = await import("../state/toastStore");
+        showToast(errorWithStatus.message, "info");
+      } catch (_) {}
     }
     throw errorWithStatus;
   }

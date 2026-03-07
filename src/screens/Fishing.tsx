@@ -9,6 +9,7 @@ import { getFishRangeByRodEnchant } from "../data/fishing/fishingCatchInfo";
 import FishingCatchInfoModal from "./character/modals/FishingCatchInfoModal";
 import * as api from "../utils/api";
 import { showToast } from "../state/toastStore";
+import { isUnauthorizedError } from "../utils/isUnauthorizedError";
 
 const FISHING_COST_SP = 5000;
 const FISHING_COST_ADENA = 5_000_000;
@@ -22,10 +23,6 @@ interface FishingProps {
   navigate: Navigate;
 }
 
-function isUnauthorizedError(err: any): boolean {
-  const msg = String(err?.message || err?.error || "").toLowerCase();
-  return err?.unauthorized === true || err?.status === 401 || msg.includes("unauthorized");
-}
 
 export default function Fishing({ navigate }: FishingProps) {
   const hero = useHeroStore((s) => s.hero);

@@ -4,6 +4,7 @@ import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
 import TutorialHint from "./TutorialHint";
 import Toast from "./Toast";
+import ConfirmModal from "./ConfirmModal";
 // 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно
 // import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
@@ -46,6 +47,7 @@ export default function Layout({
   const characterId = useCharacterStore((s) => s.characterId);
   const dead = hero ? isHeroDead(hero) : false;
   const [resurrecting, setResurrecting] = useState(false);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
 
   const handleResurrectToCity = async () => {
     if (!characterId || !navigate || resurrecting) return;
@@ -267,13 +269,16 @@ export default function Layout({
   const gameSettings = getGameSettings();
 
   const handleLogout = () => {
-    if (window.confirm("Ви впевнені, що хочете вийти?")) {
-      logout();
-      adminLogout().catch(() => {});
-      useAdminStore.getState().resetAdmin();
-      useHeroStore.getState().setHero(null as any); // Очищаємо hero для SPA — щоб Landing показувався
-      if (navigate) navigate("/");
-    }
+    setLogoutConfirm(true);
+  };
+
+  const doLogout = () => {
+    setLogoutConfirm(false);
+    logout();
+    adminLogout().catch(() => {});
+    useAdminStore.getState().resetAdmin();
+    useHeroStore.getState().setHero(null as any); // Очищаємо hero для SPA — щоб Landing показувався
+    if (navigate) navigate("/");
   };
 
   return (

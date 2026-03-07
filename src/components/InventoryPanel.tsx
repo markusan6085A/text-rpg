@@ -37,14 +37,14 @@ const jewelrySlots = new Set([
 
 const categories: { key: string; label: string; test: (item: InvItem) => boolean }[] = [
   { key: "all", label: "Р’СЃРµ", test: () => true },
-  { key: "weapon", label: "РћСЂСѓР¶РёРµ", test: (i) => i.slot === "weapon" },
+  { key: "weapon", label: "Оружие", test: (i) => i.slot === "weapon" },
   { key: "armor", label: "Р‘СЂРѕРЅСЏ", test: (i) => armorSlots.has(i.slot) },
   { key: "jewelry", label: "Р‘РёР¶", test: (i) => jewelrySlots.has(i.slot) },
   { key: "consumable", label: "Р Р°СЃС…РѕРґ", test: (i) => i.slot === "consumable" },
   { key: "resource", label: "Р РµСЃ", test: (i) => i.slot === "resource" },
   { key: "recipe", label: "Р РµС†РµРїС‚С‹", test: (i) => i.slot === "recipe" },
-  { key: "quest", label: "РљРІРµСЃС‚", test: (i) => i.slot === "quest" },
-  { key: "book", label: "РљРЅРёРіРё", test: (i) => i.slot === "book" },
+  { key: "quest", label: "Квест", test: (i) => i.slot === "quest" },
+  { key: "book", label: "Книги", test: (i) => i.slot === "book" },
 ];
 
 const isEquipable = (slot: string) =>
@@ -54,14 +54,14 @@ const isEquipable = (slot: string) =>
 
 const formatActionLabel = (slot: string) => {
   if (slot === "consumable" || slot === "resource" || slot === "quest" || slot === "book") {
-    return "[РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ]";
+    return "[Использовать]";
   }
-  if (isEquipable(slot)) return "[РќР°РґРµС‚СЊ]";
-  return "[РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ]";
+  if (isEquipable(slot)) return "[Надеть]";
+  return "[Использовать]";
 };
 
 export default function InventoryPanel({
-  title = "РРЅРІРµРЅС‚Р°СЂСЊ",
+  title = "Инвентарь",
   showBackButton = false,
   onBack,
   maxWidth = "min(96vw, 520px)",
@@ -123,7 +123,7 @@ export default function InventoryPanel({
         className="rounded-xl border-2 p-3 text-center text-white"
         style={{ width: maxWidth, backgroundColor: "#141414", borderColor: "rgba(255,255,255,0.5)" }}
       >
-        Р—Р°РіСЂСѓР·РєР°...
+        Загрузка...
       </div>
     );
   }
@@ -142,7 +142,7 @@ export default function InventoryPanel({
           onClick={onBack}
           className="absolute top-2 right-2 bg-red-600 text-white text-[11px] px-3 py-[3px] rounded-md"
         >
-          РќР°Р·Р°Рґ
+          Назад
         </button>
       )}
 
@@ -150,7 +150,7 @@ export default function InventoryPanel({
         <div className="text-center font-bold text-yellow-400 text-base">{title}</div>
         <div className="flex justify-between text-[12px] text-[#d9caa3]">
           <span>Предметов: {itemsUsed}/{getInventoryMax(hero)}</span>
-          <span>РђРґРµРЅР°: {hero.adena ?? 0}</span>
+          <span>Адена: {hero.adena ?? 0}</span>
         </div>
       </div>
 
@@ -172,7 +172,7 @@ export default function InventoryPanel({
 
       <div className="w-full bg-[#0f0c08] border-y border-white/40 rounded-none overflow-hidden">
         {items.length === 0 ? (
-          <div className="text-center text-gray-400 py-3 text-[13px]">РџСѓСЃС‚Рѕ</div>
+          <div className="text-center text-gray-400 py-3 text-[13px]">Пусто</div>
         ) : (
           items.map((invItem: any, idx: number) => (
             <div key={`${invItem.id}-${idx}`}>
@@ -252,7 +252,7 @@ export default function InventoryPanel({
 
             {selectedItem.count && selectedItem.count > 1 && (
               <div className="text-gray-300 text-[11px] mb-2">
-                РљРѕР»РёС‡РµСЃС‚РІРѕ: {selectedItem.count}
+                Количество: {selectedItem.count}
               </div>
             )}
 
@@ -261,10 +261,10 @@ export default function InventoryPanel({
                 className="bg-green-700 text-white text-[11px] py-1 rounded"
                 onClick={handleEquip}
               >
-                РћРґРµС‚СЊ
+                Одеть
               </button>
               <button className="bg-blue-700 text-white text-[11px] py-1 rounded">
-                РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ
+                Использовать
               </button>
               <button
                 onClick={() => setConfirmDelete(true)}
@@ -282,7 +282,7 @@ export default function InventoryPanel({
                 onClick={() => setSelectedItem(null)}
                 className="bg-gray-600 text-white text-[11px] py-1 rounded"
               >
-                Р—Р°РєСЂС‹С‚СЊ
+                Закрыть
               </button>
             </div>
           </div>
@@ -296,7 +296,7 @@ export default function InventoryPanel({
             style={{ width: "230px" }}
           >
             <div className="text-yellow-400 font-bold text-sm mb-3">
-              РЈРґР°Р»РёС‚СЊ РїСЂРµРґРјРµС‚?
+              Удалить предмет?
             </div>
 
             <div className="flex justify-center gap-2">
@@ -304,14 +304,14 @@ export default function InventoryPanel({
                 className="bg-red-700 text-white text-[11px] py-1 px-3 rounded"
                 onClick={handleDeleteItem}
               >
-                Р”Р°
+                Да
               </button>
 
               <button
                 className="bg-gray-600 text-white text-[11px] py-1 px-3 rounded"
                 onClick={() => setConfirmDelete(false)}
               >
-                РќРµС‚
+                Нет
               </button>
             </div>
           </div>

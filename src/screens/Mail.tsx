@@ -14,6 +14,7 @@ import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { showToast } from "../state/toastStore";
+import { isUnauthorizedError } from "../utils/isUnauthorizedError";
 
 interface MailProps {
   navigate: (path: string) => void;
@@ -26,11 +27,6 @@ interface Conversation {
   unreadCount: number;
   lastMessage: Letter;
   lastMessageTime: string;
-}
-
-function isUnauthorizedError(err: any): boolean {
-  const msg = String(err?.message || err?.error || "").toLowerCase();
-  return err?.unauthorized === true || err?.status === 401 || msg.includes("unauthorized");
 }
 
 export default function Mail({ navigate }: MailProps) {
