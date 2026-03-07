@@ -9,6 +9,7 @@ import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../data/shop/consumablesShop";
 import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
+import { addItemsWithOverflow } from "../state/heroStore/inventoryOverflow";
 import { itemsDB } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
@@ -145,43 +146,16 @@ export default function Shop({ navigate }: ShopProps) {
     }
 
     updateAdena(-totalPrice);
-    
-    // Додаємо предмет з правильними статами
+
+    // Збираємо предмети для додавання (з overflow-логікою)
+    const itemsToAdd: import("../types/Hero").HeroInventoryItem[] = [];
     const stackableSlots = ["consumable", "resource", "quest"];
     const canStack = stackableSlots.includes(itemDef.slot);
-    const newInventory = [...(hero.inventory || [])];
-    const existingItemIndex = newInventory.findIndex((invItem) => invItem.id === itemsDBId);
+    const grade = itemDef.grade || autoDetectGrade(itemsDBId);
+    const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
 
     if (canStack) {
-      if (existingItemIndex >= 0) {
-        // Стакаємо з існуючим
-        const existingItem = newInventory[existingItemIndex];
-        newInventory[existingItemIndex] = {
-          ...existingItem,
-          count: (existingItem.count || 1) + quantity
-        };
-      } else {
-        // Додаємо новий стакаємий предмет з повною кількістю
-        const grade = itemDef.grade || autoDetectGrade(itemsDBId);
-        const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
-        newInventory.push({
-          id: itemDef.id,
-          name: itemDef.name,
-          slot: itemDef.slot,
-          kind: itemDef.kind,
-          icon: itemDef.icon,
-          description: itemDef.description,
-          stats: finalStats,
-          count: quantity,
-          grade: grade,
-          armorType: armorType,
-        });
-      }
-    } else {
-      // Екіп (зброя, броня, удочка тощо) — не стакаємо: кожна одиниця окремим слотом (count: 1)
-      const grade = itemDef.grade || autoDetectGrade(itemsDBId);
-      const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
-      const baseItem = {
+      itemsToAdd.push({
         id: itemDef.id,
         name: itemDef.name,
         slot: itemDef.slot,
@@ -189,16 +163,30 @@ export default function Shop({ navigate }: ShopProps) {
         icon: itemDef.icon,
         description: itemDef.description,
         stats: finalStats,
-        count: 1,
+        count: quantity,
         grade: grade,
         armorType: armorType,
-      };
+      });
+    } else {
       for (let i = 0; i < quantity; i++) {
-        newInventory.push({ ...baseItem });
+        itemsToAdd.push({
+          id: itemDef.id,
+          name: itemDef.name,
+          slot: itemDef.slot,
+          kind: itemDef.kind,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          stats: finalStats,
+          count: 1,
+          grade: grade,
+          armorType: armorType,
+        });
       }
     }
-    
-    updateHero({ inventory: newInventory });
+
+    const heroForOverflow = { ...hero, inventory: hero.inventory || [], overflowChest: hero.overflowChest ?? [] };
+    const { inventory: finalInventory, overflowChest: finalOverflow } = addItemsWithOverflow(heroForOverflow, itemsToAdd);
+    updateHero({ inventory: finalInventory, overflowChest: finalOverflow });
     
     setSelectedItem(null);
     setBuyQuantity(1);

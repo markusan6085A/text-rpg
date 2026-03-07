@@ -6,6 +6,7 @@ import { itemsDB } from "../../../data/items/itemsDB";
 import { QUESTS } from "../../../data/quests";
 import { equipItemLogic } from "../../heroStore/heroInventory";
 import { getInventoryMax } from "../../heroStore";
+import { addItemsWithOverflow } from "../../heroStore/inventoryOverflow";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { reportMedalDrop } from "../../../utils/api";
 import { useCharacterStore } from "../../characterStore";
@@ -71,10 +72,12 @@ export function processMobDrops(
   newEquipmentEnchantLevels?: Record<string, number>; // Оновлені рівні заточки (якщо Зарич випав)
   /** Фактичні предмети що випали (для новин raid boss) */
   actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
+  overflowChest?: HeroInventoryItem[];
 } {
   const newInventory = [...(hero.inventory || [])];
   const dropMessages: string[] = [];
   const actualDroppedItems: Array<{ id: string; name: string; count: number }> = [];
+  const itemsToAdd: HeroInventoryItem[] = []; // Предмети, що не вмістились — підуть в overflow
   let adenaFromDrops = 0;
   const questProgressUpdates: Array<{ questId: string; itemId: string; count: number }> = [];
 
@@ -137,7 +140,10 @@ export function processMobDrops(
 
           if (isInventoryFull && !canAddToExisting) {
             const displayName = removeGradeFromResourceName(itemDef.name);
-            dropMessages.push(`Дроп: ${displayName} x${itemCount} (инвентарь полон!)`);
+            const itemToAdd = { id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem;
+            itemsToAdd.push(itemToAdd);
+            dropMessages.push(`Дроп: ${displayName} x${itemCount} → сундук переповнення`);
+            actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
             return;
           }
 
@@ -186,8 +192,12 @@ export function processMobDrops(
         const currentInventorySize = newInventory.filter(Boolean).length;
         const isInventoryFullNow = currentInventorySize >= maxSlots;
 
-        // Якщо інвентар повний і не можна додати до існуючого предмета, пропускаємо
-        if (!isInventoryFullNow || canAddToExisting) {
+        // Якщо інвентар повний і не можна додати до існуючого — в overflow
+        if (isInventoryFullNow && !canAddToExisting) {
+          itemsToAdd.push({ id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 } as HeroInventoryItem);
+          dropMessages.push(`Дроп: ${itemDef.name} x1 → сундук переповнення`);
+          actualDroppedItems.push({ id: treasureBoxId, name: itemDef.name, count: 1 });
+        } else if (!isInventoryFullNow || canAddToExisting) {
           const itemCount = 1;
           
           if (existingItemIndex >= 0) {
@@ -247,10 +257,12 @@ export function processMobDrops(
           const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === spoil.id);
           const canAddToExisting = canStack && existingItemIndex >= 0;
 
-          // Якщо інвентар повний і не можна додати до існуючого предмета, пропускаємо спойл
+          // Якщо інвентар повний і не можна додати до існуючого — в overflow
           if (isInventoryFullNow && !canAddToExisting) {
             const displayName = removeGradeFromResourceName(itemDef.name);
-            dropMessages.push(`Спойл: ${displayName} x${itemCount} (инвентарь полон!)`);
+            itemsToAdd.push({ id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem);
+            dropMessages.push(`Спойл: ${displayName} x${itemCount} → сундук переповнення`);
+            actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
             return;
           }
 
@@ -309,9 +321,14 @@ export function processMobDrops(
           const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === questDrop.itemId);
           const canAddToExisting = existingItemIndex >= 0;
 
-          // Якщо інвентар повний і не можна додати до існуючого предмета, пропускаємо квестовий дроп
+          // Якщо інвентар повний і не можна додати до існуючого — в overflow
           if (isInventoryFullForQuests && !canAddToExisting) {
-            dropMessages.push(`Квест: ${itemsDB[questDrop.itemId]?.name || questDrop.itemId} x1 (инвентарь полон!)`);
+            const itemDef = itemsDB[questDrop.itemId];
+            if (itemDef) {
+              itemsToAdd.push({ id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 } as HeroInventoryItem);
+              dropMessages.push(`Квест: ${itemDef.name} x1 → сундук переповнення`);
+              questProgressUpdates.push({ questId: activeQuest.questId, itemId: questDrop.itemId, count: 1 });
+            }
             return;
           }
 
@@ -472,8 +489,17 @@ export function processMobDrops(
     }
   }
 
+  let finalInventory = newInventory;
+  let finalOverflow = hero.overflowChest ?? [];
+  if (itemsToAdd.length > 0) {
+    const heroForOverflow = { ...hero, inventory: newInventory, overflowChest: finalOverflow };
+    const result = addItemsWithOverflow(heroForOverflow, itemsToAdd);
+    finalInventory = result.inventory;
+    finalOverflow = result.overflowChest;
+  }
+
   return {
-    newInventory,
+    newInventory: finalInventory,
     dropMessages,
     adenaFromDrops,
     questProgressUpdates: questProgressUpdates.length > 0 ? questProgressUpdates : undefined,
@@ -482,6 +508,7 @@ export function processMobDrops(
     newEquipment,
     newEquipmentEnchantLevels,
     actualDroppedItems,
+    overflowChest: finalOverflow,
   };
 }
 

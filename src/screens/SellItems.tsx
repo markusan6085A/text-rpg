@@ -11,7 +11,7 @@ type Navigate = (path: string) => void;
 
 const ITEMS_PER_PAGE = 25;
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
-const NO_SELL_IDS = new Set(["seven_seals_medal", "coin_of_fair"]);
+const NO_SELL_IDS = new Set(["seven_seals_medal", "coin_of_fair", "overflow_chest"]);
 
 interface SellItemsProps {
   navigate: Navigate;
