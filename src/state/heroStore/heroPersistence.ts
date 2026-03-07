@@ -46,6 +46,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     activeDyes: Array.isArray(hero.activeDyes) ? hero.activeDyes : [],
     activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : [],
     ...(inventoryCapacity !== undefined ? { inventoryCapacity } : {}),
+    overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
   };
 }
 
@@ -442,6 +443,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       ...(currentHeroJson.currentCityId || existingHeroJson.currentCityId ? { currentCityId: currentHeroJson.currentCityId || existingHeroJson.currentCityId } : {}),
       // 🔥 Вмістимість інвентарю
       ...(hero.inventoryCapacity !== undefined || existingHeroJson.inventoryCapacity !== undefined ? { inventoryCapacity: hero.inventoryCapacity ?? existingHeroJson.inventoryCapacity } : {}),
+      // 🔥 Сундук переповнення
+      overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : (Array.isArray((existingHeroJson as any).overflowChest) ? (existingHeroJson as any).overflowChest : []),
     };
     
     // Логуємо для діагностики

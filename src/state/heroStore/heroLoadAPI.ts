@@ -28,6 +28,37 @@ function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number
   return Math.max(0, Math.min(exp, Math.max(0, need - 1)));
 }
 
+/** Об'єднує інвентарі local + server — ніколи не губити предмети (напр. 2 удочки +1000). */
+function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
+  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}`;
+  const countByKey = (arr: any[]) => {
+    const m = new Map<string, number>();
+    (arr || []).forEach((it: any) => {
+      if (!it || (!it.id && !it.itemId)) return;
+      const key = itemKey(it);
+      const cnt = Math.max(1, Number(it.count) ?? 1);
+      m.set(key, (m.get(key) ?? 0) + cnt);
+    });
+    return m;
+  };
+  const getBestItem = (arr: any[], key: string) =>
+    (arr || []).find((it: any) => it && itemKey(it) === key);
+  const localCounts = countByKey(localInv);
+  const serverCounts = countByKey(serverInv);
+  const allKeys = new Set([...localCounts.keys(), ...serverCounts.keys()]);
+  const result: any[] = [];
+  allKeys.forEach((key) => {
+    const total = Math.max(localCounts.get(key) ?? 0, serverCounts.get(key) ?? 0);
+    const bestItem = getBestItem(localInv, key) ?? getBestItem(serverInv, key);
+    if (!bestItem || total <= 0) return;
+    const template = { ...bestItem, count: 1 };
+    for (let i = 0; i < total; i++) {
+      result.push(i === 0 && total === 1 ? { ...bestItem, count: bestItem.count ?? 1 } : template);
+    }
+  });
+  return result;
+}
+
 export async function loadHeroFromAPI(): Promise<Hero | null> {
   const authStore = useAuthStore.getState();
   const characterStore = useCharacterStore.getState();
@@ -357,9 +388,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
     const serverInv = fixedHero.inventory ?? [];
     const localInv = hydratedLocalHero?.inventory ?? [];
-    const serverInvLen = Array.isArray(serverInv) ? serverInv.length : 0;
-    const localInvLen = Array.isArray(localInv) ? localInv.length : 0;
-    const mergedInventory = localInvLen >= serverInvLen ? localInv : serverInv;
+    // 🔥 Union-merge: ніколи не губити предмети (напр. 2 удочки +1000), якщо вони є в local або server
+    const mergedInventory = mergeInventoriesUnion(localInv, serverInv);
 
     const localDyes = hydratedLocalHero?.activeDyes ?? [];
     const serverDyes = fixedHero.activeDyes ?? [];
@@ -369,11 +399,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const localActiveQuests = Array.isArray(hydratedLocalHero?.activeQuests) ? hydratedLocalHero.activeQuests : [];
     const mergedActiveQuests = serverActiveQuests.length > 0 ? serverActiveQuests : localActiveQuests;
 
+    const serverOverflow = Array.isArray((fixedHero as any).overflowChest) ? (fixedHero as any).overflowChest : [];
+    const localOverflow = Array.isArray(hydratedLocalHero?.overflowChest) ? hydratedLocalHero.overflowChest : [];
+    const serverOverflowTotal = serverOverflow.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
+    const localOverflowTotal = localOverflow.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
+    const mergedOverflow = localOverflowTotal >= serverOverflowTotal ? localOverflow : serverOverflow;
+
     const heroForRecalc: Hero = {
       ...fixedHero,
       skills: finalSkillsForRecalc,
       equipment: mergedEquipment,
       inventory: mergedInventory,
+      overflowChest: mergedOverflow,
       activeDyes: mergedActiveDyes,
       activeQuests: mergedActiveQuests,
     };
@@ -616,25 +653,22 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           }
         }
       }
-      // 🔥 КРИТИЧНО: Якщо локально більше предметів/екіпу — беремо з локального героя, щоб не втрачати покупки після F5
+      // 🔥 КРИТИЧНО: Union-merge інвентаря — ніколи не губити предмети (удочки +1000 тощо)
       if (hydratedLocalHero) {
         const localInv = hydratedLocalHero.inventory ?? [];
         const serverInv = hydratedHero.inventory ?? [];
         const localEquip = hydratedLocalHero.equipment ?? {};
         const serverEquip = hydratedHero.equipment ?? {};
-        const localInvLen = Array.isArray(localInv) ? localInv.length : 0;
-        const serverInvLen = Array.isArray(serverInv) ? serverInv.length : 0;
+        const mergedInv = mergeInventoriesUnion(localInv, serverInv);
+        (hydratedHero as any).inventory = mergedInv;
+        (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: mergedInv };
+        if (hydratedLocalHero.adena !== undefined && hydratedLocalHero.adena !== null) {
+          (hydratedHero as any).adena = hydratedLocalHero.adena;
+          (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, adena: hydratedLocalHero.adena };
+        }
+        console.log('[loadHeroFromAPI] Applied inventory union merge:', mergedInv.length, 'items');
         const localEquipCount = Object.keys(localEquip).filter((k) => localEquip[k] != null).length;
         const serverEquipCount = Object.keys(serverEquip).filter((k) => serverEquip[k] != null).length;
-        if (localInvLen > serverInvLen) {
-          (hydratedHero as any).inventory = localInv;
-          (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: localInv };
-          if (hydratedLocalHero.adena !== undefined && hydratedLocalHero.adena !== null) {
-            (hydratedHero as any).adena = hydratedLocalHero.adena;
-            (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, adena: hydratedLocalHero.adena };
-          }
-          console.log('[loadHeroFromAPI] Preferring local inventory (more items):', localInvLen, 'vs', serverInvLen);
-        }
         if (localEquipCount > serverEquipCount) {
           (hydratedHero as any).equipment = localEquip;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, equipment: localEquip };

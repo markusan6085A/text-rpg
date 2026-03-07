@@ -189,6 +189,8 @@ export function loadHero(): Hero | null {
       } else if (Array.isArray(jsonInv) && jsonInv.length > 0 && (!heroInv || heroInv.length === 0)) {
         fixedHero.inventory = jsonInv;
       }
+      const jsonOverflow = (heroJson as any).overflowChest ?? [];
+      (fixedHero as any).overflowChest = Array.isArray(jsonOverflow) ? jsonOverflow : (Array.isArray((fixedHero as any).overflowChest) ? (fixedHero as any).overflowChest : []);
 
       // Міграція: виправляємо предмети "Angel Slayer", які були куплені як лук
       if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {
