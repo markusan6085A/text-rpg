@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useHeroStore } from "../../state/heroStore";
-import { getInventoryMax } from "../../state/heroStore";
+import { getInventoryMax, OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import Equipment from "./Equipment";
 import InventoryFilters, { CATEGORIES } from "./InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
@@ -9,6 +9,7 @@ import InventoryItemModal from "./modals/InventoryItemModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import IncreaseInventoryModal from "./modals/IncreaseInventoryModal";
 import TransferItemModal from "./modals/TransferItemModal";
+import OverflowChestModal from "./modals/OverflowChestModal";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта — показується в балансі персонажа, не в інвентарі
@@ -46,6 +47,12 @@ export default function Inventory() {
         return def?.grade?.toUpperCase() === gradeUpper;
       });
     }
+    // Сундук переповнення — показуємо як останній слот, коли є предмети в overflow
+    const overflowChest = hero.overflowChest || [];
+    if (overflowChest.length > 0) {
+      const totalInChest = overflowChest.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
+      items = [...items, { id: OVERFLOW_CHEST_ID, name: "Сундук переповнення", slot: "quest", count: totalInChest }];
+    }
     return items;
   }, [hero, currentCategory, currentGrade]);
 
@@ -54,8 +61,9 @@ export default function Inventory() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // Кількість зайнятих слотів
-  const itemsUsed = hero?.inventory?.filter(Boolean).length ?? 0;
+  // Кількість зайнятих слотів (включаючи слот сундука переповнення)
+  const invCount = (hero?.inventory || []).filter((i: any) => i && i.id !== OVERFLOW_CHEST_ID).length;
+  const itemsUsed = invCount + (hero?.overflowChest?.length ? 1 : 0);
   const maxSlots = getInventoryMax(hero);
 
   // Обробники для модалок
@@ -81,7 +89,11 @@ export default function Inventory() {
   // Функція підтвердження видалення
   const confirmDelete = () => {
     if (!hero || !deleteConfirmItem) return;
-    
+    if (deleteConfirmItem.item?.id === OVERFLOW_CHEST_ID) {
+      setDeleteConfirmItem(null);
+      setSelectedItem(null);
+      return;
+    }
     const { item, amount } = deleteConfirmItem;
     
     // Знаходимо індекс предмета в hero.inventory
@@ -302,7 +314,10 @@ export default function Inventory() {
       </div>
 
       {/* Модалки залежно від типу предмета */}
-      {selectedItem && hero && (
+      {selectedItem?.id === OVERFLOW_CHEST_ID && hero && (
+        <OverflowChestModal hero={hero} onClose={() => setSelectedItem(null)} />
+      )}
+      {selectedItem && selectedItem?.id !== OVERFLOW_CHEST_ID && hero && (
         <InventoryItemModal
           item={selectedItem}
           hero={hero}

@@ -1,6 +1,7 @@
 import React from "react";
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
+import { OVERFLOW_CHEST_ID } from "../../state/heroStore";
 
 interface InventoryItemListProps {
   items: HeroInventoryItem[];
@@ -51,7 +52,7 @@ export default function InventoryItemList({
             }
           }
           
-          const isEquipable = !["all", "consumable", "resource", "quest", "book", "recipe"].includes(normalizedSlot);
+          const isEquipable = item.id !== OVERFLOW_CHEST_ID && !["all", "consumable", "resource", "quest", "book", "recipe"].includes(normalizedSlot);
           
           // Перевірка чи одягнутий предмет (враховуємо як slot, так і slot_left/slot_right для earring/ring)
           // Для earring та ring перевіряємо, чи обидва слоти зайняті (тоді не показуємо кнопку "Одеть")
