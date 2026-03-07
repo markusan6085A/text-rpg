@@ -13,6 +13,7 @@ import { itemsDB } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
+import { showToast } from "../state/toastStore";
 
 // У категорії «Стрелы» тільки стріли грейдів NG, D, C, B, A, S (один тип на грейд)
 const ARROW_GRADE_IDS = ["wooden_arrow", "bone_arrow", "fine_steel_arrow", "silver_arrow", "mithril_arrow", "shining_arrow"];
@@ -108,7 +109,7 @@ export default function Shop({ navigate }: ShopProps) {
     const totalPrice = item.price * quantity;
 
     if (hero.adena < totalPrice) {
-      alert("Недостатньо Adena!");
+      showToast("Недостатньо Adena!", "error");
       return;
     }
 
@@ -131,7 +132,7 @@ export default function Shop({ navigate }: ShopProps) {
     if (!itemDef || !itemsDBId) {
       console.error(`[Shop] Item not found in itemsDB: itemId=${item.itemId}, name=${item.name}, grade=${item.grade}`);
       console.error(`[Shop] Available mapping keys:`, Object.keys(SHOP_ITEM_ID_MAPPING).slice(0, 10));
-      alert(`Помилка: предмет "${item.name}" (ID: ${item.itemId}) не знайдено в itemsDB!\n\nПеревірте файл itemMappings.ts та itemsDB.ts`);
+      showToast(`Помилка: предмет "${item.name}" не знайдено в itemsDB`, "error");
       return;
     }
 

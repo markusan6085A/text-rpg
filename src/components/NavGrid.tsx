@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { getUnreadCount, getMyClan, getClanChat } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { getRateLimitRemainingMs } from "../state/heroStore";
+import { showToast } from "../state/toastStore";
 
 interface NavGridProps {
   navigate?: (path: string) => void;
@@ -47,7 +48,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
         const nextUnread = data.unreadCount || 0;
         const prevUnread = previousUnreadRef.current;
         if (nextUnread > prevUnread && prevUnread > 0) {
-          window.alert("Вам прийшло нове повідомлення на пошту");
+          showToast("Вам прийшло нове повідомлення на пошту", "info");
         }
         previousUnreadRef.current = nextUnread;
         setUnreadCount(nextUnread);
@@ -173,7 +174,7 @@ export default function NavGrid({ navigate }: NavGridProps) {
       navigate(btn.path);
       return;
     }
-    window.alert("Функція недоступна");
+    showToast("Функція недоступна", "info");
   };
 
   return (

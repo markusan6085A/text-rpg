@@ -8,6 +8,7 @@ import { fetchFishingSession, isFishingReady } from "../state/fishing/fishingPer
 import { getFishRangeByRodEnchant } from "../data/fishing/fishingCatchInfo";
 import FishingCatchInfoModal from "./character/modals/FishingCatchInfoModal";
 import * as api from "../utils/api";
+import { showToast } from "../state/toastStore";
 
 const FISHING_COST_SP = 5000;
 const FISHING_COST_ADENA = 5_000_000;
@@ -132,11 +133,11 @@ export default function Fishing({ navigate }: FishingProps) {
       });
     } catch (e: any) {
       if (isUnauthorizedError(e)) {
-        alert("Сессия истекла. Войдите снова.");
+        showToast("Сессия истекла. Войдите снова.", "error");
         navigate("/");
         return;
       }
-      alert(e?.message || e?.error || "Не удалось начать рыбалку");
+      showToast(e?.message || e?.error || "Не удалось начать рыбалку", "error");
     } finally {
       setActionLoading(false);
     }
@@ -160,11 +161,11 @@ export default function Fishing({ navigate }: FishingProps) {
       setCatchResult({ fishCount: res.fishCount, expGained: res.expGained || 0 });
     } catch (e: any) {
       if (isUnauthorizedError(e)) {
-        alert("Сессия истекла. Войдите снова.");
+        showToast("Сессия истекла. Войдите снова.", "error");
         navigate("/");
         return;
       }
-      alert(e?.message || e?.error || "Не удалось забрать улов");
+      showToast(e?.message || e?.error || "Не удалось забрать улов", "error");
     } finally {
       setActionLoading(false);
     }

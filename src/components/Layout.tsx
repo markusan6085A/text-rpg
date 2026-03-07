@@ -3,6 +3,7 @@ import NavGrid from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
 import TutorialHint from "./TutorialHint";
+import Toast from "./Toast";
 // 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно
 // import MobDamageNotification from "./MobDamageNotification";
 import { useAuthStore } from "../state/authStore";
@@ -339,6 +340,7 @@ export default function Layout({
         {/* 🔥 Футер видалено за запитом користувача */}
         </div>
         {showNavGrid && <NavGrid navigate={navigate} />}
+        <Toast />
       </div>
   );
 }

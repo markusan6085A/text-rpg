@@ -13,6 +13,7 @@ import { useCharacterStore } from "../state/characterStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
+import { showToast } from "../state/toastStore";
 
 interface MailProps {
   navigate: (path: string) => void;
@@ -250,7 +251,7 @@ export default function Mail({ navigate }: MailProps) {
         });
     } catch (err: any) {
       if (isUnauthorizedError(err)) {
-        alert("Сессия истекла. Войдите снова.");
+        showToast("Сессия истекла. Войдите снова.", "error");
         navigate("/");
         return;
       }
@@ -317,12 +318,12 @@ export default function Mail({ navigate }: MailProps) {
         });
     } catch (err: any) {
       if (isUnauthorizedError(err)) {
-        alert("Сессия истекла. Войдите снова.");
+        showToast("Сессия истекла. Войдите снова.", "error");
         navigate("/");
         return;
       }
       console.error("Error sending reply:", err);
-      alert(err?.message || "Помилка відправки повідомлення");
+      showToast(err?.message || "Помилка відправки повідомлення", "error");
     } finally {
       setSendingReply(false);
     }
@@ -342,15 +343,15 @@ export default function Mail({ navigate }: MailProps) {
       
       // Оновлюємо переписку (видаляємо цей лист з UI)
       setConversationLetters(prev => prev.filter(l => l.id !== letter.id));
-      alert(`Ви успішно отримали: ${claimRes.item?.name || itemPayload?.name || "предмет"}`);
+      showToast(`Ви успішно отримали: ${claimRes.item?.name || itemPayload?.name || "предмет"}`, "success");
     } catch (err: any) {
       if (isUnauthorizedError(err)) {
-        alert("Сессия истекла. Войдите снова.");
+        showToast("Сессия истекла. Войдите снова.", "error");
         navigate("/");
         return;
       }
       console.error("Claim error:", err);
-      alert(err?.message || "Помилка при отриманні предмета");
+      showToast(err?.message || "Помилка при отриманні предмета", "error");
     } finally {
       setClaimingLetterId(null);
     }
