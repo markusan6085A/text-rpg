@@ -57,14 +57,20 @@ export default function NavGrid({ navigate }: NavGridProps) {
       }
     };
 
-    // 🔥 Перші 15 с — тільки GET character. Unread не славимо, щоб PUT (скіл/баф) не отримав 429
-    const startTimeout = setTimeout(loadUnreadCount, 15000);
-    const interval = setInterval(loadUnreadCount, 60000); // Кожні 60 с (було 30)
-    unreadIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
+    // 🔥 1 с затримка — мінімальний буфер для character load, потім одразу показуємо unread в сітці
+    const startTimeout = setTimeout(loadUnreadCount, 1000);
+    const interval = setInterval(loadUnreadCount, 60000); // Кожні 60 с
+    unreadIntervalRef.current = interval;
+    // 🔥 При поверненні на вкладку (напр. після читання пошти) — оновлюємо бейдж
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") loadUnreadCount();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
     
     return () => {
       clearTimeout(startTimeout);
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       unreadIntervalRef.current = null;
     };
   }, [isAuthenticated]); // 🔥 Мінімальні dependencies - тільки isAuthenticated (примітив)
