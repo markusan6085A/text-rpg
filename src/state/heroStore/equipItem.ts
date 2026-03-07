@@ -3,7 +3,7 @@ import { showToast } from "../toastStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { autoDetectArmorType, autoDetectGrade } from "../../utils/items/autoDetectArmorType";
 import { findSetForItem } from "../../data/sets/armorSets";
-import { isTwoHandedWeapon, getRequiredLevelForGrade } from "./weaponUtils";
+import { isTwoHandedWeapon, isDualWieldWeapon, getRequiredLevelForGrade } from "./weaponUtils";
 import { normalizeSlot, autoSelectEarringOrRingSlot } from "./slotUtils";
 
 // Re-export для зворотної сумісності
@@ -304,6 +304,11 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
   // Автоматичне визначення слота для earring та ring
   slot = autoSelectEarringOrRingSlot(slot, hero);
 
+  // Dual wield — слот lrhand (не weapon), без щита
+  if (slot === "weapon" && isDualWieldWeapon(item.id)) {
+    slot = "lrhand";
+  }
+
   // Перевірка чи торс має 2 частини
   const { shouldEquipLegs, legsItem, isRobe } = checkSetTorso(slot, item);
 
@@ -564,6 +569,37 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
   newEquipmentEnchantLevels = twoHandedResult.newEquipmentEnchantLevels;
   newInventory = twoHandedResult.newInventory;
 
+  // Обробка dual wield: знімаємо щит (з dual-зброєю щит не можна)
+  if (slot === "lrhand" && isDualWieldWeapon(item.id)) {
+    const shieldId = hero.equipment?.shield;
+    if (shieldId && shieldId !== item.id) {
+      const weaponId = hero.equipment?.weapon;
+      const isShieldTwoHanded = isTwoHandedWeapon(shieldId);
+      const isWeaponInBoth = weaponId === shieldId && isShieldTwoHanded;
+      if (!isWeaponInBoth) {
+        const shieldItem = itemsDBWithStarter[shieldId] || itemsDB[shieldId];
+        if (shieldItem) {
+          const grade = shieldItem.grade || autoDetectGrade(shieldId);
+          newInventory.push({
+            id: shieldItem.id,
+            name: shieldItem.name,
+            slot: shieldItem.slot,
+            kind: shieldItem.kind,
+            icon: shieldItem.icon,
+            description: shieldItem.description,
+            stats: shieldItem.stats,
+            count: 1,
+            grade: grade,
+          });
+        }
+        newEquipment.shield = null;
+        if (newEquipmentEnchantLevels.shield !== undefined) {
+          delete newEquipmentEnchantLevels.shield;
+        }
+      }
+    }
+  }
+
   // Обробка зняття дворучної зброї при одяганні щита
   if (slot === "shield" && twoHandedInWeaponToRemove) {
     const weaponId = hero.equipment?.weapon;
@@ -617,6 +653,34 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
           });
         }
         newEquipment.weapon = null;
+      }
+    }
+    // Знімаємо dual-зброю (lrhand) — з щитом dual не можна
+    const lrhandId = hero.equipment?.lrhand;
+    if (lrhandId && isDualWieldWeapon(lrhandId)) {
+      const dualItem = itemsDBWithStarter[lrhandId] || itemsDB[lrhandId];
+      if (dualItem) {
+        const grade = dualItem.grade || autoDetectGrade(lrhandId);
+        const oldEnchant = hero.equipmentEnchantLevels?.lrhand ?? 0;
+        const alreadyInInventory = newInventory.some((inv) => inv.id === lrhandId);
+        if (!alreadyInInventory) {
+          newInventory.push({
+            id: dualItem.id,
+            name: dualItem.name,
+            slot: dualItem.slot,
+            kind: dualItem.kind,
+            icon: dualItem.icon,
+            description: dualItem.description,
+            stats: dualItem.stats,
+            count: 1,
+            enchantLevel: oldEnchant,
+            grade: grade,
+          });
+        }
+      }
+      newEquipment.lrhand = null;
+      if (newEquipmentEnchantLevels.lrhand !== undefined) {
+        delete newEquipmentEnchantLevels.lrhand;
       }
     }
   }

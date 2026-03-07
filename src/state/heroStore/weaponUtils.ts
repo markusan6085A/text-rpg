@@ -12,6 +12,9 @@ export function isTwoHandedWeapon(itemId: string | undefined): boolean {
   const name = def.name?.toLowerCase() || "";
   const id = itemId.toLowerCase();
   
+  // Dual wield (дві одноручні зброї) — НЕ дворучна
+  if (id.includes("dual") || name.includes("dual")) return false;
+  
   return (
     id === "zariche" ||
     // Списа та алебарди
@@ -55,8 +58,6 @@ export function isTwoHandedWeapon(itemId: string | undefined): boolean {
     (name.includes("spiritual") && name.includes("eye")) ||
     (name.includes("spell") && name.includes("breaker")) ||
     (name.includes("berserker") && name.includes("blade")) ||
-    (name.includes("paagrian") && name.includes("sword")) ||
-    (name.includes("baguette") && name.includes("sword")) ||
     id.includes("two_handed") ||
     id.includes("twohanded") || // 🔥 Додано для twohanded_sword (без підкреслення)
     id.includes("great_sword") ||
@@ -94,6 +95,28 @@ export function isTwoHandedWeapon(itemId: string | undefined): boolean {
     id.includes("bighammer") ||
     id.includes("ice_storm") ||
     id.includes("icestorm")
+  );
+}
+
+/**
+ * Перевірка, чи є зброя dual wield (дві одноручні в обох руках)
+ * Dual: Baguette's Dualsword, dual dagger тощо — слот lrhand, без щита
+ */
+export function isDualWieldWeapon(itemId: string | undefined): boolean {
+  if (!itemId) return false;
+  const def = itemsDBWithStarter[itemId] || itemsDB[itemId];
+  if (!def || def.kind !== "weapon") return false;
+  const id = itemId.toLowerCase();
+  const name = def?.name?.toLowerCase() || "";
+  return (
+    id.includes("dual") ||
+    name.includes("dual") ||
+    id.includes("dualsword") ||
+    id.includes("dual_sword") ||
+    id.includes("dualdagger") ||
+    id.includes("dual_dagger") ||
+    id.includes("dualfist") ||
+    id.includes("dual_fist")
   );
 }
 

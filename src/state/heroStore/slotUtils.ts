@@ -20,12 +20,13 @@ export function normalizeSlot(slot: string, item: HeroInventoryItem): string {
       return "shield";
     }
   } else if (slot === "lrhand") {
-    // Перевіряємо, чи це зброя (включаючи удочки)
     const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
     if (itemDef && itemDef.kind === "weapon") {
-      // 🔥 ВСІ зброї з slot "lrhand" конвертуються в "weapon"
-      // Потім в коді нижче перевіряється, чи це дворучна зброя
-      // Якщо дворучна - вона автоматично одягнеться в обидва слоти (weapon + shield)
+      // Dual wield (dual sword, dual dagger) — залишаємо lrhand
+      const id = (item.id || "").toLowerCase();
+      const name = (itemDef.name || "").toLowerCase();
+      if (id.includes("dual") || name.includes("dual")) return "lrhand";
+      // Інша зброя (лук, посох) — weapon, дворучна піде в weapon+shield
       return "weapon";
     }
   }

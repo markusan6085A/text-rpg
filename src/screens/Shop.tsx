@@ -152,17 +152,6 @@ export default function Shop({ navigate }: ShopProps) {
     const newInventory = [...(hero.inventory || [])];
     const existingItemIndex = newInventory.findIndex((invItem) => invItem.id === itemsDBId);
 
-    console.log(`[Shop] handleBuy:`, {
-      itemName: item.name,
-      itemId: item.itemId,
-      itemsDBId,
-      itemDef: itemDef ? { id: itemDef.id, name: itemDef.name, slot: itemDef.slot, kind: itemDef.kind } : null,
-      existingItemIndex,
-      canStack,
-      quantity,
-      inventoryLength: newInventory.length,
-    });
-
     if (canStack) {
       if (existingItemIndex >= 0) {
         // Стакаємо з існуючим
@@ -171,7 +160,6 @@ export default function Shop({ navigate }: ShopProps) {
           ...existingItem,
           count: (existingItem.count || 1) + quantity
         };
-        console.log(`[Shop] Stacked item:`, { id: existingItem.id, newCount: newInventory[existingItemIndex].count });
       } else {
         // Додаємо новий стакаємий предмет з повною кількістю
         const grade = itemDef.grade || autoDetectGrade(itemsDBId);
@@ -188,7 +176,6 @@ export default function Shop({ navigate }: ShopProps) {
           grade: grade,
           armorType: armorType,
         });
-        console.log(`[Shop] Added new stackable item:`, itemDef.id, "count:", quantity);
       }
     } else {
       // Екіп (зброя, броня, удочка тощо) — не стакаємо: кожна одиниця окремим слотом (count: 1)
@@ -209,10 +196,8 @@ export default function Shop({ navigate }: ShopProps) {
       for (let i = 0; i < quantity; i++) {
         newInventory.push({ ...baseItem });
       }
-      console.log(`[Shop] Added ${quantity} separate slot(s) (non-stackable):`, baseItem.id);
     }
     
-    console.log(`[Shop] Updating inventory, new length:`, newInventory.length);
     updateHero({ inventory: newInventory });
     
     setSelectedItem(null);
