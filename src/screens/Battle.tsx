@@ -10,6 +10,7 @@ import { SkillBar } from "./battle/SkillBar";
 import { BattleLog } from "./battle/BattleLog";
 import { BattlePanel } from "./battle/BattlePanel";
 import { isMobOnRespawn } from "../state/battle/mobRespawns";
+import { MOB_HP_MULTIPLIER } from "../data/balance";
 
 type Navigate = (path: string) => void;
 
@@ -385,12 +386,14 @@ export default function Battle({ navigate }: BattleProps) {
     );
   }
 
+  // maxHp у бою = mob.hp * MOB_HP_MULTIPLIER (як у startBattle), інакше clamped у BattleTargetCard обрізає currentHp і смуга лишається повною
+  const mobMaxHp = mob ? Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER) : 1;
   const battleTarget = mob
     ? {
         name: mob.name,
         level: mob.level,
-        currentHp: Number.isFinite(mobHP) ? mobHP : mob.hp,
-        maxHp: mob.hp,
+        currentHp: Number.isFinite(mobHP) ? mobHP : mobMaxHp,
+        maxHp: mobMaxHp,
       }
     : { name: "", level: 1, currentHp: 0, maxHp: 1 };
 
