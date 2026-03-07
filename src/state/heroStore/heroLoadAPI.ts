@@ -28,7 +28,17 @@ function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number
   return Math.max(0, Math.min(exp, Math.max(0, need - 1)));
 }
 
-/** Об'єднує інвентарі local + server — ніколи не губити предмети (напр. 2 удочки +1000). */
+/** Чи предмет стакається (заряди, банки, ресурси) — зброя/броня завжди окремо. */
+function isStackableItem(it: any): boolean {
+  const typeId = String(it?.id ?? it?.itemId ?? "");
+  const def = itemsDB[it?.id ?? it?.itemId] || itemsDBWithStarter[it?.id ?? it?.itemId];
+  const slot = def?.slot ?? it?.slot ?? "";
+  const stackableSlots = ["consumable", "resource", "quest"];
+  return stackableSlots.includes(slot) || typeId.includes("shot") || typeId.includes("potion") ||
+    it?.type === "consumable" || it?.type === "resource" || it?.type === "quest";
+}
+
+/** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1). */
 function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
   const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}`;
   const countByKey = (arr: any[]) => {
@@ -51,7 +61,15 @@ function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
     const total = Math.max(localCounts.get(key) ?? 0, serverCounts.get(key) ?? 0);
     const bestItem = getBestItem(localInv, key) ?? getBestItem(serverInv, key);
     if (!bestItem || total <= 0) return;
-    result.push({ ...bestItem, id: bestItem.id ?? bestItem.itemId, count: total });
+    const normalized = { ...bestItem, id: bestItem.id ?? bestItem.itemId };
+    if (isStackableItem(bestItem)) {
+      result.push({ ...normalized, count: total });
+    } else {
+      // Зброя/броня — кожен екземпляр окремо, точка відображається всюди
+      for (let i = 0; i < total; i++) {
+        result.push({ ...normalized, count: 1, enchantLevel: normalized.enchantLevel ?? 0 });
+      }
+    }
   });
   return result;
 }

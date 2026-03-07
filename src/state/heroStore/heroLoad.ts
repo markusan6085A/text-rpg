@@ -105,8 +105,9 @@ export function loadHero(): Hero | null {
             consolidatedInventory.push(normalized);
           }
         } else {
-          // Не стакабельний (наприклад, зброя) - додаємо як є
-          consolidatedInventory.push(item.id ? item : { ...item, id: item.itemId });
+          // Не стакабельний (зброя, броня) — завжди по 1 предмету, точка зберігається
+          const normalized = { ...item, id: item.id || item.itemId, count: 1, enchantLevel: item.enchantLevel ?? 0 };
+          consolidatedInventory.push(normalized);
         }
       });
 
