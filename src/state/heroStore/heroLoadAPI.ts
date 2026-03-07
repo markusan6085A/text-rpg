@@ -51,10 +51,7 @@ function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
     const total = Math.max(localCounts.get(key) ?? 0, serverCounts.get(key) ?? 0);
     const bestItem = getBestItem(localInv, key) ?? getBestItem(serverInv, key);
     if (!bestItem || total <= 0) return;
-    const template = { ...bestItem, count: 1 };
-    for (let i = 0; i < total; i++) {
-      result.push(i === 0 && total === 1 ? { ...bestItem, count: bestItem.count ?? 1 } : template);
-    }
+    result.push({ ...bestItem, id: bestItem.id ?? bestItem.itemId, count: total });
   });
   return result;
 }
@@ -202,8 +199,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         
         // Для локально пріоритетного героя відновлюємо HP/MP/CP з урахуванням відсотка від старого макс.,
         // щоб при зміні maxHp (напр. зникли бафи або змінився екіп) відсоток здоров'я зберігався.
+        // 🔥 Консолідуємо інвентар (заряди, банки, ресурси стакаються) — mergeInventoriesUnion(inv, []) = consolidate
+        const localInv = hydratedLocalHero?.inventory ?? [];
+        const consolidatedInv = mergeInventoriesUnion(localInv, []);
         const mergedHero: Hero = {
           ...hydratedLocalHero,
+          inventory: consolidatedInv,
           name: character.name,
           maxHp: buffedMax.maxHp,
           maxMp: buffedMax.maxMp,

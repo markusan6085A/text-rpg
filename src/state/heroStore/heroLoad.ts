@@ -76,8 +76,9 @@ export function loadHero(): Hero | null {
       const itemMap = new Map<string, any>();
 
       fixedHero.inventory.forEach((item: any) => {
-        if (!item || !item.id) return;
-        if (CURRENCY_IDS.has(item.id)) {
+        const typeId = item?.id ?? item?.itemId;
+        if (!item || !typeId) return;
+        if (CURRENCY_IDS.has(typeId)) {
           inventoryConsolidated = true;
           return;
         }
@@ -85,26 +86,27 @@ export function loadHero(): Hero | null {
         // Список слотів, які можуть стакатися
         const stackableSlots = ["consumable", "resource", "quest"];
         const canStack = stackableSlots.includes(item.slot) || 
-                         item.id.includes("shot") || 
-                         item.id.includes("potion") ||
+                         String(typeId).includes("shot") || 
+                         String(typeId).includes("potion") ||
                          item.type === "consumable" ||
                          item.type === "resource" ||
                          item.type === "quest";
 
         if (canStack) {
-          if (itemMap.has(item.id)) {
+          if (itemMap.has(typeId)) {
             // Знайшли дублікат, додаємо кількість
-            const existing = itemMap.get(item.id);
+            const existing = itemMap.get(typeId);
             existing.count = (existing.count || 1) + (item.count || 1);
             inventoryConsolidated = true;
           } else {
-            // Перший такий предмет
-            itemMap.set(item.id, { ...item, count: item.count || 1 });
-            consolidatedInventory.push(itemMap.get(item.id));
+            // Перший такий предмет — гарантуємо id для UI
+            const normalized = { ...item, id: item.id || item.itemId, count: item.count || 1 };
+            itemMap.set(typeId, normalized);
+            consolidatedInventory.push(normalized);
           }
         } else {
           // Не стакабельний (наприклад, зброя) - додаємо як є
-          consolidatedInventory.push(item);
+          consolidatedInventory.push(item.id ? item : { ...item, id: item.itemId });
         }
       });
 
@@ -182,13 +184,9 @@ export function loadHero(): Hero | null {
       // Активні квести — завжди відновлюємо з heroJson при завантаженні (джерело правди після F5)
       const fromJson = Array.isArray((heroJson as any).activeQuests) ? (heroJson as any).activeQuests : [];
       (fixedHero as any).activeQuests = fromJson.length > 0 ? fromJson : (Array.isArray((fixedHero as any).activeQuests) ? (fixedHero as any).activeQuests : []);
-      const heroInv = fixedHero.inventory ?? [];
-      const jsonInv = (heroJson as any).inventory ?? [];
-      if (Array.isArray(heroInv) && Array.isArray(jsonInv)) {
-        fixedHero.inventory = heroInv.length >= jsonInv.length ? heroInv : jsonInv;
-      } else if (Array.isArray(jsonInv) && jsonInv.length > 0 && (!heroInv || heroInv.length === 0)) {
-        fixedHero.inventory = jsonInv;
-      }
+      // 🔥 НЕ перезаписувати consolidated inventory з jsonInv: консолідований масив коротший (стаки),
+      // але містить ті самі предмети. Порівняння по length давало б хибний результат.
+      // fixedHero.inventory вже оновлено консолідацією вище — лишаємо як є.
       const jsonOverflow = (heroJson as any).overflowChest ?? [];
       (fixedHero as any).overflowChest = Array.isArray(jsonOverflow) ? jsonOverflow : (Array.isArray((fixedHero as any).overflowChest) ? (fixedHero as any).overflowChest : []);
 

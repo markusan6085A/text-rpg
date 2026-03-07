@@ -12,10 +12,18 @@ export function getEffectiveMaxNormal(hero: { inventoryCapacity?: number } | nul
   return Math.max(1, getInventoryMax(hero) - 1);
 }
 
-/** Чи є предмет стакабельним */
+/** Чи є предмет стакабельним — узгоджено з heroLoad (заряди, банки, ресурси, квести) */
 function canStack(item: HeroInventoryItem): boolean {
-  const def = itemsDB[item.id];
-  return def ? STACKABLE_SLOTS.has(def.slot) : false;
+  const typeId = String(item?.id ?? (item as any)?.itemId ?? "");
+  const def = itemsDB[item.id] || itemsDB[(item as any).itemId];
+  if (def && STACKABLE_SLOTS.has(def.slot)) return true;
+  return (
+    typeId.includes("shot") ||
+    typeId.includes("potion") ||
+    (item as any).type === "consumable" ||
+    (item as any).type === "resource" ||
+    (item as any).type === "quest"
+  );
 }
 
 export interface AddItemsResult {
