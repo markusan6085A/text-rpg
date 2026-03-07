@@ -59,11 +59,14 @@ export function handleBaseAttack(
   
   // Спеціальна логіка для риболовлі: урон тільки з удочки, без базових статів
   if (isFishingZone) {
-    const weaponId = hero.equipment?.weapon;
-    const rodItem = weaponId ? itemsDB[weaponId] : null;
+    const eq = hero.equipment ?? {};
+    const rodId = eq.weapon ?? eq.shield ?? eq.lrhand;
+    const isRod = (id: string | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
+    const canonicalId = rodId?.replace(/^shop_/, "") || rodId;
+    const rodItem = rodId && isRod(rodId) ? (itemsDB[rodId] ?? itemsDB[canonicalId]) : null;
     if (!rodItem) {
       setAndPersist({
-        log: ["Помилка: удочка не знайдена!", ...state.log].slice(0, 30),
+        log: ["Помилка: удочка не знайдена! Надіньте удочку в слот зброї.", ...state.log].slice(0, 30),
       });
       return false;
     }

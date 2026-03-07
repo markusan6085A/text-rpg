@@ -207,11 +207,14 @@ export const createStartBattle =
 
     // Перевірка для риболовлі: потрібна удочка та наживка
     const isFishingZone = zoneId === "fishing";
+    const isRod = (id: string | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
+    const getRodId = (eq: Record<string, string | null | undefined> | undefined) => {
+      const w = eq?.weapon ?? eq?.shield ?? eq?.lrhand;
+      return isRod(w) ? w : null;
+    };
     if (isFishingZone) {
-      const weaponId = hero.equipment?.weapon;
-      const rodItem = weaponId ? itemsDB[weaponId] : null;
-      const isRod = (id: string | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
-      const hasRod = isRod(weaponId) || (rodItem && isRod(rodItem.id));
+      const rodId = getRodId(hero.equipment);
+      const hasRod = rodId !== null;
       
       if (!hasRod) {
         set({
@@ -245,10 +248,7 @@ export const createStartBattle =
 
     // Перевірка: удочкою можна бити тільки рибу (тільки в зоні риболовлі)
     if (!isFishingZone) {
-      const weaponId = hero.equipment?.weapon;
-      const rodItem = weaponId ? itemsDB[weaponId] : null;
-      const isRod = (id: string | undefined) => id === "baby_duck_rod" || id === "shop_baby_duck_rod" || (id && id.toLowerCase().includes("rod"));
-      const hasRod = isRod(weaponId) || (rodItem && isRod(rodItem.id));
+      const hasRod = getRodId(hero.equipment) !== null;
       
       if (hasRod) {
         set({
