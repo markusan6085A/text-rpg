@@ -152,10 +152,19 @@ function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
   return byGrade;
 }
 
-// Шанси за грейд для зброї/броні/біжутерії: D/C без змін, B/A/S — 0.1%
+// Шанси за грейд для зброї/броні/біжутерії: D/C 0.7%, B/A/S 0.1%
 const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.1, A: 0.1, S: 0.1 };
 
-// Розділка риби: B/A/S зброя/броня/бижутерія 0.1%, ресурси 0.8%, скарбничка 0.3%. Без адени, коінів, срібних монет.
+// Заточки по грейду (для дропу з риби) — категорія «Заточки»
+const ENCHANT_SCROLLS_BY_GRADE: Record<string, string[]> = {
+  D: ["d_enchant_weapon_scroll", "d_enchant_armor_scroll"],
+  C: ["c_enchant_weapon_scroll", "c_enchant_armor_scroll"],
+  B: ["b_enchant_weapon_scroll", "b_enchant_armor_scroll"],
+  A: ["a_enchant_weapon_scroll", "a_enchant_armor_scroll"],
+  S: ["s_enchant_weapon_scroll", "s_enchant_armor_scroll"],
+};
+
+// Розділка риби: зброя/броня — шанс за 10 риб; бижутерія, ресурси, скарбничка, заточки — за 1 рибу.
 function processFishDrop(fishCount: number): {
   adena: number;
   coinOfLuck: number;
@@ -164,6 +173,7 @@ function processFishDrop(fishCount: number): {
   armorPieces: Array<{ id: string; count: number }>;
   jewelryPieces: Array<{ id: string; count: number }>;
   resources: Array<{ id: string; count: number }>;
+  enchantScrolls: Array<{ id: string; count: number }>;
 } {
   let totalAdena = 0;
   let totalCoinOfLuck = 0;
@@ -172,19 +182,20 @@ function processFishDrop(fishCount: number): {
   const armorPieces: Record<string, number> = {};
   const jewelryPieces: Record<string, number> = {};
   const resources: Record<string, number> = {};
+  const enchantScrolls: Record<string, number> = {};
 
   const allResources = getAllResources();
   const weaponsByGrade = getShopIdsByTypeAndGrade("weapon");
   const armorByGrade = getShopIdsByTypeAndGrade("armor");
   const jewelryByGrade = getShopIdsByTypeAndGrade("jewelry");
 
-  for (let i = 0; i < fishCount; i++) {
-    // Зброя/Броня/Бижутерія — за грейдом: D/C 0.7%, B/A/S 0.1%
+  // Зброя і броня — шанс за 10 риб (не за 1)
+  const batchesOf10 = Math.floor(fishCount / 10);
+  for (let b = 0; b < batchesOf10; b++) {
     (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
       const chance = GRADE_CHANCE[grade];
       const weaponIds = weaponsByGrade[grade];
       const armorIds = armorByGrade[grade];
-      const jewelryIds = jewelryByGrade[grade];
       if (weaponIds?.length && Math.random() * 100 < chance) {
         const id = weaponIds[Math.floor(Math.random() * weaponIds.length)];
         weapons[id] = (weapons[id] || 0) + 1;
@@ -193,18 +204,32 @@ function processFishDrop(fishCount: number): {
         const id = armorIds[Math.floor(Math.random() * armorIds.length)];
         armorPieces[id] = (armorPieces[id] || 0) + 1;
       }
+    });
+  }
+
+  // Бижутерія, ресурси, скарбничка, заточки — за 1 рибу (як було)
+  for (let i = 0; i < fishCount; i++) {
+    (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
+      const chance = GRADE_CHANCE[grade];
+      const jewelryIds = jewelryByGrade[grade];
       if (jewelryIds?.length && Math.random() * 100 < chance) {
         const id = jewelryIds[Math.floor(Math.random() * jewelryIds.length)];
         jewelryPieces[id] = (jewelryPieces[id] || 0) + 1;
       }
     });
-    // Ресурси: 0.8% кожен тип
     allResources.forEach((res) => {
       if (Math.random() * 100 < 0.8) resources[res.id] = (resources[res.id] || 0) + 1;
     });
-    // Скарбничка: 0.3%
     if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
-    // Адена, Coin of Luck, Срібні монети, Заточки — прибрано з дропу
+    // Заточки (точки) — 0.4% за рибу, D/C частіше
+    if (Math.random() * 100 < 0.4) {
+      const grade = Math.random() < 0.7 ? "D" : "C";
+      const scrolls = ENCHANT_SCROLLS_BY_GRADE[grade];
+      if (scrolls?.length) {
+        const id = scrolls[Math.floor(Math.random() * scrolls.length)];
+        if (itemsDB[id]) enchantScrolls[id] = (enchantScrolls[id] || 0) + 1;
+      }
+    }
   }
 
   return {
@@ -215,6 +240,7 @@ function processFishDrop(fishCount: number): {
     armorPieces: Object.entries(armorPieces).map(([id, count]) => ({ id, count })),
     jewelryPieces: Object.entries(jewelryPieces).map(([id, count]) => ({ id, count })),
     resources: Object.entries(resources).map(([id, count]) => ({ id, count })),
+    enchantScrolls: Object.entries(enchantScrolls).map(([id, count]) => ({ id, count })),
   };
 }
 
@@ -335,6 +361,28 @@ export default function FishItemModal({
           name: itemDef.name,
           icon: itemDef.icon,
           slot: itemDef.slot,
+          count,
+          description: itemDef.description,
+        });
+      }
+    });
+
+    // Додаємо заточки (категорія «Заточки») — стакається
+    (result.enchantScrolls || []).forEach(({ id, count }) => {
+      const itemDef = itemsDB[id];
+      if (!itemDef) return;
+      const existingItem = updatedInventory.find((i) => i.id === id);
+      if (existingItem) {
+        updatedInventory = updatedInventory.map((i) =>
+          i.id === id ? { ...i, count: (i.count ?? 1) + count } : i
+        );
+      } else {
+        updatedInventory.push({
+          id,
+          name: itemDef.name,
+          icon: itemDef.icon,
+          slot: itemDef.slot,
+          kind: itemDef.kind,
           count,
           description: itemDef.description,
         });
@@ -504,13 +552,38 @@ export default function FishItemModal({
               </div>
             )}
 
+            {(dismantleResult.enchantScrolls?.length ?? 0) > 0 && (
+              <div>
+                <div className="text-sm font-semibold text-[#b8860b] mb-2">Заточки:</div>
+                <div className="space-y-1">
+                  {dismantleResult.enchantScrolls!.map(({ id, count }) => {
+                    const scrollDef = itemsDB[id];
+                    return (
+                      <div key={id} className="flex items-center gap-2">
+                        {scrollDef?.icon && (
+                          <img
+                            src={scrollDef.icon.startsWith("/") ? scrollDef.icon : `/items/${scrollDef.icon}`}
+                            alt={scrollDef.name}
+                            className="w-5 h-5 object-contain"
+                          />
+                        )}
+                        <span className="text-gray-400">{scrollDef?.name || id}:</span>
+                        <span className="text-green-400">x{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {dismantleResult.adena === 0 &&
               ((dismantleResult as { coinOfLuck?: number }).coinOfLuck ?? 0) === 0 &&
               ((dismantleResult as { coinsSilver?: number }).coinsSilver ?? 0) === 0 &&
               dismantleResult.weapons.length === 0 &&
               dismantleResult.armorPieces.length === 0 &&
               dismantleResult.jewelryPieces.length === 0 &&
-              dismantleResult.resources.length === 0 && (
+              dismantleResult.resources.length === 0 &&
+              (dismantleResult.enchantScrolls?.length ?? 0) === 0 && (
                 <div className="text-gray-400 text-center py-4">Нічого не випало</div>
               )}
           </div>
@@ -556,12 +629,11 @@ export default function FishItemModal({
             </div>
           )}
           <div>
-            <div className="text-sm font-semibold text-[#b8860b] mb-2">Шанси дропу (за 1 рибу):</div>
+            <div className="text-sm font-semibold text-[#b8860b] mb-2">Шанси дропу:</div>
             <div className="text-gray-400 text-[11px] space-y-0.5">
-              <div>Зброя/Броня/Бижутерія D/C: 0.7%</div>
-              <div>Зброя/Броня/Бижутерія B/A/S: 0.1%</div>
-              <div>Ресурси: 0.8% кожен тип</div>
-              <div>Скарбничка: 0.3%</div>
+              <div>Зброя/Броня — за 10 риб: D/C 0.7%, B/A/S 0.1%</div>
+              <div>Бижутерія/Ресурси/Скарбничка — за 1 рибу: як було</div>
+              <div>Заточки — за 1 рибу: 0.4% (D/C)</div>
             </div>
             <button
               onClick={() => setShowCatchInfoModal(true)}
