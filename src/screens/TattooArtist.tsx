@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { GM_SHOP_ITEMS, type DyeItem } from "./GMShop";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
+import { showToast } from "../state/toastStore";
 
 type Navigate = (path: string) => void;
 
@@ -49,7 +50,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
 
     // Перевірка максимальної кількості
     if (activeDyes.length >= MAX_DYES) {
-      alert(`Максимум ${MAX_DYES} тату! Спочатку зніміть одне.`);
+      showToast(`Максимум ${MAX_DYES} тату! Спочатку зніміть одне.`, "info");
       return;
     }
 
@@ -60,7 +61,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     });
 
     if (hasConflict) {
-      alert("Неможливо нанести конфліктуючі тату!");
+      showToast("Неможливо нанести конфліктуючі тату!", "error");
       return;
     }
     
@@ -71,7 +72,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     
     // Перевіряємо тільки якщо намагаємося нанести той самий тип тату, який вже є 2 рази
     if (sameDyeCount >= 2) {
-      alert("Можна нанести максимум 2 однакові тату!");
+      showToast("Можна нанести максимум 2 однакові тату!", "info");
       return;
     }
 
@@ -81,7 +82,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     const statMinusValue = currentBaseStats[dyeItem.dyeInfo.statMinus] || 0;
     
     if (statMinusValue - dyeItem.dyeInfo.effect < MIN_STAT) {
-      alert(`Неможливо нанести! Стат ${dyeItem.dyeInfo.statMinus} буде нижче мінімуму (${MIN_STAT}).`);
+      showToast(`Неможливо нанести! Стат ${dyeItem.dyeInfo.statMinus} буде нижче мінімуму (${MIN_STAT}).`, "error");
       return;
     }
 
@@ -134,7 +135,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     const aaCount = ancientAdenaItem?.count || 0;
 
     if (aaCount < removeCost) {
-      alert(`Недостатньо AA! Потрібно ${removeCost.toLocaleString()} AA для зняття.`);
+      showToast(`Недостатньо AA! Потрібно ${removeCost.toLocaleString()} AA для зняття.`, "error");
       return;
     }
 

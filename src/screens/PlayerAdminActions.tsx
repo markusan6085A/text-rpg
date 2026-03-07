@@ -15,6 +15,7 @@ import { getSkillDef, getSkillDefForBattle } from "../state/battle/loadout";
 import { normalizeProfessionId, getProfessionDefinition, getDefaultProfessionForKlass } from "../data/skills";
 import { useHeroStore } from "../state/heroStore";
 import { useAdminStore } from "../state/adminStore";
+import { showToast } from "../state/toastStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 
@@ -284,11 +285,11 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
       );
       
       if (result.ok) {
-        alert(`Игроку ${character.name} відновлено ${result.healedHp || healPower} HP.`);
+        showToast(`Игроку ${character.name} відновлено ${result.healedHp || healPower} HP.`, "success");
         reloadCharacter();
       }
     } catch (err: any) {
-      alert(`Ошибка лечения: ${err?.message || "Unknown error"}`);
+      showToast(`Ошибка лечения: ${err?.message || "Unknown error"}`, "error");
       console.error("[PlayerAdminActions] Error healing:", err);
     }
   };
@@ -323,7 +324,7 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         reloadCharacter();
       }
     } catch (err: any) {
-      alert(`Ошибка применения бафа: ${err?.message || "Unknown error"}`);
+      showToast(`Ошибка применения бафа: ${err?.message || "Unknown error"}`, "error");
       console.error("[PlayerAdminActions] Error buffing:", err);
     }
   };

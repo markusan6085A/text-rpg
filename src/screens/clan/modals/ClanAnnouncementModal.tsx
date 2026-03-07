@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { showToast } from "../../../state/toastStore";
 import { type Clan } from "../../../utils/api";
 
 interface ClanAnnouncementModalProps {
@@ -17,7 +18,7 @@ export default function ClanAnnouncementModal({ clan, onSave, onClose }: ClanAnn
       await onSave(text);
       onClose();
     } catch (err: any) {
-      alert(err?.message || "Ошибка при сохранении");
+      showToast(err?.message || "Ошибка при сохранении", "error");
     } finally {
       setSaving(false);
     }

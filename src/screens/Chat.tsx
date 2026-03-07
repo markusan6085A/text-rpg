@@ -19,6 +19,7 @@ import { ChatMessagesList } from "./chat/components/ChatMessagesList";
 import { ChatPagination } from "./chat/components/ChatPagination";
 import { ChatInput } from "./chat/components/ChatInput";
 import { ChatRestrictionModal } from "./chat/components/ChatRestrictionModal";
+import { showToast } from "../state/toastStore";
 
 type Restriction = { mutedUntil: number | null; bannedUntil: string | null };
 
@@ -358,7 +359,7 @@ export default function Chat({ navigate }: ChatProps) {
       const timeSinceLastMessage = now - lastTradeMessageTimeRef.current;
       if (timeSinceLastMessage < 5000) {
         const remainingSeconds = Math.ceil((5000 - timeSinceLastMessage) / 1000);
-        alert(`В чаті можна писати не частіше ніж раз на 5 секунд. Зачекайте ще ${remainingSeconds} сек.`);
+        showToast(`В чаті можна писати не частіше ніж раз на 5 секунд. Зачекайте ще ${remainingSeconds} сек.`, "info");
         return;
       }
       lastTradeMessageTimeRef.current = now;
@@ -407,7 +408,7 @@ export default function Chat({ navigate }: ChatProps) {
         setRestriction((r) => ({ ...r, bannedUntil: body.bannedUntil }));
         setShowRestrictionModal(true);
       } else if (body?.error !== "muted" && body?.error !== "banned") {
-        alert(err?.message || "Помилка відправки");
+        showToast(err?.message || "Помилка відправки", "error");
       }
 
       // Keep in outbox, but leave as pending so it stays visible;
@@ -470,7 +471,7 @@ export default function Chat({ navigate }: ChatProps) {
           next.delete(messageId);
           return next;
         });
-        alert(err?.message || "Помилка видалення повідомлення");
+        showToast(err?.message || "Помилка видалення повідомлення", "error");
       }
       deletingRef.current.delete(messageId);
     }
@@ -498,7 +499,7 @@ export default function Chat({ navigate }: ChatProps) {
         next.delete(messageId);
         return next;
       });
-      alert(err?.message || "Помилка видалення");
+      showToast(err?.message || "Помилка видалення", "error");
       deletingRef.current.delete(messageId);
     }
   };
@@ -507,7 +508,7 @@ export default function Chat({ navigate }: ChatProps) {
     try {
       await adminMuteChatUser(characterId, durationMinutes);
     } catch (err: any) {
-      alert(err?.message || "Помилка муту");
+      showToast(err?.message || "Помилка муту", "error");
     }
   };
 

@@ -1,4 +1,5 @@
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
+import { showToast } from "../toastStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { autoDetectArmorType, autoDetectGrade } from "../../utils/items/autoDetectArmorType";
 import { findSetForItem } from "../../data/sets/armorSets";
@@ -44,7 +45,7 @@ function validateItemGrade(hero: Hero, item: HeroInventoryItem, itemDef: any): b
         "S": "S"
       };
       const gradeName = gradeNames[itemGrade] || itemGrade;
-      alert(`Недостатньо рівня для одягання ${gradeName}-grade екіпіровки!\n\nПотрібно: ${requiredLevel} рівень\nВаш рівень: ${hero.level}\n\nОбмеження:\n- D-grade: з 20 лвл\n- C-grade: з 40 лвл\n- B-grade: з 52 лвл\n- A-grade: з 62 лвл\n- S-grade: з 76 лвл`);
+      showToast(`Недостатньо рівня для одягання ${gradeName}-grade екіпіровки! Потрібно: ${requiredLevel} лвл`, "error");
       return false;
     }
   }

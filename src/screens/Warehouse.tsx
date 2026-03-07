@@ -11,6 +11,7 @@ import {
 } from "../state/warehouse/warehousePersistence";
 import { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB } from "../data/items/itemsDB";
+import { showToast } from "../state/toastStore";
 
 interface WarehouseProps {
   navigate: (path: string) => void;
@@ -151,14 +152,15 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     const maxCount = item.count || 1;
 
     if (itemCount > maxCount) {
-      alert(`У вас только ${maxCount} ${item.name}`);
+      showToast(`У вас только ${maxCount} ${item.name}`, "error");
       return;
     }
 
     // Перевіряємо місткість складу
     if (warehouseUsed + itemCount > warehouseCapacity) {
-      alert(
-        `Склад переповнений! Вместимость: ${warehouseUsed}/${warehouseCapacity}. Недостаточно места для ${itemCount} предметов.`
+      showToast(
+        `Склад переповнений! Вместимость: ${warehouseUsed}/${warehouseCapacity}. Недостаточно места для ${itemCount} предметов.`,
+        "error"
       );
       return;
     }
@@ -189,7 +191,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     }
 
     if (targetSlotIndex === -1) {
-      alert("Склад переповнений! Максимум 10 слотів.");
+      showToast("Склад переповнений! Максимум 10 слотів.", "error");
       return;
     }
 
@@ -280,7 +282,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     const inventorySize = (hero.inventory || []).length;
     const maxSlots = getInventoryMax(hero);
     if (inventorySize >= maxSlots) {
-      alert(`Инвентарь переполнен! Максимум ${maxSlots} слотов.`);
+      showToast(`Инвентарь переполнен! Максимум ${maxSlots} слотов.`, "error");
       return;
     }
 
@@ -322,7 +324,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       updateHero({ warehouseCapacity: newCapacity });
       addLogEntry(`Вместимость склада увеличена до ${newCapacity}`);
     } else {
-      alert(`Максимальная вместимость склада: ${MAX_WAREHOUSE_CAPACITY}`);
+      showToast(`Максимальная вместимость склада: ${MAX_WAREHOUSE_CAPACITY}`, "info");
     }
   };
 
@@ -689,7 +691,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                   if (count >= 1 && count <= quantityModal.maxCount) {
                     handlePutToWarehouse(quantityModal.item, count);
                   } else {
-                    alert(`Введите число от 1 до ${quantityModal.maxCount}`);
+                    showToast(`Введите число от 1 до ${quantityModal.maxCount}`, "error");
                   }
                 }}
                 className="flex-1 px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"

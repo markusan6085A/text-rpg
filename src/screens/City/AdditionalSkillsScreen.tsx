@@ -9,6 +9,7 @@ import {
 } from "../../data/skills";
 import { AdditionalSkills } from "../../data/skills/additional";
 import { fixHeroProfession } from "../../utils/fixProfession";
+import { showToast } from "../../state/toastStore";
 
 interface AdditionalSkillsScreenProps {
   navigate: (path: string) => void;
@@ -141,14 +142,14 @@ export default function AdditionalSkillsScreen({
   const handleLearnSkill = (skillId: number, adenaCost: number) => {
     const heroAdena = hero.adena ?? 0;
     if (heroAdena < adenaCost) {
-      alert(`Недостаточно аден! Нужно: ${adenaCost}, есть: ${heroAdena}`);
+      showToast(`Недостаточно аден! Нужно: ${adenaCost}, есть: ${heroAdena}`, "error");
       return;
     }
 
     // Для додаткових скілів використовуємо спрощену логіку (без перевірки SP)
     const skillDef = allAdditionalSkills.find((s) => s.id === skillId);
     if (!skillDef) {
-      alert("Навык не найден.");
+      showToast("Навык не найден.", "error");
       return;
     }
 
@@ -161,7 +162,7 @@ export default function AdditionalSkillsScreen({
     const levelDef = sortedLevels.find((l) => l.level > currentLevel) || sortedLevels[0];
     
     if (!levelDef) {
-      alert("Навык уже изучен на максимальный уровень.");
+      showToast("Навык уже изучен на максимальный уровень.", "error");
       return;
     }
 
@@ -170,7 +171,7 @@ export default function AdditionalSkillsScreen({
     
     // Перевірка requiredLevel
     if (heroLevel < levelDef.requiredLevel) {
-      alert(`Недостаточный уровень героя! Требуется: ${levelDef.requiredLevel}, у вас: ${heroLevel}`);
+      showToast(`Недостаточный уровень героя! Требуется: ${levelDef.requiredLevel}, у вас: ${heroLevel}`, "error");
       return;
     }
 

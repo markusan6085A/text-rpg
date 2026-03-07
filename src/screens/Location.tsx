@@ -16,6 +16,7 @@ import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 import { getGameSettings } from "../state/gameSettings";
+import { showToast } from "../state/toastStore";
 
 type Navigate = (path: string) => void;
 
@@ -292,7 +293,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   onClick={() => {
                     const diff = Math.abs((hero?.level || 1) - p.level);
                     if (diff > 20) {
-                      alert(`Нельзя атаковать игрока, если разница уровней больше 20!`);
+                      showToast("Нельзя атаковать игрока, если разница уровней больше 20!", "error");
                       return;
                     }
                     navigate(`/player/${encodeURIComponent(p.id)}?pk=1`);

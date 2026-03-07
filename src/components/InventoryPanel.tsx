@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { getInventoryMax, useHeroStore } from "../state/heroStore";
+import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import TransferItemModal from "../screens/character/modals/TransferItemModal";
 
@@ -90,7 +91,7 @@ export default function InventoryPanel({
   const handleEquip = () => {
     if (!hero || !selectedItem) return;
     if (!isEquipable(selectedItem.slot)) {
-      alert("Р­С‚РѕС‚ РїСЂРµРґРјРµС‚ РЅРµР»СЊР·СЏ СЌРєРёРїРёСЂРѕРІР°С‚СЊ");
+      showToast("Цей предмет не можна екіпірувати", "error");
       return;
     }
     equipItem(selectedItem);

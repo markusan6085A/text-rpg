@@ -42,6 +42,7 @@ import WithdrawItemsModal from "./clan/modals/WithdrawItemsModal";
 import SelectClanEmblemModal from "./clan/modals/SelectClanEmblemModal";
 import ClanAnnouncementModal from "./clan/modals/ClanAnnouncementModal";
 import ClanApplicationsModal from "./clan/modals/ClanApplicationsModal";
+import { showToast } from "../state/toastStore";
 
 interface ClanProps {
   navigate: (path: string) => void;
@@ -148,7 +149,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
         await new Promise((r) => setTimeout(r, 1500));
         return loadClan(retryCount + 1);
       }
-      alert("Клан не найден");
+      showToast("Клан не найден");
       navigate("/clans");
     } finally {
       setLoading(false);
@@ -207,12 +208,12 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     try {
       const response = await deleteClan(clan.id);
       if (response.ok) {
-        alert("Клан успешно удален");
+        showToast("Клан успешно удален");
         navigate("/clans");
       }
     } catch (err: any) {
       console.error("[Clan] Failed to delete clan:", err);
-      alert(err.message || "Ошибка при удалении клана");
+      showToast(err.message || "Ошибка при удалении клана");
     }
   };
 
@@ -229,7 +230,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
     } catch (err: any) {
       console.error("[Clan] Failed to send chat message:", err);
-      alert(err.message || "Ошибка при отправке сообщения");
+      showToast(err.message || "Ошибка при отправке сообщения");
     }
   };
 
@@ -238,11 +239,11 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     
     const amount = parseInt(depositAmount);
     if (isNaN(amount) || amount <= 0) {
-      alert("Введите корректную сумму!");
+      showToast("Введите корректную сумму!");
       return;
     }
     if (amount > (hero.adena || 0)) {
-      alert("У вас недостаточно адены!");
+      showToast("У вас недостаточно адены!");
       return;
     }
 
@@ -259,7 +260,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
     } catch (err: any) {
       console.error("[Clan] Failed to deposit adena:", err);
-      alert(err.message || "Ошибка при пополнении адены");
+      showToast(err.message || "Ошибка при пополнении адены");
     }
   };
 
@@ -268,11 +269,11 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     
     const amount = parseInt(withdrawAdenaAmount);
     if (isNaN(amount) || amount <= 0) {
-      alert("Введите корректную сумму!");
+      showToast("Введите корректную сумму!");
       return;
     }
     if (amount > clan.adena) {
-      alert("В клане недостаточно адены!");
+      showToast("В клане недостаточно адены!");
       return;
     }
 
@@ -289,7 +290,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
     } catch (err: any) {
       console.error("[Clan] Failed to withdraw adena:", err);
-      alert(err.message || "Ошибка при выводе адены");
+      showToast(err.message || "Ошибка при выводе адены");
     }
   };
 
@@ -298,12 +299,12 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     
     const amount = parseInt(coinLuckAmount);
     if (isNaN(amount) || amount <= 0) {
-      alert("Введите корректную сумму!");
+      showToast("Введите корректную сумму!");
       return;
     }
     if (coinLuckAction === "deposit") {
       if (amount > (hero.coinOfLuck || 0)) {
-        alert("У вас недостаточно Coin of Luck!");
+        showToast("У вас недостаточно Coin of Luck!");
         return;
       }
 
@@ -320,11 +321,11 @@ export default function Clan({ navigate, clanId }: ClanProps) {
         }
       } catch (err: any) {
         console.error("[Clan] Failed to deposit coin luck:", err);
-        alert(err.message || "Ошибка при пополнении Coin of Luck");
+        showToast(err.message || "Ошибка при пополнении Coin of Luck");
       }
     } else {
       if (amount > clan.coinLuck) {
-        alert("В клане недостаточно Coin of Luck!");
+        showToast("В клане недостаточно Coin of Luck!");
         return;
       }
 
@@ -341,7 +342,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
         }
       } catch (err: any) {
         console.error("[Clan] Failed to withdraw coin luck:", err);
-        alert(err.message || "Ошибка при выводе Coin of Luck");
+        showToast(err.message || "Ошибка при выводе Coin of Luck");
       }
     }
   };
@@ -358,11 +359,11 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       if (response.ok) {
         loadMembers();
         loadLogs();
-        alert(`${characterName} исключен из клана`);
+        showToast(`${characterName} исключен из клана`);
       }
     } catch (err: any) {
       console.error("[Clan] Failed to kick member:", err);
-      alert(err.message || "Ошибка при исключении члена");
+      showToast(err.message || "Ошибка при исключении члена");
     }
   };
 
@@ -378,7 +379,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
     } catch (err: any) {
       console.error("[Clan] Failed to change title:", err);
-      alert(err.message || "Ошибка при изменении титула");
+      showToast(err.message || "Ошибка при изменении титула");
     }
   };
 
@@ -393,7 +394,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
     } catch (err: any) {
       console.error("[Clan] Failed to set deputy:", err);
-      alert(err.message || "Ошибка при изменении статуса заместителя");
+      showToast(err.message || "Ошибка при изменении статуса заместителя");
     }
   };
 
@@ -436,7 +437,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       await leaveClan(clan.id);
       navigate("/clans");
     } catch (err: any) {
-      alert(err?.message || "Помилка при виході");
+      showToast(err?.message || "Помилка при виході");
     }
   };
 
@@ -448,7 +449,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       loadMembers();
       loadClan();
     } catch (err: any) {
-      alert(err?.message || "Помилка при передачі");
+      showToast(err?.message || "Помилка при передачі");
     }
   };
 
@@ -492,24 +493,24 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
     } catch (err: any) {
       console.error("[Clan] Failed to set emblem:", err);
-      alert(err.message || "Ошибка при установке эмблемы");
+      showToast(err.message || "Ошибка при установке эмблемы");
     }
   };
 
   const handleAcademy = () => {
-    alert("Создать академию - в разработке");
+    showToast("Создать академию - в разработке");
   };
 
   const handleLevelUp = () => {
-    alert("Повысить уровень клана - в разработке");
+    showToast("Повысить уровень клана - в разработке");
   };
 
   const handleSkillTree = () => {
-    alert("Древо умений - в разработке");
+    showToast("Древо умений - в разработке");
   };
 
   const handleDragonLair = () => {
-    alert("Логово дракона - в разработке");
+    showToast("Логово дракона - в разработке");
   };
 
   if (!hero) {

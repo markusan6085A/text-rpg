@@ -9,6 +9,7 @@ import { hydrateHero } from "./heroStore/heroHydration";
 import { learnSkillLogic } from "./heroStore/heroSkills";
 import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
 import { itemsDB } from "../data/items/itemsDB";
+import { showToast } from "./toastStore";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 
 export const INVENTORY_MAX_ITEMS = 100;
@@ -514,7 +515,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const itemDef = itemsDB[itemId];
     if (!itemDef) {
       console.error(`[addItemToInventory] Item not found in itemsDB: ${itemId}`);
-      alert(`Помилка: предмет "${itemId}" не знайдено в базі даних!`);
+      showToast(`Помилка: предмет "${itemId}" не знайдено в базі даних!`, "error");
       return;
     }
 

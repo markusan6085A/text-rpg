@@ -5,6 +5,7 @@ import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
+import { showToast } from "../state/toastStore";
 
 interface LandingProps {
   navigate: (path: string) => void;
@@ -226,7 +227,7 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
           Об игре
         </button>
 
-        <button className="l2-btn mt-2" onClick={() => alert("Недоступно")}>
+        <button className="l2-btn mt-2" onClick={() => showToast("Недоступно", "info")}>
           Забыли пароль?
         </button>
       </div>

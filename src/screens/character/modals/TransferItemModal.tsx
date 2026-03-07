@@ -3,6 +3,7 @@ import { useHeroStore } from "../../../state/heroStore";
 import { HeroInventoryItem } from "../../../types/Hero";
 import { sendItemTransferLetter } from "../../../utils/api";
 import { itemsDB } from "../../../data/items/itemsDB";
+import { showToast } from "../../../state/toastStore";
 
 interface TransferItemModalProps {
   item: HeroInventoryItem;
@@ -49,23 +50,23 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
 
   const handleTransfer = async () => {
     if (!recipientName.trim()) {
-      alert("Введіть нікнейм отримувача");
+      showToast("Введіть нікнейм отримувача", "error");
       return;
     }
 
     if (recipientName.toLowerCase() === currentHero.name?.toLowerCase()) {
-      alert("Не можна передати предмет самому собі");
+      showToast("Не можна передати предмет самому собі", "error");
       return;
     }
 
     if (quantity < 1 || quantity > maxQuantity) {
-      alert("Некоректна кількість");
+      showToast("Некоректна кількість", "error");
       return;
     }
 
     const currentAdena = Number(currentHero.adena || 0);
     if (currentAdena < transferFee) {
-      alert(`Недостатньо Адени для оплати комісії (${transferFee} Аден)`);
+      showToast(`Недостатньо Адени для оплати комісії (${transferFee} Аден)`, "error");
       return;
     }
 
@@ -97,16 +98,16 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
         inventory: Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : [],
       });
 
-      alert(`Предмет успішно відправлено гравцю ${recipientName}!`);
+      showToast(`Предмет успішно відправлено гравцю ${recipientName}!`, "success");
       onSuccess();
     } catch (err: any) {
       if (isUnauthorizedError(err)) {
-        alert("Сессия истекла. Войдите снова.");
+        showToast("Сессия истекла. Войдите снова.", "error");
         window.location.href = "/";
         return;
       }
       console.error("Transfer error:", err);
-      alert(err?.message || "Помилка передачі предмета. Можливо, такого гравця не існує.");
+      showToast(err?.message || "Помилка передачі предмета. Можливо, такого гравця не існує.", "error");
     } finally {
       setIsTransferring(false);
     }

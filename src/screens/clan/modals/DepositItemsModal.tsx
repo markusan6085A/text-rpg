@@ -4,6 +4,7 @@ import { type Clan } from "../../../utils/api";
 import { depositClanWarehouseItem } from "../../../utils/api";
 import { CATEGORIES } from "../../character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
+import { showToast } from "../../../state/toastStore";
 
 interface DepositItemsModalProps {
   clan: Clan;
@@ -54,7 +55,7 @@ export default function DepositItemsModal({
       }
     } catch (err: any) {
       console.error("[DepositItemsModal] Failed to deposit item:", err);
-      alert(err.message || "Ошибка при пополнении склада");
+      showToast(err.message || "Ошибка при пополнении склада", "error");
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { showToast } from "../../../state/toastStore";
 
 interface InvitePlayerModalProps {
   playerName: string;
@@ -15,7 +16,7 @@ export default function InvitePlayerModal({ playerName, onInvite, onClose }: Inv
       await onInvite();
       onClose();
     } catch (err: any) {
-      alert(err?.message || "Ошибка при приглашении");
+      showToast(err?.message || "Ошибка при приглашении", "error");
     } finally {
       setLoading(false);
     }

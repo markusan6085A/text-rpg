@@ -1,6 +1,7 @@
 // src/screens/GMShop.tsx
 import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
+import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 
 type Navigate = (path: string) => void;
@@ -561,7 +562,7 @@ export default function GMShop({ navigate }: GMShopProps) {
 
     // Перевіряємо наявність AA
     if (aaCount < totalPrice) {
-      alert("Недостатньо Ancient Adena (AA)!");
+      showToast("Недостатньо Ancient Adena (AA)!", "error");
       return;
     }
 
@@ -618,7 +619,7 @@ export default function GMShop({ navigate }: GMShopProps) {
           return;
         }
       }
-      alert("Недостатньо Ancient Adena (AA)!");
+      showToast("Недостатньо Ancient Adena (AA)!", "error");
       return;
     }
 
@@ -662,7 +663,7 @@ export default function GMShop({ navigate }: GMShopProps) {
         return;
       }
     }
-    alert("Недостатньо Ancient Adena (AA)!");
+    showToast("Недостатньо Ancient Adena (AA)!", "error");
   };
 
   // Обробка обміну
@@ -673,7 +674,7 @@ export default function GMShop({ navigate }: GMShopProps) {
     const stoneCount = stoneItem?.count || 0;
 
     if (stoneCount < exchangeQuantity) {
-      alert(`У вас недостатньо ${stoneName}!`);
+      showToast(`У вас недостатньо ${stoneName}!`, "error");
       return;
     }
 

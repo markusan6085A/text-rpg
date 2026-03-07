@@ -4,6 +4,7 @@ import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { buyPremium, type PremiumPack } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
+import { showToast } from "../../state/toastStore";
 
 interface Navigate {
   (path: string): void;
@@ -76,11 +77,11 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
 
   const activatePremium = async (option: PremiumOption) => {
     if (!characterId) {
-      alert("Персонаж не вибрано");
+      showToast("Персонаж не вибрано", "error");
       return;
     }
     if (coinOfLuck < option.price) {
-      alert(`Недостаточно Coin of Luck! Нужно: ${option.price}, у вас: ${coinOfLuck}`);
+      showToast(`Недостаточно Coin of Luck! Нужно: ${option.price}, у вас: ${coinOfLuck}`, "error");
       return;
     }
 
@@ -92,7 +93,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         (hero as any)?.heroJson?.heroRevision
       );
       if (!res.ok || !res.character) {
-        alert("Помилка покупки преміуму");
+        showToast("Помилка покупки преміуму", "error");
         return;
       }
       const { coinLuck, heroJson } = res.character;
@@ -111,16 +112,16 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
     } catch (err: any) {
       const body = err?.body || {};
       if (err?.status === 404) {
-        alert("Сервер оновлюється або ендпоінт недоступний (404). Спробуйте вийти і зайти знову, або пізніше.");
+        showToast("Сервер оновлюється або ендпоінт недоступний (404). Спробуйте вийти і зайти знову, або пізніше.", "error");
       } else if (err?.status === 400 && body.error === "not enough coinLuck") {
-        alert(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coinOfLuck}`);
+        showToast(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coinOfLuck}`, "error");
       } else if (err?.status === 409) {
         await loadHeroFromAPI();
-        alert("Дані оновлено. Спробуйте ще раз.");
+        showToast("Дані оновлено. Спробуйте ще раз.", "info");
       } else if (err?.status === 401) {
-        alert("Сесія закінчилась. Вийдіть і зайдіть знову.");
+        showToast("Сесія закінчилась. Вийдіть і зайдіть знову.", "error");
       } else {
-        alert(body.error || err?.message || "Помилка покупки преміуму");
+        showToast(body.error || err?.message || "Помилка покупки преміуму", "error");
       }
     } finally {
       setIsBuying(false);

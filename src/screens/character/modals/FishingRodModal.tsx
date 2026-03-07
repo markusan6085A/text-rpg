@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../../state/heroStore";
+import { showToast } from "../../../state/toastStore";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 
 interface FishingRodModalProps {
@@ -49,14 +50,14 @@ export default function FishingRodModal({
 
     // Перевіряємо, чи достатньо Coin of Luck
     if (coinOfLuckCount < enchantAmount) {
-      alert(`Недостатньо Coin of Luck! Потрібно: ${enchantAmount}, у вас: ${coinOfLuckCount}`);
+      showToast(`Недостатньо Coin of Luck! Потрібно: ${enchantAmount}, у вас: ${coinOfLuckCount}`, "error");
       return;
     }
 
     // Перевіряємо максимальну заточку
     const newEnchantLevel = Math.min(currentEnchantLevel + enchantAmount, maxEnchantLevel);
     if (newEnchantLevel === currentEnchantLevel) {
-      alert(`Досягнуто максимальної заточки +${maxEnchantLevel}!`);
+      showToast(`Досягнуто максимальної заточки +${maxEnchantLevel}!`, "info");
       return;
     }
 
@@ -115,7 +116,7 @@ export default function FishingRodModal({
       inventory: updatedInventory,
     });
 
-    alert(`✅ Заточка успішна! ${item.name} тепер +${newEnchantLevel}\nВитрачено ${actualEnchantAmount} Coin of Luck`);
+    showToast(`Заточка успішна! ${item.name} тепер +${newEnchantLevel}. Витрачено ${actualEnchantAmount} Coin of Luck`, "success");
     
     // Закриваємо модалку після успішної заточки
     if (newEnchantLevel >= maxEnchantLevel) {

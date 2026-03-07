@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { showToast } from "../state/toastStore";
 import { getClan, applyToClan, type Clan, type ClanMember } from "../utils/api";
 import { ClanNameWithEmblem } from "../components/ClanNameWithEmblem";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
@@ -49,7 +50,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
           setMembers([]);
         }
       } else {
-        alert("Клан не найден");
+        showToast("Клан не найден", "error");
         navigate("/clans");
       }
     } catch (err: any) {
@@ -58,7 +59,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
         await new Promise((r) => setTimeout(r, 1500));
         return loadClanInfo(retryCount + 1);
       }
-      alert("Ошибка при загрузке информации о клане");
+      showToast("Ошибка при загрузке информации о клане", "error");
       navigate("/clans");
     } finally {
       setLoading(false);
@@ -108,7 +109,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
       await applyToClan(clan.id);
       loadClanInfo(0);
     } catch (err: any) {
-      alert(err?.message || "Ошибка при подаче заявки");
+      showToast(err?.message || "Ошибка при подаче заявки", "error");
     } finally {
       setApplying(false);
     }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getOnlinePlayers, renameNick } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
+import { showToast } from "../state/toastStore";
 
 type Navigate = (p: string) => void;
 
@@ -161,14 +162,14 @@ export default function About({ navigate }: { navigate: Navigate }) {
                     
                     const coins = hero.coinOfLuck || 0;
                     if (coins < 50) {
-                      alert("Недостаточно Coin of Luck!");
+                      showToast("Недостаточно Coin of Luck!", "error");
                       return;
                     }
 
                     // Validate nickname format
                     const nicknameRegex = /^[A-Za-z0-9_\- ]+$/;
                     if (!nicknameRegex.test(newNickname.trim())) {
-                      alert("Некорректный ник! Используйте только A-Z, a-z, 0-9, _, -, пробел");
+                      showToast("Некорректный ник! Используйте только A-Z, a-z, 0-9, _, -, пробел", "error");
                       return;
                     }
 
@@ -191,10 +192,10 @@ export default function About({ navigate }: { navigate: Navigate }) {
                     } catch (err: any) {
                       const body = err?.body ?? {};
                       if (err?.status === 400 && body.error === "not enough coinLuck") {
-                        alert(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coins}`);
+                        showToast(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coins}`, "error");
                       } else {
                         console.error('[About] Failed to change nickname:', err);
-                        alert(err?.message || "Ошибка при изменении ника");
+                        showToast(err?.message || "Ошибка при изменении ника", "error");
                       }
                     } finally {
                       setIsChanging(false);

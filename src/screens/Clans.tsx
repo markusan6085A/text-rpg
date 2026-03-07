@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { showToast } from "../state/toastStore";
 import { useHeroStore } from "../state/heroStore";
 import { getMyClan, createClan, listClans, getClanInvites, respondClanInvite, type Clan, type ClanInvite } from "../utils/api";
 import CreateClanForm from "./clans/CreateClanForm";
@@ -61,12 +62,12 @@ export default function Clans({ navigate }: ClansProps) {
 
   const handleCreateClan = async () => {
     if (!clanName.trim()) {
-      alert("Введите название клана!");
+      showToast("Введите название клана!", "error");
       return;
     }
 
     if (clanName.length < 3 || clanName.length > 16) {
-      alert("Название клана должно быть от 3 до 16 символов!");
+      showToast("Название клана должно быть от 3 до 16 символов!", "error");
       return;
     }
 
@@ -82,7 +83,7 @@ export default function Clans({ navigate }: ClansProps) {
       console.error("[Clans] Failed to create clan:", err);
       const msg = err?.body?.message || err?.body?.error || err?.message;
       const errorMessage = msg || "Ошибка при создании клана";
-      alert(errorMessage);
+      showToast(errorMessage, "error");
     }
   };
 

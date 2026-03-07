@@ -13,6 +13,7 @@ import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
+import { showToast } from "../state/toastStore";
 
 interface ForumProps {
   navigate: (path: string) => void;
@@ -164,7 +165,7 @@ export default function Forum({ navigate }: ForumProps) {
       setShowNewTopic(false);
       await loadTopics(1);
     } catch (e: any) {
-      alert(e?.message || "Помилка створення теми");
+      showToast(e?.message || "Помилка створення теми", "error");
     } finally {
       setSending(false);
     }
@@ -182,7 +183,7 @@ export default function Forum({ navigate }: ForumProps) {
       setReplyMessage("");
       await loadTopic(postsPage);
     } catch (e: any) {
-      alert(e?.message || "Помилка відправки");
+      showToast(e?.message || "Помилка відправки", "error");
     } finally {
       setSending(false);
     }
@@ -200,7 +201,7 @@ export default function Forum({ navigate }: ForumProps) {
       await deleteForumTopic(topicId, characterId);
       await loadTopics(topicsPage);
     } catch (err: any) {
-      alert(err?.message || "Помилка видалення");
+      showToast(err?.message || "Помилка видалення", "error");
     } finally {
       setSending(false);
     }
@@ -213,7 +214,7 @@ export default function Forum({ navigate }: ForumProps) {
       await deleteForumPost(postId, characterId);
       await loadTopic(postsPage);
     } catch (err: any) {
-      alert(err?.message || "Помилка видалення");
+      showToast(err?.message || "Помилка видалення", "error");
     } finally {
       setSending(false);
     }
@@ -226,7 +227,7 @@ export default function Forum({ navigate }: ForumProps) {
       await deleteForumTopic(selectedTopicId, characterId);
       handleBackToTopics();
     } catch (err: any) {
-      alert(err?.message || "Помилка видалення");
+      showToast(err?.message || "Помилка видалення", "error");
     } finally {
       setSending(false);
     }
@@ -250,7 +251,7 @@ export default function Forum({ navigate }: ForumProps) {
       cancelEditPost();
       await loadTopic(postsPage);
     } catch (err: any) {
-      alert(err?.message || "Помилка збереження");
+      showToast(err?.message || "Помилка збереження", "error");
     } finally {
       setSending(false);
     }

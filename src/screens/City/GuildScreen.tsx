@@ -1,5 +1,6 @@
 import React from "react";
 import { useHeroStore } from "../../state/heroStore";
+import { showToast } from "../../state/toastStore";
 import {
   getDefaultProfessionForKlass,
   getProfessionDefinition,
@@ -143,7 +144,7 @@ export default function GuildScreen({
     try {
       const res = learnSkillLogic(hero, skillId);
       if (!res.success) {
-        alert("Не вдалося вивчити скіл. Можливо, не вистачає SP або рівня.");
+        showToast("Не вдалося вивчити скіл. Можливо, не вистачає SP або рівня.", "error");
         return;
       }
       if (res.updatedHero) {

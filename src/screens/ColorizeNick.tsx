@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { colorizeNick } from "../utils/api";
+import { showToast } from "../state/toastStore";
 
 interface ColorizeNickProps {
   navigate: (path: string) => void;
@@ -143,7 +144,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                 if (!selectedColor || !characterId) return;
 
                 if (!hasEnoughCoins) {
-                  alert("Недостаточно Coin of Luck!");
+                  showToast("Недостаточно Coin of Luck!", "error");
                   return;
                 }
 
@@ -155,7 +156,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                     (hero as any)?.heroJson?.heroRevision
                   );
                   if (!res.ok || !res.character) {
-                    alert("Ошибка при изменении цвета ника");
+                    showToast("Ошибка при изменении цвета ника", "error");
                     return;
                   }
                   const { coinLuck, nickColor: newNickColor, heroJson: heroJsonFromRes } = res.character;
@@ -181,12 +182,12 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                 } catch (err: any) {
                   const body = err?.body || {};
                   if (err?.status === 400 && body.error === "not enough coinLuck") {
-                    alert(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coins}`);
+                    showToast(`Недостаточно Coin of Luck! У вас: ${body.coinLuck ?? coins}`, "error");
                   } else if (err?.status === 409) {
-                    alert("Конфликт версий. Перезавантажте сторінку і спробуйте знову.");
+                    showToast("Конфликт версий. Перезавантажте сторінку і спробуйте знову.", "error");
                   } else {
                     console.error('[ColorizeNick] Failed to change nick color:', err);
-                    alert(body.error || err?.message || "Ошибка при изменении цвета ника");
+                    showToast(body.error || err?.message || "Ошибка при изменении цвета ника", "error");
                   }
                 } finally {
                   setIsApplying(false);

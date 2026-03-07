@@ -3,6 +3,7 @@ import { useHeroStore } from "../../../state/heroStore";
 import { type Clan, type ClanWarehouseItem } from "../../../utils/api";
 import { withdrawClanWarehouseItem } from "../../../utils/api";
 import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
+import { showToast } from "../../../state/toastStore";
 
 interface WithdrawItemsModalProps {
   clan: Clan;
@@ -33,7 +34,7 @@ export default function WithdrawItemsModal({
       }
     } catch (err: any) {
       console.error("[WithdrawItemsModal] Failed to withdraw item:", err);
-      alert(err.message || "Ошибка при выводе предмета");
+      showToast(err.message || "Ошибка при выводе предмета", "error");
     }
   };
 

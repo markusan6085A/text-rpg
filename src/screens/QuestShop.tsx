@@ -9,6 +9,7 @@ import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { QUEST_SHOP_ITEM_MAPPING as BASE_QUEST_MAPPING } from "../data/shop/itemMappings";
 import type { Hero } from "../types/Hero";
+import { showToast } from "../state/toastStore";
 
 type Navigate = (path: string) => void;
 
@@ -230,7 +231,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     // Перевіряємо наявність Серебряных Монет (валюта hero.coins_silver)
     const coinCount = hero.coins_silver ?? 0;
     if (coinCount < totalPrice) {
-      alert("Недостаточно Серебряных Монет!");
+      showToast("Недостаточно Серебряных Монет!", "error");
       return;
     }
 
@@ -254,7 +255,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     if (!itemDef || !itemsDBId) {
       console.error(`[QuestShop] Item not found in itemsDB: itemId=${item.itemId}, name=${item.name}`);
       console.error(`[QuestShop] Available mapping keys:`, Object.keys(QUEST_SHOP_ITEM_MAPPING).slice(0, 10));
-      alert(`Помилка: предмет "${item.name}" (ID: ${item.itemId}) не знайдено в itemsDB!`);
+      showToast(`Помилка: предмет "${item.name}" не знайдено в itemsDB`, "error");
       return;
     }
 
