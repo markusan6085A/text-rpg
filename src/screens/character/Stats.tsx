@@ -225,7 +225,7 @@ export default function Stats() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Крит</span>
-                <span className="text-white">{formatStatValue(combatStats.crit)}%</span>
+                <span className="text-white">{formatStatValue(combatStats.critFlat ?? combatStats.crit * 10)} ({combatStats.crit}%)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. атаки</span>
@@ -257,11 +257,11 @@ export default function Stats() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Маг. крит</span>
-                <span className="text-white">{formatStatValue(combatStats.mCrit)}%</span>
+                <span className="text-white">{formatStatValue(combatStats.mCritFlat ?? combatStats.mCrit * 10)} ({combatStats.mCrit}%)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Сила крита</span>
-                <span className="text-white">{formatStatValue(combatStats.critPower)}</span>
+                <span className="text-white">{formatStatValue(combatStats.critPower)} (×{Math.min(2.0, (1.5 + (combatStats.critPower ?? 0) / 5000)).toFixed(2)})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. каста</span>

@@ -91,7 +91,7 @@ export default function PlayerStatsModal({ playerName, stats, hero, onClose }: P
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Крит</span>
-                <span className="text-white">{formatStatValue(finalStats.crit)}%</span>
+                <span className="text-white">{formatStatValue((finalStats as any).critFlat ?? finalStats.crit * 10)} ({finalStats.crit}%)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. атаки</span>
@@ -121,11 +121,11 @@ export default function PlayerStatsModal({ playerName, stats, hero, onClose }: P
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Маг. крит</span>
-                <span className="text-white">{formatStatValue(finalStats.mCrit)}%</span>
+                <span className="text-white">{formatStatValue((finalStats as any).mCritFlat ?? finalStats.mCrit * 10)} ({finalStats.mCrit}%)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Сила крита</span>
-                <span className="text-white">{formatStatValue(finalStats.critPower)}</span>
+                <span className="text-white">{formatStatValue(finalStats.critPower)} (×{Math.min(2.0, (1.5 + (finalStats.critPower ?? 0) / 5000)).toFixed(2)})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. каста</span>
