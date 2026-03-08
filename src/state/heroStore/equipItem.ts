@@ -138,7 +138,11 @@ function addOldItemToInventory(
   const oldEnchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
   const grade = oldItem.grade || autoDetectGrade(oldItemId);
   const armorType = oldItem.armorType || (oldItem.kind === "armor" || oldItem.kind === "helmet" || oldItem.kind === "boots" || oldItem.kind === "gloves" ? autoDetectArmorType(oldItemId) : undefined);
-  const inserts = slot === "weapon" ? hero.equipmentInserts?.weapon : undefined;
+  // Для зброї — inserts з weapon; для shield з дворучною — inserts з weapon (той самий предмет); для lrhand — з lrhand
+  let inserts: Record<string, any> | undefined;
+  if (slot === "weapon") inserts = hero.equipmentInserts?.weapon;
+  else if (slot === "lrhand") inserts = hero.equipmentInserts?.lrhand;
+  else if (slot === "shield" && oldItemId === hero.equipment?.weapon && isTwoHandedWeapon(oldItemId)) inserts = hero.equipmentInserts?.weapon;
   const insertStats = inserts ? {
     insertedCrystal: inserts.crystalId,
     insertedLS: inserts.lsId,
@@ -251,6 +255,12 @@ function handleTwoHandedWeapon(
         const grade = dualSwordsItem.grade || autoDetectGrade(dualSwordsId);
         const armorType = dualSwordsItem.armorType || (dualSwordsItem.kind === "armor" || dualSwordsItem.kind === "helmet" || dualSwordsItem.kind === "boots" || dualSwordsItem.kind === "gloves" ? autoDetectArmorType(dualSwordsId) : undefined);
         const oldEnchantLevel = hero.equipmentEnchantLevels?.lrhand ?? 0;
+        const lrhandInserts = hero.equipmentInserts?.lrhand;
+        const insertStats = lrhandInserts ? {
+          insertedCrystal: lrhandInserts.crystalId,
+          insertedLS: lrhandInserts.lsId,
+          ...Object.fromEntries(Object.entries(lrhandInserts).filter(([k]) => !["crystalId", "lsId"].includes(k))),
+        } : {};
         newInventory.push({
           id: dualSwordsItem.id,
           name: dualSwordsItem.name,
@@ -263,6 +273,7 @@ function handleTwoHandedWeapon(
           enchantLevel: oldEnchantLevel,
           grade: grade,
           armorType: armorType,
+          ...insertStats,
         });
       }
       newEquipment.lrhand = null;
@@ -616,7 +627,12 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
         const grade = twoHandedItem.grade || autoDetectGrade(weaponId);
         const oldEnchantLevel = hero.equipmentEnchantLevels?.weapon ?? hero.equipmentEnchantLevels?.shield ?? 0;
         const alreadyInInventory = newInventory.some(invItem => invItem.id === weaponId);
-        
+        const weaponInserts = hero.equipmentInserts?.weapon;
+        const insertStats = weaponInserts ? {
+          insertedCrystal: weaponInserts.crystalId,
+          insertedLS: weaponInserts.lsId,
+          ...Object.fromEntries(Object.entries(weaponInserts).filter(([k]) => !["crystalId", "lsId"].includes(k))),
+        } : {};
         if (!alreadyInInventory) {
           newInventory.push({
             id: twoHandedItem.id,
@@ -629,6 +645,7 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
             count: 1,
             enchantLevel: oldEnchantLevel,
             grade: grade,
+            ...insertStats,
           });
         }
       }
@@ -647,6 +664,12 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
         const weaponItem = itemsDBWithStarter[weaponId] || itemsDB[weaponId];
         if (weaponItem) {
           const grade = weaponItem.grade || autoDetectGrade(weaponId);
+          const weaponInserts = hero.equipmentInserts?.weapon;
+          const insertStats = weaponInserts ? {
+            insertedCrystal: weaponInserts.crystalId,
+            insertedLS: weaponInserts.lsId,
+            ...Object.fromEntries(Object.entries(weaponInserts).filter(([k]) => !["crystalId", "lsId"].includes(k))),
+          } : {};
           newInventory.push({
             id: weaponItem.id,
             name: weaponItem.name,
@@ -657,6 +680,7 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
             stats: weaponItem.stats,
             count: 1,
             grade: grade,
+            ...insertStats,
           });
         }
         newEquipment.weapon = null;
@@ -670,6 +694,12 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
         const grade = dualItem.grade || autoDetectGrade(lrhandId);
         const oldEnchant = hero.equipmentEnchantLevels?.lrhand ?? 0;
         const alreadyInInventory = newInventory.some((inv) => inv.id === lrhandId);
+        const lrhandInserts = hero.equipmentInserts?.lrhand;
+        const insertStats = lrhandInserts ? {
+          insertedCrystal: lrhandInserts.crystalId,
+          insertedLS: lrhandInserts.lsId,
+          ...Object.fromEntries(Object.entries(lrhandInserts).filter(([k]) => !["crystalId", "lsId"].includes(k))),
+        } : {};
         if (!alreadyInInventory) {
           newInventory.push({
             id: dualItem.id,
@@ -682,6 +712,7 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
             count: 1,
             enchantLevel: oldEnchant,
             grade: grade,
+            ...insertStats,
           });
         }
       }
@@ -701,7 +732,12 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
         const grade = twoHandedItem.grade || autoDetectGrade(shieldId);
         const oldEnchantLevel = hero.equipmentEnchantLevels?.weapon ?? hero.equipmentEnchantLevels?.shield ?? 0;
         const alreadyInInventory = newInventory.some(invItem => invItem.id === shieldId);
-        
+        const weaponInserts = hero.equipmentInserts?.weapon;
+        const insertStats = weaponInserts ? {
+          insertedCrystal: weaponInserts.crystalId,
+          insertedLS: weaponInserts.lsId,
+          ...Object.fromEntries(Object.entries(weaponInserts).filter(([k]) => !["crystalId", "lsId"].includes(k))),
+        } : {};
         if (!alreadyInInventory) {
           newInventory.push({
             id: twoHandedItem.id,
@@ -714,6 +750,7 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
             count: 1,
             enchantLevel: oldEnchantLevel,
             grade: grade,
+            ...insertStats,
           });
         }
       }
@@ -724,22 +761,34 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
 
-  // При одяганні зброї: копіюємо LS ефекти в equipmentInserts або очищаємо
+  // При одяганні зброї або dual (lrhand): копіюємо LS ефекти в equipmentInserts або очищаємо
+    const LS_STAT_KEYS = ["luckyStrike", "focus", "lifeSteal", "guidance", "empower", "acumen", "anger", "magicParry", "rskFocus", "rskEvasion", "rskHaste", "backbiting"];
+    const isWeaponSlot = slot === "weapon" || slot === "lrhand";
     let newEquipmentInserts = hero.equipmentInserts;
-    if (slot === "weapon") {
-      const hasLS = (item as any).insertedLS || (item as any).luckyStrike;
+    if (slot === "shield") {
+      const ei = { ...(hero.equipmentInserts || {}) } as Record<string, any>;
+      if (twoHandedInWeaponToRemove) delete ei.weapon;
+      if (hero.equipment?.lrhand && isDualWieldWeapon(hero.equipment.lrhand)) delete ei.lrhand;
+      if (Object.keys(ei).length !== Object.keys(hero.equipmentInserts || {}).length) {
+        newEquipmentInserts = Object.keys(ei).length > 0 ? ei : {};
+      }
+    }
+    if (isWeaponSlot) {
+      const hasLS = (item as any).insertedLS || LS_STAT_KEYS.some((k) => (item as any)[k] != null);
+      const insertKey = slot === "lrhand" ? "lrhand" : "weapon";
       if (hasLS) {
         const insert: Record<string, any> = {
           crystalId: (item as any).insertedCrystal,
           lsId: (item as any).insertedLS,
         };
-        ["luckyStrike", "focus", "lifeSteal", "guidance", "empower", "acumen", "anger", "magicParry", "rskFocus", "rskEvasion", "rskHaste", "backbiting"].forEach((k) => {
+        LS_STAT_KEYS.forEach((k) => {
           if ((item as any)[k] != null) insert[k] = (item as any)[k];
         });
-        newEquipmentInserts = { ...(hero.equipmentInserts || {}), weapon: insert };
+        newEquipmentInserts = { ...(hero.equipmentInserts || {}), [insertKey]: insert };
       } else {
-        const { weapon: _w, ...rest } = (hero.equipmentInserts || {}) as any;
-        newEquipmentInserts = Object.keys(rest).length > 0 ? rest : undefined;
+        const ei = { ...(hero.equipmentInserts || {}) } as Record<string, any>;
+        delete ei[insertKey];
+        newEquipmentInserts = Object.keys(ei).length > 0 ? ei : {};
       }
     }
 

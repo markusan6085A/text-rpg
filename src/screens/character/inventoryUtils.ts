@@ -141,4 +141,31 @@ export function calculateEnchantedStats(item: any) {
   };
 }
 
+/** Опис ефектів LS кристала (для зброї з інвентаря або equipmentInserts) */
+const LS_DESC: Record<string, (v: number) => string> = {
+  luckyStrike: (v) => `Крит: +${v}%`,
+  focus: (v) => `Перезарядка скілів: -${v}%`,
+  lifeSteal: (v) => `Поглинання HP: ${v}%`,
+  guidance: (v) => `Витрата MP скілів: -${v}%`,
+  empower: (v) => `Урон скілів: +${v}%`,
+  acumen: (v) => `Швидкість касту: +${v}%`,
+  anger: (v) => `Сила крита: +${v}%`,
+  magicParry: (v) => `Відбиття магії: ${v}%`,
+  rskFocus: (v) => `Шанс не витратити MP: ${v}%`,
+  rskEvasion: (v) => `Шанс уникнути атаку: ${v}%`,
+  rskHaste: (v) => `Шанс миттєво відновити скіл: ${v}%`,
+  backbiting: (v) => `Урон у спину: +${v}%`,
+};
 
+export function getLSDescriptionLines(itemOrInserts: object | null | undefined): string[] {
+  if (!itemOrInserts) return [];
+  const lines: string[] = [];
+  const obj = itemOrInserts as Record<string, unknown>;
+  for (const [key, fmt] of Object.entries(LS_DESC)) {
+    const v = obj[key];
+    if (v != null && typeof v === "number" && v > 0) {
+      lines.push(fmt(v));
+    }
+  }
+  return lines;
+}

@@ -206,13 +206,15 @@ export function calcCombatStats(
     if (setBonuses.shieldBlockPower) shieldBlockPower += setBonuses.shieldBlockPower || 0;
   }
 
-  // 3.5. LS кристали в зброї
-  const weaponInsert = equipmentInserts?.weapon;
-  if (weaponInsert) {
-    if (weaponInsert.luckyStrike) crit += weaponInsert.luckyStrike * 10;
-    if (weaponInsert.anger) critPower += weaponInsert.anger * 10;
-    if (weaponInsert.acumen) castSpeed = Math.round(castSpeed * (1 + weaponInsert.acumen / 100));
-  }
+  // 3.5. LS кристали в зброї (weapon та lrhand для dual wield)
+  const applyWeaponInsert = (insert: Record<string, number> | undefined) => {
+    if (!insert) return;
+    if (insert.luckyStrike) crit += insert.luckyStrike * 10;
+    if (insert.anger) critPower += insert.anger * 10;
+    if (insert.acumen) castSpeed = Math.round(castSpeed * (1 + insert.acumen / 100));
+  };
+  applyWeaponInsert(equipmentInserts?.weapon as Record<string, number> | undefined);
+  applyWeaponInsert(equipmentInserts?.lrhand as Record<string, number> | undefined);
   
   // Застосовуємо всі відсоткові бонуси (з equipment та сетів) після всіх flat бонусів
   if (pDefPercentBonus > 0) {

@@ -3,6 +3,7 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { SLOT_ICONS } from "./constants";
 import { useHeroStore } from "../../state/heroStore";
 import { GM_SHOP_ITEMS } from "../GMShop";
+import { getLSDescriptionLines } from "./inventoryUtils";
 
 // Маппінг profession -> зображення
 const professionImageMap: Record<string, string> = {
@@ -509,7 +510,10 @@ export default function CharacterEquipmentFrame({
           {(["weapon", "shield"] as const).map((slot) => {
             const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
             const isDisabled = slot === "shield" && hero.equipment?.weapon && isTwoHandedWeapon(hero.equipment.weapon);
-            const weaponLS = slot === "weapon" ? (hero.equipmentInserts?.weapon?.lsId ? 1 : 0) : 0;
+            const inserts = slot === "weapon" ? hero.equipmentInserts?.weapon : slot === "shield" && hero.equipment?.weapon === hero.equipment?.shield ? hero.equipmentInserts?.weapon : undefined;
+            const weaponLS = inserts && (inserts.lsId || ["luckyStrike", "focus", "lifeSteal"].some((k) => (inserts as any)[k] != null)) ? 1 : 0;
+            const lsLines = getLSDescriptionLines(inserts);
+            const lsTitle = weaponLS ? (lsLines.length > 0 ? `LS:\n${lsLines.join("\n")}` : "LS вставлено") : undefined;
             return (
               <div key={slot} className="relative">
                 <img 
@@ -522,7 +526,7 @@ export default function CharacterEquipmentFrame({
                     : allowUnequip && !isDisabled 
                       ? () => handleUnequip(slot) 
                       : undefined}
-                  title={weaponLS > 0 ? "LS вставлено" : undefined}
+                  title={lsTitle}
                 />
                 {enchantLevel > 0 && (
                   <div 

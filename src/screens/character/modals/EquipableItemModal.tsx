@@ -1,5 +1,5 @@
 import React from "react";
-import { calculateEnchantedStats, getSetInfo } from "../inventoryUtils";
+import { calculateEnchantedStats, getSetInfo, getLSDescriptionLines } from "../inventoryUtils";
 import type { HeroInventoryItem } from "../../../types/Hero";
 
 interface EquipableItemModalProps {
@@ -189,6 +189,22 @@ export default function EquipableItemModal({
             </div>
           </div>
         )}
+
+        {/* LS кристал — ефекти на зброї */}
+        {(() => {
+          const lsLines = getLSDescriptionLines(item);
+          if (lsLines.length === 0) return null;
+          return (
+            <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+              <div className="text-sm font-semibold text-[#b8860b] mb-2">LS кристал:</div>
+              <div className="text-green-400/90 text-xs space-y-0.5">
+                {lsLines.map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Інформація про сет */}
         {getSetInfo(item) && (
