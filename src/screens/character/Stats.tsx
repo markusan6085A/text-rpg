@@ -8,6 +8,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { hasShieldEquipped, getTotalShieldDefense } from "../../utils/shield/shieldDefense";
+import { getLSDescriptionLines } from "./inventoryUtils";
 import CharacterBuffs from "./CharacterBuffs";
 import { getMyClan } from "../../utils/api";
 
@@ -273,6 +274,23 @@ export default function Stats() {
               </div>
             </div>
           </div>
+          {/* LS кристал в зброї */}
+          {(() => {
+            const weaponIns = hero?.equipmentInserts?.weapon as Record<string, unknown> | undefined;
+            const lrhandIns = hero?.equipmentInserts?.lrhand as Record<string, unknown> | undefined;
+            const lsLines = getLSDescriptionLines(weaponIns || lrhandIns);
+            if (lsLines.length === 0) return null;
+            return (
+              <div className="mt-2 pt-2 border-t border-[#c7ad80]/30">
+                <div className="text-[#c88a5c] text-xs font-semibold mb-1">LS в зброї:</div>
+                <div className="text-green-400/90 text-xs space-y-0.5">
+                  {lsLines.map((line, i) => (
+                    <div key={i}>{line}</div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
           {/* Риска від краю до краю під останніми рядками */}
           <div className="border-t border-white/50 mt-1.5"></div>
         </div>

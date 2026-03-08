@@ -495,11 +495,15 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     if (!hero || !slot) return;
 
     const updated = unequipItemLogic(hero, slot);
-    get().updateHero({
+    const patch: Record<string, unknown> = {
       equipment: updated.equipment,
       inventory: updated.inventory,
       equipmentEnchantLevels: updated.equipmentEnchantLevels,
-    });
+    };
+    if ("equipmentInserts" in updated) {
+      patch.equipmentInserts = (updated as any).equipmentInserts;
+    }
+    get().updateHero(patch);
   },
 
   updateAdena: (amount: number) => {
