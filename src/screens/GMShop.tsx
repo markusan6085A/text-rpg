@@ -776,7 +776,9 @@ export default function GMShop({ navigate }: GMShopProps) {
     removeOneFromInv(insertLSSelected.ls.id);
 
     if (success) {
-      const isEquipped = hero.equipment?.weapon === insertLSSelected.weapon.id;
+      const isEquippedWeapon = hero.equipment?.weapon === insertLSSelected.weapon.id;
+      const isEquippedLrhand = hero.equipment?.lrhand === insertLSSelected.weapon.id;
+      const isEquipped = isEquippedWeapon || isEquippedLrhand;
       const weaponInInvIdx = newInventory.findIndex((i) => i.id === insertLSSelected.weapon!.id);
       const insert = {
         crystalId: insertLSSelected.crystal.id,
@@ -784,11 +786,12 @@ export default function GMShop({ navigate }: GMShopProps) {
         ...lsStats,
       };
       if (isEquipped) {
+        const insertKey = isEquippedWeapon ? "weapon" : "lrhand";
         updateHero({
           inventory: newInventory,
           equipmentInserts: {
             ...(hero.equipmentInserts || {}),
-            weapon: insert,
+            [insertKey]: insert,
           },
         });
       } else if (weaponInInvIdx >= 0) {

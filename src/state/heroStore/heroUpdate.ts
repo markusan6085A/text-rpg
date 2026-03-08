@@ -35,11 +35,12 @@ export function updateHeroLogic(
   }
 
   // ❗ recalculateAllStats НІКОЛИ не повинен запускатися через hp/mp/cp
-  // Він має запускатися ТІЛЬКИ при: level, skills, equipment, baseStats, profession, klass, equipmentEnchantLevels, activeDyes
+  // Він має запускатися ТІЛЬКИ при: level, skills, equipment, equipmentInserts, baseStats, profession, klass, equipmentEnchantLevels, activeDyes
   const needsRecalc =
     partial.level !== undefined ||
     partial.skills !== undefined ||
     partial.equipment !== undefined ||
+    partial.equipmentInserts !== undefined ||
     partial.baseStats !== undefined ||
     partial.profession !== undefined ||
     partial.klass !== undefined ||

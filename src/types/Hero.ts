@@ -100,6 +100,8 @@ export interface Hero {
     crystalId?: string;
     lsId?: string;
     luckyStrike?: number;
+    mCrit?: number;
+    maxHpPercent?: number;
     focus?: number;
     lifeSteal?: number;
     guidance?: number;
