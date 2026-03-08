@@ -1,5 +1,37 @@
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
+export type WeaponTypeKey = "sword" | "bow" | "staff" | "club" | "dagger" | "polearm" | "fist" | "dualsword" | "dualdagger" | "other";
+
+/** Визначає тип зброї за itemId та itemDef (для групування в пікері) */
+export function getWeaponTypeFromItemId(itemId: string, itemDef?: { name?: string } | null): WeaponTypeKey {
+  const id = (itemId || "").toLowerCase();
+  const name = ((itemDef?.name as string) || "").toLowerCase();
+  if (itemId.includes("dualsword") || itemId.includes("dual_sword") || name.includes("dual sword")) return "dualsword";
+  if (itemId.includes("dualdagger") || itemId.includes("dual_dagger") || name.includes("dual dagger")) return "dualdagger";
+  if (id.includes("sword") || name.includes("меч") || name.includes("sword")) return "sword";
+  if (id.includes("bow") || name.includes("лук") || name.includes("bow") || name.includes("crossbow")) return "bow";
+  if (id.includes("staff") || id.includes("wand") || name.includes("посох") || name.includes("staff") || name.includes("wand")) return "staff";
+  if (id.includes("club") || id.includes("mace") || id.includes("hammer") || id.includes("axe") || name.includes("дубина") || name.includes("club") || name.includes("mace") || name.includes("axe") || name.includes("сокир")) return "club";
+  if (id.includes("dagger") || id.includes("knife") || name.includes("кинжал") || name.includes("dagger")) return "dagger";
+  if (id.includes("polearm") || id.includes("spear") || id.includes("lance") || name.includes("копье") || name.includes("spear")) return "polearm";
+  if (id.includes("fist") || id.includes("gauntlet") || name.includes("кастет") || name.includes("fist")) return "fist";
+  return "other";
+}
+
+/** Лейбли типів зброї для UI */
+export const WEAPON_TYPE_LABELS: Record<WeaponTypeKey, string> = {
+  sword: "Мечі",
+  bow: "Луки",
+  staff: "Посохи",
+  club: "Дубини/Молоти",
+  dagger: "Кинжали",
+  polearm: "Списа",
+  fist: "Кастети",
+  dualsword: "Парні мечі",
+  dualdagger: "Парні кинжали",
+  other: "Інше",
+};
+
 /**
  * Перевірка, чи є зброя дворучною
  * Дворучне оружие: списа, посохи, луки, глефи, сокири, дворучні мечі, дворучні дубинки, Зарич, удочки

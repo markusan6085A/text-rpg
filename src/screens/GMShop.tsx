@@ -6,6 +6,7 @@ import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
 import type { HeroInventoryItem } from "../types/Hero";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
+import { getWeaponTypeFromItemId, WEAPON_TYPE_LABELS } from "../state/heroStore/weaponUtils";
 
 type Navigate = (path: string) => void;
 
@@ -563,6 +564,9 @@ export default function GMShop({ navigate }: GMShopProps) {
   const [selectedCrystalItem, setSelectedCrystalItem] = useState<{ itemId: string } | null>(null);
   const [insertLSModalOpen, setInsertLSModalOpen] = useState(false);
   const [insertLSPicker, setInsertLSPicker] = useState<"crystal" | "ls" | "weapon" | null>(null);
+  const [weaponPickerFilter, setWeaponPickerFilter] = useState<"grade" | "type">("grade");
+  const [weaponPickerGrade, setWeaponPickerGrade] = useState<string>("*");
+  const [weaponPickerType, setWeaponPickerType] = useState<string>("*");
   const [insertLSSelected, setInsertLSSelected] = useState<{
     crystal: HeroInventoryItem | null;
     ls: HeroInventoryItem | null;
@@ -1623,7 +1627,7 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setInsertLSPicker(null)}
         >
           <div
-            className="bg-[#1a1410] border-2 border-[#5c4a32] rounded-lg p-4 max-w-[320px] w-full max-h-[70vh] overflow-y-auto"
+            className={`bg-[#1a1410] border-2 border-[#5c4a32] rounded-lg p-4 w-full max-h-[85vh] overflow-y-auto ${insertLSPicker === "weapon" ? "max-w-[420px]" : "max-w-[320px]"}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-[#ff8c00] text-[12px] font-bold mb-3">
@@ -1695,55 +1699,107 @@ export default function GMShop({ navigate }: GMShopProps) {
                 );
               })()}
               {insertLSPicker === "weapon" && (() => {
+                const isWeapon = (def: any) => def && (def.slot === "weapon" || def.slot === "rhand" || def.kind === "weapon");
                 const invWeapons = hero?.inventory?.filter((inv) => {
                   const def = itemsDB[inv.id] ?? itemsDBCrystals[inv.id];
-                  return def && (def.slot === "weapon" || def.kind === "weapon");
+                  return isWeapon(def);
                 }) ?? [];
-                const equipWeaponId = hero?.equipment?.weapon;
-                const equipWeapon = equipWeaponId && !invWeapons.some((w) => w.id === equipWeaponId)
-                  ? (() => {
-                      const def = itemsDB[equipWeaponId];
-                      if (!def) return null;
-                      return {
-                        id: equipWeaponId,
-                        name: def.name,
-                        icon: def.icon,
-                        slot: "weapon",
-                        grade: def.grade,
-                        count: 1,
-                      } as HeroInventoryItem;
-                    })()
-                  : null;
-                const weapons = equipWeapon ? [equipWeapon, ...invWeapons] : invWeapons;
-                return weapons.length === 0 ? (
-                  <p className="text-gray-500 text-[11px]">У вас немає зброї</p>
-                ) : (
-                  weapons.map((inv) => {
-                    const def = itemsDB[inv.id];
-                    const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
-                    const hasLS = (inv as any).insertedLS ?? (inv as any).luckyStrike ?? (hero?.equipmentInserts?.weapon?.lsId && hero?.equipment?.weapon === inv.id);
-                    return (
-                      <div
-                        key={inv.id}
-                        className="flex items-center gap-2 py-2 px-2 border-b border-white/20 hover:bg-black/30 cursor-pointer"
-                        onClick={() => {
-                          setInsertLSSelected((s) => ({ ...s, weapon: { ...inv, grade } }));
-                          setInsertLSPicker(null);
-                        }}
-                      >
-                        <img src={inv.icon || def?.icon} alt={inv.name} className="w-10 h-10 object-contain" />
-                        <div className="flex-1">
-                          <span className="text-[12px] text-[#e0c68a]">{inv.name}</span>
-                          {grade && (
-                            <span className="ml-1 text-[11px] text-[#ff8c00]">({grade})</span>
-                          )}
-                          {hasLS && (
-                            <span className="ml-1 text-[10px] text-green-400" title="LS вставлено">[LS]</span>
-                          )}
-                        </div>
-                      </div>
-                    );
+                const equipIds = [hero?.equipment?.weapon, hero?.equipment?.lrhand].filter(Boolean) as string[];
+                const equipWeapons = equipIds
+                  .filter((id) => !invWeapons.some((w) => w.id === id))
+                  .map((id) => {
+                    const def = itemsDB[id];
+                    if (!def || !isWeapon(def)) return null;
+                    return {
+                      id,
+                      name: def.name,
+                      icon: def.icon,
+                      slot: "weapon",
+                      grade: def.grade,
+                      count: 1,
+                    } as HeroInventoryItem;
                   })
+                  .filter(Boolean) as HeroInventoryItem[];
+                const allWeapons = [...equipWeapons, ...invWeapons];
+                const weapons = allWeapons;
+                if (weapons.length === 0) {
+                  return <p className="text-gray-500 text-[11px] py-4">У вас немає зброї</p>;
+                }
+                return (
+                  <div className="space-y-2">
+                    <div className="flex gap-1 mb-2">
+                      <button
+                        onClick={() => setWeaponPickerFilter("grade")}
+                        className={`px-2 py-1 text-[10px] ${weaponPickerFilter === "grade" ? "bg-[#3d2f1a] text-[#ff8c00]" : "bg-black/30 text-gray-400"}`}
+                      >
+                        За грейдом
+                      </button>
+                      <button
+                        onClick={() => setWeaponPickerFilter("type")}
+                        className={`px-2 py-1 text-[10px] ${weaponPickerFilter === "type" ? "bg-[#3d2f1a] text-[#ff8c00]" : "bg-black/30 text-gray-400"}`}
+                      >
+                        За типом
+                      </button>
+                    </div>
+                    {weaponPickerFilter === "grade" && (
+                      <div className="flex gap-1 flex-wrap mb-2">
+                        <button onClick={() => setWeaponPickerGrade("*")} className={`px-1.5 py-0.5 text-[10px] ${weaponPickerGrade === "*" ? "bg-[#ff8c00]/30 text-[#ff8c00]" : "text-gray-400"}`}>Всі</button>
+                        {(["NG", "D", "C", "B", "A", "S"] as const).map((g) => (
+                          <button key={g} onClick={() => setWeaponPickerGrade(g)} className={`px-1.5 py-0.5 text-[10px] ${weaponPickerGrade === g ? "bg-[#ff8c00]/30 text-[#ff8c00]" : "text-gray-400"}`}>{g}</button>
+                        ))}
+                      </div>
+                    )}
+                    {weaponPickerFilter === "type" && (
+                      <div className="flex gap-1 flex-wrap mb-2 max-h-16 overflow-y-auto">
+                        <button onClick={() => setWeaponPickerType("*")} className={`px-1.5 py-0.5 text-[10px] ${weaponPickerType === "*" ? "bg-[#ff8c00]/30 text-[#ff8c00]" : "text-gray-400"}`}>Всі</button>
+                        {(Object.keys(WEAPON_TYPE_LABELS) as Array<keyof typeof WEAPON_TYPE_LABELS>).map((t) => (
+                          <button key={t} onClick={() => setWeaponPickerType(t)} className={`px-1.5 py-0.5 text-[10px] whitespace-nowrap ${weaponPickerType === t ? "bg-[#ff8c00]/30 text-[#ff8c00]" : "text-gray-400"}`}>{WEAPON_TYPE_LABELS[t]}</button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="grid grid-cols-4 gap-1.5 max-h-[50vh] overflow-y-auto">
+                      {weapons
+                        .filter((inv) => {
+                          const def = itemsDB[inv.id];
+                          const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
+                          const wType = getWeaponTypeFromItemId(inv.id, def);
+                          if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || (grade ?? "?") === weaponPickerGrade;
+                          return weaponPickerType === "*" || wType === weaponPickerType;
+                        })
+                        .map((inv) => {
+                          const def = itemsDB[inv.id];
+                          const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
+                          const hasLS = (inv as any).insertedLS ?? (inv as any).luckyStrike ?? (hero?.equipmentInserts?.weapon?.lsId && hero?.equipment?.weapon === inv.id);
+                          return (
+                            <div
+                              key={inv.id}
+                              className="flex flex-col items-center gap-0.5 p-1.5 rounded border border-white/20 hover:bg-[#3d2f1a]/50 hover:border-[#ff8c00]/50 cursor-pointer"
+                              onClick={() => {
+                                setInsertLSSelected((s) => ({ ...s, weapon: { ...inv, grade } }));
+                                setInsertLSPicker(null);
+                              }}
+                              title={`${inv.name}${grade ? ` (${grade})` : ""}${hasLS ? " [LS]" : ""}`}
+                            >
+                              <img src={inv.icon || def?.icon} alt={inv.name} className="w-8 h-8 object-contain flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png"; }} />
+                              <span className="text-[9px] text-[#e0c68a] truncate w-full text-center">{inv.name?.slice(0, 12)}{(inv.name?.length ?? 0) > 12 ? "…" : ""}</span>
+                              <div className="flex gap-0.5 text-[8px]">
+                                {grade && <span className="text-[#ff8c00]">{grade}</span>}
+                                {hasLS && <span className="text-green-400">[LS]</span>}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                    {weapons.filter((inv) => {
+                      const def = itemsDB[inv.id];
+                      const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
+                      const wType = getWeaponTypeFromItemId(inv.id, def);
+                      if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || (grade ?? "?") === weaponPickerGrade;
+                      return weaponPickerType === "*" || wType === weaponPickerType;
+                    }).length === 0 && (
+                      <p className="text-gray-500 text-[11px] py-2">Немає зброї з цим фільтром. Спробуйте інший.</p>
+                    )}
+                  </div>
                 );
               })()}
             </div>
