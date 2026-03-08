@@ -509,6 +509,7 @@ export default function CharacterEquipmentFrame({
           {(["weapon", "shield"] as const).map((slot) => {
             const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
             const isDisabled = slot === "shield" && hero.equipment?.weapon && isTwoHandedWeapon(hero.equipment.weapon);
+            const weaponLS = slot === "weapon" ? (hero.equipmentInserts?.weapon?.luckyStrike ?? 0) : 0;
             return (
               <div key={slot} className="relative">
                 <img 
@@ -521,6 +522,7 @@ export default function CharacterEquipmentFrame({
                     : allowUnequip && !isDisabled 
                       ? () => handleUnequip(slot) 
                       : undefined}
+                  title={weaponLS > 0 ? `LS: +${weaponLS}% до криту` : undefined}
                 />
                 {enchantLevel > 0 && (
                   <div 
@@ -528,6 +530,14 @@ export default function CharacterEquipmentFrame({
                     style={{ minWidth: "10px", textAlign: "center" }}
                   >
                     +{enchantLevel}
+                  </div>
+                )}
+                {weaponLS > 0 && (
+                  <div 
+                    className="absolute -top-0.5 -right-0.5 bg-green-600/90 text-white text-[6px] font-bold px-0.5 rounded leading-none"
+                    title={`LS: +${weaponLS}% до криту`}
+                  >
+                    LS
                   </div>
                 )}
               </div>

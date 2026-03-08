@@ -138,7 +138,8 @@ export function recalculateAllStats(
     level,
     hero.equipment,
     hero.equipmentEnchantLevels,
-    hero.activeDyes
+    hero.activeDyes,
+    hero.equipmentInserts
   );
 
   // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати до кінця неділі

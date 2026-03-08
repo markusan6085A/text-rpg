@@ -5,6 +5,7 @@ import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
 import type { HeroInventoryItem } from "../types/Hero";
+import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 
 type Navigate = (path: string) => void;
 
@@ -707,6 +708,87 @@ export default function GMShop({ navigate }: GMShopProps) {
     showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
   };
 
+  // Обробка об'єднання кристала + LS + зброя (5% успіх, 90% нічого)
+  const INSERT_SUCCESS_CHANCE = 0.05;
+  const handleMergeLS = () => {
+    if (!hero || !insertLSSelected.crystal || !insertLSSelected.ls || !insertLSSelected.weapon) return;
+
+    const crystalGrade = insertLSSelected.crystal.grade ?? (itemsDBCrystals[insertLSSelected.crystal.id] ?? itemsDB[insertLSSelected.crystal.id])?.grade;
+    const lsGrade = insertLSSelected.ls.grade ?? (itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id])?.grade;
+    const lsDef = itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id];
+    const luckyStrike = (lsDef?.stats as any)?.luckyStrike ?? 0;
+
+    const weaponDef = itemsDB[insertLSSelected.weapon.id];
+    const weaponGrade = insertLSSelected.weapon.grade ?? weaponDef?.grade ?? autoDetectGrade(insertLSSelected.weapon.id);
+
+    if (crystalGrade !== lsGrade || crystalGrade !== weaponGrade) {
+      showToast("Грейди кристала, LS та зброї мають збігатися!", "error");
+      return;
+    }
+
+    const newInventory = [...(hero.inventory || [])];
+    const crystalIdx = newInventory.findIndex((i) => i.id === insertLSSelected.crystal!.id);
+    const lsIdx = newInventory.findIndex((i) => i.id === insertLSSelected.ls!.id);
+    if (crystalIdx < 0 || lsIdx < 0) {
+      showToast("Кристал або LS не знайдено в інвентарі!", "error");
+      return;
+    }
+    const crystalItem = newInventory[crystalIdx];
+    const lsItem = newInventory[lsIdx];
+    if ((crystalItem.count ?? 1) < 1 || (lsItem.count ?? 1) < 1) {
+      showToast("Недостатньо кристалів!", "error");
+      return;
+    }
+
+    const success = Math.random() < INSERT_SUCCESS_CHANCE;
+
+    const removeOneFromInv = (itemId: string) => {
+      const idx = newInventory.findIndex((i) => i.id === itemId);
+      if (idx < 0) return;
+      const it = newInventory[idx];
+      if ((it.count ?? 1) > 1) {
+        newInventory[idx] = { ...it, count: (it.count ?? 1) - 1 };
+      } else {
+        newInventory.splice(idx, 1);
+      }
+    };
+    removeOneFromInv(insertLSSelected.crystal.id);
+    removeOneFromInv(insertLSSelected.ls.id);
+
+    if (success) {
+      const isEquipped = hero.equipment?.weapon === insertLSSelected.weapon.id;
+      const weaponInInvIdx = newInventory.findIndex((i) => i.id === insertLSSelected.weapon!.id);
+      const insert = {
+        crystalId: insertLSSelected.crystal.id,
+        lsId: insertLSSelected.ls.id,
+        luckyStrike,
+      };
+      if (isEquipped) {
+        updateHero({
+          inventory: newInventory,
+          equipmentInserts: {
+            ...(hero.equipmentInserts || {}),
+            weapon: insert,
+          },
+        });
+      } else if (weaponInInvIdx >= 0) {
+        const w = newInventory[weaponInInvIdx];
+        newInventory[weaponInInvIdx] = { ...w, insertedCrystal: insert.crystalId, insertedLS: insert.lsId, luckyStrike };
+        updateHero({ inventory: newInventory });
+      } else {
+        updateHero({ inventory: newInventory });
+      }
+      showToast(`Успіх! LS вставлено. +${luckyStrike}% до криту.`, "success");
+    } else {
+      updateHero({ inventory: newInventory });
+      showToast("Не вдалося — кристал і LS втрачено.", "error");
+    }
+
+    setInsertLSSelected({ crystal: null, ls: null, weapon: null });
+    setInsertLSModalOpen(false);
+    setInsertLSPicker(null);
+  };
+
   // Обробка обміну
   const handleExchange = (type: string, stoneId: string, aaPerStone: number, stoneName: string) => {
     if (!hero) return;
@@ -1381,7 +1463,7 @@ export default function GMShop({ navigate }: GMShopProps) {
         </div>
       )}
 
-      {/* Модалка «Вставити LS» — L2 стиль */}
+      {/* Модалка «Вставити LS» — L2 стиль, більша, 2 зверху + 1 знизу */}
       {insertLSModalOpen && (
         <div
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
@@ -1391,20 +1473,20 @@ export default function GMShop({ navigate }: GMShopProps) {
           }}
         >
           <div
-            className="bg-[#1a1410] border-2 border-[#5c4a32] rounded-lg p-4 max-w-[380px] w-full shadow-[0_0_20px_rgba(255,140,0,0.15)]"
+            className="bg-[#1a1410] border-2 border-[#5c4a32] rounded-lg p-6 max-w-[480px] w-full shadow-[0_0_20px_rgba(255,140,0,0.15)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center text-[#ff8c00] text-[14px] font-bold mb-3 border-b border-[#5c4a32] pb-2">
+            <div className="text-center text-[#ff8c00] text-[16px] font-bold mb-3 border-b border-[#5c4a32] pb-2">
               Вставити кристал та LS у зброю
             </div>
-            <p className="text-[#c4a574] text-[11px] mb-4 text-center">
-              Оберіть кристал, LS і зброю для вставки. Грейд кристала та LS має відповідати грейду зброї.
+            <p className="text-[#c4a574] text-[12px] mb-5 text-center">
+              Оберіть кристал, LS і зброю. Грейди мають збігатися. Шанс успіху 5%, при невдачі кристал і LS втрачаються.
             </p>
 
-            {/* 3 слоти */}
-            <div className="flex gap-3 justify-center mb-4">
+            {/* 2 слоти зверху */}
+            <div className="flex gap-4 justify-center mb-4">
               <div
-                className="w-20 h-20 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                className="w-24 h-24 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
                 onClick={() => setInsertLSPicker("crystal")}
               >
                 {insertLSSelected.crystal ? (
@@ -1412,22 +1494,22 @@ export default function GMShop({ navigate }: GMShopProps) {
                     <img
                       src={insertLSSelected.crystal.icon}
                       alt={insertLSSelected.crystal.name}
-                      className="w-12 h-12 object-contain"
+                      className="w-14 h-14 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
-                    <span className="text-[10px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.crystal.name}</span>
-                    {insertLSSelected.crystal.grade && (
-                      <span className="text-[9px] text-[#ff8c00]">({insertLSSelected.crystal.grade})</span>
+                    <span className="text-[11px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.crystal.name}</span>
+                    {(insertLSSelected.crystal.grade ?? (itemsDBCrystals[insertLSSelected.crystal.id] ?? itemsDB[insertLSSelected.crystal.id])?.grade) && (
+                      <span className="text-[10px] text-[#ff8c00]">({insertLSSelected.crystal.grade ?? (itemsDBCrystals[insertLSSelected.crystal.id] ?? itemsDB[insertLSSelected.crystal.id])?.grade})</span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[11px] text-gray-500">Кристал</span>
+                  <span className="text-[12px] text-gray-500">Кристал</span>
                 )}
               </div>
               <div
-                className="w-20 h-20 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                className="w-24 h-24 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
                 onClick={() => setInsertLSPicker("ls")}
               >
                 {insertLSSelected.ls ? (
@@ -1435,22 +1517,26 @@ export default function GMShop({ navigate }: GMShopProps) {
                     <img
                       src={insertLSSelected.ls.icon}
                       alt={insertLSSelected.ls.name}
-                      className="w-12 h-12 object-contain"
+                      className="w-14 h-14 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
-                    <span className="text-[10px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.ls.name}</span>
-                    {insertLSSelected.ls.grade && (
-                      <span className="text-[9px] text-[#ff8c00]">({insertLSSelected.ls.grade})</span>
+                    <span className="text-[11px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.ls.name}</span>
+                    {(insertLSSelected.ls.grade ?? (itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id])?.grade) && (
+                      <span className="text-[10px] text-[#ff8c00]">({insertLSSelected.ls.grade ?? (itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id])?.grade})</span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[11px] text-gray-500">LS</span>
+                  <span className="text-[12px] text-gray-500">LS</span>
                 )}
               </div>
+            </div>
+
+            {/* 1 слот знизу по центру */}
+            <div className="flex justify-center mb-5">
               <div
-                className="w-20 h-20 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                className="w-24 h-24 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
                 onClick={() => setInsertLSPicker("weapon")}
               >
                 {insertLSSelected.weapon ? (
@@ -1458,23 +1544,30 @@ export default function GMShop({ navigate }: GMShopProps) {
                     <img
                       src={insertLSSelected.weapon.icon}
                       alt={insertLSSelected.weapon.name}
-                      className="w-12 h-12 object-contain"
+                      className="w-14 h-14 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
-                    <span className="text-[10px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.weapon.name}</span>
-                    {insertLSSelected.weapon.grade && (
-                      <span className="text-[9px] text-[#ff8c00]">({insertLSSelected.weapon.grade})</span>
+                    <span className="text-[11px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.weapon.name}</span>
+                    {(insertLSSelected.weapon.grade ?? (itemsDB[insertLSSelected.weapon.id] ?? itemsDBCrystals[insertLSSelected.weapon.id])?.grade ?? autoDetectGrade(insertLSSelected.weapon.id)) && (
+                      <span className="text-[10px] text-[#ff8c00]">({insertLSSelected.weapon.grade ?? (itemsDB[insertLSSelected.weapon.id] ?? itemsDBCrystals[insertLSSelected.weapon.id])?.grade ?? autoDetectGrade(insertLSSelected.weapon.id)})</span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[11px] text-gray-500">Зброя</span>
+                  <span className="text-[12px] text-gray-500">Зброя</span>
                 )}
               </div>
             </div>
 
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={handleMergeLS}
+                disabled={!insertLSSelected.crystal || !insertLSSelected.ls || !insertLSSelected.weapon}
+                className="px-5 py-2 text-[13px] bg-[#4a3520] border border-[#ff8c00] text-[#ff8c00] rounded hover:bg-[#5c4528] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Об'єднати
+              </button>
               <button
                 onClick={() => {
                   setInsertLSModalOpen(false);
@@ -1593,20 +1686,25 @@ export default function GMShop({ navigate }: GMShopProps) {
                 ) : (
                   weapons.map((inv) => {
                     const def = itemsDB[inv.id];
+                    const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
+                    const hasLS = (inv as any).luckyStrike ?? (hero?.equipmentInserts?.weapon?.luckyStrike && hero?.equipment?.weapon === inv.id);
                     return (
                       <div
                         key={inv.id}
                         className="flex items-center gap-2 py-2 px-2 border-b border-white/20 hover:bg-black/30 cursor-pointer"
                         onClick={() => {
-                          setInsertLSSelected((s) => ({ ...s, weapon: inv }));
+                          setInsertLSSelected((s) => ({ ...s, weapon: { ...inv, grade } }));
                           setInsertLSPicker(null);
                         }}
                       >
                         <img src={inv.icon || def?.icon} alt={inv.name} className="w-10 h-10 object-contain" />
                         <div className="flex-1">
                           <span className="text-[12px] text-[#e0c68a]">{inv.name}</span>
-                          {inv.grade && (
-                            <span className="ml-1 text-[11px] text-[#ff8c00]">({inv.grade})</span>
+                          {grade && (
+                            <span className="ml-1 text-[11px] text-[#ff8c00]">({grade})</span>
+                          )}
+                          {hasLS && (
+                            <span className="ml-1 text-[10px] text-green-400" title="LS вставлено">[LS]</span>
                           )}
                         </div>
                       </div>

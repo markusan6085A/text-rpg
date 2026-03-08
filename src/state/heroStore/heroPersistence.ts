@@ -43,6 +43,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     skills: Array.isArray(hero.skills) ? hero.skills : [],
     mobsKilled,
     equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : {},
+    ...(hero.equipmentInserts && Object.keys(hero.equipmentInserts).length > 0 ? { equipmentInserts: hero.equipmentInserts } : {}),
     activeDyes: Array.isArray(hero.activeDyes) ? hero.activeDyes : [],
     activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : [],
     ...(inventoryCapacity !== undefined ? { inventoryCapacity } : {}),
@@ -431,6 +432,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       inventory: Array.isArray(hero.inventory) ? hero.inventory : (Array.isArray(existingHeroJson.inventory) ? existingHeroJson.inventory : []),
       equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : (existingHeroJson.equipment && typeof existingHeroJson.equipment === 'object' ? existingHeroJson.equipment : {}),
       ...(hero.equipmentEnchantLevels && Object.keys(hero.equipmentEnchantLevels).length > 0 ? { equipmentEnchantLevels: hero.equipmentEnchantLevels } : {}),
+      ...(hero.equipmentInserts && Object.keys(hero.equipmentInserts).length > 0 ? { equipmentInserts: hero.equipmentInserts } : {}),
       activeDyes: Array.isArray(hero.activeDyes) && hero.activeDyes.length > 0 ? hero.activeDyes : (Array.isArray(existingHeroJson.activeDyes) ? existingHeroJson.activeDyes : []),
       // Щоденні завдання — мерджимо з store, щоб при race не губити daily_kills/daily_adena_farm
       dailyQuestsProgress: dailyQuestsProgressToSave,

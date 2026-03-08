@@ -138,6 +138,7 @@ function addOldItemToInventory(
   const oldEnchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
   const grade = oldItem.grade || autoDetectGrade(oldItemId);
   const armorType = oldItem.armorType || (oldItem.kind === "armor" || oldItem.kind === "helmet" || oldItem.kind === "boots" || oldItem.kind === "gloves" ? autoDetectArmorType(oldItemId) : undefined);
+  const inserts = slot === "weapon" ? hero.equipmentInserts?.weapon : undefined;
   
   return [
     ...inventory,
@@ -153,6 +154,7 @@ function addOldItemToInventory(
       enchantLevel: oldEnchantLevel,
       grade: grade,
       armorType: armorType,
+      ...(inserts ? { insertedCrystal: inserts.crystalId, insertedLS: inserts.lsId, luckyStrike: inserts.luckyStrike } : {}),
     },
   ];
 }
@@ -717,10 +719,29 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
 
+  // При одяганні зброї: копіюємо luckyStrike в equipmentInserts або очищаємо
+    let newEquipmentInserts = hero.equipmentInserts;
+    if (slot === "weapon") {
+      if ((item as any).luckyStrike) {
+        newEquipmentInserts = {
+          ...(hero.equipmentInserts || {}),
+          weapon: {
+            crystalId: (item as any).insertedCrystal,
+            lsId: (item as any).insertedLS,
+            luckyStrike: (item as any).luckyStrike,
+          },
+        };
+      } else {
+        const { weapon: _w, ...rest } = (hero.equipmentInserts || {}) as any;
+        newEquipmentInserts = Object.keys(rest).length > 0 ? rest : undefined;
+      }
+    }
+
   return {
     ...hero,
     inventory: newInventory,
     equipment: newEquipment,
     equipmentEnchantLevels: newEquipmentEnchantLevels,
+    ...(newEquipmentInserts ? { equipmentInserts: newEquipmentInserts } : {}),
   };
 }

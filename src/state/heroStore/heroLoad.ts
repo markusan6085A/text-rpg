@@ -157,6 +157,9 @@ export function loadHero(): Hero | null {
       const heroEnch = fixedHero.equipmentEnchantLevels ?? {};
       const jsonEnch = (heroJson as any).equipmentEnchantLevels ?? {};
       fixedHero.equipmentEnchantLevels = { ...jsonEnch, ...heroEnch };
+      const heroInserts = fixedHero.equipmentInserts ?? {};
+      const jsonInserts = (heroJson as any).equipmentInserts ?? {};
+      fixedHero.equipmentInserts = Object.keys(jsonInserts).length > 0 ? { ...jsonInserts, ...heroInserts } : heroInserts;
       const heroSkills = Array.isArray(fixedHero.skills) ? fixedHero.skills : [];
       const jsonSkills = Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : [];
       const skillById = new Map<number, { id: number; level: number }>();
