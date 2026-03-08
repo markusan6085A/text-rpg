@@ -311,7 +311,9 @@ export const createUseSkill =
       ? clampChance(heroStats?.mCrit)
       : clampChance(heroStats?.crit);
     // Для скілів використовуємо окрему формулу з меншим множником та капом
-    const critMult = getSkillCritMultiplier(heroStats?.critPower ?? heroStats?.critDamage);
+    const baseCritMult = getSkillCritMultiplier(heroStats?.critPower ?? heroStats?.critDamage);
+    const lsAnger = heroStats?.lsAnger ?? 0;
+    const critMult = baseCritMult * (1 + lsAnger / 100);
 
     if (SONIC_CONSUMERS.has(skillId)) {
       const focusBuff = activeBuffs.find((b) => b.id === SONIC_FOCUS_ID);

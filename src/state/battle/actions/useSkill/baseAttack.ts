@@ -95,7 +95,9 @@ export function handleBaseAttack(
   }
   
   const critChance = clampChance(buffedStats?.crit);
-  const critMult = getCritMultiplier(buffedStats?.critPower ?? buffedStats?.critDamage);
+  const baseCritMult = getCritMultiplier(buffedStats?.critPower ?? buffedStats?.critDamage);
+  const lsAnger = buffedStats?.lsAnger ?? 0;
+  const critMult = baseCritMult * (1 + lsAnger / 100);
   
   // Для риболовлі: споживаємо наживку замість стріл
   if (isFishingZone) {

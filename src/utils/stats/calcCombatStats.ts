@@ -33,6 +33,8 @@ export interface CombatStats {
   lsRskHaste?: number;   // % шанс миттєво відновити скіл
   lsMagicParry?: number; // % відбити магію
   lsBackbiting?: number; // +% урон (backstab)
+  lsMaxHpPercent?: number; // +% макс. HP
+  lsAnger?: number;     // +% сила крита
 }
 
 export function calcCombatStats(
@@ -216,11 +218,13 @@ export function calcCombatStats(
   }
 
   // 3.5. LS кристали в зброї (weapon та lrhand) — всі типи ефектів
-  let lsFocus = 0, lsGuidance = 0, lsEmpower = 0, lsRskFocus = 0, lsRskEvasion = 0, lsRskHaste = 0, lsMagicParry = 0, lsBackbiting = 0;
+  let lsFocus = 0, lsGuidance = 0, lsEmpower = 0, lsRskFocus = 0, lsRskEvasion = 0, lsRskHaste = 0, lsMagicParry = 0, lsBackbiting = 0, lsMaxHpPercent = 0, lsAnger = 0;
   const applyWeaponInsert = (insert: Record<string, number> | undefined) => {
     if (!insert) return;
     if (insert.luckyStrike) crit += insert.luckyStrike * 10;
-    if (insert.anger) critPower += insert.anger * 10;
+    if (insert.mCrit) mCrit += insert.mCrit * 10;
+    if (insert.maxHpPercent) lsMaxHpPercent += insert.maxHpPercent;
+    if (insert.anger) lsAnger += insert.anger;
     if (insert.acumen) castSpeed = Math.round(castSpeed * (1 + insert.acumen / 100));
     if (insert.focus) lsFocus += insert.focus;
     if (insert.guidance) lsGuidance += insert.guidance;
@@ -368,6 +372,8 @@ export function calcCombatStats(
     ...(lsRskHaste > 0 && { lsRskHaste }),
     ...(lsMagicParry > 0 && { lsMagicParry }),
     ...(lsBackbiting > 0 && { lsBackbiting }),
+    ...(lsMaxHpPercent > 0 && { lsMaxHpPercent }),
+    ...(lsAnger > 0 && { lsAnger }),
   };
 }
 
