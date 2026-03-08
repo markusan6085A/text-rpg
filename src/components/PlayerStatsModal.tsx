@@ -125,7 +125,7 @@ export default function PlayerStatsModal({ playerName, stats, hero, onClose }: P
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Сила крита</span>
-                <span className="text-white">{formatStatValue(finalStats.critPower)} (×{Math.min(2.0, (1.5 + (finalStats.critPower ?? 0) / 5000)).toFixed(2)})</span>
+                <span className="text-white">{formatStatValue(finalStats.critPower)} (×{Math.min(2.0, (1.5 + (finalStats.critPower ?? 0) / 5000)).toFixed(2)} атака / ×{Math.min(3.0, (2.0 + (finalStats.critPower ?? 0) / 1500)).toFixed(2)} скіли)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. каста</span>
