@@ -779,7 +779,7 @@ export default function GMShop({ navigate }: GMShopProps) {
       const isEquippedWeapon = hero.equipment?.weapon === insertLSSelected.weapon.id;
       const isEquippedLrhand = hero.equipment?.lrhand === insertLSSelected.weapon.id;
       const isEquipped = isEquippedWeapon || isEquippedLrhand;
-      const weaponInInvIdx = newInventory.findIndex((i) => i.id === insertLSSelected.weapon!.id);
+      const weaponInInvIdx = (insertLSSelected.weapon as any)?._invIdx ?? newInventory.findIndex((i) => i.id === insertLSSelected.weapon!.id);
       const insert = {
         crystalId: insertLSSelected.crystal.id,
         lsId: insertLSSelected.ls.id,
@@ -815,7 +815,8 @@ export default function GMShop({ navigate }: GMShopProps) {
 
   const insertLSSelectedHasLS = insertLSSelected.weapon && hero && (() => {
     const w = insertLSSelected.weapon!;
-    const inv = hero.inventory?.find((i) => i.id === w.id);
+    const invIdx = (w as any)?._invIdx;
+    const inv = invIdx >= 0 ? hero.inventory?.[invIdx] : hero.inventory?.find((i) => i.id === w.id);
     return (hero.equipment?.weapon === w.id && !!hero.equipmentInserts?.weapon?.lsId)
       || (hero.equipment?.lrhand === w.id && !!hero.equipmentInserts?.lrhand?.lsId)
       || !!(inv as any)?.insertedLS || (inv && LS_STAT_KEYS.some((k) => (inv as any)[k] != null));
@@ -826,7 +827,8 @@ export default function GMShop({ navigate }: GMShopProps) {
     const weaponId = insertLSSelected.weapon.id;
     const isEquippedWeapon = hero.equipment?.weapon === weaponId;
     const isEquippedLrhand = hero.equipment?.lrhand === weaponId;
-    const invItem = hero.inventory?.find((i) => i.id === weaponId);
+    const invIdx = (insertLSSelected.weapon as any)?._invIdx;
+    const invItem = invIdx >= 0 ? hero.inventory?.[invIdx] : hero.inventory?.find((i) => i.id === weaponId);
     const hasLS = isEquippedWeapon && !!(hero.equipmentInserts?.weapon?.lsId)
       || isEquippedLrhand && !!(hero.equipmentInserts?.lrhand?.lsId)
       || !!(invItem as any)?.insertedLS || (invItem && LS_STAT_KEYS.some((k) => (invItem as any)[k] != null));
@@ -840,8 +842,8 @@ export default function GMShop({ navigate }: GMShopProps) {
       if (isEquippedLrhand) delete ei.lrhand;
       updateHero({ equipmentInserts: Object.keys(ei).length > 0 ? ei : undefined });
     } else {
-      const invIdx = hero.inventory?.findIndex((i) => i.id === weaponId);
-      if (invIdx >= 0) {
+      const invIdx = (insertLSSelected.weapon as any)?._invIdx ?? hero.inventory?.findIndex((i) => i.id === weaponId);
+      if (invIdx >= 0 && hero.inventory?.[invIdx]) {
         const w = hero.inventory![invIdx] as unknown as Record<string, unknown>;
         const clean: Record<string, unknown> = {};
         Object.keys(w).forEach((k) => {
@@ -1771,14 +1773,13 @@ export default function GMShop({ navigate }: GMShopProps) {
                   if (["C", "B", "A", "S"].includes(first)) return first;
                   return fromDef ?? fromAuto;
                 };
-                const invWeapons = hero?.inventory?.filter((inv) => {
-                  const def = itemsDB[inv.id] ?? itemsDBCrystals[inv.id];
-                  return isWeapon(def);
-                }) ?? [];
+                const invWeaponsWithIdx = (hero?.inventory ?? [])
+                  .map((inv, idx) => ({ inv, invIdx: idx }))
+                  .filter(({ inv }) => isWeapon(itemsDB[inv.id] ?? itemsDBCrystals[inv.id]));
                 const equipIdsRaw = [hero?.equipment?.weapon, hero?.equipment?.lrhand].filter(Boolean) as string[];
                 const equipIdsUnique = [...new Set(equipIdsRaw)];
                 const equipWeapons = equipIdsUnique
-                  .filter((id) => !invWeapons.some((w) => w.id === id))
+                  .filter((id) => !invWeaponsWithIdx.some(({ inv }) => inv.id === id))
                   .map((id) => {
                     const def = itemsDB[id];
                     if (!def || !isWeapon(def)) return null;
@@ -1797,7 +1798,11 @@ export default function GMShop({ navigate }: GMShopProps) {
                     } as HeroInventoryItem;
                   })
                   .filter(Boolean) as HeroInventoryItem[];
-                const weapons = [...equipWeapons, ...invWeapons];
+                const weaponsWithMeta: { item: HeroInventoryItem; invIdx: number }[] = [
+                  ...equipWeapons.map((w) => ({ item: w, invIdx: -1 })),
+                  ...invWeaponsWithIdx.map(({ inv, invIdx }) => ({ item: inv, invIdx })),
+                ];
+                const weapons = weaponsWithMeta.map((w) => w.item);
                 if (weapons.length === 0) {
                   return <p className="text-gray-500 text-[11px] py-4">У вас немає зброї</p>;
                 }
@@ -1834,26 +1839,26 @@ export default function GMShop({ navigate }: GMShopProps) {
                       </div>
                     )}
                     <div className="grid grid-cols-4 gap-1.5 max-h-[50vh] overflow-y-auto">
-                      {weapons
-                        .filter((inv) => {
+                      {weaponsWithMeta
+                        .filter(({ item: inv }) => {
                           const def = itemsDB[inv.id];
                           const grade = normalizeGrade(inv, def);
                           const wType = getWeaponTypeFromItemId(inv.id, def);
                           if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || grade === weaponPickerGrade;
                           return weaponPickerType === "*" || wType === weaponPickerType;
                         })
-                        .map((inv, idx) => {
+                        .map(({ item: inv, invIdx }, idx) => {
                           const def = itemsDB[inv.id];
                           const grade = normalizeGrade(inv, def);
                           const hasLS = !!(inv as any).insertedLS || !!(inv as any).luckyStrike || !!(hero?.equipmentInserts?.weapon?.lsId && hero?.equipment?.weapon === inv.id) || !!(hero?.equipmentInserts?.lrhand?.lsId && hero?.equipment?.lrhand === inv.id);
                           return (
                             <div
-                              key={`${inv.id}-${idx}`}
+                              key={`${inv.id}-${invIdx}-${idx}`}
                               className="flex flex-col items-center gap-0.5 p-1.5 rounded bg-black/20 hover:bg-[#2a2015] cursor-pointer"
                               onClick={() => {
                                 setInsertLSSelected((s) => ({
                                   ...s,
-                                  weapon: { ...inv, grade: (grade ?? inv.grade) as HeroInventoryItem["grade"] } as HeroInventoryItem,
+                                  weapon: { ...inv, grade: (grade ?? inv.grade) as HeroInventoryItem["grade"], _invIdx: invIdx } as HeroInventoryItem & { _invIdx?: number },
                                 }));
                                 setInsertLSPicker(null);
                               }}
@@ -1869,7 +1874,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                           );
                         })}
                     </div>
-                    {weapons.filter((inv) => {
+                    {weaponsWithMeta.filter(({ item: inv }) => {
                       const def = itemsDB[inv.id];
                       const grade = normalizeGrade(inv, def);
                       const wType = getWeaponTypeFromItemId(inv.id, def);
