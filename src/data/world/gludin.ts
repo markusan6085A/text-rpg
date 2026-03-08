@@ -2,7 +2,6 @@ import type { City, Zone, Mob } from "./types";
 import { GLUDIN_VILLAGE_MOBS } from "../zones/gludin_village";
 import { GLUDIN_VILLAGE_ELITE_MOBS } from "../zones/gludin_village_elite";
 import { GLUDIN_VILLAGE_CORE_MOBS } from "../zones/gludin_village_core";
-import { MAMMON_TREASURY_MOBS } from "../zones/mammon_treasury";
 import { GLUDIN_SANCTUARY_MOBS } from "../zones/gludin_sanctuary";
 import { GLUDIN_STRONGHOLD_MOBS } from "../zones/gludin_stronghold";
 import { GLUDIN_HIGHLANDS_MOBS } from "../zones/gludin_highlands";
@@ -77,14 +76,5 @@ export const GLUDIN_ZONES: Zone[] = [
     tpCost: 14000,
     cityId: "gludin",
     mobs: GLUDIN_VILLAGE_CORE_MOBS as Mob[],
-  },
-  {
-    id: "mammon_treasury",
-    name: "Скарбниця Мамона",
-    minLevel: 38,
-    maxLevel: 50,
-    tpCost: 15000,
-    cityId: "gludin",
-    mobs: MAMMON_TREASURY_MOBS as Mob[],
   },
 ];

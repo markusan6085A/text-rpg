@@ -1,10 +1,52 @@
 // src/data/items/itemsDB_crystals.ts
-// Кристали LS (Lucky Strike) для зброї C–S грейду — дропаються з Збирача Мамона
+// Кристали для зброї C–S грейду (купуються в GM-шопі)
 
 import type { ItemDefinition } from "./itemsDB.types";
 
 export const itemsDBCrystals: Record<string, ItemDefinition> = {
-  // ===== C-GRADE LS КРИСТАЛИ =====
+  // ===== КРИСТАЛИ (bead іконки) =====
+  crystal_c: {
+    id: "crystal_c",
+    name: "Кристал (C)",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    description: "Кристал душі C-грейду. Вставляється в зброю C-грейду.",
+    grade: "C",
+    stats: {},
+  },
+  crystal_b: {
+    id: "crystal_b",
+    name: "Кристал (B)",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/Etc_bead_red_i00_0.jpg",
+    description: "Кристал душі B-грейду. Вставляється в зброю B-грейду.",
+    grade: "B",
+    stats: {},
+  },
+  crystal_a: {
+    id: "crystal_a",
+    name: "Кристал (A)",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/Etc_bead_silver_i00_0.jpg",
+    description: "Кристал душі A-грейду. Вставляється в зброю A-грейду.",
+    grade: "A",
+    stats: {},
+  },
+  crystal_s: {
+    id: "crystal_s",
+    name: "Кристал (S)",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/Etc_bead_white_i00_0.jpg",
+    description: "Кристал душі S-грейду. Вставляється в зброю S-грейду.",
+    grade: "S",
+    stats: {},
+  },
+
+  // ===== LS (Lucky Strike) — mineral іконки =====
   crystal_lucky_strike_c: {
     id: "crystal_lucky_strike_c",
     name: "Кристал Удачі (C)",

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
+import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
 
 type Navigate = (path: string) => void;
 
@@ -23,6 +24,11 @@ export interface DyeItem {
   statMinus: "STR" | "CON" | "DEX" | "INT" | "MEN" | "WIT";
   effect: number; // +1, +2, +3, +4, +5 залежно від грейду
 }
+
+// Предмети кристалів/LS — купуються за Adena
+const GM_CRYSTAL_ITEM_IDS = ["crystal_c", "crystal_b", "crystal_a", "crystal_s"] as const;
+const GM_LS_ITEM_IDS = ["crystal_lucky_strike_c", "crystal_lucky_strike_b", "crystal_lucky_strike_a", "crystal_lucky_strike_s"] as const;
+const CRYSTAL_PRICE_ADENA = 10;
 
 // Предмети для продажу в GM-шопі (краски з правильними парами статів)
 export const GM_SHOP_ITEMS: DyeItem[] = [
@@ -525,6 +531,7 @@ export default function GMShop({ navigate }: GMShopProps) {
   const updateAdena = useHeroStore((s) => s.updateAdena);
   const addItemToInventory = useHeroStore((s) => s.addItemToInventory);
   const [selectedCategory, setSelectedCategory] = useState<string>("shop");
+  const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "crystals" | "ls">("dyes");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
   const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
   const [confirmExchange, setConfirmExchange] = useState<{ 
@@ -535,6 +542,7 @@ export default function GMShop({ navigate }: GMShopProps) {
   } | null>(null);
   const [exchangeQuantity, setExchangeQuantity] = useState<number>(1);
   const [selectedItem, setSelectedItem] = useState<DyeItem | null>(null);
+  const [selectedCrystalItem, setSelectedCrystalItem] = useState<{ itemId: string } | null>(null);
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
 
   if (!hero) {
@@ -664,6 +672,31 @@ export default function GMShop({ navigate }: GMShopProps) {
       }
     }
     showToast("Недостатньо Ancient Adena (AA)!", "error");
+  };
+
+  // Обробка покупки за Adena (кристали, LS)
+  const handleBuyAdena = (itemId: string, quantity: number = 1) => {
+    if (!hero) return;
+
+    const totalPrice = CRYSTAL_PRICE_ADENA * quantity;
+    const currentAdena = hero.adena ?? 0;
+
+    if (currentAdena < totalPrice) {
+      showToast("Недостатньо Adena!", "error");
+      return;
+    }
+
+    const itemDef = itemsDB[itemId] ?? itemsDBCrystals[itemId];
+    if (!itemDef) {
+      showToast(`Предмет ${itemId} не знайдено`, "error");
+      return;
+    }
+
+    updateAdena(-totalPrice);
+    addItemToInventory(itemId, quantity);
+    setSelectedCrystalItem(null);
+    setBuyQuantity(1);
+    showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
   };
 
   // Обробка обміну
@@ -817,23 +850,61 @@ export default function GMShop({ navigate }: GMShopProps) {
       {/* Магазин */}
       {selectedCategory === "shop" && (
         <div className="px-4 py-2 border-b border-black/70">
-          {/* Фільтр грейдів */}
+          {/* Підкатегорії магазину */}
           <div className="mb-2 flex gap-1 flex-wrap">
-            {(["D", "C", "B", "A", "S"] as const).map((grade) => (
-              <button
-                key={grade}
-                onClick={() => setSelectedGrade(grade)}
-                className={`px-2 py-1 text-[11px] ${
-                  selectedGrade === grade
-                    ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
-                    : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
-                }`}
-              >
-                {grade}
-              </button>
-            ))}
+            <button
+              onClick={() => setSelectedShopSubcategory("dyes")}
+              className={`px-2 py-1 text-[11px] ${
+                selectedShopSubcategory === "dyes"
+                  ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
+                  : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+              }`}
+            >
+              Краски
+            </button>
+            <button
+              onClick={() => setSelectedShopSubcategory("crystals")}
+              className={`px-2 py-1 text-[11px] ${
+                selectedShopSubcategory === "crystals"
+                  ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
+                  : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+              }`}
+            >
+              Кристали
+            </button>
+            <button
+              onClick={() => setSelectedShopSubcategory("ls")}
+              className={`px-2 py-1 text-[11px] ${
+                selectedShopSubcategory === "ls"
+                  ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
+                  : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+              }`}
+            >
+              LS
+            </button>
           </div>
+
+          {/* Краски — фільтр грейдів */}
+          {selectedShopSubcategory === "dyes" && (
+            <div className="mb-2 flex gap-1 flex-wrap">
+              {(["D", "C", "B", "A", "S"] as const).map((grade) => (
+                <button
+                  key={grade}
+                  onClick={() => setSelectedGrade(grade)}
+                  className={`px-2 py-1 text-[11px] ${
+                    selectedGrade === grade
+                      ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
+                      : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+                  }`}
+                >
+                  {grade}
+                </button>
+              ))}
+            </div>
+          )}
           
+          {/* Список предметів */}
+          {selectedShopSubcategory === "dyes" && (
           <div className="space-y-1">
             {GM_SHOP_ITEMS.filter(item => item.grade === selectedGrade).map((item) => (
               <div
@@ -864,6 +935,73 @@ export default function GMShop({ navigate }: GMShopProps) {
               </div>
             ))}
           </div>
+          )}
+
+          {/* Кристали */}
+          {selectedShopSubcategory === "crystals" && (
+          <div className="space-y-1">
+            {GM_CRYSTAL_ITEM_IDS.map((itemId) => {
+              const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
+              if (!def) return null;
+              return (
+                <div
+                  key={itemId}
+                  className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                  onClick={() => {
+                    setSelectedCrystalItem({ itemId });
+                    setBuyQuantity(1);
+                  }}
+                >
+                  <img
+                    src={def.icon}
+                    alt={def.name}
+                    className="w-8 h-8 object-contain flex-shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                    }}
+                  />
+                  <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
+                  <div className="text-yellow-400 text-[12px] font-semibold">
+                    {CRYSTAL_PRICE_ADENA} Adena
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          )}
+
+          {/* LS */}
+          {selectedShopSubcategory === "ls" && (
+          <div className="space-y-1">
+            {GM_LS_ITEM_IDS.map((itemId) => {
+              const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
+              if (!def) return null;
+              return (
+                <div
+                  key={itemId}
+                  className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                  onClick={() => {
+                    setSelectedCrystalItem({ itemId });
+                    setBuyQuantity(1);
+                  }}
+                >
+                  <img
+                    src={def.icon}
+                    alt={def.name}
+                    className="w-8 h-8 object-contain flex-shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                    }}
+                  />
+                  <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
+                  <div className="text-yellow-400 text-[12px] font-semibold">
+                    {CRYSTAL_PRICE_ADENA} Adena
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          )}
         </div>
       )}
 
@@ -1133,6 +1271,98 @@ export default function GMShop({ navigate }: GMShopProps) {
                 Скасувати
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модальне вікно покупки кристала/LS за Adena */}
+      {selectedCrystalItem && (
+        <div 
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedCrystalItem(null)}
+        >
+          <div 
+            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(() => {
+              const def = itemsDB[selectedCrystalItem.itemId] ?? itemsDBCrystals[selectedCrystalItem.itemId];
+              if (!def) return null;
+              const totalPrice = CRYSTAL_PRICE_ADENA * buyQuantity;
+              return (
+                <>
+                  <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
+                    Інформація про предмет
+                  </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <img
+                      src={def.icon}
+                      alt={def.name}
+                      className="w-16 h-16 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                      }}
+                    />
+                    <div className="flex-1">
+                      <div className="text-white text-base font-semibold">{def.name}</div>
+                    </div>
+                  </div>
+                  {def.description && (
+                    <div className="text-gray-300 text-[12px] mb-4 italic">{def.description}</div>
+                  )}
+                  <div className="text-yellow-400 text-[12px] mb-4 flex items-center gap-1">
+                    Ціна: {CRYSTAL_PRICE_ADENA} Adena
+                  </div>
+                  <div className="mb-4 border-t border-white/50 pt-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-white text-[12px]">Кількість:</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setBuyQuantity(Math.max(1, buyQuantity - 1))}
+                          className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          value={buyQuantity}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value) || 1;
+                            setBuyQuantity(Math.max(1, val));
+                          }}
+                          onFocus={(e) => e.target.select()}
+                          className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-center text-[12px]"
+                        />
+                        <button
+                          onClick={() => setBuyQuantity(buyQuantity + 1)}
+                          className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-yellow-400 text-[12px] mb-2">
+                      Разом: {totalPrice} Adena
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={() => handleBuyAdena(selectedCrystalItem.itemId, buyQuantity)}
+                      className="text-green-400 text-[12px] py-2 hover:text-green-300 cursor-pointer px-4 bg-[#1a1208] border border-white/50 rounded"
+                    >
+                      Купити
+                    </button>
+                    <button
+                      onClick={() => setSelectedCrystalItem(null)}
+                      className="text-gray-400 text-[12px] py-2 hover:text-gray-300 cursor-pointer px-4 bg-[#1a1208] border border-white/50 rounded"
+                    >
+                      Скасувати
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
