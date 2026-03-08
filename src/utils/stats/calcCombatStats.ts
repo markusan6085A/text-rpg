@@ -22,8 +22,17 @@ export interface CombatStats {
   hpRegen: number;
   mpRegen: number;
   cpRegen: number;
-  shieldBlockRate?: number; // Shield block rate (from skills like Shield Fortress)
-  shieldBlockPower?: number; // Shield block power (from skills like Aegis Stance)
+  shieldBlockRate?: number;
+  shieldBlockPower?: number;
+  // LS кристали (всі типи)
+  lsFocus?: number;      // -% перезарядка скілів
+  lsGuidance?: number;   // -% витрата MP скілів
+  lsEmpower?: number;    // +% урон скілів
+  lsRskFocus?: number;   // % шанс не витратити MP
+  lsRskEvasion?: number; // % шанс уникнути атаку
+  lsRskHaste?: number;   // % шанс миттєво відновити скіл
+  lsMagicParry?: number; // % відбити магію
+  lsBackbiting?: number; // +% урон (backstab)
 }
 
 export function calcCombatStats(
@@ -206,12 +215,21 @@ export function calcCombatStats(
     if (setBonuses.shieldBlockPower) shieldBlockPower += setBonuses.shieldBlockPower || 0;
   }
 
-  // 3.5. LS кристали в зброї (weapon та lrhand для dual wield)
+  // 3.5. LS кристали в зброї (weapon та lrhand) — всі типи ефектів
+  let lsFocus = 0, lsGuidance = 0, lsEmpower = 0, lsRskFocus = 0, lsRskEvasion = 0, lsRskHaste = 0, lsMagicParry = 0, lsBackbiting = 0;
   const applyWeaponInsert = (insert: Record<string, number> | undefined) => {
     if (!insert) return;
     if (insert.luckyStrike) crit += insert.luckyStrike * 10;
     if (insert.anger) critPower += insert.anger * 10;
     if (insert.acumen) castSpeed = Math.round(castSpeed * (1 + insert.acumen / 100));
+    if (insert.focus) lsFocus += insert.focus;
+    if (insert.guidance) lsGuidance += insert.guidance;
+    if (insert.empower) lsEmpower += insert.empower;
+    if (insert.rskFocus) lsRskFocus += insert.rskFocus;
+    if (insert.rskEvasion) lsRskEvasion += insert.rskEvasion;
+    if (insert.rskHaste) lsRskHaste += insert.rskHaste;
+    if (insert.magicParry) lsMagicParry += insert.magicParry;
+    if (insert.backbiting) lsBackbiting += insert.backbiting;
   };
   applyWeaponInsert(equipmentInserts?.weapon as Record<string, number> | undefined);
   applyWeaponInsert(equipmentInserts?.lrhand as Record<string, number> | undefined);
@@ -332,8 +350,8 @@ export function calcCombatStats(
     mDef,
     accuracy: accuracyPercent,
     evasion: evasionPercent,
-    crit: crit, // ✅ Залишаємо flat значення (не конвертуємо в %)
-    mCrit: mCrit, // ✅ Залишаємо flat значення (не конвертуємо в %)
+    crit: crit,
+    mCrit: mCrit,
     critPower,
     attackSpeed: finalAttackSpeed,
     castSpeed: Math.round(castSpeed * 10) / 10,
@@ -342,6 +360,14 @@ export function calcCombatStats(
     cpRegen,
     shieldBlockRate,
     shieldBlockPower,
+    ...(lsFocus > 0 && { lsFocus }),
+    ...(lsGuidance > 0 && { lsGuidance }),
+    ...(lsEmpower > 0 && { lsEmpower }),
+    ...(lsRskFocus > 0 && { lsRskFocus }),
+    ...(lsRskEvasion > 0 && { lsRskEvasion }),
+    ...(lsRskHaste > 0 && { lsRskHaste }),
+    ...(lsMagicParry > 0 && { lsMagicParry }),
+    ...(lsBackbiting > 0 && { lsBackbiting }),
   };
 }
 

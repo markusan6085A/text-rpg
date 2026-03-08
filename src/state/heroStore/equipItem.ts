@@ -85,7 +85,16 @@ function removeItemFromInventory(
   isTwoHandedInBothSlots: boolean
 ): HeroInventoryItem[] {
   const newInventory = [...inventory];
-  const itemIndex = newInventory.findIndex((i: any) => i && i.id === item.id);
+  const itemInsertedLS = (item as any).insertedLS;
+  const itemInsertedCrystal = (item as any).insertedCrystal;
+  let itemIndex = newInventory.findIndex((i: any) => {
+    if (!i || i.id !== item.id) return false;
+    if (itemInsertedLS != null && (i.insertedLS ?? null) !== itemInsertedLS) return false;
+    if (itemInsertedCrystal != null && (i.insertedCrystal ?? null) !== itemInsertedCrystal) return false;
+    if (itemInsertedLS == null && itemInsertedCrystal == null && (i.insertedLS != null || i.insertedCrystal != null)) return false;
+    return true;
+  });
+  if (itemIndex < 0) itemIndex = newInventory.findIndex((i: any) => i && i.id === item.id);
   
   console.log(`[equipItemLogic] 🔍 REMOVING ITEM FROM INVENTORY:`, {
     itemId: item.id,

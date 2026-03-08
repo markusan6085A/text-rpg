@@ -215,8 +215,9 @@ export const createUseSkill =
     const levelDef = def.levels.find((l) => l.level === learned.level) ?? def.levels[0];
     if (!levelDef) return;
 
-    const mpCost = levelDef.mpCost ?? 0;
-    // ❗ Читаємо MP з hero.resources
+    const rawMpCost = levelDef.mpCost ?? 0;
+    const lsGuidance = (hero.battleStats as any)?.lsGuidance ?? 0;
+    const mpCost = Math.max(0, Math.round(rawMpCost * (1 - lsGuidance / 100)));
     if ((hero.mp ?? 0) < mpCost) {
       if (import.meta.env.DEV && skillId === 92) {
         console.warn(`[useSkill] Shield Stun (${skillId}) not enough MP. Required: ${mpCost}, Have: ${hero.mp ?? 0}`);

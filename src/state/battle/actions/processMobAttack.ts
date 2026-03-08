@@ -82,7 +82,9 @@ export const createProcessMobAttack =
     const invulnerable = !!heroStats.invulnerable;
 
     const dodgeChance = Math.max(0, Math.min(80, Math.round(heroStats.evasion ?? 0)));
-    const isMiss = Math.random() * 100 < dodgeChance;
+    const lsRskEvasion = heroStats?.lsRskEvasion ?? 0;
+    const combinedEvadeChance = Math.min(95, dodgeChance + lsRskEvasion);
+    const isMiss = Math.random() * 100 < combinedEvadeChance;
 
     const updateHero = useHeroStore.getState().updateHero;
 
@@ -198,18 +200,22 @@ export const createProcessMobAttack =
       }
     }
 
-    // Перевіряємо логіку відбиття урону (Physical Mirror) - працює тільки з щитом
-    // Для PvP атак може бути як фізична, так і магічна атака
-    // isPhysicalAttack вже визначено вище
     const reflectChances = getReflectChances(nextBuffs, hero, now);
     const reflectResult = checkReflectDamage(mitigated, isPhysicalAttack, reflectChances);
+    const lsMagicParry = heroStats?.lsMagicParry ?? 0;
+    const magicParryProc = !isPhysicalAttack && lsMagicParry > 0 && Math.random() * 100 < lsMagicParry;
     
     let finalHeroDamage = mitigated;
     let reflectedDamage = 0;
     let nextMobHP = state.mobHP;
 
-    // Якщо відбиття спрацювало, урон відбивається назад на моба
-    if (reflectResult.reflected) {
+    if (magicParryProc) {
+      reflectedDamage = mitigated;
+      finalHeroDamage = 0;
+      nextMobHP = Math.max(0, state.mobHP - reflectedDamage);
+    }
+    // Якщо відбиття спрацювало (Physical Mirror або інше), урон відбивається назад на моба
+    else if (reflectResult.reflected) {
       reflectedDamage = reflectResult.reflectedDamage;
       finalHeroDamage = 0; // Герой не отримує урон
       nextMobHP = Math.max(0, state.mobHP - reflectedDamage);

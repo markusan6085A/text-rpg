@@ -155,6 +155,8 @@ export function handleBaseAttack(
   
   const isCrit = Math.random() * 100 < critChance;
   damage = isCrit ? Math.round(damage * critMult) : damage;
+  const lsBackbiting = buffedStats?.lsBackbiting ?? 0;
+  if (lsBackbiting > 0) damage = Math.round(damage * (1 + lsBackbiting / 100));
 
   // Діагностика урону
   if (import.meta.env.DEV) {

@@ -95,9 +95,13 @@ export function handleAttackSkill(
   }
 
   // Attack skills
-  const damage = isMagic
+  let damage = isMagic
     ? calculateMagicDamage(heroStats, targetStats, def, levelDef)
     : calculatePhysicalDamage(heroStats, targetStats, def, levelDef);
+  const lsEmpower = heroStats?.lsEmpower ?? 0;
+  const lsBackbiting = heroStats?.lsBackbiting ?? 0;
+  if (lsEmpower > 0) damage = Math.round(damage * (1 + lsEmpower / 100));
+  if (isPhysical && lsBackbiting > 0) damage = Math.round(damage * (1 + lsBackbiting / 100));
   
   // Застосовуємо множник від shot
   const damageWithShot = Math.round(damage * shotResult.multiplier);
@@ -118,16 +122,18 @@ export function handleAttackSkill(
 
   const nextMobHP = Math.max(0, state.mobHP - totalDamage);
   const { maxHp, maxMp, maxCp } = computeMaxNow(activeBuffs);
-  // ❗ Читаємо поточні ресурси з hero.resources
   const currentHeroHP = Math.min(maxHp, hero.hp ?? maxHp);
   const currentHeroMP = Math.min(maxMp, hero.mp ?? maxMp);
   const currentHeroCP = Math.min(maxCp, hero.cp ?? maxCp);
 
-  const nextHeroMP = currentHeroMP - mpCost;
+  const lsRskFocus = heroStats?.lsRskFocus ?? 0;
+  const mpActuallySpent = (lsRskFocus > 0 && Math.random() * 100 < lsRskFocus) ? 0 : mpCost;
+  const nextHeroMP = currentHeroMP - mpActuallySpent;
   
-  // Перевірка Skill Critical (Focus Skill Mastery) - шанс використати скіл без кулдауну
   const skillCritical = checkSkillCritical(heroStats, activeBuffs);
-  const cooldownDuration = skillCritical ? 0 : cooldownMs(def.cooldown, false);
+  const lsRskHaste = heroStats?.lsRskHaste ?? 0;
+  const rskHasteProc = lsRskHaste > 0 && Math.random() * 100 < lsRskHaste;
+  const cooldownDuration = (skillCritical || rskHasteProc) ? 0 : cooldownMs(def.cooldown, false);
   const cooldownEntry = createCooldownEntry(skillId, cooldownDuration, now);
   const updatedCooldowns = { ...(get().cooldowns || {}), ...cooldownEntry };
   // Обробка крадіжки HP (vampirism) для attack skills
@@ -225,7 +231,7 @@ export function handleAttackSkill(
       const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
 
-      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory };
+      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory, overflowChest: dropResult.overflowChest ?? [] };
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
         const baseActiveQuests = curHero.activeQuests || [];
         victoryUpdates.activeQuests = baseActiveQuests.map((aq) => {
