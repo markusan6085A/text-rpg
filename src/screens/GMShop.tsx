@@ -802,7 +802,8 @@ export default function GMShop({ navigate }: GMShopProps) {
         updateHero({ inventory: newInventory });
       }
       const effDesc = Object.entries(lsStats).map(([k, v]) => `${k}: +${v}`).join(", ") || insertLSSelected.ls.name;
-      showToast(`Успіх! LS вставлено. (${effDesc})`, "success");
+      const bonusTip = !isEquipped && lsStats.maxHpPercent ? " Одягніть зброю для бонусу до HP." : "";
+      showToast(`Успіх! LS вставлено. (${effDesc})${bonusTip}`, "success");
     } else {
       updateHero({ inventory: newInventory });
       showToast("Не вдалося — кристал і LS втрачено.", "error");

@@ -40,7 +40,7 @@ function isStackableItem(it: any): boolean {
 
 /** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1). */
 function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
-  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}`;
+  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}_${(i as any)?.insertedLS ?? ""}`;
   const countByKey = (arr: any[]) => {
     const m = new Map<string, number>();
     (arr || []).forEach((it: any) => {
