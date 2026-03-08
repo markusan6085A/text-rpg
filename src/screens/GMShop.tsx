@@ -1575,7 +1575,11 @@ export default function GMShop({ navigate }: GMShopProps) {
             <div className="flex justify-center mb-5">
               <div
                 className="w-12 h-12 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
-                onClick={() => setInsertLSPicker("weapon")}
+                onClick={() => {
+                  setInsertLSPicker("weapon");
+                  setWeaponPickerGrade("*");
+                  setWeaponPickerType("*");
+                }}
               >
                 {insertLSSelected.weapon ? (
                   <>
@@ -1704,12 +1708,17 @@ export default function GMShop({ navigate }: GMShopProps) {
                   const def = itemsDB[inv.id] ?? itemsDBCrystals[inv.id];
                   return isWeapon(def);
                 }) ?? [];
-                const equipIds = [hero?.equipment?.weapon, hero?.equipment?.lrhand].filter(Boolean) as string[];
-                const equipWeapons = equipIds
+                const equipIdsRaw = [hero?.equipment?.weapon, hero?.equipment?.lrhand].filter(Boolean) as string[];
+                const equipIdsUnique = [...new Set(equipIdsRaw)];
+                const equipWeapons = equipIdsUnique
                   .filter((id) => !invWeapons.some((w) => w.id === id))
                   .map((id) => {
                     const def = itemsDB[id];
                     if (!def || !isWeapon(def)) return null;
+                    const fromWeapon = hero?.equipment?.weapon === id;
+                    const fromLrhand = hero?.equipment?.lrhand === id;
+                    const inserts = fromWeapon ? hero?.equipmentInserts?.weapon : hero?.equipmentInserts?.lrhand;
+                    const hasLS = !!(inserts?.lsId);
                     return {
                       id,
                       name: def.name,
@@ -1717,11 +1726,11 @@ export default function GMShop({ navigate }: GMShopProps) {
                       slot: "weapon",
                       grade: def.grade,
                       count: 1,
+                      insertedLS: hasLS ? inserts?.lsId : undefined,
                     } as HeroInventoryItem;
                   })
                   .filter(Boolean) as HeroInventoryItem[];
-                const allWeapons = [...equipWeapons, ...invWeapons];
-                const weapons = allWeapons;
+                const weapons = [...equipWeapons, ...invWeapons];
                 if (weapons.length === 0) {
                   return <p className="text-gray-500 text-[11px] py-4">У вас немає зброї</p>;
                 }
@@ -1761,15 +1770,15 @@ export default function GMShop({ navigate }: GMShopProps) {
                       {weapons
                         .filter((inv) => {
                           const def = itemsDB[inv.id];
-                          const grade = String(inv.grade ?? def?.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
+                          const grade = String(def?.grade ?? inv.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
                           const wType = getWeaponTypeFromItemId(inv.id, def);
                           if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || grade === weaponPickerGrade;
                           return weaponPickerType === "*" || wType === weaponPickerType;
                         })
                         .map((inv) => {
                           const def = itemsDB[inv.id];
-                          const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
-                          const hasLS = (inv as any).insertedLS ?? (inv as any).luckyStrike ?? (hero?.equipmentInserts?.weapon?.lsId && hero?.equipment?.weapon === inv.id);
+                          const grade = def?.grade ?? inv.grade ?? autoDetectGrade(inv.id);
+                          const hasLS = !!(inv as any).insertedLS || !!(inv as any).luckyStrike || !!(hero?.equipmentInserts?.weapon?.lsId && hero?.equipment?.weapon === inv.id) || !!(hero?.equipmentInserts?.lrhand?.lsId && hero?.equipment?.lrhand === inv.id);
                           return (
                             <div
                               key={inv.id}
@@ -1792,7 +1801,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     </div>
                     {weapons.filter((inv) => {
                       const def = itemsDB[inv.id];
-                      const grade = String(inv.grade ?? def?.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
+                      const grade = String(def?.grade ?? inv.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
                       const wType = getWeaponTypeFromItemId(inv.id, def);
                       if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || grade === weaponPickerGrade;
                       return weaponPickerType === "*" || wType === weaponPickerType;
