@@ -4,6 +4,7 @@ import { useHeroStore } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
+import type { HeroInventoryItem } from "../types/Hero";
 
 type Navigate = (path: string) => void;
 
@@ -543,6 +544,13 @@ export default function GMShop({ navigate }: GMShopProps) {
   const [exchangeQuantity, setExchangeQuantity] = useState<number>(1);
   const [selectedItem, setSelectedItem] = useState<DyeItem | null>(null);
   const [selectedCrystalItem, setSelectedCrystalItem] = useState<{ itemId: string } | null>(null);
+  const [insertLSModalOpen, setInsertLSModalOpen] = useState(false);
+  const [insertLSPicker, setInsertLSPicker] = useState<"crystal" | "ls" | "weapon" | null>(null);
+  const [insertLSSelected, setInsertLSSelected] = useState<{
+    crystal: HeroInventoryItem | null;
+    ls: HeroInventoryItem | null;
+    weapon: HeroInventoryItem | null;
+  }>({ crystal: null, ls: null, weapon: null });
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
 
   if (!hero) {
@@ -845,6 +853,12 @@ export default function GMShop({ navigate }: GMShopProps) {
             Обмінник AA
           </button>
         </div>
+        <button
+          onClick={() => setInsertLSModalOpen(true)}
+          className="w-full mt-2 py-2 px-3 text-[12px] bg-[#2a1f14] hover:bg-[#3d2f1a] border border-[#5c4a32] text-[#e0c68a] rounded"
+        >
+          Вставити LS
+        </button>
       </div>
 
       {/* Магазин */}
@@ -1363,6 +1377,250 @@ export default function GMShop({ navigate }: GMShopProps) {
                 </>
               );
             })()}
+          </div>
+        </div>
+      )}
+
+      {/* Модалка «Вставити LS» — L2 стиль */}
+      {insertLSModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setInsertLSModalOpen(false);
+            setInsertLSPicker(null);
+          }}
+        >
+          <div
+            className="bg-[#1a1410] border-2 border-[#5c4a32] rounded-lg p-4 max-w-[380px] w-full shadow-[0_0_20px_rgba(255,140,0,0.15)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center text-[#ff8c00] text-[14px] font-bold mb-3 border-b border-[#5c4a32] pb-2">
+              Вставити кристал та LS у зброю
+            </div>
+            <p className="text-[#c4a574] text-[11px] mb-4 text-center">
+              Оберіть кристал, LS і зброю для вставки. Грейд кристала та LS має відповідати грейду зброї.
+            </p>
+
+            {/* 3 слоти */}
+            <div className="flex gap-3 justify-center mb-4">
+              <div
+                className="w-20 h-20 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                onClick={() => setInsertLSPicker("crystal")}
+              >
+                {insertLSSelected.crystal ? (
+                  <>
+                    <img
+                      src={insertLSSelected.crystal.icon}
+                      alt={insertLSSelected.crystal.name}
+                      className="w-12 h-12 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                      }}
+                    />
+                    <span className="text-[10px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.crystal.name}</span>
+                    {insertLSSelected.crystal.grade && (
+                      <span className="text-[9px] text-[#ff8c00]">({insertLSSelected.crystal.grade})</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-[11px] text-gray-500">Кристал</span>
+                )}
+              </div>
+              <div
+                className="w-20 h-20 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                onClick={() => setInsertLSPicker("ls")}
+              >
+                {insertLSSelected.ls ? (
+                  <>
+                    <img
+                      src={insertLSSelected.ls.icon}
+                      alt={insertLSSelected.ls.name}
+                      className="w-12 h-12 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                      }}
+                    />
+                    <span className="text-[10px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.ls.name}</span>
+                    {insertLSSelected.ls.grade && (
+                      <span className="text-[9px] text-[#ff8c00]">({insertLSSelected.ls.grade})</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-[11px] text-gray-500">LS</span>
+                )}
+              </div>
+              <div
+                className="w-20 h-20 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                onClick={() => setInsertLSPicker("weapon")}
+              >
+                {insertLSSelected.weapon ? (
+                  <>
+                    <img
+                      src={insertLSSelected.weapon.icon}
+                      alt={insertLSSelected.weapon.name}
+                      className="w-12 h-12 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                      }}
+                    />
+                    <span className="text-[10px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.weapon.name}</span>
+                    {insertLSSelected.weapon.grade && (
+                      <span className="text-[9px] text-[#ff8c00]">({insertLSSelected.weapon.grade})</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-[11px] text-gray-500">Зброя</span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => {
+                  setInsertLSModalOpen(false);
+                  setInsertLSPicker(null);
+                }}
+                className="px-4 py-2 text-[12px] bg-[#2a1f14] border border-[#5c4a32] text-[#e0c68a] rounded hover:bg-[#3d2f1a]"
+              >
+                Закрити
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Пікер предметів для Вставити LS */}
+      {insertLSModalOpen && insertLSPicker && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-[60] p-4 bg-black/80"
+          onClick={() => setInsertLSPicker(null)}
+        >
+          <div
+            className="bg-[#1a1410] border-2 border-[#5c4a32] rounded-lg p-4 max-w-[320px] w-full max-h-[70vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-[#ff8c00] text-[12px] font-bold mb-3">
+              {insertLSPicker === "crystal" && "Оберіть кристал"}
+              {insertLSPicker === "ls" && "Оберіть LS"}
+              {insertLSPicker === "weapon" && "Оберіть зброю"}
+            </div>
+            <div className="space-y-1">
+              {insertLSPicker === "crystal" && (() => {
+                const crystals = hero?.inventory?.filter((inv) => GM_CRYSTAL_ITEM_IDS.includes(inv.id as any)) ?? [];
+                return crystals.length === 0 ? (
+                  <p className="text-gray-500 text-[11px]">У вас немає кристалів</p>
+                ) : (
+                  crystals.map((inv) => {
+                    const def = itemsDBCrystals[inv.id] ?? itemsDB[inv.id];
+                    return (
+                      <div
+                        key={inv.id}
+                        className="flex items-center gap-2 py-2 px-2 border-b border-white/20 hover:bg-black/30 cursor-pointer"
+                        onClick={() => {
+                          setInsertLSSelected((s) => ({ ...s, crystal: inv }));
+                          setInsertLSPicker(null);
+                        }}
+                      >
+                        <img src={inv.icon || def?.icon} alt={inv.name} className="w-10 h-10 object-contain" />
+                        <div className="flex-1">
+                          <span className="text-[12px] text-[#e0c68a]">{inv.name}</span>
+                          {inv.grade && (
+                            <span className="ml-1 text-[11px] text-[#ff8c00]">({inv.grade})</span>
+                          )}
+                        </div>
+                        {inv.count && inv.count > 1 && (
+                          <span className="text-gray-400 text-[11px]">x{inv.count}</span>
+                        )}
+                      </div>
+                    );
+                  })
+                );
+              })()}
+              {insertLSPicker === "ls" && (() => {
+                const lsItems = hero?.inventory?.filter((inv) => GM_LS_ITEM_IDS.includes(inv.id as any)) ?? [];
+                return lsItems.length === 0 ? (
+                  <p className="text-gray-500 text-[11px]">У вас немає LS</p>
+                ) : (
+                  lsItems.map((inv) => {
+                    const def = itemsDBCrystals[inv.id] ?? itemsDB[inv.id];
+                    return (
+                      <div
+                        key={inv.id}
+                        className="flex items-center gap-2 py-2 px-2 border-b border-white/20 hover:bg-black/30 cursor-pointer"
+                        onClick={() => {
+                          setInsertLSSelected((s) => ({ ...s, ls: inv }));
+                          setInsertLSPicker(null);
+                        }}
+                      >
+                        <img src={inv.icon || def?.icon} alt={inv.name} className="w-10 h-10 object-contain" />
+                        <div className="flex-1">
+                          <span className="text-[12px] text-[#e0c68a]">{inv.name}</span>
+                          {inv.grade && (
+                            <span className="ml-1 text-[11px] text-[#ff8c00]">({inv.grade})</span>
+                          )}
+                        </div>
+                        {inv.count && inv.count > 1 && (
+                          <span className="text-gray-400 text-[11px]">x{inv.count}</span>
+                        )}
+                      </div>
+                    );
+                  })
+                );
+              })()}
+              {insertLSPicker === "weapon" && (() => {
+                const invWeapons = hero?.inventory?.filter((inv) => {
+                  const def = itemsDB[inv.id] ?? itemsDBCrystals[inv.id];
+                  return def && (def.slot === "weapon" || def.kind === "weapon");
+                }) ?? [];
+                const equipWeaponId = hero?.equipment?.weapon;
+                const equipWeapon = equipWeaponId && !invWeapons.some((w) => w.id === equipWeaponId)
+                  ? (() => {
+                      const def = itemsDB[equipWeaponId];
+                      if (!def) return null;
+                      return {
+                        id: equipWeaponId,
+                        name: def.name,
+                        icon: def.icon,
+                        slot: "weapon",
+                        grade: def.grade,
+                        count: 1,
+                      } as HeroInventoryItem;
+                    })()
+                  : null;
+                const weapons = equipWeapon ? [equipWeapon, ...invWeapons] : invWeapons;
+                return weapons.length === 0 ? (
+                  <p className="text-gray-500 text-[11px]">У вас немає зброї</p>
+                ) : (
+                  weapons.map((inv) => {
+                    const def = itemsDB[inv.id];
+                    return (
+                      <div
+                        key={inv.id}
+                        className="flex items-center gap-2 py-2 px-2 border-b border-white/20 hover:bg-black/30 cursor-pointer"
+                        onClick={() => {
+                          setInsertLSSelected((s) => ({ ...s, weapon: inv }));
+                          setInsertLSPicker(null);
+                        }}
+                      >
+                        <img src={inv.icon || def?.icon} alt={inv.name} className="w-10 h-10 object-contain" />
+                        <div className="flex-1">
+                          <span className="text-[12px] text-[#e0c68a]">{inv.name}</span>
+                          {inv.grade && (
+                            <span className="ml-1 text-[11px] text-[#ff8c00]">({inv.grade})</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                );
+              })()}
+            </div>
+            <button
+              onClick={() => setInsertLSPicker(null)}
+              className="mt-3 w-full py-2 text-[12px] bg-[#2a1f14] border border-[#5c4a32] text-[#e0c68a] rounded hover:bg-[#3d2f1a]"
+            >
+              Назад
+            </button>
           </div>
         </div>
       )}
