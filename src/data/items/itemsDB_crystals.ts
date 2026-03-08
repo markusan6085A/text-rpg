@@ -95,10 +95,10 @@ export const itemsDBCrystals: Record<string, ItemDefinition> = {
   crystal_magic_crit_s: { id: "crystal_magic_crit_s", name: "Кристал Маг. Крита (S)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg", description: "Збільшує шанс магічного крита на 10%.", grade: "S", stats: { mCrit: 10 } },
 
   // ===== MAX HP — бонус до макс. HP (%)
-  crystal_max_hp_c: { id: "crystal_max_hp_c", name: "Кристал Здоров'я II (C)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg", description: "Збільшує макс. HP на 15%.", grade: "C", stats: { maxHpPercent: 15 } },
-  crystal_max_hp_b: { id: "crystal_max_hp_b", name: "Кристал Здоров'я II (B)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg", description: "Збільшує макс. HP на 20%.", grade: "B", stats: { maxHpPercent: 20 } },
-  crystal_max_hp_a: { id: "crystal_max_hp_a", name: "Кристал Здоров'я II (A)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg", description: "Збільшує макс. HP на 30%.", grade: "A", stats: { maxHpPercent: 30 } },
-  crystal_max_hp_s: { id: "crystal_max_hp_s", name: "Кристал Здоров'я II (S)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg", description: "Збільшує макс. HP на 40%.", grade: "S", stats: { maxHpPercent: 40 } },
+  crystal_max_hp_c: { id: "crystal_max_hp_c", name: "Кристал Макс. HP (C)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg", description: "Збільшує максимальний HP на 15%.", grade: "C", stats: { maxHpPercent: 15 } },
+  crystal_max_hp_b: { id: "crystal_max_hp_b", name: "Кристал Макс. HP (B)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg", description: "Збільшує максимальний HP на 20%.", grade: "B", stats: { maxHpPercent: 20 } },
+  crystal_max_hp_a: { id: "crystal_max_hp_a", name: "Кристал Макс. HP (A)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg", description: "Збільшує максимальний HP на 30%.", grade: "A", stats: { maxHpPercent: 30 } },
+  crystal_max_hp_s: { id: "crystal_max_hp_s", name: "Кристал Макс. HP (S)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg", description: "Збільшує максимальний HP на 40%.", grade: "S", stats: { maxHpPercent: 40 } },
 
   // ===== 2. FOCUS — зменшення перезарядки скілів =====
   crystal_focus_c: { id: "crystal_focus_c", name: "Кристал Фокусу (C)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg", description: "Зменшує перезарядку скілів на 3%.", grade: "C", stats: { focus: 3 } },
@@ -106,11 +106,11 @@ export const itemsDBCrystals: Record<string, ItemDefinition> = {
   crystal_focus_a: { id: "crystal_focus_a", name: "Кристал Фокусу (A)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg", description: "Зменшує перезарядку скілів на 7%.", grade: "A", stats: { focus: 7 } },
   crystal_focus_s: { id: "crystal_focus_s", name: "Кристал Фокусу (S)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg", description: "Зменшує перезарядку скілів на 15%.", grade: "S", stats: { focus: 15 } },
 
-  // ===== 3. HEALTH (Life Steal) — поглинання HP =====
-  crystal_health_c: { id: "crystal_health_c", name: "Кристал Здоров'я (C)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg", description: "5% відновлення HP від урону.", grade: "C", stats: { lifeSteal: 5 } },
-  crystal_health_b: { id: "crystal_health_b", name: "Кристал Здоров'я (B)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg", description: "8% відновлення HP від урону.", grade: "B", stats: { lifeSteal: 8 } },
-  crystal_health_a: { id: "crystal_health_a", name: "Кристал Здоров'я (A)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg", description: "10% відновлення HP від урону.", grade: "A", stats: { lifeSteal: 10 } },
-  crystal_health_s: { id: "crystal_health_s", name: "Кристал Здоров'я (S)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg", description: "15% відновлення HP від урону.", grade: "S", stats: { lifeSteal: 15 } },
+  // ===== 3. HEALTH (Life Steal) — % відновлення HP від урону =====
+  crystal_health_c: { id: "crystal_health_c", name: "Кристал Поглинання (C)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg", description: "Відновлює 5% завданого урону як HP (Life Steal).", grade: "C", stats: { lifeSteal: 5 } },
+  crystal_health_b: { id: "crystal_health_b", name: "Кристал Поглинання (B)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg", description: "Відновлює 8% завданого урону як HP (Life Steal).", grade: "B", stats: { lifeSteal: 8 } },
+  crystal_health_a: { id: "crystal_health_a", name: "Кристал Поглинання (A)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg", description: "Відновлює 10% завданого урону як HP (Life Steal).", grade: "A", stats: { lifeSteal: 10 } },
+  crystal_health_s: { id: "crystal_health_s", name: "Кристал Поглинання (S)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg", description: "Відновлює 15% завданого урону як HP (Life Steal).", grade: "S", stats: { lifeSteal: 15 } },
 
   // ===== 4. GUIDANCE — зменшення MP скілів =====
   crystal_guidance_c: { id: "crystal_guidance_c", name: "Кристал Наведення (C)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg", description: "Зменшує витрату MP скілів на 5%.", grade: "C", stats: { guidance: 5 } },

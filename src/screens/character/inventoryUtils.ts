@@ -144,8 +144,10 @@ export function calculateEnchantedStats(item: any) {
 /** Опис ефектів LS кристала (для зброї з інвентаря або equipmentInserts) */
 const LS_DESC: Record<string, (v: number) => string> = {
   luckyStrike: (v) => `Крит: +${v}%`,
+  mCrit: (v) => `Маг. крит: +${v}%`,
+  maxHpPercent: (v) => `Макс. HP: +${v}%`,
   focus: (v) => `Перезарядка скілів: -${v}%`,
-  lifeSteal: (v) => `Поглинання HP: ${v}%`,
+  lifeSteal: (v) => `Відновлення HP від урону: ${v}%`,
   guidance: (v) => `Витрата MP скілів: -${v}%`,
   empower: (v) => `Урон скілів: +${v}%`,
   acumen: (v) => `Швидкість касту: +${v}%`,

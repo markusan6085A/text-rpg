@@ -31,6 +31,8 @@ export interface DyeItem {
 const GM_CRYSTAL_ITEM_IDS = ["crystal_c", "crystal_b", "crystal_a", "crystal_s"] as const;
 const GM_LS_ITEM_IDS = [
   "crystal_lucky_strike_c", "crystal_lucky_strike_b", "crystal_lucky_strike_a", "crystal_lucky_strike_s",
+  "crystal_magic_crit_c", "crystal_magic_crit_b", "crystal_magic_crit_a", "crystal_magic_crit_s",
+  "crystal_max_hp_c", "crystal_max_hp_b", "crystal_max_hp_a", "crystal_max_hp_s",
   "crystal_focus_c", "crystal_focus_b", "crystal_focus_a", "crystal_focus_s",
   "crystal_health_c", "crystal_health_b", "crystal_health_a", "crystal_health_s",
   "crystal_guidance_c", "crystal_guidance_b", "crystal_guidance_a", "crystal_guidance_s",
@@ -548,6 +550,7 @@ export default function GMShop({ navigate }: GMShopProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("shop");
   const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "crystals" | "ls">("dyes");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
+  const [selectedLSGrade, setSelectedLSGrade] = useState<string>("C");
   const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
   const [confirmExchange, setConfirmExchange] = useState<{ 
     type: string; 
@@ -1047,7 +1050,7 @@ export default function GMShop({ navigate }: GMShopProps) {
 
           {/* Кристали */}
           {selectedShopSubcategory === "crystals" && (
-          <div className="space-y-1">
+          <div className="space-y-1 max-h-[40vh] overflow-y-auto">
             {GM_CRYSTAL_ITEM_IDS.map((itemId) => {
               const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
               if (!def) return null;
@@ -1078,10 +1081,29 @@ export default function GMShop({ navigate }: GMShopProps) {
           </div>
           )}
 
+          {/* LS — фільтр грейдів */}
+          {selectedShopSubcategory === "ls" && (
+            <div className="mb-2 flex gap-1 flex-wrap">
+              {(["C", "B", "A", "S"] as const).map((grade) => (
+                <button
+                  key={grade}
+                  onClick={() => setSelectedLSGrade(grade)}
+                  className={`px-2 py-1 text-[11px] ${
+                    selectedLSGrade === grade
+                      ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
+                      : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+                  }`}
+                >
+                  {grade}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* LS */}
           {selectedShopSubcategory === "ls" && (
-          <div className="space-y-1">
-            {GM_LS_ITEM_IDS.map((itemId) => {
+          <div className="space-y-1 max-h-[50vh] overflow-y-auto">
+            {GM_LS_ITEM_IDS.filter((itemId) => itemId.endsWith(`_${selectedLSGrade.toLowerCase()}`)).map((itemId) => {
               const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
               if (!def) return null;
               return (
