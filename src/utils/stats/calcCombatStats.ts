@@ -218,25 +218,28 @@ export function calcCombatStats(
   }
 
   // 3.5. LS кристали в зброї (weapon та lrhand) — всі типи ефектів
+  // Number() — JSON/server може повертати string, інакше += дає конкатенацію
+  const num = (v: unknown) => Math.max(0, Number(v) || 0);
   let lsFocus = 0, lsGuidance = 0, lsEmpower = 0, lsRskFocus = 0, lsRskEvasion = 0, lsRskHaste = 0, lsMagicParry = 0, lsBackbiting = 0, lsMaxHpPercent = 0, lsAnger = 0;
-  const applyWeaponInsert = (insert: Record<string, number> | undefined) => {
-    if (!insert) return;
-    if (insert.luckyStrike) crit += insert.luckyStrike * 10;
-    if (insert.mCrit) mCrit += insert.mCrit * 10;
-    if (insert.maxHpPercent) lsMaxHpPercent += insert.maxHpPercent;
-    if (insert.anger) lsAnger += insert.anger;
-    if (insert.acumen) castSpeed = Math.round(castSpeed * (1 + insert.acumen / 100));
-    if (insert.focus) lsFocus += insert.focus;
-    if (insert.guidance) lsGuidance += insert.guidance;
-    if (insert.empower) lsEmpower += insert.empower;
-    if (insert.rskFocus) lsRskFocus += insert.rskFocus;
-    if (insert.rskEvasion) lsRskEvasion += insert.rskEvasion;
-    if (insert.rskHaste) lsRskHaste += insert.rskHaste;
-    if (insert.magicParry) lsMagicParry += insert.magicParry;
-    if (insert.backbiting) lsBackbiting += insert.backbiting;
+  const applyWeaponInsert = (insert: Record<string, unknown> | undefined) => {
+    if (!insert || typeof insert !== "object") return;
+    const v = (k: string) => num(insert[k]);
+    if (v("luckyStrike") > 0) crit += v("luckyStrike") * 10;
+    if (v("mCrit") > 0) mCrit += v("mCrit") * 10;
+    if (v("maxHpPercent") > 0) lsMaxHpPercent += v("maxHpPercent");
+    if (v("anger") > 0) lsAnger += v("anger");
+    if (v("acumen") > 0) castSpeed = Math.round(castSpeed * (1 + v("acumen") / 100));
+    if (v("focus") > 0) lsFocus += v("focus");
+    if (v("guidance") > 0) lsGuidance += v("guidance");
+    if (v("empower") > 0) lsEmpower += v("empower");
+    if (v("rskFocus") > 0) lsRskFocus += v("rskFocus");
+    if (v("rskEvasion") > 0) lsRskEvasion += v("rskEvasion");
+    if (v("rskHaste") > 0) lsRskHaste += v("rskHaste");
+    if (v("magicParry") > 0) lsMagicParry += v("magicParry");
+    if (v("backbiting") > 0) lsBackbiting += v("backbiting");
   };
-  applyWeaponInsert(equipmentInserts?.weapon as Record<string, number> | undefined);
-  applyWeaponInsert(equipmentInserts?.lrhand as Record<string, number> | undefined);
+  applyWeaponInsert(equipmentInserts?.weapon as Record<string, unknown> | undefined);
+  applyWeaponInsert(equipmentInserts?.lrhand as Record<string, unknown> | undefined);
   
   // Застосовуємо всі відсоткові бонуси (з equipment та сетів) після всіх flat бонусів
   if (pDefPercentBonus > 0) {

@@ -260,10 +260,14 @@ export function recalculateAllStats(
   // Це гарантує, що hero.maxHp містить базове значення БЕЗ бафів
   // 6. caps / limits вже застосовані в calcCombatStats
 
-  // 7. recalculateAllStats — PURE STAT CALCULATOR: повертає тільки maxHp/maxMp/maxCp (базові, БЕЗ бафів).
-  // НІКОЛИ не перезаписуємо hp/mp/cp: hero.hp живе в buffed space; lifecycle тільки в heroLoad / battle logic.
+  // 7. LS maxHpPercent — бонус до макс. HP з кристала в зброї (Number() — на випадок string з JSON)
+  const lsMaxHpPercent = Math.max(0, Number((finalCombatStats as any).lsMaxHpPercent) || 0);
+  const finalMaxHp = lsMaxHpPercent > 0
+    ? Math.round((finalResources.maxHp ?? 1) * (1 + lsMaxHpPercent / 100))
+    : (finalResources.maxHp ?? 1);
   const clampedResources = {
     ...finalResources,
+    maxHp: Math.max(1, finalMaxHp),
   };
 
   // 8. Застосовуємо бафи до статів для відображення в UI (Stats.tsx)
