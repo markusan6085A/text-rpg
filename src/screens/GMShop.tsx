@@ -783,10 +783,8 @@ export default function GMShop({ navigate }: GMShopProps) {
       updateHero({ inventory: newInventory });
       showToast("Не вдалося — кристал і LS втрачено.", "error");
     }
-
-    setInsertLSSelected({ crystal: null, ls: null, weapon: null });
-    setInsertLSModalOpen(false);
-    setInsertLSPicker(null);
+    setInsertLSSelected((s) => ({ ...s, crystal: null, ls: null }));
+    // Модалку не закриваємо, зброю залишаємо вибраною
   };
 
   // Обробка обміну
@@ -1486,7 +1484,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             {/* 2 слоти зверху */}
             <div className="flex gap-4 justify-center mb-4">
               <div
-                className="w-24 h-24 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                className="w-12 h-12 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
                 onClick={() => setInsertLSPicker("crystal")}
               >
                 {insertLSSelected.crystal ? (
@@ -1494,22 +1492,22 @@ export default function GMShop({ navigate }: GMShopProps) {
                     <img
                       src={insertLSSelected.crystal.icon}
                       alt={insertLSSelected.crystal.name}
-                      className="w-14 h-14 object-contain"
+                      className="w-7 h-7 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
-                    <span className="text-[11px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.crystal.name}</span>
+                    <span className="text-[8px] text-[#e0c68a] truncate max-w-full px-0.5">{insertLSSelected.crystal.name}</span>
                     {(insertLSSelected.crystal.grade ?? (itemsDBCrystals[insertLSSelected.crystal.id] ?? itemsDB[insertLSSelected.crystal.id])?.grade) && (
-                      <span className="text-[10px] text-[#ff8c00]">({insertLSSelected.crystal.grade ?? (itemsDBCrystals[insertLSSelected.crystal.id] ?? itemsDB[insertLSSelected.crystal.id])?.grade})</span>
+                      <span className="text-[8px] text-[#ff8c00]">({insertLSSelected.crystal.grade ?? (itemsDBCrystals[insertLSSelected.crystal.id] ?? itemsDB[insertLSSelected.crystal.id])?.grade})</span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[12px] text-gray-500">Кристал</span>
+                  <span className="text-[9px] text-gray-500">Кристал</span>
                 )}
               </div>
               <div
-                className="w-24 h-24 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                className="w-12 h-12 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
                 onClick={() => setInsertLSPicker("ls")}
               >
                 {insertLSSelected.ls ? (
@@ -1517,18 +1515,18 @@ export default function GMShop({ navigate }: GMShopProps) {
                     <img
                       src={insertLSSelected.ls.icon}
                       alt={insertLSSelected.ls.name}
-                      className="w-14 h-14 object-contain"
+                      className="w-7 h-7 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
-                    <span className="text-[11px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.ls.name}</span>
+                    <span className="text-[8px] text-[#e0c68a] truncate max-w-full px-0.5">{insertLSSelected.ls.name}</span>
                     {(insertLSSelected.ls.grade ?? (itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id])?.grade) && (
-                      <span className="text-[10px] text-[#ff8c00]">({insertLSSelected.ls.grade ?? (itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id])?.grade})</span>
+                      <span className="text-[8px] text-[#ff8c00]">({insertLSSelected.ls.grade ?? (itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id])?.grade})</span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[12px] text-gray-500">LS</span>
+                  <span className="text-[9px] text-gray-500">LS</span>
                 )}
               </div>
             </div>
@@ -1536,7 +1534,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             {/* 1 слот знизу по центру */}
             <div className="flex justify-center mb-5">
               <div
-                className="w-24 h-24 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
+                className="w-12 h-12 flex flex-col items-center justify-center bg-[#0f0d0a] border-2 border-[#5c4a32] rounded cursor-pointer hover:border-[#ff8c00] transition-colors"
                 onClick={() => setInsertLSPicker("weapon")}
               >
                 {insertLSSelected.weapon ? (
@@ -1544,18 +1542,18 @@ export default function GMShop({ navigate }: GMShopProps) {
                     <img
                       src={insertLSSelected.weapon.icon}
                       alt={insertLSSelected.weapon.name}
-                      className="w-14 h-14 object-contain"
+                      className="w-7 h-7 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
-                    <span className="text-[11px] text-[#e0c68a] truncate max-w-full px-1">{insertLSSelected.weapon.name}</span>
+                    <span className="text-[8px] text-[#e0c68a] truncate max-w-full px-0.5">{insertLSSelected.weapon.name}</span>
                     {(insertLSSelected.weapon.grade ?? (itemsDB[insertLSSelected.weapon.id] ?? itemsDBCrystals[insertLSSelected.weapon.id])?.grade ?? autoDetectGrade(insertLSSelected.weapon.id)) && (
-                      <span className="text-[10px] text-[#ff8c00]">({insertLSSelected.weapon.grade ?? (itemsDB[insertLSSelected.weapon.id] ?? itemsDBCrystals[insertLSSelected.weapon.id])?.grade ?? autoDetectGrade(insertLSSelected.weapon.id)})</span>
+                      <span className="text-[8px] text-[#ff8c00]">({insertLSSelected.weapon.grade ?? (itemsDB[insertLSSelected.weapon.id] ?? itemsDBCrystals[insertLSSelected.weapon.id])?.grade ?? autoDetectGrade(insertLSSelected.weapon.id)})</span>
                     )}
                   </>
                 ) : (
-                  <span className="text-[12px] text-gray-500">Зброя</span>
+                  <span className="text-[9px] text-gray-500">Зброя</span>
                 )}
               </div>
             </div>
