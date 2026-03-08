@@ -808,6 +808,52 @@ export default function GMShop({ navigate }: GMShopProps) {
     // Модалку не закриваємо, зброю залишаємо вибраною
   };
 
+  const LS_STAT_KEYS = ["luckyStrike", "mCrit", "maxHpPercent", "focus", "lifeSteal", "guidance", "empower", "acumen", "anger", "magicParry", "rskFocus", "rskEvasion", "rskHaste", "backbiting"] as const;
+
+  const insertLSSelectedHasLS = insertLSSelected.weapon && hero && (() => {
+    const w = insertLSSelected.weapon!;
+    const inv = hero.inventory?.find((i) => i.id === w.id);
+    return (hero.equipment?.weapon === w.id && !!hero.equipmentInserts?.weapon?.lsId)
+      || (hero.equipment?.lrhand === w.id && !!hero.equipmentInserts?.lrhand?.lsId)
+      || !!(inv as any)?.insertedLS || (inv && LS_STAT_KEYS.some((k) => (inv as any)[k] != null));
+  })();
+
+  const handleRemoveLS = () => {
+    if (!hero || !insertLSSelected.weapon) return;
+    const weaponId = insertLSSelected.weapon.id;
+    const isEquippedWeapon = hero.equipment?.weapon === weaponId;
+    const isEquippedLrhand = hero.equipment?.lrhand === weaponId;
+    const invItem = hero.inventory?.find((i) => i.id === weaponId);
+    const hasLS = isEquippedWeapon && !!(hero.equipmentInserts?.weapon?.lsId)
+      || isEquippedLrhand && !!(hero.equipmentInserts?.lrhand?.lsId)
+      || !!(invItem as any)?.insertedLS || (invItem && LS_STAT_KEYS.some((k) => (invItem as any)[k] != null));
+    if (!hasLS) {
+      showToast("У цій зброї немає LS", "error");
+      return;
+    }
+    if (isEquippedWeapon || isEquippedLrhand) {
+      const ei = { ...(hero.equipmentInserts || {}) } as Record<string, any>;
+      if (isEquippedWeapon) delete ei.weapon;
+      if (isEquippedLrhand) delete ei.lrhand;
+      updateHero({ equipmentInserts: Object.keys(ei).length > 0 ? ei : undefined });
+    } else {
+      const invIdx = hero.inventory?.findIndex((i) => i.id === weaponId);
+      if (invIdx >= 0) {
+        const w = hero.inventory![invIdx] as Record<string, unknown>;
+        const clean: Record<string, unknown> = {};
+        Object.keys(w).forEach((k) => {
+          if (k === "insertedLS" || k === "insertedCrystal" || LS_STAT_KEYS.includes(k as any)) return;
+          clean[k] = w[k];
+        });
+        const newInventory = [...hero.inventory!];
+        newInventory[invIdx] = clean as HeroInventoryItem;
+        updateHero({ inventory: newInventory });
+      }
+    }
+    showToast("LS видалено з зброї", "success");
+    setInsertLSSelected((s) => ({ ...s, weapon: null }));
+  };
+
   // Обробка обміну
   const handleExchange = (type: string, stoneId: string, aaPerStone: number, stoneName: string) => {
     if (!hero) return;
@@ -1602,13 +1648,20 @@ export default function GMShop({ navigate }: GMShopProps) {
               </div>
             </div>
 
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-2 flex-wrap">
               <button
                 onClick={handleMergeLS}
                 disabled={!insertLSSelected.crystal || !insertLSSelected.ls || !insertLSSelected.weapon}
                 className="px-5 py-2 text-[13px] bg-[#4a3520] border border-[#ff8c00] text-[#ff8c00] rounded hover:bg-[#5c4528] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Об'єднати
+              </button>
+              <button
+                onClick={handleRemoveLS}
+                disabled={!insertLSSelected.weapon || !insertLSSelectedHasLS}
+                className="px-4 py-2 text-[12px] bg-[#2a1f14] border border-red-900/60 text-red-300 rounded hover:bg-red-950/30 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Видалити LS
               </button>
               <button
                 onClick={() => {
@@ -1704,6 +1757,17 @@ export default function GMShop({ navigate }: GMShopProps) {
               })()}
               {insertLSPicker === "weapon" && (() => {
                 const isWeapon = (def: any) => def && (def.slot === "weapon" || def.slot === "rhand" || def.kind === "weapon");
+                /** Нормалізує грейд для фільтра та відображення: тільки C,B,A,S. "S:HP"->"S", "L"->ігноруємо. */
+                const normalizeGrade = (inv: HeroInventoryItem, def: any): string | null => {
+                  const fromDef = def?.grade;
+                  const fromAuto = autoDetectGrade(inv.id);
+                  const raw = fromDef ?? inv.grade ?? fromAuto;
+                  if (!raw) return null;
+                  const s = String(raw).toUpperCase().trim();
+                  const first = s.charAt(0);
+                  if (["C", "B", "A", "S"].includes(first)) return first;
+                  return fromDef ?? fromAuto;
+                };
                 const invWeapons = hero?.inventory?.filter((inv) => {
                   const def = itemsDB[inv.id] ?? itemsDBCrystals[inv.id];
                   return isWeapon(def);
@@ -1770,18 +1834,18 @@ export default function GMShop({ navigate }: GMShopProps) {
                       {weapons
                         .filter((inv) => {
                           const def = itemsDB[inv.id];
-                          const grade = String(def?.grade ?? inv.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
+                          const grade = normalizeGrade(inv, def);
                           const wType = getWeaponTypeFromItemId(inv.id, def);
                           if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || grade === weaponPickerGrade;
                           return weaponPickerType === "*" || wType === weaponPickerType;
                         })
-                        .map((inv) => {
+                        .map((inv, idx) => {
                           const def = itemsDB[inv.id];
-                          const grade = def?.grade ?? inv.grade ?? autoDetectGrade(inv.id);
+                          const grade = normalizeGrade(inv, def);
                           const hasLS = !!(inv as any).insertedLS || !!(inv as any).luckyStrike || !!(hero?.equipmentInserts?.weapon?.lsId && hero?.equipment?.weapon === inv.id) || !!(hero?.equipmentInserts?.lrhand?.lsId && hero?.equipment?.lrhand === inv.id);
                           return (
                             <div
-                              key={inv.id}
+                              key={`${inv.id}-${idx}`}
                               className="flex flex-col items-center gap-0.5 p-1.5 rounded bg-black/20 hover:bg-[#2a2015] cursor-pointer"
                               onClick={() => {
                                 setInsertLSSelected((s) => ({ ...s, weapon: { ...inv, grade } }));
@@ -1801,7 +1865,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     </div>
                     {weapons.filter((inv) => {
                       const def = itemsDB[inv.id];
-                      const grade = String(def?.grade ?? inv.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
+                      const grade = normalizeGrade(inv, def);
                       const wType = getWeaponTypeFromItemId(inv.id, def);
                       if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || grade === weaponPickerGrade;
                       return weaponPickerType === "*" || wType === weaponPickerType;
@@ -1812,12 +1876,26 @@ export default function GMShop({ navigate }: GMShopProps) {
                 );
               })()}
             </div>
-            <button
-              onClick={() => setInsertLSPicker(null)}
-              className="mt-3 w-full py-2 text-[12px] bg-[#2a1f14] border border-[#5c4a32] text-[#e0c68a] rounded hover:bg-[#3d2f1a]"
-            >
-              Назад
-            </button>
+            <div className="mt-3 flex gap-2">
+              {insertLSPicker === "weapon" && (
+                <button
+                  onClick={() => {
+                    handleRemoveLS();
+                    setInsertLSPicker(null);
+                  }}
+                  disabled={!insertLSSelectedHasLS}
+                  className="flex-1 py-2 text-[12px] bg-[#2a1f14] border border-red-900/60 text-red-300 rounded hover:bg-red-950/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Видалити LS
+                </button>
+              )}
+              <button
+                onClick={() => setInsertLSPicker(null)}
+                className={`${insertLSPicker === "weapon" ? "flex-1" : "w-full"} py-2 text-[12px] bg-[#2a1f14] border border-[#5c4a32] text-[#e0c68a] rounded hover:bg-[#3d2f1a]`}
+              >
+                Назад
+              </button>
+            </div>
           </div>
         </div>
       )}
