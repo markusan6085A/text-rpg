@@ -15,6 +15,7 @@ import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs } from "../heroStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
+import { repairEquipmentInserts } from "./repairEquipmentInserts";
 
 // 🔥 ВИДАЛЕНО: window.__lastServerExp та глобальні змінні
 // Тепер використовуємо serverState з heroStore
@@ -431,7 +432,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Sanitize: видаляємо insert якщо слот зброї пустий (застарілий insert після unequip)
     if (mergedEquipmentInserts.weapon && !mergedEquipment.weapon) delete mergedEquipmentInserts.weapon;
     if (mergedEquipmentInserts.lrhand && !mergedEquipment.lrhand) delete mergedEquipmentInserts.lrhand;
-    const mergedEquipmentInsertsClean = Object.keys(mergedEquipmentInserts).length > 0 ? mergedEquipmentInserts : undefined;
+    let mergedEquipmentInsertsClean: Record<string, unknown> | undefined = Object.keys(mergedEquipmentInserts).length > 0 ? mergedEquipmentInserts : undefined;
+    mergedEquipmentInsertsClean = repairEquipmentInserts(mergedEquipmentInsertsClean) ?? mergedEquipmentInsertsClean;
 
     const heroForRecalc: Hero = {
       ...fixedHero,
