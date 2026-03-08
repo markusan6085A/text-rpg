@@ -839,14 +839,14 @@ export default function GMShop({ navigate }: GMShopProps) {
     } else {
       const invIdx = hero.inventory?.findIndex((i) => i.id === weaponId);
       if (invIdx >= 0) {
-        const w = hero.inventory![invIdx] as Record<string, unknown>;
+        const w = hero.inventory![invIdx] as unknown as Record<string, unknown>;
         const clean: Record<string, unknown> = {};
         Object.keys(w).forEach((k) => {
           if (k === "insertedLS" || k === "insertedCrystal" || LS_STAT_KEYS.includes(k as any)) return;
           clean[k] = w[k];
         });
         const newInventory = [...hero.inventory!];
-        newInventory[invIdx] = clean as HeroInventoryItem;
+        newInventory[invIdx] = clean as unknown as HeroInventoryItem;
         updateHero({ inventory: newInventory });
       }
     }
@@ -1848,7 +1848,10 @@ export default function GMShop({ navigate }: GMShopProps) {
                               key={`${inv.id}-${idx}`}
                               className="flex flex-col items-center gap-0.5 p-1.5 rounded bg-black/20 hover:bg-[#2a2015] cursor-pointer"
                               onClick={() => {
-                                setInsertLSSelected((s) => ({ ...s, weapon: { ...inv, grade } }));
+                                setInsertLSSelected((s) => ({
+                                  ...s,
+                                  weapon: { ...inv, grade: (grade ?? inv.grade) as HeroInventoryItem["grade"] } as HeroInventoryItem,
+                                }));
                                 setInsertLSPicker(null);
                               }}
                               title={`${inv.name}${grade ? ` (${grade})` : ""}${hasLS ? " [LS]" : ""}`}
