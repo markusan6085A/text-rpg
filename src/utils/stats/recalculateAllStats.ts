@@ -142,8 +142,7 @@ export function recalculateAllStats(
     level,
     hero.equipment,
     hero.equipmentEnchantLevels,
-    hero.activeDyes,
-    hero.equipmentInserts
+    hero.activeDyes
   );
 
   // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати до кінця неділі
@@ -260,14 +259,9 @@ export function recalculateAllStats(
   // Це гарантує, що hero.maxHp містить базове значення БЕЗ бафів
   // 6. caps / limits вже застосовані в calcCombatStats
 
-  // 7. LS maxHpPercent — бонус до макс. HP з кристала в зброї (Number() — на випадок string з JSON)
-  const lsMaxHpPercent = Math.max(0, Number((finalCombatStats as any).lsMaxHpPercent) || 0);
-  const finalMaxHp = lsMaxHpPercent > 0
-    ? Math.round((finalResources.maxHp ?? 1) * (1 + lsMaxHpPercent / 100))
-    : (finalResources.maxHp ?? 1);
   const clampedResources = {
     ...finalResources,
-    maxHp: Math.max(1, finalMaxHp),
+    maxHp: Math.max(1, finalResources.maxHp ?? 1),
   };
 
   // 8. Застосовуємо бафи до статів для відображення в UI (Stats.tsx)

@@ -15,7 +15,6 @@ import { getJSON, getString, removeItem, setJSON } from "../persistence";
 import type { Hero } from "../../types/Hero";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { hydrateHero } from "./heroHydration";
-import { repairEquipmentInserts } from "./repairEquipmentInserts";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 
 export function loadHero(): Hero | null {
@@ -160,8 +159,7 @@ export function loadHero(): Hero | null {
       fixedHero.equipmentEnchantLevels = { ...jsonEnch, ...heroEnch };
       const heroInserts = fixedHero.equipmentInserts ?? {};
       const jsonInserts = (heroJson as any).equipmentInserts ?? {};
-      let mergedInserts = Object.keys(jsonInserts).length > 0 ? { ...jsonInserts, ...heroInserts } : heroInserts;
-      fixedHero.equipmentInserts = repairEquipmentInserts(mergedInserts) ?? mergedInserts;
+      fixedHero.equipmentInserts = Object.keys(jsonInserts).length > 0 ? { ...jsonInserts, ...heroInserts } : heroInserts;
       const heroSkills = Array.isArray(fixedHero.skills) ? fixedHero.skills : [];
       const jsonSkills = Array.isArray((heroJson as any).skills) ? (heroJson as any).skills : [];
       const skillById = new Map<number, { id: number; level: number }>();

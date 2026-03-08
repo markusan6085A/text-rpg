@@ -154,9 +154,6 @@ export default function InventoryItemList({
                   {!item.name.includes("(NG)") && !item.name.includes("(D)") && !item.name.includes("(C)") && !item.name.includes("(B)") && !item.name.includes("(A)") && !item.name.includes("(S)") && item.grade && (
                     <span className="text-[#9ca3af] ml-1">({item.grade})</span>
                   )}
-                  {(item as any).insertedLS ? (
-                    <span className="ml-1 text-green-400 text-[9px]" title={`LS: ${(item as any).insertedLS}`}>[LS]</span>
-                  ) : null}
                   {item.enchantLevel !== undefined && item.enchantLevel > 0 && ` +${item.enchantLevel}`}
                   {item.count && item.count > 1 ? ` (x${item.count})` : ""}
                 </button>

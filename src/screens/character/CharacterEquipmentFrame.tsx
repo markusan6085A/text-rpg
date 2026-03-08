@@ -3,7 +3,6 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { SLOT_ICONS } from "./constants";
 import { useHeroStore } from "../../state/heroStore";
 import { GM_SHOP_ITEMS } from "../GMShop";
-import { getLSDescriptionLines } from "./inventoryUtils";
 
 // Маппінг profession -> зображення
 const professionImageMap: Record<string, string> = {
@@ -510,10 +509,6 @@ export default function CharacterEquipmentFrame({
           {(["weapon", "shield"] as const).map((slot) => {
             const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
             const isDisabled = slot === "shield" && hero.equipment?.weapon && isTwoHandedWeapon(hero.equipment.weapon);
-            const inserts = slot === "weapon" ? hero.equipmentInserts?.weapon : slot === "shield" && hero.equipment?.weapon === hero.equipment?.shield ? hero.equipmentInserts?.weapon : undefined;
-            const weaponLS = inserts && (inserts.lsId || ["luckyStrike", "focus", "lifeSteal"].some((k) => (inserts as any)[k] != null)) ? 1 : 0;
-            const lsLines = getLSDescriptionLines(inserts);
-            const lsTitle = weaponLS ? (lsLines.length > 0 ? `LS:\n${lsLines.join("\n")}` : "LS вставлено") : undefined;
             return (
               <div key={slot} className="relative">
                 <img 
@@ -526,7 +521,7 @@ export default function CharacterEquipmentFrame({
                     : allowUnequip && !isDisabled 
                       ? () => handleUnequip(slot) 
                       : undefined}
-                  title={lsTitle}
+                  title=""
                 />
                 {enchantLevel > 0 && (
                   <div 
@@ -534,14 +529,6 @@ export default function CharacterEquipmentFrame({
                     style={{ minWidth: "10px", textAlign: "center" }}
                   >
                     +{enchantLevel}
-                  </div>
-                )}
-                {weaponLS > 0 && (
-                  <div 
-                    className="absolute -top-0.5 -right-0.5 bg-green-600/90 text-white text-[6px] font-bold px-0.5 rounded leading-none"
-                    title="LS вставлено"
-                  >
-                    LS
                   </div>
                 )}
               </div>

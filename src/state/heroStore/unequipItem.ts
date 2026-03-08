@@ -70,17 +70,6 @@ export function unequipItemLogic(hero: Hero, slot: string): Hero {
   const grade = def.grade || autoDetectGrade(itemId);
   const armorType = def.armorType || (def.kind === "armor" || def.kind === "helmet" || def.kind === "boots" || def.kind === "gloves" ? autoDetectArmorType(itemId) : undefined);
 
-  // LS inserts для зброї: weapon, lrhand, shield (дворучна)
-  let inserts: Record<string, unknown> | undefined;
-  if (slot === "weapon") inserts = hero.equipmentInserts?.weapon;
-  else if (slot === "lrhand") inserts = hero.equipmentInserts?.lrhand;
-  else if (slot === "shield" && hero.equipment?.weapon === itemId && isTwoHandedWeapon(itemId)) inserts = hero.equipmentInserts?.weapon;
-  const insertStats = inserts ? {
-    insertedCrystal: inserts.crystalId,
-    insertedLS: inserts.lsId,
-    ...Object.fromEntries(Object.entries(inserts).filter(([k]) => !["crystalId", "lsId"].includes(k))),
-  } : {};
-  
   // Додаємо предмет в інвентар тільки один раз
   if (!isTwoHandedWeaponInBothSlots && !isTwoPartTorso) {
     newInventory.push({
@@ -95,7 +84,6 @@ export function unequipItemLogic(hero: Hero, slot: string): Hero {
       enchantLevel: enchantLevel,
       grade: grade,
       armorType: armorType,
-      ...insertStats,
     });
   } else if (isTwoHandedWeaponInBothSlots || isTwoPartTorso) {
     // Додаємо тільки один раз, якщо це дворучна зброя або торс з 2 частин
@@ -111,7 +99,6 @@ export function unequipItemLogic(hero: Hero, slot: string): Hero {
       enchantLevel: enchantLevel,
       grade: grade,
       armorType: armorType,
-      ...insertStats,
     });
     console.log(`[unequipItemLogic] ✅ ${isTwoHandedWeaponInBothSlots ? 'TWO-HANDED WEAPON' : 'TWO-PART TORSO'}: Added to inventory only once`);
   }
@@ -155,25 +142,10 @@ export function unequipItemLogic(hero: Hero, slot: string): Hero {
     delete newEquipmentEnchantLevels[twoHandedOtherSlot];
   }
 
-  // Очищаємо LS inserts при знятті зброї
-  let newEquipmentInserts: Record<string, unknown> | undefined = hero.equipmentInserts as Record<string, unknown> | undefined;
-  const weaponSlotsToClear: string[] = [];
-  if (slot === "weapon" || slot === "lrhand") weaponSlotsToClear.push(slot);
-  else if (slot === "shield" && isTwoHandedWeaponInBothSlots) weaponSlotsToClear.push("weapon");
-  if (weaponSlotsToClear.length > 0) {
-    const ei = { ...(newEquipmentInserts || {}) } as Record<string, unknown>;
-    weaponSlotsToClear.forEach((s) => delete ei[s]);
-    newEquipmentInserts = Object.keys(ei).length > 0 ? ei : undefined;
-  }
-
-  const result: Partial<Hero> = {
+  return {
+    ...hero,
     equipment: newEquipment,
     inventory: newInventory,
     equipmentEnchantLevels: newEquipmentEnchantLevels,
   };
-  if (weaponSlotsToClear.length > 0) {
-    result.equipmentInserts = newEquipmentInserts;
-  }
-
-  return { ...hero, ...result };
 }

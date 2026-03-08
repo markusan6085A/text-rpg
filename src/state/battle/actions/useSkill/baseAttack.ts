@@ -185,10 +185,9 @@ export function handleBaseAttack(
   }
   const curHero = useHeroStore.getState().hero;
 
-  // Обробка крадіжки HP (vampirism + Life Steal з кристала)
+  // Обробка крадіжки HP (vampirism)
   const vampirismPercent = buffedStats?.vampirism ?? 0;
-  const weaponLifeSteal = (hero.equipmentInserts?.weapon?.lifeSteal ?? 0) + (hero.equipmentInserts?.lrhand?.lifeSteal ?? 0);
-  const totalVamp = vampirismPercent + weaponLifeSteal;
+  const totalVamp = vampirismPercent;
   const healFromVamp = totalVamp > 0 ? Math.round(damage * (totalVamp / 100)) : 0;
   const nextHeroHP = Math.min(maxHp, curHeroHP + healFromVamp);
   

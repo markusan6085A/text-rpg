@@ -24,17 +24,6 @@ export interface CombatStats {
   cpRegen: number;
   shieldBlockRate?: number;
   shieldBlockPower?: number;
-  // LS кристали (всі типи)
-  lsFocus?: number;      // -% перезарядка скілів
-  lsGuidance?: number;   // -% витрата MP скілів
-  lsEmpower?: number;    // +% урон скілів
-  lsRskFocus?: number;   // % шанс не витратити MP
-  lsRskEvasion?: number; // % шанс уникнути атаку
-  lsRskHaste?: number;   // % шанс миттєво відновити скіл
-  lsMagicParry?: number; // % відбити магію
-  lsBackbiting?: number; // +% урон (backstab)
-  lsMaxHpPercent?: number; // +% макс. HP
-  lsAnger?: number;     // +% сила крита
 }
 
 export function calcCombatStats(
@@ -48,8 +37,7 @@ export function calcCombatStats(
     statMinus: "STR" | "CON" | "DEX" | "INT" | "MEN" | "WIT";
     effect: number;
     grade: "D" | "C" | "B" | "A" | "S";
-  }>,
-  equipmentInserts?: Record<string, Record<string, number>>
+  }>
 ): CombatStats {
   const lvl = Math.max(1, level);
   
@@ -217,30 +205,6 @@ export function calcCombatStats(
     if (setBonuses.shieldBlockPower) shieldBlockPower += setBonuses.shieldBlockPower || 0;
   }
 
-  // 3.5. LS кристали в зброї (weapon та lrhand) — всі типи ефектів
-  // Number() — JSON/server може повертати string, інакше += дає конкатенацію
-  const num = (v: unknown) => Math.max(0, Number(v) || 0);
-  let lsFocus = 0, lsGuidance = 0, lsEmpower = 0, lsRskFocus = 0, lsRskEvasion = 0, lsRskHaste = 0, lsMagicParry = 0, lsBackbiting = 0, lsMaxHpPercent = 0, lsAnger = 0;
-  const applyWeaponInsert = (insert: Record<string, unknown> | undefined) => {
-    if (!insert || typeof insert !== "object") return;
-    const v = (k: string) => num(insert[k]);
-    if (v("luckyStrike") > 0) crit += v("luckyStrike") * 10;
-    if (v("mCrit") > 0) mCrit += v("mCrit") * 10;
-    if (v("maxHpPercent") > 0) lsMaxHpPercent += v("maxHpPercent");
-    if (v("anger") > 0) lsAnger += v("anger");
-    if (v("acumen") > 0) castSpeed = Math.round(castSpeed * (1 + v("acumen") / 100));
-    if (v("focus") > 0) lsFocus += v("focus");
-    if (v("guidance") > 0) lsGuidance += v("guidance");
-    if (v("empower") > 0) lsEmpower += v("empower");
-    if (v("rskFocus") > 0) lsRskFocus += v("rskFocus");
-    if (v("rskEvasion") > 0) lsRskEvasion += v("rskEvasion");
-    if (v("rskHaste") > 0) lsRskHaste += v("rskHaste");
-    if (v("magicParry") > 0) lsMagicParry += v("magicParry");
-    if (v("backbiting") > 0) lsBackbiting += v("backbiting");
-  };
-  applyWeaponInsert(equipmentInserts?.weapon as Record<string, unknown> | undefined);
-  applyWeaponInsert(equipmentInserts?.lrhand as Record<string, unknown> | undefined);
-  
   // Застосовуємо всі відсоткові бонуси (з equipment та сетів) після всіх flat бонусів
   if (pDefPercentBonus > 0) {
     pDef = Math.round(pDef * (1 + pDefPercentBonus / 100));
@@ -367,16 +331,6 @@ export function calcCombatStats(
     cpRegen,
     shieldBlockRate,
     shieldBlockPower,
-    ...(lsFocus > 0 && { lsFocus }),
-    ...(lsGuidance > 0 && { lsGuidance }),
-    ...(lsEmpower > 0 && { lsEmpower }),
-    ...(lsRskFocus > 0 && { lsRskFocus }),
-    ...(lsRskEvasion > 0 && { lsRskEvasion }),
-    ...(lsRskHaste > 0 && { lsRskHaste }),
-    ...(lsMagicParry > 0 && { lsMagicParry }),
-    ...(lsBackbiting > 0 && { lsBackbiting }),
-    ...(lsMaxHpPercent > 0 && { lsMaxHpPercent }),
-    ...(lsAnger > 0 && { lsAnger }),
   };
 }
 

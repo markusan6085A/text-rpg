@@ -15,7 +15,6 @@ import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs } from "../heroStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
-import { repairEquipmentInserts } from "./repairEquipmentInserts";
 
 // 🔥 ВИДАЛЕНО: window.__lastServerExp та глобальні змінні
 // Тепер використовуємо serverState з heroStore
@@ -41,7 +40,7 @@ function isStackableItem(it: any): boolean {
 
 /** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1). */
 function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
-  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}_${(i as any)?.insertedLS ?? ""}`;
+  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}`;
   const countByKey = (arr: any[]) => {
     const m = new Map<string, number>();
     (arr || []).forEach((it: any) => {
@@ -425,21 +424,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const localOverflowTotal = localOverflow.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
     const mergedOverflow = localOverflowTotal >= serverOverflowTotal ? localOverflow : serverOverflow;
 
-    // 🔥 equipmentInserts — merge server + local (локаль має пріоритет), щоб LS не губився після F5
-    const serverInserts = fixedHero.equipmentInserts ?? {};
-    const localInserts = hydratedLocalHero?.equipmentInserts ?? {};
-    let mergedEquipmentInserts: Record<string, unknown> = { ...serverInserts, ...localInserts };
-    // Sanitize: видаляємо insert якщо слот зброї пустий (застарілий insert після unequip)
-    if (mergedEquipmentInserts.weapon && !mergedEquipment.weapon) delete mergedEquipmentInserts.weapon;
-    if (mergedEquipmentInserts.lrhand && !mergedEquipment.lrhand) delete mergedEquipmentInserts.lrhand;
-    let mergedEquipmentInsertsClean: Record<string, unknown> | undefined = Object.keys(mergedEquipmentInserts).length > 0 ? mergedEquipmentInserts : undefined;
-    mergedEquipmentInsertsClean = repairEquipmentInserts(mergedEquipmentInsertsClean) ?? mergedEquipmentInsertsClean;
-
     const heroForRecalc: Hero = {
       ...fixedHero,
       skills: finalSkillsForRecalc,
       equipment: mergedEquipment,
-      equipmentInserts: mergedEquipmentInsertsClean,
       inventory: mergedInventory,
       overflowChest: mergedOverflow,
       activeDyes: mergedActiveDyes,
@@ -623,7 +611,6 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       cp: finalCp,
       skills: finalSkills,
       equipment: mergedEquipment,
-      equipmentInserts: mergedEquipmentInsertsClean,
       inventory: mergedInventory,
       mobsKilled: finalMobsKilled as any,
       // Адмін: блок/бан — показуємо екран або блокуємо чат

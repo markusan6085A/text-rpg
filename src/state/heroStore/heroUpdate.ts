@@ -40,7 +40,6 @@ export function updateHeroLogic(
     partial.level !== undefined ||
     partial.skills !== undefined ||
     partial.equipment !== undefined ||
-    partial.equipmentInserts !== undefined ||
     partial.baseStats !== undefined ||
     partial.profession !== undefined ||
     partial.klass !== undefined ||
