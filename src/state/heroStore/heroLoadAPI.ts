@@ -424,10 +424,20 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const localOverflowTotal = localOverflow.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
     const mergedOverflow = localOverflowTotal >= serverOverflowTotal ? localOverflow : serverOverflow;
 
+    // 🔥 equipmentInserts — merge server + local (локаль має пріоритет), щоб LS не губився після F5
+    const serverInserts = fixedHero.equipmentInserts ?? {};
+    const localInserts = hydratedLocalHero?.equipmentInserts ?? {};
+    let mergedEquipmentInserts: Record<string, unknown> = { ...serverInserts, ...localInserts };
+    // Sanitize: видаляємо insert якщо слот зброї пустий (застарілий insert після unequip)
+    if (mergedEquipmentInserts.weapon && !mergedEquipment.weapon) delete mergedEquipmentInserts.weapon;
+    if (mergedEquipmentInserts.lrhand && !mergedEquipment.lrhand) delete mergedEquipmentInserts.lrhand;
+    const mergedEquipmentInsertsClean = Object.keys(mergedEquipmentInserts).length > 0 ? mergedEquipmentInserts : undefined;
+
     const heroForRecalc: Hero = {
       ...fixedHero,
       skills: finalSkillsForRecalc,
       equipment: mergedEquipment,
+      equipmentInserts: mergedEquipmentInsertsClean,
       inventory: mergedInventory,
       overflowChest: mergedOverflow,
       activeDyes: mergedActiveDyes,
@@ -611,6 +621,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       cp: finalCp,
       skills: finalSkills,
       equipment: mergedEquipment,
+      equipmentInserts: mergedEquipmentInsertsClean,
       inventory: mergedInventory,
       mobsKilled: finalMobsKilled as any,
       // Адмін: блок/бан — показуємо екран або блокуємо чат
