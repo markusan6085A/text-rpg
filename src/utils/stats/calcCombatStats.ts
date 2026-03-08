@@ -38,7 +38,7 @@ export function calcCombatStats(
     effect: number;
     grade: "D" | "C" | "B" | "A" | "S";
   }>,
-  equipmentInserts?: Record<string, { luckyStrike?: number }>
+  equipmentInserts?: Record<string, Record<string, number>>
 ): CombatStats {
   const lvl = Math.max(1, level);
   
@@ -206,9 +206,12 @@ export function calcCombatStats(
     if (setBonuses.shieldBlockPower) shieldBlockPower += setBonuses.shieldBlockPower || 0;
   }
 
-  // 3.5. LS (Lucky Strike) з вставленого кристала в зброю: +X% до криту (1% = 10 flat)
-  if (equipmentInserts?.weapon?.luckyStrike) {
-    crit += equipmentInserts.weapon.luckyStrike * 10;
+  // 3.5. LS кристали в зброї
+  const weaponInsert = equipmentInserts?.weapon;
+  if (weaponInsert) {
+    if (weaponInsert.luckyStrike) crit += weaponInsert.luckyStrike * 10;
+    if (weaponInsert.anger) critPower += weaponInsert.anger * 10;
+    if (weaponInsert.acumen) castSpeed = Math.round(castSpeed * (1 + weaponInsert.acumen / 100));
   }
   
   // Застосовуємо всі відсоткові бонуси (з equipment та сетів) після всіх flat бонусів

@@ -139,6 +139,11 @@ function addOldItemToInventory(
   const grade = oldItem.grade || autoDetectGrade(oldItemId);
   const armorType = oldItem.armorType || (oldItem.kind === "armor" || oldItem.kind === "helmet" || oldItem.kind === "boots" || oldItem.kind === "gloves" ? autoDetectArmorType(oldItemId) : undefined);
   const inserts = slot === "weapon" ? hero.equipmentInserts?.weapon : undefined;
+  const insertStats = inserts ? {
+    insertedCrystal: inserts.crystalId,
+    insertedLS: inserts.lsId,
+    ...Object.fromEntries(Object.entries(inserts).filter(([k]) => !["crystalId", "lsId"].includes(k))),
+  } : {};
   
   return [
     ...inventory,
@@ -154,7 +159,7 @@ function addOldItemToInventory(
       enchantLevel: oldEnchantLevel,
       grade: grade,
       armorType: armorType,
-      ...(inserts ? { insertedCrystal: inserts.crystalId, insertedLS: inserts.lsId, luckyStrike: inserts.luckyStrike } : {}),
+      ...insertStats,
     },
   ];
 }
@@ -719,18 +724,19 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
 
-  // При одяганні зброї: копіюємо luckyStrike в equipmentInserts або очищаємо
+  // При одяганні зброї: копіюємо LS ефекти в equipmentInserts або очищаємо
     let newEquipmentInserts = hero.equipmentInserts;
     if (slot === "weapon") {
-      if ((item as any).luckyStrike) {
-        newEquipmentInserts = {
-          ...(hero.equipmentInserts || {}),
-          weapon: {
-            crystalId: (item as any).insertedCrystal,
-            lsId: (item as any).insertedLS,
-            luckyStrike: (item as any).luckyStrike,
-          },
+      const hasLS = (item as any).insertedLS || (item as any).luckyStrike;
+      if (hasLS) {
+        const insert: Record<string, any> = {
+          crystalId: (item as any).insertedCrystal,
+          lsId: (item as any).insertedLS,
         };
+        ["luckyStrike", "focus", "lifeSteal", "guidance", "empower", "acumen", "anger", "magicParry", "rskFocus", "rskEvasion", "rskHaste", "backbiting"].forEach((k) => {
+          if ((item as any)[k] != null) insert[k] = (item as any)[k];
+        });
+        newEquipmentInserts = { ...(hero.equipmentInserts || {}), weapon: insert };
       } else {
         const { weapon: _w, ...rest } = (hero.equipmentInserts || {}) as any;
         newEquipmentInserts = Object.keys(rest).length > 0 ? rest : undefined;

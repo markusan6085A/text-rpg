@@ -25,10 +25,21 @@ export interface HeroInventoryItem {
   enchantLevel?: number; // Рівень заточки предмета (0-25+)
   armorType?: "light" | "heavy" | "robe" | "magic" | "none" | "pet"; // Тип броні для пасивних скілів
   grade?: "NG" | "D" | "C" | "B" | "A" | "S"; // Грейд предмета
-  /** Вставлений кристал (LS) — збільшує шанс криту на luckyStrike% */
+  /** Вставлений кристал (LS) — ефекти з кристала */
   insertedCrystal?: string;
   insertedLS?: string;
   luckyStrike?: number;
+  focus?: number;
+  lifeSteal?: number;
+  guidance?: number;
+  empower?: number;
+  acumen?: number;
+  anger?: number;
+  magicParry?: number;
+  rskFocus?: number;
+  rskEvasion?: number;
+  rskHaste?: number;
+  backbiting?: number;
 }
 
 export interface LearnedSkill {
@@ -84,8 +95,23 @@ export interface Hero {
   /** Предмети, що не вмістились в інвентар (сундук переповнення займає останній слот). */
   overflowChest?: HeroInventoryItem[];
   equipmentEnchantLevels?: Record<string, number>; // Рівні заточки для екіпірованих предметів (ключ - слот)
-  /** Вставлені кристали/LS у екіпіровану зброю (для equipped weapon) */
-  equipmentInserts?: Record<string, { crystalId?: string; lsId?: string; luckyStrike?: number }>;
+  /** Вставлені кристали/LS у екіпіровану зброю */
+  equipmentInserts?: Record<string, {
+    crystalId?: string;
+    lsId?: string;
+    luckyStrike?: number;
+    focus?: number;
+    lifeSteal?: number;
+    guidance?: number;
+    empower?: number;
+    acumen?: number;
+    anger?: number;
+    magicParry?: number;
+    rskFocus?: number;
+    rskEvasion?: number;
+    rskHaste?: number;
+    backbiting?: number;
+  }>;
 
   // Скіли
   skills: LearnedSkill[];

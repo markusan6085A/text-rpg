@@ -181,9 +181,11 @@ export function handleBaseAttack(
   }
   const curHero = useHeroStore.getState().hero;
 
-  // Обробка крадіжки HP (vampirism) для базової атаки
+  // Обробка крадіжки HP (vampirism + Life Steal з кристала)
   const vampirismPercent = buffedStats?.vampirism ?? 0;
-  const healFromVamp = vampirismPercent > 0 ? Math.round(damage * (vampirismPercent / 100)) : 0;
+  const weaponLifeSteal = hero.equipmentInserts?.weapon?.lifeSteal ?? 0;
+  const totalVamp = vampirismPercent + weaponLifeSteal;
+  const healFromVamp = totalVamp > 0 ? Math.round(damage * (totalVamp / 100)) : 0;
   const nextHeroHP = Math.min(maxHp, curHeroHP + healFromVamp);
   
   // Перераховуємо стати після зміни HP через vampirism, щоб активувати/деактивувати пасивні скіли з hpThreshold
@@ -304,7 +306,7 @@ export function handleBaseAttack(
       dropMessages = dropResult.dropMessages;
       actualDroppedItems = dropResult.actualDroppedItems ?? [];
 
-      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory };
+      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory, overflowChest: dropResult.overflowChest ?? [] };
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
         const baseActiveQuests = curHero.activeQuests || [];
         victoryUpdates.activeQuests = baseActiveQuests.map((aq) => {

@@ -29,7 +29,20 @@ export interface DyeItem {
 
 // Предмети кристалів/LS — купуються за Adena
 const GM_CRYSTAL_ITEM_IDS = ["crystal_c", "crystal_b", "crystal_a", "crystal_s"] as const;
-const GM_LS_ITEM_IDS = ["crystal_lucky_strike_c", "crystal_lucky_strike_b", "crystal_lucky_strike_a", "crystal_lucky_strike_s"] as const;
+const GM_LS_ITEM_IDS = [
+  "crystal_lucky_strike_c", "crystal_lucky_strike_b", "crystal_lucky_strike_a", "crystal_lucky_strike_s",
+  "crystal_focus_c", "crystal_focus_b", "crystal_focus_a", "crystal_focus_s",
+  "crystal_health_c", "crystal_health_b", "crystal_health_a", "crystal_health_s",
+  "crystal_guidance_c", "crystal_guidance_b", "crystal_guidance_a", "crystal_guidance_s",
+  "crystal_empower_c", "crystal_empower_b", "crystal_empower_a", "crystal_empower_s",
+  "crystal_acumen_c", "crystal_acumen_b", "crystal_acumen_a", "crystal_acumen_s",
+  "crystal_anger_c", "crystal_anger_b", "crystal_anger_a", "crystal_anger_s",
+  "crystal_magic_parry_c", "crystal_magic_parry_b", "crystal_magic_parry_a", "crystal_magic_parry_s",
+  "crystal_rsk_focus_c", "crystal_rsk_focus_b", "crystal_rsk_focus_a", "crystal_rsk_focus_s",
+  "crystal_rsk_evasion_c", "crystal_rsk_evasion_b", "crystal_rsk_evasion_a", "crystal_rsk_evasion_s",
+  "crystal_rsk_haste_c", "crystal_rsk_haste_b", "crystal_rsk_haste_a", "crystal_rsk_haste_s",
+  "crystal_backbiting_c", "crystal_backbiting_b", "crystal_backbiting_a", "crystal_backbiting_s",
+] as const;
 const CRYSTAL_PRICE_ADENA = 10;
 
 // Предмети для продажу в GM-шопі (краски з правильними парами статів)
@@ -716,7 +729,7 @@ export default function GMShop({ navigate }: GMShopProps) {
     const crystalGrade = insertLSSelected.crystal.grade ?? (itemsDBCrystals[insertLSSelected.crystal.id] ?? itemsDB[insertLSSelected.crystal.id])?.grade;
     const lsGrade = insertLSSelected.ls.grade ?? (itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id])?.grade;
     const lsDef = itemsDBCrystals[insertLSSelected.ls.id] ?? itemsDB[insertLSSelected.ls.id];
-    const luckyStrike = (lsDef?.stats as any)?.luckyStrike ?? 0;
+    const lsStats = (lsDef?.stats as Record<string, number>) || {};
 
     const weaponDef = itemsDB[insertLSSelected.weapon.id];
     const weaponGrade = insertLSSelected.weapon.grade ?? weaponDef?.grade ?? autoDetectGrade(insertLSSelected.weapon.id);
@@ -761,7 +774,7 @@ export default function GMShop({ navigate }: GMShopProps) {
       const insert = {
         crystalId: insertLSSelected.crystal.id,
         lsId: insertLSSelected.ls.id,
-        luckyStrike,
+        ...lsStats,
       };
       if (isEquipped) {
         updateHero({
@@ -773,12 +786,13 @@ export default function GMShop({ navigate }: GMShopProps) {
         });
       } else if (weaponInInvIdx >= 0) {
         const w = newInventory[weaponInInvIdx];
-        newInventory[weaponInInvIdx] = { ...w, insertedCrystal: insert.crystalId, insertedLS: insert.lsId, luckyStrike };
+        newInventory[weaponInInvIdx] = { ...w, insertedCrystal: insert.crystalId, insertedLS: insert.lsId, ...lsStats };
         updateHero({ inventory: newInventory });
       } else {
         updateHero({ inventory: newInventory });
       }
-      showToast(`Успіх! LS вставлено. +${luckyStrike}% до криту.`, "success");
+      const effDesc = Object.entries(lsStats).map(([k, v]) => `${k}: +${v}`).join(", ") || insertLSSelected.ls.name;
+      showToast(`Успіх! LS вставлено. (${effDesc})`, "success");
     } else {
       updateHero({ inventory: newInventory });
       showToast("Не вдалося — кристал і LS втрачено.", "error");
@@ -1685,7 +1699,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                   weapons.map((inv) => {
                     const def = itemsDB[inv.id];
                     const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
-                    const hasLS = (inv as any).luckyStrike ?? (hero?.equipmentInserts?.weapon?.luckyStrike && hero?.equipment?.weapon === inv.id);
+                    const hasLS = (inv as any).insertedLS ?? (inv as any).luckyStrike ?? (hero?.equipmentInserts?.weapon?.lsId && hero?.equipment?.weapon === inv.id);
                     return (
                       <div
                         key={inv.id}
