@@ -1744,7 +1744,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     {weaponPickerFilter === "grade" && (
                       <div className="flex gap-1 flex-wrap mb-2">
                         <button onClick={() => setWeaponPickerGrade("*")} className={`px-1.5 py-0.5 text-[10px] ${weaponPickerGrade === "*" ? "bg-[#ff8c00]/30 text-[#ff8c00]" : "text-gray-400"}`}>Всі</button>
-                        {(["NG", "D", "C", "B", "A", "S"] as const).map((g) => (
+                        {(["C", "B", "A", "S"] as const).map((g) => (
                           <button key={g} onClick={() => setWeaponPickerGrade(g)} className={`px-1.5 py-0.5 text-[10px] ${weaponPickerGrade === g ? "bg-[#ff8c00]/30 text-[#ff8c00]" : "text-gray-400"}`}>{g}</button>
                         ))}
                       </div>
@@ -1761,9 +1761,9 @@ export default function GMShop({ navigate }: GMShopProps) {
                       {weapons
                         .filter((inv) => {
                           const def = itemsDB[inv.id];
-                          const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
+                          const grade = String(inv.grade ?? def?.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
                           const wType = getWeaponTypeFromItemId(inv.id, def);
-                          if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || (grade ?? "?") === weaponPickerGrade;
+                          if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || grade === weaponPickerGrade;
                           return weaponPickerType === "*" || wType === weaponPickerType;
                         })
                         .map((inv) => {
@@ -1773,7 +1773,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                           return (
                             <div
                               key={inv.id}
-                              className="flex flex-col items-center gap-0.5 p-1.5 rounded border border-white/20 hover:bg-[#3d2f1a]/50 hover:border-[#ff8c00]/50 cursor-pointer"
+                              className="flex flex-col items-center gap-0.5 p-1.5 rounded bg-black/20 hover:bg-[#2a2015] cursor-pointer"
                               onClick={() => {
                                 setInsertLSSelected((s) => ({ ...s, weapon: { ...inv, grade } }));
                                 setInsertLSPicker(null);
@@ -1792,9 +1792,9 @@ export default function GMShop({ navigate }: GMShopProps) {
                     </div>
                     {weapons.filter((inv) => {
                       const def = itemsDB[inv.id];
-                      const grade = inv.grade ?? def?.grade ?? autoDetectGrade(inv.id);
+                      const grade = String(inv.grade ?? def?.grade ?? autoDetectGrade(inv.id) ?? "?").toUpperCase();
                       const wType = getWeaponTypeFromItemId(inv.id, def);
-                      if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || (grade ?? "?") === weaponPickerGrade;
+                      if (weaponPickerFilter === "grade") return weaponPickerGrade === "*" || grade === weaponPickerGrade;
                       return weaponPickerType === "*" || wType === weaponPickerType;
                     }).length === 0 && (
                       <p className="text-gray-500 text-[11px] py-2">Немає зброї з цим фільтром. Спробуйте інший.</p>

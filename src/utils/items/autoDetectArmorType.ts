@@ -65,6 +65,13 @@ export function autoDetectGrade(itemId: string): "NG" | "D" | "C" | "B" | "A" | 
   if (lowerId.startsWith("b_")) return "B";
   if (lowerId.startsWith("a_")) return "A";
   if (lowerId.startsWith("s_")) return "S";
+  // Зброя: weapon_X_, quest_weapon_X_, shop_weapon_X_
+  if (lowerId.includes("weapon_s_") || lowerId.includes("_weapon_s")) return "S";
+  if (lowerId.includes("weapon_a_") || lowerId.includes("_weapon_a")) return "A";
+  if (lowerId.includes("weapon_b_") || lowerId.includes("_weapon_b")) return "B";
+  if (lowerId.includes("weapon_c_") || lowerId.includes("_weapon_c")) return "C";
+  if (lowerId.includes("weapon_d_") || lowerId.includes("_weapon_d")) return "D";
+  if (lowerId.includes("weapon_ng_") || lowerId.includes("_weapon_ng")) return "NG";
   
   // Остання перевірка - точні збіги на кінці (тільки якщо це не частина слова)
   // Виключаємо слова, які закінчуються на ці літери, але не є грейдами
