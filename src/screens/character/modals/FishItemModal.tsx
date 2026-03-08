@@ -208,7 +208,16 @@ function processFishDrop(fishCount: number): {
     });
   }
 
-  // Бижутерія, ресурси, скарбничка, заточки — за 1 рибу (як було)
+  // Кристали (LS, Focus, Health тощо) — окремий шанс 1.5% за рибу, щоб не пропадали і стакались
+  const crystalIds = allResources.filter((r) => r.id.startsWith("crystal_")).map((r) => r.id);
+  for (let i = 0; i < fishCount; i++) {
+    if (crystalIds.length > 0 && Math.random() * 100 < 1.5) {
+      const id = crystalIds[Math.floor(Math.random() * crystalIds.length)];
+      resources[id] = (resources[id] || 0) + 1;
+    }
+  }
+
+  // Бижутерія, ресурси (інші), скарбничка, заточки — за 1 рибу (як було)
   for (let i = 0; i < fishCount; i++) {
     (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
       const chance = GRADE_CHANCE[grade];
@@ -303,7 +312,7 @@ export default function FishItemModal({
       const itemDef = itemsDB[id];
       if (itemDef) {
         for (let i = 0; i < count; i++) {
-          itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count: 1, description: itemDef.description });
+          itemsToAdd.push({ id, name: itemDef.name, type: itemDef.kind ?? "jewelry", slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 });
         }
       }
     });
@@ -311,7 +320,7 @@ export default function FishItemModal({
       const itemDef = itemsDB[id];
       if (itemDef) {
         for (let i = 0; i < count; i++) {
-          itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count: 1, description: itemDef.description });
+          itemsToAdd.push({ id, name: itemDef.name, type: itemDef.kind ?? "weapon", slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 });
         }
       }
     });
@@ -319,20 +328,37 @@ export default function FishItemModal({
       const itemDef = itemsDB[id];
       if (itemDef) {
         for (let i = 0; i < count; i++) {
-          itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count: 1, description: itemDef.description });
+          itemsToAdd.push({ id, name: itemDef.name, type: itemDef.kind ?? "armor", slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 });
         }
       }
     });
     result.resources.forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
       if (itemDef) {
-        itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, count, description: itemDef.description });
+        itemsToAdd.push({
+          id,
+          name: itemDef.name,
+          type: itemDef.kind ?? "resource",
+          slot: itemDef.slot,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          stats: itemDef.stats,
+          count,
+        });
       }
     });
     (result.enchantScrolls || []).forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
       if (itemDef) {
-        itemsToAdd.push({ id, name: itemDef.name, icon: itemDef.icon, slot: itemDef.slot, kind: itemDef.kind, count, description: itemDef.description });
+        itemsToAdd.push({
+          id,
+          name: itemDef.name,
+          type: itemDef.kind ?? "resource",
+          slot: itemDef.slot,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          count,
+        });
       }
     });
 
@@ -475,26 +501,54 @@ export default function FishItemModal({
               </div>
             )}
 
-            {dismantleResult.resources.length > 0 && (
+            {/* Кристали та LS — окремий блок, завжди з кількістю */}
+            {dismantleResult.resources.filter((r) => r.id.startsWith("crystal_")).length > 0 && (
+              <div>
+                <div className="text-sm font-semibold text-[#b8860b] mb-2">Кристали та LS:</div>
+                <div className="space-y-1">
+                  {dismantleResult.resources
+                    .filter((r) => r.id.startsWith("crystal_"))
+                    .map(({ id, count }) => {
+                      const resourceDef = itemsDB[id];
+                      return (
+                        <div key={id} className="flex items-center gap-2">
+                          {resourceDef?.icon && (
+                            <img
+                              src={resourceDef.icon.startsWith("/") ? resourceDef.icon : `/items/${resourceDef.icon}`}
+                              alt={resourceDef.name}
+                              className="w-5 h-5 object-contain"
+                            />
+                          )}
+                          <span className="text-gray-300">{resourceDef?.name || id}</span>
+                          <span className="text-green-400 font-semibold">x{count}</span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+            {dismantleResult.resources.filter((r) => !r.id.startsWith("crystal_")).length > 0 && (
               <div>
                 <div className="text-sm font-semibold text-[#b8860b] mb-2">Ресурси:</div>
                 <div className="space-y-1">
-                  {dismantleResult.resources.map(({ id, count }) => {
-                    const resourceDef = itemsDB[id];
-                    return (
-                      <div key={id} className="flex items-center gap-2">
-                        {resourceDef?.icon && (
-                          <img
-                            src={resourceDef.icon.startsWith("/") ? resourceDef.icon : `/items/${resourceDef.icon}`}
-                            alt={resourceDef.name}
-                            className="w-5 h-5 object-contain"
-                          />
-                        )}
-                        <span className="text-gray-400">{resourceDef?.name || id}:</span>
-                        <span className="text-green-400">x{count}</span>
-                      </div>
-                    );
-                  })}
+                  {dismantleResult.resources
+                    .filter((r) => !r.id.startsWith("crystal_"))
+                    .map(({ id, count }) => {
+                      const resourceDef = itemsDB[id];
+                      return (
+                        <div key={id} className="flex items-center gap-2">
+                          {resourceDef?.icon && (
+                            <img
+                              src={resourceDef.icon.startsWith("/") ? resourceDef.icon : `/items/${resourceDef.icon}`}
+                              alt={resourceDef.name}
+                              className="w-5 h-5 object-contain"
+                            />
+                          )}
+                          <span className="text-gray-400">{resourceDef?.name || id}:</span>
+                          <span className="text-green-400">x{count}</span>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             )}
