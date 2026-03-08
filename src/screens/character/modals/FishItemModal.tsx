@@ -208,16 +208,7 @@ function processFishDrop(fishCount: number): {
     });
   }
 
-  // Кристали (LS, Focus, Health тощо) — окремий шанс 1.5% за рибу, щоб не пропадали і стакались
-  const crystalIds = allResources.filter((r) => r.id.startsWith("crystal_")).map((r) => r.id);
-  for (let i = 0; i < fishCount; i++) {
-    if (crystalIds.length > 0 && Math.random() * 100 < 1.5) {
-      const id = crystalIds[Math.floor(Math.random() * crystalIds.length)];
-      resources[id] = (resources[id] || 0) + 1;
-    }
-  }
-
-  // Бижутерія, ресурси (інші), скарбничка, заточки — за 1 рибу (як було)
+  // Бижутерія, ресурси (без кристалів/LS), скарбничка, заточки — за 1 рибу
   for (let i = 0; i < fishCount; i++) {
     (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
       const chance = GRADE_CHANCE[grade];
@@ -228,6 +219,7 @@ function processFishDrop(fishCount: number): {
       }
     });
     allResources.forEach((res) => {
+      if (res.id.startsWith("crystal_")) return; // Кристали та LS не дропають з риби
       if (Math.random() * 100 < 0.8) resources[res.id] = (resources[res.id] || 0) + 1;
     });
     if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
@@ -501,39 +493,11 @@ export default function FishItemModal({
               </div>
             )}
 
-            {/* Кристали та LS — окремий блок, завжди з кількістю */}
-            {dismantleResult.resources.filter((r) => r.id.startsWith("crystal_")).length > 0 && (
-              <div>
-                <div className="text-sm font-semibold text-[#b8860b] mb-2">Кристали та LS:</div>
-                <div className="space-y-1">
-                  {dismantleResult.resources
-                    .filter((r) => r.id.startsWith("crystal_"))
-                    .map(({ id, count }) => {
-                      const resourceDef = itemsDB[id];
-                      return (
-                        <div key={id} className="flex items-center gap-2">
-                          {resourceDef?.icon && (
-                            <img
-                              src={resourceDef.icon.startsWith("/") ? resourceDef.icon : `/items/${resourceDef.icon}`}
-                              alt={resourceDef.name}
-                              className="w-5 h-5 object-contain"
-                            />
-                          )}
-                          <span className="text-gray-300">{resourceDef?.name || id}</span>
-                          <span className="text-green-400 font-semibold">x{count}</span>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-            {dismantleResult.resources.filter((r) => !r.id.startsWith("crystal_")).length > 0 && (
+            {dismantleResult.resources.length > 0 && (
               <div>
                 <div className="text-sm font-semibold text-[#b8860b] mb-2">Ресурси:</div>
                 <div className="space-y-1">
-                  {dismantleResult.resources
-                    .filter((r) => !r.id.startsWith("crystal_"))
-                    .map(({ id, count }) => {
+                  {dismantleResult.resources.map(({ id, count }) => {
                       const resourceDef = itemsDB[id];
                       return (
                         <div key={id} className="flex items-center gap-2">
