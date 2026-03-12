@@ -157,7 +157,11 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     "w-20 py-1 text-[10px] bg-[#0f0a06] text-white border border-[#c7ad80] rounded-md";
 
   if (!hero)
-    return <div className="text-white text-center mt-10">Загрузка...</div>;
+    return (
+      <div className="flex items-center justify-center gap-2 py-10 text-gray-500">
+        <div className="w-5 h-5 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin" />
+      </div>
+    );
 
   return (
     <div className="w-full flex flex-col items-center text-white">

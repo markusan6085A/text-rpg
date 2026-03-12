@@ -565,7 +565,11 @@ export default function GMShop({ navigate }: GMShopProps) {
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
 
   if (!hero) {
-    return <div className="text-white text-center mt-10">Загрузка...</div>;
+    return (
+      <div className="flex items-center justify-center gap-2 py-10 text-gray-500">
+        <div className="w-5 h-5 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin" />
+      </div>
+    );
   }
 
   // Перевірка наявності каменів печати

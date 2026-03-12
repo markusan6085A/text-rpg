@@ -35,8 +35,9 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   if (!hero) {
     return (
-      <div className="flex items-center justify-center text-xs text-gray-400">
-        Загрузка персонажа...
+      <div className="flex items-center justify-center gap-2 py-8 text-gray-500">
+        <div className="w-5 h-5 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin" />
+        <span className="text-xs opacity-70">...</span>
       </div>
     );
   }

@@ -53,7 +53,7 @@ import { AdminItemPickerPage } from "./screens/admin/AdminItemPickerPage";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
-import { setJSON } from "./state/persistence";
+import { getJSON, setJSON } from "./state/persistence";
 import { useAuthStore } from "./state/authStore";
 import { useCharacterStore } from "./state/characterStore";
 import { useAdminStore } from "./state/adminStore";
@@ -135,7 +135,20 @@ function AppInner() {
 
   const { navigate, navigateNoReload, path, refreshKey } = useRouter();
   const [loadingHeroAfterAuth, setLoadingHeroAfterAuth] = React.useState(false);
-  
+  const [heroLoadTimedOut, setHeroLoadTimedOut] = React.useState(false);
+
+  // Таймаут для "Загрузка персонажа..." — на мобільному API може зависати, після 12 сек показуємо кнопку оновлення
+  const pathnameForLoad = path.split("?")[0];
+  React.useEffect(() => {
+    if (hero) {
+      setHeroLoadTimedOut(false);
+      return;
+    }
+    if ((pathnameForLoad !== "/" && pathnameForLoad !== "") || !isAuthenticated) return;
+    const t = setTimeout(() => setHeroLoadTimedOut(true), 12000);
+    return () => clearTimeout(t);
+  }, [hero, pathnameForLoad, isAuthenticated]);
+
   // Відновлення battle store з localStorage після готовності hero (уникаємо TDZ у battle chunk)
   React.useEffect(() => {
     if (hero?.name) hydrateBattleStoreFromStorage();
@@ -166,7 +179,20 @@ function AppInner() {
         if (chars.length > 0) {
           setCharacterId(chars[0].id);
           const h = await loadHeroFromAPI();
-          if (alive && h) setHero(h);
+          if (alive && h) {
+            setHero(h);
+            // 🔥 Щоб при поверненні (F5) loadHero() знайшов героя — пишемо в localStorage одразу
+            const username = (h as any).username ?? h.name ?? "";
+            if (username) {
+              setJSON("l2_current_user", username);
+              const raw = getJSON<any[]>("l2_accounts_v2", []);
+              const accounts = Array.isArray(raw) ? raw : [];
+              const idx = accounts.findIndex((a: any) => a.username === username);
+              if (idx === -1) accounts.push({ username, hero: h });
+              else accounts[idx].hero = h;
+              setJSON("l2_accounts_v2", accounts);
+            }
+          }
           if (alive) navigateNoReload("/city");
         } else {
           navigateNoReload("/register");
@@ -200,13 +226,17 @@ function AppInner() {
     (async () => {
       try {
         // 1) Bootstrap: отримуємо accessToken через refresh cookie (без localStorage)
+        // Таймаут 5 сек — на мобільному при повільній мережі fetch може зависати, без timeout "Загрузка..." тримається довго
         try {
-          const r = await fetch(`${API_URL}/auth/refresh`, { method: "POST", credentials: "include" });
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 5000);
+          const r = await fetch(`${API_URL}/auth/refresh`, { method: "POST", credentials: "include", signal: ctrl.signal });
+          clearTimeout(t);
           if (r.ok) {
             const d = await r.json();
             if (d?.accessToken && alive) setAccessToken(d.accessToken);
           }
-          // при 401 просто продовжуємо без токена — герой з localStorage
+          // при 401/таймауті просто продовжуємо без токена — герой з localStorage
         } catch (_) {}
 
         // 2) Ініціалізуємо character store
@@ -320,11 +350,12 @@ function AppInner() {
     };
   }, []);
 
-  // Поки йде завантаження — показуємо "загрузка", але НЕ Landing
+  // Поки йде завантаження — мінімальний спінер без великого тексту (менше відчуття "зависання")
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-gray-400">
-        Загрузка...
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-3 text-gray-500">
+        <div className="w-8 h-8 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin" />
+        <span className="text-xs">...</span>
       </div>
     );
   }
@@ -333,10 +364,27 @@ function AppInner() {
   const pathname = path.split('?')[0];
 
   // Після входу через /admin/login є accessToken, але hero ще null — показуємо загрузку (завантаження в useEffect вище)
+  // На мобільному loadHeroFromAPI може зависати — через 12 сек показуємо кнопку "Оновити" (heroLoadTimedOut з useEffect вище)
   if (!hero && (pathname === "/" || pathname === "") && isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-gray-400">
-        Загрузка персонажа...
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-4 text-gray-500">
+        {heroLoadTimedOut ? (
+          <>
+            <p className="text-center text-sm">Проблеми з мережею. Спробуйте оновити сторінку.</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded bg-[#c7ad80]/20 border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+            >
+              Оновити
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="w-6 h-6 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin" />
+            <span className="text-xs opacity-70">завантаження</span>
+          </>
+        )}
       </div>
     );
   }
@@ -350,6 +398,13 @@ function AppInner() {
           onLogin={(loadedHero) => {
             setJSON("l2_current_user", loadedHero.username);
             setHero(loadedHero);
+            // 🔥 КРИТИЧНО: Одразу пишемо hero в l2_accounts_v2, щоб при поверненні (F5, нова вкладка) loadHero() знайшов героя — без цього "Загрузка персонажа" зависала
+            const raw = getJSON<any[]>("l2_accounts_v2", []);
+            const accounts = Array.isArray(raw) ? raw : [];
+            const idx = accounts.findIndex((a: any) => a.username === loadedHero.username);
+            if (idx === -1) accounts.push({ username: loadedHero.username, hero: loadedHero });
+            else accounts[idx].hero = loadedHero;
+            setJSON("l2_accounts_v2", accounts);
             navigate("/city");
           }}
           key={`landing-${refreshKey}`}
@@ -633,6 +688,12 @@ function AppInner() {
             onLogin={(loadedHero) => {
               setJSON("l2_current_user", loadedHero.username);
               setHero(loadedHero);
+              const raw = getJSON<any[]>("l2_accounts_v2", []);
+              const accounts = Array.isArray(raw) ? raw : [];
+              const idx = accounts.findIndex((a: any) => a.username === loadedHero.username);
+              if (idx === -1) accounts.push({ username: loadedHero.username, hero: loadedHero });
+              else accounts[idx].hero = loadedHero;
+              setJSON("l2_accounts_v2", accounts);
               navigate("/city");
             }}
             key={`default-landing-${refreshKey}`}
