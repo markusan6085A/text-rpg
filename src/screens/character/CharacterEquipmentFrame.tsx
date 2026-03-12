@@ -3,8 +3,6 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { SLOT_ICONS } from "./constants";
 import { useHeroStore } from "../../state/heroStore";
 import { GM_SHOP_ITEMS } from "../GMShop";
-import Character3DScene from "./Character3DScene";
-
 // Маппінг profession -> зображення
 const professionImageMap: Record<string, string> = {
   human_fighter: "Human-voin.jpg",
@@ -383,10 +381,60 @@ export default function CharacterEquipmentFrame({
         /* BACKUP: boxShadow: "inset 0 0 20px rgba(0, 0, 0, 0.6)" - прибрано тінь */
       }}
     >
-      {/* 3D-сцена персонажа в стилі L2 */}
+      {/* Фото героя як фон (2D — 3D вимкнено через краш на деяких пристроях) */}
       <div className="absolute inset-0" style={{ backgroundColor: "transparent" }}>
         {characterImage ? (
-          <Character3DScene characterImage={characterImage} className="absolute inset-0" />
+          <>
+            <img
+              src={characterImage}
+              alt="Character"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
+                opacity: imageError ? 0 : 1,
+                transition: "opacity 0.3s ease-in-out",
+                position: "absolute",
+                top: 0,
+                left: 0,
+              }}
+              onLoad={() => {
+                setImageLoaded(true);
+                setImageError(false);
+              }}
+              onError={() => setImageError(true)}
+            />
+            {imageError && (() => {
+              const gender = hero?.gender?.toLowerCase() || "male";
+              const race = hero?.race?.toLowerCase() || "human";
+              let fallbackSrc = `/characters/Human-voin.jpg`;
+              if (race === "human" && gender === "female") fallbackSrc = `/characters/Human-vvoin.jpg`;
+              else if (race === "elf" && gender === "male") fallbackSrc = `/characters/Elf-voin.jpg`;
+              else if (race === "elf" && gender === "female") fallbackSrc = `/characters/Elf-voinn.jpg`;
+              else if ((race === "darkelf" || race === "dark elf") && gender === "male") fallbackSrc = `/characters/Dark_Elf-voinn.jpg`;
+              else if ((race === "darkelf" || race === "dark elf") && gender === "female") fallbackSrc = `/characters/Dark_Elf_voin.jpg`;
+              else if ((race === "dwarf" || race === "dwarven") && gender === "male") fallbackSrc = `/characters/Dwarf_voin.jpg`;
+              else if ((race === "dwarf" || race === "dwarven") && gender === "female") fallbackSrc = `/characters/Dwarfvoiiin.jpg`;
+              else if (race === "orc" && gender === "male") fallbackSrc = `/characters/Orc_voinn.jpg`;
+              else if (race === "orc" && gender === "female") fallbackSrc = `/characters/Orc_vjinnn.jpg`;
+              return (
+                <img
+                  src={fallbackSrc}
+                  alt="Character Fallback"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                  }}
+                />
+              );
+            })()}
+          </>
         ) : (
           <div className="text-gray-500 text-xs text-center p-4">
             Немає зображення персонажа
