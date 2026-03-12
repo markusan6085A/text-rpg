@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { getOnlinePlayers, renameNick } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
+import { useOnlineCountStore } from "../state/onlineCountStore";
 import { showToast } from "../state/toastStore";
 
 type Navigate = (p: string) => void;
 
 export default function About({ navigate }: { navigate: Navigate }) {
-  const [onlineCount, setOnlineCount] = useState<number>(0);
+  const { onlineCount, setOnlineCount } = useOnlineCountStore();
   const [showChangeNickModal, setShowChangeNickModal] = useState(false);
   const [newNickname, setNewNickname] = useState("");
   const [isChanging, setIsChanging] = useState(false);
@@ -36,11 +37,10 @@ export default function About({ navigate }: { navigate: Navigate }) {
         setOnlineCount(0);
       }
     };
-    const startTimeout = setTimeout(loadOnlineCount, 3000); // Перший через 3 с — показуємо реальний онлайн швидше
+    loadOnlineCount(); // Одразу при відкритті Меню — якщо Layout вже завантажив, store має значення; оновлюємо свіжими даними
     const interval = setInterval(loadOnlineCount, 60000); // Далі кожні 60 с
     return () => {
       mounted = false;
-      clearTimeout(startTimeout);
       clearInterval(interval);
     };
   }, []);

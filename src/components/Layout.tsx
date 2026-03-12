@@ -11,6 +11,7 @@ import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { getRateLimitRemainingMs, useHeroStore, setResurrectInProgress } from "../state/heroStore";
 import { getOnlinePlayers, sendHeartbeat, adminLogout, resurrectCharacter } from "../utils/api";
+import { useOnlineCountStore } from "../state/onlineCountStore";
 import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { useCharacterStore } from "../state/characterStore";
 import { useBattleStore } from "../state/battle/store";
@@ -35,7 +36,7 @@ export default function Layout({
   hideFooterButtons = false,
   contentTopCompact = false,
 }: LayoutProps) {
-  const [onlineCount, setOnlineCount] = useState<number>(0);
+  const { onlineCount, setOnlineCount } = useOnlineCountStore();
   const [cooldownSec, setCooldownSec] = useState(0); // 🔥 Показуємо "Зачекайте X сек" при 429
   const logout = useAuthStore((s) => s.logout);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -138,7 +139,7 @@ export default function Layout({
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
     if (!isAuthenticated) {
       setOnlineCount(0);
-      return; // Cleanup спрацює автоматично через return нижче
+      return;
     }
 
     const loadOnlineCount = () => {
