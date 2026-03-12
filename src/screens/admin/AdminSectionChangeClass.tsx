@@ -61,16 +61,18 @@ export function AdminSectionChangeClass() {
         return;
       }
       const skillDefs = getSkillsForProfession(newProfession as any);
+      const heroLevel = data.character?.level ?? (data.character?.heroJson as any)?.level ?? 1;
       const skills = skillDefs.map((d) => {
-          const levels = Array.isArray(d.levels) ? d.levels : [];
-          const firstLevel = levels[0];
+          const levels = Array.isArray(d.levels) ? [...d.levels] : [];
+          levels.sort((a: any, b: any) => (a?.level ?? 0) - (b?.level ?? 0));
+          const best = levels.filter((l: any) => (l?.requiredLevel ?? 0) <= heroLevel).pop() ?? levels[0];
           return {
             id: d.id,
-            level: (firstLevel && typeof firstLevel.level === "number" ? firstLevel.level : 1),
+            level: (best && typeof best.level === "number" ? best.level : 1),
           };
         });
       await adminChangeClass(data.character.id, newProfession, skills, newSex);
-      setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}. Попроси гравця оновити сторінку (F5).`);
+      setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}. Скіли надано з урахуванням рівня персонажа. Loadout скинуто — гравець має додати скіли на панель. F5 для оновлення.`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
