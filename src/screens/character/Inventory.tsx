@@ -47,11 +47,12 @@ export default function Inventory() {
         return def?.grade?.toUpperCase() === gradeUpper;
       });
     }
-    // Сундук переповнення — показуємо як останній слот, коли є предмети в overflow
+    // Сундук переповнення — показуємо тільки в "Все", на початку списку
     const overflowChest = hero.overflowChest || [];
     if (overflowChest.length > 0) {
       const totalInChest = overflowChest.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
-      items = [...items, { id: OVERFLOW_CHEST_ID, name: "Сундук переповнення", slot: "quest", count: totalInChest, icon: "/items/drops/resources/collection_box.jpg" }];
+      const chestItem = { id: OVERFLOW_CHEST_ID, name: "Сундук переповнення", slot: "quest", count: totalInChest, icon: "/items/drops/resources/collection_box.jpg" };
+      items = [chestItem, ...items];
     }
     return items;
   }, [hero, currentCategory, currentGrade]);
@@ -72,6 +73,7 @@ export default function Inventory() {
   };
 
   const handleTransfer = (item: any, amount: number) => {
+    if (item?.id === OVERFLOW_CHEST_ID) return;
     const itemCount = Math.max(1, Number(amount) || 1);
     const maxCount = Number(item.count || 1);
     const preparedCount = Math.max(1, Math.min(maxCount, itemCount));

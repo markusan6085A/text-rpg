@@ -95,6 +95,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     loadPlayerProfile();
   }, [playerId, playerName]);
 
+  // Перевірка адміна при відкритті профілю — щоб кнопка «Забафнуть» зʼявилась одразу (checkAdmin в App відкладений на 1.5 с)
+  useEffect(() => {
+    useAdminStore.getState().checkAdmin().catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!hero?.id) return;
     getMyClan().then((r) => {
@@ -577,20 +582,32 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       }
     };
     return (
-      <PkProfileView
-        character={character}
-        heroData={heroData}
-        professionLabel={professionLabel}
-        pkSession={pkSession}
-        pkLoading={pkLoading}
-        pkActing={pkActing}
-        pkError={pkError}
-        now={now}
-        serverTimeDrift={serverTimeDrift}
-        onUseSkill={handlePkUseSkill}
-        onAttack={handlePkAttack}
-        onBack={backToLocation}
-      />
+      <div className="w-full">
+        {isAdmin && (
+          <div className="w-full max-w-[360px] mx-auto mb-2 px-3 py-1 border-b border-[#c7ad80]/50">
+            <span
+              onClick={() => navigate(`/player/${character.id}/admin`)}
+              className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400"
+            >
+              Забафнуть игрока
+            </span>
+          </div>
+        )}
+        <PkProfileView
+          character={character}
+          heroData={heroData}
+          professionLabel={professionLabel}
+          pkSession={pkSession}
+          pkLoading={pkLoading}
+          pkActing={pkActing}
+          pkError={pkError}
+          now={now}
+          serverTimeDrift={serverTimeDrift}
+          onUseSkill={handlePkUseSkill}
+          onAttack={handlePkAttack}
+          onBack={backToLocation}
+        />
+      </div>
     );
   }
 

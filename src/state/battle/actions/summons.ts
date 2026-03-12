@@ -705,7 +705,7 @@ export function processSummonAttack(
       const dropResult = processMobDrops(mob, curHero, mobSpoiled);
       dropMessages = dropResult.dropMessages;
 
-      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory };
+      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory, overflowChest: dropResult.overflowChest ?? [] };
       if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
         const baseActiveQuests = curHero.activeQuests || [];
         (victoryUpdates as any).activeQuests = baseActiveQuests.map((aq: any) => {
