@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { adminFindPlayerByName, adminChangeClass } from "../../utils/api";
-import { PROFESSION_OPTIONS, getSkillsForProfession } from "../../data/skills";
+import { PROFESSION_OPTIONS } from "../../data/skills";
 
 const style = { color: "#c7ad80" };
 
@@ -60,19 +60,9 @@ export function AdminSectionChangeClass() {
         setMessage("Персонаж вже має цю професію. Оберіть іншу або натисніть «Знайти» щоб оновити дані.");
         return;
       }
-      const skillDefs = getSkillsForProfession(newProfession as any);
-      const heroLevel = data.character?.level ?? (data.character?.heroJson as any)?.level ?? 1;
-      const skills = skillDefs.map((d) => {
-          const levels = Array.isArray(d.levels) ? [...d.levels] : [];
-          levels.sort((a: any, b: any) => (a?.level ?? 0) - (b?.level ?? 0));
-          const best = levels.filter((l: any) => (l?.requiredLevel ?? 0) <= heroLevel).pop() ?? levels[0];
-          return {
-            id: d.id,
-            level: (best && typeof best.level === "number" ? best.level : 1),
-          };
-        });
-      await adminChangeClass(data.character.id, newProfession, skills, newSex);
-      setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}. Скіли надано з урахуванням рівня персонажа. Loadout скинуто — гравець має додати скіли на панель. F5 для оновлення.`);
+      // Скіли не додаються автоматично — гравець сам вивчить у гільдії за SP. SP залишається.
+      await adminChangeClass(data.character.id, newProfession, [], newSex);
+      setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}. Старі скіли скинуто. SP збережено — гравець вивчить скіли в гільдії. F5.`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -88,7 +78,7 @@ export function AdminSectionChangeClass() {
         Змінити клас
       </h2>
       <p className="text-xs text-gray-500 mb-2">
-        Знайти гравця за ніком і встановити нову професію. Скіли замінюються на базові для вибраної професії.
+        Знайти гравця за ніком і встановити нову професію. Старі скіли скинуться, SP збережеться — гравець вивчить скіли в гільдії.
       </p>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
         <input
