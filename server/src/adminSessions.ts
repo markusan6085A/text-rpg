@@ -8,7 +8,7 @@ type AdminSession = {
 
 const sessions = new Map<string, AdminSession>();
 
-const TTL_MS = 1000 * 60 * 60 * 24; // 24h
+const TTL_MS = 1000 * 60 * 60 * 24 * 7; // 1 тиждень
 
 export function createAdminSession(adminLogin: string): string {
   const sid = randomBytes(32).toString("hex");

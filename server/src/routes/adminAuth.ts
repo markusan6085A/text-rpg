@@ -36,7 +36,9 @@ function isProd(): boolean {
   return process.env.NODE_ENV === "production";
 }
 
-function cookieOpts(): { path: string; httpOnly: boolean; secure: boolean; sameSite: "lax" } {
+const ADMIN_SESSION_DAYS = 7; // 1 тиждень — не викидає з адмінки так швидко
+
+function cookieOpts(): { path: string; httpOnly: boolean; secure: boolean; sameSite: "lax"; maxAge: number } {
   // path "/" — cookie відправляється для всіх запитів до домену (працює і з /admin, і з /api/admin, і в dev на localhost)
   const path = process.env.ADMIN_COOKIE_PATH || "/";
   return {
@@ -44,6 +46,7 @@ function cookieOpts(): { path: string; httpOnly: boolean; secure: boolean; sameS
     httpOnly: true,
     secure: isProd(),
     sameSite: "lax",
+    maxAge: ADMIN_SESSION_DAYS * 24 * 60 * 60, // секунди, щоб cookie не зникала при закритті браузера
   };
 }
 
