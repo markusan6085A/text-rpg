@@ -177,7 +177,7 @@ export default function Register({ navigate }: RegisterProps) {
         navigate("/city");
       } else {
         // Fallback: встановлюємо героя вручну
-        const fallbackHero = { ...coreHero, name: trimmedUsername, username: trimmedUsername, sp: 0, skills: [], battleStats: {} as any } as any;
+        const fallbackHero = { ...coreHero, name: trimmedUsername, username: trimmedUsername, sp: 0, skills: [] } as any;
         setHero(fallbackHero);
         setJSON("l2_current_user", trimmedUsername);
         

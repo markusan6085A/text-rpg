@@ -249,18 +249,9 @@ export function createNewHero(params: NewHeroParams): HeroCore & { sp: number; s
     inventory,
   };
   
-  // Додаємо поля для Hero, включаючи profession та baseStatsInitial
-  return {
-    ...heroCore,
-    profession: defaultProfession,
-    baseStatsInitial: { ...baseStats }, // Зберігаємо оригінальні базові стати
-    sp: 0,
-    skills: [],
-    battleStats: {} as any,
-  } as any;
-
-  // Конвертуємо HeroCore в Hero з обчисленими статами
-  const recalculated = recalculateAllStats(heroCore);
+  // Конвертуємо HeroCore в Hero з обчисленими статами (включаючи зброю/екіпіровку)
+  const heroWithProfession = { ...heroCore, profession: defaultProfession, baseStatsInitial: { ...baseStats } };
+  const recalculated = recalculateAllStats(heroWithProfession);
   
   return {
     ...heroCore,
