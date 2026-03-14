@@ -178,6 +178,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const reason = localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress');
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
         // 🔥 КРИТИЧНО: перераховуємо maxHp/maxMp/maxCp по локальному герою (екіп + скіли), інакше після F5 залишається старий max
+        // 🔥 Професію/klass беремо з сервера — адмін міг змінити клас, localStorage має стару
+        const heroDataForLocal = character.heroJson as any;
+        const serverProfession = heroDataForLocal?.profession ?? heroDataForLocal?.klass;
+        const serverKlass = character.classId ?? heroDataForLocal?.classId ?? heroDataForLocal?.klass;
+        const heroForLocalRecalc: Hero = {
+          ...hydratedLocalHero,
+          profession: (serverProfession && String(serverProfession).trim()) ? String(serverProfession) : hydratedLocalHero.profession,
+          klass: (serverKlass && String(serverKlass).trim()) ? String(serverKlass) : hydratedLocalHero.klass,
+          skills: Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length > 0 ? heroDataForLocal.skills : hydratedLocalHero.skills,
+        };
         const now = Date.now();
         const savedBattle = loadBattle(hydratedLocalHero.name);
         const heroJsonBuffs = Array.isArray((hydratedLocalHero as any).heroBuffs) ? (hydratedLocalHero as any).heroBuffs : Array.isArray((hydratedLocalHero as any).heroJson?.heroBuffs) ? (hydratedLocalHero as any).heroJson.heroBuffs : [];
@@ -192,7 +202,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
         }
         const savedBuffs = cleanupBuffs(Array.from(bestByKey.values()), now);
-        const recalculated = recalculateAllStats(hydratedLocalHero, []);
+        const recalculated = recalculateAllStats(heroForLocalRecalc, savedBuffs);
         const baseMax = { maxHp: recalculated.resources.maxHp, maxMp: recalculated.resources.maxMp, maxCp: recalculated.resources.maxCp };
         const buffedMax = computeBuffedMaxResources(baseMax, savedBuffs);
         const heroData = character.heroJson as any;
@@ -224,12 +234,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           ...hydratedLocalHero,
           inventory: consolidatedInv,
           name: character.name,
+          profession: heroForLocalRecalc.profession,
+          klass: heroForLocalRecalc.klass,
+          skills: heroForLocalRecalc.skills,
           maxHp: buffedMax.maxHp,
           maxMp: buffedMax.maxMp,
           maxCp: buffedMax.maxCp,
           hp: Math.min(finalHp, buffedMax.maxHp),
           mp: Math.min(finalMp, buffedMax.maxMp),
           cp: Math.min(finalCp, buffedMax.maxCp),
+          battleStats: recalculated.baseFinalStats,
         };
         (mergedHero as any).username = character.name;
         (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
