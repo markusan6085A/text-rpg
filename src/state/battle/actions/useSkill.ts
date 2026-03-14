@@ -38,6 +38,7 @@ import {
   FOCUSED_FORCE_COST,
   type Setter,
 } from "./useSkill/helpers";
+import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
 
 export const createUseSkill =
   (set: Setter, get: () => BattleState): BattleState["useSkill"] =>
@@ -225,7 +226,17 @@ export const createUseSkill =
       return;
     }
 
-    const heroStats = applyBuffsToStats(hero.battleStats || {}, activeBuffs);
+    // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk — перераховуємо (фікс урону ~798 без зміни при екіпіруванні)
+    let heroForStats = hero;
+    const bs = hero.battleStats;
+    const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1;
+    if (needsStatsRecalc) {
+      const recalculated = recalculateAllStats(hero, activeBuffs);
+      updateHero({ battleStats: recalculated.baseFinalStats });
+      heroForStats = { ...hero, battleStats: recalculated.baseFinalStats };
+    }
+
+    const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, activeBuffs);
     const attackSpeed = heroStats?.attackSpeed ?? heroStats?.atkSpeed ?? 0;
     const castSpeed = heroStats?.castSpeed ?? 333;
     const skillCategory = def.category;

@@ -50,7 +50,17 @@ export function handleBaseAttack(
     return false;
   }
 
-  const buffedStats = applyBuffsToStats(hero.battleStats || {}, activeBuffs);
+  // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk — перераховуємо (фікс урону без зміни при екіпіруванні)
+  let heroForStats = hero;
+  const bs = hero.battleStats;
+  const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1;
+  if (needsStatsRecalc) {
+    const recalculated = recalculateAllStats(hero, activeBuffs);
+    updateHero({ battleStats: recalculated.baseFinalStats });
+    heroForStats = { ...hero, battleStats: recalculated.baseFinalStats };
+  }
+
+  const buffedStats = applyBuffsToStats(heroForStats.battleStats || {}, activeBuffs);
   // isFishingZone вже визначено вище
   
   let pAtk: number;
