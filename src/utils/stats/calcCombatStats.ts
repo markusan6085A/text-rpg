@@ -128,6 +128,10 @@ export function calcCombatStats(
           const isTattoo = itemDef.kind === "tattoo";
           if (isWeapon || isTattoo) {
             attackSpeed += itemStats.pAtkSpd;
+            // 🔥 Скорость боя (pAtkSpd) для зброї дає і швидкість атаки, і швидкість касту (пухи/стафи теж)
+            if (isWeapon) {
+              castSpeed += itemStats.pAtkSpd;
+            }
           }
         }
         if (itemStats.castSpeed) castSpeed += itemStats.castSpeed;
