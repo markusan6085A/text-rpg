@@ -131,6 +131,7 @@ export function calcCombatStats(
           }
         }
         if (itemStats.castSpeed) castSpeed += itemStats.castSpeed;
+        if ((itemStats as any).cast_speed) castSpeed += (itemStats as any).cast_speed;
         if (itemStats.hpRegen) hpRegen += itemStats.hpRegen;
         if (itemStats.mpRegen) mpRegen += itemStats.mpRegen;
         if (itemStats.cpRegen) cpRegen += itemStats.cpRegen;

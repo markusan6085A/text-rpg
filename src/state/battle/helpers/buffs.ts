@@ -4,6 +4,8 @@ import type { BattleBuff } from "../types";
 const DEFAULT_BASE_STATS: Record<string, number> = {
   atkSpeed: 200,
   attackSpeed: 200,
+  castSpeed: 333,
+  castSpd: 333,
   crit: 4,
   critRate: 4,
   critPower: 50,
@@ -51,6 +53,12 @@ export const applyBuffsToStats = (
     merged["atkSpeed"] = merged["attackSpeed"];
   } else if (typeof merged["atkSpeed"] === "number" && typeof merged["attackSpeed"] !== "number") {
     merged["attackSpeed"] = merged["atkSpeed"];
+  }
+  // castSpeed / castSpd — синхронізація як для attackSpeed (magicSpeed, debuffHandlers)
+  if (typeof merged["castSpeed"] === "number" && typeof merged["castSpd"] !== "number") {
+    merged["castSpd"] = merged["castSpeed"];
+  } else if (typeof merged["castSpd"] === "number" && typeof merged["castSpeed"] !== "number") {
+    merged["castSpeed"] = merged["castSpd"];
   }
 
   // ❗ ВАЖЛИВО: Збираємо всі percent бафи для кожного стату окремо
@@ -105,6 +113,9 @@ export const applyBuffsToStats = (
       } else if (stat === "atkSpeed") {
         // atkSpeed залишається без змін
         targetStat = "atkSpeed";
+      } else if (stat === "castSpd") {
+        // castSpd мапиться на castSpeed (L2-стиль)
+        targetStat = "castSpeed";
       } else if (stat === "critDamage") {
         // critDamage мапиться на critPower для сумісності з calcCombatStats
         targetStat = "critPower";
@@ -205,6 +216,8 @@ export const applyBuffsToStats = (
     let baseValue: number;
     if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
       baseValue = typeof merged["atkSpeed"] === "number" ? merged["atkSpeed"] : typeof merged["attackSpeed"] === "number" ? merged["attackSpeed"] : typeof stats?.["atkSpeed"] === "number" ? stats["atkSpeed"] : typeof stats?.["attackSpeed"] === "number" ? stats["attackSpeed"] : 200;
+    } else if (targetStat === "castSpeed") {
+      baseValue = typeof merged["castSpeed"] === "number" ? merged["castSpeed"] : typeof merged["castSpd"] === "number" ? merged["castSpd"] : typeof stats?.["castSpeed"] === "number" ? stats["castSpeed"] : typeof stats?.["castSpd"] === "number" ? stats["castSpd"] : 333;
     } else {
       baseValue = typeof stats?.[targetStat] === "number" ? stats[targetStat] : (merged[targetStat] ?? 0);
     }
@@ -212,6 +225,8 @@ export const applyBuffsToStats = (
     if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
       merged["atkSpeed"] = merged[targetStat];
       merged["attackSpeed"] = merged[targetStat];
+    } else if (targetStat === "castSpeed") {
+      merged["castSpd"] = merged[targetStat];
     } else if (targetStat === "critPower") {
       merged["critDamage"] = merged[targetStat];
     }
@@ -241,6 +256,13 @@ export const applyBuffsToStats = (
         typeof merged[targetStat] === "number" ? merged[targetStat]
         : typeof stats?.[targetStat] === "number" ? stats[targetStat]
         : (DEFAULT_BASE_STATS[targetStat] ?? 4);
+    } else if (targetStat === "castSpeed") {
+      baseValue =
+        typeof merged["castSpeed"] === "number" ? merged["castSpeed"]
+        : typeof merged["castSpd"] === "number" ? merged["castSpd"]
+        : typeof stats?.["castSpeed"] === "number" ? stats["castSpeed"]
+        : typeof stats?.["castSpd"] === "number" ? stats["castSpd"]
+        : 333;
     } else {
       baseValue =
         typeof merged[targetStat] === "number" ? merged[targetStat]
@@ -251,6 +273,8 @@ export const applyBuffsToStats = (
     if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
       merged["atkSpeed"] = merged[targetStat];
       merged["attackSpeed"] = merged[targetStat];
+    } else if (targetStat === "castSpeed") {
+      merged["castSpd"] = merged[targetStat];
     } else if (targetStat === "critPower") {
       merged["critDamage"] = merged[targetStat];
     } else if (targetStat === "mCrit") {
@@ -269,6 +293,8 @@ export const applyBuffsToStats = (
     if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
       merged["atkSpeed"] = merged[targetStat];
       merged["attackSpeed"] = merged[targetStat];
+    } else if (targetStat === "castSpeed") {
+      merged["castSpd"] = merged[targetStat];
     } else if (targetStat === "crit") {
       merged["critRate"] = merged[targetStat];
     } else if (targetStat === "mCrit") {

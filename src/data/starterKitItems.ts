@@ -88,6 +88,7 @@ export const starterKitItems: Record<string, ItemDefinition> = {
       mAtk: 9,
       rCrit: 4,
       pAtkSpd: 379,
+      castSpeed: 80,
     },
   },
   
