@@ -171,6 +171,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
     description: "Сталь",
   },
+  // crafted_leather має відмінну іконку від steel/leather
   coarse_bone_powder: {
     id: "coarse_bone_powder",
     name: "Coarse Bone Powder",
