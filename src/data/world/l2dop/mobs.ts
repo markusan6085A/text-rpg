@@ -494,3 +494,159 @@ export const L2DOP_MOB_18001: Mob = {
 export const L2DOP_GLUDIO15_1721_MOBS: Mob[] = [L2DOP_MOB_20546];
 export const L2DOP_GLUDIO23_1921_MOBS: Mob[] = [L2DOP_MOB_20924];
 export const L2DOP_GIRAN03_2321_MOBS: Mob[] = [L2DOP_MOB_18001];
+
+/* ==================== ADEN (L2) — лвл 40–65 ====================
+   Тематика: фортеця, вигнанці, магічні долини. Ресурси D/C-grade. */
+
+// Вигнанець-Воїн — 40, тема Execution Grounds
+export const L2DOP_MOB_ADEN_40: Mob = {
+  id: "l2dop_aden_40", name: "Вигнанець-Воїн", level: 40, hp: 1420, mp: 480, pAtk: 185, mAtk: 95, pDef: 175, mDef: 125,
+  exp: 2100, sp: 120, adenaMin: 520, adenaMax: 820, dropChance: 0.7,
+  drops: [drop("mithril_ore", "resource", 0.04, 1, 1), drop("steel", "resource", 0.035, 1, 1), drop("leather", "resource", 0.03, 1, 1)],
+  spoil: [drop("high_grade_suede", "resource", 0.08, 1, 1), drop("oriharukon_ore", "resource", 0.02, 1, 1)],
+};
+// Вигнанець-Маг — 42
+export const L2DOP_MOB_ADEN_42: Mob = {
+  id: "l2dop_aden_42", name: "Вигнанець-Маг", level: 42, hp: 1280, mp: 720, pAtk: 95, mAtk: 210, pDef: 120, mDef: 185,
+  exp: 2450, sp: 135, adenaMin: 580, adenaMax: 920, dropChance: 0.7,
+  drops: [drop("stone_of_purity", "resource", 0.03, 1, 1), drop("thread", "resource", 0.05, 1, 1)],
+  spoil: [drop("mithril_ore", "resource", 0.09, 1, 1), drop("cord", "resource", 0.04, 1, 1)],
+};
+// Охоронець Долини — 44, тема Enchanted Valley
+export const L2DOP_MOB_ADEN_44: Mob = {
+  id: "l2dop_aden_44", name: "Охоронець Долини", level: 44, hp: 1680, mp: 520, pAtk: 215, mAtk: 0, pDef: 205, mDef: 145,
+  exp: 2900, sp: 155, adenaMin: 680, adenaMax: 1050, dropChance: 0.7,
+  drops: [drop("oriharukon_ore", "resource", 0.025, 1, 1), drop("steel", "resource", 0.045, 1, 1)],
+  spoil: [drop("leather", "resource", 0.1, 1, 1), drop("animal_bone", "resource", 0.06, 1, 1)],
+};
+// Магічний Елементаль — 46
+export const L2DOP_MOB_ADEN_46: Mob = {
+  id: "l2dop_aden_46", name: "Магічний Елементаль", level: 46, hp: 1520, mp: 880, pAtk: 0, mAtk: 240, pDef: 140, mDef: 210,
+  exp: 3400, sp: 175, adenaMin: 780, adenaMax: 1200, dropChance: 0.7,
+  drops: [drop("stone_of_purity", "resource", 0.04, 1, 1), drop("mithril_ore", "resource", 0.05, 1, 1)],
+  spoil: [drop("oriharukon_ore", "resource", 0.05, 1, 1), drop("thread", "resource", 0.06, 1, 1)],
+};
+// Палач — 48, Execution Grounds
+export const L2DOP_MOB_ADEN_48: Mob = {
+  id: "l2dop_aden_48", name: "Палач", level: 48, hp: 1950, mp: 560, pAtk: 255, mAtk: 0, pDef: 240, mDef: 165,
+  exp: 4000, sp: 200, adenaMin: 900, adenaMax: 1400, dropChance: 0.7,
+  drops: [drop("steel", "resource", 0.055, 1, 1), drop("high_grade_suede", "resource", 0.03, 1, 1)],
+  spoil: [drop("coarse_bone_powder", "resource", 0.08, 1, 1), drop("leather", "resource", 0.09, 1, 1)],
+};
+// Древній Скелет — 50
+export const L2DOP_MOB_ADEN_50: Mob = {
+  id: "l2dop_aden_50", name: "Древній Скелет", level: 50, hp: 2100, mp: 400, pAtk: 275, mAtk: 0, pDef: 265, mDef: 180,
+  exp: 4700, sp: 230, adenaMin: 1050, adenaMax: 1600, dropChance: 0.7,
+  drops: [drop("animal_bone", "resource", 0.06, 1, 1), drop("coarse_bone_powder", "resource", 0.04, 1, 1)],
+  spoil: [drop("oriharukon_ore", "resource", 0.06, 1, 1), drop("stone_of_purity", "resource", 0.04, 1, 1)],
+};
+// Вогняний Псом — 52, Blazing Swamp
+export const L2DOP_MOB_ADEN_52: Mob = {
+  id: "l2dop_aden_52", name: "Вогняний Псом", level: 52, hp: 2350, mp: 620, pAtk: 300, mAtk: 125, pDef: 290, mDef: 200,
+  exp: 5500, sp: 260, adenaMin: 1200, adenaMax: 1850, dropChance: 0.7,
+  drops: [drop("coal", "resource", 0.05, 1, 1), drop("charcoal", "resource", 0.05, 1, 1), drop("mithril_ore", "resource", 0.06, 1, 1)],
+  spoil: [drop("stone_of_purity", "resource", 0.06, 1, 1), drop("steel", "resource", 0.07, 1, 1)],
+};
+// Темний Мисливець — 54
+export const L2DOP_MOB_ADEN_54: Mob = {
+  id: "l2dop_aden_54", name: "Темний Мисливець", level: 54, hp: 2580, mp: 680, pAtk: 330, mAtk: 0, pDef: 318, mDef: 218,
+  exp: 6400, sp: 295, adenaMin: 1400, adenaMax: 2120, dropChance: 0.7,
+  drops: [drop("leather", "resource", 0.07, 1, 1), drop("high_grade_suede", "resource", 0.04, 1, 1)],
+  spoil: [drop("cord", "resource", 0.1, 1, 1), drop("crafted_leather", "resource", 0.03, 1, 1)],
+};
+// Архонта — 56
+export const L2DOP_MOB_ADEN_56: Mob = {
+  id: "l2dop_aden_56", name: "Архонта", level: 56, hp: 2820, mp: 920, pAtk: 180, mAtk: 320, pDef: 200, mDef: 280,
+  exp: 7400, sp: 335, adenaMin: 1650, adenaMax: 2450, dropChance: 0.7,
+  drops: [drop("oriharukon_ore", "resource", 0.05, 1, 1), drop("stone_of_purity", "resource", 0.05, 1, 1)],
+  spoil: [drop("mithril_ore", "resource", 0.1, 1, 1), drop("high_grade_suede", "resource", 0.05, 1, 1)],
+};
+// Тиран Підземелля — 58
+export const L2DOP_MOB_ADEN_58: Mob = {
+  id: "l2dop_aden_58", name: "Тиран Підземелля", level: 58, hp: 3100, mp: 600, pAtk: 380, mAtk: 0, pDef: 365, mDef: 250,
+  exp: 8600, sp: 380, adenaMin: 1900, adenaMax: 2850, dropChance: 0.7,
+  drops: [drop("steel", "resource", 0.07, 1, 1), drop("crafted_leather", "resource", 0.04, 1, 1)],
+  spoil: [drop("oriharukon_ore", "resource", 0.08, 1, 1), drop("leather", "resource", 0.1, 1, 1)],
+};
+// Золотий Голем — 60
+export const L2DOP_MOB_ADEN_60: Mob = {
+  id: "l2dop_aden_60", name: "Золотий Голем", level: 60, hp: 3400, mp: 400, pAtk: 420, mAtk: 0, pDef: 410, mDef: 280,
+  exp: 10000, sp: 430, adenaMin: 2200, adenaMax: 3300, dropChance: 0.7,
+  drops: [drop("mithril_ore", "resource", 0.08, 1, 1), drop("steel", "resource", 0.06, 1, 1), drop("stone_of_purity", "resource", 0.04, 1, 1)],
+  spoil: [drop("oriharukon_ore", "resource", 0.09, 1, 1), drop("adamantite_nugget", "resource", 0.02, 1, 1)],
+};
+// Лорд Вигнанців — 62
+export const L2DOP_MOB_ADEN_62: Mob = {
+  id: "l2dop_aden_62", name: "Лорд Вигнанців", level: 62, hp: 3720, mp: 880, pAtk: 460, mAtk: 200, pDef: 455, mDef: 310,
+  exp: 11600, sp: 485, adenaMin: 2550, adenaMax: 3800, dropChance: 0.7,
+  drops: [drop("high_grade_suede", "resource", 0.05, 1, 1), drop("crafted_leather", "resource", 0.05, 1, 1)],
+  spoil: [drop("mithril_ore", "resource", 0.11, 1, 1), drop("stone_of_purity", "resource", 0.06, 1, 1)],
+};
+// Страж Фортеці — 65
+export const L2DOP_MOB_ADEN_65: Mob = {
+  id: "l2dop_aden_65", name: "Страж Фортеці", level: 65, hp: 4200, mp: 700, pAtk: 520, mAtk: 0, pDef: 510, mDef: 350,
+  exp: 13500, sp: 550, adenaMin: 3000, adenaMax: 4500, dropChance: 0.7,
+  drops: [drop("oriharukon_ore", "resource", 0.06, 1, 1), drop("adamantite_nugget", "resource", 0.025, 1, 1), drop("crafted_leather", "resource", 0.05, 1, 1)],
+  spoil: [drop("steel", "resource", 0.1, 1, 1), drop("mithril_ore", "resource", 0.1, 1, 1)],
+};
+
+/** Пул мобів для Aden (лвл 40–65) */
+export const L2DOP_ADEN_POOL: Mob[] = [
+  L2DOP_MOB_20083, L2DOP_MOB_20924, L2DOP_MOB_20546, // 33, 30, 34 — перехід
+  L2DOP_MOB_ADEN_40, L2DOP_MOB_ADEN_42, L2DOP_MOB_ADEN_44, L2DOP_MOB_ADEN_46,
+  L2DOP_MOB_ADEN_48, L2DOP_MOB_ADEN_50, L2DOP_MOB_ADEN_52, L2DOP_MOB_ADEN_54,
+  L2DOP_MOB_ADEN_56, L2DOP_MOB_ADEN_58, L2DOP_MOB_18001, L2DOP_MOB_ADEN_60,
+  L2DOP_MOB_ADEN_62, L2DOP_MOB_ADEN_65,
+];
+
+/** 2 чемпіони на зону Aden (детерміновано по zoneId) */
+export function getAdenL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_ADEN_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length < 2) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const c1 = shuffled[0];
+  const c2 = shuffled[1];
+  const names: Record<string, string> = {
+    "01": "Окраїнний Страж",
+    "02": "Долинний Вождь",
+    "03": "Магічний Тиран",
+    "04": "Палач-Кат",
+    "05": "Скелет-Лорд",
+    "06": "Вогняний Повелитель",
+    "07": "Темний Архонт",
+    "08": "Фортечний Імператор",
+  };
+  const zoneNum = zoneId.replace("l2dop_aden_", "");
+  const baseName = names[zoneNum] ?? "Аден Чемпіон";
+  return [
+    makeChampion(c1, `${baseName} I`, "a"),
+    makeChampion(c2, `${baseName} II`, "b"),
+  ];
+}
+
+/** D/C-grade ресурси для дропу Aden РБ (лвл 40–65) */
+const ADEN_RB_RESOURCES = ["mithril_ore", "steel", "oriharukon_ore", "high_grade_suede", "stone_of_purity", "leather", "crafted_leather", "cord", "adamantite_nugget"];
+
+function adenRbDrops(rbIndex: number): DropEntry[] {
+  const items: DropEntry[] = [
+    ...ADEN_RB_RESOURCES.slice(0, 5).map((r, i) => drop(r, "resource", 0.5 + (rbIndex % 3) * 0.08, 4 + (rbIndex % 5), 10 + (rbIndex % 6))),
+  ];
+  if (rbIndex >= 3) items.push(drop("adamantite_nugget", "resource", 0.15, 1, 3));
+  if (rbIndex >= 6) items.push(drop("crafted_leather", "resource", 0.25, 2, 6));
+  return items;
+}
+
+/** 8 рейд-босів для зон Aden (l2dop_aden_01 … 08) */
+export const L2DOP_ADEN_RAID_BOSSES: RaidBoss[] = [
+  { id: "rb_l2dop_aden_01", name: "Raid Boss: Страж Окраїни", level: 42, hp: 180000, mp: 0, pAtk: 380, mAtk: 0, pDef: 310, mDef: 210, exp: 85000, sp: 4500, adenaMin: 35000, adenaMax: 55000, dropChance: 1, drops: adenRbDrops(0), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_01" },
+  { id: "rb_l2dop_aden_02", name: "Raid Boss: Лорд Долини", level: 45, hp: 220000, mp: 0, pAtk: 440, mAtk: 0, pDef: 360, mDef: 245, exp: 105000, sp: 5500, adenaMin: 45000, adenaMax: 70000, dropChance: 1, drops: adenRbDrops(1), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_02" },
+  { id: "rb_l2dop_aden_03", name: "Raid Boss: Магічний Титан", level: 48, hp: 270000, mp: 0, pAtk: 520, mAtk: 0, pDef: 425, mDef: 290, exp: 130000, sp: 6800, adenaMin: 55000, adenaMax: 85000, dropChance: 1, drops: adenRbDrops(2), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_03" },
+  { id: "rb_l2dop_aden_04", name: "Raid Boss: Верховний Палач", level: 51, hp: 320000, mp: 0, pAtk: 600, mAtk: 0, pDef: 495, mDef: 335, exp: 160000, sp: 8200, adenaMin: 70000, adenaMax: 105000, dropChance: 1, drops: adenRbDrops(3), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_04" },
+  { id: "rb_l2dop_aden_05", name: "Raid Boss: Король Скелетів", level: 54, hp: 380000, mp: 0, pAtk: 690, mAtk: 0, pDef: 570, mDef: 385, exp: 195000, sp: 10000, adenaMin: 85000, adenaMax: 130000, dropChance: 1, drops: adenRbDrops(4), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_05" },
+  { id: "rb_l2dop_aden_06", name: "Raid Boss: Вогняний Дракон", level: 57, hp: 450000, mp: 0, pAtk: 790, mAtk: 0, pDef: 655, mDef: 440, exp: 235000, sp: 12000, adenaMin: 100000, adenaMax: 155000, dropChance: 1, drops: adenRbDrops(5), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_06" },
+  { id: "rb_l2dop_aden_07", name: "Raid Boss: Темний Архонт", level: 60, hp: 520000, mp: 0, pAtk: 890, mAtk: 0, pDef: 750, mDef: 505, exp: 280000, sp: 14200, adenaMin: 120000, adenaMax: 180000, dropChance: 1, drops: adenRbDrops(6), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_07" },
+  { id: "rb_l2dop_aden_08", name: "Raid Boss: Імператор Фортеці", level: 65, hp: 620000, mp: 0, pAtk: 1050, mAtk: 0, pDef: 890, mDef: 600, exp: 350000, sp: 17500, adenaMin: 150000, adenaMax: 230000, dropChance: 1, drops: adenRbDrops(7), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_aden_08" },
+];

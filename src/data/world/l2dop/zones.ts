@@ -4,9 +4,12 @@
 import type { Zone } from "../types";
 import {
   L2DOP_GLUDIO_POOL,
+  L2DOP_ADEN_POOL,
   fillZoneMobs,
   getGludioL2DopChampions,
+  getAdenL2DopChampions,
   L2DOP_GLUDIO_RAID_BOSSES,
+  L2DOP_ADEN_RAID_BOSSES,
   L2DOP_GIRAN03_2321_MOBS,
 } from "./mobs";
 
@@ -47,4 +50,27 @@ export const L2DOP_ZONES: Zone[] = [
     tpCost: 25000,
     mobs: L2DOP_GIRAN03_2321_MOBS,
   },
+  // 8 зон Aden (лвл 40–65)
+  ...[
+    { id: "l2dop_aden_01", name: "Aden — Окрестность (L2)", min: 40, max: 44, tp: 15000 },
+    { id: "l2dop_aden_02", name: "Aden — Долина Вигнанців (L2)", min: 42, max: 48, tp: 16500 },
+    { id: "l2dop_aden_03", name: "Aden — Зачарована Долина (L2)", min: 46, max: 52, tp: 18500 },
+    { id: "l2dop_aden_04", name: "Aden — Місце Страти (L2)", min: 50, max: 54, tp: 20000 },
+    { id: "l2dop_aden_05", name: "Aden — Вогняне Болото (L2)", min: 52, max: 58, tp: 22000 },
+    { id: "l2dop_aden_06", name: "Aden — Темні Землі (L2)", min: 56, max: 62, tp: 24500 },
+    { id: "l2dop_aden_07", name: "Aden — Підземелля (L2)", min: 58, max: 63, tp: 26500 },
+    { id: "l2dop_aden_08", name: "Aden — Фортеця (L2)", min: 60, max: 65, tp: 28500 },
+  ].map((z) => ({
+    id: z.id,
+    name: z.name,
+    cityId: "l2dop_aden" as const,
+    minLevel: z.min,
+    maxLevel: z.max,
+    tpCost: z.tp,
+    mobs: [
+      ...fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 200, 10, 20),
+      ...getAdenL2DopChampions(z.id, z.min, z.max),
+      ...L2DOP_ADEN_RAID_BOSSES.filter((rb) => rb.zoneId === z.id),
+    ],
+  })),
 ];
