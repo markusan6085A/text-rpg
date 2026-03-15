@@ -93,10 +93,11 @@ export const createStartBattle =
         if (i !== mobIndex) { // Не включаємо основного моба
           const otherMob = zone.mobs[i];
           if (otherMob && otherMob.aggressiveGroup === mob.aggressiveGroup) {
+            const isRb = (otherMob as any).isRaidBoss === true;
             aggressiveMobs.push({
               mob: otherMob,
               mobIndex: i,
-              mobHP: Math.round((otherMob.hp ?? 1) * MOB_HP_MULTIPLIER),
+              mobHP: isRb ? (otherMob.hp ?? 1) : Math.round((otherMob.hp ?? 1) * MOB_HP_MULTIPLIER),
             });
             if (import.meta.env.DEV) {
               console.log(`[Aggressive Mobs] Додано агресивного моба: ${otherMob.name} (індекс ${i})`);
@@ -328,12 +329,14 @@ export const createStartBattle =
       }
     }
 
+    const isRaidBoss = (mob as any).isRaidBoss === true;
+    const effectiveMobHp = isRaidBoss ? (mob.hp ?? 1) : Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER);
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,
       mob,
       mobIndex,
-      mobHP: Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER),
+      mobHP: effectiveMobHp,
       aggressiveMobs: aggressiveMobs.length > 0 ? aggressiveMobs : undefined,
       mobStunnedUntil: undefined,
       heroStunnedUntil: undefined,

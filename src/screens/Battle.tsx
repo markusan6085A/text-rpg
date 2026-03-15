@@ -386,8 +386,9 @@ export default function Battle({ navigate }: BattleProps) {
     );
   }
 
-  // maxHp у бою = mob.hp * MOB_HP_MULTIPLIER (як у startBattle), інакше clamped у BattleTargetCard обрізає currentHp і смуга лишається повною
-  const mobMaxHp = mob ? Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER) : 1;
+  // maxHp: для РБ = mob.hp (як в окрестностях), для звичайних мобів = mob.hp * MOB_HP_MULTIPLIER
+  const isRaidBoss = mob ? (mob as any).isRaidBoss === true : false;
+  const mobMaxHp = mob ? (isRaidBoss ? (mob.hp ?? 1) : Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER)) : 1;
   const battleTarget = mob
     ? {
         name: mob.name,

@@ -79,6 +79,13 @@ const RATE_LIMIT_COOLDOWN_MS = 60000; // 60 секунд після rate limit
 let criticalSaveQueue: Hero | null = null;
 let criticalSaveTimeout: NodeJS.Timeout | null = null;
 
+// 🔥 Throttle PUT: мін. 2.5 с між API збереженнями — уникнути 429 при швидкому фармі мобів
+let lastApiPutAt = 0;
+const MIN_PUT_INTERVAL_MS = 2500;
+export function setLastPutAt(): void {
+  lastApiPutAt = Date.now();
+}
+
 // Ensure we clean up on module reload (HMR) or if we ever unmount
 // 🔥 КРИТИЧНО: перед виходом зробити sync save в localStorage, щоб HP/MP/CP не відновлювалися при F5
 if (typeof window !== "undefined") {
@@ -146,7 +153,7 @@ function scheduleCriticalSaveAfterCooldown() {
   }
 }
 
-function debouncedSave(hero: Hero) {
+function debouncedSave(hero: Hero, delayMs?: number) {
   if (resurrectInProgress) return;
   // 🔥 Перевіряємо, чи не в rate limit cooldown
   const now = Date.now();
@@ -157,14 +164,17 @@ function debouncedSave(hero: Hero) {
   }
   
   pendingSave = hero;
+  const delay = delayMs ?? SAVE_DEBOUNCE_MS;
   
   if (saveTimeout) {
     clearTimeout(saveTimeout);
   }
   
   saveTimeout = setTimeout(() => {
-    if (pendingSave) {
-      saveHeroToLocalStorage(pendingSave).catch(err => {
+    const toSave = pendingSave;
+    if (toSave) {
+      pendingSave = null;
+      saveHeroToLocalStorage(toSave).catch(err => {
         console.error('[heroStore] Failed to save hero:', err);
         // 🔥 Якщо отримали rate limit - встановлюємо cooldown
         if (err?.status === 429 || (err?.message && err.message.includes('rate_limit'))) {
@@ -172,17 +182,21 @@ function debouncedSave(hero: Hero) {
           console.warn(`[heroStore] Rate limit detected, cooldown for ${RATE_LIMIT_COOLDOWN_MS}ms`);
         }
       });
-      pendingSave = null;
     }
     saveTimeout = null;
-  }, SAVE_DEBOUNCE_MS);
+  }, delay);
 }
 
 // 🔥 Критичні зміни (як mobsKilled, skills, sp) зберігаємо одразу, але з перевіркою rate limit
 function immediateSave(hero: Hero) {
   if (resurrectInProgress) return;
-  // 🔥 Перевіряємо, чи не в rate limit cooldown
   const now = Date.now();
+  // 🔥 Throttle: якщо недавно вже славили — дебаунсимо замість миттєвого PUT (менше 429 при фармі)
+  if (now - lastApiPutAt < MIN_PUT_INTERVAL_MS) {
+    debouncedSave(hero, MIN_PUT_INTERVAL_MS);
+    return;
+  }
+  // 🔥 Перевіряємо, чи не в rate limit cooldown
   if (now < rateLimitUntil) {
     const remaining = Math.ceil((rateLimitUntil - now) / 1000);
     console.log(`[heroStore] Critical save blocked by rate limit cooldown (${remaining}s remaining), queuing for after cooldown`);

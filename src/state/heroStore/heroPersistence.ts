@@ -142,7 +142,7 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
         clearTimeout((saveHeroToLocalStorage as any)._timeoutId);
       }
       
-      (saveHeroToLocalStorage as any)._timeoutId = setTimeout(() => saveHeroToLocalStorage(nextHero), 100);
+      (saveHeroToLocalStorage as any)._timeoutId = setTimeout(() => saveHeroToLocalStorage(nextHero), 2000);
     }
   }
 }
@@ -522,7 +522,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
 
     const updatedCharacter = await updateCharacter(characterStore.characterId, updatePayload);
     console.log('[saveHeroToLocalStorage] Hero saved successfully via API');
-    
+    const { setLastPutAt } = await import('../heroStore');
+    setLastPutAt();
+
     // 🔥 КРИТИЧНО: Після успішного PATCH оновлюємо heroRevision, exp, level, sp у store
     // Це запобігає наступним revision_conflict та "exp cannot be decreased" / "sp cannot be decreased"
     if (updatedCharacter) {
