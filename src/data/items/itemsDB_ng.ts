@@ -96,7 +96,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Coal",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_red_i00_0.jpg",
     description: "Уголь",
   },
   animal_bone: {
@@ -120,7 +120,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Charcoal",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg",
     description: "Древесный Уголь",
   },
   varnish: {
@@ -144,7 +144,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Stem",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
     description: "Стебель",
   },
   thread: {
@@ -218,7 +218,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Mithril Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
     description: "Мифриловая Руда",
   },
   // Високі ресурси (20-36 лвл)
@@ -227,7 +227,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Stone of Purity",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_white_i00_0.jpg",
     description: "Камень Чистоты",
   },
   oriharukon_ore: {
