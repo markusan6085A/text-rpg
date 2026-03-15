@@ -104,7 +104,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Animal Bone",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
     description: "Кость Животного",
   },
   animal_skin: {
@@ -128,7 +128,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Varnish",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_event_glitter_medal_i00_0.jpg",
     description: "Лак",
   },
   iron_ore: {
@@ -136,7 +136,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Iron Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
     description: "Железная Руда",
   },
   stem: {
@@ -144,7 +144,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Stem",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
     description: "Стебель",
   },
   thread: {
@@ -160,7 +160,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Suede",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/collection_box.jpg",
     description: "Замша",
   },
   steel: {
@@ -202,7 +202,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Silver Nugget",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_bead_silver_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_elite_marguene_collection_box.jpg",
     description: "Серебряный Слиток",
   },
   adamantite_nugget: {
@@ -218,7 +218,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Mithril Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg",
     description: "Мифриловая Руда",
   },
   // Високі ресурси (20-36 лвл)
@@ -227,7 +227,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Stone of Purity",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_bead_white_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_event_glitter_medal_i00_0.jpg",
     description: "Камень Чистоты",
   },
   oriharukon_ore: {
@@ -267,7 +267,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Enria",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_event_glitter_medal_i00_0.jpg",
     description: "Энрия",
   },
   asofe: {
@@ -275,7 +275,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Asofe",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
     description: "Азоф",
   },
   thons: {
@@ -283,7 +283,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Thons",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_elite_marguene_collection_box.jpg",
     description: "Тонс",
   },
   cord: {
@@ -291,7 +291,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Cord",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_bead_white_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg",
     description: "Мотузка. Матеріал для крафту.",
   },
   crafted_leather: {
@@ -299,7 +299,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Crafted Leather",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
+    icon: "/items/drops/resources/collection_box.jpg",
     description: "Оброблена шкіра. Матеріал для крафту.",
   },
   // ===== SEAL STONES (Floran Catacombs) =====
