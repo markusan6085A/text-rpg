@@ -86,10 +86,11 @@ export function processMobDrops(
   const inventorySize = newInventory.filter(Boolean).length;
   const isInventoryFull = inventorySize >= maxSlots;
 
-  // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) — щоб опис і фактичний дроп збігались
+  // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) + ресурси з mob.drops
+  // Раніше mob.drops (coal, varnish, adamantite тощо) ігнорувались — тепер мержимо
   const isFloranMob = mob.id?.startsWith("fl_") || mob.id?.includes("floran") || mob.id?.startsWith("champ_floran");
   const floranProfile = isFloranMob ? getFloranMobDropProfile(mob) : undefined;
-  const effectiveDrops: DropEntry[] = floranProfile
+  const floranDrops: DropEntry[] = floranProfile
     ? floranProfile.items.map((item) => {
         const def = itemsDB[item.itemId];
         let kind: DropKind = "resource";
@@ -98,7 +99,15 @@ export function processMobDrops(
         else if (def?.slot) kind = "resource";
         return { id: item.itemId, kind, chance: item.chance, min: item.min, max: item.max };
       })
-    : (mob.drops ?? []);
+    : [];
+  const zoneResourceDrops = mob.drops ?? [];
+  const effectiveDrops: DropEntry[] = floranProfile
+    ? [...floranDrops, ...zoneResourceDrops]
+    : zoneResourceDrops;
+
+  // Floran-моби з mob.spoil: завжди дають шанс на спойл (без Auto Spoil), щоб ресурси падали
+  const alwaysSpoilFloran = isFloranMob && mob.spoil && mob.spoil.length > 0;
+  const effectiveSpoiled = spoiled || alwaysSpoilFloran;
 
   // Спочатку перевіряємо загальний шанс дропа
   const hasDrop = Math.random() < (mob.dropChance ?? 0.5);
@@ -228,8 +237,8 @@ export function processMobDrops(
     }
   }
 
-  // Обробляємо спойли, якщо моб був спойлений
-  if (spoiled && mob.spoil && mob.spoil.length > 0) {
+  // Обробляємо спойли (effectiveSpoiled: Auto Spoil або Floran-моб з spoil)
+  if (effectiveSpoiled && mob.spoil && mob.spoil.length > 0) {
     // Оновлюємо розмір інвентаря після дропів
     const currentInventorySize = newInventory.filter(Boolean).length;
     const isInventoryFullNow = currentInventorySize >= maxSlots;
