@@ -8,4 +8,5 @@ import type { City } from "../types";
  */
 export const L2DOP_CITIES: City[] = [
   { id: "l2dop_gludio", name: "Gludio (L2)", tpCost: 29_000 },
+  { id: "l2dop_giran", name: "Giran (L2)", tpCost: 41_000 },
 ];
