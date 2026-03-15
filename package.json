@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "extract:l2dop": "node tools/extractL2dopWorld.mjs"
   },
   "dependencies": {
     "react": "^18.2.0",
