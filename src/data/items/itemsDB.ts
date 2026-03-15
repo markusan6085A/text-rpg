@@ -47,7 +47,7 @@ export const itemsDBWithStarter: Record<string, ItemDefinition> = {
 export const starterKitDefault = {
   adena: 200,
 
-  // Для магів (Devotion set)
+  // Для магів (Devotion set) — soulshot + spiritshot для старту
   itemsMage: [
     "tunic_of_devotion",
     "stockings_of_devotion",
@@ -56,12 +56,13 @@ export const starterKitDefault = {
     "devotion_helmet",
     "weapon_mace_ng",
     "shield_leather_ng",
+    "soulshot_ng",
     "spiritshot_ng",
     "lesser_healing_potion",
     "lesser_mana_potion",
   ],
   
-  // Для воїнів (Native set)
+  // Для воїнів (Native set) — soulshot + spiritshot для старту
   itemsFighter: [
     "native_tunic",
     "native_helmet",
@@ -71,13 +72,14 @@ export const starterKitDefault = {
     "weapon_iron_hammer_ng",
     "shield_leather_ng",
     "soulshot_ng",
+    "spiritshot_ng",
     "lesser_healing_potion",
     "lesser_mana_potion",
   ],
 
   quantities: {
-    soulshot_ng: 500,
-    spiritshot_ng: 500,
+    soulshot_ng: 1000,
+    spiritshot_ng: 1000,
     lesser_healing_potion: 20,
     lesser_mana_potion: 20,
   },
