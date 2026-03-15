@@ -3,12 +3,37 @@ import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import type { Hero } from "../../types/Hero";
 import { hydrateHero } from "./heroHydration";
+import { getExpToNext, MAX_LEVEL } from "../../data/expTable";
+
+/** Обчислює level і exp після level-up (QuestShop, адмін бонуси, тощо) */
+function computeLevelFromExp(level: number, exp: number): { level: number; exp: number } {
+  const XP_RATE = 1;
+  const EPS = 0.001;
+  let lvl = Math.max(1, level);
+  let xp = Math.max(0, Math.floor(exp));
+  while (lvl < MAX_LEVEL) {
+    const need = getExpToNext(lvl, XP_RATE);
+    if (need <= 0 || xp < need - EPS) break;
+    xp = Math.max(0, Math.floor(xp - need));
+    lvl += 1;
+  }
+  if (lvl >= MAX_LEVEL) xp = 0;
+  return { level: lvl, exp: xp };
+}
 
 export function updateHeroLogic(
   prev: Hero,
   partial: Partial<Hero>
 ): Hero {
-  // ❗ ВАЖЛИВО: Завжди зберігаємо profession, race, gender, klass - вони не повинні втрачатися
+  // 🔥 Якщо передано тільки exp (QuestShop, адмін) — обчислюємо level з level-up
+  if (partial.exp !== undefined && partial.exp !== null && partial.level === undefined) {
+    const curLevel = Number(prev.level ?? 1);
+    const newExp = Number(partial.exp);
+    const { level, exp } = computeLevelFromExp(curLevel, newExp);
+    (partial as any).level = level;
+    (partial as any).exp = exp;
+  }
+  // ❗ ВАЖЛИВО: Завжди зберігаємо profession, race, gender, klass - вони не повинні втрататися
   // 🔥 mobsKilled також має зберігатися (для статистики)
   const newMobsKilled = (partial as any).mobsKilled !== undefined ? (partial as any).mobsKilled : (prev as any).mobsKilled;
   
@@ -40,6 +65,7 @@ export function updateHeroLogic(
     partial.level !== undefined ||
     partial.skills !== undefined ||
     partial.equipment !== undefined ||
+    (partial as any).equipmentInserts !== undefined ||
     partial.baseStats !== undefined ||
     partial.profession !== undefined ||
     partial.klass !== undefined ||

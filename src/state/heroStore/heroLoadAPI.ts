@@ -12,7 +12,7 @@ import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBa
 import { loadHero } from "./heroLoad";
 import { hydrateHero } from "./heroHydration";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
-import { getRateLimitRemainingMs } from "../heroStore";
+import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
 
@@ -249,6 +249,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
         (mergedHero as any).baseMaxMp = recalculated.resources.maxMp;
         (mergedHero as any).baseMaxCp = recalculated.resources.maxCp;
+        // 🔥 КРИТИЧНО: Оновлюємо serverState.heroRevision перед background save — інакше heroPersistence пропускає PUT (expectedRevision undefined)
+        // Без цього Browser 1 з level 7 ніколи не синхронізується → Browser 2 завжди бачить level 1 з API
+        const serverRev = (character.heroJson as any)?.heroRevision ?? (character as any)?.heroRevision;
+        if (serverRev != null) {
+          useHeroStore.getState().updateServerState({ heroRevision: Number(serverRev) });
+        }
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
           saveHeroToLocalStorage(mergedHero).catch((err: any) => {
             console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);

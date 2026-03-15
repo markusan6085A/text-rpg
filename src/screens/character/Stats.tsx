@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
-import { calcBaseStats } from "../../utils/stats/calcBaseStats";
+import { getCritMultiplier, getSkillCritMultiplier } from "../../state/battle/actions/useSkill/helpers";
 import { useHeroStore } from "../../state/heroStore";
 import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
 import { getActiveSevenSealsRank } from "../../utils/sevenSealsBonus";

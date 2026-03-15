@@ -224,11 +224,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
-    // 🔥 КРИТИЧНО: expectedRevision ТІЛЬКИ з serverState — hero.heroRevision застарілий при race
+    // 🔥 КРИТИЧНО: expectedRevision з serverState; fallback hero → 0 для першого sync (сервер приймає 0)
     const heroStore = (await import('../heroStore')).useHeroStore;
     const serverState = heroStore.getState().serverState;
-    const expectedRevision = serverState?.heroRevision;
-    if (expectedRevision === undefined || expectedRevision === null) {
+    const expectedRevision = serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? (hero as any)?.heroRevision ?? 0;
+    if (expectedRevision === undefined || expectedRevision === null || (typeof expectedRevision === 'number' && Number.isNaN(expectedRevision))) {
       console.warn('[saveHeroToLocalStorage] No serverState.heroRevision — skipping PUT, saving to localStorage only');
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
