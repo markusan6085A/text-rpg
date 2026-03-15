@@ -122,12 +122,17 @@ export const createStartBattle =
       (hero.hp ?? 0) > 0;
 
     if (canResume) {
+      const professionChanged =
+        heroName &&
+        hero?.profession &&
+        (saved as any)?.professionForLoadout &&
+        (saved as any).professionForLoadout !== hero.profession;
       const cooldowns: CooldownMap = {};
       Object.entries(saved.cooldowns || {}).forEach(([k, v]) => {
         const ts = typeof v === "number" ? v : 0;
         if (ts > now) cooldowns[Number(k)] = ts;
       });
-      const heroBuffs = cleanupBuffs(saved.heroBuffs || [], now);
+      const heroBuffs = professionChanged ? [] : cleanupBuffs(saved.heroBuffs || [], now);
       const mobBuffs = cleanupBuffs(saved.mobBuffs || [], now); // Очищаємо застарілі debuff мобів
       const restoredSummon =
         saved.summon && saved.summon.hp > 0 ? saved.summon : null;
@@ -142,11 +147,6 @@ export const createStartBattle =
         ? saved.heroNextAttackAt 
         : now + autoAttackIntervalResume;
 
-      const professionChanged =
-        heroName &&
-        hero?.profession &&
-        (saved as any)?.professionForLoadout &&
-        (saved as any).professionForLoadout !== hero.profession;
       let loadoutSlotsResume: (number | string | null)[];
       if (professionChanged) {
         clearLoadout(heroName);
@@ -348,7 +348,7 @@ export const createStartBattle =
       professionForLoadout: hero?.profession ?? undefined,
       activeChargeSlots: activeChargeSlotsForNewBattle,
       lastReward: undefined,
-      heroBuffs: preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332),
+      heroBuffs: professionChangedNew ? [] : (preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332)),
       mobBuffs: [],
       summonBuffs: preservedSummon ? (saved?.summonBuffs || prevState.summonBuffs || []) : [],
       baseSummonStats: preservedSummon ? (saved?.baseSummonStats || prevState.baseSummonStats) : undefined,

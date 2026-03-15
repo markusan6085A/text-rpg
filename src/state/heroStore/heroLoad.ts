@@ -255,7 +255,12 @@ export function loadHero(): Hero | null {
     const now = Date.now();
     const savedBattle = loadBattle(fixedHero.name);
     const heroJsonBuffs = Array.isArray((fixedHero as any).heroBuffs) ? (fixedHero as any).heroBuffs : Array.isArray((fixedHero as any).heroJson?.heroBuffs) ? (fixedHero as any).heroJson.heroBuffs : [];
-    const savedBattleBuffs = savedBattle?.heroBuffs || [];
+    const professionChanged =
+      fixedHero.name &&
+      fixedHero.profession &&
+      (savedBattle as any)?.professionForLoadout &&
+      (savedBattle as any).professionForLoadout !== fixedHero.profession;
+    const savedBattleBuffs = professionChanged ? [] : (savedBattle?.heroBuffs || []);
     const allBuffsRaw = [...heroJsonBuffs, ...savedBattleBuffs];
     const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
     const bestByKey = new Map<string, any>();

@@ -460,7 +460,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       : Array.isArray((fixedHero as any).heroJson?.heroBuffs) 
         ? (fixedHero as any).heroJson.heroBuffs 
         : [];
-    const savedBattleBuffs = savedBattle?.heroBuffs || [];
+    // Професія змінилась (напр. через адмінку) — toggle-бафи від старої професії не використовуємо
+    const professionChanged =
+      fixedHero.name &&
+      fixedHero.profession &&
+      (savedBattle as any)?.professionForLoadout &&
+      (savedBattle as any).professionForLoadout !== fixedHero.profession;
+    const savedBattleBuffs = professionChanged ? [] : (savedBattle?.heroBuffs || []);
     
     // Об'єднуємо бафи з сервера та з battle (статуя зберігає в battle). При однаковому id/stackType
     // залишаємо баф з більшим expiresAt (свіжіший), щоб щойно взяті бафи статуї не пропадали після GET

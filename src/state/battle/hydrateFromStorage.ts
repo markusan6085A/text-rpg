@@ -5,7 +5,8 @@
  */
 import { useHeroStore } from "../heroStore";
 import { useBattleStore } from "./store";
-import { loadBattle, BATTLE_VERSION } from "./persist";
+import { loadBattle, persistBattle, BATTLE_VERSION } from "./persist";
+import { loadLoadout, clearLoadout } from "./loadout";
 import { initialState } from "./initialState";
 import type { BattleState } from "./types";
 
@@ -26,17 +27,45 @@ export function hydrateBattleStoreFromStorage(): void {
     if (!belongsToCurrentHero || !isVersionCompatible) return;
 
     const restoredSummon = saved.summon && saved.summon.hp > 0 ? saved.summon : null;
+    // Професія змінилась (напр. через адмінку) — toggle-бафи від старої професії не відновлюємо
+    const professionChanged =
+      heroName &&
+      hero?.profession &&
+      (saved as any)?.professionForLoadout &&
+      (saved as any).professionForLoadout !== hero.profession;
+
+    let heroBuffsToRestore: any[];
+    let loadoutSlotsToRestore: (number | string | null)[];
+    if (professionChanged) {
+      heroBuffsToRestore = [];
+      clearLoadout(heroName);
+      loadoutSlotsToRestore = loadLoadout(heroName);
+      // Зберігаємо очищений стан, щоб loadBattle повертав актуальні дані
+      persistBattle(
+        {
+          ...saved,
+          heroBuffs: [],
+          loadoutSlots: loadoutSlotsToRestore,
+          professionForLoadout: hero.profession,
+        },
+        heroName
+      );
+    } else {
+      heroBuffsToRestore = restoredSummon
+        ? (saved.heroBuffs ?? [])
+        : (saved.heroBuffs ?? []).filter((b: any) => b.id !== 1262 && b.id !== 1332);
+      loadoutSlotsToRestore = saved.loadoutSlots ?? initialState.loadoutSlots;
+    }
+
     const restored: Partial<BattleState> = {
       heroName: saved.heroName,
       summon: restoredSummon,
       summonLastAttackAt: saved.summonLastAttackAt,
       summonBuffs: saved.summonBuffs ?? [],
       baseSummonStats: saved.baseSummonStats,
-      heroBuffs: restoredSummon
-        ? (saved.heroBuffs ?? [])
-        : (saved.heroBuffs ?? []).filter((b: any) => b.id !== 1262 && b.id !== 1332),
+      heroBuffs: heroBuffsToRestore,
       cooldowns: saved.cooldowns ?? {},
-      loadoutSlots: saved.loadoutSlots ?? initialState.loadoutSlots,
+      loadoutSlots: loadoutSlotsToRestore,
       activeChargeSlots: saved.activeChargeSlots ?? initialState.activeChargeSlots,
       log: saved.log ?? [],
     };
