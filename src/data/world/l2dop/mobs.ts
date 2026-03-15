@@ -153,7 +153,8 @@ export const L2DOP_MOB_20544: Mob = {
   ],
 };
 
-// Вождь Ящеров Мэль — 20924, lvl 30, gludio23_1921_01
+// Вождь Ящеров Мэль — 20924, lvl 30, gludio23_1921_01 (Maille Lizardman Matriarch)
+// L2: ящіри дропають leather, varnish, thread; spoil — інші предмети (рецепти). Тематичний дроп.
 export const L2DOP_MOB_20924: Mob = {
   id: "l2dop_20924",
   name: "Вождь Ящеров Мэль",
@@ -170,18 +171,15 @@ export const L2DOP_MOB_20924: Mob = {
   adenaMax: 244,
   dropChance: 0.7,
   drops: [
-    drop("mithril_ore", "resource", 0.004, 1, 1),
-    drop("adamantite_nugget", "resource", 0.0008, 1, 1),
-    drop("steel", "resource", 0.002, 1, 1),
-    drop("coarse_bone_powder", "resource", 0.0026, 1, 1),
-    drop("leather", "resource", 0.0044, 1, 1),
+    drop("leather", "resource", 0.045, 1, 1),
+    drop("varnish", "resource", 0.032, 1, 1),
+    drop("animal_bone", "resource", 0.028, 1, 1),
+    drop("mithril_ore", "resource", 0.008, 1, 1),
   ],
   spoil: [
-    drop("mithril_ore", "resource", 0.0072, 1, 1),
-    drop("adamantite_nugget", "resource", 0.0014, 1, 1),
-    drop("steel", "resource", 0.0036, 1, 1),
-    drop("coarse_bone_powder", "resource", 0.0047, 1, 1),
-    drop("leather", "resource", 0.0079, 1, 1),
+    drop("thread", "resource", 0.12, 1, 1),
+    drop("high_grade_suede", "resource", 0.025, 1, 1),
+    drop("leather", "resource", 0.08, 1, 1),
   ],
 };
 
@@ -262,16 +260,22 @@ export const L2DOP_MOB_20008: Mob = {
   id: "l2dop_20008", name: "Ящер Фелим", level: 14, hp: 230, mp: 141, pAtk: 27, mAtk: 19, pDef: 71, mDef: 47, exp: 498, sp: 19,
   adenaMin: 150, adenaMax: 200, dropChance: 0.7, drops: [drop("varnish", "resource", 0.044, 1, 1), drop("thread", "resource", 0.03, 1, 1)], spoil: [drop("varnish", "resource", 0.079, 1, 1), drop("thread", "resource", 0.054, 1, 1)],
 };
+// Selu Lizardman Scout — 20069. Ящіри: leather, varnish, thread. Spoil — інакший набір.
 export const L2DOP_MOB_20069: Mob = {
   id: "l2dop_20069", name: "Разведчик Ящеров Селу", level: 26, hp: 520, mp: 310, pAtk: 58, mAtk: 38, pDef: 105, mDef: 70, exp: 980, sp: 28,
-  adenaMin: 320, adenaMax: 420, dropChance: 0.7, drops: [drop("mithril_ore", "resource", 0.02, 1, 1), drop("steel", "resource", 0.015, 1, 1)], spoil: [drop("mithril_ore", "resource", 0.036, 1, 1), drop("steel", "resource", 0.027, 1, 1)],
+  adenaMin: 320, adenaMax: 420, dropChance: 0.7,
+  drops: [drop("leather", "resource", 0.06, 1, 1), drop("varnish", "resource", 0.045, 1, 1), drop("thread", "resource", 0.038, 1, 1)],
+  spoil: [drop("animal_bone", "resource", 0.1, 1, 1), drop("stem", "resource", 0.055, 1, 1), drop("leather", "resource", 0.08, 1, 1)],
 };
+// Granite Golem — 20083. Големи: mithril, steel (мінерали). Spoil — oriharukon, stone_of_purity.
 export const L2DOP_MOB_20083: Mob = {
   id: "l2dop_20083", name: "Гранитовый Голем", level: 33, hp: 980, mp: 580, pAtk: 95, mAtk: 62, pDef: 145, mDef: 96, exp: 1650, sp: 48,
-  adenaMin: 380, adenaMax: 510, dropChance: 0.7, drops: [drop("mithril_ore", "resource", 0.025, 1, 1), drop("steel", "resource", 0.02, 1, 1)], spoil: [drop("mithril_ore", "resource", 0.045, 1, 1), drop("steel", "resource", 0.036, 1, 1)],
+  adenaMin: 380, adenaMax: 510, dropChance: 0.7,
+  drops: [drop("mithril_ore", "resource", 0.055, 1, 1), drop("steel", "resource", 0.045, 1, 1), drop("iron_ore", "resource", 0.035, 1, 1)],
+  spoil: [drop("oriharukon_ore", "resource", 0.06, 1, 1), drop("stone_of_purity", "resource", 0.02, 1, 1), drop("mithril_ore", "resource", 0.08, 1, 1)],
 };
 
-// Тетрарх Орк Турек — 20546, lvl 34 (має бути перед L2DOP_GLUDIO_POOL)
+// Тетрарх Орк Турек — 20546, lvl 34 (Turek Orc Elder). L2: орки — iron_ore, coal, suede, steel.
 export const L2DOP_MOB_20546: Mob = {
   id: "l2dop_20546",
   name: "Тетрарх Орк Турек",
@@ -288,18 +292,15 @@ export const L2DOP_MOB_20546: Mob = {
   adenaMax: 478,
   dropChance: 0.7,
   drops: [
-    drop("mithril_ore", "resource", 0.0075, 1, 1),
-    drop("adamantite_nugget", "resource", 0.0015, 1, 1),
-    drop("steel", "resource", 0.0038, 1, 1),
-    drop("coarse_bone_powder", "resource", 0.005, 1, 1),
-    drop("leather", "resource", 0.0084, 1, 1),
+    drop("iron_ore", "resource", 0.055, 1, 1),
+    drop("steel", "resource", 0.035, 1, 1),
+    drop("coal", "resource", 0.04, 1, 1),
+    drop("suede", "resource", 0.03, 1, 1),
   ],
   spoil: [
-    drop("mithril_ore", "resource", 0.0135, 1, 1),
-    drop("adamantite_nugget", "resource", 0.0027, 1, 1),
-    drop("steel", "resource", 0.0068, 1, 1),
-    drop("coarse_bone_powder", "resource", 0.009, 1, 1),
-    drop("leather", "resource", 0.015, 1, 1),
+    drop("animal_bone", "resource", 0.1, 1, 1),
+    drop("coarse_bone_powder", "resource", 0.04, 1, 1),
+    drop("iron_ore", "resource", 0.07, 1, 1),
   ],
 };
 
