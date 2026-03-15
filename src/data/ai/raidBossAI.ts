@@ -143,5 +143,7 @@ export const RAID_BOSS_AI_PROFILES: RaidBossAIProfile[] = [
 export function getRaidBossAIProfile(
   id: string,
 ): RaidBossAIProfile | undefined {
-  return RAID_BOSS_AI_PROFILES.find((p) => p.id === id);
+  // Аліас: rb_floran_ai → rb_floran_overlord_ai
+  const resolved = id === "rb_floran_ai" ? "rb_floran_overlord_ai" : id;
+  return RAID_BOSS_AI_PROFILES.find((p) => p.id === resolved);
 }

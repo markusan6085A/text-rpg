@@ -110,6 +110,37 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     },
     grade: "D",
   },
+  // ===== D-GRADE SHIELDS (Магазин вещей) =====
+  bronze_shield: {
+    id: "bronze_shield",
+    name: "Bronze Shield",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_d/Shield_bronze_shield_i00_0.jpg",
+    description: "Бронзовий щит D-grade.",
+    grade: "D",
+    stats: { pDef: 20 },
+  },
+  hoplon: {
+    id: "hoplon",
+    name: "Hoplon",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_d/Shield_hoplon_i00_0.jpg",
+    description: "Гоплон D-grade.",
+    grade: "D",
+    stats: { pDef: 25 },
+  },
+  plate_shield: {
+    id: "plate_shield",
+    name: "Plate Shield",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_d/Shield_plate_shield_i00_0.jpg",
+    description: "Пластинчатий щит D-grade.",
+    grade: "D",
+    stats: { pDef: 30 },
+  },
   // Clan Oath Set (D-grade Robe - Quest Shop)
   clan_oath_helm: {
     id: "clan_oath_helm",

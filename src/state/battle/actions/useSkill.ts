@@ -226,10 +226,10 @@ export const createUseSkill =
       return;
     }
 
-    // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk — перераховуємо (фікс урону ~798 без зміни при екіпіруванні)
+    // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk/castSpeed — перераховуємо (фікс урону ~798, швидкості касту)
     let heroForStats = hero;
     const bs = hero.battleStats;
-    const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1;
+    const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1 || (bs.castSpeed ?? 0) < 1;
     if (needsStatsRecalc) {
       const recalculated = recalculateAllStats(hero, activeBuffs);
       updateHero({ battleStats: recalculated.baseFinalStats });

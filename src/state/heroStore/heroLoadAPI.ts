@@ -118,11 +118,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     }
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
+    // 🔥 КРИТИЧНО: локальний герой з loadHero() прив'язаний до l2_current_user. При Register l2_current_user ще старий
+    // → loadHero повертає героя ІНШОГО акаунта. Merge тоді вибирав local (level 6 > 1) і повертав чужий герой.
+    // Тому: merge лише якщо локальний герой належить цьому персонажу (name/username збігаються).
+    const charName = String(character?.name ?? '').trim().toLowerCase();
+    const localName = String((hydratedLocalHero as any)?.username ?? hydratedLocalHero?.name ?? '').trim().toLowerCase();
+    const localBelongsToCharacter = !!(charName && localName && charName === localName);
+    if (!localBelongsToCharacter && hydratedLocalHero) {
+      console.warn('[loadHeroFromAPI] Local hero belongs to different character (char:', character?.name, 'local:', localName || '(empty)', '), using server');
+    }
+    
     // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
     // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
     // Inventory/buffs — не порівнюємо "більше/менше", для них інший критерій.
     // Останній запобіжник: local.lastSavedAt > server.updatedAt → локалка новіша, лишаємо навіть при рівних значеннях.
-    if (character && hydratedLocalHero) {
+    if (character && hydratedLocalHero && localBelongsToCharacter) {
       const heroData = character.heroJson as any;
       const serverSkillsArr = Array.isArray(heroData?.skills) ? heroData.skills : [];
       const localSkillsArr = Array.isArray(hydratedLocalHero.skills) ? hydratedLocalHero.skills : [];
