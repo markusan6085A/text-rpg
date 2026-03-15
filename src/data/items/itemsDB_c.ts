@@ -289,6 +289,27 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     },
     grade: "C",
   },
+  // ===== C-GRADE SHIELDS (Магазин вещей) =====
+  composite_shield: {
+    id: "composite_shield",
+    name: "Composite Shield",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_c/Shield_composite_shield_i00_0.jpg",
+    description: "Композитний щит C-grade.",
+    grade: "C",
+    stats: { pDef: 150 },
+  },
+  full_plate_shield: {
+    id: "full_plate_shield",
+    name: "Full Plate Shield",
+    kind: "shield",
+    slot: "shield",
+    icon: "/items/drops/arrom_c/Shield_full_plate_shield_i00_0.jpg",
+    description: "Повний пластинчастий щит C-grade.",
+    grade: "C",
+    stats: { pDef: 170 },
+  },
   // C-Grade
   soulshot_c: {
     id: "soulshot_c",

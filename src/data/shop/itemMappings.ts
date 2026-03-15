@@ -85,7 +85,7 @@ export const SHOP_ITEM_ID_MAPPING: Record<number, string> = {
   852: "shop_jewelry_c_moonstone_earing",
   853: "shop_jewelry_c_earing_of_protection",
   854: "shop_jewelry_c_earing_of_binding",
-  855: "shop_jewelry_c_nassens_earing",
+  855: "shop_jewelry_c_nassen_earing",
   857: "shop_jewelry_c_blessed_earing",
   
   // C-Grade Jewelry - Necklaces
