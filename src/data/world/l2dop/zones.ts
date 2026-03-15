@@ -5,6 +5,8 @@ import type { Zone } from "../types";
 import {
   L2DOP_GLUDIO_POOL,
   fillZoneMobs,
+  getGludioL2DopChampions,
+  L2DOP_GLUDIO_RAID_BOSSES,
   L2DOP_GIRAN03_2321_MOBS,
 } from "./mobs";
 
@@ -30,7 +32,11 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: z.min,
     maxLevel: z.max,
     tpCost: z.tp,
-    mobs: fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 200, 10, 20),
+    mobs: [
+      ...fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 200, 10, 20),
+      ...getGludioL2DopChampions(z.id, z.min, z.max),
+      ...L2DOP_GLUDIO_RAID_BOSSES.filter((rb) => rb.zoneId === z.id),
+    ],
   })),
   {
     id: "l2dop_giran03_2321_15",

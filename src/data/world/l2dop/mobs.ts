@@ -2,6 +2,7 @@
 // drop = category 2, spoil = category -1 (різні ресурси завжди)
 
 import type { Mob } from "../types";
+import type { RaidBoss } from "../../bosses/floran_overlord";
 import type { DropEntry } from "../../combat/types";
 
 function drop(
@@ -365,6 +366,92 @@ export function fillZoneMobs(
   }
   return result.sort(() => rand() - 0.5);
 }
+
+/** Створити чемпіона з базового моба: ~3× стати, ~10× exp/sp/adena, кращі drop/spoil */
+function makeChampion(base: Mob, championName: string, suffix: string): Mob {
+  const champDrops = (base.drops ?? []).map((d) => ({
+    ...d,
+    chance: Math.min(0.9, (d.chance ?? 0.5) * 3),
+    min: (d.min ?? 1) * 2,
+    max: (d.max ?? 1) * 4,
+  }));
+  const champSpoil = (base.spoil ?? []).map((s) => ({
+    ...s,
+    chance: Math.min(0.95, (s.chance ?? 0.5) * 3),
+    min: (s.min ?? 1) * 2,
+    max: (s.max ?? 1) * 4,
+  }));
+  return {
+    ...base,
+    id: `${base.id}_champion_${suffix}`,
+    name: `[Чемпион] ${championName}`,
+    hp: base.hp * 3,
+    mp: (base.mp ?? 0) * 3,
+    pAtk: base.pAtk * 3,
+    mAtk: (base.mAtk ?? 0) * 3,
+    pDef: base.pDef * 3,
+    mDef: base.mDef * 3,
+    exp: base.exp * 10,
+    sp: (base.sp ?? base.level * 2) * 10,
+    adenaMin: base.adenaMin * 10,
+    adenaMax: base.adenaMax * 10,
+    dropChance: 0.85,
+    drops: champDrops.length ? champDrops : [drop("thread", "resource", 0.5, 2, 5), drop("silver_nugget", "resource", 0.3, 1, 3)],
+    spoil: champSpoil.length ? champSpoil : [drop("stem", "resource", 0.6, 2, 6)],
+  };
+}
+
+/** 2 чемпіони на зону Gludio (детерміновано по zoneId) */
+export function getGludioL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_GLUDIO_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length < 2) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const c1 = shuffled[0];
+  const c2 = shuffled[1];
+  const names: Record<string, string> = {
+    "01": "Окраїнський Громила",
+    "02": "Луговий Вождь",
+    "03": "Рощовий Лорд",
+    "04": "Болотний Тінь",
+    "05": "Руїнний Страх",
+    "06": "Ящір-Тиран",
+    "07": "Орк-Тетрарх",
+    "08": "Печерний Лорд",
+  };
+  const zoneNum = zoneId.replace("l2dop_gludio_", "");
+  const baseName = names[zoneNum] ?? "Глоріо Чемпіон";
+  return [
+    makeChampion(c1, `${baseName} I`, "a"),
+    makeChampion(c2, `${baseName} II`, "b"),
+  ];
+}
+
+/** NG/D ресурси для дропу Gludio РБ (лвл 1–40) */
+const GLUDIO_RB_RESOURCES = ["stem", "suede", "iron_ore", "coal", "leather", "animal_bone", "thread", "varnish", "mithril_ore", "steel"];
+
+function gludioRbDrops(rbIndex: number): DropEntry[] {
+  const items: DropEntry[] = [
+    ...GLUDIO_RB_RESOURCES.slice(0, 4).map((r, i) => drop(r, "resource", 0.5 + (rbIndex % 3) * 0.1, 3 + (rbIndex % 4), 8 + (rbIndex % 5))),
+  ];
+  if (rbIndex >= 4) items.push(drop("high_grade_suede", "resource", 0.2, 1, 3));
+  if (rbIndex >= 6) items.push(drop("oriharukon_ore", "resource", 0.15, 1, 2));
+  return items;
+}
+
+/** 8 рейд-босів для зон Gludio (l2dop_gludio_01 … 08) */
+export const L2DOP_GLUDIO_RAID_BOSSES: RaidBoss[] = [
+  { id: "rb_l2dop_gludio_01", name: "Raid Boss: Хранитель Окраїни", level: 5, hp: 8000, mp: 0, pAtk: 90, mAtk: 0, pDef: 70, mDef: 50, exp: 8000, sp: 500, adenaMin: 2500, adenaMax: 4500, dropChance: 1, drops: gludioRbDrops(0), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_01" },
+  { id: "rb_l2dop_gludio_02", name: "Raid Boss: Лорд Лугів", level: 8, hp: 15000, mp: 0, pAtk: 120, mAtk: 0, pDef: 95, mDef: 65, exp: 15000, sp: 800, adenaMin: 4000, adenaMax: 7000, dropChance: 1, drops: gludioRbDrops(1), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_02" },
+  { id: "rb_l2dop_gludio_03", name: "Raid Boss: Повелитель Рощі", level: 12, hp: 25000, mp: 0, pAtk: 160, mAtk: 0, pDef: 125, mDef: 85, exp: 28000, sp: 1200, adenaMin: 6000, adenaMax: 10000, dropChance: 1, drops: gludioRbDrops(2), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_03" },
+  { id: "rb_l2dop_gludio_04", name: "Raid Boss: Болотний Дракон", level: 18, hp: 40000, mp: 0, pAtk: 220, mAtk: 0, pDef: 170, mDef: 110, exp: 55000, sp: 2000, adenaMin: 10000, adenaMax: 16000, dropChance: 1, drops: gludioRbDrops(3), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_04" },
+  { id: "rb_l2dop_gludio_05", name: "Raid Boss: Король Руїн", level: 22, hp: 55000, mp: 0, pAtk: 280, mAtk: 0, pDef: 215, mDef: 140, exp: 75000, sp: 2800, adenaMin: 14000, adenaMax: 22000, dropChance: 1, drops: gludioRbDrops(4), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_05" },
+  { id: "rb_l2dop_gludio_06", name: "Raid Boss: Ящір-Імператор", level: 28, hp: 75000, mp: 0, pAtk: 350, mAtk: 0, pDef: 275, mDef: 180, exp: 110000, sp: 4000, adenaMin: 22000, adenaMax: 32000, dropChance: 1, drops: gludioRbDrops(5), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_06" },
+  { id: "rb_l2dop_gludio_07", name: "Raid Boss: Орк-Верховний", level: 35, hp: 100000, mp: 0, pAtk: 430, mAtk: 0, pDef: 340, mDef: 225, exp: 150000, sp: 5500, adenaMin: 30000, adenaMax: 45000, dropChance: 1, drops: gludioRbDrops(6), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_07" },
+  { id: "rb_l2dop_gludio_08", name: "Raid Boss: Печерний Титан", level: 40, hp: 130000, mp: 0, pAtk: 520, mAtk: 0, pDef: 410, mDef: 270, exp: 200000, sp: 7000, adenaMin: 40000, adenaMax: 60000, dropChance: 1, drops: gludioRbDrops(7), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_08" },
+];
 
 // Окраїна — 01+02+03: 5 мобів (legacy)
 export const L2DOP_GLUDIO32_1725_MOBS: Mob[] = [
