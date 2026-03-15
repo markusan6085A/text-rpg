@@ -161,6 +161,10 @@ export default function Register({ navigate }: RegisterProps) {
       clearBattlePersist();
       clearBattlePersist(trimmedUsername);
       
+      // 5.1. Встановлюємо l2_current_user на нового юзера — loadHero() не знайде його в accounts (ще немає)
+      // → поверне null, і loadHeroFromAPI не підтягне чужі skills/inventory/gender з localStorage
+      setJSON("l2_current_user", trimmedUsername);
+      
       // 6. Завантажуємо героя з API
       const loadedHero = await loadHeroFromAPI();
       if (loadedHero) {
