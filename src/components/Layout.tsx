@@ -102,8 +102,8 @@ export default function Layout({
     }
   }, [children]); // Залишаємо children як тригер, але перевіряємо pathname
 
-  // 🔥 Глобальний таймер для продовження бою - моб атакує навіть якщо гравець в місті чи іншому місці
-  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
+  // 🔥 Глобальний таймер для продовження бою — тільки коли гравець на сторінці бою
+  // Моби НЕ атакують в місті чи іншому місці — лише на /battle
   const battleIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
@@ -114,8 +114,9 @@ export default function Layout({
 
     // 🔥 КРИТИЧНО: Використовуємо функції з store всередині interval, а не в dependencies
     const interval = setInterval(() => {
+      const pathname = typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : "";
+      if (pathname !== "/battle") return; // Не атакувати поза сторінкою бою
       const battleStore = useBattleStore.getState();
-      // Продовжуємо бій - моб атакує незалежно від локації
       battleStore.processMobAttack();
       battleStore.regenTick();
     }, 1000);
