@@ -7,8 +7,12 @@ import type { Hero } from "../../types/Hero";
  * rear;lear -> earring, rfinger;lfinger -> ring
  * lhand -> shield (для щитів)
  * lrhand -> weapon (для зброї, включаючи удочки)
+ * chest -> armor (нагрудники зберігаються в equipment.armor)
  */
 export function normalizeSlot(slot: string, item: HeroInventoryItem): string {
+  if (slot === "chest") {
+    return "armor";
+  }
   if (slot.includes("rear") || slot.includes("lear") || slot === "rear;lear") {
     return "earring";
   } else if (slot.includes("rfinger") || slot.includes("lfinger") || slot === "rfinger;lfinger") {

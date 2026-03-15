@@ -67,7 +67,7 @@ export const CATEGORIES = [
   }},
   { key: "armor", label: "Броня", test: (item: any) => {
     const { slot, kind } = getItemSlotAndKind(item);
-    const armorSlots = ["head", "armor", "legs", "gloves", "boots", "belt", "shield"];
+    const armorSlots = ["head", "armor", "chest", "legs", "gloves", "boots", "belt", "shield"];
     const armorKinds = ["armor", "helmet", "boots", "gloves", "shield", "belt"];
     if (armorSlots.includes(slot) || armorKinds.includes(kind)) return true;
     if (slot === "lhand") return getItemDef(item)?.kind === "shield";

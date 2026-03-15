@@ -32,9 +32,11 @@ export default function InventoryItemList({
           const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
           const iconPath = item.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
           const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
-          // Конвертуємо XML формат слотів для перевірки
+          // Конвертуємо XML формат слотів для перевірки (chest -> armor для збігу з equipment)
           let normalizedSlot = item.slot;
-          if (item.slot && (item.slot.includes("rear") || item.slot.includes("lear") || item.slot === "rear;lear")) {
+          if (item.slot === "chest") {
+            normalizedSlot = "armor";
+          } else if (item.slot && (item.slot.includes("rear") || item.slot.includes("lear") || item.slot === "rear;lear")) {
             normalizedSlot = "earring";
           } else if (item.slot && (item.slot.includes("rfinger") || item.slot.includes("lfinger") || item.slot === "rfinger;lfinger")) {
             normalizedSlot = "ring";

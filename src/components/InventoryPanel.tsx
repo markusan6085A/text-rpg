@@ -24,7 +24,7 @@ type InvItem = {
   type: string;
 };
 
-const armorSlots = new Set(["head", "armor", "legs", "gloves", "boots", "belt", "cloak"]);
+const armorSlots = new Set(["head", "armor", "chest", "legs", "gloves", "boots", "belt", "cloak"]);
 const jewelrySlots = new Set([
   "jewelry",
   "necklace",
