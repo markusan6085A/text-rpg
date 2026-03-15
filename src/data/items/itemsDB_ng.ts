@@ -168,7 +168,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Steel",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_silver_i00_0.jpg",
     description: "Сталь",
   },
   // crafted_leather має відмінну іконку від steel/leather
@@ -185,7 +185,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Leather",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_white_i00_0.jpg",
     description: "Шкіра",
   },
   high_grade_suede: {
@@ -193,7 +193,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "High-grade Suede",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
     description: "Шліфована замша",
   },
   // Середні ресурси (7-20 лвл)
@@ -218,7 +218,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Mithril Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg",
     description: "Мифриловая Руда",
   },
   // Високі ресурси (20-36 лвл)
@@ -235,7 +235,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Oriharukon Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg",
+    icon: "/items/drops/resources/Etc_bead_red_i00_0.jpg",
     description: "Орихаруконовая Руда",
   },
   mold_glue: {
