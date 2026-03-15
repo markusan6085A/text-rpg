@@ -28,12 +28,10 @@ export function calcCastTime(
  * Мінімум: 300ms
  * 
  * Формула: cdMs = baseCooldownSec * 1000 * (BASE_CAST_SPEED / castSpeed)
- * При castSpeed = 5000: множник = 333 / 5000 = 0.0666
- * Для базового кулдауну 1 сек: 1000 * 0.0666 = 66.6 мс, але мінімум 300 мс
+ * Мінімум: 300 мс
  * 
- * Нова формула для великих значень castSpeed:
- * При castSpeed >= 5000: кулдаун = 0.3 сек (300 мс)
- * При castSpeed < 5000: використовуємо стандартну формулу з обмеженням
+ * При castSpeed >= 8000 (фул баф + шмот): кулдаун = 0.3 сек (300 мс) — досягнуто потолок
+ * При castSpeed < 8000: cdMs = baseCd * (333 / castSpeed), обмежено min 300 мс
  */
 export function calcMagicCooldown(
   baseCooldownSec: number,
@@ -60,11 +58,11 @@ export function calcMagicCooldown(
       castSpeed = BASE_CAST_SPEED;
     }
     
-    // Якщо castSpeed >= 5000, встановлюємо кулдаун на 0.3 сек (300 мс)
-    if (castSpeed >= 5000) {
+    // Якщо castSpeed >= 8000 (фул баф + шмот), кулдаун = 0.3 сек (300 мс)
+    if (castSpeed >= 8000) {
       cdMs = 300; // 0.3 секунди
       if (import.meta.env.DEV) {
-        console.log(`[calcMagicCooldown] castSpeed >= 5000, setting cooldown to 300ms`);
+        console.log(`[calcMagicCooldown] castSpeed >= 8000, setting cooldown to 300ms`);
       }
     } else {
       // Для менших значень використовуємо стандартну формулу
