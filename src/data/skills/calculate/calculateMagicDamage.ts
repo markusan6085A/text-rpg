@@ -1,5 +1,5 @@
 import { SkillDefinition, SkillLevelDefinition } from "../types";
-import { SKILL_MAGIC_ATK_FACTOR } from "../../../data/balance";
+import { L2_MAGIC_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER } from "../../../data/balance";
 
 export function calculateMagicDamage(
   caster: any,
@@ -11,15 +11,8 @@ export function calculateMagicDamage(
   const mDef = Math.max(1, target?.mDef ?? 1);
   const power = Math.max(1, level.power ?? 1);
 
-  // Базовий урон скіла = power скіла
-  const skillBaseDamage = power;
-  
-  // Базовий урон героя з урахуванням захисту — магічні скіли масштабуються з mAtk
-  const ratio = mAtk / mDef;
-  const heroBaseDamage = mAtk * SKILL_MAGIC_ATK_FACTOR * (1 + ratio * 0.05);
-  
-  // Сумарний базовий урон = урон скіла + базовий урон героя
-  const base = skillBaseDamage + heroBaseDamage;
+  // L2-стиль: damage = C * (mAtk + 2*power) / mDef — power має значення, mDef знижує урон
+  const l2Base = L2_MAGIC_COEFFICIENT * (mAtk + 2 * power) / mDef * L2_PVE_DAMAGE_MULTIPLIER;
 
   const skillBonus = 1 + ((caster?.magicSkillPower ?? 0) / 100);
 
@@ -60,7 +53,7 @@ export function calculateMagicDamage(
 
   const variance = 0.9 + Math.random() * 0.2; // 0.9 - 1.1
 
-  const raw = base * skillBonus * elementMultiplier * variance;
+  const raw = l2Base * skillBonus * elementMultiplier * variance;
   return Math.max(1, Math.floor(raw));
 }
 

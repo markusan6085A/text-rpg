@@ -28,5 +28,8 @@ export const SKILL_MAGIC_ATK_FACTOR = 0.7;
 /** L2-стиль: коефіцієнт фізичного урону (70 = класична L2 формула damage = 70*pAtk/pDef) */
 export const L2_PHYSICAL_COEFFICIENT = 70;
 
+/** L2-стиль: коефіцієнт магічного урону — damage = C * (mAtk + 2*power) / mDef */
+export const L2_MAGIC_COEFFICIENT = 70;
+
 /** Множник PvE для збалансування L2 формули під наші моби (MOB_HP_MULTIPLIER, тощо) */
 export const L2_PVE_DAMAGE_MULTIPLIER = 2.8;
