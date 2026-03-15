@@ -4,7 +4,8 @@
 import type { City } from "../types";
 
 /**
- * Міста з l2dop.
- * Поки порожні — буде заповнено на етапі 3.
+ * Міста з l2dop (екстракт з lineage.sql spawnlist.location).
  */
-export const L2DOP_CITIES: City[] = [];
+export const L2DOP_CITIES: City[] = [
+  { id: "l2dop_gludio", name: "Gludio (L2)", tpCost: 29_000 },
+];
