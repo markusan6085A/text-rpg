@@ -24,10 +24,12 @@ interface PlayerProfileProps {
   playerName?: string;
 }
 
-import { getSkillDefForBattle } from "../state/battle/loadout";
+import { getSkillDef, getSkillDefForBattle } from "../state/battle/loadout";
 import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 import { useBattleStore } from "../state/battle/store";
 import { useAdminStore } from "../state/adminStore";
+import { buffPlayer } from "../utils/api";
+import { showToast } from "../state/toastStore";
 
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
   const hero = useHeroStore((s) => s.hero);
@@ -54,6 +56,9 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [pkError, setPkError] = useState<string | null>(null);
   const [myClan, setMyClan] = useState<Clan | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showBuffModal, setShowBuffModal] = useState(false);
+  const [buffPlayerLoading, setBuffPlayerLoading] = useState(false);
+  const [buffLoading, setBuffLoading] = useState(false);
   // 🔥 Таймер — перерендер щосекунди, щоб бафи інших гравців зникали при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -107,6 +112,63 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       else setMyClan(null);
     });
   }, [hero?.id]);
+
+  // Бафи для застосування до іншого гравця (тільки ally/party target)
+  const myBuffSkills = useMemo(() => {
+    if (!hero?.skills?.length) return [];
+    try {
+      return hero.skills
+        .map((learned: any) => {
+          const skillDef = getSkillDefForBattle((hero as any).profession ?? null, (hero as any).klass, (hero as any).race, learned.id)
+            ?? getSkillDef(learned.id);
+          if (!skillDef || skillDef.category !== "buff") return null;
+          const target = skillDef.target ?? "self";
+          if (target !== "ally" && target !== "party") return null;
+          const levelDef = skillDef.levels?.find((l: any) => l.level === learned.level) ?? skillDef.levels?.[0];
+          return {
+            id: learned.id,
+            name: skillDef.name,
+            icon: skillDef.icon,
+            level: learned.level,
+            duration: skillDef.duration,
+            skillDef,
+            levelDef,
+          };
+        })
+        .filter((s): s is NonNullable<typeof s> => s !== null)
+        .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } catch {
+      return [];
+    }
+  }, [hero]);
+
+  const handleBuffPlayer = async (buffSkillId: number) => {
+    if (!character || !hero) return;
+    const buffSkill = myBuffSkills.find((b) => b.id === buffSkillId);
+    if (!buffSkill) return;
+    setBuffPlayerLoading(true);
+    try {
+      const effects = processSkillEffects(buffSkill.skillDef, buffSkill.levelDef);
+      const durationMs = (buffSkill.duration || 0) * 1000;
+      const buffData = {
+        name: buffSkill.name,
+        icon: buffSkill.icon || "",
+        effects,
+        duration: buffSkill.duration || 0,
+        expiresAt: Date.now() + durationMs,
+        buffGroup: buffSkill.skillDef.buffGroup,
+        stackType: buffSkill.skillDef.stackType,
+      };
+      const result = await buffPlayer(character.id, buffSkillId, buffData);
+      if (result.ok) {
+        showToast(`Баф "${buffSkill.name}" застосовано до ${character.name}`, "success");
+        loadPlayerProfile();
+        setShowBuffModal(false);
+      }
+    } catch (err: any) {
+      showToast(err?.message || "Помилка застосування бафа", "error");
+    }
+  };
 
   const sevenSealsBonus = (character?.heroJson as any)?.sevenSealsBonus;
   const sevenSealsFromChar = getActiveSevenSealsRank(sevenSealsBonus);
@@ -583,13 +645,13 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     };
     return (
       <div className="w-full">
-        {isAdmin && (
+        {character.id !== hero?.id && (
           <div className="w-full max-w-[360px] mx-auto mb-2 px-3 py-1 border-b border-[#c7ad80]/50">
             <span
-              onClick={() => navigate(`/player/${character.id}/admin`)}
+              onClick={() => setShowBuffModal(true)}
               className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400"
             >
-              Забафнуть игрока
+              Забафать игрока
             </span>
           </div>
         )}
@@ -607,6 +669,33 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           onAttack={handlePkAttack}
           onBack={backToLocation}
         />
+        {showBuffModal && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>
+            <div className="bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="p-3 border-b border-[#c7ad80]/30 font-semibold text-[#c7ad80]">Забафать игрока</div>
+              <div className="p-2">
+                {myBuffSkills.length === 0 ? (
+                  <p className="text-gray-400 text-sm">Нет баф-скиллов с целью Ally/Party</p>
+                ) : (
+                  myBuffSkills.map((buff) => (
+                    <button
+                      key={buff.id}
+                      onClick={() => handleBuffPlayer(buff.id)}
+                      disabled={buffLoading}
+                      className="w-full flex items-center gap-2 p-2 rounded hover:bg-[#c7ad80]/10 text-left text-sm disabled:opacity-50"
+                    >
+                      <img src={buff.icon} alt="" className="w-8 h-8 object-contain" />
+                      <span>{buff.name}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+              <div className="p-2 border-t border-[#c7ad80]/30">
+                <button onClick={() => setShowBuffModal(false)} className="w-full py-1 text-[#c7ad80] text-sm">Закрити</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -816,14 +905,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </div>
             </div>
           )}
-          {isAdmin && (
+          {character.id !== hero?.id && (
             <div className={`${lineThin} py-1`}>
               <div className={boxPad}>
                 <span
-                  onClick={() => navigate(`/player/${character.id}/admin`)}
+                  onClick={() => setShowBuffModal(true)}
                   className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 text-center block"
                 >
-                  Забафнуть игрока
+                  Забафать игрока
                 </span>
               </div>
             </div>
@@ -949,6 +1038,37 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             }}
             onClose={() => setShowInviteModal(false)}
           />
+        )}
+
+        {/* Модалка «Забафать игрока» — для всіх гравців */}
+        {showBuffModal && character && hero && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>
+            <div className="bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="px-3 py-2 border-b border-[#c7ad80]/30 flex justify-between items-center">
+                <span className="text-[#c7ad80] font-semibold text-sm">Забафать {character.name}</span>
+                <button onClick={() => setShowBuffModal(false)} className="text-gray-400 hover:text-white text-lg">×</button>
+              </div>
+              <div className="p-3">
+                {myBuffSkills.length === 0 ? (
+                  <p className="text-gray-400 text-xs">У вас немає бафів, що можна накласти на інших (ally/party).</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {myBuffSkills.map((buff) => (
+                      <button
+                        key={buff.id}
+                        onClick={() => handleBuffPlayer(buff.id)}
+                        disabled={buffPlayerLoading}
+                        className="flex items-center gap-1.5 px-2 py-1.5 rounded bg-[#2a2a2a] border border-[#c7ad80]/30 hover:bg-[#c7ad80]/20 disabled:opacity-50 text-left"
+                      >
+                        <img src={buff.icon} alt="" className="w-6 h-6 object-contain" />
+                        <span className="text-xs text-white">{buff.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Інформація */}
