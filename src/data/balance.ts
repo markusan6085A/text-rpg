@@ -24,3 +24,9 @@ export const HERO_STAT_MULTIPLIER = 0.75;
 /** Вплив pAtk/mAtk на урон скілів: 0.2 = майже тільки power, 0.6 = зброя/стат мають значення */
 export const SKILL_PHYSICAL_ATK_FACTOR = 0.5;
 export const SKILL_MAGIC_ATK_FACTOR = 0.7;
+
+/** L2-стиль: коефіцієнт фізичного урону (70 = класична L2 формула damage = 70*pAtk/pDef) */
+export const L2_PHYSICAL_COEFFICIENT = 70;
+
+/** Множник PvE для збалансування L2 формули під наші моби (MOB_HP_MULTIPLIER, тощо) */
+export const L2_PVE_DAMAGE_MULTIPLIER = 2.8;

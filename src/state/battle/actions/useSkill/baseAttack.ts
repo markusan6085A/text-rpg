@@ -18,7 +18,7 @@ import { itemsDB } from "../../../../data/items/itemsDB";
 import { reportRaidBossKill } from "../../../../utils/api";
 import { DAILY_QUESTS } from "../../../../data/dailyQuests";
 import { getGameSettings } from "../../../../state/gameSettings";
-import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE, HERO_VS_MOB_DEFENSE_FACTOR } from "../../../../data/balance";
+import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE, L2_PHYSICAL_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER } from "../../../../data/balance";
 
 export function handleBaseAttack(
   state: BattleState,
@@ -50,10 +50,10 @@ export function handleBaseAttack(
     return false;
   }
 
-  // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk — перераховуємо (фікс урону без зміни при екіпіруванні)
+  // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk/castSpeed — перераховуємо (фікс урону, швидкості касту)
   let heroForStats = hero;
   const bs = hero.battleStats;
-  const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1;
+  const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1 || (bs.castSpeed ?? 0) < 1;
   if (needsStatsRecalc) {
     const recalculated = recalculateAllStats(hero, activeBuffs);
     updateHero({ battleStats: recalculated.baseFinalStats });
@@ -151,18 +151,18 @@ export function handleBaseAttack(
   
   // Застосовуємо множник від shot (для риб множник = 1.0)
   const baseDmgWithShot = Math.round(baseDmg * shotResult.multiplier);
-  
-  // Обчислюємо захист моба (для риб захист = 0, тому урон не зменшується)
+
+  // Обчислюємо урон (L2-стиль: damage = 70*pAtk/pDef для базової атаки)
   let damage = baseDmgWithShot;
   if (!isFishingZone && state.mob) {
     const mobPDefRaw = state.mob.pDef ?? Math.round((state.mob.level ?? 1) * 12);
     const mobPDef = Math.max(1, Math.round(mobPDefRaw * MOB_DEFENSE_MULTIPLIER));
-    const effectivePAtk = Math.max(1, pAtk);
-    const effectivePDef = Math.max(1, mobPDef);
-    const defenseReduction = effectivePAtk / (effectivePAtk + effectivePDef * HERO_VS_MOB_DEFENSE_FACTOR);
-    // Мінімальний урон = 30% від базового
-    const finalMultiplier = Math.max(0.3, Math.min(1.0, defenseReduction));
-    damage = Math.max(1, Math.round(baseDmgWithShot * finalMultiplier));
+    const effectivePAtk = Math.max(1, pAtk * physicalDamageMultiplier * shotResult.multiplier);
+    // L2 формула: 70 * pAtk / pDef; L2_PVE_DAMAGE_MULTIPLIER компенсує MOB_HP/DEF
+    const variance = 0.9 + Math.random() * 0.2;
+    damage = Math.max(1, Math.round(
+      L2_PHYSICAL_COEFFICIENT * effectivePAtk / mobPDef * variance * L2_PVE_DAMAGE_MULTIPLIER
+    ));
   }
   
   const isCrit = Math.random() * 100 < critChance;
@@ -232,7 +232,7 @@ export function handleBaseAttack(
   // Whirlwind Attack: cleave damage to nearby mobs (only for FortuneSeeker)
   const whirlwindActive = hasWhirlwindAttackActive(activeBuffs);
   const isFortuneSeeker = hero.profession === "dwarven_fighter_fortune_seeker";
-  const cleaveDamage = (whirlwindActive && isFortuneSeeker) ? Math.round(baseDmg * 0.5) : 0; // 50% of base damage
+  const cleaveDamage = (whirlwindActive && isFortuneSeeker) ? Math.round(damage * 0.5) : 0; // 50% of actual damage to main target
   const cleaveTargets = (whirlwindActive && isFortuneSeeker) ? 3 : 0; // Up to 3 additional targets
   
   // Track cleave damage results

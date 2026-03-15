@@ -252,9 +252,18 @@ export function createNewHero(params: NewHeroParams): HeroCore & { sp: number; s
   // Конвертуємо HeroCore в Hero з обчисленими статами (включаючи зброю/екіпіровку)
   const heroWithProfession = { ...heroCore, profession: defaultProfession, baseStatsInitial: { ...baseStats } };
   const recalculated = recalculateAllStats(heroWithProfession);
-  
+
+  // Ресурси з calcResources (L2-поліноми), новий герой — повний HP/MP/CP
+  const res = recalculated.resources;
+
   return {
     ...heroCore,
+    hp: res.maxHp,
+    maxHp: res.maxHp,
+    mp: res.maxMp,
+    maxMp: res.maxMp,
+    cp: res.maxCp,
+    maxCp: res.maxCp,
     sp: 0,
     skills: [],
     battleStats: recalculated.baseFinalStats,

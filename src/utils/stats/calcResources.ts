@@ -34,10 +34,10 @@ export function calcResources(
   const conBonus = 1 + (baseStats.CON - 40) * 0.01;
   const menBonus = 1 + (baseStats.MEN - 25) * 0.01;
   
-  // HP: на 80 рівні ~4k для магів, ~5k+ для танків (різниця через conBonus)
-  // baseHp таке, щоб при CON 24 виходило ~4k, при CON 47 ~5k+
-  const baseHp = 200 + lvl * 56;
-  const baseMp = 100 + lvl * 8;
+  // HP/MP: L2-стиль поліноми (base + a*lvl + b*lvl²), на 80 рівні ~4.5k-5.5k HP, ~700-900 MP
+  // calc_stats.php подібна логіка: квадратичний ріст від рівня
+  const baseHp = 150 + 50 * lvl + 0.2 * lvl * lvl;
+  const baseMp = 80 + 5 * lvl + 0.06 * lvl * lvl;
   
   let maxHp = Math.round(baseHp * conBonus);
   let maxMp = Math.round(baseMp * menBonus);

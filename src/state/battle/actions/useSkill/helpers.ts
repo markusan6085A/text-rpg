@@ -70,43 +70,20 @@ export const checkSkillCritical = (heroStats: any, activeBuffs: any[]): boolean 
   return roll < critChance;
 };
 
-// Формула критичного множника для базової атаки:
-// Базовий кріт: 1.5x
-// Сила крита додається лінійно: multiplier = 1.5 + critPower / 1000
-// Кап: максимум 2.5x
-// Приклад: 
-//   critPower = 0: 1.5x (базовий)
-//   critPower = 500: 1.5 + 500/1000 = 2.0x
-//   critPower = 1000: 1.5 + 1000/1000 = 2.5x (кап)
-//   critPower = 2000: 1.5 + 2000/1000 = 3.5x, але кап = 2.5x
+// L2DOP-стиль: крит ≈ ×2 base + critPower множник
+// Базовий кріт: 2.0x (як у L2)
+// critPower додає бонус: 2.0 + critPower/3000, кап 2.5x
 export const getCritMultiplier = (critDamage: number | undefined) => {
   const critPower = Math.max(0, critDamage ?? 0);
-  // Зменшена формула: базовий 1.5x + бонус від сили крита (повільніше зростання)
-  // При critPower = 779: 1.5 + 779/5000 = 1.5 + 0.156 = 1.656x
-  // Це дасть урон: 10к * 1.656 = 16.56к (близько до 15к)
-  const multiplier = 1.5 + critPower / 5000;
-  // Кап: максимум 2.0x для балансу (щоб не було занадто високого урону)
-  return Math.min(2.0, multiplier);
+  const multiplier = 2.0 + critPower / 3000;
+  return Math.min(2.5, multiplier);
 };
 
-// Формула критичного множника для скілів (окрема логіка):
-// Базовий кріт: 2.0x
-// Сила крита додається лінійно: multiplier = 2.0 + critPower / 1500
-// Кап: максимум 3.0x
-// Приклад: 
-//   critPower = 0: 2.0x
-//   critPower = 500: 2.0 + 500/1500 = 2.33x
-//   critPower = 1000: 2.0 + 1000/1500 = 2.67x
-//   critPower = 1500+: 3.0x (кап)
-// При critPower = 779: 2.0 + 779/1500 = 2.52x
-// Для скіла з power 5к: 5к * 2.52 = 12.6к (без крита), 5к * 2.52 = 12.6к (з критом)
-// Для скіла з power 7к: 7к * 2.52 = 17.64к (з критом)
-// Але насправді базовий урон скіла враховує pAtk/mAtk, тому критичний урон буде вищим
+// L2DOP-стиль для скілів: ×2 base + critPower, кап 3.0x
+// Скіли мають вищий кап — вони рідше критять але сильніше
 export const getSkillCritMultiplier = (critDamage: number | undefined) => {
   const critPower = Math.max(0, critDamage ?? 0);
-  // Збалансована формула: базовий 2.0x + бонус від сили крита
-  const multiplier = 2.0 + critPower / 1500;
-  // Кап: максимум 3.0x для балансу (щоб скіли били ~20к+ замість 100к+)
+  const multiplier = 2.0 + critPower / 1000;
   return Math.min(3.0, multiplier);
 };
 
