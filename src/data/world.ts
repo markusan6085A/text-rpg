@@ -1,6 +1,8 @@
 // src/data/world.ts
 import type { City, Zone, WorldCity } from "./world/types";
-import type { DropEntry } from "./combat/types";
+
+import { USE_L2DOP_WORLD } from "./world/config";
+import { L2DOP_CITIES, L2DOP_ZONES } from "./world/l2dop";
 
 import { FLORAN_CITY, FLORAN_ZONES } from "./world/floran";
 import { DION_CITY, DION_ZONES } from "./world/dion";
@@ -18,8 +20,9 @@ import { SCHUTTGART_CITY, SCHUTTGART_ZONES } from "./world/schuttgart";
 
 // ===== МІСТА =====
 // Рибалка тепер окрема сторінка /fishing (без зони з мобами)
+// USE_L2DOP_WORLD: при true додаються міста/зони з l2dop (реверсійно)
 
-export const cities: City[] = [
+const BASE_CITIES: City[] = [
   FLORAN_CITY,
   GLUDIN_CITY,
   GLUDIO_CITY,
@@ -36,7 +39,7 @@ export const cities: City[] = [
 
 // ===== ЛОКАЦІЇ (окрестности, без мобів у цьому файлі не зберігаємо) =====
 
-export const locations: Zone[] = [
+const BASE_LOCATIONS: Zone[] = [
   ...FLORAN_ZONES,
   ...GLUDIN_ZONES,
   ...GLUDIO_ZONES,
@@ -50,6 +53,9 @@ export const locations: Zone[] = [
   ...GODDARD_ZONES,
   ...SCHUTTGART_ZONES,
 ];
+
+export const cities: City[] = USE_L2DOP_WORLD ? [...BASE_CITIES, ...L2DOP_CITIES] : BASE_CITIES;
+export const locations: Zone[] = USE_L2DOP_WORLD ? [...BASE_LOCATIONS, ...L2DOP_ZONES] : BASE_LOCATIONS;
 
 // ===== WORLD ДЛЯ ЗРУЧНОСТІ (місто + його зони) =====
 
