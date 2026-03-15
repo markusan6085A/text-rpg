@@ -41,6 +41,7 @@ import Forum from "./screens/Forum";
 import Achievements from "./screens/Achievements";
 import Leaderboard from "./screens/Leaderboard";
 import Help from "./screens/Help";
+import ExpTable from "./screens/ExpTable";
 import Settings from "./screens/Settings";
 import News from "./screens/News";
 import SevenSeals from "./screens/SevenSeals";
@@ -473,6 +474,9 @@ function AppInner() {
 
     case "/help":
       return renderWithLayout(<Help navigate={navigate} key={`help-${refreshKey}`} />);
+
+    case "/exp-table":
+      return renderWithLayout(<ExpTable navigate={navigate} key={`exp-table-${refreshKey}`} />);
 
     case "/settings":
       return renderWithLayout(<Settings navigate={navigate} key={`settings-${refreshKey}`} />);
