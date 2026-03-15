@@ -30,7 +30,7 @@ export const FLORAN_MOB_DROP_PROFILES: DropProfile[] = [
       { itemId: "ng_armor_piece", min: 1, max: 3, chance: 0.12 },
       { itemId: "soulshot_ng", min: 20, max: 60, chance: 0.35 },
       { itemId: "spiritshot_ng", min: 15, max: 45, chance: 0.28 },
-      { itemId: "low_potion_hp", min: 1, max: 3, chance: 0.30 },
+      { itemId: "lesser_healing_potion", min: 1, max: 3, chance: 0.30 },
     ],
   },
   {
@@ -41,7 +41,7 @@ export const FLORAN_MOB_DROP_PROFILES: DropProfile[] = [
       { itemId: "d_armor_piece", min: 1, max: 3, chance: 0.14 },
       { itemId: "soulshot_d", min: 40, max: 80, chance: 0.40 },
       { itemId: "spiritshot_d", min: 30, max: 70, chance: 0.33 },
-      { itemId: "medium_potion_hp", min: 1, max: 3, chance: 0.30 },
+      { itemId: "healing_potion", min: 1, max: 3, chance: 0.30 },
     ],
   },
   {
@@ -72,7 +72,7 @@ export const FLORAN_MOB_DROP_PROFILES: DropProfile[] = [
     id: "fl_champion_low", // чемпи 8–25
     items: [
       { itemId: "adena", min: 800, max: 1500, chance: 1.0 },
-      { itemId: "ng_weapon", min: 1, max: 1, chance: 0.08 },
+      { itemId: "ng_sword_piece", min: 1, max: 1, chance: 0.08 },
       { itemId: "d_weapon_piece", min: 2, max: 4, chance: 0.25 },
       { itemId: "d_armor_piece", min: 3, max: 6, chance: 0.30 },
       { itemId: "soulshot_d", min: 120, max: 220, chance: 0.60 },
@@ -83,7 +83,7 @@ export const FLORAN_MOB_DROP_PROFILES: DropProfile[] = [
     id: "fl_champion_mid", // чемпи 26–40
     items: [
       { itemId: "adena", min: 1500, max: 2800, chance: 1.0 },
-      { itemId: "d_weapon", min: 1, max: 1, chance: 0.10 },
+      { itemId: "d_weapon_piece", min: 1, max: 1, chance: 0.10 },
       { itemId: "c_weapon_piece", min: 3, max: 6, chance: 0.28 },
       { itemId: "c_armor_piece", min: 4, max: 8, chance: 0.32 },
       { itemId: "soulshot_c", min: 160, max: 280, chance: 0.60 },
@@ -94,7 +94,7 @@ export const FLORAN_MOB_DROP_PROFILES: DropProfile[] = [
     id: "fl_champion_high", // чемпи 41–50
     items: [
       { itemId: "adena", min: 2500, max: 4000, chance: 1.0 },
-      { itemId: "c_weapon", min: 1, max: 1, chance: 0.12 },
+      { itemId: "c_weapon_piece", min: 1, max: 1, chance: 0.12 },
       { itemId: "b_weapon_piece", min: 3, max: 6, chance: 0.30 },
       { itemId: "b_armor_piece", min: 4, max: 8, chance: 0.34 },
       { itemId: "soulshot_b", min: 200, max: 340, chance: 0.65 },
