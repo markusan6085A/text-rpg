@@ -194,13 +194,19 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (localHasMoreProgress) {
         const reason = localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress');
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
+        // 🔥 merge policy: level = max(local, server) — адмін міг підняти рівень, не відкатувати
+        const finalLevel = Math.max(localLevel, serverLevel);
+        const heroDataForLocal = character.heroJson as any;
+        const serverExpVal = Number(heroDataForLocal?.exp ?? character.exp ?? 0);
+        const finalExp = serverLevel > localLevel ? serverExpVal : Math.max(localExp, serverExpVal);
         // 🔥 КРИТИЧНО: перераховуємо maxHp/maxMp/maxCp по локальному герою (екіп + скіли), інакше після F5 залишається старий max
         // 🔥 Професію/klass беремо з сервера — адмін міг змінити клас, localStorage має стару
-        const heroDataForLocal = character.heroJson as any;
         const serverProfession = heroDataForLocal?.profession ?? heroDataForLocal?.klass;
         const serverKlass = character.classId ?? heroDataForLocal?.classId ?? heroDataForLocal?.klass;
         const heroForLocalRecalc: Hero = {
           ...hydratedLocalHero,
+          level: finalLevel,
+          exp: finalExp,
           profession: (serverProfession && String(serverProfession).trim()) ? String(serverProfession) : hydratedLocalHero.profession,
           klass: (serverKlass && String(serverKlass).trim()) ? String(serverKlass) : hydratedLocalHero.klass,
           skills: Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length > 0 ? heroDataForLocal.skills : hydratedLocalHero.skills,
