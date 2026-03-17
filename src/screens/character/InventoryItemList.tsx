@@ -29,8 +29,10 @@ export default function InventoryItemList({
         <div className="text-center text-gray-400 py-4 text-[10px]">Пусто</div>
       ) : (
         items.map((item: any, idx: number) => {
-          const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
-          const iconPath = item.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
+          const itemKey = item.id ?? item.itemId;
+          const itemDef = itemsDBWithStarter[itemKey] || itemsDB[itemKey];
+          const FALLBACK_ICON = "/items/default_item.png"; // Гарантовано існує
+          const iconPath = item.icon || itemDef?.icon || FALLBACK_ICON;
           const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
           // Конвертуємо XML формат слотів для перевірки (chest -> armor для збігу з equipment)
           let normalizedSlot = item.slot;
@@ -42,19 +44,19 @@ export default function InventoryItemList({
             normalizedSlot = "ring";
           } else if (item.slot === "lhand") {
             // Перевіряємо, чи це щит
-            const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
-            if (itemDef && (itemDef.kind === "shield" || itemDef.kind === "armor")) {
+            const slotDef = itemsDB[itemKey] || itemsDBWithStarter[itemKey];
+            if (slotDef && (slotDef.kind === "shield" || slotDef.kind === "armor")) {
               normalizedSlot = "shield";
             }
           } else if (item.slot === "lrhand") {
             // Перевіряємо, чи це зброя (включаючи удочки)
-            const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
-            if (itemDef && itemDef.kind === "weapon") {
+            const weaponDef = itemsDB[itemKey] || itemsDBWithStarter[itemKey];
+            if (weaponDef && weaponDef.kind === "weapon") {
               normalizedSlot = "weapon";
             }
           }
           
-          const isEquipable = item.id !== OVERFLOW_CHEST_ID && !["all", "consumable", "resource", "quest", "book", "recipe"].includes(normalizedSlot);
+          const isEquipable = itemKey !== OVERFLOW_CHEST_ID && !["all", "consumable", "resource", "quest", "book", "recipe"].includes(normalizedSlot);
           
           // Перевірка чи одягнутий предмет (враховуємо як slot, так і slot_left/slot_right для earring/ring)
           // Для earring та ring перевіряємо, чи обидва слоти зайняті (тоді не показуємо кнопку "Одеть")
@@ -63,7 +65,7 @@ export default function InventoryItemList({
           if (normalizedSlot !== "earring" && normalizedSlot !== "ring") {
             // Для інших слотів перевіряємо стандартним способом
             // Використовуємо normalizedSlot замість item.slot для правильного визначення щитів та зброї
-            isEquipped = hero.equipment?.[normalizedSlot] === item.id;
+            isEquipped = hero.equipment?.[normalizedSlot] === itemKey;
           }
           
           // Діагностика для S-grade кілець
@@ -90,14 +92,14 @@ export default function InventoryItemList({
             // Перевіряємо, чи предмет вже одягнутий в обидва слоти (тоді не показуємо кнопку)
             // Дозволяємо одягати однакові предмети в різні слоти (наприклад, два однакові кільця)
             // Кнопка "Одеть" зникає тільки якщо обидва слоти зайняті цим предметом
-            const leftHasThisItem = leftEquipped === item.id;
-            const rightHasThisItem = rightEquipped === item.id;
+            const leftHasThisItem = leftEquipped === itemKey;
+            const rightHasThisItem = rightEquipped === itemKey;
             
             // Якщо обидва слоти зайняті цим предметом, вважаємо одягнутим
             isEquipped = leftHasThisItem && rightHasThisItem;
             
             // Якщо обидва слоти зайняті іншими предметами (не цим), також не показуємо кнопку
-            if (!isEquipped && leftEquipped && rightEquipped && leftEquipped !== item.id && rightEquipped !== item.id) {
+            if (!isEquipped && leftEquipped && rightEquipped && leftEquipped !== itemKey && rightEquipped !== itemKey) {
               isEquipped = true;
             }
             
@@ -130,12 +132,8 @@ export default function InventoryItemList({
                   alt={item.name}
                   className="w-5 h-5 object-contain"
                   onError={(e) => {
-                    // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
-                    if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
-                      (e.target as HTMLImageElement).src = itemDef.icon;
-                    } else {
-                      (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                    }
+                    // Іконка не завантажилась (404) — показуємо fallback (default_item.png гарантовано існує)
+                    (e.target as HTMLImageElement).src = FALLBACK_ICON;
                   }}
                 />
                 {item.enchantLevel !== undefined && item.enchantLevel > 0 && (
@@ -152,7 +150,7 @@ export default function InventoryItemList({
                   onClick={() => onItemClick(item)}
                   className="text-[#d9d9d9] hover:text-[#f5d7a1] text-[10px] text-left flex-1"
                 >
-                  {item.name}
+                  {item.name || itemDef?.name || itemKey}
                   {!item.name.includes("(NG)") && !item.name.includes("(D)") && !item.name.includes("(C)") && !item.name.includes("(B)") && !item.name.includes("(A)") && !item.name.includes("(S)") && item.grade && (
                     <span className="text-[#9ca3af] ml-1">({item.grade})</span>
                   )}
