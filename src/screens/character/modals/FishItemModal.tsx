@@ -14,6 +14,7 @@ import { QUEST_SHOP_WEAPONS, QUEST_SHOP_SETS, QUEST_SHOP_ACCESSORIES } from "../
 import { CONSUMABLES_SHOP_ITEMS } from "../../../data/shop/consumablesShop";
 import { SHOP_ITEM_ID_MAPPING } from "../../../data/shop/itemMappings";
 import { addItemsWithOverflow } from "../../../state/heroStore/inventoryOverflow";
+import { saveHeroToLocalStorage } from "../../../state/heroStore/heroPersistence";
 
 interface FishItemModalProps {
   item: HeroInventoryItem;
@@ -165,7 +166,7 @@ const ENCHANT_SCROLLS_BY_GRADE: Record<string, string[]> = {
   S: ["s_enchant_weapon_scroll", "s_enchant_armor_scroll"],
 };
 
-// Розділка риби: зброя/броня — шанс за 10 риб; бижутерія, ресурси, скарбничка, заточки — за 1 рибу.
+// Розділка риби: зброя, броня, бижутерія — шанс за 10 риб; ресурси, скарбничка, заточки — за 1 рибу.
 function processFishDrop(fishCount: number): {
   adena: number;
   coinOfLuck: number;
@@ -190,13 +191,14 @@ function processFishDrop(fishCount: number): {
   const armorByGrade = getShopIdsByTypeAndGrade("armor");
   const jewelryByGrade = getShopIdsByTypeAndGrade("jewelry");
 
-  // Зброя і броня — шанс за 10 риб (не за 1)
+  // Зброя, броня і бижутерія — шанс за 10 риб (не за 1), як оружие
   const batchesOf10 = Math.floor(fishCount / 10);
   for (let b = 0; b < batchesOf10; b++) {
     (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
       const chance = GRADE_CHANCE[grade];
       const weaponIds = weaponsByGrade[grade];
       const armorIds = armorByGrade[grade];
+      const jewelryIds = jewelryByGrade[grade];
       if (weaponIds?.length && Math.random() * 100 < chance) {
         const id = weaponIds[Math.floor(Math.random() * weaponIds.length)];
         weapons[id] = (weapons[id] || 0) + 1;
@@ -205,19 +207,15 @@ function processFishDrop(fishCount: number): {
         const id = armorIds[Math.floor(Math.random() * armorIds.length)];
         armorPieces[id] = (armorPieces[id] || 0) + 1;
       }
-    });
-  }
-
-  // Бижутерія, ресурси (без кристалів/LS), скарбничка, заточки — за 1 рибу
-  for (let i = 0; i < fishCount; i++) {
-    (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
-      const chance = GRADE_CHANCE[grade];
-      const jewelryIds = jewelryByGrade[grade];
       if (jewelryIds?.length && Math.random() * 100 < chance) {
         const id = jewelryIds[Math.floor(Math.random() * jewelryIds.length)];
         jewelryPieces[id] = (jewelryPieces[id] || 0) + 1;
       }
     });
+  }
+
+  // Ресурси (без кристалів/LS), скарбничка, заточки — за 1 рибу
+  for (let i = 0; i < fishCount; i++) {
     allResources.forEach((res) => {
       if (res.id.startsWith("crystal_")) return; // Кристали та LS не дропають з риби
       if (Math.random() * 100 < 0.8) resources[res.id] = (resources[res.id] || 0) + 1;
@@ -364,6 +362,10 @@ export default function FishItemModal({
       inventory: finalInventory,
       overflowChest: finalOverflow,
     });
+
+    // Миттєво запускаємо збереження на сервер — щоб дроп не відкатував після F5
+    const heroToSave = useHeroStore.getState().hero;
+    if (heroToSave) saveHeroToLocalStorage(heroToSave).catch(() => {});
 
     // Показуємо результат
     setDismantleResult(result);

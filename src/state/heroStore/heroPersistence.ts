@@ -142,7 +142,7 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
         clearTimeout((saveHeroToLocalStorage as any)._timeoutId);
       }
       
-      (saveHeroToLocalStorage as any)._timeoutId = setTimeout(() => saveHeroToLocalStorage(nextHero), 2000);
+      (saveHeroToLocalStorage as any)._timeoutId = setTimeout(() => saveHeroToLocalStorage(nextHero), 500);
     }
   }
 }
