@@ -105,9 +105,6 @@ export function processMobDrops(
     ? [...floranDrops, ...zoneResourceDrops]
     : zoneResourceDrops;
 
-  // Floran-моби з mob.spoil: завжди дають шанс на спойл (без Auto Spoil), щоб ресурси падали
-  const alwaysSpoilFloran = isFloranMob && mob.spoil && mob.spoil.length > 0;
-  const effectiveSpoiled = spoiled || alwaysSpoilFloran;
 
   // Спочатку перевіряємо загальний шанс дропа
   const hasDrop = Math.random() < (mob.dropChance ?? 0.5);
@@ -237,8 +234,8 @@ export function processMobDrops(
     }
   }
 
-  // Обробляємо спойли (effectiveSpoiled: Auto Spoil або Floran-моб з spoil)
-  if (effectiveSpoiled && mob.spoil && mob.spoil.length > 0) {
+  // Обробляємо спойли — тільки якщо моб спойлений (Auto Spoil, Bounty Hunter)
+  if (spoiled && mob.spoil && mob.spoil.length > 0) {
     // Оновлюємо розмір інвентаря після дропів
     const currentInventorySize = newInventory.filter(Boolean).length;
     const isInventoryFullNow = currentInventorySize >= maxSlots;

@@ -25,7 +25,7 @@ export function AdminSectionLevelExp() {
         return;
       }
       await adminSetLevel(data.character.id, lvl);
-      setMessage(`Рівень встановлено: ${lvl}`);
+      setMessage(`Рівень встановлено: ${lvl}. Гравець має оновити сторінку (F5), щоб побачити зміни.`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
