@@ -751,12 +751,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         }
       }
       // 🔥 КРИТИЧНО: Union-merge інвентаря — ніколи не губити предмети (удочки +1000 тощо)
+      // 🔥 ВИКЛЮЧЕННЯ: Якщо локальний інвентар порожній — користувач натиснув «Очистить», не відновлювати з сервера
       if (localHeroForMerge) {
         const localInv = localHeroForMerge.inventory ?? [];
         const serverInv = hydratedHero.inventory ?? [];
         const localEquip = localHeroForMerge.equipment ?? {};
         const serverEquip = hydratedHero.equipment ?? {};
-        const mergedInv = mergeInventoriesUnion(localInv, serverInv);
+        const mergedInv = localInv.length === 0 ? [] : mergeInventoriesUnion(localInv, serverInv);
         (hydratedHero as any).inventory = mergedInv;
         (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: mergedInv };
         if (localHeroForMerge.adena !== undefined && localHeroForMerge.adena !== null) {
