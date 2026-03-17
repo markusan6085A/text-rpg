@@ -228,7 +228,29 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     
     // 🔥 КРИТИЧНО: expectedRevision з serverState; fallback hero → 0 для першого sync (сервер приймає 0)
     const heroStore = (await import('../heroStore')).useHeroStore;
-    const serverState = heroStore.getState().serverState;
+    let serverState = heroStore.getState().serverState;
+    // 🔥 Якщо serverState є null (наприклад, GET не пройшов при завантаженні) — робимо GET перед save,
+    // щоб мати актуальні exp/level для clamp і не отримати "exp cannot be decreased"
+    if (!serverState && characterStore.characterId) {
+      try {
+        const freshChar = await getCharacter(characterStore.characterId);
+        if (freshChar) {
+          const hj = (freshChar as any).heroJson || {};
+          heroStore.getState().updateServerState({
+            exp: Number(freshChar.exp ?? 0),
+            level: Number(freshChar.level ?? 1),
+            sp: Number(freshChar.sp ?? 0),
+            coinLuck: Number((freshChar as any).coinLuck ?? 0),
+            heroRevision: hj.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? 0,
+            updatedAt: Date.now(),
+          });
+          serverState = heroStore.getState().serverState;
+          console.log('[saveHeroToLocalStorage] Fetched serverState before save (was null):', serverState);
+        }
+      } catch (e) {
+        console.warn('[saveHeroToLocalStorage] Failed to fetch serverState before save:', e);
+      }
+    }
     const expectedRevision = serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? (hero as any)?.heroRevision ?? 0;
     if (expectedRevision === undefined || expectedRevision === null || (typeof expectedRevision === 'number' && Number.isNaN(expectedRevision))) {
       console.warn('[saveHeroToLocalStorage] No serverState.heroRevision — skipping PUT, saving to localStorage only');
@@ -628,10 +650,14 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     }
     
     // 🔥 Обробка "exp/level/sp cannot be decreased" (400) — refetch, merge з max, retry
+    // "top cannot be destroyed/destroed" = можливе спотворення/encoding цього ж повідомлення
+    // "map/rop cannot be destructured" = серверна помилка при парсингу (можливо heroJson)
     const isExpLevelSpDecreased = error?.status === 400 && error?.message && (
       error.message.includes('exp cannot be decreased') ||
       error.message.includes('level cannot be decreased') ||
-      error.message.includes('sp cannot be decreased')
+      error.message.includes('sp cannot be decreased') ||
+      error.message.includes('top cannot be destroy') ||
+      error.message.includes('cannot be destructured')
     );
     // 🔥 Обробка конфлікту ревізії (409 Conflict або revision_conflict)
     if (isExpLevelSpDecreased || error?.status === 409 || (error?.message && (error.message.includes('revision_conflict') || error.message.includes('revision conflict') || error.message.includes('Character was modified')))) {
@@ -831,7 +857,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         return;
     }
     
-    console.error('[saveHeroToLocalStorage] Failed to save hero via API:', error?.message || error);
+    // 🔥 exp/level/sp decreased або cannot be destructured — вже оброблено retry; не логуємо (дані збережені в localStorage)
+    const isHandledSyncError = error?.status === 400 && error?.message && (
+      error.message.includes('cannot be decreased') || error.message.includes('top cannot be destroy') || error.message.includes('cannot be destructured')
+    );
+    if (!isHandledSyncError) {
+      console.error('[saveHeroToLocalStorage] Failed to save hero via API:', error?.message || error);
+    }
     
     // Fallback to localStorage on error - ВАЖЛИВО для збереження даних!
     const current = getJSON<string | null>("l2_current_user", null);
