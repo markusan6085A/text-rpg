@@ -653,7 +653,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Akat_Long_Bow.jpg",
     description: "Довгий лук Акат C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 316, mAtk: 84, rCrit: 12, pAtkSpd: 277, critPower: 30 },
   },
   quest_weapon_c_apprentices_spellbook: {
     id: "quest_weapon_c_apprentices_spellbook",
@@ -663,7 +663,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/apprentices_spellbook.jpg",
     description: "Заклинання учня C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 15, mAtk: 98, rCrit: 4, pAtkSpd: 379, castSpeed: 90 },
+    stats: { pAtk: 9, mAtk: 12, rCrit: 8, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_battle_axe: {
     id: "quest_weapon_c_battle_axe",
@@ -673,7 +673,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Battle_Axe.jpg",
     description: "Бойова сокира C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 107, mAtk: 61, rCrit: 4, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_berserker_blade: {
     id: "quest_weapon_c_berserker_blade",
@@ -683,7 +683,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Berserker_Blade.jpg",
     description: "Клинок берсерка C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 190, mAtk: 83, rCrit: 8, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_big_hammer: {
     id: "quest_weapon_c_big_hammer",
@@ -693,7 +693,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Big_Hammer.jpg",
     description: "Великий молот C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 107, mAtk: 61, rCrit: 4, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_crystal_dagger: {
     id: "quest_weapon_c_crystal_dagger",
@@ -703,7 +703,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Crystal_Dagger.jpg",
     description: "Кришталевий кинджал C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 136, mAtk: 83, rCrit: 12, pAtkSpd: 483, critPower: 30 },
   },
   quest_weapon_c_dark_screamer: {
     id: "quest_weapon_c_dark_screamer",
@@ -713,7 +713,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Dark_Screamer.jpg",
     description: "Темний викрик C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 122, mAtk: 76, rCrit: 12, pAtkSpd: 483, critPower: 30 },
   },
   quest_weapon_c_demon_staff: {
     id: "quest_weapon_c_demon_staff",
@@ -723,7 +723,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Demon_s_Staff.jpg",
     description: "Посох демона C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 152, mAtk: 122, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_dwarven_hammer: {
     id: "quest_weapon_c_dwarven_hammer",
@@ -733,7 +733,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Dwarven_Hammer.jpg",
     description: "Дворфський молот C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 190, mAtk: 83, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_ecliptic_sword: {
     id: "quest_weapon_c_ecliptic_sword",
@@ -743,7 +743,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Ecliptic_Sword.jpg",
     description: "Екліптичний меч C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 125, mAtk: 111, rCrit: 8, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_eminence_bow: {
     id: "quest_weapon_c_eminence_bow",
@@ -753,7 +753,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Eminence_Bow.jpg",
     description: "Лук Еміненс C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 323, mAtk: 83, rCrit: 12, pAtkSpd: 343, critPower: 30 },
   },
   quest_weapon_c_fisted_blade: {
     id: "quest_weapon_c_fisted_blade",
@@ -763,7 +763,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Fisted_Blade.jpg",
     description: "Клинок-рукавиця C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 169, mAtk: 76, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_great_pata: {
     id: "quest_weapon_c_great_pata",
@@ -773,7 +773,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Great_Pata.jpg",
     description: "Велика пата C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 190, mAtk: 83, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_heathens_book: {
     id: "quest_weapon_c_heathens_book",
@@ -783,7 +783,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/heathens_book.jpg",
     description: "Книга язичника C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 111, mAtk: 101, rCrit: 8, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_heavy_doom_axe: {
     id: "quest_weapon_c_heavy_doom_axe",
@@ -793,7 +793,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
     description: "Важка сокира загибелі C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 103, mAtk: 89, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_heavy_doom_hammer: {
     id: "quest_weapon_c_heavy_doom_hammer",
@@ -803,7 +803,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
     description: "Важкий молот загибелі C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 103, mAtk: 89, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_homunkulus_sword: {
     id: "quest_weapon_c_homunkulus_sword",
@@ -813,7 +813,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Homunkulus_s_Sword.jpg",
     description: "Меч гомункула C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 111, mAtk: 101, rCrit: 8, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_knuckle_duster: {
     id: "quest_weapon_c_knuckle_duster",
@@ -823,7 +823,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Knuckle_Duster.jpg",
     description: "Кастет C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 148, mAtk: 68, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_orcish_poleaxe: {
     id: "quest_weapon_c_orcish_poleaxe",
@@ -833,7 +833,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Orcish_Poleaxe.jpg",
     description: "Оркська алебарда C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 156, mAtk: 83, rCrit: 8, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_paagrian_sword: {
     id: "quest_weapon_c_paagrian_sword",
@@ -843,7 +843,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Pa_agrian_Sword.jpg",
     description: "Меч Паагріан C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 169, mAtk: 76, rCrit: 8, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_paagrian_hammer: {
     id: "quest_weapon_c_paagrian_hammer",
@@ -853,7 +853,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
     description: "Молот Паагріан C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 135, mAtk: 111, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_paagrian_axe: {
     id: "quest_weapon_c_paagrian_axe",
@@ -863,7 +863,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
     description: "Сокира Паагріан C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 141, mAtk: 114, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_samurai_longsword: {
     id: "quest_weapon_c_samurai_longsword",
@@ -873,7 +873,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Samurai_Longsword.jpg",
     description: "Довгий меч самурая C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 156, mAtk: 83, rCrit: 8, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_scorpion: {
     id: "quest_weapon_c_scorpion",
@@ -883,7 +883,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Scorpion.jpg",
     description: "Скорпіон C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 144, mAtk: 78, rCrit: 8, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_war_axe: {
     id: "quest_weapon_c_war_axe",
@@ -893,7 +893,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/War_Axe.jpg",
     description: "Військова сокира C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 139, mAtk: 76, rCrit: 4, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_c_widow_maker: {
     id: "quest_weapon_c_widow_maker",
@@ -903,7 +903,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Widow_Maker.jpg",
     description: "Творець вдови C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 144, mAtk: 78, rCrit: 8, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_c_yaksa_mace: {
     id: "quest_weapon_c_yaksa_mace",
@@ -913,7 +913,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Yaksa_Mace.jpg",
     description: "Булава Якса C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 156, mAtk: 83, rCrit: 4, pAtkSpd: 429, critPower: 30 },
   },
 
   // ===== SHOP C-GRADE WEAPONS (Магазин вещей) =====
@@ -925,7 +925,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Akat_Long_Bow.jpg",
     description: "Довгий лук Акат C-grade. Дальня атака.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 316, mAtk: 84, rCrit: 12, pAtkSpd: 227 },
   },
   shop_weapon_c_apprentices_spellbook: {
     id: "shop_weapon_c_apprentices_spellbook",
@@ -935,7 +935,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/apprentices_spellbook.jpg",
     description: "Заклинання учня C-grade. Магічна зброя.",
     grade: "C",
-    stats: { pAtk: 15, mAtk: 98, rCrit: 4, pAtkSpd: 379, castSpeed: 90 },
+    stats: { pAtk: 9, mAtk: 12, rCrit: 8, pAtkSpd: 379 },
   },
   shop_weapon_c_battle_axe: {
     id: "shop_weapon_c_battle_axe",
@@ -945,7 +945,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Battle_Axe.jpg",
     description: "Бойова сокира C-grade.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 107, mAtk: 61, rCrit: 4, pAtkSpd: 379 },
   },
   shop_weapon_c_berserker_blade: {
     id: "shop_weapon_c_berserker_blade",
@@ -955,7 +955,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Berserker_Blade.jpg",
     description: "Клинок берсерка C-grade. Дворучна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 190, mAtk: 83, rCrit: 8, pAtkSpd: 325 },
   },
   shop_weapon_c_big_hammer: {
     id: "shop_weapon_c_big_hammer",
@@ -965,7 +965,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Big_Hammer.jpg",
     description: "Великий молот C-grade.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 107, mAtk: 61, rCrit: 4, pAtkSpd: 379 },
   },
   shop_weapon_c_crystal_dagger: {
     id: "shop_weapon_c_crystal_dagger",
@@ -975,7 +975,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Crystal_Dagger.jpg",
     description: "Кришталевий кинджал C-grade.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 136, mAtk: 83, rCrit: 12, pAtkSpd: 433 },
   },
   shop_weapon_c_dark_screamer: {
     id: "shop_weapon_c_dark_screamer",
@@ -985,7 +985,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Dark_Screamer.jpg",
     description: "Темний викрик C-grade.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 122, mAtk: 76, rCrit: 12, pAtkSpd: 433 },
   },
   shop_weapon_c_demon_staff: {
     id: "shop_weapon_c_demon_staff",
@@ -995,7 +995,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Demon_s_Staff.jpg",
     description: "Посох демона C-grade. Дворучна магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 152, mAtk: 122, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_dwarven_hammer: {
     id: "shop_weapon_c_dwarven_hammer",
@@ -1005,7 +1005,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Dwarven_Hammer.jpg",
     description: "Дворфський молот C-grade. Дворучна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 190, mAtk: 83, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_ecliptic_sword: {
     id: "shop_weapon_c_ecliptic_sword",
@@ -1015,7 +1015,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Ecliptic_Sword.jpg",
     description: "Екліптичний меч C-grade. Магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 125, mAtk: 111, rCrit: 8, pAtkSpd: 379 },
   },
   shop_weapon_c_eminence_bow: {
     id: "shop_weapon_c_eminence_bow",
@@ -1025,7 +1025,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Eminence_Bow.jpg",
     description: "Лук Еміненс C-grade. Дальня атака.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 323, mAtk: 83, rCrit: 12, pAtkSpd: 293 },
   },
   shop_weapon_c_fisted_blade: {
     id: "shop_weapon_c_fisted_blade",
@@ -1035,7 +1035,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Fisted_Blade.jpg",
     description: "Клинок-рукавиця C-grade. Дворучна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 169, mAtk: 76, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_great_pata: {
     id: "shop_weapon_c_great_pata",
@@ -1045,7 +1045,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Great_Pata.jpg",
     description: "Велика пата C-grade. Дворучна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 190, mAtk: 83, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_heathens_book: {
     id: "shop_weapon_c_heathens_book",
@@ -1055,7 +1055,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/heathens_book.jpg",
     description: "Книга язичника C-grade. Магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 111, mAtk: 101, rCrit: 8, pAtkSpd: 379 },
   },
   shop_weapon_c_heavy_doom_axe: {
     id: "shop_weapon_c_heavy_doom_axe",
@@ -1065,7 +1065,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
     description: "Важка сокира загибелі C-grade. Дворучна магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 103, mAtk: 89, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_heavy_doom_hammer: {
     id: "shop_weapon_c_heavy_doom_hammer",
@@ -1075,7 +1075,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
     description: "Важкий молот загибелі C-grade. Дворучна магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 103, mAtk: 89, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_homunkulus_sword: {
     id: "shop_weapon_c_homunkulus_sword",
@@ -1085,7 +1085,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Homunkulus_s_Sword.jpg",
     description: "Меч гомункула C-grade. Магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 111, mAtk: 101, rCrit: 8, pAtkSpd: 379 },
   },
   shop_weapon_c_knuckle_duster: {
     id: "shop_weapon_c_knuckle_duster",
@@ -1095,7 +1095,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Knuckle_Duster.jpg",
     description: "Кастет C-grade. Дворучна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 148, mAtk: 68, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_orcish_poleaxe: {
     id: "shop_weapon_c_orcish_poleaxe",
@@ -1105,7 +1105,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Orcish_Poleaxe.jpg",
     description: "Оркська алебарда C-grade. Дальня атака (спис).",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 156, mAtk: 83, rCrit: 8, pAtkSpd: 325 },
   },
   shop_weapon_c_paagrian_sword: {
     id: "shop_weapon_c_paagrian_sword",
@@ -1115,7 +1115,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Pa_agrian_Sword.jpg",
     description: "Меч Паагріан C-grade. Дворучна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 169, mAtk: 76, rCrit: 8, pAtkSpd: 325 },
   },
   shop_weapon_c_paagrian_hammer: {
     id: "shop_weapon_c_paagrian_hammer",
@@ -1125,7 +1125,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
     description: "Молот Паагріан C-grade. Дворучна магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 135, mAtk: 111, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_paagrian_axe: {
     id: "shop_weapon_c_paagrian_axe",
@@ -1135,7 +1135,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
     description: "Сокира Паагріан C-grade. Дворучна магічна зброя.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 141, mAtk: 114, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_c_samurai_longsword: {
     id: "shop_weapon_c_samurai_longsword",
@@ -1145,7 +1145,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Samurai_Longsword.jpg",
     description: "Довгий меч самурая C-grade.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 156, mAtk: 83, rCrit: 8, pAtkSpd: 379 },
   },
   shop_weapon_c_scorpion: {
     id: "shop_weapon_c_scorpion",
@@ -1155,7 +1155,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Scorpion.jpg",
     description: "Скорпіон C-grade. Дальня атака (спис).",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 144, mAtk: 78, rCrit: 8, pAtkSpd: 325 },
   },
   shop_weapon_c_war_axe: {
     id: "shop_weapon_c_war_axe",
@@ -1165,7 +1165,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/War_Axe.jpg",
     description: "Військова сокира C-grade.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 139, mAtk: 76, rCrit: 4, pAtkSpd: 379 },
   },
   shop_weapon_c_widow_maker: {
     id: "shop_weapon_c_widow_maker",
@@ -1175,7 +1175,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Widow_Maker.jpg",
     description: "Творець вдови C-grade. Дальня атака (спис).",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 144, mAtk: 78, rCrit: 8, pAtkSpd: 325 },
   },
   shop_weapon_c_yaksa_mace: {
     id: "shop_weapon_c_yaksa_mace",
@@ -1185,7 +1185,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/Yaksa_Mace.jpg",
     description: "Булава Якса C-grade.",
     grade: "C",
-    stats: { pAtk: 78, mAtk: 15, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 156, mAtk: 83, rCrit: 4, pAtkSpd: 379 },
   },
 
   // ===== SHOP JEWELRY C-GRADE (Магазин вещей) =====
