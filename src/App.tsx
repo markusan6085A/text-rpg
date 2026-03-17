@@ -260,7 +260,6 @@ function AppInner() {
         }
 
         // 3) Визначаємо "легкі" сторінки
-        const pathname = window.location.pathname;
         const isLightPage = pathname.startsWith('/mail') || 
                            pathname.startsWith('/about') || 
                            pathname.startsWith('/forum');
