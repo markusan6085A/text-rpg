@@ -129,7 +129,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
             return (
               <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2">
                 <img src="/assets/gk.jpg" alt={currentCity?.name} className="w-6 h-6 object-contain" />
-                <span className="font-semibold">{currentCity?.name || "Floran"}</span>
+                <span className="font-semibold">{currentCity?.name || "—"}</span>
               </div>
             );
           })()}

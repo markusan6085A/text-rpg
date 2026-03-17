@@ -39,14 +39,14 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
     (hero?.heroJson as any)?.currentCityId ||
     getPreviousCity() ||
     WORLD_CITIES.find((c) => c.id === "floran")?.id ||
-    WORLD_CITIES[0].id;
+    WORLD_CITIES[0]?.id;
 
   const [selectedCityId, setSelectedCityId] = React.useState(defaultCityId);
 
   const selectedCity =
     WORLD_CITIES.find((c) => c.id === selectedCityId) || WORLD_CITIES[0];
 
-  const zones = getZonesByCity(selectedCity.id);
+  const zones = selectedCity ? getZonesByCity(selectedCity.id) : [];
 
   const handleCityChange = (cityId: string) => {
     setSelectedCityId(cityId);
@@ -63,7 +63,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   const goToZone = (zoneId: string) => {
     // 🔥 Зберігаємо поточне місто — щоб City та ТП пам'ятали останнє місто
-    savePreviousCity(selectedCity.id);
+    if (selectedCity) savePreviousCity(selectedCity.id);
     // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
     window.scrollTo(0, 0);
     // 🔥 Очищаємо попередню локацію при виході з міста через телепорт
@@ -82,7 +82,11 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         
         {/* Статус */}
         <div className="text-gray-400 mb-3 text-xs border-b border-solid border-white/50 pb-2">
-          Вы в городе <span className="text-[#ff8c00]">{selectedCity.name}</span>.
+          {selectedCity ? (
+            <>Вы в городе <span className="text-[#ff8c00]">{selectedCity.name}</span>.</>
+          ) : (
+            <>Немає міст. Світ очищено — будемо будувати з нуля.</>
+          )}
         </div>
         
         {/* Кнопка Квести та кв-шоп — дві окремі рамки */}
@@ -118,7 +122,11 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         <div className="mb-3">
           <div className="text-[#c7ad80] mb-1 text-xs">Города:</div>
           <div className="space-y-0.5">
-            {WORLD_CITIES.map((city) => {
+            {WORLD_CITIES.length === 0 ? (
+              <div className="text-[#c7ad80]/60 text-xs">
+                Немає міст. Світ очищено — будемо будувати з нуля.
+              </div>
+            ) : WORLD_CITIES.map((city) => {
               const iconPath = CITY_ICONS[city.id] || CITY_ICONS_BY_NAME[city.name] || "/icons/castle.png";
               return (
                 <div
@@ -138,7 +146,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
           </div>
         </div>
 
-        {/* Локации */}
+        {/* Локации — показуємо тільки якщо є вибране місто */}
+        {selectedCity && (
         <div className="mb-3">
           <div className="text-[#c7ad80] mb-1 text-xs">Локации:</div>
           <div className="space-y-0.5">
@@ -167,6 +176,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
             )}
           </div>
         </div>
+        )}
     </div>
   );
 }
