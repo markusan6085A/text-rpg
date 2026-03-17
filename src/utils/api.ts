@@ -281,6 +281,15 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
   return response.character;
 }
 
+/** Оновити тільки inventory/overflowChest (без exp/level — щоб куплені предмети зберігались при 400) */
+export async function updateInventoryAPI(characterId: string, data: { inventory?: any[]; overflowChest?: any[] }): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(`/characters/${encodeURIComponent(characterId)}/inventory`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+  return response.character;
+}
+
 /** Очистити інвентар на сервері (окремий ендпоінт — без exp/level, уникаємо "exp cannot be decreased") */
 export async function clearInventoryAPI(characterId: string): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/${encodeURIComponent(characterId)}/inventory/clear`, {

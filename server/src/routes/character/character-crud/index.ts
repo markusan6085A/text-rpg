@@ -92,6 +92,83 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     }
   });
 
+  // PUT /characters/:id/inventory — оновити тільки inventory/overflowChest (без exp/level/sp, щоб куплені предмети зберігались)
+  app.put("/characters/:id/inventory", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const id = params.id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as { inventory?: any[]; overflowChest?: any[] };
+    const inventory = Array.isArray(body.inventory) ? body.inventory : undefined;
+    const overflowChest = Array.isArray(body.overflowChest) ? body.overflowChest : undefined;
+    if (inventory === undefined && overflowChest === undefined) {
+      return reply.code(400).send({ error: "inventory or overflowChest required" });
+    }
+
+    const existing = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!existing) return reply.code(404).send({ error: "character not found" });
+
+    const oldHeroJson = (existing.heroJson as any) || {};
+    const baseJson = {
+      name: oldHeroJson.name || existing.name,
+      race: oldHeroJson.race || existing.race,
+      classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+      klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+      level: oldHeroJson.level ?? existing.level ?? 1,
+    };
+    const newHeroJson = {
+      ...baseJson,
+      ...oldHeroJson,
+      ...(inventory !== undefined ? { inventory } : {}),
+      ...(overflowChest !== undefined ? { overflowChest } : {}),
+    };
+    const validation = validateHeroJson(newHeroJson);
+    if (!validation.valid) {
+      return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
+    }
+
+    const oldRevision = oldHeroJson.heroRevision || 0;
+    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+    try {
+      const updated = await prisma.character.update({
+        where: { id },
+        data: {
+          heroJson: versionedHeroJson as any,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true, name: true, race: true, classId: true, sex: true,
+          level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
+          heroJson: true, createdAt: true, updatedAt: true,
+        },
+      });
+
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+      };
+
+      app.log.info({ accountId: auth.accountId, characterId: id, invLen: inventory?.length ?? 0 }, "[PUT /characters/:id/inventory] Inventory updated");
+      return { ok: true, character: serialized };
+    } catch (e: any) {
+      app.log.error(e, `[PUT /characters/:id/inventory] Error for character ${id}`);
+      return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
+  });
+
   // PUT /characters/:id/inventory/clear — очистити інвентар без exp/level/sp (уникаємо "exp cannot be decreased")
   app.put("/characters/:id/inventory/clear", {
     preHandler: async (req, reply) => {

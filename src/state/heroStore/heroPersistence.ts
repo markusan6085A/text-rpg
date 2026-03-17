@@ -10,7 +10,7 @@
  * App/Landing/Register НІКОЛИ не пишуть hero в l2_accounts_v2.
  */
 import type { Hero } from "../../types/Hero";
-import { updateCharacter, getCharacter } from "../../utils/api";
+import { updateCharacter, getCharacter, updateInventoryAPI } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
@@ -671,8 +671,22 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // Ігноруємо якщо це просто конфлікт при фоновому збереженні
       // Ми не хочемо спамити користувачу alert-ами
       if (retryCount >= MAX_RETRIES) {
-          // console.warn('[saveHeroToLocalStorage] Max retries reached for revision conflict, skipping to avoid infinite loop');
-          return;
+        // 🔥 КРИТИЧНО: При exp error — зберігаємо хоча б inventory (куплені предмети не зникнуть після F5)
+        if (isExpLevelSpDecreased) {
+          const cs = useCharacterStore.getState();
+          if (cs.characterId) {
+            const source = (await import('../heroStore')).useHeroStore.getState().hero ?? hero;
+            const inv = Array.isArray(source?.inventory) ? source.inventory : [];
+            const chest = Array.isArray((source as any)?.overflowChest) ? (source as any).overflowChest : [];
+            try {
+              await updateInventoryAPI(cs.characterId, { inventory: inv, overflowChest: chest });
+              console.log('[saveHeroToLocalStorage] Saved inventory via fallback (exp error)');
+            } catch (e) {
+              console.warn('[saveHeroToLocalStorage] Inventory fallback failed:', e);
+            }
+          }
+        }
+        return;
       }
       retryCount++;
       // console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
