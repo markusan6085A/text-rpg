@@ -38,7 +38,6 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
     q.get("city") ||
     (hero?.heroJson as any)?.currentCityId ||
     getPreviousCity() ||
-    WORLD_CITIES.find((c) => c.id === "floran")?.id ||
     WORLD_CITIES[0]?.id;
 
   const [selectedCityId, setSelectedCityId] = React.useState(defaultCityId);
