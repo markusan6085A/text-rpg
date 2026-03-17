@@ -32,6 +32,7 @@ export function useCharacterRealtime() {
           const exp = Number(newRow.exp ?? 0);
           const level = Number(newRow.level ?? 1);
           const sp = Number(newRow.sp ?? 0);
+          const adena = Number(newRow.adena ?? 0);
           const heroJson = newRow.heroJson as Record<string, unknown> | undefined;
           const heroRevision = heroJson && typeof heroJson === "object" ? (heroJson as any).heroRevision : undefined;
 
@@ -43,9 +44,11 @@ export function useCharacterRealtime() {
             heroRevision,
             updatedAt: Date.now(),
           });
+          // 🔥 Адена: адмін/інший пристрій оновив — відображаємо одразу (без F5)
+          useHeroStore.getState().updateHero({ adena } as any);
 
           if (import.meta.env.DEV) {
-            console.log("[CharacterRealtime] Character updated from DB:", { exp, level, sp });
+            console.log("[CharacterRealtime] Character updated from DB:", { exp, level, sp, adena });
           }
         }
       )

@@ -32,11 +32,11 @@ export function AdminSectionAdena() {
       const { character } = data;
       if (mode === "set") {
         await adminAdena(character.id, undefined, num);
-        setMessage(`Адену встановлено: ${num}`);
+        setMessage(`Адену встановлено: ${num} для [${character.name}] (id: ${character.id}). Гравцю потрібно F5.`);
       } else {
         const delta = mode === "give" ? num : -num;
         const res = await adminAdena(character.id, delta);
-        setMessage(`Готово. Адена: ${res.adena ?? "—"}`);
+        setMessage(`Готово. [${character.name}] (id: ${character.id}) — адена: ${res.adena ?? "—"}. Гравцю потрібно F5.`);
       }
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
@@ -49,7 +49,7 @@ export function AdminSectionAdena() {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Адена</h2>
-      <p className="text-xs text-gray-500 mb-2">Выдать, снять или установить точное количество адены.</p>
+      <p className="text-xs text-gray-500 mb-2">Выдать, снять или установить точное количество адены. Гравцю потрібно F5, щоб побачити зміни.</p>
       <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
         <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />
         {(["give", "take", "set"] as const).map((m) => (
