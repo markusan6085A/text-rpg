@@ -189,9 +189,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const localHasMoreInvOrEquip = localInvLen > serverInvLen || localEquipKeys.length > serverEquipKeys.length;
       // 🔥 КРИТИЧНО: Якщо користувач зняв екіп (ботинки, плащ тощо) — локально менше слотів, сервер має старі. Лишаємо локальну версію.
       const localHasExplicitlyUnequipped = localEquipKeys.length < serverEquipKeys.length && localLastSavedAt > 0;
+      // 🔥 УНІВЕРСАЛЬНО: Якщо локаль відрізняється від сервера (екіп/інвентар/бафи) і є збереження — пріоритет локальній версії. F5 ніколи не відкатує прогрес.
+      const localDiffersFromServer =
+        localLastSavedAt > 0 &&
+        (localEquipKeys.length !== serverEquipKeys.length ||
+          localInvLen !== serverInvLen ||
+          localActiveBuffsCount !== serverActiveBuffsCount);
 
       const localHasMoreProgress =
         localNewerByTimestamp ||
+        localDiffersFromServer ||
         localHasActiveBuffsNotOnServer ||
         localHasExplicitlyUnequipped ||
         localHasMoreInvOrEquip ||
@@ -203,7 +210,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         localMobsKilled > serverMobsKilled;
 
       if (localHasMoreProgress) {
-        const reason = localHasExplicitlyUnequipped ? 'local unequipped (fewer slots)' : (localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress'));
+        const reason = localDiffersFromServer ? 'local differs from server (equip/inv/buffs)' : (localHasExplicitlyUnequipped ? 'local unequipped (fewer slots)' : (localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress')));
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
         // 🔥 merge policy: level = max(local, server) — адмін міг підняти рівень, не відкатувати
         const finalLevel = Math.max(localLevel, serverLevel);
