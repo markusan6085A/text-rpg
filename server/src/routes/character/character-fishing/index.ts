@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import path from "path";
 import { prisma } from "../../../db";
+import { processFishDrop, buildItemsFromDrop } from "../../../fishDismantle";
 import { getAuth } from "../auth";
 import { addVersioning } from "../../../heroJsonValidator";
 import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
@@ -305,20 +305,12 @@ export async function characterFishingRoutes(app: FastifyInstance) {
     if (!id) return reply.code(400).send({ error: "character id required" });
 
     const body = req.body as any;
-    const itemId = body?.itemId ?? "fish_seawater";
-    const amount = Math.max(1, Math.min(9999, Math.floor(Number(body?.amount) ?? 1)));
+    // Підтримка body як об'єкт { itemId, amount } або масив [{ itemId, amount }]
+    const payload = Array.isArray(body) ? body[0] : body;
+    const itemId = payload?.itemId ?? body?.itemId ?? "fish_seawater";
+    const amount = Math.max(1, Math.min(9999, Math.floor(Number(payload?.amount ?? body?.amount ?? 1))));
 
     try {
-      const fromServer = path.join(path.resolve(process.cwd(), ".."), "src", "utils", "fishDismantle");
-      const fromRoot = path.join(process.cwd(), "src", "utils", "fishDismantle");
-      const fishDismantlePath = fromServer;
-      const mod = await import(/* @vite-ignore */ fishDismantlePath + ".ts").catch(() =>
-        import(/* @vite-ignore */ fishDismantlePath + ".js").catch(() =>
-          import(/* @vite-ignore */ fromRoot + ".ts")
-        )
-      );
-      const { processFishDrop, buildItemsFromDrop } = mod;
-
       const owner = await prisma.character.findFirst({
         where: { id, accountId: auth.accountId },
         select: { id: true },
