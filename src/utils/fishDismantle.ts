@@ -22,23 +22,9 @@ const ENCHANT_SCROLLS_BY_GRADE: Record<string, string[]> = {
   S: ["s_enchant_weapon_scroll", "s_enchant_armor_scroll"],
 };
 
+/** Ресурси для дропу з риби — порожньо, починаємо з нуля */
 function getAllResources(): ItemDefinition[] {
-  const resources: ItemDefinition[] = [];
-  Object.values(itemsDB).forEach((item) => {
-    if (
-      item.kind === "resource" &&
-      !item.id.startsWith("fish_") &&
-      !item.id.startsWith("quest_") &&
-      !item.id.includes("enchant_weapon_scroll") &&
-      !item.id.includes("enchant_armor_scroll") &&
-      !item.id.includes("blessed_scroll_enchant") &&
-      item.slot !== "quest" &&
-      !CURRENCY_IDS.has(item.id)
-    ) {
-      resources.push(item);
-    }
-  });
-  return resources;
+  return [];
 }
 
 function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
@@ -122,11 +108,7 @@ export function processFishDrop(fishCount: number): FishDropResult {
   }
 
   for (let i = 0; i < fishCount; i++) {
-    allResources.forEach((res) => {
-      if (res.id.startsWith("crystal_")) return;
-      if (Math.random() * 100 < 0.8) resources[res.id] = (resources[res.id] || 0) + 1;
-    });
-    if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
+    // Ресурси та скарбничка видалені — починаємо з нуля
     if (Math.random() * 100 < 0.4) {
       const grade = Math.random() < 0.7 ? "D" : "C";
       const scrolls = ENCHANT_SCROLLS_BY_GRADE[grade];

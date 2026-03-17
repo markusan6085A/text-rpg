@@ -340,7 +340,7 @@ export default function FishItemModal({
                 <div className="space-y-1">
                   {dismantleResult.resources.map(({ id, count }) => {
                       const resourceDef = itemsDB[id];
-                      const iconPath = resourceDef?.icon ? normalizeIconPath(resourceDef.icon) : `/items/drops/resourcesss/${resourceIdToFilename(id)}.jpg`;
+                      const iconPath = resourceDef?.icon ? normalizeIconPath(resourceDef.icon) : `/items/drops/resources/${resourceIdToFilename(id)}.jpg`;
                       return (
                         <div key={id} className="flex items-center gap-2">
                           <img

@@ -247,7 +247,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                       alt={item.dyeInfo?.name}
                       className="w-10 h-10 object-contain"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
+                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
                     <div className="flex-1">
@@ -313,7 +313,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                       className="flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20"
                     >
                       <img
-                        src={dyeInfo?.icon || "/items/drops/resourcesss/etc_ancient_adena_i00.png"}
+                        src={dyeInfo?.icon || "/items/drops/resources/etc_ancient_adena_i00.png"}
                         alt={dyeInfo?.name || dye.id}
                         className="w-10 h-10 object-contain"
                       />

@@ -1,23 +1,10 @@
 // src/data/world/l2dop/zones.ts
-// Локації (зони) з мобами з l2dop — підключаються при USE_L2DOP_WORLD = true
+// Локації (зони) з l2dop — моби видалені, починаємо з нуля
 
 import type { Zone } from "../types";
-import {
-  L2DOP_GLUDIO_POOL,
-  L2DOP_ADEN_POOL,
-  fillZoneMobs,
-  getGludioL2DopChampions,
-  getAdenL2DopChampions,
-  getGludioRaidBossesForZone,
-  getAdenRaidBossesForZone,
-  shuffleMobsRandomly,
-  L2DOP_GIRAN03_2321_MOBS,
-} from "./mobs";
 
 /**
- * Локації з l2dop (місто → зони з мобами, дроп, спойл).
- * ID зон починаються з "l2dop_" для коректної роботи DISABLE_OUR_RESOURCES.
- * 8 окрестностей Gludio: 30–200 мобів, 10–20 видів у кожній (детерміновано).
+ * Локації з l2dop (місто → зони). Моби видалені — будуть додані заново.
  */
 export const L2DOP_ZONES: Zone[] = [
   ...[
@@ -36,12 +23,7 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: z.min,
     maxLevel: z.max,
     tpCost: z.tp,
-    mobs: shuffleMobsRandomly(
-      fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 200, 10, 20),
-      getGludioL2DopChampions(z.id, z.min, z.max),
-      getGludioRaidBossesForZone(z.id),
-      z.id
-    ),
+    mobs: [],
   })),
   {
     id: "l2dop_giran03_2321_15",
@@ -50,9 +32,8 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: 55,
     maxLevel: 65,
     tpCost: 25000,
-    mobs: L2DOP_GIRAN03_2321_MOBS,
+    mobs: [],
   },
-  // 8 зон Aden (лвл 40–65)
   ...[
     { id: "l2dop_aden_01", name: "Aden — Окрестность (L2)", min: 40, max: 44, tp: 15000 },
     { id: "l2dop_aden_02", name: "Aden — Долина Вигнанців (L2)", min: 42, max: 48, tp: 16500 },
@@ -69,11 +50,6 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: z.min,
     maxLevel: z.max,
     tpCost: z.tp,
-    mobs: shuffleMobsRandomly(
-      fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 200, 10, 20),
-      getAdenL2DopChampions(z.id, z.min, z.max),
-      getAdenRaidBossesForZone(z.id),
-      z.id
-    ),
+    mobs: [],
   })),
 ];

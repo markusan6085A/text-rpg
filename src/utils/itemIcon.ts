@@ -1,6 +1,6 @@
 /**
  * Утиліти для іконок предметів.
- * Єдина папка для іконок ресурсів: /items/drops/resourcesss/ (не resources).
+ * Ресурси: /items/drops/resources/; fallback на resourcesss при 404.
  */
 
 /** Аліаси id -> filename для ресурсів без запису в itemsDB */
@@ -23,7 +23,25 @@ export function normalizeIconPath(icon: string | undefined): string {
 
 export const FALLBACK_ICON = "/items/drops/Weapon_squires_sword_i00_0.jpg";
 
-/** Обробник onError для img: показує fallback при помилці завантаження */
+/** Якщо шлях з resources і не завантажився — повертає той самий шлях з resourcesss */
+function getResourceFallbackPath(path: string): string {
+  if (path.includes("/drops/resources/")) {
+    return path.replace("/drops/resources/", "/drops/resourcesss/");
+  }
+  return path;
+}
+
+/** Обробник onError: спочатку пробує resourcesss (якщо шлях з resources), інакше fallback-іконка */
 export function handleResourceIconError(e: React.SyntheticEvent<HTMLImageElement>): void {
-  (e.target as HTMLImageElement).src = FALLBACK_ICON;
+  const img = e.target as HTMLImageElement;
+  if (img.src.includes("/drops/resourcesss/") || img.src.includes(FALLBACK_ICON)) {
+    img.src = FALLBACK_ICON;
+    return;
+  }
+  const fallback = getResourceFallbackPath(img.src);
+  if (fallback !== img.src) {
+    img.src = fallback;
+  } else {
+    img.src = FALLBACK_ICON;
+  }
 }

@@ -87,14 +87,19 @@ export function setLastPutAt(): void {
 }
 
 // Ensure we clean up on module reload (HMR) or if we ever unmount
-// 🔥 КРИТИЧНО: перед виходом зробити sync save в localStorage, щоб HP/MP/CP не відновлювалися при F5
+// 🔥 КРИТИЧНО: перед виходом (F5) завжди sync save поточного героя в localStorage
+// Інакше loadHeroFromAPI перезапише store серверними даними (без lastSavedAt), і зміни відкатуються
 if (typeof window !== "undefined") {
   window.addEventListener("beforeunload", () => {
     if (saveTimeout) clearTimeout(saveTimeout);
     if (criticalSaveTimeout) clearTimeout(criticalSaveTimeout);
-    if (pendingSave && !resurrectInProgress) {
+    if (!resurrectInProgress) {
       try {
-        saveHeroToLocalStorageOnly(pendingSave);
+        // Беремо найновішу версію: pendingSave (останній scheduled) або current hero зі store
+        const heroToSave = pendingSave ?? useHeroStore.getState().hero;
+        if (heroToSave) {
+          saveHeroToLocalStorageOnly(heroToSave);
+        }
       } catch (_) {}
     }
   });
