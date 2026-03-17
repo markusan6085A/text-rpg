@@ -10,6 +10,9 @@ export function getSetInfo(item: any): string | null {
   const set = findSetForItem(item.id);
   if (!set) return null;
 
+  // Нічого не показуємо — бонуси відключені
+  if (!set.bonuses.fullSet && (!set.bonuses.partialSet || set.bonuses.partialSet.length === 0)) return null;
+
   let result = `Сет: ${set.name} [${set.grade}]\n\n`;
   
   // Список частин сету

@@ -338,13 +338,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     console.log('[loadHeroFromAPI] mobsKilled from heroJson:', mobsKilledFromData, 'heroData keys:', heroData ? Object.keys(heroData).slice(0, 20) : 'no heroData');
     
     // Нормалізуємо слот інвентаря з itemsDB (адмінка дає slot "inventory" або "other" — підставляємо правильний)
+    // Міграція: видаляємо stats з предметів (бонуси відключені, щоб після F5 не поверталися)
     if (heroData?.inventory && Array.isArray(heroData.inventory)) {
       heroData.inventory = heroData.inventory.map((it: any) => {
-        if (it.slot === "inventory" || !it.slot) {
-          const def = itemsDB[it.id || it.itemId] || itemsDBWithStarter[it.id || it.itemId];
-          if (def) return { ...it, slot: def.slot || "other", name: it.name || def.name };
+        const { stats: _s, ...rest } = it;
+        const normalized = rest;
+        if (normalized.slot === "inventory" || !normalized.slot) {
+          const def = itemsDB[normalized.id || normalized.itemId] || itemsDBWithStarter[normalized.id || normalized.itemId];
+          if (def) return { ...normalized, slot: def.slot || "other", name: normalized.name || def.name };
         }
-        return it;
+        return normalized;
       });
       console.log('[loadHeroFromAPI] Inventory found in heroJson:', {
         count: heroData.inventory.length,

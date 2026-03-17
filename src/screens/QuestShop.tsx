@@ -378,11 +378,11 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       if (bonuses.accuracy) bonusesList.push(`+${bonuses.accuracy} Точність`);
     }
 
-    let result = `\n\n[Сет: ${set.name}]\n`;
-    if (bonusesList.length > 0) {
-      result += `Повний сет: ${bonusesList.join(", ")}\n`;
-    }
+    // Нічого не показуємо, якщо немає бонусів
+    if (bonusesList.length === 0) return null;
 
+    let result = `\n\n[Сет: ${set.name}]\n`;
+    result += `Повний сет: ${bonusesList.join(", ")}\n`;
     return result;
   };
 
@@ -415,7 +415,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-1">
         У вас с собой{" "}
         <img 
-          src="/items/drops/resourcesss/etc_coins_silver_i00.png" 
+          src="/items/drops/resources/etc_coins_silver_i00.png" 
           alt="Серебряные Монеты" 
           className="w-4 h-4 object-contain"
           onError={(e) => {
@@ -575,12 +575,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
             >
               <div className="flex items-center gap-2">
-                <img src="/items/drops/resourcesss/aden.png" alt="Адена" className="w-5 h-5 object-contain" />
+                <img src="/items/drops/resources/aden.png" alt="Адена" className="w-5 h-5 object-contain" />
                 <span className="text-[12px] text-[#e0c68a]">Адена</span>
                 <span className="text-[12px] text-yellow-400 font-semibold">50,000</span>
               </div>
               <div className="flex items-center gap-1">
-                <img src="/items/drops/resourcesss/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
+                <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
                 <span className="text-[12px] text-gray-400">10 Серебряных Монет</span>
               </div>
             </button>
@@ -601,12 +601,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
             >
               <div className="flex items-center gap-2">
-                <img src="/items/drops/resourcesss/exp_.png" alt="Опыт" className="w-5 h-5 object-contain" />
+                <img src="/items/drops/resources/exp_.png" alt="Опыт" className="w-5 h-5 object-contain" />
                 <span className="text-[12px] text-[#e0c68a]">Опыт</span>
                 <span className="text-[12px] text-green-400 font-semibold">100,000</span>
               </div>
               <div className="flex items-center gap-1">
-                <img src="/items/drops/resourcesss/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
+                <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
                 <span className="text-[12px] text-gray-400">10 Серебряных Монет</span>
               </div>
             </button>
@@ -627,12 +627,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
             >
               <div className="flex items-center gap-2">
-                <img src="/items/drops/resourcesss/sp_SP.png" alt="SP" className="w-5 h-5 object-contain" />
+                <img src="/items/drops/resources/sp_SP.png" alt="SP" className="w-5 h-5 object-contain" />
                 <span className="text-[12px] text-[#e0c68a]">SP</span>
                 <span className="text-[12px] text-blue-400 font-semibold">50,000</span>
               </div>
               <div className="flex items-center gap-1">
-                <img src="/items/drops/resourcesss/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
+                <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
                 <span className="text-[12px] text-gray-400">10 Серебряных Монет</span>
               </div>
             </button>
@@ -653,12 +653,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
             >
               <div className="flex items-center gap-2">
-                <img src="/items/drops/resourcesss/monets.png" alt="Coin of Luck" className="w-5 h-5 object-contain" />
+                <img src="/items/drops/resources/monets.png" alt="Coin of Luck" className="w-5 h-5 object-contain" />
                 <span className="text-[12px] text-[#e0c68a]">Coin of Luck</span>
                 <span className="text-[12px] text-[#ffd700] font-semibold">1</span>
               </div>
               <div className="flex items-center gap-1">
-                <img src="/items/drops/resourcesss/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
+                <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-4 h-4 object-contain" />
                 <span className="text-[12px] text-gray-400">10 Серебряных Монет</span>
               </div>
             </button>
@@ -854,7 +854,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             {/* Ціни */}
             <div className="text-yellow-400 text-[12px] mb-1 flex items-center gap-1">
               Цена: {selectedItem.price} 
-              <img src="/items/drops/resourcesss/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
+              <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
             </div>
 
             {/* ID предмета */}
@@ -899,7 +899,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               </div>
               <div className="text-yellow-400 text-[12px] mb-2 flex items-center gap-1">
                 Итого: {selectedItem.price * buyQuantity} 
-                <img src="/items/drops/resourcesss/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
+                <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
               </div>
             </div>
 

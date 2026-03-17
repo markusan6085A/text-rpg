@@ -15,10 +15,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 15000000,
     bodypart: "head",
     icon: "/items/drops/arrom_s/Major_Arcana_Circlet.jpg",
-    stats: {
-      pDef: 200,
-      mDef: 160,
-    },
     description: "Діадема великої аркани S-grade (Major Arcana Set).",
   },
   {
@@ -31,10 +27,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 25000000,
     bodypart: "chest",
     icon: "/items/drops/arrom_s/Major_Arcana_Robe.jpg",
-    stats: {
-      pDef: 280,
-      mDef: 230,
-    },
     description: "Мантія великої аркани S-grade (Major Arcana Set).",
   },
   {
@@ -47,10 +39,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 10000000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_s/Major_Arcana_Gloves.jpg",
-    stats: {
-      pDef: 120,
-      mDef: 100,
-    },
     description: "Рукавиці великої аркани S-grade (Major Arcana Set).",
   },
   {
@@ -63,10 +51,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 9000000,
     bodypart: "feet",
     icon: "/items/drops/arrom_s/Major_Arcana_Boots.jpg",
-    stats: {
-      pDef: 110,
-      mDef: 90,
-    },
     description: "Черевики великої аркани S-grade (Major Arcana Set).",
   },
 
@@ -81,9 +65,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12000000,
     bodypart: "head",
     icon: "/items/drops/arrom_s/Draconic_Leather_Helmet.jpg",
-    stats: {
-      pDef: 190,
-    },
     description: "Шолом драконічної шкіри S-grade (Draconic Set).",
   },
   {
@@ -96,9 +77,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 20000000,
     bodypart: "chest",
     icon: "/items/drops/arrom_s/Draconic_Leather_Armo.jpg",
-    stats: {
-      pDef: 270,
-    },
     description: "Броня драконічної шкіри S-grade (Draconic Set).",
   },
   {
@@ -111,9 +89,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8000000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_s/Draconic_Leather_Gloves.jpg",
-    stats: {
-      pDef: 110,
-    },
     description: "Рукавиці драконічної шкіри S-grade (Draconic Set).",
   },
   {
@@ -126,9 +101,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 7000000,
     bodypart: "feet",
     icon: "/items/drops/arrom_s/Draconic_Leather_Boots.jpg",
-    stats: {
-      pDef: 100,
-    },
     description: "Черевики драконічної шкіри S-grade (Draconic Set).",
   },
 
@@ -143,9 +115,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 14000000,
     bodypart: "head",
     icon: "/items/drops/arrom_s/Imperial_Crusader_Helmet.jpg",
-    stats: {
-      pDef: 220,
-    },
     description: "Шолом імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
@@ -158,9 +127,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 28000000,
     bodypart: "chest",
     icon: "/items/drops/arrom_s/Imperial_Crusader_Breastplate.jpg",
-    stats: {
-      pDef: 320,
-    },
     description: "Нагрудник імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
@@ -173,9 +139,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 18000000,
     bodypart: "legs",
     icon: "/items/drops/arrom_s/Bound_Imperial_Crusader.jpg",
-    stats: {
-      pDef: 200,
-    },
     description: "Штани імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
@@ -188,9 +151,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 11000000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_s/Imperial_Crusader_Gauntlets.jpg",
-    stats: {
-      pDef: 130,
-    },
     description: "Рукавиці імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
@@ -203,9 +163,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 10000000,
     bodypart: "feet",
     icon: "/items/drops/arrom_s/Bound_Imperial_Boots.jpg",
-    stats: {
-      pDef: 120,
-    },
     description: "Черевики імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
 
@@ -220,9 +177,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 15000000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_s/Imperial_Crusader_Shield.jpg",
-    stats: {
-      pDef: 400,
-    },
     description: "Щит імперського хрестоносця S-grade.",
   },
 
@@ -237,9 +191,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 20000000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_S/accessory_tateossian_ring_i00.png",
-    stats: {
-      mDef: 48,
-    },
     description: "Кільце Татеосіана S-grade.",
   },
 
@@ -254,9 +205,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 30000000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_S/accessory_tateossian_earring_i00.png",
-    stats: {
-      mDef: 71,
-    },
     description: "Сережка Татеосіана S-grade.",
   },
 
@@ -271,9 +219,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 40000000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_S/accessory_tateossian_necklace_i00.png",
-    stats: {
-      mDef: 95,
-    },
     description: "Намисто Татеосіана S-grade.",
   },
   
@@ -287,7 +232,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 150, // Ціна за 1 соулшот
-    icon: "/items/drops/resourcesss/Etc_spirit_bullet_gold_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_spirit_bullet_gold_i00_0.jpg",
     description: "Соулшот S-грейду для воїнів",
     soulshots: 1,
   },
@@ -300,7 +245,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 150, // Ціна за 1 спірітшот
-    icon: "/items/drops/resourcesss/Etc_spell_shot_gold_i01_0.jpg",
+    icon: "/items/drops/resources/Etc_spell_shot_gold_i01_0.jpg",
     description: "Спірітшот S-грейду для магів",
     spiritshots: 1,
   },
@@ -314,7 +259,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 120, // Ціна за 1 стрілу
-    icon: "/items/drops/resourcesss/etc_shining_quiver_i00.png",
+    icon: "/items/drops/resources/etc_shining_quiver_i00.png",
     description: "Сяюча стріла S-грейду",
   },
   
@@ -330,7 +275,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_s/Angel_Slayer.jpg",
-    stats: { pAtk: 246, mAtk: 132, rCrit: 12, pAtkSpd: 433 },
     description: "Вбивця янголів S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -346,7 +290,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_s/apprentices_spellbook.jpg",
-    stats: { pAtk: 250, mAtk: 220, rCrit: 8, pAtkSpd: 379 },
     description: "Книга заклинань учня S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -362,7 +305,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_s/Arcana_Mace.jpg",
-    stats: { pAtk: 225, mAtk: 175, rCrit: 4, pAtkSpd: 379 },
     description: "Булава аркани S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -378,7 +320,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALSWORD",
     icon: "/items/drops/weapon_s/Baguette_s_Dualsword.jpg",
-    stats: { pAtk: 350, mAtk: 135, rCrit: 8, pAtkSpd: 325 },
     description: "Дворучний меч Багет S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -394,7 +335,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_s/Basalt_Battlehammer.jpg",
-    stats: { pAtk: 281, mAtk: 132, rCrit: 4, pAtkSpd: 379 },
     description: "Базальтовий бойовий молот S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -410,7 +350,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_s/Demon_Splinter.jpg",
-    stats: { pAtk: 342, mAtk: 132, rCrit: 4, pAtkSpd: 325 },
     description: "Уламок демона S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -426,7 +365,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_s/Draconic_Bow.jpg",
-    stats: { pAtk: 581, mAtk: 132, rCrit: 12, pAtkSpd: 293 },
     description: "Драконічний лук S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -442,7 +380,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_s/Dragon_Hunter_Axe.jpg",
-    stats: { pAtk: 342, mAtk: 132, rCrit: 4, pAtkSpd: 325 },
     description: "Сокира мисливця на драконів S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -458,7 +395,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_s/God_s_Blade.jpg",
-    stats: { pAtk: 257, mAtk: 124, rCrit: 8, pAtkSpd: 379 },
     description: "Клинок бога S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -474,7 +410,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_s/Heaven_s_Divider.jpg",
-    stats: { pAtk: 342, mAtk: 132, rCrit: 8, pAtkSpd: 325 },
     description: "Роздільник небес S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -490,7 +425,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_s/Imperial_Staff.jpg",
-    stats: { pAtk: 274, mAtk: 175, rCrit: 4, pAtkSpd: 325 },
     description: "Імператорський посох S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -506,7 +440,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_s/Saint_Spear.jpg",
-    stats: { pAtk: 281, mAtk: 132, rCrit: 8, pAtkSpd: 325 },
     description: "Святий спіс S-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -522,7 +455,6 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_s/Shining_Bow.jpg",
-    stats: { pAtk: 580, mAtk: 135, rCrit: 12, pAtkSpd: 293 },
     description: "Сяючий лук S-grade.",
     soulshots: 1,
     spiritshots: 1,

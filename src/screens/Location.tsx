@@ -636,10 +636,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 </div>
               )}
 
-              {/* Інформація про сет */}
+              {/* Інформація про сет — не показуємо, якщо немає бонусів */}
               {(() => {
                 const set = findSetForItem(selectedDropItem);
                 if (!set) return null;
+                if (!set.bonuses.fullSet && (!set.bonuses.partialSet || set.bonuses.partialSet.length === 0)) return null;
 
                 const bonusesList: string[] = [];
                 if (set.bonuses.fullSet) {

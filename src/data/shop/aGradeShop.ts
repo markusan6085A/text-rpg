@@ -15,10 +15,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 5000000,
     bodypart: "head",
     icon: "/items/drops/arrom_а/Majestic_Circlet.jpg",
-    stats: {
-      pDef: 150,
-      mDef: 120,
-    },
     description: "Діадема величі A-grade (Majestic Set).",
   },
   {
@@ -31,10 +27,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8000000,
     bodypart: "chest",
     icon: "/items/drops/arrom_а/Majestic_Robe.jpg",
-    stats: {
-      pDef: 220,
-      mDef: 180,
-    },
     description: "Мантія величі A-grade (Majestic Set).",
   },
   {
@@ -47,10 +39,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 3500000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_а/Majestic_Gauntlets.jpg",
-    stats: {
-      pDef: 90,
-      mDef: 75,
-    },
     description: "Рукавиці величі A-grade (Majestic Set).",
   },
   {
@@ -63,10 +51,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 3000000,
     bodypart: "feet",
     icon: "/items/drops/arrom_а/Majestic_Boots.jpg",
-    stats: {
-      pDef: 85,
-      mDef: 70,
-    },
     description: "Черевики величі A-grade (Majestic Set).",
   },
 
@@ -81,9 +65,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 5500000,
     bodypart: "head",
     icon: "/items/drops/arrom_а/Apella_Helm.jpg",
-    stats: {
-      pDef: 160,
-    },
     description: "Шолом Апелли A-grade (Apella Set).",
   },
   {
@@ -96,9 +77,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8500000,
     bodypart: "chest",
     icon: "/items/drops/arrom_а/Apella_Brigandine.jpg",
-    stats: {
-      pDef: 240,
-    },
     description: "Бригантина Апелли A-grade (Apella Set).",
   },
   {
@@ -111,9 +89,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4000000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_а/Apella_Leather_Gloves.jpg",
-    stats: {
-      pDef: 100,
-    },
     description: "Шкіряні рукавиці Апелли A-grade (Apella Set).",
   },
   {
@@ -126,9 +101,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 3500000,
     bodypart: "feet",
     icon: "/items/drops/arrom_а/Apella_Boots.jpg",
-    stats: {
-      pDef: 95,
-    },
     description: "Черевики Апелли A-grade (Apella Set).",
   },
 
@@ -143,9 +115,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6000000,
     bodypart: "head",
     icon: "/items/drops/arrom_а/Dark_Crystal_Helmet.jpg",
-    stats: {
-      pDef: 180,
-    },
     description: "Шолом темного кристалу A-grade (Dark Crystal Set).",
   },
   {
@@ -158,9 +127,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 10000000,
     bodypart: "chest",
     icon: "/items/drops/arrom_а/Dark_Crystal_Breastplate.jpg",
-    stats: {
-      pDef: 250,
-    },
     description: "Нагрудник темного кристалу A-grade (Dark Crystal Set).",
   },
   {
@@ -173,9 +139,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 7000000,
     bodypart: "legs",
     icon: "/items/drops/arrom_а/Dark_Crystal_Gaiters.jpg",
-    stats: {
-      pDef: 150,
-    },
     description: "Штани темного кристалу A-grade (Dark Crystal Set).",
   },
   {
@@ -188,9 +151,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4500000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_а/Dark_Crystal_Glove.jpg",
-    stats: {
-      pDef: 110,
-    },
     description: "Рукавиці темного кристалу A-grade (Dark Crystal Set).",
   },
   {
@@ -203,9 +163,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4000000,
     bodypart: "feet",
     icon: "/items/drops/arrom_а/Dark_Crystal_Boots.jpg",
-    stats: {
-      pDef: 105,
-    },
     description: "Черевики темного кристалу A-grade (Dark Crystal Set).",
   },
 
@@ -220,9 +177,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 5000000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_а/Shield_dark_crystal_shield_i00_0.jpg",
-    stats: {
-      pDef: 400,
-    },
     description: "Щит темного кристалу A-grade.",
   },
   {
@@ -235,9 +189,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 5000000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_а/Shield_shield_of_nightmare_i00_0.jpg",
-    stats: {
-      pDef: 400,
-    },
     description: "Щит кошмару A-grade.",
   },
 
@@ -252,9 +203,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 5000000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_A/accessary_inferno_ring_i00.png",
-    stats: {
-      mDef: 42,
-    },
     description: "Кільце величі A-grade.",
   },
   {
@@ -267,9 +215,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6000000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_A/accessary_ring_of_phantom_i00.png",
-    stats: {
-      mDef: 40,
-    },
     description: "Кільце фантому A-grade.",
   },
   {
@@ -282,9 +227,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6000000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_A/accessary_phoenixs_ring_i00.png",
-    stats: {
-      mDef: 40,
-    },
     description: "Кільце фенікса A-grade.",
   },
   {
@@ -297,9 +239,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6000000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_A/accessary_cerberuss_ring_i00.png",
-    stats: {
-      mDef: 40,
-    },
     description: "Кільце цербера A-grade.",
   },
 
@@ -314,9 +253,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 7500000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_A/accessary_inferno_earing_i00.png",
-    stats: {
-      mDef: 63,
-    },
     description: "Сережка величі A-grade.",
   },
   {
@@ -329,9 +265,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 9000000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_A/accessary_earing_of_phantom_i00.png",
-    stats: {
-      mDef: 60,
-    },
     description: "Сережка фантому A-grade.",
   },
   {
@@ -344,9 +277,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 9000000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_A/accessary_phoenixs_earing_i00.png",
-    stats: {
-      mDef: 60,
-    },
     description: "Сережка фенікса A-grade.",
   },
   {
@@ -359,9 +289,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 9000000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_A/accessary_cerberuss_earing_i00.png",
-    stats: {
-      mDef: 60,
-    },
     description: "Сережка цербера A-grade.",
   },
 
@@ -376,9 +303,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 10000000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_A/accessary_inferno_necklace_i00.png",
-    stats: {
-      mDef: 85,
-    },
     description: "Намисто величі A-grade.",
   },
   {
@@ -391,9 +315,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12000000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_A/accessary_necklace_of_phantom_i00.png",
-    stats: {
-      mDef: 80,
-    },
     description: "Намисто фантому A-grade.",
   },
   {
@@ -406,9 +327,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12000000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_A/accessary_phoenixs_necklace_i00.png",
-    stats: {
-      mDef: 80,
-    },
     description: "Намисто фенікса A-grade.",
   },
   {
@@ -421,9 +339,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12000000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_A/accessary_cerberuss_necklace_i00.png",
-    stats: {
-      mDef: 80,
-    },
     description: "Намисто цербера A-grade.",
   },
   
@@ -437,7 +352,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 70, // Ціна за 1 соулшот
-    icon: "/items/drops/resourcesss/Etc_spirit_bullet_silver_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_spirit_bullet_silver_i00_0.jpg",
     description: "Соулшот A-грейду для воїнів",
     soulshots: 1,
   },
@@ -450,7 +365,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 70, // Ціна за 1 спірітшот
-    icon: "/items/drops/resourcesss/Etc_spell_shot_silver_i01_0.jpg",
+    icon: "/items/drops/resources/Etc_spell_shot_silver_i01_0.jpg",
     description: "Спірітшот A-грейду для магів",
     spiritshots: 1,
   },
@@ -464,7 +379,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 56, // Ціна за 1 стрілу
-    icon: "/items/drops/resourcesss/etc_mithril_quiver_i00.png",
+    icon: "/items/drops/resources/etc_mithril_quiver_i00.png",
     description: "Мітрилова стріла A-грейду",
   },
   
@@ -479,7 +394,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 20741000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_a/Dark_Legion_s_Edge.jpg",
-    stats: { pAtk: 232, mAtk: 114, rCrit: 8, pAtkSpd: 379 },
     description: "Клинок темного легіону A-grade.",
   },
   {
@@ -493,7 +407,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_a/Meteor_Shower.jpg",
-    stats: { pAtk: 213, mAtk: 107, rCrit: 4, pAtkSpd: 379 },
     description: "Метеорний дощ A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -509,7 +422,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_a/apprentices_spellbook.jpg",
-    stats: { pAtk: 220, mAtk: 200, rCrit: 8, pAtkSpd: 379 },
     description: "Книга заклинань учня A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -525,7 +437,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALSWORD",
     icon: "/items/drops/weapon_a/Baguette_s_Dualsword.jpg",
-    stats: { pAtk: 305, mAtk: 121, rCrit: 8, pAtkSpd: 325 },
     description: "Дворучний меч Багет A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -541,7 +452,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_a/Barakiel_s_Axe.jpg",
-    stats: { pAtk: 232, mAtk: 114, rCrit: 4, pAtkSpd: 379 },
     description: "Сокира Баракіеля A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -557,7 +467,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Behemoth_s_Tuning_Fork.jpg",
-    stats: { pAtk: 280, mAtk: 200, rCrit: 4, pAtkSpd: 325 },
     description: "Камертон Бегемота A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -573,7 +482,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Blood_Tornado.jpg",
-    stats: { pAtk: 305, mAtk: 121, rCrit: 8, pAtkSpd: 325 },
     description: "Кривавий торнадо A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -589,7 +497,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_a/Bloody_Orchid.jpg",
-    stats: { pAtk: 280, mAtk: 121, rCrit: 12, pAtkSpd: 433 },
     description: "Кривава орхідея A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -605,7 +512,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Branch_of_The_Mother_Tree.jpg",
-    stats: { pAtk: 280, mAtk: 200, rCrit: 4, pAtkSpd: 325 },
     description: "Гілка материнського дерева A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -621,7 +527,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "dwhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_a/Cabrio_s _Hand.jpg",
-    stats: { pAtk: 282, mAtk: 114, rCrit: 12, pAtkSpd: 433 },
     description: "Рука Кабріо A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -637,7 +542,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Carnage_Bow.jpg",
-    stats: { pAtk: 528, mAtk: 125, rCrit: 12, pAtkSpd: 267 },
     description: "Лук різанини A-grade.",
     soulshots: 10,
     spiritshots: 1,
@@ -653,7 +557,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Daimon_Crystal.jpg",
-    stats: { pAtk: 280, mAtk: 200, rCrit: 4, pAtkSpd: 325 },
     description: "Кристал Даймона A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -669,7 +572,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Dasparion_s_Staff.jpg",
-    stats: { pAtk: 280, mAtk: 250, rCrit: 4, pAtkSpd: 325 },
     description: "Посох Даспаріона A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -685,7 +587,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_a/Dragon_Grinder.jpg",
-    stats: { pAtk: 282, mAtk: 114, rCrit: 4, pAtkSpd: 325 },
     description: "Подрібнювач дракона A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -701,7 +602,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Dragon_Slayer.jpg",
-    stats: { pAtk: 282, mAtk: 114, rCrit: 8, pAtkSpd: 325 },
     description: "Вбивця драконів A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -717,7 +617,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Elysian.jpg",
-    stats: { pAtk: 528, mAtk: 125, rCrit: 12, pAtkSpd: 267 },
     description: "Елізійський лук A-grade.",
     soulshots: 10,
     spiritshots: 1,
@@ -733,7 +632,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Halberd.jpg",
-    stats: { pAtk: 280, mAtk: 121, rCrit: 12, pAtkSpd: 325 },
     description: "Алебарда A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -749,7 +647,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Infernal_Master.jpg",
-    stats: { pAtk: 280, mAtk: 200, rCrit: 4, pAtkSpd: 325 },
     description: "Інфернальний майстер A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -765,7 +662,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Naga_Storm.jpg",
-    stats: { pAtk: 305, mAtk: 121, rCrit: 8, pAtkSpd: 325 },
     description: "Буря наги A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -781,7 +677,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Shyeed_s_Bow.jpg",
-    stats: { pAtk: 528, mAtk: 125, rCrit: 12, pAtkSpd: 267 },
     description: "Лук Шіда A-grade.",
     soulshots: 10,
     spiritshots: 1,
@@ -797,7 +692,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_a/Sirra_s_Blade.jpg",
-    stats: { pAtk: 251, mAtk: 121, rCrit: 8, pAtkSpd: 379 },
     description: "Клинок Сірри A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -813,7 +707,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Sobekk_s_Hurricane.jpg",
-    stats: { pAtk: 280, mAtk: 121, rCrit: 12, pAtkSpd: 325 },
     description: "Ураган Собекка A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -829,7 +722,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Soul_Bow.jpg",
-    stats: { pAtk: 528, mAtk: 125, rCrit: 12, pAtkSpd: 267 },
     description: "Лук душі A-grade.",
     soulshots: 10,
     spiritshots: 1,
@@ -845,7 +737,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Soul_Separator.jpg",
-    stats: { pAtk: 305, mAtk: 121, rCrit: 8, pAtkSpd: 325 },
     description: "Роздільник душ A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -861,7 +752,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Spiritual_Eye.jpg",
-    stats: { pAtk: 280, mAtk: 200, rCrit: 4, pAtkSpd: 325 },
     description: "Духовне око A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -877,7 +767,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Sword_of_Ipos.jpg",
-    stats: { pAtk: 305, mAtk: 121, rCrit: 8, pAtkSpd: 325 },
     description: "Меч Іпоса A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -893,7 +782,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_a/Sword_of_Miracles.jpg",
-    stats: { pAtk: 251, mAtk: 121, rCrit: 8, pAtkSpd: 379 },
     description: "Меч див A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -909,7 +797,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALSWORD",
     icon: "/items/drops/weapon_a/Tallum_Blade.jpg",
-    stats: { pAtk: 305, mAtk: 121, rCrit: 8, pAtkSpd: 325 },
     description: "Клинок Таллума A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -925,7 +812,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Tallum_Glaive.jpg",
-    stats: { pAtk: 280, mAtk: 121, rCrit: 12, pAtkSpd: 325 },
     description: "Глефа Таллума A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -941,7 +827,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Themis_Tongue.jpg",
-    stats: { pAtk: 280, mAtk: 200, rCrit: 4, pAtkSpd: 325 },
     description: "Язик Теміди A-grade.",
     soulshots: 1,
     spiritshots: 1,
@@ -957,7 +842,6 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Tiphon_s_Spear.jpg",
-    stats: { pAtk: 280, mAtk: 121, rCrit: 12, pAtkSpd: 325 },
     description: "Спіс Тіфона A-grade.",
     soulshots: 1,
     spiritshots: 1,

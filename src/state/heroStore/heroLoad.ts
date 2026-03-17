@@ -99,14 +99,16 @@ export function loadHero(): Hero | null {
             existing.count = (existing.count || 1) + (item.count || 1);
             inventoryConsolidated = true;
           } else {
-            // Перший такий предмет — гарантуємо id для UI
-            const normalized = { ...item, id: item.id || item.itemId, count: item.count || 1 };
+            // Перший такий предмет — гарантуємо id для UI. Міграція: видаляємо stats (бонуси відключені)
+            const { stats: _s, ...rest } = item;
+            const normalized = { ...rest, id: rest.id || rest.itemId, count: rest.count || 1 };
             itemMap.set(typeId, normalized);
             consolidatedInventory.push(normalized);
           }
         } else {
-          // Не стакабельний (зброя, броня) — завжди по 1 предмету, точка зберігається
-          const normalized = { ...item, id: item.id || item.itemId, count: 1, enchantLevel: item.enchantLevel ?? 0 };
+          // Не стакабельний (зброя, броня) — завжди по 1 предмету. Міграція: видаляємо stats
+          const { stats: _s, ...rest } = item;
+          const normalized = { ...rest, id: rest.id || rest.itemId, count: 1, enchantLevel: rest.enchantLevel ?? 0 };
           consolidatedInventory.push(normalized);
         }
       });

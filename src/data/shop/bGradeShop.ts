@@ -15,10 +15,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2000000,
     bodypart: "head",
     icon: "/items/drops/arrom_b/Avadon_Circlet.jpg",
-    stats: {
-      pDef: 120,
-      mDef: 90,
-    },
     description: "Діадема Авадона B-grade (Avadon Set).",
   },
   {
@@ -31,10 +27,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 3500000,
     bodypart: "chest",
     icon: "/items/drops/arrom_b/Avadon_Robe.jpg",
-    stats: {
-      pDef: 180,
-      mDef: 130,
-    },
     description: "Мантія Авадона B-grade (Avadon Set).",
   },
   {
@@ -47,10 +39,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1500000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_b/Avado_Gloves.jpg",
-    stats: {
-      pDef: 70,
-      mDef: 55,
-    },
     description: "Рукавиці Авадона B-grade (Avadon Set).",
   },
   {
@@ -63,10 +51,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1300000,
     bodypart: "feet",
     icon: "/items/drops/arrom_b/Avadon_Boots.jpg",
-    stats: {
-      pDef: 65,
-      mDef: 50,
-    },
     description: "Черевики Авадона B-grade (Avadon Set).",
   },
 
@@ -81,9 +65,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1800000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_b/Shield_avadon_shield_i00_0.jpg",
-    stats: {
-      pDef: 200,
-    },
     description: "Щит Авадона B-grade.",
   },
   {
@@ -96,9 +77,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2000000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_b/Shield_doom_shield_i00_0.jpg",
-    stats: {
-      pDef: 220,
-    },
     description: "Щит загибелі B-grade.",
   },
   {
@@ -111,9 +89,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2200000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_b/Shield_shield_of_pledge_i00_0.jpg",
-    stats: {
-      pDef: 240,
-    },
     description: "Щит клятви B-grade.",
   },
 
@@ -128,9 +103,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2500000,
     bodypart: "head",
     icon: "/items/drops/arrom_b/Blue_Wolf_Helmet.jpg",
-    stats: {
-      pDef: 140,
-    },
     description: "Шолом синього вовка B-grade (Blue Wolf Set).",
   },
   {
@@ -143,9 +115,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4000000,
     bodypart: "chest",
     icon: "/items/drops/arrom_b/Blue_Wolf_Breastplate.jpg",
-    stats: {
-      pDef: 200,
-    },
     description: "Нагрудник синього вовка B-grade (Blue Wolf Set).",
   },
   {
@@ -158,9 +127,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2800000,
     bodypart: "legs",
     icon: "/items/drops/arrom_b/Blue_Wolf_Gaiters.jpg",
-    stats: {
-      pDef: 120,
-    },
     description: "Штани синього вовка B-grade (Blue Wolf Set).",
   },
   {
@@ -173,9 +139,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1800000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_b/Blue_Wolf_Gloves.jpg",
-    stats: {
-      pDef: 80,
-    },
     description: "Рукавиці синього вовка B-grade (Blue Wolf Set).",
   },
   {
@@ -188,9 +151,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1600000,
     bodypart: "feet",
     icon: "/items/drops/arrom_b/Blue_Wolf_Boots.jpg",
-    stats: {
-      pDef: 75,
-    },
     description: "Черевики синього вовка B-grade (Blue Wolf Set).",
   },
 
@@ -205,9 +165,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2200000,
     bodypart: "head",
     icon: "/items/drops/arrom_b/Doom_Helmet_of_Fortune.jpg",
-    stats: {
-      pDef: 125,
-    },
     description: "Шолом загибелі удачі B-grade (Doom of Fortune Set).",
   },
   {
@@ -220,9 +177,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 3200000,
     bodypart: "chest",
     icon: "/items/drops/arrom_b/Leather_Armor_of_Doom_of_Fortune.jpg",
-    stats: {
-      pDef: 180,
-    },
     description: "Броня загибелі удачі B-grade (Doom of Fortune Set).",
   },
   {
@@ -235,9 +189,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1700000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_b/Doom_Gloves_of_Fortune_Light_Armor.jpg",
-    stats: {
-      pDef: 75,
-    },
     description: "Рукавиці загибелі удачі B-grade (Doom of Fortune Set).",
   },
   {
@@ -250,9 +201,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1500000,
     bodypart: "feet",
     icon: "/items/drops/arrom_b/Doom_Boots_of_Fortune_Light_Armor.jpg",
-    stats: {
-      pDef: 70,
-    },
     description: "Черевики загибелі удачі B-grade (Doom of Fortune Set).",
   },
 
@@ -267,9 +215,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1000000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_adamantite_ring_i00.png",
-    stats: {
-      mDef: 34,
-    },
     description: "Адамантитове кільце B-grade.",
   },
   {
@@ -282,9 +227,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1200000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_sages_ring_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Кільце мудреця B-grade.",
   },
   {
@@ -297,9 +239,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1200000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_paradia_ring_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Кільце Парадії B-grade.",
   },
   {
@@ -312,9 +251,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1100000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_ring_of_sola_eclipse_i00.png",
-    stats: {
-      mDef: 34,
-    },
     description: "Кільце сонячного затемнення B-grade.",
   },
   {
@@ -327,9 +263,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1300000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_ring_of_black_ore_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Кільце чорної руди B-grade.",
   },
   {
@@ -342,9 +275,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1100000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_ring_of_summons_i00.png",
-    stats: {
-      mDef: 34,
-    },
     description: "Кільце викликання B-grade.",
   },
   {
@@ -357,9 +287,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1300000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_another_worlds_ring_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Кільце іншого світу B-grade.",
   },
   {
@@ -372,9 +299,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1300000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_elemental_ring_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Стихійне кільце B-grade.",
   },
   {
@@ -387,9 +311,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1100000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_ring_of_grace_i00.png",
-    stats: {
-      mDef: 34,
-    },
     description: "Кільце благодаті B-grade.",
   },
   {
@@ -402,9 +323,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1300000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_ring_of_holy_spirit_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Кільце святого духа B-grade.",
   },
   {
@@ -417,9 +335,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1100000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_ring_of_assistance_i00.png",
-    stats: {
-      mDef: 34,
-    },
     description: "Кільце допомоги B-grade.",
   },
   {
@@ -432,9 +347,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1100000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_B/accessary_ring_of_blessing_i00.png",
-    stats: {
-      mDef: 34,
-    },
     description: "Кільце благословення B-grade.",
   },
 
@@ -449,9 +361,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1500000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_adamantite_earing_i00.png",
-    stats: {
-      mDef: 51,
-    },
     description: "Адамантитова сережка B-grade.",
   },
   {
@@ -464,9 +373,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1500000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_mana_i00.png",
-    stats: {
-      mDef: 51,
-    },
     description: "Сережка мани B-grade.",
   },
   {
@@ -479,9 +385,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1800000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_sages_earing_i00.png",
-    stats: {
-      mDef: 54,
-    },
     description: "Сережка мудреця B-grade.",
   },
   {
@@ -494,9 +397,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1800000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_paradia_earing_i00.png",
-    stats: {
-      mDef: 54,
-    },
     description: "Сережка Парадії B-grade.",
   },
   {
@@ -509,9 +409,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1600000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_sola_eclipse_i00.png",
-    stats: {
-      mDef: 51,
-    },
     description: "Сережка сонячного затемнення B-grade.",
   },
   {
@@ -524,9 +421,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1900000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_black_ore_i00.png",
-    stats: {
-      mDef: 54,
-    },
     description: "Сережка чорної руди B-grade.",
   },
   {
@@ -539,9 +433,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1600000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_summons_i00.png",
-    stats: {
-      mDef: 51,
-    },
     description: "Сережка викликання B-grade.",
   },
   {
@@ -554,9 +445,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1900000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_another_worlds_earing_i00.png",
-    stats: {
-      mDef: 54,
-    },
     description: "Сережка іншого світу B-grade.",
   },
   {
@@ -569,9 +457,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1900000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_elemental_earing_i00.png",
-    stats: {
-      mDef: 54,
-    },
     description: "Стихійна сережка B-grade.",
   },
   {
@@ -584,9 +469,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1600000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_grace_i00.png",
-    stats: {
-      mDef: 51,
-    },
     description: "Сережка благодаті B-grade.",
   },
   {
@@ -599,9 +481,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1900000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_holy_spirit_i00.png",
-    stats: {
-      mDef: 54,
-    },
     description: "Сережка святого духа B-grade.",
   },
   {
@@ -614,9 +493,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1600000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_assistance_i00.png",
-    stats: {
-      mDef: 51,
-    },
     description: "Сережка допомоги B-grade.",
   },
   {
@@ -629,9 +505,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 1600000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_B/accessary_earing_of_blessing_i00.png",
-    stats: {
-      mDef: 51,
-    },
     description: "Сережка благословення B-grade.",
   },
 
@@ -646,9 +519,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2000000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_adamantite_necklace_i00.png",
-    stats: {
-      mDef: 68,
-    },
     description: "Адамантитове намисто B-grade.",
   },
   {
@@ -661,9 +531,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2000000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_mana_i00.png",
-    stats: {
-      mDef: 68,
-    },
     description: "Намисто мани B-grade.",
   },
   {
@@ -676,9 +543,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2400000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_sages_necklace_i00.png",
-    stats: {
-      mDef: 72,
-    },
     description: "Намисто мудреця B-grade.",
   },
   {
@@ -691,9 +555,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2400000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_paradia_necklace_i00.png",
-    stats: {
-      mDef: 72,
-    },
     description: "Намисто Парадії B-grade.",
   },
   {
@@ -706,9 +567,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2200000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_sola_eclipse_i00.png",
-    stats: {
-      mDef: 68,
-    },
     description: "Намисто сонячного затемнення B-grade.",
   },
   {
@@ -721,9 +579,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2600000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_black_ore_i00.png",
-    stats: {
-      mDef: 72,
-    },
     description: "Намисто чорної руди B-grade.",
   },
   {
@@ -736,9 +591,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2200000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_summons_i00.png",
-    stats: {
-      mDef: 68,
-    },
     description: "Намисто викликання B-grade.",
   },
   {
@@ -751,9 +603,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2600000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_another_worlds_necklace_i00.png",
-    stats: {
-      mDef: 72,
-    },
     description: "Намисто іншого світу B-grade.",
   },
   {
@@ -766,9 +615,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2600000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_elemental_necklace_i00.png",
-    stats: {
-      mDef: 72,
-    },
     description: "Стихійне намисто B-grade.",
   },
   {
@@ -781,9 +627,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2200000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_grace_i00.png",
-    stats: {
-      mDef: 68,
-    },
     description: "Намисто благодаті B-grade.",
   },
   {
@@ -796,9 +639,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2600000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_holy_spirit_i00.png",
-    stats: {
-      mDef: 72,
-    },
     description: "Намисто святого духа B-grade.",
   },
   {
@@ -811,9 +651,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2200000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_assistance_i00.png",
-    stats: {
-      mDef: 68,
-    },
     description: "Намисто допомоги B-grade.",
   },
   {
@@ -826,9 +663,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2200000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_B/accessary_necklace_of_blessing_i00.png",
-    stats: {
-      mDef: 68,
-    },
     description: "Намисто благословення B-grade.",
   },
   
@@ -842,7 +676,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 35, // Ціна за 1 соулшот
-    icon: "/items/drops/resourcesss/Etc_spirit_bullet_red_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_spirit_bullet_red_i00_0.jpg",
     description: "Соулшот B-грейду для воїнів",
     soulshots: 1,
   },
@@ -855,7 +689,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 35, // Ціна за 1 спірітшот
-    icon: "/items/drops/resourcesss/Etc_spell_shot_red_i01_0.jpg",
+    icon: "/items/drops/resources/Etc_spell_shot_red_i01_0.jpg",
     description: "Спірітшот B-грейду для магів",
     spiritshots: 1,
   },
@@ -869,7 +703,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 28, // Ціна за 1 стрілу
-    icon: "/items/drops/resourcesss/etc_silver_quiver_i00.png",
+    icon: "/items/drops/resources/etc_silver_quiver_i00.png",
     description: "Срібна стріла B-грейду",
   },
   
@@ -884,7 +718,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/apprentices_spellbook.jpg",
-    stats: { pAtk: 148, mAtk: 142, rCrit: 8, pAtkSpd: 379 },
     description: "Книга заклинань учня B-grade. Магічна зброя.",
   },
   {
@@ -897,7 +730,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8200000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/Art_of_Battle_Axe.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 4, pAtkSpd: 379 },
     description: "Бойова сокира мистецтва B-grade.",
   },
   {
@@ -910,7 +742,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8200000,
     bodypart: "dwhand",
     icon: "/items/drops/weapon_b/Arthro_Nail.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 12, pAtkSpd: 433 },
     description: "Кіготь Артро B-grade. Дворучна зброя.",
   },
   {
@@ -923,7 +754,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8200000,
     bodypart: "dwhand",
     icon: "/items/drops/weapon_b/Baguette_s_Dualsword.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 8, pAtkSpd: 325 },
     description: "Дворучний меч Багет B-grade. Дворучна зброя.",
   },
   {
@@ -936,7 +766,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "dwhand",
     icon: "/items/drops/weapon_b/Bellion_Cestus.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 12, pAtkSpd: 433 },
     description: "Цестус Белліона B-grade. Дворучна зброя.",
   },
   {
@@ -949,7 +778,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Bow_of_Peril.jpg",
-    stats: { pAtk: 442, mAtk: 118, rCrit: 12, pAtkSpd: 227 },
     description: "Лук небезпеки B-grade. Дальня атака.",
   },
   {
@@ -962,7 +790,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Dark_Elven_Long_Bow.jpg",
-    stats: { pAtk: 442, mAtk: 118, rCrit: 12, pAtkSpd: 227 },
     description: "Довгий лук темних ельфів B-grade. Дальня атака.",
   },
   {
@@ -975,7 +802,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Deadman_s_Glory.jpg",
-    stats: { pAtk: 267, mAtk: 116, rCrit: 8, pAtkSpd: 325 },
     description: "Слава мертвого B-grade. Дворучна зброя.",
   },
   {
@@ -988,7 +814,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Great_Axe.jpg",
-    stats: { pAtk: 267, mAtk: 155, rCrit: 4, pAtkSpd: 325 },
     description: "Велика сокира B-grade. Дворучна зброя.",
   },
   {
@@ -1001,7 +826,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Great_Sword.jpg",
-    stats: { pAtk: 267, mAtk: 116, rCrit: 8, pAtkSpd: 325 },
     description: "Великий меч B-grade. Дворучна зброя.",
   },
   {
@@ -1014,7 +838,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/Guardian_Sword.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 8, pAtkSpd: 379 },
     description: "Меч вартового B-grade.",
   },
   {
@@ -1027,7 +850,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/Hell_Knife.jpg",
-    stats: { pAtk: 191, mAtk: 116, rCrit: 12, pAtkSpd: 433 },
     description: "Кинджал пекла B-grade.",
   },
   {
@@ -1040,7 +862,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Ice_Storm_Hammer.jpg",
-    stats: { pAtk: 267, mAtk: 155, rCrit: 4, pAtkSpd: 325 },
     description: "Молот крижаної бурі B-grade. Дворучна зброя.",
   },
   {
@@ -1053,7 +874,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Kaim_Vanul_s_Bones.jpg",
-    stats: { pAtk: 267, mAtk: 195, rCrit: 4, pAtkSpd: 325 },
     description: "Кістки Кайма Ванула B-grade. Дворучна магічна зброя.",
   },
   {
@@ -1066,7 +886,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/Kris.jpg",
-    stats: { pAtk: 191, mAtk: 116, rCrit: 12, pAtkSpd: 433 },
     description: "Крис B-grade.",
   },
   {
@@ -1079,7 +898,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Lance.jpg",
-    stats: { pAtk: 221, mAtk: 127, rCrit: 8, pAtkSpd: 325 },
     description: "Спіс B-grade. Дворучна зброя.",
   },
   {
@@ -1092,7 +910,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/Spell_Breaker.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 8, pAtkSpd: 379 },
     description: "Руйнівник заклинань B-grade.",
   },
   {
@@ -1105,7 +922,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Spirit_s_Staff.jpg",
-    stats: { pAtk: 267, mAtk: 195, rCrit: 4, pAtkSpd: 325 },
     description: "Посох духа B-grade. Дворучна магічна зброя.",
   },
   {
@@ -1118,7 +934,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
-    stats: { pAtk: 267, mAtk: 195, rCrit: 4, pAtkSpd: 325 },
     description: "Посох злих духів B-grade. Дворучна магічна зброя.",
   },
   {
@@ -1131,7 +946,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Star_Buster.jpg",
-    stats: { pAtk: 267, mAtk: 195, rCrit: 4, pAtkSpd: 325 },
     description: "Руйнівник зірок B-grade. Дворучна магічна зброя.",
   },
   {
@@ -1144,7 +958,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/Sword_of_Damascus.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 8, pAtkSpd: 379 },
     description: "Меч Дамаска B-grade.",
   },
   {
@@ -1157,7 +970,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 8600000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
-    stats: { pAtk: 148, mAtk: 85, rCrit: 8, pAtkSpd: 379 },
     description: "Меч Вальгалли B-grade.",
   },
   {
@@ -1170,7 +982,6 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 12260000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_b/Wizard_s_Tear.jpg",
-    stats: { pAtk: 267, mAtk: 195, rCrit: 4, pAtkSpd: 325 },
     description: "Сльоза чарівника B-grade. Дворучна магічна зброя.",
   },
 ];

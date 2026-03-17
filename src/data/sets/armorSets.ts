@@ -63,14 +63,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "mithril_gloves", slot: "gloves" },
       { itemId: "mithril_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        attackSpeed: 50, // +50 скорости атаки
-        maxHp: 350, // +350 HP
-        pDef: 50, // +50 физ защ
-        mDef: 50, // +50 маг защ
-      },
-    },
+    bonuses: {},
   },
 
   // ===== D-GRADE СЕТ REINFORCED (Light Armor Set) =====
@@ -85,14 +78,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "reinforced_gloves", slot: "gloves" },
       { itemId: "reinforced_leather_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        attackSpeed: 75, // +75 скорости атаки
-        critRate: 5, // +5% шанса крита
-        critDamage: 50, // +50 сили крита
-        maxHp: 100, // +100 HP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== D-GRADE СЕТ KNOWLEDGE (Magic Armor Set) =====
@@ -107,15 +93,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "gloves_of_knowledge", slot: "gloves" },
       { itemId: "boots_of_knowledge", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        skillCritRate: 4, // +4% шанс маг крита
-        maxMp: 100, // +100 MP
-        maxHp: 150, // +150 HP
-        pDef: 50, // +50 физ защ
-        mDef: 50, // +50 маг защ
-      },
-    },
+    bonuses: {},
   },
 
   // ===== D-GRADE СЕТ OATH (Magic Armor Set - Robe) =====
@@ -129,17 +107,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "clan_oath_padded_gloves_robe", slot: "gloves" },
       { itemId: "clan_oath_sandals_robe", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        maxHp: 250, // +250 HP
-        castSpeed: 100, // +100 скорости каста
-        skillCritRate: 5, // +5% шанс маг крита
-        skillCritPower: 50, // +50 критичного удара
-        pDef: 50, // +50 физ защ
-        mDef: 50, // +50 маг защ
-        maxMp: 150, // +150 MP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== D-GRADE СЕТ SHADOW (Light Armor Set) =====
@@ -153,17 +121,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "shadow_gloves", slot: "gloves" },
       { itemId: "shadow_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        attackSpeed: 100, // +100 скорости атаки
-        pAtk: 50, // +50 урона
-        critRate: 5, // +5% шанс крита
-        maxHp: 250, // +250 HP
-        critDamage: 100, // +100 сили крита
-        pDef: 30, // +30 физ защ
-        mDef: 30, // +30 маг защ
-      },
-    },
+    bonuses: {},
   },
 
   // ===== D-GRADE СЕТ SHADOW OATH (Heavy Armor Set) =====
@@ -177,14 +135,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "shadow_oath_gauntlets", slot: "gloves" },
       { itemId: "shadow_oath_sabaton", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        maxHp: 350, // +350 HP
-        pAtk: 50, // +50 урона
-        pDef: 100, // +100 физ защ
-        mDef: 100, // +100 маг защ
-      },
-    },
+    bonuses: {},
   },
 
   // ===== C-GRADE СЕТ DEMON'S (Magic Armor Set - Robe) =====
@@ -199,16 +150,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "demons_gloves", slot: "gloves" },
       { itemId: "demons_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        castSpeed: 150, // +150 скорости каста
-        mAtk: 100, // +100 маг урона
-        maxHp: 200, // +200 HP
-        pDef: 50, // +50 физ защ
-        mDef: 50, // +50 маг защ
-        skillCritRate: 5, // +5% шанс маг крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== C-GRADE СЕТ KARMIAN (Magic Armor Set - Robe) =====
@@ -223,13 +165,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "karmian_gloves", slot: "gloves" },
       { itemId: "karmian_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        skillCritRate: 10, // +10% шанс маг крита
-        castSpeed: 150, // +150 скорости каста
-        maxHp: 250, // +250 HP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== C-GRADE СЕТ PLATED LEATHER (Light Armor Set) =====
@@ -244,16 +180,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "plated_leather_gloves", slot: "gloves" },
       { itemId: "plated_leather_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        maxHp: 300, // +300 HP
-        pDef: 60, // +60 физ защ
-        mDef: 60, // +60 маг защ
-        pAtk: 50, // +50 урона
-        attackSpeed: 150, // +150 скорости атаки
-        critRate: 5, // +5% шанс крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== C-GRADE СЕТ DIVINE (Magic Armor Set - Robe) =====
@@ -268,16 +195,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "divine_gloves", slot: "gloves" },
       { itemId: "divine_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        skillCritRate: 10, // +10% шанс маг крита
-        mAtk: 100, // +100 маг урона
-        pDef: 60, // +60 физ защ
-        mDef: 60, // +60 маг защ
-        mpRegen: 5, // +5 реген MP
-        castSpeed: 150, // +150 скорости каста
-      },
-    },
+    bonuses: {},
   },
 
   // ===== C-GRADE СЕТ DRAKE LEATHER (Light Armor Set) =====
@@ -291,16 +209,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "drake_leather_gloves", slot: "gloves" },
       { itemId: "drake_leather_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        maxHp: 250, // +250 HP
-        pAtk: 100, // +100 физ урона
-        attackSpeed: 100, // +100 скорости атаки
-        critRate: 7, // +7% шанс крита
-        pDef: 100, // +100 физ защ
-        mDef: 100, // +100 маг защ
-      },
-    },
+    bonuses: {},
   },
 
   // ===== B-GRADE СЕТ AVADON (Magic Armor Set - Robe) =====
@@ -314,17 +223,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "avadon_gloves", slot: "gloves" },
       { itemId: "avadon_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        maxHp: 300, // +300 HP
-        mAtk: 100, // +100 маг урона
-        castSpeed: 180, // +180 скорости каста
-        skillCritRate: 7, // +7% маг крита
-        maxMp: 200, // +200 MP
-        mpRegen: 6, // +6 реген MP
-        hpRegen: 6, // +6 реген HP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== B-GRADE СЕТ DOOM (Magic Armor Set - Robe) =====
@@ -339,16 +238,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "doom_gloves", slot: "gloves" },
       { itemId: "doom_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 100, // +100 физ защ
-        mDef: 100, // +100 маг защ
-        castSpeed: 200, // +200 скорости каста
-        mAtk: 150, // +150 маг урона
-        skillCritRate: 9, // +9% шанс маг крита
-        maxHp: 300, // +300 HP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== B-GRADE СЕТ BLUE WOLF (Heavy Armor Set) =====
@@ -363,15 +253,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "blue_wolf_gloves", slot: "gloves" },
       { itemId: "blue_wolf_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 150, // +150 физ защ
-        mDef: 150, // +150 маг защ
-        maxHp: 500, // +500 HP
-        attackSpeed: 150, // +150 скорости атаки
-        critRate: 8, // +8% шанс физ крита (конвертується в flat: 8 * 10 = 80)
-      },
-    },
+    bonuses: {},
   },
 
   // ===== B-GRADE СЕТ BOUND BLUE WOLF (Light Armor Set) =====
@@ -385,15 +267,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "bound_blue_wolf_gloves", slot: "gloves" },
       { itemId: "bound_blue_wolf_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 100, // +100 физ защ
-        mDef: 100, // +100 маг защ
-        maxHp: 350, // +350 HP
-        attackSpeed: 200, // +200 скорости атаки
-        critDamage: 200, // +200 сили крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== B-GRADE СЕТ ZUBEI'S (Heavy Armor Set) =====
@@ -408,16 +282,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "zubeis_gauntlets", slot: "gloves" },
       { itemId: "zubeis_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 200, // +200 физ защ
-        mDef: 200, // +200 маг защ
-        maxHp: 650, // +650 HP
-        attackSpeed: 170, // +170 скорости атаки
-        critDamage: 200, // +200 сили крита
-        maxCp: 1000, // +1000 CP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== B-GRADE СЕТ DOOM OF FORTUNE (Light Armor Set) =====
@@ -431,16 +296,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "doom_gloves_of_fortune", slot: "gloves" },
       { itemId: "doom_boots_of_fortune", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 80, // +80 физ защ
-        mDef: 80, // +80 маг защ
-        maxHp: 300, // +300 HP
-        attackSpeed: 180, // +180 скорости атаки
-        critDamage: 100, // +100 сила крита
-        critRate: 5, // +5% шанс крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== A-GRADE СЕТ MAJESTIC (Magic Armor Set - Robe) =====
@@ -454,16 +310,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "majestic_gauntlets", slot: "gloves" },
       { itemId: "majestic_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 150, // +150 физ защ
-        mDef: 150, // +150 маг защ
-        maxHp: 350, // +350 HP
-        maxMp: 300, // +300 MP
-        castSpeed: 200, // +200 скорости касти
-        skillCritRate: 5, // +5% шанс маг кріта
-      },
-    },
+    bonuses: {},
   },
 
   // ===== A-GRADE СЕТ APELLA (Light Armor Set) =====
@@ -477,16 +324,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "apella_leather_gloves_light_armor", slot: "gloves" },
       { itemId: "apella_boots_light_armor", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 180, // +180 физ защ
-        mDef: 180, // +180 маг защ
-        maxHp: 450, // +450 HP
-        attackSpeed: 220, // +220 скорости атаки
-        critRate: 14, // +14% шанс физ крита
-        maxCp: 500, // +500 CP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== A-GRADE СЕТ DARK CRYSTAL (Heavy Armor Set) =====
@@ -501,17 +339,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "dark_crystal_gloves", slot: "gloves" },
       { itemId: "dark_crystal_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 200, // +200 физ защ
-        mDef: 300, // +300 маг защ
-        maxHp: 700, // +700 HP
-        maxCp: 600, // +600 CP
-        attackSpeed: 200, // +200 скорости атаки
-        critRate: 5, // +5% шанс крита
-        critDamage: 150, // +150 сили крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== A-GRADE СЕТ MAJESTIC HEAVY (Heavy Armor Set - Quest Shop) =====
@@ -525,15 +353,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "majestic_heavy_gauntlets", slot: "gloves" },
       { itemId: "majestic_heavy_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 250, // +250 физ защ
-        mDef: 350, // +350 маг защ
-        maxHp: 800, // +800 HP
-        maxCp: 1000, // +1000 CP
-        attackSpeed: 200, // +200 скорости атаки
-      },
-    },
+    bonuses: {},
   },
 
   // ===== A-GRADE СЕТ NIGHTMARE LIGHT (Light Armor Set - Quest Shop) =====
@@ -547,16 +367,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "nightmare_light_gauntlets", slot: "gloves" },
       { itemId: "nightmare_light_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 180, // +180 физ защ
-        mDef: 180, // +180 маг защ
-        pAtk: 150, // +150 физ урона
-        critDamage: 250, // +250 сили крита
-        attackSpeed: 200, // +200 скорости атаки
-        critRate: 10, // +10% шанс крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== A-GRADE СЕТ BOUND DARK CRYSTAL (Magic Armor Set - Robe - Quest Shop) =====
@@ -570,18 +381,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "bound_dark_crystal_gloves", slot: "gloves" },
       { itemId: "bound_dark_crystal_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 150, // +150 физ защ
-        mDef: 150, // +150 маг защ
-        maxHp: 500, // +500 HP
-        castSpeed: 200, // +200 скорости касти
-        critDamage: 200, // +200 сили крита
-        maxCp: 500, // +500 CP
-        mAtk: 200, // +200 маг урона
-        skillCritRate: 10, // +10% шанс маг крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== S-GRADE СЕТ MAJOR ARCANA (Magic Armor Set - Robe) =====
@@ -595,18 +395,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "major_arcana_gloves", slot: "gloves" },
       { itemId: "major_arcana_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 200, // +200 физ защ
-        mDef: 200, // +200 маг защ
-        maxHp: 400, // +400 HP
-        maxCp: 500, // +500 CP
-        maxMp: 400, // +400 MP
-        castSpeed: 250, // +250 скорости касти
-        skillCritRate: 10, // +10% шанс маг крита
-        critDamage: 200, // +200 сили крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== S-GRADE СЕТ DRACONIC LEATHER (Light Armor Set) =====
@@ -620,17 +409,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "draconic_leather_gloves", slot: "gloves" },
       { itemId: "draconic_leather_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        maxHp: 600, // +600 HP
-        maxCp: 500, // +500 CP
-        attackSpeed: 250, // +250 скорости атаки
-        critRate: 16, // +16% шанс крита
-        pDef: 200, // +200 физ защ
-        mDef: 200, // +200 маг защ
-        critDamage: 200, // +200 сили крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== S-GRADE СЕТ IMPERIAL CRUSADER (Heavy Armor Set) =====
@@ -645,16 +424,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "imperial_crusader_gauntlets", slot: "gloves" },
       { itemId: "imperial_crusader_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        maxHp: 1000, // +1000 HP
-        pDef: 250, // +250 физ защ
-        mDef: 350, // +350 маг защ
-        attackSpeed: 230, // +230 скорости атаки
-        critDamage: 180, // +180 сили крита
-        critRate: 7, // +7% шанс крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== S-GRADE СЕТ MOIRAI (Magic Armor Set - Robe - Quest Shop) =====
@@ -669,20 +439,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "moirai_gloves", slot: "gloves" },
       { itemId: "moirai_shoes", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 150, // +150 физ защ
-        mDef: 150, // +150 маг защ
-        maxHp: 500, // +500 HP
-        maxCp: 500, // +500 CP
-        castSpeed: 200, // +200 скорости касти
-        mAtk: 200, // +200 маг урона
-        critDamage: 300, // +300 сили крита
-        skillCritRate: 15, // +15% шанс маг крита
-        pDefPercent: 5, // +5% физ защ
-        maxHpPercent: 10, // +10% HP
-      },
-    },
+    bonuses: {},
   },
 
   // ===== S-GRADE СЕТ VESPER (Heavy Armor Set - Quest Shop) =====
@@ -697,19 +454,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "vesper_gauntlets", slot: "gloves" },
       { itemId: "vesper_boots", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 290, // +290 физ защ
-        mDef: 390, // +390 маг защ
-        maxHp: 1500, // +1500 HP
-        maxCp: 1000, // +1000 CP
-        attackSpeed: 200, // +200 скорости атаки
-        maxHpPercent: 10, // +10% HP
-        pDefPercent: 5, // +5% физ защ
-        mDefPercent: 5, // +5% маг защ
-        critDamage: 200, // +200 сили крита
-      },
-    },
+    bonuses: {},
   },
 
   // ===== S-GRADE СЕТ VESPER LEATHER (Light Armor Set - Quest Shop) =====
@@ -724,20 +469,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "vesper_leather_gloves_quest", slot: "gloves" },
       { itemId: "vesper_leather_boots_quest", slot: "boots" },
     ],
-    bonuses: {
-      fullSet: {
-        pDef: 200, // +200 физ защ
-        mDef: 200, // +200 маг защ
-        maxHp: 650, // +650 HP
-        maxCp: 500, // +500 CP
-        attackSpeed: 250, // +250 скорости атаки
-        critRate: 19, // +19% шанс крита
-        critDamage: 250, // +250 сили крита
-        maxHpPercent: 5, // +5% HP
-        pDefPercent: 5, // +5% физ защ
-        mDefPercent: 5, // +5% маг защ
-      },
-    },
+    bonuses: {},
   },
 ];
 

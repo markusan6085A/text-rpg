@@ -15,10 +15,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 500000,
     bodypart: "head",
     icon: "/items/drops/arrom_c/Demon's_helmet.jpg",
-    stats: {
-      pDef: 80,
-      mDef: 50,
-    },
     description: "Шолом демона C-grade (Demon's Set).",
   },
   {
@@ -31,10 +27,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 900000,
     bodypart: "chest",
     icon: "/items/drops/arrom_c/Demon's_Tunic.jpg",
-    stats: {
-      pDef: 120,
-      mDef: 80,
-    },
     description: "Туніка демона C-grade (Demon's Set).",
   },
   {
@@ -47,10 +39,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 600000,
     bodypart: "legs",
     icon: "/items/drops/arrom_c/Demon's_Stockings.jpg",
-    stats: {
-      pDef: 70,
-      mDef: 45,
-    },
     description: "Панчохи демона C-grade (Demon's Set).",
   },
   {
@@ -63,10 +51,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 400000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_c/Demon's_Gloves.jpg",
-    stats: {
-      pDef: 40,
-      mDef: 30,
-    },
     description: "Рукавиці демона C-grade (Demon's Set).",
   },
   {
@@ -79,10 +63,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 350000,
     bodypart: "feet",
     icon: "/items/drops/arrom_c/Demon's_bots.jpg",
-    stats: {
-      pDef: 35,
-      mDef: 25,
-    },
     description: "Черевики демона C-grade (Demon's Set).",
   },
 
@@ -97,10 +77,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 550000,
     bodypart: "head",
     icon: "/items/drops/arrom_c/Karmian_helmet.jpg",
-    stats: {
-      pDef: 85,
-      mDef: 55,
-    },
     description: "Шолом карміан C-grade (Karmian Set).",
   },
   {
@@ -113,10 +89,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 950000,
     bodypart: "chest",
     icon: "/items/drops/arrom_c/Karmian_Tunic.jpg",
-    stats: {
-      pDef: 125,
-      mDef: 85,
-    },
     description: "Туніка карміан C-grade (Karmian Set).",
   },
   {
@@ -129,10 +101,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 650000,
     bodypart: "legs",
     icon: "/items/drops/arrom_c/Karmian_Stockings.jpg",
-    stats: {
-      pDef: 75,
-      mDef: 50,
-    },
     description: "Панчохи карміан C-grade (Karmian Set).",
   },
   {
@@ -145,10 +113,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 450000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_c/Karmian_Gloves.jpg",
-    stats: {
-      pDef: 45,
-      mDef: 35,
-    },
     description: "Рукавиці карміан C-grade (Karmian Set).",
   },
   {
@@ -161,10 +125,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 380000,
     bodypart: "feet",
     icon: "/items/drops/arrom_c/Karmian_bots.jpg",
-    stats: {
-      pDef: 38,
-      mDef: 28,
-    },
     description: "Черевики карміан C-grade (Karmian Set).",
   },
 
@@ -179,9 +139,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 480000,
     bodypart: "head",
     icon: "/items/drops/arrom_c/Plated_Leather_helmet.jpg",
-    stats: {
-      pDef: 90,
-    },
     description: "Шолом з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
@@ -194,9 +151,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 850000,
     bodypart: "chest",
     icon: "/items/drops/arrom_c/Plated_Leather_Armor.jpg",
-    stats: {
-      pDef: 130,
-    },
     description: "Броня з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
@@ -209,9 +163,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 580000,
     bodypart: "legs",
     icon: "/items/drops/arrom_c/Plated_Leather_Gaiters.jpg",
-    stats: {
-      pDef: 80,
-    },
     description: "Штани з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
@@ -224,9 +175,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 420000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_c/Plated_Leather_gloves.jpg",
-    stats: {
-      pDef: 50,
-    },
     description: "Рукавиці з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
@@ -239,9 +187,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 360000,
     bodypart: "feet",
     icon: "/items/drops/arrom_c/Plated_Leather_Boots.jpg",
-    stats: {
-      pDef: 40,
-    },
     description: "Черевики з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
 
@@ -256,9 +201,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 800000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_c/Shield_composite_shield_i00_0.jpg",
-    stats: {
-      pDef: 150,
-    },
     description: "Композитний щит C-grade.",
   },
   {
@@ -271,9 +213,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 900000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_c/Shield_full_plate_shield_i00_0.jpg",
-    stats: {
-      pDef: 170,
-    },
     description: "Повний пластинчастий щит C-grade.",
   },
 
@@ -288,9 +227,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 200000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_C/accessary_aquastone_ring_i00.png",
-    stats: {
-      mDef: 26,
-    },
     description: "Кільце аквакаменю C-grade.",
   },
   {
@@ -303,9 +239,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 250000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_C/accessary_ring_of_protection_i00.png",
-    stats: {
-      mDef: 28,
-    },
     description: "Кільце захисту C-grade.",
   },
   {
@@ -318,9 +251,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 300000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_C/accessary_ring_of_ages_i00.png",
-    stats: {
-      mDef: 30,
-    },
     description: "Кільце віків C-grade.",
   },
   {
@@ -333,9 +263,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 350000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_C/accessary_ring_of_binding_i00.png",
-    stats: {
-      mDef: 32,
-    },
     description: "Кільце зв'язування C-grade.",
   },
   {
@@ -348,9 +275,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 320000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_C/accessary_blessed_ring_i00.png",
-    stats: {
-      mDef: 32,
-    },
     description: "Благословенне кільце C-grade.",
   },
 
@@ -365,9 +289,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 300000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_C/accessary_moonstone_earing_i00.png",
-    stats: {
-      mDef: 39,
-    },
     description: "Сережка місячного каменю C-grade.",
   },
   {
@@ -380,9 +301,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 350000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_C/accessary_earing_of_protection_i00.png",
-    stats: {
-      mDef: 42,
-    },
     description: "Сережка захисту C-grade.",
   },
   {
@@ -395,9 +313,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 400000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_C/accessary_earing_of_binding_i00.png",
-    stats: {
-      mDef: 45,
-    },
     description: "Сережка зв'язування C-grade.",
   },
   {
@@ -410,9 +325,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 450000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_C/accessary_nassens_earing_i00.png",
-    stats: {
-      mDef: 48,
-    },
     description: "Сережка Нассена C-grade.",
   },
   {
@@ -425,9 +337,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 420000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_C/accessary_blessed_earing_i00.png",
-    stats: {
-      mDef: 48,
-    },
     description: "Благословенна сережка C-grade.",
   },
 
@@ -442,9 +351,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 500000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_C/accessary_aquastone_necklace_i00.png",
-    stats: {
-      mDef: 52,
-    },
     description: "Намисто аквакаменю C-grade.",
   },
   {
@@ -457,9 +363,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 550000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_C/accessary_necklace_of_protection_i00.png",
-    stats: {
-      mDef: 56,
-    },
     description: "Намисто захисту C-grade.",
   },
   {
@@ -472,9 +375,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 600000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_C/accessary_necklace_of_mermaid_i00.png",
-    stats: {
-      mDef: 60,
-    },
     description: "Намисто русалки C-grade.",
   },
   {
@@ -487,9 +387,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 580000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_C/accessary_blessed_necklace_i00.png",
-    stats: {
-      mDef: 64,
-    },
     description: "Благословенне намисто C-grade.",
   },
   {
@@ -502,9 +399,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 620000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_C/accessary_necklace_of_binding_i00.png",
-    stats: {
-      mDef: 64,
-    },
     description: "Намисто зв'язування C-grade.",
   },
   
@@ -518,7 +412,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 16, // Ціна за 1 соулшот
-    icon: "/items/drops/resourcesss/Etc_spirit_bullet_green_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_spirit_bullet_green_i00_0.jpg",
     description: "Соулшот C-грейду для воїнів",
     soulshots: 1,
   },
@@ -531,7 +425,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 16, // Ціна за 1 спірітшот
-    icon: "/items/drops/resourcesss/Etc_spell_shot_green_i01_0.jpg",
+    icon: "/items/drops/resources/Etc_spell_shot_green_i01_0.jpg",
     description: "Спірітшот C-грейду для магів",
     spiritshots: 1,
   },
@@ -545,7 +439,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 12, // Ціна за 1 стрілу
-    icon: "/items/drops/resourcesss/etc_fine_steel_quiver_i00.png",
+    icon: "/items/drops/resources/etc_fine_steel_quiver_i00.png",
     description: "Стріла з тонкої сталі C-грейду",
   },
   
@@ -560,7 +454,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Akat_Long_Bow.jpg",
-    stats: { pAtk: 316, mAtk: 84, rCrit: 12, pAtkSpd: 227 },
     description: "Довгий лук Акат C-grade. Дальня атака.",
   },
   {
@@ -573,7 +466,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/apprentices_spellbook.jpg",
-    stats: { pAtk: 111, mAtk: 101, rCrit: 8, pAtkSpd: 379 },
     description: "Заклинання учня C-grade. Магічна зброя.",
   },
   {
@@ -586,7 +478,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2290000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Battle_Axe.jpg",
-    stats: { pAtk: 107, mAtk: 61, rCrit: 4, pAtkSpd: 379 },
     description: "Бойова сокира C-grade.",
   },
   {
@@ -599,7 +490,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Berserker_Blade.jpg",
-    stats: { pAtk: 190, mAtk: 83, rCrit: 8, pAtkSpd: 325 },
     description: "Клинок берсерка C-grade. Дворучна зброя.",
   },
   {
@@ -612,7 +502,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2290000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Big_Hammer.jpg",
-    stats: { pAtk: 107, mAtk: 61, rCrit: 4, pAtkSpd: 379 },
     description: "Великий молот C-grade.",
   },
   {
@@ -625,7 +514,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Crystal_Dagger.jpg",
-    stats: { pAtk: 136, mAtk: 83, rCrit: 12, pAtkSpd: 433 },
     description: "Кришталевий кинджал C-grade.",
   },
   {
@@ -638,7 +526,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Dark_Screamer.jpg",
-    stats: { pAtk: 122, mAtk: 76, rCrit: 12, pAtkSpd: 433 },
     description: "Темний викрик C-grade.",
   },
   {
@@ -651,7 +538,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Demon_s_Staff.jpg",
-    stats: { pAtk: 152, mAtk: 111, rCrit: 4, pAtkSpd: 325 },
     description: "Посох демона C-grade. Дворучна магічна зброя.",
   },
   {
@@ -664,7 +550,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Dwarven_Hammer.jpg",
-    stats: { pAtk: 190, mAtk: 83, rCrit: 4, pAtkSpd: 325 },
     description: "Дворфський молот C-grade. Дворучна зброя.",
   },
   {
@@ -677,7 +562,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Ecliptic_Sword.jpg",
-    stats: { pAtk: 125, mAtk: 111, rCrit: 8, pAtkSpd: 379 },
     description: "Екліптичний меч C-grade. Магічна зброя.",
   },
   {
@@ -690,7 +574,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Eminence_Bow.jpg",
-    stats: { pAtk: 323, mAtk: 83, rCrit: 12, pAtkSpd: 293 },
     description: "Лук Еміненс C-grade. Дальня атака.",
   },
   {
@@ -703,7 +586,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Fisted_Blade.jpg",
-    stats: { pAtk: 169, mAtk: 76, rCrit: 4, pAtkSpd: 325 },
     description: "Клинок-рукавиця C-grade. Дворучна зброя.",
   },
   {
@@ -716,7 +598,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Great_Pata.jpg",
-    stats: { pAtk: 190, mAtk: 83, rCrit: 4, pAtkSpd: 325 },
     description: "Велика пата C-grade. Дворучна зброя.",
   },
   {
@@ -729,7 +610,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/heathens_book.jpg",
-    stats: { pAtk: 111, mAtk: 101, rCrit: 8, pAtkSpd: 379 },
     description: "Книга язичника C-grade. Магічна зброя.",
   },
   {
@@ -742,7 +622,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2290000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
-    stats: { pAtk: 103, mAtk: 81, rCrit: 4, pAtkSpd: 325 },
     description: "Важка сокира загибелі C-grade. Дворучна магічна зброя.",
   },
   {
@@ -755,7 +634,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2290000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
-    stats: { pAtk: 103, mAtk: 81, rCrit: 4, pAtkSpd: 325 },
     description: "Важкий молот загибелі C-grade. Дворучна магічна зброя.",
   },
   {
@@ -768,7 +646,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Homunkulus_s_Sword.jpg",
-    stats: { pAtk: 111, mAtk: 101, rCrit: 8, pAtkSpd: 379 },
     description: "Меч гомункула C-grade. Магічна зброя.",
   },
   {
@@ -781,7 +658,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 2870000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Knuckle_Duster.jpg",
-    stats: { pAtk: 148, mAtk: 68, rCrit: 4, pAtkSpd: 325 },
     description: "Кастет C-grade. Дворучна зброя.",
   },
   {
@@ -794,7 +670,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Orcish_Poleaxe.jpg",
-    stats: { pAtk: 156, mAtk: 83, rCrit: 8, pAtkSpd: 325 },
     description: "Оркська алебарда C-grade. Дальня атака (спис).",
   },
   {
@@ -807,7 +682,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Pa_agrian_Sword.jpg",
-    stats: { pAtk: 169, mAtk: 76, rCrit: 8, pAtkSpd: 325 },
     description: "Меч Паагріан C-grade. Дворучна зброя.",
   },
   {
@@ -820,7 +694,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
-    stats: { pAtk: 135, mAtk: 101, rCrit: 4, pAtkSpd: 325 },
     description: "Молот Паагріан C-grade. Дворучна магічна зброя.",
   },
   {
@@ -833,7 +706,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4780000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
-    stats: { pAtk: 141, mAtk: 104, rCrit: 4, pAtkSpd: 325 },
     description: "Сокира Паагріан C-grade. Дворучна магічна зброя.",
   },
   {
@@ -846,7 +718,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Samurai_Longsword.jpg",
-    stats: { pAtk: 156, mAtk: 83, rCrit: 8, pAtkSpd: 379 },
     description: "Довгий меч самурая C-grade.",
   },
   {
@@ -859,7 +730,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4780000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Scorpion.jpg",
-    stats: { pAtk: 144, mAtk: 78, rCrit: 8, pAtkSpd: 325 },
     description: "Скорпіон C-grade. Дальня атака (спис).",
   },
   {
@@ -872,7 +742,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4300000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/War_Axe.jpg",
-    stats: { pAtk: 139, mAtk: 76, rCrit: 4, pAtkSpd: 379 },
     description: "Військова сокира C-grade.",
   },
   {
@@ -885,7 +754,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 4780000,
     bodypart: "lrhand",
     icon: "/items/drops/weapon_c/Widow_Maker.jpg",
-    stats: { pAtk: 144, mAtk: 78, rCrit: 8, pAtkSpd: 325 },
     description: "Творець вдови C-grade. Дальня атака (спис).",
   },
   {
@@ -898,7 +766,6 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 6130000,
     bodypart: "rhand",
     icon: "/items/drops/weapon_c/Yaksa_Mace.jpg",
-    stats: { pAtk: 156, mAtk: 83, rCrit: 4, pAtkSpd: 379 },
     description: "Булава Якса C-grade.",
   },
 ];

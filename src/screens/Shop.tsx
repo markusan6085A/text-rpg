@@ -237,11 +237,11 @@ export default function Shop({ navigate }: ShopProps) {
       if (bonuses.accuracy) bonusesList.push(`+${bonuses.accuracy} Точність`);
     }
 
-    let result = `\n\n[Сет: ${set.name}]\n`;
-    if (bonusesList.length > 0) {
-      result += `Повний сет: ${bonusesList.join(", ")}\n`;
-    }
+    // Нічого не показуємо, якщо немає бонусів
+    if (bonusesList.length === 0) return null;
 
+    let result = `\n\n[Сет: ${set.name}]\n`;
+    result += `Повний сет: ${bonusesList.join(", ")}\n`;
     return result;
   };
 

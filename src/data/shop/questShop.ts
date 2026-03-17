@@ -17,12 +17,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_d/kv_shop/apprentices_spellbook.jpg",
-    stats: {
-      pAtk: 29, // 9 + 20
-      mAtk: 32, // 12 + 20
-      rCrit: 8,
-      pAtkSpd: 429, // 379 + 50 швидкості бою
-    },
     description: "Книга заклинань учня D-grade. Покращена версія з більшою швидкістю бою.",
     soulshots: 1,
     spiritshots: 1,
@@ -38,12 +32,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_d/kv_shop/Baguette_s_Dualsword.jpg",
-    stats: {
-      pAtk: 116, // 96 + 20
-      mAtk: 67, // 47 + 20
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Подвійний меч Багет D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -59,12 +47,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_d/kv_shop/Bonebreaker.jpg",
-    stats: {
-      pAtk: 112, // 92 + 20
-      mAtk: 74, // 54 + 20
-      rCrit: 4,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Ламач кісток D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -80,12 +62,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_d/kv_shop/Claymore.jpg",
-    stats: {
-      pAtk: 132, // 112 + 20
-      mAtk: 74, // 54 + 20
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Клеймор D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -101,12 +77,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_d/kv_shop/Elven_Long_Sword.jpg",
-    stats: {
-      pAtk: 112, // 92 + 20
-      mAtk: 74, // 54 + 20
-      rCrit: 8,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Ельфійський довгий меч D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -122,12 +92,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_d/kv_shop/Glaive.jpg",
-    stats: {
-      pAtk: 112, // 92 + 20
-      mAtk: 74, // 54 + 20
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Глефа D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -143,12 +107,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_d/kv_shop/Light_Crossbow.jpg",
-    stats: {
-      pAtk: 211, // 191 + 20
-      mAtk: 74, // 54 + 20
-      rCrit: 12,
-      pAtkSpd: 343, // 293 + 50
-    },
     description: "Легкий арбалет D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 10,
     spiritshots: 3,
@@ -164,12 +122,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_d/kv_shop/Mithril_Dagger.jpg",
-    stats: {
-      pAtk: 100, // 80 + 20
-      mAtk: 74, // 54 + 20
-      rCrit: 12,
-      pAtkSpd: 483, // 433 + 50
-    },
     description: "Мітриловий кинджал D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -185,12 +137,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_d/kv_shop/Scallop_Jamadhr.jpg",
-    stats: {
-      pAtk: 132, // 112 + 20
-      mAtk: 74, // 54 + 20
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Гребінчастий джамадхр D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -206,12 +152,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_d/kv_shop/Titan_Hammer.jpg",
-    stats: {
-      pAtk: 110, // 90 + 20
-      mAtk: 92, // 72 + 20
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50 швидкості бою
-    },
     description: "Молот титана D-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -230,12 +170,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_c/Akat_Long_Bow.jpg",
-    stats: {
-      pAtk: 346, // 316 + 30
-      mAtk: 114, // 84 + 30
-      rCrit: 12,
-      pAtkSpd: 287, // 227 + 60
-    },
     description: "Довгий лук Акат C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 9,
     spiritshots: 3,
@@ -251,12 +185,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_c/apprentices_spellbook.jpg",
-    stats: {
-      pAtk: 141, // 111 + 30
-      mAtk: 131, // 101 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Заклинання учня C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 1,
     spiritshots: 1,
@@ -272,12 +200,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_c/Battle_Axe.jpg",
-    stats: {
-      pAtk: 137, // 107 + 30
-      mAtk: 91, // 61 + 30
-      rCrit: 4,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Бойова сокира C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 2,
     spiritshots: 2,
@@ -293,12 +215,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_c/Berserker_Blade.jpg",
-    stats: {
-      pAtk: 220, // 190 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Клинок берсерка C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -314,12 +230,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_c/Big_Hammer.jpg",
-    stats: {
-      pAtk: 137, // 107 + 30
-      mAtk: 91, // 61 + 30
-      rCrit: 4,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Великий молот C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 2,
     spiritshots: 2,
@@ -335,12 +245,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_c/Crystal_Dagger.jpg",
-    stats: {
-      pAtk: 166, // 136 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 12,
-      pAtkSpd: 493, // 433 + 60
-    },
     description: "Кришталевий кинджал C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -356,12 +260,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_c/Dark_Screamer.jpg",
-    stats: {
-      pAtk: 152, // 122 + 30
-      mAtk: 106, // 76 + 30
-      rCrit: 12,
-      pAtkSpd: 493, // 433 + 60
-    },
     description: "Темний викрик C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -377,12 +275,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_c/Demon_s_Staff.jpg",
-    stats: {
-      pAtk: 182, // 152 + 30
-      mAtk: 141, // 111 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Посох демона C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -398,12 +290,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_c/Dwarven_Hammer.jpg",
-    stats: {
-      pAtk: 220, // 190 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Дворфський молот C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -419,12 +305,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_c/Ecliptic_Sword.jpg",
-    stats: {
-      pAtk: 155, // 125 + 30
-      mAtk: 141, // 111 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Екліптичний меч C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -440,12 +320,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_c/Eminence_Bow.jpg",
-    stats: {
-      pAtk: 353, // 323 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 12,
-      pAtkSpd: 353, // 293 + 60
-    },
     description: "Лук Еміненс C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 10,
     spiritshots: 3,
@@ -461,12 +335,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_c/Fisted_Blade.jpg",
-    stats: {
-      pAtk: 199, // 169 + 30
-      mAtk: 106, // 76 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Клинок-рукавиця C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -482,12 +350,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_c/Great_Pata.jpg",
-    stats: {
-      pAtk: 220, // 190 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Велика пата C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -503,12 +365,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_c/heathens_book.jpg",
-    stats: {
-      pAtk: 141, // 111 + 30
-      mAtk: 131, // 101 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Книга язичника C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -524,12 +380,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
-    stats: {
-      pAtk: 133, // 103 + 30
-      mAtk: 111, // 81 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Важка сокира загибелі C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 2,
     spiritshots: 2,
@@ -545,12 +395,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
-    stats: {
-      pAtk: 133, // 103 + 30
-      mAtk: 111, // 81 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Важкий молот загибелі C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 2,
     spiritshots: 2,
@@ -566,12 +410,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_c/Homunkulus_s_Sword.jpg",
-    stats: {
-      pAtk: 141, // 111 + 30
-      mAtk: 131, // 101 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Меч гомункула C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -587,12 +425,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_c/Knuckle_Duster.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 98, // 68 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Кастет C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 2,
     spiritshots: 2,
@@ -608,12 +440,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_c/Orcish_Poleaxe.jpg",
-    stats: {
-      pAtk: 186, // 156 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Оркська алебарда C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -629,12 +455,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_c/Pa_agrian_Sword.jpg",
-    stats: {
-      pAtk: 199, // 169 + 30
-      mAtk: 106, // 76 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Меч Паагріан C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -650,12 +470,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
-    stats: {
-      pAtk: 165, // 135 + 30
-      mAtk: 131, // 101 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Молот Паагріан C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -671,12 +485,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
-    stats: {
-      pAtk: 171, // 141 + 30
-      mAtk: 134, // 104 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Сокира Паагріан C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -692,12 +500,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_c/Samurai_Longsword.jpg",
-    stats: {
-      pAtk: 186, // 156 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Довгий меч самурая C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -713,12 +515,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_c/Scorpion.jpg",
-    stats: {
-      pAtk: 174, // 144 + 30
-      mAtk: 108, // 78 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Скорпіон C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -734,12 +530,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_c/War_Axe.jpg",
-    stats: {
-      pAtk: 169, // 139 + 30
-      mAtk: 106, // 76 + 30
-      rCrit: 4,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Військова сокира C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -755,12 +545,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_c/Widow_Maker.jpg",
-    stats: {
-      pAtk: 174, // 144 + 30
-      mAtk: 108, // 78 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Творець вдови C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -776,12 +560,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_c/Yaksa_Mace.jpg",
-    stats: {
-      pAtk: 186, // 156 + 30
-      mAtk: 113, // 83 + 30
-      rCrit: 4,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Булава Якса C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     soulshots: 3,
     spiritshots: 3,
@@ -800,12 +578,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_b/apprentices_spellbook.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 172, // 142 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Книга заклинань учня B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -821,12 +593,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_b/Art_of_Battle_Axe.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 4,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Бойова сокира мистецтва B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -842,12 +608,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "dwhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_b/Arthro_Nail.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 12,
-      pAtkSpd: 493, // 433 + 60
-    },
     description: "Кіготь Артро B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -863,12 +623,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "dwhand",
     weaponType: "DUALSWORD",
     icon: "/items/drops/weapon_b/Baguette_s_Dualsword.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Дворучний меч Багет B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -884,12 +638,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "dwhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_b/Bellion_Cestus.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 12,
-      pAtkSpd: 493, // 433 + 60
-    },
     description: "Цестус Белліона B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -905,12 +653,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_b/Bow_of_Peril.jpg",
-    stats: {
-      pAtk: 472, // 442 + 30
-      mAtk: 148, // 118 + 30
-      rCrit: 12,
-      pAtkSpd: 287, // 227 + 60
-    },
     description: "Лук небезпеки B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -926,12 +668,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_b/Dark_Elven_Long_Bow.jpg",
-    stats: {
-      pAtk: 472, // 442 + 30
-      mAtk: 148, // 118 + 30
-      rCrit: 12,
-      pAtkSpd: 287, // 227 + 60
-    },
     description: "Довгий лук темних ельфів B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -947,12 +683,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_b/Deadman_s_Glory.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 146, // 116 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Слава мертвого B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -968,12 +698,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_b/Great_Axe.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 185, // 155 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Велика сокира B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -989,12 +713,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_b/Great_Sword.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 146, // 116 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Великий меч B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1010,12 +728,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_b/Guardian_Sword.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Меч вартового B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1031,12 +743,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_b/Hell_Knife.jpg",
-    stats: {
-      pAtk: 221, // 191 + 30
-      mAtk: 146, // 116 + 30
-      rCrit: 12,
-      pAtkSpd: 493, // 433 + 60
-    },
     description: "Кинджал пекла B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1052,12 +758,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_b/Ice_Storm_Hammer.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 185, // 155 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Молот крижаної бурі B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1073,12 +773,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_b/Kaim_Vanul_s_Bones.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 225, // 195 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Кістки Кайма Ванула B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1094,12 +788,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_b/Kris.jpg",
-    stats: {
-      pAtk: 221, // 191 + 30
-      mAtk: 146, // 116 + 30
-      rCrit: 12,
-      pAtkSpd: 493, // 433 + 60
-    },
     description: "Крис B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1115,12 +803,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_b/Lance.jpg",
-    stats: {
-      pAtk: 251, // 221 + 30
-      mAtk: 157, // 127 + 30
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Спіс B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1136,12 +818,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "RAPIER",
     icon: "/items/drops/weapon_b/Spell_Breaker.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Руйнівник заклинань B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1157,12 +833,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_b/Spirit_s_Staff.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 225, // 195 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Посох духа B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1178,12 +848,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 225, // 195 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Посох злих духів B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1199,12 +863,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_b/Star_Buster.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 225, // 195 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Руйнівник зірок B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1220,12 +878,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_b/Sword_of_Damascus.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Меч Дамаска B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1241,12 +893,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
-    stats: {
-      pAtk: 178, // 148 + 30
-      mAtk: 115, // 85 + 30
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Меч Вальгалли B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1262,12 +908,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_b/Wizard_s_Tear.jpg",
-    stats: {
-      pAtk: 297, // 267 + 30
-      mAtk: 225, // 195 + 30
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Сльоза чарівника B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 3,
     spiritshots: 3,
@@ -1286,12 +926,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_a/Dark_Legion_s_Edge.jpg",
-    stats: {
-      pAtk: 272, // 232 + 40
-      mAtk: 154, // 114 + 40
-      rCrit: 8,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Клинок темного легіону A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1307,12 +941,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_a/Meteor_Shower.jpg",
-    stats: {
-      pAtk: 253, // 213 + 40
-      mAtk: 147, // 107 + 40
-      rCrit: 4,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Метеорний дощ A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1328,12 +956,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_a/apprentices_spellbook.jpg",
-    stats: {
-      pAtk: 260, // 220 + 40
-      mAtk: 240, // 200 + 40
-      rCrit: 8,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Книга заклинань учня A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1349,12 +971,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALSWORD",
     icon: "/items/drops/weapon_a/Baguette_s_Dualsword.jpg",
-    stats: {
-      pAtk: 345, // 305 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Дворучний меч Багет A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1370,12 +986,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_a/Barakiel_s_Axe.jpg",
-    stats: {
-      pAtk: 272, // 232 + 40
-      mAtk: 154, // 114 + 40
-      rCrit: 4,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Сокира Баракіеля A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1391,12 +1001,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Behemoth_s_Tuning_Fork.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 240, // 200 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Камертон Бегемота A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1412,12 +1016,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Blood_Tornado.jpg",
-    stats: {
-      pAtk: 345, // 305 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Кривавий торнадо A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1433,12 +1031,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_a/Bloody_Orchid.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 12,
-      pAtkSpd: 483, // 433 + 50
-    },
     description: "Кривава орхідея A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1454,12 +1046,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Branch_of_The_Mother_Tree.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 240, // 200 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Гілка материнського дерева A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1475,12 +1061,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_a/Cabrio_s _Hand.jpg",
-    stats: {
-      pAtk: 322, // 282 + 40
-      mAtk: 154, // 114 + 40
-      rCrit: 12,
-      pAtkSpd: 483, // 433 + 50
-    },
     description: "Рука Кабріо A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1496,12 +1076,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Carnage_Bow.jpg",
-    stats: {
-      pAtk: 568, // 528 + 40
-      mAtk: 165, // 125 + 40
-      rCrit: 12,
-      pAtkSpd: 317, // 267 + 50
-    },
     description: "Лук різанини A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 10,
     spiritshots: 1,
@@ -1517,12 +1091,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Daimon_Crystal.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 240, // 200 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Кристал Даймона A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1538,12 +1106,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Dasparion_s_Staff.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 290, // 250 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Посох Даспаріона A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1559,12 +1121,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_a/Dragon_Grinder.jpg",
-    stats: {
-      pAtk: 322, // 282 + 40
-      mAtk: 154, // 114 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Подрібнювач дракона A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1580,12 +1136,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Dragon_Slayer.jpg",
-    stats: {
-      pAtk: 322, // 282 + 40
-      mAtk: 154, // 114 + 40
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Вбивця драконів A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1601,12 +1151,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Elysian.jpg",
-    stats: {
-      pAtk: 568, // 528 + 40
-      mAtk: 165, // 125 + 40
-      rCrit: 12,
-      pAtkSpd: 317, // 267 + 50
-    },
     description: "Елізійський лук A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 10,
     spiritshots: 1,
@@ -1622,12 +1166,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Halberd.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 12,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Алебарда A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1643,12 +1181,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Infernal_Master.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 240, // 200 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Інфернальний майстер A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1664,12 +1196,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Naga_Storm.jpg",
-    stats: {
-      pAtk: 345, // 305 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Буря наги A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1685,12 +1211,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Shyeed_s_Bow.jpg",
-    stats: {
-      pAtk: 568, // 528 + 40
-      mAtk: 165, // 125 + 40
-      rCrit: 12,
-      pAtkSpd: 317, // 267 + 50
-    },
     description: "Лук Шіда A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 10,
     spiritshots: 1,
@@ -1706,12 +1226,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_a/Sirra_s_Blade.jpg",
-    stats: {
-      pAtk: 291, // 251 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Клинок Сірри A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1727,12 +1241,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Sobekk_s_Hurricane.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 12,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Ураган Собекка A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1748,12 +1256,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_a/Soul_Bow.jpg",
-    stats: {
-      pAtk: 568, // 528 + 40
-      mAtk: 165, // 125 + 40
-      rCrit: 12,
-      pAtkSpd: 317, // 267 + 50
-    },
     description: "Лук душі A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 10,
     spiritshots: 1,
@@ -1769,12 +1271,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Soul_Separator.jpg",
-    stats: {
-      pAtk: 345, // 305 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Роздільник душ A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1790,12 +1286,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Spiritual_Eye.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 240, // 200 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Духовне око A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1811,12 +1301,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_a/Sword_of_Ipos.jpg",
-    stats: {
-      pAtk: 345, // 305 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Меч Іпоса A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1832,12 +1316,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_a/Sword_of_Miracles.jpg",
-    stats: {
-      pAtk: 291, // 251 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 429, // 379 + 50
-    },
     description: "Меч див A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1853,12 +1331,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALSWORD",
     icon: "/items/drops/weapon_a/Tallum_Blade.jpg",
-    stats: {
-      pAtk: 345, // 305 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 8,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Клинок Таллума A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1874,12 +1346,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Tallum_Glaive.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 12,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Глефа Таллума A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1895,12 +1361,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_a/Themis_Tongue.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 240, // 200 + 40
-      rCrit: 4,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Язик Теміди A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1916,12 +1376,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_a/Tiphon_s_Spear.jpg",
-    stats: {
-      pAtk: 320, // 280 + 40
-      mAtk: 161, // 121 + 40
-      rCrit: 12,
-      pAtkSpd: 375, // 325 + 50
-    },
     description: "Спіс Тіфона A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1940,12 +1394,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_s/Angel_Slayer.jpg",
-    stats: {
-      pAtk: 304, // 246 + 58
-      mAtk: 190, // 132 + 58
-      rCrit: 12,
-      pAtkSpd: 493, // 433 + 60
-    },
     description: "Вбивця янголів S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1961,12 +1409,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "ETC",
     icon: "/items/drops/weapon_s/apprentices_spellbook.jpg",
-    stats: {
-      pAtk: 308, // 250 + 58
-      mAtk: 278, // 220 + 58
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Книга заклинань учня S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -1982,12 +1424,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_s/Arcana_Mace.jpg",
-    stats: {
-      pAtk: 283, // 225 + 58
-      mAtk: 233, // 175 + 58
-      rCrit: 4,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Булава аркани S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2003,12 +1439,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALSWORD",
     icon: "/items/drops/weapon_s/Baguette_s_Dualsword.jpg",
-    stats: {
-      pAtk: 408, // 350 + 58
-      mAtk: 193, // 135 + 58
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Дворучний меч Багет S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2024,12 +1454,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_s/Basalt_Battlehammer.jpg",
-    stats: {
-      pAtk: 339, // 281 + 58
-      mAtk: 190, // 132 + 58
-      rCrit: 4,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Базальтовий бойовий молот S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2045,12 +1469,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_s/Demon_Splinter.jpg",
-    stats: {
-      pAtk: 400, // 342 + 58
-      mAtk: 190, // 132 + 58
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Уламок демона S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2066,12 +1484,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_s/Draconic_Bow.jpg",
-    stats: {
-      pAtk: 639, // 581 + 58
-      mAtk: 190, // 132 + 58
-      rCrit: 12,
-      pAtkSpd: 353, // 293 + 60
-    },
     description: "Драконічний лук S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2087,12 +1499,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_s/Dragon_Hunter_Axe.jpg",
-    stats: {
-      pAtk: 400, // 342 + 58
-      mAtk: 190, // 132 + 58
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Сокира мисливця на драконів S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2108,12 +1514,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_s/God_s_Blade.jpg",
-    stats: {
-      pAtk: 315, // 257 + 58
-      mAtk: 182, // 124 + 58
-      rCrit: 8,
-      pAtkSpd: 439, // 379 + 60
-    },
     description: "Клинок бога S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2129,12 +1529,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_s/Heaven_s_Divider.jpg",
-    stats: {
-      pAtk: 400, // 342 + 58
-      mAtk: 190, // 132 + 58
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Роздільник небес S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2150,12 +1544,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_s/Imperial_Staff.jpg",
-    stats: {
-      pAtk: 332, // 274 + 58
-      mAtk: 233, // 175 + 58
-      rCrit: 4,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Імператорський посох S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2171,12 +1559,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_s/Saint_Spear.jpg",
-    stats: {
-      pAtk: 339, // 281 + 58
-      mAtk: 190, // 132 + 58
-      rCrit: 8,
-      pAtkSpd: 385, // 325 + 60
-    },
     description: "Святий спіс S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2192,12 +1574,6 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_s/Shining_Bow.jpg",
-    stats: {
-      pAtk: 638, // 580 + 58
-      mAtk: 193, // 135 + 58
-      rCrit: 12,
-      pAtkSpd: 353, // 293 + 60
-    },
     description: "Сяючий лук S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     soulshots: 1,
     spiritshots: 1,
@@ -2217,9 +1593,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 100, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_d/Oath_Helm.jpg",
-    stats: {
-      pDef: 37,
-    },
     description: "Шолом клятви D-grade (Oath Set).",
   },
   {
@@ -2232,10 +1605,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 150,
     bodypart: "chest",
     icon: "/items/drops/arrom_d/Oath_Aketon.jpg",
-    stats: {
-      pDef: 80,
-      mDef: 50,
-    },
     description: "Акетон клятви D-grade (Oath Set).",
   },
   {
@@ -2248,10 +1617,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 80,
     bodypart: "gloves",
     icon: "/items/drops/arrom_d/Oath_Gloves.jpg",
-    stats: {
-      pDef: 20,
-      mDef: 15,
-    },
     description: "Підбиті рукавиці клятви D-grade (Oath Set).",
   },
   {
@@ -2264,10 +1629,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 70,
     bodypart: "feet",
     icon: "/items/drops/arrom_d/Oath_Sandals.jpg",
-    stats: {
-      pDef: 18,
-      mDef: 12,
-    },
     description: "Сандалі клятви D-grade (Oath Set).",
   },
 
@@ -2282,9 +1643,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 130, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_d/Shadow_Oath_Helm.jpg",
-    stats: {
-      pDef: 50,
-    },
     description: "Шолом тіні клятви D-grade (Shadow Oath Set).",
   },
   {
@@ -2297,9 +1655,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 200,
     bodypart: "chest",
     icon: "/items/drops/arrom_d/Shadow_Oath_Armor.jpg",
-    stats: {
-      pDef: 100,
-    },
     description: "Броня тіні клятви D-grade (Shadow Oath Set).",
   },
   {
@@ -2312,9 +1667,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 110,
     bodypart: "gloves",
     icon: "/items/drops/arrom_d/Shadow_Oath_Gauntlets.jpg",
-    stats: {
-      pDef: 35,
-    },
     description: "Рукавиці тіні клятви D-grade (Shadow Oath Set).",
   },
   {
@@ -2327,9 +1679,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 95,
     bodypart: "feet",
     icon: "/items/drops/arrom_d/Shadow_Oath_Sabaton.jpg",
-    stats: {
-      pDef: 30,
-    },
     description: "Сабатони тіні клятви D-grade (Shadow Oath Set).",
   },
 
@@ -2344,10 +1693,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 200, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_c/Divine_helmet.jpg",
-    stats: {
-      pDef: 90,
-      mDef: 60,
-    },
     description: "Шолом божественності C-grade (Divine Set).",
   },
   {
@@ -2360,10 +1705,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 300,
     bodypart: "chest",
     icon: "/items/drops/arrom_c/Divine_Tunic.jpg",
-    stats: {
-      pDef: 140,
-      mDef: 95,
-    },
     description: "Туніка божественності C-grade (Divine Set).",
   },
   {
@@ -2376,10 +1717,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 250,
     bodypart: "legs",
     icon: "/items/drops/arrom_c/Divine_Stockings.jpg",
-    stats: {
-      pDef: 85,
-      mDef: 55,
-    },
     description: "Панчохи божественності C-grade (Divine Set).",
   },
   {
@@ -2392,10 +1729,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 180,
     bodypart: "gloves",
     icon: "/items/drops/arrom_c/Divine_Gloves.jpg",
-    stats: {
-      pDef: 50,
-      mDef: 40,
-    },
     description: "Рукавиці божественності C-grade (Divine Set).",
   },
   {
@@ -2408,10 +1741,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 160,
     bodypart: "feet",
     icon: "/items/drops/arrom_c/Divine_boots.jpg",
-    stats: {
-      pDef: 45,
-      mDef: 35,
-    },
     description: "Черевики божественності C-grade (Divine Set).",
   },
 
@@ -2426,9 +1755,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 220, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_c/Drake_Leather_Helmet.jpg",
-    stats: {
-      pDef: 95,
-    },
     description: "Шолом зі шкіри дракона C-grade (Drake Leather Set).",
   },
   {
@@ -2441,9 +1767,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 320,
     bodypart: "chest",
     icon: "/items/drops/arrom_c/Drake_Leather_Armor.jpg",
-    stats: {
-      pDef: 145,
-    },
     description: "Броня зі шкіри дракона C-grade (Drake Leather Set).",
   },
   {
@@ -2456,9 +1779,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 200,
     bodypart: "gloves",
     icon: "/items/drops/arrom_c/Drake_Leather_Gloves.jpg",
-    stats: {
-      pDef: 55,
-    },
     description: "Рукавиці зі шкіри дракона C-grade (Drake Leather Set).",
   },
   {
@@ -2471,9 +1791,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 180,
     bodypart: "feet",
     icon: "/items/drops/arrom_c/Drake_Leather_Boots.jpg",
-    stats: {
-      pDef: 48,
-    },
     description: "Черевики зі шкіри дракона C-grade (Drake Leather Set).",
   },
 
@@ -2488,10 +1805,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 350, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_b/Doom_Helmet.jpg",
-    stats: {
-      pDef: 130,
-      mDef: 100,
-    },
     description: "Шолом загибелі B-grade (Doom Set).",
   },
   {
@@ -2504,10 +1817,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 500,
     bodypart: "chest",
     icon: "/items/drops/arrom_b/Tunic_of_Doom.jpg",
-    stats: {
-      pDef: 190,
-      mDef: 140,
-    },
     description: "Туніка загибелі B-grade (Doom Set).",
   },
   {
@@ -2520,10 +1829,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 400,
     bodypart: "legs",
     icon: "/items/drops/arrom_b/Stockings_of_Doom.jpg",
-    stats: {
-      pDef: 100,
-      mDef: 75,
-    },
     description: "Панчохи загибелі B-grade (Doom Set).",
   },
   {
@@ -2536,10 +1841,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 300,
     bodypart: "gloves",
     icon: "/items/drops/arrom_b/Doom_Gloves.jpg",
-    stats: {
-      pDef: 75,
-      mDef: 60,
-    },
     description: "Рукавиці загибелі B-grade (Doom Set).",
   },
   {
@@ -2552,10 +1853,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 280,
     bodypart: "feet",
     icon: "/items/drops/arrom_b/Doom_Boots.jpg",
-    stats: {
-      pDef: 70,
-      mDef: 55,
-    },
     description: "Черевики загибелі B-grade (Doom Set).",
   },
 
@@ -2570,11 +1867,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 150, // Ціна в Серебряных Монетах
     bodypart: "lhand",
     icon: "/items/drops/arrom_d/monster.jpg",
-    stats: {
-      pDef: 50,
-      shieldBlockRate: 20, // +20% шанс блока щитом
-      maxHp: 150, // +150 HP
-    },
     description: "Щит монстра D-grade. +50 физ защ, +20% шанс блока щитом, +150 HP.",
   },
   {
@@ -2587,11 +1879,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 280, // Ціна в Серебряных Монетах
     bodypart: "lhand",
     icon: "/items/drops/arrom_d/monster.jpg",
-    stats: {
-      pDef: 150,
-      shieldBlockRate: 30, // +30% шанс блока щитом
-      maxHp: 250, // +250 HP
-    },
     description: "Щит монстра C-grade. +150 физ защ, +30% шанс блока щитом, +250 HP.",
   },
   {
@@ -2604,13 +1891,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 450, // Ціна в Серебряных Монетах
     bodypart: "lhand",
     icon: "/items/drops/arrom_d/monster.jpg",
-    stats: {
-      pDef: 200,
-      shieldBlockRate: 35, // +35% шанс блока щитом
-      maxHp: 300, // +300 HP
-      pDefPercent: 5, // +5% физ защ
-      mDefPercent: 5, // +5% маг защ
-    },
     description: "Щит монстра B-grade. +200 физ защ, +35% шанс блока щитом, +300 HP, +5% физ и маг защ.",
   },
 
@@ -2625,9 +1905,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 400, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_b/Bound_Blue_Wolf_Helmet.jpg",
-    stats: {
-      pDef: 135,
-    },
     description: "Шолом зв'язаного синього вовка B-grade (Bound Blue Wolf Set).",
   },
   {
@@ -2640,9 +1917,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 550,
     bodypart: "chest",
     icon: "/items/drops/arrom_b/Bound_Blue_Wolf_Leather_Armor.jpg",
-    stats: {
-      pDef: 195,
-    },
     description: "Броня зв'язаного синього вовка B-grade (Bound Blue Wolf Set).",
   },
   {
@@ -2655,9 +1929,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 350,
     bodypart: "gloves",
     icon: "/items/drops/arrom_b/Bound_Blue_Wolf_Gloves.jpg",
-    stats: {
-      pDef: 85,
-    },
     description: "Рукавиці зв'язаного синього вовка B-grade (Bound Blue Wolf Set).",
   },
   {
@@ -2670,9 +1941,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 320,
     bodypart: "feet",
     icon: "/items/drops/arrom_b/Bound_Blue_Wolf_Boots.jpg",
-    stats: {
-      pDef: 80,
-    },
     description: "Черевики зв'язаного синього вовка B-grade (Bound Blue Wolf Set).",
   },
 
@@ -2687,9 +1955,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 450, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_b/Zubei's_Helmet.jpg",
-    stats: {
-      pDef: 145,
-    },
     description: "Шолом Зубея B-grade (Zubei's Set).",
   },
   {
@@ -2702,9 +1967,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 600,
     bodypart: "chest",
     icon: "/items/drops/arrom_b/Zubei's_Breastplate.jpg",
-    stats: {
-      pDef: 210,
-    },
     description: "Нагрудник Зубея B-grade (Zubei's Set).",
   },
   {
@@ -2717,9 +1979,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 500,
     bodypart: "legs",
     icon: "/items/drops/arrom_b/Zubei's_Gaiters.jpg",
-    stats: {
-      pDef: 130,
-    },
     description: "Штани Зубея B-grade (Zubei's Set).",
   },
   {
@@ -2732,9 +1991,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 400,
     bodypart: "gloves",
     icon: "/items/drops/arrom_b/Zubei's_Gauntlets.jpg",
-    stats: {
-      pDef: 90,
-    },
     description: "Рукавиці Зубея B-grade (Zubei's Set).",
   },
   {
@@ -2747,9 +2003,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 380,
     bodypart: "feet",
     icon: "/items/drops/arrom_b/Zubei's_Boot.jpg",
-    stats: {
-      pDef: 85,
-    },
     description: "Черевики Зубея B-grade (Zubei's Set).",
   },
 
@@ -2764,9 +2017,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 800, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_а/Majesticc_Circlet.jpg",
-    stats: {
-      pDef: 200,
-    },
     description: "Діадема величі A-grade (Majestic Heavy Set).",
   },
   {
@@ -2779,9 +2029,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1200,
     bodypart: "chest",
     icon: "/items/drops/arrom_а/Majesticc_Plate_Armor.jpg",
-    stats: {
-      pDef: 300,
-    },
     description: "Пластинчаста броня величі A-grade (Majestic Heavy Set).",
   },
   {
@@ -2794,9 +2041,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 600,
     bodypart: "gloves",
     icon: "/items/drops/arrom_а/Majesticc_Gauntlets.jpg",
-    stats: {
-      pDef: 120,
-    },
     description: "Рукавиці величі A-grade (Majestic Heavy Set).",
   },
   {
@@ -2809,9 +2053,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 550,
     bodypart: "feet",
     icon: "/items/drops/arrom_а/Majesticc_Boots.jpg",
-    stats: {
-      pDef: 110,
-    },
     description: "Черевики величі A-grade (Majestic Heavy Set).",
   },
 
@@ -2826,9 +2067,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 750, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_а/Helm_of_Nightmare.jpg",
-    stats: {
-      pDef: 190,
-    },
     description: "Шолом кошмару A-grade (Nightmare Light Set).",
   },
   {
@@ -2841,9 +2079,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1100,
     bodypart: "chest",
     icon: "/items/drops/arrom_а/Bound_Leather_Armor_of_Nightmare.jpg",
-    stats: {
-      pDef: 280,
-    },
     description: "Шкіряна броня кошмару A-grade (Nightmare Light Set).",
   },
   {
@@ -2856,9 +2091,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 550,
     bodypart: "gloves",
     icon: "/items/drops/arrom_а/Gauntlets_of_Nightmare.jpg",
-    stats: {
-      pDef: 110,
-    },
     description: "Рукавиці кошмару A-grade (Nightmare Light Set).",
   },
   {
@@ -2871,9 +2103,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 500,
     bodypart: "feet",
     icon: "/items/drops/arrom_а/Boots_of_Nightmare.jpg",
-    stats: {
-      pDef: 100,
-    },
     description: "Черевики кошмару A-grade (Nightmare Light Set).",
   },
 
@@ -2888,10 +2117,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 900, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_а/Bound_Dark_Crystal_Helmet.jpg",
-    stats: {
-      pDef: 160,
-      mDef: 130,
-    },
     description: "Шолом зв'язаного темного кристалу A-grade (Bound Dark Crystal Set).",
   },
   {
@@ -2904,10 +2129,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1300,
     bodypart: "chest",
     icon: "/items/drops/arrom_а/Bound_Dark_Crystal_Robe.jpg",
-    stats: {
-      pDef: 230,
-      mDef: 190,
-    },
     description: "Мантія зв'язаного темного кристалу A-grade (Bound Dark Crystal Set).",
   },
   {
@@ -2920,10 +2141,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 650,
     bodypart: "gloves",
     icon: "/items/drops/arrom_а/Bound_Dark_Crystal_Gloves.jpg",
-    stats: {
-      pDef: 95,
-      mDef: 80,
-    },
     description: "Рукавиці зв'язаного темного кристалу A-grade (Bound Dark Crystal Set).",
   },
   {
@@ -2936,10 +2153,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 600,
     bodypart: "feet",
     icon: "/items/drops/arrom_а/Bound_Dark_Crystal_Boots.jpg",
-    stats: {
-      pDef: 90,
-      mDef: 75,
-    },
     description: "Черевики зв'язаного темного кристалу A-grade (Bound Dark Crystal Set).",
   },
 
@@ -2955,14 +2168,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1000, // Ціна в Серебряных Монетах
     bodypart: "lhand",
     icon: "/items/drops/arrom_а/monster.jpg",
-    stats: {
-      pDef: 350,
-      mDef: 150,
-      maxHpPercent: 5,
-      pAtkPercent: 5,
-      mAtkPercent: 5,
-      maxHp: 300,
-    },
     description: "Щит монстра A-grade.",
   },
 
@@ -2977,10 +2182,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1200, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_s/Moirai_Circlet.jpg",
-    stats: {
-      pDef: 210,
-      mDef: 170,
-    },
     description: "Діадема мойр S-grade (Moirai Set).",
   },
   {
@@ -2993,10 +2194,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1800,
     bodypart: "chest",
     icon: "/items/drops/arrom_s/Moirai_Tunic.jpg",
-    stats: {
-      pDef: 290,
-      mDef: 240,
-    },
     description: "Туніка мойр S-grade (Moirai Set).",
   },
   {
@@ -3009,10 +2206,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1400,
     bodypart: "legs",
     icon: "/items/drops/arrom_s/Moirai_Stockings.jpg",
-    stats: {
-      pDef: 180,
-      mDef: 150,
-    },
     description: "Панчохи мойр S-grade (Moirai Set).",
   },
   {
@@ -3025,10 +2218,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_s/Moirai_Gloves.jpg",
-    stats: {
-      pDef: 130,
-      mDef: 110,
-    },
     description: "Рукавиці мойр S-grade (Moirai Set).",
   },
   {
@@ -3041,10 +2230,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 950,
     bodypart: "feet",
     icon: "/items/drops/arrom_s/Moirai_Shoes.jpg",
-    stats: {
-      pDef: 120,
-      mDef: 100,
-    },
     description: "Черевики мойр S-grade (Moirai Set).",
   },
 
@@ -3059,9 +2244,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1500, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_s/Vesper_Helmet.jpg",
-    stats: {
-      pDef: 240,
-    },
     description: "Шолом веспера S-grade (Vesper Set).",
   },
   {
@@ -3074,9 +2256,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 2200,
     bodypart: "chest",
     icon: "/items/drops/arrom_s/Vesper_Breastplate.jpg",
-    stats: {
-      pDef: 340,
-    },
     description: "Нагрудник веспера S-grade (Vesper Set).",
   },
   {
@@ -3089,9 +2268,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1800,
     bodypart: "legs",
     icon: "/items/drops/arrom_s/Vesper_Gaiters.jpg",
-    stats: {
-      pDef: 220,
-    },
     description: "Штани веспера S-grade (Vesper Set).",
   },
   {
@@ -3104,9 +2280,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1300,
     bodypart: "gloves",
     icon: "/items/drops/arrom_s/Vesper_Gauntlets.jpg",
-    stats: {
-      pDef: 140,
-    },
     description: "Рукавиці веспера S-grade (Vesper Set).",
   },
   {
@@ -3119,9 +2292,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1200,
     bodypart: "feet",
     icon: "/items/drops/arrom_s/Vesper_Boots.jpg",
-    stats: {
-      pDef: 130,
-    },
     description: "Черевики веспера S-grade (Vesper Set).",
   },
 
@@ -3136,9 +2306,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1400, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_s/Vesper_Leather_Helmet.jpg",
-    stats: {
-      pDef: 200,
-    },
     description: "Шолом весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
@@ -3151,9 +2318,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 2000,
     bodypart: "chest",
     icon: "/items/drops/arrom_s/Vesper_Leather_Breastplate.jpg",
-    stats: {
-      pDef: 280,
-    },
     description: "Нагрудник весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
@@ -3166,9 +2330,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1600,
     bodypart: "legs",
     icon: "/items/drops/arrom_s/Vesper_Leather_Leggings.jpg",
-    stats: {
-      pDef: 190,
-    },
     description: "Штани весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
@@ -3181,9 +2342,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1100,
     bodypart: "gloves",
     icon: "/items/drops/arrom_s/Vesper_Leather_Gloves.jpg",
-    stats: {
-      pDef: 115,
-    },
     description: "Рукавиці весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
@@ -3196,9 +2354,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1000,
     bodypart: "feet",
     icon: "/items/drops/arrom_s/Vesper_Leather_Boots.jpg",
-    stats: {
-      pDef: 105,
-    },
     description: "Черевики весперської шкіри S-grade (Vesper Leather Set).",
   },
 
@@ -3214,14 +2369,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 1500, // Ціна в Серебряных Монетах
     bodypart: "lhand",
     icon: "/items/drops/arrom_s/Vesper_Shield.jpg",
-    stats: {
-      pDef: 400,
-      mDef: 150,
-      maxHp: 400,
-      maxHpPercent: 6,
-      pAtkPercent: 6,
-      mAtkPercent: 6,
-    },
     description: "Щит веспера S-grade. +400 физ защ, +150 маг защ, +400 HP, +6% HP, +6% физ урон, +6% маг урон.",
   },
 
@@ -3236,9 +2383,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 120, // Ціна в Серебряных Монетах
     bodypart: "head",
     icon: "/items/drops/arrom_d/Shadow_Helm.jpg",
-    stats: {
-      pDef: 40,
-    },
     description: "Шолом тіні D-grade (Shadow Set).",
   },
   {
@@ -3251,9 +2395,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 180,
     bodypart: "chest",
     icon: "/items/drops/arrom_d/Shadow_Brigandine.jpg",
-    stats: {
-      pDef: 85,
-    },
     description: "Бригантина тіні D-grade (Shadow Set).",
   },
   {
@@ -3266,9 +2407,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 100,
     bodypart: "gloves",
     icon: "/items/drops/arrom_d/Shadow_Gloves.jpg",
-    stats: {
-      pDef: 30,
-    },
     description: "Рукавиці тіні D-grade (Shadow Set).",
   },
   {
@@ -3281,9 +2419,6 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     price: 90,
     bodypart: "feet",
     icon: "/items/drops/arrom_d/Shadow_Boots.jpg",
-    stats: {
-      pDef: 25,
-    },
     description: "Черевики тіні D-grade (Shadow Set).",
   },
 ];
@@ -3300,10 +2435,6 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     price: 150, // Ціна в Серебряных Монетах
     bodypart: "tattoo",
     icon: "/items/drops/item/r85_talisman_ma_up_passive_0.jpg",
-    stats: {
-      castSpeed: 50,
-      mAtk: 50,
-    },
     description: "Магічне тату, що збільшує швидкість каста на 50 та магічний урон на 50.",
   },
   {
@@ -3316,10 +2447,6 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     price: 150, // Ціна в Серебряных Монетах
     bodypart: "tattoo",
     icon: "/items/drops/item/r85_talisman_pa_up_active_0.jpg",
-    stats: {
-      pAtkSpd: 50,
-      pAtk: 50,
-    },
     description: "Фізичне тату, що збільшує швидкість атаки на 50 та фізичний урон на 50.",
   },
   {
@@ -3332,11 +2459,6 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     price: 150, // Ціна в Серебряных Монетах
     bodypart: "tattoo",
     icon: "/items/drops/item/r85_talisman_pd_up_active_0.jpg",
-    stats: {
-      pDef: 50,
-      mDef: 50,
-      maxHp: 150,
-    },
     description: "Захисне тату, що збільшує фізичний та магічний захист на 50, а також максимальне HP на 150.",
   },
 ];
@@ -3353,9 +2475,6 @@ export const QUEST_SHOP_ACCESSORIES: ShopItem[] = [
     price: 150, // Ціна в Серебряных Монетах
     bodypart: "belt",
     icon: "/items/drops/item/armor_belt_i02_0.jpg",
-    stats: {
-      maxHpPercent: 5,
-    },
     description: "Міцний пояс, що збільшує максимальне HP на 5%.",
   },
   {
@@ -3368,11 +2487,6 @@ export const QUEST_SHOP_ACCESSORIES: ShopItem[] = [
     price: 150, // Ціна в Серебряных Монетах
     bodypart: "cloak",
     icon: "/items/drops/item/Amor_goodness_cloak_0.jpg",
-    stats: {
-      pDefPercent: 5,
-      mDefPercent: 5,
-      maxHp: 100,
-    },
     description: "Плащ, що збільшує фізичний та магічний захист на 5%, а також максимальне HP на 100.",
   },
 ];
@@ -3388,7 +2502,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 10,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-weapon-d.png",
+    icon: "/items/drops/resources/bless-weapon-d.png",
     description: "Благословенна заточка для D-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3400,7 +2514,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 5,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-armor-d.png",
+    icon: "/items/drops/resources/bless-armor-d.png",
     description: "Благословенна заточка для D-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3412,7 +2526,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 20,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-weapon-c.png",
+    icon: "/items/drops/resources/bless-weapon-c.png",
     description: "Благословенна заточка для C-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3424,7 +2538,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 10,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-armor-c.png",
+    icon: "/items/drops/resources/bless-armor-c.png",
     description: "Благословенна заточка для C-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3436,7 +2550,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 30,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-weapon-b.png",
+    icon: "/items/drops/resources/bless-weapon-b.png",
     description: "Благословенна заточка для B-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3448,7 +2562,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 15,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-armor-b.png",
+    icon: "/items/drops/resources/bless-armor-b.png",
     description: "Благословенна заточка для B-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3460,7 +2574,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 40,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-weapon-a.png",
+    icon: "/items/drops/resources/bless-weapon-a.png",
     description: "Благословенна заточка для A-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3472,7 +2586,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 20,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-armor-a.png",
+    icon: "/items/drops/resources/bless-armor-a.png",
     description: "Благословенна заточка для A-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3484,7 +2598,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 50,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-weapon-s.png",
+    icon: "/items/drops/resources/bless-weapon-s.png",
     description: "Благословенна заточка для S-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -3496,7 +2610,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 25,
     bodypart: "consumable",
-    icon: "/items/drops/resourcesss/bless-armor-s.png",
+    icon: "/items/drops/resources/bless-armor-s.png",
     description: "Благословенна заточка для S-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
 ];

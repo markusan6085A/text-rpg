@@ -15,9 +15,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 100000,
     bodypart: "head",
     icon: "/items/drops/arrom_d/Mithril_helmet.jpg",
-    stats: {
-      pDef: 58,
-    },
     description: "Мітриловий шолом D-grade (Mithril Set).",
   },
   {
@@ -30,9 +27,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 183000,
     bodypart: "chest",
     icon: "/items/drops/arrom_d/Mithril_Breastplate.jpg",
-    stats: {
-      pDef: 95,
-    },
     description: "Мітриловий нагрудник D-grade (Mithril Set).",
   },
   {
@@ -45,9 +39,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 127000,
     bodypart: "legs",
     icon: "/items/drops/arrom_d/Mithril_Gaiters.jpg",
-    stats: {
-      pDef: 61,
-    },
     description: "Мітрилові штани D-grade (Mithril Set).",
   },
   {
@@ -60,9 +51,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 97800,
     bodypart: "gloves",
     icon: "/items/drops/arrom_d/Mithri_gloves.jpg",
-    stats: {
-      pDef: 29,
-    },
     description: "Мітрилові рукавиці D-grade (Mithril Set).",
   },
   {
@@ -75,9 +63,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 50000,
     bodypart: "feet",
     icon: "/items/drops/arrom_d/Mithril_bots.jpg",
-    stats: {
-      pDef: 32,
-    },
     description: "Мітрилові черевики D-grade (Mithril Set).",
   },
 
@@ -92,9 +77,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 80000,
     bodypart: "head",
     icon: "/items/drops/arrom_d/Reinforced_helmet.jpg",
-    stats: {
-      pDef: 35,
-    },
     description: "Укріплений шолом D-grade (Reinforced Set).",
   },
   {
@@ -107,9 +89,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 150000,
     bodypart: "chest",
     icon: "/items/drops/arrom_d/Reinforced_Leather_Shirt.jpg",
-    stats: {
-      pDef: 73,
-    },
     description: "Укріплена шкіряна сорочка D-grade (Reinforced Set).",
   },
   {
@@ -122,9 +101,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 100000,
     bodypart: "legs",
     icon: "/items/drops/arrom_d/Reinforced_Leathr_Gaiters.jpg",
-    stats: {
-      pDef: 46,
-    },
     description: "Укріплені шкіряні штани D-grade (Reinforced Set).",
   },
   {
@@ -137,10 +113,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 60000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_d/Reinforced_gloves.jpg",
-    stats: {
-      pDef: 36,
-      mDef: 26,
-    },
     description: "Укріплені рукавиці D-grade (Reinforced Set).",
   },
   {
@@ -153,9 +125,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 50000,
     bodypart: "feet",
     icon: "/items/drops/arrom_d/Reinforced_Leather_Boots.jpg",
-    stats: {
-      pDef: 24,
-    },
     description: "Укріплені шкіряні черевики D-grade (Reinforced Set).",
   },
 
@@ -170,10 +139,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 70000,
     bodypart: "head",
     icon: "/items/drops/arrom_d/Knowled_helmet.jpg",
-    stats: {
-      pDef: 20,
-      mDef: 15,
-    },
     description: "Шолом знання D-grade (Knowledge Set).",
   },
   {
@@ -186,9 +151,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 120000,
     bodypart: "chest",
     icon: "/items/drops/arrom_d/Tunic_of_Knowledge.jpg",
-    stats: {
-      pDef: 49,
-    },
     description: "Туніка знання D-grade (Knowledge Set).",
   },
   {
@@ -201,9 +163,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 80000,
     bodypart: "legs",
     icon: "/items/drops/arrom_d/Stockings_of_Knowledge.jpg",
-    stats: {
-      pDef: 30,
-    },
     description: "Панчохи знання D-grade (Knowledge Set).",
   },
   {
@@ -216,9 +175,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 55000,
     bodypart: "gloves",
     icon: "/items/drops/arrom_d/Gloves_of_Knowledge.jpg",
-    stats: {
-      pDef: 24,
-    },
     description: "Рукавиці знання D-grade (Knowledge Set).",
   },
   {
@@ -231,9 +187,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 45000,
     bodypart: "feet",
     icon: "/items/drops/arrom_d/Knowledge_bots.jpg",
-    stats: {
-      pDef: 24,
-    },
     description: "Черевики знання D-grade (Knowledge Set).",
   },
 
@@ -248,9 +201,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 50000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_d/Shield_bronze_shield_i00_0.jpg",
-    stats: {
-      pDef: 20,
-    },
     description: "Бронзовий щит D-grade.",
   },
   {
@@ -263,9 +213,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 60000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_d/Shield_hoplon_i00_0.jpg",
-    stats: {
-      pDef: 25,
-    },
     description: "Гоплон D-grade.",
   },
   {
@@ -278,9 +225,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 80000,
     bodypart: "lhand",
     icon: "/items/drops/arrom_d/Shield_plate_shield_i00_0.jpg",
-    stats: {
-      pDef: 30,
-    },
     description: "Пластинчатий щит D-grade.",
   },
 
@@ -295,9 +239,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 50000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_D/accessary_black_pearl_ring_i00.png",
-    stats: {
-      mDef: 20,
-    },
     description: "Кільце з чорної перли D-grade.",
   },
   {
@@ -310,9 +251,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 60000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_D/accessary_elven_ring_i00.png",
-    stats: {
-      mDef: 22,
-    },
     description: "Ельфійське кільце D-grade.",
   },
   {
@@ -325,9 +263,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 45000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_D/accessary_enchanted_ring_i00.png",
-    stats: {
-      mDef: 18,
-    },
     description: "Зачароване кільце D-grade.",
   },
   {
@@ -340,9 +275,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 70000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_D/accessary_mithril_ring_i00.png",
-    stats: {
-      mDef: 24,
-    },
     description: "Мітрилове кільце D-grade.",
   },
   {
@@ -355,9 +287,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 40000,
     bodypart: "rfinger;lfinger",
     icon: "/items/drops/Earring_D/accessary_ring_of_devotion_i00.png",
-    stats: {
-      mDef: 16,
-    },
     description: "Кільце відданості D-grade.",
   },
 
@@ -372,9 +301,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 60000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_D/accessary_elven_earing_i00.png",
-    stats: {
-      mDef: 34,
-    },
     description: "Ельфійська сережка D-grade.",
   },
   {
@@ -387,9 +313,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 45000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_D/accessary_enchanted_earing_i00.png",
-    stats: {
-      mDef: 27,
-    },
     description: "Зачарована сережка D-grade.",
   },
   {
@@ -402,9 +325,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 50000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_D/accessary_red_cresent_earing_i00.png",
-    stats: {
-      mDef: 24,
-    },
     description: "Сережка червоного півмісяця D-grade.",
   },
   {
@@ -417,9 +337,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 70000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_D/accessary_onyxbeastseye_earing_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Сережка ока звіра-знамення D-grade.",
   },
   {
@@ -432,9 +349,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 55000,
     bodypart: "rear;lear",
     icon: "/items/drops/Earring_D/accessary_tigerseye_earing_i00.png",
-    stats: {
-      mDef: 30,
-    },
     description: "Сережка тигрового ока D-grade.",
   },
 
@@ -449,9 +363,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 80000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_D/accessary_elven_necklace_i00.png",
-    stats: {
-      mDef: 45,
-    },
     description: "Ельфійське намисто D-grade.",
   },
   {
@@ -464,9 +375,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 60000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_D/accessary_enchanted_necklace_i00.png",
-    stats: {
-      mDef: 36,
-    },
     description: "Зачароване намисто D-grade.",
   },
   {
@@ -479,9 +387,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 70000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_D/accessary_near_forest_necklace_i00.png",
-    stats: {
-      mDef: 40,
-    },
     description: "Намисто близького лісу D-grade.",
   },
   {
@@ -494,9 +399,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 90000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_D/accessary_necklace_of_darkness_i00.png",
-    stats: {
-      mDef: 50,
-    },
     description: "Намисто темряви D-grade.",
   },
   {
@@ -509,9 +411,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     price: 50000,
     bodypart: "necklace",
     icon: "/items/drops/Earring_D/accessary_necklace_of_devotion_i00.png",
-    stats: {
-      mDef: 32,
-    },
     description: "Намисто відданості D-grade.",
   },
   
@@ -525,7 +424,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 7, // Ціна за 1 соулшот
-    icon: "/items/drops/resourcesss/Etc_spirit_bullet_blue_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_spirit_bullet_blue_i00_0.jpg",
     description: "Соулшот D-грейду для воїнів",
     soulshots: 1,
   },
@@ -538,7 +437,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 7, // Ціна за 1 спірітшот
-    icon: "/items/drops/resourcesss/Etc_spell_shot_blue_i01_0.jpg",
+    icon: "/items/drops/resources/Etc_spell_shot_blue_i01_0.jpg",
     description: "Спірітшот D-грейду для магів",
     spiritshots: 1,
   },
@@ -552,7 +451,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 5, // Ціна за 1 стрілу
-    icon: "/items/drops/resourcesss/etc_bone_quiver_i00.png",
+    icon: "/items/drops/resources/etc_bone_quiver_i00.png",
     description: "Кістяна стріла D-грейду",
   },
 
@@ -568,12 +467,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGBLUNT",
     icon: "/items/drops/weapon_d/Atuba_Hammer.jpg",
-    stats: {
-      pAtk: 90,
-      mAtk: 72,
-      rCrit: 4,
-      pAtkSpd: 325,
-    },
     description: "Молот Атуби D-grade. Дворучна зброя.",
     soulshots: 3,
     spiritshots: 3,
@@ -589,12 +482,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_d/Baguette_s_Dualsword.jpg",
-    stats: {
-      pAtk: 96,
-      mAtk: 47,
-      rCrit: 4,
-      pAtkSpd: 325,
-    },
     description: "Подвійний меч Багет D-grade. Дворучна зброя.",
     soulshots: 3,
     spiritshots: 3,
@@ -610,12 +497,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BOW",
     icon: "/items/drops/weapon_d/Dark_Elven_Bow.jpg",
-    stats: {
-      pAtk: 105,
-      mAtk: 32,
-      rCrit: 12,
-      pAtkSpd: 293,
-    },
     description: "Лук темних ельфів D-grade. Дальня атака.",
     soulshots: 6,
     spiritshots: 2,
@@ -631,12 +512,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "SWORD",
     icon: "/items/drops/weapon_d/Knight_s_Sword.jpg",
-    stats: {
-      pAtk: 51,
-      mAtk: 32,
-      rCrit: 8,
-      pAtkSpd: 379,
-    },
     description: "Меч лицаря D-grade.",
     soulshots: 2,
     spiritshots: 2,
@@ -652,12 +527,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "DAGGER",
     icon: "/items/drops/weapon_d/Shilen_Knife.jpg",
-    stats: {
-      pAtk: 45,
-      mAtk: 52,
-      rCrit: 12,
-      pAtkSpd: 433,
-    },
     description: "Ніж Шілен D-grade. Кинджал з магічним посиленням.",
     soulshots: 2,
     spiritshots: 2,
@@ -673,12 +542,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "rhand",
     weaponType: "BLUNT",
     icon: "/items/drops/weapon_d/Tomahawk.jpg",
-    stats: {
-      pAtk: 51,
-      mAtk: 32,
-      rCrit: 4,
-      pAtkSpd: 379,
-    },
     description: "Томагавк D-grade. Одноручна зброя.",
     soulshots: 2,
     spiritshots: 2,
@@ -694,12 +557,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "DUALFIST",
     icon: "/items/drops/weapon_d/Triple-Edged_Jamadhr.jpg",
-    stats: {
-      pAtk: 78,
-      mAtk: 39,
-      rCrit: 4,
-      pAtkSpd: 325,
-    },
     description: "Тригранний Джамадхр D-grade. Дворучна зброя.",
     soulshots: 2,
     spiritshots: 2,
@@ -715,12 +572,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "BIGSWORD",
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
-    stats: {
-      pAtk: 78,
-      mAtk: 39,
-      rCrit: 8,
-      pAtkSpd: 325,
-    },
     description: "Дворучний меч D-grade.",
     soulshots: 2,
     spiritshots: 2,
@@ -736,12 +587,6 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     bodypart: "lrhand",
     weaponType: "POLE",
     icon: "/items/drops/weapon_d/War_Hammer.jpg",
-    stats: {
-      pAtk: 64,
-      mAtk: 39,
-      rCrit: 8,
-      pAtkSpd: 325,
-    },
     description: "Бойовий молот D-grade. Дальня атака (спис).",
     soulshots: 2,
     spiritshots: 2,

@@ -14,7 +14,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 3, // Ціна за 1 соулшот
-    icon: "/items/drops/resourcesss/etc_spirit_bullet_white_i00.png",
+    icon: "/items/drops/resources/etc_spirit_bullet_white_i00.png",
     description: "Соулшот NG-грейду для воїнів",
     soulshots: 1,
   },
@@ -27,7 +27,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 3, // Ціна за 1 спірітшот
-    icon: "/items/drops/resourcesss/Etc_spell_shot_white_i01_0.jpg",
+    icon: "/items/drops/resources/Etc_spell_shot_white_i01_0.jpg",
     description: "Спірітшот NG-грейду для магів",
     spiritshots: 1,
   },
@@ -41,7 +41,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 2, // Ціна за 1 стрілу
-    icon: "/items/drops/resourcesss/etc_wooden_quiver_i00.png",
+    icon: "/items/drops/resources/etc_wooden_quiver_i00.png",
     description: "Дерев'яна стріла NG-грейду",
   },
   
@@ -54,7 +54,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "material",
     category: "resource",
     price: 5000, // Ціна за 1 наживку
-    icon: "/items/drops/resourcesss/Etc_gludio_fish_lure_i00_0.jpg",
+    icon: "/items/drops/resources/Etc_gludio_fish_lure_i00_0.jpg",
     description: "Наживка для риболовлі з міста Gludio. Використовується для ловлі риби.",
   },
   {
@@ -65,11 +65,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "material",
     category: "rod",
     price: 10000, // Ціна за удочку
-    icon: "/items/drops/resourcesss/Baby_Duck_Rod.jpg",
-    stats: {
-      pAtk: 1,
-      mAtk: 1,
-    },
+    icon: "/items/drops/resources/Baby_Duck_Rod.jpg",
     description: "Удочка Baby Duck для риболовлі. Можна одягати з будь-якого рівня.",
   },
 ];
