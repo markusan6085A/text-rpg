@@ -500,6 +500,19 @@ export const ARMOR_SETS: ArmorSet[] = [
 ];
 
 /**
+ * Format setStats for UI display (e.g. "+1 MEN", "+2 STR")
+ */
+export function formatSetStatsForDisplay(setStats: SetStatBonuses | undefined): string[] {
+  if (!setStats) return [];
+  const result: string[] = [];
+  (["STR", "DEX", "CON", "INT", "WIT", "MEN"] as const).forEach((stat) => {
+    const v = setStats[stat];
+    if (typeof v === "number" && v > 0) result.push(`+${v} ${stat}`);
+  });
+  return result;
+}
+
+/**
  * Знаходить сет, до якого належить предмет
  * @param itemId - ID предмета з itemsDB
  * @returns Сет, до якого належить предмет, або null

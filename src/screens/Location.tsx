@@ -9,7 +9,7 @@ import { useHeroStore } from "../state/heroStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { isMobOnRespawn, getRespawnTimeRemaining } from "../state/battle/mobRespawns";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
-import { findSetForItem } from "../data/sets/armorSets";
+import { findSetForItem, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { savePreviousLocation, savePreviousCity } from "../utils/locationNavigation";
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
@@ -640,9 +640,10 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               {(() => {
                 const set = findSetForItem(selectedDropItem);
                 if (!set) return null;
-                if (!set.bonuses.fullSet && (!set.bonuses.partialSet || set.bonuses.partialSet.length === 0)) return null;
+                if (!set.bonuses.fullSet && !set.bonuses.setStats && (!set.bonuses.partialSet || set.bonuses.partialSet.length === 0)) return null;
 
                 const bonusesList: string[] = [];
+                bonusesList.push(...formatSetStatsForDisplay(set.bonuses.setStats));
                 if (set.bonuses.fullSet) {
                   const bonuses = set.bonuses.fullSet;
                   if (bonuses.maxHp) bonusesList.push(`+${bonuses.maxHp} Max HP`);

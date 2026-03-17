@@ -1,5 +1,5 @@
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
-import { findSetForItem } from "../../data/sets/armorSets";
+import { findSetForItem, formatSetStatsForDisplay } from "../../data/sets/armorSets";
 
 /**
  * Отримує інформацію про сет для предмета
@@ -11,7 +11,7 @@ export function getSetInfo(item: any): string | null {
   if (!set) return null;
 
   // Нічого не показуємо — бонуси відключені
-  if (!set.bonuses.fullSet && (!set.bonuses.partialSet || set.bonuses.partialSet.length === 0)) return null;
+  if (!set.bonuses.fullSet && !set.bonuses.setStats && (!set.bonuses.partialSet || set.bonuses.partialSet.length === 0)) return null;
 
   let result = `Сет: ${set.name} [${set.grade}]\n\n`;
   
@@ -58,9 +58,19 @@ export function getSetInfo(item: any): string | null {
     if (bonuses.maxHpPercent) bonusesList.push(`+${bonuses.maxHpPercent}% Max HP`);
     if (bonuses.accuracy) bonusesList.push(`+${bonuses.accuracy} Точність`);
 
-    if (bonusesList.length > 0) {
+    bonusesList.push(...formatSetStatsForDisplay(set.bonuses.setStats));
+
+      if (bonusesList.length > 0) {
       result += `Повний сет (${set.pieces.length} частин):\n`;
       result += bonusesList.join(', ') + '\n';
+    }
+  }
+
+  // Бонуси за повний сет (тільки setStats, без fullSet)
+  if (!set.bonuses.fullSet && set.bonuses.setStats) {
+    const setStatsList = formatSetStatsForDisplay(set.bonuses.setStats);
+    if (setStatsList.length > 0) {
+      result += `Повний сет (${set.pieces.length} частин): ${setStatsList.join(", ")}\n`;
     }
   }
   

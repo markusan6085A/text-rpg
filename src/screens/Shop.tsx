@@ -11,7 +11,7 @@ import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
 import { addItemsWithOverflow } from "../state/heroStore/inventoryOverflow";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
-import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
+import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { showToast } from "../state/toastStore";
@@ -213,6 +213,7 @@ export default function Shop({ navigate }: ShopProps) {
 
     // Формуємо список бонусів повного сету
     const bonusesList: string[] = [];
+    bonusesList.push(...formatSetStatsForDisplay(set.bonuses.setStats));
     if (set.bonuses.fullSet) {
       const bonuses = set.bonuses.fullSet;
       if (bonuses.pDef) bonusesList.push(`+${bonuses.pDef} Физ. защ`);

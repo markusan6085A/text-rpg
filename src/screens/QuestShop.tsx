@@ -5,7 +5,7 @@ import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
 import { addDailyProgress } from "../state/dailyQuestsProgress";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
-import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
+import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { QUEST_SHOP_ITEM_MAPPING as BASE_QUEST_MAPPING } from "../data/shop/itemMappings";
 import type { Hero } from "../types/Hero";
@@ -353,6 +353,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
 
     // Формуємо список бонусів повного сету
     const bonusesList: string[] = [];
+    bonusesList.push(...formatSetStatsForDisplay(set.bonuses.setStats));
     if (set.bonuses.fullSet) {
       const bonuses = set.bonuses.fullSet;
       if (bonuses.pDef) bonusesList.push(`+${bonuses.pDef} Физ. защ`);
