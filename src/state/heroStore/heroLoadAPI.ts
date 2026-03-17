@@ -217,6 +217,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const heroDataForLocal = character.heroJson as any;
         const serverExpVal = Number(heroDataForLocal?.exp ?? character.exp ?? 0);
         const finalExp = serverLevel > localLevel ? serverExpVal : Math.max(localExp, serverExpVal);
+        const finalSp = Math.max(localSp, serverSp); // 🔥 Не відправляти менше SP — сервер відхилить "sp cannot be decreased"
         // 🔥 КРИТИЧНО: перераховуємо maxHp/maxMp/maxCp по локальному герою (екіп + скіли), інакше після F5 залишається старий max
         // 🔥 Професію/klass беремо з сервера — адмін міг змінити клас, localStorage має стару
         const serverProfession = heroDataForLocal?.profession ?? heroDataForLocal?.klass;
@@ -273,6 +274,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const consolidatedInv = mergeInventoriesUnion(localInv, []);
         const mergedHero: Hero = {
           ...hydratedLocalHero,
+          exp: finalExp,
+          level: finalLevel,
+          sp: finalSp,
           inventory: consolidatedInv,
           name: character.name,
           profession: heroForLocalRecalc.profession,
@@ -293,9 +297,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         // 🔥 КРИТИЧНО: Оновлюємо serverState.heroRevision перед background save — інакше heroPersistence пропускає PUT (expectedRevision undefined)
         // Без цього Browser 1 з level 7 ніколи не синхронізується → Browser 2 завжди бачить level 1 з API
         const serverRev = (character.heroJson as any)?.heroRevision ?? (character as any)?.heroRevision;
-        if (serverRev != null) {
-          useHeroStore.getState().updateServerState({ heroRevision: Number(serverRev) });
-        }
+        useHeroStore.getState().updateServerState({
+          heroRevision: serverRev != null ? Number(serverRev) : undefined,
+          exp: finalExp,
+          level: finalLevel,
+          sp: finalSp,
+        });
         import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
           saveHeroToLocalStorage(mergedHero).catch((err: any) => {
             console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);
