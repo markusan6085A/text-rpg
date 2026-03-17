@@ -273,40 +273,12 @@ export async function createCharacter(data: CreateCharacterRequest): Promise<Cha
   return response.character;
 }
 
-/** Опції для updateCharacter — щоб уникнути 400 "exp cannot be decreased" при розсинхроні */
-export interface UpdateCharacterOptions {
-  /** Якщо передано, exp/level/sp не відправляються, якщо вони менші за серверні */
-  serverState?: { exp?: number; level?: number; sp?: number };
-}
-
-export async function updateCharacter(
-  id: string,
-  data: UpdateCharacterRequest,
-  options?: UpdateCharacterOptions
-): Promise<Character> {
+/** exp/level/sp оновлюються тільки на бекенді (вбивство мобів, fishing тощо), не через цей запит */
+export async function updateCharacter(id: string, data: UpdateCharacterRequest): Promise<Character> {
   const cleanData = { ...data };
-
-  // Уникаємо 400 "exp cannot be decreased" / "level cannot be decreased" / "sp cannot be decreased":
-  // не відправляємо exp/level/sp, якщо вони менші за відомі серверні значення
-  const server = options?.serverState;
-  const hasSkillsInPayload = !!(cleanData.heroJson && Array.isArray((cleanData.heroJson as any)?.skills));
-  if (server) {
-    if (cleanData.exp !== undefined && (server.exp === undefined || cleanData.exp < server.exp)) {
-      delete cleanData.exp;
-    }
-    if (cleanData.level !== undefined && (server.level === undefined || cleanData.level < server.level)) {
-      delete cleanData.level;
-    }
-    // sp: не strip при learn skill — сервер приймає зменшення, якщо є skills у payload
-    if (cleanData.sp !== undefined && !hasSkillsInPayload && (server.sp === undefined || cleanData.sp < server.sp)) {
-      delete cleanData.sp;
-    }
-  } else {
-    // Якщо serverState невідомий — не відправляємо exp/level/sp, щоб уникнути 400 при розсинхроні
-    delete cleanData.exp;
-    delete cleanData.level;
-    delete cleanData.sp;
-  }
+  delete cleanData.exp;
+  delete cleanData.level;
+  delete cleanData.sp;
 
   const response = await apiRequest<CharacterResponse>(`/characters/${id}`, {
     method: 'PUT',
