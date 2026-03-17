@@ -4,7 +4,7 @@ import { QUEST_SHOP_ITEMS } from "../data/shop/questShop";
 import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
 import { addDailyProgress } from "../state/dailyQuestsProgress";
-import { itemsDB } from "../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS } from "../data/sets/armorSets";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { QUEST_SHOP_ITEM_MAPPING as BASE_QUEST_MAPPING } from "../data/shop/itemMappings";
@@ -731,76 +731,56 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               </div>
             </div>
 
-            {/* Стати */}
-            {selectedItem.stats && (
-              <div className="space-y-1 mb-4 text-[12px]">
-                {selectedItem.stats.pAtk !== undefined && (
-                  <div className="text-orange-400">
-                  Физ. атк: {selectedItem.stats.pAtk}
+            {/* Стати — з ShopItem або itemsDB */}
+            {(() => {
+              const itemsDBId = getItemsDBId(selectedItem);
+              const itemDef = itemsDBId ? (itemsDB[itemsDBId] || itemsDBWithStarter[itemsDBId]) : null;
+              const displayStats = selectedItem.stats ?? itemDef?.stats;
+              if (!displayStats) return null;
+              return (
+                <div className="space-y-1 mb-4 text-[12px]">
+                  {displayStats.pAtk !== undefined && (
+                    <div className="text-orange-400">Физ. атк: {displayStats.pAtk}</div>
+                  )}
+                  {displayStats.mAtk !== undefined && (
+                    <div className="text-green-400">Маг. атк: {displayStats.mAtk}</div>
+                  )}
+                  {displayStats.pDef !== undefined && (
+                    <div className="text-yellow-400">Физ. защ: {displayStats.pDef}</div>
+                  )}
+                  {displayStats.mDef !== undefined && (
+                    <div className="text-purple-400">Маг. защ: {displayStats.mDef}</div>
+                  )}
+                  {displayStats.rCrit !== undefined && (
+                    <div className="text-purple-400">Крит: {displayStats.rCrit}</div>
+                  )}
+                  {displayStats.pAtkSpd !== undefined && (
+                    <div className="text-yellow-400">Скорость боя: {displayStats.pAtkSpd}</div>
+                  )}
+                  {displayStats.castSpeed !== undefined && (
+                    <div className="text-cyan-400">Скорость каста: {displayStats.castSpeed}</div>
+                  )}
+                  {displayStats.maxHp !== undefined && (
+                    <div className="text-red-400">Max HP: +{displayStats.maxHp}</div>
+                  )}
+                  {displayStats.maxHpPercent !== undefined && (
+                    <div className="text-red-400">Max HP: +{displayStats.maxHpPercent}%</div>
+                  )}
+                  {displayStats.pDefPercent !== undefined && (
+                    <div className="text-yellow-400">Физ. защ: +{displayStats.pDefPercent}%</div>
+                  )}
+                  {displayStats.mDefPercent !== undefined && (
+                    <div className="text-purple-400">Маг. защ: +{displayStats.mDefPercent}%</div>
+                  )}
+                  {displayStats.pAtkPercent !== undefined && (
+                    <div className="text-orange-400">Физ. урон: +{displayStats.pAtkPercent}%</div>
+                  )}
+                  {displayStats.mAtkPercent !== undefined && (
+                    <div className="text-blue-400">Маг. урон: +{displayStats.mAtkPercent}%</div>
+                  )}
                 </div>
-                )}
-                {selectedItem.stats.mAtk !== undefined && (
-                  <div className="text-green-400">
-                  Маг. атк: {selectedItem.stats.mAtk}
-                </div>
-                )}
-                {selectedItem.stats.pDef !== undefined && (
-                  <div className="text-yellow-400">
-                  Физ. защ: {selectedItem.stats.pDef}
-                </div>
-                )}
-                {selectedItem.stats.mDef !== undefined && (
-                  <div className="text-purple-400">
-                  Маг. защ: {selectedItem.stats.mDef}
-                </div>
-                )}
-                {selectedItem.stats.rCrit !== undefined && (
-                  <div className="text-purple-400">
-                  Крит: {selectedItem.stats.rCrit}
-                </div>
-                )}
-                {selectedItem.stats.pAtkSpd !== undefined && (
-                  <div className="text-yellow-400">
-                  Скорость боя: {selectedItem.stats.pAtkSpd}
-                </div>
-                )}
-                {selectedItem.stats.castSpeed !== undefined && (
-                  <div className="text-cyan-400">
-                  Скорость каста: {selectedItem.stats.castSpeed}
-                </div>
-                )}
-                {selectedItem.stats.maxHp !== undefined && (
-                  <div className="text-red-400">
-                  Max HP: +{selectedItem.stats.maxHp}
-                </div>
-                )}
-                {selectedItem.stats.maxHpPercent !== undefined && (
-                  <div className="text-red-400">
-                  Max HP: +{selectedItem.stats.maxHpPercent}%
-                </div>
-                )}
-                {selectedItem.stats.pDefPercent !== undefined && (
-                  <div className="text-yellow-400">
-                  Физ. защ: +{selectedItem.stats.pDefPercent}%
-                </div>
-                )}
-                {selectedItem.stats.mDefPercent !== undefined && (
-                  <div className="text-purple-400">
-                  Маг. защ: +{selectedItem.stats.mDefPercent}%
-                </div>
-                )}
-                {selectedItem.stats.pAtkPercent !== undefined && (
-                  <div className="text-orange-400">
-                  Физ. урон: +{selectedItem.stats.pAtkPercent}%
-                </div>
-                )}
-                {selectedItem.stats.mAtkPercent !== undefined && (
-                  <div className="text-blue-400">
-                  Маг. урон: +{selectedItem.stats.mAtkPercent}%
-                </div>
-                )}
-              </div>
-            )}
+              );
+            })()}
 
             {/* Тип зброї */}
             {selectedItem.weaponType && (

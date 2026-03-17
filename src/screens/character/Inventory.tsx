@@ -30,6 +30,7 @@ export default function Inventory() {
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<{ item: any; amount: number } | null>(null);
   const [showIncreaseCapacityModal, setShowIncreaseCapacityModal] = useState(false);
   const [transferModalItem, setTransferModalItem] = useState<any | null>(null);
+  const [showWipeConfirm, setShowWipeConfirm] = useState(false);
 
   // Hero вже завантажений в App.tsx, не потрібно завантажувати тут
 
@@ -51,7 +52,7 @@ export default function Inventory() {
     const overflowChest = hero.overflowChest || [];
     if (overflowChest.length > 0) {
       const totalInChest = overflowChest.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
-      const chestItem = { id: OVERFLOW_CHEST_ID, name: "Сундук переповнення", slot: "quest", count: totalInChest, icon: "/items/drops/resourcesss/collection_box.jpg" };
+      const chestItem = { id: OVERFLOW_CHEST_ID, name: "Сундук переповнення", slot: "quest", count: totalInChest, icon: "/items/drops/resources/collection_box.jpg" };
       items = [chestItem, ...items];
     }
     return items;
@@ -191,8 +192,18 @@ export default function Inventory() {
 
         {/* Інвентар нижче */}
         {/* Верхня частина: кількість слотів + кнопка збільшення */}
-        <div className="flex justify-end items-center gap-2 mb-1" style={{ color: "#d9d9d9" }}>
-          <div className="text-xs">{itemsUsed}/{maxSlots}</div>
+        <div className="flex justify-between items-center gap-2 mb-1" style={{ color: "#d9d9d9" }}>
+          <div className="flex items-center gap-2">
+            <div className="text-xs">{itemsUsed}/{maxSlots}</div>
+            <button
+              type="button"
+              onClick={() => invCount > 0 && setShowWipeConfirm(true)}
+              disabled={invCount === 0}
+              className="text-[11px] px-2 py-1 rounded border border-red-800/60 bg-red-900/30 text-red-300 hover:bg-red-900/50 hover:border-red-700/80 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Очистить инвентарь
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setShowIncreaseCapacityModal(true)}
@@ -356,6 +367,49 @@ export default function Inventory() {
             setSelectedItem(null);
           }}
         />
+      )}
+
+      {/* Модалка підтвердження вайпу інвентаря */}
+      {showWipeConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4">
+          <div
+            className="bg-[#14110c] border border-white/40 rounded-lg p-6 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-red-400">Очистить инвентарь</h2>
+              <button
+                className="text-gray-400 hover:text-white text-xl"
+                onClick={() => setShowWipeConfirm(false)}
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-gray-300 text-sm mb-6">
+              Удалить все предметы из инвентаря? Экипировка не затронута. Действие нельзя отменить!
+            </p>
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={() => setShowWipeConfirm(false)}
+                className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-gray-300 hover:bg-[#3a3a3a]"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => {
+                  if (!hero) return;
+                  updateHero({ inventory: [] });
+                  setShowWipeConfirm(false);
+                  setSelectedItem(null);
+                  setDeleteConfirmItem(null);
+                }}
+                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 text-xs font-semibold"
+              >
+                Удалить всё
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
