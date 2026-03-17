@@ -2,6 +2,7 @@ import React from "react";
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { OVERFLOW_CHEST_ID } from "../../state/heroStore";
+import { handleResourceIconError } from "../../utils/itemIcon";
 
 interface InventoryItemListProps {
   items: HeroInventoryItem[];
@@ -132,12 +133,12 @@ export default function InventoryItemList({
                   alt={item.name}
                   className="w-5 h-5 object-contain"
                   onError={(e) => {
-                    // Як раніше: спробувати itemDef.icon, інакше Weapon_squires_sword (як у Warehose, Shop, Mail)
-                    if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
-                      (e.target as HTMLImageElement).src = itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`;
-                    } else {
-                      (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                    const img = e.target as HTMLImageElement;
+                    if (!img.src.includes("/drops/resources/")) {
+                      handleResourceIconError(e);
+                      return;
                     }
+                    img.src = img.src.replace("/drops/resources/", "/drops/resourcesss/");
                   }}
                 />
                 {item.enchantLevel !== undefined && item.enchantLevel > 0 && (

@@ -8,6 +8,7 @@ import { addItemsWithOverflow } from "../../../state/heroStore/inventoryOverflow
 import { dismantleFish } from "../../../utils/api";
 import { showToast } from "../../../state/toastStore";
 import { processFishDrop } from "../../../utils/fishDismantle";
+import { normalizeIconPath, handleResourceIconError, resourceIdToFilename } from "../../../utils/itemIcon";
 
 interface FishItemModalProps {
   item: HeroInventoryItem;
@@ -256,11 +257,12 @@ export default function FishItemModal({
                     return (
                       <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
                         <div className="flex items-center gap-2 mb-1">
-                          {weaponDef?.icon && (
+                          {(weaponDef?.icon || true) && (
                             <img
-                              src={weaponDef.icon.startsWith("/") ? weaponDef.icon : `/items/${weaponDef.icon}`}
-                              alt={weaponDef.name}
+                              src={normalizeIconPath(weaponDef?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                              alt={weaponDef?.name || id}
                               className="w-5 h-5 object-contain"
+                              onError={handleResourceIconError}
                             />
                           )}
                           <span className="text-gray-300 font-semibold">{weaponDef?.name || id}</span>
@@ -284,11 +286,12 @@ export default function FishItemModal({
                     return (
                       <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
                         <div className="flex items-center gap-2 mb-1">
-                          {jewelryDef?.icon && (
+                          {(jewelryDef?.icon || true) && (
                             <img
-                              src={jewelryDef.icon.startsWith("/") ? jewelryDef.icon : `/items/${jewelryDef.icon}`}
-                              alt={jewelryDef.name}
+                              src={normalizeIconPath(jewelryDef?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                              alt={jewelryDef?.name || id}
                               className="w-5 h-5 object-contain"
+                              onError={handleResourceIconError}
                             />
                           )}
                           <span className="text-gray-300 font-semibold">{jewelryDef?.name || id}</span>
@@ -312,11 +315,12 @@ export default function FishItemModal({
                     return (
                       <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
                         <div className="flex items-center gap-2 mb-1">
-                          {armorDef?.icon && (
+                          {(armorDef?.icon || true) && (
                             <img
-                              src={armorDef.icon.startsWith("/") ? armorDef.icon : `/items/${armorDef.icon}`}
-                              alt={armorDef.name}
+                              src={normalizeIconPath(armorDef?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                              alt={armorDef?.name || id}
                               className="w-5 h-5 object-contain"
+                              onError={handleResourceIconError}
                             />
                           )}
                           <span className="text-gray-300 font-semibold">{armorDef?.name || id}</span>
@@ -336,15 +340,15 @@ export default function FishItemModal({
                 <div className="space-y-1">
                   {dismantleResult.resources.map(({ id, count }) => {
                       const resourceDef = itemsDB[id];
+                      const iconPath = resourceDef?.icon ? normalizeIconPath(resourceDef.icon) : `/items/drops/resourcesss/${resourceIdToFilename(id)}.jpg`;
                       return (
                         <div key={id} className="flex items-center gap-2">
-                          {resourceDef?.icon && (
-                            <img
-                              src={resourceDef.icon.startsWith("/") ? resourceDef.icon : `/items/${resourceDef.icon}`}
-                              alt={resourceDef.name}
-                              className="w-5 h-5 object-contain"
-                            />
-                          )}
+                          <img
+                            src={iconPath}
+                            alt={resourceDef?.name || id}
+                            className="w-5 h-5 object-contain"
+                            onError={handleResourceIconError}
+                          />
                           <span className="text-gray-400">{resourceDef?.name || id}:</span>
                           <span className="text-green-400">x{count}</span>
                         </div>
@@ -362,13 +366,12 @@ export default function FishItemModal({
                     const scrollDef = itemsDB[id];
                     return (
                       <div key={id} className="flex items-center gap-2">
-                        {scrollDef?.icon && (
-                          <img
-                            src={scrollDef.icon.startsWith("/") ? scrollDef.icon : `/items/${scrollDef.icon}`}
-                            alt={scrollDef.name}
-                            className="w-5 h-5 object-contain"
-                          />
-                        )}
+                        <img
+                          src={scrollDef?.icon ? normalizeIconPath(scrollDef.icon) : "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                          alt={scrollDef?.name || id}
+                          className="w-5 h-5 object-contain"
+                          onError={handleResourceIconError}
+                        />
                         <span className="text-gray-400">{scrollDef?.name || id}:</span>
                         <span className="text-green-400">x{count}</span>
                       </div>
