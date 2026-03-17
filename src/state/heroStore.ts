@@ -5,6 +5,8 @@ import { loadHero } from "./heroStore/heroLoad";
 import { loadHeroFromAPI } from "./heroStore/heroLoadAPI";
 import { updateHeroLogic } from "./heroStore/heroUpdate";
 import { saveHeroToLocalStorage, saveHeroToLocalStorageOnly } from "./heroStore/heroPersistence";
+import { updateInventoryAPI } from "../utils/api";
+import { useCharacterStore } from "./characterStore";
 import { hydrateHero } from "./heroStore/heroHydration";
 import { learnSkillLogic } from "./heroStore/heroSkills";
 import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
@@ -408,6 +410,22 @@ export const useHeroStore = create<HeroState>((set, get) => ({
                              (partial as any).dailyQuestsProgress !== undefined ||
                              (partial as any).activeQuests !== undefined ||
                              isResurrect;
+
+    // 🔥 Інвентар/екіп — зберігаємо ОДРАЗУ через окремий endpoint (без throttle 2.5с)
+    const hasInventoryChange = partial.inventory !== undefined || partial.equipment !== undefined || (partial as any).overflowChest !== undefined;
+    if (hasInventoryChange) {
+      const cid = useCharacterStore.getState().characterId;
+      if (cid) {
+        const inv = Array.isArray(updated.inventory) ? updated.inventory : [];
+        const chest = Array.isArray((updated as any).overflowChest) ? (updated as any).overflowChest : [];
+        updateInventoryAPI(cid, { inventory: inv, overflowChest: chest }).then((char) => {
+          const hj = (char as any)?.heroJson;
+          if (hj?.heroRevision != null) {
+            get().updateServerState({ heroRevision: hj.heroRevision, updatedAt: Date.now() });
+          }
+        }).catch(() => {});
+      }
+    }
 
     if (isCriticalChange) {
       if (import.meta.env.DEV && ((partial as any).level !== undefined || (partial as any).exp !== undefined)) {
