@@ -31,10 +31,7 @@ export const L2DOP_MOB_20545: Mob = {
   adenaMin: 8,
   adenaMax: 12,
   dropChance: 0.7,
-  drops: [
-    drop("thread", "resource", 0.0066, 1, 1),
-    drop("silver_nugget", "resource", 0.0013, 1, 1),
-  ],
+  drops: [],
   spoil: [],
 };
 
@@ -54,11 +51,8 @@ export const L2DOP_MOB_20481: Mob = {
   adenaMin: 8,
   adenaMax: 12,
   dropChance: 0.7,
-  drops: [
-    drop("thread", "resource", 0.0082, 1, 1),
-    drop("silver_nugget", "resource", 0.0016, 1, 1),
-  ],
-  spoil: [drop("thread", "resource", 0.032, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 
 // Wolf вЂ” 20120, XML: drop varnish+coal, spoil stem+oriharukon_ore
@@ -77,14 +71,8 @@ export const L2DOP_MOB_20120: Mob = {
   adenaMin: 19,
   adenaMax: 29,
   dropChance: 0.7,
-  drops: [
-    drop("varnish", "resource", 0.01, 1, 1),
-    drop("coal", "resource", 0.01, 1, 1),
-  ],
-  spoil: [
-    drop("stem", "resource", 0.077, 1, 1),
-    drop("oriharukon_ore", "resource", 0.0026, 1, 1),
-  ],
+  drops: [],
+  spoil: [],
 };
 
 // Elpy вЂ” 20432, XML: drop stem/varnish/suede/thread/silver_nugget, no spoil
@@ -103,13 +91,7 @@ export const L2DOP_MOB_20432: Mob = {
   adenaMin: 8,
   adenaMax: 12,
   dropChance: 0.7,
-  drops: [
-    drop("stem", "resource", 0.0047, 1, 1),
-    drop("varnish", "resource", 0.0024, 1, 1),
-    drop("suede", "resource", 0.0016, 1, 1),
-    drop("thread", "resource", 0.0047, 1, 1),
-    drop("silver_nugget", "resource", 0.0009, 1, 1),
-  ],
+  drops: [],
   spoil: [],
 };
 
@@ -129,14 +111,8 @@ export const L2DOP_MOB_20544: Mob = {
   adenaMin: 13,
   adenaMax: 20,
   dropChance: 0.7,
-  drops: [
-    drop("stem", "resource", 0.019, 1, 1),
-    drop("iron_ore", "resource", 0.009, 1, 1),
-  ],
-  spoil: [
-    drop("coal", "resource", 0.027, 1, 1),
-    drop("animal_bone", "resource", 0.036, 1, 1),
-  ],
+  drops: [],
+  spoil: [],
 };
 
 // Вождь Ящеров Мель вЂ” 20924, lvl 30, gludio23_1921_01 (Maille Lizardman Matriarch)
@@ -156,17 +132,8 @@ export const L2DOP_MOB_20924: Mob = {
   adenaMin: 122,
   adenaMax: 244,
   dropChance: 0.7,
-  drops: [
-    drop("leather", "resource", 0.045, 1, 1),
-    drop("varnish", "resource", 0.032, 1, 1),
-    drop("animal_bone", "resource", 0.028, 1, 1),
-    drop("mithril_ore", "resource", 0.008, 1, 1),
-  ],
-  spoil: [
-    drop("thread", "resource", 0.12, 1, 1),
-    drop("high_grade_suede", "resource", 0.025, 1, 1),
-    drop("leather", "resource", 0.08, 1, 1),
-  ],
+  drops: [],
+  spoil: [],
 };
 
 // Р”РѕРґР°С‚РєРѕРІС– РјРѕР±С– РґР»СЏ Gludio (XML 20001вЂ“20100)
@@ -184,29 +151,32 @@ export const L2DOP_MOB_20002: Mob = {
 export const L2DOP_MOB_20003: Mob = {
   id: "l2dop_20003", name: "Гоблин", level: 5, hp: 80, mp: 70, pAtk: 12, mAtk: 8, pDef: 52, mDef: 34, exp: 178, sp: 5,
   adenaMin: 30, adenaMax: 42, dropChance: 0.7,
-  drops: [drop("stem", "resource", 0.02, 1, 1), drop("varnish", "resource", 0.01, 1, 1), drop("suede", "resource", 0.0065, 1, 1), drop("thread", "resource", 0.02, 1, 1), drop("silver_nugget", "resource", 0.004, 1, 1)],
-  spoil: [drop("charcoal", "resource", 0.057, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Imp (Бес) вЂ” 20004, XML: drop suede+charcoal, spoil РўР†Р›Р¬РљР suede (2005/2006 вЂ” weapon mats, skip)
 export const L2DOP_MOB_20004: Mob = {
   id: "l2dop_20004", name: "Бес", level: 6, hp: 94, mp: 77, pAtk: 14, mAtk: 9, pDef: 54, mDef: 36, exp: 213, sp: 6,
   adenaMin: 41, adenaMax: 58, dropChance: 0.7,
-  drops: [drop("suede", "resource", 0.0102, 1, 1), drop("charcoal", "resource", 0.0153, 1, 1)],
-  spoil: [drop("suede", "resource", 0.0518, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 export const L2DOP_MOB_20005: Mob = {
   id: "l2dop_20005", name: "Старий Бес", level: 7, hp: 108, mp: 85, pAtk: 15, mAtk: 10, pDef: 56, mDef: 37, exp: 249, sp: 8,
-  adenaMin: 51, adenaMax: 72, dropChance: 0.7, drops: [drop("varnish", "resource", 0.014, 1, 1), drop("coal", "resource", 0.014, 1, 1)], spoil: [drop("suede", "resource", 0.117, 1, 1)],
+  adenaMin: 51, adenaMax: 72, dropChance: 0.7,   drops: [],
+  spoil: [],
 };
 // Orc Archer вЂ” 20006, XML: drop suede+charcoal, spoil 113/1060/2006 (РЅРµ РІ map) в†’ []
 export const L2DOP_MOB_20006: Mob = {
   id: "l2dop_20006", name: "Орк Лучник", level: 8, hp: 125, mp: 93, pAtk: 16, mAtk: 11, pDef: 58, mDef: 38, exp: 293, sp: 10,
-  adenaMin: 69, adenaMax: 94, dropChance: 0.7, drops: [drop("suede", "resource", 0.017, 1, 1), drop("charcoal", "resource", 0.025, 1, 1)], spoil: [],
+  adenaMin: 69, adenaMax: 94, dropChance: 0.7,   drops: [],
+  spoil: [],
 };
 // Green Fungus вЂ” 20007, XML: drop stem+iron_ore, spoil suede+stone_of_purity (1122 РЅРµ РІ map)
 export const L2DOP_MOB_20007: Mob = {
   id: "l2dop_20007", name: "Зелений Гриб", level: 9, hp: 143, mp: 100, pAtk: 18, mAtk: 12, pDef: 60, mDef: 40, exp: 321, sp: 11,
-  adenaMin: 80, adenaMax: 108, dropChance: 0.7, drops: [drop("stem", "resource", 0.037, 1, 1), drop("iron_ore", "resource", 0.029, 1, 1)], spoil: [drop("suede", "resource", 0.099, 1, 1), drop("stone_of_purity", "resource", 0.01, 1, 1)],
+  adenaMin: 80, adenaMax: 108, dropChance: 0.7,   drops: [],
+  spoil: [],
 };
 // Young Fox вЂ” 20091, XML: no drops
 export const L2DOP_MOB_20091: Mob = {
@@ -217,15 +187,15 @@ export const L2DOP_MOB_20091: Mob = {
 export const L2DOP_MOB_20092: Mob = {
   id: "l2dop_20092", name: "Глаз Монстра", level: 10, hp: 160, mp: 108, pAtk: 19, mAtk: 13, pDef: 62, mDef: 41, exp: 362, sp: 12,
   adenaMin: 95, adenaMax: 125, dropChance: 0.7,
-  drops: [drop("animal_skin", "resource", 0.019, 1, 1), drop("iron_ore", "resource", 0.014, 1, 1), drop("coal", "resource", 0.014, 1, 1), drop("charcoal", "resource", 0.014, 1, 1), drop("animal_bone", "resource", 0.019, 1, 1)],
-  spoil: [drop("suede", "resource", 0.098, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Orc Fighter вЂ” 20093, XML: drop animal_skin/animal_bone, spoil animal_skin (1666/2007 skip)
 export const L2DOP_MOB_20093: Mob = {
   id: "l2dop_20093", name: "Орк Воїн", level: 10, hp: 165, mp: 110, pAtk: 20, mAtk: 13, pDef: 63, mDef: 42, exp: 378, sp: 12,
   adenaMin: 100, adenaMax: 130, dropChance: 0.7,
-  drops: [drop("animal_skin", "resource", 0.036, 1, 1), drop("animal_bone", "resource", 0.036, 1, 1)],
-  spoil: [drop("animal_skin", "resource", 0.24, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Orc Marksman вЂ” 20094, XML: no drops
 export const L2DOP_MOB_20094: Mob = {
@@ -235,20 +205,21 @@ export const L2DOP_MOB_20094: Mob = {
 // Vampire Bat вЂ” 20095, XML: drop stem+iron_ore, spoil stem only (2006 skip)
 export const L2DOP_MOB_20095: Mob = {
   id: "l2dop_20095", name: "Вампірська Летуча Миш", level: 10, hp: 163, mp: 108, pAtk: 19, mAtk: 13, pDef: 62, mDef: 41, exp: 296, sp: 10,
-  adenaMin: 80, adenaMax: 108, dropChance: 0.7, drops: [drop("stem", "resource", 0.059, 1, 1), drop("iron_ore", "resource", 0.029, 1, 1)], spoil: [drop("stem", "resource", 0.297, 1, 1)],
+  adenaMin: 80, adenaMax: 108, dropChance: 0.7,   drops: [],
+  spoil: [],
 };
 // Orc Lieutenant вЂ” 20096, XML: drop animal_skin/iron_ore/coal/charcoal/animal_bone, spoil 1792/1799/1921 (unmapped)
 export const L2DOP_MOB_20096: Mob = {
   id: "l2dop_20096", name: "Орк Лейтенант", level: 11, hp: 185, mp: 116, pAtk: 21, mAtk: 14, pDef: 64, mDef: 43, exp: 391, sp: 15,
   adenaMin: 109, adenaMax: 147, dropChance: 0.7,
-  drops: [drop("animal_skin", "resource", 0.026, 1, 1), drop("iron_ore", "resource", 0.02, 1, 1), drop("coal", "resource", 0.02, 1, 1), drop("charcoal", "resource", 0.02, 1, 1), drop("animal_bone", "resource", 0.026, 1, 1)],
+  drops: [],
   spoil: [],
 };
 // Skeleton вЂ” 20099, XML: drop stem/varnish/suede/thread/silver_nugget, spoil 1831/1896/2009 (unmapped)
 export const L2DOP_MOB_20099: Mob = {
   id: "l2dop_20099", name: "Скелет", level: 12, hp: 200, mp: 124, pAtk: 23, mAtk: 16, pDef: 66, mDef: 44, exp: 363, sp: 13,
   adenaMin: 95, adenaMax: 131, dropChance: 0.7,
-  drops: [drop("stem", "resource", 0.035, 1, 1), drop("varnish", "resource", 0.018, 1, 1), drop("suede", "resource", 0.012, 1, 1), drop("thread", "resource", 0.035, 1, 1), drop("silver_nugget", "resource", 0.007, 1, 1)],
+  drops: [],
   spoil: [],
 };
 // Skeleton Archer вЂ” 20100, XML: drop suede+charcoal, spoil suede only
@@ -259,7 +230,8 @@ export const L2DOP_MOB_20100: Mob = {
 // Red Bear вЂ” 20021, XML: drop varnish+coal, spoil 1792/1793/1921 (unmapped)
 export const L2DOP_MOB_20021: Mob = {
   id: "l2dop_20021", name: "Красивий Ведмідь", level: 14, hp: 245, mp: 155, pAtk: 27, mAtk: 18, pDef: 74, mDef: 49, exp: 565, sp: 17,
-  adenaMin: 155, adenaMax: 205, dropChance: 0.7, drops: [drop("varnish", "resource", 0.033, 1, 1), drop("coal", "resource", 0.033, 1, 1)], spoil: [],
+  adenaMin: 155, adenaMax: 205, dropChance: 0.7,   drops: [],
+  spoil: [],
 };
 // Langk Lizardman вЂ” 20030, XML: drop varnish+coal, spoil 1794/1798/1831 (unmapped)
 export const L2DOP_MOB_20030: Mob = {
@@ -269,26 +241,28 @@ export const L2DOP_MOB_20030: Mob = {
 // Tracker Skeleton вЂ” 20035, XML: drop thread+silver_nugget, spoil thread only
 export const L2DOP_MOB_20035: Mob = {
   id: "l2dop_20035", name: "Скелет-трекер", level: 17, hp: 283, mp: 166, pAtk: 35, mAtk: 24, pDef: 79, mDef: 52, exp: 605, sp: 25,
-  adenaMin: 120, adenaMax: 193, dropChance: 0.7, drops: [drop("thread", "resource", 0.073, 1, 1), drop("silver_nugget", "resource", 0.015, 1, 1)], spoil: [drop("thread", "resource", 0.492, 1, 1)],
+  adenaMin: 120, adenaMax: 193, dropChance: 0.7,   drops: [],
+  spoil: [],
 };
 // Felim Lizardman вЂ” 20008, XML: drop varnish+coal, spoil coal+charcoal
 export const L2DOP_MOB_20008: Mob = {
   id: "l2dop_20008", name: "Ящір Фелім", level: 14, hp: 230, mp: 141, pAtk: 27, mAtk: 19, pDef: 71, mDef: 47, exp: 498, sp: 19,
-  adenaMin: 150, adenaMax: 200, dropChance: 0.7, drops: [drop("varnish", "resource", 0.044, 1, 1), drop("coal", "resource", 0.044, 1, 1)], spoil: [drop("coal", "resource", 0.22, 1, 1), drop("charcoal", "resource", 0.22, 1, 1)],
+  adenaMin: 150, adenaMax: 200, dropChance: 0.7,   drops: [],
+  spoil: [],
 };
 // Selu Lizardman Scout вЂ” 20069. РЇС‰С–СЂРё: leather, varnish, thread. Spoil вЂ” С–РЅР°РєС€РёР№ РЅР°Р±С–СЂ.
 export const L2DOP_MOB_20069: Mob = {
   id: "l2dop_20069", name: "Розвідчик Ящерів Селу", level: 26, hp: 520, mp: 310, pAtk: 58, mAtk: 38, pDef: 105, mDef: 70, exp: 980, sp: 28,
   adenaMin: 320, adenaMax: 420, dropChance: 0.7,
-  drops: [drop("leather", "resource", 0.06, 1, 1), drop("varnish", "resource", 0.045, 1, 1), drop("thread", "resource", 0.038, 1, 1)],
-  spoil: [drop("animal_bone", "resource", 0.1, 1, 1), drop("stem", "resource", 0.055, 1, 1), drop("leather", "resource", 0.08, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Granite Golem вЂ” 20083. Р“РѕР»РµРјРё: mithril, steel (РјС–РЅРµСЂР°Р»Рё). Spoil вЂ” oriharukon, stone_of_purity.
 export const L2DOP_MOB_20083: Mob = {
   id: "l2dop_20083", name: "Гранітовий Голем", level: 33, hp: 980, mp: 580, pAtk: 95, mAtk: 62, pDef: 145, mDef: 96, exp: 1650, sp: 48,
   adenaMin: 380, adenaMax: 510, dropChance: 0.7,
-  drops: [drop("mithril_ore", "resource", 0.055, 1, 1), drop("steel", "resource", 0.045, 1, 1), drop("iron_ore", "resource", 0.035, 1, 1)],
-  spoil: [drop("oriharukon_ore", "resource", 0.06, 1, 1), drop("stone_of_purity", "resource", 0.02, 1, 1), drop("mithril_ore", "resource", 0.08, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 
 // Тетрарх Орк Турек вЂ” 20546, lvl 34 (Turek Orc Elder). L2: РѕСЂРєРё вЂ” iron_ore, coal, suede, steel.
@@ -307,17 +281,8 @@ export const L2DOP_MOB_20546: Mob = {
   adenaMin: 240,
   adenaMax: 478,
   dropChance: 0.7,
-  drops: [
-    drop("iron_ore", "resource", 0.055, 1, 1),
-    drop("steel", "resource", 0.035, 1, 1),
-    drop("coal", "resource", 0.04, 1, 1),
-    drop("suede", "resource", 0.03, 1, 1),
-  ],
-  spoil: [
-    drop("animal_bone", "resource", 0.1, 1, 1),
-    drop("coarse_bone_powder", "resource", 0.04, 1, 1),
-    drop("iron_ore", "resource", 0.07, 1, 1),
-  ],
+  drops: [],
+  spoil: [],
 };
 
 /** РџСѓР» РјРѕР±С–РІ РґР»СЏ Gludio (Р»РІР» 1вЂ“35) */
@@ -405,8 +370,8 @@ function makeChampion(base: Mob, championName: string, suffix: string): Mob {
     adenaMin: base.adenaMin * 10,
     adenaMax: base.adenaMax * 10,
     dropChance: 0.85,
-    drops: champDrops.length ? champDrops : [drop("thread", "resource", 0.5, 2, 5), drop("silver_nugget", "resource", 0.3, 1, 3)],
-    spoil: champSpoil.length ? champSpoil : [drop("stem", "resource", 0.6, 2, 6)],
+    drops: champDrops.length ? champDrops : [],
+    spoil: champSpoil.length ? champSpoil : [],
   };
 }
 
@@ -434,15 +399,8 @@ export function getGludioL2DopChampions(zoneId: string, minLvl: number, maxLvl: 
 }
 
 /** NG/D СЂРµСЃСѓСЂСЃРё РґР»СЏ РґСЂРѕРїСѓ Gludio Р Р‘ (Р»РІР» 1вЂ“40) */
-const GLUDIO_RB_RESOURCES = ["stem", "suede", "iron_ore", "coal", "leather", "animal_bone", "thread", "varnish", "mithril_ore", "steel"];
-
-function gludioRbDrops(rbIndex: number): DropEntry[] {
-  const items: DropEntry[] = [
-    ...GLUDIO_RB_RESOURCES.slice(0, 4).map((r, i) => drop(r, "resource", 0.5 + (rbIndex % 3) * 0.1, 3 + (rbIndex % 4), 8 + (rbIndex % 5))),
-  ];
-  if (rbIndex >= 4) items.push(drop("high_grade_suede", "resource", 0.2, 1, 3));
-  if (rbIndex >= 6) items.push(drop("oriharukon_ore", "resource", 0.15, 1, 2));
-  return items;
+function gludioRbDrops(_rbIndex: number): DropEntry[] {
+  return [];
 }
 
 /** Р‘Р°Р·РѕРІС– Р Р‘ Gludio вЂ” РїРѕ РѕРґРЅРѕРјСѓ РЅР° Р·РѕРЅСѓ; getGludioRaidBossesForZone СЂРѕР·С€РёСЂСЋС” РґРѕ 6 С– РїРѕРІРµСЂС‚Р°С” 3вЂ“6 */
@@ -528,16 +486,8 @@ export const L2DOP_MOB_18001: Mob = {
   adenaMin: 765,
   adenaMax: 1528,
   dropChance: 0.7,
-  drops: [
-    drop("stem", "resource", 0.178, 1, 1),
-    drop("suede", "resource", 0.059, 1, 1),
-    drop("high_grade_suede", "resource", 0.0074, 1, 1),
-  ],
-  spoil: [
-    drop("stem", "resource", 0.32, 1, 1),
-    drop("suede", "resource", 0.106, 1, 1),
-    drop("high_grade_suede", "resource", 0.013, 1, 1),
-  ],
+  drops: [],
+  spoil: [],
 };
 
 export const L2DOP_GLUDIO15_1721_MOBS: Mob[] = [L2DOP_MOB_20546];
@@ -551,92 +501,92 @@ export const L2DOP_GIRAN03_2321_MOBS: Mob[] = [L2DOP_MOB_18001];
 export const L2DOP_MOB_ADEN_40: Mob = {
   id: "l2dop_aden_40", name: "Громила", level: 40, hp: 1420, mp: 480, pAtk: 185, mAtk: 95, pDef: 175, mDef: 125,
   exp: 2100, sp: 120, adenaMin: 520, adenaMax: 820, dropChance: 0.7,
-  drops: [drop("mithril_ore", "resource", 0.04, 1, 1), drop("steel", "resource", 0.035, 1, 1), drop("leather", "resource", 0.03, 1, 1)],
-  spoil: [drop("high_grade_suede", "resource", 0.08, 1, 1), drop("oriharukon_ore", "resource", 0.02, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Тиран вЂ” 42
 export const L2DOP_MOB_ADEN_42: Mob = {
   id: "l2dop_aden_42", name: "Тиран", level: 42, hp: 1280, mp: 720, pAtk: 95, mAtk: 210, pDef: 120, mDef: 185,
   exp: 2450, sp: 135, adenaMin: 580, adenaMax: 920, dropChance: 0.7,
-  drops: [drop("stone_of_purity", "resource", 0.03, 1, 1), drop("thread", "resource", 0.05, 1, 1)],
-  spoil: [drop("mithril_ore", "resource", 0.09, 1, 1), drop("cord", "resource", 0.04, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Глоріо Чемпіон вЂ” 44, С‚РµРјР° Enchanted Valley
 export const L2DOP_MOB_ADEN_44: Mob = {
   id: "l2dop_aden_44", name: "Глоріо Чемпіон", level: 44, hp: 1680, mp: 520, pAtk: 215, mAtk: 0, pDef: 205, mDef: 145,
   exp: 2900, sp: 155, adenaMin: 680, adenaMax: 1050, dropChance: 0.7,
-  drops: [drop("oriharukon_ore", "resource", 0.025, 1, 1), drop("steel", "resource", 0.045, 1, 1)],
-  spoil: [drop("leather", "resource", 0.1, 1, 1), drop("animal_bone", "resource", 0.06, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Хранитель Окраїни вЂ” 46
 export const L2DOP_MOB_ADEN_46: Mob = {
   id: "l2dop_aden_46", name: "Хранитель Окраїни", level: 46, hp: 1520, mp: 880, pAtk: 0, mAtk: 240, pDef: 140, mDef: 210,
   exp: 3400, sp: 175, adenaMin: 780, adenaMax: 1200, dropChance: 0.7,
-  drops: [drop("stone_of_purity", "resource", 0.04, 1, 1), drop("mithril_ore", "resource", 0.05, 1, 1)],
-  spoil: [drop("oriharukon_ore", "resource", 0.05, 1, 1), drop("thread", "resource", 0.06, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Лорд Лугів вЂ” 48, Execution Grounds
 export const L2DOP_MOB_ADEN_48: Mob = {
   id: "l2dop_aden_48", name: "Лорд Лугів", level: 48, hp: 1950, mp: 560, pAtk: 255, mAtk: 0, pDef: 240, mDef: 165,
   exp: 4000, sp: 200, adenaMin: 900, adenaMax: 1400, dropChance: 0.7,
-  drops: [drop("steel", "resource", 0.055, 1, 1), drop("high_grade_suede", "resource", 0.03, 1, 1)],
-  spoil: [drop("coarse_bone_powder", "resource", 0.08, 1, 1), drop("leather", "resource", 0.09, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Лисичок вЂ” 50
 export const L2DOP_MOB_ADEN_50: Mob = {
   id: "l2dop_aden_50", name: "Лисичок", level: 50, hp: 2100, mp: 400, pAtk: 275, mAtk: 0, pDef: 265, mDef: 180,
   exp: 4700, sp: 230, adenaMin: 1050, adenaMax: 1600, dropChance: 0.7,
-  drops: [drop("animal_bone", "resource", 0.06, 1, 1), drop("coarse_bone_powder", "resource", 0.04, 1, 1)],
-  spoil: [drop("oriharukon_ore", "resource", 0.06, 1, 1), drop("stone_of_purity", "resource", 0.04, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Болотний Дракон вЂ” 52, Blazing Swamp
 export const L2DOP_MOB_ADEN_52: Mob = {
   id: "l2dop_aden_52", name: "Болотний Дракон", level: 52, hp: 2350, mp: 620, pAtk: 300, mAtk: 125, pDef: 290, mDef: 200,
   exp: 5500, sp: 260, adenaMin: 1200, adenaMax: 1850, dropChance: 0.7,
-  drops: [drop("coal", "resource", 0.05, 1, 1), drop("charcoal", "resource", 0.05, 1, 1), drop("mithril_ore", "resource", 0.06, 1, 1)],
-  spoil: [drop("stone_of_purity", "resource", 0.06, 1, 1), drop("steel", "resource", 0.07, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Глаз Монстра вЂ” 54
 export const L2DOP_MOB_ADEN_54: Mob = {
   id: "l2dop_aden_54", name: "Глаз Монстра", level: 54, hp: 2580, mp: 680, pAtk: 330, mAtk: 0, pDef: 318, mDef: 218,
   exp: 6400, sp: 295, adenaMin: 1400, adenaMax: 2120, dropChance: 0.7,
-  drops: [drop("leather", "resource", 0.07, 1, 1), drop("high_grade_suede", "resource", 0.04, 1, 1)],
-  spoil: [drop("cord", "resource", 0.1, 1, 1), drop("crafted_leather", "resource", 0.03, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Ящір-Імператор вЂ” 56
 export const L2DOP_MOB_ADEN_56: Mob = {
   id: "l2dop_aden_56", name: "Ящір-Імператор", level: 56, hp: 2820, mp: 920, pAtk: 180, mAtk: 320, pDef: 200, mDef: 280,
   exp: 7400, sp: 335, adenaMin: 1650, adenaMax: 2450, dropChance: 0.7,
-  drops: [drop("oriharukon_ore", "resource", 0.05, 1, 1), drop("stone_of_purity", "resource", 0.05, 1, 1)],
-  spoil: [drop("mithril_ore", "resource", 0.1, 1, 1), drop("high_grade_suede", "resource", 0.05, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Орк-Верховний вЂ” 58
 export const L2DOP_MOB_ADEN_58: Mob = {
   id: "l2dop_aden_58", name: "Орк-Верховний", level: 58, hp: 3100, mp: 600, pAtk: 380, mAtk: 0, pDef: 365, mDef: 250,
   exp: 8600, sp: 380, adenaMin: 1900, adenaMax: 2850, dropChance: 0.7,
-  drops: [drop("steel", "resource", 0.07, 1, 1), drop("crafted_leather", "resource", 0.04, 1, 1)],
-  spoil: [drop("oriharukon_ore", "resource", 0.08, 1, 1), drop("leather", "resource", 0.1, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Печерний Титан вЂ” 60
 export const L2DOP_MOB_ADEN_60: Mob = {
   id: "l2dop_aden_60", name: "Печерний Титан", level: 60, hp: 3400, mp: 400, pAtk: 420, mAtk: 0, pDef: 410, mDef: 280,
   exp: 10000, sp: 430, adenaMin: 2200, adenaMax: 3300, dropChance: 0.7,
-  drops: [drop("mithril_ore", "resource", 0.08, 1, 1), drop("steel", "resource", 0.06, 1, 1), drop("stone_of_purity", "resource", 0.04, 1, 1)],
-  spoil: [drop("oriharukon_ore", "resource", 0.09, 1, 1), drop("adamantite_nugget", "resource", 0.02, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Страж Окраїни вЂ” 62
 export const L2DOP_MOB_ADEN_62: Mob = {
   id: "l2dop_aden_62", name: "Страж Окраїни", level: 62, hp: 3720, mp: 880, pAtk: 460, mAtk: 200, pDef: 455, mDef: 310,
   exp: 11600, sp: 485, adenaMin: 2550, adenaMax: 3800, dropChance: 0.7,
-  drops: [drop("high_grade_suede", "resource", 0.05, 1, 1), drop("crafted_leather", "resource", 0.05, 1, 1)],
-  spoil: [drop("mithril_ore", "resource", 0.11, 1, 1), drop("stone_of_purity", "resource", 0.06, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 // Вартовий Окраїни вЂ” 65
 export const L2DOP_MOB_ADEN_65: Mob = {
   id: "l2dop_aden_65", name: "Вартовий Окраїни", level: 65, hp: 4200, mp: 700, pAtk: 520, mAtk: 0, pDef: 510, mDef: 350,
   exp: 13500, sp: 550, adenaMin: 3000, adenaMax: 4500, dropChance: 0.7,
-  drops: [drop("oriharukon_ore", "resource", 0.06, 1, 1), drop("adamantite_nugget", "resource", 0.025, 1, 1), drop("crafted_leather", "resource", 0.05, 1, 1)],
-  spoil: [drop("steel", "resource", 0.1, 1, 1), drop("mithril_ore", "resource", 0.1, 1, 1)],
+  drops: [],
+  spoil: [],
 };
 
 /** РџСѓР» РјРѕР±С–РІ РґР»СЏ Aden (Р»РІР» 40вЂ“65) */
@@ -672,15 +622,8 @@ export function getAdenL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
 }
 
 /** D/C-grade СЂРµСЃСѓСЂСЃРё РґР»СЏ РґСЂРѕРїСѓ Aden Р Р‘ (Р»РІР» 40вЂ“65) */
-const ADEN_RB_RESOURCES = ["mithril_ore", "steel", "oriharukon_ore", "high_grade_suede", "stone_of_purity", "leather", "crafted_leather", "cord", "adamantite_nugget"];
-
-function adenRbDrops(rbIndex: number): DropEntry[] {
-  const items: DropEntry[] = [
-    ...ADEN_RB_RESOURCES.slice(0, 5).map((r, i) => drop(r, "resource", 0.5 + (rbIndex % 3) * 0.08, 4 + (rbIndex % 5), 10 + (rbIndex % 6))),
-  ];
-  if (rbIndex >= 3) items.push(drop("adamantite_nugget", "resource", 0.15, 1, 3));
-  if (rbIndex >= 6) items.push(drop("crafted_leather", "resource", 0.25, 2, 6));
-  return items;
+function adenRbDrops(_rbIndex: number): DropEntry[] {
+  return [];
 }
 
 /** Р‘Р°Р·РѕРІС– Р Р‘ Aden вЂ” РїРѕ РѕРґРЅРѕРјСѓ РЅР° Р·РѕРЅСѓ; getAdenRaidBossesForZone СЂРѕР·С€РёСЂСЋС” РґРѕ 6 С– РїРѕРІРµСЂС‚Р°С” 3вЂ“6 */

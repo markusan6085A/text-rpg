@@ -2598,7 +2598,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 50,
     bodypart: "consumable",
-    icon: "/items/drops/resources/bless-weapon-s.png",
+    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
     description: "Благословенна заточка для S-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -2610,7 +2610,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 25,
     bodypart: "consumable",
-    icon: "/items/drops/resources/bless-armor-s.png",
+    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
     description: "Благословенна заточка для S-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
 ];

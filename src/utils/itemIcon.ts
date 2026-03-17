@@ -3,11 +3,11 @@
  * Ресурси: /items/drops/resources/; fallback на resourcesss при 404.
  */
 
-/** Аліаси id -> filename для ресурсів без запису в itemsDB */
+/** Аліаси id -> filename для ресурсів без запису в itemsDB. Synthetic_Cokes видалено — fallback на Etc_bead */
 const RESOURCE_ID_TO_FILENAME: Record<string, string> = {
-  synkopurs: "Synthetic_Cokes",
-  synth_cokes: "Synthetic_Cokes",
-  synthetic_cokes: "Synthetic_Cokes",
+  synkopurs: "Etc_bead_green_i00_0",
+  synth_cokes: "Etc_bead_green_i00_0",
+  synthetic_cokes: "Etc_bead_green_i00_0",
 };
 
 /** Конвертує id ресурсу в ім'я файлу (Title_Case) */

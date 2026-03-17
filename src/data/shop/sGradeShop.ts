@@ -76,7 +76,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     category: "chest",
     price: 20000000,
     bodypart: "chest",
-    icon: "/items/drops/arrom_s/Draconic_Leather_Armo.jpg",
+    icon: "/items/drops/arrom_s/Draconic_Leather_Armor.jpg",
     description: "Броня драконічної шкіри S-grade (Draconic Set).",
   },
   {

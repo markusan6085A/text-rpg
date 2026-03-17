@@ -3,30 +3,10 @@ import type { Mob } from "../world/types";
 import type { DropEntry } from "../combat/types";
 import type { RaidBoss } from "../bosses/floran_overlord";
 
-// Ресурси для дропу та спойлу (більше ресурсів)
-const resourceDrops: string[] = [
-  "animal_skin", "animal_bone", "coal", "charcoal", "crafted_leather", "bone_powder",
-  "thread", "cord", "suede", "iron_ore", "steel", "mithril_ore",
-  "silver_mold", "artisans_frame", "blacksmiths_frame", "compound_braid",
-  "synthetic_cokes", "rind_leather_boot_lining", "crafted_leather",
-  "high_grade_suede", "metallic_fiber", "looted_goods_brown_pouch"
-];
-
-const resourceSpoils: string[] = [
-  "animal_skin", "animal_bone", "coal", "charcoal", "crafted_leather", "bone_powder",
-  "thread", "cord", "suede", "iron_ore", "steel", "mithril_ore",
-  "silver_mold", "artisans_frame", "blacksmiths_frame", "compound_braid",
-  "synthetic_cokes", "rind_leather_boot_lining", "crafted_leather",
-  "high_grade_suede", "metallic_fiber", "looted_goods_brown_pouch"
-];
-
-// Ресурси для крафту зброї та броні (8% шанс)
-const craftingResources: string[] = [
-  "mithril_ore", "silver_mold",
-  "artisans_frame", "blacksmiths_frame", "compound_braid", "synthetic_cokes", 
-  "steel", "rind_leather_boot_lining", "crafted_leather",
-  "high_grade_suede", "metallic_fiber", "looted_goods_brown_pouch"
-];
+// Ресурси для дропу та спойлу — порожньо, починаємо з нуля
+const resourceDrops: string[] = [];
+const resourceSpoils: string[] = [];
+const craftingResources: string[] = [];
 
 // Функція для генерації базових статів моба за рівнем (без х2)
 function createMobStats(level: number, isChampion: boolean = false) {
@@ -115,9 +95,9 @@ function generateResourceSpoils(mobIndex: number, isChampion: boolean = false): 
 
 // Функція для генерації ресурсів для крафту (8% шанс)
 function generateCraftingDrops(mobIndex: number): DropEntry[] {
+  if (craftingResources.length === 0) return [];
   const resourceIndex = mobIndex % craftingResources.length;
   const resource = craftingResources[resourceIndex];
-  
   return [{
     id: resource,
     kind: "resource" as const,

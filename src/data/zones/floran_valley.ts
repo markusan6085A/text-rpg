@@ -4,15 +4,9 @@ import type { DropEntry } from "../combat/types";
 
 // Ресурси для дропу та спойлу (Floran Valley: 6-20 лвл)
 // Базові ресурси + Silver Nugget + Adamantite Nugget + Mithril Ore
-const resourceDrops: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
-  "stem", "thread", "suede", "silver_nugget", "adamantite_nugget", "mithril_ore"
-];
+const resourceDrops: string[] = [];
 
-const resourceSpoils: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
-  "stem", "thread", "suede", "silver_nugget", "adamantite_nugget", "mithril_ore"
-];
+const resourceSpoils: string[] = [];
 
 // Функція для генерації базових статів моба за рівнем
 function createMobStats(level: number, isChampion: boolean = false) {

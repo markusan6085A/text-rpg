@@ -2,17 +2,9 @@
 import type { Mob } from "../world/types";
 import type { DropEntry } from "../combat/types";
 
-// Ресурси для дропу та спойлу (Floran Plains: 3-10 лвл)
-// Базові ресурси + Silver Nugget
-const resourceDrops: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", 
-  "stem", "thread", "suede", "silver_nugget"
-];
-
-const resourceSpoils: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
-  "stem", "thread", "suede", "silver_nugget"
-];
+// Ресурси для дропу та спойлу — порожньо, починаємо з нуля
+const resourceDrops: string[] = [];
+const resourceSpoils: string[] = [];
 
 // Функція для генерації базових статів моба за рівнем
 function createMobStats(level: number, isChampion: boolean = false) {

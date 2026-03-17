@@ -5,15 +5,9 @@ import type { RaidBoss } from "../bosses/floran_overlord";
 
 // Ресурси для дропу та спойлу (Floran Forest: 7-16 лвл)
 // Базові ресурси + Silver Nugget + Adamantite Nugget
-const resourceDrops: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
-  "stem", "thread", "suede", "silver_nugget", "adamantite_nugget"
-];
+const resourceDrops: string[] = [];
 
-const resourceSpoils: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
-  "stem", "thread", "suede", "silver_nugget", "adamantite_nugget"
-];
+const resourceSpoils: string[] = [];
 
 // Функція для генерації базових статів моба за рівнем
 function createMobStats(level: number, isChampion: boolean = false) {

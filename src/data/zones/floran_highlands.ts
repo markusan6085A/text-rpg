@@ -3,19 +3,9 @@ import type { Mob } from "../world/types";
 import type { DropEntry } from "../combat/types";
 import type { RaidBoss } from "../bosses/floran_overlord";
 
-// Ресурси для дропу та спойлу (Floran Highlands: 20-28 лвл)
-// Базові ресурси + Silver Nugget + Adamantite Nugget + Mithril Ore + Stone of Purity + Oriharukon Ore + Mold Glue + Mold Lubricant + Mold Hardener
-const resourceDrops: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
-  "stem", "thread", "suede", "silver_nugget", "adamantite_nugget", "mithril_ore",
-  "stone_of_purity", "oriharukon_ore", "mold_glue", "mold_lubricant", "mold_hardener"
-];
-
-const resourceSpoils: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore",
-  "stem", "thread", "suede", "silver_nugget", "adamantite_nugget", "mithril_ore",
-  "stone_of_purity", "oriharukon_ore", "mold_glue", "mold_lubricant", "mold_hardener"
-];
+// Ресурси для дропу та спойлу — порожньо, починаємо з нуля
+const resourceDrops: string[] = [];
+const resourceSpoils: string[] = [];
 
 // Функція для генерації базових статів моба за рівнем (без х2)
 function createMobStats(level: number, isChampion: boolean = false) {

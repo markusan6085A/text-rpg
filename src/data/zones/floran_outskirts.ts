@@ -2,15 +2,9 @@
 import type { Mob } from "../world/types";
 import type { DropEntry } from "../combat/types";
 
-// Ресурси для дропу та спойлу (Floran Outskirts: 1-6 лвл)
-// Базові ресурси для низьких рівнів
-const resourceDrops: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", "stem", "thread", "suede"
-];
-
-const resourceSpoils: string[] = [
-  "coal", "animal_bone", "animal_skin", "charcoal", "varnish", "iron_ore", "stem", "thread", "suede"
-];
+// Ресурси для дропу та спойлу — порожньо, починаємо з нуля
+const resourceDrops: string[] = [];
+const resourceSpoils: string[] = [];
 
 // Функція для генерації базових статів моба за рівнем
 function createMobStats(level: number, isChampion: boolean = false) {
