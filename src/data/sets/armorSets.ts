@@ -117,7 +117,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "gloves_of_knowledge", slot: "gloves" },
       { itemId: "boots_of_knowledge", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { MEN: 1, WIT: 1, INT: 1 },
+    },
   },
 
   // ===== D-GRADE СЕТ OATH (Magic Armor Set - Robe) =====
