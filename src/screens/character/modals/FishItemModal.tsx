@@ -436,8 +436,9 @@ export default function FishItemModal({
           <div>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Шанси дропу:</div>
             <div className="text-gray-400 text-[11px] space-y-0.5">
-              <div>Зброя/Броня — за 10 риб: D/C 0.7%, B/A/S 0.1%</div>
-              <div>Бижутерія/Ресурси/Скарбничка — за 1 рибу: як було</div>
+              <div>Зброя/Броня/Бижутерія — за 10 риб: D/C 0.7%, B/A/S 0.1%</div>
+              <div>Ресурси — за 1 рибу: 0.8% кожен тип</div>
+              <div>Скарбничка — за 1 рибу: 0.3%</div>
               <div>Заточки — за 1 рибу: 0.4% (D/C)</div>
             </div>
             <button
