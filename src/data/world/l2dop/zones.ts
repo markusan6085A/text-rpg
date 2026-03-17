@@ -1,10 +1,35 @@
 // src/data/world/l2dop/zones.ts
-// Локації (зони) з l2dop — моби видалені, починаємо з нуля
+// Локації (зони) з l2dop — Gludio L2, Aden L2, Giran L2 з мобами
 
 import type { Zone } from "../types";
+import {
+  fillZoneMobs,
+  getGludioL2DopChampions,
+  getGludioRaidBossesForZone,
+  getAdenL2DopChampions,
+  getAdenRaidBossesForZone,
+  shuffleMobsRandomly,
+  L2DOP_GLUDIO_POOL,
+  L2DOP_ADEN_POOL,
+  L2DOP_GIRAN03_2321_MOBS,
+} from "./mobs";
+
+function buildGludioZoneMobs(z: { id: string; min: number; max: number }) {
+  const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18);
+  const champions = getGludioL2DopChampions(z.id, z.min, z.max);
+  const raidBosses = getGludioRaidBossesForZone(z.id);
+  return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
+}
+
+function buildAdenZoneMobs(z: { id: string; min: number; max: number }) {
+  const regular = fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 150, 8, 18);
+  const champions = getAdenL2DopChampions(z.id, z.min, z.max);
+  const raidBosses = getAdenRaidBossesForZone(z.id);
+  return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
+}
 
 /**
- * Локації з l2dop (місто → зони). Моби видалені — будуть додані заново.
+ * Локації з l2dop (Gludio L2, Aden L2, Giran L2) з мобами.
  */
 export const L2DOP_ZONES: Zone[] = [
   ...[
@@ -23,7 +48,7 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: z.min,
     maxLevel: z.max,
     tpCost: z.tp,
-    mobs: [],
+    mobs: buildGludioZoneMobs(z),
   })),
   {
     id: "l2dop_giran03_2321_15",
@@ -32,7 +57,7 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: 55,
     maxLevel: 65,
     tpCost: 25000,
-    mobs: [],
+    mobs: L2DOP_GIRAN03_2321_MOBS,
   },
   ...[
     { id: "l2dop_aden_01", name: "Aden — Окрестность (L2)", min: 40, max: 44, tp: 15000 },
@@ -50,6 +75,6 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: z.min,
     maxLevel: z.max,
     tpCost: z.tp,
-    mobs: [],
+    mobs: buildAdenZoneMobs(z),
   })),
 ];
