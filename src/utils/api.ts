@@ -91,21 +91,34 @@ export function getAccessToken(): string | null {
   return useAuthStore.getState().accessToken;
 }
 
-async function refreshAccessToken(): Promise<string | null> {
+/** Результат refresh: успіх з токеном, auth failure (401/403), або мережева помилка. */
+type RefreshResult = { token: string } | { authFailure: true } | { authFailure: false };
+
+async function refreshAccessToken(): Promise<RefreshResult> {
+  const REFRESH_TIMEOUT_MS = 8000; // При поганому інтернеті не зависати
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), REFRESH_TIMEOUT_MS);
   try {
     const res = await fetch(`${API_URL}/auth/refresh`, {
       method: "POST",
       credentials: "include",
+      signal: ctrl.signal,
     });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data?.accessToken) {
-      useAuthStore.getState().setAccessToken(data.accessToken);
-      return data.accessToken;
+    clearTimeout(t);
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.accessToken) {
+        useAuthStore.getState().setAccessToken(data.accessToken);
+        return { token: data.accessToken };
+      }
     }
-    return null;
+    // Сервер повернув 401/403 — токен дійсно протух
+    const isAuthFailure = res.status === 401 || res.status === 403;
+    return { authFailure: isAuthFailure };
   } catch {
-    return null;
+    clearTimeout(t);
+    // Мережева помилка, таймаут, AbortError — не викидати з гри
+    return { authFailure: false };
   }
 }
 
@@ -148,12 +161,14 @@ async function apiRequest<T>(
   let retried = !!_retry;
   if (response.status === 401 && !retried && !isAuthEndpoint) {
     retried = true;
-    const newToken = await refreshAccessToken();
-    if (newToken) {
-      response = await doFetch(newToken);
+    const refreshResult = await refreshAccessToken();
+    if ("token" in refreshResult) {
+      response = await doFetch(refreshResult.token);
     } else {
-      useAuthStore.getState().logout();
-      // ❗ Не скидаємо admin — game auth і admin auth окремі; 401 від game API не має виходити з адмінки
+      // Викидаємо з гри тільки при реальному auth failure (токен протух). При мережевій помилці — ні.
+      if (refreshResult.authFailure) {
+        useAuthStore.getState().logout();
+      }
       const error: ApiError = await response.json().catch(() => ({ error: "unauthorized" }));
       const err = new Error(error.error || "unauthorized") as any;
       err.status = 401;

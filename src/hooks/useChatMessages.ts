@@ -172,11 +172,8 @@ export function useChatMessages(opts: UseChatOptions) {
         });
 
         if (res.status === 401) {
-          if (token) {
-            const { useAuthStore } = await import("../state/authStore");
-            useAuthStore.getState().setAccessToken(null);
-          }
-          // Повертаємо порожній список для неавторизованих користувачів
+          // Не скидаємо токен — може бути тимчасова помилка/поганий інтернет. Інакше викидає з гри.
+          // Показуємо порожній список; наступний apiRequest (інший ендпоінт) спробує refresh.
           setMessages([]);
           setLoading(false);
           setError(null);
