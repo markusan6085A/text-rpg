@@ -84,6 +84,8 @@ export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginPro
           <div>
             <label className="block text-sm text-[#c7ad80]/80 mb-1">Логін</label>
             <input
+              id="admin-login"
+              name="admin-login"
               type="text"
               value={login}
               onChange={(e) => setLogin(e.target.value)}
@@ -96,6 +98,8 @@ export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginPro
           <div>
             <label className="block text-sm text-[#c7ad80]/80 mb-1">Пароль</label>
             <input
+              id="admin-password"
+              name="admin-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

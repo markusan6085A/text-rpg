@@ -21,6 +21,11 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const updateHero = useHeroStore((s) => s.updateHero);
   const isAdmin = useAdminStore((s) => s.isAdmin);
 
+  // Перевірка адміна при відкритті міста (для кнопки «Забафать» в соціальному списку)
+  React.useEffect(() => {
+    useAdminStore.getState().checkAdmin().catch(() => {});
+  }, []);
+
   React.useEffect(() => {
     if (hero) {
       const currentLocation = String((hero as any)?.location ?? (hero as any)?.heroJson?.location ?? "").trim();

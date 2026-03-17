@@ -218,11 +218,14 @@ export default function Register({ navigate }: RegisterProps) {
               element: (
                 <div className="w-full">
                   <input
+                    id="register-username"
+                    name="username"
                     className="l2-input w-full"
                     value={username}
                     onChange={handleUsernameChange}
                     maxLength={MAX_NICK_LENGTH}
                     placeholder={`5-${MAX_NICK_LENGTH} символов`}
+                    autoComplete="username"
                   />
                   {nickError && (
                     <div className="text-red-400 text-xs mt-1 text-center">
@@ -252,10 +255,13 @@ export default function Register({ navigate }: RegisterProps) {
               label: "Повтор",
               element: (
                 <input
+                  id="register-password2"
+                  name="password2"
                   type="password"
                   className="l2-input w-full"
                   value={password2}
                   onChange={(e) => setPassword2(e.target.value)}
+                  autoComplete="new-password"
                 />
               ),
             },

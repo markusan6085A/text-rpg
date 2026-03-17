@@ -69,6 +69,11 @@ export default function Chat({ navigate }: ChatProps) {
   const bannedUntilMs = restriction.bannedUntil && new Date(restriction.bannedUntil).getTime() > now ? new Date(restriction.bannedUntil).getTime() : null;
   const isRestricted = mutedUntilMs != null || bannedUntilMs != null;
 
+  // Перевірка адміна при відкритті чату (для видалення повідомлень)
+  useEffect(() => {
+    useAdminStore.getState().checkAdmin().catch(() => {});
+  }, []);
+
   // Перевірка мут/бан при завантаженні чату та з hero
   useEffect(() => {
     if (!hero) return;

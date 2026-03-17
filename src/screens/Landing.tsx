@@ -179,11 +179,14 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
           <div className="text-sm text-white">Ник:</div>
           <div>
             <input
+              id="landing-username"
+              name="username"
               value={username}
               onChange={handleUsernameChange}
               className="l2-input"
               maxLength={MAX_NICK_LENGTH}
               placeholder={`5-${MAX_NICK_LENGTH} символів`}
+              autoComplete="username"
             />
             {nickError && (
               <div className="text-red-400 text-xs mt-1">
@@ -199,10 +202,13 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
 
           <div className="text-sm text-white mt-1">Пароль:</div>
           <input
+            id="landing-password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="l2-input"
+            autoComplete="current-password"
           />
 
           {error && (

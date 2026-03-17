@@ -243,8 +243,12 @@ function AppInner() {
         // 2) Ініціалізуємо character store
         initializeCharacter();
 
-        // 2.1) Адмін: хто я (відкладаємо, щоб не тригерити 401 під час завантаження бою)
-        adminCheckTimer = setTimeout(() => useAdminStore.getState().checkAdmin().catch(() => {}), 1500);
+        // 2.1) Адмін: хто я — тільки якщо шлях потребує (уникаємо 401 для звичайних гравців на /battle, /inventory тощо)
+        const pathname = window.location.pathname;
+        const needsAdminCheck = pathname.startsWith("/admin") || pathname === "/city" || pathname.startsWith("/player/") || pathname.startsWith("/chat");
+        if (needsAdminCheck) {
+          adminCheckTimer = setTimeout(() => useAdminStore.getState().checkAdmin().catch(() => {}), 1500);
+        }
 
         // 2.2) Optional warm-up (fire-and-forget, не блокує)
         try {
@@ -387,6 +391,31 @@ function AppInner() {
           </>
         )}
       </div>
+    );
+  }
+
+  // 🔥 Якщо hero null і не залогінений на захищеній сторінці (наприклад /inventory після 401 refresh) — редірект на Landing
+  const isPublicPath = pathname === "/" || pathname === "" || pathname === "/register" ||
+    pathname.startsWith("/about") || pathname.startsWith("/forum") || pathname.startsWith("/mail") || pathname.startsWith("/admin");
+  if (!hero && !isAuthenticated && !isPublicPath) {
+    return (
+      <Layout navigate={navigate} showNavGrid={false} showStatusBars={false} hideFooterButtons={true} key="landing-layout">
+        <Landing
+          navigate={navigate}
+          onLogin={(loadedHero) => {
+            setJSON("l2_current_user", loadedHero.username);
+            setHero(loadedHero);
+            const raw = getJSON<any[]>("l2_accounts_v2", []);
+            const accounts = Array.isArray(raw) ? raw : [];
+            const idx = accounts.findIndex((a: any) => a.username === loadedHero.username);
+            if (idx === -1) accounts.push({ username: loadedHero.username, hero: loadedHero });
+            else accounts[idx].hero = loadedHero;
+            setJSON("l2_accounts_v2", accounts);
+            navigate("/city");
+          }}
+          key={`landing-session-expired-${refreshKey}`}
+        />
+      </Layout>
     );
   }
 
