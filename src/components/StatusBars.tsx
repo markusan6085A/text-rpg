@@ -176,8 +176,9 @@ export default function StatusBars() {
     };
 
     // Відкладаємо перший sync на 150ms, щоб бари відмалювалися швидше
+    // 🔥 ОПТИМІЗАЦІЯ: 5 сек замість 1 сек — економія bandwidth; Character table оновлюється через Supabase Realtime
     const firstSyncId = setTimeout(sync, 150);
-    const t = setInterval(sync, 1000);
+    const t = setInterval(sync, 5000);
     return () => {
       mounted = false;
       clearTimeout(firstSyncId);

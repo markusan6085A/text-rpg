@@ -61,6 +61,7 @@ import { useAdminStore } from "./state/adminStore";
 import { loadHeroFromAPI } from "./state/heroStore/heroLoadAPI";
 import { loadHero as getHeroFromLocalStorage } from "./state/heroStore/heroLoad";
 import { hydrateHero } from "./state/heroStore/heroHydration";
+import { useCharacterRealtime } from "./state/heroStore/useCharacterRealtime";
 import { hydrateBattleStoreFromStorage } from "./state/battle/hydrateFromStorage";
 import { startWarmup, stopWarmup } from "./utils/warmup";
 
@@ -137,6 +138,9 @@ function AppInner() {
   const { navigate, navigateNoReload, path, refreshKey } = useRouter();
   const [loadingHeroAfterAuth, setLoadingHeroAfterAuth] = React.useState(false);
   const [heroLoadTimedOut, setHeroLoadTimedOut] = React.useState(false);
+
+  // Supabase Realtime — підписка на Character table замість polling GET /characters/:id
+  useCharacterRealtime();
 
   // Таймаут для "Загрузка персонажа..." — на мобільному API може зависати, після 12 сек показуємо кнопку оновлення
   const pathnameForLoad = path.split("?")[0];
