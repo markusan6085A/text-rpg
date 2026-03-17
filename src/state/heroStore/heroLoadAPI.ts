@@ -180,10 +180,22 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const serverBuffs = Array.isArray(heroData?.heroBuffs) ? heroData.heroBuffs : [];
       const serverActiveBuffsCount = cleanupBuffs(serverBuffs, now).length;
       const localHasActiveBuffsNotOnServer = localActiveBuffsCount > serverActiveBuffsCount && localActiveBuffsCount > 0;
+      // 🔥 КРИТИЧНО: Якщо користувач зняв бафи (локально 0, на сервері є) — лишаємо локальну версію (пусті бафи)
+      // Інакше після F5 сервер повертає старі бафи і вони "відкатуються"
+      const localHasExplicitlyRemovedBuffs = localActiveBuffsCount === 0 && serverActiveBuffsCount > 0 && localLastSavedAt > 0;
+
+      // 🔥 inventory/equipment — якщо локаль має більше елементів або інший екіп — це теж «прогрес» (інакше F5 відкатує купівлю/екіп)
+      const localInvLen = (hydratedLocalHero.inventory?.length ?? 0);
+      const serverInvLen = (Array.isArray(heroData?.inventory) ? heroData.inventory : []).length;
+      const localEquipKeys = Object.keys(hydratedLocalHero.equipment ?? {}).filter(k => (hydratedLocalHero.equipment as any)?.[k]);
+      const serverEquipKeys = Object.keys((heroData?.equipment as Record<string, string>) ?? {}).filter(k => (heroData?.equipment as any)?.[k]);
+      const localHasMoreInvOrEquip = localInvLen > serverInvLen || localEquipKeys.length > serverEquipKeys.length;
 
       const localHasMoreProgress =
         localNewerByTimestamp ||
         localHasActiveBuffsNotOnServer ||
+        localHasExplicitlyRemovedBuffs ||
+        localHasMoreInvOrEquip ||
         localExp > serverExp ||
         localLevel > serverLevel ||
         localSp > serverSp ||
@@ -192,7 +204,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         localMobsKilled > serverMobsKilled;
 
       if (localHasMoreProgress) {
-        const reason = localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress');
+        const reason = localHasExplicitlyRemovedBuffs ? 'local removed buffs (0 vs server)' : (localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress'));
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
         // 🔥 merge policy: level = max(local, server) — адмін міг підняти рівень, не відкатувати
         const finalLevel = Math.max(localLevel, serverLevel);
