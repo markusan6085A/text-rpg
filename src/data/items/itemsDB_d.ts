@@ -15,6 +15,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Helm (Quest Shop)",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 35, mDef: 18 },
   },
   shadow_brigandine: {
     id: "shadow_brigandine",
@@ -25,6 +26,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Brigandine (Quest Shop)",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 73, mDef: 22 },
   },
   shadow_gloves: {
     id: "shadow_gloves",
@@ -35,6 +37,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Gloves (Quest Shop)",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 22, mDef: 15 },
   },
   shadow_boots: {
     id: "shadow_boots",
@@ -45,6 +48,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Boots (Quest Shop)",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 24, mDef: 15 },
   },
   // Shadow Oath Set (D-grade Heavy Armor)
   shadow_oath_helm: {
@@ -56,6 +60,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Helm (Quest Shop)",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 37, mDef: 6 },
   },
   shadow_oath_armor: {
     id: "shadow_oath_armor",
@@ -66,6 +71,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Armor (Quest Shop)",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 95, mDef: 12 },
   },
   shadow_oath_gauntlets: {
     id: "shadow_oath_gauntlets",
@@ -76,6 +82,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Gauntlets (Quest Shop)",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 25, mDef: 5 },
   },
   shadow_oath_sabaton: {
     id: "shadow_oath_sabaton",
@@ -86,6 +93,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Sabaton (Quest Shop)",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 25, mDef: 5 },
   },
   // Monster Shield (D-grade)
   monster_shield: {
@@ -96,6 +104,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/monster.jpg",
     description: "Monster Shield (Quest Shop)",
     grade: "D",
+    stats: { sDef: 120, pDef: 90, shieldBlockRate: 25 },
   },
   // ===== D-GRADE SHIELDS (Магазин вещей) =====
   bronze_shield: {
@@ -106,7 +115,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/Shield_bronze_shield_i00_0.jpg",
     description: "Бронзовий щит D-grade.",
     grade: "D",
-},
+    stats: { sDef: 100, pDef: 75, shieldBlockRate: 22 },
+  },
   hoplon: {
     id: "hoplon",
     name: "Hoplon",
@@ -115,7 +125,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/Shield_hoplon_i00_0.jpg",
     description: "Гоплон D-grade.",
     grade: "D",
-},
+    stats: { sDef: 110, pDef: 82, shieldBlockRate: 24 },
+  },
   plate_shield: {
     id: "plate_shield",
     name: "Plate Shield",
@@ -124,7 +135,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/Shield_plate_shield_i00_0.jpg",
     description: "Пластинчатий щит D-grade.",
     grade: "D",
-},
+    stats: { sDef: 120, pDef: 90, shieldBlockRate: 25 },
+  },
   // Clan Oath Set (D-grade Robe - Quest Shop)
   clan_oath_helm: {
     id: "clan_oath_helm",
@@ -135,6 +147,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Шолом клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 22, mDef: 40 },
   },
   clan_oath_aketon: {
     id: "clan_oath_aketon",
@@ -145,6 +158,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Акетон клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 49, mDef: 50 },
   },
   clan_oath_padded_gloves_robe: {
     id: "clan_oath_padded_gloves_robe",
@@ -155,6 +169,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Підбиті рукавиці клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 24, mDef: 36 },
   },
   clan_oath_sandals_robe: {
     id: "clan_oath_sandals_robe",
@@ -165,6 +180,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Сандалі клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 20, mDef: 36 },
   },
   // D-Grade
   soulshot_d: {
@@ -273,7 +289,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Atuba_Hammer.jpg",
     description: "Молот Атуби D-grade. Дворучна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 64, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   d_baguette_dual_sword: {
     id: "d_baguette_dual_sword",
     name: "Baguette's Dualsword",
@@ -282,7 +299,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Baguette_s_Dualsword.jpg",
     description: "Подвійний меч Багет D-grade. Дворучна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 58, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   d_dark_elven_bow: {
     id: "d_dark_elven_bow",
     name: "Dark Elven Bow",
@@ -291,7 +309,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Dark_Elven_Bow.jpg",
     description: "Лук темних ельфів D-grade. Дальня атака.",
     grade: "D",
-},
+    stats: { pAtk: 52, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   d_knights_sword: {
     id: "d_knights_sword",
     name: "Knight's Sword",
@@ -300,7 +319,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Knight_s_Sword.jpg",
     description: "Меч лицаря D-grade.",
     grade: "D",
-},
+    stats: { pAtk: 52, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   d_shilen_knife: {
     id: "d_shilen_knife",
     name: "Shilen Knife",
@@ -309,7 +329,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Shilen_Knife.jpg",
     description: "Ніж Шілен D-grade. Кинджал з магічним посиленням.",
     grade: "D",
-},
+    stats: { pAtk: 48, mAtk: 42, rCrit: 4, pAtkSpd: 379, castSpeed: 80 },
+  },
   d_tomahawk: {
     id: "d_tomahawk",
     name: "Tomahawk",
@@ -318,7 +339,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Tomahawk.jpg",
     description: "Томагавк D-grade. Одноручна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 52, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   d_triple_edged_jamadhr: {
     id: "d_triple_edged_jamadhr",
     name: "Triple-Edged Jamadhr",
@@ -327,7 +349,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Triple-Edged_Jamadhr.jpg",
     description: "Тригранний Джамадхр D-grade. Дворучна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 58, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   d_two_handed_sword: {
     id: "d_two_handed_sword",
     name: "Two-Handed Sword",
@@ -336,7 +359,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
     description: "Дворучний меч D-grade.",
     grade: "D",
-},
+    stats: { pAtk: 64, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   d_war_hammer: {
     id: "d_war_hammer",
     name: "War Hammer",
@@ -345,7 +369,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/War_Hammer.jpg",
     description: "Бойовий молот D-grade. Дальня атака (спис).",
     grade: "D",
-},
+    stats: { pAtk: 60, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
 
   // ===== D-GRADE ARMOR - MITHRIL SET (Heavy Armor) =====
   mithril_helmet: {
@@ -357,6 +382,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Мітриловий шолом D-grade (Mithril Set).",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 37, mDef: 6 },
   },
   mithril_breastplate: {
     id: "mithril_breastplate",
@@ -367,6 +393,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Мітриловий нагрудник D-grade (Mithril Set).",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 95, mDef: 12 },
   },
   mithril_gaiters: {
     id: "mithril_gaiters",
@@ -377,6 +404,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Мітрилові штани D-grade (Mithril Set).",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 61, mDef: 10 },
   },
   mithril_gloves: {
     id: "mithril_gloves",
@@ -387,6 +415,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Мітрилові рукавиці D-grade (Mithril Set).",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 25, mDef: 5 },
   },
   mithril_boots: {
     id: "mithril_boots",
@@ -397,6 +426,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Мітрилові черевики D-grade (Mithril Set).",
     grade: "D",
     armorType: "heavy",
+    stats: { pDef: 25, mDef: 5 },
   },
 
   // ===== D-GRADE ARMOR - REINFORCED SET (Light Armor) =====
@@ -409,6 +439,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Укріплений шолом D-grade (Reinforced Set).",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 35, mDef: 18 },
   },
   reinforced_leather_shirt: {
     id: "reinforced_leather_shirt",
@@ -419,6 +450,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Укріплена шкіряна сорочка D-grade (Reinforced Set).",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 73, mDef: 22 },
   },
   reinforced_leather_gaiters: {
     id: "reinforced_leather_gaiters",
@@ -429,6 +461,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Укріплені шкіряні штани D-grade (Reinforced Set).",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 46, mDef: 18 },
   },
   reinforced_gloves: {
     id: "reinforced_gloves",
@@ -439,6 +472,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Укріплені рукавиці D-grade (Reinforced Set).",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 22, mDef: 15 },
   },
   reinforced_leather_boots: {
     id: "reinforced_leather_boots",
@@ -449,6 +483,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Укріплені шкіряні черевики D-grade (Reinforced Set).",
     grade: "D",
     armorType: "light",
+    stats: { pDef: 24, mDef: 15 },
   },
 
   // ===== D-GRADE ARMOR - KNOWLEDGE SET (Magic Armor/Robe) =====
@@ -461,6 +496,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Шолом знання D-grade (Knowledge Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 22, mDef: 40 },
   },
   tunic_of_knowledge: {
     id: "tunic_of_knowledge",
@@ -471,6 +507,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Туніка знання D-grade (Knowledge Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 49, mDef: 50 },
   },
   stockings_of_knowledge: {
     id: "stockings_of_knowledge",
@@ -481,6 +518,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Панчохи знання D-grade (Knowledge Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 30, mDef: 42 },
   },
   gloves_of_knowledge: {
     id: "gloves_of_knowledge",
@@ -491,6 +529,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Рукавиці знання D-grade (Knowledge Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 24, mDef: 36 },
   },
   boots_of_knowledge: {
     id: "boots_of_knowledge",
@@ -501,6 +540,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Черевики знання D-grade (Knowledge Set).",
     grade: "D",
     armorType: "robe",
+    stats: { pDef: 20, mDef: 36 },
   },
 
   // ===== КВЕСТ-ШОП ЗБРОЯ (покращені версії з kv_shop) =====
@@ -512,7 +552,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/apprentices_spellbook.jpg",
     description: "Книга заклинань учня D-grade. Покращена версія з більшою швидкістю бою.",
     grade: "D",
-},
+    stats: { pAtk: 12, mAtk: 52, rCrit: 4, pAtkSpd: 379, castSpeed: 100 },
+  },
   quest_baguette_dual_sword: {
     id: "quest_baguette_dual_sword",
     name: "Baguette's Dualsword",
@@ -521,7 +562,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Baguette_s_Dualsword.jpg",
     description: "Подвійний меч Багет D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 62, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_bonebreaker: {
     id: "quest_bonebreaker",
     name: "Bonebreaker",
@@ -530,7 +572,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Bonebreaker.jpg",
     description: "Ламач кісток D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 66, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_claymore: {
     id: "quest_claymore",
     name: "Claymore",
@@ -539,7 +582,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Claymore.jpg",
     description: "Клеймор D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 66, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_elven_long_sword: {
     id: "quest_elven_long_sword",
     name: "Elven Long Sword",
@@ -548,7 +592,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Elven_Long_Sword.jpg",
     description: "Ельфійський довгий меч D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 54, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_glaive: {
     id: "quest_glaive",
     name: "Glaive",
@@ -557,7 +602,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Glaive.jpg",
     description: "Глефа D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 66, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_light_crossbow: {
     id: "quest_light_crossbow",
     name: "Light Crossbow",
@@ -566,7 +612,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Light_Crossbow.jpg",
     description: "Легкий арбалет D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 56, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_mithril_dagger: {
     id: "quest_mithril_dagger",
     name: "Mithril Dagger",
@@ -575,7 +622,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Mithril_Dagger.jpg",
     description: "Мітриловий кинджал D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 52, mAtk: 46, rCrit: 4, pAtkSpd: 379, castSpeed: 90 },
+  },
   quest_scallop_jamadhr: {
     id: "quest_scallop_jamadhr",
     name: "Scallop Jamadhr",
@@ -584,7 +632,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Scallop_Jamadhr.jpg",
     description: "Гребінчастий джамадхр D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-},
+    stats: { pAtk: 60, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_titan_hammer: {
     id: "quest_titan_hammer",
     name: "Titan Hammer",
@@ -593,7 +642,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Titan_Hammer.jpg",
     description: "Молот титана D-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "D",
-},
+    stats: { pAtk: 68, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
 
   // ===== SHOP D-GRADE WEAPONS (Магазин вещей) =====
   shop_weapon_d_atuba_hammer: {
@@ -604,7 +654,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Atuba_Hammer.jpg",
     description: "Молот Атуби D-grade. Дворучна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 64, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_d_baguette_dual_sword: {
     id: "shop_weapon_d_baguette_dual_sword",
     name: "Baguette's Dualsword",
@@ -613,7 +664,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Baguette_s_Dualsword.jpg",
     description: "Подвійний меч Багет D-grade. Дворучна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 58, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_d_dark_elven_bow: {
     id: "shop_weapon_d_dark_elven_bow",
     name: "Dark Elven Bow",
@@ -622,7 +674,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Dark_Elven_Bow.jpg",
     description: "Лук темних ельфів D-grade. Дальня атака.",
     grade: "D",
-},
+    stats: { pAtk: 52, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_d_knights_sword: {
     id: "shop_weapon_d_knights_sword",
     name: "Knight's Sword",
@@ -631,7 +684,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Knight_s_Sword.jpg",
     description: "Меч лицаря D-grade.",
     grade: "D",
-},
+    stats: { pAtk: 52, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_d_shilen_knife: {
     id: "shop_weapon_d_shilen_knife",
     name: "Shilen Knife",
@@ -640,7 +694,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Shilen_Knife.jpg",
     description: "Ніж Шілен D-grade. Кинджал з магічним посиленням.",
     grade: "D",
-},
+    stats: { pAtk: 48, mAtk: 42, rCrit: 4, pAtkSpd: 379, castSpeed: 80 },
+  },
   shop_weapon_d_tomahawk: {
     id: "shop_weapon_d_tomahawk",
     name: "Tomahawk",
@@ -649,7 +704,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Tomahawk.jpg",
     description: "Томагавк D-grade. Одноручна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 52, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_d_triple_edged_jamadhr: {
     id: "shop_weapon_d_triple_edged_jamadhr",
     name: "Triple-Edged Jamadhr",
@@ -658,7 +714,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Triple-Edged_Jamadhr.jpg",
     description: "Тригранний Джамадхр D-grade. Дворучна зброя.",
     grade: "D",
-},
+    stats: { pAtk: 58, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_d_two_handed_sword: {
     id: "shop_weapon_d_two_handed_sword",
     name: "Two-Handed Sword",
@@ -667,7 +724,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
     description: "Дворучний меч D-grade.",
     grade: "D",
-},
+    stats: { pAtk: 64, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_d_war_hammer: {
     id: "shop_weapon_d_war_hammer",
     name: "War Hammer",
@@ -676,7 +734,8 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/War_Hammer.jpg",
     description: "Бойовий молот D-grade. Дальня атака (спис).",
     grade: "D",
-},
+    stats: { pAtk: 60, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+  },
 
   // ===== SHOP JEWELRY D-GRADE (Магазин вещей) =====
   shop_jewelry_d_black_pearl_ring: {

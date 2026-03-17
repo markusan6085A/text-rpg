@@ -39,6 +39,7 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     icon: "/items/drops/item/armor_belt_i02_0.jpg",
     description: "Міцний пояс, що збільшує максимальне HP на 5%.",
     grade: "D",
+    stats: { pDef: 25, mDef: 25, maxHpPercent: 5 },
   },
   quest_cloak: {
     id: "quest_cloak",
@@ -48,5 +49,6 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     icon: "/items/drops/item/Amor_goodness_cloak_0.jpg",
     description: "Плащ, що збільшує фізичний та магічний захист на 5%, а також максимальне HP на 100.",
     grade: "D",
+    stats: { pDef: 30, mDef: 30, pDefPercent: 5, mDefPercent: 5 },
   },
 };

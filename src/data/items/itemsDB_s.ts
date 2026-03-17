@@ -15,6 +15,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Major Arcana Circlet (S-grade Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 55, mDef: 100 },
   },
   major_arcana_robe: {
     id: "major_arcana_robe",
@@ -25,6 +26,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Major Arcana Robe (S-grade Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 123, mDef: 125 },
   },
   major_arcana_gloves: {
     id: "major_arcana_gloves",
@@ -35,6 +37,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Major Arcana Gloves (S-grade Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 60, mDef: 90 },
   },
   major_arcana_boots: {
     id: "major_arcana_boots",
@@ -45,6 +48,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Major Arcana Boots (S-grade Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 50, mDef: 90 },
   },
 
   
@@ -58,6 +62,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Draconic Leather Helmet (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 88, mDef: 45 },
   },
   draconic_leather_armor: {
     id: "draconic_leather_armor",
@@ -68,6 +73,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Draconic Leather Armor (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 183, mDef: 55 },
   },
   draconic_leather_gloves: {
     id: "draconic_leather_gloves",
@@ -78,6 +84,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Draconic Leather Gloves (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 55, mDef: 38 },
   },
   draconic_leather_boots: {
     id: "draconic_leather_boots",
@@ -88,6 +95,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Draconic Leather Boots (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 60, mDef: 38 },
   },
 
   
@@ -101,6 +109,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Imperial Crusader Helmet (S-grade Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 93, mDef: 15 },
   },
   imperial_crusader_breastplate: {
     id: "imperial_crusader_breastplate",
@@ -111,6 +120,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Imperial Crusader Breastplate (S-grade Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 238, mDef: 30 },
   },
   imperial_crusader_gaiters: {
     id: "imperial_crusader_gaiters",
@@ -121,6 +131,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Imperial Crusader Gaiters (S-grade Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 153, mDef: 25 },
   },
   imperial_crusader_gauntlets: {
     id: "imperial_crusader_gauntlets",
@@ -131,6 +142,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Imperial Crusader Gauntlets (S-grade Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 63, mDef: 13 },
   },
   imperial_crusader_boots: {
     id: "imperial_crusader_boots",
@@ -141,6 +153,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Imperial Crusader Boots (S-grade Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 63, mDef: 13 },
   },
   imperial_crusader_shield: {
     id: "imperial_crusader_shield",
@@ -150,6 +163,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_s/Imperial_Crusader_Shield.jpg",
     description: "Imperial Crusader Shield (S-grade Shop)",
     grade: "S",
+    stats: { sDef: 300, pDef: 225, shieldBlockRate: 32 },
   },
 
   
@@ -163,6 +177,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Circlet (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 55, mDef: 100 },
   },
   moirai_tunic: {
     id: "moirai_tunic",
@@ -173,6 +188,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Tunic (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 123, mDef: 125 },
   },
   moirai_stockings: {
     id: "moirai_stockings",
@@ -183,6 +199,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Stockings (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 75, mDef: 105 },
   },
   moirai_gloves: {
     id: "moirai_gloves",
@@ -193,6 +210,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Gloves (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 60, mDef: 90 },
   },
   moirai_shoes: {
     id: "moirai_shoes",
@@ -203,6 +221,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Shoes (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
+    stats: { pDef: 50, mDef: 90 },
   },
 
   
@@ -216,6 +235,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Helmet (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 88, mDef: 45 },
   },
   vesper_leather_breastplate: {
     id: "vesper_leather_breastplate",
@@ -226,6 +246,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Breastplate (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 183, mDef: 55 },
   },
   vesper_leather_leggings: {
     id: "vesper_leather_leggings",
@@ -236,6 +257,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Leggings (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 115, mDef: 45 },
   },
   vesper_leather_gloves: {
     id: "vesper_leather_gloves",
@@ -246,6 +268,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Gloves (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 55, mDef: 38 },
   },
   vesper_leather_boots: {
     id: "vesper_leather_boots",
@@ -256,6 +279,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Boots (S-grade Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 60, mDef: 38 },
   },
 
   
@@ -269,6 +293,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Helmet (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 93, mDef: 15 },
   },
   vesper_breastplate: {
     id: "vesper_breastplate",
@@ -279,6 +304,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Breastplate (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 238, mDef: 30 },
   },
   vesper_gaiters: {
     id: "vesper_gaiters",
@@ -289,6 +315,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Gaiters (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 153, mDef: 25 },
   },
   vesper_gauntlets: {
     id: "vesper_gauntlets",
@@ -299,6 +326,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Gauntlets (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 63, mDef: 13 },
   },
   vesper_boots: {
     id: "vesper_boots",
@@ -309,6 +337,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Boots (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
+    stats: { pDef: 63, mDef: 13 },
   },
 
   
@@ -322,6 +351,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Helmet (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 88, mDef: 45 },
   },
   vesper_leather_breastplate_quest: {
     id: "vesper_leather_breastplate_quest",
@@ -332,6 +362,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Breastplate (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 183, mDef: 55 },
   },
   vesper_leather_leggings_quest: {
     id: "vesper_leather_leggings_quest",
@@ -342,6 +373,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Leggings (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 115, mDef: 45 },
   },
   vesper_leather_gloves_quest: {
     id: "vesper_leather_gloves_quest",
@@ -352,6 +384,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Gloves (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 55, mDef: 38 },
   },
   vesper_leather_boots_quest: {
     id: "vesper_leather_boots_quest",
@@ -362,6 +395,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Boots (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
+    stats: { pDef: 60, mDef: 38 },
   },
 
   
@@ -374,6 +408,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_s/Vesper_Shield.jpg",
     description: "Vesper Shield (S-grade Quest Shop)",
     grade: "S",
+    stats: { sDef: 300, pDef: 225, shieldBlockRate: 32 },
   },
 
   // S-Grade
@@ -456,7 +491,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Angel_Slayer.jpg",
     description: "Вбивця янголів S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_apprentices_spellbook: {
     id: "quest_weapon_s_apprentices_spellbook",
     name: "Apprentice's Spellbook",
@@ -465,7 +501,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/apprentices_spellbook.jpg",
     description: "Книга заклинань учня S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 38, mAtk: 245, rCrit: 4, pAtkSpd: 379, castSpeed: 105 },
+  },
   quest_weapon_s_arcana_mace: {
     id: "quest_weapon_s_arcana_mace",
     name: "Arcana Mace",
@@ -474,7 +511,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Arcana_Mace.jpg",
     description: "Булава аркани S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_baguette_s_dualsword: {
     id: "quest_weapon_s_baguette_s_dualsword",
     name: "Baguette's Dualsword",
@@ -483,7 +521,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Baguette_s_Dualsword.jpg",
     description: "Дворучний меч Багет S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_basalt_battlehammer: {
     id: "quest_weapon_s_basalt_battlehammer",
     name: "Basalt Battlehammer",
@@ -492,7 +531,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Basalt_Battlehammer.jpg",
     description: "Базальтовий бойовий молот S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_demon_splinter: {
     id: "quest_weapon_s_demon_splinter",
     name: "Demon Splinter",
@@ -501,7 +541,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Demon_Splinter.jpg",
     description: "Уламок демона S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_draconic_bow: {
     id: "quest_weapon_s_draconic_bow",
     name: "Draconic Bow",
@@ -510,7 +551,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Draconic_Bow.jpg",
     description: "Драконічний лук S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_dragon_hunter_axe: {
     id: "quest_weapon_s_dragon_hunter_axe",
     name: "Dragon Hunter Axe",
@@ -519,7 +561,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Dragon_Hunter_Axe.jpg",
     description: "Сокира мисливця на драконів S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_god_s_blade: {
     id: "quest_weapon_s_god_s_blade",
     name: "God's Blade",
@@ -528,7 +571,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/God_s_Blade.jpg",
     description: "Клинок бога S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_heaven_s_divider: {
     id: "quest_weapon_s_heaven_s_divider",
     name: "Heaven's Divider",
@@ -537,7 +581,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Heaven_s_Divider.jpg",
     description: "Роздільник небес S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_imperial_staff: {
     id: "quest_weapon_s_imperial_staff",
     name: "Imperial Staff",
@@ -546,7 +591,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Imperial_Staff.jpg",
     description: "Імператорський посох S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 38, mAtk: 245, rCrit: 4, pAtkSpd: 379, castSpeed: 105 },
+  },
   quest_weapon_s_saint_spear: {
     id: "quest_weapon_s_saint_spear",
     name: "Saint Spear",
@@ -555,7 +601,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Saint_Spear.jpg",
     description: "Святий спіс S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_s_shining_bow: {
     id: "quest_weapon_s_shining_bow",
     name: "Shining Bow",
@@ -564,7 +611,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Shining_Bow.jpg",
     description: "Сяючий лук S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
 
   // ===== SHOP S-GRADE WEAPONS (Магазин вещей) =====
   shop_weapon_s_angel_slayer: {
@@ -575,7 +623,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Angel_Slayer.jpg",
     description: "Вбивця янголів S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_apprentices_spellbook: {
     id: "shop_weapon_s_apprentices_spellbook",
     name: "Apprentice's Spellbook",
@@ -584,7 +633,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/apprentices_spellbook.jpg",
     description: "Книга заклинань учня S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 38, mAtk: 245, rCrit: 4, pAtkSpd: 379, castSpeed: 105 },
+  },
   shop_weapon_s_arcana_mace: {
     id: "shop_weapon_s_arcana_mace",
     name: "Arcana Mace",
@@ -593,7 +643,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Arcana_Mace.jpg",
     description: "Булава аркани S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_baguette_s_dualsword: {
     id: "shop_weapon_s_baguette_s_dualsword",
     name: "Baguette's Dualsword",
@@ -602,7 +653,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Baguette_s_Dualsword.jpg",
     description: "Дворучний меч Багет S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_basalt_battlehammer: {
     id: "shop_weapon_s_basalt_battlehammer",
     name: "Basalt Battlehammer",
@@ -611,7 +663,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Basalt_Battlehammer.jpg",
     description: "Базальтовий бойовий молот S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_demon_splinter: {
     id: "shop_weapon_s_demon_splinter",
     name: "Demon Splinter",
@@ -620,7 +673,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Demon_Splinter.jpg",
     description: "Уламок демона S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_draconic_bow: {
     id: "shop_weapon_s_draconic_bow",
     name: "Draconic Bow",
@@ -629,7 +683,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Draconic_Bow.jpg",
     description: "Драконічний лук S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_dragon_hunter_axe: {
     id: "shop_weapon_s_dragon_hunter_axe",
     name: "Dragon Hunter Axe",
@@ -638,7 +693,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Dragon_Hunter_Axe.jpg",
     description: "Сокира мисливця на драконів S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_god_s_blade: {
     id: "shop_weapon_s_god_s_blade",
     name: "God's Blade",
@@ -647,7 +703,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/God_s_Blade.jpg",
     description: "Клинок бога S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_heaven_s_divider: {
     id: "shop_weapon_s_heaven_s_divider",
     name: "Heaven's Divider",
@@ -656,7 +713,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Heaven_s_Divider.jpg",
     description: "Роздільник небес S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_imperial_staff: {
     id: "shop_weapon_s_imperial_staff",
     name: "Imperial Staff",
@@ -665,7 +723,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Imperial_Staff.jpg",
     description: "Імператорський посох S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 38, mAtk: 245, rCrit: 4, pAtkSpd: 379, castSpeed: 105 },
+  },
   shop_weapon_s_saint_spear: {
     id: "shop_weapon_s_saint_spear",
     name: "Saint Spear",
@@ -674,7 +733,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Saint_Spear.jpg",
     description: "Святий спіс S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_s_shining_bow: {
     id: "shop_weapon_s_shining_bow",
     name: "Shining Bow",
@@ -683,7 +743,8 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Shining_Bow.jpg",
     description: "Сяючий лук S-grade.",
     grade: "S",
-},
+    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+  },
 
   // ===== SHOP JEWELRY S-GRADE (Магазин вещей) =====
   shop_jewelry_s_tateossian_ring: {

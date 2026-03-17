@@ -15,6 +15,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Avadon Circlet (B-grade Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 33, mDef: 54 },
   },
   avadon_robe: {
     id: "avadon_robe",
@@ -25,6 +26,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Avadon Robe (B-grade Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 74, mDef: 75 },
   },
   avadon_gloves: {
     id: "avadon_gloves",
@@ -35,6 +37,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Avadon Gloves (B-grade Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 36, mDef: 54 },
   },
   avadon_boots: {
     id: "avadon_boots",
@@ -45,6 +48,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Avadon Boots (B-grade Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 30, mDef: 54 },
   },
     // B-Grade Shields (Shop)
   avadon_shield: {
@@ -55,6 +59,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_b/Shield_avadon_shield_i00_0.jpg",
     description: "Щит Авадона B-grade.",
     grade: "B",
+    stats: { sDef: 240, pDef: 180, shieldBlockRate: 28 },
   },
   doom_shield: {
     id: "doom_shield",
@@ -64,6 +69,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_b/Shield_doom_shield_i00_0.jpg",
     description: "Щит загибелі B-grade.",
     grade: "B",
+    stats: { sDef: 240, pDef: 180, shieldBlockRate: 28 },
   },
   shield_of_pledge: {
     id: "shield_of_pledge",
@@ -73,6 +79,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_b/Shield_shield_of_pledge_i00_0.jpg",
     description: "Щит клятви B-grade.",
     grade: "B",
+    stats: { sDef: 240, pDef: 180, shieldBlockRate: 28 },
   },
   // Doom Set (B-grade Magic Armor - Robe) - Quest Shop
   doom_helmet: {
@@ -84,6 +91,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Helmet (Quest Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 33, mDef: 54 },
   },
   doom_tunic: {
     id: "doom_tunic",
@@ -94,6 +102,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Tunic of Doom (Quest Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 74, mDef: 75 },
   },
   doom_stockings: {
     id: "doom_stockings",
@@ -104,6 +113,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Stockings of Doom (Quest Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 45, mDef: 63 },
   },
   doom_gloves: {
     id: "doom_gloves",
@@ -114,6 +124,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Gloves (Quest Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 36, mDef: 54 },
   },
   doom_boots: {
     id: "doom_boots",
@@ -124,6 +135,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Boots (Quest Shop)",
     grade: "B",
     armorType: "robe",
+    stats: { pDef: 30, mDef: 54 },
   },
   // Monster Shield (B-grade) - Quest Shop
   monster_shield_b: {
@@ -134,6 +146,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/monster.jpg",
     description: "Monster Shield B-grade (Quest Shop)",
     grade: "B",
+    stats: { sDef: 240, pDef: 180, shieldBlockRate: 28 },
   },
   // Blue Wolf Set (B-grade Heavy Armor)
   blue_wolf_helmet: {
@@ -145,6 +158,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Blue Wolf Helmet (B-grade Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 55, mDef: 9 },
   },
   blue_wolf_breastplate: {
     id: "blue_wolf_breastplate",
@@ -155,6 +169,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Blue Wolf Breastplate (B-grade Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 140, mDef: 18 },
   },
   blue_wolf_gaiters: {
     id: "blue_wolf_gaiters",
@@ -165,6 +180,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Blue Wolf Gaiters (B-grade Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 90, mDef: 15 },
   },
   blue_wolf_gloves: {
     id: "blue_wolf_gloves",
@@ -175,6 +191,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Blue Wolf Gloves (B-grade Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 38, mDef: 8 },
   },
   blue_wolf_boots: {
     id: "blue_wolf_boots",
@@ -185,6 +202,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Blue Wolf Boots (B-grade Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 38, mDef: 8 },
   },
   // Bound Blue Wolf Set (B-grade Light Armor) - Quest Shop
   bound_blue_wolf_helmet: {
@@ -196,6 +214,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Helmet (Quest Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 52, mDef: 27 },
   },
   bound_blue_wolf_armor: {
     id: "bound_blue_wolf_armor",
@@ -206,6 +225,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Leather Armor (Quest Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 110, mDef: 33 },
   },
   bound_blue_wolf_gloves: {
     id: "bound_blue_wolf_gloves",
@@ -216,6 +236,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Gloves (Quest Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 33, mDef: 22 },
   },
   bound_blue_wolf_boots: {
     id: "bound_blue_wolf_boots",
@@ -226,6 +247,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Boots (Quest Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 36, mDef: 22 },
   },
   // Zubei's Set (B-grade Heavy Armor) - Quest Shop
   zubeis_helmet: {
@@ -237,6 +259,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Helmet (Quest Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 55, mDef: 9 },
   },
   zubeis_breastplate: {
     id: "zubeis_breastplate",
@@ -247,6 +270,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Breastplate (Quest Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 140, mDef: 18 },
   },
   zubeis_gaiters: {
     id: "zubeis_gaiters",
@@ -257,6 +281,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Gaiters (Quest Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 90, mDef: 15 },
   },
   zubeis_gauntlets: {
     id: "zubeis_gauntlets",
@@ -267,6 +292,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Gauntlets (Quest Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 38, mDef: 8 },
   },
   zubeis_boots: {
     id: "zubeis_boots",
@@ -277,6 +303,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Boots (Quest Shop)",
     grade: "B",
     armorType: "heavy",
+    stats: { pDef: 38, mDef: 8 },
   },
   // Doom of Fortune Set (B-grade Light Armor)
   doom_helmet_of_fortune: {
@@ -288,6 +315,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Helmet of Fortune (B-grade Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 52, mDef: 27 },
   },
   leather_armor_of_doom_of_fortune: {
     id: "leather_armor_of_doom_of_fortune",
@@ -298,6 +326,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Leather Armor of Doom of Fortune (B-grade Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 110, mDef: 33 },
   },
   doom_gloves_of_fortune: {
     id: "doom_gloves_of_fortune",
@@ -308,6 +337,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Gloves of Fortune (B-grade Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 33, mDef: 22 },
   },
   doom_boots_of_fortune: {
     id: "doom_boots_of_fortune",
@@ -318,6 +348,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Boots of Fortune (B-grade Shop)",
     grade: "B",
     armorType: "light",
+    stats: { pDef: 36, mDef: 22 },
   },
 
   // B-Grade
@@ -395,7 +426,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/apprentices_spellbook.jpg",
     description: "Книга заклинань учня B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   quest_weapon_b_art_of_battle_axe: {
     id: "quest_weapon_b_art_of_battle_axe",
     name: "Art of Battle Axe",
@@ -404,7 +436,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Art_of_Battle_Axe.jpg",
     description: "Бойова сокира мистецтва B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_arthro_nail: {
     id: "quest_weapon_b_arthro_nail",
     name: "Arthro Nail",
@@ -413,7 +446,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Arthro_Nail.jpg",
     description: "Кіготь Артро B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_baguette_s_dualsword: {
     id: "quest_weapon_b_baguette_s_dualsword",
     name: "Baguette's Dualsword",
@@ -422,7 +456,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Baguette_s_Dualsword.jpg",
     description: "Дворучний меч Багет B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_bellion_cestus: {
     id: "quest_weapon_b_bellion_cestus",
     name: "Bellion Cestus",
@@ -431,7 +466,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Bellion_Cestus.jpg",
     description: "Цестус Белліона B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_bow_of_peril: {
     id: "quest_weapon_b_bow_of_peril",
     name: "Bow of Peril",
@@ -440,7 +476,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Bow_of_Peril.jpg",
     description: "Лук небезпеки B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_dark_elven_long_bow: {
     id: "quest_weapon_b_dark_elven_long_bow",
     name: "Dark Elven Long Bow",
@@ -449,7 +486,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Dark_Elven_Long_Bow.jpg",
     description: "Довгий лук темних ельфів B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_deadman_s_glory: {
     id: "quest_weapon_b_deadman_s_glory",
     name: "Deadman's Glory",
@@ -458,7 +496,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Deadman_s_Glory.jpg",
     description: "Слава мертвих B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_great_axe: {
     id: "quest_weapon_b_great_axe",
     name: "Great Axe",
@@ -467,7 +506,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Great_Axe.jpg",
     description: "Велика сокира B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_great_sword: {
     id: "quest_weapon_b_great_sword",
     name: "Great Sword",
@@ -476,7 +516,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Great_Sword.jpg",
     description: "Великий меч B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_guardian_sword: {
     id: "quest_weapon_b_guardian_sword",
     name: "Guardian Sword",
@@ -485,7 +526,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Guardian_Sword.jpg",
     description: "Меч вартового B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_hell_knife: {
     id: "quest_weapon_b_hell_knife",
     name: "Hell Knife",
@@ -494,7 +536,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Hell_Knife.jpg",
     description: "Ніж пекла B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 70, mAtk: 63, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   quest_weapon_b_ice_storm_hammer: {
     id: "quest_weapon_b_ice_storm_hammer",
     name: "Ice Storm Hammer",
@@ -503,7 +546,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Ice_Storm_Hammer.jpg",
     description: "Молот льодової бурі B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_kaim_vanul_s_bones: {
     id: "quest_weapon_b_kaim_vanul_s_bones",
     name: "Kaim Vanul's Bones",
@@ -512,7 +556,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Kaim_Vanul_s_Bones.jpg",
     description: "Кістки Кайма Ванула B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   quest_weapon_b_kris: {
     id: "quest_weapon_b_kris",
     name: "Kris",
@@ -521,7 +566,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Kris.jpg",
     description: "Крис B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 70, mAtk: 63, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   quest_weapon_b_lance: {
     id: "quest_weapon_b_lance",
     name: "Lance",
@@ -530,7 +576,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Lance.jpg",
     description: "Спіс B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_spell_breaker: {
     id: "quest_weapon_b_spell_breaker",
     name: "Spell Breaker",
@@ -539,7 +586,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Spell_Breaker.jpg",
     description: "Руйнівник заклинань B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 70, mAtk: 63, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   quest_weapon_b_spirit_s_staff: {
     id: "quest_weapon_b_spirit_s_staff",
     name: "Spirit's Staff",
@@ -548,7 +596,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Spirit_s_Staff.jpg",
     description: "Посох духу B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   quest_weapon_b_staff_of_evil_spirits: {
     id: "quest_weapon_b_staff_of_evil_spirits",
     name: "Staff of Evil Spirits",
@@ -557,7 +606,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
     description: "Посох злих духів B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   quest_weapon_b_star_buster: {
     id: "quest_weapon_b_star_buster",
     name: "Star Buster",
@@ -566,7 +616,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Star_Buster.jpg",
     description: "Руйнівник зірок B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_sword_of_damascus: {
     id: "quest_weapon_b_sword_of_damascus",
     name: "Sword of Damascus",
@@ -575,7 +626,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Sword_of_Damascus.jpg",
     description: "Меч Дамаска B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_sword_of_valhalla: {
     id: "quest_weapon_b_sword_of_valhalla",
     name: "Sword of Valhalla",
@@ -584,7 +636,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
     description: "Меч Вальгаллу B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   quest_weapon_b_wizard_s_tear: {
     id: "quest_weapon_b_wizard_s_tear",
     name: "Wizard's Tear",
@@ -593,7 +646,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Wizard_s_Tear.jpg",
     description: "Сльоза чарівника B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
 
   // ===== SHOP B-GRADE WEAPONS (Магазин вещей) =====
   shop_weapon_b_apprentices_spellbook: {
@@ -604,7 +658,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/apprentices_spellbook.jpg",
     description: "Книга заклинань учня B-grade. Магічна зброя.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   shop_weapon_b_art_of_battle_axe: {
     id: "shop_weapon_b_art_of_battle_axe",
     name: "Art of Battle Axe",
@@ -613,7 +668,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Art_of_Battle_Axe.jpg",
     description: "Бойова сокира мистецтва B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_arthro_nail: {
     id: "shop_weapon_b_arthro_nail",
     name: "Arthro Nail",
@@ -622,7 +678,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Arthro_Nail.jpg",
     description: "Кіготь Артро B-grade. Дворучна зброя.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_baguette_s_dualsword: {
     id: "shop_weapon_b_baguette_s_dualsword",
     name: "Baguette's Dualsword",
@@ -631,7 +688,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Baguette_s_Dualsword.jpg",
     description: "Дворучний меч Багет B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_bellion_cestus: {
     id: "shop_weapon_b_bellion_cestus",
     name: "Bellion Cestus",
@@ -640,7 +698,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Bellion_Cestus.jpg",
     description: "Цестус Белліона B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_bow_of_peril: {
     id: "shop_weapon_b_bow_of_peril",
     name: "Bow of Peril",
@@ -649,7 +708,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Bow_of_Peril.jpg",
     description: "Лук небезпеки B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_dark_elven_long_bow: {
     id: "shop_weapon_b_dark_elven_long_bow",
     name: "Dark Elven Long Bow",
@@ -658,7 +718,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Dark_Elven_Long_Bow.jpg",
     description: "Довгий лук темних ельфів B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_deadman_s_glory: {
     id: "shop_weapon_b_deadman_s_glory",
     name: "Deadman's Glory",
@@ -667,7 +728,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Deadman_s_Glory.jpg",
     description: "Слава мертвих B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_great_axe: {
     id: "shop_weapon_b_great_axe",
     name: "Great Axe",
@@ -676,7 +738,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Great_Axe.jpg",
     description: "Велика сокира B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_great_sword: {
     id: "shop_weapon_b_great_sword",
     name: "Great Sword",
@@ -685,7 +748,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Great_Sword.jpg",
     description: "Великий меч B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_guardian_sword: {
     id: "shop_weapon_b_guardian_sword",
     name: "Guardian Sword",
@@ -694,7 +758,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Guardian_Sword.jpg",
     description: "Меч вартового B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_hell_knife: {
     id: "shop_weapon_b_hell_knife",
     name: "Hell Knife",
@@ -703,7 +768,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Hell_Knife.jpg",
     description: "Ніж пекла B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 70, mAtk: 63, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   shop_weapon_b_ice_storm_hammer: {
     id: "shop_weapon_b_ice_storm_hammer",
     name: "Ice Storm Hammer",
@@ -712,7 +778,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Ice_Storm_Hammer.jpg",
     description: "Молот льодової бурі B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_kris: {
     id: "shop_weapon_b_kris",
     name: "Kris",
@@ -721,7 +788,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Kris.jpg",
     description: "Крис B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 70, mAtk: 63, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   shop_weapon_b_lance: {
     id: "shop_weapon_b_lance",
     name: "Lance",
@@ -730,7 +798,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Lance.jpg",
     description: "Спіс B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_spell_breaker: {
     id: "shop_weapon_b_spell_breaker",
     name: "Spell Breaker",
@@ -739,7 +808,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Spell_Breaker.jpg",
     description: "Руйнівник заклинань B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 70, mAtk: 63, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   shop_weapon_b_spirit_s_staff: {
     id: "shop_weapon_b_spirit_s_staff",
     name: "Spirit's Staff",
@@ -748,7 +818,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Spirit_s_Staff.jpg",
     description: "Посох духу B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   shop_weapon_b_staff_of_evil_spirits: {
     id: "shop_weapon_b_staff_of_evil_spirits",
     name: "Staff of Evil Spirits",
@@ -757,7 +828,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
     description: "Посох злих духів B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
   shop_weapon_b_star_buster: {
     id: "shop_weapon_b_star_buster",
     name: "Star Buster",
@@ -766,7 +838,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Star_Buster.jpg",
     description: "Руйнівник зірок B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_sword_of_damascus: {
     id: "shop_weapon_b_sword_of_damascus",
     name: "Sword of Damascus",
@@ -775,7 +848,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Sword_of_Damascus.jpg",
     description: "Меч Дамаска B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_sword_of_valhalla: {
     id: "shop_weapon_b_sword_of_valhalla",
     name: "Sword of Valhalla",
@@ -784,7 +858,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
     description: "Меч Вальгаллу B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 117, mAtk: 23, rCrit: 4, pAtkSpd: 379 },
+  },
   shop_weapon_b_wizard_s_tear: {
     id: "shop_weapon_b_wizard_s_tear",
     name: "Wizard's Tear",
@@ -793,7 +868,8 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Wizard_s_Tear.jpg",
     description: "Сльоза чарівника B-grade.",
     grade: "B",
-},
+    stats: { pAtk: 18, mAtk: 147, rCrit: 4, pAtkSpd: 379, castSpeed: 95 },
+  },
 
   // ===== SHOP JEWELRY B-GRADE (Магазин вещей) =====
   shop_jewelry_b_adamantite_ring: {
