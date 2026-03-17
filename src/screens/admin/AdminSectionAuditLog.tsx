@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { adminMe, getAdminActionLogs, type AdminActionLog } from "../../utils/api";
+import { adminCheck, getAdminActionLogs, type AdminActionLog } from "../../utils/api";
 
 const style = { color: "#c7ad80" };
 
@@ -49,7 +49,7 @@ export function AdminSectionAuditLog() {
   }, []);
 
   useEffect(() => {
-    adminMe()
+    adminCheck()
       .then((res) => setCurrentAdminLogin(String(res?.admin?.login || "")))
       .catch(() => setCurrentAdminLogin(""));
   }, []);

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { adminMe } from "../utils/api";
+import { adminCheck } from "../utils/api";
 
 interface AdminState {
   isAdmin: boolean;
@@ -20,8 +20,8 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     set({ _checking: true } as any);
     
     try {
-      await adminMe();
-      set({ isAdmin: true, checked: true, _checking: false } as any);
+      const data = await adminCheck();
+      set({ isAdmin: !!data?.ok && !!data?.admin, checked: true, _checking: false } as any);
     } catch {
       set({ isAdmin: false, checked: true, _checking: false } as any);
     }

@@ -131,13 +131,16 @@ export default function StatusBars() {
   }, [hero?.name]);
 
   // PK realtime sync: підтягувати серверний HP/MP і вхідну атаку, щоб бари падали всюди.
+  // 🔥 Circuit breaker: при 502/помилці — не поллимо 60 сек, щоб не було спаму червоних помилок у Network
   React.useEffect(() => {
     if (!hero?.id) {
       setPkIncomingNotice(null);
       return;
     }
     let mounted = true;
+    let circuitOpenUntil = 0;
     const sync = async () => {
+      if (Date.now() < circuitOpenUntil) return;
       try {
         const st = await getPkState(hero.id);
         if (!mounted) return;
@@ -168,7 +171,7 @@ export default function StatusBars() {
         setPkIncomingNotice(st.pkIncoming ?? null);
         setPkDeathNotice(st.pkDeathNotice ?? null);
       } catch {
-        // silent: endpoint може бути тимчасово недоступним
+        circuitOpenUntil = Date.now() + 60000; // 60 сек — не поллити при 502
       }
     };
 

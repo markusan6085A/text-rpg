@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { adminLogin, adminMe, listCharacters } from "../utils/api";
+import { adminLogin, adminCheck, listCharacters } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
@@ -20,13 +20,11 @@ export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginPro
 
   useEffect(() => {
     let mounted = true;
-    adminMe()
-      .then(() => {
-        if (mounted) navigate("/admin");
+    adminCheck()
+      .then((data) => {
+        if (mounted && data?.ok && data?.admin) navigate("/admin");
       })
-      .catch((err) => {
-        console.error("Admin check failed on login page:", err);
-      })
+      .catch(() => {})
       .finally(() => {
         if (mounted) setChecking(false);
       });

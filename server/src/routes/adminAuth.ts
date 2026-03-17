@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import bcrypt from "bcrypt";
-import { createAdminSession, deleteAdminSession } from "../adminSessions";
+import { createAdminSession, deleteAdminSession, getAdminSession } from "../adminSessions";
 import { requireAdmin } from "./adminGuard";
 import { issueTokens } from "../auth";
 import { prisma } from "../db";
@@ -90,7 +90,15 @@ export const adminAuthRoutes: FastifyPluginAsync = async (app) => {
     return { ok: true, accessToken };
   });
 
-  // GET /admin/auth/me
+  // GET /admin/auth/check — завжди 200, без 401 для не-адмінів (щоб не було червоних помилок у Network)
+  app.get("/check", async (req) => {
+    const sid = req.cookies?.admin_session;
+    const session = getAdminSession(sid);
+    if (!session) return { ok: false, admin: null };
+    return { ok: true, admin: { login: session.adminLogin } };
+  });
+
+  // GET /admin/auth/me — потребує адмін-сесію (401 для не-адмінів)
   app.get("/me", { preHandler: [requireAdmin] }, async (req) => {
     return { ok: true, admin: (req as any).admin };
   });

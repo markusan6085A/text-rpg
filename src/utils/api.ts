@@ -1517,6 +1517,17 @@ export async function adminLogin(login: string, password: string): Promise<{ ok:
   return { ok: true, accessToken: data.accessToken };
 }
 
+/** Перевірка адміна — завжди 200 (немає 401 у Network для не-адмінів) */
+export async function adminCheck(): Promise<{ ok: boolean; admin: { login?: string } | null }> {
+  const res = await fetch(`${API_URL}/admin/auth/check`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({ ok: false, admin: null }));
+  if (!res.ok) return { ok: false, admin: null };
+  return data;
+}
+
 export async function adminMe(): Promise<{ ok: boolean; admin: { login?: string } }> {
   const res = await fetch(`${API_URL}/admin/auth/me`, {
     method: "GET",

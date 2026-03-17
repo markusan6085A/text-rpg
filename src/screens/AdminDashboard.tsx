@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { adminMe, adminStats, adminLogout } from "../utils/api";
+import { adminCheck, adminStats, adminLogout } from "../utils/api";
 import { AdminSectionItems } from "./admin/AdminSectionItems";
 import { AdminSectionLevelExp } from "./admin/AdminSectionLevelExp";
 import { AdminSectionAdena } from "./admin/AdminSectionAdena";
@@ -32,11 +32,12 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    adminMe()
-      .then((data) => setAdmin(data?.admin ?? null))
-      .catch((err) => {
-        if (err?.status === 401) navigate("/admin/login");
+    adminCheck()
+      .then((data) => {
+        if (data?.ok && data?.admin) setAdmin(data.admin);
+        else navigate("/admin/login");
       })
+      .catch(() => navigate("/admin/login"))
       .finally(() => setLoading(false));
   }, [navigate]);
 
