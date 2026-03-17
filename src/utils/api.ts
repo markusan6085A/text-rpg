@@ -485,6 +485,32 @@ export async function collectFishing(characterId: string): Promise<FishingCollec
   });
 }
 
+export interface FishDismantleResponse {
+  ok: boolean;
+  character: { id: string; adena?: number; heroJson: any; [k: string]: unknown };
+  dropResult: {
+    adena: number;
+    coinOfLuck: number;
+    coinsSilver: number;
+    weapons: Array<{ id: string; count: number }>;
+    armorPieces: Array<{ id: string; count: number }>;
+    jewelryPieces: Array<{ id: string; count: number }>;
+    resources: Array<{ id: string; count: number }>;
+    enchantScrolls: Array<{ id: string; count: number }>;
+  };
+}
+
+export async function dismantleFish(
+  characterId: string,
+  itemId: string,
+  amount: number
+): Promise<FishDismantleResponse> {
+  return apiRequest<FishDismantleResponse>(`/characters/${characterId}/fish/dismantle`, {
+    method: 'POST',
+    body: JSON.stringify({ itemId, amount }),
+  });
+}
+
 export type PremiumPack = "3h" | "7h" | "12h" | "24h";
 
 export interface BuyPremiumResponse {

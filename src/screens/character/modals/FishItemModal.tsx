@@ -2,19 +2,12 @@ import React, { useState } from "react";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../../state/heroStore";
-import type { ItemDefinition } from "../../../data/items/itemsDB.types";
+import { useCharacterStore } from "../../../state/characterStore";
 import FishingCatchInfoModal from "./FishingCatchInfoModal";
-import { NG_GRADE_SHOP_ITEMS } from "../../../data/shop/ngGradeShop";
-import { D_GRADE_SHOP_ITEMS } from "../../../data/shop/dGradeShop";
-import { C_GRADE_SHOP_ITEMS } from "../../../data/shop/cGradeShop";
-import { B_GRADE_SHOP_ITEMS } from "../../../data/shop/bGradeShop";
-import { A_GRADE_SHOP_ITEMS } from "../../../data/shop/aGradeShop";
-import { S_GRADE_SHOP_ITEMS } from "../../../data/shop/sGradeShop";
-import { QUEST_SHOP_WEAPONS, QUEST_SHOP_SETS, QUEST_SHOP_ACCESSORIES } from "../../../data/shop/questShop";
-import { CONSUMABLES_SHOP_ITEMS } from "../../../data/shop/consumablesShop";
-import { SHOP_ITEM_ID_MAPPING } from "../../../data/shop/itemMappings";
 import { addItemsWithOverflow } from "../../../state/heroStore/inventoryOverflow";
-import { saveHeroToLocalStorage } from "../../../state/heroStore/heroPersistence";
+import { dismantleFish } from "../../../utils/api";
+import { showToast } from "../../../state/toastStore";
+import { processFishDrop } from "../../../utils/fishDismantle";
 
 interface FishItemModalProps {
   item: HeroInventoryItem;
@@ -24,8 +17,6 @@ interface FishItemModalProps {
   onTransfer: (amount: number) => void;
   updateHero: (partial: Partial<Hero>) => void;
 }
-
-const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena", "coin_of_fair"]);
 
 const STAT_LABELS: Record<string, string> = {
   pAtk: "Физ. атака",
@@ -69,181 +60,6 @@ function renderStatsBlock(stats: Record<string, unknown>) {
   );
 }
 
-// Всі види ресурсів (без риби, квестових, валют та заточок)
-function getAllResources(): ItemDefinition[] {
-  const resources: ItemDefinition[] = [];
-  Object.values(itemsDB).forEach((item) => {
-    if (
-      item.kind === "resource" &&
-      !item.id.startsWith("fish_") &&
-      !item.id.startsWith("quest_") &&
-      !item.id.includes("enchant_weapon_scroll") &&
-      !item.id.includes("enchant_armor_scroll") &&
-      !item.id.includes("blessed_scroll_enchant") &&
-      item.slot !== "quest" &&
-      !CURRENCY_IDS.has(item.id)
-    ) {
-      resources.push(item);
-    }
-  });
-  return resources;
-}
-
-// Зброя, броня, бижутерія з простого магазину
-function getShopWeaponIds(): string[] {
-  return getShopIdsByType("weapon");
-}
-function getShopArmorIds(): string[] {
-  return getShopIdsByType("armor");
-}
-
-function getShopIdsByType(type: string): string[] {
-  const allShop = [
-    ...NG_GRADE_SHOP_ITEMS,
-    ...D_GRADE_SHOP_ITEMS,
-    ...C_GRADE_SHOP_ITEMS,
-    ...B_GRADE_SHOP_ITEMS,
-    ...A_GRADE_SHOP_ITEMS,
-    ...S_GRADE_SHOP_ITEMS,
-  ];
-  const ids: string[] = [];
-  allShop.forEach((shopItem) => {
-    if (shopItem.type !== type) return;
-    const id = SHOP_ITEM_ID_MAPPING[shopItem.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
-    if (id && itemsDB[id]) ids.push(id);
-  });
-  return ids;
-}
-
-// Зброя/броня/бижутерія згруповані по грейду (звичайний магазин + квест-шоп)
-function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
-  const allShop = [
-    { items: D_GRADE_SHOP_ITEMS, grade: "D" },
-    { items: C_GRADE_SHOP_ITEMS, grade: "C" },
-    { items: B_GRADE_SHOP_ITEMS, grade: "B" },
-    { items: A_GRADE_SHOP_ITEMS, grade: "A" },
-    { items: S_GRADE_SHOP_ITEMS, grade: "S" },
-  ];
-  const questItems = [
-    ...QUEST_SHOP_WEAPONS,
-    ...QUEST_SHOP_SETS,
-    ...QUEST_SHOP_ACCESSORIES,
-  ];
-  const byGrade: Record<string, string[]> = {};
-
-  allShop.forEach(({ items, grade }) => {
-    const ids: string[] = [];
-    items.forEach((shopItem: any) => {
-      if (shopItem.type !== type) return;
-      const id = SHOP_ITEM_ID_MAPPING[shopItem.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
-      if (id && itemsDB[id]) ids.push(id);
-    });
-    if (ids.length > 0) byGrade[grade] = ids;
-  });
-
-  questItems.forEach((shopItem: any) => {
-    if (shopItem.type !== type) return;
-    const grade = shopItem.grade || "D";
-    const id = shopItem.id;
-    if (id && itemsDB[id]) {
-      if (!byGrade[grade]) byGrade[grade] = [];
-      if (!byGrade[grade].includes(id)) byGrade[grade].push(id);
-    }
-  });
-
-  return byGrade;
-}
-
-// Шанси за грейд для зброї/броні/біжутерії: D/C 0.7%, B/A/S 0.1%
-const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.1, A: 0.1, S: 0.1 };
-
-// Заточки по грейду (для дропу з риби) — категорія «Заточки»
-const ENCHANT_SCROLLS_BY_GRADE: Record<string, string[]> = {
-  D: ["d_enchant_weapon_scroll", "d_enchant_armor_scroll"],
-  C: ["c_enchant_weapon_scroll", "c_enchant_armor_scroll"],
-  B: ["b_enchant_weapon_scroll", "b_enchant_armor_scroll"],
-  A: ["a_enchant_weapon_scroll", "a_enchant_armor_scroll"],
-  S: ["s_enchant_weapon_scroll", "s_enchant_armor_scroll"],
-};
-
-// Розділка риби: зброя, броня, бижутерія — шанс за 10 риб; ресурси, скарбничка, заточки — за 1 рибу.
-function processFishDrop(fishCount: number): {
-  adena: number;
-  coinOfLuck: number;
-  coinsSilver: number;
-  weapons: Array<{ id: string; count: number }>;
-  armorPieces: Array<{ id: string; count: number }>;
-  jewelryPieces: Array<{ id: string; count: number }>;
-  resources: Array<{ id: string; count: number }>;
-  enchantScrolls: Array<{ id: string; count: number }>;
-} {
-  let totalAdena = 0;
-  let totalCoinOfLuck = 0;
-  let totalCoinsSilver = 0;
-  const weapons: Record<string, number> = {};
-  const armorPieces: Record<string, number> = {};
-  const jewelryPieces: Record<string, number> = {};
-  const resources: Record<string, number> = {};
-  const enchantScrolls: Record<string, number> = {};
-
-  const allResources = getAllResources();
-  const weaponsByGrade = getShopIdsByTypeAndGrade("weapon");
-  const armorByGrade = getShopIdsByTypeAndGrade("armor");
-  const jewelryByGrade = getShopIdsByTypeAndGrade("jewelry");
-
-  // Зброя, броня і бижутерія — шанс за 10 риб (не за 1), як оружие
-  const batchesOf10 = Math.floor(fishCount / 10);
-  for (let b = 0; b < batchesOf10; b++) {
-    (["D", "C", "B", "A", "S"] as const).forEach((grade) => {
-      const chance = GRADE_CHANCE[grade];
-      const weaponIds = weaponsByGrade[grade];
-      const armorIds = armorByGrade[grade];
-      const jewelryIds = jewelryByGrade[grade];
-      if (weaponIds?.length && Math.random() * 100 < chance) {
-        const id = weaponIds[Math.floor(Math.random() * weaponIds.length)];
-        weapons[id] = (weapons[id] || 0) + 1;
-      }
-      if (armorIds?.length && Math.random() * 100 < chance) {
-        const id = armorIds[Math.floor(Math.random() * armorIds.length)];
-        armorPieces[id] = (armorPieces[id] || 0) + 1;
-      }
-      if (jewelryIds?.length && Math.random() * 100 < chance) {
-        const id = jewelryIds[Math.floor(Math.random() * jewelryIds.length)];
-        jewelryPieces[id] = (jewelryPieces[id] || 0) + 1;
-      }
-    });
-  }
-
-  // Ресурси (без кристалів/LS), скарбничка, заточки — за 1 рибу
-  for (let i = 0; i < fishCount; i++) {
-    allResources.forEach((res) => {
-      if (res.id.startsWith("crystal_")) return; // Кристали та LS не дропають з риби
-      if (Math.random() * 100 < 0.8) resources[res.id] = (resources[res.id] || 0) + 1;
-    });
-    if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
-    // Заточки (точки) — 0.4% за рибу, D/C частіше
-    if (Math.random() * 100 < 0.4) {
-      const grade = Math.random() < 0.7 ? "D" : "C";
-      const scrolls = ENCHANT_SCROLLS_BY_GRADE[grade];
-      if (scrolls?.length) {
-        const id = scrolls[Math.floor(Math.random() * scrolls.length)];
-        if (itemsDB[id]) enchantScrolls[id] = (enchantScrolls[id] || 0) + 1;
-      }
-    }
-  }
-
-  return {
-    adena: totalAdena,
-    coinOfLuck: totalCoinOfLuck,
-    coinsSilver: totalCoinsSilver,
-    weapons: Object.entries(weapons).map(([id, count]) => ({ id, count })),
-    armorPieces: Object.entries(armorPieces).map(([id, count]) => ({ id, count })),
-    jewelryPieces: Object.entries(jewelryPieces).map(([id, count]) => ({ id, count })),
-    resources: Object.entries(resources).map(([id, count]) => ({ id, count })),
-    enchantScrolls: Object.entries(enchantScrolls).map(([id, count]) => ({ id, count })),
-  };
-}
-
 export default function FishItemModal({
   item,
   hero,
@@ -259,6 +75,9 @@ export default function FishItemModal({
   const [showDismantleResult, setShowDismantleResult] = useState(false);
   const [dismantleResult, setDismantleResult] = useState<ReturnType<typeof processFishDrop> | null>(null);
   const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
+  const [dismantleLoading, setDismantleLoading] = useState(false);
+
+  const characterId = useCharacterStore((s) => s.characterId) ?? hero?.id;
 
   const handleTransfer = () => {
     if (transferAmount < 1 || transferAmount > maxCount) return;
@@ -270,7 +89,7 @@ export default function FishItemModal({
     onDelete(deleteAmount);
   };
 
-  const handleDismantle = () => {
+  const handleDismantle = async () => {
     if (dismantleAmount < 1 || dismantleAmount > maxCount) return;
 
     const currentHero = useHeroStore.getState().hero;
@@ -280,10 +99,32 @@ export default function FishItemModal({
     const invItem = inventory.find((i: HeroInventoryItem) => i.id === item.id);
     if (!invItem || (invItem.count ?? 0) < dismantleAmount) return;
 
-    // Обробляємо розділку
-    const result = processFishDrop(dismantleAmount);
+    // Якщо є characterId — використовуємо серверний API (дроп зберігається в БД, без відкату)
+    if (characterId) {
+      setDismantleLoading(true);
+      try {
+        const res = await dismantleFish(characterId, item.id, dismantleAmount);
+        const hj = res.character?.heroJson ?? {};
+        const newRev = hj?.heroRevision;
+        if (newRev != null) useHeroStore.getState().updateServerState?.({ heroRevision: newRev });
+        updateHero({
+          adena: res.character?.adena ?? currentHero.adena,
+          inventory: hj?.inventory ?? currentHero.inventory,
+          overflowChest: hj?.overflowChest ?? currentHero.overflowChest,
+          heroJson: { ...(currentHero as any).heroJson, ...hj },
+        });
+        setDismantleResult(res.dropResult);
+        setShowDismantleResult(true);
+      } catch (e: any) {
+        showToast(e?.message || e?.error || "Не вдалося розділити рибу", "error");
+      } finally {
+        setDismantleLoading(false);
+      }
+      return;
+    }
 
-    // Оновлюємо інвентар: видаляємо рибу
+    // Fallback: локальна обробка (для офлайн — без збереження на сервер)
+    const result = processFishDrop(dismantleAmount);
     const inventoryAfterFish = inventory.map((i: HeroInventoryItem) => {
       if (i.id === item.id) {
         const newCount = (i.count ?? 1) - dismantleAmount;
@@ -296,7 +137,6 @@ export default function FishItemModal({
     const newCoinOfLuck = (currentHero.coinOfLuck ?? 0) + (result.coinOfLuck ?? 0);
     const newCoinsSilver = (currentHero.coins_silver ?? (currentHero as any).coinsSilver ?? 0) + (result.coinsSilver ?? 0);
 
-    // Збираємо предмети для додавання (з overflow-логікою)
     const itemsToAdd: HeroInventoryItem[] = [];
     result.jewelryPieces.forEach(({ id, count }) => {
       const itemDef = itemsDB[id];
@@ -363,11 +203,6 @@ export default function FishItemModal({
       overflowChest: finalOverflow,
     });
 
-    // Миттєво запускаємо збереження на сервер — щоб дроп не відкатував після F5
-    const heroToSave = useHeroStore.getState().hero;
-    if (heroToSave) saveHeroToLocalStorage(heroToSave).catch(() => {});
-
-    // Показуємо результат
     setDismantleResult(result);
     setShowDismantleResult(true);
   };
@@ -690,9 +525,10 @@ export default function FishItemModal({
               />
               <button
                 onClick={handleDismantle}
-                className="px-3 py-1 text-xs text-blue-400 hover:text-blue-300 bg-[#2a2a2a] rounded"
+                disabled={dismantleLoading}
+                className="px-3 py-1 text-xs text-blue-400 hover:text-blue-300 bg-[#2a2a2a] rounded disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Разделать
+                {dismantleLoading ? "..." : "Разделать"}
               </button>
             </div>
           </div>

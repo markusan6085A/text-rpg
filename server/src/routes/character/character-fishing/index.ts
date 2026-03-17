@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import path from "path";
 import { prisma } from "../../../db";
 import { getAuth } from "../auth";
 import { addVersioning } from "../../../heroJsonValidator";
@@ -292,6 +293,136 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         }
       }
       app.log.error(error, "POST /characters/:id/fishing/collect");
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
+
+  // POST /characters/:id/fish/dismantle — розділка риби на сервері (дроп зберігається в БД, без відкату)
+  app.post("/characters/:id/fish/dismantle", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const id = (req.params as any).id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as any;
+    const itemId = body?.itemId ?? "fish_seawater";
+    const amount = Math.max(1, Math.min(9999, Math.floor(Number(body?.amount) ?? 1)));
+
+    try {
+      const fromServer = path.join(path.resolve(process.cwd(), ".."), "src", "utils", "fishDismantle");
+      const fromRoot = path.join(process.cwd(), "src", "utils", "fishDismantle");
+      const fishDismantlePath = fromServer;
+      const mod = await import(/* @vite-ignore */ fishDismantlePath + ".ts").catch(() =>
+        import(/* @vite-ignore */ fishDismantlePath + ".js").catch(() =>
+          import(/* @vite-ignore */ fromRoot + ".ts")
+        )
+      );
+      const { processFishDrop, buildItemsFromDrop } = mod;
+
+      const owner = await prisma.character.findFirst({
+        where: { id, accountId: auth.accountId },
+        select: { id: true },
+      });
+      if (!owner) return reply.code(404).send({ error: "character not found" });
+
+      const { updated, dropResult } = await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM "Character" WHERE id = ${owner.id} FOR UPDATE`;
+
+        const ch = await tx.character.findUnique({
+          where: { id: owner.id },
+          select: { id: true, adena: true, heroJson: true },
+        });
+        if (!ch) throw new Error("character not found");
+
+        const heroJson = (ch.heroJson ?? {}) as any;
+        const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        const fishIdx = inv.findIndex((i: any) => (i?.id ?? i?.itemId) === itemId);
+        if (fishIdx < 0) throw new Error("fish not found in inventory");
+        const fishItem = inv[fishIdx];
+        const fishCount = Number(fishItem?.count ?? 1);
+        if (fishCount < amount) throw new Error("not enough fish");
+
+        const dropResult = processFishDrop(amount);
+        const itemsToAdd = buildItemsFromDrop(dropResult);
+
+        const invAfterFish = inv
+          .map((item: any, idx: number) => {
+            if (idx !== fishIdx) return item;
+            const newCount = (Number(item.count) ?? 1) - amount;
+            return newCount > 0 ? { ...item, count: newCount } : null;
+          })
+          .filter(Boolean) as any[];
+
+        const maxNormal = 99;
+        const overflowChest: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
+        const stackableSlots = new Set(["consumable", "resource", "quest"]);
+
+        for (const toAdd of itemsToAdd) {
+          const count = toAdd.count ?? 1;
+          const stackable = stackableSlots.has(toAdd.slot ?? "");
+          const itemObj = { id: toAdd.id, name: toAdd.name, slot: toAdd.slot, icon: toAdd.icon, count, type: toAdd.type };
+
+          if (stackable) {
+            const idx = invAfterFish.findIndex((i: any) => (i?.id ?? i?.itemId) === toAdd.id);
+            if (idx >= 0) {
+              invAfterFish[idx] = { ...invAfterFish[idx], count: (invAfterFish[idx].count ?? 1) + count };
+            } else if (invAfterFish.length < maxNormal) {
+              invAfterFish.push({ ...itemObj });
+            } else {
+              overflowChest.push({ ...itemObj });
+            }
+          } else {
+            for (let i = 0; i < count; i++) {
+              if (invAfterFish.length < maxNormal) {
+                invAfterFish.push({ ...itemObj, count: 1 });
+              } else {
+                overflowChest.push({ ...itemObj, count: 1 });
+              }
+            }
+          }
+        }
+
+        const newAdena = (Number(ch.adena) ?? 0) + (dropResult.adena ?? 0);
+        const oldRevision = heroJson.heroRevision ?? 0;
+        const updatedHeroJson = addVersioning(
+          {
+            ...heroJson,
+            inventory: invAfterFish,
+            overflowChest,
+            adena: newAdena,
+          },
+          oldRevision
+        );
+
+        const charUpdated = await tx.character.update({
+          where: { id: ch.id },
+          data: {
+            adena: newAdena,
+            heroJson: updatedHeroJson,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true, level: true,
+            exp: true, sp: true, adena: true, aa: true, coinLuck: true, heroJson: true, updatedAt: true,
+          },
+        });
+        return { updated: charUpdated, dropResult };
+      });
+
+      const hj = (updated.heroJson as any) || {};
+      return reply.send({
+        ok: true,
+        character: { ...updated, exp: Number(updated.exp), heroJson: hj },
+        dropResult,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        const msg = error.message;
+        if (msg === "character not found" || msg === "fish not found in inventory" || msg === "not enough fish") {
+          return reply.code(msg === "character not found" ? 404 : 400).send({ error: msg });
+        }
+      }
+      app.log.error(error, "POST /characters/:id/fish/dismantle");
       return reply.code(500).send({ error: "Internal Server Error" });
     }
   });
