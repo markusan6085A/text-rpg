@@ -18,7 +18,7 @@ import { itemsDB } from "../../../../data/items/itemsDB";
 import { reportRaidBossKill } from "../../../../utils/api";
 import { DAILY_QUESTS } from "../../../../data/dailyQuests";
 import { getGameSettings } from "../../../../state/gameSettings";
-import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE, L2_PHYSICAL_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER } from "../../../../data/balance";
+import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE, L2_PHYSICAL_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER, getExpLevelDiffMultiplier } from "../../../../data/balance";
 
 export function handleBaseAttack(
   state: BattleState,
@@ -342,7 +342,9 @@ export function handleBaseAttack(
 
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const expEnabled = getGameSettings().expEnabled !== false;
-      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier * EXP_GAIN_RATE) : 0;
+      const heroLevel = Number(curHero.level ?? 1) || 1;
+      const levelDiffMult = getExpLevelDiffMultiplier(heroLevel, state.mob?.level ?? 1);
+      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier * EXP_GAIN_RATE * levelDiffMult) : 0;
       const finalSpGain = Math.round(spGain * premiumMultiplier * SP_GAIN_RATE);
       // Якщо адена прийшла з таблиці дропу (Floran профіль або mob.drops) — використовуємо її, інакше з mob.adenaMin/Max
       const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)

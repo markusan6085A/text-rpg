@@ -17,7 +17,7 @@ import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassive
 import { getPremiumMultiplier } from "../../../../utils/premium/isPremiumActive";
 import { DAILY_QUESTS } from "../../../../data/dailyQuests";
 import { getGameSettings } from "../../../../state/gameSettings";
-import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE } from "../../../../data/balance";
+import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE, getExpLevelDiffMultiplier } from "../../../../data/balance";
 
 export function handleAttackSkill(
   skillId: number,
@@ -254,7 +254,9 @@ export function handleAttackSkill(
 
       const premiumMultiplier = getPremiumMultiplier(curHero);
       const expEnabled = getGameSettings().expEnabled !== false;
-      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier * EXP_GAIN_RATE) : 0;
+      const heroLevel = Number(curHero.level ?? 1) || 1;
+      const levelDiffMult = getExpLevelDiffMultiplier(heroLevel, state.mob?.level ?? 1);
+      const finalExpGain = expEnabled ? Math.round(expGain * XP_RATE * premiumMultiplier * EXP_GAIN_RATE * levelDiffMult) : 0;
       const finalSpGain = Math.round(spGain * premiumMultiplier * SP_GAIN_RATE);
       const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
         ? dropResult.adenaFromDrops
