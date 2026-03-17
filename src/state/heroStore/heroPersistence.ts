@@ -76,9 +76,12 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const wasFullHp = Number(hydrated.hp ?? 0) >= Number(hydrated.maxHp ?? 1);
   const wasFullMp = Number(hydrated.mp ?? 0) >= Number(hydrated.maxMp ?? 1);
   const wasFullCp = Number(hydrated.cp ?? 0) >= Number(hydrated.maxCp ?? 1);
+  // 🔥 КРИТИЧНО: inventory завжди з hero (не з currentJson) — інакше після «Очистить» heroJson.inventory лишається старим
+  const inventoryToSave = Array.isArray(hydrated.inventory) ? hydrated.inventory : (Array.isArray(currentJson.inventory) ? currentJson.inventory : []);
   const heroJson = {
     ...currentJson,
     ...buildBackupHeroJson(hydrated),
+    inventory: inventoryToSave,
     hp: Number(hydrated.hp ?? 0),
     mp: Number(hydrated.mp ?? 0),
     cp: Number(hydrated.cp ?? 0),

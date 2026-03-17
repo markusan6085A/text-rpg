@@ -111,7 +111,15 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (!existing) return reply.code(404).send({ error: "character not found" });
 
     const oldHeroJson = (existing.heroJson as any) || {};
-    const newHeroJson = { ...oldHeroJson, inventory: [] };
+    // 🔥 Якщо heroJson порожній — беремо name/race/classId з character (нові персонажі)
+    const baseJson = {
+      name: oldHeroJson.name || existing.name,
+      race: oldHeroJson.race || existing.race,
+      classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+      klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+      level: oldHeroJson.level ?? existing.level ?? 1,
+    };
+    const newHeroJson = { ...baseJson, ...oldHeroJson, inventory: [] };
     const validation = validateHeroJson(newHeroJson);
     if (!validation.valid) {
       return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });

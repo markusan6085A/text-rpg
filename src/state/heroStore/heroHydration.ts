@@ -82,7 +82,9 @@ export function hydrateHero(hero: Hero | null): Hero | null {
       mobsKilled,
       exp,
       level,
-      // 🔥 Щоденні завдання та активні квести — синхронізуємо в heroJson для збереження
+      // 🔥 inventory з hero — інакше після «Очистить» heroJson.inventory лишається старим
+      inventory: Array.isArray(hero.inventory) ? hero.inventory : (Array.isArray(hj.inventory) ? hj.inventory : []),
+      // Щоденні завдання та активні квести — синхронізуємо в heroJson для збереження
       dailyQuestsProgress,
       dailyQuestsCompleted,
       dailyQuestsResetDate,
