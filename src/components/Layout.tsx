@@ -312,14 +312,14 @@ export default function Layout({
           hero={hero}
         />
         {dead && navigate && (
-          <div className="fixed top-12 left-0 right-0 z-40 flex justify-center pt-1">
+          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-auto">
             <button
               type="button"
               onClick={handleResurrectToCity}
               disabled={resurrecting}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-60 text-black font-semibold text-sm rounded shadow-lg"
+              className="pointer-events-auto text-[#c7ad80] hover:text-[#f4e2b8] disabled:opacity-60 text-sm cursor-pointer bg-transparent border-none outline-none mt-2"
             >
-              {resurrecting ? "..." : "В город (70% HP)"}
+              {resurrecting ? "..." : "Вернуться в город"}
             </button>
           </div>
         )}
@@ -340,7 +340,7 @@ export default function Layout({
               gameSettings.compactMode ? "px-2 py-1" : "px-3"
             } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
           >
-            {children}
+            {!dead && children}
           </div>
         </div>
         
