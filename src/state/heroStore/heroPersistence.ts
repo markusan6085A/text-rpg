@@ -101,7 +101,9 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
     activeQuests: Array.isArray((hydrated as any).activeQuests) ? (hydrated as any).activeQuests : (Array.isArray(currentJson.activeQuests) ? currentJson.activeQuests : []),
   };
   const activeQuestsToStore = Array.isArray((hydrated as any).activeQuests) ? (hydrated as any).activeQuests : (Array.isArray((heroJson as any).activeQuests) ? (heroJson as any).activeQuests : []);
-  accounts[accIndex].hero = { ...hydrated, heroJson, activeQuests: activeQuestsToStore };
+  // 🔥 КРИТИЧНО: lastSavedAt для loadHeroFromAPI — щоб localNewerByTimestamp спрацьовував при F5 (зміни екіпу/інвентаря)
+  const now = Date.now();
+  accounts[accIndex].hero = { ...hydrated, heroJson, activeQuests: activeQuestsToStore, lastSavedAt: now };
   setJSON("l2_accounts_v2", accounts);
   console.log('[saveHeroToLocalStorageOnly] Saved hero to localStorage (level:', hydrated.level, 'exp:', hydrated.exp, 'buffs:', mergedBuffs.length, 'activeQuests:', activeQuestsToStore.length, ')');
 }
@@ -480,17 +482,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const serverExpKnown = serverState?.exp ?? null;
     const serverLevelKnown = serverState?.level ?? null;
     
-    // 🔥 Clamp ТІЛЬКИ для exp та sp (і mobsKilled) - level беремо з сервера як source of truth
-    // Якщо level залежить від exp, то "максимальний level" може зробити стан неконсистентним
-    // Краще правило: clamp робити тільки для exp та sp, а level хай приходить з сервера як істина
+    // 🔥 Clamp exp/level щоб не отримати "exp cannot be decreased" / "level cannot be decreased" після F5
     const expToSend = serverExpKnown !== null ? Math.max(localExp, serverExpKnown) : localExp;
+    const levelToSend = serverLevelKnown !== null ? Math.max(localLevel, serverLevelKnown) : localLevel;
     // 🔥 SP НЕ clamp'имо при learn skill: localSp < serverSp — це очікувано (списали SP за скіл).
     // Clamp ламав: ми слали serverSp, сервер приймав, applyServerSync відкочував hero.sp назад.
     const spToSend = localSp;
-    // 🔥 ВАЖЛИВО: level НЕ clamp'имо - беремо з сервера як source of truth
-    // Якщо сервер приймає level як похідне від exp - він сам перерахує
-    // Якщо сервер приймає level як незалежне поле - передаємо локальне, але сервер перевірить
-    const levelToSend = localLevel; // Не clamp'имо level - сервер є source of truth
     
     console.log('[saveHeroToLocalStorage] Sending exp/level/sp:', {
       localExp,
@@ -502,6 +499,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       levelToSend,
       spToSend,
       expClamped: expToSend !== localExp,
+      levelClamped: levelToSend !== localLevel,
     });
     
     // ❗ Дозволяємо надсилати coinLuck завжди (щоб заточка удочки працювала)
