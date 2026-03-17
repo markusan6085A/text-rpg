@@ -543,7 +543,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     if (sendCoinLuck) (updatePayload as any).coinLuck = localCoinLuck;
     if ((hero as any).coins_silver !== undefined) (updatePayload as any).coinsSilver = (hero as any).coins_silver;
 
-    const updatedCharacter = await updateCharacter(characterStore.characterId, updatePayload);
+    const updatedCharacter = await updateCharacter(characterStore.characterId, updatePayload, {
+      serverState: serverState ? { exp: serverState.exp, level: serverState.level, sp: serverState.sp } : undefined,
+    });
     console.log('[saveHeroToLocalStorage] Hero saved successfully via API');
     const { setLastPutAt } = await import('../heroStore');
     setLastPutAt();
