@@ -627,9 +627,17 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       return;
     }
     
+    // 🔥 Обробка "exp/level/sp cannot be decreased" (400) — refetch, merge з max, retry
+    const isExpLevelSpDecreased = error?.status === 400 && error?.message && (
+      error.message.includes('exp cannot be decreased') ||
+      error.message.includes('level cannot be decreased') ||
+      error.message.includes('sp cannot be decreased')
+    );
     // 🔥 Обробка конфлікту ревізії (409 Conflict або revision_conflict)
-    if (error?.status === 409 || (error?.message && (error.message.includes('revision_conflict') || error.message.includes('revision conflict') || error.message.includes('Character was modified')))) {
-      // console.warn('[saveHeroToLocalStorage] Revision conflict detected - character was modified by another session');
+    if (isExpLevelSpDecreased || error?.status === 409 || (error?.message && (error.message.includes('revision_conflict') || error.message.includes('revision conflict') || error.message.includes('Character was modified')))) {
+      if (isExpLevelSpDecreased) {
+        console.warn('[saveHeroToLocalStorage] exp/level/sp decreased — refetching from server and retrying');
+      }
       
       // Ігноруємо якщо це просто конфлікт при фоновому збереженні
       // Ми не хочемо спамити користувачу alert-ами
@@ -734,13 +742,15 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision || (serverHeroJson as any).heroRevision;
               const serverLevel = Number(currentCharacter.level ?? 1);
               const serverSp = Number(currentCharacter.sp ?? 0);
-              // 🔥 clamp level — не перезаписувати лвл 2→1
+              // 🔥 clamp level/sp — не відправляти менше (exp вже mergedExp = max)
               const mergedLevel = Math.max(heroBase.level ?? 1, serverLevel);
+              const mergedSp = Math.max(heroBase.sp ?? 0, serverSp);
 
               const mergedHero = {
                 ...heroBase,
                 exp: mergedExp,
                 level: mergedLevel,
+                sp: mergedSp,
                 mobsKilled: mergedMobsKilled as any,
                 skills: mergedSkills,
                 heroRevision: newRevision,
@@ -771,10 +781,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             }
           }
         } catch (reloadError: any) {
-          // console.error('[saveHeroToLocalStorage] Failed to reload and retry after revision conflict:', reloadError);
-          
-          // 🔥 КРИТИЧНО: Якщо retry теж отримав 409 - показуємо попередження і зупиняємося
-          if (reloadError?.status === 409 || (reloadError?.message && reloadError.message.includes('revision_conflict'))) {
+          // 🔥 Якщо retry теж отримав 409 або exp/level/sp decreased — зупиняємося
+          const reloadIsConflict = reloadError?.status === 409 || (reloadError?.message && reloadError.message.includes('revision_conflict'));
+          const reloadIsExpDecreased = reloadError?.status === 400 && reloadError?.message?.includes?.('cannot be decreased');
+          if (reloadIsConflict || reloadIsExpDecreased) {
             // console.error('[saveHeroToLocalStorage] Retry also failed with revision_conflict - stopping auto-retry');
             // Можна показати toast/notification користувачу: "Оновіть сторінку"
             if (typeof window !== 'undefined' && window.alert) {
