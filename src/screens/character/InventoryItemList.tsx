@@ -31,8 +31,8 @@ export default function InventoryItemList({
         items.map((item: any, idx: number) => {
           const itemKey = item.id ?? item.itemId;
           const itemDef = itemsDBWithStarter[itemKey] || itemsDB[itemKey];
-          const FALLBACK_ICON = "/items/default_item.png"; // Гарантовано існує
-          const iconPath = item.icon || itemDef?.icon || FALLBACK_ICON;
+          // Як раніше — fallback як у решті проєкту (Warehouse, Shop, Mail тощо)
+          const iconPath = item.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
           const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
           // Конвертуємо XML формат слотів для перевірки (chest -> armor для збігу з equipment)
           let normalizedSlot = item.slot;
@@ -132,8 +132,12 @@ export default function InventoryItemList({
                   alt={item.name}
                   className="w-5 h-5 object-contain"
                   onError={(e) => {
-                    // Іконка не завантажилась (404) — показуємо fallback (default_item.png гарантовано існує)
-                    (e.target as HTMLImageElement).src = FALLBACK_ICON;
+                    // Як раніше: спробувати itemDef.icon, інакше Weapon_squires_sword (як у Warehose, Shop, Mail)
+                    if (itemDef?.icon && (e.target as HTMLImageElement).src !== itemDef.icon) {
+                      (e.target as HTMLImageElement).src = itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`;
+                    } else {
+                      (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+                    }
                   }}
                 />
                 {item.enchantLevel !== undefined && item.enchantLevel > 0 && (
