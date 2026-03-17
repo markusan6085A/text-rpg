@@ -24,6 +24,8 @@ export interface CombatStats {
   cpRegen: number;
   shieldBlockRate?: number;
   shieldBlockPower?: number;
+  /** % bonus to magic skill damage (from set INT bonuses) */
+  magicSkillPower?: number;
 }
 
 export function calcCombatStats(
@@ -68,6 +70,7 @@ export function calcCombatStats(
   let mpRegen = Math.max(1, Math.round(12 + (lvl - 1) * 0.1));
   let cpRegen = Math.max(1, Math.round(7 + (lvl - 1) * 0.06));
   let critPower = 0;
+  let magicSkillPower = 0; // % bonus to magic skill damage (from set INT)
   let shieldBlockRate = 0; // Base shield block rate
   let shieldBlockPower = 100; // Base shield block power (100% = no reduction)
 
@@ -208,6 +211,7 @@ export function calcCombatStats(
     if (setBonuses.cpRegen) cpRegen += setBonuses.cpRegen;
     if (setBonuses.shieldBlockRate) shieldBlockRate += setBonuses.shieldBlockRate || 0;
     if (setBonuses.shieldBlockPower) shieldBlockPower += setBonuses.shieldBlockPower || 0;
+    if (setBonuses.magicSkillPower) magicSkillPower += setBonuses.magicSkillPower;
   }
 
   // Застосовуємо всі відсоткові бонуси (з equipment та сетів) після всіх flat бонусів
@@ -336,6 +340,7 @@ export function calcCombatStats(
     cpRegen,
     shieldBlockRate,
     shieldBlockPower,
+    magicSkillPower: magicSkillPower > 0 ? magicSkillPower : undefined,
   };
 }
 

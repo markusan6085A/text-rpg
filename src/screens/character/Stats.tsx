@@ -10,6 +10,7 @@ import { cleanupBuffs } from "../../state/battle/helpers";
 import { hasShieldEquipped, getTotalShieldDefense } from "../../utils/shield/shieldDefense";
 import CharacterBuffs from "./CharacterBuffs";
 import { getMyClan } from "../../utils/api";
+import { SET_STAT_FORMULAS_UI } from "../../data/sets/statBonusFormulas";
 
 export default function Stats() {
   const hero = useHeroStore((s) => s.hero);
@@ -18,6 +19,7 @@ export default function Stats() {
   const [baseStats, setBaseStats] = useState<any>(null);
   const [combatStats, setCombatStats] = useState<any>(null);
   const [playerClan, setPlayerClan] = useState<any>(null);
+  const [showSetFormulas, setShowSetFormulas] = useState(false);
   // 🔥 Таймер — перерахунок статів щосекунди, щоб зникали бафи при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -275,6 +277,28 @@ export default function Stats() {
           </div>
           {/* Риска від краю до краю під останніми рядками */}
           <div className="border-t border-white/50 mt-1.5"></div>
+
+          {/* Формули бонусів сетів */}
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => setShowSetFormulas(!showSetFormulas)}
+              className="w-full py-2 text-left text-sm font-semibold text-[#b8860b] hover:text-[#d4af37] border-b border-white/30"
+            >
+              {showSetFormulas ? "▼ " : "▶ "}Формули бонусів сетів
+            </button>
+            {showSetFormulas && (
+              <div className="mt-2 p-3 bg-[#1a1a1a] rounded border border-white/20 text-xs space-y-2">
+                <div className="text-gray-400 mb-2">За кожну одиницю стату з повного сету:</div>
+                {SET_STAT_FORMULAS_UI.map(({ stat, effects }) => (
+                  <div key={stat} className="flex gap-2">
+                    <span className="text-[#c7ad80] font-medium shrink-0">{stat}</span>
+                    <span className="text-gray-300">{effects}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

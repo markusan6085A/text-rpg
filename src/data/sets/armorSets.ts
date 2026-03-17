@@ -2,42 +2,66 @@
 // Визначення сетів броні та їх бонусів
 
 import type { CombatStats } from "../../utils/stats/calcCombatStats";
+import { convertSetStatsToBonuses } from "./statBonusFormulas";
 
 export interface ArmorSetPiece {
   itemId: string;
   slot: "head" | "armor" | "legs" | "gloves" | "boots";
 }
 
+/** Set stat bonuses (STR, DEX, CON, INT, WIT, MEN) — separate from base stats, use statBonusFormulas. */
+export interface SetStatBonuses {
+  STR?: number;
+  DEX?: number;
+  CON?: number;
+  INT?: number;
+  WIT?: number;
+  MEN?: number;
+}
+
+const COMBAT_BONUS_KEYS = [
+  "maxHp", "maxMp", "maxCp", "critRate", "skillCritRate", "critDamage", "skillCritPower",
+  "maxHpPercent", "pDefPercent", "mDefPercent", "pAtkPercent", "mAtkPercent",
+  "pAtk", "mAtk", "pDef", "mDef", "accuracy", "evasion", "crit", "mCrit",
+  "critPower", "attackSpeed", "castSpeed", "hpRegen", "mpRegen", "cpRegen",
+  "magicSkillPower", "shieldBlockRate", "shieldBlockPower",
+] as const;
+
 export interface ArmorSetBonus {
+  /** Stat bonuses from set (e.g. +4 STR, +2 DEX) — converted via statBonusFormulas. */
+  setStats?: SetStatBonuses;
   fullSet?: Partial<CombatStats> & {
     maxHp?: number;
     maxMp?: number;
     maxCp?: number;
-    critRate?: number; // Alias for crit
-    skillCritRate?: number; // Alias for mCrit
-    critDamage?: number; // Alias for critPower
-    skillCritPower?: number; // Alias for critPower (magic)
+    critRate?: number;
+    skillCritRate?: number;
+    critDamage?: number;
+    skillCritPower?: number;
     maxHpPercent?: number;
     pDefPercent?: number;
     mDefPercent?: number;
     pAtkPercent?: number;
     mAtkPercent?: number;
+    magicSkillPower?: number;
   };
   partialSet?: Array<{
     pieces: number;
+    setStats?: SetStatBonuses;
     bonuses: Partial<CombatStats> & {
       maxHp?: number;
       maxMp?: number;
       maxCp?: number;
-      critRate?: number; // Alias for crit
-      skillCritRate?: number; // Alias for mCrit
-      critDamage?: number; // Alias for critPower
-      skillCritPower?: number; // Alias for critPower (magic)
+      critRate?: number;
+      skillCritRate?: number;
+      critDamage?: number;
+      skillCritPower?: number;
       maxHpPercent?: number;
       pDefPercent?: number;
       mDefPercent?: number;
       pAtkPercent?: number;
       mAtkPercent?: number;
+      magicSkillPower?: number;
     };
   }>;
 }
@@ -507,20 +531,27 @@ export function getActiveSetBonuses(
   mDefPercent?: number;
   pAtkPercent?: number;
   mAtkPercent?: number;
+  magicSkillPower?: number;
 } {
   const bonuses: any = {};
 
   for (const set of ARMOR_SETS) {
-    // Перевіряємо чи всі частини сету екіпіровані
     const allPiecesEquipped = set.pieces.every(piece => {
       const slot = piece.slot === "armor" ? "armor" : piece.slot;
       const equippedItemId = equipment[slot];
       return equippedItemId === piece.itemId;
     });
 
-    if (allPiecesEquipped && set.bonuses.fullSet) {
-      // Додаємо бонуси повного сету
-      Object.assign(bonuses, set.bonuses.fullSet);
+    if (!allPiecesEquipped) continue;
+
+    const b = set.bonuses;
+    if (b.fullSet) Object.assign(bonuses, b.fullSet);
+    if (b.setStats) {
+      const converted = convertSetStatsToBonuses(b.setStats);
+      for (const k of COMBAT_BONUS_KEYS) {
+        const v = (converted as any)[k];
+        if (typeof v === "number") bonuses[k] = ((bonuses[k] as number) ?? 0) + v;
+      }
     }
   }
 
