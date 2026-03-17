@@ -437,7 +437,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 70, // Ціна за 1 соулшот
-    icon: "/items/drops/resources/Etc_spirit_bullet_silver_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spirit_bullet_silver_i00_0.jpg",
     description: "Соулшот A-грейду для воїнів",
     soulshots: 1,
   },
@@ -450,7 +450,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 70, // Ціна за 1 спірітшот
-    icon: "/items/drops/resources/Etc_spell_shot_silver_i01_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spell_shot_silver_i01_0.jpg",
     description: "Спірітшот A-грейду для магів",
     spiritshots: 1,
   },
@@ -464,7 +464,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 56, // Ціна за 1 стрілу
-    icon: "/items/drops/resources/etc_mithril_quiver_i00.png",
+    icon: "/items/drops/resourcesss/etc_mithril_quiver_i00.png",
     description: "Мітрилова стріла A-грейду",
   },
   

@@ -525,7 +525,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 7, // Ціна за 1 соулшот
-    icon: "/items/drops/resources/Etc_spirit_bullet_blue_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spirit_bullet_blue_i00_0.jpg",
     description: "Соулшот D-грейду для воїнів",
     soulshots: 1,
   },
@@ -538,7 +538,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 7, // Ціна за 1 спірітшот
-    icon: "/items/drops/resources/Etc_spell_shot_blue_i01_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spell_shot_blue_i01_0.jpg",
     description: "Спірітшот D-грейду для магів",
     spiritshots: 1,
   },
@@ -552,7 +552,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 5, // Ціна за 1 стрілу
-    icon: "/items/drops/resources/etc_bone_quiver_i00.png",
+    icon: "/items/drops/resourcesss/etc_bone_quiver_i00.png",
     description: "Кістяна стріла D-грейду",
   },
 

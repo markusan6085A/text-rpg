@@ -115,7 +115,7 @@ export function getStarterKit(klass: string): GameItem[] {
     name: "Soulshot NG (x200)",
     type: "consumable",
     slot: "none",
-    icon: "/items/drops/resources/etc_spirit_bullet_white_i00.png",
+    icon: "/items/drops/resourcesss/etc_spirit_bullet_white_i00.png",
     stats: {},
     description: "Боевые заряды для физического оружия. Количество: 200.",
   };
@@ -125,7 +125,7 @@ export function getStarterKit(klass: string): GameItem[] {
     name: "Spiritshot NG (x200)",
     type: "consumable",
     slot: "none",
-    icon: "/items/drops/resources/Etc_spell_shot_white_i01_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spell_shot_white_i01_0.jpg",
     stats: {},
     description: "Магические заряды для посохов. Количество: 200.",
   };

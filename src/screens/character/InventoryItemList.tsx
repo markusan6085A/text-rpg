@@ -2,7 +2,7 @@ import React from "react";
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { OVERFLOW_CHEST_ID } from "../../state/heroStore";
-import { handleResourceIconError } from "../../utils/itemIcon";
+import { normalizeIconPath, handleResourceIconError, FALLBACK_ICON } from "../../utils/itemIcon";
 
 interface InventoryItemListProps {
   items: HeroInventoryItem[];
@@ -32,9 +32,7 @@ export default function InventoryItemList({
         items.map((item: any, idx: number) => {
           const itemKey = item.id ?? item.itemId;
           const itemDef = itemsDBWithStarter[itemKey] || itemsDB[itemKey];
-          // Як раніше — fallback як у решті проєкту (Warehouse, Shop, Mail тощо)
-          const iconPath = item.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg";
-          const finalIconPath = iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`;
+          const finalIconPath = normalizeIconPath(item.icon || itemDef?.icon) || FALLBACK_ICON;
           // Конвертуємо XML формат слотів для перевірки (chest -> armor для збігу з equipment)
           let normalizedSlot = item.slot;
           if (item.slot === "chest") {
@@ -132,14 +130,7 @@ export default function InventoryItemList({
                   src={finalIconPath}
                   alt={item.name}
                   className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    const img = e.target as HTMLImageElement;
-                    if (!img.src.includes("/drops/resources/")) {
-                      handleResourceIconError(e);
-                      return;
-                    }
-                    img.src = img.src.replace("/drops/resources/", "/drops/resourcesss/");
-                  }}
+                  onError={handleResourceIconError}
                 />
                 {item.enchantLevel !== undefined && item.enchantLevel > 0 && (
                   <div 

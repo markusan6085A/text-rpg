@@ -51,7 +51,7 @@ export default function Inventory() {
     const overflowChest = hero.overflowChest || [];
     if (overflowChest.length > 0) {
       const totalInChest = overflowChest.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
-      const chestItem = { id: OVERFLOW_CHEST_ID, name: "Сундук переповнення", slot: "quest", count: totalInChest, icon: "/items/drops/resources/collection_box.jpg" };
+      const chestItem = { id: OVERFLOW_CHEST_ID, name: "Сундук переповнення", slot: "quest", count: totalInChest, icon: "/items/drops/resourcesss/collection_box.jpg" };
       items = [chestItem, ...items];
     }
     return items;

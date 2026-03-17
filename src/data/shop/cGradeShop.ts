@@ -518,7 +518,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 16, // Ціна за 1 соулшот
-    icon: "/items/drops/resources/Etc_spirit_bullet_green_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spirit_bullet_green_i00_0.jpg",
     description: "Соулшот C-грейду для воїнів",
     soulshots: 1,
   },
@@ -531,7 +531,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 16, // Ціна за 1 спірітшот
-    icon: "/items/drops/resources/Etc_spell_shot_green_i01_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spell_shot_green_i01_0.jpg",
     description: "Спірітшот C-грейду для магів",
     spiritshots: 1,
   },
@@ -545,7 +545,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 12, // Ціна за 1 стрілу
-    icon: "/items/drops/resources/etc_fine_steel_quiver_i00.png",
+    icon: "/items/drops/resourcesss/etc_fine_steel_quiver_i00.png",
     description: "Стріла з тонкої сталі C-грейду",
   },
   

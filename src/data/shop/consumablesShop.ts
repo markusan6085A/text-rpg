@@ -14,7 +14,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "potion",
     price: 50, // Ціна за 1 бутилку
-    icon: "/items/drops/resources/etc_lesser_potion_red_i00.png",
+    icon: "/items/drops/resourcesss/etc_lesser_potion_red_i00.png",
     description: "Мала банка HP. Відновлює +200 HP",
     restoreHp: 200,
   },
@@ -26,7 +26,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "potion",
     price: 120, // Ціна за 1 бутилку
-    icon: "/items/drops/resources/Etc_potion_scarlet_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_potion_scarlet_i00_0.jpg",
     description: "Велика банка HP. Відновлює +500 HP",
     restoreHp: 500,
   },
@@ -39,7 +39,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "potion",
     price: 50, // Ціна за 1 бутилку
-    icon: "/items/drops/resources/etc_reagent_blue_i00.png",
+    icon: "/items/drops/resourcesss/etc_reagent_blue_i00.png",
     description: "Мала банка MP. Відновлює +200 MP",
     restoreMp: 200,
   },
@@ -51,7 +51,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "potion",
     price: 120, // Ціна за 1 бутилку
-    icon: "/items/drops/resources/Etc_potion_blue_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_potion_blue_i00_0.jpg",
     description: "Велика бутилка MP. Відновлює +500 MP",
     restoreMp: 500,
   },
@@ -64,7 +64,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "potion",
     price: 150, // Ціна за 1 бутилку
-    icon: "/items/drops/resources/Br_cash_cp_potion_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Br_cash_cp_potion_i00_0.jpg",
     description: "CP бутилка. Відновлює +500 CP",
     restoreCp: 500,
   },
@@ -78,7 +78,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 50000,
-    icon: "/items/drops/resources/etc_blessed_scrl_of_ench_wp_d_i01.png",
+    icon: "/items/drops/resourcesss/etc_blessed_scrl_of_ench_wp_d_i01.png",
     description: "Заточка для D-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
@@ -89,7 +89,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 110000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i02.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_weapon_i02.png",
     description: "Заточка для C-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
@@ -100,7 +100,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 500000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i03.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_weapon_i03.png",
     description: "Заточка для B-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
@@ -111,7 +111,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 1800000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i04.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_weapon_i04.png",
     description: "Заточка для A-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
@@ -122,7 +122,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 5000000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i05.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_weapon_i05.png",
     description: "Заточка для S-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   
@@ -135,7 +135,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 50000,
-    icon: "/items/drops/resources/etc_blessed_scrl_of_ench_am_d_i01.png",
+    icon: "/items/drops/resourcesss/etc_blessed_scrl_of_ench_am_d_i01.png",
     description: "Заточка для D-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
@@ -146,7 +146,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 80000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i01.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_weapon_i01.png",
     description: "Заточка для C-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
@@ -157,7 +157,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 80000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i03.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_armor_i03.png",
     description: "Заточка для B-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
@@ -168,7 +168,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 240000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i04.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_armor_i04.png",
     description: "Заточка для A-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
@@ -179,7 +179,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 500000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i05.png",
+    icon: "/items/drops/resourcesss/etc_scroll_of_enchant_armor_i05.png",
     description: "Заточка для S-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
 ];

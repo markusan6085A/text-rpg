@@ -510,11 +510,11 @@ export default function CharacterEquipmentFrame({
                     title={dyeInfo?.description || `${dye.statPlus} +${dye.effect} / ${dye.statMinus} -${dye.effect}`}
                   >
                     <img
-                      src={dyeInfo?.icon || "/items/drops/resources/etc_ancient_adena_i00.png"}
+                      src={dyeInfo?.icon || "/items/drops/resourcesss/etc_ancient_adena_i00.png"}
                       alt={dyeInfo?.name || dye.id}
                       className="w-5 h-5 object-contain border border-[#c7ad80] rounded bg-black/70"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                        (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                       }}
                     />
                   </div>

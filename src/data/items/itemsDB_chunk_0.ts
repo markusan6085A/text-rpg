@@ -9,7 +9,7 @@ export const itemsDBChunk0: Record<string, ItemDefinition> = {
     id: "seven_seals_medal",
     name: "Медаль Печатей",
     kind: "quest",
-    icon: "/items/drops/resources/Etc_event_glitter_medal_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_event_glitter_medal_i00_0.jpg",
     description: "Медаль, яка випадає з монстрів під час івенту Сім Печатей.",
     slot: "quest",
     stats: {},

@@ -842,7 +842,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "soulshot",
     price: 35, // Ціна за 1 соулшот
-    icon: "/items/drops/resources/Etc_spirit_bullet_red_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spirit_bullet_red_i00_0.jpg",
     description: "Соулшот B-грейду для воїнів",
     soulshots: 1,
   },
@@ -855,7 +855,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "spiritshot",
     price: 35, // Ціна за 1 спірітшот
-    icon: "/items/drops/resources/Etc_spell_shot_red_i01_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spell_shot_red_i01_0.jpg",
     description: "Спірітшот B-грейду для магів",
     spiritshots: 1,
   },
@@ -869,7 +869,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "arrow",
     price: 28, // Ціна за 1 стрілу
-    icon: "/items/drops/resources/etc_silver_quiver_i00.png",
+    icon: "/items/drops/resourcesss/etc_silver_quiver_i00.png",
     description: "Срібна стріла B-грейду",
   },
   

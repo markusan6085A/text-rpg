@@ -11,7 +11,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Soulshot (NG-grade)",
     kind: "consumable",
     slot: "consumable",
-    icon: "/items/drops/resources/etc_spirit_bullet_white_i00.png",
+    icon: "/items/drops/resourcesss/etc_spirit_bullet_white_i00.png",
     description: "Соулшот NG-грейду для воїнів",
     grade: "NG",
   },
@@ -20,7 +20,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Spiritshot (NG-grade)",
     kind: "consumable",
     slot: "consumable",
-    icon: "/items/drops/resources/Etc_spell_shot_white_i01_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_spell_shot_white_i01_0.jpg",
     description: "Спірітшот NG-грейду для магів",
     grade: "NG",
   },
@@ -31,7 +31,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Wooden Arrow",
     kind: "consumable",
     slot: "consumable",
-    icon: "/items/drops/resources/etc_wooden_quiver_i00.png",
+    icon: "/items/drops/resourcesss/etc_wooden_quiver_i00.png",
     description: "Дерев'яна стріла NG-грейду",
     grade: "NG",
   },
@@ -41,7 +41,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "NG-grade Weapon Piece",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/etc_wooden_quiver_i00.png",
+    icon: "/items/drops/resourcesss/etc_wooden_quiver_i00.png",
     description: "Уламок зброї NG-грейду. Матеріал для крафту.",
     grade: "NG",
   },
@@ -50,7 +50,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "NG-grade Armor Piece",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/etc_lesser_potion_red_i00.png",
+    icon: "/items/drops/resourcesss/etc_lesser_potion_red_i00.png",
     description: "Уламок броні NG-грейду. Матеріал для крафту.",
     grade: "NG",
   },
@@ -61,7 +61,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Lesser Healing Potion",
     kind: "consumable",
     slot: "consumable",
-    icon: "/items/drops/resources/etc_lesser_potion_red_i00.png",
+    icon: "/items/drops/resourcesss/etc_lesser_potion_red_i00.png",
     description: "Мала банка HP. Відновлює +200 HP",
     restoreHp: 200,
     grade: "NG",
@@ -72,7 +72,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Lesser Mana Potion",
     kind: "consumable",
     slot: "consumable",
-    icon: "/items/drops/resources/etc_reagent_blue_i00.png",
+    icon: "/items/drops/resourcesss/etc_reagent_blue_i00.png",
     description: "Мала банка MP. Відновлює +200 MP",
     restoreMp: 200,
     grade: "NG",
@@ -83,7 +83,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "CP Potion",
     kind: "consumable",
     slot: "consumable",
-    icon: "/items/drops/resources/Br_cash_cp_potion_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Br_cash_cp_potion_i00_0.jpg",
     description: "CP бутилка. Відновлює +500 CP",
     restoreCp: 500,
     grade: "NG",
@@ -96,7 +96,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Coal",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Coal.jpg",
+    icon: "/items/drops/resourcesss/Coal.jpg",
     description: "Уголь",
   },
   animal_bone: {
@@ -104,7 +104,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Animal Bone",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Animal_Bone.jpg",
+    icon: "/items/drops/resourcesss/Animal_Bone.jpg",
     description: "Кость Животного",
   },
   animal_skin: {
@@ -112,7 +112,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Animal Skin",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Animal_Skin.jpg",
+    icon: "/items/drops/resourcesss/Animal_Skin.jpg",
     description: "Шкура Животного",
   },
   charcoal: {
@@ -120,7 +120,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Charcoal",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Charcoal.jpg",
+    icon: "/items/drops/resourcesss/Charcoal.jpg",
     description: "Древесный Уголь",
   },
   varnish: {
@@ -128,7 +128,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Varnish",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Varnish.jpg",
+    icon: "/items/drops/resourcesss/Varnish.jpg",
     description: "Лак",
   },
   iron_ore: {
@@ -136,7 +136,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Iron Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Iron_Ore.jpg",
+    icon: "/items/drops/resourcesss/Iron_Ore.jpg",
     description: "Железная Руда",
   },
   stem: {
@@ -144,7 +144,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Stem",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Stem.jpg",
+    icon: "/items/drops/resourcesss/Stem.jpg",
     description: "Стебель",
   },
   thread: {
@@ -152,7 +152,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Thread",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Thread.jpg",
+    icon: "/items/drops/resourcesss/Thread.jpg",
     description: "Нитки",
   },
   suede: {
@@ -160,7 +160,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Suede",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Suede.jpg",
+    icon: "/items/drops/resourcesss/Suede.jpg",
     description: "Замша",
   },
   steel: {
@@ -168,7 +168,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Steel",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Steel.jpg",
+    icon: "/items/drops/resourcesss/Steel.jpg",
     description: "Сталь",
   },
   coarse_bone_powder: {
@@ -176,7 +176,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Coarse Bone Powder",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Coarse_Bone_Powder.jpg",
+    icon: "/items/drops/resourcesss/Coarse_Bone_Powder.jpg",
     description: "Грубий кістковий порошок",
   },
   leather: {
@@ -184,7 +184,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Leather",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Leather.jpg",
+    icon: "/items/drops/resourcesss/Leather.jpg",
     description: "Шкіра",
   },
   high_grade_suede: {
@@ -192,7 +192,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "High-grade Suede",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/High-grade_Suede.jpg",
+    icon: "/items/drops/resourcesss/High-grade_Suede.jpg",
     description: "Шліфована замша",
   },
   cord: {
@@ -200,7 +200,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Cord",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Cord.jpg",
+    icon: "/items/drops/resourcesss/Cord.jpg",
     description: "Мотузка. Матеріал для крафту.",
   },
   crafted_leather: {
@@ -208,7 +208,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Crafted Leather",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Crafted_Leather.jpg",
+    icon: "/items/drops/resourcesss/Crafted_Leather.jpg",
     description: "Оброблена шкіра. Матеріал для крафту.",
   },
   // Середні ресурси (7-20 лвл)
@@ -217,7 +217,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Silver Nugget",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Silver_Nugget.jpg",
+    icon: "/items/drops/resourcesss/Silver_Nugget.jpg",
     description: "Серебряный Слиток",
   },
   adamantite_nugget: {
@@ -225,7 +225,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Adamantite Nugget",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Adamantite_Nugget.jpg",
+    icon: "/items/drops/resourcesss/Adamantite_Nugget.jpg",
     description: "Адамантитовый Слиток",
   },
   mithril_ore: {
@@ -233,7 +233,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Mithril Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Mithril_Ore.jpg",
+    icon: "/items/drops/resourcesss/Mithril_Ore.jpg",
     description: "Мифриловая Руда",
   },
   // Високі ресурси (20-36 лвл)
@@ -242,7 +242,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Stone of Purity",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Stone_of_Purity.jpg",
+    icon: "/items/drops/resourcesss/Stone_of_Purity.jpg",
     description: "Камень Чистоты",
   },
   oriharukon_ore: {
@@ -250,7 +250,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Oriharukon Ore",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Oriharukon_Ore.jpg",
+    icon: "/items/drops/resourcesss/Oriharukon_Ore.jpg",
     description: "Орихаруконовая Руда",
   },
   mold_glue: {
@@ -258,7 +258,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Mold Glue",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Mold_Glue.jpg",
+    icon: "/items/drops/resourcesss/Mold_Glue.jpg",
     description: "Клей",
   },
   mold_lubricant: {
@@ -266,7 +266,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Mold Lubricant",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Mold_Lubricant.jpg",
+    icon: "/items/drops/resourcesss/Mold_Lubricant.jpg",
     description: "Смазка",
   },
   mold_hardener: {
@@ -274,7 +274,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Mold Hardener",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Mold_Hardener.jpg",
+    icon: "/items/drops/resourcesss/Mold_Hardener.jpg",
     description: "Отвердитель Формы",
   },
   enria: {
@@ -282,7 +282,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Enria",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Enria.jpg",
+    icon: "/items/drops/resourcesss/Enria.jpg",
     description: "Энрия",
   },
   asofe: {
@@ -290,7 +290,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Asofe",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Asofe.jpg",
+    icon: "/items/drops/resourcesss/Asofe.jpg",
     description: "Азоф",
   },
   thons: {
@@ -298,7 +298,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Thons",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Thons.jpg",
+    icon: "/items/drops/resourcesss/Thons.jpg",
     description: "Тонс",
   },
   // ===== SEAL STONES (Floran Catacombs) =====
@@ -307,7 +307,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Зелений Камінь Печати",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/R99_soul_stone_i04_0.jpg",
+    icon: "/items/drops/resourcesss/R99_soul_stone_i04_0.jpg",
     description: "Зелений камінь печати з катакомб Floran.",
   },
   blue_seal_stone: {
@@ -315,7 +315,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Синій Камінь Печати",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/R99_soul_stone_i02_0.jpg",
+    icon: "/items/drops/resourcesss/R99_soul_stone_i02_0.jpg",
     description: "Синій камінь печати з катакомб Floran.",
   },
   red_seal_stone: {
@@ -323,7 +323,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Червоний Камінь Печати",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/R99_soul_stone_i00_0.jpg",
+    icon: "/items/drops/resourcesss/R99_soul_stone_i00_0.jpg",
     description: "Червоний камінь печати з катакомб Floran.",
   },
 
@@ -333,7 +333,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Наживка для риби (Gludio)",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_gludio_fish_lure_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_gludio_fish_lure_i00_0.jpg",
     description: "Наживка для риболовлі з міста Gludio. Використовується для ловлі риби.",
     grade: "NG",
   },
@@ -345,7 +345,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Skull Black",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Чорний череп, знайдений у мобів Floran Outskirts.",
   },
   quest_claw: {
@@ -353,7 +353,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Claw",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Кіготь, знайдений у чемпіонів Floran Outskirts.",
   },
   // Floran Plains
@@ -362,7 +362,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Plains Wanderer Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Plains Wanderer у Floran Plains.",
   },
   quest_plains_traveler_token: {
@@ -370,7 +370,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Plains Traveler Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Plains Traveler у Floran Plains.",
   },
   quest_plains_rover_token: {
@@ -378,7 +378,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Plains Rover Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Plains Rover у Floran Plains.",
   },
   quest_plains_commander_token: {
@@ -386,7 +386,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Plains Commander Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у чемпіонів Plains Commander у Floran Plains.",
   },
   // Floran Forest
@@ -395,7 +395,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Forest Stalker Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Forest Stalker у Floran Forest.",
   },
   quest_forest_predator_token: {
@@ -403,7 +403,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Forest Predator Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Forest Predator у Floran Forest.",
   },
   quest_forest_master_token: {
@@ -411,7 +411,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Forest Master Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у чемпіонів Forest Master у Floran Forest.",
   },
   quest_forest_lord_token: {
@@ -419,7 +419,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Forest Lord Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у чемпіонів Forest Lord у Floran Forest.",
   },
   // Floran Valley
@@ -428,7 +428,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Valley Dweller Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Valley у Floran Valley.",
   },
   quest_valley_inhabitant_token: {
@@ -436,7 +436,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Valley Inhabitant Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Valley у Floran Valley.",
   },
   quest_valley_warlord_token: {
@@ -444,7 +444,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Valley Warlord Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у чемпіонів Valley у Floran Valley.",
   },
   // Floran Hills
@@ -453,7 +453,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Hills Raider Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Hills Raider у Floran Hills.",
   },
   quest_hills_bandit_token: {
@@ -461,7 +461,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Hills Bandit Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Hills Bandit у Floran Hills.",
   },
   quest_hills_reaver_token: {
@@ -469,7 +469,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Hills Reaver Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Hills Reaver у Floran Hills.",
   },
   // Floran Highlands
@@ -478,7 +478,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Highlands Warrior Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Highlands Warrior у Floran Highlands.",
   },
   quest_highlands_rb_token: {
@@ -486,7 +486,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Highlands Raid Boss Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у рейд-босів Floran Highlands.",
   },
   // Floran Peaks
@@ -495,7 +495,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Peaks Climber Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Peaks Climber у Floran Peaks.",
   },
   quest_peaks_explorer_token: {
@@ -503,7 +503,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Peaks Explorer Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_ev_triol_egg_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_ev_triol_egg_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у мобів Peaks Explorer у Floran Peaks.",
   },
   quest_peaks_champion_token: {
@@ -511,7 +511,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Peaks Champion Token",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_skull_black_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_skull_black_i00_0.jpg",
     description: "Квестовий предмет. Токен, знайдений у чемпіонів Floran Peaks.",
   },
   // Adena (валюта, для відображення в дропі)
@@ -529,7 +529,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Серебряные Монеты",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/etc_coins_silver_i00.png",
+    icon: "/items/drops/resourcesss/etc_coins_silver_i00.png",
     description: "Валюта для обміну.",
   },
   // ===== CURRENCY ITEMS =====
@@ -546,7 +546,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Festival Adena",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_coin_of_fair_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_coin_of_fair_i00_0.jpg",
     description: "Валюта для обміну.",
   },
 
@@ -556,7 +556,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Тунець",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_tuna_i06_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_tuna_i06_0.jpg",
     description: "Тунець, спійманий на риболовлі.",
     grade: "NG",
   },
@@ -565,7 +565,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Морська риба",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_fish_seawater_i01_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_fish_seawater_i01_0.jpg",
     description: "Морська риба, спіймана на риболовлі.",
     grade: "NG",
   },
@@ -574,7 +574,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Лящ",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_bream_i04_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_bream_i04_0.jpg",
     description: "Лящ, спійманий на риболовлі.",
     grade: "NG",
   },
@@ -583,7 +583,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Морський чорт",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_angler_i03_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_angler_i03_0.jpg",
     description: "Морський чорт, спійманий на риболовлі.",
     grade: "NG",
   },
@@ -594,7 +594,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Baby Duck Rod",
     kind: "weapon",
     slot: "lrhand",
-    icon: "/items/drops/resources/Baby_Duck_Rod.jpg",
+    icon: "/items/drops/resourcesss/Baby_Duck_Rod.jpg",
     description: "Удочка Baby Duck для риболовлі. Можна одягати з будь-якого рівня.",
     stats: {
       pAtk: 1,
@@ -609,7 +609,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Treasure Box",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/Etc_treasure_box_i00_0.jpg",
+    icon: "/items/drops/resourcesss/Etc_treasure_box_i00_0.jpg",
     description: "Скарбничка, знайдена у мобів. Містить корисні предмети.",
     grade: "NG",
   },

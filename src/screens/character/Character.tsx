@@ -262,7 +262,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             <span>Coin of Luck: <span className="text-yellow-300">{coins}</span></span>
           </div>
           <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
-            <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
+            <img src="/items/drops/resourcesss/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
             <span>Серебряные Монеты: <span className="text-yellow-300">{silverCoins}</span></span>
           </div>
 

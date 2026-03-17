@@ -57,7 +57,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_str_con_d",
     name: "Краска Силы (D)",
     price: 10000,
-    icon: "/items/drops/resources/str.png",
+    icon: "/items/drops/resourcesss/str.png",
     description: "+50 физ. атака / -30 физ. защита, -25 HP, -15 CP",
     grade: "D",
     statPlus: "STR",
@@ -69,7 +69,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_str_d",
     name: "Краска Витривалості (D)",
     price: 10000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+30 физ. защита, +100 HP, +60 CP / -50 физ. атака",
     grade: "D",
     statPlus: "CON",
@@ -81,7 +81,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_d",
     name: "Краска Спритності (D)",
     price: 10000,
-    icon: "/items/drops/resources/dex.png",
+    icon: "/items/drops/resourcesss/dex.png",
     description: "+10 точность, +10 уклон, +20 крит, +30 скорость атаки / -30 физ. защита, -25 HP, -15 CP",
     grade: "D",
     statPlus: "DEX",
@@ -93,7 +93,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_dex_d",
     name: "Краска Витривалості II (D)",
     price: 10000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+30 физ. защита, +100 HP, +60 CP / -10 точность, -10 уклон, -20 крит, -30 скорость атаки",
     grade: "D",
     statPlus: "CON",
@@ -106,7 +106,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_int_men_d",
     name: "Краска Інтелекту (D)",
     price: 10000,
-    icon: "/items/drops/resources/int.png",
+    icon: "/items/drops/resourcesss/int.png",
     description: "+50 маг. атака / -30 маг. защита, -50 MP",
     grade: "D",
     statPlus: "INT",
@@ -118,7 +118,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_int_d",
     name: "Краска Духу (D)",
     price: 10000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+30 маг. защита, +50 MP / -50 маг. атака",
     grade: "D",
     statPlus: "MEN",
@@ -130,7 +130,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_wit_men_d",
     name: "Краска Мудрості (D)",
     price: 10000,
-    icon: "/items/drops/resources/wit.png",
+    icon: "/items/drops/resourcesss/wit.png",
     description: "+30 скорость каста, +20 маг. крит / -30 маг. защита, -50 MP",
     grade: "D",
     statPlus: "WIT",
@@ -142,7 +142,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_wit_d",
     name: "Краска Духу II (D)",
     price: 10000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+30 маг. защита, +50 MP / -30 скорость каста, -20 маг. крит",
     grade: "D",
     statPlus: "MEN",
@@ -156,7 +156,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_str_con_c",
     name: "Краска Силы (C)",
     price: 25000,
-    icon: "/items/drops/resources/str.png",
+    icon: "/items/drops/resourcesss/str.png",
     description: "+100 физ. атака / -60 физ. защита, -50 HP, -30 CP",
     grade: "C",
     statPlus: "STR",
@@ -168,7 +168,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_str_c",
     name: "Краска Витривалості (C)",
     price: 25000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+60 физ. защита, +200 HP, +120 CP / -100 физ. атака",
     grade: "C",
     statPlus: "CON",
@@ -180,7 +180,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_c",
     name: "Краска Спритності (C)",
     price: 25000,
-    icon: "/items/drops/resources/dex.png",
+    icon: "/items/drops/resourcesss/dex.png",
     description: "+20 точность, +20 уклон, +40 крит, +60 скорость атаки / -60 физ. защита, -50 HP, -30 CP",
     grade: "C",
     statPlus: "DEX",
@@ -192,7 +192,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_dex_c",
     name: "Краска Витривалості II (C)",
     price: 25000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+60 физ. защита, +200 HP, +120 CP / -20 точность, -20 уклон, -40 крит, -60 скорость атаки",
     grade: "C",
     statPlus: "CON",
@@ -204,7 +204,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_int_men_c",
     name: "Краска Інтелекту (C)",
     price: 25000,
-    icon: "/items/drops/resources/int.png",
+    icon: "/items/drops/resourcesss/int.png",
     description: "+100 маг. атака / -60 маг. защита, -100 MP",
     grade: "C",
     statPlus: "INT",
@@ -216,7 +216,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_int_c",
     name: "Краска Духу (C)",
     price: 25000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+60 маг. защита, +100 MP / -100 маг. атака",
     grade: "C",
     statPlus: "MEN",
@@ -228,7 +228,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_wit_men_c",
     name: "Краска Мудрості (C)",
     price: 25000,
-    icon: "/items/drops/resources/wit.png",
+    icon: "/items/drops/resourcesss/wit.png",
     description: "+60 скорость каста, +40 маг. крит / -60 маг. защита, -100 MP",
     grade: "C",
     statPlus: "WIT",
@@ -240,7 +240,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_wit_c",
     name: "Краска Духу II (C)",
     price: 25000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+60 маг. защита, +100 MP / -60 скорость каста, -40 маг. крит",
     grade: "C",
     statPlus: "MEN",
@@ -254,7 +254,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_str_con_b",
     name: "Краска Силы (B)",
     price: 50000,
-    icon: "/items/drops/resources/str.png",
+    icon: "/items/drops/resourcesss/str.png",
     description: "+150 физ. атака / -90 физ. защита, -75 HP, -45 CP",
     grade: "B",
     statPlus: "STR",
@@ -266,7 +266,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_str_b",
     name: "Краска Витривалості (B)",
     price: 50000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+90 физ. защита, +300 HP, +180 CP / -150 физ. атака",
     grade: "B",
     statPlus: "CON",
@@ -278,7 +278,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_b",
     name: "Краска Спритності (B)",
     price: 50000,
-    icon: "/items/drops/resources/dex.png",
+    icon: "/items/drops/resourcesss/dex.png",
     description: "+30 точность, +30 уклон, +60 крит, +90 скорость атаки / -90 физ. защита, -75 HP, -45 CP",
     grade: "B",
     statPlus: "DEX",
@@ -290,7 +290,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_dex_b",
     name: "Краска Витривалості II (B)",
     price: 50000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+90 физ. защита, +300 HP, +180 CP / -30 точность, -30 уклон, -60 крит, -90 скорость атаки",
     grade: "B",
     statPlus: "CON",
@@ -302,7 +302,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_int_men_b",
     name: "Краска Інтелекту (B)",
     price: 50000,
-    icon: "/items/drops/resources/int.png",
+    icon: "/items/drops/resourcesss/int.png",
     description: "+150 маг. атака / -90 маг. защита, -150 MP",
     grade: "B",
     statPlus: "INT",
@@ -314,7 +314,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_int_b",
     name: "Краска Духу (B)",
     price: 50000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+90 маг. защита, +150 MP / -150 маг. атака",
     grade: "B",
     statPlus: "MEN",
@@ -326,7 +326,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_wit_men_b",
     name: "Краска Мудрості (B)",
     price: 50000,
-    icon: "/items/drops/resources/wit.png",
+    icon: "/items/drops/resourcesss/wit.png",
     description: "+90 скорость каста, +60 маг. крит / -90 маг. защита, -150 MP",
     grade: "B",
     statPlus: "WIT",
@@ -338,7 +338,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_wit_b",
     name: "Краска Духу II (B)",
     price: 50000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+90 маг. защита, +150 MP / -90 скорость каста, -60 маг. крит",
     grade: "B",
     statPlus: "MEN",
@@ -352,7 +352,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_str_con_a",
     name: "Краска Силы (A)",
     price: 100000,
-    icon: "/items/drops/resources/str.png",
+    icon: "/items/drops/resourcesss/str.png",
     description: "+200 физ. атака / -120 физ. защита, -100 HP, -60 CP",
     grade: "A",
     statPlus: "STR",
@@ -364,7 +364,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_str_a",
     name: "Краска Витривалості (A)",
     price: 100000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+120 физ. защита, +400 HP, +240 CP / -200 физ. атака",
     grade: "A",
     statPlus: "CON",
@@ -376,7 +376,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_a",
     name: "Краска Спритності (A)",
     price: 100000,
-    icon: "/items/drops/resources/dex.png",
+    icon: "/items/drops/resourcesss/dex.png",
     description: "+40 точность, +40 уклон, +80 крит, +120 скорость атаки / -120 физ. защита, -100 HP, -60 CP",
     grade: "A",
     statPlus: "DEX",
@@ -388,7 +388,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_dex_a",
     name: "Краска Витривалості II (A)",
     price: 100000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+120 физ. защита, +400 HP, +240 CP / -40 точность, -40 уклон, -80 крит, -120 скорость атаки",
     grade: "A",
     statPlus: "CON",
@@ -400,7 +400,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_int_men_a",
     name: "Краска Інтелекту (A)",
     price: 100000,
-    icon: "/items/drops/resources/int.png",
+    icon: "/items/drops/resourcesss/int.png",
     description: "+200 маг. атака / -120 маг. защита, -200 MP",
     grade: "A",
     statPlus: "INT",
@@ -412,7 +412,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_int_a",
     name: "Краска Духу (A)",
     price: 100000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+120 маг. защита, +200 MP / -200 маг. атака",
     grade: "A",
     statPlus: "MEN",
@@ -424,7 +424,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_wit_men_a",
     name: "Краска Мудрості (A)",
     price: 100000,
-    icon: "/items/drops/resources/wit.png",
+    icon: "/items/drops/resourcesss/wit.png",
     description: "+120 скорость каста, +80 маг. крит / -120 маг. защита, -200 MP",
     grade: "A",
     statPlus: "WIT",
@@ -436,7 +436,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_wit_a",
     name: "Краска Духу II (A)",
     price: 100000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+120 маг. защита, +200 MP / -120 скорость каста, -80 маг. крит",
     grade: "A",
     statPlus: "MEN",
@@ -450,7 +450,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_str_con_s",
     name: "Краска Силы (S)",
     price: 170000,
-    icon: "/items/drops/resources/str.png",
+    icon: "/items/drops/resourcesss/str.png",
     description: "+250 физ. атака / -150 физ. защита, -125 HP, -75 CP",
     grade: "S",
     statPlus: "STR",
@@ -462,7 +462,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_str_s",
     name: "Краска Витривалості (S)",
     price: 170000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+150 физ. защита, +500 HP, +300 CP / -250 физ. атака",
     grade: "S",
     statPlus: "CON",
@@ -474,7 +474,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_s",
     name: "Краска Спритності (S)",
     price: 170000,
-    icon: "/items/drops/resources/dex.png",
+    icon: "/items/drops/resourcesss/dex.png",
     description: "+50 точность, +50 уклон, +100 крит, +150 скорость атаки / -150 физ. защита, -125 HP, -75 CP",
     grade: "S",
     statPlus: "DEX",
@@ -486,7 +486,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_con_dex_s",
     name: "Краска Витривалості II (S)",
     price: 170000,
-    icon: "/items/drops/resources/dye-con.png",
+    icon: "/items/drops/resourcesss/dye-con.png",
     description: "+150 физ. защита, +500 HP, +300 CP / -50 точность, -50 уклон, -100 крит, -150 скорость атаки",
     grade: "S",
     statPlus: "CON",
@@ -498,7 +498,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_int_men_s",
     name: "Краска Інтелекту (S)",
     price: 170000,
-    icon: "/items/drops/resources/int.png",
+    icon: "/items/drops/resourcesss/int.png",
     description: "+250 маг. атака / -150 маг. защита, -250 MP",
     grade: "S",
     statPlus: "INT",
@@ -510,7 +510,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_int_s",
     name: "Краска Духу (S)",
     price: 170000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+150 маг. защита, +250 MP / -250 маг. атака",
     grade: "S",
     statPlus: "MEN",
@@ -522,7 +522,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_wit_men_s",
     name: "Краска Мудрості (S)",
     price: 170000,
-    icon: "/items/drops/resources/wit.png",
+    icon: "/items/drops/resourcesss/wit.png",
     description: "+150 скорость каста, +100 маг. крит / -150 маг. защита, -250 MP",
     grade: "S",
     statPlus: "WIT",
@@ -534,7 +534,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_men_wit_s",
     name: "Краска Духу II (S)",
     price: 170000,
-    icon: "/items/drops/resources/men.png",
+    icon: "/items/drops/resourcesss/men.png",
     description: "+150 маг. защита, +250 MP / -150 скорость каста, -100 маг. крит",
     grade: "S",
     statPlus: "MEN",
@@ -785,7 +785,7 @@ export default function GMShop({ navigate }: GMShopProps) {
         name: "Ancient Adena",
         slot: "resource",
         kind: "resource",
-        icon: "/items/drops/resources/etc_ancient_adena_i00.png",
+        icon: "/items/drops/resourcesss/etc_ancient_adena_i00.png",
         description: "Стародавня Адена з катакомб Floran. Дорогоцінна валюта.",
         count: confirmExchange.aaReward,
       });
@@ -807,7 +807,7 @@ export default function GMShop({ navigate }: GMShopProps) {
       <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-1">
         У вас{" "}
         <img 
-          src="/items/drops/resources/aden.png" 
+          src="/items/drops/resourcesss/aden.png" 
           alt="Adena" 
           className="w-4 h-4 object-contain"
           onError={(e) => {
@@ -824,7 +824,7 @@ export default function GMShop({ navigate }: GMShopProps) {
       <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-1">
         У вас{" "}
         <img 
-          src="/items/drops/resources/etc_ancient_adena_i00.png" 
+          src="/items/drops/resourcesss/etc_ancient_adena_i00.png" 
           alt="Ancient Adena" 
           className="w-4 h-4 object-contain"
           onError={(e) => {
@@ -944,7 +944,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                   alt={item.name}
                   className="w-8 h-8 object-contain flex-shrink-0"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                    (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                   }}
                 />
                 {/* Назва */}
@@ -980,7 +980,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     alt={def.name}
                     className="w-8 h-8 object-contain flex-shrink-0"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                      (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                     }}
                   />
                   <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
@@ -1032,7 +1032,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     alt={def.name}
                     className="w-8 h-8 object-contain flex-shrink-0"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                      (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                     }}
                   />
                   <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
@@ -1061,11 +1061,11 @@ export default function GMShop({ navigate }: GMShopProps) {
             >
               <div className="flex items-center gap-2">
                 <img 
-                  src="/items/drops/resources/R99_soul_stone_i04_0.jpg" 
+                  src="/items/drops/resourcesss/R99_soul_stone_i04_0.jpg" 
                   alt="Зелений Камінь Печати" 
                   className="w-5 h-5 object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                    (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                   }}
                 />
                 <span className="text-[12px] text-[#e0c68a]">Обміняти Зелений Камінь Печати</span>
@@ -1093,11 +1093,11 @@ export default function GMShop({ navigate }: GMShopProps) {
             >
               <div className="flex items-center gap-2">
                 <img 
-                  src="/items/drops/resources/R99_soul_stone_i02_0.jpg" 
+                  src="/items/drops/resourcesss/R99_soul_stone_i02_0.jpg" 
                   alt="Синій Камінь Печати" 
                   className="w-5 h-5 object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                    (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                   }}
                 />
                 <span className="text-[12px] text-[#e0c68a]">Обміняти Синій Камінь Печати</span>
@@ -1125,11 +1125,11 @@ export default function GMShop({ navigate }: GMShopProps) {
             >
               <div className="flex items-center gap-2">
                 <img 
-                  src="/items/drops/resources/R99_soul_stone_i00_0.jpg" 
+                  src="/items/drops/resourcesss/R99_soul_stone_i00_0.jpg" 
                   alt="Червоний Камінь Печати" 
                   className="w-5 h-5 object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                    (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                   }}
                 />
                 <span className="text-[12px] text-[#e0c68a]">Обміняти Червоний Камінь Печати</span>
@@ -1236,7 +1236,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                 alt={selectedItem.name}
                 className="w-16 h-16 object-contain"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                  (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                 }}
               />
               <div className="flex-1">
@@ -1342,7 +1342,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                       alt={def.name}
                       className="w-16 h-16 object-contain"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                        (e.target as HTMLImageElement).src = "/items/drops/resourcesss/etc_ancient_adena_i00.png";
                       }}
                     />
                     <div className="flex-1">

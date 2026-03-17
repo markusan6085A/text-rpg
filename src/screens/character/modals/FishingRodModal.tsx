@@ -147,7 +147,7 @@ export default function FishingRodModal({
             alt={item.name}
             className="w-16 h-16 object-contain"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "/items/drops/resources/Baby_Duck_Rod.jpg";
+              (e.target as HTMLImageElement).src = "/items/drops/resourcesss/Baby_Duck_Rod.jpg";
             }}
           />
           <div className="flex-1 space-y-1 text-xs">

@@ -1,6 +1,6 @@
 /**
  * Утиліти для іконок предметів.
- * Fallback: якщо іконка в /items/drops/resources/ не завантажується — пробуємо /items/drops/resourcesss/
+ * Єдина папка для іконок ресурсів: /items/drops/resourcesss/ (не resources).
  */
 
 /** Аліаси id -> filename для ресурсів без запису в itemsDB */
@@ -15,33 +15,15 @@ export function resourceIdToFilename(id: string): string {
   return RESOURCE_ID_TO_FILENAME[id] ?? id.split("_").map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join("_");
 }
 
-/** Замінює resources на resourcesss у шляху (fallback при 404) */
-export function getResourceIconFallbackPath(path: string): string {
-  if (path.includes("/drops/resources/")) {
-    return path.replace("/drops/resources/", "/drops/resourcesss/");
-  }
-  return path;
-}
-
-/** Повертає шлях до іконки з коректним префіксом /items */
+/** Повертає шлях до іконки (префікс /items якщо потрібно). */
 export function normalizeIconPath(icon: string | undefined): string {
   if (!icon) return "";
   return icon.startsWith("/") ? icon : `/items/${icon}`;
 }
 
-const FALLBACK_ICON = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+export const FALLBACK_ICON = "/items/drops/Weapon_squires_sword_i00_0.jpg";
 
-/** Обробник onError для img: пробує resourcesss якщо resources не завантажився; інакше — fallback */
+/** Обробник onError для img: показує fallback при помилці завантаження */
 export function handleResourceIconError(e: React.SyntheticEvent<HTMLImageElement>): void {
-  const img = e.target as HTMLImageElement;
-  if (img.src.includes("/drops/resourcesss/") || img.src === FALLBACK_ICON) {
-    img.src = FALLBACK_ICON;
-    return;
-  }
-  const fallback = getResourceIconFallbackPath(img.src);
-  if (fallback !== img.src) {
-    img.src = fallback;
-  } else {
-    img.src = FALLBACK_ICON;
-  }
+  (e.target as HTMLImageElement).src = FALLBACK_ICON;
 }
