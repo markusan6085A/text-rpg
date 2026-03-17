@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { getInventoryMax, OVERFLOW_CHEST_ID } from "../../state/heroStore";
+import { useCharacterStore } from "../../state/characterStore";
+import { clearInventoryAPI } from "../../utils/api";
 import Equipment from "./Equipment";
 import InventoryFilters, { CATEGORIES } from "./InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
@@ -31,6 +33,9 @@ export default function Inventory() {
   const [showIncreaseCapacityModal, setShowIncreaseCapacityModal] = useState(false);
   const [transferModalItem, setTransferModalItem] = useState<any | null>(null);
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
+  const [wipeLoading, setWipeLoading] = useState(false);
+  const [wipeError, setWipeError] = useState<string | null>(null);
+  const characterId = useCharacterStore((s) => s.characterId);
 
   // Hero вже завантажений в App.tsx, не потрібно завантажувати тут
 
@@ -388,24 +393,45 @@ export default function Inventory() {
             <p className="text-gray-300 text-sm mb-6">
               Удалить все предметы из инвентаря? Экипировка не затронута. Действие нельзя отменить!
             </p>
+            {wipeError && (
+              <p className="text-red-400 text-xs mb-4">{wipeError}</p>
+            )}
             <div className="flex justify-center gap-3">
               <button
-                onClick={() => setShowWipeConfirm(false)}
-                className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-gray-300 hover:bg-[#3a3a3a]"
+                onClick={() => {
+                  setShowWipeConfirm(false);
+                  setWipeError(null);
+                }}
+                disabled={wipeLoading}
+                className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-gray-300 hover:bg-[#3a3a3a] disabled:opacity-50"
               >
                 Отмена
               </button>
               <button
-                onClick={() => {
-                  if (!hero) return;
-                  updateHero({ inventory: [] });
-                  setShowWipeConfirm(false);
-                  setSelectedItem(null);
-                  setDeleteConfirmItem(null);
+                onClick={async () => {
+                  if (!hero || !characterId) return;
+                  setWipeError(null);
+                  setWipeLoading(true);
+                  try {
+                    const updated = await clearInventoryAPI(characterId);
+                    useHeroStore.getState().updateServerState({
+                      heroRevision: (updated.heroJson as any)?.heroRevision ?? 0,
+                      updatedAt: Date.now(),
+                    });
+                    updateHero({ inventory: [] });
+                    setShowWipeConfirm(false);
+                    setSelectedItem(null);
+                    setDeleteConfirmItem(null);
+                  } catch (e: any) {
+                    setWipeError(e?.message || e?.error || "Ошибка сервера");
+                  } finally {
+                    setWipeLoading(false);
+                  }
                 }}
-                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 text-xs font-semibold"
+                disabled={wipeLoading}
+                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 text-xs font-semibold disabled:opacity-50"
               >
-                Удалить всё
+                {wipeLoading ? "..." : "Удалить всё"}
               </button>
             </div>
           </div>

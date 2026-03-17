@@ -92,6 +92,64 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     }
   });
 
+  // PUT /characters/:id/inventory/clear — очистити інвентар без exp/level/sp (уникаємо "exp cannot be decreased")
+  app.put("/characters/:id/inventory/clear", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const id = params.id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const existing = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!existing) return reply.code(404).send({ error: "character not found" });
+
+    const oldHeroJson = (existing.heroJson as any) || {};
+    const newHeroJson = { ...oldHeroJson, inventory: [] };
+    const validation = validateHeroJson(newHeroJson);
+    if (!validation.valid) {
+      return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
+    }
+
+    const oldRevision = oldHeroJson.heroRevision || 0;
+    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+    try {
+      const updated = await prisma.character.update({
+        where: { id },
+        data: {
+          heroJson: versionedHeroJson as any,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true, name: true, race: true, classId: true, sex: true,
+          level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
+          heroJson: true, createdAt: true, updatedAt: true,
+        },
+      });
+
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+      };
+
+      app.log.info({ accountId: auth.accountId, characterId: id }, "[PUT /characters/:id/inventory/clear] Inventory cleared");
+      return { ok: true, character: serialized };
+    } catch (e: any) {
+      app.log.error(e, `[PUT /characters/:id/inventory/clear] Error for character ${id}`);
+      return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
+  });
+
   // PUT /characters/:id  (Bearer token)
   app.put("/characters/:id", {
     preHandler: async (req, reply) => {

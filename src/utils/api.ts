@@ -281,6 +281,15 @@ export async function updateCharacter(id: string, data: UpdateCharacterRequest):
   return response.character;
 }
 
+/** Очистити інвентар на сервері (окремий ендпоінт — без exp/level, уникаємо "exp cannot be decreased") */
+export async function clearInventoryAPI(characterId: string): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(`/characters/${encodeURIComponent(characterId)}/inventory/clear`, {
+    method: 'PUT',
+    body: JSON.stringify({}),
+  });
+  return response.character;
+}
+
 /** Сплатити 1M аден для перегляду характеристик іншого гравця */
 export async function payToViewPlayerStats(targetCharacterId: string): Promise<{ ok: boolean; newAdena: number }> {
   const response = await apiRequest<{ ok: boolean; newAdena: number }>(
