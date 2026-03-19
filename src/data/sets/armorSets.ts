@@ -477,7 +477,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "imperial_crusader_boots", slot: "boots" },
     ],
     bonuses: {
-      setStats: { DEX: 15, STR: 5, MEN: 4 },
+      setStats: { STR: 5, MEN: 4, DEX: 5, CON: 10 },
     },
   },
 
