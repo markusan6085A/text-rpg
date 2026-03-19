@@ -58,7 +58,7 @@ export const authRefreshRoutes: FastifyPluginAsync = async (app) => {
     setRefreshCookie(reply, newPlain);
 
     const secret: Secret = process.env.JWT_SECRET || "dev_secret";
-    const accessTtl = (process.env.JWT_TTL ?? "15m") as SignOptions["expiresIn"];
+    const accessTtl = (process.env.JWT_TTL ?? "30d") as SignOptions["expiresIn"];
     const accessToken = jwt.sign(
       { accountId: row.account.id, login: row.account.login },
       secret,

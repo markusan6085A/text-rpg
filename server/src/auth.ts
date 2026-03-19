@@ -7,7 +7,7 @@ import { randomToken, sha256, addDays, setRefreshCookie } from "./auth/refresh";
 
 function signAccessToken(payload: { accountId: string; login: string }) {
   const secret: Secret = process.env.JWT_SECRET || "dev_secret";
-  const ttl = (process.env.JWT_TTL ?? "15m") as SignOptions["expiresIn"];
+  const ttl = (process.env.JWT_TTL ?? "30d") as SignOptions["expiresIn"];
   return jwt.sign(payload, secret, { expiresIn: ttl });
 }
 
