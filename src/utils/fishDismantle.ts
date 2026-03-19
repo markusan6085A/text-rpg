@@ -2,7 +2,6 @@
  * Логіка розділки риби — спільний модуль для клієнта та сервера.
  * Експортує processFishDrop та buildItemsFromDrop.
  */
-import type { ItemDefinition } from "../data/items/itemsDB.types";
 import { itemsDB } from "../data/items/itemsDB";
 import { D_GRADE_SHOP_ITEMS } from "../data/shop/dGradeShop";
 import { C_GRADE_SHOP_ITEMS } from "../data/shop/cGradeShop";
@@ -12,20 +11,7 @@ import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { QUEST_SHOP_WEAPONS, QUEST_SHOP_SETS, QUEST_SHOP_ACCESSORIES } from "../data/shop/questShop";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
 
-const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena", "coin_of_fair"]);
 const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.1, A: 0.1, S: 0.1 };
-const ENCHANT_SCROLLS_BY_GRADE: Record<string, string[]> = {
-  D: ["d_enchant_weapon_scroll", "d_enchant_armor_scroll"],
-  C: ["c_enchant_weapon_scroll", "c_enchant_armor_scroll"],
-  B: ["b_enchant_weapon_scroll", "b_enchant_armor_scroll"],
-  A: ["a_enchant_weapon_scroll", "a_enchant_armor_scroll"],
-  S: ["s_enchant_weapon_scroll", "s_enchant_armor_scroll"],
-};
-
-/** Ресурси для дропу з риби — порожньо, починаємо з нуля */
-function getAllResources(): ItemDefinition[] {
-  return [];
-}
 
 function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
   const allShop = [
@@ -72,18 +58,14 @@ export interface FishDropResult {
   enchantScrolls: Array<{ id: string; count: number }>;
 }
 
-/** Розділка риби: зброя/броня/бижутерія — шанс за 10 риб; ресурси, скарбничка, заточки — за 1 рибу. */
+/** Розділка риби: тільки зброя, броня та сундуки (treasure_box). */
 export function processFishDrop(fishCount: number): FishDropResult {
   const weapons: Record<string, number> = {};
   const armorPieces: Record<string, number> = {};
-  const jewelryPieces: Record<string, number> = {};
   const resources: Record<string, number> = {};
-  const enchantScrolls: Record<string, number> = {};
 
-  const allResources = getAllResources();
   const weaponsByGrade = getShopIdsByTypeAndGrade("weapon");
   const armorByGrade = getShopIdsByTypeAndGrade("armor");
-  const jewelryByGrade = getShopIdsByTypeAndGrade("jewelry");
 
   const batchesOf10 = Math.floor(fishCount / 10);
   for (let b = 0; b < batchesOf10; b++) {
@@ -91,7 +73,6 @@ export function processFishDrop(fishCount: number): FishDropResult {
       const chance = GRADE_CHANCE[grade];
       const weaponIds = weaponsByGrade[grade];
       const armorIds = armorByGrade[grade];
-      const jewelryIds = jewelryByGrade[grade];
       if (weaponIds?.length && Math.random() * 100 < chance) {
         const id = weaponIds[Math.floor(Math.random() * weaponIds.length)];
         weapons[id] = (weapons[id] || 0) + 1;
@@ -100,23 +81,11 @@ export function processFishDrop(fishCount: number): FishDropResult {
         const id = armorIds[Math.floor(Math.random() * armorIds.length)];
         armorPieces[id] = (armorPieces[id] || 0) + 1;
       }
-      if (jewelryIds?.length && Math.random() * 100 < chance) {
-        const id = jewelryIds[Math.floor(Math.random() * jewelryIds.length)];
-        jewelryPieces[id] = (jewelryPieces[id] || 0) + 1;
-      }
     });
   }
 
   for (let i = 0; i < fishCount; i++) {
-    // Ресурси та скарбничка видалені — починаємо з нуля
-    if (Math.random() * 100 < 0.4) {
-      const grade = Math.random() < 0.7 ? "D" : "C";
-      const scrolls = ENCHANT_SCROLLS_BY_GRADE[grade];
-      if (scrolls?.length) {
-        const id = scrolls[Math.floor(Math.random() * scrolls.length)];
-        if (itemsDB[id]) enchantScrolls[id] = (enchantScrolls[id] || 0) + 1;
-      }
-    }
+    if (Math.random() * 100 < 0.3) resources["treasure_box"] = (resources["treasure_box"] || 0) + 1;
   }
 
   return {
@@ -125,9 +94,9 @@ export function processFishDrop(fishCount: number): FishDropResult {
     coinsSilver: 0,
     weapons: Object.entries(weapons).map(([id, count]) => ({ id, count })),
     armorPieces: Object.entries(armorPieces).map(([id, count]) => ({ id, count })),
-    jewelryPieces: Object.entries(jewelryPieces).map(([id, count]) => ({ id, count })),
+    jewelryPieces: [],
     resources: Object.entries(resources).map(([id, count]) => ({ id, count })),
-    enchantScrolls: Object.entries(enchantScrolls).map(([id, count]) => ({ id, count })),
+    enchantScrolls: [],
   };
 }
 
