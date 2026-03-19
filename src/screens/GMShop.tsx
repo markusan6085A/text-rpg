@@ -69,7 +69,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_d",
     name: "Краска Спритності (D)",
     price: 10000,
-    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    icon: "/items/drops/resources/dye-dex.png",
     description: "+10 точность, +10 уклон, +20 крит, +30 скорость атаки / -30 физ. защита, -25 HP, -15 CP",
     grade: "D",
     statPlus: "DEX",
@@ -168,7 +168,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_c",
     name: "Краска Спритності (C)",
     price: 25000,
-    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    icon: "/items/drops/resources/dye-dex.png",
     description: "+20 точность, +20 уклон, +40 крит, +60 скорость атаки / -60 физ. защита, -50 HP, -30 CP",
     grade: "C",
     statPlus: "DEX",
@@ -266,7 +266,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_b",
     name: "Краска Спритності (B)",
     price: 50000,
-    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    icon: "/items/drops/resources/dye-dex.png",
     description: "+30 точность, +30 уклон, +60 крит, +90 скорость атаки / -90 физ. защита, -75 HP, -45 CP",
     grade: "B",
     statPlus: "DEX",
@@ -364,7 +364,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_a",
     name: "Краска Спритності (A)",
     price: 100000,
-    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    icon: "/items/drops/resources/dye-dex.png",
     description: "+40 точность, +40 уклон, +80 крит, +120 скорость атаки / -120 физ. защита, -100 HP, -60 CP",
     grade: "A",
     statPlus: "DEX",
@@ -462,7 +462,7 @@ export const GM_SHOP_ITEMS: DyeItem[] = [
     itemId: "dye_dex_con_s",
     name: "Краска Спритності (S)",
     price: 170000,
-    icon: "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    icon: "/items/drops/resources/dye-dex.png",
     description: "+50 точность, +50 уклон, +100 крит, +150 скорость атаки / -150 физ. защита, -125 HP, -75 CP",
     grade: "S",
     statPlus: "DEX",
@@ -786,8 +786,8 @@ export default function GMShop({ navigate }: GMShopProps) {
 
   return (
     <div className="w-full max-w-[360px] mx-auto px-3 py-2">
-      {/* Заголовок */}
-      <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#ff8c00] tracking-[0.12em] uppercase font-semibold">
+      {/* Заголовок — як у магазині вещей */}
+      <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#f4e2b8] tracking-[0.12em] uppercase">
         GM-Шоп
       </div>
 
@@ -861,56 +861,79 @@ export default function GMShop({ navigate }: GMShopProps) {
       {/* Магазин */}
       {selectedCategory === "shop" && (
         <div className="px-4 py-2 border-b border-black/70">
-          {/* Підкатегорії магазину */}
-          <div className="mb-2 flex gap-1 flex-wrap">
+          {/* Підкатегорії магазину — як у магазині вещей */}
+          <div className="text-[11px] text-gray-300 flex gap-1.5 mb-2 flex-nowrap items-center">
             <button
               onClick={() => setSelectedShopSubcategory("dyes")}
-              className={`px-2 py-1 text-[11px] ${
+              className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
                 selectedShopSubcategory === "dyes"
-                  ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
-                  : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+                  ? "text-gray-200 font-semibold border-b border-white/60"
+                  : "hover:text-gray-200"
               }`}
             >
               Краски
             </button>
+            <span className="text-gray-500 text-[10px]">|</span>
             <button
               onClick={() => setSelectedShopSubcategory("crystals")}
-              className={`px-2 py-1 text-[11px] ${
+              className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
                 selectedShopSubcategory === "crystals"
-                  ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
-                  : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+                  ? "text-gray-200 font-semibold border-b border-white/60"
+                  : "hover:text-gray-200"
               }`}
             >
               Кристали
             </button>
+            <span className="text-gray-500 text-[10px]">|</span>
             <button
               onClick={() => setSelectedShopSubcategory("ls")}
-              className={`px-2 py-1 text-[11px] ${
+              className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
                 selectedShopSubcategory === "ls"
-                  ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
-                  : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
+                  ? "text-gray-200 font-semibold border-b border-white/60"
+                  : "hover:text-gray-200"
               }`}
             >
               LS
             </button>
           </div>
 
-          {/* Краски — фільтр грейдів */}
+          {/* Краски — фільтр грейдів (як у магазині вещей) */}
           {selectedShopSubcategory === "dyes" && (
-            <div className="mb-2 flex gap-1 flex-wrap">
-              {(["D", "C", "B", "A", "S"] as const).map((grade) => (
-                <button
-                  key={grade}
-                  onClick={() => setSelectedGrade(grade)}
-                  className={`px-2 py-1 text-[11px] ${
-                    selectedGrade === grade
-                      ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
-                      : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
-                  }`}
-                >
-                  {grade}
-                </button>
-              ))}
+            <div className="flex gap-2 mb-2">
+              {(["D", "C", "B", "A", "S"] as const).map((grade) => {
+                const getGradeColor = (g: string, isSelected: boolean) => {
+                  if (!isSelected) {
+                    switch (g) {
+                      case "D": return "text-white";
+                      case "C": return "text-green-400";
+                      case "B": return "text-blue-400";
+                      case "A": return "text-purple-400";
+                      case "S": return "text-orange-400";
+                      default: return "text-gray-400";
+                    }
+                  } else {
+                    switch (g) {
+                      case "D": return "text-white font-semibold";
+                      case "C": return "text-green-300 font-semibold";
+                      case "B": return "text-blue-300 font-semibold";
+                      case "A": return "text-purple-300 font-semibold";
+                      case "S": return "text-orange-300 font-semibold";
+                      default: return "text-gray-300 font-semibold";
+                    }
+                  }
+                };
+                return (
+                  <button
+                    key={grade}
+                    onClick={() => setSelectedGrade(grade)}
+                    className={`px-2 py-0.5 text-[11px] transition-colors ${getGradeColor(grade, selectedGrade === grade)} ${
+                      selectedGrade === grade ? "underline" : "hover:underline"
+                    }`}
+                  >
+                    {grade}
+                  </button>
+                );
+              })}
             </div>
           )}
           
@@ -939,8 +962,8 @@ export default function GMShop({ navigate }: GMShopProps) {
                 <div className="flex-1 text-[12px] text-[#e0c68a]">
                   {item.name}
                 </div>
-                {/* Ціна */}
-                <div className="text-yellow-400 text-[12px] font-semibold">
+                {/* Ціна — як у магазині вещей */}
+                <div className="text-[12px] text-[#f4e2b8] font-semibold">
                   {item.price.toLocaleString()} AA
                 </div>
               </div>
@@ -972,7 +995,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     }}
                   />
                   <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
-                  <div className="text-yellow-400 text-[12px] font-semibold">
+                  <div className="text-[12px] text-[#f4e2b8] font-semibold">
                     {CRYSTAL_PRICE_ADENA} Adena
                   </div>
                 </div>
@@ -981,22 +1004,41 @@ export default function GMShop({ navigate }: GMShopProps) {
           </div>
           )}
 
-          {/* LS — фільтр грейдів */}
+          {/* LS — фільтр грейдів (як у магазині вещей) */}
           {selectedShopSubcategory === "ls" && (
-            <div className="mb-2 flex gap-1 flex-wrap">
-              {(["C", "B", "A", "S"] as const).map((grade) => (
-                <button
-                  key={grade}
-                  onClick={() => setSelectedLSGrade(grade)}
-                  className={`px-2 py-1 text-[11px] ${
-                    selectedLSGrade === grade
-                      ? "bg-[#3d2f1a] text-[#ff8c00] border border-white/50"
-                      : "bg-[#1a1208] text-gray-400 border border-white/40 hover:text-gray-300"
-                  }`}
-                >
-                  {grade}
-                </button>
-              ))}
+            <div className="flex gap-2 mb-2">
+              {(["C", "B", "A", "S"] as const).map((grade) => {
+                const getGradeColor = (g: string, isSelected: boolean) => {
+                  if (!isSelected) {
+                    switch (g) {
+                      case "C": return "text-green-400";
+                      case "B": return "text-blue-400";
+                      case "A": return "text-purple-400";
+                      case "S": return "text-orange-400";
+                      default: return "text-gray-400";
+                    }
+                  } else {
+                    switch (g) {
+                      case "C": return "text-green-300 font-semibold";
+                      case "B": return "text-blue-300 font-semibold";
+                      case "A": return "text-purple-300 font-semibold";
+                      case "S": return "text-orange-300 font-semibold";
+                      default: return "text-gray-300 font-semibold";
+                    }
+                  }
+                };
+                return (
+                  <button
+                    key={grade}
+                    onClick={() => setSelectedLSGrade(grade)}
+                    className={`px-2 py-0.5 text-[11px] transition-colors ${getGradeColor(grade, selectedLSGrade === grade)} ${
+                      selectedLSGrade === grade ? "underline" : "hover:underline"
+                    }`}
+                  >
+                    {grade}
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -1024,7 +1066,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     }}
                   />
                   <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
-                  <div className="text-yellow-400 text-[12px] font-semibold">
+                  <div className="text-[12px] text-[#f4e2b8] font-semibold">
                     {CRYSTAL_PRICE_ADENA} Adena
                   </div>
                 </div>
