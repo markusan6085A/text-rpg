@@ -259,7 +259,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "avadon_gloves", slot: "gloves" },
       { itemId: "avadon_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { CON: 2, INT: 1, WIT: 3, MEN: 3 },
+    },
   },
 
   // ===== B-GRADE СЕТ DOOM (Magic Armor Set - Robe) =====
@@ -289,7 +291,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "blue_wolf_gloves", slot: "gloves" },
       { itemId: "blue_wolf_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 3, DEX: 1, CON: 3 },
+    },
   },
 
   // ===== B-GRADE СЕТ BOUND BLUE WOLF (Light Armor Set) =====
@@ -332,7 +336,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "doom_gloves_of_fortune", slot: "gloves" },
       { itemId: "doom_boots_of_fortune", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 5, DEX: 3, CON: 1, MEN: 1 },
+    },
   },
 
   // ===== A-GRADE СЕТ MAJESTIC (Magic Armor Set - Robe) =====
