@@ -193,13 +193,14 @@ export default function InventoryPanel({
             return (
             <div key={`${invItem.id}-${idx}`}>
               <div
-                className="flex items-center gap-2 px-2 py-2 hover:bg-[#1c150d] cursor-pointer"
+                className={`flex items-center gap-2 px-2 py-2 hover:bg-[#1c150d] cursor-pointer ${(invItem as any).meta?.hasLSPassive ? "ring-1 ring-green-500/80 bg-green-900/20" : ""}`}
                 onClick={() => setSelectedItem(invItem)}
               >
-                <img
-                  src={invItem.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
-                  alt={displayName}
-                  className="w-7 h-7 border border-white/50 bg-black/40 object-contain"
+                <div className="relative flex-shrink-0">
+                  <img
+                    src={invItem.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                    alt={displayName}
+                    className={`w-7 h-7 bg-black/40 object-contain ${(invItem as any).meta?.hasLSPassive ? "border-2 border-green-500" : "border border-white/50"}`}
                   onError={(e) => {
                     // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
                     const itemDef = itemsDB[invItem.id];
@@ -210,7 +211,11 @@ export default function InventoryPanel({
                       (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
                     }
                   }}
-                />
+                  />
+                  {(invItem as any).meta?.hasLSPassive && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-green-500 text-black text-[8px] font-bold px-0.5 rounded leading-none">ЛС</span>
+                  )}
+                </div>
                 <div className="flex-1">
                   <div className="text-[13px] text-[#f5d7a1] leading-tight">
                     {displayName}

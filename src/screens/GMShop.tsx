@@ -228,9 +228,15 @@ export default function GMShop({ navigate }: GMShopProps) {
     const items = hero?.inventory?.filter((i: any) => i.id === stoneId && !(i as any).meta?.hasLSPassive) ?? [];
     return items.reduce((sum: number, i: any) => sum + (i.count ?? 1), 0);
   };
+  const hasPassiveForStone = (stoneId: string) =>
+    (hero?.inventory ?? []).some((i: any) => i.id === stoneId && (i as any).meta?.hasLSPassive);
 
   const handleGenerateStone = () => {
     if (!hero || !generateStoneSelectedId) return;
+    if (hasPassiveForStone(generateStoneSelectedId)) {
+      showToast("У вас уже есть камень с пассивкой этого типа! Эффект даётся только раз.", "error");
+      return;
+    }
     const inv = [...(hero.inventory || [])];
     const removeOne = (itemId: string, requireNormal = false) => {
       const idx = inv.findIndex((i: any) => i.id === itemId && (!requireNormal || !(i as any).meta?.hasLSPassive));
@@ -973,18 +979,21 @@ export default function GMShop({ navigate }: GMShopProps) {
                   const def = itemsDBCrystals[sid] ?? itemsDB[sid];
                   const cnt = getStoneCount(sid);
                   const sel = generateStoneSelectedId === sid;
+                  const alreadyHasPassive = hasPassiveForStone(sid);
+                  const disabled = cnt < 1 || alreadyHasPassive;
                   return (
                     <button
                       key={sid}
-                      onClick={() => setGenerateStoneSelectedId(sid)}
-                      disabled={cnt < 1}
+                      onClick={() => !disabled && setGenerateStoneSelectedId(sid)}
+                      disabled={disabled}
+                      title={alreadyHasPassive ? "Пассивка этого типа уже есть" : ""}
                       className={`flex items-center gap-1.5 py-1.5 px-2 rounded border text-left text-[11px] ${
-                        cnt < 1 ? "opacity-50 cursor-not-allowed border-gray-600" : sel ? "border-[#e0c68a] bg-[#2a2015]" : "border-white/30 hover:bg-black/20"
+                        disabled ? "opacity-50 cursor-not-allowed border-gray-600" : sel ? "border-[#e0c68a] bg-[#2a2015]" : "border-white/30 hover:bg-black/20"
                       }`}
                     >
                       {def?.icon && <img src={def.icon} alt="" className="w-5 h-5 object-contain flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png"; }} />}
                       <span className="truncate text-[#e0c68a]">{def?.name ?? sid}</span>
-                      <span className="text-gray-400 ml-auto">x{cnt}</span>
+                      <span className="text-gray-400 ml-auto">{alreadyHasPassive ? "✓" : `x${cnt}`}</span>
                     </button>
                   );
                 })}
@@ -993,7 +1002,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             <div className="flex gap-2 justify-center">
               <button
                 onClick={handleGenerateStone}
-                disabled={!generateStoneSelectedId || crystalCount < 1 || lsCount < 1 || (generateStoneSelectedId ? getStoneCount(generateStoneSelectedId) < 1 : true)}
+                disabled={!generateStoneSelectedId || crystalCount < 1 || lsCount < 1 || (generateStoneSelectedId ? getStoneCount(generateStoneSelectedId) < 1 || hasPassiveForStone(generateStoneSelectedId) : true)}
                 className="px-4 py-2 bg-[#5c4a32] hover:bg-[#6d5a42] disabled:opacity-50 disabled:cursor-not-allowed text-[#e0c68a] text-[12px] rounded border border-white/30"
               >
                 Сгенерировать

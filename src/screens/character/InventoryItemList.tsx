@@ -128,10 +128,11 @@ export default function InventoryItemList({
             }
           }
 
+          const hasLSPassive = !!(item as any).meta?.hasLSPassive;
           return (
             <div
               key={idx}
-              className="flex items-center gap-1.5 px-2 py-1 border-b border-white/30 text-[10px]"
+              className={`flex items-center gap-1.5 px-2 py-1 border-b border-white/30 text-[10px] ${hasLSPassive ? "ring-1 ring-green-500/80 bg-green-900/20" : ""}`}
               style={{
                 borderBottom: "1px solid #2a2a2a",
                 color: "#d9d9d9",
@@ -141,9 +142,12 @@ export default function InventoryItemList({
                 <img
                   src={finalIconPath}
                   alt={itemDef?.name || item.name || itemKey}
-                  className="w-5 h-5 object-contain"
+                  className={`w-5 h-5 object-contain ${hasLSPassive ? "ring-1 ring-green-500" : ""}`}
                   onError={handleResourceIconError}
                 />
+                {hasLSPassive && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-green-500 text-black text-[7px] font-bold px-0.5 rounded leading-none">ЛС</span>
+                )}
                 {item.enchantLevel !== undefined && item.enchantLevel > 0 && (
                   <div 
                     className="absolute -bottom-0.5 -right-0.5 bg-[#b8860b] text-black text-[8px] font-bold px-0.5 rounded leading-none"

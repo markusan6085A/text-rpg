@@ -18,9 +18,12 @@ export function applyPassiveStoneStatsToCombat(
 ): CombatStats {
   let result = { ...combatStats };
   const inv = Array.isArray(inventory) ? inventory : [];
+  const appliedTypes = new Set<string>(); // Ефект кожного типу каменя тільки раз
 
   for (const item of inv) {
     if (!item?.id || !STONE_IDS.has(item.id) || !item.meta?.hasLSPassive) continue;
+    if (appliedTypes.has(item.id)) continue;
+    appliedTypes.add(item.id);
     const def = itemsDBCrystals[item.id] ?? itemsDB[item.id];
     if (!def?.stats) continue;
 
@@ -49,9 +52,12 @@ export function applyPassiveStoneStatsToResources(
 ): Resources {
   let maxHpBonus = 0;
   const inv = Array.isArray(inventory) ? inventory : [];
+  const appliedTypes = new Set<string>(); // Ефект кожного типу каменя тільки раз
 
   for (const item of inv) {
     if (!item?.id || !STONE_IDS.has(item.id) || !item.meta?.hasLSPassive) continue;
+    if (appliedTypes.has(item.id)) continue;
+    appliedTypes.add(item.id);
     const def = itemsDBCrystals[item.id] ?? itemsDB[item.id];
     if (!def?.stats?.maxHpPercent) continue;
     maxHpBonus += def.stats.maxHpPercent as number;
