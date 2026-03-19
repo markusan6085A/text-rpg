@@ -349,7 +349,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     name: "Scroll: Enchant Armor (C-grade)",
     kind: "consumable",
     slot: "consumable",
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i01.png",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i02.png",
     description: "Заточка для C-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
     grade: "C",
   },
