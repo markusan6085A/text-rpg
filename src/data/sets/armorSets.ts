@@ -87,7 +87,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "mithril_gloves", slot: "gloves" },
       { itemId: "mithril_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 1, CON: 1, MEN: 1 },
+    },
   },
 
   // ===== D-GRADE СЕТ REINFORCED (Light Armor Set) =====
@@ -102,7 +104,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "reinforced_gloves", slot: "gloves" },
       { itemId: "reinforced_leather_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 1, DEX: 1, MEN: 1 },
+    },
   },
 
   // ===== D-GRADE СЕТ KNOWLEDGE (Magic Armor Set) =====
