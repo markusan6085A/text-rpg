@@ -15,6 +15,7 @@ import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/se
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { showToast } from "../state/toastStore";
+import { SetBonusDisplay } from "./character/SetBonusDisplay";
 
 // У категорії «Стрелы» тільки стріли грейдів NG, D, C, B, A, S (один тип на грейд)
 const ARROW_GRADE_IDS = ["wooden_arrow", "bone_arrow", "fine_steel_arrow", "silver_arrow", "mithril_arrow", "shining_arrow"];
@@ -722,7 +723,7 @@ export default function Shop({ navigate }: ShopProps) {
             {/* Інформація про сет */}
             {getSetInfo(selectedItem) && (
               <div className="text-yellow-400 text-[12px] mb-2 border-t border-white/50 pt-2">
-                <div className="whitespace-pre-line">{getSetInfo(selectedItem)}</div>
+                <SetBonusDisplay text={getSetInfo(selectedItem)!} />
               </div>
             )}
 

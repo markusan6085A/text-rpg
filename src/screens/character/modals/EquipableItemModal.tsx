@@ -1,5 +1,6 @@
 import React from "react";
 import { calculateEnchantedStats, getSetInfo, getLSDescriptionLines } from "../inventoryUtils";
+import { SetBonusDisplay } from "../SetBonusDisplay";
 import type { HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { normalizeIconPath } from "../../../utils/itemIcon";
@@ -214,7 +215,7 @@ export default function EquipableItemModal({
         {getSetInfo(item) && (
           <div className="border-t border-white/50 pt-2 mt-2 mb-4">
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Сет:</div>
-            <div className="text-yellow-400 text-xs whitespace-pre-line">{getSetInfo(item)}</div>
+            <SetBonusDisplay text={getSetInfo(item)!} className="text-yellow-400 text-xs" />
           </div>
         )}
 

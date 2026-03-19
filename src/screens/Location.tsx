@@ -684,7 +684,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     {bonusesList.length > 0 && (
                       <div className="text-xs text-yellow-400">
                         <div className="font-semibold mb-1">Бонуси повного сету:</div>
-                        <div>{bonusesList.join(", ")}</div>
+                        <div><span className="text-purple-400">{bonusesList.join(", ")}</span></div>
                       </div>
                     )}
                     {set.bonuses.partialSet && set.bonuses.partialSet.length > 0 && (
@@ -698,7 +698,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                           if (partial.bonuses.mAtk) partialBonuses.push(`+${partial.bonuses.mAtk} Маг. атака`);
                           return partialBonuses.length > 0 ? (
                             <div key={idx} className="mb-1">
-                              <span className="font-semibold">Частковий сет ({partial.pieces} частин):</span> {partialBonuses.join(", ")}
+                              <span className="font-semibold">Частковий сет ({partial.pieces} частин):</span> <span className="text-purple-400">{partialBonuses.join(", ")}</span>
                             </div>
                           ) : null;
                         })}

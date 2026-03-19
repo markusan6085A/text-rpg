@@ -10,6 +10,7 @@ import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectA
 import { QUEST_SHOP_ITEM_MAPPING as BASE_QUEST_MAPPING } from "../data/shop/itemMappings";
 import type { Hero } from "../types/Hero";
 import { showToast } from "../state/toastStore";
+import { SetBonusDisplay } from "./character/SetBonusDisplay";
 
 type Navigate = (path: string) => void;
 
@@ -823,7 +824,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             {/* Інформація про сет */}
             {getSetInfo(selectedItem) && (
               <div className="text-yellow-400 text-[12px] mb-2 border-t border-white/50 pt-2">
-                <div className="whitespace-pre-line">{getSetInfo(selectedItem)}</div>
+                <SetBonusDisplay text={getSetInfo(selectedItem)!} />
               </div>
             )}
 
