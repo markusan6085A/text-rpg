@@ -28,10 +28,11 @@ function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number
   return Math.max(0, Math.min(exp, Math.max(0, need - 1)));
 }
 
-/** Чи предмет стакається (заряди, банки, ресурси) — зброя/броня завжди окремо. */
+/** Чи предмет стакається — stackable: false (кристали, ЛС, камні) ніколи не стакаються. */
 function isStackableItem(it: any): boolean {
-  const typeId = String(it?.id ?? it?.itemId ?? "");
   const def = itemsDB[it?.id ?? it?.itemId] || itemsDBWithStarter[it?.id ?? it?.itemId];
+  if (def?.stackable === false) return false;
+  const typeId = String(it?.id ?? it?.itemId ?? "");
   const slot = def?.slot ?? it?.slot ?? "";
   const stackableSlots = ["consumable", "resource", "quest"];
   return stackableSlots.includes(slot) || typeId.includes("shot") || typeId.includes("potion") ||
@@ -303,11 +304,15 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           level: finalLevel,
           sp: finalSp,
         });
-        import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
-          saveHeroToLocalStorage(mergedHero).catch((err: any) => {
-            console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);
+        // 🔥 Не спамимо PUT при протухлій сесії — saveHeroToLocalStorage перевірить sessionExpired, але unique skip тут уникає зайвого import
+        if (!useAuthStore.getState().sessionExpired) {
+          import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
+            if (useAuthStore.getState().sessionExpired) return;
+            saveHeroToLocalStorage(mergedHero).catch((err: any) => {
+              console.warn('[loadHeroFromAPI] Background push of local hero failed:', err?.message || err);
+            });
           });
-        });
+        }
         if (import.meta.env.DEV) {
           const hj = (mergedHero as any)?.heroJson || {};
           console.log("[LOAD SNAPSHOT]", {

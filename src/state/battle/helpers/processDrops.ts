@@ -143,10 +143,9 @@ export function processMobDrops(
         }
 
         if (itemDef) {
-          // Перевіряємо, чи інвентар не повний
           const stackableSlots = ["consumable", "resource", "quest"];
-          const canStack = stackableSlots.includes(itemDef.slot);
-          const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id);
+          const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
+          const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id) : -1;
           const canAddToExisting = canStack && existingItemIndex >= 0;
 
           if (isInventoryFull && !canAddToExisting) {
@@ -164,7 +163,7 @@ export function processMobDrops(
               ...existingItem,
               count: (existingItem.count ?? 1) + itemCount,
             };
-          } else {
+          } else if (canStack) {
             newInventory.push({
               id: itemDef.id,
               name: itemDef.name,
@@ -175,6 +174,19 @@ export function processMobDrops(
               stats: itemDef.stats,
               count: itemCount,
             } as HeroInventoryItem);
+          } else {
+            for (let i = 0; i < itemCount; i++) {
+              newInventory.push({
+                id: itemDef.id,
+                name: itemDef.name,
+                type: itemDef.kind,
+                slot: itemDef.slot,
+                icon: itemDef.icon,
+                description: itemDef.description,
+                stats: itemDef.stats,
+                count: 1,
+              } as HeroInventoryItem);
+            }
           }
 
           const displayName = removeGradeFromResourceName(itemDef.name);

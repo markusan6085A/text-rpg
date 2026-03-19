@@ -283,28 +283,35 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     const item = warehouse[slotIndex];
     if (!item) return;
 
-    // Перевіряємо, чи є місце в інвентарі
+    const itemDef = itemsDB[item.id];
+    const canStack = itemDef?.stackable !== false;
+    const slotsNeeded = canStack ? 1 : (item.count || 1);
     const inventorySize = (hero.inventory || []).length;
     const maxSlots = getInventoryMax(hero);
-    if (inventorySize >= maxSlots) {
-      showToast(`Инвентарь переполнен! Максимум ${maxSlots} слотов.`, "error");
+    if (inventorySize + slotsNeeded > maxSlots) {
+      showToast(`Инвентарь переполнен! Нужно ${slotsNeeded} слотов, свободно ${maxSlots - inventorySize}.`, "error");
       return;
     }
 
-    // Додаємо предмет до інвентаря
+    // Додаємо предмет до інвентаря (stackable: false — кожен окремим слотом)
     const newInventory = [...(hero.inventory || [])];
-    const existingItemIndex = newInventory.findIndex((invItem) => invItem.id === item.id);
+    const existingItemIndex = canStack ? newInventory.findIndex((invItem) => invItem.id === item.id) : -1;
 
     if (existingItemIndex >= 0) {
-      // Якщо предмет вже є в інвентарі, збільшуємо count
       const existingItem = newInventory[existingItemIndex];
       newInventory[existingItemIndex] = {
         ...existingItem,
         count: (existingItem.count || 1) + (item.count || 1),
       };
     } else {
-      // Якщо предмета немає, додаємо новий
-      newInventory.push(item);
+      const cnt = item.count || 1;
+      if (canStack) {
+        newInventory.push(item);
+      } else {
+        for (let i = 0; i < cnt; i++) {
+          newInventory.push({ ...item, count: 1 });
+        }
+      }
     }
 
     // Видаляємо предмет зі складу

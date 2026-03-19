@@ -16,6 +16,7 @@ import type { Hero } from "../../types/Hero";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { hydrateHero } from "./heroHydration";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
+import { itemsDB } from "../../data/items/itemsDB";
 
 export function loadHero(): Hero | null {
   // Міграція: видаляємо старий ключ l2_progress (більше не використовується)
@@ -83,33 +84,38 @@ export function loadHero(): Hero | null {
           return;
         }
         
-        // Список слотів, які можуть стакатися
+        // stackable: false (кристали, ЛС, камні) — ніколи не стакати
+        const itemDef = itemsDB[typeId];
         const stackableSlots = ["consumable", "resource", "quest"];
-        const canStack = stackableSlots.includes(item.slot) || 
-                         String(typeId).includes("shot") || 
-                         String(typeId).includes("potion") ||
-                         item.type === "consumable" ||
-                         item.type === "resource" ||
-                         item.type === "quest";
+        const canStack = itemDef?.stackable !== false && (
+          stackableSlots.includes(item.slot) ||
+          String(typeId).includes("shot") ||
+          String(typeId).includes("potion") ||
+          item.type === "consumable" ||
+          item.type === "resource" ||
+          item.type === "quest"
+        );
 
         if (canStack) {
           if (itemMap.has(typeId)) {
-            // Знайшли дублікат, додаємо кількість
             const existing = itemMap.get(typeId);
             existing.count = (existing.count || 1) + (item.count || 1);
             inventoryConsolidated = true;
           } else {
-            // Перший такий предмет — гарантуємо id для UI. Міграція: видаляємо stats (бонуси відключені)
             const { stats: _s, ...rest } = item;
             const normalized = { ...rest, id: rest.id || rest.itemId, count: rest.count || 1 };
             itemMap.set(typeId, normalized);
             consolidatedInventory.push(normalized);
           }
         } else {
-          // Не стакабельний (зброя, броня) — завжди по 1 предмету. Міграція: видаляємо stats
+          // Не стакабельний — кожен окремим слотом (розділяємо count > 1)
           const { stats: _s, ...rest } = item;
-          const normalized = { ...rest, id: rest.id || rest.itemId, count: 1, enchantLevel: rest.enchantLevel ?? 0 };
-          consolidatedInventory.push(normalized);
+          const cnt = Math.max(1, item.count || 1);
+          const base = { ...rest, id: rest.id || rest.itemId, count: 1, enchantLevel: rest.enchantLevel ?? 0 };
+          for (let i = 0; i < cnt; i++) {
+            consolidatedInventory.push({ ...base });
+          }
+          if (cnt > 1) inventoryConsolidated = true;
         }
       });
 
