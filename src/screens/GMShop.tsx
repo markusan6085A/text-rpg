@@ -28,10 +28,28 @@ export interface DyeItem {
   effect: number; // +4 для всіх Greater Dye
 }
 
-// Розсодники — 1 кристал S + 1 ЛС S, купуються за Adena. Доступні з 20 рівня.
-const GM_RASODNIKI_ITEM_IDS = ["crystal_d", "crystal_ls_d"] as const;
+// Розсодники — кристал, ЛС, камні з фіксованими ефектами. Купуються за Adena, з 20 рівня.
+const GM_RASODNIKI_ITEM_IDS = [
+  "crystal_d", "crystal_ls_d",
+  "stone_crit", "stone_mcrit", "stone_maxhp", "stone_focus", "stone_lifesteal",
+  "stone_guidance", "stone_empower", "stone_acumen", "stone_anger", "stone_atkspd",
+] as const;
 const CRYSTAL_PRICE_ADENA = 10;
 const RASODNIKI_REQUIRED_LEVEL = 20;
+
+// Інфо про камні (іконка + ефект) для блоку «Що дають камні»
+const RASODNIKI_STONES_INFO: { id: string; icon: string; effect: string }[] = [
+  { id: "stone_crit", icon: "/items/drops/item/Ench_wp_potion_violet_i00_0.jpg", effect: "Крит: +5%" },
+  { id: "stone_mcrit", icon: "/items/drops/item/Ench_wp_stone_i02_0.jpg", effect: "Маг. крит: +5%" },
+  { id: "stone_maxhp", icon: "/items/drops/item/Ench_am_stone_i03_0.jpg", effect: "Макс. HP: +10%" },
+  { id: "stone_focus", icon: "/items/drops/item/Ench_am_stone_i02_0.jpg", effect: "Перезарядка скілів: -5%" },
+  { id: "stone_lifesteal", icon: "/items/drops/item/Ench_wp_stone_i03_0.jpg", effect: "Відновлення HP від урону: 5%" },
+  { id: "stone_guidance", icon: "/items/drops/item/Ench_wp_stone_i04_0.jpg", effect: "Витрата MP скілів: -5%" },
+  { id: "stone_empower", icon: "/items/drops/item/Ench_wp_stone_i01_0.jpg", effect: "Урон скілів: +10%" },
+  { id: "stone_acumen", icon: "/items/drops/item/Ench_wp_stone_i00_0.jpg", effect: "Швидкість касту: +5%" },
+  { id: "stone_anger", icon: "/items/drops/item/Ench_am_potion_violet_i00_0.jpg", effect: "Сила крита: +5%" },
+  { id: "stone_atkspd", icon: "/items/drops/item/Ench_am_stone_i04_0%20(1).jpg", effect: "Швидкість атаки: +5%" },
+];
 
 // Greater Dye — 10 комбінацій, +4/-4, ціна 1 AA, 1 краска для нанесення
 export const GM_SHOP_ITEMS: DyeItem[] = [
@@ -456,9 +474,22 @@ export default function GMShop({ navigate }: GMShopProps) {
           </div>
           )}
 
-          {/* Розсодники — 1 кристал S + 1 ЛС S. Доступні з 20 рівня. */}
+          {/* Розсодники — кристал, ЛС, камні. Доступні з 20 рівня. */}
           {selectedShopSubcategory === "rasodniki" && (
-          <div className="space-y-1">
+          <div className="space-y-2">
+            <details className="text-[11px]">
+              <summary className="text-[#cfcfcc] cursor-pointer hover:text-[#e0c68a]">
+                Що дають камні
+              </summary>
+              <div className="mt-1.5 space-y-1 pl-1">
+                {RASODNIKI_STONES_INFO.map((s) => (
+                  <div key={s.id} className="flex items-center gap-2 text-[10px] text-[#cfcfcc]">
+                    <img src={s.icon} alt="" className="w-5 h-5 object-contain flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png"; }} />
+                    <span>{s.effect}</span>
+                  </div>
+                ))}
+              </div>
+            </details>
             {(hero?.level ?? 1) < RASODNIKI_REQUIRED_LEVEL ? (
               <div className="text-[12px] text-gray-400 py-4 text-center">
                 Доступно з {RASODNIKI_REQUIRED_LEVEL} рівня

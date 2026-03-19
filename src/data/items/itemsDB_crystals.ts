@@ -1,7 +1,9 @@
 // src/data/items/itemsDB_crystals.ts
-// Кристал D + ЛС D — купуються в GM-шопі (Розсодники), доступні з 20 рівня
+// Кристал D + ЛС D + камні з фіксованими ефектами — GM-шоп (Розсодники), з 20 рівня
 
 import type { ItemDefinition } from "./itemsDB.types";
+
+const ITEM_ICON = "/items/drops/item/";
 
 export const itemsDBCrystals: Record<string, ItemDefinition> = {
   crystal_d: {
@@ -23,5 +25,106 @@ export const itemsDBCrystals: Record<string, ItemDefinition> = {
     description: "Підходить до всіх кристалів. При вставці в зброю дає випадковий бонус (крит, маг. крит, HP, фокус тощо).",
     grade: "D",
     stats: {},
+  },
+  // Камні з фіксованими ефектами (вставляються в зброю)
+  stone_crit: {
+    id: "stone_crit",
+    name: "Камінь крита",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_wp_potion_violet_i00_0.jpg",
+    description: "Крит: +5%",
+    grade: "D",
+    stats: { luckyStrike: 5 },
+  },
+  stone_mcrit: {
+    id: "stone_mcrit",
+    name: "Камінь маг. крита",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_wp_stone_i02_0.jpg",
+    description: "Маг. крит: +5%",
+    grade: "D",
+    stats: { mCrit: 5 },
+  },
+  stone_maxhp: {
+    id: "stone_maxhp",
+    name: "Камінь макс. HP",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_am_stone_i03_0.jpg",
+    description: "Макс. HP: +10%",
+    grade: "D",
+    stats: { maxHpPercent: 10 },
+  },
+  stone_focus: {
+    id: "stone_focus",
+    name: "Камінь фокусу",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_am_stone_i02_0.jpg",
+    description: "Перезарядка скілів: -5%",
+    grade: "D",
+    stats: { focus: 5 },
+  },
+  stone_lifesteal: {
+    id: "stone_lifesteal",
+    name: "Камінь вампіризму",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_wp_stone_i03_0.jpg",
+    description: "Відновлення HP від урону: 5%",
+    grade: "D",
+    stats: { lifeSteal: 5 },
+  },
+  stone_guidance: {
+    id: "stone_guidance",
+    name: "Камінь економії MP",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_wp_stone_i04_0.jpg",
+    description: "Витрата MP скілів: -5%",
+    grade: "D",
+    stats: { guidance: 5 },
+  },
+  stone_empower: {
+    id: "stone_empower",
+    name: "Камінь сили скілів",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_wp_stone_i01_0.jpg",
+    description: "Урон скілів: +10%",
+    grade: "D",
+    stats: { empower: 10 },
+  },
+  stone_acumen: {
+    id: "stone_acumen",
+    name: "Камінь швидкості касту",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_wp_stone_i00_0.jpg",
+    description: "Швидкість касту: +5%",
+    grade: "D",
+    stats: { acumen: 5 },
+  },
+  stone_anger: {
+    id: "stone_anger",
+    name: "Камінь сили крита",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_am_potion_violet_i00_0.jpg",
+    description: "Сила крита: +5%",
+    grade: "D",
+    stats: { anger: 5 },
+  },
+  stone_atkspd: {
+    id: "stone_atkspd",
+    name: "Камінь швидкості атаки",
+    kind: "resource",
+    slot: "resource",
+    icon: ITEM_ICON + "Ench_am_stone_i04_0%20(1).jpg",
+    description: "Швидкість атаки: +5%",
+    grade: "D",
+    stats: { attackSpeed: 5 },
   },
 };
