@@ -1,9 +1,20 @@
 // src/data/items/itemsDB_quest_shop.ts
-// Предмети квест-шопу (Тату, Пояс, Плащ) — мають бути в itemsDB для покупки та розрахунку статів/бафів
+// Предмети квест-шопу (Тату, Пояс, Плащ) та краски (Greater Dye) — мають бути в itemsDB
 
 import type { ItemDefinition } from './itemsDB.types';
 
 export const itemsDBQuestShop: Record<string, ItemDefinition> = {
+  // Greater Dye (+4/-4) — купуються в GM-шопі за 1 AA, 1 краска для нанесення
+  dye_str_con: { id: "dye_str_con", name: "Greater Dye (STR +4 CON -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/str.png", description: "Більше атаки, але менше HP/CP", grade: "S" },
+  dye_str_dex: { id: "dye_str_dex", name: "Greater Dye (STR +4 DEX -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/str.png", description: "Більше атаки, але повільніші удари та біг", grade: "S" },
+  dye_dex_str: { id: "dye_dex_str", name: "Greater Dye (DEX +4 STR -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/dye-dex.png", description: "Швидші удари/крити, але менша сила атаки", grade: "S" },
+  dye_dex_con: { id: "dye_dex_con", name: "Greater Dye (DEX +4 CON -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/dye-dex.png", description: "Швидші удари/крити, але менше HP/CP", grade: "S" },
+  dye_con_str: { id: "dye_con_str", name: "Greater Dye (CON +4 STR -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/dye-con.png", description: "Більше витривалості/HP, але менше атаки", grade: "S" },
+  dye_con_dex: { id: "dye_con_dex", name: "Greater Dye (CON +4 DEX -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/dye-con.png", description: "Більше витривалості/HP, але менша швидкість", grade: "S" },
+  dye_int_men: { id: "dye_int_men", name: "Greater Dye (INT +4 MEN -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/int.png", description: "Максимальна маг. атака, менше MP/M.Def", grade: "S" },
+  dye_int_wit: { id: "dye_int_wit", name: "Greater Dye (INT +4 WIT -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/int.png", description: "Сильніша магія, але дуже повільний каст", grade: "S" },
+  dye_wit_men: { id: "dye_wit_men", name: "Greater Dye (WIT +4 MEN -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/wit.png", description: "Швидкий каст, менше MP/M.Def", grade: "S" },
+  dye_wit_int: { id: "dye_wit_int", name: "Greater Dye (WIT +4 INT -4)", kind: "consumable", slot: "consumable", icon: "/items/drops/resources/wit.png", description: "Швидкий каст, але слабша магія", grade: "S" },
   tattoo_magic: {
     id: "tattoo_magic",
     name: "Тату Магії",

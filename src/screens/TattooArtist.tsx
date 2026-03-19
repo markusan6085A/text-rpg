@@ -25,10 +25,10 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     return <div className="text-white text-center mt-10">Загрузка...</div>;
   }
 
-  // Отримуємо краски з інвентаря (потрібно 10 штук для нанесення)
+  // Отримуємо краски з інвентаря (потрібно 1 краска для нанесення)
   const dyesInInventory = (hero.inventory || []).filter(item => {
     const isDye = GM_SHOP_ITEMS.some(dye => dye.itemId === item.id);
-    const hasEnough = (item.count || 1) >= 10;
+    const hasEnough = (item.count || 1) >= 1;
     return isDye && hasEnough;
   });
 
@@ -42,7 +42,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
       ...invItem,
       dyeInfo,
     };
-  }).filter(item => item.dyeInfo && (item.count || 0) >= 10);
+  }).filter(item => item.dyeInfo && (item.count || 0) >= 1);
 
   // Обробка нанесення тату
   const handleApplyDye = (dyeItem: typeof dyesWithInfo[0]) => {
@@ -86,13 +86,13 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
       return;
     }
 
-    // Видаляємо 10 красок з інвентаря
+    // Видаляємо 1 краску з інвентаря
     const newInventory = [...(hero.inventory || [])];
     const itemIndex = newInventory.findIndex(item => item.id === dyeItem.id);
     if (itemIndex >= 0) {
       const existingItem = newInventory[itemIndex];
       const currentCount = existingItem.count || 1;
-      const newCount = currentCount - 10;
+      const newCount = currentCount - 1;
       
       if (newCount > 0) {
         newInventory[itemIndex] = { ...existingItem, count: newCount };
@@ -127,8 +127,8 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     const dyeToRemove = activeDyes[index];
     if (!dyeToRemove) return;
 
-    // Вартість зняття = 30% від ціни
-    const removeCost = Math.round(dyeToRemove.price * 0.3);
+    // Вартість зняття = 30% від ціни, мінімум 1 AA
+    const removeCost = Math.max(1, Math.round(dyeToRemove.price * 0.3));
 
     // Перевірка AA
     const ancientAdenaItem = hero.inventory?.find(item => item.id === "ancient_adena");
@@ -182,6 +182,19 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
             але памʼятайте — за кожну силу є своя ціна.
           </p>
         </div>
+        <details className="mt-2">
+          <summary className="text-[11px] text-[#cfcfcc] cursor-pointer hover:text-[#ff8c00]">
+            Що дають стати (+1)
+          </summary>
+          <div className="text-[10px] text-[#cfcfcc] mt-1.5 space-y-0.5 pl-1">
+            <div>STR: ~+3% P.Atk</div>
+            <div>DEX: ~+1% швидкість атаки, +0.8 шанс криту</div>
+            <div>CON: ~+3% Max HP/CP</div>
+            <div>INT: ~+4% M.Atk</div>
+            <div>WIT: ~+5% Casting Spd., +шанс маг. криту</div>
+            <div>MEN: ~+1% M.Def та Max MP</div>
+          </div>
+        </details>
       </div>
 
       {/* Поточна кількість тату */}
@@ -232,7 +245,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
 
             {dyesWithInfo.length === 0 ? (
               <div className="text-gray-400 text-center py-4">
-                У вас немає достатньо красок в інвентарі (потрібно мінімум 10 штук одного типу)
+                У вас немає красок в інвентарі (потрібно 1 краска для нанесення)
               </div>
             ) : (
               <div className="space-y-2">
@@ -258,7 +271,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                         {item.dyeInfo?.description}
                       </div>
                       <div className="text-orange-400 text-[10px] mt-0.5">
-                        Потрібно 10 штук для нанесення
+                        Потрібно 1 краска для нанесення
                       </div>
                     </div>
                     {item.count && (
@@ -305,7 +318,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
               <div className="space-y-2">
                 {activeDyes.map((dye, index) => {
                   const dyeInfo = GM_SHOP_ITEMS.find(d => d.itemId === dye.id);
-                  const removeCost = Math.round(dye.price * 0.3);
+                  const removeCost = Math.max(1, Math.round(dye.price * 0.3));
                   
                   return (
                     <div
