@@ -143,14 +143,22 @@ const start = async () => {
       await app.register(fastifyStatic, {
         root: distPath,
         prefix: '/', // Обслуговуємо з кореня
-        // Додаємо правильні MIME types для JavaScript модулів
         setHeaders: (res, pathName) => {
+          // MIME types
           if (pathName.endsWith('.js')) {
             res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
           } else if (pathName.endsWith('.mjs')) {
             res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
           } else if (pathName.endsWith('.css')) {
             res.setHeader('Content-Type', 'text/css; charset=utf-8');
+          }
+          // Кешування статики: картинки, js, css — 1 рік
+          const isStaticAsset = /\.(js|mjs|css|jpg|jpeg|png|gif|webp|svg|ico|woff|woff2)$/i.test(pathName);
+          if (isStaticAsset) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            const expires = new Date();
+            expires.setFullYear(expires.getFullYear() + 1);
+            res.setHeader('Expires', expires.toUTCString());
           }
         },
       });

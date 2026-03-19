@@ -1,6 +1,6 @@
 /**
  * Логіка розділки риби на сервері.
- * Зброя, броня, бижутерія, сундуки, заточки.
+ * Зброя, броня, бижутерія, сундуки (treasure_box), заточки. Без ресурсів (ore, coal тощо).
  */
 const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.1, A: 0.1, S: 0.1 };
 
@@ -13,7 +13,7 @@ const ENCHANT_SCROLLS: string[] = [
 ];
 
 const ITEM_DEFS: Record<string, { name: string; slot: string; icon?: string; kind?: string }> = {
-  treasure_box: { name: "Treasure Box", slot: "resource", icon: "/items/drops/resources/Etc_treasure_box_i00_0.jpg", kind: "resource" },
+  treasure_box: { name: "Treasure Box", slot: "consumable", icon: "/items/drops/resources/Etc_treasure_box_i00_0.jpg", kind: "consumable" },
   d_enchant_weapon_scroll: { name: "Scroll: Enchant Weapon (D)", slot: "consumable", icon: "/items/drops/resources/etc_blessed_scrl_of_ench_wp_d_i01.png", kind: "consumable" },
   d_enchant_armor_scroll: { name: "Scroll: Enchant Armor (D)", slot: "consumable", icon: "/items/drops/resources/etc_blessed_scrl_of_ench_am_d_i01.png", kind: "consumable" },
   c_enchant_weapon_scroll: { name: "Scroll: Enchant Weapon (C)", slot: "consumable", icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i02.png", kind: "consumable" },
