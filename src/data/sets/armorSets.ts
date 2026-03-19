@@ -180,7 +180,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "demons_gloves", slot: "gloves" },
       { itemId: "demons_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { INT: 1, MEN: 1, CON: 1 },
+    },
   },
 
   // ===== C-GRADE СЕТ KARMIAN (Magic Armor Set - Robe) =====
@@ -195,7 +197,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "karmian_gloves", slot: "gloves" },
       { itemId: "karmian_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { WIT: 3, CON: 1, MEN: 1 },
+    },
   },
 
   // ===== C-GRADE СЕТ PLATED LEATHER (Light Armor Set) =====
@@ -210,7 +214,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "plated_leather_gloves", slot: "gloves" },
       { itemId: "plated_leather_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 3, DEX: 2, CON: 1 },
+    },
   },
 
   // ===== C-GRADE СЕТ DIVINE (Magic Armor Set - Robe) =====
