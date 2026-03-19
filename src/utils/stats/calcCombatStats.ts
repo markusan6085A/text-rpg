@@ -127,14 +127,10 @@ export function calcCombatStats(
         // Маппінг pAtkSpd -> attackSpeed для зброї та тату
         if (itemStats.attackSpeed) attackSpeed += itemStats.attackSpeed;
         if (itemStats.pAtkSpd) {
-          // Для зброї pAtkSpd додається тільки якщо це зброя, для тату - завжди
+          // Скорость боя (pAtkSpd) — тільки для attackSpeed, не для castSpeed
           const isTattoo = itemDef.kind === "tattoo";
           if (isWeapon || isTattoo) {
             attackSpeed += itemStats.pAtkSpd;
-            // 🔥 Скорость боя (pAtkSpd) для зброї дає і швидкість атаки, і швидкість касту (пухи/стафи теж)
-            if (isWeapon) {
-              castSpeed += itemStats.pAtkSpd;
-            }
           }
         }
         if (itemStats.castSpeed) castSpeed += itemStats.castSpeed;
