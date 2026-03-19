@@ -14,12 +14,22 @@ const CATEGORY_LABELS: Record<string, string> = {
   gloves: "Броня",
   boots: "Броня",
   shield: "Броня",
+  jewelry: "Биж",
   jewel: "Биж",
+  ring: "Биж",
+  earring: "Биж",
+  necklace: "Биж",
   quest: "Материалы",
   material: "Материалы",
+  resource: "Материалы",
   consumable: "Расходники",
   other: "Інше",
 };
+
+const ADMIN_NO_GIVE_IDS = new Set([
+  "adena", "coin_of_luck", "coins_silver", "ancient_adena",
+  "overflow_chest", "current_character_id",
+]);
 
 function getCategory(kind: string): string {
   return CATEGORY_LABELS[kind] || CATEGORY_LABELS.other || "Інше";
@@ -57,6 +67,8 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
   const itemsByCategory = useMemo(() => {
     const map: Record<string, Array<{ id: string; name: string; grade?: string; icon?: string }>> = {};
     for (const [id, def] of Object.entries(itemsDB)) {
+      if (ADMIN_NO_GIVE_IDS.has(id)) continue;
+      if (!def?.name && !def?.id) continue;
       const cat = getCategory(def.kind || def.slot || "other");
       if (!map[cat]) map[cat] = [];
       map[cat].push({ id, name: def.name, grade: def.grade, icon: def.icon });
@@ -200,9 +212,9 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
                 <div className="font-medium mb-0.5 text-[#c7ad80]" style={style}>{cat}</div>
                 <div className="flex flex-wrap gap-0.5">
                   {list.map((item) => (
-                    <button key={item.id} type="button" onClick={() => setItemId(item.id)} className="flex items-center gap-0.5 py-0.5 px-1 rounded bg-[#c7ad80]/10 text-gray-300 hover:bg-[#c7ad80]/20 text-xs" title={item.name}>
+                    <button key={item.id} type="button" onClick={() => setItemId(item.id)} className="flex items-center gap-0.5 py-0.5 px-1 rounded bg-[#c7ad80]/10 text-gray-300 hover:bg-[#c7ad80]/20 text-xs" title={`${item.name}${item.grade ? ` (${item.grade})` : ""}`}>
                       <img src={getItemIcon(item.icon)} alt="" className="w-4 h-4 object-contain" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }} />
-                      <span className="truncate max-w-[80px]">{item.id}</span>
+                      <span className="truncate max-w-[100px]">{item.name || item.id}</span>
                     </button>
                   ))}
                 </div>

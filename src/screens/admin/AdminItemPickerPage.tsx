@@ -20,17 +20,29 @@ const CATEGORY_LABELS: Record<string, string> = {
   gloves: "Броня",
   boots: "Броня",
   shield: "Броня",
+  jewelry: "Биж",
   jewel: "Биж",
+  ring: "Биж",
+  earring: "Биж",
+  necklace: "Биж",
   quest: "Материалы",
   material: "Материалы",
+  resource: "Материалы",
   consumable: "Расходники",
   other: "Інше",
 };
 
+/** Предмети, які не можна видавати через адмінку (валюти, системні) */
+const ADMIN_NO_GIVE_IDS = new Set([
+  "adena", "coin_of_luck", "coins_silver", "ancient_adena",
+  "overflow_chest", "current_character_id",
+]);
+
 const GRADE_ORDER = ["NG", "D", "C", "B", "A", "S"];
 
 function getCategory(def: ItemDefinition): string {
-  return CATEGORY_LABELS[def.kind || def.slot || ""] || CATEGORY_LABELS.other || "Інне";
+  const k = def.kind || def.slot || "";
+  return CATEGORY_LABELS[k] || CATEGORY_LABELS.other || "Інше";
 }
 
 function getItemIcon(def: ItemDefinition): string {
@@ -51,7 +63,9 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
     const map: Record<string, Array<{ id: string; def: ItemDefinition }>> = {};
     const searchLower = search.trim().toLowerCase();
     for (const [id, def] of Object.entries(itemsDB)) {
-      if (searchLower && !id.toLowerCase().includes(searchLower) && !def.name.toLowerCase().includes(searchLower)) continue;
+      if (ADMIN_NO_GIVE_IDS.has(id)) continue;
+      if (!def?.name && !def?.id) continue;
+      if (searchLower && !id.toLowerCase().includes(searchLower) && !(def.name || "").toLowerCase().includes(searchLower)) continue;
       if (filterGrade && (def.grade || "") !== filterGrade) continue;
       const cat = getCategory(def);
       if (filterCategory && cat !== filterCategory) continue;

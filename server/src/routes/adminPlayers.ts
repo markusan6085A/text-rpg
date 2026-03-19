@@ -153,6 +153,11 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
+  const ADMIN_NO_GIVE_IDS = new Set([
+    "adena", "coin_of_luck", "coins_silver", "ancient_adena",
+    "overflow_chest", "current_character_id",
+  ]);
+
   // POST /admin/player/:characterId/give-item — { itemId, qty }
   app.post<{ Params: { characterId: string }; Body: { itemId?: string; qty?: number } }>(
     "/:characterId/give-item",
@@ -170,6 +175,14 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
           metadata: { itemId, qty, slot },
         });
         return reply.code(400).send({ error: "characterId and itemId required" });
+      }
+      if (ADMIN_NO_GIVE_IDS.has(itemId.toLowerCase())) {
+        await logAdminFailed(req, "admin.give_item", {
+          message: "item not allowed for admin give",
+          targetCharacterId: characterId,
+          metadata: { itemId, qty, slot },
+        });
+        return reply.code(400).send({ error: "This item cannot be given via admin" });
       }
 
       const char = await prisma.character.findUnique({
