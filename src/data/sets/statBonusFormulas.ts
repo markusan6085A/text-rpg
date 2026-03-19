@@ -66,12 +66,13 @@ export function convertSetStatsToBonuses(setStats: Partial<Record<SetStatName, n
 
 /**
  * Human-readable formula table for UI (Stats screen, set bonus info).
+ * statColor: Tailwind class for stat label. effectsColor: for effects text.
  */
-export const SET_STAT_FORMULAS_UI: Array<{ stat: string; effects: string }> = [
-  { stat: "+1 STR", effects: "+25 phys damage, +20 crit power" },
-  { stat: "+1 DEX", effects: "+30 attack speed, +10 accuracy, +10 evasion, +20 crit chance" },
-  { stat: "+1 CON", effects: "+250 max HP & CP, +2 HP regen, +20 mDef, +20 pDef" },
-  { stat: "+1 INT", effects: "+10% magic skill damage, +15 crit power, +25 mAtk" },
-  { stat: "+1 WIT", effects: "+15 magic crit chance, +30 cast speed" },
-  { stat: "+1 MEN", effects: "+40 max MP, +2 MP regen" },
+export const SET_STAT_FORMULAS_UI: Array<{ stat: string; effects: string; statColor: string; effectsColor: string }> = [
+  { stat: "+1 STR", effects: "+25 phys damage, +20 crit power", statColor: "text-red-400", effectsColor: "text-red-300/90" },
+  { stat: "+1 DEX", effects: "+30 attack speed, +10 accuracy, +10 evasion, +20 crit chance", statColor: "text-yellow-400", effectsColor: "text-amber-300/90" },
+  { stat: "+1 CON", effects: "+250 max HP & CP, +2 HP regen, +20 mDef, +20 pDef", statColor: "text-green-400", effectsColor: "text-emerald-300/90" },
+  { stat: "+1 INT", effects: "+10% magic skill damage, +15 crit power, +25 mAtk", statColor: "text-green-400", effectsColor: "text-emerald-300/90" },
+  { stat: "+1 WIT", effects: "+15 magic crit chance, +30 cast speed", statColor: "text-violet-400", effectsColor: "text-violet-300/90" },
+  { stat: "+1 MEN", effects: "+40 max MP, +2 MP regen", statColor: "text-blue-400", effectsColor: "text-sky-300/90" },
 ];

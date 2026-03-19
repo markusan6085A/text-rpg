@@ -290,10 +290,10 @@ export default function Stats() {
             {showSetFormulas && (
               <div className="mt-2 p-3 bg-[#1a1a1a] rounded border border-white/20 text-xs space-y-2">
                 <div className="text-gray-400 mb-2">За кожну одиницю стату з повного сету:</div>
-                {SET_STAT_FORMULAS_UI.map(({ stat, effects }) => (
-                  <div key={stat} className="flex gap-2">
-                    <span className="text-[#c7ad80] font-medium shrink-0">{stat}</span>
-                    <span className="text-gray-300">{effects}</span>
+                {SET_STAT_FORMULAS_UI.map(({ stat, effects, statColor, effectsColor }) => (
+                  <div key={stat} className="flex gap-3 items-baseline">
+                    <span className={`font-semibold shrink-0 w-14 ${statColor}`}>{stat}</span>
+                    <span className={`${effectsColor} leading-tight`}>{effects}</span>
                   </div>
                 ))}
               </div>
