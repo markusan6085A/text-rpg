@@ -4,6 +4,8 @@ import { useCharacterStore } from "./characterStore";
 interface AuthState {
   accessToken: string | null;
   isAuthenticated: boolean;
+  /** Після 401/403 і logout — true; після успішного refresh (setAccessToken) — false. Не славити PUT/GET, поки true. */
+  sessionExpired: boolean;
 
   setAccessToken: (token: string | null) => void;
   logout: () => void;
@@ -13,11 +15,13 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   isAuthenticated: false,
+  sessionExpired: false,
 
   setAccessToken: (token: string | null) => {
     set({
       accessToken: token,
       isAuthenticated: !!token,
+      sessionExpired: false, // Сесію відновлено — можна славити
     });
   },
 
@@ -27,10 +31,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       console.error("Logout request failed:", err);
     });
     useCharacterStore.getState().setCharacterId(null);
-    set({ accessToken: null, isAuthenticated: false });
+    set({ accessToken: null, isAuthenticated: false, sessionExpired: true });
   },
 
   initialize: () => {
-    set({ accessToken: null, isAuthenticated: false });
+    set({ accessToken: null, isAuthenticated: false, sessionExpired: false });
   },
 }));
