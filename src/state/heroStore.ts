@@ -551,9 +551,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       return;
     }
 
-    // Визначаємо, чи предмет може стакатися (тільки consumable, resource, quest items)
+    // Визначаємо, чи предмет може стакатися (тільки consumable, resource, quest; stackable: false = ніколи)
     const stackableSlots = ["consumable", "resource", "quest"];
-    const canStack = stackableSlots.includes(itemDef.slot);
+    const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
 
     const newInventory = [...(hero.inventory || [])];
     const existingItemIndex = newInventory.findIndex((item) => item.id === itemId);
@@ -566,11 +566,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       };
     } else {
       // Якщо предмет не може стакатися або його немає в інвентарі, додаємо новий
-      // Автоматично визначаємо grade та armorType, якщо вони не вказані в itemsDB
       const grade = itemDef.grade || autoDetectGrade(itemId);
       const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemId) : undefined);
-      
-      newInventory.push({
+      const baseItem = {
         id: itemDef.id,
         name: itemDef.name,
         slot: itemDef.slot,
@@ -578,10 +576,15 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         icon: itemDef.icon,
         description: itemDef.description,
         stats: itemDef.stats,
-        count: count,
-        grade: grade, // Додаємо грейд (з itemsDB або auto-detect)
-        armorType: armorType, // Додаємо тип броні (з itemsDB або auto-detect)
-      });
+        grade,
+        armorType,
+      };
+      // stackable: false — кожен предмет окремим слотом (кристали, ЛС, камні)
+      const itemsToAdd = canStack ? 1 : count;
+      const countPerSlot = canStack ? count : 1;
+      for (let i = 0; i < itemsToAdd; i++) {
+        newInventory.push({ ...baseItem, count: countPerSlot });
+      }
     }
 
     get().updateHero({ inventory: newInventory });

@@ -14,5 +14,7 @@ export interface ItemDefinition {
   restoreCp?: number;
   armorType?: "light" | "heavy" | "robe" | "magic" | "none" | "pet";
   grade?: "NG" | "D" | "C" | "B" | "A" | "S";
+  /** false = не стакатися (кристали, ЛС, камні з пасивкою) */
+  stackable?: boolean;
 }
 
