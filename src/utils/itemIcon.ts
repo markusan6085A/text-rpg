@@ -6,6 +6,7 @@
 /** Аліаси id -> filename для ресурсів без запису в itemsDB. Synthetic_Cokes видалено — fallback на Etc_bead */
 const RESOURCE_ID_TO_FILENAME: Record<string, string> = {
   synkopurs: "Etc_bead_green_i00_0",
+  syncopure: "Etc_bead_green_i00_0",
   synth_cokes: "Etc_bead_green_i00_0",
   synthetic_cokes: "Etc_bead_green_i00_0",
 };

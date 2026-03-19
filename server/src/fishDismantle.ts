@@ -26,27 +26,27 @@ const ITEM_DEFS: Record<string, { name: string; slot: string; icon?: string; kin
   s_enchant_armor_scroll: { name: "Scroll: Enchant Armor (S)", slot: "consumable", icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i05.png", kind: "consumable" },
 };
 
-// ID зброї/броні/бижутерії по грейдах
+// ID зброї/броні/бижутерії по грейдах — тільки ті, що є в itemsDB (клієнт)
 const WEAPONS_BY_GRADE: Record<string, string[]> = {
-  D: ["sword_of_eclipse", "sword_of_limit", "sword_of_nightmare", "squires_sword", "sword_of_dreams", "blade", "hatchet", "sword_of_occult"],
-  C: ["cursed_maingauche", "samurai_longsword", "elven_sword", "sword_of_valhalla", "sword_of_delusion"],
-  B: ["saber", "sword_of_rituals", "heavens_divider", "arkansas", "imperial_staff"],
-  A: ["tallum_blade", "dark_screamer", "sirras_blade", "sword_of_ipsilon", "screaming_vortex"],
-  S: ["dynasty_sword", "doom_crusher", "great_mars"],
+  D: ["shop_weapon_d_knights_sword", "shop_weapon_d_shilen_knife", "shop_weapon_d_tomahawk", "shop_weapon_d_war_hammer", "shop_weapon_d_atuba_hammer", "shop_weapon_d_baguette_dual_sword", "shop_weapon_d_dark_elven_bow", "shop_weapon_d_triple_edged_jamadhr", "shop_weapon_d_two_handed_sword"],
+  C: ["shop_weapon_c_samurai_longsword", "shop_weapon_c_dark_screamer", "shop_weapon_c_battle_axe", "shop_weapon_c_ecliptic_sword", "shop_weapon_c_widow_maker", "shop_weapon_c_demon_staff", "shop_weapon_c_berserker_blade"],
+  B: ["shop_weapon_b_sword_of_valhalla", "shop_weapon_b_great_sword", "shop_weapon_b_great_axe", "shop_weapon_b_ice_storm_hammer", "shop_weapon_b_spirit_s_staff", "shop_weapon_b_star_buster", "shop_weapon_b_sword_of_damascus"],
+  A: ["shop_weapon_a_tallum_blade", "shop_weapon_a_sirra_s_blade", "shop_weapon_a_sword_of_ipos", "shop_weapon_a_dragon_slayer", "shop_weapon_a_soul_bow", "shop_weapon_a_blood_tornado", "shop_weapon_a_dragon_grinder"],
+  S: ["shop_weapon_s_angel_slayer", "shop_weapon_s_imperial_staff", "shop_weapon_s_god_s_blade", "shop_weapon_s_heaven_s_divider", "shop_weapon_s_demon_splinter", "shop_weapon_s_draconic_bow", "shop_weapon_s_saint_spear"],
 };
 const ARMOR_BY_GRADE: Record<string, string[]> = {
-  D: ["mithril_helmet", "mithril_breastplate", "leather_helmet", "cloth_cap", "reinforced_leather_shirt", "tunic_of_knowledge"],
-  C: ["plate_helmet", "chain_hood", "plate_leather_armor", "chain_mail_shirt", "dark_crystal_breastplate"],
-  B: ["avadon_circlet", "avadon_helmet", "avadon_breastplate", "dark_crystal_leather_armor", "doom_plate_armor"],
-  A: ["tallum_helmet", "dark_crystal_helmet", "tallum_plate_armor", "tallum_leather_armor", "armor_of_nightmare"],
-  S: ["dynasty_plate_armor", "dynasty_leather_armor", "dynasty_robe"],
+  D: ["mithril_helmet", "mithril_breastplate", "mithril_gaiters", "leather_helmet", "cloth_cap", "reinforced_leather_shirt", "tunic_of_knowledge"],
+  C: ["demons_helmet", "demons_tunic", "karmian_helmet", "karmian_tunic", "plated_leather_helmet", "plated_leather", "demons_stockings"],
+  B: ["avadon_circlet", "avadon_robe", "avadon_gloves", "avadon_boots", "doom_helmet", "doom_tunic", "doom_gloves"],
+  A: ["dark_crystal_helmet", "dark_crystal_breastplate", "dark_crystal_gaiters", "dark_crystal_gloves", "dark_crystal_boots"],
+  S: ["major_arcana_circlet", "major_arcana_robe", "draconic_leather_helmet", "draconic_leather_armor", "imperial_crusader_helmet", "imperial_crusader_breastplate"],
 };
 const JEWELRY_BY_GRADE: Record<string, string[]> = {
   D: ["shop_jewelry_d_enchanted_ring", "shop_jewelry_d_black_pearl_ring", "shop_jewelry_d_elven_ring", "shop_jewelry_d_red_crescent_earing", "shop_jewelry_d_necklace_of_devotion"],
-  C: ["shop_jewelry_c_ring_of_mana", "shop_jewelry_c_ring_of_eva", "shop_jewelry_c_necklace_of_mermaid", "shop_jewelry_c_earing_of_ant", "shop_jewelry_c_ring_of_raid"],
-  B: ["shop_jewelry_b_ring_of_sage", "shop_jewelry_b_necklace_of_protection", "shop_jewelry_b_earing_of_blessed", "shop_jewelry_b_ring_of_angles", "shop_jewelry_b_necklace_of_mana"],
-  A: ["shop_jewelry_a_ring_of_queen", "shop_jewelry_a_necklace_of_valakas", "shop_jewelry_a_earing_of_antharas", "shop_jewelry_a_ring_of_core", "shop_jewelry_a_necklace_of_core"],
-  S: ["shop_jewelry_s_ring_of_eva", "shop_jewelry_s_necklace_of_eva", "shop_jewelry_s_earing_of_eva", "shop_jewelry_s_ring_of_blessed", "shop_jewelry_s_necklace_of_blessed"],
+  C: ["shop_jewelry_c_aquastone_ring", "shop_jewelry_c_ring_of_protection", "shop_jewelry_c_necklace_of_mermaid", "shop_jewelry_c_blessed_ring", "shop_jewelry_c_moonstone_earing", "shop_jewelry_c_earing_of_protection"],
+  B: ["shop_jewelry_b_adamantite_ring", "shop_jewelry_b_sages_ring", "shop_jewelry_b_paradia_ring", "shop_jewelry_b_ring_of_solar_eclipse", "shop_jewelry_b_sages_earring", "shop_jewelry_b_paradia_earring"],
+  A: ["shop_jewelry_a_majestic_ring", "shop_jewelry_a_ring_of_phantom", "shop_jewelry_a_phoenix_ring", "shop_jewelry_a_cerberus_ring", "shop_jewelry_a_majestic_earring", "shop_jewelry_a_phoenix_earring"],
+  S: ["shop_jewelry_s_tateossian_ring", "shop_jewelry_s_tateossian_earring", "shop_jewelry_s_tateossian_necklace"],
 };
 
 function pick<T>(arr: T[]): T {
