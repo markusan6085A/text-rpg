@@ -28,12 +28,8 @@ export interface DyeItem {
   effect: number; // +4 для всіх Greater Dye
 }
 
-// Предмети кристалів/LS — купуються за Adena
-const GM_CRYSTAL_ITEM_IDS = ["crystal_c", "crystal_b", "crystal_a", "crystal_s"] as const;
-// LS — 1 на грейд, при вставці в зброю дає випадковий бонус
-const GM_LS_ITEM_IDS = [
-  "crystal_ls_c", "crystal_ls_b", "crystal_ls_a", "crystal_ls_s",
-] as const;
+// Розсодники — 1 кристал S + 1 ЛС S, купуються за Adena. 1 ЛС підходить до всіх кристалів.
+const GM_RASODNIKI_ITEM_IDS = ["crystal_s", "crystal_ls_s"] as const;
 const CRYSTAL_PRICE_ADENA = 10;
 
 // Greater Dye — 10 комбінацій, +4/-4, ціна 1 AA, 1 краска для нанесення
@@ -56,9 +52,8 @@ export default function GMShop({ navigate }: GMShopProps) {
   const updateAdena = useHeroStore((s) => s.updateAdena);
   const addItemToInventory = useHeroStore((s) => s.addItemToInventory);
   const [selectedCategory, setSelectedCategory] = useState<string>("shop");
-  const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "crystals" | "ls">("dyes");
+  const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "rasodniki">("dyes");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
-  const [selectedLSGrade, setSelectedLSGrade] = useState<string>("C");
   const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
   const [confirmExchange, setConfirmExchange] = useState<{ 
     type: string; 
@@ -394,25 +389,14 @@ export default function GMShop({ navigate }: GMShopProps) {
             </button>
             <span className="text-gray-500 text-[10px]">|</span>
             <button
-              onClick={() => setSelectedShopSubcategory("crystals")}
+              onClick={() => setSelectedShopSubcategory("rasodniki")}
               className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-                selectedShopSubcategory === "crystals"
+                selectedShopSubcategory === "rasodniki"
                   ? "text-gray-200 font-semibold border-b border-white/60"
                   : "hover:text-gray-200"
               }`}
             >
-              Кристали
-            </button>
-            <span className="text-gray-500 text-[10px]">|</span>
-            <button
-              onClick={() => setSelectedShopSubcategory("ls")}
-              className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-                selectedShopSubcategory === "ls"
-                  ? "text-gray-200 font-semibold border-b border-white/60"
-                  : "hover:text-gray-200"
-              }`}
-            >
-              LS
+              Розсодники
             </button>
           </div>
 
@@ -465,81 +449,10 @@ export default function GMShop({ navigate }: GMShopProps) {
           </div>
           )}
 
-          {/* Кристали */}
-          {selectedShopSubcategory === "crystals" && (
-          <div className="space-y-1 max-h-[40vh] overflow-y-auto">
-            {GM_CRYSTAL_ITEM_IDS.map((itemId) => {
-              const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
-              if (!def) return null;
-              return (
-                <div
-                  key={itemId}
-                  className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
-                  onClick={() => {
-                    setSelectedCrystalItem({ itemId });
-                    setBuyQuantity(1);
-                  }}
-                >
-                  <img
-                    src={def.icon}
-                    alt={def.name}
-                    className="w-8 h-8 object-contain flex-shrink-0"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
-                    }}
-                  />
-                  <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
-                  <div className="text-[12px] text-[#f4e2b8] font-semibold">
-                    {CRYSTAL_PRICE_ADENA} Adena
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          )}
-
-          {/* LS — фільтр грейдів (як у магазині вещей) */}
-          {selectedShopSubcategory === "ls" && (
-            <div className="flex gap-2 mb-2">
-              {(["C", "B", "A", "S"] as const).map((grade) => {
-                const getGradeColor = (g: string, isSelected: boolean) => {
-                  if (!isSelected) {
-                    switch (g) {
-                      case "C": return "text-green-400";
-                      case "B": return "text-blue-400";
-                      case "A": return "text-purple-400";
-                      case "S": return "text-orange-400";
-                      default: return "text-gray-400";
-                    }
-                  } else {
-                    switch (g) {
-                      case "C": return "text-green-300 font-semibold";
-                      case "B": return "text-blue-300 font-semibold";
-                      case "A": return "text-purple-300 font-semibold";
-                      case "S": return "text-orange-300 font-semibold";
-                      default: return "text-gray-300 font-semibold";
-                    }
-                  }
-                };
-                return (
-                  <button
-                    key={grade}
-                    onClick={() => setSelectedLSGrade(grade)}
-                    className={`px-2 py-0.5 text-[11px] transition-colors ${getGradeColor(grade, selectedLSGrade === grade)} ${
-                      selectedLSGrade === grade ? "underline" : "hover:underline"
-                    }`}
-                  >
-                    {grade}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* LS */}
-          {selectedShopSubcategory === "ls" && (
-          <div className="space-y-1 max-h-[50vh] overflow-y-auto">
-            {GM_LS_ITEM_IDS.filter((itemId) => itemId.endsWith(`_${selectedLSGrade.toLowerCase()}`)).map((itemId) => {
+          {/* Розсодники — 1 кристал S + 1 ЛС S. 1 ЛС підходить до всіх кристалів. */}
+          {selectedShopSubcategory === "rasodniki" && (
+          <div className="space-y-1">
+            {GM_RASODNIKI_ITEM_IDS.map((itemId) => {
               const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
               if (!def) return null;
               return (
