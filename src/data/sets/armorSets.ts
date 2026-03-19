@@ -352,7 +352,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "majestic_gauntlets", slot: "gloves" },
       { itemId: "majestic_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { CON: 2, WIT: 4, INT: 3, MEN: 3 },
+    },
   },
 
   // ===== A-GRADE СЕТ APELLA (Light Armor Set) =====
@@ -366,7 +368,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "apella_leather_gloves_light_armor", slot: "gloves" },
       { itemId: "apella_boots_light_armor", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 6, DEX: 5, CON: 3, MEN: 2 },
+    },
   },
 
   // ===== A-GRADE СЕТ DARK CRYSTAL (Heavy Armor Set) =====
@@ -381,7 +385,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "dark_crystal_gloves", slot: "gloves" },
       { itemId: "dark_crystal_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 4, DEX: 3, CON: 6, MEN: 3 },
+    },
   },
 
   // ===== A-GRADE СЕТ MAJESTIC HEAVY (Heavy Armor Set - Quest Shop) =====
