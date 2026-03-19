@@ -151,8 +151,9 @@ export function buildItemsFromDrop(result: FishDropResult): InventoryItemToAdd[]
     if (def) for (let i = 0; i < count; i++) items.push({ id, name: def.name, type: def.kind ?? "armor", slot: def.slot, icon: def.icon, description: def.description, stats: def.stats, count: 1 });
   });
   result.resources.forEach(({ id, count }) => {
+    if (id !== "treasure_box") return; // Тільки сундуки, жодних інших ресурсів
     const def = itemsDB[id];
-    if (def) items.push({ id, name: def.name, type: def.kind ?? "resource", slot: def.slot, icon: def.icon, description: def.description, stats: def.stats, count });
+    if (def) items.push({ id, name: def.name, type: "consumable", slot: "consumable", icon: def.icon, description: def.description, stats: def.stats, count });
   });
   (result.enchantScrolls || []).forEach(({ id, count }) => {
     const def = itemsDB[id];
