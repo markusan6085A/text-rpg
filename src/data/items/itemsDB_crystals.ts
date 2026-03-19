@@ -46,49 +46,49 @@ export const itemsDBCrystals: Record<string, ItemDefinition> = {
     stats: {},
   },
 
-  // ===== LS (Lucky Strike) — mineral іконки =====
-  crystal_lucky_strike_c: {
-    id: "crystal_lucky_strike_c",
-    name: "Кристал Удачі (C)",
+  // ===== LS — 1 на грейд, при вставці в зброю дає випадковий бонус =====
+  crystal_ls_c: {
+    id: "crystal_ls_c",
+    name: "ЛС (C)",
     kind: "resource",
     slot: "resource",
     icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
-    description: "Збільшує шанс критичного удару на 3%.",
+    description: "При вставці в зброю дає випадковий бонус (крит, маг. крит, HP, фокус тощо).",
     grade: "C",
-    stats: { luckyStrike: 3 },
+    stats: {},
   },
-  crystal_lucky_strike_b: {
-    id: "crystal_lucky_strike_b",
-    name: "Кристал Удачі (B)",
+  crystal_ls_b: {
+    id: "crystal_ls_b",
+    name: "ЛС (B)",
     kind: "resource",
     slot: "resource",
     icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg",
-    description: "Збільшує шанс критичного удару на 5%.",
+    description: "При вставці в зброю дає випадковий бонус (крит, маг. крит, HP, фокус тощо).",
     grade: "B",
-    stats: { luckyStrike: 5 },
+    stats: {},
   },
-  crystal_lucky_strike_a: {
-    id: "crystal_lucky_strike_a",
-    name: "Кристал Удачі (A)",
+  crystal_ls_a: {
+    id: "crystal_ls_a",
+    name: "ЛС (A)",
     kind: "resource",
     slot: "resource",
     icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg",
-    description: "Збільшує шанс критичного удару на 7%.",
+    description: "При вставці в зброю дає випадковий бонус (крит, маг. крит, HP, фокус тощо).",
     grade: "A",
-    stats: { luckyStrike: 7 },
+    stats: {},
   },
-  crystal_lucky_strike_s: {
-    id: "crystal_lucky_strike_s",
-    name: "Кристал Удачі (S)",
+  crystal_ls_s: {
+    id: "crystal_ls_s",
+    name: "ЛС (S)",
     kind: "resource",
     slot: "resource",
     icon: "/items/drops/resources/Etc_mineral_unique_i03_0.jpg",
-    description: "Збільшує шанс криту на 10%.",
+    description: "При вставці в зброю дає випадковий бонус (крит, маг. крит, HP, фокус тощо).",
     grade: "S",
-    stats: { luckyStrike: 10 },
+    stats: {},
   },
 
-  // ===== MAGIC CRIT — шанс магічного крита =====
+  // ===== MAGIC CRIT — шанс магічного крита (для зворотної сумісності зі старими збереженнями) =====
   crystal_magic_crit_c: { id: "crystal_magic_crit_c", name: "Кристал Маг. Крита (C)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg", description: "Збільшує шанс магічного крита на 3%.", grade: "C", stats: { mCrit: 3 } },
   crystal_magic_crit_b: { id: "crystal_magic_crit_b", name: "Кристал Маг. Крита (B)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_rare_i03_0.jpg", description: "Збільшує шанс магічного крита на 5%.", grade: "B", stats: { mCrit: 5 } },
   crystal_magic_crit_a: { id: "crystal_magic_crit_a", name: "Кристал Маг. Крита (A)", kind: "resource", slot: "resource", icon: "/items/drops/resources/Etc_mineral_special_i03_0.jpg", description: "Збільшує шанс магічного крита на 7%.", grade: "A", stats: { mCrit: 7 } },
