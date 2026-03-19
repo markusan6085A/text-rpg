@@ -132,7 +132,7 @@ export default function InventoryItemList({
           return (
             <div
               key={idx}
-              className={`flex items-center gap-1.5 px-2 py-1 border-b border-white/30 text-[10px] ${hasLSPassive ? "ring-1 ring-green-500/80 bg-green-900/20" : ""}`}
+              className="flex items-center gap-1.5 px-2 py-1 border-b border-white/30 text-[10px]"
               style={{
                 borderBottom: "1px solid #2a2a2a",
                 color: "#d9d9d9",

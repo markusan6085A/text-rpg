@@ -193,7 +193,7 @@ export default function InventoryPanel({
             return (
             <div key={`${invItem.id}-${idx}`}>
               <div
-                className={`flex items-center gap-2 px-2 py-2 hover:bg-[#1c150d] cursor-pointer ${(invItem as any).meta?.hasLSPassive ? "ring-1 ring-green-500/80 bg-green-900/20" : ""}`}
+                className="flex items-center gap-2 px-2 py-2 hover:bg-[#1c150d] cursor-pointer"
                 onClick={() => setSelectedItem(invItem)}
               >
                 <div className="relative flex-shrink-0">
