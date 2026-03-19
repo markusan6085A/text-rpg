@@ -2,6 +2,19 @@ import React, { useMemo, useState } from "react";
 import { getInventoryMax, useHeroStore } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
+
+function getItemGrade(item: any, itemDef: any): string | undefined {
+  if (itemDef?.grade) return itemDef.grade;
+  if (item?.grade) return item.grade;
+  const id = (item?.id ?? "").toLowerCase();
+  if (id.includes("_ng_")) return "NG";
+  if (id.includes("_d_") || id.startsWith("d_")) return "D";
+  if (id.includes("_c_") || id.startsWith("c_")) return "C";
+  if (id.includes("_b_") || id.startsWith("b_")) return "B";
+  if (id.includes("_a_") || id.startsWith("a_")) return "A";
+  if (id.includes("_s_") || id.startsWith("s_")) return "S";
+  return undefined;
+}
 import TransferItemModal from "../screens/character/modals/TransferItemModal";
 
 type InventoryPanelProps = {
@@ -201,8 +214,8 @@ export default function InventoryPanel({
                 <div className="flex-1">
                   <div className="text-[13px] text-[#f5d7a1] leading-tight">
                     {displayName}
-                    {!displayName.includes("(NG)") && !displayName.includes("(D)") && !displayName.includes("(C)") && !displayName.includes("(B)") && !displayName.includes("(A)") && !displayName.includes("(S)") && invItem.grade && (
-                      <span className="text-[11px] text-[#9ca3af] ml-1">({invItem.grade})</span>
+                    {getItemGrade(invItem, itemDef) && (
+                      <span className="text-[11px] text-[#9ca3af] ml-1">({getItemGrade(invItem, itemDef)})</span>
                     )}
                   </div>
                   <div className="text-[11px] text-[#c0b084]">{formatActionLabel(invItem.slot)}</div>
@@ -240,6 +253,9 @@ export default function InventoryPanel({
 
             <div className="text-yellow-400 font-bold text-sm mb-1">
               {itemsDB[selectedItem.id]?.name || selectedItem.name || selectedItem.id}
+              {getItemGrade(selectedItem, itemsDB[selectedItem.id]) && (
+                <span className="text-[#9ca3af] ml-1">({getItemGrade(selectedItem, itemsDB[selectedItem.id])})</span>
+              )}
             </div>
 
             {selectedItem.stats && (

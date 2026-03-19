@@ -261,6 +261,9 @@ export default function SellItems({ navigate }: SellItemsProps) {
                   <div className="flex-1 min-w-0">
                     <div className="text-white text-sm truncate">
                       {def?.name || item.name}
+                      {(def?.grade || item.grade) && (
+                        <span className="text-[#9ca3af] ml-1">({def?.grade || item.grade})</span>
+                      )}
                       {(item.enchantLevel ?? 0) > 0 && (
                         <span className="text-[#b8860b]"> +{item.enchantLevel}</span>
                       )}

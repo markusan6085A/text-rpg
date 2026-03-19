@@ -4,6 +4,18 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import { normalizeIconPath, handleResourceIconError, FALLBACK_ICON } from "../../utils/itemIcon";
 
+function getItemGrade(item: any, itemDef: any): string | undefined {
+  if (itemDef?.grade) return itemDef.grade;
+  if (item?.grade) return item.grade;
+  const id = (item?.id ?? item?.itemId ?? "").toLowerCase();
+  if (id.includes("_d_") || id.startsWith("d_") || id.includes("_ng_")) return id.includes("_ng_") ? "NG" : "D";
+  if (id.includes("_c_") || id.startsWith("c_")) return "C";
+  if (id.includes("_b_") || id.startsWith("b_")) return "B";
+  if (id.includes("_a_") || id.startsWith("a_")) return "A";
+  if (id.includes("_s_") || id.startsWith("s_")) return "S";
+  return undefined;
+}
+
 interface InventoryItemListProps {
   items: HeroInventoryItem[];
   hero: Hero;
@@ -147,8 +159,8 @@ export default function InventoryItemList({
                   className="text-[#d9d9d9] hover:text-[#f5d7a1] text-[10px] text-left flex-1"
                 >
                   {itemDef?.name || item.name || itemKey}
-                  {!(itemDef?.name || item.name || "").includes("(NG)") && !(itemDef?.name || item.name || "").includes("(D)") && !(itemDef?.name || item.name || "").includes("(C)") && !(itemDef?.name || item.name || "").includes("(B)") && !(itemDef?.name || item.name || "").includes("(A)") && !(itemDef?.name || item.name || "").includes("(S)") && item.grade && (
-                    <span className="text-[#9ca3af] ml-1">({item.grade})</span>
+                  {getItemGrade(item, itemDef) && (
+                    <span className="text-[#9ca3af] ml-1">({getItemGrade(item, itemDef)})</span>
                   )}
                   {item.enchantLevel !== undefined && item.enchantLevel > 0 && ` +${item.enchantLevel}`}
                   {item.count && item.count > 1 ? ` (x${item.count})` : ""}
