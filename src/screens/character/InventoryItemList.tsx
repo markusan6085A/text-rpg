@@ -128,7 +128,7 @@ export default function InventoryItemList({
               <div className="relative flex-shrink-0">
                 <img
                   src={finalIconPath}
-                  alt={item.name}
+                  alt={itemDef?.name || item.name || itemKey}
                   className="w-5 h-5 object-contain"
                   onError={handleResourceIconError}
                 />
@@ -146,8 +146,8 @@ export default function InventoryItemList({
                   onClick={() => onItemClick(item)}
                   className="text-[#d9d9d9] hover:text-[#f5d7a1] text-[10px] text-left flex-1"
                 >
-                  {item.name || itemDef?.name || itemKey}
-                  {!item.name.includes("(NG)") && !item.name.includes("(D)") && !item.name.includes("(C)") && !item.name.includes("(B)") && !item.name.includes("(A)") && !item.name.includes("(S)") && item.grade && (
+                  {itemDef?.name || item.name || itemKey}
+                  {!(itemDef?.name || item.name || "").includes("(NG)") && !(itemDef?.name || item.name || "").includes("(D)") && !(itemDef?.name || item.name || "").includes("(C)") && !(itemDef?.name || item.name || "").includes("(B)") && !(itemDef?.name || item.name || "").includes("(A)") && !(itemDef?.name || item.name || "").includes("(S)") && item.grade && (
                     <span className="text-[#9ca3af] ml-1">({item.grade})</span>
                   )}
                   {item.enchantLevel !== undefined && item.enchantLevel > 0 && ` +${item.enchantLevel}`}

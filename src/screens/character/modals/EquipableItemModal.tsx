@@ -1,6 +1,8 @@
 import React from "react";
 import { calculateEnchantedStats, getSetInfo, getLSDescriptionLines } from "../inventoryUtils";
 import type { HeroInventoryItem } from "../../../types/Hero";
+import { itemsDB } from "../../../data/items/itemsDB";
+import { normalizeIconPath } from "../../../utils/itemIcon";
 
 interface EquipableItemModalProps {
   item: HeroInventoryItem;
@@ -18,6 +20,8 @@ export default function EquipableItemModal({
   const enchantedStats = calculateEnchantedStats(item);
   const { pAtk, mAtk, pDef, mDef, baseStats, enchantLevel, isWeapon, isArmor, enchantMultiplier, armorEnchantMultiplier } = enchantedStats;
   const hasAnyStats = Object.keys(baseStats).length > 0 || pAtk !== undefined || mAtk !== undefined || pDef !== undefined || mDef !== undefined;
+  const itemDef = itemsDB[item.id];
+  const displayName = itemDef?.name || item.name || item.id;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
@@ -27,7 +31,7 @@ export default function EquipableItemModal({
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-[#b8860b]">
-            {item.name}
+            {displayName}
           </h2>
           <button
             className="text-gray-400 hover:text-white text-xl"
@@ -40,8 +44,8 @@ export default function EquipableItemModal({
         {/* Іконка та основна інформація */}
         <div className="flex items-center gap-3 mb-4">
           <img
-            src={item.icon?.startsWith("/") ? item.icon : `/items/${item.icon}`}
-            alt={item.name}
+            src={normalizeIconPath(item.icon || itemDef?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+            alt={displayName}
             className="w-16 h-16 object-contain"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";

@@ -174,15 +174,18 @@ export default function InventoryPanel({
         {items.length === 0 ? (
           <div className="text-center text-gray-400 py-3 text-[13px]">Пусто</div>
         ) : (
-          items.map((invItem: any, idx: number) => (
+          items.map((invItem: any, idx: number) => {
+            const itemDef = itemsDB[invItem.id];
+            const displayName = itemDef?.name || invItem.name || invItem.id;
+            return (
             <div key={`${invItem.id}-${idx}`}>
               <div
                 className="flex items-center gap-2 px-2 py-2 hover:bg-[#1c150d] cursor-pointer"
                 onClick={() => setSelectedItem(invItem)}
               >
                 <img
-                  src={invItem.icon || itemsDB[invItem.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
-                  alt={invItem.name}
+                  src={invItem.icon || itemDef?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                  alt={displayName}
                   className="w-7 h-7 border border-white/50 bg-black/40 object-contain"
                   onError={(e) => {
                     // Якщо іконка не завантажилась, спробуємо отримати з itemsDB
@@ -197,8 +200,8 @@ export default function InventoryPanel({
                 />
                 <div className="flex-1">
                   <div className="text-[13px] text-[#f5d7a1] leading-tight">
-                    {invItem.name}
-                    {!invItem.name.includes("(NG)") && !invItem.name.includes("(D)") && !invItem.name.includes("(C)") && !invItem.name.includes("(B)") && !invItem.name.includes("(A)") && !invItem.name.includes("(S)") && invItem.grade && (
+                    {displayName}
+                    {!displayName.includes("(NG)") && !displayName.includes("(D)") && !displayName.includes("(C)") && !displayName.includes("(B)") && !displayName.includes("(A)") && !displayName.includes("(S)") && invItem.grade && (
                       <span className="text-[11px] text-[#9ca3af] ml-1">({invItem.grade})</span>
                     )}
                   </div>
@@ -210,7 +213,8 @@ export default function InventoryPanel({
               </div>
               {idx < items.length - 1 && <div className="w-full h-[1px] bg-white/20"></div>}
             </div>
-          ))
+          );
+          })
         )}
       </div>
 
@@ -222,7 +226,7 @@ export default function InventoryPanel({
           >
             <img
               src={selectedItem.icon || itemsDB[selectedItem.id]?.icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
-              alt={selectedItem.name}
+              alt={itemsDB[selectedItem.id]?.name || selectedItem.name || selectedItem.id}
               className="w-12 h-12 mx-auto mb-2"
               onError={(e) => {
                 const itemDef = itemsDB[selectedItem.id];
@@ -235,7 +239,7 @@ export default function InventoryPanel({
             />
 
             <div className="text-yellow-400 font-bold text-sm mb-1">
-              {selectedItem.name}
+              {itemsDB[selectedItem.id]?.name || selectedItem.name || selectedItem.id}
             </div>
 
             {selectedItem.stats && (

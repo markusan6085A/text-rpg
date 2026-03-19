@@ -101,7 +101,7 @@ export default function ConsumableItemModal({
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-[#b8860b]">
-            {item.name}
+            {itemDef?.name || item.name || item.id}
           </h2>
           <button
             className="text-gray-400 hover:text-white text-xl"

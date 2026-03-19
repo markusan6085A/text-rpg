@@ -1,4 +1,5 @@
 import React from "react";
+import { itemsDB } from "../../data/items/itemsDB";
 
 interface DeleteConfirmModalProps {
   item: any;
@@ -34,8 +35,8 @@ export default function DeleteConfirmModal({
         <div className="mb-6">
           <p className="text-gray-300 text-sm mb-2">
             {amount === 1
-              ? `Ви дійсно хочете видалити "${item.name}"?`
-              : `Ви дійсно хочете видалити ${amount} шт. "${item.name}"?`}
+              ? `Ви дійсно хочете видалити "${itemsDB[item.id]?.name || item.name}"?`
+              : `Ви дійсно хочете видалити ${amount} шт. "${itemsDB[item.id]?.name || item.name}"?`}
           </p>
           <p className="text-red-400 text-xs italic">
             Цю дію неможливо скасувати!

@@ -3,6 +3,7 @@ import { useHeroStore } from "../../../state/heroStore";
 import { HeroInventoryItem } from "../../../types/Hero";
 import { sendItemTransferLetter } from "../../../utils/api";
 import { itemsDB } from "../../../data/items/itemsDB";
+import { normalizeIconPath } from "../../../utils/itemIcon";
 import { showToast } from "../../../state/toastStore";
 import { isUnauthorizedError } from "../../../utils/isUnauthorizedError";
 
@@ -126,15 +127,15 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
 
         <div className="flex items-center gap-3 mb-4 bg-black/40 p-2 rounded border border-white/10">
           <img
-            src={item.icon?.startsWith("/") ? item.icon : `/items/${item.icon}`}
-            alt={item.name}
+            src={normalizeIconPath(item.icon || itemDef?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+            alt={itemDef?.name || item.name || item.id}
             className="w-10 h-10 object-contain border border-white/30"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
             }}
           />
           <div className="flex-1 min-w-0">
-            <div className="text-white text-sm truncate">{item.name}</div>
+            <div className="text-white text-sm truncate">{itemDef?.name || item.name || item.id}</div>
             {item.enchantLevel ? (
               <div className="text-[#b8860b] text-xs">Заточка: +{item.enchantLevel}</div>
             ) : null}

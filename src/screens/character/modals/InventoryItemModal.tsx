@@ -168,7 +168,7 @@ export default function InventoryItemModal({
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-[#b8860b]">
-            {item.name}
+            {(itemsDB[item.id] || itemsDBWithStarter[item.id])?.name || item.name || item.id}
           </h2>
           <button
             className="text-gray-400 hover:text-white text-xl"

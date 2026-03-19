@@ -160,7 +160,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
     if (price == null || price <= 0) return;
     const totalPrice = price * amount;
     const def = itemsDB[item.id] || itemsDBWithStarter[item.id];
-    const name = item.name || def?.name || item.id;
+    const name = def?.name || item.name || item.id;
     setConfirmSell({
       type: amount > 1 ? "all" : "single",
       item: { ...item, name },
@@ -260,7 +260,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="text-white text-sm truncate">
-                      {item.name || def?.name}
+                      {def?.name || item.name}
                       {(item.enchantLevel ?? 0) > 0 && (
                         <span className="text-[#b8860b]"> +{item.enchantLevel}</span>
                       )}
