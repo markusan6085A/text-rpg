@@ -28,9 +28,10 @@ export interface DyeItem {
   effect: number; // +4 для всіх Greater Dye
 }
 
-// Розсодники — 1 кристал S + 1 ЛС S, купуються за Adena. 1 ЛС підходить до всіх кристалів.
+// Розсодники — 1 кристал S + 1 ЛС S, купуються за Adena. Доступні з 20 рівня.
 const GM_RASODNIKI_ITEM_IDS = ["crystal_s", "crystal_ls_s"] as const;
 const CRYSTAL_PRICE_ADENA = 10;
+const RASODNIKI_REQUIRED_LEVEL = 20;
 
 // Greater Dye — 10 комбінацій, +4/-4, ціна 1 AA, 1 краска для нанесення
 export const GM_SHOP_ITEMS: DyeItem[] = [
@@ -199,9 +200,15 @@ export default function GMShop({ navigate }: GMShopProps) {
     showToast("Недостатньо Ancient Adena (AA)!", "error");
   };
 
-  // Обробка покупки за Adena (кристали, LS)
+  // Обробка покупки за Adena (розсодники — кристал, ЛС)
   const handleBuyAdena = (itemId: string, quantity: number = 1) => {
     if (!hero) return;
+
+    const heroLevel = hero.level ?? 1;
+    if (heroLevel < RASODNIKI_REQUIRED_LEVEL) {
+      showToast(`Розсодники доступні з ${RASODNIKI_REQUIRED_LEVEL} рівня!`, "error");
+      return;
+    }
 
     const totalPrice = CRYSTAL_PRICE_ADENA * quantity;
     const currentAdena = hero.adena ?? 0;
@@ -449,10 +456,15 @@ export default function GMShop({ navigate }: GMShopProps) {
           </div>
           )}
 
-          {/* Розсодники — 1 кристал S + 1 ЛС S. 1 ЛС підходить до всіх кристалів. */}
+          {/* Розсодники — 1 кристал S + 1 ЛС S. Доступні з 20 рівня. */}
           {selectedShopSubcategory === "rasodniki" && (
           <div className="space-y-1">
-            {GM_RASODNIKI_ITEM_IDS.map((itemId) => {
+            {(hero?.level ?? 1) < RASODNIKI_REQUIRED_LEVEL ? (
+              <div className="text-[12px] text-gray-400 py-4 text-center">
+                Доступно з {RASODNIKI_REQUIRED_LEVEL} рівня
+              </div>
+            ) : (
+            GM_RASODNIKI_ITEM_IDS.map((itemId) => {
               const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
               if (!def) return null;
               return (
@@ -478,7 +490,8 @@ export default function GMShop({ navigate }: GMShopProps) {
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
           )}
         </div>
