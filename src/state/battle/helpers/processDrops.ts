@@ -128,7 +128,12 @@ export function processMobDrops(
           return;
         }
 
-        // Преміум множник для ресурсів (тільки consumable, resource, quest)
+        // Ресурси з мобів не падають (тільки адена й екіп)
+        if (drop.kind === "resource") return;
+        const itemDefForSlot = itemsDB[drop.id];
+        if (itemDefForSlot?.slot === "resource") return;
+
+        // Преміум множник для решти (спойл, екіп)
         if (itemDef) {
           const resourceSlots = ["consumable", "resource", "quest"];
           if (resourceSlots.includes(itemDef.slot)) {
@@ -246,8 +251,11 @@ export function processMobDrops(
         // Спойл випав!
         let itemCount = Math.floor(Math.random() * (spoil.max - spoil.min + 1)) + spoil.min;
         const itemDef = itemsDB[spoil.id];
-        
-        // Преміум множник для ресурсів (тільки consumable, resource, quest)
+
+        // Ресурси з спойлів не додаємо (тільки адена й екіп)
+        if (spoil.kind === "resource" || itemDef?.slot === "resource") return;
+
+        // Преміум множник для решти (consumable, quest)
         if (itemDef) {
           const resourceSlots = ["consumable", "resource", "quest"];
           if (resourceSlots.includes(itemDef.slot)) {
