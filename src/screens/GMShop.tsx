@@ -416,9 +416,23 @@ export default function GMShop({ navigate }: GMShopProps) {
             </button>
           </div>
 
-          {/* Список предметів — краски (усі Greater Dye, без фільтра грейдів) */}
+          {/* Краски — формули статів + список */}
           {selectedShopSubcategory === "dyes" && (
-          <div className="space-y-1">
+          <div className="space-y-2">
+            <details className="text-[11px]">
+              <summary className="text-[#cfcfcc] cursor-pointer hover:text-[#e0c68a]">
+                Що дають стати (+1)
+              </summary>
+              <div className="text-[10px] text-[#cfcfcc] mt-1.5 space-y-0.5 pl-1">
+                <div>STR: ~+3% P.Atk</div>
+                <div>DEX: ~+1% швидкість атаки, +0.8 шанс криту</div>
+                <div>CON: ~+3% Max HP/CP</div>
+                <div>INT: ~+4% M.Atk</div>
+                <div>WIT: ~+5% Casting Spd., +шанс маг. криту</div>
+                <div>MEN: ~+1% M.Def та Max MP</div>
+              </div>
+            </details>
+            <div className="space-y-1">
             {GM_SHOP_ITEMS.map((item) => (
               <div
                 key={item.id}
@@ -447,6 +461,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                 </div>
               </div>
             ))}
+            </div>
           </div>
           )}
 
