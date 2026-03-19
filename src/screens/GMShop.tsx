@@ -84,6 +84,8 @@ export default function GMShop({ navigate }: GMShopProps) {
   const [selectedItem, setSelectedItem] = useState<DyeItem | null>(null);
   const [selectedCrystalItem, setSelectedCrystalItem] = useState<{ itemId: string } | null>(null);
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
+  const [generateStoneModal, setGenerateStoneModal] = useState(false);
+  const [generateStoneSelectedId, setGenerateStoneSelectedId] = useState<string | null>(null);
 
   if (!hero) {
     return (
@@ -216,6 +218,55 @@ export default function GMShop({ navigate }: GMShopProps) {
       }
     }
     showToast("Недостатньо Ancient Adena (AA)!", "error");
+  };
+
+  // Генерація каменя: кристал + ЛС + камінь → 5% шанс отримати камінь з пасивним ефектом
+  const STONE_IDS_FOR_GENERATE = ["stone_crit", "stone_mcrit", "stone_maxhp", "stone_focus", "stone_lifesteal", "stone_guidance", "stone_empower", "stone_acumen", "stone_anger", "stone_atkspd"];
+  const crystalCount = hero?.inventory?.find((i: any) => i.id === "crystal_d")?.count ?? 0;
+  const lsCount = hero?.inventory?.find((i: any) => i.id === "crystal_ls_d")?.count ?? 0;
+  const getStoneCount = (stoneId: string) => {
+    const items = hero?.inventory?.filter((i: any) => i.id === stoneId && !(i as any).meta?.hasLSPassive) ?? [];
+    return items.reduce((sum: number, i: any) => sum + (i.count ?? 1), 0);
+  };
+
+  const handleGenerateStone = () => {
+    if (!hero || !generateStoneSelectedId) return;
+    const inv = [...(hero.inventory || [])];
+    const removeOne = (itemId: string, requireNormal = false) => {
+      const idx = inv.findIndex((i: any) => i.id === itemId && (!requireNormal || !(i as any).meta?.hasLSPassive));
+      if (idx < 0) return false;
+      const it = inv[idx];
+      if ((it.count ?? 1) > 1) {
+        inv[idx] = { ...it, count: (it.count ?? 1) - 1 };
+      } else {
+        inv.splice(idx, 1);
+      }
+      return true;
+    };
+    if (!removeOne("crystal_d") || !removeOne("crystal_ls_d") || !removeOne(generateStoneSelectedId, true)) {
+      showToast("Недостатньо матеріалів!", "error");
+      return;
+    }
+    const def = itemsDBCrystals[generateStoneSelectedId] ?? itemsDB[generateStoneSelectedId];
+    if (!def) return;
+    const success = Math.random() < 0.05; // 5% шанс зловити ЛС
+    const newStone: HeroInventoryItem = {
+      id: def.id,
+      name: def.name,
+      slot: def.slot,
+      kind: def.kind,
+      icon: def.icon,
+      description: def.description,
+      stats: def.stats,
+      count: 1,
+      grade: def.grade,
+      ...(success ? { meta: { hasLSPassive: true } } : {}),
+    };
+    inv.push(newStone);
+    updateHero({ inventory: inv });
+    setGenerateStoneModal(false);
+    setGenerateStoneSelectedId(null);
+    showToast(success ? `Успіх! Отримано камінь з пасивним ефектом: ${def.name}` : `Отримано: ${def.name} (без пасивки)`, success ? "success" : "info");
   };
 
   // Обробка покупки за Adena (розсодники — кристал, ЛС)
@@ -495,7 +546,17 @@ export default function GMShop({ navigate }: GMShopProps) {
                 Доступно з {RASODNIKI_REQUIRED_LEVEL} рівня
               </div>
             ) : (
-            GM_RASODNIKI_ITEM_IDS.map((itemId) => {
+            <>
+            <button
+              onClick={() => setGenerateStoneModal(true)}
+              className="w-full py-2 px-3 bg-[#5c4a32] hover:bg-[#6d5a42] text-[#e0c68a] text-[12px] font-semibold rounded border border-white/30"
+            >
+              Сгенерировать камень
+            </button>
+            <div className="text-[10px] text-gray-400 py-1">
+              Кристал + ЛС + камінь = 5% шанс пасивки (статы в інвентарі, не передається)
+            </div>
+            {GM_RASODNIKI_ITEM_IDS.map((itemId) => {
               const def = itemsDBCrystals[itemId] ?? itemsDB[itemId];
               if (!def) return null;
               return (
@@ -521,7 +582,8 @@ export default function GMShop({ navigate }: GMShopProps) {
                   </div>
                 </div>
               );
-            })
+            })}
+            </>
             )}
           </div>
           )}
@@ -886,6 +948,63 @@ export default function GMShop({ navigate }: GMShopProps) {
                 </>
               );
             })()}
+          </div>
+        </div>
+      )}
+
+      {/* Модалка генерації каменя: кристал + ЛС + камінь */}
+      {generateStoneModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setGenerateStoneModal(false)}>
+          <div className="bg-[#1a1208] border border-white/50 rounded-lg p-4 max-w-[320px] w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="text-[#e0c68a] font-bold text-[14px] mb-3 text-center">Сгенерировать камень</div>
+            <div className="text-[11px] text-gray-400 mb-3">Вставьте: Кристал (D), ЛС (D), Камінь. 5% шанс пассивки.</div>
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center justify-between text-[12px]">
+                <span className="text-[#cfcfcc]">Кристал (D):</span>
+                <span className={crystalCount >= 1 ? "text-green-400" : "text-red-400"}>{crystalCount} шт.</span>
+              </div>
+              <div className="flex items-center justify-between text-[12px]">
+                <span className="text-[#cfcfcc]">ЛС (D):</span>
+                <span className={lsCount >= 1 ? "text-green-400" : "text-red-400"}>{lsCount} шт.</span>
+              </div>
+              <div className="text-[12px] text-[#cfcfcc] mt-2">Выберите камень:</div>
+              <div className="grid grid-cols-2 gap-1 max-h-[180px] overflow-y-auto">
+                {STONE_IDS_FOR_GENERATE.map((sid) => {
+                  const def = itemsDBCrystals[sid] ?? itemsDB[sid];
+                  const cnt = getStoneCount(sid);
+                  const sel = generateStoneSelectedId === sid;
+                  return (
+                    <button
+                      key={sid}
+                      onClick={() => setGenerateStoneSelectedId(sid)}
+                      disabled={cnt < 1}
+                      className={`flex items-center gap-1.5 py-1.5 px-2 rounded border text-left text-[11px] ${
+                        cnt < 1 ? "opacity-50 cursor-not-allowed border-gray-600" : sel ? "border-[#e0c68a] bg-[#2a2015]" : "border-white/30 hover:bg-black/20"
+                      }`}
+                    >
+                      {def?.icon && <img src={def.icon} alt="" className="w-5 h-5 object-contain flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png"; }} />}
+                      <span className="truncate text-[#e0c68a]">{def?.name ?? sid}</span>
+                      <span className="text-gray-400 ml-auto">x{cnt}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={handleGenerateStone}
+                disabled={!generateStoneSelectedId || crystalCount < 1 || lsCount < 1 || (generateStoneSelectedId ? getStoneCount(generateStoneSelectedId) < 1 : true)}
+                className="px-4 py-2 bg-[#5c4a32] hover:bg-[#6d5a42] disabled:opacity-50 disabled:cursor-not-allowed text-[#e0c68a] text-[12px] rounded border border-white/30"
+              >
+                Сгенерировать
+              </button>
+              <button
+                onClick={() => { setGenerateStoneModal(false); setGenerateStoneSelectedId(null); }}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white text-[12px] rounded"
+              >
+                Закрыть
+              </button>
+            </div>
           </div>
         </div>
       )}

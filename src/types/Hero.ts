@@ -40,6 +40,8 @@ export interface HeroInventoryItem {
   rskEvasion?: number;
   rskHaste?: number;
   backbiting?: number;
+  /** Камінь з пасивним ефектом (зловив ЛС 5%) — не можна передати, в складі пасивка не працює */
+  meta?: { hasLSPassive?: boolean };
 }
 
 export interface LearnedSkill {

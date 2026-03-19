@@ -62,7 +62,7 @@ export default function InventoryItemModal({
     q.questDrops?.some((drop) => drop.itemId === item.id)
   );
   const isQuestSlot = normalizedSlot === "quest";
-  const canTransfer = !isQuestItem && !isQuestSlot && !isSevenSealsMedal;
+  const canTransfer = !isQuestItem && !isQuestSlot && !isSevenSealsMedal && !(item as any).meta?.hasLSPassive;
 
   // Модалка для заточок
   if (isEnchantScroll) {

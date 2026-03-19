@@ -292,12 +292,14 @@ export default function InventoryPanel({
               >
                 Удалить
               </button>
+              {!(selectedItem as any)?.meta?.hasLSPassive && (
               <button
                 onClick={() => setShowTransferModal(true)}
                 className="bg-yellow-700 text-white text-[11px] py-1 rounded"
               >
                 Передать
               </button>
+              )}
               <button
                 onClick={() => setSelectedItem(null)}
                 className="bg-gray-600 text-white text-[11px] py-1 rounded"

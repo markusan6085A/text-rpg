@@ -17,6 +17,7 @@ import {
   applyPassiveSkillsToCombat, 
   applyPassiveSkillsToResources 
 } from "./applyPassiveSkills";
+import { applyPassiveStoneStatsToCombat, applyPassiveStoneStatsToResources } from "./applyPassiveStoneStats";
 import { applyBaseStatGrowthByClass } from "./applyBaseStatGrowth";
 import { computeBuffedMaxResources, applyBuffsToStats } from "../../state/battle/helpers";
 import { getMaxResources } from "../../state/battle/helpers/getMaxResources";
@@ -226,7 +227,7 @@ export function recalculateAllStats(
     });
   }
   
-  const finalCombatStats = applyPassiveSkillsToCombat(
+  let finalCombatStats = applyPassiveSkillsToCombat(
     combatStats,
     learnedSkills,
     buffs,
@@ -234,6 +235,9 @@ export function recalculateAllStats(
     currentMaxHp,
     hero.equipment
   );
+
+  // 4.5. Пасивні ефекти від каменів з ЛС (тільки в інвентарі, не на складі)
+  finalCombatStats = applyPassiveStoneStatsToCombat(finalCombatStats, hero.inventory || []);
 
   if (import.meta.env.DEV) {
     console.log(`[recalculateAllStats] mDef after passives:`, {
@@ -244,12 +248,15 @@ export function recalculateAllStats(
   }
 
   // 4. passive skills -> resources (БЕЗ бафів - бафи застосовуються в computeBuffedMaxResources)
-  const finalResources = applyPassiveSkillsToResources(
+  let finalResources = applyPassiveSkillsToResources(
     resources,
     learnedSkills,
     [], // ❗ НЕ передаємо бафи - вони застосовуються в computeBuffedMaxResources
     hero.equipment // Передаємо equipment для перевірки умов (броня/зброя)
   );
+
+  // 4.5. Пасивні ефекти від каменів з ЛС (maxHpPercent)
+  finalResources = applyPassiveStoneStatsToResources(finalResources, hero.inventory || []);
 
   // 5. Бафи НЕ застосовуються тут в recalculateAllStats
   // Бафи застосовуються в бою через applyBuffsToStats(hero.battleStats, activeBuffs)

@@ -148,6 +148,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   const handlePutToWarehouse = (item: HeroInventoryItem, count?: number) => {
     if (!activeCharacterId) return;
 
+    if ((item as any).meta?.hasLSPassive) {
+      showToast("Нельзя положить на склад камень с пассивным эффектом (ЛС)", "error");
+      return;
+    }
+
     const itemCount = count || 1;
     const maxCount = item.count || 1;
 
