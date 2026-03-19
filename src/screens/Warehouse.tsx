@@ -284,7 +284,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     if (!item) return;
 
     const itemDef = itemsDB[item.id];
-    const canStack = itemDef?.stackable !== false;
+    const canStack = itemDef?.stackable !== false && !(item as any).meta?.hasLSPassive;
     const slotsNeeded = canStack ? 1 : (item.count || 1);
     const inventorySize = (hero.inventory || []).length;
     const maxSlots = getInventoryMax(hero);
@@ -295,7 +295,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
     // Додаємо предмет до інвентаря (stackable: false — кожен окремим слотом)
     const newInventory = [...(hero.inventory || [])];
-    const existingItemIndex = canStack ? newInventory.findIndex((invItem) => invItem.id === item.id) : -1;
+    const existingItemIndex = canStack ? newInventory.findIndex((invItem) => invItem.id === item.id && !(invItem as any).meta?.hasLSPassive) : -1;
 
     if (existingItemIndex >= 0) {
       const existingItem = newInventory[existingItemIndex];

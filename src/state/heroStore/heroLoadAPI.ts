@@ -28,8 +28,9 @@ function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number
   return Math.max(0, Math.min(exp, Math.max(0, need - 1)));
 }
 
-/** Чи предмет стакається — stackable: false (кристали, ЛС, камні) ніколи не стакаються. */
+/** Чи предмет стакається. Камні з ЛС (meta.hasLSPassive) — ніколи не стакаються. */
 function isStackableItem(it: any): boolean {
+  if (it?.meta?.hasLSPassive) return false;
   const def = itemsDB[it?.id ?? it?.itemId] || itemsDBWithStarter[it?.id ?? it?.itemId];
   if (def?.stackable === false) return false;
   const typeId = String(it?.id ?? it?.itemId ?? "");
@@ -41,7 +42,7 @@ function isStackableItem(it: any): boolean {
 
 /** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1). */
 function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
-  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}`;
+  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}_${(i as any).meta?.hasLSPassive ? "ls" : ""}`;
   const countByKey = (arr: any[]) => {
     const m = new Map<string, number>();
     (arr || []).forEach((it: any) => {

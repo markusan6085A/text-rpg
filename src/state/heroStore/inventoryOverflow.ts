@@ -12,8 +12,9 @@ export function getEffectiveMaxNormal(hero: { inventoryCapacity?: number } | nul
   return Math.max(1, getInventoryMax(hero) - 1);
 }
 
-/** Чи є предмет стакабельним — stackable: false (кристали, ЛС, камні) ніколи не стакаються */
+/** Чи є предмет стакабельним. Камні з ЛС (meta.hasLSPassive) — ніколи не стакаються. */
 function canStack(item: HeroInventoryItem): boolean {
+  if ((item as any).meta?.hasLSPassive) return false;
   const typeId = String(item?.id ?? (item as any)?.itemId ?? "");
   const def = itemsDB[item.id] || itemsDB[(item as any).itemId];
   if (def?.stackable === false) return false;
@@ -48,7 +49,7 @@ export function addItemsWithOverflow(
     const stackable = canStack(toAdd);
 
     if (stackable) {
-      const idx = inventory.findIndex((i) => i.id === toAdd.id);
+      const idx = inventory.findIndex((i) => i.id === toAdd.id && !(i as any).meta?.hasLSPassive);
       if (idx >= 0) {
         const cur = inventory[idx];
         inventory[idx] = { ...cur, count: (cur.count ?? 1) + count };
@@ -112,7 +113,7 @@ export function unloadOverflowChest(hero: Hero): { inventory: HeroInventoryItem[
     const total = item.count ?? 1;
 
     if (stackable) {
-      const idx = inventory.findIndex((i) => i.id === item.id);
+      const idx = inventory.findIndex((i) => i.id === item.id && !(i as any).meta?.hasLSPassive);
       if (idx >= 0) {
         const cur = inventory[idx];
         inventory[idx] = { ...cur, count: (cur.count ?? 1) + total };

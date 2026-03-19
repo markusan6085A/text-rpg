@@ -556,7 +556,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
 
     const newInventory = [...(hero.inventory || [])];
-    const existingItemIndex = newInventory.findIndex((item) => item.id === itemId);
+    // Не стакати з камнями з ЛС (зелені) — тільки з звичайними
+    const existingItemIndex = newInventory.findIndex((item) => item.id === itemId && !(item as any).meta?.hasLSPassive);
 
     if (existingItemIndex >= 0 && canStack) {
       // Тільки стакаємо, якщо предмет може стакатися (змінюємо референс об'єкта для React)

@@ -145,7 +145,8 @@ export function processMobDrops(
         if (itemDef) {
           const stackableSlots = ["consumable", "resource", "quest"];
           const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
-          const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id) : -1;
+          // Дропи не мають hasLSPassive — стакаємо тільки з звичайними слотами (не з камнями з ЛС)
+          const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive) : -1;
           const canAddToExisting = canStack && existingItemIndex >= 0;
 
           if (isInventoryFull && !canAddToExisting) {
@@ -280,7 +281,7 @@ export function processMobDrops(
           // Перевіряємо, чи інвентар не повний
           const stackableSlots = ["consumable", "resource", "quest"];
           const canStack = stackableSlots.includes(itemDef.slot);
-          const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === spoil.id);
+          const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === spoil.id && !(inv as any).meta?.hasLSPassive);
           const canAddToExisting = canStack && existingItemIndex >= 0;
 
           // Якщо інвентар повний і не можна додати до існуючого — в overflow
@@ -341,10 +342,10 @@ export function processMobDrops(
         const currentItemCount = inventoryItem?.count || 0;
         const currentProgress = Math.min(currentItemCount, questDrop.requiredCount);
         
-        // Перевіряємо, чи ще потрібно збирати цей предмет
+          // Перевіряємо, чи ще потрібно збирати цей предмет
         if (currentProgress < questDrop.requiredCount) {
-          // Перевіряємо, чи інвентар не повний (квестові предмети завжди можуть стакатися)
-          const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === questDrop.itemId);
+          // Перевіряємо, чи інвентар не повний (квестові предмети стакаються з звичайними слотами)
+          const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === questDrop.itemId && !(inv as any).meta?.hasLSPassive);
           const canAddToExisting = existingItemIndex >= 0;
 
           // Якщо інвентар повний і не можна додати до існуючого — в overflow
@@ -362,8 +363,8 @@ export function processMobDrops(
           if (Math.random() < 1.0) {
             const itemDef = itemsDB[questDrop.itemId];
             if (itemDef) {
-              // Шукаємо, чи вже є такий предмет в інвентарі
-              const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === questDrop.itemId);
+              // Шукаємо, чи вже є такий предмет в інвентарі (не стакати з камнями з ЛС)
+              const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === questDrop.itemId && !(inv as any).meta?.hasLSPassive);
 
               if (existingItemIndex >= 0) {
                 // Якщо предмет вже є, збільшуємо кількість

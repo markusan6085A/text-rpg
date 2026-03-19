@@ -84,10 +84,10 @@ export function loadHero(): Hero | null {
           return;
         }
         
-        // stackable: false (кристали, ЛС, камні) — ніколи не стакати
+        // Камні з ЛС (meta.hasLSPassive) — ніколи не стакати; кристали/ЛС/звичайні камні — стакаються
         const itemDef = itemsDB[typeId];
         const stackableSlots = ["consumable", "resource", "quest"];
-        const canStack = itemDef?.stackable !== false && (
+        const canStack = !item.meta?.hasLSPassive && itemDef?.stackable !== false && (
           stackableSlots.includes(item.slot) ||
           String(typeId).includes("shot") ||
           String(typeId).includes("potion") ||
@@ -97,14 +97,15 @@ export function loadHero(): Hero | null {
         );
 
         if (canStack) {
-          if (itemMap.has(typeId)) {
-            const existing = itemMap.get(typeId);
+          const stackKey = typeId; // Звичайні предмети стакаються по typeId
+          if (itemMap.has(stackKey)) {
+            const existing = itemMap.get(stackKey);
             existing.count = (existing.count || 1) + (item.count || 1);
             inventoryConsolidated = true;
           } else {
             const { stats: _s, ...rest } = item;
             const normalized = { ...rest, id: rest.id || rest.itemId, count: rest.count || 1 };
-            itemMap.set(typeId, normalized);
+            itemMap.set(stackKey, normalized);
             consolidatedInventory.push(normalized);
           }
         } else {
