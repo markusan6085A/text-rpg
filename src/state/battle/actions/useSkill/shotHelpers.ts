@@ -114,9 +114,7 @@ export function useAutoShot(
   }
 
   const weaponGrade = getWeaponGrade(hero);
-  if (!weaponGrade) {
-    return { used: false, multiplier: 1.0, shotType: null };
-  }
+  // 🔥 Якщо грейд зброї не визначено — приймаємо будь-який shot (fallback для нестандартної зброї)
 
   const toConsume = Math.max(1, Math.min(10, consumeCount));
 
@@ -132,15 +130,23 @@ export function useAutoShot(
   for (const slotIndex of activeChargeSlots) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
-    const itemId = slotId.replace("consumable:", "");
+    // 🔥 Нормалізуємо: магазин може додати shop_soulshot_d — шукаємо canonical id
+    const rawItemId = slotId.replace("consumable:", "");
+    const itemId = rawItemId.replace(/^shop_/, "") || rawItemId;
     if (!isShotConsumable(itemId, shotType)) continue;
-    if (getShotGrade(itemId) !== weaponGrade) continue;
-    const invItem = currentInventory.find((i: any) => i.id === itemId && (i.count ?? 0) >= toConsume);
+    // Грейд shot має збігатися з грейдом зброї (або приймаємо будь-який, якщо weaponGrade невідомий)
+    if (weaponGrade != null && getShotGrade(itemId) !== weaponGrade) continue;
+    // 🔥 Інвентар може мати id "soulshot_d" або "shop_soulshot_d" (з магазину)
+    const invItem = currentInventory.find((i: any) => {
+      const iid = (i.id || "").replace(/^shop_/, "");
+      return (iid === itemId || i.id === itemId) && (i.count ?? 0) >= toConsume;
+    });
     if (!invItem) continue;
 
     // Витрачаємо заряди (1 за удар, 2 за ударний скіл)
+    const actualItemId = invItem.id;
     const updatedInventory = currentInventory.map((inv: any) => {
-      if (inv.id !== itemId) return inv;
+      if (inv.id !== actualItemId) return inv;
       const newCount = (inv.count ?? 1) - toConsume;
       return newCount > 0 ? { ...inv, count: newCount } : null;
     }).filter(Boolean) as any[];
@@ -153,6 +159,17 @@ export function useAutoShot(
     };
   }
 
+  if (import.meta.env.DEV && shotType && activeChargeSlots.length > 0) {
+    console.log("[useAutoShot] No shot consumed:", {
+      shotType,
+      weaponGrade,
+      activeChargeSlots,
+      loadoutAtSlots: activeChargeSlots.map((i) => loadoutSlots[i]),
+      invShotCount: currentInventory.filter((i: any) =>
+        (i.id || "").toLowerCase().includes(shotType)
+      ).map((i: any) => ({ id: i.id, count: i.count })),
+    });
+  }
   return { used: false, multiplier: 1.0, shotType: null };
 }
 
@@ -168,9 +185,12 @@ export function hasSpiritshotActive(
   for (const slotIndex of activeChargeSlots) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
-    const itemId = slotId.replace("consumable:", "");
+    const itemId = (slotId.replace("consumable:", "") || "").replace(/^shop_/, "");
     if (!isShotConsumable(itemId, "spiritshot")) continue;
-    const has = hero.inventory.some((i: any) => i.id === itemId && (i.count ?? 0) > 0);
+    const has = hero.inventory.some((i: any) => {
+      const iid = (i.id || "").replace(/^shop_/, "");
+      return (iid === itemId || i.id === itemId) && (i.count ?? 0) > 0;
+    });
     if (has) return true;
   }
   return false;
