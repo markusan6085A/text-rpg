@@ -29,7 +29,7 @@ export interface DyeItem {
 }
 
 // Розсодники — 1 кристал S + 1 ЛС S, купуються за Adena. Доступні з 20 рівня.
-const GM_RASODNIKI_ITEM_IDS = ["crystal_s", "crystal_ls_s"] as const;
+const GM_RASODNIKI_ITEM_IDS = ["crystal_d", "crystal_ls_d"] as const;
 const CRYSTAL_PRICE_ADENA = 10;
 const RASODNIKI_REQUIRED_LEVEL = 20;
 
