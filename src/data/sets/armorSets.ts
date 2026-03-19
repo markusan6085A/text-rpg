@@ -443,7 +443,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "major_arcana_gloves", slot: "gloves" },
       { itemId: "major_arcana_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { CON: 5, WIT: 7, INT: 5, MEN: 5 },
+    },
   },
 
   // ===== S-GRADE СЕТ DRACONIC LEATHER (Light Armor Set) =====
@@ -457,7 +459,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "draconic_leather_gloves", slot: "gloves" },
       { itemId: "draconic_leather_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 9, DEX: 7, CON: 5, MEN: 4 },
+    },
   },
 
   // ===== S-GRADE СЕТ IMPERIAL CRUSADER (Heavy Armor Set) =====
@@ -472,7 +476,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "imperial_crusader_gauntlets", slot: "gloves" },
       { itemId: "imperial_crusader_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { DEX: 15, STR: 5, MEN: 4 },
+    },
   },
 
   // ===== S-GRADE СЕТ MOIRAI (Magic Armor Set - Robe - Quest Shop) =====
