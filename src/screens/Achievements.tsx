@@ -1,5 +1,6 @@
 import React from "react";
 import { useHeroStore } from "../state/heroStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface Navigate {
   (path: string): void;
@@ -171,6 +172,12 @@ const ACHIEVEMENTS: AchievementDef[] = [
 
 export default function Achievements({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const innerPanel = isL2
+    ? "max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
+    : "max-w-[360px] mx-auto border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30";
 
   const completed = React.useMemo(() => {
     if (!hero) return 0;
@@ -181,26 +188,38 @@ export default function Achievements({ navigate }: { navigate: Navigate }) {
   }, [hero]);
 
   return (
-    <div className="w-full text-white px-3 py-4">
-      <div className="max-w-[360px] mx-auto border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
+    <div
+      className={
+        isL2 ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 text-[#d4c4a8]` : "w-full text-white px-3 py-4"
+      }
+    >
+      <div className={innerPanel}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-lg font-bold text-[#ffe9c0]">Досягнення</div>
-            <div className="text-xs text-orange-400/90">
+            <div className={isL2 ? "text-lg font-bold text-[#e8c56e]" : "text-lg font-bold text-[#ffe9c0]"}>
+              Досягнення
+            </div>
+            <div className={isL2 ? "text-xs text-[#a89878]" : "text-xs text-orange-400/90"}>
               {hero ? `${completed} / ${ACHIEVEMENTS.length}` : "Увійдіть для перегляду"}
             </div>
           </div>
           <button
             onClick={() => navigate("/about")}
-            className="text-gray-400 hover:text-white text-[10px]"
+            className={
+              isL2
+                ? "text-[#9d8265] hover:text-[#c9a44c] text-[10px]"
+                : "text-gray-400 hover:text-white text-[10px]"
+            }
           >
             ← Назад
           </button>
         </div>
-        <div className="w-full h-px bg-gray-600 mb-3" />
+        <div className={isL2 ? "w-full h-px bg-[#5c4a32]/45 mb-3" : "w-full h-px bg-gray-600 mb-3"} />
 
         {!hero ? (
-          <div className="text-gray-400 text-sm">Завантажте персонажа для перегляду досягнень.</div>
+          <div className={isL2 ? "text-[#8a7a60] text-sm" : "text-gray-400 text-sm"}>
+            Завантажте персонажа для перегляду досягнень.
+          </div>
         ) : (
           <div className="space-y-2 max-h-[60vh] overflow-y-auto">
             {ACHIEVEMENTS.map((a) => {
@@ -210,16 +229,28 @@ export default function Achievements({ navigate }: { navigate: Navigate }) {
                 <div
                   key={a.id}
                   className={`flex items-center gap-3 p-2 rounded border ${
-                    done ? "border-green-500/50 bg-green-900/20" : "border-white/20 bg-black/20"
+                    done
+                      ? "border-green-500/50 bg-green-900/20"
+                      : isL2
+                        ? "border-[#5c4a32]/45 bg-black/25"
+                        : "border-white/20 bg-black/20"
                   }`}
                 >
                   <span className="text-2xl">{a.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <div className={`font-semibold text-sm ${done ? "text-green-300" : "text-gray-300"}`}>
+                    <div
+                      className={`font-semibold text-sm ${
+                        done ? "text-green-300" : isL2 ? "text-[#e8dcc8]" : "text-gray-300"
+                      }`}
+                    >
                       {a.name}
                     </div>
-                    <div className="text-[11px] text-gray-400">{a.desc}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">
+                    <div className={isL2 ? "text-[11px] text-[#8a7a60]" : "text-[11px] text-gray-400"}>{a.desc}</div>
+                    <div
+                      className={
+                        isL2 ? "text-[10px] text-[#6a6048] mt-0.5" : "text-[10px] text-gray-500 mt-0.5"
+                      }
+                    >
                       {p.current} / {p.target}
                     </div>
                   </div>

@@ -5,6 +5,7 @@ import type { ChatChannel } from "../types";
 import { formatTime } from "../utils";
 import { PlayerNameWithEmblem } from "../../../components/PlayerNameWithEmblem";
 import { EmojiText } from "../../../components/EmojiText";
+import { getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ChatMessageItemProps {
   msg: ChatMessage;
@@ -33,6 +34,7 @@ export function ChatMessageItem({
   onAdminDelete,
   onMute,
 }: ChatMessageItemProps) {
+  const isL2 = getCityUiVariant() === "l2";
   const heroName = hero.name || hero.username;
   const isOwnMessage = msg.isOwn === true || (heroName && msg.characterName?.toLowerCase() === heroName.toLowerCase());
   const canDelete = isOwnMessage && (channel === "general" || channel === "trade");
@@ -65,12 +67,16 @@ export function ChatMessageItem({
               [ответить]
             </span>
             <span
-              className="text-gray-400 cursor-pointer hover:text-gray-300"
+              className={
+                isL2
+                  ? "text-[#8a7a60] cursor-pointer hover:text-[#c9a44c]"
+                  : "text-gray-400 cursor-pointer hover:text-gray-300"
+              }
               onClick={() => onReply(`@${msg.characterName}: ${msg.message}: `)}
             >
               (цитировать)
             </span>
-            <span className="text-gray-500">{formatTime(msg.createdAt)}</span>
+            <span className={isL2 ? "text-[#6a6048]" : "text-gray-500"}>{formatTime(msg.createdAt)}</span>
             {canDelete && !isAdmin && (
               <button
                 onClick={(e) => {
@@ -108,13 +114,23 @@ export function ChatMessageItem({
               </button>
             )}
           </div>
-          <div className={`mt-0.5 ${msg.channel === "trade" ? "text-yellow-400" : "text-white"}`}>
+          <div
+            className={`mt-0.5 ${
+              msg.channel === "trade"
+                ? "text-yellow-400"
+                : isL2
+                  ? "text-[#e8dcc8]"
+                  : "text-white"
+            }`}
+          >
             <EmojiText>{msg.message}</EmojiText>
           </div>
         </div>
       </div>
       {index < totalMessages - 1 && (
-        <div className="text-gray-600 text-center w-full">_ _ _-_ _ _ _</div>
+        <div className={isL2 ? "text-[#5c4a32]/70 text-center w-full" : "text-gray-600 text-center w-full"}>
+          _ _ _-_ _ _ _
+        </div>
       )}
     </React.Fragment>
   );

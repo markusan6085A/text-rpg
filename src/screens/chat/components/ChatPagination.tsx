@@ -1,4 +1,5 @@
 import React from "react";
+import { getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ChatPaginationProps {
   page: number;
@@ -19,6 +20,7 @@ export function ChatPagination({
   onRefresh,
   messagesTopRef,
 }: ChatPaginationProps) {
+  const isL2 = getCityUiVariant() === "l2";
   // Використовуємо totalPages з пропсів, якщо є, інакше обчислюємо
   // 🔥 ВАЖЛИВО: Якщо totalPages не передано, використовуємо fallback, але перевіряємо також messagesCount
   // Якщо на поточній сторінці є 10 повідомлень, це означає, що може бути більше сторінок
@@ -42,14 +44,21 @@ export function ChatPagination({
     messagesTopRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const pgBase = isL2
+    ? "hover:text-[#e8c56e] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+    : "hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors";
+  const pgActive = isL2 ? "text-[#e8dcc8] font-bold" : "text-white font-bold";
+
   return (
-    <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
+    <div
+      className={
+        isL2
+          ? "flex items-center justify-center gap-1 text-xs text-[#8a7a60]"
+          : "flex items-center justify-center gap-1 text-xs text-gray-400"
+      }
+    >
       {page > 1 && (
-        <button
-          onClick={() => handlePageClick(page - 1)}
-          disabled={loading}
-          className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
+        <button onClick={() => handlePageClick(page - 1)} disabled={loading} className={pgBase}>
           &lt;
         </button>
       )}
@@ -60,9 +69,7 @@ export function ChatPagination({
             key={p}
             onClick={() => handlePageClick(p)}
             disabled={loading}
-            className={`hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors ${
-              page === p ? "text-white font-bold" : ""
-            }`}
+            className={`${pgBase} ${page === p ? pgActive : ""}`}
           >
             {p}
           </button>
@@ -83,9 +90,7 @@ export function ChatPagination({
               key={p}
               onClick={() => handlePageClick(p)}
               disabled={loading}
-              className={`hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors ${
-                page === p ? "text-white font-bold" : ""
-              }`}
+              className={`${pgBase} ${page === p ? pgActive : ""}`}
             >
               {p}
             </button>
@@ -94,11 +99,7 @@ export function ChatPagination({
       )}
 
       {hasMore && (
-        <button
-          onClick={() => handlePageClick(page + 1)}
-          disabled={loading}
-          className="hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-        >
+        <button onClick={() => handlePageClick(page + 1)} disabled={loading} className={pgBase}>
           &gt;
         </button>
       )}

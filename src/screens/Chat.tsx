@@ -20,6 +20,7 @@ import { ChatPagination } from "./chat/components/ChatPagination";
 import { ChatInput } from "./chat/components/ChatInput";
 import { ChatRestrictionModal } from "./chat/components/ChatRestrictionModal";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Restriction = { mutedUntil: number | null; bannedUntil: string | null };
 
@@ -525,12 +526,35 @@ export default function Chat({ navigate }: ChatProps) {
     }
   };
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+
   if (!hero) {
-    return <div className="flex items-center justify-center text-xs text-gray-400">Загрузка персонажа...</div>;
+    return (
+      <div
+        className={`flex items-center justify-center text-xs ${
+          isL2 ? "text-[#8a7a60]" : "text-gray-400"
+        }`}
+      >
+        Загрузка персонажа...
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col h-full w-full text-white">
+    <div
+      className={`flex flex-col h-full w-full min-h-0 ${
+        isL2 ? `${l2Frame} text-[#d4c4a8] p-1.5` : "text-white"
+      }`}
+    >
+      <div
+        className={
+          isL2
+            ? "flex flex-col flex-1 min-h-0 overflow-hidden rounded-lg border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] px-1.5 pt-1"
+            : "flex flex-col flex-1 min-h-0"
+        }
+      >
       <ChatTabs channel={channel} onChannelChange={setChannel} onRefresh={refresh} />
 
       <ChatInput
@@ -570,7 +594,7 @@ export default function Chat({ navigate }: ChatProps) {
       {error && (
         <div className="text-red-400 text-xs text-center">
           {error}
-          <div className="text-[10px] text-gray-500 mt-1">
+          <div className={isL2 ? "text-[10px] text-[#6a6048] mt-1" : "text-[10px] text-gray-500 mt-1"}>
             Убедитесь, что backend сервер запущен и міграція бази даних виконана
           </div>
         </div>
@@ -584,6 +608,7 @@ export default function Chat({ navigate }: ChatProps) {
           onClose={() => setShowRestrictionModal(false)}
         />
       )}
+      </div>
     </div>
   );
 }
