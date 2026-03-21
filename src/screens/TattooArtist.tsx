@@ -4,6 +4,7 @@ import { useHeroStore } from "../state/heroStore";
 import { GM_SHOP_ITEMS, type DyeItem } from "./GMShop";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (path: string) => void;
 
@@ -21,8 +22,29 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full max-w-[400px] max-h-[80vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full max-h-[80vh] overflow-y-auto";
+
   if (!hero) {
-    return <div className="text-white text-center mt-10">Загрузка...</div>;
+    return (
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center py-16 text-[#8a7a60] text-sm gap-2`
+            : "text-white text-center mt-10"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
+        Загрузка...
+      </div>
+    );
   }
 
   // Отримуємо краски з інвентаря (потрібно 1 краска для нанесення)
@@ -165,14 +187,25 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
   };
 
   return (
-    <div className="w-full max-w-[360px] mx-auto px-3 py-2">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full max-w-[360px] mx-auto px-3 py-2"
+      }
+    >
+      <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
       {/* Заголовок */}
-      <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#ff8c00] tracking-[0.12em] uppercase font-semibold">
+      <div
+        className={`${borderB} px-4 py-2 text-center text-[11px] tracking-[0.12em] uppercase font-semibold ${
+          isL2 ? "text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]" : "text-[#ff8c00]"
+        }`}
+      >
         Татуировщик
       </div>
 
       {/* Опис */}
-      <div className="px-4 py-3 border-b border-black/70">
+      <div className={`px-4 py-3 ${borderB}`}>
         <div className="text-[12px] text-[#ff8c00] space-y-2">
           <p>
             Майстер татуювань допоможе змінити вашу долю.
@@ -198,12 +231,12 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
       </div>
 
       {/* Поточна кількість тату */}
-      <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc]">
+      <div className={`px-4 py-2 ${borderB} text-[12px] ${isL2 ? "text-[#d4c4a8]" : "text-[#cfcfcc]"}`}>
         Активних тату: {activeDyes.length} / {MAX_DYES}
       </div>
 
       {/* Кнопки */}
-      <div className="px-4 py-3 border-b border-black/70 space-y-2">
+      <div className={`px-4 py-3 ${borderB} space-y-2`}>
         <button
           onClick={() => setShowApplyModal(true)}
           disabled={dyesWithInfo.length === 0 || activeDyes.length >= MAX_DYES}
@@ -236,10 +269,14 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           onClick={() => setShowApplyModal(false)}
         >
           <div
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full max-h-[80vh] overflow-y-auto"
+            className={modalPanel}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
+            <div
+              className={`text-center text-lg font-bold mb-4 pb-2 border-b ${
+                isL2 ? "text-[#e8c56e] border-[#5c4a32]/55" : "text-white border-white/50"
+              }`}
+            >
               Виберіть тату для нанесення
             </div>
 
@@ -252,7 +289,11 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                 {dyesWithInfo.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20 cursor-pointer"
+                    className={
+                      isL2
+                        ? "flex items-center gap-3 p-2 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 bg-black/15 cursor-pointer"
+                        : "flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20 cursor-pointer"
+                    }
                     onClick={() => handleApplyDye(item)}
                   >
                     <img
@@ -303,10 +344,14 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           onClick={() => setShowRemoveModal(false)}
         >
           <div
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
+            className={isL2 ? `${modalPanel} max-h-none` : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
+            <div
+              className={`text-center text-lg font-bold mb-4 pb-2 border-b ${
+                isL2 ? "text-[#e8c56e] border-[#5c4a32]/55" : "text-white border-white/50"
+              }`}
+            >
               Виберіть тату для зняття
             </div>
 
@@ -323,7 +368,11 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                   return (
                     <div
                       key={index}
-                      className="flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20"
+                      className={
+                        isL2
+                          ? "flex items-center gap-3 p-2 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 bg-black/15"
+                          : "flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20"
+                      }
                     >
                       <img
                         src={dyeInfo?.icon || "/items/drops/resources/etc_ancient_adena_i00.png"}
@@ -364,6 +413,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

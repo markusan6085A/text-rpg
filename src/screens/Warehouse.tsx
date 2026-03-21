@@ -12,6 +12,7 @@ import {
 import { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB } from "../data/items/itemsDB";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface WarehouseProps {
   navigate: (path: string) => void;
@@ -106,6 +107,17 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     setInventoryPage(1);
   }, [currentCategory]);
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";
+  const borderT = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-black/70";
+  const rowL2 =
+    "flex items-center gap-2 py-2 px-2 mb-1 rounded-md bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)]";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto";
+
   // Додаємо запис до логу
   const addLogEntry = (message: string) => {
     const newEntry: LogEntry = {
@@ -122,7 +134,16 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   // Після всіх хуків — умовні return
   if (!hero) {
     return (
-      <div className="flex items-center justify-center text-xs text-gray-400">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center py-12 text-[#8a7a60] text-xs gap-2`
+            : "flex items-center justify-center text-xs text-gray-400"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
         Загрузка персонажа...
       </div>
     );
@@ -130,7 +151,13 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
   if (!activeCharacterId) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 text-center p-4 text-gray-400">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex flex-col items-center justify-center gap-2 text-center p-4 text-[#8a7a60]`
+            : "flex flex-col items-center justify-center gap-2 text-center p-4 text-gray-400"
+        }
+      >
         <p className="text-sm">Склад недоступний.</p>
         <p className="text-xs">Увійдіть у гру з головної сторінки та оберіть персонажа.</p>
       </div>
@@ -341,10 +368,16 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   };
 
   return (
-    <div className="w-full flex items-start justify-center">
-      <div className="w-full max-w-md mt-5 mb-10 px-3">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8] flex items-start justify-center`
+          : "w-full flex items-start justify-center"
+      }
+    >
+      <div className={isL2 ? "w-full max-w-[420px] mx-auto" : "w-full max-w-md mt-5 mb-10 px-3"}>
         {/* Зображення складу */}
-        <div className="px-4 py-3 border-b border-black/70">
+        <div className={`px-4 py-3 ${borderB}`}>
           <img
             src="/items/drops/item/sklad2.jpg"
             alt="Склад"
@@ -359,33 +392,41 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         </div>
 
         {/* Привітальне повідомлення */}
-        <div className="px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc]">
+        <div className={`px-4 py-3 ${borderB} text-[12px] ${isL2 ? "text-[#d4c4a8]" : "text-[#cfcfcc]"}`}>
           <div className="mb-2">Приветствую тебя!</div>
-          <div className="text-gray-400">
+          <div className={isL2 ? "text-[#a89878]" : "text-gray-400"}>
             Здесь ты можешь хранить свои вещи, чтобы не заполнялся твой инвентарь.
           </div>
         </div>
 
         {/* Заголовок з перемиканням */}
-        <div className="px-4 py-2 border-b border-black/70">
+        <div className={`px-4 py-2 ${borderB}`}>
           <div className="flex items-center gap-2 text-[12px]">
             <button
               onClick={() => setView("inventory")}
               className={`px-2 py-1 ${
                 view === "inventory"
-                  ? "text-white font-semibold border-b border-white"
-                  : "text-gray-400 hover:text-white"
+                  ? isL2
+                    ? "text-[#e8c56e] font-semibold border-b border-[#c9a44c]"
+                    : "text-white font-semibold border-b border-white"
+                  : isL2
+                    ? "text-[#a89878] hover:text-[#d4c4a8]"
+                    : "text-gray-400 hover:text-white"
               }`}
             >
               Инвентарь
             </button>
-            <span className="text-gray-500">|</span>
+            <span className={isL2 ? "text-[#6b5c42]" : "text-gray-500"}>|</span>
             <button
               onClick={() => setView("warehouse")}
               className={`px-2 py-1 ${
                 view === "warehouse"
-                  ? "text-white font-semibold border-b border-white"
-                  : "text-gray-400 hover:text-white"
+                  ? isL2
+                    ? "text-[#e8c56e] font-semibold border-b border-[#c9a44c]"
+                    : "text-white font-semibold border-b border-white"
+                  : isL2
+                    ? "text-[#a89878] hover:text-[#d4c4a8]"
+                    : "text-gray-400 hover:text-white"
               }`}
             >
               Склад
@@ -394,7 +435,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         </div>
 
         {/* Вместимость */}
-        <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center justify-between">
+        <div className={`px-4 py-2 ${borderB} text-[12px] flex items-center justify-between ${isL2 ? "text-[#d4c4a8]" : "text-[#cfcfcc]"}`}>
           <span>
             Вместимость: {warehouseUsed}/{warehouseCapacity}
           </span>
@@ -408,7 +449,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
         {/* Категорії (тільки для інвентаря) */}
         {view === "inventory" && (
-          <div className="px-4 py-2 border-b border-black/70">
+          <div className={`px-4 py-2 ${borderB}`}>
             <div className="flex flex-col gap-1 mb-3 text-[10px] border-b border-white/50 pb-1" style={{ color: "#d9d9d9" }}>
               {/* Перший ряд - перші 5 табів */}
               <div className="flex items-center gap-0">
@@ -455,7 +496,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         )}
 
         {/* Список предметів */}
-        <div className="px-4 py-2 border-b border-black/70">
+        <div className={`px-4 py-2 ${borderB}`}>
           {view === "inventory" ? (
             <>
               {/* Інвентар */}
@@ -464,7 +505,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                   paginatedItems.map((item, index) => (
                     <div
                       key={`${item.id}-${index}`}
-                      className="flex items-center gap-2 py-1 border-b border-solid border-white/30"
+                      className={
+                        isL2
+                          ? rowL2
+                          : "flex items-center gap-2 py-1 border-b border-solid border-white/30"
+                      }
                     >
                       <img
                         src={
@@ -511,7 +556,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                 
                 {/* Пагінація */}
                 {filteredInventoryItems.length > ITEMS_PER_PAGE && (
-                  <div className="flex items-center justify-center gap-2 mt-3 pt-2 border-t border-black/70">
+                  <div className={`flex items-center justify-center gap-2 mt-3 pt-2 ${borderT}`}>
                     <button
                       onClick={() => setInventoryPage(prev => Math.max(1, prev - 1))}
                       disabled={inventoryPage === 1}
@@ -547,7 +592,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                     return (
                       <div
                         key={`slot-${slotIndex}-${idx}`}
-                        className="flex items-center gap-2 py-1 border-b border-solid border-white/30"
+                        className={
+                          isL2
+                            ? rowL2
+                            : "flex items-center gap-2 py-1 border-b border-solid border-white/30"
+                        }
                       >
                         <img
                           src={src}
@@ -569,7 +618,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                         </div>
                         <button
                           onClick={() => handleTakeFromWarehouse(slotIndex)}
-                          className="text-[10px] text-[#3b82f6] hover:text-[#60a5fa] underline px-2 py-1"
+                          className={
+                            isL2
+                              ? "text-[10px] text-[#9d8265] hover:text-[#c9a44c] underline px-2 py-1"
+                              : "text-[10px] text-[#3b82f6] hover:text-[#60a5fa] underline px-2 py-1"
+                          }
                         >
                           [Взять]
                         </button>
@@ -587,8 +640,8 @@ export default function Warehouse({ navigate }: WarehouseProps) {
         </div>
 
         {/* Лог операцій */}
-        <div className="px-4 py-2 border-b border-black/70">
-          <div className="text-[11px] text-[#cfcfcc] mb-2 font-semibold">Лог операций:</div>
+        <div className={`px-4 py-2 ${borderB}`}>
+          <div className={`text-[11px] mb-2 font-semibold ${isL2 ? "text-[#e8c56e]" : "text-[#cfcfcc]"}`}>Лог операций:</div>
           <div className="space-y-1">
             {Array.from({ length: LOG_MAX_ENTRIES }, (_, index) => {
               const entry = log[index];
@@ -622,7 +675,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
           }}
         >
           <div
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className={modalPanel}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
@@ -696,7 +749,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
             </div>
 
             {/* Кнопки */}
-            <div className="flex gap-2 pt-2 border-t border-white/40">
+            <div className={`flex gap-2 pt-2 border-t ${isL2 ? "border-[#5c4a32]/50" : "border-white/40"}`}>
               <button
                 onClick={() => {
                   const count = Number(quantityInput) || 1;

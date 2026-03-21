@@ -10,6 +10,7 @@ import FishingCatchInfoModal from "./character/modals/FishingCatchInfoModal";
 import * as api from "../utils/api";
 import { showToast } from "../state/toastStore";
 import { isUnauthorizedError } from "../utils/isUnauthorizedError";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 const FISHING_COST_SP = 5000;
 const FISHING_COST_ADENA = 5_000_000;
@@ -39,6 +40,13 @@ export default function Fishing({ navigate }: FishingProps) {
   const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
   const [showRequirementsModal, setShowRequirementsModal] = useState(false);
   const [catchResult, setCatchResult] = useState<{ fishCount: number, expGained: number } | null>(null);
+
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full max-w-md shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full";
 
   useEffect(() => {
     if (!activeCharacterId) {
@@ -170,7 +178,16 @@ export default function Fishing({ navigate }: FishingProps) {
 
   if (!hero) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh] text-[#b8860b]">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center min-h-[40vh] text-[#8a7a60] text-sm gap-2`
+            : "flex items-center justify-center min-h-[40vh] text-[#b8860b]"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
         Загрузка...
       </div>
     );
@@ -178,18 +195,40 @@ export default function Fishing({ navigate }: FishingProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh] text-[#b8860b]">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center min-h-[40vh] text-[#8a7a60] text-sm gap-2`
+            : "flex items-center justify-center min-h-[40vh] text-[#b8860b]"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
         Загрузка сессии...
       </div>
     );
   }
 
   return (
-    <div className="w-full text-white px-4 py-2">
-      <div className="w-full max-w-[360px] mx-auto">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full text-white px-4 py-2"
+      }
+    >
+      <div className={isL2 ? "max-w-[420px] mx-auto w-full" : "w-full max-w-[360px] mx-auto"}>
         <div className="space-y-3">
-          <div className="border-t border-white/50"></div>
-          <div className="text-center text-[16px] font-semibold" style={{ color: "#4488ff" }}>Рыбалка</div>
+          <div className={isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/50"}></div>
+          <div
+            className={`text-center text-[16px] font-semibold ${
+              isL2 ? "text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]" : ""
+            }`}
+            style={isL2 ? undefined : { color: "#4488ff" }}
+          >
+            Рыбалка
+          </div>
           <div className="border-t-2" style={{ borderColor: "#c7ad80" }}></div>
           <button
             onClick={() => setShowCatchInfoModal(true)}
@@ -201,7 +240,7 @@ export default function Fishing({ navigate }: FishingProps) {
           {showRequirementsModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setShowRequirementsModal(false)}>
               <div
-                className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
+                className={modalPanel}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-4">
@@ -236,7 +275,7 @@ export default function Fishing({ navigate }: FishingProps) {
                     </span>
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-white/30">
+                <div className={`mt-4 pt-3 border-t ${isL2 ? "border-[#5c4a32]/50" : "border-white/30"}`}>
                   <p className="text-xs text-[#c7ad80] mb-2">Не вистачає:</p>
                   <ul className="text-xs text-red-400 space-y-1">
                     {!hasRod && <li>• Удочка (Baby Duck Rod) — надіньте в слот зброї</li>}
@@ -245,7 +284,7 @@ export default function Fishing({ navigate }: FishingProps) {
                     {adena < FISHING_COST_ADENA && <li>• Адена — потрібно ще {(FISHING_COST_ADENA - adena).toLocaleString()}</li>}
                   </ul>
                 </div>
-                <div className="flex justify-center pt-4 mt-4 border-t border-white/50">
+                <div className={`flex justify-center pt-4 mt-4 border-t ${isL2 ? "border-[#5c4a32]/50" : "border-white/50"}`}>
                   <button
                     onClick={() => setShowRequirementsModal(false)}
                     className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
@@ -256,7 +295,10 @@ export default function Fishing({ navigate }: FishingProps) {
               </div>
             </div>
           )}
-          <p className="text-xs text-left" style={{ color: "#c7ad80" }}>
+          <p
+            className={`text-xs text-left ${isL2 ? "text-[#a89878]" : ""}`}
+            style={isL2 ? undefined : { color: "#c7ad80" }}
+          >
             Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
             {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб.
           </p>
@@ -362,7 +404,11 @@ export default function Fishing({ navigate }: FishingProps) {
           <div className="mt-4 flex justify-center">
             <span
               onClick={() => navigate("/city")}
-              className="text-sm text-red-600 cursor-pointer hover:text-red-500"
+              className={
+                isL2
+                  ? "text-sm text-[#b85c4c] cursor-pointer hover:text-[#d4786a]"
+                  : "text-sm text-red-600 cursor-pointer hover:text-red-500"
+              }
             >
               В город
             </span>

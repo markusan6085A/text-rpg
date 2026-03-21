@@ -5,6 +5,7 @@ import { loadBattle, persistBattle } from "../state/battle/persist";
 import { cleanupBuffs } from "../state/battle/helpers";
 import type { BattleBuff } from "../state/battle/types";
 import { useBattleStore } from "../state/battle/store";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface MagicStatueProps {
   navigate: (path: string) => void;
@@ -23,9 +24,22 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     return () => clearInterval(interval);
   }, []);
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+
   if (!hero) {
     return (
-      <div className="flex items-center justify-center text-xs text-gray-400">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center py-12 text-[#8a7a60] text-xs gap-2`
+            : "flex items-center justify-center text-xs text-gray-400"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
         Загрузка персонажа...
       </div>
     );
@@ -187,8 +201,14 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
   };
 
   return (
-    <div className="w-full text-white px-4 py-2">
-      <div className="w-full max-w-[360px] mx-auto space-y-3">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full text-white px-4 py-2"
+      }
+    >
+      <div className={isL2 ? "w-full max-w-[420px] mx-auto space-y-3" : "w-full max-w-[360px] mx-auto space-y-3"}>
         {/* Картинка */}
         <div className="flex justify-center mb-2">
           <img src="/stats.jpg" alt="stats" className="h-auto w-[80%] max-h-32" />
@@ -196,10 +216,16 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
         
         {/* Заголовок */}
         <div className="text-center">
-          <div className="text-lg font-semibold mb-1 text-green-500">
+          <div
+            className={
+              isL2
+                ? "text-lg font-semibold mb-1 text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+                : "text-lg font-semibold mb-1 text-green-500"
+            }
+          >
             Магическая статуя
           </div>
-          <div className="text-sm text-gray-400">
+          <div className={isL2 ? "text-sm text-[#a89878]" : "text-sm text-gray-400"}>
             Бесплатные баффы на 1 час
           </div>
         </div>
@@ -274,7 +300,11 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
         <div className="text-center">
           <button
             onClick={() => navigate("/city")}
-            className="text-[13px] text-red-600 hover:text-red-500 cursor-pointer"
+            className={
+              isL2
+                ? "text-[13px] text-[#b85c4c] hover:text-[#d4786a] cursor-pointer"
+                : "text-[13px] text-red-600 hover:text-red-500 cursor-pointer"
+            }
           >
             В город
           </button>

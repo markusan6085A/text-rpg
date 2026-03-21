@@ -10,6 +10,7 @@ import {
 } from "../../data/skills";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { learnSkillLogic } from "../../state/heroStore/heroSkills";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface GuildScreenProps {
   navigate: (path: string) => void;
@@ -159,10 +160,24 @@ export default function GuildScreen({
     }
   };
   const updateHero = useHeroStore((s) => s.updateHero);
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const skillCardL2 =
+    "rounded-md border border-[#5c4a32]/60 bg-black/20 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)] p-2 mb-2";
 
   if (!hero) {
     return (
-      <div className="w-full text-white flex items-center justify-center">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center py-12 text-[#8a7a60] text-sm gap-2`
+            : "w-full text-white flex items-center justify-center"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
         Загрузка...
       </div>
     );
@@ -187,14 +202,30 @@ export default function GuildScreen({
   const defaultProfession = getDefaultProfessionForKlass(hero.klass, hero.race);
   if (!defaultProfession) {
     return (
-      <div className="min-h-screen bg-[#1a1814] text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex justify-center px-3 py-4 text-[#d4c4a8]`
+            : "min-h-screen bg-[#1a1814] text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="bg-[#110c08] border border-white/40 shadow-[0_18px_50px_rgba(0,0,0,0.7)] p-6 space-y-3 rounded-[10px] text-center text-[#dec28e]">
-            <div className="text-lg font-semibold text-[#f0e2b0]">{title}</div>
-            <p className="text-sm text-[#f4e2b8]">{emptyMessage}</p>
+          <div
+            className={
+              isL2
+                ? "bg-black/20 border border-[#5c4a32]/70 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-6 space-y-3 rounded-xl text-center"
+                : "bg-[#110c08] border border-white/40 shadow-[0_18px_50px_rgba(0,0,0,0.7)] p-6 space-y-3 rounded-[10px] text-center text-[#dec28e]"
+            }
+          >
+            <div className={isL2 ? "text-lg font-semibold text-[#e8c56e]" : "text-lg font-semibold text-[#f0e2b0]"}>{title}</div>
+            <p className={isL2 ? "text-sm text-[#d4c4a8]" : "text-sm text-[#f4e2b8]"}>{emptyMessage}</p>
             <button
               onClick={() => navigate("/city")}
-              className="px-4 py-2 bg-[#2c220f] border border-white/50 rounded-md text-sm"
+              className={
+                isL2
+                  ? "px-4 py-2 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32] rounded-md text-sm text-[#c9a44c] hover:border-[#c7ad80]/45"
+                  : "px-4 py-2 bg-[#2c220f] border border-white/50 rounded-md text-sm"
+              }
             >
               {backLabel}
             </button>
@@ -429,12 +460,19 @@ export default function GuildScreen({
   };
 
   return (
-    <div className="w-full text-white px-4 py-2">
-      <div className="w-full max-w-[360px] mx-auto">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full text-white px-4 py-2"
+      }
+    >
+      <div className={isL2 ? "w-full max-w-[420px] mx-auto" : "w-full max-w-[360px] mx-auto"}>
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-[12px] text-gray-500">
+          <div className={`flex items-center justify-between text-[12px] ${isL2 ? "text-[#8a7a60]" : "text-gray-500"}`}>
             <div>
-              Класс: <span className="text-[#87ceeb] font-semibold">{hero.klass}</span>
+              Класс:{" "}
+              <span className={isL2 ? "text-[#c9a44c] font-semibold" : "text-[#87ceeb] font-semibold"}>{hero.klass}</span>
               <div className="text-gray-500 text-[11px]">
                 Профессия:{" "}
                 <span className="text-red-500 font-semibold">
@@ -503,7 +541,7 @@ export default function GuildScreen({
                 });
               }
               return (
-                <div key={skill.id} className="p-2">
+                <div key={skill.id} className={isL2 ? skillCardL2 : "p-2"}>
                   <div className="flex gap-2">
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center justify-between">
@@ -554,7 +592,11 @@ export default function GuildScreen({
           <div className="mt-4 flex justify-center">
             <span
               onClick={() => navigate("/city")}
-              className="text-sm text-red-600 cursor-pointer hover:text-red-500"
+              className={
+                isL2
+                  ? "text-sm text-[#b85c4c] cursor-pointer hover:text-[#d4786a]"
+                  : "text-sm text-red-600 cursor-pointer hover:text-red-500"
+              }
             >
               {backLabel}
             </span>

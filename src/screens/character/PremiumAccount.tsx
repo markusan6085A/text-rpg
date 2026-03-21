@@ -5,6 +5,7 @@ import { useCharacterStore } from "../../state/characterStore";
 import { buyPremium, type PremiumPack } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { showToast } from "../../state/toastStore";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface Navigate {
   (path: string): void;
@@ -32,6 +33,13 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   const [isBuying, setIsBuying] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
+
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full max-w-md shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full";
 
   useEffect(() => {
     if (!hero?.premiumUntil) {
@@ -66,7 +74,16 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
 
   if (!hero) {
     return (
-      <div className="w-full flex items-center justify-center text-xs text-gray-400">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center py-12 text-[#8a7a60] text-xs gap-2`
+            : "w-full flex items-center justify-center text-xs text-gray-400"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
         Загрузка персонажа...
       </div>
     );
@@ -129,16 +146,34 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   };
 
   return (
-    <div className="w-full text-[#f4e2b8] px-1 py-2">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#e8dcc8]`
+          : "w-full text-[#f4e2b8] px-1 py-2"
+      }
+    >
+      <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
       {/* Заголовок */}
       <div className="flex items-center gap-2 mb-2">
         <button
           onClick={() => navigate("/character")}
-          className="text-gray-400 text-xs hover:text-gray-300"
+          className={
+            isL2
+              ? "text-[#9d8265] text-xs hover:text-[#c9a44c]"
+              : "text-gray-400 text-xs hover:text-gray-300"
+          }
         >
           ← Назад
         </button>
-        <div className="text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1 flex items-center gap-2" style={{ textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}>
+        <div
+          className={
+            isL2
+              ? "text-[#e8c56e] text-xs border-b border-[#c7ad80]/25 pb-2 font-semibold flex-1 flex items-center gap-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+              : "text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1 flex items-center gap-2"
+          }
+          style={isL2 ? undefined : { textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
+        >
           <img src="/icons/col (1).png" alt="Premium" className="w-4 h-4 object-contain" />
           Премиум аккаунт
         </div>
@@ -160,9 +195,17 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
       )}
 
       {/* Інформація про бонуси */}
-      <div className="mb-2 p-3 bg-[#1a1a1a] border border-white/50 rounded">
-        <div className="text-[#b8860b] text-xs font-semibold mb-2">Бонуси преміум аккаунту:</div>
-        <div className="text-gray-300 text-[10px] space-y-1">
+      <div
+        className={
+          isL2
+            ? "mb-2 p-3 rounded-md border border-[#5c4a32]/70 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+            : "mb-2 p-3 bg-[#1a1a1a] border border-white/50 rounded"
+        }
+      >
+        <div className={isL2 ? "text-[#e8c56e] text-xs font-semibold mb-2" : "text-[#b8860b] text-xs font-semibold mb-2"}>
+          Бонуси преміум аккаунту:
+        </div>
+        <div className={isL2 ? "text-[#d4c4a8] text-[10px] space-y-1" : "text-gray-300 text-[10px] space-y-1"}>
           <div>• Опыт (EXP): x2</div>
           <div>• SP: x2</div>
           <div>• Адена: x2</div>
@@ -173,10 +216,10 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
 
       {/* Доступні опції */}
       <div className="mb-2">
-        <div className="text-[#b8860b] text-xs font-semibold mb-2">
+        <div className={isL2 ? "text-[#e8c56e] text-xs font-semibold mb-2" : "text-[#b8860b] text-xs font-semibold mb-2"}>
           Доступні опції:
         </div>
-        <div className="text-gray-400 text-[10px] mb-2 flex items-center gap-2">
+        <div className={isL2 ? "text-[#a89878] text-[10px] mb-2 flex items-center gap-2" : "text-gray-400 text-[10px] mb-2 flex items-center gap-2"}>
           <img src="/icons/col (1).png" alt="Coin of Luck" className="w-3 h-3 object-contain" />
           Coin of Luck: <span className="text-yellow-400">{coinOfLuck}</span>
         </div>
@@ -186,8 +229,10 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
             return (
               <div
                 key={option.id}
-                className={`border border-solid border-white/50 p-2 rounded ${
-                  selectedOption?.id === option.id ? "bg-yellow-900/20 border-yellow-500" : ""
+                className={`p-2 rounded ${
+                  isL2
+                    ? `border border-[#5c4a32]/70 ${selectedOption?.id === option.id ? "bg-[#2a2318]/90 border-[#c9a44c]/60" : ""}`
+                    : `border border-solid border-white/50 ${selectedOption?.id === option.id ? "bg-yellow-900/20 border-yellow-500" : ""}`
                 } ${!canAfford ? "opacity-50" : ""}`}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -245,7 +290,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
           onClick={() => setSuccessModal({ show: false, message: "" })}
         >
           <div
-            className="bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            className={modalPanel}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
@@ -260,6 +305,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
