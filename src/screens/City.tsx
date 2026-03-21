@@ -37,7 +37,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   const svcBtn = (classes: string) =>
     isL2
-      ? `w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2.5 bg-gradient-to-b from-[#2a3344] to-[#141920] border border-[#6b5c3e]/70 shadow-[inset_0_1px_0_rgba(255,220,170,0.07),0_4px_14px_rgba(0,0,0,0.55)] hover:border-amber-500/45 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150 ${classes}`
+      ? `w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2.5 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150 ${classes}`
       : `w-full text-left text-[12px] py-1.5 border-b border-solid border-black/60 flex items-center gap-2 ${classes}`;
 
   const ico = isL2 ? "w-4 h-4 object-contain shrink-0" : "w-3 h-3 object-contain shrink-0";
@@ -123,7 +123,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const handleRecipes = () => openFeature("Книга рецептов");
 
   const l2Frame =
-    "rounded-xl overflow-hidden border border-amber-700/40 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_55%_at_50%_-10%,rgba(55,90,130,0.38)_0%,transparent_52%),linear-gradient(180deg,#121820_0%,#06080c_100%)]";
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1` : ""}>
@@ -131,7 +131,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
       <div
         className={
           isL2
-            ? "flex flex-wrap items-center justify-center gap-2 px-2 py-2.5 border-b border-amber-800/35 bg-black/20"
+            ? "flex flex-wrap items-center justify-center gap-2 px-2 py-2.5 border-b border-[#c7ad80]/20 bg-black/25"
             : "flex flex-wrap items-center justify-center gap-2 px-3 py-2 border-b border-black/50"
         }
       >
@@ -193,7 +193,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           <div
             className={
               isL2
-                ? "text-center text-[11px] text-sky-300/90 tracking-[0.14em] uppercase font-medium [text-shadow:0_0_12px_rgba(125,211,252,0.25)]"
+                ? "text-center text-[11px] text-[#d4c4a8] tracking-[0.14em] uppercase font-medium [text-shadow:0_0_10px_rgba(199,173,128,0.35)]"
                 : "text-center text-[11px] text-[#87ceeb] tracking-[0.12em] uppercase"
             }
           >
@@ -219,7 +219,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           <div
             className={
               isL2
-                ? "mb-1 mx-0 px-3 py-3 rounded-lg border border-amber-800/30 bg-gradient-to-b from-[#1c2430]/95 to-[#0e1218]/95 text-[13px] text-[#d4c4a8] flex items-center gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                ? "mb-1 mx-0 px-3 py-3 rounded-lg border border-[#5c4a32]/50 bg-gradient-to-b from-[#252018]/95 to-[#100e0a]/95 text-[13px] text-[#e8dcc8] flex items-center gap-3 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
                 : "px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2"
             }
           >
@@ -239,7 +239,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
       <div
         className={
           isL2
-            ? "px-2 py-3 pb-5 text-[12px] text-[#8a7d68]"
+            ? "px-2 py-3 pb-5 text-[12px] text-[#a89878]"
             : "px-4 py-3 border-b border-black/70 text-[12px] text-[#645b45]"
         }
       >
@@ -331,7 +331,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           </button>
 
           <button
-            className={svcBtn("text-[#3b82f6] hover:text-white")}
+            className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
             onClick={() => {
               window.scrollTo(0, 0);
               navigate("/guild");
@@ -374,7 +374,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           </button>
 
           <button
-            className={svcBtn("text-[#3b82f6] hover:text-[#bbff97]")}
+            className={svcBtn("text-[#7d9b7a] hover:text-[#c8e4c4]")}
             onClick={() => {
               window.scrollTo(0, 0);
               navigate("/fishing");
@@ -390,7 +390,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           </button>
 
           <button
-            className={svcBtn("text-[#1e40af] hover:text-white")}
+            className={svcBtn("text-[#9d8265] hover:text-[#e8d5c4]")}
             onClick={() => {
               window.scrollTo(0, 0);
               navigate("/tattoo-artist");
