@@ -77,11 +77,8 @@ export default function DepositItemsModal({
   const enchantCls = clanModalEnchantClass();
 
   return (
-    <div className={clanModalBackdropClass()} onClick={onClose}>
-      <div
-        className={clanModalPanelClass("max-w-[360px] mx-auto max-h-[80vh] overflow-y-auto")}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={clanModalBackdropClass()}>
+      <div className={clanModalPanelClass("max-w-[360px] mx-auto max-h-[80vh] overflow-y-auto")}>
         <div className={clanModalTitleClass()}>Выберите категорию:</div>
         <div className="flex flex-wrap gap-2 mb-4">
           {CATEGORIES.map((cat) => (

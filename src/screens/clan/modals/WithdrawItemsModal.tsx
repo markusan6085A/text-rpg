@@ -49,8 +49,8 @@ export default function WithdrawItemsModal({
   };
 
   return (
-    <div className={clanModalBackdropClass()} onClick={onClose}>
-      <div className={clanModalPanelClass("max-w-[360px] mx-auto")} onClick={(e) => e.stopPropagation()}>
+    <div className={clanModalBackdropClass()}>
+      <div className={clanModalPanelClass("max-w-[360px] mx-auto")}>
         <div className={clanModalTitleClass()}>Выберите предмет для вывода:</div>
         <div className={`${clanModalInnerListClass()} mb-4`}>
           {items.length === 0 ? (

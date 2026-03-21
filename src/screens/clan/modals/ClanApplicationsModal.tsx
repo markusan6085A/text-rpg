@@ -29,11 +29,8 @@ export default function ClanApplicationsModal({
   const lvlCls = `text-[11px] ml-1 ${clanModalMutedClass()}`;
 
   return (
-    <div className={clanModalBackdropClass()} onClick={onClose}>
-      <div
-        className={clanModalPanelClass("max-w-[360px] mx-auto max-h-[80vh] overflow-y-auto")}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={clanModalBackdropClass()}>
+      <div className={clanModalPanelClass("max-w-[360px] mx-auto max-h-[80vh] overflow-y-auto")}>
         <div className={clanModalTitleClass()}>Заявки в клан</div>
         {applications.length === 0 ? (
           <div className={`text-[12px] ${clanModalMutedClass()}`}>Немає заявок</div>

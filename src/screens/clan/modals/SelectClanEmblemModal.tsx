@@ -48,8 +48,8 @@ export default function SelectClanEmblemModal({
     : "absolute top-0 right-0 bg-yellow-500 text-black text-[8px] px-1 rounded z-10";
 
   return (
-    <div className={clanModalBackdropClass()} onClick={onClose}>
-      <div className={clanModalPanelClass("max-w-[360px] mx-auto")} onClick={(e) => e.stopPropagation()}>
+    <div className={clanModalBackdropClass()}>
+      <div className={clanModalPanelClass("max-w-[360px] mx-auto")}>
         <div className={`${clanModalTitleClass()} text-center`}>Выберите эмблему клана:</div>
 
         <div className="grid grid-cols-5 gap-2 mb-4">

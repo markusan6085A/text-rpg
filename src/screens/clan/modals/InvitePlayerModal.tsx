@@ -35,8 +35,8 @@ export default function InvitePlayerModal({ playerName, onInvite, onClose }: Inv
   };
 
   return (
-    <div className={clanModalBackdropClass()} onClick={onClose}>
-      <div className={clanModalPanelClass("max-w-[320px] mx-auto")} onClick={(e) => e.stopPropagation()}>
+    <div className={clanModalBackdropClass()}>
+      <div className={clanModalPanelClass("max-w-[320px] mx-auto")}>
         <div className={titleCls}>
           Запросити <span className={accentName}>{playerName}</span> в клан?
         </div>

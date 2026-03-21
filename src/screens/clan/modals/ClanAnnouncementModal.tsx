@@ -34,8 +34,8 @@ export default function ClanAnnouncementModal({ clan, onSave, onClose }: ClanAnn
   };
 
   return (
-    <div className={clanModalBackdropClass()} onClick={onClose}>
-      <div className={clanModalPanelClass("max-w-[360px] mx-auto")} onClick={(e) => e.stopPropagation()}>
+    <div className={clanModalBackdropClass()}>
+      <div className={clanModalPanelClass("max-w-[360px] mx-auto")}>
         <div className={clanModalTitleClass()}>Оголошення клану</div>
         <textarea
           value={text}
