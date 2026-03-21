@@ -281,7 +281,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_s_apprentices_spellbook",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 910201,
     name: "Apprentice's Spellbook",
     grade: "S",
     type: "weapon",
@@ -311,7 +311,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_s_baguette_s_dualsword",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 910202,
     name: "Baguette's Dualsword",
     grade: "S",
     type: "weapon",
@@ -446,7 +446,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_s_shining_bow",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 910203,
     name: "Shining Bow",
     grade: "S",
     type: "weapon",

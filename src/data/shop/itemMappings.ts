@@ -380,15 +380,37 @@ export const SHOP_ITEM_ID_MAPPING: Record<number, string> = {
   7722: "shop_weapon_b_sword_of_valhalla",
   
   // A-Grade Weapons (Магазин вещей)
-  2500: "shop_weapon_a_dark_legions_edge", // Багато A-grade зброї мають itemId 2500 (placeholder)
+  2500: "shop_weapon_a_dark_legions_edge",
   2504: "shop_weapon_a_meteor_shower",
   210: "shop_weapon_a_dasparion_s_staff",
   231: "shop_weapon_a_dragon_grinder",
   290: "shop_weapon_a_elysian",
   304: "shop_weapon_a_halberd",
   88: "shop_weapon_a_sword_of_miracles",
-  // Примітка: Багато A-grade зброї мають itemId 2500 (placeholder), можливо потрібно використати унікальні ID
-  
+  900201: "shop_weapon_a_apprentices_spellbook",
+  900202: "shop_weapon_a_baguette_s_dualsword",
+  900203: "shop_weapon_a_barakiel_s_axe",
+  900204: "shop_weapon_a_behemoth_s_tuning_fork",
+  900205: "shop_weapon_a_blood_tornado",
+  900206: "shop_weapon_a_bloody_orchid",
+  900207: "shop_weapon_a_branch_of_the_mother_tree",
+  900208: "shop_weapon_a_cabrio_s_hand",
+  900209: "shop_weapon_a_carnage_bow",
+  900210: "shop_weapon_a_daimon_crystal",
+  900211: "shop_weapon_a_dragon_slayer",
+  900212: "shop_weapon_a_infernal_master",
+  900213: "shop_weapon_a_naga_storm",
+  900214: "shop_weapon_a_shyeed_s_bow",
+  900215: "shop_weapon_a_sirra_s_blade",
+  900216: "shop_weapon_a_sobekk_s_hurricane",
+  900217: "shop_weapon_a_soul_separator",
+  900218: "shop_weapon_a_spiritual_eye",
+  900219: "shop_weapon_a_sword_of_ipos",
+  900220: "shop_weapon_a_tallum_blade",
+  900221: "shop_weapon_a_tallum_glaive",
+  900222: "shop_weapon_a_themis_tongue",
+  900223: "shop_weapon_a_tiphon_s_spear",
+
   // S-Grade Weapons (Магазин вещей)
   20167: "shop_weapon_s_angel_slayer",
   20170: "shop_weapon_s_arcana_mace",
@@ -400,7 +422,9 @@ export const SHOP_ITEM_ID_MAPPING: Record<number, string> = {
   20166: "shop_weapon_s_heaven_s_divider",
   20171: "shop_weapon_s_imperial_staff",
   20174: "shop_weapon_s_saint_spear",
-  // Примітка: Деякі S-grade зброї мають itemId 2500 (placeholder)
+  910201: "shop_weapon_s_apprentices_spellbook",
+  910202: "shop_weapon_s_baguette_s_dualsword",
+  910203: "shop_weapon_s_shining_bow",
 };
 
 // Маппінг для квест-шопу

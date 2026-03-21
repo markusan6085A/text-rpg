@@ -413,7 +413,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_apprentices_spellbook",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900201, // внутрішній id для SHOP_ITEM_ID_MAPPING (унікальний)
     name: "Apprentice's Spellbook",
     grade: "A",
     type: "weapon",
@@ -428,7 +428,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_baguette_s_dualsword",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900202,
     name: "Baguette's Dualsword",
     grade: "A",
     type: "weapon",
@@ -443,7 +443,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_barakiel_s_axe",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900203,
     name: "Barakiel's Axe",
     grade: "A",
     type: "weapon",
@@ -458,7 +458,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_behemoth_s_tuning_fork",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900204,
     name: "Behemoth's Tuning Fork",
     grade: "A",
     type: "weapon",
@@ -473,7 +473,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_blood_tornado",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900205,
     name: "Blood Tornado",
     grade: "A",
     type: "weapon",
@@ -488,7 +488,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_bloody_orchid",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900206,
     name: "Bloody Orchid",
     grade: "A",
     type: "weapon",
@@ -503,7 +503,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_branch_of_the_mother_tree",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900207,
     name: "Branch of The Mother Tree",
     grade: "A",
     type: "weapon",
@@ -518,7 +518,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_cabrio_s_hand",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900208,
     name: "Cabrio's Hand",
     grade: "A",
     type: "weapon",
@@ -533,7 +533,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_carnage_bow",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900209,
     name: "Carnage Bow",
     grade: "A",
     type: "weapon",
@@ -548,7 +548,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_daimon_crystal",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900210,
     name: "Daimon Crystal",
     grade: "A",
     type: "weapon",
@@ -593,7 +593,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_dragon_slayer",
-    itemId: 2500, // Dragon Slayer ID (з XML)
+    itemId: 900211,
     name: "Dragon Slayer",
     grade: "A",
     type: "weapon",
@@ -638,7 +638,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_infernal_master",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900212,
     name: "Infernal Master",
     grade: "A",
     type: "weapon",
@@ -653,7 +653,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_naga_storm",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900213,
     name: "Naga Storm",
     grade: "A",
     type: "weapon",
@@ -668,7 +668,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_shyeed_s_bow",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900214,
     name: "Shyeed's Bow",
     grade: "A",
     type: "weapon",
@@ -683,7 +683,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_sirra_s_blade",
-    itemId: 2500, // Sirra's Blade ID (з XML)
+    itemId: 900215,
     name: "Sirra's Blade",
     grade: "A",
     type: "weapon",
@@ -698,7 +698,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_sobekk_s_hurricane",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900216,
     name: "Sobekk's Hurricane",
     grade: "A",
     type: "weapon",
@@ -728,7 +728,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_soul_separator",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900217,
     name: "Soul Separator",
     grade: "A",
     type: "weapon",
@@ -743,7 +743,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_spiritual_eye",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900218,
     name: "Spiritual Eye",
     grade: "A",
     type: "weapon",
@@ -758,7 +758,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_sword_of_ipos",
-    itemId: 2500, // Sword of Ipos ID (з XML)
+    itemId: 900219,
     name: "Sword of Ipos",
     grade: "A",
     type: "weapon",
@@ -788,7 +788,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_tallum_blade",
-    itemId: 2500, // Tallum Blade ID (з XML)
+    itemId: 900220,
     name: "Tallum Blade",
     grade: "A",
     type: "weapon",
@@ -803,7 +803,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_tallum_glaive",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900221,
     name: "Tallum Glaive",
     grade: "A",
     type: "weapon",
@@ -818,7 +818,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_themis_tongue",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900222,
     name: "Themis Tongue",
     grade: "A",
     type: "weapon",
@@ -833,7 +833,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "shop_weapon_a_tiphon_s_spear",
-    itemId: 2500, // TODO: Знайти правильний ID
+    itemId: 900223,
     name: "Tiphon's Spear",
     grade: "A",
     type: "weapon",

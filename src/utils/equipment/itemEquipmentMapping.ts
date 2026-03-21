@@ -21,9 +21,8 @@
  * 3. Оновіть цей маппінг
  */
 export const ITEM_EQUIPMENT_MAPPING: Record<string, number> = {
-  // NG ARMOR
-  // TODO: Вказати правильні ID файлів екіпірування
-  ng_helmet_leather: 0, // Приклад - потрібно вказати правильні ID
+  // NG ARMOR (індекси PNG у `public/equipment/...`; змінюйте під ваші реальні файли)
+  ng_helmet_leather: 0,
   ng_armor_leather: 1,
   ng_gaiters_leather: 2,
   ng_gloves_leather: 3,
