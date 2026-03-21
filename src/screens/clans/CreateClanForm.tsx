@@ -1,4 +1,5 @@
 import React from "react";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface CreateClanFormProps {
   clanName: string;
@@ -15,6 +16,7 @@ export default function CreateClanForm({
   onToggleForm,
   onCreateClan,
 }: CreateClanFormProps) {
+  const isL2 = getCityUiVariant() === "l2";
   return (
     <>
       <div className="flex justify-center">
@@ -28,8 +30,16 @@ export default function CreateClanForm({
 
       {/* Форма створення клану */}
       {showForm && (
-        <div className="p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-2">
-          <div className="text-[12px] text-[#f4e2b8]">Название клана:</div>
+        <div
+          className={
+            isL2
+              ? "p-3 bg-black/25 border border-[#5c4a32]/55 rounded-md space-y-2"
+              : "p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-2"
+          }
+        >
+          <div className={isL2 ? "text-[12px] text-[#e8c56e]" : "text-[12px] text-[#f4e2b8]"}>
+            Название клана:
+          </div>
           <input
             type="text"
             value={clanName}
@@ -39,7 +49,11 @@ export default function CreateClanForm({
                 onCreateClan();
               }
             }}
-            className="w-full px-2 py-1 bg-[#2a2a2a] border border-white/50 text-[12px] text-white rounded"
+            className={
+              isL2
+                ? "w-full px-2 py-1 bg-[#0f0a06] border border-[#5c4a32]/50 text-[12px] text-[#e8dcc8] rounded placeholder-[#6a6048]"
+                : "w-full px-2 py-1 bg-[#2a2a2a] border border-white/50 text-[12px] text-white rounded"
+            }
             placeholder="Введите название (3-16 символов)"
             maxLength={16}
           />

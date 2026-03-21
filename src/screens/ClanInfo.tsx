@@ -5,6 +5,7 @@ import { ClanNameWithEmblem } from "../components/ClanNameWithEmblem";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { useHeroStore } from "../state/heroStore";
 import ClanMembersModal from "./clan/modals/ClanMembersModal";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface ClanInfoProps {
   navigate: (path: string) => void;
@@ -78,11 +79,26 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
     return 10; // level 1
   };
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const innerPanel = isL2
+    ? "w-full max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
+    : "";
+  const sepT = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/40";
+  const sepB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-white/40";
+
   if (loading) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex justify-center text-[#d4c4a8]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Загрузка...</div>
+          <div className={isL2 ? "text-center text-[#8a7a60]" : "text-center text-[#dec28e]"}>Загрузка...</div>
         </div>
       </div>
     );
@@ -90,9 +106,15 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
 
   if (!clan) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex justify-center text-[#d4c4a8]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Клан не найден</div>
+          <div className={isL2 ? "text-center text-[#8a7a60]" : "text-center text-[#dec28e]"}>Клан не найден</div>
         </div>
       </div>
     );
@@ -119,19 +141,27 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
   const currentMembers = members.slice(startIndex, endIndex);
 
   return (
-    <div className="w-full text-white px-4 py-2">
-      <div className="w-full max-w-[360px] mx-auto">
+    <div
+      className={
+        isL2 ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 text-[#d4c4a8]` : "w-full text-white px-4 py-2"
+      }
+    >
+      <div className={isL2 ? innerPanel : "w-full max-w-[360px] mx-auto"}>
         <div className="space-y-3">
           {/* Риска вище назви клану */}
-          <div className="border-t border-white/40"></div>
+          <div className={sepT} />
 
           {/* Назва клану */}
-          <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
+          <div
+            className={`text-center text-[16px] font-semibold ${
+              isL2 ? "text-[#e8c56e]" : "text-[#f4e2b8]"
+            }`}
+          >
             <ClanNameWithEmblem clan={clan} size={12} />
           </div>
 
           {/* Риска нижче назви клану */}
-          <div className="border-b border-white/40"></div>
+          <div className={sepB} />
 
           {/* Емблема клану */}
           <div className="flex justify-center">
@@ -148,12 +178,12 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
           {/* Статистика клану */}
           <div className="space-y-1 text-[12px]">
             <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Уровень:</span>
-              <span className="text-white">{clan.level}</span>
+              <span className={isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]"}>Уровень:</span>
+              <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>{clan.level}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Лидер:</span>
-              <span className="text-white">
+              <span className={isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]"}>Лидер:</span>
+              <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>
                 <PlayerNameWithEmblem
                   playerName={clan.creator.name}
                   hero={hero}
@@ -172,30 +202,42 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Репутация:</span>
-              <span className="text-white">{clan.reputation}</span>
+              <span className={isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]"}>Репутация:</span>
+              <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>{clan.reputation}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#c7ad80]">Основан:</span>
-              <span className="text-white">
+              <span className={isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]"}>Основан:</span>
+              <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>
                 {new Date(clan.createdAt).toLocaleDateString("ru-RU")}
               </span>
             </div>
           </div>
 
-          <div className="border-t border-white/40"></div>
+          <div className={sepT} />
 
           {/* Список учасників */}
           <div className="space-y-2">
             <div
-              className="text-[12px] text-[#c7ad80] font-semibold cursor-pointer hover:text-[#f4e2b8] transition-colors"
+              className={`text-[12px] font-semibold cursor-pointer transition-colors ${
+                isL2
+                  ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                  : "text-[#c7ad80] hover:text-[#f4e2b8]"
+              }`}
               onClick={() => setShowMembersModal(true)}
             >
               Состав ({members.length}/{maxMembers})
             </div>
-            <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
+            <div
+              className={
+                isL2
+                  ? "bg-black/25 border border-[#5c4a32]/55 rounded p-2 max-h-64 overflow-y-auto space-y-1"
+                  : "bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1"
+              }
+            >
               {currentMembers.length === 0 ? (
-                <div className="text-[11px] text-[#9f8d73]">Нет участников</div>
+                <div className={isL2 ? "text-[11px] text-[#8a7a60]" : "text-[11px] text-[#9f8d73]"}>
+                  Нет участников
+                </div>
               ) : (
                 currentMembers.map((member) => {
                   const isOnline = member.isOnline;
@@ -208,7 +250,11 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
                   return (
                     <div
                       key={member.id}
-                      className="text-[11px] border-b border-solid border-white/40 pb-1"
+                      className={
+                        isL2
+                          ? "text-[11px] border-b border-solid border-[#5c4a32]/35 pb-1"
+                          : "text-[11px] border-b border-solid border-white/40 pb-1"
+                      }
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -217,7 +263,13 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
                             hero={hero}
                             clan={clan}
                             size={10}
-                            className={`cursor-pointer hover:opacity-80 transition-colors ${isOnline ? "text-green-500" : "text-white"}`}
+                            className={`cursor-pointer hover:opacity-80 transition-colors ${
+                              isOnline
+                                ? "text-green-500"
+                                : isL2
+                                  ? "text-[#e8dcc8]"
+                                  : "text-white"
+                            }`}
                             onClick={(e) => {
                               e.stopPropagation();
                               if (member.characterId) {
@@ -228,7 +280,7 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
                             }}
                           />
                           <span className="ml-1">[{isOnline ? "On" : "Off"}]</span>
-                          <div className="text-[#9f8d73] mt-0.5">
+                          <div className={isL2 ? "text-[#8a7a60] mt-0.5" : "text-[#9f8d73] mt-0.5"}>
                             {titleDisplay}
                             {rolesDisplay}
                           </div>
@@ -242,7 +294,11 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
 
             {/* Пагінація учасників */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]">
+              <div
+                className={`flex justify-center items-center gap-2 text-[11px] ${
+                  isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]"
+                }`}
+              >
                 <button
                   onClick={() => {
                     if (membersPage > 1) {
@@ -250,11 +306,17 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
                     }
                   }}
                   disabled={membersPage === 1}
-                  className={`px-2 py-1 ${membersPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                  className={`px-2 py-1 ${
+                    membersPage === 1
+                      ? "text-gray-500 cursor-not-allowed"
+                      : isL2
+                        ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                        : "text-[#c7ad80] hover:text-[#f4e2b8]"
+                  }`}
                 >
                   &lt;
                 </button>
-                <span className="text-white">
+                <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>
                   {membersPage} / {totalPages}
                 </span>
                 <button
@@ -264,7 +326,13 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
                     }
                   }}
                   disabled={membersPage === totalPages}
-                  className={`px-2 py-1 ${membersPage === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+                  className={`px-2 py-1 ${
+                    membersPage === totalPages
+                      ? "text-gray-500 cursor-not-allowed"
+                      : isL2
+                        ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                        : "text-[#c7ad80] hover:text-[#f4e2b8]"
+                  }`}
                 >
                   &gt;
                 </button>
@@ -272,11 +340,17 @@ export default function ClanInfo({ navigate, clanId }: ClanInfoProps) {
             )}
           </div>
 
-          <div className="border-t border-white/40"></div>
+          <div className={sepT} />
 
           {/* Оголошення */}
           {clan.announcement && clan.announcement.trim() && (
-            <div className="p-2 bg-[#1a1a1a] border border-white/30 rounded text-[12px] text-[#c7ad80] whitespace-pre-wrap">
+            <div
+              className={
+                isL2
+                  ? "p-2 bg-black/25 border border-[#5c4a32]/50 rounded text-[12px] text-[#c9a44c] whitespace-pre-wrap"
+                  : "p-2 bg-[#1a1a1a] border border-white/30 rounded text-[12px] text-[#c7ad80] whitespace-pre-wrap"
+              }
+            >
               {clan.announcement}
             </div>
           )}

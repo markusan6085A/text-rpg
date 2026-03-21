@@ -5,6 +5,7 @@ import { getMyClan, createClan, listClans, getClanInvites, respondClanInvite, ty
 import CreateClanForm from "./clans/CreateClanForm";
 import ClanList from "./clans/ClanList";
 import ClanInvitesModal from "./clan/modals/ClanInvitesModal";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface ClansProps {
   navigate: (path: string) => void;
@@ -98,11 +99,28 @@ export default function Clans({ navigate }: ClansProps) {
     navigate(`/clan-info/${clanId}`);
   };
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const innerPanel = isL2
+    ? "w-full max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
+    : "";
+  const sepT = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/40";
+  const sepB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-white/40";
+
   if (!hero) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex justify-center text-[#d4c4a8]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Загрузка персонажа...</div>
+          <div className={isL2 ? "text-center text-[#8a7a60]" : "text-center text-[#dec28e]"}>
+            Загрузка персонажа...
+          </div>
         </div>
       </div>
     );
@@ -110,28 +128,42 @@ export default function Clans({ navigate }: ClansProps) {
 
   if (loading) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex justify-center text-[#d4c4a8]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Загрузка...</div>
+          <div className={isL2 ? "text-center text-[#8a7a60]" : "text-center text-[#dec28e]"}>Загрузка...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full text-white px-4 py-2">
-      <div className="w-full max-w-[360px] mx-auto">
+    <div
+      className={
+        isL2 ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 text-[#d4c4a8]` : "w-full text-white px-4 py-2"
+      }
+    >
+      <div className={isL2 ? innerPanel : "w-full max-w-[360px] mx-auto"}>
         <div className="space-y-2">
           {/* Риска вище заголовка */}
-          <div className="border-t border-white/40"></div>
+          <div className={sepT} />
 
           {/* Заголовок з кількістю кланів */}
-          <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
+          <div
+            className={`text-center text-[16px] font-semibold ${
+              isL2 ? "text-[#e8c56e]" : "text-[#f4e2b8]"
+            }`}
+          >
             Кланы ({allClans.length})
           </div>
 
           {/* Риска нижче заголовка */}
-          <div className="border-b border-white/40"></div>
+          <div className={sepB} />
 
           {/* clann.jpg - збільшена */}
           <div className="flex justify-center">
@@ -147,9 +179,19 @@ export default function Clans({ navigate }: ClansProps) {
 
           {/* Запрошення в клан */}
           {!myClan && invites.length > 0 && (
-            <div className="mb-2 p-2 bg-[#2a2a2a] border border-amber-600/50 rounded">
+            <div
+              className={
+                isL2
+                  ? "mb-2 p-2 bg-black/30 border border-[#c7ad80]/35 rounded"
+                  : "mb-2 p-2 bg-[#2a2a2a] border border-amber-600/50 rounded"
+              }
+            >
               <div
-                className="text-[12px] text-amber-400 cursor-pointer hover:text-amber-300"
+                className={
+                  isL2
+                    ? "text-[12px] text-[#c9a44c] cursor-pointer hover:text-[#e8c56e]"
+                    : "text-[12px] text-amber-400 cursor-pointer hover:text-amber-300"
+                }
                 onClick={() => setShowInvitesModal(true)}
               >
                 У вас {invites.length} запрошен(ь) в клан
@@ -170,10 +212,24 @@ export default function Clans({ navigate }: ClansProps) {
 
           {/* Показуємо інформацію про мій клан, якщо він є */}
           {myClan && (
-            <div className="p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-1 mb-2">
-              <div className="text-[12px] text-[#f4e2b8] font-semibold">Мой клан:</div>
+            <div
+              className={
+                isL2
+                  ? "p-3 bg-black/25 border border-[#5c4a32]/55 rounded-md space-y-1 mb-2"
+                  : "p-3 bg-[#1a1a1a] border border-white/40 rounded-md space-y-1 mb-2"
+              }
+            >
               <div
-                className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8] flex items-center gap-1"
+                className={`text-[12px] font-semibold ${isL2 ? "text-[#e8c56e]" : "text-[#f4e2b8]"}`}
+              >
+                Мой клан:
+              </div>
+              <div
+                className={`text-[12px] cursor-pointer flex items-center gap-1 ${
+                  isL2
+                    ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                    : "text-[#c7ad80] hover:text-[#f4e2b8]"
+                }`}
                 onClick={() => navigate(`/clan-info/${myClan.id}`)}
               >
                 {myClan.emblem && (
@@ -201,10 +257,12 @@ export default function Clans({ navigate }: ClansProps) {
           />
 
           {/* Риска вище тексту */}
-          <div className="border-t border-white/40"></div>
+          <div className={sepT} />
 
           {/* Текст внизу */}
-          <div className="text-[11px] text-[#9f8d73] space-y-1 pt-4">
+          <div
+            className={`text-[11px] space-y-1 pt-4 ${isL2 ? "text-[#8a7a60]" : "text-[#9f8d73]"}`}
+          >
             <div>
               Клан - это группа людей, объединенных общими идеями развития своих персонажей, целями их развития и средствами для их осуществления.
             </div>
@@ -214,7 +272,7 @@ export default function Clans({ navigate }: ClansProps) {
           </div>
 
           {/* Риска нижче тексту */}
-          <div className="border-b border-white/40"></div>
+          <div className={sepB} />
 
           {/* Кнопка назад */}
           <div className="mt-2 flex justify-center">

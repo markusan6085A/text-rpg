@@ -1,6 +1,7 @@
 import React from "react";
 import { ClanNameWithEmblem } from "../../components/ClanNameWithEmblem";
 import type { Clan } from "../../utils/api";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface ClanListItem {
   id: string;
@@ -24,6 +25,7 @@ export default function ClanList({
   onClanClick,
   onPageChange,
 }: ClanListProps) {
+  const isL2 = getCityUiVariant() === "l2";
   const totalPages = Math.max(1, Math.ceil(clans.length / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -31,7 +33,7 @@ export default function ClanList({
 
   if (clans.length === 0) {
     return (
-      <div className="text-center text-[#9f8d73] text-sm py-4">
+      <div className={isL2 ? "text-center text-[#8a7a60] text-sm py-4" : "text-center text-[#9f8d73] text-sm py-4"}>
         Кланов пока нет
       </div>
     );
@@ -40,7 +42,11 @@ export default function ClanList({
   return (
     <>
       {/* Заголовки таблиці */}
-      <div className="grid grid-cols-2 gap-2 text-[12px] text-[#c7ad80] border-b border-white/40 pb-1">
+      <div
+        className={`grid grid-cols-2 gap-2 text-[12px] border-b pb-1 ${
+          isL2 ? "text-[#e8c56e] border-[#5c4a32]/45" : "text-[#c7ad80] border-white/40"
+        }`}
+      >
         <div>Название</div>
         <div className="text-right">Уровень</div>
       </div>
@@ -50,7 +56,11 @@ export default function ClanList({
         {currentClans.map((clan) => (
           <div
             key={clan.id}
-            className="grid grid-cols-2 gap-2 text-[12px] text-[#d3d3d3] py-1 border-b border-solid border-white/40 cursor-pointer hover:text-[#f4e2b8]"
+            className={`grid grid-cols-2 gap-2 text-[12px] py-1 border-b border-solid cursor-pointer ${
+              isL2
+                ? "text-[#d4c4a8] border-[#5c4a32]/35 hover:text-[#e8c56e]"
+                : "text-[#d3d3d3] border-white/40 hover:text-[#f4e2b8]"
+            }`}
             onClick={() => onClanClick(clan.id)}
           >
             <div className="flex items-center gap-1">
@@ -73,18 +83,34 @@ export default function ClanList({
 
       {/* Пагінація */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 text-[12px] text-[#c7ad80]">
+        <div
+          className={`flex justify-center items-center gap-2 text-[12px] ${
+            isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]"
+          }`}
+        >
           <button
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
-            className={`px-2 py-1 ${currentPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+            className={`px-2 py-1 ${
+              currentPage === 1
+                ? "text-gray-500 cursor-not-allowed"
+                : isL2
+                  ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                  : "text-[#c7ad80] hover:text-[#f4e2b8]"
+            }`}
           >
             &lt;&lt;
           </button>
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-2 py-1 ${currentPage === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+            className={`px-2 py-1 ${
+              currentPage === 1
+                ? "text-gray-500 cursor-not-allowed"
+                : isL2
+                  ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                  : "text-[#c7ad80] hover:text-[#f4e2b8]"
+            }`}
           >
             &lt;
           </button>
@@ -94,8 +120,12 @@ export default function ClanList({
               onClick={() => onPageChange(page)}
               className={`px-2 py-1 ${
                 currentPage === page
-                  ? "text-[#f4e2b8] font-bold"
-                  : "text-[#c7ad80] hover:text-[#f4e2b8]"
+                  ? isL2
+                    ? "text-[#e8c56e] font-bold"
+                    : "text-[#f4e2b8] font-bold"
+                  : isL2
+                    ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                    : "text-[#c7ad80] hover:text-[#f4e2b8]"
               }`}
             >
               {page}
@@ -104,14 +134,26 @@ export default function ClanList({
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-2 py-1 ${currentPage === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+            className={`px-2 py-1 ${
+              currentPage === totalPages
+                ? "text-gray-500 cursor-not-allowed"
+                : isL2
+                  ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                  : "text-[#c7ad80] hover:text-[#f4e2b8]"
+            }`}
           >
             &gt;
           </button>
           <button
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
-            className={`px-2 py-1 ${currentPage === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+            className={`px-2 py-1 ${
+              currentPage === totalPages
+                ? "text-gray-500 cursor-not-allowed"
+                : isL2
+                  ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                  : "text-[#c7ad80] hover:text-[#f4e2b8]"
+            }`}
           >
             &gt;&gt;
           </button>
