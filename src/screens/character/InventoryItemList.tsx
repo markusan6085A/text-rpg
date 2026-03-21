@@ -21,6 +21,7 @@ interface InventoryItemListProps {
   hero: Hero;
   onItemClick: (item: HeroInventoryItem) => void;
   onEquipItem: (item: HeroInventoryItem) => void;
+  isL2?: boolean;
 }
 
 export default function InventoryItemList({
@@ -28,18 +29,32 @@ export default function InventoryItemList({
   hero,
   onItemClick,
   onEquipItem,
+  isL2 = false,
 }: InventoryItemListProps) {
-  return (
-    <div 
-      className="space-y-0 mb-3 rounded-xl border-2"
-      style={{
+  const listShell = isL2
+    ? "space-y-0 mb-3 rounded-lg border border-[#5c4a32]/65 min-h-[200px] bg-[radial-gradient(ellipse_100%_40%_at_50%_0%,rgba(120,90,45,0.15)_0%,transparent_45%),linear-gradient(180deg,#1a1610_0%,#0c0a08_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_4px_14px_rgba(0,0,0,0.45)] overflow-hidden"
+    : "space-y-0 mb-3 rounded-xl border-2";
+
+  const listShellStyle = isL2
+    ? undefined
+    : {
         backgroundColor: "#0f0c08",
         borderColor: "rgba(255,255,255,0.5)",
         minHeight: "200px",
-      }}
-    >
+      };
+
+  return (
+    <div className={listShell} style={listShellStyle}>
       {items.length === 0 ? (
-        <div className="text-center text-gray-400 py-4 text-[10px]">Пусто</div>
+        <div
+          className={
+            isL2
+              ? "text-center text-[#8a7a60] py-4 text-[10px]"
+              : "text-center text-gray-400 py-4 text-[10px]"
+          }
+        >
+          Пусто
+        </div>
       ) : (
         items.map((item: any, idx: number) => {
           const itemKey = item.id ?? item.itemId;
@@ -132,11 +147,19 @@ export default function InventoryItemList({
           return (
             <div
               key={idx}
-              className="flex items-center gap-1.5 px-2 py-1 border-b border-white/30 text-[10px]"
-              style={{
-                borderBottom: "1px solid #2a2a2a",
-                color: "#d9d9d9",
-              }}
+              className={
+                isL2
+                  ? "flex items-center gap-1.5 px-2 py-1.5 border-b border-[#5c4a32]/35 text-[10px] text-[#d4c4a8]"
+                  : "flex items-center gap-1.5 px-2 py-1 border-b border-white/30 text-[10px]"
+              }
+              style={
+                isL2
+                  ? undefined
+                  : {
+                      borderBottom: "1px solid #2a2a2a",
+                      color: "#d9d9d9",
+                    }
+              }
             >
               <div className="relative flex-shrink-0">
                 <img
@@ -159,23 +182,39 @@ export default function InventoryItemList({
               </div>
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => onItemClick(item)}
-                  className="text-[#d9d9d9] hover:text-[#f5d7a1] text-[10px] text-left flex-1"
+                  className={
+                    isL2
+                      ? "text-[#e8dcc8] hover:text-[#f4e2b8] text-[10px] text-left flex-1"
+                      : "text-[#d9d9d9] hover:text-[#f5d7a1] text-[10px] text-left flex-1"
+                  }
                 >
                   {itemDef?.name || item.name || itemKey}
                   {getItemGrade(item, itemDef) && (
-                    <span className="text-[#9ca3af] ml-1">({getItemGrade(item, itemDef)})</span>
+                    <span
+                      className={
+                        isL2 ? "text-[#8a7a60] ml-1" : "text-[#9ca3af] ml-1"
+                      }
+                    >
+                      ({getItemGrade(item, itemDef)})
+                    </span>
                   )}
                   {item.enchantLevel !== undefined && item.enchantLevel > 0 && ` +${item.enchantLevel}`}
                   {item.count && item.count > 1 ? ` (x${item.count})` : ""}
                 </button>
                 {isEquipable && !isEquipped && (
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEquipItem(item);
                     }}
-                    className="text-[#b8860b] hover:text-[#d4af37] text-[9px] font-semibold px-2 py-0.5 border border-white/50 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] whitespace-nowrap"
+                    className={
+                      isL2
+                        ? "text-[#c9a44c] hover:text-[#f4e2b8] text-[9px] font-semibold px-2 py-0.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/45 hover:brightness-110 whitespace-nowrap transition-[border-color,filter] duration-150"
+                        : "text-[#b8860b] hover:text-[#d4af37] text-[9px] font-semibold px-2 py-0.5 border border-white/50 rounded bg-[#2a2a2a] hover:bg-[#3a3a3a] whitespace-nowrap"
+                    }
                   >
                     Одеть
                   </button>

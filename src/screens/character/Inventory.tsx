@@ -12,6 +12,7 @@ import DeleteConfirmModal from "./DeleteConfirmModal";
 import IncreaseInventoryModal from "./modals/IncreaseInventoryModal";
 import TransferItemModal from "./modals/TransferItemModal";
 import OverflowChestModal from "./modals/OverflowChestModal";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта — показується в балансі персонажа, не в інвентарі
@@ -36,6 +37,16 @@ export default function Inventory() {
   const [wipeLoading, setWipeLoading] = useState(false);
   const [wipeError, setWipeError] = useState<string | null>(null);
   const characterId = useCharacterStore((s) => s.characterId);
+
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2RowBase =
+    "w-full text-[11px] py-2 px-2.5 mb-2 rounded-md flex items-center gap-2 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)]";
+  const l2ToolbarBtnSecondary =
+    "text-[10px] px-2 py-1 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[#d4c4a8] shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] hover:border-[#c7ad80]/45 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150";
+  const l2ToolbarBtnDanger =
+    "text-[10px] px-2 py-1 rounded-md border border-red-900/50 bg-gradient-to-b from-[#3a1818] to-[#1c0c0c] text-red-200/90 shadow-[inset_0_1px_0_rgba(255,120,120,0.08)] hover:border-red-600/60 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100";
 
   // Hero вже завантажений в App.tsx, не потрібно завантажувати тут
 
@@ -183,28 +194,50 @@ export default function Inventory() {
 
   if (!hero) {
     return (
-      <div className="text-white text-center pt-20">Загрузка...</div>
+      <div className="flex items-center justify-center gap-2 py-16 text-[#8a7a60]">
+        <div className="w-5 h-5 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin" />
+        <span className="text-xs">Загрузка...</span>
+      </div>
     );
   }
 
-  const adena = hero.adena || 0;
-
   return (
-    <div className="w-full flex flex-col items-center px-4 py-2">
-      <div className="w-full max-w-[360px]">
-        {/* Equipment вікно зверху */}
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 flex flex-col items-center px-3 py-3 text-[#e8dcc8]`
+          : "w-full flex flex-col items-center px-4 py-2 text-white"
+      }
+    >
+      <div className={isL2 ? "w-full max-w-[420px] mx-auto" : "w-full max-w-[360px]"}>
+        {isL2 && (
+          <div className="text-[13px] font-semibold text-[#e8c56e] text-center mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_14px_rgba(184,134,11,0.3)]">
+            Инвентарь
+          </div>
+        )}
         <Equipment compact={true} />
 
-        {/* Інвентар нижче */}
-        {/* Верхня частина: кількість слотів + кнопка збільшення */}
-        <div className="flex justify-between items-center gap-2 mb-1" style={{ color: "#d9d9d9" }}>
-          <div className="flex items-center gap-2">
-            <div className="text-xs">{itemsUsed}/{maxSlots}</div>
+        <div
+          className={
+            isL2
+              ? "flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2 rounded-lg border border-[#5c4a32]/40 bg-black/20 px-2.5 py-2"
+              : "flex justify-between items-center gap-2 mb-1"
+          }
+          style={isL2 ? undefined : { color: "#d9d9d9" }}
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className={isL2 ? "text-[11px] text-[#d4c4a8]" : "text-xs"}>
+              {itemsUsed}/{maxSlots}
+            </div>
             <button
               type="button"
               onClick={() => invCount > 0 && setShowWipeConfirm(true)}
               disabled={invCount === 0}
-              className="text-[11px] px-2 py-1 rounded border border-red-800/60 bg-red-900/30 text-red-300 hover:bg-red-900/50 hover:border-red-700/80 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className={
+                isL2
+                  ? l2ToolbarBtnDanger
+                  : "text-[11px] px-2 py-1 rounded border border-red-800/60 bg-red-900/30 text-red-300 hover:bg-red-900/50 hover:border-red-700/80 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              }
             >
               Очистить инвентарь
             </button>
@@ -212,30 +245,52 @@ export default function Inventory() {
           <button
             type="button"
             onClick={() => setShowIncreaseCapacityModal(true)}
-            className="text-[11px] px-2 py-1 rounded border border-[#6b6b6b] bg-[#4a4a4a] text-[#c0c0c0] hover:bg-[#5a5a5a] hover:border-[#7a7a7a] transition-colors"
+            className={
+              isL2
+                ? l2ToolbarBtnSecondary
+                : "text-[11px] px-2 py-1 rounded border border-[#6b6b6b] bg-[#4a4a4a] text-[#c0c0c0] hover:bg-[#5a5a5a] hover:border-[#7a7a7a] transition-colors"
+            }
           >
             Увеличить вместимость инвентаря
           </button>
         </div>
-        <div className="space-y-0.5 mb-2 text-left text-[11px]">
-          <div className="flex justify-between">
-            <span style={{ color: "#c7ad80" }}>Аден:</span>
-            <span className="text-gray-400">{(hero?.adena ?? 0).toLocaleString("ru-RU")}</span>
-          </div>
-          <div className="flex justify-between">
-            <span style={{ color: "#c7ad80" }}>Coin of Luck:</span>
-            <span className="text-gray-400">{hero?.coinOfLuck ?? 0}</span>
-          </div>
-          <div className="flex justify-between">
-            <span style={{ color: "#c7ad80" }}>Серебряные Монеты:</span>
-            <span className="text-gray-400">{(hero as any)?.coins_silver ?? 0}</span>
-          </div>
-        </div>
 
-        {/* Фільтри */}
+        {isL2 ? (
+          <div className="mb-2 space-y-0">
+            <div className={`${l2RowBase} justify-between text-[#e8dcc8]`}>
+              <span className="text-[#c7ad80]">Аден:</span>
+              <span className="text-[#f0d78c]">{(hero?.adena ?? 0).toLocaleString("ru-RU")}</span>
+            </div>
+            <div className={`${l2RowBase} justify-between text-[#e8dcc8]`}>
+              <span className="text-[#c7ad80]">Coin of Luck:</span>
+              <span className="text-[#f0d78c]">{hero?.coinOfLuck ?? 0}</span>
+            </div>
+            <div className={`${l2RowBase} justify-between text-[#e8dcc8]`}>
+              <span className="text-[#c7ad80]">Серебряные Монеты:</span>
+              <span className="text-[#f0d78c]">{(hero as any)?.coins_silver ?? 0}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-0.5 mb-2 text-left text-[11px]">
+            <div className="flex justify-between">
+              <span style={{ color: "#c7ad80" }}>Аден:</span>
+              <span className="text-gray-400">{(hero?.adena ?? 0).toLocaleString("ru-RU")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span style={{ color: "#c7ad80" }}>Coin of Luck:</span>
+              <span className="text-gray-400">{hero?.coinOfLuck ?? 0}</span>
+            </div>
+            <div className="flex justify-between">
+              <span style={{ color: "#c7ad80" }}>Серебряные Монеты:</span>
+              <span className="text-gray-400">{(hero as any)?.coins_silver ?? 0}</span>
+            </div>
+          </div>
+        )}
+
         <InventoryFilters
           currentCategory={currentCategory}
           currentGrade={currentGrade}
+          isL2={isL2}
           onCategoryChange={(category) => {
             setCurrentCategory(category);
             setCurrentGrade("");
@@ -247,10 +302,10 @@ export default function Inventory() {
           }}
         />
 
-        {/* Список предметів */}
         <InventoryItemList
           items={paginatedItems}
           hero={hero}
+          isL2={isL2}
           onItemClick={handleItemClick}
           onEquipItem={equipItem}
         />
@@ -273,55 +328,91 @@ export default function Inventory() {
             pages.push(totalPages);
           }
           return (
-            <div className="flex flex-wrap justify-center items-center gap-1 text-[10px]" style={{ color: "#d9d9d9" }}>
+            <div
+              className={
+                isL2
+                  ? "flex flex-wrap justify-center items-center gap-1 text-[10px] mt-2 rounded-md border border-[#5c4a32]/45 bg-black/20 px-2 py-1.5 text-[#d4c4a8]"
+                  : "flex flex-wrap justify-center items-center gap-1 text-[10px]"
+              }
+              style={isL2 ? undefined : { color: "#d9d9d9" }}
+            >
               <button
+                type="button"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
-                style={{ color: "#d9d9d9" }}
+                className={
+                  isL2
+                    ? "px-1.5 py-0.5 rounded disabled:opacity-30 disabled:cursor-not-allowed shrink-0 text-[#d4c4a8] hover:text-[#f4e2b8]"
+                    : "px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                }
+                style={!isL2 ? { color: "#d9d9d9" } : undefined}
                 title="На першу"
               >
                 &lt;&lt;
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
-                style={{ color: "#d9d9d9" }}
+                className={
+                  isL2
+                    ? "px-1.5 py-0.5 rounded disabled:opacity-30 disabled:cursor-not-allowed shrink-0 text-[#d4c4a8] hover:text-[#f4e2b8]"
+                    : "px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                }
+                style={!isL2 ? { color: "#d9d9d9" } : undefined}
                 title="Попередня"
               >
                 &lt;
               </button>
               {pages.map((p, i) =>
                 p === "…" ? (
-                  <span key={`ellipsis-${i}`} className="px-0.5">…</span>
+                  <span key={`ellipsis-${i}`} className="px-0.5 text-[#8a7a60]">
+                    …
+                  </span>
                 ) : (
                   <button
+                    type="button"
                     key={p}
                     onClick={() => setCurrentPage(p as number)}
-                    className={`px-1.5 py-0.5 shrink-0 ${
-                      currentPage === p ? "bg-[#5a4424] text-[#f5d7a1] font-semibold" : ""
+                    className={`px-1.5 py-0.5 shrink-0 rounded ${
+                      currentPage === p
+                        ? isL2
+                          ? "bg-[#5a4424] text-[#f5d7a1] font-semibold ring-1 ring-[#c7ad80]/25"
+                          : "bg-[#5a4424] text-[#f5d7a1] font-semibold"
+                        : isL2
+                          ? "text-[#d4c4a8] hover:text-[#f4e2b8]"
+                          : ""
                     }`}
-                    style={currentPage !== p ? { color: "#d9d9d9" } : {}}
+                    style={!isL2 && currentPage !== p ? { color: "#d9d9d9" } : undefined}
                   >
                     {p}
                   </button>
                 )
               )}
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
-                style={{ color: "#d9d9d9" }}
+                className={
+                  isL2
+                    ? "px-1.5 py-0.5 rounded disabled:opacity-30 disabled:cursor-not-allowed shrink-0 text-[#d4c4a8] hover:text-[#f4e2b8]"
+                    : "px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                }
+                style={!isL2 ? { color: "#d9d9d9" } : undefined}
                 title="Наступна"
               >
                 &gt;
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
-                className="px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
-                style={{ color: "#d9d9d9" }}
+                className={
+                  isL2
+                    ? "px-1.5 py-0.5 rounded disabled:opacity-30 disabled:cursor-not-allowed shrink-0 text-[#d4c4a8] hover:text-[#f4e2b8]"
+                    : "px-1.5 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                }
+                style={!isL2 ? { color: "#d9d9d9" } : undefined}
                 title="На останню"
               >
                 &gt;&gt;
@@ -378,19 +469,36 @@ export default function Inventory() {
       {showWipeConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4">
           <div
-            className="bg-[#14110c] border border-white/40 rounded-lg p-6 max-w-md w-full"
+            className={
+              isL2
+                ? "rounded-xl border border-[#c7ad80]/35 p-6 max-w-md w-full shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                : "bg-[#14110c] border border-white/40 rounded-lg p-6 max-w-md w-full"
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-red-400">Очистить инвентарь</h2>
+              <h2
+                className={
+                  isL2
+                    ? "text-base font-semibold text-red-300 [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                    : "text-lg font-semibold text-red-400"
+                }
+              >
+                Очистить инвентарь
+              </h2>
               <button
-                className="text-gray-400 hover:text-white text-xl"
+                type="button"
+                className={
+                  isL2
+                    ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl leading-none"
+                    : "text-gray-400 hover:text-white text-xl"
+                }
                 onClick={() => setShowWipeConfirm(false)}
               >
                 ×
               </button>
             </div>
-            <p className="text-gray-300 text-sm mb-6">
+            <p className={isL2 ? "text-[#d4c4a8] text-sm mb-6" : "text-gray-300 text-sm mb-6"}>
               Удалить все предметы из инвентаря? Экипировка не затронута. Действие нельзя отменить!
             </p>
             {wipeError && (
@@ -398,16 +506,22 @@ export default function Inventory() {
             )}
             <div className="flex justify-center gap-3">
               <button
+                type="button"
                 onClick={() => {
                   setShowWipeConfirm(false);
                   setWipeError(null);
                 }}
                 disabled={wipeLoading}
-                className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-gray-300 hover:bg-[#3a3a3a] disabled:opacity-50"
+                className={
+                  isL2
+                    ? "px-4 py-2 rounded-md bg-[#2a2620] border border-[#5c4a32]/70 text-xs text-[#d4c4a8] hover:border-[#c7ad80]/40 disabled:opacity-50"
+                    : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-gray-300 hover:bg-[#3a3a3a] disabled:opacity-50"
+                }
               >
                 Отмена
               </button>
               <button
+                type="button"
                 onClick={async () => {
                   if (!hero || !characterId) return;
                   setWipeError(null);
@@ -429,7 +543,7 @@ export default function Inventory() {
                   }
                 }}
                 disabled={wipeLoading}
-                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 text-xs font-semibold disabled:opacity-50"
+                className="px-4 py-2 rounded-md bg-red-700 text-white hover:bg-red-600 text-xs font-semibold disabled:opacity-50 border border-red-900/40"
               >
                 {wipeLoading ? "..." : "Удалить всё"}
               </button>
