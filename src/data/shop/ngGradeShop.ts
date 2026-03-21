@@ -7,7 +7,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== SHOTS (СОСКИ) =====
   // Для воїнів
   {
-    id: "shop_soulshot_ng",
+    id: "soulshot_ng",
     itemId: 2001, // Унікальний ID для NG-grade soulshot
     name: "Soulshot (NG-grade)",
     grade: "NG",
@@ -20,7 +20,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   // Для магів
   {
-    id: "shop_spiritshot_ng",
+    id: "spiritshot_ng",
     itemId: 2002, // Унікальний ID для NG-grade spiritshot
     name: "Spiritshot (NG-grade)",
     grade: "NG",
@@ -34,7 +34,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ARROWS (СТРІЛИ) =====
   {
-    id: "shop_wooden_arrow",
+    id: "wooden_arrow",
     itemId: 17, // ID деревяної стріли
     name: "Wooden Arrow",
     grade: "NG",
@@ -47,7 +47,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
   
   // ===== MATERIALS (МАТЕРІАЛИ) =====
   {
-    id: "shop_gludio_fish_lure",
+    id: "gludio_fish_lure",
     itemId: 5001, // Унікальний ID для наживки
     name: "Наживка для риби (Gludio)",
     grade: "NG",
@@ -58,7 +58,7 @@ export const NG_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Наживка для риболовлі з міста Gludio. Використовується для ловлі риби.",
   },
   {
-    id: "shop_baby_duck_rod",
+    id: "baby_duck_rod",
     itemId: 6529, // XML ID для Baby Duck Rod
     name: "Baby Duck Rod",
     grade: "NG",

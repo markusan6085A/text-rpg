@@ -8,7 +8,7 @@ import { B_GRADE_SHOP_ITEMS } from "../data/shop/bGradeShop";
 import { A_GRADE_SHOP_ITEMS } from "../data/shop/aGradeShop";
 import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../data/shop/consumablesShop";
-import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
+import { regularShopItemPriceMapKey } from "../data/shop/shopItemResolve";
 import type { ItemDefinition } from "../data/items/itemsDB.types";
 
 const ALL_SHOP = [
@@ -28,12 +28,7 @@ function buildShopPriceMap(): Record<string, number> {
   if (_shopPriceCache) return _shopPriceCache;
   const map: Record<string, number> = {};
   ALL_SHOP.forEach((item: any) => {
-    let id: string | undefined;
-    if (item.id && item.id.startsWith("shop_")) {
-      id = item.id.replace(/^shop_/, "");
-    } else {
-      id = SHOP_ITEM_ID_MAPPING[item.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
-    }
+    const id = regularShopItemPriceMapKey(item);
     if (id && item.price != null) map[id] = item.price;
   });
   _shopPriceCache = map;

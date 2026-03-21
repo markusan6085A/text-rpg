@@ -6,7 +6,7 @@ import type { ShopItem } from "./shopTypes";
 export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== БРОНЯ - СЕТ AVADON (Magic Armor Set - Robe) =====
   {
-    id: "shop_armor_b_avadon_circlet",
+    id: "avadon_circlet",
     itemId: 30001, // Унікальний ID
     name: "Avadon Circlet",
     grade: "B",
@@ -18,7 +18,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Діадема Авадона B-grade (Avadon Set).",
   },
   {
-    id: "shop_armor_b_avadon_robe",
+    id: "avadon_robe",
     itemId: 30002, // Унікальний ID
     name: "Avadon Robe",
     grade: "B",
@@ -30,7 +30,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Мантія Авадона B-grade (Avadon Set).",
   },
   {
-    id: "shop_armor_b_avadon_gloves",
+    id: "avadon_gloves",
     itemId: 30003, // Унікальний ID
     name: "Avadon Gloves",
     grade: "B",
@@ -42,7 +42,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці Авадона B-grade (Avadon Set).",
   },
   {
-    id: "shop_armor_b_avadon_boots",
+    id: "avadon_boots",
     itemId: 30004, // Унікальний ID
     name: "Avadon Boots",
     grade: "B",
@@ -56,7 +56,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== ЩИТИ =====
   {
-    id: "shop_shield_b_avadon_shield",
+    id: "avadon_shield",
     itemId: 673, // Avadon Shield ID
     name: "Avadon Shield",
     grade: "B",
@@ -68,7 +68,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Щит Авадона B-grade.",
   },
   {
-    id: "shop_shield_b_doom_shield",
+    id: "doom_shield",
     itemId: 110, // Doom Shield ID
     name: "Doom Shield",
     grade: "B",
@@ -80,7 +80,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Щит загибелі B-grade.",
   },
   {
-    id: "shop_shield_b_shield_of_pledge",
+    id: "shield_of_pledge",
     itemId: 111, // Shield of Pledge ID
     name: "Shield of Pledge",
     grade: "B",
@@ -94,7 +94,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ BLUE WOLF (Heavy Armor Set) =====
   {
-    id: "shop_armor_b_blue_wolf_helmet",
+    id: "blue_wolf_helmet",
     itemId: 2416, // Blue Wolf Helmet ID
     name: "Blue Wolf Helmet",
     grade: "B",
@@ -106,7 +106,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом синього вовка B-grade (Blue Wolf Set).",
   },
   {
-    id: "shop_armor_b_blue_wolf_breastplate",
+    id: "blue_wolf_breastplate",
     itemId: 358, // Blue Wolf Breastplate ID
     name: "Blue Wolf Breastplate",
     grade: "B",
@@ -118,7 +118,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Нагрудник синього вовка B-grade (Blue Wolf Set).",
   },
   {
-    id: "shop_armor_b_blue_wolf_gaiters",
+    id: "blue_wolf_gaiters",
     itemId: 2380, // Blue Wolf Gaiters ID
     name: "Blue Wolf Gaiters",
     grade: "B",
@@ -130,7 +130,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Штани синього вовка B-grade (Blue Wolf Set).",
   },
   {
-    id: "shop_armor_b_blue_wolf_gloves",
+    id: "blue_wolf_gloves",
     itemId: 2487, // Blue Wolf Gloves ID
     name: "Blue Wolf Gloves",
     grade: "B",
@@ -142,7 +142,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці синього вовка B-grade (Blue Wolf Set).",
   },
   {
-    id: "shop_armor_b_blue_wolf_boots",
+    id: "blue_wolf_boots",
     itemId: 2439, // Blue Wolf Boots ID
     name: "Blue Wolf Boots",
     grade: "B",
@@ -156,7 +156,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ DOOM OF FORTUNE (Light Armor Set) =====
   {
-    id: "shop_armor_b_doom_helmet_of_fortune",
+    id: "doom_helmet_of_fortune",
     itemId: 30008, // Унікальний ID
     name: "Doom Helmet of Fortune",
     grade: "B",
@@ -168,7 +168,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом загибелі удачі B-grade (Doom of Fortune Set).",
   },
   {
-    id: "shop_armor_b_leather_armor_of_doom_of_fortune",
+    id: "leather_armor_of_doom_of_fortune",
     itemId: 30009, // Унікальний ID
     name: "Leather Armor of Doom of Fortune",
     grade: "B",
@@ -180,7 +180,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Броня загибелі удачі B-grade (Doom of Fortune Set).",
   },
   {
-    id: "shop_armor_b_doom_gloves_of_fortune",
+    id: "doom_gloves_of_fortune",
     itemId: 30010, // Унікальний ID
     name: "Doom Gloves of Fortune",
     grade: "B",
@@ -192,7 +192,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці загибелі удачі B-grade (Doom of Fortune Set).",
   },
   {
-    id: "shop_armor_b_doom_boots_of_fortune",
+    id: "doom_boots_of_fortune",
     itemId: 30011, // Унікальний ID
     name: "Doom Boots of Fortune",
     grade: "B",
@@ -669,7 +669,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== SHOTS (СОСКИ) =====
   // Для воїнів
   {
-    id: "shop_soulshot_b",
+    id: "soulshot_b",
     itemId: 2009, // Унікальний ID для B-grade soulshot
     name: "Soulshot (B-grade)",
     grade: "B",
@@ -682,7 +682,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   // Для магів
   {
-    id: "shop_spiritshot_b",
+    id: "spiritshot_b",
     itemId: 2010, // Унікальний ID для B-grade spiritshot
     name: "Spiritshot (B-grade)",
     grade: "B",
@@ -696,7 +696,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ARROWS (СТРІЛИ) =====
   {
-    id: "shop_silver_arrow",
+    id: "silver_arrow",
     itemId: 2011, // Унікальний ID для B-grade стріли
     name: "Silver Arrow",
     grade: "B",
@@ -865,7 +865,7 @@ export const B_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Молот крижаної бурі B-grade. Дворучна зброя.",
   },
   {
-    id: "shop_weapon_b_kaim_vanul_s_bones",
+    id: "quest_weapon_b_kaim_vanul_s_bones",
     itemId: 7893, // Kaim Vanul's Bones ID (можливо помилка в XML, перевірити)
     name: "Kaim Vanul's Bones",
     grade: "B",

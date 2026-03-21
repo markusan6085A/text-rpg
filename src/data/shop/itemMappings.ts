@@ -361,7 +361,7 @@ export const SHOP_ITEM_ID_MAPPING: Record<number, string> = {
   7834: "shop_weapon_b_art_of_battle_axe",
   7788: "shop_weapon_b_arthro_nail",
   7792: "shop_weapon_b_baguette_s_dualsword",
-  7893: "shop_weapon_b_bellion_cestus", // Примітка: Kaim Vanul's Bones також має itemId 7893
+  7893: "shop_weapon_b_bellion_cestus", // У bGradeShop у Kaim Vanul окремий id quest_weapon_b_kaim_vanul_s_bones (itemsDB); Bellion лишається на цьому itemId
   7891: "shop_weapon_b_bow_of_peril",
   7890: "shop_weapon_b_dark_elven_long_bow",
   7791: "shop_weapon_b_deadman_s_glory",

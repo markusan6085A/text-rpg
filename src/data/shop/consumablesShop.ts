@@ -7,7 +7,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
   // ===== POTIONS (БУТИЛКИ) =====
   // HP Potions
   {
-    id: "shop_lesser_healing_potion",
+    id: "lesser_healing_potion",
     itemId: 3001, // Унікальний ID
     name: "Lesser Healing Potion",
     grade: "NG",
@@ -19,7 +19,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     restoreHp: 200,
   },
   {
-    id: "shop_healing_potion",
+    id: "healing_potion",
     itemId: 3002, // Унікальний ID
     name: "Healing Potion",
     grade: "D",
@@ -32,7 +32,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
   },
   // MP Potions
   {
-    id: "shop_lesser_mana_potion",
+    id: "lesser_mana_potion",
     itemId: 3003, // Унікальний ID
     name: "Lesser Mana Potion",
     grade: "NG",
@@ -44,7 +44,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     restoreMp: 200,
   },
   {
-    id: "shop_mana_potion",
+    id: "mana_potion",
     itemId: 3004, // Унікальний ID
     name: "Mana Potion",
     grade: "D",
@@ -57,7 +57,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
   },
   // CP Potion
   {
-    id: "shop_cp_potion",
+    id: "cp_potion",
     itemId: 3005, // Унікальний ID
     name: "CP Potion",
     grade: "NG",
@@ -71,7 +71,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ENCHANT SCROLLS - WEAPON (ЗАТОЧКИ НА ЗБРОЮ) =====
   {
-    id: "shop_d_enchant_weapon_scroll",
+    id: "d_enchant_weapon_scroll",
     itemId: 4001, // Унікальний ID
     name: "Scroll: Enchant Weapon (D-grade)",
     grade: "D",
@@ -82,7 +82,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для D-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
-    id: "shop_c_enchant_weapon_scroll",
+    id: "c_enchant_weapon_scroll",
     itemId: 4002, // Унікальний ID
     name: "Scroll: Enchant Weapon (C-grade)",
     grade: "C",
@@ -93,7 +93,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для C-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
-    id: "shop_b_enchant_weapon_scroll",
+    id: "b_enchant_weapon_scroll",
     itemId: 4003, // Унікальний ID
     name: "Scroll: Enchant Weapon (B-grade)",
     grade: "B",
@@ -104,7 +104,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для B-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
-    id: "shop_a_enchant_weapon_scroll",
+    id: "a_enchant_weapon_scroll",
     itemId: 4004, // Унікальний ID
     name: "Scroll: Enchant Weapon (A-grade)",
     grade: "A",
@@ -115,7 +115,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для A-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
-    id: "shop_s_enchant_weapon_scroll",
+    id: "s_enchant_weapon_scroll",
     itemId: 4005, // Унікальний ID
     name: "Scroll: Enchant Weapon (S-grade)",
     grade: "S",
@@ -128,7 +128,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ENCHANT SCROLLS - ARMOR (ЗАТОЧКИ НА БРОНЮ/БІЖУТЕРІЮ/ПОЯС/ПЛАЩ) =====
   {
-    id: "shop_d_enchant_armor_scroll",
+    id: "d_enchant_armor_scroll",
     itemId: 4006, // Унікальний ID
     name: "Scroll: Enchant Armor (D-grade)",
     grade: "D",
@@ -139,7 +139,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для D-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
-    id: "shop_c_enchant_armor_scroll",
+    id: "c_enchant_armor_scroll",
     itemId: 4007, // Унікальний ID
     name: "Scroll: Enchant Armor (C-grade)",
     grade: "C",
@@ -150,7 +150,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для C-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
-    id: "shop_b_enchant_armor_scroll",
+    id: "b_enchant_armor_scroll",
     itemId: 4008, // Унікальний ID
     name: "Scroll: Enchant Armor (B-grade)",
     grade: "B",
@@ -161,7 +161,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для B-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
-    id: "shop_a_enchant_armor_scroll",
+    id: "a_enchant_armor_scroll",
     itemId: 4009, // Унікальний ID
     name: "Scroll: Enchant Armor (A-grade)",
     grade: "A",
@@ -172,7 +172,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     description: "Заточка для A-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
-    id: "shop_s_enchant_armor_scroll",
+    id: "s_enchant_armor_scroll",
     itemId: 4010, // Унікальний ID
     name: "Scroll: Enchant Armor (S-grade)",
     grade: "S",

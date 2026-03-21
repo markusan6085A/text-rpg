@@ -6,7 +6,7 @@ import type { ShopItem } from "./shopTypes";
 export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== БРОНЯ - СЕТ MAJOR ARCANA (Magic Armor Set - Robe) =====
   {
-    id: "shop_armor_s_major_arcana_circlet",
+    id: "major_arcana_circlet",
     itemId: 6386, // Major Arcana Circlet ID
     name: "Major Arcana Circlet",
     grade: "S",
@@ -18,7 +18,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Діадема великої аркани S-grade (Major Arcana Set).",
   },
   {
-    id: "shop_armor_s_major_arcana_robe",
+    id: "major_arcana_robe",
     itemId: 6383, // Major Arcana Robe ID
     name: "Major Arcana Robe",
     grade: "S",
@@ -30,7 +30,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Мантія великої аркани S-grade (Major Arcana Set).",
   },
   {
-    id: "shop_armor_s_major_arcana_gloves",
+    id: "major_arcana_gloves",
     itemId: 6384, // Major Arcana Gloves ID
     name: "Major Arcana Gloves",
     grade: "S",
@@ -42,7 +42,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці великої аркани S-grade (Major Arcana Set).",
   },
   {
-    id: "shop_armor_s_major_arcana_boots",
+    id: "major_arcana_boots",
     itemId: 6385, // Major Arcana Boots ID
     name: "Major Arcana Boots",
     grade: "S",
@@ -56,7 +56,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ DRACONIC LEATHER (Light Armor Set) =====
   {
-    id: "shop_armor_s_draconic_leather_helmet",
+    id: "draconic_leather_helmet",
     itemId: 6382, // Draconic Leather Helmet ID
     name: "Draconic Leather Helmet",
     grade: "S",
@@ -68,7 +68,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом драконічної шкіри S-grade (Draconic Set).",
   },
   {
-    id: "shop_armor_s_draconic_leather_armor",
+    id: "draconic_leather_armor",
     itemId: 6379, // Draconic Leather Armor ID
     name: "Draconic Leather Armor",
     grade: "S",
@@ -80,7 +80,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Броня драконічної шкіри S-grade (Draconic Set).",
   },
   {
-    id: "shop_armor_s_draconic_leather_gloves",
+    id: "draconic_leather_gloves",
     itemId: 6380, // Draconic Leather Gloves ID
     name: "Draconic Leather Gloves",
     grade: "S",
@@ -92,7 +92,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці драконічної шкіри S-grade (Draconic Set).",
   },
   {
-    id: "shop_armor_s_draconic_leather_boots",
+    id: "draconic_leather_boots",
     itemId: 6381, // Draconic Leather Boots ID
     name: "Draconic Leather Boots",
     grade: "S",
@@ -106,7 +106,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ IMPERIAL CRUSADER (Heavy Armor Set) =====
   {
-    id: "shop_armor_s_imperial_crusader_helmet",
+    id: "imperial_crusader_helmet",
     itemId: 6378, // Imperial Crusader Helmet ID
     name: "Imperial Crusader Helmet",
     grade: "S",
@@ -118,7 +118,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
-    id: "shop_armor_s_imperial_crusader_breastplate",
+    id: "imperial_crusader_breastplate",
     itemId: 6373, // Imperial Crusader Breastplate ID
     name: "Imperial Crusader Breastplate",
     grade: "S",
@@ -130,7 +130,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Нагрудник імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
-    id: "shop_armor_s_imperial_crusader_gaiters",
+    id: "imperial_crusader_gaiters",
     itemId: 6374, // Imperial Crusader Gaiters ID
     name: "Imperial Crusader Gaiters",
     grade: "S",
@@ -142,7 +142,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Штани імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
-    id: "shop_armor_s_imperial_crusader_gauntlets",
+    id: "imperial_crusader_gauntlets",
     itemId: 6375, // Imperial Crusader Gauntlets ID
     name: "Imperial Crusader Gauntlets",
     grade: "S",
@@ -154,7 +154,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці імперського хрестоносця S-grade (Imperial Crusader Set).",
   },
   {
-    id: "shop_armor_s_imperial_crusader_boots",
+    id: "imperial_crusader_boots",
     itemId: 6376, // Imperial Crusader Boots ID
     name: "Imperial Crusader Boots",
     grade: "S",
@@ -168,7 +168,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== ЩИТИ =====
   {
-    id: "shop_shield_s_imperial_crusader_shield",
+    id: "imperial_crusader_shield",
     itemId: 6377, // Imperial Crusader Shield ID
     name: "Imperial Crusader Shield",
     grade: "S",
@@ -225,7 +225,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== SHOTS (СОСКИ) =====
   // Для воїнів
   {
-    id: "shop_soulshot_s",
+    id: "soulshot_s",
     itemId: 2015, // Унікальний ID для S-grade soulshot
     name: "Soulshot (S-grade)",
     grade: "S",
@@ -238,7 +238,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   // Для магів
   {
-    id: "shop_spiritshot_s",
+    id: "spiritshot_s",
     itemId: 2016, // Унікальний ID для S-grade spiritshot
     name: "Spiritshot (S-grade)",
     grade: "S",
@@ -252,7 +252,7 @@ export const S_GRADE_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ARROWS (СТРІЛИ) =====
   {
-    id: "shop_shining_arrow",
+    id: "shining_arrow",
     itemId: 2017, // Унікальний ID для S-grade стріли
     name: "Shining Arrow",
     grade: "S",

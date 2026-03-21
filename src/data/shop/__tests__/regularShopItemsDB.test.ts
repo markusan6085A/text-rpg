@@ -6,7 +6,7 @@ import { B_GRADE_SHOP_ITEMS } from "../bGradeShop";
 import { A_GRADE_SHOP_ITEMS } from "../aGradeShop";
 import { S_GRADE_SHOP_ITEMS } from "../sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../consumablesShop";
-import { SHOP_ITEM_ID_MAPPING } from "../itemMappings";
+import { resolveRegularShopItemsDBId } from "../shopItemResolve";
 import { itemsDB } from "../../items/itemsDB";
 import type { ShopItem } from "../shopTypes";
 
@@ -20,26 +20,25 @@ const REGULAR_SHOP_ITEMS: ShopItem[] = [
   ...CONSUMABLES_SHOP_ITEMS,
 ];
 
-/** Як у Shop.tsx handleBuy: спочатку id у itemsDB, інакше числовий маппінг. */
-function resolveShopItemsDBId(item: ShopItem): string | undefined {
-  if (item.id && itemsDB[item.id]) return item.id;
-  return SHOP_ITEM_ID_MAPPING[item.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
-}
-
 describe("regular Shop (NG–S + consumables) vs itemsDB", () => {
-  it("кожен рядок резолвиться в itemsDB (id або SHOP_ITEM_ID_MAPPING)", () => {
-    const unresolved: string[] = [];
+  it("кожен item.id — канонічний ключ itemsDB", () => {
+    const missing: string[] = [];
     for (const item of REGULAR_SHOP_ITEMS) {
-      const dbId = resolveShopItemsDBId(item);
-      if (!dbId || !itemsDB[dbId]) {
-        unresolved.push(
-          `${item.name} (shop id=${item.id}, itemId=${item.itemId} → ${dbId ?? "no mapping"})`
-        );
+      if (!item.id) {
+        missing.push("(empty id)");
+        continue;
       }
+      if (!itemsDB[item.id]) missing.push(item.id);
     }
     expect(
-      unresolved,
-      `Не резолвиться (${unresolved.length}): ${unresolved.slice(0, 15).join("; ")}${unresolved.length > 15 ? "…" : ""}`
+      missing,
+      `Відсутні в itemsDB (${missing.length}): ${missing.slice(0, 40).join(", ")}${missing.length > 40 ? "…" : ""}`
     ).toEqual([]);
+  });
+
+  it("resolveRegularShopItemsDBId збігається з item.id", () => {
+    for (const item of REGULAR_SHOP_ITEMS) {
+      expect(resolveRegularShopItemsDBId(item)).toBe(item.id);
+    }
   });
 });

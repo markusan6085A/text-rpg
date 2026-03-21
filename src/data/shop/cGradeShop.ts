@@ -6,7 +6,7 @@ import type { ShopItem } from "./shopTypes";
 export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== БРОНЯ - СЕТ DEMON'S (Magic Armor Set - Robe) =====
   {
-    id: "shop_armor_c_demons_helmet",
+    id: "demons_helmet",
     itemId: 20001, // Унікальний ID
     name: "Demon's Helmet",
     grade: "C",
@@ -18,7 +18,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом демона C-grade (Demon's Set).",
   },
   {
-    id: "shop_armor_c_demons_tunic",
+    id: "demons_tunic",
     itemId: 441,
     name: "Demon's Tunic",
     grade: "C",
@@ -30,7 +30,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Туніка демона C-grade (Demon's Set).",
   },
   {
-    id: "shop_armor_c_demons_stockings",
+    id: "demons_stockings",
     itemId: 472,
     name: "Demon's Stockings",
     grade: "C",
@@ -42,7 +42,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Панчохи демона C-grade (Demon's Set).",
   },
   {
-    id: "shop_armor_c_demons_gloves",
+    id: "demons_gloves",
     itemId: 2459,
     name: "Demon's Gloves",
     grade: "C",
@@ -54,7 +54,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці демона C-grade (Demon's Set).",
   },
   {
-    id: "shop_armor_c_demons_boots",
+    id: "demons_boots",
     itemId: 2435,
     name: "Demon's Boots",
     grade: "C",
@@ -68,7 +68,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ KARMIAN (Magic Armor Set - Robe) =====
   {
-    id: "shop_armor_c_karmian_helmet",
+    id: "karmian_helmet",
     itemId: 20002, // Унікальний ID
     name: "Karmian Helmet",
     grade: "C",
@@ -80,7 +80,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом карміан C-grade (Karmian Set).",
   },
   {
-    id: "shop_armor_c_karmian_tunic",
+    id: "karmian_tunic",
     itemId: 439,
     name: "Karmian Tunic",
     grade: "C",
@@ -92,7 +92,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Туніка карміан C-grade (Karmian Set).",
   },
   {
-    id: "shop_armor_c_karmian_stockings",
+    id: "karmian_stockings",
     itemId: 471,
     name: "Karmian Stockings",
     grade: "C",
@@ -104,7 +104,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Панчохи карміан C-grade (Karmian Set).",
   },
   {
-    id: "shop_armor_c_karmian_gloves",
+    id: "karmian_gloves",
     itemId: 2454,
     name: "Karmian Gloves",
     grade: "C",
@@ -116,7 +116,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці карміан C-grade (Karmian Set).",
   },
   {
-    id: "shop_armor_c_karmian_boots",
+    id: "karmian_boots",
     itemId: 2430,
     name: "Karmian Boots",
     grade: "C",
@@ -130,7 +130,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ PLATED LEATHER (Light Armor Set) =====
   {
-    id: "shop_armor_c_plated_leather_helmet",
+    id: "plated_leather_helmet",
     itemId: 20003, // Унікальний ID
     name: "Plated Leather Helmet",
     grade: "C",
@@ -142,7 +142,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
-    id: "shop_armor_c_plated_leather_armor",
+    id: "plated_leather",
     itemId: 398,
     name: "Plated Leather Armor",
     grade: "C",
@@ -154,7 +154,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Броня з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
-    id: "shop_armor_c_plated_leather_gaiters",
+    id: "plated_leather_gaiters",
     itemId: 418,
     name: "Plated Leather Gaiters",
     grade: "C",
@@ -166,7 +166,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Штани з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
-    id: "shop_armor_c_plated_leather_gloves",
+    id: "plated_leather_gloves",
     itemId: 2455,
     name: "Plated Leather Gloves",
     grade: "C",
@@ -178,7 +178,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці з пластинчастої шкіри C-grade (Plated Leather Set).",
   },
   {
-    id: "shop_armor_c_plated_leather_boots",
+    id: "plated_leather_boots",
     itemId: 2431,
     name: "Plated Leather Boots",
     grade: "C",
@@ -192,7 +192,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== ЩИТИ =====
   {
-    id: "shop_shield_c_composite_shield",
+    id: "composite_shield",
     itemId: 107, // Composite Shield ID
     name: "Composite Shield",
     grade: "C",
@@ -204,7 +204,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Композитний щит C-grade.",
   },
   {
-    id: "shop_shield_c_full_plate_shield",
+    id: "full_plate_shield",
     itemId: 2497, // Full Plate Shield ID
     name: "Full Plate Shield",
     grade: "C",
@@ -405,7 +405,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== SHOTS (СОСКИ) =====
   // Для воїнів
   {
-    id: "shop_soulshot_c",
+    id: "soulshot_c",
     itemId: 2006, // Унікальний ID для C-grade soulshot
     name: "Soulshot (C-grade)",
     grade: "C",
@@ -418,7 +418,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   // Для магів
   {
-    id: "shop_spiritshot_c",
+    id: "spiritshot_c",
     itemId: 2007, // Унікальний ID для C-grade spiritshot
     name: "Spiritshot (C-grade)",
     grade: "C",
@@ -432,7 +432,7 @@ export const C_GRADE_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ARROWS (СТРІЛИ) =====
   {
-    id: "shop_fine_steel_arrow",
+    id: "fine_steel_arrow",
     itemId: 2008, // Унікальний ID для C-grade стріли
     name: "Fine Steel Arrow",
     grade: "C",

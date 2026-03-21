@@ -6,7 +6,7 @@ import type { ShopItem } from "./shopTypes";
 export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== БРОНЯ - СЕТ MAJESTIC (Magic Armor Set - Robe) =====
   {
-    id: "shop_armor_a_majestic_circlet",
+    id: "majestic_circlet",
     itemId: 2419, // Majestic Circlet ID
     name: "Majestic Circlet",
     grade: "A",
@@ -18,7 +18,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Діадема величі A-grade (Majestic Set).",
   },
   {
-    id: "shop_armor_a_majestic_robe",
+    id: "majestic_robe",
     itemId: 2409, // Majestic Robe ID
     name: "Majestic Robe",
     grade: "A",
@@ -30,7 +30,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Мантія величі A-grade (Majestic Set).",
   },
   {
-    id: "shop_armor_a_majestic_gauntlets",
+    id: "majestic_gauntlets",
     itemId: 2482, // Majestic Gauntlets ID
     name: "Majestic Gauntlets",
     grade: "A",
@@ -42,7 +42,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці величі A-grade (Majestic Set).",
   },
   {
-    id: "shop_armor_a_majestic_boots",
+    id: "majestic_boots",
     itemId: 583, // Majestic Boots ID
     name: "Majestic Boots",
     grade: "A",
@@ -56,7 +56,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ APELLA (Light Armor Set) =====
   {
-    id: "shop_armor_a_apella_helm",
+    id: "apella_helm",
     itemId: 7860, // Apella Helm ID
     name: "Apella Helm",
     grade: "A",
@@ -68,7 +68,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом Апелли A-grade (Apella Set).",
   },
   {
-    id: "shop_armor_a_apella_brigandine",
+    id: "apella_brigandine",
     itemId: 7864, // Apella Brigandine ID
     name: "Apella Brigandine",
     grade: "A",
@@ -80,7 +80,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Бригантина Апелли A-grade (Apella Set).",
   },
   {
-    id: "shop_armor_a_apella_leather_gloves",
+    id: "apella_leather_gloves_light_armor",
     itemId: 7865, // Apella Leather Gloves ID
     name: "Apella Leather Gloves",
     grade: "A",
@@ -92,7 +92,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шкіряні рукавиці Апелли A-grade (Apella Set).",
   },
   {
-    id: "shop_armor_a_apella_boots",
+    id: "apella_boots_light_armor",
     itemId: 7866, // Apella Boots ID
     name: "Apella Boots",
     grade: "A",
@@ -106,7 +106,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ DARK CRYSTAL (Heavy Armor Set) =====
   {
-    id: "shop_armor_a_dark_crystal_helmet",
+    id: "dark_crystal_helmet",
     itemId: 512, // Dark Crystal Helmet ID
     name: "Dark Crystal Helmet",
     grade: "A",
@@ -118,7 +118,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом темного кристалу A-grade (Dark Crystal Set).",
   },
   {
-    id: "shop_armor_a_dark_crystal_breastplate",
+    id: "dark_crystal_breastplate",
     itemId: 365, // Dark Crystal Breastplate ID
     name: "Dark Crystal Breastplate",
     grade: "A",
@@ -130,7 +130,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Нагрудник темного кристалу A-grade (Dark Crystal Set).",
   },
   {
-    id: "shop_armor_a_dark_crystal_gaiters",
+    id: "dark_crystal_gaiters",
     itemId: 388, // Dark Crystal Gaiters ID
     name: "Dark Crystal Gaiters",
     grade: "A",
@@ -142,7 +142,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Штани темного кристалу A-grade (Dark Crystal Set).",
   },
   {
-    id: "shop_armor_a_dark_crystal_gloves",
+    id: "dark_crystal_gloves",
     itemId: 2472, // Dark Crystal Gloves ID
     name: "Dark Crystal Gloves",
     grade: "A",
@@ -154,7 +154,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці темного кристалу A-grade (Dark Crystal Set).",
   },
   {
-    id: "shop_armor_a_dark_crystal_boots",
+    id: "dark_crystal_boots",
     itemId: 563, // Dark Crystal Boots ID
     name: "Dark Crystal Boots",
     grade: "A",
@@ -168,7 +168,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== ЩИТИ =====
   {
-    id: "shop_shield_a_dark_crystal_shield",
+    id: "dark_crystal_shield",
     itemId: 641, // Dark Crystal Shield ID
     name: "Dark Crystal Shield",
     grade: "A",
@@ -180,7 +180,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Щит темного кристалу A-grade.",
   },
   {
-    id: "shop_shield_a_shield_of_nightmare",
+    id: "shield_of_nightmare",
     itemId: 2498, // Shield of Nightmare ID
     name: "Shield of Nightmare",
     grade: "A",
@@ -345,7 +345,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== SHOTS (СОСКИ) =====
   // Для воїнів
   {
-    id: "shop_soulshot_a",
+    id: "soulshot_a",
     itemId: 2012, // Унікальний ID для A-grade soulshot
     name: "Soulshot (A-grade)",
     grade: "A",
@@ -358,7 +358,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   // Для магів
   {
-    id: "shop_spiritshot_a",
+    id: "spiritshot_a",
     itemId: 2013, // Унікальний ID для A-grade spiritshot
     name: "Spiritshot (A-grade)",
     grade: "A",
@@ -372,7 +372,7 @@ export const A_GRADE_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ARROWS (СТРІЛИ) =====
   {
-    id: "shop_mithril_arrow",
+    id: "mithril_arrow",
     itemId: 2014, // Унікальний ID для A-grade стріли
     name: "Mithril Arrow",
     grade: "A",

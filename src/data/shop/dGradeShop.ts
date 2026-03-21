@@ -6,7 +6,7 @@ import type { ShopItem } from "./shopTypes";
 export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== БРОНЯ - СЕТ MITHRIL (Heavy Armor Set) =====
   {
-    id: "shop_armor_d_mithril_helmet",
+    id: "mithril_helmet",
     itemId: 499, // Використовуємо існуючий ID з itemsDB
     name: "Mithril Helmet",
     grade: "D",
@@ -18,7 +18,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Мітриловий шолом D-grade (Mithril Set).",
   },
   {
-    id: "shop_armor_d_mithril_breastplate",
+    id: "mithril_breastplate",
     itemId: 58,
     name: "Mithril Breastplate",
     grade: "D",
@@ -30,7 +30,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Мітриловий нагрудник D-grade (Mithril Set).",
   },
   {
-    id: "shop_armor_d_mithril_gaiters",
+    id: "mithril_gaiters",
     itemId: 59,
     name: "Mithril Gaiters",
     grade: "D",
@@ -42,7 +42,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Мітрилові штани D-grade (Mithril Set).",
   },
   {
-    id: "shop_armor_d_mithril_gloves",
+    id: "mithril_gloves",
     itemId: 61,
     name: "Mithril Gloves",
     grade: "D",
@@ -54,7 +54,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Мітрилові рукавиці D-grade (Mithril Set).",
   },
   {
-    id: "shop_armor_d_mithril_boots",
+    id: "mithril_boots",
     itemId: 62,
     name: "Mithril Boots",
     grade: "D",
@@ -68,7 +68,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ REINFORCED (Light Armor Set) =====
   {
-    id: "shop_armor_d_reinforced_helmet",
+    id: "leather_helmet",
     itemId: 44, // Використовуємо приблизний ID (Leather Helmet)
     name: "Reinforced Helmet",
     grade: "D",
@@ -80,7 +80,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Укріплений шолом D-grade (Reinforced Set).",
   },
   {
-    id: "shop_armor_d_reinforced_leather_shirt",
+    id: "reinforced_leather_shirt",
     itemId: 394,
     name: "Reinforced Leather Shirt",
     grade: "D",
@@ -92,7 +92,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Укріплена шкіряна сорочка D-grade (Reinforced Set).",
   },
   {
-    id: "shop_armor_d_reinforced_leather_gaiters",
+    id: "reinforced_leather_gaiters",
     itemId: 416,
     name: "Reinforced Leather Gaiters",
     grade: "D",
@@ -104,7 +104,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Укріплені шкіряні штани D-grade (Reinforced Set).",
   },
   {
-    id: "shop_armor_d_reinforced_gloves",
+    id: "reinforced_gloves",
     itemId: 720,
     name: "Reinforced Gloves",
     grade: "D",
@@ -116,7 +116,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Укріплені рукавиці D-grade (Reinforced Set).",
   },
   {
-    id: "shop_armor_d_reinforced_leather_boots",
+    id: "reinforced_leather_boots",
     itemId: 2422,
     name: "Reinforced Leather Boots",
     grade: "D",
@@ -130,7 +130,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ KNOWLEDGE (Magic Armor Set) =====
   {
-    id: "shop_armor_d_knowledge_helmet",
+    id: "cloth_cap",
     itemId: 41, // Використовуємо приблизний ID (Cloth Cap)
     name: "Helmet of Knowledge",
     grade: "D",
@@ -142,7 +142,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Шолом знання D-grade (Knowledge Set).",
   },
   {
-    id: "shop_armor_d_tunic_of_knowledge",
+    id: "tunic_of_knowledge",
     itemId: 436,
     name: "Tunic of Knowledge",
     grade: "D",
@@ -154,7 +154,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Туніка знання D-grade (Knowledge Set).",
   },
   {
-    id: "shop_armor_d_stockings_of_knowledge",
+    id: "stockings_of_knowledge",
     itemId: 469,
     name: "Stockings of Knowledge",
     grade: "D",
@@ -166,7 +166,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Панчохи знання D-grade (Knowledge Set).",
   },
   {
-    id: "shop_armor_d_gloves_of_knowledge",
+    id: "gloves_of_knowledge",
     itemId: 2447,
     name: "Gloves of Knowledge",
     grade: "D",
@@ -178,7 +178,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Рукавиці знання D-grade (Knowledge Set).",
   },
   {
-    id: "shop_armor_d_boots_of_knowledge",
+    id: "boots_of_knowledge",
     itemId: 2423,
     name: "Boots of Knowledge",
     grade: "D",
@@ -192,7 +192,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
 
   // ===== ЩИТИ =====
   {
-    id: "shop_shield_d_bronze_shield",
+    id: "bronze_shield",
     itemId: 626,
     name: "Bronze Shield",
     grade: "D",
@@ -204,7 +204,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Бронзовий щит D-grade.",
   },
   {
-    id: "shop_shield_d_hoplon",
+    id: "hoplon",
     itemId: 628,
     name: "Hoplon",
     grade: "D",
@@ -216,7 +216,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
     description: "Гоплон D-grade.",
   },
   {
-    id: "shop_shield_d_plate_shield",
+    id: "plate_shield",
     itemId: 2494,
     name: "Plate Shield",
     grade: "D",
@@ -417,7 +417,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
   // ===== SHOTS (СОСКИ) =====
   // Для воїнів
   {
-    id: "shop_soulshot_d",
+    id: "soulshot_d",
     itemId: 2003, // Унікальний ID для D-grade soulshot
     name: "Soulshot (D-grade)",
     grade: "D",
@@ -430,7 +430,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
   },
   // Для магів
   {
-    id: "shop_spiritshot_d",
+    id: "spiritshot_d",
     itemId: 2004, // Унікальний ID для D-grade spiritshot
     name: "Spiritshot (D-grade)",
     grade: "D",
@@ -444,7 +444,7 @@ export const D_GRADE_SHOP_ITEMS: ShopItem[] = [
   
   // ===== ARROWS (СТРІЛИ) =====
   {
-    id: "shop_bone_arrow",
+    id: "bone_arrow",
     itemId: 2005, // Унікальний ID для D-grade стріли
     name: "Bone Arrow",
     grade: "D",

@@ -9,7 +9,7 @@ import { B_GRADE_SHOP_ITEMS } from "../data/shop/bGradeShop";
 import { A_GRADE_SHOP_ITEMS } from "../data/shop/aGradeShop";
 import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { QUEST_SHOP_WEAPONS, QUEST_SHOP_SETS, QUEST_SHOP_ACCESSORIES } from "../data/shop/questShop";
-import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
+import { resolveRegularShopItemsDBId } from "../data/shop/shopItemResolve";
 
 const GRADE_CHANCE: Record<string, number> = { D: 0.7, C: 0.7, B: 0.1, A: 0.1, S: 0.1 };
 const ENCHANT_SCROLLS_BY_GRADE: Record<string, string[]> = {
@@ -35,8 +35,13 @@ function getShopIdsByTypeAndGrade(type: string): Record<string, string[]> {
     const ids: string[] = [];
     items.forEach((shopItem: any) => {
       if (shopItem.type !== type) return;
-      const id = SHOP_ITEM_ID_MAPPING[shopItem.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
-      if (id && itemsDB[id]) ids.push(id);
+      let id: string;
+      try {
+        id = resolveRegularShopItemsDBId(shopItem);
+      } catch {
+        return;
+      }
+      if (itemsDB[id]) ids.push(id);
     });
     if (ids.length > 0) byGrade[grade] = ids;
   });
