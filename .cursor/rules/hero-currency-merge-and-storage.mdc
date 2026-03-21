@@ -52,11 +52,11 @@ alwaysApply: true
 
 **По коду (актуально):**
 
-1. **`Register.tsx`** після успіху: `setCharacterId`, `setJSON("l2_current_user", trimmedUsername)`, `loadHeroFromAPI()` → `setHero(loadedHero)` або fallback `coreHero`; оновлює **`l2_accounts_v2`** (запис `{ username, hero }` через єдиний helper у `heroPersistence.ts`).
+1. **`Register.tsx`** після успіху: `setCharacterId`, `syncCurrentUserAndAccountHero(trimmedUsername)` перед завантаженням, `loadHeroFromAPI()` → `setHero` + `syncCurrentUserAndAccountHero(trimmedUsername, hero)` (або fallback).
 2. **Після F5:** `initializeCharacter()` читає `current_character_id`; `loadHero()` знаходить `l2_current_user` і героя в `l2_accounts_v2` — локальний герой піднімається миттєво; у фоні `loadHeroFromAPI()` може оновити з сервера за merge-правилами.
 3. Якщо **немає** ні токена, ні `characterId`, ні локального запису — сценарій як у Landing (логін через API).
 
-**Висновок:** Після реєстрації локальний бекап у `l2_accounts_v2` має бути; не дублювати логіку запису — один публічний helper у `heroPersistence.ts`.
+**Висновок:** Після реєстрації локальний бекап у `l2_accounts_v2` має бути; використовувати **`syncCurrentUserAndAccountHero(username, hero?)`** у `heroPersistence.ts`.
 
 ---
 
@@ -70,7 +70,7 @@ alwaysApply: true
 | `src/state/heroStore/heroLoad.ts` | Міграції при читанні (fixProfession, Angel Slayer тощо). |
 | `src/utils/fixProfession.ts` | `fixAllHeroProfessions()` — опційно, наразі може не викликатись. |
 
-**Bootstrap (логін / після auth на `/`):** `App.tsx` і **`Register.tsx`** не повинні дублювати масив `accounts` вручну — лише helper з `heroPersistence.ts`.
+**Bootstrap (логін / після auth на `/`):** `App.tsx` і **`Register.tsx`** викликають лише **`syncCurrentUserAndAccountHero`**.
 
 Правило: **не додавати нові прямі `setJSON("l2_accounts_v2", ...)`** поза `heroPersistence`, `heroLoad` (міграції) та `fixProfession`.
 

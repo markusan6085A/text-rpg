@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createNewHero } from "../state/heroFactory";
 import { clearBattlePersist } from "../state/battle/persist";
 import { useHeroStore } from "../state/heroStore";
-import { getJSON, setJSON } from "../state/persistence";
+import { syncCurrentUserAndAccountHero } from "../state/heroStore/heroPersistence";
 import { register, createCharacter, updateCharacter } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
@@ -161,37 +161,20 @@ export default function Register({ navigate }: RegisterProps) {
       clearBattlePersist();
       clearBattlePersist(trimmedUsername);
       
-      // 5.1. Встановлюємо l2_current_user на нового юзера — loadHero() не знайде його в accounts (ще немає)
-      // → поверне null, і loadHeroFromAPI не підтягне чужі skills/inventory/gender з localStorage
-      setJSON("l2_current_user", trimmedUsername);
+      // 5.1. Поточний користувач для loadHero — без запису героя в accounts (ще немає повного hero)
+      syncCurrentUserAndAccountHero(trimmedUsername);
       
       // 6. Завантажуємо героя з API
       const loadedHero = await loadHeroFromAPI();
       if (loadedHero) {
         setHero(loadedHero);
-        setJSON("l2_current_user", trimmedUsername);
-        
-        const raw = getJSON<any[]>("l2_accounts_v2", []);
-        const accounts = Array.isArray(raw) ? raw : [];
-        const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
-        if (idx === -1) accounts.push({ username: trimmedUsername, hero: loadedHero });
-        else accounts[idx].hero = loadedHero;
-        setJSON("l2_accounts_v2", accounts);
-        
+        syncCurrentUserAndAccountHero(trimmedUsername, loadedHero);
         navigate("/city");
       } else {
         // Fallback: встановлюємо героя вручну
         const fallbackHero = { ...coreHero, name: trimmedUsername, username: trimmedUsername, sp: 0, skills: [] } as any;
         setHero(fallbackHero);
-        setJSON("l2_current_user", trimmedUsername);
-        
-        const raw = getJSON<any[]>("l2_accounts_v2", []);
-        const accounts = Array.isArray(raw) ? raw : [];
-        const idx = accounts.findIndex((a: any) => a.username === trimmedUsername);
-        if (idx === -1) accounts.push({ username: trimmedUsername, hero: fallbackHero });
-        else accounts[idx].hero = fallbackHero;
-        setJSON("l2_accounts_v2", accounts);
-        
+        syncCurrentUserAndAccountHero(trimmedUsername, fallbackHero);
         navigate("/city");
       }
     } catch (err: any) {

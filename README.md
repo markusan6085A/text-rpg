@@ -44,7 +44,7 @@ npm test
 
 ## Завантаження героя (bootstrap)
 
-1. Після логіну/реєстрації зберігаються `accessToken`, `current_character_id`, **`l2_current_user`** і запис героя у **`l2_accounts_v2`** (див. `heroPersistence.ts` та `HERO_SAVE_LOAD_DATAFLOW.md`).
+1. Після логіну/реєстрації зберігаються `accessToken`, `current_character_id`, **`l2_current_user`** і запис героя у **`l2_accounts_v2`** через **`syncCurrentUserAndAccountHero`** у `heroPersistence.ts` (див. також `HERO_SAVE_LOAD_DATAFLOW.md`).
 2. **F5:** спочатку можливий герой з localStorage, у фоні — `GET /characters/:id` і merge за правилами у `heroLoadAPI` (деталі в `HERO_SAVE_LOAD_DATAFLOW.md`).
 3. **Не дублюй** логіку HP/MP/CP, регену й бафів: джерело правди — `hero` у store → `heroPersistence` / `heroLoad` / `heroLoadAPI`; реген — `heroRegen.ts`; бафи на стати — `applyBuffsToStats`.
 

@@ -54,7 +54,7 @@ import { AdminItemPickerPage } from "./screens/admin/AdminItemPickerPage";
 
 // ZUSTAND
 import { useHeroStore } from "./state/heroStore";
-import { getJSON, setJSON } from "./state/persistence";
+import { syncCurrentUserAndAccountHero } from "./state/heroStore/heroPersistence";
 import { useAuthStore } from "./state/authStore";
 import { useCharacterStore } from "./state/characterStore";
 import { useAdminStore } from "./state/adminStore";
@@ -188,15 +188,7 @@ function AppInner() {
             setHero(h);
             // 🔥 Щоб при поверненні (F5) loadHero() знайшов героя — пишемо в localStorage одразу
             const username = (h as any).username ?? h.name ?? "";
-            if (username) {
-              setJSON("l2_current_user", username);
-              const raw = getJSON<any[]>("l2_accounts_v2", []);
-              const accounts = Array.isArray(raw) ? raw : [];
-              const idx = accounts.findIndex((a: any) => a.username === username);
-              if (idx === -1) accounts.push({ username, hero: h });
-              else accounts[idx].hero = h;
-              setJSON("l2_accounts_v2", accounts);
-            }
+            if (username) syncCurrentUserAndAccountHero(username, h);
           }
           if (alive) navigateNoReload("/city");
         } else {
@@ -406,14 +398,8 @@ function AppInner() {
         <Landing
           navigate={navigate}
           onLogin={(loadedHero) => {
-            setJSON("l2_current_user", loadedHero.username);
+            syncCurrentUserAndAccountHero(loadedHero.username, loadedHero);
             setHero(loadedHero);
-            const raw = getJSON<any[]>("l2_accounts_v2", []);
-            const accounts = Array.isArray(raw) ? raw : [];
-            const idx = accounts.findIndex((a: any) => a.username === loadedHero.username);
-            if (idx === -1) accounts.push({ username: loadedHero.username, hero: loadedHero });
-            else accounts[idx].hero = loadedHero;
-            setJSON("l2_accounts_v2", accounts);
             navigate("/city");
           }}
           key={`landing-session-expired-${refreshKey}`}
@@ -429,15 +415,8 @@ function AppInner() {
         <Landing
           navigate={navigate}
           onLogin={(loadedHero) => {
-            setJSON("l2_current_user", loadedHero.username);
+            syncCurrentUserAndAccountHero(loadedHero.username, loadedHero);
             setHero(loadedHero);
-            // 🔥 КРИТИЧНО: Одразу пишемо hero в l2_accounts_v2, щоб при поверненні (F5, нова вкладка) loadHero() знайшов героя — без цього "Загрузка персонажа" зависала
-            const raw = getJSON<any[]>("l2_accounts_v2", []);
-            const accounts = Array.isArray(raw) ? raw : [];
-            const idx = accounts.findIndex((a: any) => a.username === loadedHero.username);
-            if (idx === -1) accounts.push({ username: loadedHero.username, hero: loadedHero });
-            else accounts[idx].hero = loadedHero;
-            setJSON("l2_accounts_v2", accounts);
             navigate("/city");
           }}
           key={`landing-${refreshKey}`}
@@ -708,12 +687,7 @@ function AppInner() {
       break;
   }
 
-  // Default route (if no case matched)
-  if (pathname === "/wip") {
-    return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} key={`wip-${refreshKey}`} />);
-  }
-
-  // Other default routes
+  // Маршрути поза першим switch (/wip тощо) та fallback Landing
   switch (pathname) {
     case "/wip":
       return renderWithLayout(<Wip navigate={navigate} user={hero ? { username: hero.name || hero.username || '' } : null} key={`wip-${refreshKey}`} />);
@@ -724,14 +698,8 @@ function AppInner() {
           <Landing
             navigate={navigate}
             onLogin={(loadedHero) => {
-              setJSON("l2_current_user", loadedHero.username);
+              syncCurrentUserAndAccountHero(loadedHero.username, loadedHero);
               setHero(loadedHero);
-              const raw = getJSON<any[]>("l2_accounts_v2", []);
-              const accounts = Array.isArray(raw) ? raw : [];
-              const idx = accounts.findIndex((a: any) => a.username === loadedHero.username);
-              if (idx === -1) accounts.push({ username: loadedHero.username, hero: loadedHero });
-              else accounts[idx].hero = loadedHero;
-              setJSON("l2_accounts_v2", accounts);
               navigate("/city");
             }}
             key={`default-landing-${refreshKey}`}

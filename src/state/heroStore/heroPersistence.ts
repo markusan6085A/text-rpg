@@ -6,8 +6,8 @@
  *   при КОЖНІЙ зміні hero (setHero, loadHero, updateHero). Без debounce, без очікування API.
  * - API = "доставимо коли зможемо": saveHeroToLocalStorage() — async, debounce/queue/rate limit.
  *
- * Читання з localStorage — тільки heroLoad (loadHero()). Запис — тільки тут.
- * App/Landing/Register НІКОЛИ не пишуть hero в l2_accounts_v2.
+ * Читання з localStorage — тільки heroLoad (loadHero()). Запис snapshot — переважно тут.
+ * Bootstrap (логін / реєстрація): `syncCurrentUserAndAccountHero` — єдине місце для `l2_current_user` + рядка в `l2_accounts_v2`.
  */
 import type { Hero } from "../../types/Hero";
 import { updateCharacter, getCharacter, updateInventoryAPI } from "../../utils/api";
@@ -17,6 +17,20 @@ import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
 import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { hydrateHero } from "./heroHydration";
+
+/** Логін / реєстрація / після GET героя: `l2_current_user` і запис `{ username, hero }` у `l2_accounts_v2`. Якщо `hero` не передано — лише встановлює поточного користувача (наприклад перед loadHeroFromAPI). */
+export function syncCurrentUserAndAccountHero(username: string, hero?: Hero): void {
+  const u = String(username ?? "").trim();
+  if (!u) return;
+  setJSON("l2_current_user", u);
+  if (!hero) return;
+  const raw = getJSON<any[]>("l2_accounts_v2", []);
+  const accounts = Array.isArray(raw) ? [...raw] : [];
+  const idx = accounts.findIndex((a: any) => a && a.username === u);
+  if (idx === -1) accounts.push({ username: u, hero });
+  else accounts[idx] = { ...accounts[idx], username: u, hero };
+  setJSON("l2_accounts_v2", accounts);
+}
 
 // 🔥 КРИТИЧНО: Глобальний "save mutex" для серіалізації збережень
 // Запобігає паралельним збереженням, які викликають revision_conflict
@@ -167,8 +181,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
   const authStore = useAuthStore.getState();
   const characterStore = useCharacterStore.getState();
 
-  // If not authenticated, use localStorage (backward compatibility)
-  if (!authStore.isAuthenticated || !characterStore.characterId) {
+  // 🔥 Не спамимо сервер при протухлій сесії (401/403). Зберігаємо тільки в localStorage до re-login.
+  if (!authStore.isAuthenticated || !characterStore.characterId || authStore.sessionExpired) {
     const current = getJSON<string | null>("l2_current_user", null);
     if (!current) return;
 
