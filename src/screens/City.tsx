@@ -13,6 +13,7 @@ import {
   setCityUiVariant,
   type CityUiVariant,
 } from "../utils/cityUiVariant";
+import { getGameSettings } from "../state/gameSettings";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -29,6 +30,11 @@ const City: React.FC<CityProps> = ({ navigate }) => {
     getCityUiVariant(),
   );
   const isL2 = cityUi === "l2";
+  const gameSettings = getGameSettings();
+  /** Компенсація px-2/px-3 у Layout — L2 на всю ширину «колонки» від рамки до рамки */
+  const l2LayoutBleed = gameSettings.compactMode
+    ? "-mx-2 w-[calc(100%+1rem)] min-w-0"
+    : "-mx-3 w-[calc(100%+1.5rem)] min-w-0";
 
   const persistCityUi = (v: CityUiVariant) => {
     setCityUiVariant(v);
@@ -126,12 +132,16 @@ const City: React.FC<CityProps> = ({ navigate }) => {
     "rounded-xl overflow-hidden border border-amber-700/40 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_55%_at_50%_-10%,rgba(55,90,130,0.38)_0%,transparent_52%),linear-gradient(180deg,#121820_0%,#06080c_100%)]";
 
   return (
-    <div className={isL2 ? `${l2Frame} mx-0.5 my-1` : ""}>
+    <div
+      className={
+        isL2 ? `${l2LayoutBleed} ${l2Frame} w-full my-1` : ""
+      }
+    >
       {/* Перемикач вигляду — зберігається в localStorage (ключ l2_city_ui_variant) */}
       <div
         className={
           isL2
-            ? "flex flex-wrap items-center justify-center gap-2 px-3 py-2.5 border-b border-amber-800/35 bg-black/20"
+            ? "flex flex-wrap items-center justify-center gap-2 px-2 py-2.5 border-b border-amber-800/35 bg-black/20"
             : "flex flex-wrap items-center justify-center gap-2 px-3 py-2 border-b border-black/50"
         }
       >
@@ -166,7 +176,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
       <div
         className={
           isL2
-            ? "px-4 py-4 mx-2 mt-2 mb-1 rounded-lg border border-amber-800/25 bg-black/22 shadow-[inset_0_1px_0_rgba(255,220,170,0.06)]"
+            ? "px-3 py-4 mt-2 mb-1 mx-0 rounded-lg border border-amber-800/25 bg-black/22 shadow-[inset_0_1px_0_rgba(255,220,170,0.06)]"
             : "px-4 py-3 border-b border-black/70"
         }
       >
@@ -219,7 +229,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           <div
             className={
               isL2
-                ? "mx-2 mb-1 px-3 py-3 rounded-lg border border-amber-800/30 bg-gradient-to-b from-[#1c2430]/95 to-[#0e1218]/95 text-[13px] text-[#d4c4a8] flex items-center gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                ? "mb-1 mx-0 px-3 py-3 rounded-lg border border-amber-800/30 bg-gradient-to-b from-[#1c2430]/95 to-[#0e1218]/95 text-[13px] text-[#d4c4a8] flex items-center gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                 : "px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2"
             }
           >
@@ -239,7 +249,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
       <div
         className={
           isL2
-            ? "px-3 py-3 pb-5 text-[12px] text-[#8a7d68]"
+            ? "px-2 py-3 pb-5 text-[12px] text-[#8a7d68]"
             : "px-4 py-3 border-b border-black/70 text-[12px] text-[#645b45]"
         }
       >

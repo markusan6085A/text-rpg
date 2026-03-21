@@ -337,7 +337,7 @@ export default function Layout({
         ) : null}
         <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 flex justify-center pb-[8.5rem]">
           <div
-            className={`w-full max-w-[360px] mt-0 ${
+            className={`w-full max-w-[380px] mt-0 ${
               gameSettings.compactMode ? "px-2 py-1" : "px-3"
             } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
           >
