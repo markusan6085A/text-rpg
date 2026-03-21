@@ -236,8 +236,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       return;
     }
 
-    // 🔥 КРИТИЧНО: Спочатку використовуємо item.id з ShopItem (унікальний для кожного предмета)
-    // Багато A-grade зброї мають itemId 2500 (placeholder) — маппінг 2500→dark_legions_edge давав неправильну іконку
+    // Спочатку item.id (є в itemsDB) — джерело правди для квест-шопу; itemId + мапа — лише fallback (D/kv_shop тощо).
     let itemsDBId: string | undefined = item.id && itemsDB[item.id] ? item.id : QUEST_SHOP_ITEM_MAPPING[item.itemId];
     let itemDef = itemsDBId ? itemsDB[itemsDBId] : undefined;
 

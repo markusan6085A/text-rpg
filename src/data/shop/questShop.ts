@@ -1,5 +1,8 @@
 // src/data/shop/questShop.ts
 // Квест-шоп
+//
+// Варіант A: канонічний предмет для покупки — рядок `id`, який є в itemsDB (quest_weapon_*, quest_shop_*).
+// `itemId` — довільний унікальний числовий ключ (у т.ч. 942xxx для A/S, де раніше був плейсхолдер 2500).
 
 import type { ShopItem } from "./shopTypes";
 
@@ -915,9 +918,10 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   
   // ===== A-GRADE ЗБРОЯ (з папки weapon_a) =====
   // Усі A-grade зброї мають: +40 урону, +50 швидкості бою
+  // itemId 942001–942024 — внутрішні; відповідник у БД предметів — поле `id` (quest_weapon_a_*).
   {
     id: "quest_weapon_a_dark_legions_edge",
-    itemId: 2500,
+    itemId: 942001, // внутрішній id; покупка за полем id у itemsDB
     name: "Dark Legion's Edge",
     grade: "A",
     type: "weapon",
@@ -947,7 +951,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_apprentices_spellbook",
-    itemId: 2500,
+    itemId: 942002, // внутрішній id; покупка за полем id у itemsDB
     name: "Apprentice's Spellbook",
     grade: "A",
     type: "weapon",
@@ -962,7 +966,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_baguette_s_dualsword",
-    itemId: 2500,
+    itemId: 942003, // внутрішній id; покупка за полем id у itemsDB
     name: "Baguette's Dualsword",
     grade: "A",
     type: "weapon",
@@ -977,7 +981,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_barakiel_s_axe",
-    itemId: 2500,
+    itemId: 942004, // внутрішній id; покупка за полем id у itemsDB
     name: "Barakiel's Axe",
     grade: "A",
     type: "weapon",
@@ -992,7 +996,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_behemoth_s_tuning_fork",
-    itemId: 2500,
+    itemId: 942005, // внутрішній id; покупка за полем id у itemsDB
     name: "Behemoth's Tuning Fork",
     grade: "A",
     type: "weapon",
@@ -1007,7 +1011,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_blood_tornado",
-    itemId: 2500,
+    itemId: 942006, // внутрішній id; покупка за полем id у itemsDB
     name: "Blood Tornado",
     grade: "A",
     type: "weapon",
@@ -1022,7 +1026,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_bloody_orchid",
-    itemId: 2500,
+    itemId: 942007, // внутрішній id; покупка за полем id у itemsDB
     name: "Bloody Orchid",
     grade: "A",
     type: "weapon",
@@ -1037,7 +1041,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_branch_of_the_mother_tree",
-    itemId: 2500,
+    itemId: 942008, // внутрішній id; покупка за полем id у itemsDB
     name: "Branch of The Mother Tree",
     grade: "A",
     type: "weapon",
@@ -1052,7 +1056,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_cabrio_s_hand",
-    itemId: 2500,
+    itemId: 942009, // внутрішній id; покупка за полем id у itemsDB
     name: "Cabrio's Hand",
     grade: "A",
     type: "weapon",
@@ -1067,7 +1071,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_carnage_bow",
-    itemId: 2500,
+    itemId: 942010, // внутрішній id; покупка за полем id у itemsDB
     name: "Carnage Bow",
     grade: "A",
     type: "weapon",
@@ -1082,7 +1086,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_daimon_crystal",
-    itemId: 2500,
+    itemId: 942011, // внутрішній id; покупка за полем id у itemsDB
     name: "Daimon Crystal",
     grade: "A",
     type: "weapon",
@@ -1127,7 +1131,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_dragon_slayer",
-    itemId: 2500,
+    itemId: 942012, // внутрішній id; покупка за полем id у itemsDB
     name: "Dragon Slayer",
     grade: "A",
     type: "weapon",
@@ -1172,7 +1176,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_infernal_master",
-    itemId: 2500,
+    itemId: 942013, // внутрішній id; покупка за полем id у itemsDB
     name: "Infernal Master",
     grade: "A",
     type: "weapon",
@@ -1187,7 +1191,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_naga_storm",
-    itemId: 2500,
+    itemId: 942014, // внутрішній id; покупка за полем id у itemsDB
     name: "Naga Storm",
     grade: "A",
     type: "weapon",
@@ -1202,7 +1206,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_shyeed_s_bow",
-    itemId: 2500,
+    itemId: 942015, // внутрішній id; покупка за полем id у itemsDB
     name: "Shyeed's Bow",
     grade: "A",
     type: "weapon",
@@ -1217,7 +1221,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_sirra_s_blade",
-    itemId: 2500,
+    itemId: 942016, // внутрішній id; покупка за полем id у itemsDB
     name: "Sirra's Blade",
     grade: "A",
     type: "weapon",
@@ -1232,7 +1236,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_sobekk_s_hurricane",
-    itemId: 2500,
+    itemId: 942017, // внутрішній id; покупка за полем id у itemsDB
     name: "Sobekk's Hurricane",
     grade: "A",
     type: "weapon",
@@ -1262,7 +1266,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_soul_separator",
-    itemId: 2500,
+    itemId: 942018, // внутрішній id; покупка за полем id у itemsDB
     name: "Soul Separator",
     grade: "A",
     type: "weapon",
@@ -1277,7 +1281,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_spiritual_eye",
-    itemId: 2500,
+    itemId: 942019, // внутрішній id; покупка за полем id у itemsDB
     name: "Spiritual Eye",
     grade: "A",
     type: "weapon",
@@ -1292,7 +1296,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_sword_of_ipos",
-    itemId: 2500,
+    itemId: 942020, // внутрішній id; покупка за полем id у itemsDB
     name: "Sword of Ipos",
     grade: "A",
     type: "weapon",
@@ -1322,7 +1326,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_tallum_blade",
-    itemId: 2500,
+    itemId: 942021, // внутрішній id; покупка за полем id у itemsDB
     name: "Tallum Blade",
     grade: "A",
     type: "weapon",
@@ -1337,7 +1341,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_tallum_glaive",
-    itemId: 2500,
+    itemId: 942022, // внутрішній id; покупка за полем id у itemsDB
     name: "Tallum Glaive",
     grade: "A",
     type: "weapon",
@@ -1352,7 +1356,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_themis_tongue",
-    itemId: 2500,
+    itemId: 942023, // внутрішній id; покупка за полем id у itemsDB
     name: "Themis Tongue",
     grade: "A",
     type: "weapon",
@@ -1367,7 +1371,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_a_tiphon_s_spear",
-    itemId: 2500,
+    itemId: 942024, // внутрішній id; покупка за полем id у itemsDB
     name: "Tiphon's Spear",
     grade: "A",
     type: "weapon",
@@ -1383,6 +1387,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   
   // ===== S-GRADE ЗБРОЯ (з папки weapon_s) =====
   // Усі S-grade зброї мають: +58 урону, +60 швидкості бою
+  // itemId 942025–942027 — внутрішні для позицій, що раніше мали дубль 2500; БД предметів — quest_weapon_s_*.
   {
     id: "quest_weapon_s_angel_slayer",
     itemId: 20167,
@@ -1400,7 +1405,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_s_apprentices_spellbook",
-    itemId: 2500,
+    itemId: 942025, // внутрішній id; покупка за полем id у itemsDB
     name: "Apprentice's Spellbook",
     grade: "S",
     type: "weapon",
@@ -1430,7 +1435,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_s_baguette_s_dualsword",
-    itemId: 2500,
+    itemId: 942026, // внутрішній id; покупка за полем id у itemsDB
     name: "Baguette's Dualsword",
     grade: "S",
     type: "weapon",
@@ -1565,7 +1570,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   },
   {
     id: "quest_weapon_s_shining_bow",
-    itemId: 2500,
+    itemId: 942027, // внутрішній id; покупка за полем id у itemsDB
     name: "Shining Bow",
     grade: "S",
     type: "weapon",
