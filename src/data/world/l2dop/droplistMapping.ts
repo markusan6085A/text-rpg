@@ -54,3 +54,10 @@ export const STRING_ID_TO_L2_ITEM_ID: Record<string, number> = Object.fromEntrie
 export function l2ItemIdToString(itemId: number): string | undefined {
   return DROPLIST_ITEM_ID_TO_STRING[itemId];
 }
+
+/** Іконка з `public/items/drops/resources/l2dop-by-itemid/{L2 id}.jpg` (джерело: l2dop img/items). */
+export function getL2dopResourceIconPath(stringId: string): string | undefined {
+  const l2 = STRING_ID_TO_L2_ITEM_ID[stringId];
+  if (l2 === undefined) return undefined;
+  return `/items/drops/resources/l2dop-by-itemid/${l2}.jpg`;
+}

@@ -20,6 +20,7 @@ import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
+import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
 
 type Navigate = (path: string) => void;
 
@@ -586,9 +587,10 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     <div className="space-y-1">
                       {displayDrops.map((drop: { id: string; min: number; max: number; chance: number }, idx: number) => {
                         const itemDef = itemsDB[drop.id];
-                        const iconPath = itemDef?.icon 
+                        const l2ResIcon = getL2dopResourceIconPath(drop.id);
+                        const iconPath = itemDef?.icon
                           ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
-                          : "/items/default_item.png"; // Fallback іконка
+                          : l2ResIcon ?? "/items/default_item.png";
                         const itemName = itemDef?.name || drop.id;
                         // Показуємо грейд тільки для зброї та броні, не для ресурсів
                         const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other";
@@ -632,9 +634,10 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     <div className="space-y-1">
                       {selectedMob.spoil.map((spoil, idx) => {
                         const itemDef = itemsDB[spoil.id];
-                        const iconPath = itemDef?.icon 
+                        const l2ResIcon = getL2dopResourceIconPath(spoil.id);
+                        const iconPath = itemDef?.icon
                           ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
-                          : "/items/default_item.png"; // Fallback іконка
+                          : l2ResIcon ?? "/items/default_item.png";
                         const itemName = itemDef?.name || spoil.id;
                         // Показуємо грейд тільки для зброї та броні, не для ресурсів
                         const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other";
