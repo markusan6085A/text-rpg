@@ -18,6 +18,7 @@ import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api
 import { getGameSettings } from "../state/gameSettings";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { getMobListIconSrc } from "../utils/mobPublicIcon";
 
 type Navigate = (path: string) => void;
 
@@ -264,6 +265,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 isLevelDiffTooHigh,
                 isL2,
               );
+              const listIconSrc = getMobListIconSrc(mob);
 
               if (isL2) {
                 return (
@@ -281,12 +283,12 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     }}
                   >
                     <div className="flex items-center gap-2.5 w-full">
-                      <div className="relative w-9 h-9 shrink-0 rounded-md border border-[#5c4a32]/50 bg-black/35 flex items-center justify-center overflow-hidden">
-                        {mob.icon ? (
+                      <div className="relative w-9 h-9 shrink-0 rounded-md border border-[#5c4a32]/50 bg-black/35 flex items-center justify-center overflow-hidden p-0.5">
+                        {listIconSrc ? (
                           <img
-                            src={mob.icon}
+                            src={listIconSrc}
                             alt=""
-                            className="w-8 h-8 object-contain"
+                            className="max-w-[26px] max-h-[26px] w-full h-full object-contain object-center"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = "none";
                             }}
@@ -333,10 +335,10 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     !isQuestMob && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
                   }`}
                 >
-                  {mob.icon && (
+                  {listIconSrc && (
                     <img
-                      src={mob.icon}
-                      alt={mob.name}
+                      src={listIconSrc}
+                      alt=""
                       className="w-4 h-4 object-contain flex-shrink-0"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none";
