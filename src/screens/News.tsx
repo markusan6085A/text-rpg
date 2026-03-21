@@ -5,6 +5,7 @@ import { itemsDB } from "../data/items/itemsDB";
 import { getNickColorStyle } from "../utils/nickColor";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Route =
   | "/"
@@ -39,12 +40,20 @@ interface RaidBossDropModalProps {
 
 function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName, killerId, onClose, navigate }: RaidBossDropModalProps) {
   const hero = useHeroStore((s) => s.hero);
+  const isL2 = getCityUiVariant() === "l2";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto";
+  const borderSep = isL2 ? "border-[#5c4a32]/50" : "border-white/40";
+  const killerLinkCls = isL2
+    ? "text-[#c9a44c] cursor-pointer hover:opacity-80 transition-colors font-semibold"
+    : "text-blue-200 cursor-pointer hover:opacity-80 transition-colors font-semibold";
   const hasActualDrops = actualDrops && actualDrops.length > 0;
   const displayDrops = hasActualDrops ? actualDrops! : (drops ?? []);
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
       <div 
-        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className={modalPanel}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="text-lg font-semibold text-[#b8860b] mb-2">{bossName}{bossLevel ? ` - ${bossLevel} ур.` : ""}</div>
@@ -56,7 +65,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName
               hero={hero}
               clan={null}
               size={12}
-              className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors font-semibold"
+              className={killerLinkCls}
               onClick={(e) => {
                 e.stopPropagation();
                 if (killerId) navigate(`/player/${killerId}`);
@@ -67,7 +76,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName
         )}
         
         {displayDrops.length > 0 && (
-          <div className="border-t border-white/40 pt-2 mt-2">
+          <div className={`border-t pt-2 mt-2 ${borderSep}`}>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">{hasActualDrops ? "Отримано:" : "Дроп:"}</div>
             <div className="space-y-1">
               {displayDrops.map((drop: any, idx: number) => {
@@ -86,7 +95,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName
                     <img
                       src={iconPath}
                       alt={itemName}
-                      className="w-5 h-5 object-contain border border-white/40 bg-black/40"
+                      className={`w-5 h-5 object-contain border bg-black/40 ${isL2 ? "border-[#5c4a32]/60" : "border-white/40"}`}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none";
                       }}
@@ -104,7 +113,7 @@ function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName
           </div>
         )}
 
-        <div className="flex justify-center mt-2 pt-2 border-t border-white/40">
+        <div className={`flex justify-center mt-2 pt-2 border-t ${borderSep}`}>
           <button
             className="px-4 py-2 bg-[#5c1a1a] text-white rounded hover:bg-[#7a2222] transition-colors"
             onClick={onClose}
@@ -161,6 +170,24 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const nameLinkCls = isL2
+    ? "text-[#c9a44c] cursor-pointer hover:opacity-80 transition-colors"
+    : "text-blue-200 cursor-pointer hover:opacity-80 transition-colors";
+  const headerBar = isL2
+    ? "flex items-center justify-between px-2 py-2 bg-black/35 border-b border-[#5c4a32]/55 text-[13px]"
+    : "flex items-center justify-between px-2 py-2 bg-[#111022] border-b border-yellow-900/60 text-[13px]";
+  const headerBtn = isL2
+    ? "px-2 py-1 border border-[#5c4a32]/70 rounded bg-black/40 text-[#d4c4a8] hover:border-[#c7ad80]/40"
+    : "px-2 py-1 border border-yellow-700/70 rounded bg-black/40";
+  const rowBorder = isL2 ? "border-b border-[#5c4a32]/35" : "border-b border-yellow-900/40";
+  const footerBar = isL2 ? "px-2 py-1 border-t border-[#5c4a32]/40 text-[11px] text-[#a89878] text-center" : "px-2 py-1 border-t border-yellow-900/40 text-[11px] text-gray-400 text-center";
+  const pageBtn = isL2
+    ? "px-2 py-1 rounded border border-[#5c4a32]/70 bg-black/40 disabled:opacity-40 text-[#d4c4a8]"
+    : "px-2 py-1 rounded border border-yellow-700/70 bg-black/40 disabled:opacity-40";
+
   const formatTime = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -184,7 +211,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             hero={hero}
             clan={item.emblem ? { emblem: item.emblem } as any : null}
             size={12}
-            className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
+            className={nameLinkCls}
             onClick={(e) => {
               e.stopPropagation();
               if (item.characterId) {
@@ -205,7 +232,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             hero={hero}
             clan={item.emblem ? { emblem: item.emblem } as any : null}
             size={12}
-            className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
+            className={nameLinkCls}
             onClick={(e) => {
               e.stopPropagation();
               if (item.characterId) {
@@ -230,7 +257,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             hero={hero}
             clan={item.emblem ? { emblem: item.emblem } as any : null}
             size={12}
-            className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
+            className={nameLinkCls}
             onClick={(e) => {
               e.stopPropagation();
               if (item.characterId) {
@@ -261,7 +288,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             hero={hero}
             clan={item.emblem ? { emblem: item.emblem } as any : null}
             size={12}
-            className="text-blue-200 cursor-pointer hover:opacity-80 transition-colors"
+            className={nameLinkCls}
             onClick={(e) => {
               e.stopPropagation();
               if (item.characterId) navigate(`/player/${item.characterId}` as any);
@@ -286,25 +313,34 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
     return (
       <div
         key={idx}
-        className="border-b border-yellow-900/40 py-1.5 text-[13px] leading-snug"
+        className={`${rowBorder} py-1.5 text-[13px] leading-snug`}
       >
-        <span className="text-gray-300 mr-1">[{formatTime(item.createdAt)}]</span>
+        <span className={isL2 ? "text-[#a89878] mr-1" : "text-gray-300 mr-1"}>[{formatTime(item.createdAt)}]</span>
         {text}
       </div>
     );
   };
 
   return (
-    <div className="text-gray-100 w-full flex flex-col">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} text-[#d4c4a8] w-full flex flex-col min-w-0 my-1`
+          : "text-gray-100 w-full flex flex-col"
+      }
+    >
       {/* Шапка */}
-      <div className="flex items-center justify-between px-2 py-2 bg-[#111022] border-b border-yellow-900/60 text-[13px]">
-        <button
-          className="px-2 py-1 border border-yellow-700/70 rounded bg-black/40"
-          onClick={() => navigate("/city")}
-        >
+      <div className={headerBar}>
+        <button className={headerBtn} onClick={() => navigate("/city")}>
           Город
         </button>
-        <div className="font-semibold text-yellow-200 flex-1 text-center">
+        <div
+          className={
+            isL2
+              ? "font-semibold text-[#e8c56e] flex-1 text-center [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+              : "font-semibold text-yellow-200 flex-1 text-center"
+          }
+        >
           Новини сервера
         </div>
       </div>
@@ -312,11 +348,11 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
       {/* Тело */}
       <div className="flex-1 px-2 py-2">
         {loading ? (
-          <div className="text-center text-sm text-gray-400 mt-2">
+          <div className={isL2 ? "text-center text-sm text-[#8a7a60] mt-2" : "text-center text-sm text-gray-400 mt-2"}>
             Загрузка новин...
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center text-sm text-gray-400 mt-2">
+          <div className={isL2 ? "text-center text-sm text-[#8a7a60] mt-2" : "text-center text-sm text-gray-400 mt-2"}>
             Новостей пока нет.
           </div>
         ) : (
@@ -325,17 +361,17 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-3">
                 <button
-                  className="px-2 py-1 rounded border border-yellow-700/70 bg-black/40 disabled:opacity-40"
+                  className={pageBtn}
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   ←
                 </button>
-                <span className="text-[12px] text-gray-400">
+                <span className={isL2 ? "text-[12px] text-[#a89878]" : "text-[12px] text-gray-400"}>
                   {page} / {totalPages}
                 </span>
                 <button
-                  className="px-2 py-1 rounded border border-yellow-700/70 bg-black/40 disabled:opacity-40"
+                  className={pageBtn}
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
@@ -348,8 +384,9 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
       </div>
 
       {/* Игровое время внизу */}
-      <div className="px-2 py-1 border-t border-yellow-900/40 text-[11px] text-gray-400 text-center">
-        Игровое время: <span className="text-yellow-200">{gameTime}</span>
+      <div className={footerBar}>
+        Игровое время:{" "}
+        <span className={isL2 ? "text-[#e8c56e]" : "text-yellow-200"}>{gameTime}</span>
       </div>
 
       {/* Модалка дропу RB */}
