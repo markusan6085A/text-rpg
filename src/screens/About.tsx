@@ -5,6 +5,7 @@ import { useCharacterStore } from "../state/characterStore";
 import { useOnlineCountStore } from "../state/onlineCountStore";
 import { showToast } from "../state/toastStore";
 import { setString } from "../state/persistence";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (p: string) => void;
 
@@ -46,12 +47,35 @@ export default function About({ navigate }: { navigate: Navigate }) {
     };
   }, []);
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const innerPanel = isL2
+    ? "max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4 min-h-[360px]"
+    : "max-w-[420px] mx-auto min-h-[400px]";
+  const rowBase = isL2
+    ? "text-left transition-colors text-[10px] py-2 w-full border-b border-[#5c4a32]/35 hover:bg-black/20"
+    : "text-left transition-colors text-[10px] py-2 border-b border-solid border-white/50 w-full";
+
   return (
     <>
-      <div className="w-full text-yellow-200 min-h-[400px] px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 text-[#d4c4a8] min-h-[400px]`
+            : "w-full text-yellow-200 min-h-[400px] px-3 py-4"
+        }
+      >
+        <div className={isL2 ? innerPanel : ""}>
         <div className="mb-2">
-          <div className="text-lg font-bold mb-2 text-blue-400">Меню сервера</div>
-          <div className="text-sm text-orange-400">
+          <div
+            className={
+              isL2 ? "text-lg font-bold mb-2 text-[#e8c56e]" : "text-lg font-bold mb-2 text-blue-400"
+            }
+          >
+            Меню сервера
+          </div>
+          <div className={isL2 ? "text-sm text-[#a89878]" : "text-sm text-orange-400"}>
             Здесь собраны основные разделы и сервисные функции.
           </div>
         </div>
@@ -61,58 +85,59 @@ export default function About({ navigate }: { navigate: Navigate }) {
               setString("l2_last_feature", "Поддержка");
               navigate("/wip");
             }}
-            className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-solid border-white/50 w-full"
+            className={`${rowBase} ${isL2 ? "text-[#8a7a60] hover:text-[#c9a44c]" : "text-gray-400 hover:text-gray-300"}`}
           >
             {String.fromCharCode(1055, 1086, 1076, 1076, 1077, 1088, 1078, 1082, 1072)}
           </button>
           <button
             onClick={() => navigate("/online-players")}
-            className="text-left text-green-400 hover:text-green-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} text-green-400 hover:text-green-300`}
           >
             {String.fromCharCode(1054, 1085, 1083, 1072, 1081, 1085)} [{onlineCount}]
           </button>
           <button
             onClick={() => setShowChangeNickModal(true)}
-            className="text-left text-purple-400 hover:text-purple-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} text-purple-400 hover:text-purple-300`}
           >
             Изменить ник
           </button>
           <button
             onClick={() => navigate("/colorize-nick")}
-            className="text-left text-white hover:text-gray-200 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} ${isL2 ? "text-[#e8dcc8] hover:text-[#f0e4c8]" : "text-white hover:text-gray-200"}`}
           >
             Покрасить ник
           </button>
           <button
             onClick={() => navigate("/achievements")}
-            className="text-left text-amber-400 hover:text-amber-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} text-amber-400 hover:text-amber-300`}
           >
             Досягнення
           </button>
           <button
             onClick={() => navigate("/leaderboard")}
-            className="text-left text-yellow-400 hover:text-yellow-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} text-yellow-400 hover:text-yellow-300`}
           >
             Рейтинг
           </button>
           <button
             onClick={() => navigate("/help")}
-            className="text-left text-cyan-400 hover:text-cyan-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} ${isL2 ? "text-[#9d8265] hover:text-[#c9a44c]" : "text-cyan-400 hover:text-cyan-300"}`}
           >
             Помощь
           </button>
           <button
             onClick={() => navigate("/exp-table")}
-            className="text-left text-amber-400 hover:text-amber-300 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} text-amber-400 hover:text-amber-300`}
           >
             Таблица опыта
           </button>
           <button
             onClick={() => navigate("/settings")}
-            className="text-left text-slate-300 hover:text-slate-200 transition-colors text-[10px] py-2 border-b border-white/40 w-full"
+            className={`${rowBase} ${isL2 ? "text-[#a89878] hover:text-[#d4c4a8]" : "text-slate-300 hover:text-slate-200"}`}
           >
             Настройки
           </button>
+        </div>
         </div>
       </div>
 
@@ -123,7 +148,11 @@ export default function About({ navigate }: { navigate: Navigate }) {
           onClick={() => setShowChangeNickModal(false)}
         >
           <div
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            className={
+              isL2
+                ? "bg-[#14110c] border border-[#c7ad80]/35 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-2">
@@ -143,19 +172,35 @@ export default function About({ navigate }: { navigate: Navigate }) {
                   type="text"
                   value={newNickname}
                   onChange={(e) => setNewNickname(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#0f0a06] border border-white/50 rounded text-white text-sm"
+                  className={
+                    isL2
+                      ? "w-full px-3 py-2 bg-[#0f0a06] border border-[#5c4a32]/55 rounded text-[#e8dcc8] text-sm placeholder-[#6a6048]"
+                      : "w-full px-3 py-2 bg-[#0f0a06] border border-white/50 rounded text-white text-sm"
+                  }
                   placeholder="Введите новый ник"
                 />
               </div>
 
               <div className="text-gray-300 text-xs">
                 <div className="mb-2">Доступные символы:</div>
-                <div className="font-mono bg-[#0f0a06] p-2 rounded border border-white/50">
+                <div
+                  className={
+                    isL2
+                      ? "font-mono bg-[#0f0a06] p-2 rounded border border-[#5c4a32]/45 text-[#c9a44c]"
+                      : "font-mono bg-[#0f0a06] p-2 rounded border border-white/50"
+                  }
+                >
                   A-Z, a-z, 0-9, _, -, пробел
                 </div>
               </div>
 
-              <div className="text-yellow-400 text-xs font-semibold pt-2 border-t border-white/40">
+              <div
+                className={
+                  isL2
+                    ? "text-[#e8c56e] text-xs font-semibold pt-2 border-t border-[#5c4a32]/45"
+                    : "text-yellow-400 text-xs font-semibold pt-2 border-t border-white/40"
+                }
+              >
                 Цена: 50 Coin of Luck
               </div>
 
@@ -237,7 +282,11 @@ export default function About({ navigate }: { navigate: Navigate }) {
           onClick={() => setSuccessModal({ show: false, message: "" })}
         >
           <div
-            className="bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            className={
+              isL2
+                ? "bg-[#14110c] border border-green-700/45 rounded-lg p-4 max-w-md w-full shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
+                : "bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">

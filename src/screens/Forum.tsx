@@ -14,13 +14,11 @@ import { useCharacterStore } from "../state/characterStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface ForumProps {
   navigate: (path: string) => void;
 }
-
-const inputCl =
-  "text-sm py-1 px-2 rounded bg-black/40 border border-[#c7ad80]/30 text-white placeholder-gray-500";
 
 function formatTime(dateString: string) {
   try {
@@ -260,21 +258,43 @@ export default function Forum({ navigate }: ForumProps) {
   const canDeleteTopic = (topicCharId: string | undefined) => isForumAdmin || topicCharId === characterId;
   const canDeleteOrEditPost = (postCharId: string | undefined) => isForumAdmin || postCharId === characterId;
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const innerPanel = isL2
+    ? "max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
+    : "max-w-[360px] mx-auto border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30";
+  const inputCl = isL2
+    ? "text-sm py-1 px-2 rounded bg-black/40 border border-[#5c4a32]/45 text-[#e8dcc8] placeholder-[#6a6048]"
+    : "text-sm py-1 px-2 rounded bg-black/40 border border-[#c7ad80]/30 text-white placeholder-gray-500";
+  const rowBorder = isL2 ? "border-b border-[#5c4a32]/35" : "border-b border-white/30";
+  const cardBorder = isL2 ? "border border-[#5c4a32]/50" : "border border-white/30";
+
   return (
-    <div className="w-full text-white px-3 py-4">
-      <div className="max-w-[360px] mx-auto border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
+    <div
+      className={
+        isL2 ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 text-[#d4c4a8]` : "w-full text-white px-3 py-4"
+      }
+    >
+      <div className={innerPanel}>
         <div className="flex items-center justify-between mb-3">
           <div>
             {view !== "categories" && (
               <button
                 onClick={view === "topic" ? handleBackToTopics : handleBackToCategories}
-                className="text-gray-400 hover:text-white text-[9px] mr-2"
+                className={
+                  isL2
+                    ? "text-[#9d8265] hover:text-[#c9a44c] text-[9px] mr-2"
+                    : "text-gray-400 hover:text-white text-[9px] mr-2"
+                }
               >
                 ← Назад
               </button>
             )}
-            <div className="text-lg font-bold text-[#ffe9c0]">Форум сервера</div>
-            <div className="text-xs text-orange-400/90">
+            <div className={isL2 ? "text-lg font-bold text-[#e8c56e]" : "text-lg font-bold text-[#ffe9c0]"}>
+              Форум сервера
+            </div>
+            <div className={isL2 ? "text-xs text-[#a89878]" : "text-xs text-orange-400/90"}>
               {view === "categories" && "Обговорення, питання та спілкування гравців."}
               {view === "topics" && selectedCategoryName}
               {view === "topic" && topic?.title}
@@ -282,7 +302,7 @@ export default function Forum({ navigate }: ForumProps) {
           </div>
         </div>
 
-        <div className="w-full h-px bg-gray-600 mb-3" />
+        <div className={isL2 ? "w-full h-px bg-[#5c4a32]/45 mb-3" : "w-full h-px bg-gray-600 mb-3"} />
 
         {error && (
           <div className="text-red-400 text-xs mb-2">{error}</div>
@@ -300,13 +320,19 @@ export default function Forum({ navigate }: ForumProps) {
                   <div
                     key={cat.id}
                     onClick={() => handleCategoryClick(cat)}
-                    className="flex justify-between items-center p-3 border border-white/30 rounded cursor-pointer hover:bg-white/5 transition-colors"
+                    className={`flex justify-between items-center p-3 rounded cursor-pointer transition-colors ${cardBorder} ${
+                      isL2 ? "hover:bg-black/25" : "hover:bg-white/5"
+                    }`}
                   >
                     <div>
-                      <div className="font-semibold text-[#c7ad80]">{cat.name}</div>
-                      <div className="text-xs text-gray-400">{cat.description}</div>
+                      <div className={isL2 ? "font-semibold text-[#e8c56e]" : "font-semibold text-[#c7ad80]"}>
+                        {cat.name}
+                      </div>
+                      <div className={isL2 ? "text-xs text-[#8a7a60]" : "text-xs text-gray-400"}>{cat.description}</div>
                     </div>
-                    <div className="text-gray-500 text-xs">{cat._count?.topics ?? 0} тем</div>
+                    <div className={isL2 ? "text-[#6a6048] text-xs" : "text-gray-500 text-xs"}>
+                      {cat._count?.topics ?? 0} тем
+                    </div>
                   </div>
                 ))}
               </div>
@@ -319,13 +345,23 @@ export default function Forum({ navigate }: ForumProps) {
             {canPost && (
               <button
                 onClick={() => setShowNewTopic(true)}
-                className="mb-3 w-full py-1.5 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 text-sm font-bold"
+                className={
+                  isL2
+                    ? "mb-3 w-full py-1.5 rounded border border-[#5c4a32]/55 bg-black/30 text-[#e8c56e] hover:bg-black/40 text-sm font-bold"
+                    : "mb-3 w-full py-1.5 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 text-sm font-bold"
+                }
               >
                 Нова тема
               </button>
             )}
             {showNewTopic && (
-              <div className="mb-4 p-3 border border-[#c7ad80]/40 rounded bg-black/30">
+              <div
+                className={
+                  isL2
+                    ? "mb-4 p-3 border border-[#5c4a32]/55 rounded-lg bg-black/25"
+                    : "mb-4 p-3 border border-[#c7ad80]/40 rounded bg-black/30"
+                }
+              >
                 <input
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
@@ -372,10 +408,18 @@ export default function Forum({ navigate }: ForumProps) {
                   <div
                     key={t.id}
                     onClick={() => handleTopicClick(t)}
-                    className="flex flex-col p-2 border-b border-white/30 cursor-pointer hover:bg-white/5"
+                    className={`flex flex-col p-2 cursor-pointer ${rowBorder} ${
+                      isL2 ? "hover:bg-black/20" : "hover:bg-white/5"
+                    }`}
                   >
                     <div className="flex justify-between items-start">
-                      <span className="font-medium text-[#c7ad80] text-sm">{t.title}</span>
+                      <span
+                        className={
+                          isL2 ? "font-medium text-[#e8c56e] text-sm" : "font-medium text-[#c7ad80] text-sm"
+                        }
+                      >
+                        {t.title}
+                      </span>
                       <div className="flex items-center gap-1">
                         {canDeleteTopic(t.character?.id) && (
                           <button
@@ -390,7 +434,11 @@ export default function Forum({ navigate }: ForumProps) {
                         <span className="text-gray-500 text-xs">{t.postCount}</span>
                       </div>
                     </div>
-                    <div className="flex justify-between text-xs text-gray-400">
+                    <div
+                      className={
+                        isL2 ? "flex justify-between text-xs text-[#8a7a60]" : "flex justify-between text-xs text-gray-400"
+                      }
+                    >
                       <span
                         style={getNickColorStyle(t.character?.name, hero, t.character?.nickColor)}
                       >
@@ -407,7 +455,7 @@ export default function Forum({ navigate }: ForumProps) {
                 <button
                   onClick={() => loadTopics(topicsPage - 1)}
                   disabled={topicsPage <= 1}
-                  className="text-[#c7ad80] disabled:opacity-50"
+                  className={isL2 ? "text-[#c9a44c] disabled:opacity-50" : "text-[#c7ad80] disabled:opacity-50"}
                 >
                   ←
                 </button>
@@ -415,7 +463,7 @@ export default function Forum({ navigate }: ForumProps) {
                 <button
                   onClick={() => loadTopics(topicsPage + 1)}
                   disabled={topicsPage * 20 >= topicsTotal}
-                  className="text-[#c7ad80] disabled:opacity-50"
+                  className={isL2 ? "text-[#c9a44c] disabled:opacity-50" : "text-[#c7ad80] disabled:opacity-50"}
                 >
                   →
                 </button>
@@ -426,7 +474,13 @@ export default function Forum({ navigate }: ForumProps) {
 
         {view === "topic" && topic && (
           <>
-            <div className="flex justify-between items-center mb-3 p-2 bg-black/20 rounded text-xs text-gray-400">
+            <div
+              className={
+                isL2
+                  ? "flex justify-between items-center mb-3 p-2 rounded text-xs text-[#8a7a60] border border-[#5c4a32]/40 bg-black/20"
+                  : "flex justify-between items-center mb-3 p-2 bg-black/20 rounded text-xs text-gray-400"
+              }
+            >
               <div>
                 Автор:{" "}
                 <span
@@ -454,7 +508,10 @@ export default function Forum({ navigate }: ForumProps) {
             ) : (
               <div className="space-y-2 mb-4">
                 {posts.map((p) => (
-                  <div key={p.id} className="border-b border-white/20 pb-2">
+                  <div
+                    key={p.id}
+                    className={`${isL2 ? "border-b border-[#5c4a32]/30" : "border-b border-white/20"} pb-2`}
+                  >
                     <div className="flex justify-between items-center mb-1">
                       <div className="flex items-center gap-2">
                         <PlayerNameWithEmblem
@@ -462,7 +519,11 @@ export default function Forum({ navigate }: ForumProps) {
                           hero={hero}
                           nickColor={p.character?.nickColor}
                           size={11}
-                          className="font-semibold text-yellow-400 cursor-pointer hover:opacity-80"
+                          className={
+                            isL2
+                              ? "font-semibold text-[#e8c56e] cursor-pointer hover:opacity-80"
+                              : "font-semibold text-yellow-400 cursor-pointer hover:opacity-80"
+                          }
                           onClick={() => p.character?.id && navigate(`/player/${p.character.id}`)}
                         />
                         {canDeleteOrEditPost(p.character?.id) && (
@@ -486,7 +547,9 @@ export default function Forum({ navigate }: ForumProps) {
                           </>
                         )}
                       </div>
-                      <span className="text-gray-500 text-[9px]">{formatTime(p.createdAt)}</span>
+                      <span className={isL2 ? "text-[#6a6048] text-[9px]" : "text-gray-500 text-[9px]"}>
+                        {formatTime(p.createdAt)}
+                      </span>
                     </div>
                     {editingPostId === p.id ? (
                       <div className="mt-1">
@@ -512,14 +575,20 @@ export default function Forum({ navigate }: ForumProps) {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-white text-[11px] whitespace-pre-wrap">{p.message}</div>
+                      <div
+                        className={
+                          isL2 ? "text-[#e8dcc8] text-[11px] whitespace-pre-wrap" : "text-white text-[11px] whitespace-pre-wrap"
+                        }
+                      >
+                        {p.message}
+                      </div>
                     )}
                   </div>
                 ))}
               </div>
             )}
             {canPost && (
-              <div className="border-t border-white/30 pt-3">
+              <div className={isL2 ? "border-t border-[#5c4a32]/45 pt-3" : "border-t border-white/30 pt-3"}>
                 <textarea
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}
@@ -542,7 +611,7 @@ export default function Forum({ navigate }: ForumProps) {
                 <button
                   onClick={() => loadTopic(postsPage - 1)}
                   disabled={postsPage <= 1}
-                  className="text-[#c7ad80] disabled:opacity-50"
+                  className={isL2 ? "text-[#c9a44c] disabled:opacity-50" : "text-[#c7ad80] disabled:opacity-50"}
                 >
                   ←
                 </button>
@@ -550,7 +619,7 @@ export default function Forum({ navigate }: ForumProps) {
                 <button
                   onClick={() => loadTopic(postsPage + 1)}
                   disabled={postsPage * 15 >= postsTotal}
-                  className="text-[#c7ad80] disabled:opacity-50"
+                  className={isL2 ? "text-[#c9a44c] disabled:opacity-50" : "text-[#c7ad80] disabled:opacity-50"}
                 >
                   →
                 </button>
