@@ -11,6 +11,7 @@ import { hasShieldEquipped, getTotalShieldDefense } from "../../utils/shield/shi
 import CharacterBuffs from "./CharacterBuffs";
 import { getMyClan } from "../../utils/api";
 import { SET_STAT_FORMULAS_UI } from "../../data/sets/statBonusFormulas";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 export default function Stats() {
   const hero = useHeroStore((s) => s.hero);
@@ -20,6 +21,9 @@ export default function Stats() {
   const [combatStats, setCombatStats] = useState<any>(null);
   const [playerClan, setPlayerClan] = useState<any>(null);
   const [showSetFormulas, setShowSetFormulas] = useState(false);
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   // 🔥 Таймер — перерахунок статів щосекунди, щоб зникали бафи при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -80,7 +84,24 @@ export default function Stats() {
   }, [hero]);
 
   if (!hero || !baseStats || !combatStats) {
-    return <div className="text-white text-center mt-10">Загрузка...</div>;
+    return (
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center py-16 text-[#8a7a60]`
+            : "text-white text-center mt-10"
+        }
+      >
+        {isL2 ? (
+          <span className="flex items-center gap-2 text-sm">
+            <span className="w-5 h-5 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin" />
+            Загрузка...
+          </span>
+        ) : (
+          "Загрузка..."
+        )}
+      </div>
+    );
   }
 
   // Функція для форматування чисел
@@ -122,19 +143,44 @@ export default function Stats() {
     professionDisplay = profession;
   }
 
+  const valClass = isL2 ? "text-[#f0d78c]" : "text-white";
+
   return (
-    <div className="w-full flex flex-col items-center text-white px-4 py-2">
-      <div className="w-full max-w-[360px]">
-        {/* Заголовок та опис */}
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 flex flex-col items-center px-3 py-3 text-[#e8dcc8]`
+          : "w-full flex flex-col items-center text-white px-4 py-2"
+      }
+    >
+      <div className={isL2 ? "w-full max-w-[420px] mx-auto" : "w-full max-w-[360px]"}>
         <div className="mb-4">
-          <div className="border-t border-white/50 mb-2"></div>
-          <div className="text-orange-400 text-sm font-semibold mb-1">
+          <div
+            className={
+              isL2 ? "border-t border-[#c7ad80]/20 mb-2" : "border-t border-white/50 mb-2"
+            }
+          />
+          <div
+            className={
+              isL2
+                ? "text-[#e8c56e] text-sm font-semibold mb-1 [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+                : "text-orange-400 text-sm font-semibold mb-1"
+            }
+          >
             Характеристики персонажа
           </div>
-          <div className="text-orange-400 text-xs mb-2">
+          <div
+            className={
+              isL2 ? "text-[#d4b878] text-xs mb-2" : "text-orange-400 text-xs mb-2"
+            }
+          >
             Тут відображаються базові параметри, бойові характеристики та бонуси від екіпіровки і бафів.
           </div>
-          <div className="border-b border-white/50 mt-2"></div>
+          <div
+            className={
+              isL2 ? "border-b border-[#c7ad80]/20 mt-2" : "border-b border-white/50 mt-2"
+            }
+          />
         </div>
 
         {/* Інформація про персонажа */}
@@ -148,7 +194,7 @@ export default function Stats() {
               size={14}
             />
           </div>
-          <div className="text-red-500 text-sm">
+          <div className={isL2 ? "text-[#c45c5c] text-sm" : "text-red-500 text-sm"}>
             {level} ур. — {professionDisplay}
           </div>
         </div>
@@ -160,40 +206,52 @@ export default function Stats() {
 
         {/* Базовые характеристики */}
         <div className="mb-4">
-          <div className="text-green-500 font-semibold text-sm mb-2">
+          <div
+            className={
+              isL2
+                ? "text-[#7d9b7a] font-semibold text-sm mb-2"
+                : "text-green-500 font-semibold text-sm mb-2"
+            }
+          >
             Базовые характеристики
           </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
             <div className="flex justify-between">
               <span className="text-red-500">STR:</span>
-              <span className="text-white">{baseStats.STR}</span>
+              <span className={valClass}>{baseStats.STR}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-500">DEX:</span>
-              <span className="text-white">{baseStats.DEX}</span>
+              <span className={valClass}>{baseStats.DEX}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-500">CON:</span>
-              <span className="text-white">{baseStats.CON}</span>
+              <span className={valClass}>{baseStats.CON}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-500">INT:</span>
-              <span className="text-white">{baseStats.INT}</span>
+              <span className={valClass}>{baseStats.INT}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-500">WIT:</span>
-              <span className="text-white">{baseStats.WIT}</span>
+              <span className={valClass}>{baseStats.WIT}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-500">MEN:</span>
-              <span className="text-white">{baseStats.MEN}</span>
+              <span className={valClass}>{baseStats.MEN}</span>
             </div>
           </div>
         </div>
 
         {/* Боевые параметры */}
         <div>
-          <div className="text-green-500 font-semibold text-sm mb-2">
+          <div
+            className={
+              isL2
+                ? "text-[#7d9b7a] font-semibold text-sm mb-2"
+                : "text-green-500 font-semibold text-sm mb-2"
+            }
+          >
             Боевые параметры
           </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
@@ -201,45 +259,45 @@ export default function Stats() {
             <div className="flex flex-col space-y-1.5">
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Физ. атака</span>
-                <span className="text-white">{formatStatValue(combatStats.pAtk)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.pAtk)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Физ. защ</span>
-                <span className="text-white">{formatStatValue(combatStats.pDef)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.pDef)}</span>
               </div>
               {hasShieldEquipped(hero) && (
                 <>
                   <div className="flex justify-between">
                     <span className="text-[#c88a5c]">Защ. щитом</span>
-                    <span className="text-white">+{formatStatValue(getTotalShieldDefense(hero, combatStats))}</span>
+                    <span className={valClass}>+{formatStatValue(getTotalShieldDefense(hero, combatStats))}</span>
                   </div>
                   {combatStats.shieldBlockRate && combatStats.shieldBlockRate > 0 && (
                     <div className="flex justify-between">
                       <span className="text-[#c88a5c]">Шанс блоку щита</span>
-                      <span className="text-white">{formatStatValue(combatStats.shieldBlockRate)}%</span>
+                      <span className={valClass}>{formatStatValue(combatStats.shieldBlockRate)}%</span>
                     </div>
                   )}
                 </>
               )}
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Точность</span>
-                <span className="text-white">{formatStatValue(combatStats.accuracy)}%</span>
+                <span className={valClass}>{formatStatValue(combatStats.accuracy)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Крит</span>
-                <span className="text-white">{formatStatValue(combatStats.critFlat ?? combatStats.crit * 10)} ({combatStats.crit}%)</span>
+                <span className={valClass}>{formatStatValue(combatStats.critFlat ?? combatStats.crit * 10)} ({combatStats.crit}%)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. атаки</span>
-                <span className="text-white">{formatStatValue(combatStats.attackSpeed)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.attackSpeed)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">НР реген</span>
-                <span className="text-white">{formatStatValue(combatStats.hpRegen)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.hpRegen)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">СР реген</span>
-                <span className="text-white">{formatStatValue(combatStats.cpRegen)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.cpRegen)}</span>
               </div>
             </div>
 
@@ -247,49 +305,65 @@ export default function Stats() {
             <div className="flex flex-col space-y-1.5">
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Маг. атака</span>
-                <span className="text-white">{formatStatValue(combatStats.mAtk)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.mAtk)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Маг. защ</span>
-                <span className="text-white">{formatStatValue(combatStats.mDef)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.mDef)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Уклонение</span>
-                <span className="text-white">{formatStatValue(combatStats.evasion)}%</span>
+                <span className={valClass}>{formatStatValue(combatStats.evasion)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Маг. крит</span>
-                <span className="text-white">{formatStatValue(combatStats.mCritFlat ?? combatStats.mCrit * 10)} ({combatStats.mCrit}%)</span>
+                <span className={valClass}>{formatStatValue(combatStats.mCritFlat ?? combatStats.mCrit * 10)} ({combatStats.mCrit}%)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Сила крита</span>
-                <span className="text-white">{formatStatValue(combatStats.critPower)} (×{Math.min(2.0, (1.5 + (combatStats.critPower ?? 0) / 5000)).toFixed(2)} атака / ×{Math.min(3.0, (2.0 + (combatStats.critPower ?? 0) / 1500)).toFixed(2)} скіли)</span>
+                <span className={valClass}>{formatStatValue(combatStats.critPower)} (×{Math.min(2.0, (1.5 + (combatStats.critPower ?? 0) / 5000)).toFixed(2)} атака / ×{Math.min(3.0, (2.0 + (combatStats.critPower ?? 0) / 1500)).toFixed(2)} скіли)</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. каста</span>
-                <span className="text-white">{formatStatValue(combatStats.castSpeed)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.castSpeed)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">МР реген</span>
-                <span className="text-white">{formatStatValue(combatStats.mpRegen)}</span>
+                <span className={valClass}>{formatStatValue(combatStats.mpRegen)}</span>
               </div>
             </div>
           </div>
           {/* Риска від краю до краю під останніми рядками */}
-          <div className="border-t border-white/50 mt-1.5"></div>
+          <div
+            className={
+              isL2 ? "border-t border-[#c7ad80]/20 mt-1.5" : "border-t border-white/50 mt-1.5"
+            }
+          />
 
           {/* Формули бонусів сетів */}
           <div className="mt-4">
             <button
               type="button"
               onClick={() => setShowSetFormulas(!showSetFormulas)}
-              className="w-full py-2 text-left text-sm font-semibold text-[#b8860b] hover:text-[#d4af37] border-b border-white/30"
+              className={
+                isL2
+                  ? "w-full py-2 text-left text-sm font-semibold text-[#c9a44c] hover:text-[#f4e2b8] border-b border-[#5c4a32]/40"
+                  : "w-full py-2 text-left text-sm font-semibold text-[#b8860b] hover:text-[#d4af37] border-b border-white/30"
+              }
             >
               {showSetFormulas ? "▼ " : "▶ "}Формули бонусів сетів
             </button>
             {showSetFormulas && (
-              <div className="mt-2 p-3 bg-[#1a1a1a] rounded border border-white/20 text-xs space-y-2">
-                <div className="text-gray-400 mb-2">За кожну одиницю стату з повного сету:</div>
+              <div
+                className={
+                  isL2
+                    ? "mt-2 p-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)] text-xs space-y-2 text-[#d4c4a8]"
+                    : "mt-2 p-3 bg-[#1a1a1a] rounded border border-white/20 text-xs space-y-2"
+                }
+              >
+                <div className={isL2 ? "text-[#8a7a60] mb-2" : "text-gray-400 mb-2"}>
+                  За кожну одиницю стату з повного сету:
+                </div>
                 {SET_STAT_FORMULAS_UI.map(({ stat, effects, statColor, effectsColor }) => (
                   <div key={stat} className="flex gap-3 items-baseline">
                     <span className={`font-semibold shrink-0 w-14 ${statColor}`}>{stat}</span>

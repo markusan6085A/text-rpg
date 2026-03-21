@@ -54,9 +54,9 @@ export const getColor = (line: string) => {
     return "#d9c4a3"; // бежевий (буде перезаписано в parseDobychaLine)
   }
   
-  // Raid Boss повержен - синій
+  // Raid Boss повержен — теплий акцент (L2-стиль)
   if (lower.includes("raid boss") && lower.includes("повержен")) {
-    return "#3b82f6"; // blue-500
+    return "#c9a44c";
   }
   
   // Моб повержен - помаранчевий (перевіряємо перед квестовими дропами)

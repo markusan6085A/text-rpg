@@ -6,6 +6,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { loadBattle } from "../../state/battle/persist";
 import { BattlePanel } from "../battle/BattlePanel";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { SkillBar } from "../battle/SkillBar";
 import type { BattleBuff } from "../../state/battle/types";
 
@@ -139,6 +140,7 @@ export default function PkProfileView({
         backLabel="Назад в окресность!"
         onBack={handleBack}
         showBackButton={true}
+        isL2={getCityUiVariant() === "l2"}
       >
         <SkillBar onUseSkillOverride={onUseSkill} onAttackOverride={onAttack} />
       </BattlePanel>

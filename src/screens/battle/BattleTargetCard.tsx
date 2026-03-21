@@ -7,9 +7,18 @@ export interface BattleTargetCardProps {
   currentHp: number;
   maxHp: number;
   compact?: boolean;
+  /** Тепла рамка HP-бару як у L2-екранах */
+  isL2?: boolean;
 }
 
-export function BattleTargetCard({ name, level, currentHp, maxHp, compact = false }: BattleTargetCardProps) {
+export function BattleTargetCard({
+  name,
+  level,
+  currentHp,
+  maxHp,
+  compact = false,
+  isL2 = false,
+}: BattleTargetCardProps) {
   const max = Math.round(Math.max(1, maxHp));
   const clamped = Math.round(Math.max(0, Math.min(max, currentHp)));
   const hpPercent = max > 0 ? Math.max(0, Math.min(100, Math.round((clamped / max) * 100))) : 0;
@@ -30,7 +39,9 @@ export function BattleTargetCard({ name, level, currentHp, maxHp, compact = fals
       <div className="flex flex-col items-start gap-[4px] text-[11px] text-[#252524] w-full">
         <div className={barWidth}>
           <div
-            className={`${barHeight} rounded-[4px] overflow-hidden relative bg-[#14110c] border border-white/40`}
+            className={`${barHeight} rounded-[4px] overflow-hidden relative bg-[#14110c] border ${
+              isL2 ? "border-[#5c4a32]/60 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]" : "border-white/40"
+            }`}
           >
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"

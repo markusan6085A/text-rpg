@@ -5,6 +5,7 @@ import { useHeroStore } from "../../state/heroStore";
 import { allSkills } from "../../data/skills";
 import { MAX_SLOTS } from "../../state/battle/loadout";
 import { itemsDBWithStarter } from "../../data/items/itemsDB";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 type LearnedSkill = {
   id: number;
@@ -57,6 +58,7 @@ interface SkillBarProps {
 }
 
 export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps = {}) {
+  const uiL2 = getCityUiVariant() === "l2";
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const hero = useHeroStore((s) => s.hero);
   const equipItem = useHeroStore((s) => s.equipItem);
@@ -399,40 +401,61 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
           onClick={() => setPickerSlot(null)}
         >
           <div
-            className="w-full max-w-[360px] rounded-[12px] border border-white/50 bg-[#120d08] p-3 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.55)]"
+            className={
+              uiL2
+                ? "w-full max-w-[360px] rounded-xl border border-[#c7ad80]/35 p-3 space-y-2 shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                : "w-full max-w-[360px] rounded-[12px] border border-white/50 bg-[#120d08] p-3 space-y-2 shadow-[0_16px_40px_rgba(0,0,0,0.55)]"
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between text-sm text-[#f0e0c0]">
               <span>Выберите умение для слота {pickerSlot + 1}</span>
               <button
+                type="button"
                 onClick={() => setPickerSlot(null)}
-                className="text-xs px-2 py-1 rounded border border-white/50 bg-[#1a1814] text-[#f0e0c0] hover:bg-[#2a241a]"
+                className={
+                  uiL2
+                    ? "text-xs px-2 py-1 rounded-md border border-[#5c4a32]/70 bg-[#2a2620] text-[#d4c4a8] hover:border-[#c7ad80]/40"
+                    : "text-xs px-2 py-1 rounded border border-white/50 bg-[#1a1814] text-[#f0e0c0] hover:bg-[#2a241a]"
+                }
               >
                 Закрыть
               </button>
             </div>
 
-            <div className="flex gap-2 text-[12px] text-[#c7a46a]">
+            <div className="flex flex-wrap gap-2 text-[12px] text-[#c7a46a]">
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "magic" ? "text-white" : ""}`}
+                type="button"
+                className={`px-2 py-1 rounded-md bg-[#1a1814] border ${
+                  uiL2 ? "border-[#5c4a32]/55" : "border-white/40"
+                } ${category === "magic" ? "text-white" : ""}`}
                 onClick={() => setCategory("magic")}
               >
                 Магия
               </button>
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "consumable" ? "text-white" : ""}`}
+                type="button"
+                className={`px-2 py-1 rounded-md bg-[#1a1814] border ${
+                  uiL2 ? "border-[#5c4a32]/55" : "border-white/40"
+                } ${category === "consumable" ? "text-white" : ""}`}
                 onClick={() => setCategory("consumable")}
               >
                 Расходки
               </button>
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "item" ? "text-white" : ""}`}
+                type="button"
+                className={`px-2 py-1 rounded-md bg-[#1a1814] border ${
+                  uiL2 ? "border-[#5c4a32]/55" : "border-white/40"
+                } ${category === "item" ? "text-white" : ""}`}
                 onClick={() => setCategory("item")}
               >
                 Предметы
               </button>
               <button
-                className={`px-2 py-1 rounded bg-[#1a1814] border border-white/40 ${category === "remove" ? "text-white" : "text-[#e37c7c]"}`}
+                type="button"
+                className={`px-2 py-1 rounded-md bg-[#1a1814] border ${
+                  uiL2 ? "border-[#5c4a32]/55" : "border-white/40"
+                } ${category === "remove" ? "text-white" : "text-[#e37c7c]"}`}
                 onClick={() => setCategory("remove")}
               >
                 Удалить
@@ -453,7 +476,9 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                           const nextIdx = findNextEmpty(updated);
                           setPickerSlot(nextIdx);
                         }}
-                        className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center relative"
+                        className={`w-7 h-7 rounded border ${
+                          uiL2 ? "border-[#5c4a32]/55" : "border-white/50"
+                        } bg-[#1f160c] flex items-center justify-center relative`}
                         title={def.name}
                       >
                         <img src={def.icon || "/skills/attack.jpg"} alt={def.name} className="w-full h-full object-cover rounded" />
@@ -476,7 +501,9 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                           const nextIdx = findNextEmpty(updated);
                           setPickerSlot(nextIdx);
                         }}
-                        className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center relative"
+                        className={`w-7 h-7 rounded border ${
+                          uiL2 ? "border-[#5c4a32]/55" : "border-white/50"
+                        } bg-[#1f160c] flex items-center justify-center relative`}
                         title={`${c.name} (x${c.count})`}
                       >
                         <img src={c.icon} alt={c.name} className="w-full h-full object-cover rounded" />
@@ -497,7 +524,9 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                         setLoadoutSkill(pickerSlot, c.id as any);
                         setPickerSlot(null);
                       }}
-                      className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center"
+                      className={`w-7 h-7 rounded border ${
+                        uiL2 ? "border-[#5c4a32]/55" : "border-white/50"
+                      } bg-[#1f160c] flex items-center justify-center`}
                       title={c.name}
                     >
                       <img src={c.icon} alt={c.name} className="w-full h-full object-cover rounded" />
@@ -517,7 +546,9 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                           setPickerSlot(nextIdx);
                         }}
                         disabled={disabled}
-                        className="w-7 h-7 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
+                        className={`w-7 h-7 rounded border ${
+                          uiL2 ? "border-[#5c4a32]/55" : "border-white/50"
+                        } bg-[#1f160c] flex items-center justify-center disabled:opacity-60`}
                       >
                         <img src={s.icon} alt={s.name} className="w-full h-full object-cover rounded" />
                       </button>
@@ -532,8 +563,13 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
 
             <div className="flex gap-2 justify-end">
               <button
+                type="button"
                 onClick={() => setPickerSlot(null)}
-                className="h-8 px-3 rounded-md border border-white/40 bg-[#1b1b1b] text-[#e8e8e8] text-[12px] hover:bg-[#272727]"
+                className={
+                  uiL2
+                    ? "h-8 px-3 rounded-md border border-[#5c4a32]/70 bg-[#2a2620] text-[#d4c4a8] text-[12px] hover:border-[#c7ad80]/40"
+                    : "h-8 px-3 rounded-md border border-white/40 bg-[#1b1b1b] text-[#e8e8e8] text-[12px] hover:bg-[#272727]"
+                }
               >
                 Готово
               </button>

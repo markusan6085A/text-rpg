@@ -11,6 +11,7 @@ import { BattleLog } from "./battle/BattleLog";
 import { BattlePanel } from "./battle/BattlePanel";
 import { isMobOnRespawn } from "../state/battle/mobRespawns";
 import { MOB_HP_MULTIPLIER } from "../data/balance";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (path: string) => void;
 
@@ -48,6 +49,9 @@ export default function Battle({ navigate }: BattleProps) {
   const dead = hero ? isHeroDead(hero) : false;
   const [resurrecting, setResurrecting] = React.useState(false);
   const [now, setNow] = React.useState(Date.now());
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
 
   const handleResurrectToCity = async () => {
     if (!characterId || !hero || resurrecting) return;
@@ -86,6 +90,15 @@ export default function Battle({ navigate }: BattleProps) {
   const dividerGold = <div className="border-t-2 border-[#c7ad80]/80 mt-2" />;
   const boxBlue =
     "rounded-lg border-2 border-[#4aa3ff]/70 bg-black/25 shadow-[inset_0_0_12px_rgba(74,163,255,0.18)] overflow-hidden";
+  const boxLog = isL2
+    ? "rounded-lg border border-[#5c4a32]/70 bg-black/35 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] overflow-hidden"
+    : boxBlue;
+  const vLine = isL2 ? "border-t border-[#c7ad80]/25" : lineGold;
+  const vDivider = isL2 ? (
+    <div className="border-t border-[#c7ad80]/20 mt-2" />
+  ) : (
+    dividerGold
+  );
   const btnGold =
     "w-full text-center text-[12px] py-2 rounded-lg " +
     "border border-[#c7ad80]/80 text-[#c7ad80] " +
@@ -143,15 +156,26 @@ export default function Battle({ navigate }: BattleProps) {
   // Якщо зона або моб не знайдені
   if (!found || mobIndex < 0) {
     return (
-      <div className="text-white flex items-center justify-center px-4 py-8">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 text-[#d4c4a8]`
+            : "text-white flex items-center justify-center px-4 py-8"
+        }
+      >
         <div className="space-y-3 max-w-[380px] text-center">
-          <h1 className="text-xl font-bold">Помилка</h1>
-          <p className="text-sm text-gray-300">
+          <h1 className={isL2 ? "text-lg font-bold text-[#e8c56e]" : "text-xl font-bold"}>Помилка</h1>
+          <p className={isL2 ? "text-sm text-[#a89878]" : "text-sm text-gray-300"}>
             Зона або моб не знайдені.
           </p>
           <button
+            type="button"
             onClick={() => navigate("/location")}
-            className="mt-3 px-4 py-2 bg-yellow-600 rounded text-black"
+            className={
+              isL2
+                ? "mt-3 px-5 py-2 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-sm text-[#c9a44c] hover:border-[#c7ad80]/50"
+                : "mt-3 px-4 py-2 bg-yellow-600 rounded text-black"
+            }
           >
             Повернутися в локацію
           </button>
@@ -165,10 +189,23 @@ export default function Battle({ navigate }: BattleProps) {
   // SkillBar потребує hero — якщо hero ще не завантажений, показуємо завантаження
   if (!hero && mob) {
     return (
-      <div className="text-white flex items-center justify-center px-4 py-8">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 text-[#d4c4a8]`
+            : "text-white flex items-center justify-center px-4 py-8"
+        }
+      >
         <div className="space-y-3 max-w-[380px] text-center">
-          <h1 className="text-xl font-bold">Завантаження...</h1>
-          <p className="text-sm text-gray-300">Підготовка бою...</p>
+          <div
+            className={
+              isL2
+                ? "mx-auto w-6 h-6 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin"
+                : "hidden"
+            }
+          />
+          <h1 className={isL2 ? "text-lg font-semibold text-[#e8c56e]" : "text-xl font-bold"}>Завантаження...</h1>
+          <p className={isL2 ? "text-sm text-[#8a7a60]" : "text-sm text-gray-300"}>Підготовка бою...</p>
         </div>
       </div>
     );
@@ -186,13 +223,24 @@ export default function Battle({ navigate }: BattleProps) {
       const returnButtonText = isFishingZone ? "Повернутися до риболовлі" : "Повернутися в окрестность";
       
       return (
-        <div className="text-white flex items-center justify-center px-4 py-8">
+        <div
+          className={
+            isL2
+              ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 text-[#d4c4a8]`
+              : "text-white flex items-center justify-center px-4 py-8"
+          }
+        >
           <div className="space-y-3 max-w-[380px] text-center">
-            <h1 className="text-xl font-bold text-red-500">Помилка</h1>
-            <p className="text-sm text-gray-300">{errorMessage}</p>
+            <h1 className={isL2 ? "text-lg font-bold text-red-400" : "text-xl font-bold text-red-500"}>Помилка</h1>
+            <p className={isL2 ? "text-sm text-[#a89878]" : "text-sm text-gray-300"}>{errorMessage}</p>
             <button
+              type="button"
               onClick={() => navigate(returnPath)}
-              className="mt-3 px-4 py-2 bg-yellow-600 rounded text-black hover:bg-yellow-700"
+              className={
+                isL2
+                  ? "mt-3 px-5 py-2 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-sm text-[#c9a44c] hover:border-[#c7ad80]/50"
+                  : "mt-3 px-4 py-2 bg-yellow-600 rounded text-black hover:bg-yellow-700"
+              }
             >
               {returnButtonText}
             </button>
@@ -201,12 +249,23 @@ export default function Battle({ navigate }: BattleProps) {
       );
     }
     return (
-      <div className="text-white flex items-center justify-center px-4 py-8">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 text-[#d4c4a8]`
+            : "text-white flex items-center justify-center px-4 py-8"
+        }
+      >
         <div className="space-y-3 max-w-[380px] text-center">
-          <h1 className="text-xl font-bold">Завантаження...</h1>
-          <p className="text-sm text-gray-300">
-            Завантаження бою...
-          </p>
+          <div
+            className={
+              isL2
+                ? "mx-auto w-6 h-6 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin"
+                : "hidden"
+            }
+          />
+          <h1 className={isL2 ? "text-lg font-semibold text-[#e8c56e]" : "text-xl font-bold"}>Завантаження...</h1>
+          <p className={isL2 ? "text-sm text-[#8a7a60]" : "text-sm text-gray-300"}>Завантаження бою...</p>
         </div>
       </div>
     );
@@ -272,14 +331,14 @@ export default function Battle({ navigate }: BattleProps) {
     const victoryContent = (
       <>
           {/* Інформація про моба */}
-          <div className={`${lineGold} pt-2`}>
+          <div className={`${vLine} pt-2`}>
             <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
               {mob.name}, {mob.level} ур.
             </div>
           </div>
 
           {/* ПОБЕДА! */}
-          <div className={`${lineGold} py-2`}>
+          <div className={`${vLine} py-2`}>
             <div className={`${pad} text-center`}>
               <div className="text-base font-bold text-green-500">ПОБЕДА!</div>
             </div>
@@ -328,7 +387,7 @@ export default function Battle({ navigate }: BattleProps) {
           </div>
 
           {/* лінія ВИЩЕ дій */}
-          <div className="px-3">{dividerGold}</div>
+          <div className="px-3">{vDivider}</div>
 
           {/* Дії без рамок */}
           <div className="mt-2 px-3 text-center text-[12px]">
@@ -355,9 +414,17 @@ export default function Battle({ navigate }: BattleProps) {
 
           {/* Лог бою — без лінії під рамкою */}
           <div className="mt-3 px-3">
-            <div className="text-[12px] text-[#c7ad80] font-semibold mb-2">Лог бою:</div>
-            <div className={`${boxBlue} w-full`}>
-              <div className="px-3 py-2 text-[11px] leading-4">
+            <div
+              className={
+                isL2
+                  ? "text-[12px] text-[#e8c56e] font-semibold mb-2"
+                  : "text-[12px] text-[#c7ad80] font-semibold mb-2"
+              }
+            >
+              Лог бою:
+            </div>
+            <div className={`${boxLog} w-full`}>
+              <div className="px-3 py-2 text-[11px] leading-4 text-[#d4c4a8]">
                 <BattleLog noBorder />
               </div>
             </div>
@@ -368,11 +435,15 @@ export default function Battle({ navigate }: BattleProps) {
             <button
               type="button"
               onClick={handleTakeAndLocation}
-              className="w-full px-3 text-center text-[12px] text-white/90 hover:text-white transition-colors cursor-pointer"
+              className={
+                isL2
+                  ? "w-full px-3 text-center text-[12px] text-[#c9a44c] hover:text-[#f4e2b8] transition-colors cursor-pointer"
+                  : "w-full px-3 text-center text-[12px] text-white/90 hover:text-white transition-colors cursor-pointer"
+              }
             >
               В окрестности
             </button>
-            <div className="px-3">{dividerGold}</div>
+            <div className="px-3">{vDivider}</div>
           </div>
         </>
     );
@@ -382,6 +453,7 @@ export default function Battle({ navigate }: BattleProps) {
         buffs={[]}
         now={now}
         victoryContent={victoryContent}
+        isL2={isL2}
       />
     );
   }
@@ -406,6 +478,7 @@ export default function Battle({ navigate }: BattleProps) {
       backLabel={dead ? (resurrecting ? "..." : "В город (70% HP)") : "Повернутися в локацію"}
       showBackButton={status === "idle"}
       onBack={dead ? handleResurrectToCity : () => { reset(); navigate(`/location?id=${zone.id}`); }}
+      isL2={isL2}
     >
       <SkillBar />
     </BattlePanel>
