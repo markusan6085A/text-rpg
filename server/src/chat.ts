@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { prisma } from "./db";
+import { getEffectiveNickColor } from "./effectiveNickColor";
 import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 import { getMutedUntil } from "./chatMute";
 import { getAuth } from "./routes/character/auth";
@@ -47,7 +48,8 @@ export async function chatRoutes(app: FastifyInstance) {
           character: {
             select: {
               name: true,
-              heroJson: true, // Include heroJson to get nickColor
+              nickColor: true,
+              heroJson: true,
               clanMember: {
                 select: {
                   clan: {
@@ -79,7 +81,7 @@ export async function chatRoutes(app: FastifyInstance) {
         messages: messages.map((msg) => {
           const char = (msg as any).character;
           const heroJson = (char?.heroJson as any) || {};
-          const nickColor = heroJson.nickColor;
+          const nickColor = getEffectiveNickColor(heroJson, char?.nickColor);
           // Отримуємо emblem з клану гравця
           const clanEmblem = char?.clanMember?.clan?.emblem;
           const emblem = clanEmblem && String(clanEmblem).trim() ? clanEmblem : null;

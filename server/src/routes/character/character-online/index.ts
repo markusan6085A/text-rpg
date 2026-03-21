@@ -1,18 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../../../db";
+import { getEffectiveNickColor } from "../../../effectiveNickColor";
 import { getAuth } from "../auth";
-
-function getEffectiveNickColor(heroJson: any, fallback?: string | null): string | undefined {
-  const now = Date.now();
-  const forced = String(heroJson?.pkForcedNickColor ?? "").trim();
-  const forcedUntil = Number(heroJson?.pkForcedNickColorUntil);
-  if (forced && (!Number.isFinite(forcedUntil) || forcedUntil > now)) return forced;
-  const combat = String(heroJson?.pkCombatNickColor ?? "").trim();
-  const combatUntil = Number(heroJson?.pkCombatNickColorUntil);
-  if (combat && Number.isFinite(combatUntil) && combatUntil > now) return combat;
-  const base = String(heroJson?.nickColor ?? fallback ?? "").trim();
-  return base || undefined;
-}
 
 export async function characterOnlineRoutes(app: FastifyInstance) {
   // GET /characters/online - список онлайн гравців (активні за останні 10 хвилин)

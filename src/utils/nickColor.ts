@@ -27,6 +27,10 @@ function isAdminNick(name: string | undefined): boolean {
  * @param sevenSealsWinnerRank - 1|2|3 if player is Seven Seals winner
  * @returns Hex color string or default color
  */
+function normNick(s: string | undefined): string {
+  return String(s ?? "").trim().toLowerCase();
+}
+
 export function getNickColor(
   playerName: string,
   hero: Hero | null,
@@ -41,8 +45,12 @@ export function getNickColor(
     return nickColor;
   }
 
-  // If it's the current player's own nickname, use hero.nickColor
-  if (hero && (playerName === hero.name || playerName === hero.username)) {
+  // If it's the current player's own nickname, use hero.nickColor (регістр як у чаті з сервера може відрізнятися)
+  const pn = normNick(playerName);
+  if (
+    hero &&
+    (pn === normNick(hero.name) || pn === normNick(hero.username))
+  ) {
     return hero.nickColor || "#c7ad80"; // Основний колір ніка
   }
 

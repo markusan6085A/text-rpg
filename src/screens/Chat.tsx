@@ -286,13 +286,21 @@ export default function Chat({ navigate }: ChatProps) {
       return true;
     });
 
-    // 🔥 ВАЖЛИВО: На сторінці 1 показуємо рівно 10 повідомлень (outbox + серверні)
-    // Якщо outbox займає місце, то серверні обмежуємо, щоб загалом було 10
-    // Це гарантує, що повідомлення 11+ підуть на сторінку 2
-    const maxCached = Math.max(0, 10 - outboxVisible.length);
-    const limitedCached = dedupedCachedFromOutbox.slice(0, maxCached);
-
-    return [...outboxVisible, ...limitedCached];
+    // 10 найновіших за часом: застряглий outbox не має ховати свіжі чужі повідомлення з сервера
+    const combined = [...outboxVisible, ...dedupedCachedFromOutbox];
+    combined.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    const seenIds = new Set<string>();
+    const merged: ChatMessage[] = [];
+    for (const m of combined) {
+      if (seenIds.has(m.id)) continue;
+      seenIds.add(m.id);
+      merged.push(m);
+      if (merged.length >= 10) break;
+    }
+    return merged;
   }, [page, outbox, filteredCached, serverFingerprints, channel]);
 
   // Confirmed delivery cleanup:
