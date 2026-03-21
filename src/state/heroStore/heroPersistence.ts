@@ -42,6 +42,26 @@ const MAX_RETRIES = 1; // Максимум 1 автоматичний retry пр
 // 🔥 ВИДАЛЕНО: Глобальні змінні lastServerExp/lastServerLevel та window.__lastServerExp
 // Тепер використовуємо serverState з heroStore
 
+/**
+ * Після PUT клієнт не відправляє top-level exp/level/sp (api.ts їх прибирає) — оновлюється heroJson,
+ * а колонки Character.exp/level/sp у відповіді можуть лишатися застарілими. Для UI і serverState
+ * беремо прогрес з heroJson, якщо там є валідні числа.
+ */
+function readCharacterProgress(character: any): { level: number; exp: number; sp: number } {
+  const hj = (character?.heroJson ?? {}) as any;
+  const levelCol = Math.max(1, Number(character?.level ?? 1) || 1);
+  const expCol = Math.max(0, Number(character?.exp ?? 0) || 0);
+  const spCol = Math.max(0, Number(character?.sp ?? 0) || 0);
+  const lj = hj.level != null && hj.level !== "" ? Number(hj.level) : NaN;
+  const ej = hj.exp != null && hj.exp !== "" ? Number(hj.exp) : NaN;
+  const sj = hj.sp != null && hj.sp !== "" ? Number(hj.sp) : NaN;
+  return {
+    level: Number.isFinite(lj) && lj > 0 ? lj : levelCol,
+    exp: Number.isFinite(ej) && ej >= 0 ? ej : expCol,
+    sp: Number.isFinite(sj) && sj >= 0 ? sj : spCol,
+  };
+}
+
 // 🔥 КРИТИЧНО: У всіх backup у localStorage heroJson має містити exp/level/sp/skills/mobsKilled/adena
 // щоб при local-first / порівнянні не було відкату через старі значення
 function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
@@ -253,10 +273,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const freshChar = await getCharacter(characterStore.characterId);
         if (freshChar) {
           const hj = (freshChar as any).heroJson || {};
+          const prog = readCharacterProgress(freshChar);
           heroStore.getState().updateServerState({
-            exp: Number(freshChar.exp ?? 0),
-            level: Number(freshChar.level ?? 1),
-            sp: Number(freshChar.sp ?? 0),
+            exp: prog.exp,
+            level: prog.level,
+            sp: prog.sp,
             coinLuck: Number((freshChar as any).coinLuck ?? 0),
             heroRevision: hj.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? 0,
             updatedAt: Date.now(),
@@ -522,7 +543,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const serverLevelKnown = serverState?.level ?? null;
     
     // 🔥 Clamp exp/level щоб не отримати "exp cannot be decreased" / "level cannot be decreased" після F5
-    const expToSend = serverExpKnown !== null ? Math.max(localExp, serverExpKnown) : localExp;
+    // Якщо локально вже вищий рівень за serverState — серверний exp з іншої «шкали» рівня, не робимо max.
+    const sameLevelAsServer =
+      serverLevelKnown !== null && Number(localLevel) === Number(serverLevelKnown);
+    const expToSend =
+      serverExpKnown !== null && (sameLevelAsServer || localLevel < serverLevelKnown)
+        ? Math.max(localExp, serverExpKnown)
+        : localExp;
     const levelToSend = serverLevelKnown !== null ? Math.max(localLevel, serverLevelKnown) : localLevel;
     // 🔥 SP НЕ clamp'имо при learn skill: localSp < serverSp — це очікувано (списали SP за скіл).
     // Clamp ламав: ми слали serverSp, сервер приймав, applyServerSync відкочував hero.sp назад.
@@ -567,9 +594,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     if (updatedCharacter) {
       const newRevision = (updatedCharacter as any).heroRevision || (updatedCharacter as any).revision
         || (updatedCharacter.heroJson as any)?.heroRevision;
-      const serverExp = Number(updatedCharacter.exp ?? 0);
-      const serverLevel = Number(updatedCharacter.level ?? 1);
-      const serverSp = Number(updatedCharacter.sp ?? 0); // 🔥 Додано SP
+      const { exp: serverExp, level: serverLevel, sp: serverSp } = readCharacterProgress(updatedCharacter);
       
       // 🔥 applyServerSync замість updateHero — не запускає persistence (прибирає рекурсію PUT→updateHero→PUT)
       const { useHeroStore } = await import('../heroStore');
