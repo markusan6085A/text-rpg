@@ -4,6 +4,7 @@ import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { useOnlineCountStore } from "../state/onlineCountStore";
 import { showToast } from "../state/toastStore";
+import { setString } from "../state/persistence";
 
 type Navigate = (p: string) => void;
 
@@ -56,7 +57,10 @@ export default function About({ navigate }: { navigate: Navigate }) {
         </div>
         <div className="flex flex-col gap-0">
           <button
-            onClick={() => navigate("/wip")}
+            onClick={() => {
+              setString("l2_last_feature", "Поддержка");
+              navigate("/wip");
+            }}
             className="text-left text-gray-400 hover:text-gray-300 transition-colors text-[10px] py-2 border-b border-solid border-white/50 w-full"
           >
             {String.fromCharCode(1055, 1086, 1076, 1076, 1077, 1088, 1078, 1082, 1072)}

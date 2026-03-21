@@ -9,10 +9,12 @@ type GameUser = {
 interface WipProps {
   navigate: (path: string) => void;
   user: GameUser | null;
+  /** Якщо задано — показуємо цей заголовок замість `l2_last_feature` (наприклад прямий захід на /recipe-book). */
+  featureTitle?: string;
 }
 
-const Wip: React.FC<WipProps> = ({ navigate, user }) => {
-  const title = getString("l2_last_feature", "Раздел");
+const Wip: React.FC<WipProps> = ({ navigate, user, featureTitle }) => {
+  const title = featureTitle ?? getString("l2_last_feature", "Раздел");
 
   const goCity = () => {
     if (user) {

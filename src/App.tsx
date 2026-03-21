@@ -553,10 +553,12 @@ function AppInner() {
 
     case "/recipe-book":
       return renderWithLayout(
-        <div key={`recipe-book-${refreshKey}`} className="w-full flex flex-col items-center text-white px-4 py-2">
-          <div className="text-xl font-bold mb-4">Книга рецептов</div>
-          <div className="text-gray-400">В разработке...</div>
-        </div>
+        <Wip
+          navigate={navigate}
+          user={hero ? { username: hero.name || hero.username || "" } : null}
+          featureTitle="Книга рецептов"
+          key={`recipe-book-${refreshKey}`}
+        />
       );
 
     case "/shop":

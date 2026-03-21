@@ -16,6 +16,7 @@ import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { useCharacterStore } from "../state/characterStore";
 import { useBattleStore } from "../state/battle/store";
 import { getGameSettings } from "../state/gameSettings";
+import { setString } from "../state/persistence";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -256,8 +257,8 @@ export default function Layout({
   }, []);
 
   const handleSupport = () => {
-    // TODO: Відкрити підтримку
     if (navigate) {
+      setString("l2_last_feature", "Поддержка");
       navigate("/wip");
     }
   };
