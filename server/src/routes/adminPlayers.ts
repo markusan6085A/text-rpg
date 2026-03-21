@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { requireAdmin } from "./adminGuard";
+import { clampHeroSkillsToPlayerLevel } from "../clampHeroSkillsToLevel";
 import { prisma } from "../db";
 import { setMuted } from "../chatMute";
 import { writeAdminAuditLog } from "../adminAudit";
@@ -338,10 +339,16 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       const maxHp = Math.max(1, Math.round(baseHp * conBonus));
       const maxMp = Math.max(1, Math.round(baseMp * menBonus));
       const maxCp = Math.max(1, Math.round(maxHp * 0.6));
+      const rawSkills = Array.isArray(heroJson.skills) ? heroJson.skills : [];
+      const clampedSkills = clampHeroSkillsToPlayerLevel(
+        rawSkills.map((x: any) => ({ id: Number(x.id), level: Number(x.level) || 1 })),
+        lvl
+      );
       const updatedHeroJson = {
         ...heroJson,
         level: lvl,
         exp: expForLevel,
+        skills: clampedSkills,
         heroRevision: Date.now(),
         heroJsonVersion: heroJson.heroJsonVersion || 1,
         hp: maxHp,

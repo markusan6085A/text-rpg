@@ -819,8 +819,12 @@ const baseSkillsDB = buildCanonicalSkills(skillModules);
 export const skillsDB: Record<number, SkillDefinition> = addAdditionalSkillsToCanonical(baseSkillsDB, AdditionalSkills);
 export const allSkills: SkillDefinition[] = Object.values(skillsDB);
 
-// Діагностика для додаткових скілів
-if (import.meta.env.DEV) {
+// Діагностика для додаткових скілів (Vite: import.meta.env.DEV; Node/tsx: env може бути відсутній)
+const _skillsIndexDev =
+  typeof import.meta !== "undefined" &&
+  typeof (import.meta as unknown as { env?: { DEV?: boolean } }).env !== "undefined" &&
+  (import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV === true;
+if (_skillsIndexDev) {
   const additionalSkillIds = [130, 429, 401];
   additionalSkillIds.forEach(id => {
     const found = skillsDB[id];
