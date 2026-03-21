@@ -61,3 +61,26 @@ export function getL2dopResourceIconPath(stringId: string): string | undefined {
   if (l2 === undefined) return undefined;
   return `/items/drops/resources/l2dop-by-itemid/${l2}.jpg`;
 }
+
+const RECIPE_NAME_RE = /^Recipe\s*:/i;
+
+/** Рецепти (L2 EtcItem, назва з «Recipe:») — окрема папка іконок у public */
+export function isL2RecipeDrop(entry: { kind: string; displayName?: string }): boolean {
+  if (entry.kind === "other") return true;
+  const n = entry.displayName?.trim() ?? "";
+  return RECIPE_NAME_RE.test(n);
+}
+
+/**
+ * Іконка для синтетичного дропу l2item_*: ресурси → resources/…, рецепти → recipes/…
+ * `public/items/drops/{resources|recipes}/l2dop-by-itemid/{l2ItemId}.jpg`
+ */
+export function getL2DropEntryByItemIdPath(entry: {
+  kind: string;
+  displayName?: string;
+  l2ItemId?: number;
+}): string | undefined {
+  if (entry.l2ItemId == null) return undefined;
+  const sub = isL2RecipeDrop(entry) ? "recipes" : "resources";
+  return `/items/drops/${sub}/l2dop-by-itemid/${entry.l2ItemId}.jpg`;
+}

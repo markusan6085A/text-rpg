@@ -3,7 +3,7 @@ import type { Mob } from "../../../data/world/types";
 import type { DropEntry, DropKind } from "../../../data/combat/types";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
-import { getL2dopResourceIconPath } from "../../../data/world/l2dop/droplistMapping";
+import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../../../data/world/l2dop/droplistMapping";
 import { QUESTS } from "../../../data/quests";
 import { equipItemLogic } from "../../heroStore/heroInventory";
 import { getInventoryMax } from "../../heroStore";
@@ -66,7 +66,8 @@ function rollQuantity(min: number, max: number): number {
 function resolveDropIconPath(drop: DropEntry): string {
   const fromMap = getL2dopResourceIconPath(drop.id);
   if (fromMap) return fromMap;
-  if (drop.l2ItemId != null) return `/items/drops/resources/l2dop-by-itemid/${drop.l2ItemId}.jpg`;
+  const byItem = getL2DropEntryByItemIdPath(drop);
+  if (byItem) return byItem;
   return "/items/default_item.png";
 }
 

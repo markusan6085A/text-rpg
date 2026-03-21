@@ -20,7 +20,7 @@ import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
-import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
+import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../data/world/l2dop/droplistMapping";
 import type { DropEntry } from "../data/combat/types";
 
 function formatDropChanceLabel(d: Pick<DropEntry, "chance" | "chancePerMillion">): string {
@@ -36,7 +36,8 @@ function dropLineIconPath(entry: DropEntry): string {
   if (defIcon) return defIcon.startsWith("/") ? defIcon : `/items/${defIcon}`;
   const l2 = getL2dopResourceIconPath(entry.id);
   if (l2) return l2;
-  if (entry.l2ItemId != null) return `/items/drops/resources/l2dop-by-itemid/${entry.l2ItemId}.jpg`;
+  const byItem = getL2DropEntryByItemIdPath(entry);
+  if (byItem) return byItem;
   return "/items/default_item.png";
 }
 

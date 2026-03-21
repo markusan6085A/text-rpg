@@ -7,36 +7,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "18001": {
     drops: [
       {
-        id: "l2item_2397",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 2397,
-        displayName: "Tunic of Zubei"
-      },
-      {
-        id: "l2item_2402",
-        kind: "equipment",
-        chance: 0.000019,
-        min: 1,
-        max: 1,
-        chancePerMillion: 19,
-        l2ItemId: 2402,
-        displayName: "Stockings of Zubei"
-      },
-      {
-        id: "l2item_2406",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 2406,
-        displayName: "Avadon Robe"
-      },
-      {
         id: "l2item_1419",
         kind: "resource",
         chance: 0.2,
@@ -128,7 +98,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_4197",
-        kind: "resource",
+        kind: "other",
         chance: 0.000008,
         min: 1,
         max: 1,
@@ -150,7 +120,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1806",
-        kind: "resource",
+        kind: "other",
         chance: 0.010868,
         min: 1,
         max: 1,
@@ -171,38 +141,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20003": {
     drops: [
       {
-        id: "l2item_112",
-        kind: "equipment",
-        chance: 0.079637,
-        min: 1,
-        max: 1,
-        chancePerMillion: 79637,
-        l2ItemId: 112,
-        displayName: "Apprentice's Earring"
-      },
-      {
-        id: "l2item_116",
-        kind: "equipment",
-        chance: 0.118249,
-        min: 1,
-        max: 1,
-        chancePerMillion: 118249,
-        l2ItemId: 116,
-        displayName: "Magic Ring"
-      },
-      {
-        id: "l2item_118",
-        kind: "equipment",
-        chance: 0.059125,
-        min: 1,
-        max: 1,
-        chancePerMillion: 59125,
-        l2ItemId: 118,
-        displayName: "Necklace of Magic"
-      },
-      {
         id: "l2item_1788",
-        kind: "resource",
+        kind: "other",
         chance: 0.007805,
         min: 1,
         max: 1,
@@ -273,18 +213,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_116",
-        kind: "resource",
-        chance: 0.343131,
-        min: 1,
-        max: 1,
-        chancePerMillion: 343131,
-        l2ItemId: 116,
-        displayName: "Magic Ring"
-      },
-      {
         id: "l2item_1786",
-        kind: "resource",
+        kind: "other",
         chance: 0.045293,
         min: 1,
         max: 1,
@@ -307,38 +237,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20004": {
     drops: [
       {
-        id: "l2item_1119",
-        kind: "equipment",
-        chance: 0.005045,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5045,
-        l2ItemId: 1119,
-        displayName: "Short Leather Gloves"
-      },
-      {
-        id: "l2item_1122",
-        kind: "equipment",
-        chance: 0.005044,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5044,
-        l2ItemId: 1122,
-        displayName: "Cotton Shoes"
-      },
-      {
-        id: "l2item_1129",
-        kind: "equipment",
-        chance: 0.005044,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5044,
-        l2ItemId: 1129,
-        displayName: "Crude Leather Shoes"
-      },
-      {
         id: "l2item_1666",
-        kind: "resource",
+        kind: "other",
         chance: 0.005104,
         min: 1,
         max: 1,
@@ -413,26 +313,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20005": {
     drops: [
       {
-        id: "l2item_19",
-        kind: "equipment",
-        chance: 0.009012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 9012,
-        l2ItemId: 19,
-        displayName: "Small Shield"
-      },
-      {
-        id: "l2item_42",
-        kind: "equipment",
-        chance: 0.006311,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6311,
-        l2ItemId: 42,
-        displayName: "Leather Cap"
-      },
-      {
         id: "l2item_17",
         kind: "resource",
         chance: 0.071865,
@@ -444,7 +324,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1789",
-        kind: "resource",
+        kind: "other",
         chance: 0.002657,
         min: 1,
         max: 1,
@@ -496,7 +376,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1666",
-        kind: "resource",
+        kind: "other",
         chance: 0.032439,
         min: 1,
         max: 1,
@@ -518,16 +398,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20006": {
     drops: [
-      {
-        id: "l2item_14",
-        kind: "equipment",
-        chance: 0.000607,
-        min: 1,
-        max: 1,
-        chancePerMillion: 607,
-        l2ItemId: 14,
-        displayName: "Bow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -560,7 +430,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2136",
-        kind: "resource",
+        kind: "other",
         chance: 0.007435,
         min: 1,
         max: 1,
@@ -580,16 +450,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_113",
-        kind: "resource",
-        chance: 0.031655,
-        min: 1,
-        max: 1,
-        chancePerMillion: 31655,
-        l2ItemId: 113,
-        displayName: "Mystic's Earring"
-      },
       {
         id: "l2item_1060",
         kind: "resource",
@@ -615,28 +475,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20007": {
     drops: [
       {
-        id: "l2item_22",
-        kind: "equipment",
-        chance: 0.003619,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3619,
-        l2ItemId: 22,
-        displayName: "Leather Shirt"
-      },
-      {
-        id: "l2item_29",
-        kind: "equipment",
-        chance: 0.005786,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5786,
-        l2ItemId: 29,
-        displayName: "Leather Pants"
-      },
-      {
         id: "l2item_1796",
-        kind: "resource",
+        kind: "other",
         chance: 0.036869,
         min: 1,
         max: 1,
@@ -677,16 +517,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1122",
-        kind: "resource",
-        chance: 0.049042,
-        min: 1,
-        max: 1,
-        chancePerMillion: 49042,
-        l2ItemId: 1122,
-        displayName: "Cotton Shoes"
-      },
-      {
         id: "suede",
         kind: "resource",
         chance: 0.099228,
@@ -711,28 +541,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20008": {
     drops: [
       {
-        id: "l2item_255",
-        kind: "equipment",
-        chance: 0.000244,
-        min: 1,
-        max: 1,
-        chancePerMillion: 244,
-        l2ItemId: 255,
-        displayName: "Fox Claw Gloves"
-      },
-      {
-        id: "l2item_2371",
-        kind: "equipment",
-        chance: 0.000517,
-        min: 1,
-        max: 1,
-        chancePerMillion: 517,
-        l2ItemId: 2371,
-        displayName: "Fist of Butcher"
-      },
-      {
         id: "l2item_1792",
-        kind: "resource",
+        kind: "other",
         chance: 0.003228,
         min: 1,
         max: 1,
@@ -774,7 +584,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1793",
-        kind: "resource",
+        kind: "other",
         chance: 0.016388,
         min: 1,
         max: 1,
@@ -807,26 +617,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20021": {
     drops: [
       {
-        id: "l2item_9",
-        kind: "equipment",
-        chance: 0.000163,
-        min: 1,
-        max: 1,
-        chancePerMillion: 163,
-        l2ItemId: 9,
-        displayName: "Cedar Staff"
-      },
-      {
-        id: "l2item_154",
-        kind: "equipment",
-        chance: 0.000163,
-        min: 1,
-        max: 1,
-        chancePerMillion: 163,
-        l2ItemId: 154,
-        displayName: "Dwarven Mace"
-      },
-      {
         id: "l2item_1060",
         kind: "resource",
         chance: 0.073151,
@@ -838,7 +628,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1798",
-        kind: "resource",
+        kind: "other",
         chance: 0.032273,
         min: 1,
         max: 1,
@@ -890,7 +680,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1792",
-        kind: "resource",
+        kind: "other",
         chance: 0.016388,
         min: 1,
         max: 1,
@@ -900,7 +690,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1793",
-        kind: "resource",
+        kind: "other",
         chance: 0.016388,
         min: 1,
         max: 1,
@@ -923,18 +713,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20030": {
     drops: [
       {
-        id: "l2item_216",
-        kind: "equipment",
-        chance: 0.000253,
-        min: 1,
-        max: 1,
-        chancePerMillion: 253,
-        l2ItemId: 216,
-        displayName: "Dirk"
-      },
-      {
         id: "l2item_1793",
-        kind: "resource",
+        kind: "other",
         chance: 0.003354,
         min: 1,
         max: 1,
@@ -986,7 +766,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1794",
-        kind: "resource",
+        kind: "other",
         chance: 0.01703,
         min: 1,
         max: 1,
@@ -996,7 +776,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1798",
-        kind: "resource",
+        kind: "other",
         chance: 0.227072,
         min: 1,
         max: 1,
@@ -1019,28 +799,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20035": {
     drops: [
       {
-        id: "l2item_38",
-        kind: "equipment",
-        chance: 0.001432,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1432,
-        l2ItemId: 38,
-        displayName: "Low Boots"
-      },
-      {
-        id: "l2item_50",
-        kind: "equipment",
-        chance: 0.001432,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1432,
-        l2ItemId: 50,
-        displayName: "Leather Gloves"
-      },
-      {
         id: "l2item_1817",
-        kind: "resource",
+        kind: "other",
         chance: 0.007269,
         min: 1,
         max: 1,
@@ -1080,7 +840,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5268",
-        kind: "resource",
+        kind: "other",
         chance: 0.001454,
         min: 1,
         max: 1,
@@ -1122,7 +882,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2140",
-        kind: "resource",
+        kind: "other",
         chance: 0.049216,
         min: 1,
         max: 1,
@@ -1138,46 +898,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20083": {
     drops: [
-      {
-        id: "l2item_393",
-        kind: "equipment",
-        chance: 0.00007,
-        min: 1,
-        max: 1,
-        chancePerMillion: 70,
-        l2ItemId: 393,
-        displayName: "Mithril Banded Mail"
-      },
-      {
-        id: "l2item_394",
-        kind: "equipment",
-        chance: 0.00007,
-        min: 1,
-        max: 1,
-        chancePerMillion: 70,
-        l2ItemId: 394,
-        displayName: "Reinforced Leather Shirt"
-      },
-      {
-        id: "l2item_415",
-        kind: "equipment",
-        chance: 0.000111,
-        min: 1,
-        max: 1,
-        chancePerMillion: 111,
-        l2ItemId: 415,
-        displayName: "Mithril Banded Gaiters"
-      },
-      {
-        id: "l2item_416",
-        kind: "equipment",
-        chance: 0.000111,
-        min: 1,
-        max: 1,
-        chancePerMillion: 111,
-        l2ItemId: 416,
-        displayName: "Reinforced Leather Gaiters"
-      },
       {
         id: "oriharukon_ore",
         kind: "resource",
@@ -1240,7 +960,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2155",
-        kind: "resource",
+        kind: "other",
         chance: 0.007519,
         min: 1,
         max: 1,
@@ -1250,7 +970,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2286",
-        kind: "resource",
+        kind: "other",
         chance: 0.000288,
         min: 1,
         max: 1,
@@ -1260,7 +980,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2985",
-        kind: "resource",
+        kind: "other",
         chance: 0.00346,
         min: 1,
         max: 1,
@@ -1292,7 +1012,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_2154",
-        kind: "resource",
+        kind: "other",
         chance: 0.063531,
         min: 1,
         max: 1,
@@ -1302,7 +1022,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2975",
-        kind: "resource",
+        kind: "other",
         chance: 0.052981,
         min: 1,
         max: 1,
@@ -1312,7 +1032,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2987",
-        kind: "resource",
+        kind: "other",
         chance: 0.05761,
         min: 1,
         max: 1,
@@ -1328,36 +1048,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20092": {
     drops: [
-      {
-        id: "l2item_113",
-        kind: "equipment",
-        chance: 0.007148,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7148,
-        l2ItemId: 113,
-        displayName: "Mystic's Earring"
-      },
-      {
-        id: "l2item_875",
-        kind: "equipment",
-        chance: 0.010735,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10735,
-        l2ItemId: 875,
-        displayName: "Ring of Knowledge"
-      },
-      {
-        id: "l2item_906",
-        kind: "equipment",
-        chance: 0.005368,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5368,
-        l2ItemId: 906,
-        displayName: "Necklace of Knowledge"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -1410,7 +1100,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2137",
-        kind: "resource",
+        kind: "other",
         chance: 0.004263,
         min: 1,
         max: 1,
@@ -1432,7 +1122,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1666",
-        kind: "resource",
+        kind: "other",
         chance: 0.049062,
         min: 1,
         max: 1,
@@ -1464,16 +1154,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20093": {
     drops: [
-      {
-        id: "l2item_3",
-        kind: "equipment",
-        chance: 0.00086,
-        min: 1,
-        max: 1,
-        chancePerMillion: 860,
-        l2ItemId: 3,
-        displayName: "Broadsword"
-      },
       {
         id: "l2item_1060",
         kind: "resource",
@@ -1516,7 +1196,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2138",
-        kind: "resource",
+        kind: "other",
         chance: 0.007905,
         min: 1,
         max: 1,
@@ -1538,7 +1218,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1666",
-        kind: "resource",
+        kind: "other",
         chance: 0.060652,
         min: 1,
         max: 1,
@@ -1575,48 +1255,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20095": {
     drops: [
       {
-        id: "l2item_428",
-        kind: "equipment",
-        chance: 0.001808,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1808,
-        l2ItemId: 428,
-        displayName: "Feriotic Tunic"
-      },
-      {
-        id: "l2item_463",
-        kind: "equipment",
-        chance: 0.002889,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2889,
-        l2ItemId: 463,
-        displayName: "Feriotic Stockings"
-      },
-      {
-        id: "l2item_1100",
-        kind: "equipment",
-        chance: 0.001808,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1808,
-        l2ItemId: 1100,
-        displayName: "Cotton Tunic"
-      },
-      {
-        id: "l2item_1103",
-        kind: "equipment",
-        chance: 0.002889,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2889,
-        l2ItemId: 1103,
-        displayName: "Cotton Stockings"
-      },
-      {
         id: "l2item_1789",
-        kind: "resource",
+        kind: "other",
         chance: 0.005412,
         min: 1,
         max: 1,
@@ -1680,26 +1320,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20096": {
     drops: [
-      {
-        id: "l2item_37",
-        kind: "equipment",
-        chance: 0.002996,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2996,
-        l2ItemId: 37,
-        displayName: "Leather Shoes"
-      },
-      {
-        id: "l2item_49",
-        kind: "equipment",
-        chance: 0.002996,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2996,
-        l2ItemId: 49,
-        displayName: "Gloves"
-      },
       {
         id: "l2item_736",
         kind: "resource",
@@ -1784,7 +1404,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1792",
-        kind: "resource",
+        kind: "other",
         chance: 0.014822,
         min: 1,
         max: 1,
@@ -1794,7 +1414,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1799",
-        kind: "resource",
+        kind: "other",
         chance: 0.298635,
         min: 1,
         max: 1,
@@ -1817,28 +1437,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20099": {
     drops: [
       {
-        id: "l2item_66",
-        kind: "equipment",
-        chance: 0.00013,
-        min: 1,
-        max: 1,
-        chancePerMillion: 130,
-        l2ItemId: 66,
-        displayName: "Gladius"
-      },
-      {
-        id: "l2item_1333",
-        kind: "equipment",
-        chance: 0.00013,
-        min: 1,
-        max: 1,
-        chancePerMillion: 130,
-        l2ItemId: 1333,
-        displayName: "Brandish"
-      },
-      {
         id: "l2item_1794",
-        kind: "resource",
+        kind: "other",
         chance: 0.001287,
         min: 1,
         max: 1,
@@ -1953,18 +1553,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20100": {
     drops: [
       {
-        id: "l2item_271",
-        kind: "equipment",
-        chance: 0.000411,
-        min: 1,
-        max: 1,
-        chancePerMillion: 411,
-        l2ItemId: 271,
-        displayName: "Hunting Bow"
-      },
-      {
         id: "l2item_1799",
-        kind: "resource",
+        kind: "other",
         chance: 0.05495,
         min: 1,
         max: 1,
@@ -2006,7 +1596,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1792",
-        kind: "resource",
+        kind: "other",
         chance: 0.013849,
         min: 1,
         max: 1,
@@ -2039,16 +1629,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20120": {
     drops: [
       {
-        id: "l2item_13",
-        kind: "equipment",
-        chance: 0.010394,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10394,
-        l2ItemId: 13,
-        displayName: "Short Bow"
-      },
-      {
         id: "l2item_1060",
         kind: "resource",
         chance: 0.022174,
@@ -2060,7 +1640,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1786",
-        kind: "resource",
+        kind: "other",
         chance: 0.007983,
         min: 1,
         max: 1,
@@ -2102,7 +1682,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1787",
-        kind: "resource",
+        kind: "other",
         chance: 0.030885,
         min: 1,
         max: 1,
@@ -2135,16 +1715,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20432": {
     drops: [
       {
-        id: "l2item_11",
-        kind: "equipment",
-        chance: 0.004286,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4286,
-        l2ItemId: 11,
-        displayName: "Bone Dagger"
-      },
-      {
         id: "l2item_17",
         kind: "resource",
         chance: 0.011757,
@@ -2156,7 +1726,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1787",
-        kind: "resource",
+        kind: "other",
         chance: 0.001881,
         min: 1,
         max: 1,
@@ -2230,26 +1800,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20481": {
     drops: [
       {
-        id: "l2item_426",
-        kind: "equipment",
-        chance: 0.011197,
-        min: 1,
-        max: 1,
-        chancePerMillion: 11197,
-        l2ItemId: 426,
-        displayName: "Tunic"
-      },
-      {
-        id: "l2item_462",
-        kind: "equipment",
-        chance: 0.01789,
-        min: 1,
-        max: 1,
-        chancePerMillion: 17890,
-        l2ItemId: 462,
-        displayName: "Stockings"
-      },
-      {
         id: "l2item_17",
         kind: "resource",
         chance: 0.020574,
@@ -2261,7 +1811,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1786",
-        kind: "resource",
+        kind: "other",
         chance: 0.003292,
         min: 1,
         max: 1,
@@ -2303,7 +1853,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1786",
-        kind: "resource",
+        kind: "other",
         chance: 0.012736,
         min: 1,
         max: 1,
@@ -2313,7 +1863,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1788",
-        kind: "resource",
+        kind: "other",
         chance: 0.012736,
         min: 1,
         max: 1,
@@ -2336,28 +1886,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20544": {
     drops: [
       {
-        id: "l2item_21",
-        kind: "equipment",
-        chance: 0.019065,
-        min: 1,
-        max: 1,
-        chancePerMillion: 19065,
-        l2ItemId: 21,
-        displayName: "Shirt"
-      },
-      {
-        id: "l2item_28",
-        kind: "equipment",
-        chance: 0.030461,
-        min: 1,
-        max: 1,
-        chancePerMillion: 30461,
-        l2ItemId: 28,
-        displayName: "Pants"
-      },
-      {
         id: "l2item_1788",
-        kind: "resource",
+        kind: "other",
         chance: 0.007474,
         min: 1,
         max: 1,
@@ -2399,7 +1929,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1788",
-        kind: "resource",
+        kind: "other",
         chance: 0.021685,
         min: 1,
         max: 1,
@@ -2432,26 +1962,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20545": {
     drops: [
       {
-        id: "l2item_18",
-        kind: "equipment",
-        chance: 0.042201,
-        min: 1,
-        max: 1,
-        chancePerMillion: 42201,
-        l2ItemId: 18,
-        displayName: "Leather Shield"
-      },
-      {
-        id: "l2item_41",
-        kind: "equipment",
-        chance: 0.029925,
-        min: 1,
-        max: 1,
-        chancePerMillion: 29925,
-        l2ItemId: 41,
-        displayName: "Cloth Cap"
-      },
-      {
         id: "l2item_17",
         kind: "resource",
         chance: 0.016459,
@@ -2463,7 +1973,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1788",
-        kind: "resource",
+        kind: "other",
         chance: 0.002634,
         min: 1,
         max: 1,
@@ -2516,36 +2026,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20546": {
     drops: [
-      {
-        id: "l2item_849",
-        kind: "equipment",
-        chance: 0.000235,
-        min: 1,
-        max: 1,
-        chancePerMillion: 235,
-        l2ItemId: 849,
-        displayName: "Tiger's Eye Earring"
-      },
-      {
-        id: "l2item_880",
-        kind: "equipment",
-        chance: 0.000353,
-        min: 1,
-        max: 1,
-        chancePerMillion: 353,
-        l2ItemId: 880,
-        displayName: "Black Pearl Ring"
-      },
-      {
-        id: "l2item_912",
-        kind: "equipment",
-        chance: 0.000177,
-        min: 1,
-        max: 1,
-        chancePerMillion: 177,
-        l2ItemId: 912,
-        displayName: "Near Forest Necklace"
-      },
       {
         id: "mithril_ore",
         kind: "resource",
@@ -2608,7 +2088,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2274",
-        kind: "resource",
+        kind: "other",
         chance: 0.00027,
         min: 1,
         max: 1,
@@ -2618,7 +2098,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2276",
-        kind: "resource",
+        kind: "other",
         chance: 0.00027,
         min: 1,
         max: 1,
@@ -2628,7 +2108,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2976",
-        kind: "resource",
+        kind: "other",
         chance: 0.006494,
         min: 1,
         max: 1,
@@ -2660,7 +2140,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2279",
-        kind: "resource",
+        kind: "other",
         chance: 0.004056,
         min: 1,
         max: 1,
@@ -2670,7 +2150,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2979",
-        kind: "resource",
+        kind: "other",
         chance: 0.076017,
         min: 1,
         max: 1,
@@ -2682,16 +2162,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20924": {
     drops: [
-      {
-        id: "l2item_259",
-        kind: "equipment",
-        chance: 0.000049,
-        min: 1,
-        max: 1,
-        chancePerMillion: 49,
-        l2ItemId: 259,
-        displayName: "Single-Edged Jamadhr"
-      },
       {
         id: "mithril_ore",
         kind: "resource",
@@ -2744,7 +2214,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2183",
-        kind: "resource",
+        kind: "other",
         chance: 0.001299,
         min: 1,
         max: 1,
@@ -2754,7 +2224,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2274",
-        kind: "resource",
+        kind: "other",
         chance: 0.000141,
         min: 1,
         max: 1,
@@ -2806,7 +2276,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_2250",
-        kind: "resource",
+        kind: "other",
         chance: 0.072213,
         min: 1,
         max: 1,
@@ -2818,16 +2288,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21314": {
     drops: [
-      {
-        id: "l2item_269",
-        kind: "equipment",
-        chance: 0.00001,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10,
-        l2ItemId: 269,
-        displayName: "Blood Tornado"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -2870,7 +2330,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5272",
-        kind: "resource",
+        kind: "other",
         chance: 0.000023,
         min: 1,
         max: 1,
@@ -2942,7 +2402,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6335",
-        kind: "resource",
+        kind: "other",
         chance: 0.022819,
         min: 1,
         max: 1,
@@ -2964,16 +2424,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21315": {
     drops: [
-      {
-        id: "l2item_288",
-        kind: "equipment",
-        chance: 0.00001,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10,
-        l2ItemId: 288,
-        displayName: "Carnage Bow"
-      },
       {
         id: "l2item_1344",
         kind: "resource",
@@ -3026,7 +2476,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5277",
-        kind: "resource",
+        kind: "other",
         chance: 0.000039,
         min: 1,
         max: 1,
@@ -3131,16 +2581,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21316": {
     drops: [
       {
-        id: "l2item_235",
-        kind: "equipment",
-        chance: 0.000011,
-        min: 1,
-        max: 1,
-        chancePerMillion: 11,
-        l2ItemId: 235,
-        displayName: "Bloody Orchid"
-      },
-      {
         id: "l2item_1344",
         kind: "resource",
         chance: 0.083333,
@@ -3182,7 +2622,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.000151,
         min: 1,
         max: 1,
@@ -3297,16 +2737,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21317": {
     drops: [
       {
-        id: "l2item_269",
-        kind: "equipment",
-        chance: 0.00001,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10,
-        l2ItemId: 269,
-        displayName: "Blood Tornado"
-      },
-      {
         id: "animal_skin",
         kind: "resource",
         chance: 0.142857,
@@ -3348,7 +2778,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_3957",
-        kind: "resource",
+        kind: "other",
         chance: 0.000124,
         min: 1,
         max: 1,
@@ -3430,7 +2860,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5450",
-        kind: "resource",
+        kind: "other",
         chance: 0.002263,
         min: 1,
         max: 1,
@@ -3440,7 +2870,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5456",
-        kind: "resource",
+        kind: "other",
         chance: 0.002263,
         min: 1,
         max: 1,
@@ -3462,46 +2892,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21318": {
     drops: [
-      {
-        id: "l2item_5290",
-        kind: "equipment",
-        chance: 0.000041,
-        min: 1,
-        max: 1,
-        chancePerMillion: 41,
-        l2ItemId: 5290,
-        displayName: "Sealed Dark Crystal Gloves"
-      },
-      {
-        id: "l2item_5291",
-        kind: "equipment",
-        chance: 0.000041,
-        min: 1,
-        max: 1,
-        chancePerMillion: 41,
-        l2ItemId: 5291,
-        displayName: "Sealed Dark Crystal Boots"
-      },
-      {
-        id: "l2item_5295",
-        kind: "equipment",
-        chance: 0.000041,
-        min: 1,
-        max: 1,
-        chancePerMillion: 41,
-        l2ItemId: 5295,
-        displayName: "Sealed Tallum Gloves"
-      },
-      {
-        id: "l2item_5296",
-        kind: "equipment",
-        chance: 0.000041,
-        min: 1,
-        max: 1,
-        chancePerMillion: 41,
-        l2ItemId: 5296,
-        displayName: "Sealed Tallum Boots"
-      },
       {
         id: "l2item_1344",
         kind: "resource",
@@ -3554,7 +2944,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5157",
-        kind: "resource",
+        kind: "other",
         chance: 0.00012,
         min: 1,
         max: 1,
@@ -3689,16 +3079,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21319": {
     drops: [
       {
-        id: "l2item_288",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 288,
-        displayName: "Carnage Bow"
-      },
-      {
         id: "l2item_1344",
         kind: "resource",
         chance: 0.25,
@@ -3832,7 +3212,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5157",
-        kind: "resource",
+        kind: "other",
         chance: 0.003204,
         min: 1,
         max: 1,
@@ -3864,16 +3244,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21320": {
     drops: [
-      {
-        id: "l2item_235",
-        kind: "equipment",
-        chance: 0.000011,
-        min: 1,
-        max: 1,
-        chancePerMillion: 11,
-        l2ItemId: 235,
-        displayName: "Bloody Orchid"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -3916,7 +3286,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.000114,
         min: 1,
         max: 1,
@@ -4031,16 +3401,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21321": {
     drops: [
       {
-        id: "l2item_269",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 269,
-        displayName: "Blood Tornado"
-      },
-      {
         id: "thread",
         kind: "resource",
         chance: 0.25,
@@ -4092,7 +3452,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5167",
-        kind: "resource",
+        kind: "other",
         chance: 0.00015,
         min: 1,
         max: 1,
@@ -4187,16 +3547,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21322": {
     drops: [
       {
-        id: "l2item_288",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 288,
-        displayName: "Carnage Bow"
-      },
-      {
         id: "l2item_1344",
         kind: "resource",
         chance: 0.125,
@@ -4258,7 +3608,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5272",
-        kind: "resource",
+        kind: "other",
         chance: 0.000048,
         min: 1,
         max: 1,
@@ -4320,7 +3670,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5272",
-        kind: "resource",
+        kind: "other",
         chance: 0.003046,
         min: 1,
         max: 1,
@@ -4330,7 +3680,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5277",
-        kind: "resource",
+        kind: "other",
         chance: 0.003046,
         min: 1,
         max: 1,
@@ -4352,16 +3702,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21323": {
     drops: [
-      {
-        id: "l2item_235",
-        kind: "equipment",
-        chance: 0.000011,
-        min: 1,
-        max: 1,
-        chancePerMillion: 11,
-        l2ItemId: 235,
-        displayName: "Bloody Orchid"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -4414,7 +3754,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5277",
-        kind: "resource",
+        kind: "other",
         chance: 0.000043,
         min: 1,
         max: 1,
@@ -4499,26 +3839,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21324": {
     drops: [
       {
-        id: "l2item_80",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 80,
-        displayName: "Tallum Blade"
-      },
-      {
-        id: "l2item_150",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 150,
-        displayName: "Elemental Sword"
-      },
-      {
         id: "l2item_1344",
         kind: "resource",
         chance: 0.058824,
@@ -4530,7 +3850,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1808",
-        kind: "resource",
+        kind: "other",
         chance: 0.000087,
         min: 1,
         max: 1,
@@ -4662,7 +3982,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1808",
-        kind: "resource",
+        kind: "other",
         chance: 0.002885,
         min: 1,
         max: 1,
@@ -4695,26 +4015,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21325": {
     drops: [
       {
-        id: "l2item_212",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 212,
-        displayName: "Dasparion's Staff"
-      },
-      {
-        id: "l2item_2504",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 2504,
-        displayName: "Meteor Shower"
-      },
-      {
         id: "crafted_leather",
         kind: "resource",
         chance: 0.005495,
@@ -4726,7 +4026,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.000168,
         min: 1,
         max: 1,
@@ -4848,7 +4148,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.002789,
         min: 1,
         max: 1,
@@ -4880,16 +4180,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21326": {
     drops: [
-      {
-        id: "l2item_269",
-        kind: "equipment",
-        chance: 0.000011,
-        min: 1,
-        max: 1,
-        chancePerMillion: 11,
-        l2ItemId: 269,
-        displayName: "Blood Tornado"
-      },
       {
         id: "l2item_1344",
         kind: "resource",
@@ -4932,7 +4222,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_3957",
-        kind: "resource",
+        kind: "other",
         chance: 0.000118,
         min: 1,
         max: 1,
@@ -5047,26 +4337,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21327": {
     drops: [
       {
-        id: "l2item_80",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 80,
-        displayName: "Tallum Blade"
-      },
-      {
-        id: "l2item_150",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 150,
-        displayName: "Elemental Sword"
-      },
-      {
         id: "crafted_leather",
         kind: "resource",
         chance: 0.009901,
@@ -5108,7 +4378,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5277",
-        kind: "resource",
+        kind: "other",
         chance: 0.000144,
         min: 1,
         max: 1,
@@ -5190,7 +4460,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5272",
-        kind: "resource",
+        kind: "other",
         chance: 0.003175,
         min: 1,
         max: 1,
@@ -5212,26 +4482,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21328": {
     drops: [
-      {
-        id: "l2item_212",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 212,
-        displayName: "Dasparion's Staff"
-      },
-      {
-        id: "l2item_2504",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 2504,
-        displayName: "Meteor Shower"
-      },
       {
         id: "l2item_1344",
         kind: "resource",
@@ -5294,7 +4544,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5282",
-        kind: "resource",
+        kind: "other",
         chance: 0.00017,
         min: 1,
         max: 1,
@@ -5396,7 +4646,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5277",
-        kind: "resource",
+        kind: "other",
         chance: 0.003044,
         min: 1,
         max: 1,
@@ -5428,36 +4678,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21329": {
     drops: [
-      {
-        id: "l2item_81",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 81,
-        displayName: "Dragon Slayer"
-      },
-      {
-        id: "l2item_151",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 151,
-        displayName: "Sword of Miracles"
-      },
-      {
-        id: "l2item_2500",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 2500,
-        displayName: "Dark Legion's Edge"
-      },
       {
         id: "l2item_5529",
         kind: "resource",
@@ -5582,7 +4802,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5162",
-        kind: "resource",
+        kind: "other",
         chance: 0.003095,
         min: 1,
         max: 1,
@@ -5592,7 +4812,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5167",
-        kind: "resource",
+        kind: "other",
         chance: 0.003095,
         min: 1,
         max: 1,
@@ -5614,26 +4834,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21330": {
     drops: [
-      {
-        id: "l2item_164",
-        kind: "equipment",
-        chance: 0.000004,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4,
-        l2ItemId: 164,
-        displayName: "Elysian"
-      },
-      {
-        id: "l2item_213",
-        kind: "equipment",
-        chance: 0.000004,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4,
-        l2ItemId: 213,
-        displayName: "Branch of The Mother Tree"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -5821,36 +5021,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21331": {
     drops: [
       {
-        id: "l2item_81",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 81,
-        displayName: "Dragon Slayer"
-      },
-      {
-        id: "l2item_151",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 151,
-        displayName: "Sword of Miracles"
-      },
-      {
-        id: "l2item_2500",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 2500,
-        displayName: "Dark Legion's Edge"
-      },
-      {
         id: "l2item_960",
         kind: "resource",
         chance: 0.000092,
@@ -6027,26 +5197,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21332": {
     drops: [
       {
-        id: "l2item_164",
-        kind: "equipment",
-        chance: 0.000004,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4,
-        l2ItemId: 164,
-        displayName: "Elysian"
-      },
-      {
-        id: "l2item_213",
-        kind: "equipment",
-        chance: 0.000004,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4,
-        l2ItemId: 213,
-        displayName: "Branch of The Mother Tree"
-      },
-      {
         id: "l2item_959",
         kind: "resource",
         chance: 0.000018,
@@ -6180,7 +5330,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5282",
-        kind: "resource",
+        kind: "other",
         chance: 0.003247,
         min: 1,
         max: 1,
@@ -6212,26 +5362,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21333": {
     drops: [
-      {
-        id: "l2item_164",
-        kind: "equipment",
-        chance: 0.000004,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4,
-        l2ItemId: 164,
-        displayName: "Elysian"
-      },
-      {
-        id: "l2item_213",
-        kind: "equipment",
-        chance: 0.000004,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4,
-        l2ItemId: 213,
-        displayName: "Branch of The Mother Tree"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -6376,7 +5506,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1808",
-        kind: "resource",
+        kind: "other",
         chance: 0.003114,
         min: 1,
         max: 1,
@@ -6386,7 +5516,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.003114,
         min: 1,
         max: 1,
@@ -6408,16 +5538,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21334": {
     drops: [
-      {
-        id: "l2item_270",
-        kind: "equipment",
-        chance: 0.000011,
-        min: 1,
-        max: 1,
-        chancePerMillion: 11,
-        l2ItemId: 270,
-        displayName: "Dragon Grinder"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -6565,16 +5685,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21335": {
     drops: [
       {
-        id: "l2item_305",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 305,
-        displayName: "Tallum Glaive"
-      },
-      {
         id: "l2item_959",
         kind: "resource",
         chance: 0.000113,
@@ -6698,7 +5808,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5272",
-        kind: "resource",
+        kind: "other",
         chance: 0.003009,
         min: 1,
         max: 1,
@@ -6720,26 +5830,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21336": {
     drops: [
-      {
-        id: "l2item_5320",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5320,
-        displayName: "Sealed Leather Armor of Nightmare"
-      },
-      {
-        id: "l2item_5323",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5323,
-        displayName: "Sealed Majestic Leather Armor"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -6874,7 +5964,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5277",
-        kind: "resource",
+        kind: "other",
         chance: 0.003537,
         min: 1,
         max: 1,
@@ -6906,26 +5996,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21337": {
     drops: [
-      {
-        id: "l2item_5326",
-        kind: "equipment",
-        chance: 0.000015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 15,
-        l2ItemId: 5326,
-        displayName: "Sealed Nightmare Robe"
-      },
-      {
-        id: "l2item_5329",
-        kind: "equipment",
-        chance: 0.000015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 15,
-        l2ItemId: 5329,
-        displayName: "Sealed Majestic Robe"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -7072,36 +6142,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21338": {
     drops: [
-      {
-        id: "l2item_6326",
-        kind: "equipment",
-        chance: 0.000037,
-        min: 1,
-        max: 1,
-        chancePerMillion: 37,
-        l2ItemId: 6326,
-        displayName: "Sealed Majestic Necklace"
-      },
-      {
-        id: "l2item_6327",
-        kind: "equipment",
-        chance: 0.000049,
-        min: 1,
-        max: 1,
-        chancePerMillion: 49,
-        l2ItemId: 6327,
-        displayName: "Sealed Majestic Earring"
-      },
-      {
-        id: "l2item_6328",
-        kind: "equipment",
-        chance: 0.000074,
-        min: 1,
-        max: 1,
-        chancePerMillion: 74,
-        l2ItemId: 6328,
-        displayName: "Sealed Majestic Ring"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -7269,16 +6309,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21339": {
     drops: [
       {
-        id: "l2item_236",
-        kind: "equipment",
-        chance: 0.000009,
-        min: 1,
-        max: 1,
-        chancePerMillion: 9,
-        l2ItemId: 236,
-        displayName: "Soul Separator"
-      },
-      {
         id: "l2item_960",
         kind: "resource",
         chance: 0.00009,
@@ -7434,36 +6464,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21340": {
     drops: [
-      {
-        id: "l2item_5312",
-        kind: "equipment",
-        chance: 0.000028,
-        min: 1,
-        max: 1,
-        chancePerMillion: 28,
-        l2ItemId: 5312,
-        displayName: "Sealed Helm of Nightmare"
-      },
-      {
-        id: "l2item_5315",
-        kind: "equipment",
-        chance: 0.00004,
-        min: 1,
-        max: 1,
-        chancePerMillion: 40,
-        l2ItemId: 5315,
-        displayName: "Sealed Shield of Nightmare"
-      },
-      {
-        id: "l2item_5317",
-        kind: "equipment",
-        chance: 0.000028,
-        min: 1,
-        max: 1,
-        chancePerMillion: 28,
-        l2ItemId: 5317,
-        displayName: "Sealed Majestic Circlet"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -7631,36 +6631,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21341": {
     drops: [
       {
-        id: "l2item_81",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 81,
-        displayName: "Dragon Slayer"
-      },
-      {
-        id: "l2item_151",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 151,
-        displayName: "Sword of Miracles"
-      },
-      {
-        id: "l2item_2500",
-        kind: "equipment",
-        chance: 0.000003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3,
-        l2ItemId: 2500,
-        displayName: "Dark Legion's Edge"
-      },
-      {
         id: "l2item_959",
         kind: "resource",
         chance: 0.000016,
@@ -7816,26 +6786,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21342": {
     drops: [
-      {
-        id: "l2item_164",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 164,
-        displayName: "Elysian"
-      },
-      {
-        id: "l2item_213",
-        kind: "equipment",
-        chance: 0.000006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6,
-        l2ItemId: 213,
-        displayName: "Branch of The Mother Tree"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -8013,16 +6963,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21350": {
     drops: [
       {
-        id: "l2item_288",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 288,
-        displayName: "Carnage Bow"
-      },
-      {
         id: "varnish",
         kind: "resource",
         chance: 0.125,
@@ -8074,7 +7014,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5157",
-        kind: "resource",
+        kind: "other",
         chance: 0.000051,
         min: 1,
         max: 1,
@@ -8136,7 +7076,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_3957",
-        kind: "resource",
+        kind: "other",
         chance: 0.003048,
         min: 1,
         max: 1,
@@ -8146,7 +7086,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5157",
-        kind: "resource",
+        kind: "other",
         chance: 0.003048,
         min: 1,
         max: 1,
@@ -8168,16 +7108,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21351": {
     drops: [
-      {
-        id: "l2item_235",
-        kind: "equipment",
-        chance: 0.00001,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10,
-        l2ItemId: 235,
-        displayName: "Bloody Orchid"
-      },
       {
         id: "l2item_1344",
         kind: "resource",
@@ -8230,7 +7160,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5162",
-        kind: "resource",
+        kind: "other",
         chance: 0.000075,
         min: 1,
         max: 1,
@@ -8335,36 +7265,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21352": {
     drops: [
       {
-        id: "l2item_5297",
-        kind: "equipment",
-        chance: 0.000018,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18,
-        l2ItemId: 5297,
-        displayName: "Sealed Dark Crystal Leather Armor"
-      },
-      {
-        id: "l2item_5298",
-        kind: "equipment",
-        chance: 0.000029,
-        min: 1,
-        max: 1,
-        chancePerMillion: 29,
-        l2ItemId: 5298,
-        displayName: "Sealed Dark Crystal Leggings"
-      },
-      {
-        id: "l2item_5301",
-        kind: "equipment",
-        chance: 0.000013,
-        min: 1,
-        max: 1,
-        chancePerMillion: 13,
-        l2ItemId: 5301,
-        displayName: "Sealed Tallum Leather Armor"
-      },
-      {
         id: "stem",
         kind: "resource",
         chance: 0.25,
@@ -8406,7 +7306,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5167",
-        kind: "resource",
+        kind: "other",
         chance: 0.000228,
         min: 1,
         max: 1,
@@ -8498,7 +7398,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5162",
-        kind: "resource",
+        kind: "other",
         chance: 0.002789,
         min: 1,
         max: 1,
@@ -8530,16 +7430,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21353": {
     drops: [
-      {
-        id: "l2item_269",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 269,
-        displayName: "Blood Tornado"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -8602,7 +7492,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.000365,
         min: 1,
         max: 1,
@@ -8687,16 +7577,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21354": {
     drops: [
       {
-        id: "l2item_288",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 288,
-        displayName: "Carnage Bow"
-      },
-      {
         id: "l2item_1344",
         kind: "resource",
         chance: 0.090909,
@@ -8708,7 +7588,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_1808",
-        kind: "resource",
+        kind: "other",
         chance: 0.00011,
         min: 1,
         max: 1,
@@ -8830,7 +7710,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5282",
-        kind: "resource",
+        kind: "other",
         chance: 0.003044,
         min: 1,
         max: 1,
@@ -8850,7 +7730,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.006849,
         min: 1,
         max: 1,
@@ -8862,16 +7742,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21355": {
     drops: [
-      {
-        id: "l2item_270",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 270,
-        displayName: "Dragon Grinder"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -8986,7 +7856,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5272",
-        kind: "resource",
+        kind: "other",
         chance: 0.002951,
         min: 1,
         max: 1,
@@ -9018,16 +7888,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21356": {
     drops: [
-      {
-        id: "l2item_289",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 289,
-        displayName: "Soul Bow"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -9162,7 +8022,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5277",
-        kind: "resource",
+        kind: "other",
         chance: 0.00295,
         min: 1,
         max: 1,
@@ -9184,16 +8044,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21357": {
     drops: [
-      {
-        id: "l2item_289",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 289,
-        displayName: "Soul Bow"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -9308,7 +8158,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1808",
-        kind: "resource",
+        kind: "other",
         chance: 0.003202,
         min: 1,
         max: 1,
@@ -9340,16 +8190,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21358": {
     drops: [
-      {
-        id: "l2item_236",
-        kind: "equipment",
-        chance: 0.000009,
-        min: 1,
-        max: 1,
-        chancePerMillion: 9,
-        l2ItemId: 236,
-        displayName: "Soul Separator"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -9474,7 +8314,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.003356,
         min: 1,
         max: 1,
@@ -9506,16 +8346,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21359": {
     drops: [
-      {
-        id: "l2item_236",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 236,
-        displayName: "Soul Separator"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -9650,7 +8480,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5157",
-        kind: "resource",
+        kind: "other",
         chance: 0.003114,
         min: 1,
         max: 1,
@@ -9672,16 +8502,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21360": {
     drops: [
-      {
-        id: "l2item_236",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 236,
-        displayName: "Soul Separator"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -9806,7 +8626,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5162",
-        kind: "resource",
+        kind: "other",
         chance: 0.004513,
         min: 1,
         max: 1,
@@ -9828,26 +8648,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21361": {
     drops: [
-      {
-        id: "l2item_5311",
-        kind: "equipment",
-        chance: 0.00001,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10,
-        l2ItemId: 5311,
-        displayName: "Sealed Armor of Nightmare"
-      },
-      {
-        id: "l2item_5316",
-        kind: "equipment",
-        chance: 0.00001,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10,
-        l2ItemId: 5316,
-        displayName: "Sealed Majestic Plate Armor"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -9992,7 +8792,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.00677,
         min: 1,
         max: 1,
@@ -10004,26 +8804,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21362": {
     drops: [
-      {
-        id: "l2item_5326",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5326,
-        displayName: "Sealed Nightmare Robe"
-      },
-      {
-        id: "l2item_5329",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5329,
-        displayName: "Sealed Majestic Robe"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -10138,7 +8918,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5282",
-        kind: "resource",
+        kind: "other",
         chance: 0.003537,
         min: 1,
         max: 1,
@@ -10158,7 +8938,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.007959,
         min: 1,
         max: 1,
@@ -10170,46 +8950,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21363": {
     drops: [
-      {
-        id: "l2item_5313",
-        kind: "equipment",
-        chance: 0.000031,
-        min: 1,
-        max: 1,
-        chancePerMillion: 31,
-        l2ItemId: 5313,
-        displayName: "Sealed Gauntlets of Nightmare"
-      },
-      {
-        id: "l2item_5314",
-        kind: "equipment",
-        chance: 0.000031,
-        min: 1,
-        max: 1,
-        chancePerMillion: 31,
-        l2ItemId: 5314,
-        displayName: "Sealed Boots of Nightmare"
-      },
-      {
-        id: "l2item_5318",
-        kind: "equipment",
-        chance: 0.000031,
-        min: 1,
-        max: 1,
-        chancePerMillion: 31,
-        l2ItemId: 5318,
-        displayName: "Sealed Majestic Gauntlets"
-      },
-      {
-        id: "l2item_5319",
-        kind: "equipment",
-        chance: 0.000031,
-        min: 1,
-        max: 1,
-        chancePerMillion: 31,
-        l2ItemId: 5319,
-        displayName: "Sealed Majestic Boots"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -10377,36 +9117,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21364": {
     drops: [
       {
-        id: "l2item_5312",
-        kind: "equipment",
-        chance: 0.000035,
-        min: 1,
-        max: 1,
-        chancePerMillion: 35,
-        l2ItemId: 5312,
-        displayName: "Sealed Helm of Nightmare"
-      },
-      {
-        id: "l2item_5315",
-        kind: "equipment",
-        chance: 0.00005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 50,
-        l2ItemId: 5315,
-        displayName: "Sealed Shield of Nightmare"
-      },
-      {
-        id: "l2item_5317",
-        kind: "equipment",
-        chance: 0.000035,
-        min: 1,
-        max: 1,
-        chancePerMillion: 35,
-        l2ItemId: 5317,
-        displayName: "Sealed Majestic Circlet"
-      },
-      {
         id: "l2item_960",
         kind: "resource",
         chance: 0.000158,
@@ -10573,26 +9283,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21365": {
     drops: [
       {
-        id: "l2item_5320",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5320,
-        displayName: "Sealed Leather Armor of Nightmare"
-      },
-      {
-        id: "l2item_5323",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5323,
-        displayName: "Sealed Majestic Leather Armor"
-      },
-      {
         id: "l2item_959",
         kind: "resource",
         chance: 0.000017,
@@ -10748,26 +9438,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21366": {
     drops: [
-      {
-        id: "l2item_5311",
-        kind: "equipment",
-        chance: 0.000013,
-        min: 1,
-        max: 1,
-        chancePerMillion: 13,
-        l2ItemId: 5311,
-        displayName: "Sealed Armor of Nightmare"
-      },
-      {
-        id: "l2item_5316",
-        kind: "equipment",
-        chance: 0.000013,
-        min: 1,
-        max: 1,
-        chancePerMillion: 13,
-        l2ItemId: 5316,
-        displayName: "Sealed Majestic Plate Armor"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -10925,16 +9595,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21367": {
     drops: [
       {
-        id: "l2item_289",
-        kind: "equipment",
-        chance: 0.000009,
-        min: 1,
-        max: 1,
-        chancePerMillion: 9,
-        l2ItemId: 289,
-        displayName: "Soul Bow"
-      },
-      {
         id: "l2item_960",
         kind: "resource",
         chance: 0.000153,
@@ -11080,16 +9740,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21368": {
     drops: [
-      {
-        id: "l2item_236",
-        kind: "equipment",
-        chance: 0.000012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12,
-        l2ItemId: 236,
-        displayName: "Soul Separator"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -11247,16 +9897,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21369": {
     drops: [
       {
-        id: "l2item_305",
-        kind: "equipment",
-        chance: 0.000013,
-        min: 1,
-        max: 1,
-        chancePerMillion: 13,
-        l2ItemId: 305,
-        displayName: "Tallum Glaive"
-      },
-      {
         id: "l2item_960",
         kind: "resource",
         chance: 0.000189,
@@ -11370,7 +10010,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_5167",
-        kind: "resource",
+        kind: "other",
         chance: 0.00498,
         min: 1,
         max: 1,
@@ -11402,26 +10042,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21370": {
     drops: [
-      {
-        id: "l2item_5326",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5326,
-        displayName: "Sealed Nightmare Robe"
-      },
-      {
-        id: "l2item_5329",
-        kind: "equipment",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 5329,
-        displayName: "Sealed Majestic Robe"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -11579,16 +10199,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21371": {
     drops: [
       {
-        id: "l2item_236",
-        kind: "equipment",
-        chance: 0.00001,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10,
-        l2ItemId: 236,
-        displayName: "Soul Separator"
-      },
-      {
         id: "l2item_960",
         kind: "resource",
         chance: 0.000334,
@@ -11724,26 +10334,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21372": {
     drops: [
-      {
-        id: "l2item_5326",
-        kind: "equipment",
-        chance: 0.000017,
-        min: 1,
-        max: 1,
-        chancePerMillion: 17,
-        l2ItemId: 5326,
-        displayName: "Sealed Nightmare Robe"
-      },
-      {
-        id: "l2item_5329",
-        kind: "equipment",
-        chance: 0.000017,
-        min: 1,
-        max: 1,
-        chancePerMillion: 17,
-        l2ItemId: 5329,
-        displayName: "Sealed Majestic Robe"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -11901,26 +10491,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21373": {
     drops: [
       {
-        id: "l2item_5326",
-        kind: "equipment",
-        chance: 0.000025,
-        min: 1,
-        max: 1,
-        chancePerMillion: 25,
-        l2ItemId: 5326,
-        displayName: "Sealed Nightmare Robe"
-      },
-      {
-        id: "l2item_5329",
-        kind: "equipment",
-        chance: 0.000025,
-        min: 1,
-        max: 1,
-        chancePerMillion: 25,
-        l2ItemId: 5329,
-        displayName: "Sealed Majestic Robe"
-      },
-      {
         id: "l2item_959",
         kind: "resource",
         chance: 0.00003,
@@ -12067,46 +10637,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "22122": {
     drops: [
       {
-        id: "l2item_5313",
-        kind: "equipment",
-        chance: 0.000068,
-        min: 1,
-        max: 1,
-        chancePerMillion: 68,
-        l2ItemId: 5313,
-        displayName: "Sealed Gauntlets of Nightmare"
-      },
-      {
-        id: "l2item_5314",
-        kind: "equipment",
-        chance: 0.000136,
-        min: 1,
-        max: 1,
-        chancePerMillion: 136,
-        l2ItemId: 5314,
-        displayName: "Sealed Boots of Nightmare"
-      },
-      {
-        id: "l2item_5318",
-        kind: "equipment",
-        chance: 0.000048,
-        min: 1,
-        max: 1,
-        chancePerMillion: 48,
-        l2ItemId: 5318,
-        displayName: "Sealed Majestic Gauntlets"
-      },
-      {
-        id: "l2item_5319",
-        kind: "equipment",
-        chance: 0.000087,
-        min: 1,
-        max: 1,
-        chancePerMillion: 87,
-        l2ItemId: 5319,
-        displayName: "Sealed Majestic Boots"
-      },
-      {
         id: "l2item_960",
         kind: "resource",
         chance: 0.000194,
@@ -12240,7 +10770,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -12252,46 +10782,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22123": {
     drops: [
-      {
-        id: "l2item_81",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 81,
-        displayName: "Dragon Slayer"
-      },
-      {
-        id: "l2item_151",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 151,
-        displayName: "Sword of Miracles"
-      },
-      {
-        id: "l2item_2500",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 2500,
-        displayName: "Dark Legion's Edge"
-      },
-      {
-        id: "l2item_5317",
-        kind: "resource",
-        chance: 0.000088,
-        min: 1,
-        max: 1,
-        chancePerMillion: 88,
-        l2ItemId: 5317,
-        displayName: "Sealed Majestic Circlet"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -12394,7 +10884,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.000596,
         min: 1,
         max: 1,
@@ -12446,7 +10936,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -12456,7 +10946,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_3957",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -12466,7 +10956,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5282",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -12518,36 +11008,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22124": {
     drops: [
-      {
-        id: "l2item_305",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 305,
-        displayName: "Tallum Glaive"
-      },
-      {
-        id: "l2item_6326",
-        kind: "resource",
-        chance: 0.000027,
-        min: 1,
-        max: 1,
-        chancePerMillion: 27,
-        l2ItemId: 6326,
-        displayName: "Sealed Majestic Necklace"
-      },
-      {
-        id: "l2item_6327",
-        kind: "resource",
-        chance: 0.000055,
-        min: 1,
-        max: 1,
-        chancePerMillion: 55,
-        l2ItemId: 6327,
-        displayName: "Sealed Majestic Earring"
-      },
       {
         id: "l2item_959",
         kind: "resource",
@@ -12682,7 +11142,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_1808",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -12744,16 +11204,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22125": {
     drops: [
-      {
-        id: "l2item_305",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 305,
-        displayName: "Tallum Glaive"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -12828,7 +11278,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     spoil: [
       {
         id: "l2item_3036",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -12838,7 +11288,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5157",
-        kind: "resource",
+        kind: "other",
         chance: 0.0025,
         min: 1,
         max: 1,
@@ -12891,136 +11341,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "22126": {
     drops: [
       {
-        id: "thread",
-        kind: "resource",
-        chance: 0.125,
-        min: 3,
-        max: 9,
-        chancePerMillion: 125000,
-        l2ItemId: 1868,
-        displayName: "Thread"
-      },
-      {
-        id: "silver_nugget",
-        kind: "resource",
-        chance: 0.142857,
-        min: 1,
-        max: 1,
-        chancePerMillion: 142857,
-        l2ItemId: 1873,
-        displayName: "Silver Nugget"
-      },
-      {
-        id: "l2item_1889",
-        kind: "equipment",
-        chance: 0.025641,
-        min: 1,
-        max: 1,
-        chancePerMillion: 25641,
-        l2ItemId: 1889,
-        displayName: "Compound Braid"
-      },
-      {
-        id: "thons",
-        kind: "resource",
-        chance: 0.012658,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12658,
-        l2ItemId: 4044,
-        displayName: "Thons"
-      },
-      {
-        id: "l2item_5522",
-        kind: "equipment",
-        chance: 0.002816,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2816,
-        l2ItemId: 5522,
-        displayName: "Sealed Armor of Nightmare Pattern"
-      },
-      {
-        id: "l2item_5523",
-        kind: "equipment",
-        chance: 0.003164,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3164,
-        l2ItemId: 5523,
-        displayName: "Sealed Majestic Plate Armor Pattern"
-      },
-      {
-        id: "l2item_5527",
-        kind: "equipment",
-        chance: 0.001408,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1408,
-        l2ItemId: 5527,
-        displayName: "Sealed Helm of Nightmare Design"
-      },
-      {
-        id: "l2item_5528",
-        kind: "equipment",
-        chance: 0.001408,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1408,
-        l2ItemId: 5528,
-        displayName: "Sealed Majestic Circlet Design"
-      },
-      {
-        id: "l2item_5549",
-        kind: "equipment",
-        chance: 0.038462,
-        min: 1,
-        max: 1,
-        chancePerMillion: 38462,
-        l2ItemId: 5549,
-        displayName: "Metallic Thread"
-      },
-      {
-        id: "l2item_6901",
-        kind: "equipment",
-        chance: 0.00037,
-        min: 1,
-        max: 1,
-        chancePerMillion: 370,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
-      },
-      {
-        id: "l2item_8732",
-        kind: "equipment",
-        chance: 0.002336,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2336,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "equipment",
-        chance: 0.000671,
-        min: 1,
-        max: 1,
-        chancePerMillion: 671,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "equipment",
-        chance: 0.000162,
-        min: 1,
-        max: 1,
-        chancePerMillion: 162,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -13054,7 +11374,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_5162",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -13097,96 +11417,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "22127": {
     drops: [
       {
-        id: "animal_skin",
-        kind: "resource",
-        chance: 0.25,
-        min: 1,
-        max: 3,
-        chancePerMillion: 250000,
-        l2ItemId: 1867,
-        displayName: "Animal Skin"
-      },
-      {
-        id: "animal_bone",
-        kind: "resource",
-        chance: 0.083333,
-        min: 4,
-        max: 12,
-        chancePerMillion: 83333,
-        l2ItemId: 1872,
-        displayName: "Animal Bone"
-      },
-      {
-        id: "stone_of_purity",
-        kind: "resource",
-        chance: 0.04,
-        min: 1,
-        max: 1,
-        chancePerMillion: 40000,
-        l2ItemId: 1875,
-        displayName: "Stone of Purity"
-      },
-      {
-        id: "coarse_bone_powder",
-        kind: "resource",
-        chance: 0.076923,
-        min: 1,
-        max: 1,
-        chancePerMillion: 76923,
-        l2ItemId: 1881,
-        displayName: "Coarse Bone Powder"
-      },
-      {
-        id: "mold_hardener",
-        kind: "resource",
-        chance: 0.00277,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2770,
-        l2ItemId: 4041,
-        displayName: "Mold Hardener"
-      },
-      {
-        id: "l2item_5533",
-        kind: "equipment",
-        chance: 0.001451,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1451,
-        l2ItemId: 5533,
-        displayName: "Elysian Head"
-      },
-      {
-        id: "l2item_5544",
-        kind: "equipment",
-        chance: 0.002242,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2242,
-        l2ItemId: 5544,
-        displayName: "Branch of The Mother Tree Head"
-      },
-      {
-        id: "l2item_8342",
-        kind: "equipment",
-        chance: 0.000924,
-        min: 1,
-        max: 1,
-        chancePerMillion: 924,
-        l2ItemId: 8342,
-        displayName: "Flaming Dragon Skull Piece"
-      },
-      {
-        id: "l2item_8349",
-        kind: "equipment",
-        chance: 0.001715,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1715,
-        l2ItemId: 8349,
-        displayName: "Doom Crusher Head"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -13201,16 +11431,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22128": {
     drops: [
-      {
-        id: "l2item_289",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 289,
-        displayName: "Soul Bow"
-      },
       {
         id: "l2item_960",
         kind: "resource",
@@ -13335,7 +11555,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.005,
         min: 1,
         max: 1,
@@ -13347,36 +11567,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22129": {
     drops: [
-      {
-        id: "l2item_81",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 81,
-        displayName: "Dragon Slayer"
-      },
-      {
-        id: "l2item_151",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 151,
-        displayName: "Sword of Miracles"
-      },
-      {
-        id: "l2item_2500",
-        kind: "equipment",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 2500,
-        displayName: "Dark Legion's Edge"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -13469,7 +11659,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       },
       {
         id: "l2item_6901",
-        kind: "resource",
+        kind: "other",
         chance: 0.000928,
         min: 1,
         max: 1,

@@ -1,6 +1,11 @@
 // Підставляє дроп/спойл з L2 XML (l2XmlDrops.generated.ts) для мобів id виду l2dop_<npcId>…
 import type { Mob } from "../types";
+import type { DropEntry } from "../../combat/types";
 import { L2_XML_DROPS_BY_NPC, type L2XmlNpcDrops } from "./l2XmlDrops.generated";
+
+function keepL2DropRow(d: DropEntry): boolean {
+  return d.kind !== "equipment";
+}
 
 const L2DOP_NUMERIC_ID = /^l2dop_(\d+)/;
 
@@ -19,12 +24,17 @@ export function applyL2XmlDropsToMob<T extends Mob>(mob: T): T {
   const nid = l2NpcTemplateIdFromMobId(mob.id);
   if (nid === undefined) return mob;
   const pack = getPack(nid);
-  if (!pack?.drops?.length && !pack?.spoil?.length) return mob;
-  const spoil = pack.spoil?.length ? [...pack.spoil] : undefined;
+  const rawDrops = pack?.drops ?? [];
+  const rawSpoil = pack?.spoil ?? [];
+  if (!rawDrops.length && !rawSpoil.length) return mob;
+
+  const drops = rawDrops.filter(keepL2DropRow);
+  const spoilFiltered = rawSpoil.filter(keepL2DropRow);
+
   return {
     ...mob,
-    drops: pack.drops?.length ? [...pack.drops] : mob.drops,
-    spoil,
+    drops: rawDrops.length ? drops : mob.drops,
+    spoil: rawSpoil.length ? (spoilFiltered.length ? spoilFiltered : undefined) : undefined,
     dropChance: 1,
   };
 }

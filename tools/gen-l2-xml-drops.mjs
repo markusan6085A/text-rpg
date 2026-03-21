@@ -70,19 +70,23 @@ const DROPLIST_NUMERIC = {
   1896: "spiritshot_ng",
 };
 
-function loadItemNames() {
+/** id → name, id → type (Weapon / Armor / EtcItem …) — для відсіку шмоту та рецептів */
+function loadItemMeta() {
   const names = new Map();
-  if (!fs.existsSync(ITEMS_DIR)) return names;
+  const types = new Map();
+  if (!fs.existsSync(ITEMS_DIR)) return { names, types };
   const files = fs.readdirSync(ITEMS_DIR).filter((f) => f.endsWith(".xml"));
-  const re = /<item\s+id="(\d+)"[^>]*name="([^"]+)"/g;
+  const re = /<item\s+id="(\d+)"\s+type="([^"]+)"\s+name="([^"]+)"/g;
   for (const file of files) {
     const txt = fs.readFileSync(path.join(ITEMS_DIR, file), "utf8");
     let m;
     while ((m = re.exec(txt)) !== null) {
-      names.set(Number(m[1]), m[2]);
+      const id = Number(m[1]);
+      types.set(id, m[2]);
+      names.set(id, m[3]);
     }
   }
-  return names;
+  return { names, types };
 }
 
 function parseNpcBlocks(text) {
@@ -122,10 +126,13 @@ function parseDropsSection(npcBody) {
   return { normal, spoil };
 }
 
-function toDropEntry(row, itemNames, isSpoil) {
+function toDropEntry(row, itemNames, itemTypes) {
   const { itemid, min, max, chance, category } = row;
   const cpm = chance;
   const chanceFloat = cpm / 1_000_000;
+
+  /** У L2 XML категорія 1 — зазвичай готові шмотки / зброя */
+  if (category === 1) return null;
 
   if (itemid === 57) {
     return {
@@ -139,6 +146,9 @@ function toDropEntry(row, itemNames, isSpoil) {
       displayName: "Adena",
     };
   }
+
+  const xmlType = itemTypes.get(itemid);
+  if (xmlType === "Weapon" || xmlType === "Armor") return null;
 
   const mapped = DROPLIST_NUMERIC[itemid];
   if (mapped) {
@@ -154,8 +164,9 @@ function toDropEntry(row, itemNames, isSpoil) {
     };
   }
 
-  const nm = itemNames.get(itemid);
-  const kind = category === 1 ? "equipment" : "resource";
+  const nm = itemNames.get(itemid) || "";
+  const isRecipe = /^Recipe\s*:/i.test(nm);
+  const kind = isRecipe ? "other" : "resource";
   return {
     id: `l2item_${itemid}`,
     kind,
@@ -169,7 +180,7 @@ function toDropEntry(row, itemNames, isSpoil) {
 }
 
 function main() {
-  const itemNames = loadItemNames();
+  const { names: itemNames, types: itemTypes } = loadItemMeta();
   let allNpcs = new Map();
   for (const f of MOB_XML_FILES) {
     if (!fs.existsSync(f)) {
@@ -191,8 +202,8 @@ function main() {
     }
     const { normal, spoil } = parseDropsSection(body);
     byNpc[npcId] = {
-      drops: normal.map((r) => toDropEntry(r, itemNames, false)),
-      spoil: spoil.map((r) => toDropEntry(r, itemNames, true)),
+      drops: normal.map((r) => toDropEntry(r, itemNames, itemTypes)).filter(Boolean),
+      spoil: spoil.map((r) => toDropEntry(r, itemNames, itemTypes)).filter(Boolean),
     };
   }
 
@@ -218,7 +229,8 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = `;
     .replace(/"spoil":/g, "spoil:")
     .replace(/"adena"/g, '"adena"')
     .replace(/"resource"/g, '"resource"')
-    .replace(/"equipment"/g, '"equipment"');
+    .replace(/"equipment"/g, '"equipment"')
+    .replace(/"other"/g, '"other"');
 
   fs.writeFileSync(outPath, `${header}${tsObj} as const satisfies Record<number, L2XmlNpcDrops>;\n`, "utf8");
   console.log("Wrote", outNpcCount(byNpc), "npcs to", outPath);
