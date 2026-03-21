@@ -533,10 +533,13 @@ export default function Chat({ navigate }: ChatProps) {
   if (!hero) {
     return (
       <div
-        className={`flex items-center justify-center text-xs ${
+        className={`flex items-center justify-center gap-2 text-xs py-8 ${
           isL2 ? "text-[#8a7a60]" : "text-gray-400"
         }`}
       >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#e8c56e] rounded-full animate-spin shrink-0" />
+        )}
         Загрузка персонажа...
       </div>
     );
@@ -592,9 +595,9 @@ export default function Chat({ navigate }: ChatProps) {
       />
 
       {error && (
-        <div className="text-red-400 text-xs text-center">
+        <div className={`text-xs text-center px-1 ${isL2 ? "text-[#d4786a]" : "text-red-400"}`}>
           {error}
-          <div className={isL2 ? "text-[10px] text-[#6a6048] mt-1" : "text-[10px] text-gray-500 mt-1"}>
+          <div className={isL2 ? "text-[10px] text-[#8a7a60] mt-1" : "text-[10px] text-gray-500 mt-1"}>
             Убедитесь, что backend сервер запущен и міграція бази даних виконана
           </div>
         </div>

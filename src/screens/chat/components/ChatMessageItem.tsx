@@ -61,7 +61,11 @@ export function ChatMessageItem({
               }}
             />
             <span
-              className="text-green-400 cursor-pointer hover:text-green-300"
+              className={
+                isL2
+                  ? "text-[#7d9b7a] cursor-pointer hover:text-[#a8c4a4]"
+                  : "text-green-400 cursor-pointer hover:text-green-300"
+              }
               onClick={() => onReply(`@${msg.characterName} `)}
             >
               [ответить]
@@ -79,11 +83,16 @@ export function ChatMessageItem({
             <span className={isL2 ? "text-[#6a6048]" : "text-gray-500"}>{formatTime(msg.createdAt)}</span>
             {canDelete && !isAdmin && (
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(msg.id);
                 }}
-                className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
+                className={
+                  isL2
+                    ? "text-[#d4786a] opacity-0 group-hover:opacity-100 hover:text-[#e8a090] transition-opacity text-[10px] cursor-pointer"
+                    : "text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
+                }
                 title="Видалити"
               >
                 [×]
@@ -91,11 +100,16 @@ export function ChatMessageItem({
             )}
             {isAdmin && onAdminDelete && (
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onAdminDelete(msg.id);
                 }}
-                className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
+                className={
+                  isL2
+                    ? "text-[#d4786a] opacity-0 group-hover:opacity-100 hover:text-[#e8a090] transition-opacity text-[10px] cursor-pointer"
+                    : "text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-300 transition-opacity text-[10px] cursor-pointer"
+                }
                 title="Видалити (адмін)"
               >
                 [Видалити]
@@ -103,11 +117,16 @@ export function ChatMessageItem({
             )}
             {isAdmin && onMute && msg.characterId && (
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onMute(msg.characterId!, 10);
                 }}
-                className="text-amber-400 opacity-0 group-hover:opacity-100 hover:text-amber-300 transition-opacity text-[10px] cursor-pointer"
+                className={
+                  isL2
+                    ? "text-[#c9a44c] opacity-0 group-hover:opacity-100 hover:text-[#e8c56e] transition-opacity text-[10px] cursor-pointer"
+                    : "text-amber-400 opacity-0 group-hover:opacity-100 hover:text-amber-300 transition-opacity text-[10px] cursor-pointer"
+                }
                 title="Мут 10 хв"
               >
                 [Mute 10 хв]
@@ -117,7 +136,9 @@ export function ChatMessageItem({
           <div
             className={`mt-0.5 ${
               msg.channel === "trade"
-                ? "text-yellow-400"
+                ? isL2
+                  ? "text-[#e8c56e]"
+                  : "text-yellow-400"
                 : isL2
                   ? "text-[#e8dcc8]"
                   : "text-white"

@@ -637,7 +637,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             : "w-full flex flex-col items-center text-white text-sm py-10"
         }
       >
-        <div className="text-red-400 mb-4">{error || "Профіль не знайдено"}</div>
+        <div className={isL2 ? "text-[#d4786a] mb-4" : "text-red-400 mb-4"}>{error || "Профіль не знайдено"}</div>
         <button
           onClick={() => navigate("/online-players")}
           className={
@@ -668,15 +668,26 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       }
     };
     return (
-      <div className="w-full">
+      <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-2 sm:p-3` : "w-full"}>
         {character.id !== hero?.id && (
-          <div className="w-full max-w-[360px] mx-auto mb-2 px-3 py-1 border-b border-[#c7ad80]/50">
-            <span
+          <div
+            className={
+              isL2
+                ? "w-full max-w-[min(100%,28rem)] sm:max-w-xl mx-auto mb-2 px-2 py-1.5 rounded-md border border-[#5c4a32]/45 bg-black/20"
+                : "w-full max-w-[360px] mx-auto mb-2 px-3 py-1 border-b border-[#c7ad80]/50"
+            }
+          >
+            <button
+              type="button"
               onClick={() => setShowBuffModal(true)}
-              className="cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400"
+              className={
+                isL2
+                  ? "cursor-pointer text-[12px] text-[#7d9b7a] hover:text-[#a8c4a4] bg-transparent border-0 p-0"
+                  : "cursor-pointer hover:text-green-300 transition-colors text-[12px] text-green-400 bg-transparent border-0 p-0"
+              }
             >
               Забафать игрока
-            </span>
+            </button>
           </div>
         )}
         <PkProfileView
@@ -695,18 +706,38 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         />
         {showBuffModal && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>
-            <div className="bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-3 border-b border-[#c7ad80]/30 font-semibold text-[#c7ad80]">Забафать игрока</div>
+            <div
+              className={
+                isL2
+                  ? "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)] max-w-[340px] w-full max-h-[80vh] overflow-y-auto"
+                  : "bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto"
+              }
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                className={
+                  isL2
+                    ? "p-3 border-b border-[#5c4a32]/45 font-semibold text-[#e8c56e]"
+                    : "p-3 border-b border-[#c7ad80]/30 font-semibold text-[#c7ad80]"
+                }
+              >
+                Забафать игрока
+              </div>
               <div className="p-2">
                 {myBuffSkills.length === 0 ? (
-                  <p className="text-gray-400 text-sm">Нет баф-скиллов с целью Ally/Party</p>
+                  <p className={isL2 ? "text-[#8a7a60] text-sm" : "text-gray-400 text-sm"}>Нет баф-скиллов с целью Ally/Party</p>
                 ) : (
                   myBuffSkills.map((buff) => (
                     <button
                       key={buff.id}
+                      type="button"
                       onClick={() => handleBuffPlayer(buff.id)}
                       disabled={buffLoading}
-                      className="w-full flex items-center gap-2 p-2 rounded hover:bg-[#c7ad80]/10 text-left text-sm disabled:opacity-50"
+                      className={
+                        isL2
+                          ? "w-full flex items-center gap-2 p-2 rounded-md border border-transparent hover:border-[#5c4a32]/55 hover:bg-black/25 text-left text-sm text-[#d4c4a8] disabled:opacity-50"
+                          : "w-full flex items-center gap-2 p-2 rounded hover:bg-[#c7ad80]/10 text-left text-sm disabled:opacity-50"
+                      }
                     >
                       <img src={buff.icon} alt="" className="w-8 h-8 object-contain" />
                       <span>{buff.name}</span>
@@ -714,8 +745,18 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                   ))
                 )}
               </div>
-              <div className="p-2 border-t border-[#c7ad80]/30">
-                <button onClick={() => setShowBuffModal(false)} className="w-full py-1 text-[#c7ad80] text-sm">Закрити</button>
+              <div className={isL2 ? "p-2 border-t border-[#5c4a32]/45" : "p-2 border-t border-[#c7ad80]/30"}>
+                <button
+                  type="button"
+                  onClick={() => setShowBuffModal(false)}
+                  className={
+                    isL2
+                      ? "w-full py-2 rounded-md bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 text-[#c9a44c] text-sm hover:border-[#c7ad80]/45"
+                      : "w-full py-1 text-[#c7ad80] text-sm"
+                  }
+                >
+                  Закрити
+                </button>
               </div>
             </div>
           </div>
@@ -1195,7 +1236,9 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </div>
               <div className="flex justify-between">
                 <span>PK</span>
-                <span className={pk === 0 ? "text-green-400" : "text-red-400"}>{pk}</span>
+                <span className={pk === 0 ? (isL2 ? "text-[#7d9b7a]" : "text-green-400") : isL2 ? "text-[#d4786a]" : "text-red-400"}>
+                  {pk}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Убил мобов</span>

@@ -45,7 +45,7 @@ export function ChatPagination({
   };
 
   const pgBase = isL2
-    ? "hover:text-[#e8c56e] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+    ? "text-[#a89470] hover:text-[#e8c56e] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
     : "hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors";
   const pgActive = isL2 ? "text-[#e8dcc8] font-bold" : "text-white font-bold";
 

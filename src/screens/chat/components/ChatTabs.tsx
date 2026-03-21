@@ -31,10 +31,10 @@ export function ChatTabs({ channel, onChannelChange, onRefresh }: ChatTabsProps)
               className={`bg-transparent border-none p-0 cursor-pointer transition-colors ${
                 channel === tab.key
                   ? isL2
-                    ? "text-[#e8dcc8]"
-                    : "text-white"
+                    ? "text-[#e8c56e] font-semibold border-b-2 border-[#c9a44c] pb-0.5 -mb-px rounded-none"
+                    : "text-white font-semibold"
                   : isL2
-                    ? "text-[#c9a44c] hover:text-[#e8c56e]"
+                    ? "text-[#a89470] hover:text-[#e8c56e] pb-0.5"
                     : "text-[#c7ad80] hover:text-[#d4c49a]"
               }`}
             >
