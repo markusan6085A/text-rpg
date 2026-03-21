@@ -8,6 +8,7 @@ import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface RegisterProps {
   navigate: (path: string) => void;
@@ -186,14 +187,36 @@ export default function Register({ navigate }: RegisterProps) {
     }
   };
 
-  return (
-    <div className="flex justify-center p-4">
-      <div className="w-full max-w-[380px] space-y-4">
-        <h1 className="text-white text-xl font-semibold text-center">
-          Создать героя
-        </h1>
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.55)] bg-[radial-gradient(ellipse_100%_40%_at_50%_-10%,rgba(120,90,45,0.22)_0%,transparent_45%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const shell = isL2
+    ? "flex justify-center p-4 min-h-[100dvh] bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(90,70,40,0.35)_0%,transparent_55%),linear-gradient(180deg,#12100c_0%,#0a0907_100%)]"
+    : "flex justify-center p-4";
+  const labelText = isL2 ? "text-[#d4c4a8]" : "text-white";
+  const h1Cls = isL2 ? "text-[#e8c56e] text-xl font-semibold text-center [text-shadow:0_1px_2px_rgba(0,0,0,0.75)]" : "text-white text-xl font-semibold text-center";
+  const inputCls = isL2
+    ? "w-full text-sm text-[#e8dcc8] placeholder-[#6a6048] bg-[#0f0a06] border border-[#5c4a32]/60 rounded-md px-2 py-2 min-h-[2.25rem]"
+    : "l2-input w-full";
+  const selectCls = isL2
+    ? "w-full text-sm text-[#e8dcc8] bg-[#0f0a06] border border-[#5c4a32]/60 rounded-md px-2 py-2 min-h-[2.25rem]"
+    : "l2-input w-full";
+  const btnSubmit = isL2
+    ? "w-full max-w-[400px] mt-3 py-2.5 px-4 rounded-md text-sm font-medium bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 text-[#e8c56e] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/50 active:scale-[0.99] transition-all disabled:opacity-60"
+    : "l2-btn w-full max-w-[400px] mt-3";
+  const btnBack = isL2
+    ? "w-full max-w-[400px] py-2.5 px-4 rounded-md text-sm font-medium bg-gradient-to-b from-[#2a2419] to-[#16130e] border border-[#5c4a32]/60 text-[#c9a44c] hover:border-[#c7ad80]/45"
+    : "l2-btn w-full max-w-[400px]";
+  const errCls = isL2 ? "text-[#d4786a]" : "text-red-400";
+  const mutedCls = isL2 ? "text-[#8a7a60]" : "text-gray-400";
 
-        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
+  return (
+    <div className={shell}>
+      <div className="w-full max-w-[420px] sm:max-w-[440px] space-y-4">
+        <div className={isL2 ? `${l2Frame} p-4 sm:p-5 space-y-4` : "space-y-4"}>
+          <h1 className={h1Cls}>Создать героя</h1>
+
+          <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
           {/* INPUTS */}
           {[
             {
@@ -203,7 +226,7 @@ export default function Register({ navigate }: RegisterProps) {
                   <input
                     id="register-username"
                     name="username"
-                    className="l2-input w-full"
+                    className={inputCls}
                     value={username}
                     onChange={handleUsernameChange}
                     maxLength={MAX_NICK_LENGTH}
@@ -211,12 +234,12 @@ export default function Register({ navigate }: RegisterProps) {
                     autoComplete="username"
                   />
                   {nickError && (
-                    <div className="text-red-400 text-xs mt-1 text-center">
+                    <div className={`${errCls} text-xs mt-1 text-center`}>
                       {nickError}
                     </div>
                   )}
                   {!nickError && username.length > 0 && (
-                    <div className="text-gray-400 text-xs mt-1 text-center">
+                    <div className={`${mutedCls} text-xs mt-1 text-center`}>
                       {username.length}/{MAX_NICK_LENGTH} символов
                     </div>
                   )}
@@ -228,7 +251,7 @@ export default function Register({ navigate }: RegisterProps) {
               element: (
                 <input
                   type="password"
-                  className="l2-input w-full"
+                  className={inputCls}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -241,7 +264,7 @@ export default function Register({ navigate }: RegisterProps) {
                   id="register-password2"
                   name="password2"
                   type="password"
-                  className="l2-input w-full"
+                  className={inputCls}
                   value={password2}
                   onChange={(e) => setPassword2(e.target.value)}
                   autoComplete="new-password"
@@ -251,7 +274,7 @@ export default function Register({ navigate }: RegisterProps) {
           ].map((row) => (
             <label
               key={row.label}
-              className="text-white flex flex-col items-center gap-2 w-full"
+              className={`${labelText} flex flex-col items-center gap-2 w-full`}
             >
               <span className="label-text">{row.label}:</span>
               <div className={CONTROL_WRAP}>{row.element}</div>
@@ -276,12 +299,12 @@ export default function Register({ navigate }: RegisterProps) {
           ].map((row) => (
             <label
               key={row.label}
-              className="text-white flex flex-col items-center gap-2 w-full"
+              className={`${labelText} flex flex-col items-center gap-2 w-full`}
             >
               <span className="label-text">{row.label}:</span>
               <div className={CONTROL_WRAP}>
                 <select
-                  className="l2-input w-full"
+                  className={selectCls}
                   value={row.value}
                   onChange={(e) => row.setter(e.target.value)}
                 >
@@ -296,13 +319,13 @@ export default function Register({ navigate }: RegisterProps) {
           ))}
 
           {error && (
-            <div className="text-red-400 text-sm text-center">
+            <div className={`${errCls} text-sm text-center`}>
               {error}
             </div>
           )}
           <button 
             type="submit" 
-            className="l2-btn w-full max-w-[400px] mt-3"
+            className={btnSubmit}
             disabled={isLoading}
           >
             {isLoading ? "Регистрация..." : "Зарегистрироваться"}
@@ -310,12 +333,13 @@ export default function Register({ navigate }: RegisterProps) {
         </form>
 
         <button
-          className="l2-btn w-full max-w-[400px]"
+          className={btnBack}
           onClick={() => navigate("/")}
           type="button"
         >
           Вернуться
         </button>
+        </div>
       </div>
     </div>
   );
