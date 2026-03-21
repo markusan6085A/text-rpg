@@ -1,85 +1,60 @@
-# React + TypeScript + Vite
+# L2Dop (text-rpg)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Браузерна text-/клік-RPG у дусі **Lineage 2**: персонаж, бій, локації, клани, торгівля, PK тощо. Клієнт — **React + TypeScript + Vite**; сервер — **`server/`** (Fastify, Prisma, JWT + httpOnly refresh).
 
-## Hero state & single source of truth
+## Швидкий старт (розробка)
 
-**Не дублюй логіку HP/MP/CP, регену або бафів.** Джерело правди одне: store (`hero`) → збереження через `heroPersistence`, завантаження через `heroLoad` / `heroLoadAPI`, реген через `heroRegen.ts`, бафи через `applyBuffsToStats(battleStats, heroBuffs)`.
+### Клієнт
 
-Перед змінами в цих місцях дивись:
+```bash
+npm install
+npm run dev
+```
+
+За замовчуванням API: `http://localhost:3000`. Щоб вказати інший бекенд, створи `.env` у корені:
+
+```env
+VITE_API_URL=https://твій-api.example.com
+```
+
+### Сервер
+
+```bash
+cd server
+npm install
+# Налаштуй DATABASE_URL (і за потреби DIRECT_URL) у .env
+npx prisma migrate dev
+npm run dev
+```
+
+Продакшен-міграції БД:
+
+```bash
+cd server
+npm run prisma:migrate:deploy
+```
+
+(За потреби з прямим підключенням: `npm run prisma:migrate:deploy:direct`.)
+
+### Тести (клієнт)
+
+```bash
+npm test
+```
+
+## Завантаження героя (bootstrap)
+
+1. Після логіну/реєстрації зберігаються `accessToken`, `current_character_id`, **`l2_current_user`** і запис героя у **`l2_accounts_v2`** (див. `heroPersistence.ts` та `HERO_SAVE_LOAD_DATAFLOW.md`).
+2. **F5:** спочатку можливий герой з localStorage, у фоні — `GET /characters/:id` і merge за правилами у `heroLoadAPI` (деталі в `HERO_SAVE_LOAD_DATAFLOW.md`).
+3. **Не дублюй** логіку HP/MP/CP, регену й бафів: джерело правди — `hero` у store → `heroPersistence` / `heroLoad` / `heroLoadAPI`; реген — `heroRegen.ts`; бафи на стати — `applyBuffsToStats`.
+
+Корисні документи:
+
 - [HERO_SAVE_LOAD_DATAFLOW.md](./HERO_SAVE_LOAD_DATAFLOW.md) — хто читає/пише hero та heroJson
-- [REFERENCE_STATE.md](./REFERENCE_STATE.md) — опорний стан і як повернутися до нього
+- [REFERENCE_STATE.md](./REFERENCE_STATE.md) — опорний стан
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
 
-Детальніше: [CONTRIBUTING.md](./CONTRIBUTING.md).
+## Стек
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-<!-- sync -->
+- UI: React 18, Zustand, Tailwind, React Router (кастомний роутер у `App.tsx`)
+- Збірка: Vite 5, TypeScript 5
