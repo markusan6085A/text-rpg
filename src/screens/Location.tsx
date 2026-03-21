@@ -41,6 +41,21 @@ function dropLineIconPath(entry: DropEntry): string {
   return "/items/default_item.png";
 }
 
+/** l2dop-by-itemid: спочатку .jpg, якщо немає — одна спроба .png (після sync скрипта) */
+function onL2ResourceIconImgError(e: React.SyntheticEvent<HTMLImageElement>) {
+  const el = e.currentTarget;
+  if (el.dataset.l2Png === "1") {
+    el.style.display = "none";
+    return;
+  }
+  if (/\.jpg($|\?)/i.test(el.src)) {
+    el.dataset.l2Png = "1";
+    el.src = el.src.replace(/\.jpg($|\?)/i, ".png$1");
+    return;
+  }
+  el.style.display = "none";
+}
+
 type Navigate = (path: string) => void;
 
 function useQuery() {
@@ -629,9 +644,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                               src={iconPath}
                               alt={itemName}
                               className="w-5 h-5 object-contain border border-white/40 bg-black/40"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = "none";
-                              }}
+                              onError={onL2ResourceIconImgError}
                             />
                             <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">
                               {itemName}{gradeDisplay}:
@@ -671,9 +684,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                               src={iconPath}
                               alt={itemName}
                               className="w-5 h-5 object-contain border border-white/40 bg-black/40"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = "none";
-                              }}
+                              onError={onL2ResourceIconImgError}
                             />
                             <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">
                               {itemName}{gradeDisplay}:
@@ -735,7 +746,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   <button type="button" className="text-gray-400 hover:text-white text-xl leading-none" onClick={() => setSelectedDropItem(null)}>×</button>
                 </div>
                 <div className="flex items-center gap-3">
-                  <img src={iconPath} alt={title} className="w-16 h-16 object-contain border border-white/40 bg-black/40" />
+                  <img src={iconPath} alt={title} className="w-16 h-16 object-contain border border-white/40 bg-black/40" onError={onL2ResourceIconImgError} />
                   <div className="text-xs text-gray-400 space-y-1">
                     <div>Кількість: {dropLine.min}–{dropLine.max}</div>
                     <div>Шанс (L2): {formatDropChanceLabel(dropLine)}</div>

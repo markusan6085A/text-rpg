@@ -50,10 +50,17 @@ function removeGradeFromResourceName(name: string): string {
   return cleanedName;
 }
 
-/** Roll як у L2 XML: chance з 1_000_000; інакше поле chance (0..1). */
+/**
+ * Roll як у L2 droplist: R = випадкове ціле з [0, 1_000_000), успіх якщо R < chancePerMillion
+ * (аналог RAND(1_000_000) у серверних скриптах).
+ */
 function rollDropEntry(entry: DropEntry): boolean {
   const cpm = entry.chancePerMillion;
-  if (cpm != null && cpm > 0) return Math.random() * 1_000_000 < cpm;
+  if (cpm != null && cpm > 0) {
+    const cap = Math.min(1_000_000, Math.max(0, Math.floor(cpm)));
+    const r = Math.floor(Math.random() * 1_000_000);
+    return r < cap;
+  }
   return Math.random() < (entry.chance ?? 0);
 }
 
@@ -128,109 +135,48 @@ export function processMobDrops(
     : zoneResourceDrops;
 
 
-  // L2 XML: кожен рядок з chancePerMillion крутиться окремо; інакше — загальний шанс зони (dropChance)
-  const usesL2LineRolls = effectiveDrops.some((d) => d.chancePerMillion != null && d.chancePerMillion > 0);
-  const globalDropOk = usesL2LineRolls || Math.random() < (mob.dropChance ?? 0.5);
+  // L2 XML: рядки з chancePerMillion крутяться кожен окремо (без «глобального» шансу зони).
+  // Класичні рядки (Floran тощо без cpm) — один раз mob.dropChance, потім roll по кожному рядку.
+  const l2LineDrops = effectiveDrops.filter((d) => d.chancePerMillion != null && d.chancePerMillion > 0);
+  const classicLineDrops = effectiveDrops.filter((d) => d.chancePerMillion == null || d.chancePerMillion <= 0);
 
-  if (globalDropOk && effectiveDrops.length > 0) {
-    effectiveDrops.forEach((drop: DropEntry) => {
-      if (!rollDropEntry(drop)) return;
+  const applyOneDropLine = (drop: DropEntry) => {
+    if (!rollDropEntry(drop)) return;
 
-      let itemCount = rollQuantity(drop.min ?? 1, drop.max ?? 1);
-      const itemDef = itemsDB[drop.id];
+    let itemCount = rollQuantity(drop.min ?? 1, drop.max ?? 1);
+    const itemDef = itemsDB[drop.id];
 
-      if (drop.id === "adena" || drop.kind === "adena") {
-        const premiumMultiplier = getPremiumMultiplier(hero);
-        const amount = Math.round(itemCount * premiumMultiplier);
-        adenaFromDrops += amount;
-        dropMessages.push(`Дроп: Адена x${amount}`);
-        actualDroppedItems.push({ id: "adena", name: "Адена", count: amount });
-        return;
-      }
-
-      if (drop.kind === "equipment" && !itemDef) return;
-
+    if (drop.id === "adena" || drop.kind === "adena") {
       const premiumMultiplier = getPremiumMultiplier(hero);
-      if (itemDef) {
-        const resourceSlots = ["consumable", "resource", "quest"];
-        if (resourceSlots.includes(itemDef.slot)) {
-          itemCount = Math.round(itemCount * premiumMultiplier);
-        }
-      } else if (drop.kind === "resource" || drop.id.startsWith("l2item_")) {
+      const amount = Math.round(itemCount * premiumMultiplier);
+      adenaFromDrops += amount;
+      dropMessages.push(`Дроп: Адена x${amount}`);
+      actualDroppedItems.push({ id: "adena", name: "Адена", count: amount });
+      return;
+    }
+
+    if (drop.kind === "equipment" && !itemDef) return;
+
+    const premiumMultiplier = getPremiumMultiplier(hero);
+    if (itemDef) {
+      const resourceSlots = ["consumable", "resource", "quest"];
+      if (resourceSlots.includes(itemDef.slot)) {
         itemCount = Math.round(itemCount * premiumMultiplier);
       }
+    } else if (drop.kind === "resource" || drop.id.startsWith("l2item_")) {
+      itemCount = Math.round(itemCount * premiumMultiplier);
+    }
 
-      if (itemDef) {
-        const stackableSlots = ["consumable", "resource", "quest"];
-        const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
-        const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive) : -1;
-        const canAddToExisting = canStack && existingItemIndex >= 0;
-
-        if (isInventoryFull && !canAddToExisting) {
-          const displayName = removeGradeFromResourceName(itemDef.name);
-          const itemToAdd = { id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem;
-          itemsToAdd.push(itemToAdd);
-          dropMessages.push(`Дроп: ${displayName} x${itemCount} → сундук переповнення`);
-          actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
-          return;
-        }
-
-        if (existingItemIndex >= 0) {
-          const existingItem = newInventory[existingItemIndex];
-          newInventory[existingItemIndex] = {
-            ...existingItem,
-            count: (existingItem.count ?? 1) + itemCount,
-          };
-        } else if (canStack) {
-          newInventory.push({
-            id: itemDef.id,
-            name: itemDef.name,
-            type: itemDef.kind,
-            slot: itemDef.slot,
-            icon: itemDef.icon,
-            description: itemDef.description,
-            stats: itemDef.stats,
-            count: itemCount,
-          } as HeroInventoryItem);
-        } else {
-          for (let i = 0; i < itemCount; i++) {
-            newInventory.push({
-              id: itemDef.id,
-              name: itemDef.name,
-              type: itemDef.kind,
-              slot: itemDef.slot,
-              icon: itemDef.icon,
-              description: itemDef.description,
-              stats: itemDef.stats,
-              count: 1,
-            } as HeroInventoryItem);
-          }
-        }
-
-        const displayName = removeGradeFromResourceName(itemDef.name);
-        dropMessages.push(`Дроп: ${displayName} x${itemCount}`);
-        actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
-        return;
-      }
-
-      if (drop.kind !== "resource" && !drop.id.startsWith("l2item_")) return;
-
-      const displayName = removeGradeFromResourceName(drop.displayName ?? drop.id);
-      const iconPath = resolveDropIconPath(drop);
-      const syn: HeroInventoryItem = {
-        id: drop.id,
-        name: displayName,
-        type: "resource",
-        slot: "resource",
-        icon: iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`,
-        description: "",
-        count: itemCount,
-      };
-      const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive);
-      const canAddToExisting = existingItemIndex >= 0;
+    if (itemDef) {
+      const stackableSlots = ["consumable", "resource", "quest"];
+      const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
+      const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive) : -1;
+      const canAddToExisting = canStack && existingItemIndex >= 0;
 
       if (isInventoryFull && !canAddToExisting) {
-        itemsToAdd.push(syn);
+        const displayName = removeGradeFromResourceName(itemDef.name);
+        const itemToAdd = { id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem;
+        itemsToAdd.push(itemToAdd);
         dropMessages.push(`Дроп: ${displayName} x${itemCount} → сундук переповнення`);
         actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
         return;
@@ -242,12 +188,78 @@ export function processMobDrops(
           ...existingItem,
           count: (existingItem.count ?? 1) + itemCount,
         };
+      } else if (canStack) {
+        newInventory.push({
+          id: itemDef.id,
+          name: itemDef.name,
+          type: itemDef.kind,
+          slot: itemDef.slot,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          stats: itemDef.stats,
+          count: itemCount,
+        } as HeroInventoryItem);
       } else {
-        newInventory.push(syn);
+        for (let i = 0; i < itemCount; i++) {
+          newInventory.push({
+            id: itemDef.id,
+            name: itemDef.name,
+            type: itemDef.kind,
+            slot: itemDef.slot,
+            icon: itemDef.icon,
+            description: itemDef.description,
+            stats: itemDef.stats,
+            count: 1,
+          } as HeroInventoryItem);
+        }
       }
+
+      const displayName = removeGradeFromResourceName(itemDef.name);
       dropMessages.push(`Дроп: ${displayName} x${itemCount}`);
       actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
-    });
+      return;
+    }
+
+    if (drop.kind !== "resource" && !drop.id.startsWith("l2item_")) return;
+
+    const displayName = removeGradeFromResourceName(drop.displayName ?? drop.id);
+    const iconPath = resolveDropIconPath(drop);
+    const syn: HeroInventoryItem = {
+      id: drop.id,
+      name: displayName,
+      type: "resource",
+      slot: "resource",
+      icon: iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`,
+      description: "",
+      count: itemCount,
+    };
+    const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive);
+    const canAddToExisting = existingItemIndex >= 0;
+
+    if (isInventoryFull && !canAddToExisting) {
+      itemsToAdd.push(syn);
+      dropMessages.push(`Дроп: ${displayName} x${itemCount} → сундук переповнення`);
+      actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
+      return;
+    }
+
+    if (existingItemIndex >= 0) {
+      const existingItem = newInventory[existingItemIndex];
+      newInventory[existingItemIndex] = {
+        ...existingItem,
+        count: (existingItem.count ?? 1) + itemCount,
+      };
+    } else {
+      newInventory.push(syn);
+    }
+    dropMessages.push(`Дроп: ${displayName} x${itemCount}`);
+    actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
+  };
+
+  l2LineDrops.forEach(applyOneDropLine);
+
+  if (classicLineDrops.length > 0 && Math.random() < (mob.dropChance ?? 0.5)) {
+    classicLineDrops.forEach(applyOneDropLine);
   }
 
   // Обробляємо treasure box: падає з шансом 15% з мобів, рівень яких ±5 від рівня героя
