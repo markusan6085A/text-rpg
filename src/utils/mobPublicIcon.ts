@@ -186,6 +186,17 @@ function stripChampionSuffixes(name: string): string[] {
 function heuristicMobIcon(normalized: string): string | undefined {
   const s = normalized.trim();
   if (!s) return undefined;
+  /** Годдарт (L2): чемпіони та англ. імена з XML */
+  if (s.includes("Гарячих Джерел") || s.includes("Гейзер") || s.includes("Джерел")) return "12.png";
+  if (s.includes("Кетра") || s.includes("Пастух Кетра") || s.includes("Валькірія Кетра")) return "5.png";
+  if (s.includes("Варки") || s.includes("Варка") || s.includes("Пограничник")) return "11.png";
+  if (s.includes("Монастир") || s.includes("Соліни") || s.includes("Архієрей")) return "16.png";
+  if (s.includes("Пророк Племен") || s.includes("Племен")) return "32.png";
+  if (s.includes("Hot Springs")) return "12.png";
+  if (s.startsWith("Grazing")) return "10.png";
+  if (s.includes("Ketra") || s.includes("Ketra's")) return "5.png";
+  if (s.includes("Varka")) return "11.png";
+  if (/Monastic|Monastery|Solina|Silent |Warrior Monk/i.test(s)) return "16.png";
   if (s.includes("Окраїнський Громила")) return "58.png";
   if (
     /(Хранитель|Страж|Вартовий|Повелитель|Тиран|Лорд|Дракон) Окраїни$/u.test(s)

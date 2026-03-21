@@ -4,6 +4,9 @@
 import type { Mob } from "../types";
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import type { DropEntry } from "../../combat/types";
+import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
+
+export { L2DOP_GODDARD_POOL };
 
 function drop(
   id: string,
@@ -428,7 +431,6 @@ const GLUDIO_RB_EXTRA_NAMES: Record<string, string[]> = {
 };
 
 function cloneRaidBoss(base: RaidBoss, suffix: string, nameSuffix: string): RaidBoss {
-  const zoneNum = base.zoneId.replace("l2dop_gludio_", "").replace("l2dop_aden_", "");
   const mul = 0.9 + (suffix.charCodeAt(0) % 5) * 0.05;
   return {
     ...base,
@@ -665,3 +667,71 @@ export function getAdenRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_ADEN_RAID_BOSSES: RaidBoss[] = ADEN_RB_BASE;
+
+/* ==================== GODDARD (L2) — рівні 73–80 (кілька L2-околиць у кожній зоні) ==================== */
+
+export function getGoddardL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_GODDARD_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length < 2) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const count = 3 + Math.floor(rand() * 5);
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Володар Гарячих Джерел",
+    "02": "Пастух Кетра",
+    "03": "Валькірія Кетра",
+    "04": "Пограничник Варки",
+    "05": "Вождь Варки",
+    "06": "Хранитель Монастиря",
+    "07": "Пророк Племен",
+  };
+  const suffixes = ["I", "II", "III", "IV", "V", "Страж", "Титан"];
+  const zoneNum = zoneId.replace("l2dop_goddard_", "");
+  const baseName = names[zoneNum] ?? "Годдарт Чемпіон";
+  const result: Mob[] = [];
+  for (let i = 0; i < Math.min(count, shuffled.length); i++) {
+    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i)));
+  }
+  return result;
+}
+
+function goddardRbDrops(_rbIndex: number): DropEntry[] {
+  return [];
+}
+
+const GODDARD_RB_BASE: RaidBoss[] = [
+  { id: "rb_l2dop_goddard_01", name: "Гейзерний Титан", level: 76, hp: 540000, mp: 0, pAtk: 2950, mAtk: 0, pDef: 940, mDef: 640, exp: 340000, sp: 19000, adenaMin: 190000, adenaMax: 295000, dropChance: 1, drops: goddardRbDrops(0), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_goddard_01" },
+  { id: "rb_l2dop_goddard_02", name: "Вождь Гарячих Стежок", level: 77, hp: 580000, mp: 0, pAtk: 3100, mAtk: 0, pDef: 980, mDef: 665, exp: 365000, sp: 20500, adenaMin: 205000, adenaMax: 315000, dropChance: 1, drops: goddardRbDrops(1), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_goddard_02" },
+  { id: "rb_l2dop_goddard_03", name: "Король Кетра", level: 78, hp: 620000, mp: 0, pAtk: 3250, mAtk: 0, pDef: 1020, mDef: 690, exp: 395000, sp: 22200, adenaMin: 220000, adenaMax: 340000, dropChance: 1, drops: goddardRbDrops(2), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_goddard_03" },
+  { id: "rb_l2dop_goddard_04", name: "Титан Племен", level: 79, hp: 670000, mp: 0, pAtk: 3420, mAtk: 0, pDef: 1065, mDef: 720, exp: 425000, sp: 24000, adenaMin: 238000, adenaMax: 368000, dropChance: 1, drops: goddardRbDrops(3), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_goddard_04" },
+  { id: "rb_l2dop_goddard_05", name: "Верховний Варка", level: 80, hp: 720000, mp: 0, pAtk: 3600, mAtk: 0, pDef: 1110, mDef: 755, exp: 460000, sp: 26000, adenaMin: 255000, adenaMax: 395000, dropChance: 1, drops: goddardRbDrops(4), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_goddard_05" },
+  { id: "rb_l2dop_goddard_06", name: "Архієрей Соліни", level: 80, hp: 760000, mp: 0, pAtk: 3550, mAtk: 1200, pDef: 1080, mDef: 820, exp: 480000, sp: 27500, adenaMin: 268000, adenaMax: 415000, dropChance: 1, drops: goddardRbDrops(5), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_goddard_06" },
+  { id: "rb_l2dop_goddard_07", name: "Спадкоємець Пророка", level: 81, hp: 800000, mp: 0, pAtk: 3750, mAtk: 0, pDef: 1140, mDef: 780, exp: 510000, sp: 29200, adenaMin: 285000, adenaMax: 440000, dropChance: 1, drops: goddardRbDrops(6), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_goddard_07" },
+];
+
+const GODDARD_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Страж Джерел", "Титан Пари", "Лорд Гейзерів", "Хранитель Води", "Повелитель Пари"],
+  "02": ["Вартовий Стежок", "Пастух Буйволів", "Тиран Кетра", "Король Стежок", "Дракон Пари"],
+  "03": ["Тиран Кетра", "Страж Племені", "Вождь Шаманів", "Повелитель Кетра", "Дракон Орків"],
+  "04": ["Король Кетра і Варки", "Страж Кордону", "Титан Війни", "Архонт Поля", "Повелитель Битви"],
+  "05": ["Король Варки", "Тиран Сілєносів", "Страж Варки", "Дракон Степу", "Пророк Варки"],
+  "06": ["Брат Соліни", "Тінь Монастиря", "Крусадер Темряви", "Хранитель Реліквій", "Пастир Мертвих"],
+  "07": ["Вершинний Титан", "Лорд Племен", "Страж Вершини", "Король Пророцтва", "Тиран Годдарта"],
+};
+
+export function getGoddardRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = GODDARD_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("l2dop_goddard_", "");
+  const extraNames = GODDARD_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 3 + Math.floor(rand() * 4);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_GODDARD_RAID_BOSSES: RaidBoss[] = GODDARD_RB_BASE;

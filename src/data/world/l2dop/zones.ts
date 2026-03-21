@@ -8,10 +8,13 @@ import {
   getGludioRaidBossesForZone,
   getAdenL2DopChampions,
   getAdenRaidBossesForZone,
+  getGoddardL2DopChampions,
+  getGoddardRaidBossesForZone,
   shuffleMobsRandomly,
   L2DOP_GLUDIO_POOL,
   L2DOP_ADEN_POOL,
   L2DOP_GIRAN03_2321_MOBS,
+  L2DOP_GODDARD_POOL,
 } from "./mobs";
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 
@@ -26,6 +29,14 @@ function buildAdenZoneMobs(z: { id: string; min: number; max: number }) {
   const regular = fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
   const champions = getAdenL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
   const raidBosses = getAdenRaidBossesForZone(z.id);
+  return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
+}
+
+/** ~200 звичайних мобів на зону (кілька L2-околиць в одній ігровій локації), чемпіони + РБ */
+function buildGoddardZoneMobs(z: { id: string; min: number; max: number }) {
+  const regular = fillZoneMobs(L2DOP_GODDARD_POOL, z.id, z.min, z.max, 180, 220, 20, 38).map(applyL2XmlDropsToMob);
+  const champions = getGoddardL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const raidBosses = getGoddardRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
@@ -77,5 +88,22 @@ export const L2DOP_ZONES: Zone[] = [
     maxLevel: z.max,
     tpCost: z.tp,
     mobs: buildAdenZoneMobs(z),
+  })),
+  ...[
+    { id: "l2dop_goddard_01", name: "Годдарт — Гарячі джерела (L2)", min: 73, max: 75, tp: 32000 },
+    { id: "l2dop_goddard_02", name: "Годдарт — Стежки джерел і Кетра (L2)", min: 74, max: 77, tp: 34000 },
+    { id: "l2dop_goddard_03", name: "Годдарт — Землі Кетра (L2)", min: 75, max: 78, tp: 36000 },
+    { id: "l2dop_goddard_04", name: "Годдарт — Кетра і Варка (L2)", min: 76, max: 79, tp: 38000 },
+    { id: "l2dop_goddard_05", name: "Годдарт — Землі Варки (L2)", min: 77, max: 80, tp: 40000 },
+    { id: "l2dop_goddard_06", name: "Годдарт — Монастир Св. Соліни (L2)", min: 78, max: 80, tp: 42000 },
+    { id: "l2dop_goddard_07", name: "Годдарт — Вершини племен (L2)", min: 79, max: 80, tp: 44000 },
+  ].map((z) => ({
+    id: z.id,
+    name: z.name,
+    cityId: "l2dop_goddard" as const,
+    minLevel: z.min,
+    maxLevel: z.max,
+    tpCost: z.tp,
+    mobs: buildGoddardZoneMobs(z),
   })),
 ];

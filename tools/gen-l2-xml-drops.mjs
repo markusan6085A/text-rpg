@@ -9,15 +9,31 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 
+function range(a, b) {
+  const o = [];
+  for (let i = a; i <= b; i++) o.push(i);
+  return o;
+}
+
+const GODDARD_NPC_IDS = [
+  ...range(21314, 21323),
+  ...range(21324, 21342),
+  ...range(21350, 21373),
+  ...range(22122, 22129),
+];
+
 const NPC_IDS = [
   20001, 20002, 20091, 20545, 20481, 20432, 20544, 20120, 20003, 20004, 20005, 20006, 20007,
   20092, 20093, 20094, 20095, 20096, 20099, 20100, 20021, 20008, 20030, 20035, 20924, 20546,
   20069, 20083, 18001,
+  ...GODDARD_NPC_IDS,
 ];
 
 const MOB_XML_FILES = [
   path.join(root, "tools", "htmlскіли", "моби!", "20000-20999.xml"),
   path.join(root, "tools", "htmlскіли", "моби!", "18000-18999.xml"),
+  path.join(root, "tools", "htmlскіли", "моби!", "21000-21999.xml"),
+  path.join(root, "tools", "htmlскіли", "моби!", "22000-22999.xml"),
 ];
 
 const ITEMS_DIR = path.join(root, "tools", "htmlскіли", "ітемс");

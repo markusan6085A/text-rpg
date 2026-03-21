@@ -2815,5 +2815,10720 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Recipe: Bone Arrow"
       }
     ]
+  },
+  "21314": {
+    drops: [
+      {
+        id: "l2item_269",
+        kind: "equipment",
+        chance: 0.00001,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10,
+        l2ItemId: 269,
+        displayName: "Blood Tornado"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.066667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 66667,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.004292,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4292,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.004464,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4464,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.008065,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8065,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5272",
+        kind: "resource",
+        chance: 0.000023,
+        min: 1,
+        max: 1,
+        chancePerMillion: 23,
+        l2ItemId: 5272,
+        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5539",
+        kind: "resource",
+        chance: 0.002956,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2956,
+        l2ItemId: 5539,
+        displayName: "Blood Tornado Edge"
+      },
+      {
+        id: "l2item_8731",
+        kind: "resource",
+        chance: 0.001961,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1961,
+        l2ItemId: 8731,
+        displayName: "Life Stone: level 70"
+      },
+      {
+        id: "l2item_8741",
+        kind: "resource",
+        chance: 0.000607,
+        min: 1,
+        max: 1,
+        chancePerMillion: 607,
+        l2ItemId: 8741,
+        displayName: "Mid-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8751",
+        kind: "resource",
+        chance: 0.000047,
+        min: 1,
+        max: 1,
+        chancePerMillion: 47,
+        l2ItemId: 8751,
+        displayName: "High-Grade Life Stone: level 70"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2391,
+        max: 4868,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_730",
+        kind: "resource",
+        chance: 0.004944,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4944,
+        l2ItemId: 730,
+        displayName: "Scroll: Enchant Armor (Grade A)"
+      },
+      {
+        id: "l2item_6335",
+        kind: "resource",
+        chance: 0.022819,
+        min: 1,
+        max: 1,
+        chancePerMillion: 22819,
+        l2ItemId: 6335,
+        displayName: "Recipe: Sealed Majestic Necklace(70%)"
+      },
+      {
+        id: "l2item_6341",
+        kind: "resource",
+        chance: 0.1641,
+        min: 1,
+        max: 1,
+        chancePerMillion: 164100,
+        l2ItemId: 6341,
+        displayName: "Sealed Phoenix Earring Gemstone"
+      }
+    ]
+  },
+  "21315": {
+    drops: [
+      {
+        id: "l2item_288",
+        kind: "equipment",
+        chance: 0.00001,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10,
+        l2ItemId: 288,
+        displayName: "Carnage Bow"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.083333,
+        min: 30,
+        max: 90,
+        chancePerMillion: 83333,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.083333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 83333,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.013699,
+        min: 1,
+        max: 1,
+        chancePerMillion: 13699,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.006711,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6711,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5277",
+        kind: "resource",
+        chance: 0.000039,
+        min: 1,
+        max: 1,
+        chancePerMillion: 39,
+        l2ItemId: 5277,
+        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5535",
+        kind: "resource",
+        chance: 0.003117,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3117,
+        l2ItemId: 5535,
+        displayName: "Carnage Bow Stave"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.020833,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20833,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_8731",
+        kind: "resource",
+        chance: 0.001486,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1486,
+        l2ItemId: 8731,
+        displayName: "Life Stone: level 70"
+      },
+      {
+        id: "l2item_8741",
+        kind: "resource",
+        chance: 0.000254,
+        min: 1,
+        max: 1,
+        chancePerMillion: 254,
+        l2ItemId: 8741,
+        displayName: "Mid-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8751",
+        kind: "resource",
+        chance: 0.000117,
+        min: 1,
+        max: 1,
+        chancePerMillion: 117,
+        l2ItemId: 8751,
+        displayName: "High-Grade Life Stone: level 70"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2492,
+        max: 5073,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.412195,
+        min: 1,
+        max: 1,
+        chancePerMillion: 412195,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.618292,
+        min: 1,
+        max: 2,
+        chancePerMillion: 618292,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_6343",
+        kind: "resource",
+        chance: 0.132198,
+        min: 1,
+        max: 2,
+        chancePerMillion: 132198,
+        l2ItemId: 6343,
+        displayName: "Sealed Phoenix Necklace Beads"
+      }
+    ]
+  },
+  "21316": {
+    drops: [
+      {
+        id: "l2item_235",
+        kind: "equipment",
+        chance: 0.000011,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11,
+        l2ItemId: 235,
+        displayName: "Bloody Orchid"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.083333,
+        min: 30,
+        max: 90,
+        chancePerMillion: 83333,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.052632,
+        min: 2,
+        max: 6,
+        chancePerMillion: 52632,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "steel",
+        kind: "resource",
+        chance: 0.022727,
+        min: 1,
+        max: 1,
+        chancePerMillion: 22727,
+        l2ItemId: 1880,
+        displayName: "Steel"
+      },
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.000151,
+        min: 1,
+        max: 1,
+        chancePerMillion: 151,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.007042,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7042,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5536",
+        kind: "resource",
+        chance: 0.003249,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3249,
+        l2ItemId: 5536,
+        displayName: "Bloody Orchid Head"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.003356,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3356,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      },
+      {
+        id: "l2item_8731",
+        kind: "resource",
+        chance: 0.002088,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2088,
+        l2ItemId: 8731,
+        displayName: "Life Stone: level 70"
+      },
+      {
+        id: "l2item_8741",
+        kind: "resource",
+        chance: 0.000424,
+        min: 1,
+        max: 1,
+        chancePerMillion: 424,
+        l2ItemId: 8741,
+        displayName: "Mid-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8751",
+        kind: "resource",
+        chance: 0.00003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30,
+        l2ItemId: 8751,
+        displayName: "High-Grade Life Stone: level 70"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2604,
+        max: 5307,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.215511,
+        min: 1,
+        max: 2,
+        chancePerMillion: 215511,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.086204,
+        min: 1,
+        max: 1,
+        chancePerMillion: 86204,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      },
+      {
+        id: "l2item_6343",
+        kind: "resource",
+        chance: 0.138237,
+        min: 1,
+        max: 2,
+        chancePerMillion: 138237,
+        l2ItemId: 6343,
+        displayName: "Sealed Phoenix Necklace Beads"
+      }
+    ]
+  },
+  "21317": {
+    drops: [
+      {
+        id: "l2item_269",
+        kind: "equipment",
+        chance: 0.00001,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10,
+        l2ItemId: 269,
+        displayName: "Blood Tornado"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.1,
+        min: 1,
+        max: 3,
+        chancePerMillion: 100000,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "leather",
+        kind: "resource",
+        chance: 0.047619,
+        min: 1,
+        max: 1,
+        chancePerMillion: 47619,
+        l2ItemId: 1882,
+        displayName: "Leather"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.007407,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7407,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "l2item_3957",
+        kind: "resource",
+        chance: 0.000124,
+        min: 1,
+        max: 1,
+        chancePerMillion: 124,
+        l2ItemId: 3957,
+        displayName: "Recipe: Blessed Spiritshot S"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.003968,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3968,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5539",
+        kind: "resource",
+        chance: 0.003045,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3045,
+        l2ItemId: 5539,
+        displayName: "Blood Tornado Edge"
+      },
+      {
+        id: "l2item_8731",
+        kind: "resource",
+        chance: 0.002481,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2481,
+        l2ItemId: 8731,
+        displayName: "Life Stone: level 70"
+      },
+      {
+        id: "l2item_8741",
+        kind: "resource",
+        chance: 0.000455,
+        min: 1,
+        max: 1,
+        chancePerMillion: 455,
+        l2ItemId: 8741,
+        displayName: "Mid-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8751",
+        kind: "resource",
+        chance: 0.000029,
+        min: 1,
+        max: 1,
+        chancePerMillion: 29,
+        l2ItemId: 8751,
+        displayName: "High-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8761",
+        kind: "resource",
+        chance: 0.000029,
+        min: 1,
+        max: 1,
+        chancePerMillion: 29,
+        l2ItemId: 8761,
+        displayName: "Top-Grade Life Stone: level 70"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2461,
+        max: 5016,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5450",
+        kind: "resource",
+        chance: 0.002263,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2263,
+        l2ItemId: 5450,
+        displayName: "Recipe: Dragon Grinder(60%)"
+      },
+      {
+        id: "l2item_5456",
+        kind: "resource",
+        chance: 0.002263,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2263,
+        l2ItemId: 5456,
+        displayName: "Recipe: Tallum Glaive(60%)"
+      },
+      {
+        id: "l2item_6345",
+        kind: "resource",
+        chance: 0.233778,
+        min: 1,
+        max: 1,
+        chancePerMillion: 233778,
+        l2ItemId: 6345,
+        displayName: "Sealed Phoenix Ring Gemstone"
+      }
+    ]
+  },
+  "21318": {
+    drops: [
+      {
+        id: "l2item_5290",
+        kind: "equipment",
+        chance: 0.000041,
+        min: 1,
+        max: 1,
+        chancePerMillion: 41,
+        l2ItemId: 5290,
+        displayName: "Sealed Dark Crystal Gloves"
+      },
+      {
+        id: "l2item_5291",
+        kind: "equipment",
+        chance: 0.000041,
+        min: 1,
+        max: 1,
+        chancePerMillion: 41,
+        l2ItemId: 5291,
+        displayName: "Sealed Dark Crystal Boots"
+      },
+      {
+        id: "l2item_5295",
+        kind: "equipment",
+        chance: 0.000041,
+        min: 1,
+        max: 1,
+        chancePerMillion: 41,
+        l2ItemId: 5295,
+        displayName: "Sealed Tallum Gloves"
+      },
+      {
+        id: "l2item_5296",
+        kind: "equipment",
+        chance: 0.000041,
+        min: 1,
+        max: 1,
+        chancePerMillion: 41,
+        l2ItemId: 5296,
+        displayName: "Sealed Tallum Boots"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.090909,
+        min: 30,
+        max: 90,
+        chancePerMillion: 90909,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.083333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 83333,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.012821,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12821,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.007353,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7353,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5157",
+        kind: "resource",
+        chance: 0.00012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 120,
+        l2ItemId: 5157,
+        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5496",
+        kind: "resource",
+        chance: 0.00553,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5530,
+        l2ItemId: 5496,
+        displayName: "Sealed Dark Crystal Boots Lining"
+      },
+      {
+        id: "l2item_5497",
+        kind: "resource",
+        chance: 0.00553,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5530,
+        l2ItemId: 5497,
+        displayName: "Sealed Tallum Boots Lining"
+      },
+      {
+        id: "l2item_5508",
+        kind: "resource",
+        chance: 0.00553,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5530,
+        l2ItemId: 5508,
+        displayName: "Sealed Dark Crystal Gloves Design"
+      },
+      {
+        id: "l2item_5509",
+        kind: "resource",
+        chance: 0.00553,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5530,
+        l2ItemId: 5509,
+        displayName: "Sealed Tallum Gloves Design"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.022727,
+        min: 1,
+        max: 1,
+        chancePerMillion: 22727,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_8731",
+        kind: "resource",
+        chance: 0.001527,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1527,
+        l2ItemId: 8731,
+        displayName: "Life Stone: level 70"
+      },
+      {
+        id: "l2item_8741",
+        kind: "resource",
+        chance: 0.000583,
+        min: 1,
+        max: 1,
+        chancePerMillion: 583,
+        l2ItemId: 8741,
+        displayName: "Mid-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8751",
+        kind: "resource",
+        chance: 0.000051,
+        min: 1,
+        max: 1,
+        chancePerMillion: 51,
+        l2ItemId: 8751,
+        displayName: "High-Grade Life Stone: level 70"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2572,
+        max: 5243,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_730",
+        kind: "resource",
+        chance: 0.005323,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5323,
+        l2ItemId: 730,
+        displayName: "Scroll: Enchant Armor (Grade A)"
+      },
+      {
+        id: "l2item_5478",
+        kind: "resource",
+        chance: 0.053713,
+        min: 1,
+        max: 1,
+        chancePerMillion: 53713,
+        l2ItemId: 5478,
+        displayName: "Sealed Dark Crystal Leather Armor Pattern"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.63876,
+        min: 1,
+        max: 3,
+        chancePerMillion: 638760,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      }
+    ]
+  },
+  "21319": {
+    drops: [
+      {
+        id: "l2item_288",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 288,
+        displayName: "Carnage Bow"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.25,
+        min: 20,
+        max: 60,
+        chancePerMillion: 250000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "l2item_5535",
+        kind: "resource",
+        chance: 0.003633,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3633,
+        l2ItemId: 5535,
+        displayName: "Carnage Bow Stave"
+      },
+      {
+        id: "l2item_7649",
+        kind: "resource",
+        chance: 0.007519,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7519,
+        l2ItemId: 7649,
+        displayName: "Spellbook - Fire Vortex"
+      },
+      {
+        id: "l2item_7650",
+        kind: "resource",
+        chance: 0.007299,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7299,
+        l2ItemId: 7650,
+        displayName: "Spellbook - Ice Vortex"
+      },
+      {
+        id: "l2item_7651",
+        kind: "resource",
+        chance: 0.007576,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7576,
+        l2ItemId: 7651,
+        displayName: "Spellbook - Wind Vortex"
+      },
+      {
+        id: "l2item_7652",
+        kind: "resource",
+        chance: 0.006849,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6849,
+        l2ItemId: 7652,
+        displayName: "Spellbook - Light Vortex"
+      },
+      {
+        id: "l2item_7653",
+        kind: "resource",
+        chance: 0.007937,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7937,
+        l2ItemId: 7653,
+        displayName: "Spellbook - Dark Vortex"
+      },
+      {
+        id: "l2item_7649",
+        kind: "resource",
+        chance: 0.018357,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18357,
+        l2ItemId: 7649,
+        displayName: "Spellbook - Fire Vortex"
+      },
+      {
+        id: "l2item_7650",
+        kind: "resource",
+        chance: 0.018357,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18357,
+        l2ItemId: 7650,
+        displayName: "Spellbook - Ice Vortex"
+      },
+      {
+        id: "l2item_7651",
+        kind: "resource",
+        chance: 0.018357,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18357,
+        l2ItemId: 7651,
+        displayName: "Spellbook - Wind Vortex"
+      },
+      {
+        id: "l2item_7652",
+        kind: "resource",
+        chance: 0.018357,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18357,
+        l2ItemId: 7652,
+        displayName: "Spellbook - Light Vortex"
+      },
+      {
+        id: "l2item_7653",
+        kind: "resource",
+        chance: 0.018357,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18357,
+        l2ItemId: 7653,
+        displayName: "Spellbook - Dark Vortex"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2902,
+        max: 5920,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5157",
+        kind: "resource",
+        chance: 0.003204,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3204,
+        l2ItemId: 5157,
+        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5495",
+        kind: "resource",
+        chance: 0.109466,
+        min: 1,
+        max: 1,
+        chancePerMillion: 109466,
+        l2ItemId: 5495,
+        displayName: "Sealed Shield of Nightmare Fragment"
+      },
+      {
+        id: "l2item_5502",
+        kind: "resource",
+        chance: 0.121751,
+        min: 1,
+        max: 1,
+        chancePerMillion: 121751,
+        l2ItemId: 5502,
+        displayName: "Sealed Boots of Nightmare Lining"
+      }
+    ]
+  },
+  "21320": {
+    drops: [
+      {
+        id: "l2item_235",
+        kind: "equipment",
+        chance: 0.000011,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11,
+        l2ItemId: 235,
+        displayName: "Bloody Orchid"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 3,
+        chancePerMillion: 166667,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 3,
+        chancePerMillion: 111111,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "leather",
+        kind: "resource",
+        chance: 0.052632,
+        min: 1,
+        max: 1,
+        chancePerMillion: 52632,
+        l2ItemId: 1882,
+        displayName: "Leather"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.008621,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8621,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.000114,
+        min: 1,
+        max: 1,
+        chancePerMillion: 114,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.004065,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4065,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5536",
+        kind: "resource",
+        chance: 0.003297,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3297,
+        l2ItemId: 5536,
+        displayName: "Bloody Orchid Head"
+      },
+      {
+        id: "l2item_8731",
+        kind: "resource",
+        chance: 0.001953,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1953,
+        l2ItemId: 8731,
+        displayName: "Life Stone: level 70"
+      },
+      {
+        id: "l2item_8741",
+        kind: "resource",
+        chance: 0.000474,
+        min: 1,
+        max: 1,
+        chancePerMillion: 474,
+        l2ItemId: 8741,
+        displayName: "Mid-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8751",
+        kind: "resource",
+        chance: 0.000057,
+        min: 1,
+        max: 1,
+        chancePerMillion: 57,
+        l2ItemId: 8751,
+        displayName: "High-Grade Life Stone: level 70"
+      },
+      {
+        id: "l2item_8761",
+        kind: "resource",
+        chance: 0.000019,
+        min: 1,
+        max: 1,
+        chancePerMillion: 19,
+        l2ItemId: 8761,
+        displayName: "Top-Grade Life Stone: level 70"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2640,
+        max: 5387,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.23017,
+        min: 1,
+        max: 1,
+        chancePerMillion: 230170,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.109331,
+        min: 1,
+        max: 1,
+        chancePerMillion: 109331,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5503",
+        kind: "resource",
+        chance: 0.11079,
+        min: 1,
+        max: 1,
+        chancePerMillion: 110790,
+        l2ItemId: 5503,
+        displayName: "Sealed Majestic Boots Lining"
+      }
+    ]
+  },
+  "21321": {
+    drops: [
+      {
+        id: "l2item_269",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 269,
+        displayName: "Blood Tornado"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 3,
+        chancePerMillion: 250000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90909,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.045455,
+        min: 1,
+        max: 1,
+        chancePerMillion: 45455,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.066667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 66667,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.003937,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3937,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5167",
+        kind: "resource",
+        chance: 0.00015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 150,
+        l2ItemId: 5167,
+        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5539",
+        kind: "resource",
+        chance: 0.003414,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3414,
+        l2ItemId: 5539,
+        displayName: "Blood Tornado Edge"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001473,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1473,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000241,
+        min: 1,
+        max: 1,
+        chancePerMillion: 241,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.00006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 60,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2752,
+        max: 5635,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.685417,
+        min: 1,
+        max: 3,
+        chancePerMillion: 685417,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.652778,
+        min: 1,
+        max: 3,
+        chancePerMillion: 652778,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "l2item_6346",
+        kind: "resource",
+        chance: 0.223154,
+        min: 1,
+        max: 2,
+        chancePerMillion: 223154,
+        l2ItemId: 6346,
+        displayName: "Sealed Majestic Ring Gemstone"
+      }
+    ]
+  },
+  "21322": {
+    drops: [
+      {
+        id: "l2item_288",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 288,
+        displayName: "Carnage Bow"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.125,
+        min: 20,
+        max: 60,
+        chancePerMillion: 125000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 1,
+        chancePerMillion: 142857,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 1,
+        chancePerMillion: 200000,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "adamantite_nugget",
+        kind: "resource",
+        chance: 0.006667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6667,
+        l2ItemId: 1877,
+        displayName: "Adamantite Nugget"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.003817,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3817,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002817,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2817,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5272",
+        kind: "resource",
+        chance: 0.000048,
+        min: 1,
+        max: 1,
+        chancePerMillion: 48,
+        l2ItemId: 5272,
+        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5535",
+        kind: "resource",
+        chance: 0.003454,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3454,
+        l2ItemId: 5535,
+        displayName: "Carnage Bow Stave"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001383,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1383,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000382,
+        min: 1,
+        max: 1,
+        chancePerMillion: 382,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2752,
+        max: 5635,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5272",
+        kind: "resource",
+        chance: 0.003046,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3046,
+        l2ItemId: 5272,
+        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5277",
+        kind: "resource",
+        chance: 0.003046,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3046,
+        l2ItemId: 5277,
+        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5480",
+        kind: "resource",
+        chance: 0.030756,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30756,
+        l2ItemId: 5480,
+        displayName: "Sealed Leather Armor of Nightmare Fabric"
+      }
+    ]
+  },
+  "21323": {
+    drops: [
+      {
+        id: "l2item_235",
+        kind: "equipment",
+        chance: 0.000011,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11,
+        l2ItemId: 235,
+        displayName: "Bloody Orchid"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.1,
+        min: 1,
+        max: 3,
+        chancePerMillion: 100000,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "leather",
+        kind: "resource",
+        chance: 0.05,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50000,
+        l2ItemId: 1882,
+        displayName: "Leather"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.007407,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7407,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.003497,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3497,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5277",
+        kind: "resource",
+        chance: 0.000043,
+        min: 1,
+        max: 1,
+        chancePerMillion: 43,
+        l2ItemId: 5277,
+        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5536",
+        kind: "resource",
+        chance: 0.003404,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3404,
+        l2ItemId: 5536,
+        displayName: "Bloody Orchid Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001859,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1859,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000475,
+        min: 1,
+        max: 1,
+        chancePerMillion: 475,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2719,
+        max: 5567,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.237606,
+        min: 1,
+        max: 1,
+        chancePerMillion: 237606,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.112863,
+        min: 1,
+        max: 1,
+        chancePerMillion: 112863,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5481",
+        kind: "resource",
+        chance: 0.030386,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30386,
+        l2ItemId: 5481,
+        displayName: "Sealed Majestic Leather Armor Fabric"
+      }
+    ]
+  },
+  "21324": {
+    drops: [
+      {
+        id: "l2item_80",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 80,
+        displayName: "Tallum Blade"
+      },
+      {
+        id: "l2item_150",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 150,
+        displayName: "Elemental Sword"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.058824,
+        min: 30,
+        max: 90,
+        chancePerMillion: 58824,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "l2item_1808",
+        kind: "resource",
+        chance: 0.000087,
+        min: 1,
+        max: 1,
+        chancePerMillion: 87,
+        l2ItemId: 1808,
+        displayName: "Recipe: Soulshot: S Grade"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.058824,
+        min: 1,
+        max: 1,
+        chancePerMillion: 58824,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.03125,
+        min: 1,
+        max: 1,
+        chancePerMillion: 31250,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.043478,
+        min: 1,
+        max: 1,
+        chancePerMillion: 43478,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.002611,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2611,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5547",
+        kind: "resource",
+        chance: 0.001631,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1631,
+        l2ItemId: 5547,
+        displayName: "Elemental Sword Edge"
+      },
+      {
+        id: "l2item_5548",
+        kind: "resource",
+        chance: 0.001631,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1631,
+        l2ItemId: 5548,
+        displayName: "Tallum Blade Edge"
+      },
+      {
+        id: "l2item_8331",
+        kind: "resource",
+        chance: 0.000794,
+        min: 1,
+        max: 1,
+        chancePerMillion: 794,
+        l2ItemId: 8331,
+        displayName: "Infernal Master Blade"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001131,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1131,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000696,
+        min: 1,
+        max: 1,
+        chancePerMillion: 696,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000087,
+        min: 1,
+        max: 1,
+        chancePerMillion: 87,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2610,
+        max: 5333,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_1808",
+        kind: "resource",
+        chance: 0.002885,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2885,
+        l2ItemId: 1808,
+        displayName: "Recipe: Soulshot: S Grade"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.108175,
+        min: 1,
+        max: 1,
+        chancePerMillion: 108175,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5502",
+        kind: "resource",
+        chance: 0.109618,
+        min: 1,
+        max: 1,
+        chancePerMillion: 109618,
+        l2ItemId: 5502,
+        displayName: "Sealed Boots of Nightmare Lining"
+      }
+    ]
+  },
+  "21325": {
+    drops: [
+      {
+        id: "l2item_212",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 212,
+        displayName: "Dasparion's Staff"
+      },
+      {
+        id: "l2item_2504",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 2504,
+        displayName: "Meteor Shower"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.005495,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5495,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.000168,
+        min: 1,
+        max: 1,
+        chancePerMillion: 168,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "mold_glue",
+        kind: "resource",
+        chance: 0.006173,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6173,
+        l2ItemId: 4039,
+        displayName: "Mold Glue"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.001634,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1634,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.006211,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6211,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5532",
+        kind: "resource",
+        chance: 0.001563,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1563,
+        l2ItemId: 5532,
+        displayName: "Meteor Shower Head"
+      },
+      {
+        id: "l2item_5543",
+        kind: "resource",
+        chance: 0.001578,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1578,
+        l2ItemId: 5543,
+        displayName: "Dasparion's Staff Edge"
+      },
+      {
+        id: "l2item_8341",
+        kind: "resource",
+        chance: 0.000787,
+        min: 1,
+        max: 1,
+        chancePerMillion: 787,
+        l2ItemId: 8341,
+        displayName: "Spiritual Eye Piece"
+      },
+      {
+        id: "l2item_8346",
+        kind: "resource",
+        chance: 0.000831,
+        min: 1,
+        max: 1,
+        chancePerMillion: 831,
+        l2ItemId: 8346,
+        displayName: "Hammer Piece of Destroyer"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001091,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1091,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000293,
+        min: 1,
+        max: 1,
+        chancePerMillion: 293,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000042,
+        min: 1,
+        max: 1,
+        chancePerMillion: 42,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2524,
+        max: 5157,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.002789,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2789,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "l2item_5503",
+        kind: "resource",
+        chance: 0.105999,
+        min: 1,
+        max: 1,
+        chancePerMillion: 105999,
+        l2ItemId: 5503,
+        displayName: "Sealed Majestic Boots Lining"
+      },
+      {
+        id: "l2item_5514",
+        kind: "resource",
+        chance: 0.105999,
+        min: 1,
+        max: 1,
+        chancePerMillion: 105999,
+        l2ItemId: 5514,
+        displayName: "Sealed Gauntlets of Nightmare Design"
+      }
+    ]
+  },
+  "21326": {
+    drops: [
+      {
+        id: "l2item_269",
+        kind: "equipment",
+        chance: 0.000011,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11,
+        l2ItemId: 269,
+        displayName: "Blood Tornado"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.076923,
+        min: 20,
+        max: 60,
+        chancePerMillion: 76923,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90909,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 1,
+        chancePerMillion: 125000,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "adamantite_nugget",
+        kind: "resource",
+        chance: 0.00463,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4630,
+        l2ItemId: 1877,
+        displayName: "Adamantite Nugget"
+      },
+      {
+        id: "l2item_3957",
+        kind: "resource",
+        chance: 0.000118,
+        min: 1,
+        max: 1,
+        chancePerMillion: 118,
+        l2ItemId: 3957,
+        displayName: "Recipe: Blessed Spiritshot S"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.003165,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3165,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.000678,
+        min: 1,
+        max: 1,
+        chancePerMillion: 678,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5539",
+        kind: "resource",
+        chance: 0.003126,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3126,
+        l2ItemId: 5539,
+        displayName: "Blood Tornado Edge"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.000791,
+        min: 1,
+        max: 1,
+        chancePerMillion: 791,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000113,
+        min: 1,
+        max: 1,
+        chancePerMillion: 113,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000113,
+        min: 1,
+        max: 1,
+        chancePerMillion: 113,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2524,
+        max: 5157,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "adamantite_nugget",
+        kind: "resource",
+        chance: 0.251047,
+        min: 1,
+        max: 1,
+        chancePerMillion: 251047,
+        l2ItemId: 1877,
+        displayName: "Adamantite Nugget"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.054575,
+        min: 1,
+        max: 1,
+        chancePerMillion: 54575,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5515",
+        kind: "resource",
+        chance: 0.105999,
+        min: 1,
+        max: 1,
+        chancePerMillion: 105999,
+        l2ItemId: 5515,
+        displayName: "Sealed Majestic Gauntlets Design"
+      }
+    ]
+  },
+  "21327": {
+    drops: [
+      {
+        id: "l2item_80",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 80,
+        displayName: "Tallum Blade"
+      },
+      {
+        id: "l2item_150",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 150,
+        displayName: "Elemental Sword"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.009901,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9901,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "mold_glue",
+        kind: "resource",
+        chance: 0.00813,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8130,
+        l2ItemId: 4039,
+        displayName: "Mold Glue"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002155,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2155,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.008333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8333,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5277",
+        kind: "resource",
+        chance: 0.000144,
+        min: 1,
+        max: 1,
+        chancePerMillion: 144,
+        l2ItemId: 5277,
+        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5547",
+        kind: "resource",
+        chance: 0.001796,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1796,
+        l2ItemId: 5547,
+        displayName: "Elemental Sword Edge"
+      },
+      {
+        id: "l2item_5548",
+        kind: "resource",
+        chance: 0.001796,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1796,
+        l2ItemId: 5548,
+        displayName: "Tallum Blade Edge"
+      },
+      {
+        id: "l2item_8331",
+        kind: "resource",
+        chance: 0.001666,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1666,
+        l2ItemId: 8331,
+        displayName: "Infernal Master Blade"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002083,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2083,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000719,
+        min: 1,
+        max: 1,
+        chancePerMillion: 719,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2875,
+        max: 5868,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "mold_glue",
+        kind: "resource",
+        chance: 0.238154,
+        min: 1,
+        max: 1,
+        chancePerMillion: 238154,
+        l2ItemId: 4039,
+        displayName: "Mold Glue"
+      },
+      {
+        id: "l2item_5272",
+        kind: "resource",
+        chance: 0.003175,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3175,
+        l2ItemId: 5272,
+        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5533",
+        kind: "resource",
+        chance: 0.019597,
+        min: 1,
+        max: 1,
+        chancePerMillion: 19597,
+        l2ItemId: 5533,
+        displayName: "Elysian Head"
+      }
+    ]
+  },
+  "21328": {
+    drops: [
+      {
+        id: "l2item_212",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 212,
+        displayName: "Dasparion's Staff"
+      },
+      {
+        id: "l2item_2504",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 2504,
+        displayName: "Meteor Shower"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.0625,
+        min: 30,
+        max: 90,
+        chancePerMillion: 62500,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.058824,
+        min: 1,
+        max: 1,
+        chancePerMillion: 58824,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.027778,
+        min: 1,
+        max: 1,
+        chancePerMillion: 27778,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.038462,
+        min: 1,
+        max: 1,
+        chancePerMillion: 38462,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.002146,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2146,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5282",
+        kind: "resource",
+        chance: 0.00017,
+        min: 1,
+        max: 1,
+        chancePerMillion: 170,
+        l2ItemId: 5282,
+        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5532",
+        kind: "resource",
+        chance: 0.001706,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1706,
+        l2ItemId: 5532,
+        displayName: "Meteor Shower Head"
+      },
+      {
+        id: "l2item_5543",
+        kind: "resource",
+        chance: 0.001722,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1722,
+        l2ItemId: 5543,
+        displayName: "Dasparion's Staff Edge"
+      },
+      {
+        id: "l2item_6671",
+        kind: "resource",
+        chance: 0.016949,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16949,
+        l2ItemId: 6671,
+        displayName: "Deluxe Chest Key - Grade 7"
+      },
+      {
+        id: "l2item_8341",
+        kind: "resource",
+        chance: 0.000814,
+        min: 1,
+        max: 1,
+        chancePerMillion: 814,
+        l2ItemId: 8341,
+        displayName: "Spiritual Eye Piece"
+      },
+      {
+        id: "l2item_8346",
+        kind: "resource",
+        chance: 0.000678,
+        min: 1,
+        max: 1,
+        chancePerMillion: 678,
+        l2ItemId: 8346,
+        displayName: "Hammer Piece of Destroyer"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002033,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2033,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.00017,
+        min: 1,
+        max: 1,
+        chancePerMillion: 170,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000057,
+        min: 1,
+        max: 1,
+        chancePerMillion: 57,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2756,
+        max: 5626,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5277",
+        kind: "resource",
+        chance: 0.003044,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3044,
+        l2ItemId: 5277,
+        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5534",
+        kind: "resource",
+        chance: 0.018804,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18804,
+        l2ItemId: 5534,
+        displayName: "Soul Bow Stave"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.018791,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18791,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      }
+    ]
+  },
+  "21329": {
+    drops: [
+      {
+        id: "l2item_81",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 81,
+        displayName: "Dragon Slayer"
+      },
+      {
+        id: "l2item_151",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 151,
+        displayName: "Sword of Miracles"
+      },
+      {
+        id: "l2item_2500",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 2500,
+        displayName: "Dark Legion's Edge"
+      },
+      {
+        id: "l2item_5529",
+        kind: "resource",
+        chance: 0.000941,
+        min: 1,
+        max: 1,
+        chancePerMillion: 941,
+        l2ItemId: 5529,
+        displayName: "Dragon Slayer Edge"
+      },
+      {
+        id: "l2item_5545",
+        kind: "resource",
+        chance: 0.000941,
+        min: 1,
+        max: 1,
+        chancePerMillion: 941,
+        l2ItemId: 5545,
+        displayName: "Dark Legion's Edge Blade"
+      },
+      {
+        id: "l2item_5546",
+        kind: "resource",
+        chance: 0.001034,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1034,
+        l2ItemId: 5546,
+        displayName: "Sword of Miracles Edge"
+      },
+      {
+        id: "l2item_7668",
+        kind: "resource",
+        chance: 0.009901,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9901,
+        l2ItemId: 7668,
+        displayName: "Spellbook - Block Shield"
+      },
+      {
+        id: "l2item_7669",
+        kind: "resource",
+        chance: 0.008475,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8475,
+        l2ItemId: 7669,
+        displayName: "Spellbook - Block Wind Walk"
+      },
+      {
+        id: "l2item_7670",
+        kind: "resource",
+        chance: 0.008621,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8621,
+        l2ItemId: 7670,
+        displayName: "Spellbook - Mass Block Shield"
+      },
+      {
+        id: "l2item_7671",
+        kind: "resource",
+        chance: 0.009091,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9091,
+        l2ItemId: 7671,
+        displayName: "Spellbook - Mass Block Wind Walk"
+      },
+      {
+        id: "l2item_7668",
+        kind: "resource",
+        chance: 0.026604,
+        min: 1,
+        max: 1,
+        chancePerMillion: 26604,
+        l2ItemId: 7668,
+        displayName: "Spellbook - Block Shield"
+      },
+      {
+        id: "l2item_7669",
+        kind: "resource",
+        chance: 0.026604,
+        min: 1,
+        max: 1,
+        chancePerMillion: 26604,
+        l2ItemId: 7669,
+        displayName: "Spellbook - Block Wind Walk"
+      },
+      {
+        id: "l2item_7670",
+        kind: "resource",
+        chance: 0.026604,
+        min: 1,
+        max: 1,
+        chancePerMillion: 26604,
+        l2ItemId: 7670,
+        displayName: "Spellbook - Mass Block Shield"
+      },
+      {
+        id: "l2item_7671",
+        kind: "resource",
+        chance: 0.026604,
+        min: 1,
+        max: 1,
+        chancePerMillion: 26604,
+        l2ItemId: 7671,
+        displayName: "Spellbook - Mass Block Wind Walk"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2802,
+        max: 5719,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5162",
+        kind: "resource",
+        chance: 0.003095,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3095,
+        l2ItemId: 5162,
+        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5167",
+        kind: "resource",
+        chance: 0.003095,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3095,
+        l2ItemId: 5167,
+        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.031362,
+        min: 1,
+        max: 1,
+        chancePerMillion: 31362,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      }
+    ]
+  },
+  "21330": {
+    drops: [
+      {
+        id: "l2item_164",
+        kind: "equipment",
+        chance: 0.000004,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4,
+        l2ItemId: 164,
+        displayName: "Elysian"
+      },
+      {
+        id: "l2item_213",
+        kind: "equipment",
+        chance: 0.000004,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4,
+        l2ItemId: 213,
+        displayName: "Branch of The Mother Tree"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000043,
+        min: 1,
+        max: 1,
+        chancePerMillion: 43,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.111111,
+        min: 20,
+        max: 60,
+        chancePerMillion: 111111,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 1,
+        chancePerMillion: 111111,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 166667,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "high_grade_suede",
+        kind: "resource",
+        chance: 0.017085,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17085,
+        l2ItemId: 1885,
+        displayName: "High Grade Suede"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.001314,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1314,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5220",
+        kind: "resource",
+        chance: 0.005848,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5848,
+        l2ItemId: 5220,
+        displayName: "Metal Hardener"
+      },
+      {
+        id: "l2item_5533",
+        kind: "resource",
+        chance: 0.001346,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1346,
+        l2ItemId: 5533,
+        displayName: "Elysian Head"
+      },
+      {
+        id: "l2item_5544",
+        kind: "resource",
+        chance: 0.001344,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1344,
+        l2ItemId: 5544,
+        displayName: "Branch of The Mother Tree Head"
+      },
+      {
+        id: "l2item_8342",
+        kind: "resource",
+        chance: 0.000782,
+        min: 1,
+        max: 1,
+        chancePerMillion: 782,
+        l2ItemId: 8342,
+        displayName: "Flaming Dragon Skull Piece"
+      },
+      {
+        id: "l2item_8349",
+        kind: "resource",
+        chance: 0.000684,
+        min: 1,
+        max: 1,
+        chancePerMillion: 684,
+        l2ItemId: 8349,
+        displayName: "Doom Crusher Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001443,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1443,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000259,
+        min: 1,
+        max: 1,
+        chancePerMillion: 259,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000022,
+        min: 1,
+        max: 1,
+        chancePerMillion: 22,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2671,
+        max: 5451,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "high_grade_suede",
+        kind: "resource",
+        chance: 0.553215,
+        min: 1,
+        max: 2,
+        chancePerMillion: 553215,
+        l2ItemId: 1885,
+        displayName: "High Grade Suede"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.057727,
+        min: 1,
+        max: 1,
+        chancePerMillion: 57727,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.029894,
+        min: 1,
+        max: 1,
+        chancePerMillion: 29894,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      }
+    ]
+  },
+  "21331": {
+    drops: [
+      {
+        id: "l2item_81",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 81,
+        displayName: "Dragon Slayer"
+      },
+      {
+        id: "l2item_151",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 151,
+        displayName: "Sword of Miracles"
+      },
+      {
+        id: "l2item_2500",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 2500,
+        displayName: "Dark Legion's Edge"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000092,
+        min: 1,
+        max: 1,
+        chancePerMillion: 92,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.076923,
+        min: 30,
+        max: 90,
+        chancePerMillion: 76923,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 3,
+        chancePerMillion: 166667,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.076923,
+        min: 1,
+        max: 1,
+        chancePerMillion: 76923,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.033333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 33333,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.047619,
+        min: 1,
+        max: 1,
+        chancePerMillion: 47619,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.002681,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2681,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5529",
+        kind: "resource",
+        chance: 0.000882,
+        min: 1,
+        max: 1,
+        chancePerMillion: 882,
+        l2ItemId: 5529,
+        displayName: "Dragon Slayer Edge"
+      },
+      {
+        id: "l2item_5545",
+        kind: "resource",
+        chance: 0.000882,
+        min: 1,
+        max: 1,
+        chancePerMillion: 882,
+        l2ItemId: 5545,
+        displayName: "Dark Legion's Edge Blade"
+      },
+      {
+        id: "l2item_5546",
+        kind: "resource",
+        chance: 0.000968,
+        min: 1,
+        max: 1,
+        chancePerMillion: 968,
+        l2ItemId: 5546,
+        displayName: "Sword of Miracles Edge"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001156,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1156,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000324,
+        min: 1,
+        max: 1,
+        chancePerMillion: 324,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000037,
+        min: 1,
+        max: 1,
+        chancePerMillion: 37,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2624,
+        max: 5357,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.931857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 931857,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.108717,
+        min: 1,
+        max: 1,
+        chancePerMillion: 108717,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5546",
+        kind: "resource",
+        chance: 0.019657,
+        min: 1,
+        max: 1,
+        chancePerMillion: 19657,
+        l2ItemId: 5546,
+        displayName: "Sword of Miracles Edge"
+      }
+    ]
+  },
+  "21332": {
+    drops: [
+      {
+        id: "l2item_164",
+        kind: "equipment",
+        chance: 0.000004,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4,
+        l2ItemId: 164,
+        displayName: "Elysian"
+      },
+      {
+        id: "l2item_213",
+        kind: "equipment",
+        chance: 0.000004,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4,
+        l2ItemId: 213,
+        displayName: "Branch of The Mother Tree"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000018,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.008696,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8696,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "mold_glue",
+        kind: "resource",
+        chance: 0.007874,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7874,
+        l2ItemId: 4039,
+        displayName: "Mold Glue"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002375,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2375,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.009009,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9009,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5533",
+        kind: "resource",
+        chance: 0.001481,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1481,
+        l2ItemId: 5533,
+        displayName: "Elysian Head"
+      },
+      {
+        id: "l2item_5544",
+        kind: "resource",
+        chance: 0.001479,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1479,
+        l2ItemId: 5544,
+        displayName: "Branch of The Mother Tree Head"
+      },
+      {
+        id: "l2item_8342",
+        kind: "resource",
+        chance: 0.000594,
+        min: 1,
+        max: 1,
+        chancePerMillion: 594,
+        l2ItemId: 8342,
+        displayName: "Flaming Dragon Skull Piece"
+      },
+      {
+        id: "l2item_8349",
+        kind: "resource",
+        chance: 0.000594,
+        min: 1,
+        max: 1,
+        chancePerMillion: 594,
+        l2ItemId: 8349,
+        displayName: "Doom Crusher Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001894,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1894,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.001056,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1056,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000044,
+        min: 1,
+        max: 1,
+        chancePerMillion: 44,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2939,
+        max: 6000,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5282",
+        kind: "resource",
+        chance: 0.003247,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3247,
+        l2ItemId: 5282,
+        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_6342",
+        kind: "resource",
+        chance: 0.16549,
+        min: 1,
+        max: 1,
+        chancePerMillion: 165490,
+        l2ItemId: 6342,
+        displayName: "Sealed Majestic Earring Gemstone"
+      },
+      {
+        id: "l2item_6344",
+        kind: "resource",
+        chance: 0.107096,
+        min: 1,
+        max: 1,
+        chancePerMillion: 107096,
+        l2ItemId: 6344,
+        displayName: "Sealed Majestic Necklace Beads"
+      }
+    ]
+  },
+  "21333": {
+    drops: [
+      {
+        id: "l2item_164",
+        kind: "equipment",
+        chance: 0.000004,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4,
+        l2ItemId: 164,
+        displayName: "Elysian"
+      },
+      {
+        id: "l2item_213",
+        kind: "equipment",
+        chance: 0.000004,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4,
+        l2ItemId: 213,
+        displayName: "Branch of The Mother Tree"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.058824,
+        min: 4,
+        max: 12,
+        chancePerMillion: 58824,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "varnish",
+        kind: "resource",
+        chance: 0.045455,
+        min: 2,
+        max: 6,
+        chancePerMillion: 45455,
+        l2ItemId: 1865,
+        displayName: "Varnish"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.026316,
+        min: 3,
+        max: 9,
+        chancePerMillion: 26316,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90909,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_5533",
+        kind: "resource",
+        chance: 0.00142,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1420,
+        l2ItemId: 5533,
+        displayName: "Elysian Head"
+      },
+      {
+        id: "l2item_5544",
+        kind: "resource",
+        chance: 0.001418,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1418,
+        l2ItemId: 5544,
+        displayName: "Branch of The Mother Tree Head"
+      },
+      {
+        id: "l2item_8342",
+        kind: "resource",
+        chance: 0.000466,
+        min: 1,
+        max: 1,
+        chancePerMillion: 466,
+        l2ItemId: 8342,
+        displayName: "Flaming Dragon Skull Piece"
+      },
+      {
+        id: "l2item_8349",
+        kind: "resource",
+        chance: 0.000622,
+        min: 1,
+        max: 1,
+        chancePerMillion: 622,
+        l2ItemId: 8349,
+        displayName: "Doom Crusher Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001538,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1538,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000684,
+        min: 1,
+        max: 1,
+        chancePerMillion: 684,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000057,
+        min: 1,
+        max: 1,
+        chancePerMillion: 57,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2813,
+        max: 5760,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_1808",
+        kind: "resource",
+        chance: 0.003114,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3114,
+        l2ItemId: 1808,
+        displayName: "Recipe: Soulshot: S Grade"
+      },
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.003114,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3114,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "l2item_5503",
+        kind: "resource",
+        chance: 0.118333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 118333,
+        l2ItemId: 5503,
+        displayName: "Sealed Majestic Boots Lining"
+      }
+    ]
+  },
+  "21334": {
+    drops: [
+      {
+        id: "l2item_270",
+        kind: "equipment",
+        chance: 0.000011,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11,
+        l2ItemId: 270,
+        displayName: "Dragon Grinder"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000187,
+        min: 1,
+        max: 1,
+        chancePerMillion: 187,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.076923,
+        min: 40,
+        max: 120,
+        chancePerMillion: 76923,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 3,
+        chancePerMillion: 111111,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.055556,
+        min: 2,
+        max: 6,
+        chancePerMillion: 55556,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "coal",
+        kind: "resource",
+        chance: 0.041667,
+        min: 3,
+        max: 9,
+        chancePerMillion: 41667,
+        l2ItemId: 1870,
+        displayName: "Coal"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.032258,
+        min: 3,
+        max: 9,
+        chancePerMillion: 32258,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.022222,
+        min: 8,
+        max: 24,
+        chancePerMillion: 22222,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "l2item_5538",
+        kind: "resource",
+        chance: 0.003841,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3841,
+        l2ItemId: 5538,
+        displayName: "Dragon Grinder Edge"
+      },
+      {
+        id: "l2item_6672",
+        kind: "resource",
+        chance: 0.02381,
+        min: 1,
+        max: 1,
+        chancePerMillion: 23810,
+        l2ItemId: 6672,
+        displayName: "Deluxe Chest Key - Grade 8"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002618,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2618,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000374,
+        min: 1,
+        max: 1,
+        chancePerMillion: 374,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3806,
+        max: 7794,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5480",
+        kind: "resource",
+        chance: 0.04254,
+        min: 1,
+        max: 1,
+        chancePerMillion: 42540,
+        l2ItemId: 5480,
+        displayName: "Sealed Leather Armor of Nightmare Fabric"
+      },
+      {
+        id: "l2item_5514",
+        kind: "resource",
+        chance: 0.160113,
+        min: 1,
+        max: 1,
+        chancePerMillion: 160113,
+        l2ItemId: 5514,
+        displayName: "Sealed Gauntlets of Nightmare Design"
+      }
+    ]
+  },
+  "21335": {
+    drops: [
+      {
+        id: "l2item_305",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 305,
+        displayName: "Tallum Glaive"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000113,
+        min: 1,
+        max: 1,
+        chancePerMillion: 113,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90909,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.012821,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12821,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.007042,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7042,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5541",
+        kind: "resource",
+        chance: 0.002742,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2742,
+        l2ItemId: 5541,
+        displayName: "Tallum Glaive Edge"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.023256,
+        min: 1,
+        max: 1,
+        chancePerMillion: 23256,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002494,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2494,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000227,
+        min: 1,
+        max: 1,
+        chancePerMillion: 227,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000057,
+        min: 1,
+        max: 1,
+        chancePerMillion: 57,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2718,
+        max: 5566,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.451301,
+        min: 1,
+        max: 1,
+        chancePerMillion: 451301,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "l2item_5272",
+        kind: "resource",
+        chance: 0.003009,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3009,
+        l2ItemId: 5272,
+        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5495",
+        kind: "resource",
+        chance: 0.102794,
+        min: 1,
+        max: 1,
+        chancePerMillion: 102794,
+        l2ItemId: 5495,
+        displayName: "Sealed Shield of Nightmare Fragment"
+      }
+    ]
+  },
+  "21336": {
+    drops: [
+      {
+        id: "l2item_5320",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5320,
+        displayName: "Sealed Leather Armor of Nightmare"
+      },
+      {
+        id: "l2item_5323",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5323,
+        displayName: "Sealed Majestic Leather Armor"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000127,
+        min: 1,
+        max: 1,
+        chancePerMillion: 127,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.066667,
+        min: 40,
+        max: 120,
+        chancePerMillion: 66667,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.05,
+        min: 5,
+        max: 15,
+        chancePerMillion: 50000,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "varnish",
+        kind: "resource",
+        chance: 0.043478,
+        min: 3,
+        max: 9,
+        chancePerMillion: 43478,
+        l2ItemId: 1865,
+        displayName: "Varnish"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.025,
+        min: 3,
+        max: 9,
+        chancePerMillion: 25000,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 3,
+        chancePerMillion: 166667,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.083333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 83333,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_5480",
+        kind: "resource",
+        chance: 0.002638,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2638,
+        l2ItemId: 5480,
+        displayName: "Sealed Leather Armor of Nightmare Fabric"
+      },
+      {
+        id: "l2item_5481",
+        kind: "resource",
+        chance: 0.002638,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2638,
+        l2ItemId: 5481,
+        displayName: "Sealed Majestic Leather Armor Fabric"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001901,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1901,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.00038,
+        min: 1,
+        max: 1,
+        chancePerMillion: 380,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000127,
+        min: 1,
+        max: 1,
+        chancePerMillion: 127,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3195,
+        max: 6545,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5277",
+        kind: "resource",
+        chance: 0.003537,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3537,
+        l2ItemId: 5277,
+        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5502",
+        kind: "resource",
+        chance: 0.134421,
+        min: 1,
+        max: 1,
+        chancePerMillion: 134421,
+        l2ItemId: 5502,
+        displayName: "Sealed Boots of Nightmare Lining"
+      },
+      {
+        id: "l2item_5503",
+        kind: "resource",
+        chance: 0.134421,
+        min: 1,
+        max: 2,
+        chancePerMillion: 134421,
+        l2ItemId: 5503,
+        displayName: "Sealed Majestic Boots Lining"
+      }
+    ]
+  },
+  "21337": {
+    drops: [
+      {
+        id: "l2item_5326",
+        kind: "equipment",
+        chance: 0.000015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15,
+        l2ItemId: 5326,
+        displayName: "Sealed Nightmare Robe"
+      },
+      {
+        id: "l2item_5329",
+        kind: "equipment",
+        chance: 0.000015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15,
+        l2ItemId: 5329,
+        displayName: "Sealed Majestic Robe"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 166667,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250000,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "high_grade_suede",
+        kind: "resource",
+        chance: 0.021739,
+        min: 1,
+        max: 1,
+        chancePerMillion: 21739,
+        l2ItemId: 1885,
+        displayName: "High Grade Suede"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002584,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2584,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5220",
+        kind: "resource",
+        chance: 0.010753,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10753,
+        l2ItemId: 5220,
+        displayName: "Metal Hardener"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.002453,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2453,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.002453,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2453,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.00431,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4310,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000431,
+        min: 1,
+        max: 1,
+        chancePerMillion: 431,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2968,
+        max: 6057,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000295,
+        min: 1,
+        max: 1,
+        chancePerMillion: 295,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "high_grade_suede",
+        kind: "resource",
+        chance: 0.614531,
+        min: 1,
+        max: 1,
+        chancePerMillion: 614531,
+        l2ItemId: 1885,
+        displayName: "High Grade Suede"
+      },
+      {
+        id: "l2item_5220",
+        kind: "resource",
+        chance: 0.294975,
+        min: 1,
+        max: 1,
+        chancePerMillion: 294975,
+        l2ItemId: 5220,
+        displayName: "Metal Hardener"
+      }
+    ]
+  },
+  "21338": {
+    drops: [
+      {
+        id: "l2item_6326",
+        kind: "equipment",
+        chance: 0.000037,
+        min: 1,
+        max: 1,
+        chancePerMillion: 37,
+        l2ItemId: 6326,
+        displayName: "Sealed Majestic Necklace"
+      },
+      {
+        id: "l2item_6327",
+        kind: "equipment",
+        chance: 0.000049,
+        min: 1,
+        max: 1,
+        chancePerMillion: 49,
+        l2ItemId: 6327,
+        displayName: "Sealed Majestic Earring"
+      },
+      {
+        id: "l2item_6328",
+        kind: "equipment",
+        chance: 0.000074,
+        min: 1,
+        max: 1,
+        chancePerMillion: 74,
+        l2ItemId: 6328,
+        displayName: "Sealed Majestic Ring"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000164,
+        min: 1,
+        max: 1,
+        chancePerMillion: 164,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.111111,
+        min: 30,
+        max: 90,
+        chancePerMillion: 111111,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.066667,
+        min: 5,
+        max: 15,
+        chancePerMillion: 66667,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.066667,
+        min: 2,
+        max: 6,
+        chancePerMillion: 66667,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "steel",
+        kind: "resource",
+        chance: 0.032258,
+        min: 1,
+        max: 1,
+        chancePerMillion: 32258,
+        l2ItemId: 1880,
+        displayName: "Steel"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.010526,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10526,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.001404,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1404,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      },
+      {
+        id: "l2item_6342",
+        kind: "resource",
+        chance: 0.010822,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10822,
+        l2ItemId: 6342,
+        displayName: "Sealed Majestic Earring Gemstone"
+      },
+      {
+        id: "l2item_6344",
+        kind: "resource",
+        chance: 0.007003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7003,
+        l2ItemId: 6344,
+        displayName: "Sealed Majestic Necklace Beads"
+      },
+      {
+        id: "l2item_6346",
+        kind: "resource",
+        chance: 0.015553,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15553,
+        l2ItemId: 6346,
+        displayName: "Sealed Majestic Ring Gemstone"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002809,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2809,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.00048,
+        min: 1,
+        max: 1,
+        chancePerMillion: 480,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3905,
+        max: 7970,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6688",
+        kind: "resource",
+        chance: 0.020974,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20974,
+        l2ItemId: 6688,
+        displayName: "Forgotten Blade Edge"
+      },
+      {
+        id: "l2item_6689",
+        kind: "resource",
+        chance: 0.020579,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20579,
+        l2ItemId: 6689,
+        displayName: "Basalt Battlehammer Head"
+      },
+      {
+        id: "l2item_6690",
+        kind: "resource",
+        chance: 0.021014,
+        min: 1,
+        max: 1,
+        chancePerMillion: 21014,
+        l2ItemId: 6690,
+        displayName: "Imperial Staff Head"
+      }
+    ]
+  },
+  "21339": {
+    drops: [
+      {
+        id: "l2item_236",
+        kind: "equipment",
+        chance: 0.000009,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9,
+        l2ItemId: 236,
+        displayName: "Soul Separator"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.00009,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.071429,
+        min: 40,
+        max: 120,
+        chancePerMillion: 71429,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.1,
+        min: 1,
+        max: 3,
+        chancePerMillion: 100000,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "leather",
+        kind: "resource",
+        chance: 0.047619,
+        min: 1,
+        max: 1,
+        chancePerMillion: 47619,
+        l2ItemId: 1882,
+        displayName: "Leather"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.006897,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6897,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.004329,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4329,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.002995,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2995,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001305,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1305,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000315,
+        min: 1,
+        max: 1,
+        chancePerMillion: 315,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000045,
+        min: 1,
+        max: 1,
+        chancePerMillion: 45,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2975,
+        max: 6071,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6691",
+        kind: "resource",
+        chance: 0.01598,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15980,
+        l2ItemId: 6691,
+        displayName: "Angel Slayer Blade"
+      },
+      {
+        id: "l2item_6693",
+        kind: "resource",
+        chance: 0.016269,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16269,
+        l2ItemId: 6693,
+        displayName: "Dragon Hunter Axe Blade"
+      },
+      {
+        id: "l2item_6694",
+        kind: "resource",
+        chance: 0.016269,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16269,
+        l2ItemId: 6694,
+        displayName: "Saint Spear Blade"
+      }
+    ]
+  },
+  "21340": {
+    drops: [
+      {
+        id: "l2item_5312",
+        kind: "equipment",
+        chance: 0.000028,
+        min: 1,
+        max: 1,
+        chancePerMillion: 28,
+        l2ItemId: 5312,
+        displayName: "Sealed Helm of Nightmare"
+      },
+      {
+        id: "l2item_5315",
+        kind: "equipment",
+        chance: 0.00004,
+        min: 1,
+        max: 1,
+        chancePerMillion: 40,
+        l2ItemId: 5315,
+        displayName: "Sealed Shield of Nightmare"
+      },
+      {
+        id: "l2item_5317",
+        kind: "equipment",
+        chance: 0.000028,
+        min: 1,
+        max: 1,
+        chancePerMillion: 28,
+        l2ItemId: 5317,
+        displayName: "Sealed Majestic Circlet"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000013,
+        min: 1,
+        max: 1,
+        chancePerMillion: 13,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.083333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 83333,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.012658,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12658,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.006289,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6289,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5495",
+        kind: "resource",
+        chance: 0.005527,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5527,
+        l2ItemId: 5495,
+        displayName: "Sealed Shield of Nightmare Fragment"
+      },
+      {
+        id: "l2item_5527",
+        kind: "resource",
+        chance: 0.004352,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4352,
+        l2ItemId: 5527,
+        displayName: "Sealed Helm of Nightmare Design"
+      },
+      {
+        id: "l2item_5528",
+        kind: "resource",
+        chance: 0.004352,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4352,
+        l2ItemId: 5528,
+        displayName: "Sealed Majestic Circlet Design"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.025641,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25641,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_6672",
+        kind: "resource",
+        chance: 0.017544,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17544,
+        l2ItemId: 6672,
+        displayName: "Deluxe Chest Key - Grade 8"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001883,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1883,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000044,
+        min: 1,
+        max: 1,
+        chancePerMillion: 44,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2975,
+        max: 6071,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.002957,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2957,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.492862,
+        min: 1,
+        max: 2,
+        chancePerMillion: 492862,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.739293,
+        min: 1,
+        max: 2,
+        chancePerMillion: 739293,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      }
+    ]
+  },
+  "21341": {
+    drops: [
+      {
+        id: "l2item_81",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 81,
+        displayName: "Dragon Slayer"
+      },
+      {
+        id: "l2item_151",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 151,
+        displayName: "Sword of Miracles"
+      },
+      {
+        id: "l2item_2500",
+        kind: "equipment",
+        chance: 0.000003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3,
+        l2ItemId: 2500,
+        displayName: "Dark Legion's Edge"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 3,
+        chancePerMillion: 250000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 1,
+        chancePerMillion: 111111,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.052632,
+        min: 1,
+        max: 1,
+        chancePerMillion: 52632,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.076923,
+        min: 1,
+        max: 1,
+        chancePerMillion: 76923,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.005495,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5495,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5529",
+        kind: "resource",
+        chance: 0.001046,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1046,
+        l2ItemId: 5529,
+        displayName: "Dragon Slayer Edge"
+      },
+      {
+        id: "l2item_5545",
+        kind: "resource",
+        chance: 0.001046,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1046,
+        l2ItemId: 5545,
+        displayName: "Dark Legion's Edge Blade"
+      },
+      {
+        id: "l2item_5546",
+        kind: "resource",
+        chance: 0.001149,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1149,
+        l2ItemId: 5546,
+        displayName: "Sword of Miracles Edge"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.003367,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3367,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000406,
+        min: 1,
+        max: 1,
+        chancePerMillion: 406,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3115,
+        max: 6359,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.003097,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3097,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.774226,
+        min: 1,
+        max: 3,
+        chancePerMillion: 774226,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.129038,
+        min: 1,
+        max: 1,
+        chancePerMillion: 129038,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      }
+    ]
+  },
+  "21342": {
+    drops: [
+      {
+        id: "l2item_164",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 164,
+        displayName: "Elysian"
+      },
+      {
+        id: "l2item_213",
+        kind: "equipment",
+        chance: 0.000006,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6,
+        l2ItemId: 213,
+        displayName: "Branch of The Mother Tree"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000074,
+        min: 1,
+        max: 1,
+        chancePerMillion: 74,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.2,
+        min: 20,
+        max: 60,
+        chancePerMillion: 200000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.052632,
+        min: 2,
+        max: 6,
+        chancePerMillion: 52632,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.1,
+        min: 1,
+        max: 3,
+        chancePerMillion: 100000,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "adamantite_nugget",
+        kind: "resource",
+        chance: 0.012987,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12987,
+        l2ItemId: 1877,
+        displayName: "Adamantite Nugget"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.005025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5025,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.00295,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2950,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5533",
+        kind: "resource",
+        chance: 0.002064,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2064,
+        l2ItemId: 5533,
+        displayName: "Elysian Head"
+      },
+      {
+        id: "l2item_5544",
+        kind: "resource",
+        chance: 0.002062,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2062,
+        l2ItemId: 5544,
+        displayName: "Branch of The Mother Tree Head"
+      },
+      {
+        id: "l2item_8342",
+        kind: "resource",
+        chance: 0.000825,
+        min: 1,
+        max: 1,
+        chancePerMillion: 825,
+        l2ItemId: 8342,
+        displayName: "Flaming Dragon Skull Piece"
+      },
+      {
+        id: "l2item_8349",
+        kind: "resource",
+        chance: 0.000891,
+        min: 1,
+        max: 1,
+        chancePerMillion: 891,
+        l2ItemId: 8349,
+        displayName: "Doom Crusher Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.00266,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2660,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.001403,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1403,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4098,
+        max: 8367,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6707",
+        kind: "resource",
+        chance: 0.050478,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50478,
+        l2ItemId: 6707,
+        displayName: "Sealed Draconic Leather Armor Part"
+      },
+      {
+        id: "l2item_6708",
+        kind: "resource",
+        chance: 0.145051,
+        min: 1,
+        max: 1,
+        chancePerMillion: 145051,
+        l2ItemId: 6708,
+        displayName: "Sealed Draconic Leather Gloves Fabric"
+      },
+      {
+        id: "l2item_6709",
+        kind: "resource",
+        chance: 0.145051,
+        min: 1,
+        max: 1,
+        chancePerMillion: 145051,
+        l2ItemId: 6709,
+        displayName: "Sealed Draconic Leather Boots Design"
+      }
+    ]
+  },
+  "21350": {
+    drops: [
+      {
+        id: "l2item_288",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 288,
+        displayName: "Carnage Bow"
+      },
+      {
+        id: "varnish",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 3,
+        chancePerMillion: 125000,
+        l2ItemId: 1865,
+        displayName: "Varnish"
+      },
+      {
+        id: "coal",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250000,
+        l2ItemId: 1870,
+        displayName: "Coal"
+      },
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.017241,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17241,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "l2item_1879",
+        kind: "resource",
+        chance: 0.04,
+        min: 1,
+        max: 1,
+        chancePerMillion: 40000,
+        l2ItemId: 1879,
+        displayName: "Cokes"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.004149,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4149,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "l2item_5157",
+        kind: "resource",
+        chance: 0.000051,
+        min: 1,
+        max: 1,
+        chancePerMillion: 51,
+        l2ItemId: 5157,
+        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5535",
+        kind: "resource",
+        chance: 0.003456,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3456,
+        l2ItemId: 5535,
+        displayName: "Carnage Bow Stave"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001866,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1866,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.00023,
+        min: 1,
+        max: 1,
+        chancePerMillion: 230,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000102,
+        min: 1,
+        max: 1,
+        chancePerMillion: 102,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2758,
+        max: 5635,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_3957",
+        kind: "resource",
+        chance: 0.003048,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3048,
+        l2ItemId: 3957,
+        displayName: "Recipe: Blessed Spiritshot S"
+      },
+      {
+        id: "l2item_5157",
+        kind: "resource",
+        chance: 0.003048,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3048,
+        l2ItemId: 5157,
+        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5522",
+        kind: "resource",
+        chance: 0.023355,
+        min: 1,
+        max: 1,
+        chancePerMillion: 23355,
+        l2ItemId: 5522,
+        displayName: "Sealed Armor of Nightmare Pattern"
+      }
+    ]
+  },
+  "21351": {
+    drops: [
+      {
+        id: "l2item_235",
+        kind: "equipment",
+        chance: 0.00001,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10,
+        l2ItemId: 235,
+        displayName: "Bloody Orchid"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.111111,
+        min: 20,
+        max: 60,
+        chancePerMillion: 111111,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 1,
+        chancePerMillion: 125000,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 1,
+        chancePerMillion: 200000,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "high_grade_suede",
+        kind: "resource",
+        chance: 0.016129,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16129,
+        l2ItemId: 1885,
+        displayName: "High Grade Suede"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.00152,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1520,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5162",
+        kind: "resource",
+        chance: 0.000075,
+        min: 1,
+        max: 1,
+        chancePerMillion: 75,
+        l2ItemId: 5162,
+        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5220",
+        kind: "resource",
+        chance: 0.007874,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7874,
+        l2ItemId: 5220,
+        displayName: "Metal Hardener"
+      },
+      {
+        id: "l2item_5536",
+        kind: "resource",
+        chance: 0.00297,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2970,
+        l2ItemId: 5536,
+        displayName: "Bloody Orchid Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001842,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1842,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000299,
+        min: 1,
+        max: 1,
+        chancePerMillion: 299,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000199,
+        min: 1,
+        max: 1,
+        chancePerMillion: 199,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2376,
+        max: 4855,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.051381,
+        min: 1,
+        max: 1,
+        chancePerMillion: 51381,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5220",
+        kind: "resource",
+        chance: 0.236352,
+        min: 1,
+        max: 2,
+        chancePerMillion: 236352,
+        l2ItemId: 5220,
+        displayName: "Metal Hardener"
+      },
+      {
+        id: "l2item_5523",
+        kind: "resource",
+        chance: 0.020123,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20123,
+        l2ItemId: 5523,
+        displayName: "Sealed Majestic Plate Armor Pattern"
+      }
+    ]
+  },
+  "21352": {
+    drops: [
+      {
+        id: "l2item_5297",
+        kind: "equipment",
+        chance: 0.000018,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18,
+        l2ItemId: 5297,
+        displayName: "Sealed Dark Crystal Leather Armor"
+      },
+      {
+        id: "l2item_5298",
+        kind: "equipment",
+        chance: 0.000029,
+        min: 1,
+        max: 1,
+        chancePerMillion: 29,
+        l2ItemId: 5298,
+        displayName: "Sealed Dark Crystal Leggings"
+      },
+      {
+        id: "l2item_5301",
+        kind: "equipment",
+        chance: 0.000013,
+        min: 1,
+        max: 1,
+        chancePerMillion: 13,
+        l2ItemId: 5301,
+        displayName: "Sealed Tallum Leather Armor"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250000,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 1,
+        chancePerMillion: 125000,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "steel",
+        kind: "resource",
+        chance: 0.012821,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12821,
+        l2ItemId: 1880,
+        displayName: "Steel"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.004082,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4082,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5167",
+        kind: "resource",
+        chance: 0.000228,
+        min: 1,
+        max: 1,
+        chancePerMillion: 228,
+        l2ItemId: 5167,
+        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5478",
+        kind: "resource",
+        chance: 0.002598,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2598,
+        l2ItemId: 5478,
+        displayName: "Sealed Dark Crystal Leather Armor Pattern"
+      },
+      {
+        id: "l2item_5479",
+        kind: "resource",
+        chance: 0.001829,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1829,
+        l2ItemId: 5479,
+        displayName: "Sealed Tallum Leather Armor Pattern"
+      },
+      {
+        id: "l2item_5482",
+        kind: "resource",
+        chance: 0.004078,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4078,
+        l2ItemId: 5482,
+        displayName: "Sealed Dark Crystal Leggings Design"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.001626,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1626,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001597,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1597,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000257,
+        min: 1,
+        max: 1,
+        chancePerMillion: 257,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000057,
+        min: 1,
+        max: 1,
+        chancePerMillion: 57,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2524,
+        max: 5157,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5162",
+        kind: "resource",
+        chance: 0.002789,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2789,
+        l2ItemId: 5162,
+        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5527",
+        kind: "resource",
+        chance: 0.075038,
+        min: 1,
+        max: 1,
+        chancePerMillion: 75038,
+        l2ItemId: 5527,
+        displayName: "Sealed Helm of Nightmare Design"
+      },
+      {
+        id: "l2item_5528",
+        kind: "resource",
+        chance: 0.075038,
+        min: 1,
+        max: 1,
+        chancePerMillion: 75038,
+        l2ItemId: 5528,
+        displayName: "Sealed Majestic Circlet Design"
+      }
+    ]
+  },
+  "21353": {
+    drops: [
+      {
+        id: "l2item_269",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 269,
+        displayName: "Blood Tornado"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 3,
+        chancePerMillion: 125000,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.018868,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18868,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "coarse_bone_powder",
+        kind: "resource",
+        chance: 0.038462,
+        min: 1,
+        max: 1,
+        chancePerMillion: 38462,
+        l2ItemId: 1881,
+        displayName: "Coarse Bone Powder"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002481,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2481,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5539",
+        kind: "resource",
+        chance: 0.003443,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3443,
+        l2ItemId: 5539,
+        displayName: "Blood Tornado Edge"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.000365,
+        min: 1,
+        max: 1,
+        chancePerMillion: 365,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002336,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2336,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000365,
+        min: 1,
+        max: 1,
+        chancePerMillion: 365,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000073,
+        min: 1,
+        max: 1,
+        chancePerMillion: 73,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2782,
+        max: 5677,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.460775,
+        min: 1,
+        max: 2,
+        chancePerMillion: 460775,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.060101,
+        min: 1,
+        max: 1,
+        chancePerMillion: 60101,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5538",
+        kind: "resource",
+        chance: 0.018958,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18958,
+        l2ItemId: 5538,
+        displayName: "Dragon Grinder Edge"
+      }
+    ]
+  },
+  "21354": {
+    drops: [
+      {
+        id: "l2item_288",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 288,
+        displayName: "Carnage Bow"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.090909,
+        min: 30,
+        max: 90,
+        chancePerMillion: 90909,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "l2item_1808",
+        kind: "resource",
+        chance: 0.00011,
+        min: 1,
+        max: 1,
+        chancePerMillion: 110,
+        l2ItemId: 1808,
+        displayName: "Recipe: Soulshot: S Grade"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.055556,
+        min: 4,
+        max: 12,
+        chancePerMillion: 55556,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90909,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.012987,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12987,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.00625,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6250,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5535",
+        kind: "resource",
+        chance: 0.003451,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3451,
+        l2ItemId: 5535,
+        displayName: "Carnage Bow Stave"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.023256,
+        min: 1,
+        max: 1,
+        chancePerMillion: 23256,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_6671",
+        kind: "resource",
+        chance: 0.02439,
+        min: 1,
+        max: 1,
+        chancePerMillion: 24390,
+        l2ItemId: 6671,
+        displayName: "Deluxe Chest Key - Grade 7"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002083,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2083,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000219,
+        min: 1,
+        max: 1,
+        chancePerMillion: 219,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000055,
+        min: 1,
+        max: 1,
+        chancePerMillion: 55,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2756,
+        max: 5626,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5282",
+        kind: "resource",
+        chance: 0.003044,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3044,
+        l2ItemId: 5282,
+        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5541",
+        kind: "resource",
+        chance: 0.018784,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18784,
+        l2ItemId: 5541,
+        displayName: "Tallum Glaive Edge"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.006849,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6849,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      }
+    ]
+  },
+  "21355": {
+    drops: [
+      {
+        id: "l2item_270",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 270,
+        displayName: "Dragon Grinder"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000014,
+        min: 1,
+        max: 1,
+        chancePerMillion: 14,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 3,
+        chancePerMillion: 250000,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.1,
+        min: 1,
+        max: 3,
+        chancePerMillion: 100000,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "steel",
+        kind: "resource",
+        chance: 0.028571,
+        min: 1,
+        max: 1,
+        chancePerMillion: 28571,
+        l2ItemId: 1880,
+        displayName: "Steel"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.01087,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10870,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5538",
+        kind: "resource",
+        chance: 0.002691,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2691,
+        l2ItemId: 5538,
+        displayName: "Dragon Grinder Edge"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.00303,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3030,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001761,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1761,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000986,
+        min: 1,
+        max: 1,
+        chancePerMillion: 986,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.00007,
+        min: 1,
+        max: 1,
+        chancePerMillion: 70,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2672,
+        max: 5453,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5272",
+        kind: "resource",
+        chance: 0.002951,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2951,
+        l2ItemId: 5272,
+        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5495",
+        kind: "resource",
+        chance: 0.100838,
+        min: 1,
+        max: 1,
+        chancePerMillion: 100838,
+        l2ItemId: 5495,
+        displayName: "Sealed Shield of Nightmare Fragment"
+      },
+      {
+        id: "l2item_5502",
+        kind: "resource",
+        chance: 0.112155,
+        min: 1,
+        max: 1,
+        chancePerMillion: 112155,
+        l2ItemId: 5502,
+        displayName: "Sealed Boots of Nightmare Lining"
+      }
+    ]
+  },
+  "21356": {
+    drops: [
+      {
+        id: "l2item_289",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 289,
+        displayName: "Soul Bow"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000216,
+        min: 1,
+        max: 1,
+        chancePerMillion: 216,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.2,
+        min: 10,
+        max: 30,
+        chancePerMillion: 200000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 3,
+        chancePerMillion: 111111,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.071429,
+        min: 1,
+        max: 3,
+        chancePerMillion: 71429,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "leather",
+        kind: "resource",
+        chance: 0.04,
+        min: 1,
+        max: 1,
+        chancePerMillion: 40000,
+        l2ItemId: 1882,
+        displayName: "Leather"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.006329,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6329,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.00495,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4950,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5534",
+        kind: "resource",
+        chance: 0.002692,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2692,
+        l2ItemId: 5534,
+        displayName: "Soul Bow Stave"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001149,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1149,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000144,
+        min: 1,
+        max: 1,
+        chancePerMillion: 144,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000072,
+        min: 1,
+        max: 1,
+        chancePerMillion: 72,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2671,
+        max: 5451,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.110643,
+        min: 1,
+        max: 1,
+        chancePerMillion: 110643,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5277",
+        kind: "resource",
+        chance: 0.00295,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2950,
+        l2ItemId: 5277,
+        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5503",
+        kind: "resource",
+        chance: 0.112119,
+        min: 1,
+        max: 1,
+        chancePerMillion: 112119,
+        l2ItemId: 5503,
+        displayName: "Sealed Majestic Boots Lining"
+      }
+    ]
+  },
+  "21357": {
+    drops: [
+      {
+        id: "l2item_289",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 289,
+        displayName: "Soul Bow"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "varnish",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1865,
+        displayName: "Varnish"
+      },
+      {
+        id: "coal",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 3,
+        chancePerMillion: 111111,
+        l2ItemId: 1870,
+        displayName: "Coal"
+      },
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.020833,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20833,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "l2item_1879",
+        kind: "resource",
+        chance: 0.05,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50000,
+        l2ItemId: 1879,
+        displayName: "Cokes"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.006494,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6494,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "l2item_5534",
+        kind: "resource",
+        chance: 0.002922,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2922,
+        l2ItemId: 5534,
+        displayName: "Soul Bow Stave"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002316,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2316,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000838,
+        min: 1,
+        max: 1,
+        chancePerMillion: 838,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000022,
+        min: 1,
+        max: 1,
+        chancePerMillion: 22,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2899,
+        max: 5918,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_1808",
+        kind: "resource",
+        chance: 0.003202,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3202,
+        l2ItemId: 1808,
+        displayName: "Recipe: Soulshot: S Grade"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.144105,
+        min: 1,
+        max: 1,
+        chancePerMillion: 144105,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "l2item_5480",
+        kind: "resource",
+        chance: 0.032332,
+        min: 1,
+        max: 1,
+        chancePerMillion: 32332,
+        l2ItemId: 5480,
+        displayName: "Sealed Leather Armor of Nightmare Fabric"
+      }
+    ]
+  },
+  "21358": {
+    drops: [
+      {
+        id: "l2item_236",
+        kind: "equipment",
+        chance: 0.000009,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9,
+        l2ItemId: 236,
+        displayName: "Soul Separator"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000201,
+        min: 1,
+        max: 1,
+        chancePerMillion: 201,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.166667,
+        min: 20,
+        max: 60,
+        chancePerMillion: 166667,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "suede",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 1,
+        chancePerMillion: 200000,
+        l2ItemId: 1866,
+        displayName: "Suede"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 3,
+        chancePerMillion: 90909,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "high_grade_suede",
+        kind: "resource",
+        chance: 0.022727,
+        min: 1,
+        max: 1,
+        chancePerMillion: 22727,
+        l2ItemId: 1885,
+        displayName: "High Grade Suede"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002037,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2037,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5220",
+        kind: "resource",
+        chance: 0.009709,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9709,
+        l2ItemId: 5220,
+        displayName: "Metal Hardener"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.00306,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3060,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002315,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2315,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.00073,
+        min: 1,
+        max: 1,
+        chancePerMillion: 730,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.00005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3038,
+        max: 6202,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.003356,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3356,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "l2item_5481",
+        kind: "resource",
+        chance: 0.033887,
+        min: 1,
+        max: 1,
+        chancePerMillion: 33887,
+        l2ItemId: 5481,
+        displayName: "Sealed Majestic Leather Armor Fabric"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.034007,
+        min: 1,
+        max: 1,
+        chancePerMillion: 34007,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      }
+    ]
+  },
+  "21359": {
+    drops: [
+      {
+        id: "l2item_236",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 236,
+        displayName: "Soul Separator"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000145,
+        min: 1,
+        max: 1,
+        chancePerMillion: 145,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.076923,
+        min: 30,
+        max: 90,
+        chancePerMillion: 76923,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 3,
+        chancePerMillion: 166667,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.071429,
+        min: 1,
+        max: 1,
+        chancePerMillion: 71429,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.035714,
+        min: 1,
+        max: 1,
+        chancePerMillion: 35714,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.052632,
+        min: 1,
+        max: 1,
+        chancePerMillion: 52632,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.003367,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3367,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.002839,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2839,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001276,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1276,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000522,
+        min: 1,
+        max: 1,
+        chancePerMillion: 522,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000029,
+        min: 1,
+        max: 1,
+        chancePerMillion: 29,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2813,
+        max: 5760,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.116775,
+        min: 1,
+        max: 1,
+        chancePerMillion: 116775,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5157",
+        kind: "resource",
+        chance: 0.003114,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3114,
+        l2ItemId: 5157,
+        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5523",
+        kind: "resource",
+        chance: 0.023861,
+        min: 1,
+        max: 1,
+        chancePerMillion: 23861,
+        l2ItemId: 5523,
+        displayName: "Sealed Majestic Plate Armor Pattern"
+      }
+    ]
+  },
+  "21360": {
+    drops: [
+      {
+        id: "l2item_236",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 236,
+        displayName: "Soul Separator"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000021,
+        min: 1,
+        max: 1,
+        chancePerMillion: 21,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.066667,
+        min: 4,
+        max: 12,
+        chancePerMillion: 66667,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.027778,
+        min: 1,
+        max: 1,
+        chancePerMillion: 27778,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "coarse_bone_powder",
+        kind: "resource",
+        chance: 0.055556,
+        min: 1,
+        max: 1,
+        chancePerMillion: 55556,
+        l2ItemId: 1881,
+        displayName: "Coarse Bone Powder"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.003584,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3584,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.004114,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4114,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.003356,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3356,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.001101,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1101,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000198,
+        min: 1,
+        max: 1,
+        chancePerMillion: 198,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4077,
+        max: 8348,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.676905,
+        min: 1,
+        max: 2,
+        chancePerMillion: 676905,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "l2item_5162",
+        kind: "resource",
+        chance: 0.004513,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4513,
+        l2ItemId: 5162,
+        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5527",
+        kind: "resource",
+        chance: 0.121396,
+        min: 1,
+        max: 1,
+        chancePerMillion: 121396,
+        l2ItemId: 5527,
+        displayName: "Sealed Helm of Nightmare Design"
+      }
+    ]
+  },
+  "21361": {
+    drops: [
+      {
+        id: "l2item_5311",
+        kind: "equipment",
+        chance: 0.00001,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10,
+        l2ItemId: 5311,
+        displayName: "Sealed Armor of Nightmare"
+      },
+      {
+        id: "l2item_5316",
+        kind: "equipment",
+        chance: 0.00001,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10,
+        l2ItemId: 5316,
+        displayName: "Sealed Majestic Plate Armor"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000077,
+        min: 1,
+        max: 1,
+        chancePerMillion: 77,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 3,
+        chancePerMillion: 125000,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.071429,
+        min: 2,
+        max: 6,
+        chancePerMillion: 71429,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "coal",
+        kind: "resource",
+        chance: 0.05,
+        min: 2,
+        max: 6,
+        chancePerMillion: 50000,
+        l2ItemId: 1870,
+        displayName: "Coal"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.043478,
+        min: 3,
+        max: 9,
+        chancePerMillion: 43478,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 3,
+        chancePerMillion: 166667,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "l2item_5522",
+        kind: "resource",
+        chance: 0.001703,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1703,
+        l2ItemId: 5522,
+        displayName: "Sealed Armor of Nightmare Pattern"
+      },
+      {
+        id: "l2item_5523",
+        kind: "resource",
+        chance: 0.001703,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1703,
+        l2ItemId: 5523,
+        displayName: "Sealed Majestic Plate Armor Pattern"
+      },
+      {
+        id: "l2item_6672",
+        kind: "resource",
+        chance: 0.021277,
+        min: 1,
+        max: 1,
+        chancePerMillion: 21277,
+        l2ItemId: 6672,
+        displayName: "Deluxe Chest Key - Grade 8"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001312,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1312,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000695,
+        min: 1,
+        max: 1,
+        chancePerMillion: 695,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2718,
+        max: 5566,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5481",
+        kind: "resource",
+        chance: 0.030376,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30376,
+        l2ItemId: 5481,
+        displayName: "Sealed Majestic Leather Armor Fabric"
+      },
+      {
+        id: "l2item_5514",
+        kind: "resource",
+        chance: 0.114331,
+        min: 1,
+        max: 1,
+        chancePerMillion: 114331,
+        l2ItemId: 5514,
+        displayName: "Sealed Gauntlets of Nightmare Design"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.00677,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6770,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      }
+    ]
+  },
+  "21362": {
+    drops: [
+      {
+        id: "l2item_5326",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5326,
+        displayName: "Sealed Nightmare Robe"
+      },
+      {
+        id: "l2item_5329",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5329,
+        displayName: "Sealed Majestic Robe"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000079,
+        min: 1,
+        max: 1,
+        chancePerMillion: 79,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.5,
+        min: 10,
+        max: 30,
+        chancePerMillion: 500000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.011765,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11765,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "mold_glue",
+        kind: "resource",
+        chance: 0.009174,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9174,
+        l2ItemId: 4039,
+        displayName: "Mold Glue"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002915,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2915,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.010753,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10753,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.002648,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2648,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.002648,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2648,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.00339,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3390,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000473,
+        min: 1,
+        max: 1,
+        chancePerMillion: 473,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3195,
+        max: 6545,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5282",
+        kind: "resource",
+        chance: 0.003537,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3537,
+        l2ItemId: 5282,
+        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5515",
+        kind: "resource",
+        chance: 0.134421,
+        min: 1,
+        max: 1,
+        chancePerMillion: 134421,
+        l2ItemId: 5515,
+        displayName: "Sealed Majestic Gauntlets Design"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.007959,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7959,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      }
+    ]
+  },
+  "21363": {
+    drops: [
+      {
+        id: "l2item_5313",
+        kind: "equipment",
+        chance: 0.000031,
+        min: 1,
+        max: 1,
+        chancePerMillion: 31,
+        l2ItemId: 5313,
+        displayName: "Sealed Gauntlets of Nightmare"
+      },
+      {
+        id: "l2item_5314",
+        kind: "equipment",
+        chance: 0.000031,
+        min: 1,
+        max: 1,
+        chancePerMillion: 31,
+        l2ItemId: 5314,
+        displayName: "Sealed Boots of Nightmare"
+      },
+      {
+        id: "l2item_5318",
+        kind: "equipment",
+        chance: 0.000031,
+        min: 1,
+        max: 1,
+        chancePerMillion: 31,
+        l2ItemId: 5318,
+        displayName: "Sealed Majestic Gauntlets"
+      },
+      {
+        id: "l2item_5319",
+        kind: "equipment",
+        chance: 0.000031,
+        min: 1,
+        max: 1,
+        chancePerMillion: 31,
+        l2ItemId: 5319,
+        displayName: "Sealed Majestic Boots"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000015,
+        min: 1,
+        max: 1,
+        chancePerMillion: 15,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "leather",
+        kind: "resource",
+        chance: 0.07,
+        min: 1,
+        max: 1,
+        chancePerMillion: 70000,
+        l2ItemId: 1882,
+        displayName: "Leather"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.011111,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11111,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.005348,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5348,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5502",
+        kind: "resource",
+        chance: 0.004599,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4599,
+        l2ItemId: 5502,
+        displayName: "Sealed Boots of Nightmare Lining"
+      },
+      {
+        id: "l2item_5503",
+        kind: "resource",
+        chance: 0.004599,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4599,
+        l2ItemId: 5503,
+        displayName: "Sealed Majestic Boots Lining"
+      },
+      {
+        id: "l2item_5514",
+        kind: "resource",
+        chance: 0.004599,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4599,
+        l2ItemId: 5514,
+        displayName: "Sealed Gauntlets of Nightmare Design"
+      },
+      {
+        id: "l2item_5515",
+        kind: "resource",
+        chance: 0.004599,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4599,
+        l2ItemId: 5515,
+        displayName: "Sealed Majestic Gauntlets Design"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.003145,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3145,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000157,
+        min: 1,
+        max: 1,
+        chancePerMillion: 157,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 2968,
+        max: 6057,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.00295,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2950,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.25875,
+        min: 1,
+        max: 1,
+        chancePerMillion: 258750,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.122906,
+        min: 1,
+        max: 1,
+        chancePerMillion: 122906,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      }
+    ]
+  },
+  "21364": {
+    drops: [
+      {
+        id: "l2item_5312",
+        kind: "equipment",
+        chance: 0.000035,
+        min: 1,
+        max: 1,
+        chancePerMillion: 35,
+        l2ItemId: 5312,
+        displayName: "Sealed Helm of Nightmare"
+      },
+      {
+        id: "l2item_5315",
+        kind: "equipment",
+        chance: 0.00005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50,
+        l2ItemId: 5315,
+        displayName: "Sealed Shield of Nightmare"
+      },
+      {
+        id: "l2item_5317",
+        kind: "equipment",
+        chance: 0.000035,
+        min: 1,
+        max: 1,
+        chancePerMillion: 35,
+        l2ItemId: 5317,
+        displayName: "Sealed Majestic Circlet"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000158,
+        min: 1,
+        max: 1,
+        chancePerMillion: 158,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.090909,
+        min: 30,
+        max: 90,
+        chancePerMillion: 90909,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 3,
+        chancePerMillion: 200000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90909,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.014706,
+        min: 1,
+        max: 1,
+        chancePerMillion: 14706,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.008065,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8065,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5495",
+        kind: "resource",
+        chance: 0.006985,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6985,
+        l2ItemId: 5495,
+        displayName: "Sealed Shield of Nightmare Fragment"
+      },
+      {
+        id: "l2item_5527",
+        kind: "resource",
+        chance: 0.0055,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5500,
+        l2ItemId: 5527,
+        displayName: "Sealed Helm of Nightmare Design"
+      },
+      {
+        id: "l2item_5528",
+        kind: "resource",
+        chance: 0.0055,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5500,
+        l2ItemId: 5528,
+        displayName: "Sealed Majestic Circlet Design"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.022727,
+        min: 1,
+        max: 1,
+        chancePerMillion: 22727,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001408,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1408,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000704,
+        min: 1,
+        max: 1,
+        chancePerMillion: 704,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3760,
+        max: 7675,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6691",
+        kind: "resource",
+        chance: 0.020197,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20197,
+        l2ItemId: 6691,
+        displayName: "Angel Slayer Blade"
+      },
+      {
+        id: "l2item_6693",
+        kind: "resource",
+        chance: 0.020563,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20563,
+        l2ItemId: 6693,
+        displayName: "Dragon Hunter Axe Blade"
+      },
+      {
+        id: "l2item_6694",
+        kind: "resource",
+        chance: 0.020563,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20563,
+        l2ItemId: 6694,
+        displayName: "Saint Spear Blade"
+      }
+    ]
+  },
+  "21365": {
+    drops: [
+      {
+        id: "l2item_5320",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5320,
+        displayName: "Sealed Leather Armor of Nightmare"
+      },
+      {
+        id: "l2item_5323",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5323,
+        displayName: "Sealed Majestic Leather Armor"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000017,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 3,
+        chancePerMillion: 142857,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.083333,
+        min: 2,
+        max: 6,
+        chancePerMillion: 83333,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "coal",
+        kind: "resource",
+        chance: 0.066667,
+        min: 2,
+        max: 6,
+        chancePerMillion: 66667,
+        l2ItemId: 1870,
+        displayName: "Coal"
+      },
+      {
+        id: "charcoal",
+        kind: "resource",
+        chance: 0.055556,
+        min: 3,
+        max: 9,
+        chancePerMillion: 55556,
+        l2ItemId: 1871,
+        displayName: "Charcoal"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.033333,
+        min: 7,
+        max: 21,
+        chancePerMillion: 33333,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "l2item_5480",
+        kind: "resource",
+        chance: 0.002691,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2691,
+        l2ItemId: 5480,
+        displayName: "Sealed Leather Armor of Nightmare Fabric"
+      },
+      {
+        id: "l2item_5481",
+        kind: "resource",
+        chance: 0.002691,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2691,
+        l2ItemId: 5481,
+        displayName: "Sealed Majestic Leather Armor Fabric"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002915,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2915,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.001167,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1167,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000224,
+        min: 1,
+        max: 1,
+        chancePerMillion: 224,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3267,
+        max: 6667,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000325,
+        min: 1,
+        max: 1,
+        chancePerMillion: 325,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "l2item_6688",
+        kind: "resource",
+        chance: 0.01755,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17550,
+        l2ItemId: 6688,
+        displayName: "Forgotten Blade Edge"
+      },
+      {
+        id: "l2item_6689",
+        kind: "resource",
+        chance: 0.017219,
+        min: 1,
+        max: 2,
+        chancePerMillion: 17219,
+        l2ItemId: 6689,
+        displayName: "Basalt Battlehammer Head"
+      }
+    ]
+  },
+  "21366": {
+    drops: [
+      {
+        id: "l2item_5311",
+        kind: "equipment",
+        chance: 0.000013,
+        min: 1,
+        max: 1,
+        chancePerMillion: 13,
+        l2ItemId: 5311,
+        displayName: "Sealed Armor of Nightmare"
+      },
+      {
+        id: "l2item_5316",
+        kind: "equipment",
+        chance: 0.000013,
+        min: 1,
+        max: 1,
+        chancePerMillion: 13,
+        l2ItemId: 5316,
+        displayName: "Sealed Majestic Plate Armor"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000212,
+        min: 1,
+        max: 1,
+        chancePerMillion: 212,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.25,
+        min: 20,
+        max: 60,
+        chancePerMillion: 250000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.014085,
+        min: 1,
+        max: 1,
+        chancePerMillion: 14085,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "mold_glue",
+        kind: "resource",
+        chance: 0.011111,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11111,
+        l2ItemId: 4039,
+        displayName: "Mold Glue"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.002331,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2331,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.012658,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12658,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5522",
+        kind: "resource",
+        chance: 0.002254,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2254,
+        l2ItemId: 5522,
+        displayName: "Sealed Armor of Nightmare Pattern"
+      },
+      {
+        id: "l2item_5523",
+        kind: "resource",
+        chance: 0.002254,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2254,
+        l2ItemId: 5523,
+        displayName: "Sealed Majestic Plate Armor Pattern"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002227,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2227,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000477,
+        min: 1,
+        max: 1,
+        chancePerMillion: 477,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000265,
+        min: 1,
+        max: 1,
+        chancePerMillion: 265,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3605,
+        max: 7357,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6698",
+        kind: "resource",
+        chance: 0.175995,
+        min: 1,
+        max: 2,
+        chancePerMillion: 175995,
+        l2ItemId: 6698,
+        displayName: "Sealed Tateossian Earring Part"
+      },
+      {
+        id: "l2item_6699",
+        kind: "resource",
+        chance: 0.19529,
+        min: 1,
+        max: 2,
+        chancePerMillion: 195290,
+        l2ItemId: 6699,
+        displayName: "Sealed Tateossian Ring Gem"
+      },
+      {
+        id: "l2item_6700",
+        kind: "resource",
+        chance: 0.107266,
+        min: 1,
+        max: 1,
+        chancePerMillion: 107266,
+        l2ItemId: 6700,
+        displayName: "Sealed Tateossian Necklace Chain"
+      }
+    ]
+  },
+  "21367": {
+    drops: [
+      {
+        id: "l2item_289",
+        kind: "equipment",
+        chance: 0.000009,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9,
+        l2ItemId: 289,
+        displayName: "Soul Bow"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000153,
+        min: 1,
+        max: 1,
+        chancePerMillion: 153,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.25,
+        min: 10,
+        max: 30,
+        chancePerMillion: 250000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.0625,
+        min: 1,
+        max: 1,
+        chancePerMillion: 62500,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.003663,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3663,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.003448,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3448,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.006993,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6993,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5534",
+        kind: "resource",
+        chance: 0.00314,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3140,
+        l2ItemId: 5534,
+        displayName: "Soul Bow Stave"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.00158,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1580,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000395,
+        min: 1,
+        max: 1,
+        chancePerMillion: 395,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000045,
+        min: 1,
+        max: 1,
+        chancePerMillion: 45,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3115,
+        max: 6359,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6710",
+        kind: "resource",
+        chance: 0.125594,
+        min: 1,
+        max: 1,
+        chancePerMillion: 125594,
+        l2ItemId: 6710,
+        displayName: "Sealed Draconic Leather Helmet Pattern"
+      },
+      {
+        id: "l2item_6711",
+        kind: "resource",
+        chance: 0.038361,
+        min: 1,
+        max: 1,
+        chancePerMillion: 38361,
+        l2ItemId: 6711,
+        displayName: "Sealed Major Arcana Robe Part"
+      },
+      {
+        id: "l2item_6712",
+        kind: "resource",
+        chance: 0.110234,
+        min: 1,
+        max: 1,
+        chancePerMillion: 110234,
+        l2ItemId: 6712,
+        displayName: "Sealed Major Arcana Gloves fabric"
+      }
+    ]
+  },
+  "21368": {
+    drops: [
+      {
+        id: "l2item_236",
+        kind: "equipment",
+        chance: 0.000012,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12,
+        l2ItemId: 236,
+        displayName: "Soul Separator"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000019,
+        min: 1,
+        max: 1,
+        chancePerMillion: 19,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.142857,
+        min: 3,
+        max: 9,
+        chancePerMillion: 142857,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.037037,
+        min: 2,
+        max: 6,
+        chancePerMillion: 37037,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.083333,
+        min: 1,
+        max: 1,
+        chancePerMillion: 83333,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 1,
+        chancePerMillion: 111111,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.006098,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6098,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.004394,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4394,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      },
+      {
+        id: "l2item_6672",
+        kind: "resource",
+        chance: 0.030303,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30303,
+        l2ItemId: 6672,
+        displayName: "Deluxe Chest Key - Grade 8"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.00241,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2410,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000954,
+        min: 1,
+        max: 1,
+        chancePerMillion: 954,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000083,
+        min: 1,
+        max: 1,
+        chancePerMillion: 83,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4362,
+        max: 8904,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.004337,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4337,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.774442,
+        min: 1,
+        max: 7,
+        chancePerMillion: 774442,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.180703,
+        min: 1,
+        max: 1,
+        chancePerMillion: 180703,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      }
+    ]
+  },
+  "21369": {
+    drops: [
+      {
+        id: "l2item_305",
+        kind: "equipment",
+        chance: 0.000013,
+        min: 1,
+        max: 1,
+        chancePerMillion: 13,
+        l2ItemId: 305,
+        displayName: "Tallum Glaive"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000189,
+        min: 1,
+        max: 1,
+        chancePerMillion: 189,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.142857,
+        min: 30,
+        max: 90,
+        chancePerMillion: 142857,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.090909,
+        min: 4,
+        max: 12,
+        chancePerMillion: 90909,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 1,
+        chancePerMillion: 142857,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "resource",
+        chance: 0.026316,
+        min: 1,
+        max: 1,
+        chancePerMillion: 26316,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.012987,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12987,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5541",
+        kind: "resource",
+        chance: 0.004538,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4538,
+        l2ItemId: 5541,
+        displayName: "Tallum Glaive Edge"
+      },
+      {
+        id: "l2item_5549",
+        kind: "resource",
+        chance: 0.034483,
+        min: 1,
+        max: 1,
+        chancePerMillion: 34483,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.003344,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3344,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000557,
+        min: 1,
+        max: 1,
+        chancePerMillion: 557,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4498,
+        max: 9212,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_5167",
+        kind: "resource",
+        chance: 0.00498,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4980,
+        l2ItemId: 5167,
+        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5528",
+        kind: "resource",
+        chance: 0.133959,
+        min: 1,
+        max: 1,
+        chancePerMillion: 133959,
+        l2ItemId: 5528,
+        displayName: "Sealed Majestic Circlet Design"
+      },
+      {
+        id: "l2item_5529",
+        kind: "resource",
+        chance: 0.030739,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30739,
+        l2ItemId: 5529,
+        displayName: "Dragon Slayer Edge"
+      }
+    ]
+  },
+  "21370": {
+    drops: [
+      {
+        id: "l2item_5326",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5326,
+        displayName: "Sealed Nightmare Robe"
+      },
+      {
+        id: "l2item_5329",
+        kind: "equipment",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 5329,
+        displayName: "Sealed Majestic Robe"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000016,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.333333,
+        min: 1,
+        max: 3,
+        chancePerMillion: 333333,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 3,
+        chancePerMillion: 111111,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "steel",
+        kind: "resource",
+        chance: 0.030303,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30303,
+        l2ItemId: 1880,
+        displayName: "Steel"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.010989,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10989,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.002697,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2697,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.002697,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2697,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.004545,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4545,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002695,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2695,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000525,
+        min: 1,
+        max: 1,
+        chancePerMillion: 525,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000315,
+        min: 1,
+        max: 1,
+        chancePerMillion: 315,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3262,
+        max: 6659,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.270265,
+        min: 1,
+        max: 2,
+        chancePerMillion: 270265,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.036511,
+        min: 1,
+        max: 1,
+        chancePerMillion: 36511,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.108106,
+        min: 1,
+        max: 1,
+        chancePerMillion: 108106,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      }
+    ]
+  },
+  "21371": {
+    drops: [
+      {
+        id: "l2item_236",
+        kind: "equipment",
+        chance: 0.00001,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10,
+        l2ItemId: 236,
+        displayName: "Soul Separator"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000334,
+        min: 1,
+        max: 1,
+        chancePerMillion: 334,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1344",
+        kind: "resource",
+        chance: 0.5,
+        min: 10,
+        max: 30,
+        chancePerMillion: 500000,
+        l2ItemId: 1344,
+        displayName: "Mithril Arrow"
+      },
+      {
+        id: "crafted_leather",
+        kind: "resource",
+        chance: 0.011364,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11364,
+        l2ItemId: 1894,
+        displayName: "Crafted Leather"
+      },
+      {
+        id: "mold_glue",
+        kind: "resource",
+        chance: 0.010989,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10989,
+        l2ItemId: 4039,
+        displayName: "Mold Glue"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.003205,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3205,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.011905,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11905,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.00353,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3530,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002809,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2809,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.001136,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1136,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3504,
+        max: 7154,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6713",
+        kind: "resource",
+        chance: 0.124021,
+        min: 1,
+        max: 1,
+        chancePerMillion: 124021,
+        l2ItemId: 6713,
+        displayName: "Sealed Major Arcana Boots Design"
+      },
+      {
+        id: "l2item_6714",
+        kind: "resource",
+        chance: 0.141303,
+        min: 1,
+        max: 1,
+        chancePerMillion: 141303,
+        l2ItemId: 6714,
+        displayName: "Sealed Major Arcana Circlet Pattern"
+      },
+      {
+        id: "l2item_7579",
+        kind: "resource",
+        chance: 0.019046,
+        min: 1,
+        max: 1,
+        chancePerMillion: 19046,
+        l2ItemId: 7579,
+        displayName: "Draconic Bow Shaft"
+      }
+    ]
+  },
+  "21372": {
+    drops: [
+      {
+        id: "l2item_5326",
+        kind: "equipment",
+        chance: 0.000017,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17,
+        l2ItemId: 5326,
+        displayName: "Sealed Nightmare Robe"
+      },
+      {
+        id: "l2item_5329",
+        kind: "equipment",
+        chance: 0.000017,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17,
+        l2ItemId: 5329,
+        displayName: "Sealed Majestic Robe"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000018,
+        min: 1,
+        max: 1,
+        chancePerMillion: 18,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 3,
+        chancePerMillion: 250000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.090909,
+        min: 1,
+        max: 1,
+        chancePerMillion: 90909,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.045455,
+        min: 1,
+        max: 1,
+        chancePerMillion: 45455,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.066667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 66667,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.00361,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3610,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.002877,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2877,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.002877,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2877,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.001706,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1706,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000341,
+        min: 1,
+        max: 1,
+        chancePerMillion: 341,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000102,
+        min: 1,
+        max: 1,
+        chancePerMillion: 102,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 3481,
+        max: 7103,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.00346,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3460,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.865067,
+        min: 1,
+        max: 3,
+        chancePerMillion: 865067,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.823874,
+        min: 1,
+        max: 3,
+        chancePerMillion: 823874,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      }
+    ]
+  },
+  "21373": {
+    drops: [
+      {
+        id: "l2item_5326",
+        kind: "equipment",
+        chance: 0.000025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25,
+        l2ItemId: 5326,
+        displayName: "Sealed Nightmare Robe"
+      },
+      {
+        id: "l2item_5329",
+        kind: "equipment",
+        chance: 0.000025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25,
+        l2ItemId: 5329,
+        displayName: "Sealed Majestic Robe"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.00003,
+        min: 1,
+        max: 1,
+        chancePerMillion: 30,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 1,
+        chancePerMillion: 142857,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.009804,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9804,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.008547,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8547,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.016393,
+        min: 1,
+        max: 1,
+        chancePerMillion: 16393,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.004239,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4239,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.004239,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4239,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.003846,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3846,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.00101,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1010,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000063,
+        min: 1,
+        max: 1,
+        chancePerMillion: 63,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 5113,
+        max: 10480,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.00051,
+        min: 1,
+        max: 1,
+        chancePerMillion: 510,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.910171,
+        min: 1,
+        max: 7,
+        chancePerMillion: 910171,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.254848,
+        min: 1,
+        max: 1,
+        chancePerMillion: 254848,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      }
+    ]
+  },
+  "22122": {
+    drops: [
+      {
+        id: "l2item_5313",
+        kind: "equipment",
+        chance: 0.000068,
+        min: 1,
+        max: 1,
+        chancePerMillion: 68,
+        l2ItemId: 5313,
+        displayName: "Sealed Gauntlets of Nightmare"
+      },
+      {
+        id: "l2item_5314",
+        kind: "equipment",
+        chance: 0.000136,
+        min: 1,
+        max: 1,
+        chancePerMillion: 136,
+        l2ItemId: 5314,
+        displayName: "Sealed Boots of Nightmare"
+      },
+      {
+        id: "l2item_5318",
+        kind: "equipment",
+        chance: 0.000048,
+        min: 1,
+        max: 1,
+        chancePerMillion: 48,
+        l2ItemId: 5318,
+        displayName: "Sealed Majestic Gauntlets"
+      },
+      {
+        id: "l2item_5319",
+        kind: "equipment",
+        chance: 0.000087,
+        min: 1,
+        max: 1,
+        chancePerMillion: 87,
+        l2ItemId: 5319,
+        displayName: "Sealed Majestic Boots"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000194,
+        min: 1,
+        max: 1,
+        chancePerMillion: 194,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "varnish",
+        kind: "resource",
+        chance: 0.090909,
+        min: 4,
+        max: 12,
+        chancePerMillion: 90909,
+        l2ItemId: 1865,
+        displayName: "Varnish"
+      },
+      {
+        id: "coal",
+        kind: "resource",
+        chance: 0.05,
+        min: 7,
+        max: 21,
+        chancePerMillion: 50000,
+        l2ItemId: 1870,
+        displayName: "Coal"
+      },
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.047619,
+        min: 1,
+        max: 1,
+        chancePerMillion: 47619,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "l2item_1879",
+        kind: "resource",
+        chance: 0.111111,
+        min: 1,
+        max: 1,
+        chancePerMillion: 111111,
+        l2ItemId: 1879,
+        displayName: "Cokes"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.014085,
+        min: 1,
+        max: 1,
+        chancePerMillion: 14085,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "l2item_5502",
+        kind: "resource",
+        chance: 0.008547,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8547,
+        l2ItemId: 5502,
+        displayName: "Sealed Boots of Nightmare Lining"
+      },
+      {
+        id: "l2item_5503",
+        kind: "resource",
+        chance: 0.008064,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8064,
+        l2ItemId: 5503,
+        displayName: "Sealed Majestic Boots Lining"
+      },
+      {
+        id: "l2item_5514",
+        kind: "resource",
+        chance: 0.00862,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8620,
+        l2ItemId: 5514,
+        displayName: "Sealed Gauntlets of Nightmare Design"
+      },
+      {
+        id: "l2item_5515",
+        kind: "resource",
+        chance: 0.008196,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8196,
+        l2ItemId: 5515,
+        displayName: "Sealed Majestic Gauntlets Design"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 5688,
+        max: 11610,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.0625,
+        min: 1,
+        max: 2,
+        chancePerMillion: 62500,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "l2item_6346",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 3,
+        chancePerMillion: 125000,
+        l2ItemId: 6346,
+        displayName: "Sealed Majestic Ring Gemstone"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      }
+    ]
+  },
+  "22123": {
+    drops: [
+      {
+        id: "l2item_81",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 81,
+        displayName: "Dragon Slayer"
+      },
+      {
+        id: "l2item_151",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 151,
+        displayName: "Sword of Miracles"
+      },
+      {
+        id: "l2item_2500",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 2500,
+        displayName: "Dark Legion's Edge"
+      },
+      {
+        id: "l2item_5317",
+        kind: "resource",
+        chance: 0.000088,
+        min: 1,
+        max: 1,
+        chancePerMillion: 88,
+        l2ItemId: 5317,
+        displayName: "Sealed Majestic Circlet"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 166667,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.009901,
+        min: 1,
+        max: 1,
+        chancePerMillion: 9901,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.008772,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8772,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.017241,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17241,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5495",
+        kind: "resource",
+        chance: 0.010638,
+        min: 1,
+        max: 1,
+        chancePerMillion: 10638,
+        l2ItemId: 5495,
+        displayName: "Sealed Shield of Nightmare Fragment"
+      },
+      {
+        id: "l2item_5527",
+        kind: "resource",
+        chance: 0.008928,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8928,
+        l2ItemId: 5527,
+        displayName: "Sealed Helm of Nightmare Design"
+      },
+      {
+        id: "l2item_5528",
+        kind: "resource",
+        chance: 0.008474,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8474,
+        l2ItemId: 5528,
+        displayName: "Sealed Majestic Circlet Design"
+      },
+      {
+        id: "l2item_5529",
+        kind: "resource",
+        chance: 0.00025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250,
+        l2ItemId: 5529,
+        displayName: "Dragon Slayer Edge"
+      },
+      {
+        id: "l2item_5545",
+        kind: "resource",
+        chance: 0.00025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250,
+        l2ItemId: 5545,
+        displayName: "Dark Legion's Edge Blade"
+      },
+      {
+        id: "l2item_5546",
+        kind: "resource",
+        chance: 0.00025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250,
+        l2ItemId: 5546,
+        displayName: "Sword of Miracles Edge"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.000596,
+        min: 1,
+        max: 1,
+        chancePerMillion: 596,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.006135,
+        min: 1,
+        max: 1,
+        chancePerMillion: 6135,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.001351,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1351,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000199,
+        min: 1,
+        max: 1,
+        chancePerMillion: 199,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 5741,
+        max: 11760,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "l2item_3957",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 3957,
+        displayName: "Recipe: Blessed Spiritshot S"
+      },
+      {
+        id: "l2item_5282",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 5282,
+        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
+      },
+      {
+        id: "l2item_5529",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 5529,
+        displayName: "Dragon Slayer Edge"
+      },
+      {
+        id: "l2item_6342",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250000,
+        l2ItemId: 6342,
+        displayName: "Sealed Majestic Earring Gemstone"
+      },
+      {
+        id: "l2item_6344",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 1,
+        chancePerMillion: 125000,
+        l2ItemId: 6344,
+        displayName: "Sealed Majestic Necklace Beads"
+      },
+      {
+        id: "l2item_6346",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 6346,
+        displayName: "Sealed Majestic Ring Gemstone"
+      }
+    ]
+  },
+  "22124": {
+    drops: [
+      {
+        id: "l2item_305",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 305,
+        displayName: "Tallum Glaive"
+      },
+      {
+        id: "l2item_6326",
+        kind: "resource",
+        chance: 0.000027,
+        min: 1,
+        max: 1,
+        chancePerMillion: 27,
+        l2ItemId: 6326,
+        displayName: "Sealed Majestic Necklace"
+      },
+      {
+        id: "l2item_6327",
+        kind: "resource",
+        chance: 0.000055,
+        min: 1,
+        max: 1,
+        chancePerMillion: 55,
+        l2ItemId: 6327,
+        displayName: "Sealed Majestic Earring"
+      },
+      {
+        id: "l2item_959",
+        kind: "resource",
+        chance: 0.000055,
+        min: 1,
+        max: 1,
+        chancePerMillion: 55,
+        l2ItemId: 959,
+        displayName: "Scroll: Enchant Weapon (Grade S)"
+      },
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.125,
+        min: 3,
+        max: 9,
+        chancePerMillion: 125000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 166667,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.071429,
+        min: 1,
+        max: 1,
+        chancePerMillion: 71429,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.1,
+        min: 1,
+        max: 1,
+        chancePerMillion: 100000,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.007042,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7042,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "l2item_6342",
+        kind: "resource",
+        chance: 0.01282,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12820,
+        l2ItemId: 6342,
+        displayName: "Sealed Majestic Earring Gemstone"
+      },
+      {
+        id: "l2item_6344",
+        kind: "resource",
+        chance: 0.007751,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7751,
+        l2ItemId: 6344,
+        displayName: "Sealed Majestic Necklace Beads"
+      },
+      {
+        id: "l2item_6346",
+        kind: "resource",
+        chance: 0.017857,
+        min: 1,
+        max: 1,
+        chancePerMillion: 17857,
+        l2ItemId: 6346,
+        displayName: "Sealed Majestic Ring Gemstone"
+      },
+      {
+        id: "l2item_8732",
+        kind: "resource",
+        chance: 0.002817,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2817,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "resource",
+        chance: 0.000914,
+        min: 1,
+        max: 1,
+        chancePerMillion: 914,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "resource",
+        chance: 0.000038,
+        min: 1,
+        max: 1,
+        chancePerMillion: 38,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4553,
+        max: 9324,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_1808",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 1808,
+        displayName: "Recipe: Soulshot: S Grade"
+      },
+      {
+        id: "mithril_ore",
+        kind: "resource",
+        chance: 0.05,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50000,
+        l2ItemId: 1876,
+        displayName: "Mithril Ore"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.05,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50000,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.5,
+        min: 1,
+        max: 1,
+        chancePerMillion: 500000,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "l2item_5480",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 1,
+        chancePerMillion: 125000,
+        l2ItemId: 5480,
+        displayName: "Sealed Leather Armor of Nightmare Fabric"
+      },
+      {
+        id: "l2item_5533",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 5533,
+        displayName: "Elysian Head"
+      }
+    ]
+  },
+  "22125": {
+    drops: [
+      {
+        id: "l2item_305",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 305,
+        displayName: "Tallum Glaive"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000178,
+        min: 1,
+        max: 1,
+        chancePerMillion: 178,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 1,
+        chancePerMillion: 200000,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.012346,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12346,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.011111,
+        min: 1,
+        max: 1,
+        chancePerMillion: 11111,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.020833,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20833,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5541",
+        kind: "resource",
+        chance: 0.004465,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4465,
+        l2ItemId: 5541,
+        displayName: "Tallum Glaive Edge"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4561,
+        max: 9343,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_3036",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 3036,
+        displayName: "Recipe: Spiritshot S"
+      },
+      {
+        id: "l2item_5157",
+        kind: "resource",
+        chance: 0.0025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2500,
+        l2ItemId: 5157,
+        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5481",
+        kind: "resource",
+        chance: 0.125,
+        min: 1,
+        max: 1,
+        chancePerMillion: 125000,
+        l2ItemId: 5481,
+        displayName: "Sealed Majestic Leather Armor Fabric"
+      },
+      {
+        id: "l2item_5487",
+        kind: "resource",
+        chance: 0.12,
+        min: 1,
+        max: 1,
+        chancePerMillion: 120000,
+        l2ItemId: 5487,
+        displayName: "Sealed Nightmare Robe Fabric"
+      },
+      {
+        id: "l2item_5534",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 5534,
+        displayName: "Soul Bow Stave"
+      },
+      {
+        id: "l2item_5537",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 5537,
+        displayName: "Soul Separator Head"
+      }
+    ]
+  },
+  "22126": {
+    drops: [
+      {
+        id: "thread",
+        kind: "resource",
+        chance: 0.125,
+        min: 3,
+        max: 9,
+        chancePerMillion: 125000,
+        l2ItemId: 1868,
+        displayName: "Thread"
+      },
+      {
+        id: "silver_nugget",
+        kind: "resource",
+        chance: 0.142857,
+        min: 1,
+        max: 1,
+        chancePerMillion: 142857,
+        l2ItemId: 1873,
+        displayName: "Silver Nugget"
+      },
+      {
+        id: "l2item_1889",
+        kind: "equipment",
+        chance: 0.025641,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25641,
+        l2ItemId: 1889,
+        displayName: "Compound Braid"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.012658,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12658,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5522",
+        kind: "equipment",
+        chance: 0.002816,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2816,
+        l2ItemId: 5522,
+        displayName: "Sealed Armor of Nightmare Pattern"
+      },
+      {
+        id: "l2item_5523",
+        kind: "equipment",
+        chance: 0.003164,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3164,
+        l2ItemId: 5523,
+        displayName: "Sealed Majestic Plate Armor Pattern"
+      },
+      {
+        id: "l2item_5527",
+        kind: "equipment",
+        chance: 0.001408,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1408,
+        l2ItemId: 5527,
+        displayName: "Sealed Helm of Nightmare Design"
+      },
+      {
+        id: "l2item_5528",
+        kind: "equipment",
+        chance: 0.001408,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1408,
+        l2ItemId: 5528,
+        displayName: "Sealed Majestic Circlet Design"
+      },
+      {
+        id: "l2item_5549",
+        kind: "equipment",
+        chance: 0.038462,
+        min: 1,
+        max: 1,
+        chancePerMillion: 38462,
+        l2ItemId: 5549,
+        displayName: "Metallic Thread"
+      },
+      {
+        id: "l2item_6901",
+        kind: "equipment",
+        chance: 0.00037,
+        min: 1,
+        max: 1,
+        chancePerMillion: 370,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      },
+      {
+        id: "l2item_8732",
+        kind: "equipment",
+        chance: 0.002336,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2336,
+        l2ItemId: 8732,
+        displayName: "Life Stone: level 76"
+      },
+      {
+        id: "l2item_8742",
+        kind: "equipment",
+        chance: 0.000671,
+        min: 1,
+        max: 1,
+        chancePerMillion: 671,
+        l2ItemId: 8742,
+        displayName: "Mid-Grade Life Stone: level 76"
+      },
+      {
+        id: "l2item_8752",
+        kind: "equipment",
+        chance: 0.000162,
+        min: 1,
+        max: 1,
+        chancePerMillion: 162,
+        l2ItemId: 8752,
+        displayName: "High-Grade Life Stone: level 76"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4672,
+        max: 9569,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.645,
+        min: 1,
+        max: 2,
+        chancePerMillion: 645000,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "thons",
+        kind: "resource",
+        chance: 0.05,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50000,
+        l2ItemId: 4044,
+        displayName: "Thons"
+      },
+      {
+        id: "l2item_5162",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 5162,
+        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
+      },
+      {
+        id: "l2item_5488",
+        kind: "resource",
+        chance: 0.078,
+        min: 1,
+        max: 1,
+        chancePerMillion: 78000,
+        l2ItemId: 5488,
+        displayName: "Sealed Majestic Robe Fabric"
+      },
+      {
+        id: "l2item_5538",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 5538,
+        displayName: "Dragon Grinder Edge"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.27,
+        min: 1,
+        max: 1,
+        chancePerMillion: 270000,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      }
+    ]
+  },
+  "22127": {
+    drops: [
+      {
+        id: "animal_skin",
+        kind: "resource",
+        chance: 0.25,
+        min: 1,
+        max: 3,
+        chancePerMillion: 250000,
+        l2ItemId: 1867,
+        displayName: "Animal Skin"
+      },
+      {
+        id: "animal_bone",
+        kind: "resource",
+        chance: 0.083333,
+        min: 4,
+        max: 12,
+        chancePerMillion: 83333,
+        l2ItemId: 1872,
+        displayName: "Animal Bone"
+      },
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.04,
+        min: 1,
+        max: 1,
+        chancePerMillion: 40000,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "coarse_bone_powder",
+        kind: "resource",
+        chance: 0.076923,
+        min: 1,
+        max: 1,
+        chancePerMillion: 76923,
+        l2ItemId: 1881,
+        displayName: "Coarse Bone Powder"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.00277,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2770,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_5533",
+        kind: "equipment",
+        chance: 0.001451,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1451,
+        l2ItemId: 5533,
+        displayName: "Elysian Head"
+      },
+      {
+        id: "l2item_5544",
+        kind: "equipment",
+        chance: 0.002242,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2242,
+        l2ItemId: 5544,
+        displayName: "Branch of The Mother Tree Head"
+      },
+      {
+        id: "l2item_8342",
+        kind: "equipment",
+        chance: 0.000924,
+        min: 1,
+        max: 1,
+        chancePerMillion: 924,
+        l2ItemId: 8342,
+        displayName: "Flaming Dragon Skull Piece"
+      },
+      {
+        id: "l2item_8349",
+        kind: "equipment",
+        chance: 0.001715,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1715,
+        l2ItemId: 8349,
+        displayName: "Doom Crusher Head"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4689,
+        max: 9571,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: []
+  },
+  "22128": {
+    drops: [
+      {
+        id: "l2item_289",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 289,
+        displayName: "Soul Bow"
+      },
+      {
+        id: "l2item_960",
+        kind: "resource",
+        chance: 0.000187,
+        min: 1,
+        max: 1,
+        chancePerMillion: 187,
+        l2ItemId: 960,
+        displayName: "Scroll: Enchant Armor (Grade S)"
+      },
+      {
+        id: "stem",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 3,
+        chancePerMillion: 166667,
+        l2ItemId: 1864,
+        displayName: "Stem"
+      },
+      {
+        id: "iron_ore",
+        kind: "resource",
+        chance: 0.166667,
+        min: 1,
+        max: 1,
+        chancePerMillion: 166667,
+        l2ItemId: 1869,
+        displayName: "Iron Ore"
+      },
+      {
+        id: "steel",
+        kind: "resource",
+        chance: 0.02,
+        min: 1,
+        max: 1,
+        chancePerMillion: 20000,
+        l2ItemId: 1880,
+        displayName: "Steel"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.007752,
+        min: 1,
+        max: 1,
+        chancePerMillion: 7752,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5534",
+        kind: "resource",
+        chance: 0.00106,
+        min: 1,
+        max: 1,
+        chancePerMillion: 1060,
+        l2ItemId: 5534,
+        displayName: "Soul Bow Stave"
+      },
+      {
+        id: "l2item_5550",
+        kind: "resource",
+        chance: 0.002212,
+        min: 1,
+        max: 1,
+        chancePerMillion: 2212,
+        l2ItemId: 5550,
+        displayName: "Durable Metal Plate"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 1380,
+        max: 2816,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "stone_of_purity",
+        kind: "resource",
+        chance: 0.05,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50000,
+        l2ItemId: 1875,
+        displayName: "Stone of Purity"
+      },
+      {
+        id: "mold_hardener",
+        kind: "resource",
+        chance: 0.05,
+        min: 1,
+        max: 1,
+        chancePerMillion: 50000,
+        l2ItemId: 4041,
+        displayName: "Mold Hardener"
+      },
+      {
+        id: "l2item_6689",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 6689,
+        displayName: "Basalt Battlehammer Head"
+      },
+      {
+        id: "l2item_6690",
+        kind: "resource",
+        chance: 0.025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 25000,
+        l2ItemId: 6690,
+        displayName: "Imperial Staff Head"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.005,
+        min: 1,
+        max: 1,
+        chancePerMillion: 5000,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      }
+    ]
+  },
+  "22129": {
+    drops: [
+      {
+        id: "l2item_81",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 81,
+        displayName: "Dragon Slayer"
+      },
+      {
+        id: "l2item_151",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 151,
+        displayName: "Sword of Miracles"
+      },
+      {
+        id: "l2item_2500",
+        kind: "equipment",
+        chance: 0.000008,
+        min: 1,
+        max: 1,
+        chancePerMillion: 8,
+        l2ItemId: 2500,
+        displayName: "Dark Legion's Edge"
+      },
+      {
+        id: "l2item_1895",
+        kind: "resource",
+        chance: 0.2,
+        min: 1,
+        max: 1,
+        chancePerMillion: 200000,
+        l2ItemId: 1895,
+        displayName: "Metallic Fiber"
+      },
+      {
+        id: "mold_lubricant",
+        kind: "resource",
+        chance: 0.014706,
+        min: 1,
+        max: 1,
+        chancePerMillion: 14706,
+        l2ItemId: 4040,
+        displayName: "Mold Lubricant"
+      },
+      {
+        id: "enria",
+        kind: "resource",
+        chance: 0.012346,
+        min: 1,
+        max: 1,
+        chancePerMillion: 12346,
+        l2ItemId: 4042,
+        displayName: "Enria"
+      },
+      {
+        id: "asofe",
+        kind: "resource",
+        chance: 0.02439,
+        min: 1,
+        max: 1,
+        chancePerMillion: 24390,
+        l2ItemId: 4043,
+        displayName: "Asofe"
+      },
+      {
+        id: "l2item_5480",
+        kind: "resource",
+        chance: 0.004291,
+        min: 1,
+        max: 1,
+        chancePerMillion: 4291,
+        l2ItemId: 5480,
+        displayName: "Sealed Leather Armor of Nightmare Fabric"
+      },
+      {
+        id: "l2item_5481",
+        kind: "resource",
+        chance: 0.003717,
+        min: 1,
+        max: 1,
+        chancePerMillion: 3717,
+        l2ItemId: 5481,
+        displayName: "Sealed Majestic Leather Armor Fabric"
+      },
+      {
+        id: "l2item_5529",
+        kind: "resource",
+        chance: 0.00025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250,
+        l2ItemId: 5529,
+        displayName: "Dragon Slayer Edge"
+      },
+      {
+        id: "l2item_5545",
+        kind: "resource",
+        chance: 0.00025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250,
+        l2ItemId: 5545,
+        displayName: "Dark Legion's Edge Blade"
+      },
+      {
+        id: "l2item_5546",
+        kind: "resource",
+        chance: 0.00025,
+        min: 1,
+        max: 1,
+        chancePerMillion: 250,
+        l2ItemId: 5546,
+        displayName: "Sword of Miracles Edge"
+      },
+      {
+        id: "l2item_6901",
+        kind: "resource",
+        chance: 0.000928,
+        min: 1,
+        max: 1,
+        chancePerMillion: 928,
+        l2ItemId: 6901,
+        displayName: "Recipe: Shining Arrow (100%)"
+      },
+      {
+        id: "l2item_8056",
+        kind: "resource",
+        chance: 0.032258,
+        min: 1,
+        max: 1,
+        chancePerMillion: 32258,
+        l2ItemId: 8056,
+        displayName: "Key of Splendor Room"
+      },
+      {
+        id: "adena",
+        kind: "adena",
+        chance: 0.7,
+        min: 4923,
+        max: 10050,
+        chancePerMillion: 700000,
+        l2ItemId: 57,
+        displayName: "Adena"
+      }
+    ],
+    spoil: [
+      {
+        id: "l2item_6698",
+        kind: "resource",
+        chance: 0.2644,
+        min: 1,
+        max: 2,
+        chancePerMillion: 264400,
+        l2ItemId: 6698,
+        displayName: "Sealed Tateossian Earring Part"
+      },
+      {
+        id: "l2item_6699",
+        kind: "resource",
+        chance: 0.3026,
+        min: 1,
+        max: 2,
+        chancePerMillion: 302600,
+        l2ItemId: 6699,
+        displayName: "Sealed Tateossian Ring Gem"
+      },
+      {
+        id: "l2item_6700",
+        kind: "resource",
+        chance: 0.167,
+        min: 1,
+        max: 1,
+        chancePerMillion: 167000,
+        l2ItemId: 6700,
+        displayName: "Sealed Tateossian Necklace Chain"
+      }
+    ]
   }
 } as const satisfies Record<number, L2XmlNpcDrops>;
