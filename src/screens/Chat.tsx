@@ -292,11 +292,11 @@ export default function Chat({ navigate }: ChatProps) {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
-    const seenIds = new Set<string>();
+    const mergedSeenIds = new Set<string>();
     const merged: ChatMessage[] = [];
     for (const m of combined) {
-      if (seenIds.has(m.id)) continue;
-      seenIds.add(m.id);
+      if (mergedSeenIds.has(m.id)) continue;
+      mergedSeenIds.add(m.id);
       merged.push(m);
       if (merged.length >= 10) break;
     }
