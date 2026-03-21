@@ -10,7 +10,7 @@ import type { ShopItem } from "./shopTypes";
 // Усі D-grade зброї мають: +20 урону, +50 швидкості бою (загальна, для всіх)
 export const QUEST_SHOP_WEAPONS: ShopItem[] = [
   {
-    id: "quest_weapon_apprentices_spellbook",
+    id: "quest_apprentices_spellbook",
     itemId: 99, // XML ID
     name: "Apprentice's Spellbook",
     grade: "D",
@@ -25,7 +25,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 1,
   },
   {
-    id: "quest_weapon_baguette_dual_sword",
+    id: "quest_baguette_dual_sword",
     itemId: 261, // Bich'Hwa ID
     name: "Baguette's Dualsword",
     grade: "D",
@@ -40,7 +40,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_bonebreaker",
+    id: "quest_bonebreaker",
     itemId: 159, // XML ID
     name: "Bonebreaker",
     grade: "D",
@@ -55,7 +55,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_claymore",
+    id: "quest_claymore",
     itemId: 70, // XML ID
     name: "Claymore",
     grade: "D",
@@ -70,7 +70,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_elven_long_sword",
+    id: "quest_elven_long_sword",
     itemId: 2499, // XML ID
     name: "Elven Long Sword",
     grade: "D",
@@ -85,7 +85,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_glaive",
+    id: "quest_glaive",
     itemId: 297, // XML ID
     name: "Glaive",
     grade: "D",
@@ -100,7 +100,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_light_crossbow",
+    id: "quest_light_crossbow",
     itemId: 280, // XML ID
     name: "Light Crossbow",
     grade: "D",
@@ -115,7 +115,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_mithril_dagger",
+    id: "quest_mithril_dagger",
     itemId: 225, // XML ID
     name: "Mithril Dagger",
     grade: "D",
@@ -130,7 +130,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_scallop_jamadhr",
+    id: "quest_scallop_jamadhr",
     itemId: 262, // XML ID
     name: "Scallop Jamadhr",
     grade: "D",
@@ -145,7 +145,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
     spiritshots: 3,
   },
   {
-    id: "quest_weapon_titan_hammer",
+    id: "quest_titan_hammer",
     itemId: 187, // Використовуємо Atuba Hammer як основу
     name: "Titan Hammer",
     grade: "D",
@@ -1589,7 +1589,7 @@ export const QUEST_SHOP_WEAPONS: ShopItem[] = [
 export const QUEST_SHOP_SETS: ShopItem[] = [
   // ===== БРОНЯ - СЕТ OATH (Magic Armor Set - Robe) =====
   {
-    id: "quest_shop_oath_helm",
+    id: "clan_oath_helm",
     itemId: 7850,
     name: "Oath Helm",
     grade: "D",
@@ -1601,7 +1601,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом клятви D-grade (Oath Set).",
   },
   {
-    id: "quest_shop_oath_aketon",
+    id: "clan_oath_aketon",
     itemId: 7857,
     name: "Oath Aketon",
     grade: "D",
@@ -1613,7 +1613,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Акетон клятви D-grade (Oath Set).",
   },
   {
-    id: "quest_shop_oath_padded_gloves_robe",
+    id: "clan_oath_padded_gloves_robe",
     itemId: 7858,
     name: "Oath Padded Gloves",
     grade: "D",
@@ -1625,7 +1625,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Підбиті рукавиці клятви D-grade (Oath Set).",
   },
   {
-    id: "quest_shop_oath_sandals_robe",
+    id: "clan_oath_sandals_robe",
     itemId: 7859,
     name: "Oath Sandals",
     grade: "D",
@@ -1639,7 +1639,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ SHADOW OATH (Heavy Armor Set) =====
   {
-    id: "quest_shop_shadow_oath_helm",
+    id: "shadow_oath_helm",
     itemId: 10024, // Унікальний ID
     name: "Shadow Oath Helm",
     grade: "D",
@@ -1651,7 +1651,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом тіні клятви D-grade (Shadow Oath Set).",
   },
   {
-    id: "quest_shop_shadow_oath_armor",
+    id: "shadow_oath_armor",
     itemId: 10025, // Унікальний ID
     name: "Shadow Oath Armor",
     grade: "D",
@@ -1663,7 +1663,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Броня тіні клятви D-grade (Shadow Oath Set).",
   },
   {
-    id: "quest_shop_shadow_oath_gauntlets",
+    id: "shadow_oath_gauntlets",
     itemId: 10026, // Унікальний ID
     name: "Shadow Oath Gauntlets",
     grade: "D",
@@ -1675,7 +1675,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці тіні клятви D-grade (Shadow Oath Set).",
   },
   {
-    id: "quest_shop_shadow_oath_sabaton",
+    id: "shadow_oath_sabaton",
     itemId: 10027, // Унікальний ID
     name: "Shadow Oath Sabaton",
     grade: "D",
@@ -1689,7 +1689,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ DIVINE (Magic Armor Set - Robe) C-GRADE =====
   {
-    id: "quest_shop_divine_helmet",
+    id: "divine_helmet",
     itemId: 10029, // Унікальний ID
     name: "Divine Helmet",
     grade: "C",
@@ -1701,7 +1701,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом божественності C-grade (Divine Set).",
   },
   {
-    id: "quest_shop_divine_tunic",
+    id: "divine_tunic",
     itemId: 10030, // Унікальний ID
     name: "Divine Tunic",
     grade: "C",
@@ -1713,7 +1713,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Туніка божественності C-grade (Divine Set).",
   },
   {
-    id: "quest_shop_divine_stockings",
+    id: "divine_stockings",
     itemId: 10031, // Унікальний ID
     name: "Divine Stockings",
     grade: "C",
@@ -1725,7 +1725,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Панчохи божественності C-grade (Divine Set).",
   },
   {
-    id: "quest_shop_divine_gloves",
+    id: "divine_gloves",
     itemId: 10032, // Унікальний ID
     name: "Divine Gloves",
     grade: "C",
@@ -1737,7 +1737,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці божественності C-grade (Divine Set).",
   },
   {
-    id: "quest_shop_divine_boots",
+    id: "divine_boots",
     itemId: 10033, // Унікальний ID
     name: "Divine Boots",
     grade: "C",
@@ -1751,7 +1751,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ DRAKE LEATHER (Light Armor Set) C-GRADE =====
   {
-    id: "quest_shop_drake_leather_helmet",
+    id: "drake_leather_helmet",
     itemId: 10034, // Унікальний ID
     name: "Drake Leather Helmet",
     grade: "C",
@@ -1763,7 +1763,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом зі шкіри дракона C-grade (Drake Leather Set).",
   },
   {
-    id: "quest_shop_drake_leather_armor",
+    id: "drake_leather_armor",
     itemId: 10035, // Унікальний ID
     name: "Drake Leather Armor",
     grade: "C",
@@ -1775,7 +1775,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Броня зі шкіри дракона C-grade (Drake Leather Set).",
   },
   {
-    id: "quest_shop_drake_leather_gloves",
+    id: "drake_leather_gloves",
     itemId: 10036, // Унікальний ID
     name: "Drake Leather Gloves",
     grade: "C",
@@ -1787,7 +1787,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці зі шкіри дракона C-grade (Drake Leather Set).",
   },
   {
-    id: "quest_shop_drake_leather_boots",
+    id: "drake_leather_boots",
     itemId: 10037, // Унікальний ID
     name: "Drake Leather Boots",
     grade: "C",
@@ -1801,7 +1801,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ DOOM (Magic Armor Set - Robe) B-GRADE =====
   {
-    id: "quest_shop_doom_helmet",
+    id: "doom_helmet",
     itemId: 10039, // Унікальний ID
     name: "Doom Helmet",
     grade: "B",
@@ -1813,7 +1813,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом загибелі B-grade (Doom Set).",
   },
   {
-    id: "quest_shop_doom_tunic",
+    id: "doom_tunic",
     itemId: 10040, // Унікальний ID
     name: "Tunic of Doom",
     grade: "B",
@@ -1825,7 +1825,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Туніка загибелі B-grade (Doom Set).",
   },
   {
-    id: "quest_shop_doom_stockings",
+    id: "doom_stockings",
     itemId: 10041, // Унікальний ID
     name: "Stockings of Doom",
     grade: "B",
@@ -1837,7 +1837,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Панчохи загибелі B-grade (Doom Set).",
   },
   {
-    id: "quest_shop_doom_gloves",
+    id: "doom_gloves",
     itemId: 10042, // Унікальний ID
     name: "Doom Gloves",
     grade: "B",
@@ -1849,7 +1849,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці загибелі B-grade (Doom Set).",
   },
   {
-    id: "quest_shop_doom_boots",
+    id: "doom_boots",
     itemId: 10043, // Унікальний ID
     name: "Doom Boots",
     grade: "B",
@@ -1863,7 +1863,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== ЩИТИ =====
   {
-    id: "quest_shop_monster_shield_d",
+    id: "monster_shield",
     itemId: 10028, // Унікальний ID
     name: "Monster Shield",
     grade: "D",
@@ -1875,7 +1875,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Щит монстра D-grade. +50 физ защ, +20% шанс блока щитом, +150 HP.",
   },
   {
-    id: "quest_shop_monster_shield_c",
+    id: "monster_shield_c",
     itemId: 10038, // Унікальний ID
     name: "Monster Shield",
     grade: "C",
@@ -1887,7 +1887,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Щит монстра C-grade. +150 физ защ, +30% шанс блока щитом, +250 HP.",
   },
   {
-    id: "quest_shop_monster_shield_b",
+    id: "monster_shield_b",
     itemId: 10044, // Унікальний ID
     name: "Monster Shield",
     grade: "B",
@@ -1901,7 +1901,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ BOUND BLUE WOLF (Light Armor Set) B-GRADE =====
   {
-    id: "quest_shop_bound_blue_wolf_helmet",
+    id: "bound_blue_wolf_helmet",
     itemId: 10045, // Унікальний ID
     name: "Bound Blue Wolf Helmet",
     grade: "B",
@@ -1913,7 +1913,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом зв'язаного синього вовка B-grade (Bound Blue Wolf Set).",
   },
   {
-    id: "quest_shop_bound_blue_wolf_armor",
+    id: "bound_blue_wolf_armor",
     itemId: 10046, // Унікальний ID
     name: "Bound Blue Wolf Leather Armor",
     grade: "B",
@@ -1925,7 +1925,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Броня зв'язаного синього вовка B-grade (Bound Blue Wolf Set).",
   },
   {
-    id: "quest_shop_bound_blue_wolf_gloves",
+    id: "bound_blue_wolf_gloves",
     itemId: 10047, // Унікальний ID
     name: "Bound Blue Wolf Gloves",
     grade: "B",
@@ -1937,7 +1937,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці зв'язаного синього вовка B-grade (Bound Blue Wolf Set).",
   },
   {
-    id: "quest_shop_bound_blue_wolf_boots",
+    id: "bound_blue_wolf_boots",
     itemId: 10048, // Унікальний ID
     name: "Bound Blue Wolf Boots",
     grade: "B",
@@ -1951,7 +1951,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ ZUBEI'S (Heavy Armor Set) B-GRADE =====
   {
-    id: "quest_shop_zubeis_helmet",
+    id: "zubeis_helmet",
     itemId: 10049, // Унікальний ID
     name: "Zubei's Helmet",
     grade: "B",
@@ -1963,7 +1963,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом Зубея B-grade (Zubei's Set).",
   },
   {
-    id: "quest_shop_zubeis_breastplate",
+    id: "zubeis_breastplate",
     itemId: 10050, // Унікальний ID
     name: "Zubei's Breastplate",
     grade: "B",
@@ -1975,7 +1975,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Нагрудник Зубея B-grade (Zubei's Set).",
   },
   {
-    id: "quest_shop_zubeis_gaiters",
+    id: "zubeis_gaiters",
     itemId: 10051, // Унікальний ID
     name: "Zubei's Gaiters",
     grade: "B",
@@ -1987,7 +1987,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Штани Зубея B-grade (Zubei's Set).",
   },
   {
-    id: "quest_shop_zubeis_gauntlets",
+    id: "zubeis_gauntlets",
     itemId: 10052, // Унікальний ID
     name: "Zubei's Gauntlets",
     grade: "B",
@@ -1999,7 +1999,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці Зубея B-grade (Zubei's Set).",
   },
   {
-    id: "quest_shop_zubeis_boots",
+    id: "zubeis_boots",
     itemId: 10053, // Унікальний ID
     name: "Zubei's Boots",
     grade: "B",
@@ -2013,7 +2013,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ MAJESTIC HEAVY (Heavy Armor Set) A-GRADE =====
   {
-    id: "quest_shop_majestic_heavy_circlet",
+    id: "majestic_heavy_circlet",
     itemId: 10065, // Унікальний ID
     name: "Majestic Circlet",
     grade: "A",
@@ -2025,7 +2025,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Діадема величі A-grade (Majestic Heavy Set).",
   },
   {
-    id: "quest_shop_majestic_heavy_plate_armor",
+    id: "majestic_heavy_plate_armor",
     itemId: 10066, // Унікальний ID
     name: "Majestic Plate Armor",
     grade: "A",
@@ -2037,7 +2037,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Пластинчаста броня величі A-grade (Majestic Heavy Set).",
   },
   {
-    id: "quest_shop_majestic_heavy_gauntlets",
+    id: "majestic_heavy_gauntlets",
     itemId: 10067, // Унікальний ID
     name: "Majestic Gauntlets",
     grade: "A",
@@ -2049,7 +2049,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці величі A-grade (Majestic Heavy Set).",
   },
   {
-    id: "quest_shop_majestic_heavy_boots",
+    id: "majestic_heavy_boots",
     itemId: 10068, // Унікальний ID
     name: "Majestic Boots",
     grade: "A",
@@ -2063,7 +2063,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ NIGHTMARE LIGHT (Light Armor Set) A-GRADE =====
   {
-    id: "quest_shop_nightmare_light_helm",
+    id: "nightmare_light_helm",
     itemId: 10070, // Унікальний ID
     name: "Helm of Nightmare",
     grade: "A",
@@ -2075,7 +2075,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом кошмару A-grade (Nightmare Light Set).",
   },
   {
-    id: "quest_shop_nightmare_light_leather_armor",
+    id: "nightmare_light_leather_armor",
     itemId: 10071, // Унікальний ID
     name: "Leather Armor of Nightmare",
     grade: "A",
@@ -2087,7 +2087,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шкіряна броня кошмару A-grade (Nightmare Light Set).",
   },
   {
-    id: "quest_shop_nightmare_light_gauntlets",
+    id: "nightmare_light_gauntlets",
     itemId: 10072, // Унікальний ID
     name: "Gauntlets of Nightmare",
     grade: "A",
@@ -2099,7 +2099,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці кошмару A-grade (Nightmare Light Set).",
   },
   {
-    id: "quest_shop_nightmare_light_boots",
+    id: "nightmare_light_boots",
     itemId: 10073, // Унікальний ID
     name: "Boots of Nightmare",
     grade: "A",
@@ -2113,7 +2113,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ BOUND DARK CRYSTAL (Magic Armor Set - Robe) A-GRADE =====
   {
-    id: "quest_shop_bound_dark_crystal_helmet",
+    id: "bound_dark_crystal_helmet",
     itemId: 10075, // Унікальний ID
     name: "Bound Dark Crystal Helmet",
     grade: "A",
@@ -2125,7 +2125,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом зв'язаного темного кристалу A-grade (Bound Dark Crystal Set).",
   },
   {
-    id: "quest_shop_bound_dark_crystal_robe",
+    id: "bound_dark_crystal_robe",
     itemId: 10076, // Унікальний ID
     name: "Bound Dark Crystal Robe",
     grade: "A",
@@ -2137,7 +2137,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Мантія зв'язаного темного кристалу A-grade (Bound Dark Crystal Set).",
   },
   {
-    id: "quest_shop_bound_dark_crystal_gloves",
+    id: "bound_dark_crystal_gloves",
     itemId: 10077, // Унікальний ID
     name: "Bound Dark Crystal Gloves",
     grade: "A",
@@ -2149,7 +2149,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці зв'язаного темного кристалу A-grade (Bound Dark Crystal Set).",
   },
   {
-    id: "quest_shop_bound_dark_crystal_boots",
+    id: "bound_dark_crystal_boots",
     itemId: 10078, // Унікальний ID
     name: "Bound Dark Crystal Boots",
     grade: "A",
@@ -2164,7 +2164,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
   // ===== ЩИТИ =====
   // Monster Shield (A-grade)
   {
-    id: "quest_shop_monster_shield_a",
+    id: "monster_shield_a",
     itemId: 10080, // Унікальний ID
     name: "Monster Shield",
     grade: "A",
@@ -2178,7 +2178,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ MOIRAI (Magic Armor Set - Robe) S-GRADE =====
   {
-    id: "quest_shop_moirai_circlet",
+    id: "moirai_circlet",
     itemId: 10085, // Унікальний ID
     name: "Moirai Circlet",
     grade: "S",
@@ -2190,7 +2190,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Діадема мойр S-grade (Moirai Set).",
   },
   {
-    id: "quest_shop_moirai_tunic",
+    id: "moirai_tunic",
     itemId: 10086, // Унікальний ID
     name: "Moirai Tunic",
     grade: "S",
@@ -2202,7 +2202,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Туніка мойр S-grade (Moirai Set).",
   },
   {
-    id: "quest_shop_moirai_stockings",
+    id: "moirai_stockings",
     itemId: 10087, // Унікальний ID
     name: "Moirai Stockings",
     grade: "S",
@@ -2214,7 +2214,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Панчохи мойр S-grade (Moirai Set).",
   },
   {
-    id: "quest_shop_moirai_gloves",
+    id: "moirai_gloves",
     itemId: 10088, // Унікальний ID
     name: "Moirai Gloves",
     grade: "S",
@@ -2226,7 +2226,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці мойр S-grade (Moirai Set).",
   },
   {
-    id: "quest_shop_moirai_shoes",
+    id: "moirai_shoes",
     itemId: 10089, // Унікальний ID
     name: "Moirai Shoes",
     grade: "S",
@@ -2240,7 +2240,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ VESPER (Heavy Armor Set) S-GRADE =====
   {
-    id: "quest_shop_vesper_helmet",
+    id: "vesper_helmet",
     itemId: 10090, // Унікальний ID
     name: "Vesper Helmet",
     grade: "S",
@@ -2252,7 +2252,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом веспера S-grade (Vesper Set).",
   },
   {
-    id: "quest_shop_vesper_breastplate",
+    id: "vesper_breastplate",
     itemId: 10091, // Унікальний ID
     name: "Vesper Breastplate",
     grade: "S",
@@ -2264,7 +2264,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Нагрудник веспера S-grade (Vesper Set).",
   },
   {
-    id: "quest_shop_vesper_gaiters",
+    id: "vesper_gaiters",
     itemId: 10092, // Унікальний ID
     name: "Vesper Gaiters",
     grade: "S",
@@ -2276,7 +2276,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Штани веспера S-grade (Vesper Set).",
   },
   {
-    id: "quest_shop_vesper_gauntlets",
+    id: "vesper_gauntlets",
     itemId: 10093, // Унікальний ID
     name: "Vesper Gauntlets",
     grade: "S",
@@ -2288,7 +2288,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці веспера S-grade (Vesper Set).",
   },
   {
-    id: "quest_shop_vesper_boots",
+    id: "vesper_boots",
     itemId: 10094, // Унікальний ID
     name: "Vesper Boots",
     grade: "S",
@@ -2302,7 +2302,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ VESPER LEATHER (Light Armor Set) S-GRADE =====
   {
-    id: "quest_shop_vesper_leather_helmet",
+    id: "vesper_leather_helmet",
     itemId: 10095, // Унікальний ID
     name: "Vesper Leather Helmet",
     grade: "S",
@@ -2314,7 +2314,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
-    id: "quest_shop_vesper_leather_breastplate",
+    id: "vesper_leather_breastplate",
     itemId: 10096, // Унікальний ID
     name: "Vesper Leather Breastplate",
     grade: "S",
@@ -2326,7 +2326,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Нагрудник весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
-    id: "quest_shop_vesper_leather_leggings",
+    id: "vesper_leather_leggings",
     itemId: 10097, // Унікальний ID
     name: "Vesper Leather Leggings",
     grade: "S",
@@ -2338,7 +2338,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Штани весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
-    id: "quest_shop_vesper_leather_gloves",
+    id: "vesper_leather_gloves",
     itemId: 10098, // Унікальний ID
     name: "Vesper Leather Gloves",
     grade: "S",
@@ -2350,7 +2350,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці весперської шкіри S-grade (Vesper Leather Set).",
   },
   {
-    id: "quest_shop_vesper_leather_boots",
+    id: "vesper_leather_boots",
     itemId: 10099, // Унікальний ID
     name: "Vesper Leather Boots",
     grade: "S",
@@ -2365,7 +2365,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
   // ===== ЩИТИ =====
   // Vesper Shield (S-grade)
   {
-    id: "quest_shop_vesper_shield",
+    id: "vesper_shield",
     itemId: 10100, // Унікальний ID
     name: "Vesper Shield",
     grade: "S",
@@ -2379,7 +2379,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 
   // ===== БРОНЯ - СЕТ SHADOW (Light Armor Set) =====
   {
-    id: "quest_shop_shadow_helm",
+    id: "shadow_helm",
     itemId: 10020, // Унікальний ID
     name: "Shadow Helm",
     grade: "D",
@@ -2391,7 +2391,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Шолом тіні D-grade (Shadow Set).",
   },
   {
-    id: "quest_shop_shadow_brigandine",
+    id: "shadow_brigandine",
     itemId: 10021, // Унікальний ID
     name: "Shadow Brigandine",
     grade: "D",
@@ -2403,7 +2403,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Бригантина тіні D-grade (Shadow Set).",
   },
   {
-    id: "quest_shop_shadow_gloves",
+    id: "shadow_gloves",
     itemId: 10022, // Унікальний ID
     name: "Shadow Gloves",
     grade: "D",
@@ -2415,7 +2415,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
     description: "Рукавиці тіні D-grade (Shadow Set).",
   },
   {
-    id: "quest_shop_shadow_boots",
+    id: "shadow_boots",
     itemId: 10023, // Унікальний ID
     name: "Shadow Boots",
     grade: "D",
@@ -2431,7 +2431,7 @@ export const QUEST_SHOP_SETS: ShopItem[] = [
 // Тату
 export const QUEST_SHOP_TATTOOS: ShopItem[] = [
   {
-    id: "quest_shop_tattoo_magic",
+    id: "tattoo_magic",
     itemId: 10001, // Унікальний ID
     name: "Тату Магії",
     grade: "D",
@@ -2443,7 +2443,7 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     description: "Магічне тату, що збільшує швидкість каста на 50 та магічний урон на 50.",
   },
   {
-    id: "quest_shop_tattoo_physical",
+    id: "tattoo_physical",
     itemId: 10002, // Унікальний ID
     name: "Тату Фізики",
     grade: "D",
@@ -2455,7 +2455,7 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
     description: "Фізичне тату, що збільшує швидкість атаки на 50 та фізичний урон на 50.",
   },
   {
-    id: "quest_shop_tattoo_defense",
+    id: "tattoo_defense",
     itemId: 10003, // Унікальний ID
     name: "Тату Захисту",
     grade: "D",
@@ -2471,7 +2471,7 @@ export const QUEST_SHOP_TATTOOS: ShopItem[] = [
 // Пояс та плащ
 export const QUEST_SHOP_ACCESSORIES: ShopItem[] = [
   {
-    id: "quest_shop_belt",
+    id: "quest_belt",
     itemId: 10004, // Унікальний ID
     name: "Пояс Захисту",
     grade: "D",
@@ -2483,7 +2483,7 @@ export const QUEST_SHOP_ACCESSORIES: ShopItem[] = [
     description: "Міцний пояс, що збільшує максимальне HP на 5%.",
   },
   {
-    id: "quest_shop_cloak",
+    id: "quest_cloak",
     itemId: 10005, // Унікальний ID
     name: "Плащ Добра",
     grade: "D",
@@ -2499,7 +2499,7 @@ export const QUEST_SHOP_ACCESSORIES: ShopItem[] = [
 // Благословенні заточки
 export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
   {
-    id: "quest_shop_d_bless_weapon",
+    id: "blessed_scroll_enchant_weapon_grade_d",
     itemId: 10010,
     name: "Blessed Scroll: Enchant Weapon (D-grade)",
     grade: "D",
@@ -2511,7 +2511,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для D-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_d_bless_armor",
+    id: "blessed_scroll_enchant_armor_grade_d",
     itemId: 10011,
     name: "Blessed Scroll: Enchant Armor (D-grade)",
     grade: "D",
@@ -2523,7 +2523,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для D-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_c_bless_weapon",
+    id: "blessed_scroll_enchant_weapon_grade_c",
     itemId: 10012,
     name: "Blessed Scroll: Enchant Weapon (C-grade)",
     grade: "C",
@@ -2535,7 +2535,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для C-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_c_bless_armor",
+    id: "blessed_scroll_enchant_armor_grade_c",
     itemId: 10013,
     name: "Blessed Scroll: Enchant Armor (C-grade)",
     grade: "C",
@@ -2547,7 +2547,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для C-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_b_bless_weapon",
+    id: "blessed_scroll_enchant_weapon_grade_b",
     itemId: 10014,
     name: "Blessed Scroll: Enchant Weapon (B-grade)",
     grade: "B",
@@ -2559,7 +2559,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для B-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_b_bless_armor",
+    id: "blessed_scroll_enchant_armor_grade_b",
     itemId: 10015,
     name: "Blessed Scroll: Enchant Armor (B-grade)",
     grade: "B",
@@ -2571,7 +2571,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для B-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_a_bless_weapon",
+    id: "blessed_scroll_enchant_weapon_grade_a",
     itemId: 10016,
     name: "Blessed Scroll: Enchant Weapon (A-grade)",
     grade: "A",
@@ -2583,7 +2583,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для A-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_a_bless_armor",
+    id: "blessed_scroll_enchant_armor_grade_a",
     itemId: 10017,
     name: "Blessed Scroll: Enchant Armor (A-grade)",
     grade: "A",
@@ -2595,7 +2595,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для A-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_s_bless_weapon",
+    id: "blessed_scroll_enchant_weapon_grade_s",
     itemId: 10018,
     name: "Blessed Scroll: Enchant Weapon (S-grade)",
     grade: "S",
@@ -2607,7 +2607,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     description: "Благословенна заточка для S-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
-    id: "quest_shop_s_bless_armor",
+    id: "blessed_scroll_enchant_armor_grade_s",
     itemId: 10019,
     name: "Blessed Scroll: Enchant Armor (S-grade)",
     grade: "S",
