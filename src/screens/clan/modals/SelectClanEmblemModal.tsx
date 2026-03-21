@@ -1,5 +1,17 @@
 import React, { useState } from "react";
 import { CLAN_EMBLEMS, getEmblemPath } from "../../../data/clanEmblems";
+import {
+  clanModalBackdropClass,
+  clanModalCancelLinkClass,
+  clanModalEmblemCellBackground,
+  clanModalEmblemCellClass,
+  clanModalIsL2,
+  clanModalMutedClass,
+  clanModalPaginationBtnClass,
+  clanModalPaginationPageClass,
+  clanModalPanelClass,
+  clanModalTitleClass,
+} from "./clanModalL2";
 
 interface SelectClanEmblemModalProps {
   currentEmblem: string | null;
@@ -18,11 +30,12 @@ export default function SelectClanEmblemModal({
   const startIndex = (page - 1) * emblemsPerPage;
   const endIndex = startIndex + emblemsPerPage;
   const currentEmblems = CLAN_EMBLEMS.slice(startIndex, endIndex);
+  const isL2 = clanModalIsL2();
+  const cellBg = clanModalEmblemCellBackground();
 
-  // Діагностика: виводимо шляхи в консоль
   React.useEffect(() => {
     if (import.meta.env.DEV) {
-      console.log('[SelectClanEmblemModal] Current emblems:', currentEmblems);
+      console.log("[SelectClanEmblemModal] Current emblems:", currentEmblems);
       currentEmblems.forEach((emblem) => {
         const path = getEmblemPath(emblem);
         console.log(`[SelectClanEmblemModal] Emblem: ${emblem}, Path: ${path}`);
@@ -30,42 +43,44 @@ export default function SelectClanEmblemModal({
     }
   }, [currentEmblems]);
 
+  const checkBadgeCls = isL2
+    ? "absolute top-0 right-0 bg-[#c9a44c] text-[#1a1410] text-[8px] font-bold px-1 rounded z-10"
+    : "absolute top-0 right-0 bg-yellow-500 text-black text-[8px] px-1 rounded z-10";
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-[#1a1a1a] border border-white/50 rounded p-4 max-w-[360px] w-full mx-4">
-        <div className="text-[14px] text-[#f4e2b8] mb-3 text-center">Выберите эмблему клана:</div>
-        
-        {/* Сітка емблем */}
+    <div className={clanModalBackdropClass()} onClick={onClose}>
+      <div className={clanModalPanelClass("max-w-[360px] mx-auto")} onClick={(e) => e.stopPropagation()}>
+        <div className={`${clanModalTitleClass()} text-center`}>Выберите эмблему клана:</div>
+
         <div className="grid grid-cols-5 gap-2 mb-4">
           {currentEmblems.map((emblem) => {
             const emblemPath = getEmblemPath(emblem);
             const isSelected = currentEmblem === emblem;
-            
+
             return (
               <div
                 key={emblem}
-                className={`relative cursor-pointer border-2 rounded p-1 transition-all flex items-center justify-center ${
-                  isSelected
-                    ? "border-yellow-500 bg-yellow-500/20"
-                    : "border-white/40 hover:border-white/50"
-                }`}
-                style={{ 
-                  minHeight: "56px", 
+                className={clanModalEmblemCellClass(isSelected)}
+                style={{
+                  minHeight: "56px",
                   minWidth: "56px",
-                  backgroundColor: "#252422" // Фон зовнішньої рамки сторінки (.l2-frame)
+                  backgroundColor: cellBg,
                 }}
                 onClick={() => onSelect(emblem)}
+                onKeyDown={(e) => e.key === "Enter" && onSelect(emblem)}
+                role="button"
+                tabIndex={0}
               >
                 {emblemPath ? (
                   <img
                     src={emblemPath}
                     alt={emblem}
                     className="w-full h-full object-contain"
-                    style={{ 
-                      maxWidth: "56px", 
-                      maxHeight: "56px", 
-                      minWidth: "40px", 
-                      minHeight: "40px"
+                    style={{
+                      maxWidth: "56px",
+                      maxHeight: "56px",
+                      minWidth: "40px",
+                      minHeight: "40px",
                     }}
                     onError={(e) => {
                       console.error(`[SelectClanEmblemModal] Failed to load emblem: ${emblemPath}`);
@@ -74,62 +89,54 @@ export default function SelectClanEmblemModal({
                       const parent = img.parentElement;
                       if (parent && !parent.querySelector(".emblem-placeholder")) {
                         const placeholder = document.createElement("div");
-                        placeholder.className = "emblem-placeholder text-[8px] text-gray-500 text-center flex items-center justify-center w-full h-full";
+                        placeholder.className = `emblem-placeholder text-[8px] text-center flex items-center justify-center w-full h-full ${clanModalMutedClass()}`;
                         placeholder.textContent = "?";
                         parent.appendChild(placeholder);
                       }
                     }}
                     onLoad={() => {
-                      // Діагностика: виводимо в консоль, коли зображення завантажилося
                       if (import.meta.env.DEV) {
                         console.log(`[SelectClanEmblemModal] Successfully loaded emblem: ${emblemPath}`);
                       }
                     }}
                   />
                 ) : (
-                  <div className="text-[8px] text-gray-500 text-center flex items-center justify-center w-full h-full">
+                  <div className={`text-[8px] text-center flex items-center justify-center w-full h-full ${clanModalMutedClass()}`}>
                     ?
                   </div>
                 )}
-                {isSelected && (
-                  <div className="absolute top-0 right-0 bg-yellow-500 text-black text-[8px] px-1 rounded z-10">
-                    ✓
-                  </div>
-                )}
+                {isSelected && <div className={checkBadgeCls}>✓</div>}
               </div>
             );
           })}
         </div>
 
-        {/* Пагінація */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80] mb-4">
+          <div className={`flex justify-center items-center gap-2 text-[11px] mb-4 ${clanModalMutedClass()}`}>
             <button
+              type="button"
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className={`px-2 py-1 ${page === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+              className={clanModalPaginationBtnClass(page === 1)}
             >
               &lt;
             </button>
-            <span className="text-white">
+            <span className={clanModalPaginationPageClass()}>
               {page} / {totalPages}
             </span>
             <button
+              type="button"
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className={`px-2 py-1 ${page === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+              className={clanModalPaginationBtnClass(page === totalPages)}
             >
               &gt;
             </button>
           </div>
         )}
 
-        {/* Кнопки */}
         <div className="flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 text-[12px] text-red-600 hover:text-red-500 transition-colors"
-          >
+          <button type="button" onClick={onClose} className={`flex-1 ${clanModalCancelLinkClass()}`}>
             Отмена
           </button>
         </div>

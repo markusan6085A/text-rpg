@@ -4,6 +4,16 @@ import { type Clan, type ClanWarehouseItem } from "../../../utils/api";
 import { withdrawClanWarehouseItem } from "../../../utils/api";
 import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
 import { showToast } from "../../../state/toastStore";
+import {
+  clanModalBackdropClass,
+  clanModalCancelLinkClass,
+  clanModalEnchantClass,
+  clanModalInnerListClass,
+  clanModalItemRowClass,
+  clanModalMutedClass,
+  clanModalPanelClass,
+  clanModalTitleClass,
+} from "./clanModalL2";
 
 interface WithdrawItemsModalProps {
   clan: Clan;
@@ -19,6 +29,7 @@ export default function WithdrawItemsModal({
   onWithdrawSuccess,
 }: WithdrawItemsModalProps) {
   const heroStore = useHeroStore();
+  const enchantCls = clanModalEnchantClass();
 
   const handleWithdraw = async (item: ClanWarehouseItem) => {
     if (!clan) return;
@@ -26,7 +37,6 @@ export default function WithdrawItemsModal({
       const response = await withdrawClanWarehouseItem(clan.id, item.id);
       if (response.ok) {
         onClose();
-        // Додаємо предмет в інвентар гравця
         if (heroStore.hero) {
           heroStore.addItemToInventory(item.itemId, item.qty || 1);
         }
@@ -39,12 +49,12 @@ export default function WithdrawItemsModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-[#1a1a1a] border border-white/50 rounded p-4 max-w-[360px] w-full mx-4">
-        <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите предмет для вывода:</div>
-        <div className="bg-[#2a2a2a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
+    <div className={clanModalBackdropClass()} onClick={onClose}>
+      <div className={clanModalPanelClass("max-w-[360px] mx-auto")} onClick={(e) => e.stopPropagation()}>
+        <div className={clanModalTitleClass()}>Выберите предмет для вывода:</div>
+        <div className={`${clanModalInnerListClass()} mb-4`}>
           {items.length === 0 ? (
-            <div className="text-[11px] text-[#9f8d73]">Склад пуст</div>
+            <div className={`text-[11px] ${clanModalMutedClass()}`}>Склад пуст</div>
           ) : (
             items.map((item) => {
               const itemDef = itemsDBWithStarter[item.itemId] || itemsDB[item.itemId];
@@ -55,8 +65,11 @@ export default function WithdrawItemsModal({
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-2 text-[11px] text-white border-b border-solid border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                  className={clanModalItemRowClass()}
                   onClick={() => handleWithdraw(item)}
+                  onKeyDown={(e) => e.key === "Enter" && handleWithdraw(item)}
+                  role="button"
+                  tabIndex={0}
                 >
                   <img
                     src={finalIconPath}
@@ -69,7 +82,7 @@ export default function WithdrawItemsModal({
                   <span>
                     {itemName}
                     {enchantLevel > 0 && (
-                      <span className="text-[#b8860b]"> +{enchantLevel}</span>
+                      <span className={enchantCls}> +{enchantLevel}</span>
                     )}{" "}
                     x{item.qty || 1}
                   </span>
@@ -78,10 +91,7 @@ export default function WithdrawItemsModal({
             })
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="w-full text-[12px] text-red-600 hover:text-red-500 transition-colors"
-        >
+        <button type="button" onClick={onClose} className={clanModalCancelLinkClass()}>
           Отмена
         </button>
       </div>

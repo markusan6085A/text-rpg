@@ -5,6 +5,18 @@ import { depositClanWarehouseItem } from "../../../utils/api";
 import { CATEGORIES } from "../../character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
 import { showToast } from "../../../state/toastStore";
+import {
+  clanModalBackdropClass,
+  clanModalCancelLinkClass,
+  clanModalChipClass,
+  clanModalEnchantClass,
+  clanModalInnerListClass,
+  clanModalItemRowClass,
+  clanModalMutedClass,
+  clanModalPanelClass,
+  clanModalTitleClass,
+  clanModalIsL2,
+} from "./clanModalL2";
 
 interface DepositItemsModalProps {
   clan: Clan;
@@ -20,6 +32,8 @@ export default function DepositItemsModal({
   const hero = useHeroStore((s) => s.hero);
   const heroStore = useHeroStore();
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const isL2 = clanModalIsL2();
+  const subLbl = isL2 ? "text-[12px] text-[#a89470] mb-2" : "text-[12px] text-[#c7ad80] mb-2";
 
   const handleDeposit = async (item: any) => {
     if (!clan) return;
@@ -33,7 +47,6 @@ export default function DepositItemsModal({
       );
       if (response.ok) {
         onClose();
-        // Оновлюємо інвентар гравця (забрати предмет)
         if (heroStore.hero && heroStore.hero.inventory) {
           const depositCount = item.count || 1;
           const updatedInventory = heroStore.hero.inventory
@@ -42,7 +55,7 @@ export default function DepositItemsModal({
               if (invId === itemId) {
                 const newCount = (invItem.count || 1) - depositCount;
                 if (newCount <= 0) {
-                  return null; // Видаляємо предмет
+                  return null;
                 }
                 return { ...invItem, count: newCount };
               }
@@ -61,30 +74,31 @@ export default function DepositItemsModal({
 
   const category = CATEGORIES.find((c) => c.key === selectedCategory) || CATEGORIES[0];
   const filteredItems = hero?.inventory?.filter((item: any) => item && category.test(item)) || [];
+  const enchantCls = clanModalEnchantClass();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-[#1a1a1a] border border-white/50 rounded p-4 max-w-[360px] w-full mx-4 max-h-[80vh] overflow-y-auto">
-        <div className="text-[14px] text-[#f4e2b8] mb-3">Выберите категорию:</div>
+    <div className={clanModalBackdropClass()} onClick={onClose}>
+      <div
+        className={clanModalPanelClass("max-w-[360px] mx-auto max-h-[80vh] overflow-y-auto")}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={clanModalTitleClass()}>Выберите категорию:</div>
         <div className="flex flex-wrap gap-2 mb-4">
-          {CATEGORIES.map((category) => (
+          {CATEGORIES.map((cat) => (
             <button
-              key={category.key}
-              onClick={() => setSelectedCategory(category.key)}
-              className={`px-3 py-1 text-[11px] rounded transition-colors ${
-                selectedCategory === category.key
-                  ? "bg-[#5a4424] text-[#f4e2b8]"
-                  : "bg-[#2a2a2a] text-[#c7ad80] hover:bg-[#3a3a3a]"
-              }`}
+              key={cat.key}
+              type="button"
+              onClick={() => setSelectedCategory(cat.key)}
+              className={clanModalChipClass(selectedCategory === cat.key)}
             >
-              {category.label}
+              {cat.label}
             </button>
           ))}
         </div>
-        <div className="text-[12px] text-[#c7ad80] mb-2">Выберите предмет:</div>
-        <div className="bg-[#2a2a2a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1 mb-4">
+        <div className={subLbl}>Выберите предмет:</div>
+        <div className={`${clanModalInnerListClass()} mb-4`}>
           {filteredItems.length === 0 ? (
-            <div className="text-[11px] text-[#9f8d73]">Нет предметов в этой категории</div>
+            <div className={`text-[11px] ${clanModalMutedClass()}`}>Нет предметов в этой категории</div>
           ) : (
             filteredItems.map((item: any, idx: number) => {
               const itemId = item.id || item.itemId;
@@ -94,8 +108,11 @@ export default function DepositItemsModal({
               return (
                 <div
                   key={`${itemId}-${idx}`}
-                  className="flex items-center gap-2 text-[11px] text-[#c7ad80] border-b border-solid border-white/40 pb-1 cursor-pointer hover:bg-[#3a3a3a] p-1 rounded"
+                  className={clanModalItemRowClass()}
                   onClick={() => handleDeposit(item)}
+                  onKeyDown={(e) => e.key === "Enter" && handleDeposit(item)}
+                  role="button"
+                  tabIndex={0}
                 >
                   <img
                     src={finalIconPath}
@@ -108,7 +125,7 @@ export default function DepositItemsModal({
                   <span>
                     {item.name || item.id}
                     {(item.enchantLevel ?? 0) > 0 && (
-                      <span className="text-[#b8860b]"> +{item.enchantLevel}</span>
+                      <span className={enchantCls}> +{item.enchantLevel}</span>
                     )}{" "}
                     x{item.count || 1}
                   </span>
@@ -117,10 +134,7 @@ export default function DepositItemsModal({
             })
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="w-full text-[12px] text-red-600 hover:text-red-500 transition-colors"
-        >
+        <button type="button" onClick={onClose} className={clanModalCancelLinkClass()}>
           Отмена
         </button>
       </div>
