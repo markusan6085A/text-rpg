@@ -15,6 +15,7 @@ import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { showToast } from "../state/toastStore";
 import { isUnauthorizedError } from "../utils/isUnauthorizedError";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface MailProps {
   navigate: (path: string) => void;
@@ -54,6 +55,19 @@ export default function Mail({ navigate }: MailProps) {
   const [onlinePlayerIds, setOnlinePlayerIds] = useState<Set<string>>(new Set());
   const [replyMessage, setReplyMessage] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
+
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const mailOuter = isL2
+    ? `${l2Frame} w-full flex flex-col items-center px-3 py-4 text-[#d4c4a8]`
+    : "w-full flex flex-col items-center text-white px-3 py-4";
+  const mailPanel = isL2
+    ? "w-full max-w-[420px] rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
+    : "w-full max-w-[360px] border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30";
+  const mailChrome = isL2 ? "text-[#e8c56e]" : "text-[#87ceeb]";
+  const mailRowBorder = isL2 ? "border-b border-solid border-[#5c4a32]/35" : "border-b border-solid border-white/50";
+  const mailDivider = isL2 ? "w-full h-px bg-[#5c4a32]/45 mb-3" : "w-full h-px bg-gray-600 mb-3";
 
   const heroId = hero?.id;
 
@@ -371,20 +385,24 @@ export default function Mail({ navigate }: MailProps) {
   // Вигляд переписки
   if (selectedConversation) {
     return (
-      <div className="w-full flex flex-col items-center text-white px-3 py-4">
-        <div className="w-full max-w-[360px] border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
+      <div className={mailOuter}>
+        <div className={mailPanel}>
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => {
                 setSelectedConversation(null);
                 setConversationLetters([]);
               }}
-              className="text-gray-400 hover:text-white transition-colors text-[7px]"
+              className={
+                isL2
+                  ? "text-[#9d8265] hover:text-[#c9a44c] transition-colors text-[7px]"
+                  : "text-gray-400 hover:text-white transition-colors text-[7px]"
+              }
             >
               ← Назад
             </button>
 
-            <div className="text-[9px] font-bold text-[#87ceeb]">
+            <div className={`text-[9px] font-bold ${mailChrome}`}>
               Почта |{" "}
               <span
                 style={getNickColorStyle(
@@ -402,7 +420,11 @@ export default function Mail({ navigate }: MailProps) {
             <textarea
               value={replyMessage}
               onChange={(e) => setReplyMessage(e.target.value)}
-              className="w-full bg-[#0b0806] border border-white/50 rounded px-2 py-1 text-[7px] text-white resize-none mb-2"
+              className={
+                isL2
+                  ? "w-full bg-[#0c0a08] border border-[#5c4a32]/70 rounded px-2 py-1 text-[7px] text-[#e8dcc8] resize-none mb-2 placeholder:text-[#6b5c42]"
+                  : "w-full bg-[#0b0806] border border-white/50 rounded px-2 py-1 text-[7px] text-white resize-none mb-2"
+              }
               placeholder="Введіть повідомлення..."
               rows={3}
               maxLength={1000}
@@ -428,7 +450,7 @@ export default function Mail({ navigate }: MailProps) {
               const displayNickColor = isOwn ? hero?.nickColor : letter?.fromCharacter?.nickColor;
 
               return (
-                <div key={letter.id} className="border-b border-solid border-white/50 pb-1 mb-1">
+                <div key={letter.id} className={`${mailRowBorder} pb-1 mb-1`}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <PlayerNameWithEmblem
@@ -570,10 +592,10 @@ export default function Mail({ navigate }: MailProps) {
 
   // Головний список переписок
   return (
-    <div className="w-full flex flex-col items-center text-white px-3 py-4">
-      <div className="w-full max-w-[360px] border border-white/50 rounded-lg p-4 bg-[#1a0b0b]/30">
+    <div className={mailOuter}>
+      <div className={mailPanel}>
         <div className="flex items-center justify-between mb-3">
-          <div className="text-[9px] font-bold text-[#87ceeb]">Почта</div>
+          <div className={`text-[9px] font-bold ${mailChrome}`}>Почта</div>
           <button
             onClick={() => setShowWriteModal(true)}
             className="text-green-400 hover:text-green-300 transition-colors text-sm font-bold"
@@ -582,13 +604,13 @@ export default function Mail({ navigate }: MailProps) {
           </button>
         </div>
 
-        <div className="w-full h-px bg-gray-600 mb-3"></div>
+        <div className={mailDivider}></div>
 
         {loading && letters.length === 0 ? (
           // ❗ ОПТИМІЗАЦІЯ: Skeleton для швидшого відображення
           <div className="space-y-1">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center justify-between p-2 border-b border-solid border-white/50 animate-pulse">
+              <div key={i} className={`flex items-center justify-between p-2 ${mailRowBorder} animate-pulse`}>
                 <div className="flex-1">
                   <div className="h-4 bg-gray-700 rounded w-24 mb-1"></div>
                   <div className="h-3 bg-gray-800 rounded w-16"></div>
@@ -622,7 +644,7 @@ export default function Mail({ navigate }: MailProps) {
                 <div
                   key={conv.playerId}
                   onClick={() => handleConversationClick(conv)}
-                  className="flex flex-col p-2 border-b border-solid border-white/50 cursor-pointer hover:bg-gray-800/30 transition-colors"
+                  className={`flex flex-col p-2 ${mailRowBorder} cursor-pointer ${isL2 ? "hover:bg-[#2a2318]/50" : "hover:bg-gray-800/30"} transition-colors`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
