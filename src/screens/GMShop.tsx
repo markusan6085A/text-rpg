@@ -7,6 +7,7 @@ import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
 import type { HeroInventoryItem } from "../types/Hero";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { getWeaponTypeFromItemId, WEAPON_TYPE_LABELS } from "../state/heroStore/weaponUtils";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (path: string) => void;
 
@@ -380,15 +381,41 @@ export default function GMShop({ navigate }: GMShopProps) {
     setExchangeQuantity(1);
   };
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const rowL2 =
+    "flex items-center gap-2 py-2 px-2 mb-1.5 rounded-md bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] hover:border-[#c7ad80]/50 transition-[border-color] duration-150 cursor-pointer";
+  const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";
+  const tabOn = isL2 ? "text-[#e8c56e] font-semibold border-b border-[#c9a44c]" : "text-gray-200 font-semibold border-b border-white/60";
+  const tabOff = isL2 ? "text-[#a89878] hover:text-[#d4c4a8]" : "hover:text-gray-200";
+  const exchangeRow = isL2
+    ? "w-full flex items-center justify-between py-2 px-3 rounded-md bg-gradient-to-b from-[#2e2619]/90 to-[#14110c] border border-[#5c4a32]/60 hover:border-[#c7ad80]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
+    : "w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-white/40 rounded-lg p-4 w-full";
+
   return (
-    <div className="w-full max-w-[360px] mx-auto px-3 py-2">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full max-w-[360px] mx-auto px-3 py-2"
+      }
+    >
+      <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
       {/* Заголовок — як у магазині вещей */}
-      <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#f4e2b8] tracking-[0.12em] uppercase">
+      <div
+        className={`${borderB} px-4 py-2 text-center text-[11px] tracking-[0.12em] uppercase ${
+          isL2 ? "text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]" : "text-[#f4e2b8]"
+        }`}
+      >
         GM-Шоп
       </div>
 
       {/* Баланс Adena */}
-      <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-1">
+      <div className={`px-4 py-2 ${borderB} text-[12px] flex items-center gap-1 ${isL2 ? "text-[#d4c4a8]" : "text-[#cfcfcc]"}`}>
         У вас{" "}
         <img 
           src="/items/drops/resources/aden.png" 
@@ -405,7 +432,7 @@ export default function GMShop({ navigate }: GMShopProps) {
       </div>
 
       {/* Баланс AA */}
-      <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-1">
+      <div className={`px-4 py-2 ${borderB} text-[12px] flex items-center gap-1 ${isL2 ? "text-[#d4c4a8]" : "text-[#cfcfcc]"}`}>
         У вас{" "}
         <img 
           src="/items/drops/resources/etc_ancient_adena_i00.png" 
@@ -422,31 +449,27 @@ export default function GMShop({ navigate }: GMShopProps) {
       </div>
 
       {/* Категорії */}
-      <div className="px-4 py-2 border-b border-black/70">
-        <div className="text-[11px] text-gray-300 flex gap-1.5 mb-2 flex-nowrap items-center">
+      <div className={`px-4 py-2 ${borderB}`}>
+        <div className={`text-[11px] flex gap-1.5 mb-2 flex-nowrap items-center ${isL2 ? "text-[#c9b896]" : "text-gray-300"}`}>
           <button
             onClick={() => {
               setSelectedCategory("shop");
               setSelectedExchange(null);
             }}
             className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-              selectedCategory === "shop" 
-                ? "text-gray-200 font-semibold border-b border-white/60" 
-                : "hover:text-gray-200"
+              selectedCategory === "shop" ? tabOn : tabOff
             }`}
           >
             Магазин
           </button>
-          <span className="text-gray-500 text-[10px]">|</span>
+          <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
           <button
             onClick={() => {
               setSelectedCategory("aa");
               setSelectedExchange("aa");
             }}
             className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-              selectedCategory === "aa" 
-                ? "text-gray-200 font-semibold border-b border-white/60" 
-                : "hover:text-gray-200"
+              selectedCategory === "aa" ? tabOn : tabOff
             }`}
           >
             Обмінник AA
@@ -456,26 +479,22 @@ export default function GMShop({ navigate }: GMShopProps) {
 
       {/* Магазин */}
       {selectedCategory === "shop" && (
-        <div className="px-4 py-2 border-b border-black/70">
+        <div className={`px-4 py-2 ${borderB}`}>
           {/* Підкатегорії магазину — як у магазині вещей */}
-          <div className="text-[11px] text-gray-300 flex gap-1.5 mb-2 flex-nowrap items-center">
+          <div className={`text-[11px] flex gap-1.5 mb-2 flex-nowrap items-center ${isL2 ? "text-[#c9b896]" : "text-gray-300"}`}>
             <button
               onClick={() => setSelectedShopSubcategory("dyes")}
               className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-                selectedShopSubcategory === "dyes"
-                  ? "text-gray-200 font-semibold border-b border-white/60"
-                  : "hover:text-gray-200"
+                selectedShopSubcategory === "dyes" ? tabOn : tabOff
               }`}
             >
               Краски
             </button>
-            <span className="text-gray-500 text-[10px]">|</span>
+            <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
             <button
               onClick={() => setSelectedShopSubcategory("rasodniki")}
               className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-                selectedShopSubcategory === "rasodniki"
-                  ? "text-gray-200 font-semibold border-b border-white/60"
-                  : "hover:text-gray-200"
+                selectedShopSubcategory === "rasodniki" ? tabOn : tabOff
               }`}
             >
               Розсодники
@@ -502,7 +521,11 @@ export default function GMShop({ navigate }: GMShopProps) {
             {GM_SHOP_ITEMS.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                className={
+                  isL2
+                    ? rowL2
+                    : "flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                }
                 onClick={() => {
                   setSelectedItem(item);
                   setBuyQuantity(1);
@@ -568,7 +591,11 @@ export default function GMShop({ navigate }: GMShopProps) {
               return (
                 <div
                   key={itemId}
-                  className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                  className={
+                    isL2
+                      ? rowL2
+                      : "flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                  }
                   onClick={() => {
                     setSelectedCrystalItem({ itemId });
                     setBuyQuantity(1);
@@ -598,13 +625,13 @@ export default function GMShop({ navigate }: GMShopProps) {
 
       {/* Обмінник AA */}
       {selectedCategory === "aa" && selectedExchange === "aa" && (
-        <div className="px-4 py-2 border-b border-black/70">
+        <div className={`px-4 py-2 ${borderB}`}>
           <div className="space-y-2">
             {/* Кнопка: Обміняти Зелений Камінь Печати */}
             <button
               onClick={() => handleExchange("green", "green_seal_stone", 5, "Зелений Камінь Печати")}
               disabled={greenStoneCount < exchangeQuantity}
-              className={`w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] ${
+              className={`${exchangeRow} ${
                 greenStoneCount < exchangeQuantity ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -630,13 +657,13 @@ export default function GMShop({ navigate }: GMShopProps) {
             )}
 
             {/* Риска */}
-            <div className="text-gray-500 text-center text-[12px] py-1">─ ─ ─</div>
+            <div className={`text-center text-[12px] py-1 ${isL2 ? "text-[#6b5c42]" : "text-gray-500"}`}>─ ─ ─</div>
 
             {/* Кнопка: Обміняти Синій Камінь Печати */}
             <button
               onClick={() => handleExchange("blue", "blue_seal_stone", 10, "Синій Камінь Печати")}
               disabled={blueStoneCount < exchangeQuantity}
-              className={`w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] ${
+              className={`${exchangeRow} ${
                 blueStoneCount < exchangeQuantity ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -662,13 +689,13 @@ export default function GMShop({ navigate }: GMShopProps) {
             )}
 
             {/* Риска */}
-            <div className="text-gray-500 text-center text-[12px] py-1">─ ─ ─</div>
+            <div className={`text-center text-[12px] py-1 ${isL2 ? "text-[#6b5c42]" : "text-gray-500"}`}>─ ─ ─</div>
 
             {/* Кнопка: Обміняти Червоний Камінь Печати */}
             <button
               onClick={() => handleExchange("red", "red_seal_stone", 15, "Червоний Камінь Печати")}
               disabled={redStoneCount < exchangeQuantity}
-              className={`w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)] ${
+              className={`${exchangeRow} ${
                 redStoneCount < exchangeQuantity ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -694,7 +721,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             )}
 
             {/* Вибір кількості */}
-            <div className="mt-4 pt-4 border-t border-white/50">
+            <div className={`mt-4 pt-4 border-t ${isL2 ? "border-[#5c4a32]/50" : "border-white/50"}`}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-white text-[12px]">Кількість каменів:</span>
                 <div className="flex items-center gap-1">
@@ -735,10 +762,10 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setConfirmExchange(null)}
         >
           <div 
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[350px] w-full"
+            className={`${modalPanel} max-w-[350px]`}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center text-gray-400 text-[14px] mb-4">
+            <div className={`text-center text-[14px] mb-4 ${isL2 ? "text-[#a89878]" : "text-gray-400"}`}>
               Обміняти {confirmExchange.stoneCount} {confirmExchange.name} на{" "}
               <span className="text-yellow-400 font-semibold">
                 {confirmExchange.aaReward.toLocaleString()} AA
@@ -770,11 +797,15 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
+            className={`${modalPanel} max-w-[400px]`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
+            <div
+              className={`text-center text-lg font-bold mb-4 pb-2 border-b ${
+                isL2 ? "text-[#e8c56e] border-[#5c4a32]/55" : "text-white border-white/50"
+              }`}
+            >
               Інформація про предмет
             </div>
 
@@ -873,7 +904,7 @@ export default function GMShop({ navigate }: GMShopProps) {
           onClick={() => setSelectedCrystalItem(null)}
         >
           <div 
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
+            className={`${modalPanel} max-w-[400px]`}
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {
@@ -882,7 +913,11 @@ export default function GMShop({ navigate }: GMShopProps) {
               const totalPrice = CRYSTAL_PRICE_ADENA * buyQuantity;
               return (
                 <>
-                  <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
+                  <div
+                    className={`text-center text-lg font-bold mb-4 pb-2 border-b ${
+                      isL2 ? "text-[#e8c56e] border-[#5c4a32]/55" : "text-white border-white/50"
+                    }`}
+                  >
                     Інформація про предмет
                   </div>
                   <div className="flex items-center gap-3 mb-4">
@@ -961,7 +996,14 @@ export default function GMShop({ navigate }: GMShopProps) {
       {/* Модалка генерації каменя: кристал + ЛС + камінь */}
       {generateStoneModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setGenerateStoneModal(false)}>
-          <div className="bg-[#1a1208] border border-white/50 rounded-lg p-4 max-w-[320px] w-full" onClick={(e) => e.stopPropagation()}>
+          <div
+            className={
+              isL2
+                ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 max-w-[320px] w-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+                : "bg-[#1a1208] border border-white/50 rounded-lg p-4 max-w-[320px] w-full"
+            }
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="text-[#e0c68a] font-bold text-[14px] mb-3 text-center">Сгенерировать камень</div>
             <div className="text-[11px] text-gray-400 mb-3">Вставьте: Кристал (D), ЛС (D), Камінь. 5% шанс пассивки.</div>
             <div className="space-y-2 mb-4">
@@ -988,7 +1030,13 @@ export default function GMShop({ navigate }: GMShopProps) {
                       disabled={disabled}
                       title={alreadyHasPassive ? "Пассивка этого типа уже есть" : ""}
                       className={`flex items-center gap-1.5 py-1.5 px-2 rounded border text-left text-[11px] ${
-                        disabled ? "opacity-50 cursor-not-allowed border-gray-600" : sel ? "border-[#e0c68a] bg-[#2a2015]" : "border-white/30 hover:bg-black/20"
+                        disabled
+                          ? "opacity-50 cursor-not-allowed border-gray-600"
+                          : sel
+                            ? "border-[#e0c68a] bg-[#2a2015]"
+                            : isL2
+                              ? "border-[#5c4a32]/70 hover:bg-black/20 hover:border-[#c7ad80]/35"
+                              : "border-white/30 hover:bg-black/20"
                       }`}
                     >
                       {def?.icon && <img src={def.icon} alt="" className="w-5 h-5 object-contain flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png"; }} />}
@@ -1017,6 +1065,7 @@ export default function GMShop({ navigate }: GMShopProps) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

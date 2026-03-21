@@ -10,6 +10,7 @@ import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectA
 import { QUEST_SHOP_ITEM_MAPPING as BASE_QUEST_MAPPING } from "../data/shop/itemMappings";
 import type { Hero } from "../types/Hero";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
 
 type Navigate = (path: string) => void;
@@ -405,15 +406,43 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     return "/items/drops/Weapon_squires_sword_i00_0.jpg"; // дефолтна іконка
   };
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const rowL2 =
+    "flex items-center gap-2 py-2 px-2 mb-1.5 rounded-md bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] hover:border-[#c7ad80]/50 transition-[border-color] duration-150";
+  const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";
+  const tabOn = isL2 ? "text-[#e8c56e] font-semibold border-b border-[#c9a44c]" : "text-gray-200 font-semibold border-b border-white/60";
+  const tabOff = isL2 ? "text-[#a89878] hover:text-[#d4c4a8]" : "hover:text-gray-200";
+  const subTabOn = isL2 ? "text-[#e8c56e] font-bold" : "text-gray-400 font-bold";
+  const subTabOff = isL2 ? "text-[#8a7a60] font-semibold hover:text-[#c9a44c]" : "text-gray-500 font-semibold hover:text-gray-400";
+  const exchangeRow = isL2
+    ? "w-full flex items-center justify-between py-2 px-3 rounded-md bg-gradient-to-b from-[#2e2619]/90 to-[#14110c] border border-[#5c4a32]/60 hover:border-[#c7ad80]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
+    : "w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-white/40 rounded-lg p-4 w-full";
+
   return (
-    <div className="w-full max-w-[360px] mx-auto px-3 py-2">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full max-w-[360px] mx-auto px-3 py-2"
+      }
+    >
+      <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
       {/* Заголовок */}
-      <div className="border-b border-black/70 px-4 py-2 text-center text-[11px] text-[#ff8c00] tracking-[0.12em] uppercase font-semibold">
+      <div
+        className={`${borderB} px-4 py-2 text-center text-[11px] tracking-[0.12em] uppercase font-semibold ${
+          isL2 ? "text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]" : "text-[#ff8c00]"
+        }`}
+      >
         Квест-Шоп
       </div>
 
       {/* Баланс Серебряных Монет */}
-      <div className="px-4 py-2 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-1">
+      <div className={`px-4 py-2 ${borderB} text-[12px] flex items-center gap-1 ${isL2 ? "text-[#d4c4a8]" : "text-[#cfcfcc]"}`}>
         У вас с собой{" "}
         <img 
           src="/items/drops/resources/etc_coins_silver_i00.png" 
@@ -430,57 +459,57 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       </div>
 
       {/* Категорії */}
-      <div className="px-4 py-2 border-b border-black/70">
-        <div className="text-[11px] text-gray-300 flex gap-1.5 mb-2 flex-nowrap items-center">
+      <div className={`px-4 py-2 ${borderB}`}>
+        <div className={`text-[11px] flex gap-1.5 mb-2 flex-nowrap items-center ${isL2 ? "text-[#c9b896]" : "text-gray-300"}`}>
           <button
             onClick={() => {
               setSelectedCategory("weapons");
               setSelectedGrade("D");
               setSelectedArmorSubcategory(null);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "weapons" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "weapons" ? tabOn : tabOff}`}
           >
             Оружие
           </button>
-          <span className="text-gray-500 text-[10px]">|</span>
+          <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
           <button
             onClick={() => {
               setSelectedCategory("sets");
               setSelectedGrade("D");
               setSelectedArmorSubcategory(null);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "sets" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "sets" ? tabOn : tabOff}`}
           >
             Сеты
           </button>
-          <span className="text-gray-500 text-[10px]">|</span>
+          <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
           <button
             onClick={() => {
               setSelectedCategory("items");
               setSelectedArmorSubcategory(null);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "items" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "items" ? tabOn : tabOff}`}
           >
             Итемы
           </button>
-          <span className="text-gray-500 text-[10px]">|</span>
+          <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
           <button
             onClick={() => {
               setSelectedCategory("enchant_scrolls");
               setSelectedGrade("D");
               setSelectedArmorSubcategory(null);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "enchant_scrolls" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "enchant_scrolls" ? tabOn : tabOff}`}
           >
             Заточки
           </button>
-          <span className="text-gray-500 text-[10px]">|</span>
+          <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
           <button
             onClick={() => {
               setSelectedCategory("exchange");
               setSelectedArmorSubcategory(null);
             }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "exchange" ? "text-gray-200 font-semibold border-b border-white/60" : "hover:text-gray-200"}`}
+            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "exchange" ? tabOn : tabOff}`}
           >
             Обменник
           </button>
@@ -547,9 +576,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                   setSelectedArmorSubcategory(subcat.id);
                 }}
                 className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap flex-shrink-0 ${
-                  selectedArmorSubcategory === subcat.id
-                    ? "text-gray-400 font-bold"
-                    : "text-gray-500 font-semibold hover:text-gray-400"
+                  selectedArmorSubcategory === subcat.id ? subTabOn : subTabOff
                 }`}
               >
                 {subcat.name}
@@ -560,7 +587,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       </div>
 
       {/* Список предметів */}
-      <div className="px-4 py-2 border-b border-black/70">
+      <div className={`px-4 py-2 ${borderB}`}>
         {selectedCategory === "exchange" ? (
           <div className="space-y-0">
             {/* Обмін на Адену */}
@@ -573,7 +600,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                 }
                 setConfirmExchange({ type: "adena", name: "Адена", value: "50,000" });
               }}
-              className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
+              className={exchangeRow}
             >
               <div className="flex items-center gap-2">
                 <img src="/items/drops/resources/aden.png" alt="Адена" className="w-5 h-5 object-contain" />
@@ -587,7 +614,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             </button>
 
             {/* Риска */}
-            <div className="text-gray-500 text-center text-[12px] py-1">─ ─ ─</div>
+            <div className={`text-center text-[12px] py-1 ${isL2 ? "text-[#6b5c42]" : "text-gray-500"}`}>─ ─ ─</div>
 
             {/* Обмін на EXP */}
             <button
@@ -599,7 +626,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                 }
                 setConfirmExchange({ type: "exp", name: "Опыт", value: "100,000" });
               }}
-              className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
+              className={exchangeRow}
             >
               <div className="flex items-center gap-2">
                 <img src="/items/drops/resources/exp_.png" alt="Опыт" className="w-5 h-5 object-contain" />
@@ -613,7 +640,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             </button>
 
             {/* Риска */}
-            <div className="text-gray-500 text-center text-[12px] py-1">─ ─ ─</div>
+            <div className={`text-center text-[12px] py-1 ${isL2 ? "text-[#6b5c42]" : "text-gray-500"}`}>─ ─ ─</div>
 
             {/* Обмін на SP */}
             <button
@@ -625,7 +652,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                 }
                 setConfirmExchange({ type: "sp", name: "SP", value: "50,000" });
               }}
-              className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
+              className={exchangeRow}
             >
               <div className="flex items-center gap-2">
                 <img src="/items/drops/resources/sp_SP.png" alt="SP" className="w-5 h-5 object-contain" />
@@ -639,7 +666,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             </button>
 
             {/* Риска */}
-            <div className="text-gray-500 text-center text-[12px] py-1">─ ─ ─</div>
+            <div className={`text-center text-[12px] py-1 ${isL2 ? "text-[#6b5c42]" : "text-gray-500"}`}>─ ─ ─</div>
 
             {/* Обмін на Coin of Luck */}
             <button
@@ -651,7 +678,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                 }
                 setConfirmExchange({ type: "coinOfLuck", name: "Coin of Luck", value: "1" });
               }}
-              className="w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]"
+              className={exchangeRow}
             >
               <div className="flex items-center gap-2">
                 <img src="/items/drops/resources/monets.png" alt="Coin of Luck" className="w-5 h-5 object-contain" />
@@ -673,7 +700,11 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20"
+                className={
+                  isL2
+                    ? rowL2
+                    : "flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20"
+                }
               >
                 {/* Іконка */}
                 <img
@@ -707,11 +738,15 @@ export default function QuestShop({ navigate }: QuestShopProps) {
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full"
+            className={`${modalPanel} max-w-[400px]`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Заголовок */}
-            <div className="text-center text-white text-lg font-bold mb-4 border-b border-white/50 pb-2">
+            <div
+              className={`text-center text-lg font-bold mb-4 pb-2 border-b ${
+                isL2 ? "text-[#e8c56e] border-[#5c4a32]/55" : "text-white border-white/50"
+              }`}
+            >
               Информация о предмете
             </div>
 
@@ -910,7 +945,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
           onClick={() => setConfirmExchange(null)}
         >
           <div 
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[350px] w-full"
+            className={`${modalPanel} max-w-[350px]`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center text-gray-400 text-[14px] mb-4">
@@ -959,6 +994,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

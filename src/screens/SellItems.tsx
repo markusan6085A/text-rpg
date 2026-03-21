@@ -6,6 +6,7 @@ import { useHeroStore } from "../state/heroStore";
 import InventoryFilters, { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { getSellPrice } from "../utils/sellPrices";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (path: string) => void;
 
@@ -26,6 +27,13 @@ export default function SellItems({ navigate }: SellItemsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const modalPanel = isL2
+    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+    : "bg-[#14110c] border border-white/40 rounded-lg p-4 w-full";
+
   const [confirmSell, setConfirmSell] = useState<{
     type: "single" | "all" | "batch";
     item?: any;
@@ -172,26 +180,55 @@ export default function SellItems({ navigate }: SellItemsProps) {
 
   if (!hero) {
     return (
-      <div className="text-white text-center pt-20">Загрузка...</div>
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex items-center justify-center py-16 text-[#8a7a60] text-sm gap-2`
+            : "text-white text-center pt-20"
+        }
+      >
+        {isL2 && (
+          <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+        )}
+        Загрузка...
+      </div>
     );
   }
 
   const adena = hero.adena || 0;
 
   return (
-    <div className="w-full flex flex-col items-center px-4 py-2">
-      <div className="w-full max-w-[360px]">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full flex flex-col items-center px-4 py-2"
+      }
+    >
+      <div className={isL2 ? "max-w-[420px] mx-auto w-full" : "w-full max-w-[360px]"}>
         <div className="flex justify-between items-center mb-3">
-          <h1 className="text-lg font-bold text-[#b8860b]">Продать вещи</h1>
+          <h1
+            className={
+              isL2
+                ? "text-lg font-bold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+                : "text-lg font-bold text-[#b8860b]"
+            }
+          >
+            Продать вещи
+          </h1>
           <button
             onClick={() => navigate("/shop")}
-            className="text-xs text-[#99e074] hover:text-[#bbff97]"
+            className={
+              isL2
+                ? "text-xs text-[#7d9b7a] hover:text-[#9bc49a]"
+                : "text-xs text-[#99e074] hover:text-[#bbff97]"
+            }
           >
             ← Магазин
           </button>
         </div>
 
-        <div className="text-sm text-gray-300 mb-2">
+        <div className={isL2 ? "text-sm text-[#a89878] mb-2" : "text-sm text-gray-300 mb-2"}>
           У вас: <span className="text-yellow-400">{adena.toLocaleString()}</span> Adena
         </div>
 
@@ -220,13 +257,19 @@ export default function SellItems({ navigate }: SellItemsProps) {
         </div>
 
         <div
-          className="space-y-1 mb-3 rounded-xl border-2 overflow-y-auto"
-          style={{
-            backgroundColor: "#0f0c08",
-            borderColor: "rgba(255,255,255,0.5)",
-            minHeight: "420px",
-            maxHeight: "580px",
-          }}
+          className={`space-y-1 mb-3 rounded-xl border-2 overflow-y-auto ${
+            isL2 ? "border-[#5c4a32]/85 bg-[#0c0a08]" : ""
+          }`}
+          style={
+            isL2
+              ? { minHeight: "420px", maxHeight: "580px" }
+              : {
+                  backgroundColor: "#0f0c08",
+                  borderColor: "rgba(255,255,255,0.5)",
+                  minHeight: "420px",
+                  maxHeight: "580px",
+                }
+          }
         >
           {paginatedItems.length === 0 ? (
             <div className="text-center text-gray-400 py-8 text-sm">Нет предметов для продажи</div>
@@ -339,7 +382,11 @@ export default function SellItems({ navigate }: SellItemsProps) {
 
         <button
           onClick={() => navigate("/shop")}
-          className="w-full py-2 text-sm text-[#99e074] hover:text-[#bbff97] border border-[#99e074]/50 rounded"
+          className={
+            isL2
+              ? "w-full py-2 text-sm rounded border border-[#5c4a32] text-[#7d9b7a] hover:border-[#c7ad80]/45 hover:text-[#9bc49a] bg-gradient-to-b from-[#2e2619]/50 to-transparent"
+              : "w-full py-2 text-sm text-[#99e074] hover:text-[#bbff97] border border-[#99e074]/50 rounded"
+          }
         >
           Вернуться в магазин
         </button>
@@ -351,10 +398,10 @@ export default function SellItems({ navigate }: SellItemsProps) {
           onClick={() => setConfirmSell(null)}
         >
           <div
-            className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[280px] w-full"
+            className={`${modalPanel} max-w-[280px]`}
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-sm text-gray-200 mb-3">
+            <p className={`text-sm mb-3 ${isL2 ? "text-[#d4c4a8]" : "text-gray-200"}`}>
               {confirmSell.type === "batch" ? (
                 <>Вы уверены, что хотите продать эти предметы?<br />Итого: <span className="text-yellow-400 font-semibold">{confirmSell.totalPrice?.toLocaleString()}</span> Adena</>
               ) : (
