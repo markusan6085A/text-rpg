@@ -11,6 +11,7 @@ import type { Hero } from "../../types/Hero";
 import { checkSyncConflict, resolveSyncConflict, getConflictMessage, saveLocalBackup } from "./syncPolicy";
 import { loadHero } from "./heroLoad";
 import { hydrateHero } from "./heroHydration";
+import { readCharacterProgress } from "./heroPersistence";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
@@ -161,7 +162,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       );
       const serverLevel = Number(character.level ?? heroData?.level ?? 1);
       const localLevel = Number(hydratedLocalHero.level ?? (hydratedLocalHero as any).heroJson?.level ?? 1);
-      const serverSp = Number(character.sp ?? heroData?.sp ?? 0);
+      const serverSp = readCharacterProgress(character).sp;
       const localSp = Number(hydratedLocalHero.sp ?? (hydratedLocalHero as any).heroJson?.sp ?? 0);
       const serverAdena = Number(character.adena ?? heroData?.adena ?? 0);
       const localAdena = Number(hydratedLocalHero.adena ?? (hydratedLocalHero as any).heroJson?.adena ?? 0);
@@ -405,7 +406,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // Override with character data (these are the source of truth)
       fixedHero.level = character.level;
       fixedHero.exp = Number(character.exp);
-      fixedHero.sp = character.sp;
+      fixedHero.sp = readCharacterProgress(character).sp;
       fixedHero.adena = character.adena;
       fixedHero.coinOfLuck = character.coinLuck;
       (fixedHero as any).coins_silver = (character as any).coinsSilver ?? 0;
@@ -441,7 +442,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         ...heroData,
         level: finalLevel,
         exp: finalExp,
-        sp: character.sp,
+        sp: readCharacterProgress(character).sp,
         adena: character.adena,
         coinOfLuck: character.coinLuck,
         coins_silver: (character as any).coinsSilver ?? 0,
@@ -770,6 +771,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           (hydratedHero as any).adena = localHeroForMerge.adena;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, adena: localHeroForMerge.adena };
         }
+        const localSpVal = Number(localHeroForMerge.sp ?? (localHeroForMerge as any).heroJson?.sp ?? 0) || 0;
+        const hydratedSpVal = Number((hydratedHero as any).sp ?? 0) || 0;
+        const mergedSpFromLocal = Math.max(localSpVal, hydratedSpVal);
+        (hydratedHero as any).sp = mergedSpFromLocal;
+        (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, sp: mergedSpFromLocal };
         console.log('[loadHeroFromAPI] Applied inventory union merge:', mergedInv.length, 'items');
         const localEquipCount = Object.keys(localEquip).filter((k) => localEquip[k] != null).length;
         const serverEquipCount = Object.keys(serverEquip).filter((k) => serverEquip[k] != null).length;
@@ -787,13 +793,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // Це запобігає помилці "exp cannot be decreased" — локальний store знає актуальний exp/level/sp з БД
       const { useHeroStore } = await import('../heroStore');
       const char = character as any;
-      const serverExp = Number(char?.exp ?? 0);
-      const serverLevel = Number(char?.level ?? 1);
-      const serverSp = Number(char?.sp ?? 0);
+      const prog = readCharacterProgress(character);
+      const heroSpAfterLoad = Number((hydratedHero as any).sp ?? 0) || 0;
       useHeroStore.getState().updateServerState({
-        exp: serverExp,
-        level: serverLevel,
-        sp: serverSp,
+        exp: prog.exp,
+        level: prog.level,
+        sp: Math.max(prog.sp, heroSpAfterLoad),
         coinLuck: char?.coinLuck ?? hydratedHero.coinOfLuck ?? 0,
         heroRevision: (hydratedHero as any).heroRevision,
         updatedAt: Date.now(),

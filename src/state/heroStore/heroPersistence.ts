@@ -47,7 +47,7 @@ const MAX_RETRIES = 1; // Максимум 1 автоматичний retry пр
  * а колонки Character.exp/level/sp у відповіді можуть лишатися застарілими. Для UI і serverState
  * беремо прогрес з heroJson, якщо там є валідні числа.
  */
-function readCharacterProgress(character: any): { level: number; exp: number; sp: number } {
+export function readCharacterProgress(character: any): { level: number; exp: number; sp: number } {
   const hj = (character?.heroJson ?? {}) as any;
   const levelCol = Math.max(1, Number(character?.level ?? 1) || 1);
   const expCol = Math.max(0, Number(character?.exp ?? 0) || 0);
@@ -55,10 +55,13 @@ function readCharacterProgress(character: any): { level: number; exp: number; sp
   const lj = hj.level != null && hj.level !== "" ? Number(hj.level) : NaN;
   const ej = hj.exp != null && hj.exp !== "" ? Number(hj.exp) : NaN;
   const sj = hj.sp != null && hj.sp !== "" ? Number(hj.sp) : NaN;
+  const spFromHj = Number.isFinite(sj) && sj >= 0 ? sj : null;
+  // SP: max(json, колонка) — PUT раніше не оновлював колонку; після виправлення обидва джерела узгоджуються
+  const sp = spFromHj !== null ? Math.max(spFromHj, spCol) : spCol;
   return {
     level: Number.isFinite(lj) && lj > 0 ? lj : levelCol,
     exp: Number.isFinite(ej) && ej >= 0 ? ej : expCol,
-    sp: Number.isFinite(sj) && sj >= 0 ? sj : spCol,
+    sp,
   };
 }
 
@@ -470,6 +473,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // 🔥 Прогрес (оновлюємо завжди) - значення будуть обчислені нижче з clamp
       level: Number(hero.level ?? existingHeroJson.level ?? 1),
       exp: Number(hero.exp ?? existingHeroJson.exp ?? 0),
+      sp: Number(hero.sp ?? existingHeroJson.sp ?? 0),
       // ✅ hp/mp/cp завжди clamp до base max — сервер не буде "різати" і F5 не відкотить
       hp: hpToSave,
       mp: mpToSave,
@@ -521,6 +525,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       mobsKilled: heroJsonToSave.mobsKilled,
       level: heroJsonToSave.level,
       exp: heroJsonToSave.exp,
+      sp: heroJsonToSave.sp,
       skillsCount: Array.isArray(heroJsonToSave.skills) ? heroJsonToSave.skills.length : 0,
       heroBuffsCount: uniqueBuffs.length,
       hasRequiredFields,
@@ -823,7 +828,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             if (heroBase) {
               const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision || (serverHeroJson as any).heroRevision;
               const serverLevel = Number(currentCharacter.level ?? 1);
-              const serverSp = Number(currentCharacter.sp ?? 0);
+              const { sp: serverSp } = readCharacterProgress(currentCharacter);
               // 🔥 clamp level/sp — не відправляти менше (exp вже mergedExp = max)
               const mergedLevel = Math.max(heroBase.level ?? 1, serverLevel);
               const mergedSp = Math.max(heroBase.sp ?? 0, serverSp);

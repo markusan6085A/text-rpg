@@ -273,12 +273,11 @@ export async function createCharacter(data: CreateCharacterRequest): Promise<Cha
   return response.character;
 }
 
-/** exp/level/sp оновлюються тільки на бекенді (вбивство мобів, fishing тощо), не через цей запит */
+/** top-level exp/level не шлемо — колонки в БД можуть лишатися старими; прогрес у heroJson. SP шлемо — інакше Character.sp не оновлюється після мобів і після F5 відкат. */
 export async function updateCharacter(id: string, data: UpdateCharacterRequest): Promise<Character> {
   const cleanData = { ...data };
   delete cleanData.exp;
   delete cleanData.level;
-  delete cleanData.sp;
 
   const response = await apiRequest<CharacterResponse>(`/characters/${id}`, {
     method: 'PUT',
