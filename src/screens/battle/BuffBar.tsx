@@ -1,5 +1,6 @@
 import React from "react";
 import type { BattleBuff } from "../../state/battle/types";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 type Props = {
   buffs: BattleBuff[];
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export function BuffBar({ buffs, now }: Props) {
+  const isL2 = getCityUiVariant() === "l2";
   if (!buffs || buffs.length === 0) return null;
 
   const totalsRef = React.useRef<Record<string, number>>({});
@@ -63,11 +65,23 @@ export function BuffBar({ buffs, now }: Props) {
                   }}
                 />
               )}
-              <div className="absolute inset-[1px] rounded border border-white/30 bg-[#1a1a1a] overflow-hidden">
+              <div
+                className={
+                  isL2
+                    ? "absolute inset-[1px] rounded border border-[#5c4a32]/60 bg-[#14110c] overflow-hidden shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
+                    : "absolute inset-[1px] rounded border border-white/30 bg-[#1a1a1a] overflow-hidden"
+                }
+              >
                 <img src={icon} alt={title} className="w-full h-full object-cover" />
               </div>
               {b.stacks && b.stacks > 0 && (
-                <div className="absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-white/50">
+                <div
+                  className={
+                    isL2
+                      ? "absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-[#5c4a32]/65"
+                      : "absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-white/50"
+                  }
+                >
                   {b.stacks}
                 </div>
               )}
@@ -75,7 +89,7 @@ export function BuffBar({ buffs, now }: Props) {
           );
         })}
       </div>
-      <div className="h-[1px] w-full bg-[#1a120c]" />
+      <div className={isL2 ? "h-[1px] w-full bg-[#5c4a32]/35" : "h-[1px] w-full bg-[#1a120c]"} />
     </div>
   );
 }

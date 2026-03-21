@@ -3,6 +3,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { findZoneWithCity } from "./battleUtils";
 import { isMobOnRespawn } from "../../state/battle/mobRespawns";
 import { useHeroStore } from "../../state/heroStore";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface VictoryModalProps {
   navigate: (path: string) => void;
@@ -10,6 +11,7 @@ interface VictoryModalProps {
 }
 
 export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
+  const isL2 = getCityUiVariant() === "l2";
   const { lastReward, zoneId, mobIndex, startBattle, reset, lastMobDamage, mob } = useBattleStore();
 
   if (!lastReward || !zoneId) {
@@ -99,8 +101,12 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
         }
       }}
     >
-      <div 
-        className="relative max-w-xs w-full mx-4 rounded-lg overflow-hidden"
+      <div
+        className={
+          isL2
+            ? "relative max-w-xs w-full mx-4 rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)]"
+            : "relative max-w-xs w-full mx-4 rounded-lg overflow-hidden"
+        }
         onClick={(e) => e.stopPropagation()}
         style={{
           backgroundImage: "url('/victory/bg.jpg')",
@@ -129,7 +135,7 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
             />
             <p className="text-xs">
               <span className="text-red-500 font-semibold">{lastReward.mob}</span>{" "}
-              <span className="text-gray-400">повержений</span>
+              <span className={isL2 ? "text-[#8a7a60]" : "text-gray-400"}>повержений</span>
             </p>
           </div>
 
@@ -137,25 +143,31 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
           <div className="flex justify-center items-start gap-3 px-3 py-2">
             <div className="flex flex-col items-center gap-1">
               <img src="/victory/exp.png" alt="EXP" className="w-5 h-5" />
-              <span className="text-gray-400 text-xs">Досвід:</span>
-              <span className="text-[#d0d0d0] font-semibold text-xs">+{lastReward.exp}</span>
+              <span className={isL2 ? "text-[#8a7a60] text-xs" : "text-gray-400 text-xs"}>Досвід:</span>
+              <span className={isL2 ? "text-[#d4c4a8] font-semibold text-xs" : "text-[#d0d0d0] font-semibold text-xs"}>
+                +{lastReward.exp}
+              </span>
             </div>
             {lastReward.sp !== undefined && (
               <div className="flex flex-col items-center gap-1">
                 <img src="/victory/sp.png" alt="SP" className="w-5 h-5" />
-                <span className="text-yellow-500 text-xs">SP:</span>
-                <span className="text-[#d0d0d0] font-semibold text-xs">+{lastReward.sp}</span>
+                <span className={isL2 ? "text-[#c9a44c] text-xs" : "text-yellow-500 text-xs"}>SP:</span>
+                <span className={isL2 ? "text-[#d4c4a8] font-semibold text-xs" : "text-[#d0d0d0] font-semibold text-xs"}>
+                  +{lastReward.sp}
+                </span>
               </div>
             )}
             <div className="flex flex-col items-center gap-1">
               <img src="/victory/adena.png" alt="Adena" className="w-5 h-5" />
-              <span className="text-[#ffd700] text-xs">Адена:</span>
-              <span className="text-[#d0d0d0] font-semibold text-xs">+{lastReward.adena}</span>
+              <span className={isL2 ? "text-[#e8c56e] text-xs" : "text-[#ffd700] text-xs"}>Адена:</span>
+              <span className={isL2 ? "text-[#d4c4a8] font-semibold text-xs" : "text-[#d0d0d0] font-semibold text-xs"}>
+                +{lastReward.adena}
+              </span>
             </div>
           </div>
 
           {/* Дроп (заглушка) */}
-          <div className="text-center pb-2 text-xs text-gray-400">
+          <div className={isL2 ? "text-center pb-2 text-xs text-[#8a7a60]" : "text-center pb-2 text-xs text-gray-400"}>
             Дроп: немає
           </div>
 

@@ -23,7 +23,8 @@ export function BattleTargetCard({
   const clamped = Math.round(Math.max(0, Math.min(max, currentHp)));
   const hpPercent = max > 0 ? Math.max(0, Math.min(100, Math.round((clamped / max) * 100))) : 0;
 
-  const nameStyle = { color: "#c7ad80" };
+  const nameStyle = isL2 ? { color: "#e8dcc8" } : { color: "#c7ad80" };
+  const levelStyle = isL2 ? { color: "#9d8265" } : { color: "#c7ad80" };
   const nameClass = compact ? "text-[10px] font-semibold leading-tight" : "text-xs font-semibold leading-tight";
   const levelClass = compact ? "text-[9px]" : "text-[11px]";
   const barWidth = "w-[140px]";
@@ -34,7 +35,7 @@ export function BattleTargetCard({
     <div className="flex flex-col items-start justify-center gap-1 text-left w-fit">
       <div className="flex items-baseline justify-start gap-2 w-full">
         <div className={nameClass} style={nameStyle}>{name}</div>
-        <div className={levelClass} style={nameStyle}>Lv {level}</div>
+        <div className={levelClass} style={levelStyle}>Lv {level}</div>
       </div>
       <div className="flex flex-col items-start gap-[4px] text-[11px] text-[#252524] w-full">
         <div className={barWidth}>

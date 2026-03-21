@@ -2,6 +2,7 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
 import { getJSON, setJSON } from "../../state/persistence";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 export type MiniSkill = {
   id: number;
@@ -16,6 +17,7 @@ interface MiniVerticalSlotsProps {
 }
 
 export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
+  const uiL2 = getCityUiVariant() === "l2";
   const { useSkill, status, cooldowns } = useBattleStore();
   const hero = useHeroStore((s) => s.hero);
   const heroMP = hero?.mp ?? 0;
@@ -85,11 +87,19 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
           setPickerOpen(false);
           setPickerSlot(null);
         }}
-        className={`px-2 py-1 text-[11px] rounded border ${
-          removeMode
-            ? "border-white/50 text-white bg-[#1a0f0f]"
-            : "border-white/50 text-[#f4e2b8] bg-[#120d08]"
-        }`}
+        className={
+          uiL2
+            ? `px-2 py-1 text-[11px] rounded-md border shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] transition-[border-color,background-color] ${
+                removeMode
+                  ? "border-[#c7ad80]/45 text-[#f4e2b8] bg-gradient-to-b from-[#3a3020] to-[#1a1510]"
+                  : "border-[#5c4a32]/75 text-[#d4c4a8] bg-gradient-to-b from-[#2e2619] to-[#14110c] hover:border-[#c7ad80]/40"
+              }`
+            : `px-2 py-1 text-[11px] rounded border ${
+                removeMode
+                  ? "border-white/50 text-white bg-[#1a0f0f]"
+                  : "border-white/50 text-[#f4e2b8] bg-[#120d08]"
+              }`
+        }
       >
         Убр.
       </button>
@@ -114,7 +124,11 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
                 setPickerOpen(true);
                 setPickerTab("skills");
               }}
-              className="w-8 h-8 rounded border border-dashed border-white/50 bg-[#120d08] text-[#c7a46a] text-[12px] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+              className={
+                uiL2
+                  ? "w-8 h-8 rounded-md border border-dashed border-[#5c4a32]/70 bg-[#0d0a06] text-[#c9a44c] text-[12px] flex items-center justify-center shadow-[inset_0_2px_6px_rgba(0,0,0,0.6)] hover:border-[#c7ad80]/40 hover:brightness-110"
+                  : "w-8 h-8 rounded border border-dashed border-white/50 bg-[#120d08] text-[#c7a46a] text-[12px] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
+              }
             >
               +
             </button>
@@ -134,7 +148,11 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
               if (id !== null) useSkill(id);
             }}
             disabled={disabled}
-            className="relative w-8 h-8 rounded border border-white/50 bg-[#0f0c09] overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50"
+            className={
+              uiL2
+                ? "relative w-8 h-8 rounded-md border border-[#5c4a32]/75 bg-[#0d0a06] overflow-hidden flex items-center justify-center shadow-[inset_0_2px_8px_rgba(0,0,0,0.7)] disabled:opacity-50 disabled:saturate-50"
+                : "relative w-8 h-8 rounded border border-white/50 bg-[#0f0c09] overflow-hidden flex items-center justify-center shadow-[0_6px_14px_rgba(0,0,0,0.45)] disabled:opacity-50 disabled:saturate-50"
+            }
             title={def?.name}
           >
             {def ? (
@@ -160,28 +178,50 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
               setPickerSlot(null);
             }}
           />
-          <div className="relative w-full max-w-[360px] rounded-[12px] border border-white/50 bg-gradient-to-b from-[#1a120c] to-[#0f0a07] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-3 z-50">
-            <div className="flex justify-between items-center text-[13px] text-[#f4e2b8] font-semibold">
+          <div
+            className={
+              uiL2
+                ? "relative w-full max-w-[360px] rounded-xl border border-[#c7ad80]/35 p-3 space-y-3 z-50 shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                : "relative w-full max-w-[360px] rounded-[12px] border border-white/50 bg-gradient-to-b from-[#1a120c] to-[#0f0a07] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.85)] space-y-3 z-50"
+            }
+          >
+            <div
+              className={
+                uiL2
+                  ? "flex justify-between items-center text-[13px] text-[#e8c56e] font-semibold"
+                  : "flex justify-between items-center text-[13px] text-[#f4e2b8] font-semibold"
+              }
+            >
               <span>Выбор слота {pickerSlot !== null ? pickerSlot + 1 : ""}</span>
               <button
                 onClick={() => {
                   setPickerOpen(false);
                   setPickerSlot(null);
                 }}
-                className="px-2 py-1 text-[11px] rounded border border-white/40 bg-[#1b1b1b] text-[#e8e8e8]"
+                className={
+                  uiL2
+                    ? "px-2 py-1 text-[11px] rounded-md border border-[#5c4a32]/70 bg-[#2a2620] text-[#d4c4a8] hover:border-[#c7ad80]/40"
+                    : "px-2 py-1 text-[11px] rounded border border-white/40 bg-[#1b1b1b] text-[#e8e8e8]"
+                }
               >
                 Закрыть
               </button>
             </div>
 
-            <div className="flex gap-2 text-[12px] text-[#caa777]">
+            <div className={uiL2 ? "flex gap-2 text-[12px] text-[#9d8265]" : "flex gap-2 text-[12px] text-[#caa777]"}>
               {(["skills", "items", "consumables"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setPickerTab(tab)}
-                  className={`px-2 py-1 rounded border border-white/40 ${
-                    pickerTab === tab ? "bg-[#1a1814] text-white" : "bg-[#120d08]"
-                  }`}
+                  className={
+                    uiL2
+                      ? `px-2 py-1 rounded-md border border-[#5c4a32]/55 ${
+                          pickerTab === tab ? "bg-[#2e2619] text-[#e8dcc8]" : "bg-[#14110c] text-[#8a7a60]"
+                        }`
+                      : `px-2 py-1 rounded border border-white/40 ${
+                          pickerTab === tab ? "bg-[#1a1814] text-white" : "bg-[#120d08]"
+                        }`
+                  }
                 >
                   {tab === "skills" ? "Скиллы" : tab === "items" ? "Предметы" : "Расходники"}
                 </button>
@@ -199,7 +239,11 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
                       key={`mini-pick-${s.id}`}
                       onClick={() => handlePick(s.id)}
                       disabled={disabled}
-                      className="w-6 h-6 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
+                      className={
+                        uiL2
+                          ? "w-6 h-6 rounded border border-[#5c4a32]/55 bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
+                          : "w-6 h-6 rounded border border-white/50 bg-[#1f160c] flex items-center justify-center disabled:opacity-60"
+                      }
                       title={s.name}
                     >
                       <img src={s.icon} alt={s.name} className="w-full h-full object-cover rounded" />
@@ -207,13 +251,15 @@ export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
                   );
                 })}
                 {learned.length === 0 && (
-                  <div className="col-span-4 text-[12px] text-[#caa777]">Нет скиллов</div>
+                  <div className={uiL2 ? "col-span-4 text-[12px] text-[#8a7a60]" : "col-span-4 text-[12px] text-[#caa777]"}>
+                    Нет скиллов
+                  </div>
                 )}
               </div>
             )}
 
             {pickerTab !== "skills" && (
-              <div className="text-[12px] text-[#caa777]">
+              <div className={uiL2 ? "text-[12px] text-[#8a7a60]" : "text-[12px] text-[#caa777]"}>
                 Пока что подбор {pickerTab === "items" ? "предметов" : "расходников"} не реализован.
               </div>
             )}

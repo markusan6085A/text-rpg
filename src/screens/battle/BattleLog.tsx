@@ -2,7 +2,7 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
 import { getSkillDef } from "../../state/battle/loadout";
-import { sanitizeLine } from "../../state/battle/helpers";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 /** Замінює skill#N у рядку на назву скіла з skillsDB */
 export function replaceSkillIdsWithNames(line: string): string {
@@ -206,10 +206,15 @@ export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; 
     </div>
   );
   if (noBorder) return content;
+  const isL2 = getCityUiVariant() === "l2";
   return (
     <div
-      className="border-2 rounded p-2 bg-black/30"
-      style={{ borderColor: "rgba(255,255,255,0.5)" }}
+      className={
+        isL2
+          ? "border rounded p-2 bg-black/35 border-[#5c4a32]/70 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)]"
+          : "border-2 rounded p-2 bg-black/30"
+      }
+      style={isL2 ? undefined : { borderColor: "rgba(255,255,255,0.5)" }}
     >
       {content}
     </div>

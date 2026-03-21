@@ -1,6 +1,7 @@
 import React from "react";
 import type { City, Zone, Mob } from "../../data/world/types";
 import { useBattleStore } from "../../state/battle/store";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface TargetCardProps {
   zone: Zone;
@@ -10,13 +11,15 @@ interface TargetCardProps {
 }
 
 export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps) {
+  const isL2 = getCityUiVariant() === "l2";
   const { mobHP } = useBattleStore();
   const maxHP = typeof mob.hp === "number" ? mob.hp : 0;
   const hpValue = Number.isFinite(mobHP) ? mobHP : maxHP;
   const clampedHP = Math.max(0, Math.min(maxHP, hpValue));
   const hpPercent = maxHP > 0 ? Math.max(0, Math.min(100, Math.round((clampedHP / maxHP) * 100))) : 0;
 
-  const nameStyle = { color: "#c7ad80" };
+  const nameStyle = isL2 ? { color: "#e8dcc8" } : { color: "#c7ad80" };
+  const levelStyle = isL2 ? { color: "#9d8265" } : { color: "#c7ad80" };
   const nameClass = compact
     ? "text-[10px] font-semibold leading-tight"
     : "text-xs font-semibold leading-tight";
@@ -35,12 +38,14 @@ export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps
     >
       <div className="flex items-baseline justify-start gap-2 w-full">
         <div className={nameClass} style={nameStyle}>{mob.name}</div>
-        <div className={levelClass} style={nameStyle}>Lv {mob.level}</div>
+        <div className={levelClass} style={levelStyle}>Lv {mob.level}</div>
       </div>
       <div className="flex flex-col items-start gap-[4px] text-[11px] text-[#252524] w-full">
         <div className={`${barWidth}`}>
           <div
-            className={`${barHeight} rounded-[4px] overflow-hidden relative bg-[#14110c] border border-white/40`}
+            className={`${barHeight} rounded-[4px] overflow-hidden relative bg-[#14110c] border ${
+              isL2 ? "border-[#5c4a32]/60 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]" : "border-white/40"
+            }`}
           >
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"

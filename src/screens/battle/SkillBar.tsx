@@ -204,7 +204,7 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
 
   return (
     <div className="space-y-2">
-      <div className="h-[1px] w-full bg-[#1a120c]" />
+      <div className={uiL2 ? "h-[1px] w-full bg-[#5c4a32]/35" : "h-[1px] w-full bg-[#1a120c]"} />
       <div className="flex justify-center">
         <div className="px-4 py-3">
           <div className="grid grid-cols-8 gap-3">
@@ -393,7 +393,7 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
         </div>
       </div>
 
-      <div className="h-[1px] w-full bg-[#1a120c]" />
+      <div className={uiL2 ? "h-[1px] w-full bg-[#5c4a32]/35" : "h-[1px] w-full bg-[#1a120c]"} />
 
       {pickerSlot !== null && (
         <div
