@@ -4,6 +4,7 @@ import { getSkillsForProfession, normalizeProfessionId, getProfessionDefinition,
 import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { AdditionalSkills } from "../../data/skills/additional";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface LearnedSkillsScreenProps {
   navigate: (path: string) => void;
@@ -12,12 +13,26 @@ interface LearnedSkillsScreenProps {
 export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const skillCardL2 =
+    "rounded-md border border-[#5c4a32]/65 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] px-2.5 py-2 mb-2";
 
   if (!hero) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
-        <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Загрузка персонажа...</div>
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 flex justify-center px-3 py-10 text-[#8a7a60]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
+        <div className="w-full max-w-[420px] flex items-center justify-center gap-2 text-sm">
+          {isL2 && (
+            <span className="w-5 h-5 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
+          )}
+          <span className={isL2 ? "text-[#d4c4a8]" : "text-center text-[#dec28e]"}>Загрузка персонажа...</span>
         </div>
       </div>
     );
@@ -211,47 +226,88 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
     special: "text-blue-300",
     none: "text-gray-400",
   };
+  const categoryColorsL2: Record<string, string> = {
+    physical_attack: "text-red-400",
+    magic_attack: "text-[#a89878]",
+    heal: "text-[#f0d78c]",
+    buff: "text-[#7d9b7a]",
+    passive: "text-[#9d8265]",
+    toggle: "text-[#a89878]",
+    debuff: "text-[#a89878]",
+    special: "text-[#c9a44c]",
+    none: "text-[#8a7a60]",
+  };
+  const catColor = (c: string) => (isL2 ? categoryColorsL2[c] : categoryColors[c]) || (isL2 ? "text-[#8a7a60]" : "text-gray-400");
 
   return (
-    <div className="w-full text-white flex justify-center px-3 py-4">
-      <div className="w-full max-w-[420px] space-y-4">
-        {/* Заголовок */}
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 flex justify-center px-3 py-3 text-[#e8dcc8]`
+          : "w-full text-white flex justify-center px-3 py-4"
+      }
+    >
+      <div className={isL2 ? "w-full max-w-[420px] space-y-4 mx-auto" : "w-full max-w-[420px] space-y-4"}>
         <div className="text-center">
-          <div className="text-lg font-semibold text-green-500 mb-2">Вивчені навички</div>
-          <div className="text-sm text-gray-400">
+          <div
+            className={
+              isL2
+                ? "text-lg font-semibold text-[#e8c56e] mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+                : "text-lg font-semibold text-green-500 mb-2"
+            }
+          >
+            Вивчені навички
+          </div>
+          <div className={isL2 ? "text-sm text-[#d4c4a8]" : "text-sm text-gray-400"}>
             {hero.name} — {professionDisplay}
           </div>
-          <div className="text-xs text-gray-400 mt-1">
+          <div className={isL2 ? "text-xs text-[#8a7a60] mt-1" : "text-xs text-gray-400 mt-1"}>
             Всього вивчено: {skillsWithInfo.length}
           </div>
         </div>
 
-        {/* Риска над кнопкою */}
-        <div className="w-full h-px bg-gray-500"></div>
+        <div
+          className={
+            isL2 ? "w-full h-px bg-[#5c4a32]/50" : "w-full h-px bg-gray-500"
+          }
+        />
 
-        {/* Кнопка назад */}
         <div className="flex justify-center">
           <button
+            type="button"
             onClick={() => navigate("/character")}
-            className="text-sm text-yellow-500 hover:text-yellow-400 transition-colors"
+            className={
+              isL2
+                ? "text-sm text-[#c9a44c] hover:text-[#f4e2b8] px-4 py-2 rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/45 transition-[border-color,color] duration-150"
+                : "text-sm text-yellow-500 hover:text-yellow-400 transition-colors"
+            }
           >
             Назад до персонажа
           </button>
         </div>
 
-        {/* Риска під кнопкою */}
-        <div className="w-full h-px bg-gray-500"></div>
+        <div
+          className={
+            isL2 ? "w-full h-px bg-[#5c4a32]/50" : "w-full h-px bg-gray-500"
+          }
+        />
 
         {/* Список скілів по категоріях */}
         {Object.keys(skillsByCategory).length === 0 ? (
-          <div className="text-center text-gray-400 py-8">
+          <div
+            className={
+              isL2
+                ? "text-center text-[#8a7a60] py-8 rounded-lg border border-[#5c4a32]/35 bg-black/15"
+                : "text-center text-gray-400 py-8"
+            }
+          >
             Немає вивчених навичок
           </div>
         ) : (
           <div className="space-y-4">
             {Object.entries(skillsByCategory).map(([category, skills]) => (
               <div key={category} className="space-y-3">
-                <div className={`text-sm font-semibold ${categoryColors[category] || "text-gray-400"}`}>
+                <div className={`text-sm font-semibold ${catColor(category)}`}>
                   {categoryLabels[category] || category}
                 </div>
                 <div className="space-y-2">
@@ -292,9 +348,11 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
                     // Не потрібно нічого змінювати
                     
                     return (
-                      <div key={skill.id}>
+                      <div
+                        key={skill.id}
+                        className={isL2 ? skillCardL2 : ""}
+                      >
                         <div className="flex items-start gap-2">
-                          {/* Іконка скіла */}
                           <img
                             src={iconSrc}
                             alt={skill.name}
@@ -303,14 +361,24 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
                               (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
                             }}
                           />
-                          {/* Опис скіла */}
-                          <div className="flex-1">
-                            <div className="text-xs text-gray-400 leading-relaxed">
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className={
+                                isL2
+                                  ? "text-xs text-[#d4c4a8] leading-relaxed"
+                                  : "text-xs text-gray-400 leading-relaxed"
+                              }
+                            >
                               {russianDescription}
                             </div>
-                            {/* Значення скіла */}
                             {skillValues.length > 0 && (
-                              <div className="text-xs text-[#228b22] mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                              <div
+                                className={
+                                  isL2
+                                    ? "text-xs text-[#7d9b7a] mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5"
+                                    : "text-xs text-[#228b22] mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5"
+                                }
+                              >
                                 {skillValues.map((value, idx) => (
                                   <span key={idx}>{value}</span>
                                 ))}
@@ -318,8 +386,7 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
                             )}
                           </div>
                         </div>
-                        {/* Риска після опису скіла */}
-                        <div className="w-full h-px bg-gray-500 mt-2"></div>
+                        {!isL2 && <div className="w-full h-px bg-gray-500 mt-2" />}
                       </div>
                     );
                   })}
