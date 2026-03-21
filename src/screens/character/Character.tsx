@@ -142,7 +142,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   // -----------------------------
   // SP
   // -----------------------------
-  const sp = hero?.sp ?? 0;
+  const sp = Number(hero?.sp ?? stats.sp ?? 0) || 0;
 
   // -----------------------------
   // Сохранение статуса

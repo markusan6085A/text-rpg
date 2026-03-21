@@ -46,6 +46,11 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     ? Number(hero.level) || 1
     : (hj.level !== undefined && hj.level !== null && hj.level > 0 ? Number(hj.level) || 1 : 1);
 
+  const sp =
+    hero.sp !== undefined && hero.sp !== null
+      ? Number(hero.sp) || 0
+      : (hj.sp !== undefined && hj.sp !== null ? Number(hj.sp) || 0 : 0);
+
   // 🔥 Синхронізуємо heroJson з hero (однонапрямкова синхронізація: hero → heroJson)
   // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass
   // 🔥 dailyQuests — hero.dailyQuests* має пріоритет, інакше беремо з heroJson (для load)
@@ -65,6 +70,7 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     mobsKilled: mobsKilled as any,
     exp,
     level,
+    sp,
     dailyQuestsProgress: dailyQuestsProgress as any,
     dailyQuestsCompleted: dailyQuestsCompleted as any,
     dailyQuestsResetDate: dailyQuestsResetDate as any,
@@ -82,6 +88,7 @@ export function hydrateHero(hero: Hero | null): Hero | null {
       mobsKilled,
       exp,
       level,
+      sp,
       // 🔥 inventory з hero — інакше після «Очистить» heroJson.inventory лишається старим
       inventory: Array.isArray(hero.inventory) ? hero.inventory : (Array.isArray(hj.inventory) ? hj.inventory : []),
       // Щоденні завдання та активні квести — синхронізуємо в heroJson для збереження

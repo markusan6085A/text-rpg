@@ -17,6 +17,7 @@ import { getReflectChances, checkReflectDamage } from "./useSkill/reflectDamage"
 import { unequipItemLogic } from "../../heroStore/heroInventory";
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import type { Zone } from "../../../data/world/types";
+import { commitMobVictoryToHeroStore } from "../commitMobVictory";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -524,6 +525,55 @@ export const createProcessMobAttack =
         heroSkillsBlockedUntil,
         lastMobDamage: Math.round(heroDamage),
         activeChargeSlots: [], // Скидаємо заряди тільки при смерті героя
+      };
+      set((prev) => ({ ...(prev as any), ...(updates as any) }));
+      persistSnapshot(get, persistBattle, updates);
+      return;
+    }
+
+    // Моб мертвий, герой живий — EXP/SP/адена/дроп (у т.ч. смерть від рефлекту)
+    if (finalMobHP <= 0 && nextHeroHP > 0 && state.mob) {
+      const v = commitMobVictoryToHeroStore({
+        mob: state.mob,
+        heroBuffs: nextBuffsAfterDispel,
+        postVictoryHp: nextHeroHP,
+        postVictoryMp: curHeroMP,
+        postVictoryCp: curHeroCP,
+        zoneId: state.zoneId,
+        mobIndex: state.mobIndex,
+      });
+      const lootLines = [
+        `${state.mob.name} повержен.`,
+        v.mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
+        `Добыча: +${v.displayExp} EXP, +${v.displaySp} SP, +${v.displayAdena} адены`,
+        ...(v.dropMessages.length > 0 ? v.dropMessages : []),
+      ].filter((msg) => msg !== null) as string[];
+      const combinedLog = [
+        ...(v.levelUpMessage ? [v.levelUpMessage] : []),
+        ...lootLines,
+        ...finalLog,
+      ].slice(0, 30);
+      updates = {
+        status: "victory",
+        mobHP: 0,
+        mobNextAttackAt: scheduleNext(now),
+        heroBuffs: nextBuffsAfterDispel,
+        mobBuffs: cleanedMobBuffs,
+        log: combinedLog,
+        cooldowns: state.cooldowns || {},
+        summon: nextSummon,
+        heroStunnedUntil,
+        heroBuffsBlockedUntil,
+        heroSkillsBlockedUntil,
+        lastMobDamage: Math.round(heroDamage),
+        activeChargeSlots: state.activeChargeSlots ?? [],
+        lastReward: {
+          exp: v.displayExp,
+          sp: v.displaySp,
+          adena: v.displayAdena,
+          mob: state.mob.name ?? "",
+          spoiled: v.mobSpoiled,
+        },
       };
       set((prev) => ({ ...(prev as any), ...(updates as any) }));
       persistSnapshot(get, persistBattle, updates);

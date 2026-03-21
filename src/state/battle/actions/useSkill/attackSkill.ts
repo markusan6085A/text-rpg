@@ -1,23 +1,18 @@
-import { getExpToNext, MAX_LEVEL } from "../../../../data/expTable";
 import { calculateMagicDamage } from "../../../../data/skills/calculate/calculateMagicDamage";
 import { calculatePhysicalDamage } from "../../../../data/skills/calculate/calculatePhysicalDamage";
 import { useAutoShot } from "./shotHelpers";
-import { useHeroStore } from "../../../heroStore";
 import { addDailyProgress } from "../../../dailyQuestsProgress";
-import { processMobDrops } from "../../helpers/processDrops";
-import { clampChance, getCritMultiplier, XP_RATE, SONIC_FOCUS_ID, SONIC_CONSUMERS, SONIC_COST, FOCUSED_FORCE_ID, FOCUSED_FORCE_CONSUMERS, FOCUSED_FORCE_COST, MAX_FOCUSED_FORCE_STACKS, FOCUSED_FORCE_DURATION_MS, createCooldownEntry, checkSkillCritical, hasAutoSpoilActive } from "./helpers";
+import { clampChance, getCritMultiplier, SONIC_FOCUS_ID, SONIC_CONSUMERS, SONIC_COST, FOCUSED_FORCE_ID, FOCUSED_FORCE_CONSUMERS, FOCUSED_FORCE_COST, MAX_FOCUSED_FORCE_STACKS, FOCUSED_FORCE_DURATION_MS, createCooldownEntry, checkSkillCritical } from "./helpers";
 import { processSkillEffects } from "./skillEffects";
 import type { BattleState } from "../../types";
 import type { Hero } from "../../../../types/Hero";
 import type { SkillDefinition, SkillLevelDefinition } from "../../../../data/skills/types";
 import { recalculateAllStats } from "../../../../utils/stats/recalculateAllStats";
-import { setMobRespawn } from "../../mobRespawns";
+import { commitMobVictoryToHeroStore } from "../../commitMobVictory";
+import { mobSpGainFromMob } from "../../mobSpGain";
 import { canAttackWithBow, useArrow, isBowEquipped, getWeaponGrade } from "./arrowHelpers";
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
-import { getPremiumMultiplier } from "../../../../utils/premium/isPremiumActive";
-import { DAILY_QUESTS } from "../../../../data/dailyQuests";
-import { getGameSettings } from "../../../../state/gameSettings";
-import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE } from "../../../../data/balance";
+import { MOB_DEFENSE_MULTIPLIER } from "../../../../data/balance";
 
 export function handleAttackSkill(
   skillId: number,
@@ -209,143 +204,20 @@ export function handleAttackSkill(
   ].filter((msg) => msg !== null).slice(0, 30);
 
   if (nextMobHP <= 0) {
-    const adenaGain = Math.round(
-      ((state.mob?.adenaMin ?? 0) + (state.mob?.adenaMax ?? 0)) / 2
-    );
-    const expGain = state.mob?.exp ?? 0;
-    const spGain = state.mob?.sp ?? 0;
-
-    // Auto Spoil: if toggle is active, automatically spoil the mob
-    const autoSpoilActive = hasAutoSpoilActive(updatedBuffs);
-    const mobSpoiled = autoSpoilActive;
-
-    // Функціональний updateHero — базуємо на prev, щоб реген тощо не затирали дроп/exp/adena
-    let dropMessages: string[] = [];
-    let displayExp = expGain;
-    let displaySp = spGain;
-    let displayAdena = adenaGain;
-
-    useHeroStore.getState().updateHero((prev) => {
-      const curHero = prev ?? useHeroStore.getState().hero;
-      if (!curHero || !state.mob) return {};
-      const dropResult = processMobDrops(state.mob, curHero, mobSpoiled);
-      dropMessages = dropResult.dropMessages;
-
-      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory, overflowChest: dropResult.overflowChest ?? [] };
-      if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const baseActiveQuests = curHero.activeQuests || [];
-        victoryUpdates.activeQuests = baseActiveQuests.map((aq) => {
-          const questUpdates = dropResult.questProgressUpdates?.filter((u) => u.questId === aq.questId) || [];
-          if (questUpdates.length > 0) {
-            const newProgress = { ...(aq.progress || {}) };
-            questUpdates.forEach((update) => {
-              newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
-            });
-            return { ...aq, progress: newProgress };
-          }
-          return aq;
-        });
-      }
-      if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
-        if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
-        if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
-        victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
-      }
-
-      const premiumMultiplier = getPremiumMultiplier(curHero);
-      const expEnabled = getGameSettings().expEnabled !== false;
-      // Дроп моба: exp/sp/adena рівно як у моба; преміум х2
-      const finalExpGain = expEnabled ? Math.round(expGain * premiumMultiplier) : 0;
-      const finalSpGain = Math.round(spGain * premiumMultiplier);
-      const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
-        ? dropResult.adenaFromDrops
-        : Math.round(adenaGain * premiumMultiplier);
-      displayExp = finalExpGain;
-      displaySp = finalSpGain;
-      displayAdena = finalAdenaGain;
-
-      const completed = curHero.dailyQuestsCompleted ?? [];
-      const cur = curHero.dailyQuestsProgress ?? {};
-      const nextProgress: Record<string, number> = { ...cur };
-      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
-      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
-      const newCompleted = [...completed];
-      let rewardAdena = 0;
-      let rewardExp = 0;
-      let rewardSp = 0;
-      let rewardCoinOfLuck = 0;
-      for (const q of DAILY_QUESTS) {
-        if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
-          newCompleted.push(q.id);
-          rewardAdena += q.rewards.adena ?? 0;
-          rewardExp += expEnabled ? Math.round((q.rewards.exp ?? 0) * EXP_GAIN_RATE) : 0;
-          rewardSp += Math.round((q.rewards.sp ?? 0) * SP_GAIN_RATE);
-          rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
-        }
-      }
-      if (import.meta.env.DEV) {
-        console.log("[attackSkill] victory dailyQuestsProgress", { cur, nextProgress, finalAdenaGain });
-      }
-
-      let level = Number(curHero.level ?? 1) || 1;
-      let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
-      const EPS = 0.001;
-      let leveled = false;
-      let levelUps = 0;
-      const MAX_LEVEL_UPS_PER_TICK = 10;
-      while (exp >= getExpToNext(level, XP_RATE) - EPS && levelUps < MAX_LEVEL_UPS_PER_TICK) {
-        const need = getExpToNext(level, XP_RATE);
-        if (need <= 0 || level >= MAX_LEVEL) {
-          if (level >= MAX_LEVEL) exp = 0;
-          break;
-        }
-        exp = Math.max(0, Math.floor(exp - need));
-        level += 1;
-        leveled = true;
-        levelUps++;
-      }
-      const updMaxHp = curHero.maxHp ?? curHero.hp ?? 0;
-      const updMaxCp = curHero.maxCp ?? curHero.cp ?? 0;
-      const updMaxMp = curHero.maxMp ?? curHero.mp ?? 0;
-      if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
-
-      const curMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? 0;
-      Object.assign(victoryUpdates, {
-        level,
-        exp,
-        sp: (curHero.sp ?? 0) + finalSpGain + rewardSp,
-        adena: (curHero.adena ?? 0) + finalAdenaGain + rewardAdena,
-        hp: leveled ? updMaxHp : healedHeroHP,
-        mp: leveled ? updMaxMp : nextHeroMP,
-        cp: leveled ? updMaxCp : (hero.cp ?? 0),
-        mobsKilled: curMobsKilled + 1,
-        dailyQuestsProgress: nextProgress,
-        dailyQuestsCompleted: newCompleted,
-        ...(rewardCoinOfLuck > 0 ? { coinOfLuck: ((curHero as any).coinOfLuck ?? 0) + rewardCoinOfLuck } : {}),
-      });
-      const heroWithNewHp = { ...curHero, ...victoryUpdates };
-      const recalculatedAfter = recalculateAllStats(heroWithNewHp, updatedBuffs);
-      victoryUpdates.battleStats = recalculatedAfter.finalStats;
-      return victoryUpdates;
+    if (!state.mob) return false;
+    const v = commitMobVictoryToHeroStore({
+      mob: state.mob,
+      heroBuffs: updatedBuffs,
+      postVictoryHp: healedHeroHP,
+      postVictoryMp: nextHeroMP,
+      postVictoryCp: currentHeroCP,
+      useBuffedBattleStats: true,
+      zoneId: state.zoneId,
+      mobIndex: state.mobIndex,
     });
+    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage } = v;
+    if (levelUpMessage) newLog.unshift(levelUpMessage);
 
-    // Встановлюємо респавн моба: 5 сек для риб (fishing зона), 30 секунд для звичайних, 10 хвилин для чемпіонів, respawnTime для РБ
-    if (state.zoneId !== undefined && state.mobIndex !== undefined) {
-      const heroName = useHeroStore.getState().hero?.name;
-      const isRaidBoss = (state.mob as any)?.isRaidBoss === true;
-      const isFishingZone = state.zoneId === "fishing";
-      let respawnTime: number;
-      if (isRaidBoss) {
-        respawnTime = (state.mob as any)?.respawnTime ? (state.mob as any).respawnTime * 1000 : 6 * 60 * 60 * 1000; // respawnTime в секундах, переводимо в мс
-      } else if (isFishingZone) {
-        respawnTime = 5000; // 5 сек для риб
-      } else {
-        const isChampion = state.mob?.name?.startsWith("[Champion]") || state.mob?.name?.startsWith("[Чемпион]");
-        respawnTime = isChampion ? 600000 : 30000; // 10 хв для чемпіонів, 30 сек для звичайних
-      }
-      setMobRespawn(state.zoneId, state.mobIndex, respawnTime, heroName);
-    }
-    
     setAndPersist({
       mobHP: 0,
       status: "victory",

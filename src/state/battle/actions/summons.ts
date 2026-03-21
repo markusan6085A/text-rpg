@@ -12,16 +12,10 @@ import { persistBattle } from "../persist";
 import { useHeroStore } from "../../heroStore";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { computeBuffedMaxResources } from "../helpers";
-import { getExpToNext, MAX_LEVEL } from "../../../data/expTable";
-import { XP_RATE } from "./useSkill/helpers";
-import { setMobRespawn } from "../mobRespawns";
 import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonBuffs";
-import { processMobDrops } from "../helpers/processDrops";
 import { hasSpiritshotActive } from "./useSkill/shotHelpers";
-import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
-import { DAILY_QUESTS } from "../../../data/dailyQuests";
-import { getGameSettings } from "../../../state/gameSettings";
-import { MOB_DEFENSE_MULTIPLIER, EXP_GAIN_RATE, SP_GAIN_RATE } from "../../../data/balance";
+import { MOB_DEFENSE_MULTIPLIER } from "../../../data/balance";
+import { commitMobVictoryToHeroStore } from "../commitMobVictory";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -682,137 +676,32 @@ export function processSummonAttack(
 
   // Check if mob is dead
   if (newMobHP <= 0) {
-    // Calculate reward when summon kills mob
-    const adenaGain = Math.round(
-      ((mob.adenaMin ?? 0) + (mob.adenaMax ?? 0)) / 2
-    );
-    const expGain = mob.exp ?? 0;
-    const spGain = mob.sp ?? 0;
-
-    // Auto Spoil: if toggle is active, automatically spoil the mob
-    const autoSpoilActive = (state.heroBuffs || []).some((buff: any) => buff.id === 2541);
-    const mobSpoiled = autoSpoilActive;
-
-    // Функціональний updateHero — базуємо на prev, щоб не затирати дроп/exp/adena
-    let dropMessages: string[] = [];
-    let displayExp = expGain;
-    let displaySp = spGain;
-    let displayAdena = adenaGain;
-
-    useHeroStore.getState().updateHero((prev) => {
-      const curHero = prev ?? useHeroStore.getState().hero;
-      if (!curHero || !mob) return {};
-      const dropResult = processMobDrops(mob, curHero, mobSpoiled);
-      dropMessages = dropResult.dropMessages;
-
-      const victoryUpdates: Partial<Hero> = { inventory: dropResult.newInventory, overflowChest: dropResult.overflowChest ?? [] };
-      if (dropResult.questProgressUpdates && dropResult.questProgressUpdates.length > 0) {
-        const baseActiveQuests = curHero.activeQuests || [];
-        (victoryUpdates as any).activeQuests = baseActiveQuests.map((aq: any) => {
-          const questUpdates = dropResult.questProgressUpdates?.filter((u: any) => u.questId === aq.questId) || [];
-          if (questUpdates.length > 0) {
-            const newProgress = { ...(aq.progress || {}) };
-            questUpdates.forEach((update: any) => {
-              newProgress[update.itemId] = (newProgress[update.itemId] || 0) + update.count;
-            });
-            return { ...aq, progress: newProgress };
-          }
-          return aq;
-        });
-      }
-      if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
-        if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;
-        if (dropResult.newEquipmentEnchantLevels) victoryUpdates.equipmentEnchantLevels = dropResult.newEquipmentEnchantLevels;
-        victoryUpdates.zaricheEquippedUntil = dropResult.zaricheEquippedUntil;
-      }
-
-      const premiumMultiplier = getPremiumMultiplier(curHero);
-      const expEnabled = getGameSettings().expEnabled !== false;
-      // Дроп моба: exp/sp/adena рівно як у моба; преміум х2
-      const finalExpGain = expEnabled ? Math.round(expGain * premiumMultiplier) : 0;
-      const finalSpGain = Math.round(spGain * premiumMultiplier);
-      const finalAdenaGain = (dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0)
-        ? dropResult.adenaFromDrops
-        : Math.round(adenaGain * premiumMultiplier);
-      displayExp = finalExpGain;
-      displaySp = finalSpGain;
-      displayAdena = finalAdenaGain;
-
-      const completed = curHero.dailyQuestsCompleted ?? [];
-      const cur = curHero.dailyQuestsProgress ?? {};
-      const nextProgress: Record<string, number> = { ...cur };
-      if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
-      if (!completed.includes("daily_adena_farm")) nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
-      const newCompleted = [...completed];
-      let rewardAdena = 0;
-      let rewardExp = 0;
-      let rewardSp = 0;
-      let rewardCoinOfLuck = 0;
-      for (const q of DAILY_QUESTS) {
-        if (nextProgress[q.id] >= q.target && !completed.includes(q.id)) {
-          newCompleted.push(q.id);
-          rewardAdena += q.rewards.adena ?? 0;
-          rewardExp += expEnabled ? Math.round((q.rewards.exp ?? 0) * EXP_GAIN_RATE) : 0;
-          rewardSp += Math.round((q.rewards.sp ?? 0) * SP_GAIN_RATE);
-          rewardCoinOfLuck += q.rewards.coinOfLuck ?? 0;
-        }
-      }
-      if (import.meta.env.DEV) {
-        console.log("[summons] victory dailyQuestsProgress", { cur, nextProgress, finalAdenaGain });
-      }
-
-      let level = Number(curHero.level ?? 1) || 1;
-      let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
-      const EPS = 0.001;
-      let leveled = false;
-      while (exp >= getExpToNext(level, XP_RATE) - EPS) {
-        const need = getExpToNext(level, XP_RATE);
-        if (need <= 0) break;
-        exp = Math.max(0, Math.floor(exp - need));
-        level += 1;
-        leveled = true;
-        if (level >= MAX_LEVEL) {
-          exp = 0;
-          break;
-        }
-      }
-      const baseMax = getMaxResources(curHero);
-      const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, state.heroBuffs || []);
-      if (leveled) newLog.unshift(`Повышение уровня! ${level}`);
-
-      const curMobsKilled = (curHero as any).mobsKilled ?? (curHero as any).mobs_killed ?? 0;
-      Object.assign(victoryUpdates, {
-        level,
-        exp,
-        sp: (curHero.sp ?? 0) + finalSpGain + rewardSp,
-        adena: (curHero.adena ?? 0) + finalAdenaGain + rewardAdena,
-        hp: leveled ? maxHp : Math.min(maxHp, curHero.hp ?? maxHp),
-        mp: leveled ? maxMp : Math.min(maxMp, curHero.mp ?? maxMp),
-        mobsKilled: curMobsKilled + 1,
-        dailyQuestsProgress: nextProgress,
-        dailyQuestsCompleted: newCompleted,
-        ...(rewardCoinOfLuck > 0 ? { coinOfLuck: ((curHero as any).coinOfLuck ?? 0) + rewardCoinOfLuck } : {}),
-      });
-      return victoryUpdates;
-    });
-
-    // Встановлюємо респавн моба: 5 сек для риб (fishing зона), 30 секунд для звичайних, 10 хвилин для чемпіонів, respawnTime для РБ
-    if (state.zoneId !== undefined && state.mobIndex !== undefined) {
-      const heroName = useHeroStore.getState().hero?.name;
-      const isRaidBoss = (state.mob as any)?.isRaidBoss === true;
-      const isFishingZone = state.zoneId === "fishing";
-      let respawnTime: number;
-      if (isRaidBoss) {
-        respawnTime = (state.mob as any)?.respawnTime ? (state.mob as any).respawnTime * 1000 : 6 * 60 * 60 * 1000; // respawnTime в секундах, переводимо в мс
-      } else if (isFishingZone) {
-        respawnTime = 5000; // 5 сек для риб
-      } else {
-        const isChampion = state.mob?.name?.startsWith("[Champion]") || state.mob?.name?.startsWith("[Чемпион]");
-        respawnTime = isChampion ? 600000 : 30000; // 10 хв для чемпіонів, 30 сек для звичайних
-      }
-      setMobRespawn(state.zoneId, state.mobIndex, respawnTime, heroName);
+    const curHero = useHeroStore.getState().hero;
+    if (!curHero) {
+      updates.status = "victory";
+      updates.mobHP = 0;
+      set((prev) => ({ ...(prev as any), ...updates }));
+      persistSnapshot(get, persistBattle, updates);
+      return;
     }
-    
+    const baseMax = getMaxResources(curHero);
+    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, state.heroBuffs || []);
+    const postHp = Math.min(maxHp, curHero.hp ?? maxHp);
+    const postMp = Math.min(maxMp, curHero.mp ?? maxMp);
+    const postCp = Math.min(maxCp, curHero.cp ?? maxCp);
+
+    const v = commitMobVictoryToHeroStore({
+      mob,
+      heroBuffs: state.heroBuffs || [],
+      postVictoryHp: postHp,
+      postVictoryMp: postMp,
+      postVictoryCp: postCp,
+      zoneId: state.zoneId,
+      mobIndex: state.mobIndex,
+    });
+    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage } = v;
+    if (levelUpMessage) newLog.unshift(levelUpMessage);
+
     updates.status = "victory";
     // Не встановлюємо mob = undefined тут, щоб модалка могла використовувати інформацію про моба
     // mob буде очищено при reset() або startBattle()
