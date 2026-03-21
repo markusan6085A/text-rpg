@@ -62,4 +62,15 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     grade: "D",
     stats: { pDef: 30, mDef: 30, pDefPercent: 5, mDefPercent: 5 },
   },
+  /** Ключ вора (Unlock / Treasure Hunter). L2 item id 1661 — у грі предмет за string id. */
+  thief_key: {
+    id: "thief_key",
+    name: "Thief Key",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/Etc_mineral_general_i03_0.jpg",
+    description: "Ключ вора. Витрачається при використанні навички Unlock.",
+    grade: "D",
+    stackable: true,
+  },
 };

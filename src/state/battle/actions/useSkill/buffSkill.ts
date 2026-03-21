@@ -3,7 +3,8 @@ import { persistSnapshot } from "../../helpers";
 import { persistBattle } from "../../persist";
 import { SUMMON_SKILLS, checkSkillCritical, SONIC_FOCUS_ID, FOCUSED_FORCE_ID } from "./helpers";
 import type { BattleState } from "../../types";
-import type { Hero } from "../../../../types/Hero";
+import type { Hero, HeroInventoryItem } from "../../../../types/Hero";
+import { itemsDB } from "../../../../data/items/itemsDB";
 import type { SkillDefinition, SkillLevelDefinition } from "../../../../data/skills/types";
 import type { Setter } from "./helpers";
 import { recalculateAllStats } from "../../../../utils/stats/recalculateAllStats";
@@ -22,6 +23,30 @@ import { handleSummonBuffs } from "./summonBuffs";
 import { handleWarriorBane, handleMageBane, handleDebuffSkill } from "./debuffHandlers";
 import { handleBattleRoar, handleBodyToMind, handleOtherSpecialSkill } from "./specialSkillHandlers";
 import { hasSpiritshotActive } from "./shotHelpers";
+
+function consumeItemsFromInventory(
+  inv: HeroInventoryItem[],
+  itemDbId: string,
+  need: number
+): { ok: boolean; inventory: HeroInventoryItem[] } {
+  if (need <= 0) return { ok: true, inventory: [...inv] };
+  let remaining = need;
+  const out: HeroInventoryItem[] = [];
+  for (const it of inv) {
+    if (remaining <= 0 || it.id !== itemDbId) {
+      out.push(it);
+      continue;
+    }
+    const c = it.count ?? 1;
+    if (c <= remaining) {
+      remaining -= c;
+      continue;
+    }
+    out.push({ ...it, count: c - remaining });
+    remaining = 0;
+  }
+  return { ok: remaining <= 0, inventory: out };
+}
 
 export function handleBuffSkill(
   skillId: number,
@@ -199,6 +224,22 @@ export function handleBuffSkill(
   const curHeroMP = Math.min(curMaxMp, hero.mp ?? curMaxMp);
   const curHeroCP = Math.min(curMaxCp, hero.cp ?? curMaxCp);
 
+  let consumedInventory: HeroInventoryItem[] | undefined;
+  if (def.itemConsume) {
+    const need = def.itemConsume.count ?? 1;
+    const dbId = def.itemConsume.itemDbId;
+    const { ok, inventory } = consumeItemsFromInventory(hero.inventory || [], dbId, need);
+    if (!ok) {
+      const nm = itemsDB[dbId]?.name ?? dbId;
+      setAndPersist({
+        heroBuffs: activeBuffs,
+        log: [`Потрібен предмет: ${nm} ×${need}`, ...state.log].slice(0, 30),
+      });
+      return true;
+    }
+    consumedInventory = inventory;
+  }
+
   const nextHeroMP = curHeroMP - mpCost;
   // Видаляємо бафи з таким самим stackType
   const filteredBase = activeBuffs.filter((b) => !isSameBuff(b));
@@ -331,7 +372,12 @@ export function handleBuffSkill(
   const newHeroCP = clamp(curHeroCP + addCp, maxCp);
   
   // Перераховуємо стати після зміни HP через бафи
-  const heroWithNewHp = { ...hero, hp: newHeroHP, maxHp: maxHp };
+  const heroWithNewHp = {
+    ...hero,
+    hp: newHeroHP,
+    maxHp: maxHp,
+    ...(consumedInventory ? { inventory: consumedInventory } : {}),
+  };
   const recalculated = recalculateAllStats(heroWithNewHp, newBuffs);
   
   // Обробка бафів для сумонів
@@ -371,6 +417,7 @@ export function handleBuffSkill(
     hp: newHeroHP,
     mp: newHeroMP,
     cp: newHeroCP,
+    ...(consumedInventory ? { inventory: consumedInventory } : {}),
     ...(recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk ||
       recalculated.baseFinalStats.mAtk !== hero.battleStats?.mAtk ||
       recalculated.baseFinalStats.pDef !== hero.battleStats?.pDef ||

@@ -12,7 +12,7 @@ export const Skill_0027: SkillDefinition = {
   scope: "single",
   castTime: 2.5,
   cooldown: 120,
-  // itemConsumeId: 1661, // Key of Thief - TODO: implement item consumption
+  itemConsume: { itemDbId: "thief_key", count: 1 },
   levels: [
     { level: 6, requiredLevel: 40, spCost: 35000, mpCost: 35, power: 0 },
     { level: 7, requiredLevel: 43, spCost: 0, mpCost: 39, power: 0 },

@@ -67,5 +67,8 @@ export type SkillDefinition = {
 
   resourceHeal?: ResourceHealDef;
 
+  /** Списати предмет з інвентаря при успішному застосуванні (itemsDB id). */
+  itemConsume?: { itemDbId: string; count?: number };
+
   levels: SkillLevelDefinition[];
 };
