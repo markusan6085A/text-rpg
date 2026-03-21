@@ -285,7 +285,7 @@ export default function Layout({
   };
 
   return (
-    <div className="min-h-dvh bg-black w-full min-w-0 box-border flex flex-col items-stretch px-1 py-2 sm:px-2 sm:py-2 md:px-3">
+    <div className="min-h-dvh bg-black w-full min-w-0 box-border flex flex-col items-stretch px-0 py-2 sm:px-2 sm:py-2 md:px-3">
       <div
         className={`w-full min-w-0 max-w-none flex flex-col relative min-h-dvh flex-1 ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
@@ -338,7 +338,9 @@ export default function Layout({
         <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem]">
           <div
             className={`w-full max-w-full min-w-0 mt-0 ${
-              gameSettings.compactMode ? "px-2 py-1" : "px-3"
+              gameSettings.compactMode
+                ? "px-1.5 py-1 max-[480px]:px-1"
+                : "px-2 py-1 max-[480px]:px-1 sm:px-3"
             } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
           >
             {!dead && children}

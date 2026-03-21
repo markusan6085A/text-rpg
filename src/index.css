@@ -238,6 +238,13 @@ button {
   position: relative;
 }
 
+@media (max-width: 520px) {
+  .l2-frame {
+    padding: 4px;
+    border-radius: 8px;
+  }
+}
+
 .l2-btn {
   width: 45%;
   margin: 0 auto;

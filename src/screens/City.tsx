@@ -13,7 +13,6 @@ import {
   setCityUiVariant,
   type CityUiVariant,
 } from "../utils/cityUiVariant";
-import { getGameSettings } from "../state/gameSettings";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -30,11 +29,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
     getCityUiVariant(),
   );
   const isL2 = cityUi === "l2";
-  const gameSettings = getGameSettings();
-  /** Компенсація px-2/px-3 у Layout — L2 на всю ширину «колонки» від рамки до рамки */
-  const l2LayoutBleed = gameSettings.compactMode
-    ? "-mx-2 w-[calc(100%+1rem)] min-w-0"
-    : "-mx-3 w-[calc(100%+1.5rem)] min-w-0";
 
   const persistCityUi = (v: CityUiVariant) => {
     setCityUiVariant(v);
@@ -132,11 +126,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
     "rounded-xl overflow-hidden border border-amber-700/40 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_55%_at_50%_-10%,rgba(55,90,130,0.38)_0%,transparent_52%),linear-gradient(180deg,#121820_0%,#06080c_100%)]";
 
   return (
-    <div
-      className={
-        isL2 ? `${l2LayoutBleed} ${l2Frame} w-full my-1` : ""
-      }
-    >
+    <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1` : ""}>
       {/* Перемикач вигляду — зберігається в localStorage (ключ l2_city_ui_variant) */}
       <div
         className={
