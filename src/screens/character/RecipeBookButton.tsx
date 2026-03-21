@@ -3,13 +3,18 @@ import { useHeroStore } from "../../state/heroStore";
 
 interface RecipeBookButtonProps {
   navigate: (path: string) => void;
+  /** Якщо задано — замінює стандартні класи рядка (наприклад L2-картка з Character) */
+  className?: string;
 }
 
 /**
  * Кнопка "Книга рецептов" - показується тільки для професій зі скілом "Create Item"
  * Скіл "Create Item" має ID 1320 (Dwarven Fighter) або 172 (Create Item)
  */
-export default function RecipeBookButton({ navigate }: RecipeBookButtonProps) {
+const defaultRowClass =
+  "mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2";
+
+export default function RecipeBookButton({ navigate, className }: RecipeBookButtonProps) {
   const hero = useHeroStore((s) => s.hero);
 
   if (!hero) return null;
@@ -34,7 +39,7 @@ export default function RecipeBookButton({ navigate }: RecipeBookButtonProps) {
   return (
     <button
       onClick={() => navigate("/recipe-book")}
-      className="mt-2 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+      className={className ?? defaultRowClass}
     >
       <img src="/icons/news.png" alt="Recipe Book" className="w-3 h-3 object-contain" />
       <span>Книга рецептов</span>

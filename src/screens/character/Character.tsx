@@ -12,6 +12,7 @@ import { getActiveSevenSealsRank } from "../../utils/sevenSealsBonus";
 import { listCharacters, getSevenSealsRank, claimSevenSealsReward, type Character } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -30,6 +31,24 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     window.history.pushState({}, "", path);
     window.dispatchEvent(new PopStateEvent("popstate"));
   });
+
+  const isL2 = getCityUiVariant() === "l2";
+
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+
+  const l2RowBase =
+    "w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2.5 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)]";
+
+  const svcBtn = (classes: string) =>
+    isL2
+      ? `${l2RowBase} hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150 ${classes}`
+      : `w-full text-left text-[12px] py-1.5 border-b border-solid border-[#c7ad80]/60 flex items-center gap-2 ${classes}`;
+
+  const infoRow = (classes: string) =>
+    isL2 ? `${l2RowBase} ${classes}` : `border-b border-solid border-[#c7ad80]/60 pb-1 mb-1 flex items-center gap-2 w-full ${classes}`;
+
+  const ico = isL2 ? "w-4 h-4 object-contain shrink-0" : "w-3 h-3 object-contain shrink-0";
 
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
@@ -152,10 +171,6 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     setShowStatusModal(false);
   };
 
-
-  const btn =
-    "w-20 py-1 text-[10px] bg-[#0f0a06] text-white border border-[#c7ad80] rounded-md";
-
   if (!hero)
     return (
       <div className="flex items-center justify-center gap-2 py-10 text-gray-500">
@@ -163,24 +178,52 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
       </div>
     );
 
-  return (
-    <div className="w-full flex flex-col items-center text-white">
-      <div
-        className="flex flex-col items-center relative"
-        style={{
-          width: "360px",
-          paddingTop: "10px",
-          paddingBottom: "10px",
-        }}
-      >
+  const topBtn =
+    isL2
+      ? "w-[76px] h-[24px] rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e7d7b3] leading-none shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150"
+      : "w-[76px] h-[22px] rounded-md border border-[#c7ad80] bg-[#1f1d1a]/80 text-[12px] text-[#e7d7b3] leading-none shadow-[inset_0_0_8px_rgba(0,0,0,0.75)] hover:bg-[#2a2723]/80 active:translate-y-[1px]";
 
-        {/* ========================================================= */}
-        {/*     ВЕРХ — МОЙ ПЕРСОНАЖ + КНОПКИ СПРАВА                   */}
-        {/* ========================================================= */}
-        <div className="w-full px-3 mb-1 mt-0">
+  return (
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 flex flex-col items-center text-[#e8dcc8]`
+          : "w-full flex flex-col items-center text-white"
+      }
+    >
+      <div
+        className={
+          isL2
+            ? "flex flex-col items-center relative w-full max-w-[420px] mx-auto px-3 pt-3 pb-2"
+            : "flex flex-col items-center relative"
+        }
+        style={
+          isL2
+            ? undefined
+            : {
+                width: "360px",
+                paddingTop: "10px",
+                paddingBottom: "10px",
+              }
+        }
+      >
+        {/* ВЕРХ — МОЙ ПЕРСОНАЖ + КНОПКИ */}
+        <div
+          className={
+            isL2
+              ? "w-full mb-3 rounded-lg border border-[#5c4a32]/45 bg-black/22 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-3"
+              : "w-full px-3 mb-1 mt-0"
+          }
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-[12px] font-semibold text-[#d6c29a] leading-none">
+              <div
+                className={
+                  isL2
+                    ? "text-[13px] font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_14px_rgba(184,134,11,0.35)] leading-tight"
+                    : "text-[12px] font-semibold text-[#d6c29a] leading-none"
+                }
+              >
                 Мой персонаж
               </div>
               {isPremiumActive(hero) && (
@@ -188,37 +231,42 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
                   включен премиум аккаунт х2
                 </div>
               )}
-              <div className="h-px bg-[#6b5b3f]/60 mt-2" />
+              <div
+                className={
+                  isL2 ? "h-px bg-[#5c4a32]/50 mt-2" : "h-px bg-[#6b5b3f]/60 mt-2"
+                }
+              />
             </div>
             <div className="flex flex-col gap-1.5 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => (window.location.href = "/")}
-                className="w-[76px] h-[22px] rounded-md border border-[#c7ad80] bg-[#1f1d1a]/80 text-[12px] text-[#e7d7b3] leading-none shadow-[inset_0_0_8px_rgba(0,0,0,0.75)] hover:bg-[#2a2723]/80 active:translate-y-[1px]"
+                className={topBtn}
               >
                 Выход
               </button>
-              <button
-                type="button"
-                onClick={() => navigate("/about")}
-                className="w-[76px] h-[22px] rounded-md border border-[#c7ad80] bg-[#1f1d1a]/80 text-[12px] text-[#e7d7b3] leading-none shadow-[inset_0_0_8px_rgba(0,0,0,0.75)] hover:bg-[#2a2723]/80 active:translate-y-[1px]"
-              >
+              <button type="button" onClick={() => navigate("/about")} className={topBtn}>
                 Меню
               </button>
             </div>
           </div>
 
-          {/* Статус, Профессия, Бафи */}
-          <div className="border-t border-solid border-[#c7ad80]/60 pt-2 pb-2 mt-2">
-            <div className="text-xs">
+          <div
+            className={
+              isL2
+                ? "border-t border-[#5c4a32]/35 pt-2 pb-1 mt-3"
+                : "border-t border-solid border-[#c7ad80]/60 pt-2 pb-2 mt-2"
+            }
+          >
+            <div className="text-xs text-[#d4c4a8]">
               Статус:{" "}
               {status ? (
-                <span className="text-yellow-400">{status}</span>
+                <span className="text-[#f0d78c]">{status}</span>
               ) : (
-                <span className="text-gray-400">нет</span>
+                <span className="text-[#8a7a60]">нет</span>
               )}
               <button
-                className="text-red-400 underline ml-1 text-[10px]"
+                className="text-[#c45c5c] underline ml-1 text-[10px] hover:text-[#f4a4a4]"
                 onClick={() => {
                   setNewStatus(status);
                   setShowStatusModal(true);
@@ -227,7 +275,13 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
                 ред
               </button>
             </div>
-            <div className="text-[11px] text-yellow-300 mt-1 border-t border-solid border-[#c7ad80]/60 pt-1">
+            <div
+              className={
+                isL2
+                  ? "text-[11px] text-[#d4b878] mt-2 border-t border-[#5c4a32]/35 pt-2"
+                  : "text-[11px] text-yellow-300 mt-1 border-t border-solid border-[#c7ad80]/60 pt-1"
+              }
+            >
               Профессия:{" "}
               {(() => {
                 const profId = normalizeProfessionId(profession as any);
@@ -237,122 +291,166 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             </div>
             <CharacterBuffs />
           </div>
-          <div className="border-b border-solid border-[#c7ad80]/60" />
+          {!isL2 && <div className="border-b border-solid border-[#c7ad80]/60" />}
         </div>
 
-        {/* ========================================= */}
-        {/*     МОДЕЛЬ + СЛОТЫ — СПІЛЬНИЙ КОМПОНЕНТ  */}
-        {/* ========================================= */}
         <CharacterEquipmentFrame allowUnequip={false} marginTop="8px" />
-        
-        {/* Крапкова лінія під барами (від краю до краю) */}
-        <div className="w-full border-t-2 border-solid border-[#c7ad80]/70 mt-1"></div>
 
-        {/* ========================================================= */}
-        {/*     СТОЛБЕЦ ПУНКТОВ — КАК ТЫ ПРОСИЛ                        */}
-        {/* ========================================================= */}
-        <div className="w-[330px] text-left text-[12px] text-[#c7ad80] mt-1 space-y-1">
+        <div
+          className={
+            isL2
+              ? "w-full border-t border-[#c7ad80]/20 mt-2 mb-1"
+              : "w-full border-t-2 border-solid border-[#c7ad80]/70 mt-1"
+          }
+        />
 
-          <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
-            <img src="/icons/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
-            <span>Аденa: <span className="text-yellow-300">{adena}</span></span>
-          </div>
-          <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
-            <img src="/icons/col (1).png" alt="Coin of Luck" className="w-3 h-3 object-contain" />
-            <span>Coin of Luck: <span className="text-yellow-300">{coins}</span></span>
-          </div>
-          <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
-            <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="Серебряные Монеты" className="w-3 h-3 object-contain" />
-            <span>Серебряные Монеты: <span className="text-yellow-300">{silverCoins}</span></span>
-          </div>
-
-          <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
-            <img src="/icons/star.png" alt="Experience" className="w-3 h-3 object-contain" />
+        <div
+          className={
+            isL2
+              ? "w-full text-left text-[12px] mt-1 text-[#d4c4a8]"
+              : "w-[330px] text-left text-[12px] text-[#c7ad80] mt-1 space-y-1"
+          }
+        >
+          <div className={infoRow("text-[12px]")}>
+            <img src="/icons/adena.png" alt="Adena" className={ico} />
             <span>
-              Опыт: <span className="text-orange-400">{formatNumber(expCurrentDisplay)}</span> / <span className="text-green-300">{formatNumber(expToNextDisplay)}</span>
+              Аденa: <span className="text-[#f0d78c]">{adena}</span>
+            </span>
+          </div>
+          <div className={infoRow("text-[12px]")}>
+            <img src="/icons/col (1).png" alt="Coin of Luck" className={ico} />
+            <span>
+              Coin of Luck: <span className="text-[#f0d78c]">{coins}</span>
+            </span>
+          </div>
+          <div className={infoRow("text-[12px]")}>
+            <img
+              src="/items/drops/resources/etc_coins_silver_i00.png"
+              alt="Серебряные Монеты"
+              className={ico}
+            />
+            <span>
+              Серебряные Монеты: <span className="text-[#f0d78c]">{silverCoins}</span>
             </span>
           </div>
 
-          <div className="border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
-            <img src="/icons/news.png" alt="SP" className="w-3 h-3 object-contain" />
+          <div className={infoRow("text-[12px]")}>
+            <img src="/icons/star.png" alt="Experience" className={ico} />
             <span>
-              SP: <span className="text-blue-300">{formatNumber(sp)}</span>
+              Опыт:{" "}
+              <span className="text-[#e8a85c]">{formatNumber(expCurrentDisplay)}</span> /{" "}
+              <span className="text-[#9d8265]">{formatNumber(expToNextDisplay)}</span>
+            </span>
+          </div>
+
+          <div className={infoRow("text-[12px]")}>
+            <img src="/icons/news.png" alt="SP" className={ico} />
+            <span>
+              SP: <span className="text-[#a8c4a0]">{formatNumber(sp)}</span>
             </span>
           </div>
 
           <button
+            type="button"
             onClick={() => navigate("/learned-skills")}
-            className="mt-1 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+            className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
           >
-            <img src="/icons/news.png" alt="Skills" className="w-3 h-3 object-contain" />
+            <img src="/icons/news.png" alt="Skills" className={ico} />
             <span>Умения</span>
           </button>
-          <RecipeBookButton navigate={navigate} />
+          <RecipeBookButton
+            navigate={navigate}
+            className={isL2 ? svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]") : undefined}
+          />
           <button
+            type="button"
             onClick={() => setShowQuests(!showQuests)}
-            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+            className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
           >
-            <img src="/icons/news.png" alt="Quests" className="w-3 h-3 object-contain" />
+            <img src="/icons/news.png" alt="Quests" className={ico} />
             <span>Мои квесты</span>
           </button>
 
-          <div className="mt-1 border-b border-solid border-[#c7ad80]/60 pb-1 flex items-center gap-2">
-            <img src="/icons/rate.png" alt="Ratings" className="w-3 h-3 object-contain" />
+          <div className={infoRow("text-[12px] text-[#a89878]")}>
+            <img src="/icons/rate.png" alt="Ratings" className={ico} />
             <span>Рейтинги</span>
           </div>
           {sevenSealsRank !== null && (
             <button
+              type="button"
               onClick={() => setShowSevenSealsModal(true)}
-              className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+              className={svcBtn("text-left")}
             >
-              <span className={sevenSealsRank === 1 ? "text-yellow-400" : sevenSealsRank === 2 ? "text-gray-300" : "text-orange-400"}>
+              <span
+                className={
+                  sevenSealsRank === 1
+                    ? "text-[#f0d78c]"
+                    : sevenSealsRank === 2
+                      ? "text-[#c8beb0]"
+                      : "text-[#d4a574]"
+                }
+              >
                 Победитель 7 печатей ({sevenSealsRank} место)
               </span>
             </button>
           )}
           <button
+            type="button"
             onClick={() => navigate("/daily-quests")}
-            className="text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+            className={svcBtn("text-[#7d9b7a] hover:text-[#c8e4c4]")}
           >
-            <img src="/icons/battles.png" alt="Daily Quests" className="w-3 h-3 object-contain" />
+            <img src="/icons/battles.png" alt="Daily Quests" className={ico} />
             <span>Ежедневные задания</span>
           </button>
 
           <button
+            type="button"
             onClick={() => navigate("/premium-account")}
-            className="mt-1 text-left hover:text-yellow-400 transition-colors cursor-pointer border-b border-solid border-[#c7ad80]/60 pb-1 w-full text-[#c7ad80] flex items-center gap-2"
+            className={svcBtn("text-[#d4b88a] hover:text-[#f4e8d4]")}
           >
-            <img src="/icons/coin.png" alt="Premium" className="w-3 h-3 object-contain" />
+            <img src="/icons/coin.png" alt="Premium" className={ico} />
             <span>Премиум аккаунт (ускоренная прокачка)</span>
           </button>
-
         </div>
 
-        {/* Социальный статус */}
-        <div className="w-[330px] text-left text-[11px] text-[#c7ad80] mt-2 border-t-2 border-solid border-[#c7ad80]/70 pt-2">
-          <div className="font-semibold mb-2">Социальный статус</div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px]">
-            <div className="flex justify-between">
+        <div
+          className={
+            isL2
+              ? "w-full text-left text-[11px] mt-3 rounded-lg border border-[#5c4a32]/45 bg-black/18 p-3 text-[#c7ad80] shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+              : "w-[330px] text-left text-[11px] text-[#c7ad80] mt-2 border-t-2 border-solid border-[#c7ad80]/70 pt-2"
+          }
+        >
+          <div
+            className={
+              isL2
+                ? "font-semibold mb-2 text-[12px] text-[#e8c56e]"
+                : "font-semibold mb-2"
+            }
+          >
+            Социальный статус
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px] text-[#d4c4a8]">
+            <div className="flex justify-between gap-2">
               <span>Карма</span>
               <span className={karma >= 0 ? "text-green-400" : "text-red-400"}>{karma}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Рек.</span>
               <span>0</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>PK</span>
               <span className={pk === 0 ? "text-green-400" : "text-red-400"}>{pk}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Ост. рек.</span>
               <span>0</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>Убил мобов</span>
               <span>{mobsKilled}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2">
               <span>PvP побед/поражений</span>
               <span className={pvpWins > pvpLosses ? "text-green-400" : "text-gray-400"}>
                 {pvpWins}/{pvpLosses}
@@ -360,8 +458,9 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             </div>
           </div>
           {registrationDate && (
-            <div className="mt-2 text-gray-500 text-[10px]">
-              Рег-я: {new Date(registrationDate).toLocaleDateString("ru-RU", {
+            <div className="mt-2 text-[#8a7a60] text-[10px]">
+              Рег-я:{" "}
+              {new Date(registrationDate).toLocaleDateString("ru-RU", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
@@ -370,16 +469,13 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
           )}
         </div>
 
-        {/* Квести */}
         {showQuests && (
           <div className="w-full mt-2">
             <CharacterQuests />
           </div>
         )}
-
       </div>
 
-      {/* Модалка бонусу 7 печатей */}
       {showSevenSealsModal && sevenSealsRank !== null && (
         <SevenSealsBonusModal
           rank={sevenSealsRank as 1 | 2 | 3}
@@ -389,31 +485,45 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
         />
       )}
 
-      {/* Модалка статуса */}
       {showStatusModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-[#14110c] border border-[#c7ad80] rounded-lg p-4" style={{ width: "260px" }}>
-            <div className="text-yellow-400 font-bold text-sm text-center mb-2">
+        <div className="fixed inset-0 bg-black/65 flex items-center justify-center z-50">
+          <div
+            className={
+              isL2
+                ? "rounded-xl border border-[#c7ad80]/40 p-4 shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                : "bg-[#14110c] border border-[#c7ad80] rounded-lg p-4"
+            }
+            style={{ width: "260px" }}
+          >
+            <div
+              className={
+                isL2
+                  ? "text-[#e8c56e] font-bold text-sm text-center mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                  : "text-yellow-400 font-bold text-sm text-center mb-2"
+              }
+            >
               Новый статус
             </div>
 
             <input
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
-              className="w-full bg-black text-white border border-[#c7ad80] p-1 text-sm mb-3 rounded"
+              className="w-full bg-black/80 text-[#e8dcc8] border border-[#5c4a32]/70 focus:border-[#c7ad80]/50 p-1.5 text-sm mb-3 rounded outline-none"
               placeholder="Введите статус..."
             />
 
             <div className="flex gap-2 justify-center">
               <button
+                type="button"
                 onClick={saveStatus}
-                className="bg-green-700 text-white text-[11px] py-1 px-4 rounded"
+                className="bg-green-800/90 text-white text-[11px] py-1.5 px-4 rounded-md border border-green-700/50 hover:brightness-110"
               >
                 Сохранить
               </button>
               <button
+                type="button"
                 onClick={() => setShowStatusModal(false)}
-                className="bg-gray-600 text-white text-[11px] py-1 px-4 rounded"
+                className="bg-[#2a2620] text-[#d4c4a8] text-[11px] py-1.5 px-4 rounded-md border border-[#5c4a32]/70 hover:border-[#c7ad80]/40"
               >
                 Отмена
               </button>
@@ -421,7 +531,6 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
           </div>
         </div>
       )}
-
     </div>
   );
 }
