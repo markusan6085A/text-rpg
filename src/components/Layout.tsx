@@ -285,9 +285,9 @@ export default function Layout({
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-black w-full min-w-0 box-border flex flex-col items-stretch px-1 py-2 sm:px-2 sm:py-2 md:px-3">
+    <div className="min-h-dvh bg-black w-full min-w-0 box-border flex flex-col items-stretch px-1 py-2 sm:px-2 sm:py-2 md:px-3">
       <div
-        className={`w-full min-w-0 max-w-none flex flex-col relative min-h-screen flex-1 ${!customBackground ? "l2-frame page-bg" : ""}`}
+        className={`w-full min-w-0 max-w-none flex flex-col relative min-h-dvh flex-1 ${!customBackground ? "l2-frame page-bg" : ""}`}
         style={
           customBackground
               ? {
