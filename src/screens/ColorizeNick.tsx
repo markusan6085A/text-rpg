@@ -3,6 +3,7 @@ import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { colorizeNick } from "../utils/api";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface ColorizeNickProps {
   navigate: (path: string) => void;
@@ -79,9 +80,24 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isApplying, setIsApplying] = useState(false);
   const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const innerPanel = isL2
+    ? "max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
+    : "max-w-[360px] mx-auto";
+  const sep = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/40";
 
   if (!hero) {
-    return <div className="text-white text-center mt-10">Загрузка...</div>;
+    return (
+      <div
+        className={
+          isL2 ? "text-[#8a7a60] text-center mt-10" : "text-white text-center mt-10"
+        }
+      >
+        Загрузка...
+      </div>
+    );
   }
 
   const coins = hero.coinOfLuck || 0;
@@ -89,21 +105,35 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
   const hasEnoughCoins = coins >= 50;
 
   return (
-    <div className="w-full text-white px-3 py-4">
-      <div className="max-w-[360px] mx-auto">
+    <div
+      className={
+        isL2 ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 text-[#d4c4a8]` : "w-full text-white px-3 py-4"
+      }
+    >
+      <div className={innerPanel}>
         {/* Colorize Nick Section */}
         <div>
-          <div className="border-t border-white/40 pt-2 pb-2">
-            <div className="text-lg font-bold mb-2 text-orange-400">Установить цвет ника</div>
+          <div className={`${sep} pt-2 pb-2`}>
+            <div
+              className={
+                isL2 ? "text-lg font-bold mb-2 text-[#e8c56e]" : "text-lg font-bold mb-2 text-orange-400"
+              }
+            >
+              Установить цвет ника
+            </div>
           </div>
-          <div className="border-t border-white/40 pt-2 pb-2">
-            <div className="text-sm text-gray-300 mb-3">
+          <div className={`${sep} pt-2 pb-2`}>
+            <div className={isL2 ? "text-sm text-[#a89878] mb-3" : "text-sm text-gray-300 mb-3"}>
               Вы можете сменить цвет ника своего персонажа на любой из ниже приведенных.
             </div>
           </div>
 
-          <div className="border-t border-white/40 pt-2 pb-2">
-            <div className="text-yellow-400 text-xs font-semibold mb-3">
+          <div className={`${sep} pt-2 pb-2`}>
+            <div
+              className={
+                isL2 ? "text-[#e8c56e] text-xs font-semibold mb-3" : "text-yellow-400 text-xs font-semibold mb-3"
+              }
+            >
               Цена: 50 Coin of Luck
             </div>
           </div>
@@ -116,7 +146,9 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                 onClick={() => setSelectedColor(color.code)}
                 className={`text-xs font-bold transition-all hover:opacity-80 ${
                   selectedColor === color.code
-                    ? "underline decoration-yellow-400 decoration-2"
+                    ? isL2
+                      ? "underline decoration-[#c9a44c] decoration-2"
+                      : "underline decoration-yellow-400 decoration-2"
                     : ""
                 }`}
                 style={{ color: color.code }}
@@ -127,18 +159,24 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
             ))}
           </div>
 
-          <div className="text-xs text-gray-400 text-center mb-3">
+          <div
+            className={
+              isL2 ? "text-xs text-[#8a7a60] text-center mb-3" : "text-xs text-gray-400 text-center mb-3"
+            }
+          >
             * Нажмите на цвет, чтобы выбрать.
           </div>
 
           {/* Apply Button */}
-          <div className="border-t border-white/40 pt-2 pb-2">
+          <div className={`${sep} pt-2 pb-2`}>
             <button
               disabled={!selectedColor || !hasEnoughCoins || isApplying}
               className={`w-full text-sm font-semibold transition-opacity ${
                 !selectedColor || !hasEnoughCoins || isApplying
                   ? "text-gray-500 cursor-not-allowed"
-                  : "text-white hover:opacity-80"
+                  : isL2
+                    ? "text-[#e8dcc8] hover:text-[#f0e4c8]"
+                    : "text-white hover:opacity-80"
               }`}
               onClick={async () => {
                 if (!selectedColor || !characterId) return;
@@ -210,7 +248,11 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
           }}
         >
           <div
-            className="bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            className={
+              isL2
+                ? "bg-[#14110c] border border-green-700/45 rounded-lg p-4 max-w-md w-full shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
+                : "bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
+            }
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
