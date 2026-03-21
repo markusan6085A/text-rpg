@@ -2,6 +2,7 @@ import React from "react";
 import { type Clan, type ClanMember } from "../../utils/api";
 import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
 import { useHeroStore } from "../../state/heroStore";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface ClanMembersProps {
   clan: Clan;
@@ -33,6 +34,14 @@ export default function ClanMembers({
   onShowApplications,
 }: ClanMembersProps) {
   const hero = useHeroStore((s) => s.hero);
+  const isL2 = getCityUiVariant() === "l2";
+  const panel = isL2
+    ? "bg-black/25 border border-[#5c4a32]/55 rounded p-2 max-h-64 overflow-y-auto space-y-1"
+    : "bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1";
+  const linkCls = isL2 ? "text-[#c9a44c] hover:text-[#e8c56e]" : "text-[#c7ad80] hover:text-[#f4e2b8]";
+  const inputCls = isL2
+    ? "flex-1 px-1 py-0.5 bg-[#0f0a06] border border-[#5c4a32]/50 text-[11px] text-[#e8dcc8] rounded"
+    : "flex-1 px-1 py-0.5 bg-[#2a2a2a] border border-white/50 text-[11px] text-white rounded";
   // Обчислюємо максимум учасників на основі рівня клану
   const getMaxMembers = (level: number): number => {
     if (level >= 8) return 80;
@@ -53,17 +62,18 @@ export default function ClanMembers({
     <div className="space-y-2">
       <div className="flex justify-between items-center mb-2">
         <div
-          className="text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
+          className={
+            isL2
+              ? "text-[12px] text-[#c9a44c] cursor-pointer hover:text-[#e8c56e]"
+              : "text-[12px] text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
+          }
           onClick={onTabChange}
         >
           Состав ({members.length}/{maxMembers})
         </div>
         <div className="flex gap-2 text-[11px]">
           {(isLeader || isDeputy) && onShowApplications && (
-            <span
-              className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-              onClick={onShowApplications}
-            >
+            <span className={`cursor-pointer ${linkCls}`} onClick={onShowApplications}>
               Заявки
             </span>
           )}
@@ -74,7 +84,7 @@ export default function ClanMembers({
           )}
         </div>
       </div>
-      <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
+      <div className={panel}>
         {members.map((member) => {
           const isOnline = member.isOnline;
           const titleDisplay = member.title || "Нет титула";
@@ -86,7 +96,11 @@ export default function ClanMembers({
           return (
             <div
               key={member.id}
-              className="text-[11px] border-b border-solid border-white/40 pb-1"
+              className={
+                isL2
+                  ? "text-[11px] border-b border-solid border-[#5c4a32]/35 pb-1"
+                  : "text-[11px] border-b border-solid border-white/40 pb-1"
+              }
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -98,7 +112,7 @@ export default function ClanMembers({
                       size={8}
                     /> [{isOnline ? "On" : "Off"}]
                   </span>
-                  <div className="text-[#9f8d73] mt-0.5">
+                  <div className={isL2 ? "text-[#8a7a60] mt-0.5" : "text-[#9f8d73] mt-0.5"}>
                     {titleDisplay}
                     {rolesDisplay}
                   </div>
@@ -112,29 +126,15 @@ export default function ClanMembers({
                   >
                     Исключить
                   </span>
-                  <span
-                    className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                    onClick={() =>
-                      onEditingTitleChange({
-                        characterId: member.characterId,
-                        title: member.title,
-                      })
-                    }
-                  >
+                  <span className={`cursor-pointer ${linkCls}`} onClick={() => onEditingTitleChange({ characterId: member.characterId, title: member.title })}>
                     Изм. титул
                   </span>
                   {member.isDeputy ? (
-                    <span
-                      className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                      onClick={() => onSetDeputy(member.characterId, false)}
-                    >
+                    <span className={`cursor-pointer ${linkCls}`} onClick={() => onSetDeputy(member.characterId, false)}>
                       Снять с зам.
                     </span>
                   ) : (
-                    <span
-                      className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                      onClick={() => onSetDeputy(member.characterId, true)}
-                    >
+                    <span className={`cursor-pointer ${linkCls}`} onClick={() => onSetDeputy(member.characterId, true)}>
                       Назначить зам.
                     </span>
                   )}
@@ -150,15 +150,7 @@ export default function ClanMembers({
               )}
               {isLeader && member.isLeader && (
                 <div className="mt-1 text-[10px]">
-                  <span
-                    className="text-[#c7ad80] cursor-pointer hover:text-[#f4e2b8]"
-                    onClick={() =>
-                      onEditingTitleChange({
-                        characterId: member.characterId,
-                        title: member.title,
-                      })
-                    }
-                  >
+                  <span className={`cursor-pointer ${linkCls}`} onClick={() => onEditingTitleChange({ characterId: member.characterId, title: member.title })}>
                     Изм. титул
                   </span>
                 </div>
@@ -174,7 +166,7 @@ export default function ClanMembers({
                         title: e.target.value || null,
                       })
                     }
-                    className="flex-1 px-1 py-0.5 bg-[#2a2a2a] border border-white/50 text-[11px] text-white rounded"
+                    className={inputCls}
                     placeholder="Титул (пусто = нет титула)"
                     maxLength={20}
                   />

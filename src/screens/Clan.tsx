@@ -44,6 +44,7 @@ import ClanAnnouncementModal from "./clan/modals/ClanAnnouncementModal";
 import ClanApplicationsModal from "./clan/modals/ClanApplicationsModal";
 import ConfirmModal from "../components/ConfirmModal";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 interface ClanProps {
   navigate: (path: string) => void;
@@ -531,11 +532,26 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     showToast("Логово дракона - в разработке");
   };
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const innerPanel = isL2
+    ? "w-full max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
+    : "";
+
   if (!hero) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex justify-center text-[#d4c4a8]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Загрузка персонажа...</div>
+          <div className={isL2 ? "text-center text-[#8a7a60]" : "text-center text-[#dec28e]"}>
+            Загрузка персонажа...
+          </div>
         </div>
       </div>
     );
@@ -543,9 +559,15 @@ export default function Clan({ navigate, clanId }: ClanProps) {
 
   if (loading) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex justify-center text-[#d4c4a8]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Загрузка...</div>
+          <div className={isL2 ? "text-center text-[#8a7a60]" : "text-center text-[#dec28e]"}>Загрузка...</div>
         </div>
       </div>
     );
@@ -553,9 +575,15 @@ export default function Clan({ navigate, clanId }: ClanProps) {
 
   if (!clan) {
     return (
-      <div className="w-full text-white flex justify-center px-3 py-4">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex justify-center text-[#d4c4a8]`
+            : "w-full text-white flex justify-center px-3 py-4"
+        }
+      >
         <div className="w-full max-w-[420px]">
-          <div className="text-center text-[#dec28e]">Клан не найден</div>
+          <div className={isL2 ? "text-center text-[#8a7a60]" : "text-center text-[#dec28e]"}>Клан не найден</div>
         </div>
       </div>
     );
@@ -564,8 +592,12 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const isLeader = clan.isLeader || false;
 
   return (
-    <div className="w-full text-white px-4 py-2">
-      <div className="w-full max-w-[360px] mx-auto">
+    <div
+      className={
+        isL2 ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 text-[#d4c4a8]` : "w-full text-white px-4 py-2"
+      }
+    >
+      <div className={isL2 ? innerPanel : "w-full max-w-[360px] mx-auto"}>
         <div className="space-y-3">
           <ClanHeader
             clan={clan}

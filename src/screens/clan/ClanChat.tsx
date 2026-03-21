@@ -3,6 +3,7 @@ import { type ClanChatMessage } from "../../utils/api";
 import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
 import { EmojiText } from "../../components/EmojiText";
 import { useHeroStore } from "../../state/heroStore";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface ClanChatProps {
   messages: ClanChatMessage[];
@@ -24,14 +25,24 @@ export default function ClanChat({
   onPageChange,
 }: ClanChatProps) {
   const hero = useHeroStore((s) => s.hero);
-  
+  const isL2 = getCityUiVariant() === "l2";
+  const panel = isL2
+    ? "bg-black/25 border border-[#5c4a32]/55 rounded p-2 max-h-64 overflow-y-auto space-y-1"
+    : "bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1";
+  const pgBtn = (disabled: boolean) =>
+    disabled
+      ? "text-gray-500 cursor-not-allowed"
+      : isL2
+        ? "text-[#c9a44c] hover:text-[#e8c56e]"
+        : "text-[#c7ad80] hover:text-[#f4e2b8]";
+
   return (
     <div className="space-y-2">
       {/* Чат */}
-      <div className="text-[12px] text-[#c7ad80] mb-2">Чат клана:</div>
-      <div className="bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1">
+      <div className={isL2 ? "text-[12px] text-[#e8c56e] mb-2" : "text-[12px] text-[#c7ad80] mb-2"}>Чат клана:</div>
+      <div className={panel}>
         {messages.length === 0 ? (
-          <div className="text-[11px] text-[#9f8d73]">Нет сообщений</div>
+          <div className={isL2 ? "text-[11px] text-[#8a7a60]" : "text-[11px] text-[#9f8d73]"}>Нет сообщений</div>
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className="text-[11px]">
@@ -43,14 +54,16 @@ export default function ClanChat({
                 size={12}
                 className="font-semibold"
               />
-              <span className="text-white">: <EmojiText>{msg.message}</EmojiText></span>
+              <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>
+                : <EmojiText>{msg.message}</EmojiText>
+              </span>
             </div>
           ))
         )}
       </div>
       {/* Пагінація чату */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]">
+        <div className={isL2 ? "flex justify-center items-center gap-2 text-[11px] text-[#c9a44c]" : "flex justify-center items-center gap-2 text-[11px] text-[#c7ad80]"}>
           <button
             onClick={() => {
               if (page > 1) {
@@ -58,11 +71,11 @@ export default function ClanChat({
               }
             }}
             disabled={page === 1}
-            className={`px-2 py-1 ${page === 1 ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+            className={`px-2 py-1 ${pgBtn(page === 1)}`}
           >
             &lt;
           </button>
-          <span className="text-white">
+          <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>
             {page} / {totalPages}
           </span>
           <button
@@ -72,7 +85,7 @@ export default function ClanChat({
               }
             }}
             disabled={page === totalPages}
-            className={`px-2 py-1 ${page === totalPages ? "text-gray-500 cursor-not-allowed" : "text-[#c7ad80] hover:text-[#f4e2b8]"}`}
+            className={`px-2 py-1 ${pgBtn(page === totalPages)}`}
           >
             &gt;
           </button>
@@ -88,7 +101,11 @@ export default function ClanChat({
               onSendMessage();
             }
           }}
-          className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-[12px] text-white rounded"
+          className={
+            isL2
+              ? "flex-1 px-2 py-1 bg-[#0f0a06] border border-[#5c4a32]/50 text-[12px] text-[#e8dcc8] rounded placeholder-[#6a6048]"
+              : "flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-[12px] text-white rounded"
+          }
           placeholder="Введите сообщение..."
         />
         <button

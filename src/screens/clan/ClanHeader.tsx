@@ -3,6 +3,7 @@ import { type Clan } from "../../utils/api";
 import { useHeroStore } from "../../state/heroStore";
 import { ClanNameWithEmblem } from "../../components/ClanNameWithEmblem";
 import { handleNumberInput } from "../../utils/numberInput";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface ClanHeaderProps {
   clan: Clan;
@@ -35,18 +36,27 @@ export default function ClanHeader({
   onWithdrawAdena,
   onCoinLuckAction,
 }: ClanHeaderProps) {
+  const isL2 = getCityUiVariant() === "l2";
+  const sepT = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/50";
+  const sepB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-white/50";
+  const labelCls = isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]";
+  const valueCls = isL2 ? "text-[#e8dcc8]" : "text-white";
+  const inputCls = isL2
+    ? "flex-1 px-2 py-1 bg-[#0f0a06] border border-[#5c4a32]/50 text-[#e8dcc8] rounded"
+    : "flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded";
+
   return (
     <>
       {/* Риска вище назви клану */}
-      <div className="border-t border-white/50"></div>
+      <div className={sepT} />
 
       {/* Назва клану */}
-      <div className="text-center text-[16px] font-semibold text-[#f4e2b8]">
+      <div className={isL2 ? "text-center text-[16px] font-semibold text-[#e8c56e]" : "text-center text-[16px] font-semibold text-[#f4e2b8]"}>
         <ClanNameWithEmblem clan={clan} size={12} />
       </div>
 
       {/* Риска нижче назви клану */}
-      <div className="border-b border-white/50"></div>
+      <div className={sepB} />
 
       {/* Емблема клану (clanns.png) */}
       <div className="flex justify-center">
@@ -63,32 +73,38 @@ export default function ClanHeader({
       {/* Статистика клану */}
       <div className="space-y-1 text-[12px]">
         <div className="flex justify-between">
-          <span className="text-[#c7ad80]">Уровень:</span>
-          <span className="text-white">{clan.level}</span>
+          <span className={labelCls}>Уровень:</span>
+          <span className={valueCls}>{clan.level}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[#c7ad80]">Лидер:</span>
-          <span className="text-white">{clan.creator.name}</span>
+          <span className={labelCls}>Лидер:</span>
+          <span className={valueCls}>{clan.creator.name}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[#c7ad80]">Репутация:</span>
-          <span className="text-white">{clan.reputation}</span>
+          <span className={labelCls}>Репутация:</span>
+          <span className={valueCls}>{clan.reputation}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[#c7ad80]">Основан:</span>
-          <span className="text-white">
+          <span className={labelCls}>Основан:</span>
+          <span className={valueCls}>
             {new Date(clan.createdAt).toLocaleDateString("ru-RU")}
           </span>
         </div>
         {clan.announcement && clan.announcement.trim() && (
-          <div className="p-2 bg-[#1a1a1a] border border-white/30 rounded text-[11px] text-[#c7ad80] whitespace-pre-wrap">
+          <div
+            className={
+              isL2
+                ? "p-2 bg-black/25 border border-[#5c4a32]/50 rounded text-[11px] text-[#c9a44c] whitespace-pre-wrap"
+                : "p-2 bg-[#1a1a1a] border border-white/30 rounded text-[11px] text-[#c7ad80] whitespace-pre-wrap"
+            }
+          >
             {clan.announcement}
           </div>
         )}
         <div>
           <div className="flex justify-between">
-            <span className="text-[#c7ad80]">Адена:</span>
-            <span className="text-white">{clan.adena.toLocaleString("ru-RU")}</span>
+            <span className={labelCls}>Адена:</span>
+            <span className={valueCls}>{clan.adena.toLocaleString("ru-RU")}</span>
           </div>
           <div className="flex gap-2 mt-1">
             <button
@@ -117,13 +133,17 @@ export default function ClanHeader({
                 onDepositAmountChange(newValue);
               }}
               onFocus={(e) => e.target.select()}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded"
+              className={inputCls}
               placeholder="Сумма"
               autoFocus
             />
             <button
               onClick={onDepositAdena}
-              className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
+              className={
+                isL2
+                  ? "text-[11px] text-[#c9a44c] hover:text-[#e8c56e] transition-colors"
+                  : "text-[11px] text-[#c7ad80] hover:text-white transition-colors"
+              }
             >
               OK
             </button>
@@ -145,13 +165,17 @@ export default function ClanHeader({
                 onWithdrawAdenaAmountChange(newValue);
               }}
               onFocus={(e) => e.target.select()}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded"
+              className={inputCls}
               placeholder="Сумма для вывода"
               autoFocus
             />
             <button
               onClick={onWithdrawAdena}
-              className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
+              className={
+                isL2
+                  ? "text-[11px] text-[#c9a44c] hover:text-[#e8c56e] transition-colors"
+                  : "text-[11px] text-[#c7ad80] hover:text-white transition-colors"
+              }
             >
               OK
             </button>
@@ -165,8 +189,8 @@ export default function ClanHeader({
         )}
         <div>
           <div className="flex justify-between">
-            <span className="text-[#c7ad80]">Coin of Luck:</span>
-            <span className="text-white">{clan.coinLuck}</span>
+            <span className={labelCls}>Coin of Luck:</span>
+            <span className={valueCls}>{clan.coinLuck}</span>
           </div>
           <div className="flex gap-2 mt-1">
             <button
@@ -199,13 +223,17 @@ export default function ClanHeader({
                 onCoinLuckAmountChange(newValue);
               }}
               onFocus={(e) => e.target.select()}
-              className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded"
+              className={inputCls}
               placeholder={`Сумма для ${coinLuckAction === "deposit" ? "положения" : "вывода"}`}
               autoFocus
             />
             <button
               onClick={onCoinLuckAction}
-              className="text-[11px] text-[#c7ad80] hover:text-white transition-colors"
+              className={
+                isL2
+                  ? "text-[11px] text-[#c9a44c] hover:text-[#e8c56e] transition-colors"
+                  : "text-[11px] text-[#c7ad80] hover:text-white transition-colors"
+              }
             >
               OK
             </button>
