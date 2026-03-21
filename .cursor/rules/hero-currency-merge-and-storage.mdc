@@ -48,45 +48,31 @@ alwaysApply: true
 
 ---
 
-## 3) Register flow — що відбувається при F5 одразу після реєстрації
+## 3) Register flow — після реєстрації та F5
 
-**По коду:**
+**По коду (актуально):**
 
-1. **Register** викликає: `setCharacterId(character.id)` → у localStorage пишеться `current_character_id`; `setHero(loadedHero)` або `setHero({ ...coreHero })`; **не** викликає `setJSON("l2_current_user", ...)`.
-2. **Після F5:**  
-   - Bootstrap: `initializeCharacter()` → `characterId` зчитується з `current_character_id` (є).  
-   - `getHeroFromLocalStorage()` = `loadHero()`: `username = getJSON("l2_current_user", null)` → **null** → `loadHero()` одразу повертає **null** (heroLoad.ts, ~рядки 25–27).  
-   - Локального героя немає → `setHero(null)` або `loadHero()` знову дає null, UI показується з hero null.  
-   - У фоні викликається `loadHeroFromAPI()`: `authStore.isAuthenticated` і `characterStore.characterId` є → GET `/characters/:id` → будується герой з сервера → `setHero(loadedHero)`. Користувач бачить героя з API.
-3. **Запис у localStorage:**  
-   При будь-якому подальшому `saveHeroToLocalStorageOnly(hero)` або шляху в `saveHeroToLocalStorage`, що пише в localStorage: `current = getJSON("l2_current_user", null)` залишається **null** → у heroPersistence виконується `if (!current) return` (saveHeroToLocalStorageOnly, ~рядки 52–53) або знаходиться `accIndex === -1` для масиву accounts → запис у **l2_accounts_v2 не відбувається**. Тобто після реєстрації без логіну через Landing у користувача **немає локального бекапу** героя в `l2_accounts_v2`.
+1. **`Register.tsx`** після успіху: `setCharacterId`, `setJSON("l2_current_user", trimmedUsername)`, `loadHeroFromAPI()` → `setHero(loadedHero)` або fallback `coreHero`; оновлює **`l2_accounts_v2`** (запис `{ username, hero }` через єдиний helper у `heroPersistence.ts`).
+2. **Після F5:** `initializeCharacter()` читає `current_character_id`; `loadHero()` знаходить `l2_current_user` і героя в `l2_accounts_v2` — локальний герой піднімається миттєво; у фоні `loadHeroFromAPI()` може оновити з сервера за merge-правилами.
+3. Якщо **немає** ні токена, ні `characterId`, ні локального запису — сценарій як у Landing (логін через API).
 
-**Висновок:** Це не падає, але це **незапис у localStorage** для користувача, який тільки зареєструвався (ніколи не натискав «Войти» на Landing). Якщо потім API недоступний, `loadHero()` поверне null, `loadHeroFromAPI()` може не відпрацювати — герой не з’явиться.
-
-**Варіант A — зробити локальний акаунт одразу після реєстрації:**  
-Після успішного створення персонажа та отримання героя (loadedHero або fallback) викликати `setJSON("l2_current_user", username)` і додати запис у `l2_accounts_v2` (наприклад один раз записати `{ username, hero }` у масив accounts).  
-- **Ризики:** потрібно один раз створити запис у `l2_accounts_v2` узгоджено з heroLoad/heroPersistence (формат accounts); якщо запис буде неповний, heroLoad може повернути «сирого» героя.  
-- **Мінімальний diff:** у `Register.tsx` після `setHero(loadedHero)` (або після fallback `setHero({...})`) викликати `setJSON("l2_current_user", trimmedUsername)` і дописати в `l2_accounts_v2` новий елемент `{ username: trimmedUsername, hero: useHeroStore.getState().hero }` (або використати існуючу функцію з heroPersistence, якщо винести «додати/оновити запис» без PUT).
-
-**Варіант B — залишити як є:**  
-Не змінювати поведінку.  
-- **Ризики:** користувачі «тільки з реєстрації» не мають бекапу в localStorage; при проблемах з API можуть тимчасово не бачити героя.  
-- **Мінімальний diff:** немає.
+**Висновок:** Після реєстрації локальний бекап у `l2_accounts_v2` має бути; не дублювати логіку запису — один публічний helper у `heroPersistence.ts`.
 
 ---
 
-## 4) Записи в l2_accounts_v2 — тільки дозволені місця
+## 4) Записи в l2_accounts_v2 — дозволені місця
 
-**Усі виклики `setJSON("l2_accounts_v2", ...)` у проєкті:**
+**Виклики `setJSON("l2_accounts_v2", ...)`:**
 
 | Файл | Контекст |
 |------|----------|
-| `src/state/heroStore/heroLoad.ts` | Міграції при читанні: fixProfession по акаунтах, Angel Slayer у інвентарі (рядки 70, 81, 156). |
-| `src/state/heroStore/heroPersistence.ts` | Єдине робоче місце запису героя: saveHeroToLocalStorageOnly та всі гілки saveHeroToLocalStorage (localStorage fallback, backup при 429/409, тощо) — багато викликів setJSON. |
-| `src/utils/fixProfession.ts` | `fixAllHeroProfessions()` — пише в l2_accounts_v2. Наразі **ніде не викликається** (тільки оголошення функції). |
+| `src/state/heroStore/heroPersistence.ts` | Збереження героя (save / fallback / backup) **і** публічний helper для `l2_current_user` + рядка в `l2_accounts_v2` при логіні/реєстрації. |
+| `src/state/heroStore/heroLoad.ts` | Міграції при читанні (fixProfession, Angel Slayer тощо). |
+| `src/utils/fixProfession.ts` | `fixAllHeroProfessions()` — опційно, наразі може не викликатись. |
 
-Інших записів у `l2_accounts_v2` у вихідному коді (src/server, без .md / тимчасових файлів) немає.  
-Правило: **новий код не повинен викликати setJSON("l2_accounts_v2", ...)** окрім heroPersistence та міграцій у heroLoad (і опційно виклику fixAllHeroProfessions, якщо його колись підключити).
+**Bootstrap (логін / після auth на `/`):** `App.tsx` і **`Register.tsx`** не повинні дублювати масив `accounts` вручну — лише helper з `heroPersistence.ts`.
+
+Правило: **не додавати нові прямі `setJSON("l2_accounts_v2", ...)`** поза `heroPersistence`, `heroLoad` (міграції) та `fixProfession`.
 
 ---
 
