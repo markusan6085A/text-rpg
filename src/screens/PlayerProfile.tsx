@@ -30,6 +30,7 @@ import { useBattleStore } from "../state/battle/store";
 import { useAdminStore } from "../state/adminStore";
 import { buffPlayer } from "../utils/api";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
   const hero = useHeroStore((s) => s.hero);
@@ -606,9 +607,22 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     }
   };
 
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const profileInner = isL2
+    ? "w-full max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-3"
+    : "w-full max-w-[360px] mt-2";
+
   if (loading) {
     return (
-      <div className="w-full flex items-center justify-center text-white text-sm py-10">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex items-center justify-center text-[#8a7a60] text-sm`
+            : "w-full flex items-center justify-center text-white text-sm py-10"
+        }
+      >
         Загрузка профілю...
       </div>
     );
@@ -616,11 +630,21 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
   if (error || !character || !heroData) {
     return (
-      <div className="w-full flex flex-col items-center text-white text-sm py-10">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex flex-col items-center text-[#d4c4a8] text-sm`
+            : "w-full flex flex-col items-center text-white text-sm py-10"
+        }
+      >
         <div className="text-red-400 mb-4">{error || "Профіль не знайдено"}</div>
         <button
           onClick={() => navigate("/online-players")}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
+          className={
+            isL2
+              ? "px-4 py-2 rounded bg-[#5a4424] hover:bg-[#6a5434] text-[#e8dcc8] border border-[#5c4a32]/55"
+              : "px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
+          }
         >
           Назад до списку онлайн
         </button>
@@ -782,16 +806,26 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
   const premiumTime = formatPremiumTime(premiumExpiresAt);
 
-  const lineThin = "border-t border-[#c7ad80]/70";
-  const lineThick = "border-t-2 border-[#c7ad80]";
+  const lineThin = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-[#c7ad80]/70";
+  const lineThick = isL2 ? "border-t-2 border-[#5c4a32]/55" : "border-t-2 border-[#c7ad80]";
   const boxPad = "px-3";
 
   return (
-    <div className="w-full flex flex-col items-center text-white">
-      <div className="w-full max-w-[360px] mt-2">
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-4 flex flex-col items-center text-[#d4c4a8]`
+          : "w-full flex flex-col items-center text-white"
+      }
+    >
+      <div className={profileInner}>
         {/* Заголовок */}
         <div className={`w-full ${lineThick} ${lineThin} py-2`}>
-          <div className={`${boxPad} text-center text-[14px] font-bold text-[#87ceeb]`}>
+          <div
+            className={`${boxPad} text-center text-[14px] font-bold ${
+              isL2 ? "text-[#e8c56e]" : "text-[#87ceeb]"
+            }`}
+          >
             Информация о игроке
           </div>
         </div>
@@ -811,7 +845,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                 />
               </div>
               <div className={`${lineThin} mt-2 pt-2 pb-2`}>
-                <div className="text-yellow-300 text-[12px]">
+                <div className={isL2 ? "text-[#c9a44c] text-[12px]" : "text-yellow-300 text-[12px]"}>
                   {professionLabel} - {character.level} ур.
                 </div>
               </div>
@@ -826,7 +860,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               {isOnline ? (
                 <span className="text-green-400 font-semibold">Онлайн</span>
               ) : (
-                <span className="text-gray-400">
+                <span className={isL2 ? "text-[#8a7a60]" : "text-gray-400"}>
                   Последний раз был(а): {formatLastSeen(character.lastActivityAt)}
                 </span>
               )}
@@ -836,7 +870,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Статус */}
         <div className={`${lineThin} py-2`}>
-          <div className={`${boxPad} text-center text-[11px] text-gray-400`}>
+          <div
+            className={`${boxPad} text-center text-[11px] ${
+              isL2 ? "text-[#8a7a60]" : "text-gray-400"
+            }`}
+          >
             {heroData.status || "Нет статуса"}
           </div>
         </div>
@@ -846,7 +884,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           <div className="mb-3">
             <button
               onClick={() => setShowSevenSealsModal(true)}
-              className="w-full text-center text-xs py-2 border border-solid border-white/50 rounded cursor-pointer hover:bg-[#2a2015] transition-colors"
+              className={
+                isL2
+                  ? "w-full text-center text-xs py-2 border border-solid border-[#5c4a32]/55 rounded cursor-pointer hover:bg-black/25 transition-colors"
+                  : "w-full text-center text-xs py-2 border border-solid border-white/50 rounded cursor-pointer hover:bg-[#2a2015] transition-colors"
+              }
             >
               <span className={sevenSealsRank === 1 ? "text-yellow-400" : sevenSealsRank === 2 ? "text-gray-300" : "text-orange-400"}>
                 Победитель 7 печатей ({sevenSealsRank} место)
@@ -917,7 +959,13 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </div>
             </div>
           )}
-          <div className="border-t-2 border-b-2 border-[#c7ad80] my-1" />
+          <div
+            className={
+              isL2
+                ? "border-t-2 border-b-2 border-[#5c4a32]/55 my-1"
+                : "border-t-2 border-b-2 border-[#c7ad80] my-1"
+            }
+          />
           <div className={`${lineThin} py-1`}>
             <div className={boxPad}>
               <span
@@ -957,8 +1005,20 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           if (allBuffs.length === 0) return null;
 
           return (
-            <div className="mb-4 border-t border-solid border-white/50 pt-3">
-              <div className="text-[#dec28e] text-sm font-semibold mb-2 border-b border-solid border-white/50 pb-1">
+            <div
+              className={
+                isL2
+                  ? "mb-4 border-t border-solid border-[#5c4a32]/45 pt-3"
+                  : "mb-4 border-t border-solid border-white/50 pt-3"
+              }
+            >
+              <div
+                className={
+                  isL2
+                    ? "text-[#e8c56e] text-sm font-semibold mb-2 border-b border-solid border-[#5c4a32]/45 pb-1"
+                    : "text-[#dec28e] text-sm font-semibold mb-2 border-b border-solid border-white/50 pb-1"
+                }
+              >
                 Активні бафи {activeBuffs.length > 0 && `(${activeBuffs.length})`}
               </div>
               {activeBuffs.length === 0 && allBuffs.length > 0 && (
@@ -1043,14 +1103,36 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         {/* Модалка «Забафать игрока» — для всіх гравців */}
         {showBuffModal && character && hero && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>
-            <div className="bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="px-3 py-2 border-b border-[#c7ad80]/30 flex justify-between items-center">
-                <span className="text-[#c7ad80] font-semibold text-sm">Забафать {character.name}</span>
-                <button onClick={() => setShowBuffModal(false)} className="text-gray-400 hover:text-white text-lg">×</button>
+            <div
+              className={
+                isL2
+                  ? "bg-[#14110c] border border-[#c7ad80]/35 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                  : "bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto"
+              }
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                className={
+                  isL2
+                    ? "px-3 py-2 border-b border-[#5c4a32]/45 flex justify-between items-center"
+                    : "px-3 py-2 border-b border-[#c7ad80]/30 flex justify-between items-center"
+                }
+              >
+                <span className={isL2 ? "text-[#e8c56e] font-semibold text-sm" : "text-[#c7ad80] font-semibold text-sm"}>
+                  Забафать {character.name}
+                </span>
+                <button
+                  onClick={() => setShowBuffModal(false)}
+                  className={isL2 ? "text-[#8a7a60] hover:text-[#e8dcc8] text-lg" : "text-gray-400 hover:text-white text-lg"}
+                >
+                  ×
+                </button>
               </div>
               <div className="p-3">
                 {myBuffSkills.length === 0 ? (
-                  <p className="text-gray-400 text-xs">У вас немає бафів, що можна накласти на інших (ally/party).</p>
+                  <p className={isL2 ? "text-[#8a7a60] text-xs" : "text-gray-400 text-xs"}>
+                    У вас немає бафів, що можна накласти на інших (ally/party).
+                  </p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {myBuffSkills.map((buff) => (
@@ -1058,10 +1140,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                         key={buff.id}
                         onClick={() => handleBuffPlayer(buff.id)}
                         disabled={buffPlayerLoading}
-                        className="flex items-center gap-1.5 px-2 py-1.5 rounded bg-[#2a2a2a] border border-[#c7ad80]/30 hover:bg-[#c7ad80]/20 disabled:opacity-50 text-left"
+                        className={
+                          isL2
+                            ? "flex items-center gap-1.5 px-2 py-1.5 rounded bg-[#0f0a06] border border-[#5c4a32]/50 hover:bg-black/30 disabled:opacity-50 text-left"
+                            : "flex items-center gap-1.5 px-2 py-1.5 rounded bg-[#2a2a2a] border border-[#c7ad80]/30 hover:bg-[#c7ad80]/20 disabled:opacity-50 text-left"
+                        }
                       >
                         <img src={buff.icon} alt="" className="w-6 h-6 object-contain" />
-                        <span className="text-xs text-white">{buff.name}</span>
+                        <span className={isL2 ? "text-xs text-[#e8dcc8]" : "text-xs text-white"}>{buff.name}</span>
                       </button>
                     ))}
                   </div>
@@ -1072,7 +1158,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         )}
 
         {/* Інформація */}
-        <div className="space-y-2 text-[11px] text-gray-300 border-t border-solid border-white/50 pt-3">
+        <div
+          className={`space-y-2 text-[11px] border-t border-solid pt-3 ${
+            isL2 ? "text-[#a89878] border-[#5c4a32]/45" : "text-gray-300 border-white/50"
+          }`}
+        >
           {/* Профессия */}
           <div className="flex justify-between">
             <span>Профессия:</span>
@@ -1088,7 +1178,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           )}
 
           {/* Социальный статус */}
-          <div className="border-t border-solid border-white/50 pt-2 mt-2">
+          <div
+            className={`border-t border-solid pt-2 mt-2 ${
+              isL2 ? "border-[#5c4a32]/40" : "border-white/50"
+            }`}
+          >
             <div className="font-semibold mb-1">Социальный статус</div>
             <div className="grid grid-cols-2 gap-2 text-[10px]">
               <div className="flex justify-between">
@@ -1111,7 +1205,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
 
           {/* PvP */}
-          <div className="border-t border-solid border-white/50 pt-2">
+          <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
             <div className="flex justify-between text-[10px]">
               <span>PvP побед/поражений</span>
               <span className={pvpWins > pvpLosses ? "text-green-400" : "text-gray-400"}>
@@ -1121,7 +1215,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
 
           {/* Подарки */}
-          <div className="border-t border-solid border-white/50 pt-2">
+          <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
             <div className="flex justify-between text-[10px]">
               <span>Подарки</span>
               <span>({giftsCount})</span>
@@ -1132,16 +1226,16 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
 
           {/* Локація */}
-          <div className="border-t border-solid border-white/50 pt-2">
-            <div className="text-[10px] text-gray-400">
+          <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
+            <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-400"}>
               В {location}
             </div>
           </div>
 
           {/* Дата реєстрації */}
           {character.createdAt && (
-            <div className="border-t border-solid border-white/50 pt-2">
-              <div className="text-[10px] text-gray-400">
+            <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
+              <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-400"}>
                 Рег-я: {formatLastSeen(character.createdAt)}
               </div>
             </div>
@@ -1150,10 +1244,18 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         {/* Кнопка назад - просто текст */}
         <div className="mt-4">
-          <div className="w-full border-t border-b border-solid border-white/50 py-1">
-            <span 
+          <div
+            className={`w-full border-t border-b border-solid py-1 ${
+              isL2 ? "border-[#5c4a32]/45" : "border-white/50"
+            }`}
+          >
+            <span
               onClick={() => navigate("/online-players")}
-              className="cursor-pointer hover:text-blue-300 transition-colors text-[12px] text-blue-400 text-center block"
+              className={
+                isL2
+                  ? "cursor-pointer hover:text-[#e8c56e] transition-colors text-[12px] text-[#c9a44c] text-center block"
+                  : "cursor-pointer hover:text-blue-300 transition-colors text-[12px] text-blue-400 text-center block"
+              }
             >
               Назад до списку онлайн
             </span>
