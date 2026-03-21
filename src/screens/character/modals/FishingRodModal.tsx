@@ -3,6 +3,11 @@ import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../../state/heroStore";
 import { showToast } from "../../../state/toastStore";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
+import {
+  characterModalBorderT,
+  characterModalPanelClass,
+  isCharacterModalL2,
+} from "../characterModalL2";
 
 interface FishingRodModalProps {
   item: HeroInventoryItem;
@@ -23,6 +28,8 @@ export default function FishingRodModal({
   onTransfer,
   updateHero,
 }: FishingRodModalProps) {
+  const bt = characterModalBorderT();
+  const l2 = isCharacterModalL2();
   const [enchantAmount, setEnchantAmount] = useState(1);
   const currentEnchantLevel = item.enchantLevel || 0;
   const maxEnchantLevel = 1000;
@@ -127,13 +134,13 @@ export default function FishingRodModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className={characterModalPanelClass("max-w-md w-full max-h-[90vh] overflow-y-auto")}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-[#b8860b]">{item.name}</h2>
+          <h2 className={l2 ? "text-lg font-semibold text-[#e8c56e]" : "text-lg font-semibold text-[#b8860b]"}>{item.name}</h2>
           <button
-            className="text-gray-400 hover:text-white text-xl"
+            className={l2 ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl" : "text-gray-400 hover:text-white text-xl"}
             onClick={onClose}
           >
             ×
@@ -164,7 +171,7 @@ export default function FishingRodModal({
         </div>
 
         {/* Стати */}
-        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+        <div className={`${bt} pt-2 mt-2 mb-4`}>
           <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex items-center gap-2">
@@ -190,7 +197,7 @@ export default function FishingRodModal({
 
         {/* Опис */}
         {item.description && (
-          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+          <div className={`${bt} pt-2 mt-2 mb-4`}>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Описание:</div>
             <div className="text-gray-300 text-xs italic">{item.description}</div>
           </div>
@@ -198,7 +205,7 @@ export default function FishingRodModal({
 
         {/* Заточка */}
         {currentEnchantLevel < maxEnchantLevel && (
-          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+          <div className={`${bt} pt-2 mt-2 mb-4`}>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Заточка (Coin of Luck):</div>
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2">
@@ -238,7 +245,11 @@ export default function FishingRodModal({
                     );
                     setEnchantAmount(Math.max(1, Math.min(maxVal, numVal)));
                   }}
-                  className="w-20 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
+                  className={
+                    l2
+                      ? "w-20 px-2 py-1 bg-[#0d0a06] border border-[#5c4a32]/60 text-[#d4c4a8] rounded-md text-xs"
+                      : "w-20 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
+                  }
                 />
                 <span className="text-gray-400 text-xs">
                   (Буде +{Math.min(currentEnchantLevel + enchantAmount, maxEnchantLevel)})
@@ -264,7 +275,7 @@ export default function FishingRodModal({
         )}
 
         {/* Кнопки дій */}
-        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+        <div className={`${bt} pt-2 mt-2 mb-4`}>
           <div className="flex justify-center gap-2">
             <button
               onClick={onTransfer}
@@ -282,10 +293,14 @@ export default function FishingRodModal({
         </div>
 
         {/* Кнопка закриття */}
-        <div className="flex justify-center pt-2 border-t border-white/50">
+        <div className={`flex justify-center pt-2 ${bt}`}>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            className={
+              l2
+                ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40"
+                : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            }
           >
             Закрити
           </button>

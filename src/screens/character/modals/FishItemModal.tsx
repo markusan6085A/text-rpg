@@ -9,6 +9,12 @@ import { dismantleFish } from "../../../utils/api";
 import { showToast } from "../../../state/toastStore";
 import { processFishDrop } from "../../../utils/fishDismantle";
 import { normalizeIconPath, handleResourceIconError, resourceIdToFilename } from "../../../utils/itemIcon";
+import {
+  characterModalBorderT,
+  characterModalInputClass,
+  characterModalPanelClass,
+  isCharacterModalL2,
+} from "../characterModalL2";
 
 interface FishItemModalProps {
   item: HeroInventoryItem;
@@ -77,6 +83,13 @@ export default function FishItemModal({
   const [dismantleResult, setDismantleResult] = useState<ReturnType<typeof processFishDrop> | null>(null);
   const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
   const [dismantleLoading, setDismantleLoading] = useState(false);
+
+  const bt = characterModalBorderT();
+  const l2 = isCharacterModalL2();
+  const inp = characterModalInputClass();
+  const dropCardClass = l2
+    ? "border border-[#5c4a32]/50 rounded-md p-2 bg-[#14110c]"
+    : "border border-white/50 rounded p-2 bg-[#1a1a1a]";
 
   const characterId = useCharacterStore((s) => s.characterId) ?? hero?.id;
 
@@ -214,13 +227,15 @@ export default function FishItemModal({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => { setShowDismantleResult(false); setDismantleResult(null); onClose(); }}>
         <div
-          className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[80vh] overflow-y-auto"
+          className={characterModalPanelClass("max-w-md w-full max-h-[80vh] overflow-y-auto")}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[#b8860b]">Результат розділки</h2>
+            <h2 className={l2 ? "text-lg font-semibold text-[#e8c56e]" : "text-lg font-semibold text-[#b8860b]"}>
+              Результат розділки
+            </h2>
             <button
-              className="text-gray-400 hover:text-white text-xl"
+              className={l2 ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl" : "text-gray-400 hover:text-white text-xl"}
               onClick={() => { setShowDismantleResult(false); setDismantleResult(null); onClose(); }}
             >
               ×
@@ -255,7 +270,7 @@ export default function FishItemModal({
                     const weaponDef = itemsDB[id];
                     const stats = weaponDef?.stats || {};
                     return (
-                      <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
+                      <div key={id} className={dropCardClass}>
                         <div className="flex items-center gap-2 mb-1">
                           {(weaponDef?.icon || true) && (
                             <img
@@ -284,7 +299,7 @@ export default function FishItemModal({
                     const jewelryDef = itemsDB[id];
                     const stats = jewelryDef?.stats || {};
                     return (
-                      <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
+                      <div key={id} className={dropCardClass}>
                         <div className="flex items-center gap-2 mb-1">
                           {(jewelryDef?.icon || true) && (
                             <img
@@ -313,7 +328,7 @@ export default function FishItemModal({
                     const armorDef = itemsDB[id];
                     const stats = armorDef?.stats || {};
                     return (
-                      <div key={id} className="border border-white/50 rounded p-2 bg-[#1a1a1a]">
+                      <div key={id} className={dropCardClass}>
                         <div className="flex items-center gap-2 mb-1">
                           {(armorDef?.icon || true) && (
                             <img
@@ -393,10 +408,14 @@ export default function FishItemModal({
               )}
           </div>
 
-          <div className="flex justify-center pt-2 border-t border-white/50">
+          <div className={`flex justify-center pt-2 ${bt}`}>
             <button
               onClick={() => { setShowDismantleResult(false); setDismantleResult(null); onClose(); }}
-              className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+              className={
+                l2
+                  ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40"
+                  : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+              }
             >
               Закрити
             </button>
@@ -409,13 +428,15 @@ export default function FishItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
+        className={characterModalPanelClass("max-w-md w-full")}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-[#b8860b]">{itemDef?.name || item.name || item.id}</h2>
+          <h2 className={l2 ? "text-lg font-semibold text-[#e8c56e]" : "text-lg font-semibold text-[#b8860b]"}>
+            {itemDef?.name || item.name || item.id}
+          </h2>
           <button
-            className="text-gray-400 hover:text-white text-xl"
+            className={l2 ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl" : "text-gray-400 hover:text-white text-xl"}
             onClick={onClose}
           >
             ×
@@ -451,7 +472,7 @@ export default function FishItemModal({
           </div>
         </div>
 
-        <div className="border-t border-white/50 pt-2 mt-2 mb-4 space-y-3">
+        <div className={`${bt} pt-2 mt-2 mb-4 space-y-3`}>
           <div>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Передати:</div>
             <div className="flex gap-2">
@@ -469,7 +490,7 @@ export default function FishItemModal({
                   setTransferAmount(Math.max(1, Math.min(maxCount, numVal)));
                 }}
                 onFocus={(e) => e.target.select()}
-                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
+                className={inp}
               />
               <button
                 onClick={handleTransfer}
@@ -497,7 +518,7 @@ export default function FishItemModal({
                   setDeleteAmount(Math.max(1, Math.min(maxCount, numVal)));
                 }}
                 onFocus={(e) => e.target.select()}
-                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
+                className={inp}
               />
               <button
                 onClick={handleDelete}
@@ -525,7 +546,7 @@ export default function FishItemModal({
                   setDismantleAmount(Math.max(1, Math.min(maxCount, numVal)));
                 }}
                 onFocus={(e) => e.target.select()}
-                className="flex-1 px-2 py-1 bg-[#2a2a2a] border border-white/50 text-white rounded text-xs"
+                className={inp}
               />
               <button
                 onClick={handleDismantle}
@@ -538,10 +559,14 @@ export default function FishItemModal({
           </div>
         </div>
 
-        <div className="flex justify-center pt-2 border-t border-white/50">
+        <div className={`flex justify-center pt-2 ${bt}`}>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            className={
+              l2
+                ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40"
+                : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            }
           >
             Закрити
           </button>

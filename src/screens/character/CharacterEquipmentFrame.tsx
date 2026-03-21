@@ -3,6 +3,7 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { SLOT_ICONS } from "./constants";
 import { useHeroStore } from "../../state/heroStore";
 import { GM_SHOP_ITEMS } from "../GMShop";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 // Маппінг profession -> зображення
 const professionImageMap: Record<string, string> = {
   human_fighter: "Human-voin.jpg",
@@ -210,6 +211,8 @@ export default function CharacterEquipmentFrame({
 
   if (!hero) return null;
 
+  const isL2 = getCityUiVariant() === "l2";
+
   // Визначення дворучного оружия (списа, посохи, луки, глефи, сокири)
   const isTwoHandedWeapon = (itemId: string | undefined): boolean => {
     if (!itemId) return false;
@@ -365,8 +368,12 @@ export default function CharacterEquipmentFrame({
 
   // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true або heroOverride)
   const slotClassName = (allowUnequip || (heroOverride && onItemClick))
-    ? "w-6 h-6 bg-black/50 cursor-pointer" 
-    : "w-6 h-6 bg-black/50";
+    ? isL2
+      ? "w-6 h-6 bg-black/50 cursor-pointer rounded-sm border border-[#5c4a32]/55 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+      : "w-6 h-6 bg-black/50 cursor-pointer"
+    : isL2
+      ? "w-6 h-6 bg-black/50 rounded-sm border border-[#5c4a32]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
+      : "w-6 h-6 bg-black/50";
 
   return (
     <div
@@ -436,7 +443,7 @@ export default function CharacterEquipmentFrame({
             })()}
           </>
         ) : (
-          <div className="text-gray-500 text-xs text-center p-4">
+          <div className={isL2 ? "text-[#8a7a60] text-xs text-center p-4" : "text-gray-500 text-xs text-center p-4"}>
             Немає зображення персонажа
           </div>
         )}

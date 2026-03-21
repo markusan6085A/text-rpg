@@ -1,5 +1,6 @@
 import React from "react";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 /** Розширені ключі для пошуку в itemsDB (shop_, quest_ і т.д. можуть не знаходитися напряму) */
 function resolveLookupIds(item: any): string[] {
@@ -124,8 +125,6 @@ interface InventoryFiltersProps {
   currentGrade: string;
   onCategoryChange: (category: string) => void;
   onGradeChange: (grade: string) => void;
-  /** Теплий L2-стиль (як Місто / Персонаж) */
-  isL2?: boolean;
 }
 
 export default function InventoryFilters({
@@ -133,8 +132,8 @@ export default function InventoryFilters({
   currentGrade,
   onCategoryChange,
   onGradeChange,
-  isL2 = false,
 }: InventoryFiltersProps) {
+  const isL2 = getCityUiVariant() === "l2";
   const firstRow = CATEGORIES.slice(0, 5);
   const secondRow = CATEGORIES.slice(5);
   const showGradeSub = GRADE_CATEGORIES.includes(currentCategory);

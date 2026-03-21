@@ -3,6 +3,7 @@ import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import { normalizeIconPath, handleResourceIconError, FALLBACK_ICON } from "../../utils/itemIcon";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 function getItemGrade(item: any, itemDef: any): string | undefined {
   if (itemDef?.grade) return itemDef.grade;
@@ -21,7 +22,6 @@ interface InventoryItemListProps {
   hero: Hero;
   onItemClick: (item: HeroInventoryItem) => void;
   onEquipItem: (item: HeroInventoryItem) => void;
-  isL2?: boolean;
 }
 
 export default function InventoryItemList({
@@ -29,8 +29,8 @@ export default function InventoryItemList({
   hero,
   onItemClick,
   onEquipItem,
-  isL2 = false,
 }: InventoryItemListProps) {
+  const isL2 = getCityUiVariant() === "l2";
   const listShell = isL2
     ? "space-y-0 mb-3 rounded-lg border border-[#5c4a32]/65 min-h-[200px] bg-[radial-gradient(ellipse_100%_40%_at_50%_0%,rgba(120,90,45,0.15)_0%,transparent_45%),linear-gradient(180deg,#1a1610_0%,#0c0a08_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_4px_14px_rgba(0,0,0,0.45)] overflow-hidden"
     : "space-y-0 mb-3 rounded-xl border-2";

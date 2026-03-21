@@ -2,6 +2,11 @@ import React from "react";
 import type { HeroInventoryItem } from "../../../types/Hero";
 import { QUESTS } from "../../../data/quests";
 import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
+import {
+  characterModalBorderT,
+  characterModalPanelClass,
+  isCharacterModalL2,
+} from "../characterModalL2";
 
 interface QuestItemModalProps {
   item: HeroInventoryItem;
@@ -14,6 +19,8 @@ export default function QuestItemModal({
   hero,
   onClose,
 }: QuestItemModalProps) {
+  const bt = characterModalBorderT();
+  const l2 = isCharacterModalL2();
   const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
   const displayName = itemDef?.name || item.name || item.id;
   const displayDesc = itemDef?.description || item.description;
@@ -59,7 +66,7 @@ export default function QuestItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
+        className={characterModalPanelClass("max-w-md w-full")}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -74,12 +81,12 @@ export default function QuestItemModal({
                 }}
               />
             )}
-            <h2 className="text-lg font-semibold text-[#b8860b]">
+            <h2 className={l2 ? "text-lg font-semibold text-[#e8c56e]" : "text-lg font-semibold text-[#b8860b]"}>
               {displayName}
             </h2>
           </div>
           <button
-            className="text-gray-400 hover:text-white text-xl"
+            className={l2 ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl" : "text-gray-400 hover:text-white text-xl"}
             onClick={onClose}
           >
             ×
@@ -149,10 +156,14 @@ export default function QuestItemModal({
           )}
         </div>
 
-        <div className="flex justify-center pt-2 border-t border-white/50">
+        <div className={`flex justify-center pt-2 ${bt}`}>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            className={
+              l2
+                ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40"
+                : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+            }
           >
             Закрити
           </button>

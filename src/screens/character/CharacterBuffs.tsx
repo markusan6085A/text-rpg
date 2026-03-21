@@ -4,6 +4,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { getCharacter } from "../../utils/api";
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 export default function CharacterBuffs() {
   const hero = useHeroStore((s) => s.hero);
@@ -79,8 +80,16 @@ export default function CharacterBuffs() {
 
   if (uniqueBuffs.length === 0) return null;
 
+  const isL2 = getCityUiVariant() === "l2";
+
   return (
-    <div className="mt-2 border-t border-solid border-[#5c4a32]/45 pt-2">
+    <div
+      className={
+        isL2
+          ? "mt-2 border-t border-solid border-[#5c4a32]/45 pt-2"
+          : "mt-2 border-t border-solid border-white/25 pt-2"
+      }
+    >
       <div className="flex flex-wrap gap-1.5">
         {uniqueBuffs.map((buff: any) => {
           let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
@@ -90,7 +99,11 @@ export default function CharacterBuffs() {
               key={buff.id ? `id_${buff.id}` : `name_${buff.name}_${buff.expiresAt}`}
               src={iconSrc}
               alt={buff.name || "Buff"}
-              className="w-5 h-5 object-contain"
+              className={
+                isL2
+                  ? "w-5 h-5 object-contain rounded border border-[#5c4a32]/55 bg-black/30 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                  : "w-5 h-5 object-contain"
+              }
               title={buff.name || "Buff"}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = "/skills/skill0000.gif";

@@ -6,6 +6,7 @@ import { itemsDB } from "../../../data/items/itemsDB";
 import { normalizeIconPath } from "../../../utils/itemIcon";
 import { showToast } from "../../../state/toastStore";
 import { isUnauthorizedError } from "../../../utils/isUnauthorizedError";
+import { characterModalPanelClass, isCharacterModalL2 } from "../characterModalL2";
 
 interface TransferItemModalProps {
   item: HeroInventoryItem;
@@ -14,6 +15,7 @@ interface TransferItemModalProps {
 }
 
 export default function TransferItemModal({ item, onClose, onSuccess }: TransferItemModalProps) {
+  const l2 = isCharacterModalL2();
   const currentHero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   
@@ -113,44 +115,68 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-sm w-full relative"
+        className={characterModalPanelClass("max-w-sm w-full relative")}
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-white text-xl leading-none"
+          className={
+            l2
+              ? "absolute top-2 right-2 text-[#8a7a60] hover:text-[#d4c4a8] text-xl leading-none"
+              : "absolute top-2 right-2 text-gray-400 hover:text-white text-xl leading-none"
+          }
           onClick={onClose}
         >
           &times;
         </button>
 
-        <h2 className="text-yellow-400 font-bold text-center mb-4">Передача предмета</h2>
+        <h2 className={l2 ? "text-[#e8c56e] font-bold text-center mb-4" : "text-yellow-400 font-bold text-center mb-4"}>
+          Передача предмета
+        </h2>
 
-        <div className="flex items-center gap-3 mb-4 bg-black/40 p-2 rounded border border-white/10">
+        <div
+          className={
+            l2
+              ? "flex items-center gap-3 mb-4 bg-black/30 p-2 rounded-md border border-[#5c4a32]/55 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+              : "flex items-center gap-3 mb-4 bg-black/40 p-2 rounded border border-white/10"
+          }
+        >
           <img
             src={normalizeIconPath(item.icon || itemDef?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
             alt={itemDef?.name || item.name || item.id}
-            className="w-10 h-10 object-contain border border-white/30"
+            className={
+              l2
+                ? "w-10 h-10 object-contain border border-[#5c4a32]/50 rounded-sm"
+                : "w-10 h-10 object-contain border border-white/30"
+            }
             onError={(e) => {
               (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
             }}
           />
           <div className="flex-1 min-w-0">
-            <div className="text-white text-sm truncate">{itemDef?.name || item.name || item.id}</div>
+            <div className={l2 ? "text-[#e8dcc8] text-sm truncate" : "text-white text-sm truncate"}>
+              {itemDef?.name || item.name || item.id}
+            </div>
             {item.enchantLevel ? (
               <div className="text-[#b8860b] text-xs">Заточка: +{item.enchantLevel}</div>
             ) : null}
             {isStackable && (
-              <div className="text-gray-400 text-xs">В наявності: {maxQuantity}</div>
+              <div className={l2 ? "text-[#8a7a60] text-xs" : "text-gray-400 text-xs"}>В наявності: {maxQuantity}</div>
             )}
           </div>
         </div>
 
         <div className="space-y-3">
           <div>
-            <label className="block text-gray-400 text-xs mb-1">Нікнейм отримувача:</label>
+            <label className={l2 ? "block text-[#8a7a60] text-xs mb-1" : "block text-gray-400 text-xs mb-1"}>
+              Нікнейм отримувача:
+            </label>
             <input
               type="text"
-              className="w-full bg-[#0b0806] border border-white/30 rounded px-2 py-1.5 text-white text-sm"
+              className={
+                l2
+                  ? "w-full bg-[#0d0a06] border border-[#5c4a32]/60 rounded-md px-2 py-1.5 text-[#d4c4a8] text-sm"
+                  : "w-full bg-[#0b0806] border border-white/30 rounded px-2 py-1.5 text-white text-sm"
+              }
               value={recipientName}
               onChange={(e) => setRecipientName(e.target.value)}
               placeholder="Введіть нік"
@@ -159,10 +185,16 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
 
           {isStackable && maxQuantity > 1 && (
             <div>
-              <label className="block text-gray-400 text-xs mb-1">Кількість:</label>
+              <label className={l2 ? "block text-[#8a7a60] text-xs mb-1" : "block text-gray-400 text-xs mb-1"}>
+                Кількість:
+              </label>
               <input
                 type="number"
-                className="w-full bg-[#0b0806] border border-white/30 rounded px-2 py-1.5 text-white text-sm"
+                className={
+                  l2
+                    ? "w-full bg-[#0d0a06] border border-[#5c4a32]/60 rounded-md px-2 py-1.5 text-[#d4c4a8] text-sm"
+                    : "w-full bg-[#0b0806] border border-white/30 rounded px-2 py-1.5 text-white text-sm"
+                }
                 value={quantity}
                 min={1}
                 max={maxQuantity}
@@ -176,9 +208,9 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
             </div>
           )}
 
-          <div className="text-center text-xs mt-2 p-2 bg-[#2a0808]/50 border border-red-900/50 rounded">
-            <div className="text-gray-300">Комісія 5% за 1 предмет × кількість:</div>
-            <div className="text-gray-400">
+          <div className="text-center text-xs mt-2 p-2 bg-[#2a0808]/50 border border-red-900/50 rounded-md">
+            <div className={l2 ? "text-[#d4c4a8]" : "text-gray-300"}>Комісія 5% за 1 предмет × кількість:</div>
+            <div className={l2 ? "text-[#8a7a60]" : "text-gray-400"}>
               {transferFeePerItem.toLocaleString()} × {quantity}
             </div>
             <div className="text-yellow-400 font-bold">{transferFee.toLocaleString()} Аден</div>

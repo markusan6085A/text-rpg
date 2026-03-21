@@ -4,6 +4,11 @@ import { SetBonusDisplay } from "../SetBonusDisplay";
 import type { HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { normalizeIconPath } from "../../../utils/itemIcon";
+import {
+  characterModalBorderT,
+  characterModalPanelClass,
+  isCharacterModalL2,
+} from "../characterModalL2";
 
 interface EquipableItemModalProps {
   item: HeroInventoryItem;
@@ -18,6 +23,8 @@ export default function EquipableItemModal({
   onDelete,
   onTransfer,
 }: EquipableItemModalProps) {
+  const bt = characterModalBorderT();
+  const l2 = isCharacterModalL2();
   const enchantedStats = calculateEnchantedStats(item);
   const { pAtk, mAtk, pDef, mDef, baseStats, enchantLevel, isWeapon, isArmor, enchantMultiplier, armorEnchantMultiplier } = enchantedStats;
   const hasAnyStats = Object.keys(baseStats).length > 0 || pAtk !== undefined || mAtk !== undefined || pDef !== undefined || mDef !== undefined;
@@ -27,15 +34,15 @@ export default function EquipableItemModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
-        className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+        className={characterModalPanelClass("max-w-md w-full max-h-[90vh] overflow-y-auto")}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-[#b8860b]">
+          <h2 className={l2 ? "text-lg font-semibold text-[#e8c56e]" : "text-lg font-semibold text-[#b8860b]"}>
             {displayName}
           </h2>
           <button
-            className="text-gray-400 hover:text-white text-xl"
+            className={l2 ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl" : "text-gray-400 hover:text-white text-xl"}
             onClick={onClose}
           >
             ×
@@ -70,7 +77,7 @@ export default function EquipableItemModal({
 
         {/* Стати (з предмета або з itemsDB для дропу з риби) */}
         {hasAnyStats && (
-          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+          <div className={`${bt} pt-2 mt-2 mb-4`}>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               {pAtk !== undefined && (
@@ -187,7 +194,7 @@ export default function EquipableItemModal({
 
         {/* Опис предмета */}
         {item.description && (
-          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+          <div className={`${bt} pt-2 mt-2 mb-4`}>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Описание:</div>
             <div className="text-gray-300 text-xs italic">
               {item.description}
@@ -200,7 +207,7 @@ export default function EquipableItemModal({
           const lsLines = getLSDescriptionLines(item);
           if (lsLines.length === 0) return null;
           return (
-            <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+            <div className={`${bt} pt-2 mt-2 mb-4`}>
               <div className="text-sm font-semibold text-[#b8860b] mb-2">LS кристал:</div>
               <div className="text-green-400/90 text-xs space-y-0.5">
                 {lsLines.map((line, i) => (
@@ -213,14 +220,14 @@ export default function EquipableItemModal({
 
         {/* Інформація про сет */}
         {getSetInfo(item) && (
-          <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+          <div className={`${bt} pt-2 mt-2 mb-4`}>
             <div className="text-sm font-semibold text-[#b8860b] mb-2">Сет:</div>
             <SetBonusDisplay text={getSetInfo(item)!} className="text-yellow-400 text-xs" />
           </div>
         )}
 
         {/* Кнопки дій */}
-        <div className="border-t border-white/50 pt-2 mt-2 mb-4">
+        <div className={`${bt} pt-2 mt-2 mb-4`}>
           <div className="flex justify-center gap-2">
             <button
               onClick={onTransfer}
@@ -238,7 +245,7 @@ export default function EquipableItemModal({
         </div>
 
         {/* Кнопка закриття */}
-        <div className="flex justify-center pt-2 border-t border-white/50">
+        <div className={`flex justify-center pt-2 ${bt}`}>
           <button
             onClick={onClose}
             className="text-xs text-[#b8860b] hover:text-[#d4af37]"

@@ -290,7 +290,6 @@ export default function Inventory() {
         <InventoryFilters
           currentCategory={currentCategory}
           currentGrade={currentGrade}
-          isL2={isL2}
           onCategoryChange={(category) => {
             setCurrentCategory(category);
             setCurrentGrade("");
@@ -305,7 +304,6 @@ export default function Inventory() {
         <InventoryItemList
           items={paginatedItems}
           hero={hero}
-          isL2={isL2}
           onItemClick={handleItemClick}
           onEquipItem={equipItem}
         />
