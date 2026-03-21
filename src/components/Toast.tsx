@@ -1,11 +1,17 @@
 import React from "react";
-import { useToastStore, type ToastItem } from "../state/toastStore";
+import { useToastStore, type ToastItem, type ToastType } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
-const typeStyles: Record<string, string> = {
-  info: "bg-[#2a2520] border-[#c7ad80]/60 text-[#d8c598]",
-  success: "bg-[#1a2e1a] border-green-500/60 text-green-200",
-  error: "bg-[#2e1a1a] border-red-500/60 text-red-200",
-};
+function defaultTitle(type: ToastType): string {
+  switch (type) {
+    case "error":
+      return "Помилка";
+    case "success":
+      return "Успішно";
+    default:
+      return "Повідомлення";
+  }
+}
 
 export default function Toast() {
   const toasts = useToastStore((s) => s.toasts);
@@ -13,27 +19,52 @@ export default function Toast() {
 
   if (toasts.length === 0) return null;
 
+  const item = toasts[0];
   return (
-    <div
-      className="fixed bottom-20 left-1/2 z-[9999] flex flex-col gap-2 -translate-x-1/2 pointer-events-none"
-      style={{ maxWidth: "min(90vw, 340px)" }}
-    >
-      {toasts.map((t) => (
-        <ToastEntry key={t.id} item={t} />
-      ))}
-    </div>
+    <ToastOverlay
+      key={item.id}
+      item={item}
+      onDismiss={() => remove(item.id)}
+    />
   );
 }
 
-function ToastEntry({ item }: { item: ToastItem }) {
-  const style = typeStyles[item.type] ?? typeStyles.info;
+function ToastOverlay({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
+  const isL2 = getCityUiVariant() === "l2";
+  const title = item.title?.trim() || defaultTitle(item.type);
+
+  const panel =
+    isL2
+      ? "rounded-xl border border-[#c7ad80]/35 p-5 max-w-md w-full shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+      : "bg-[#14110c] border border-white/40 rounded-lg p-5 max-w-md w-full";
+
+  const titleCl = isL2 ? "text-base font-semibold text-[#e8c56e]" : "text-base font-semibold text-[#b8860b]";
+  const bodyCl = isL2 ? "text-[#d4c4a8] text-sm whitespace-pre-wrap break-words" : "text-gray-300 text-sm whitespace-pre-wrap break-words";
+
+  const okBtn =
+    isL2
+      ? "px-5 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#3a3020] to-[#1c1810] text-xs font-semibold text-[#e8c56e] hover:border-[#c7ad80]/50 hover:brightness-110"
+      : "px-5 py-2 rounded-md bg-green-700 text-white hover:bg-green-600 text-xs font-semibold";
 
   return (
     <div
-      className={`px-4 py-3 rounded-lg border text-sm shadow-lg ${style}`}
-      role="alert"
+      className="fixed inset-0 z-[10010] flex items-center justify-center bg-black/75 px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="toast-title"
+      onClick={onDismiss}
     >
-      {item.message}
+      <div className={`${panel} pointer-events-auto`} onClick={(e) => e.stopPropagation()}>
+        <h2 id="toast-title" className={`${titleCl} mb-3 pr-8`}>
+          {title}
+        </h2>
+        <p className={`${bodyCl} mb-5`}>{item.message}</p>
+        <div className="flex justify-center">
+          <button type="button" className={okBtn} onClick={onDismiss}>
+            OK
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -14,7 +14,6 @@ export default function About({ navigate }: { navigate: Navigate }) {
   const [showChangeNickModal, setShowChangeNickModal] = useState(false);
   const [newNickname, setNewNickname] = useState("");
   const [isChanging, setIsChanging] = useState(false);
-  const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
@@ -230,7 +229,8 @@ export default function About({ navigate }: { navigate: Navigate }) {
 
                     setIsChanging(true);
                     try {
-                      const res = await renameNick(characterId, newNickname.trim(), (hero as any)?.heroJson?.heroRevision);
+                      const trimmedNick = newNickname.trim();
+                      const res = await renameNick(characterId, trimmedNick, (hero as any)?.heroJson?.heroRevision);
                       const { coinLuck, name: newName, heroJson: heroJsonFromRes } = res.character;
                       const newRevision = heroJsonFromRes?.heroRevision;
                       // Оновлюємо serverState (coinLuck + heroRevision) щоб PUT не відправляв застарілу ревізію
@@ -243,7 +243,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
                       } as any);
                       setShowChangeNickModal(false);
                       setNewNickname("");
-                      setSuccessModal({ show: true, message: `Поздравляю! Вы изменили ник на "${newNickname.trim()}"!` });
+                      showToast(`Поздравляю! Вы изменили ник на "${trimmedNick}"!`, "success");
                     } catch (err: any) {
                       const body = err?.body ?? {};
                       if (err?.status === 400 && body.error === "not enough coinLuck") {
@@ -275,32 +275,6 @@ export default function About({ navigate }: { navigate: Navigate }) {
         </div>
       )}
 
-      {/* Модалка успішної зміни ніка */}
-      {successModal.show && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
-          onClick={() => setSuccessModal({ show: false, message: "" })}
-        >
-          <div
-            className={
-              isL2
-                ? "bg-[#14110c] border border-green-700/45 rounded-lg p-4 max-w-md w-full shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
-                : "bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
-            }
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center">
-              <div className="text-green-400 text-lg font-semibold mb-2">✓ {successModal.message}</div>
-              <button
-                onClick={() => setSuccessModal({ show: false, message: "" })}
-                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 text-sm"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

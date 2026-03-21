@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { adminFindPlayerByName, adminMuteChatUser } from "../../utils/api";
-import { AdminNotifyModal } from "../../components/AdminNotifyModal";
+import { showToast } from "../../state/toastStore";
 
 const style = { color: "#c7ad80" };
 const DURATIONS = [
@@ -19,28 +19,27 @@ export function AdminSectionMute() {
   const [nick, setNick] = useState("");
   const [durationMin, setDurationMin] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [successModal, setSuccessModal] = useState<{ playerName: string; durationMin: number } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
     if (!nick.trim()) {
-      setMessage("Введіть нік гравця");
+      showToast("Введіть нік гравця", "error");
       return;
     }
     setLoading(true);
     try {
       const data = await adminFindPlayerByName(nick.trim());
       if (!data?.character?.id) {
-        setMessage("Персонажа не знайдено");
+        showToast("Персонажа не знайдено", "error");
         return;
       }
       const character = data.character;
       await adminMuteChatUser(character.id, durationMin);
-      setSuccessModal({ playerName: character.name, durationMin });
+      showToast(`Гравець ${character.name} отримав мут на ${formatDuration(durationMin)}.`, "success", {
+        title: "Мут застосовано",
+      });
     } catch (err: any) {
-      setMessage(err?.message || "Помилка");
+      showToast(err?.message || "Помилка", "error");
     } finally {
       setLoading(false);
     }
@@ -63,14 +62,6 @@ export function AdminSectionMute() {
           {loading ? "..." : "Замутити"}
         </button>
       </form>
-      {message && <p className="mt-1 text-xs text-gray-500">{message}</p>}
-      {successModal && (
-        <AdminNotifyModal
-          title="Мут застосовано"
-          message={`Гравець ${successModal.playerName} отримав мут на ${formatDuration(successModal.durationMin)}.`}
-          onClose={() => setSuccessModal(null)}
-        />
-      )}
     </section>
   );
 }

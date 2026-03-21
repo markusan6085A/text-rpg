@@ -79,7 +79,6 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
   const characterId = useCharacterStore((s) => s.characterId);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isApplying, setIsApplying] = useState(false);
-  const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
   const isL2 = getCityUiVariant() === "l2";
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
@@ -216,7 +215,9 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                     ...(newRevision != null && { heroRevision: newRevision }),
                   } as any);
 
-                  setSuccessModal({ show: true, message: "Поздравляю! Вы изменили цвет ника!" });
+                  showToast("Поздравляю! Вы изменили цвет ника!", "success", {
+                    onDismiss: () => navigate("/about"),
+                  });
                 } catch (err: any) {
                   const body = err?.body || {};
                   if (err?.status === 400 && body.error === "not enough coinLuck") {
@@ -238,38 +239,6 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
         </div>
       </div>
 
-      {/* Модалка успішної зміни кольору ніка */}
-      {successModal.show && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
-          onClick={() => {
-            setSuccessModal({ show: false, message: "" });
-            navigate("/about");
-          }}
-        >
-          <div
-            className={
-              isL2
-                ? "bg-[#14110c] border border-green-700/45 rounded-lg p-4 max-w-md w-full shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
-                : "bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full"
-            }
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center">
-              <div className="text-green-400 text-lg font-semibold mb-2">✓ {successModal.message}</div>
-              <button
-                onClick={() => {
-                  setSuccessModal({ show: false, message: "" });
-                  navigate("/about");
-                }}
-                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 text-sm"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

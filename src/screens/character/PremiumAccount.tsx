@@ -32,14 +32,10 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
   const [selectedOption, setSelectedOption] = useState<PremiumOption | null>(null);
   const [isBuying, setIsBuying] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
-  const [successModal, setSuccessModal] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
 
   const isL2 = getCityUiVariant() === "l2";
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
-  const modalPanel = isL2
-    ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full max-w-md shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-    : "bg-[#14110c] border border-green-500/50 rounded-lg p-4 max-w-md w-full";
 
   useEffect(() => {
     if (!hero?.premiumUntil) {
@@ -125,7 +121,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         ...(newRevision != null && { heroRevision: newRevision }),
       } as any);
       setSelectedOption(null);
-      setSuccessModal({ show: true, message: `Поздравляю! Вы купили премиум на ${option.label}!` });
+      showToast(`Поздравляю! Вы купили премиум на ${option.label}!`, "success");
     } catch (err: any) {
       const body = err?.body || {};
       if (err?.status === 404) {
@@ -283,28 +279,6 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         </div>
       )}
 
-      {/* Модалка успішної покупки */}
-      {successModal.show && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
-          onClick={() => setSuccessModal({ show: false, message: "" })}
-        >
-          <div
-            className={modalPanel}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center">
-              <div className="text-green-400 text-lg font-semibold mb-2">✓ {successModal.message}</div>
-              <button
-                onClick={() => setSuccessModal({ show: false, message: "" })}
-                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 text-sm"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       </div>
     </div>
   );
