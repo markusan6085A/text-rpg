@@ -66,27 +66,40 @@ const DROPLIST_NUMERIC = {
   4042: "enria",
   4043: "asofe",
   4044: "thons",
-  1831: "soulshot_ng",
-  1896: "spiritshot_ng",
 };
 
-/** id → name, id → type (Weapon / Armor / EtcItem …) — для відсіку шмоту та рецептів */
-function loadItemMeta() {
+/** id → name, id → type (Weapon / Armor / EtcItem), id → etcitem_type (material / scroll / …) */
+function loadItemMetaFull() {
   const names = new Map();
   const types = new Map();
-  if (!fs.existsSync(ITEMS_DIR)) return { names, types };
+  const etcTypes = new Map();
+  if (!fs.existsSync(ITEMS_DIR)) return { names, types, etcTypes };
   const files = fs.readdirSync(ITEMS_DIR).filter((f) => f.endsWith(".xml"));
-  const re = /<item\s+id="(\d+)"\s+type="([^"]+)"\s+name="([^"]+)"/g;
+  const itemRe = /<item\s+id="(\d+)"\s+type="([^"]+)"\s+name="([^"]+)">([\s\S]*?)<\/item>/g;
   for (const file of files) {
     const txt = fs.readFileSync(path.join(ITEMS_DIR, file), "utf8");
     let m;
-    while ((m = re.exec(txt)) !== null) {
+    while ((m = itemRe.exec(txt)) !== null) {
       const id = Number(m[1]);
       types.set(id, m[2]);
       names.set(id, m[3]);
+      const em = m[4].match(/<set name="etcitem_type"\s+val="([^"]+)"/);
+      etcTypes.set(id, em ? em[1] : "");
     }
   }
-  return { names, types };
+  return { names, types, etcTypes };
+}
+
+function isNonResourceDropName(name) {
+  const n = (name || "").trim();
+  if (!n) return false;
+  if (/life\s*stone/i.test(n)) return true;
+  if (/^Recipe\s*:/i.test(n)) return true;
+  if (/\bScroll\s*:/i.test(n)) return true;
+  if (/\bScroll of\b/i.test(n)) return true;
+  if (/Blessed Scroll/i.test(n)) return true;
+  if (/^Enchant\b/i.test(n) && /\b(Armor|Weapon)\b/i.test(n)) return true;
+  return false;
 }
 
 function parseNpcBlocks(text) {
@@ -126,13 +139,16 @@ function parseDropsSection(npcBody) {
   return { normal, spoil };
 }
 
-function toDropEntry(row, itemNames, itemTypes) {
+function toDropEntry(row, itemNames, itemTypes, itemEtcTypes) {
   const { itemid, min, max, chance, category } = row;
   const cpm = chance;
   const chanceFloat = cpm / 1_000_000;
 
   /** У L2 XML категорія 1 — зазвичай готові шмотки / зброя */
   if (category === 1) return null;
+
+  const nm = itemNames.get(itemid) || "";
+  if (isNonResourceDropName(nm)) return null;
 
   if (itemid === 57) {
     return {
@@ -164,12 +180,14 @@ function toDropEntry(row, itemNames, itemTypes) {
     };
   }
 
-  const nm = itemNames.get(itemid) || "";
-  const isRecipe = /^Recipe\s*:/i.test(nm);
-  const kind = isRecipe ? "other" : "resource";
+  /** Лише крафт-матеріали (EtcItem + etcitem_type material), без скролів/рецептів/лайфстоунів */
+  if (xmlType !== "EtcItem") return null;
+  const et = itemEtcTypes.get(itemid);
+  if (et !== "material") return null;
+
   return {
     id: `l2item_${itemid}`,
-    kind,
+    kind: "resource",
     chance: chanceFloat,
     min,
     max,
@@ -180,7 +198,7 @@ function toDropEntry(row, itemNames, itemTypes) {
 }
 
 function main() {
-  const { names: itemNames, types: itemTypes } = loadItemMeta();
+  const { names: itemNames, types: itemTypes, etcTypes: itemEtcTypes } = loadItemMetaFull();
   let allNpcs = new Map();
   for (const f of MOB_XML_FILES) {
     if (!fs.existsSync(f)) {
@@ -202,8 +220,8 @@ function main() {
     }
     const { normal, spoil } = parseDropsSection(body);
     byNpc[npcId] = {
-      drops: normal.map((r) => toDropEntry(r, itemNames, itemTypes)).filter(Boolean),
-      spoil: spoil.map((r) => toDropEntry(r, itemNames, itemTypes)).filter(Boolean),
+      drops: normal.map((r) => toDropEntry(r, itemNames, itemTypes, itemEtcTypes)).filter(Boolean),
+      spoil: spoil.map((r) => toDropEntry(r, itemNames, itemTypes, itemEtcTypes)).filter(Boolean),
     };
   }
 
@@ -229,8 +247,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = `;
     .replace(/"spoil":/g, "spoil:")
     .replace(/"adena"/g, '"adena"')
     .replace(/"resource"/g, '"resource"')
-    .replace(/"equipment"/g, '"equipment"')
-    .replace(/"other"/g, '"other"');
+    .replace(/"equipment"/g, '"equipment"');
 
   fs.writeFileSync(outPath, `${header}${tsObj} as const satisfies Record<number, L2XmlNpcDrops>;\n`, "utf8");
   console.log("Wrote", outNpcCount(byNpc), "npcs to", outPath);

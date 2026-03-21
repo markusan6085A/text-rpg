@@ -7,16 +7,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "18001": {
     drops: [
       {
-        id: "l2item_1419",
-        kind: "resource",
-        chance: 0.2,
-        min: 1,
-        max: 1,
-        chancePerMillion: 200000,
-        l2ItemId: 1419,
-        displayName: "Blood Mark"
-      },
-      {
         id: "stem",
         kind: "resource",
         chance: 0.166667,
@@ -97,16 +87,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Avadon Robe Fabric"
       },
       {
-        id: "l2item_4197",
-        kind: "other",
-        chance: 0.000008,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8,
-        l2ItemId: 4197,
-        displayName: "Recipe: Demon Dagger"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -117,18 +97,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Adena"
       }
     ],
-    spoil: [
-      {
-        id: "l2item_1806",
-        kind: "other",
-        chance: 0.010868,
-        min: 1,
-        max: 1,
-        chancePerMillion: 10868,
-        l2ItemId: 1806,
-        displayName: "Recipe: Soulshot: B-Grade"
-      }
-    ]
+    spoil: []
   },
   "20001": {
     drops: [],
@@ -140,16 +109,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20003": {
     drops: [
-      {
-        id: "l2item_1788",
-        kind: "other",
-        chance: 0.007805,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7805,
-        l2ItemId: 1788,
-        displayName: "Recipe: Bow"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -213,16 +172,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1786",
-        kind: "other",
-        chance: 0.045293,
-        min: 1,
-        max: 1,
-        chancePerMillion: 45293,
-        l2ItemId: 1786,
-        displayName: "Recipe: Broad Sword"
-      },
-      {
         id: "charcoal",
         kind: "resource",
         chance: 0.056617,
@@ -236,16 +185,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20004": {
     drops: [
-      {
-        id: "l2item_1666",
-        kind: "other",
-        chance: 0.005104,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5104,
-        l2ItemId: 1666,
-        displayName: "Recipe: Wooden Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -313,26 +252,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20005": {
     drops: [
       {
-        id: "l2item_17",
-        kind: "resource",
-        chance: 0.071865,
-        min: 10,
-        max: 30,
-        chancePerMillion: 71865,
-        l2ItemId: 17,
-        displayName: "Wooden Arrow"
-      },
-      {
-        id: "l2item_1789",
-        kind: "other",
-        chance: 0.002657,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2657,
-        l2ItemId: 1789,
-        displayName: "Recipe: Cedar Staff"
-      },
-      {
         id: "varnish",
         kind: "resource",
         chance: 0.014373,
@@ -364,26 +283,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1060",
-        kind: "resource",
-        chance: 0.216259,
-        min: 1,
-        max: 1,
-        chancePerMillion: 216259,
-        l2ItemId: 1060,
-        displayName: "Lesser Healing Potion"
-      },
-      {
-        id: "l2item_1666",
-        kind: "other",
-        chance: 0.032439,
-        min: 1,
-        max: 1,
-        chancePerMillion: 32439,
-        l2ItemId: 1666,
-        displayName: "Recipe: Wooden Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -429,16 +328,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Bow Shaft"
       },
       {
-        id: "l2item_2136",
-        kind: "other",
-        chance: 0.007435,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7435,
-        l2ItemId: 2136,
-        displayName: "Recipe: Cokes"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -450,16 +339,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1060",
-        kind: "resource",
-        chance: 0.285245,
-        min: 1,
-        max: 1,
-        chancePerMillion: 285245,
-        l2ItemId: 1060,
-        displayName: "Lesser Healing Potion"
-      },
       {
         id: "l2item_2006",
         kind: "resource",
@@ -474,16 +353,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20007": {
     drops: [
-      {
-        id: "l2item_1796",
-        kind: "other",
-        chance: 0.036869,
-        min: 1,
-        max: 1,
-        chancePerMillion: 36869,
-        l2ItemId: 1796,
-        displayName: "Recipe: Leather Tunic"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -541,16 +410,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20008": {
     drops: [
       {
-        id: "l2item_1792",
-        kind: "other",
-        chance: 0.003228,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3228,
-        l2ItemId: 1792,
-        displayName: "Recipe: Short Spear"
-      },
-      {
         id: "varnish",
         kind: "resource",
         chance: 0.043891,
@@ -583,16 +442,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1793",
-        kind: "other",
-        chance: 0.016388,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16388,
-        l2ItemId: 1793,
-        displayName: "Recipe: Sword of Reflection"
-      },
-      {
         id: "coal",
         kind: "resource",
         chance: 0.222882,
@@ -616,26 +465,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20021": {
     drops: [
-      {
-        id: "l2item_1060",
-        kind: "resource",
-        chance: 0.073151,
-        min: 1,
-        max: 1,
-        chancePerMillion: 73151,
-        l2ItemId: 1060,
-        displayName: "Lesser Healing Potion"
-      },
-      {
-        id: "l2item_1798",
-        kind: "other",
-        chance: 0.032273,
-        min: 1,
-        max: 1,
-        chancePerMillion: 32273,
-        l2ItemId: 1798,
-        displayName: "Recipe: Leather Helmet"
-      },
       {
         id: "varnish",
         kind: "resource",
@@ -679,26 +508,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1792",
-        kind: "other",
-        chance: 0.016388,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16388,
-        l2ItemId: 1792,
-        displayName: "Recipe: Short Spear"
-      },
-      {
-        id: "l2item_1793",
-        kind: "other",
-        chance: 0.016388,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16388,
-        l2ItemId: 1793,
-        displayName: "Recipe: Sword of Reflection"
-      },
-      {
         id: "l2item_1921",
         kind: "resource",
         chance: 0.143795,
@@ -712,16 +521,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20030": {
     drops: [
-      {
-        id: "l2item_1793",
-        kind: "other",
-        chance: 0.003354,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3354,
-        l2ItemId: 1793,
-        displayName: "Recipe: Sword of Reflection"
-      },
       {
         id: "varnish",
         kind: "resource",
@@ -763,51 +562,10 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Adena"
       }
     ],
-    spoil: [
-      {
-        id: "l2item_1794",
-        kind: "other",
-        chance: 0.01703,
-        min: 1,
-        max: 1,
-        chancePerMillion: 17030,
-        l2ItemId: 1794,
-        displayName: "Recipe: Forest Bow"
-      },
-      {
-        id: "l2item_1798",
-        kind: "other",
-        chance: 0.227072,
-        min: 1,
-        max: 1,
-        chancePerMillion: 227072,
-        l2ItemId: 1798,
-        displayName: "Recipe: Leather Helmet"
-      },
-      {
-        id: "soulshot_ng",
-        kind: "resource",
-        chance: 0.617635,
-        min: 1,
-        max: 1,
-        chancePerMillion: 617635,
-        l2ItemId: 1831,
-        displayName: "Antidote"
-      }
-    ]
+    spoil: []
   },
   "20035": {
     drops: [
-      {
-        id: "l2item_1817",
-        kind: "other",
-        chance: 0.007269,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7269,
-        l2ItemId: 1817,
-        displayName: "Recipe: Cord"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -837,16 +595,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 31776,
         l2ItemId: 1925,
         displayName: "Leather Gloves Lining"
-      },
-      {
-        id: "l2item_5268",
-        kind: "other",
-        chance: 0.001454,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1454,
-        l2ItemId: 5268,
-        displayName: "Recipe: Greater Soulshot (D) Compressed Package (100%)"
       },
       {
         id: "adena",
@@ -879,16 +627,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 161363,
         l2ItemId: 1925,
         displayName: "Leather Gloves Lining"
-      },
-      {
-        id: "l2item_2140",
-        kind: "other",
-        chance: 0.049216,
-        min: 1,
-        max: 1,
-        chancePerMillion: 49216,
-        l2ItemId: 2140,
-        displayName: "Recipe: High Grade Suede"
       }
     ]
   },
@@ -959,36 +697,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Mithril Banded Gaiters Material"
       },
       {
-        id: "l2item_2155",
-        kind: "other",
-        chance: 0.007519,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7519,
-        l2ItemId: 2155,
-        displayName: "Recipe: Elven Ring"
-      },
-      {
-        id: "l2item_2286",
-        kind: "other",
-        chance: 0.000288,
-        min: 1,
-        max: 1,
-        chancePerMillion: 288,
-        l2ItemId: 2286,
-        displayName: "Recipe: Bonebreaker"
-      },
-      {
-        id: "l2item_2985",
-        kind: "other",
-        chance: 0.00346,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3460,
-        l2ItemId: 2985,
-        displayName: "Recipe: Plate Boots"
-      },
-      {
         id: "l2item_5220",
         kind: "resource",
         chance: 0.002165,
@@ -1009,38 +717,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Adena"
       }
     ],
-    spoil: [
-      {
-        id: "l2item_2154",
-        kind: "other",
-        chance: 0.063531,
-        min: 1,
-        max: 1,
-        chancePerMillion: 63531,
-        l2ItemId: 2154,
-        displayName: "Recipe: Elven Earring"
-      },
-      {
-        id: "l2item_2975",
-        kind: "other",
-        chance: 0.052981,
-        min: 1,
-        max: 1,
-        chancePerMillion: 52981,
-        l2ItemId: 2975,
-        displayName: "Recipe: Brigandine Helmet"
-      },
-      {
-        id: "l2item_2987",
-        kind: "other",
-        chance: 0.05761,
-        min: 1,
-        max: 1,
-        chancePerMillion: 57610,
-        l2ItemId: 2987,
-        displayName: "Recipe: Plate Shield"
-      }
-    ]
+    spoil: []
   },
   "20091": {
     drops: [],
@@ -1099,16 +776,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Animal Bone"
       },
       {
-        id: "l2item_2137",
-        kind: "other",
-        chance: 0.004263,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4263,
-        l2ItemId: 2137,
-        displayName: "Recipe: Steel"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -1120,16 +787,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1666",
-        kind: "other",
-        chance: 0.049062,
-        min: 1,
-        max: 1,
-        chancePerMillion: 49062,
-        l2ItemId: 1666,
-        displayName: "Recipe: Wooden Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -1154,16 +811,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20093": {
     drops: [
-      {
-        id: "l2item_1060",
-        kind: "resource",
-        chance: 0.05972,
-        min: 1,
-        max: 1,
-        chancePerMillion: 59720,
-        l2ItemId: 1060,
-        displayName: "Lesser Healing Potion"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -1195,16 +842,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Broadsword Blade"
       },
       {
-        id: "l2item_2138",
-        kind: "other",
-        chance: 0.007905,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7905,
-        l2ItemId: 2138,
-        displayName: "Recipe: Coarse Bone Powder (100%)"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -1216,16 +853,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1666",
-        kind: "other",
-        chance: 0.060652,
-        min: 1,
-        max: 1,
-        chancePerMillion: 60652,
-        l2ItemId: 1666,
-        displayName: "Recipe: Wooden Arrow"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -1254,16 +881,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20095": {
     drops: [
-      {
-        id: "l2item_1789",
-        kind: "other",
-        chance: 0.005412,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5412,
-        l2ItemId: 1789,
-        displayName: "Recipe: Cedar Staff"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -1320,16 +937,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20096": {
     drops: [
-      {
-        id: "l2item_736",
-        kind: "resource",
-        chance: 0.009924,
-        min: 1,
-        max: 1,
-        chancePerMillion: 9924,
-        l2ItemId: 736,
-        displayName: "Scroll of Escape"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -1403,26 +1010,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1792",
-        kind: "other",
-        chance: 0.014822,
-        min: 1,
-        max: 1,
-        chancePerMillion: 14822,
-        l2ItemId: 1792,
-        displayName: "Recipe: Short Spear"
-      },
-      {
-        id: "l2item_1799",
-        kind: "other",
-        chance: 0.298635,
-        min: 1,
-        max: 1,
-        chancePerMillion: 298635,
-        l2ItemId: 1799,
-        displayName: "Recipe: Leather Gloves"
-      },
-      {
         id: "l2item_1921",
         kind: "resource",
         chance: 0.130051,
@@ -1436,16 +1023,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20099": {
     drops: [
-      {
-        id: "l2item_1794",
-        kind: "other",
-        chance: 0.001287,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1287,
-        l2ItemId: 1794,
-        displayName: "Recipe: Forest Bow"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -1519,17 +1096,7 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "soulshot_ng",
-        kind: "resource",
-        chance: 0.473949,
-        min: 1,
-        max: 1,
-        chancePerMillion: 473949,
-        l2ItemId: 1831,
-        displayName: "Antidote"
-      },
-      {
-        id: "spiritshot_ng",
+        id: "l2item_1896",
         kind: "resource",
         chance: 0.07531,
         min: 1,
@@ -1552,16 +1119,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20100": {
     drops: [
-      {
-        id: "l2item_1799",
-        kind: "other",
-        chance: 0.05495,
-        min: 1,
-        max: 1,
-        chancePerMillion: 54950,
-        l2ItemId: 1799,
-        displayName: "Recipe: Leather Gloves"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -1595,26 +1152,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1792",
-        kind: "other",
-        chance: 0.013849,
-        min: 1,
-        max: 1,
-        chancePerMillion: 13849,
-        l2ItemId: 1792,
-        displayName: "Recipe: Short Spear"
-      },
-      {
-        id: "l2item_1833",
-        kind: "resource",
-        chance: 0.502269,
-        min: 1,
-        max: 1,
-        chancePerMillion: 502269,
-        l2ItemId: 1833,
-        displayName: "Bandage"
-      },
-      {
         id: "suede",
         kind: "resource",
         chance: 0.125567,
@@ -1628,26 +1165,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20120": {
     drops: [
-      {
-        id: "l2item_1060",
-        kind: "resource",
-        chance: 0.022174,
-        min: 1,
-        max: 1,
-        chancePerMillion: 22174,
-        l2ItemId: 1060,
-        displayName: "Lesser Healing Potion"
-      },
-      {
-        id: "l2item_1786",
-        kind: "other",
-        chance: 0.007983,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7983,
-        l2ItemId: 1786,
-        displayName: "Recipe: Broad Sword"
-      },
       {
         id: "varnish",
         kind: "resource",
@@ -1681,16 +1198,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1787",
-        kind: "other",
-        chance: 0.030885,
-        min: 1,
-        max: 1,
-        chancePerMillion: 30885,
-        l2ItemId: 1787,
-        displayName: "Recipe: Willow Staff"
-      },
-      {
         id: "stem",
         kind: "resource",
         chance: 0.077212,
@@ -1714,26 +1221,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20432": {
     drops: [
-      {
-        id: "l2item_17",
-        kind: "resource",
-        chance: 0.011757,
-        min: 10,
-        max: 30,
-        chancePerMillion: 11757,
-        l2ItemId: 17,
-        displayName: "Wooden Arrow"
-      },
-      {
-        id: "l2item_1787",
-        kind: "other",
-        chance: 0.001881,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1881,
-        l2ItemId: 1787,
-        displayName: "Recipe: Willow Staff"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -1800,26 +1287,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20481": {
     drops: [
       {
-        id: "l2item_17",
-        kind: "resource",
-        chance: 0.020574,
-        min: 10,
-        max: 30,
-        chancePerMillion: 20574,
-        l2ItemId: 17,
-        displayName: "Wooden Arrow"
-      },
-      {
-        id: "l2item_1786",
-        kind: "other",
-        chance: 0.003292,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3292,
-        l2ItemId: 1786,
-        displayName: "Recipe: Broad Sword"
-      },
-      {
         id: "thread",
         kind: "resource",
         chance: 0.00823,
@@ -1852,26 +1319,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1786",
-        kind: "other",
-        chance: 0.012736,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12736,
-        l2ItemId: 1786,
-        displayName: "Recipe: Broad Sword"
-      },
-      {
-        id: "l2item_1788",
-        kind: "other",
-        chance: 0.012736,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12736,
-        l2ItemId: 1788,
-        displayName: "Recipe: Bow"
-      },
-      {
         id: "thread",
         kind: "resource",
         chance: 0.031839,
@@ -1885,16 +1332,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "20544": {
     drops: [
-      {
-        id: "l2item_1788",
-        kind: "other",
-        chance: 0.007474,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7474,
-        l2ItemId: 1788,
-        displayName: "Recipe: Bow"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -1928,16 +1365,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_1788",
-        kind: "other",
-        chance: 0.021685,
-        min: 1,
-        max: 1,
-        chancePerMillion: 21685,
-        l2ItemId: 1788,
-        displayName: "Recipe: Bow"
-      },
-      {
         id: "coal",
         kind: "resource",
         chance: 0.027106,
@@ -1962,26 +1389,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "20545": {
     drops: [
       {
-        id: "l2item_17",
-        kind: "resource",
-        chance: 0.016459,
-        min: 10,
-        max: 30,
-        chancePerMillion: 16459,
-        l2ItemId: 17,
-        displayName: "Wooden Arrow"
-      },
-      {
-        id: "l2item_1788",
-        kind: "other",
-        chance: 0.002634,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2634,
-        l2ItemId: 1788,
-        displayName: "Recipe: Bow"
-      },
-      {
         id: "thread",
         kind: "resource",
         chance: 0.006584,
@@ -2000,16 +1407,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 1317,
         l2ItemId: 1873,
         displayName: "Silver Nugget"
-      },
-      {
-        id: "l2item_6037",
-        kind: "resource",
-        chance: 0.006584,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6584,
-        l2ItemId: 6037,
-        displayName: "Waking Scroll"
       },
       {
         id: "adena",
@@ -2087,36 +1484,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Tiger's Eye Earring Stone"
       },
       {
-        id: "l2item_2274",
-        kind: "other",
-        chance: 0.00027,
-        min: 1,
-        max: 1,
-        chancePerMillion: 270,
-        l2ItemId: 2274,
-        displayName: "Recipe: Skull Breaker"
-      },
-      {
-        id: "l2item_2276",
-        kind: "other",
-        chance: 0.00027,
-        min: 1,
-        max: 1,
-        chancePerMillion: 270,
-        l2ItemId: 2276,
-        displayName: "Recipe: Maingauche"
-      },
-      {
-        id: "l2item_2976",
-        kind: "other",
-        chance: 0.006494,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6494,
-        l2ItemId: 2976,
-        displayName: "Recipe: Manticore Skin Boots"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -2137,26 +1504,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 22714,
         l2ItemId: 1877,
         displayName: "Adamantite Nugget"
-      },
-      {
-        id: "l2item_2279",
-        kind: "other",
-        chance: 0.004056,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4056,
-        l2ItemId: 2279,
-        displayName: "Recipe: War Pick"
-      },
-      {
-        id: "l2item_2979",
-        kind: "other",
-        chance: 0.076017,
-        min: 1,
-        max: 1,
-        chancePerMillion: 76017,
-        l2ItemId: 2979,
-        displayName: "Recipe: Manticore Skin Gloves"
       }
     ]
   },
@@ -2213,36 +1560,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Leather"
       },
       {
-        id: "l2item_2183",
-        kind: "other",
-        chance: 0.001299,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1299,
-        l2ItemId: 2183,
-        displayName: "Recipe: Mithril Banded Mail"
-      },
-      {
-        id: "l2item_2274",
-        kind: "other",
-        chance: 0.000141,
-        min: 1,
-        max: 1,
-        chancePerMillion: 141,
-        l2ItemId: 2274,
-        displayName: "Recipe: Skull Breaker"
-      },
-      {
-        id: "l2item_6667",
-        kind: "resource",
-        chance: 0.012658,
-        min: 1,
-        max: 1,
-        chancePerMillion: 12658,
-        l2ItemId: 6667,
-        displayName: "Deluxe Chest Key - Grade 3"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -2273,16 +1590,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 24815,
         l2ItemId: 1937,
         displayName: "Scale Gaiters Fragment"
-      },
-      {
-        id: "l2item_2250",
-        kind: "other",
-        chance: 0.072213,
-        min: 1,
-        max: 1,
-        chancePerMillion: 72213,
-        l2ItemId: 2250,
-        displayName: "Recipe: Bone Arrow"
       }
     ]
   },
@@ -2329,16 +1636,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Asofe"
       },
       {
-        id: "l2item_5272",
-        kind: "other",
-        chance: 0.000023,
-        min: 1,
-        max: 1,
-        chancePerMillion: 23,
-        l2ItemId: 5272,
-        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5539",
         kind: "resource",
         chance: 0.002956,
@@ -2347,36 +1644,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 2956,
         l2ItemId: 5539,
         displayName: "Blood Tornado Edge"
-      },
-      {
-        id: "l2item_8731",
-        kind: "resource",
-        chance: 0.001961,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1961,
-        l2ItemId: 8731,
-        displayName: "Life Stone: level 70"
-      },
-      {
-        id: "l2item_8741",
-        kind: "resource",
-        chance: 0.000607,
-        min: 1,
-        max: 1,
-        chancePerMillion: 607,
-        l2ItemId: 8741,
-        displayName: "Mid-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8751",
-        kind: "resource",
-        chance: 0.000047,
-        min: 1,
-        max: 1,
-        chancePerMillion: 47,
-        l2ItemId: 8751,
-        displayName: "High-Grade Life Stone: level 70"
       },
       {
         id: "adena",
@@ -2391,26 +1658,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_730",
-        kind: "resource",
-        chance: 0.004944,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4944,
-        l2ItemId: 730,
-        displayName: "Scroll: Enchant Armor (Grade A)"
-      },
-      {
-        id: "l2item_6335",
-        kind: "other",
-        chance: 0.022819,
-        min: 1,
-        max: 1,
-        chancePerMillion: 22819,
-        l2ItemId: 6335,
-        displayName: "Recipe: Sealed Majestic Necklace(70%)"
-      },
-      {
         id: "l2item_6341",
         kind: "resource",
         chance: 0.1641,
@@ -2424,16 +1671,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21315": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.083333,
-        min: 30,
-        max: 90,
-        chancePerMillion: 83333,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -2475,16 +1712,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Thons"
       },
       {
-        id: "l2item_5277",
-        kind: "other",
-        chance: 0.000039,
-        min: 1,
-        max: 1,
-        chancePerMillion: 39,
-        l2ItemId: 5277,
-        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5535",
         kind: "resource",
         chance: 0.003117,
@@ -2503,36 +1730,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 20833,
         l2ItemId: 5549,
         displayName: "Metallic Thread"
-      },
-      {
-        id: "l2item_8731",
-        kind: "resource",
-        chance: 0.001486,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1486,
-        l2ItemId: 8731,
-        displayName: "Life Stone: level 70"
-      },
-      {
-        id: "l2item_8741",
-        kind: "resource",
-        chance: 0.000254,
-        min: 1,
-        max: 1,
-        chancePerMillion: 254,
-        l2ItemId: 8741,
-        displayName: "Mid-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8751",
-        kind: "resource",
-        chance: 0.000117,
-        min: 1,
-        max: 1,
-        chancePerMillion: 117,
-        l2ItemId: 8751,
-        displayName: "High-Grade Life Stone: level 70"
       },
       {
         id: "adena",
@@ -2581,16 +1778,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21316": {
     drops: [
       {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.083333,
-        min: 30,
-        max: 90,
-        chancePerMillion: 83333,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
-      {
         id: "stem",
         kind: "resource",
         chance: 0.2,
@@ -2621,16 +1808,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Steel"
       },
       {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.000151,
-        min: 1,
-        max: 1,
-        chancePerMillion: 151,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
-      },
-      {
         id: "asofe",
         kind: "resource",
         chance: 0.007042,
@@ -2659,36 +1836,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3356,
         l2ItemId: 5550,
         displayName: "Durable Metal Plate"
-      },
-      {
-        id: "l2item_8731",
-        kind: "resource",
-        chance: 0.002088,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2088,
-        l2ItemId: 8731,
-        displayName: "Life Stone: level 70"
-      },
-      {
-        id: "l2item_8741",
-        kind: "resource",
-        chance: 0.000424,
-        min: 1,
-        max: 1,
-        chancePerMillion: 424,
-        l2ItemId: 8741,
-        displayName: "Mid-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8751",
-        kind: "resource",
-        chance: 0.00003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 30,
-        l2ItemId: 8751,
-        displayName: "High-Grade Life Stone: level 70"
       },
       {
         id: "adena",
@@ -2777,16 +1924,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Crafted Leather"
       },
       {
-        id: "l2item_3957",
-        kind: "other",
-        chance: 0.000124,
-        min: 1,
-        max: 1,
-        chancePerMillion: 124,
-        l2ItemId: 3957,
-        displayName: "Recipe: Blessed Spiritshot S"
-      },
-      {
         id: "enria",
         kind: "resource",
         chance: 0.003968,
@@ -2807,46 +1944,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Blood Tornado Edge"
       },
       {
-        id: "l2item_8731",
-        kind: "resource",
-        chance: 0.002481,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2481,
-        l2ItemId: 8731,
-        displayName: "Life Stone: level 70"
-      },
-      {
-        id: "l2item_8741",
-        kind: "resource",
-        chance: 0.000455,
-        min: 1,
-        max: 1,
-        chancePerMillion: 455,
-        l2ItemId: 8741,
-        displayName: "Mid-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8751",
-        kind: "resource",
-        chance: 0.000029,
-        min: 1,
-        max: 1,
-        chancePerMillion: 29,
-        l2ItemId: 8751,
-        displayName: "High-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8761",
-        kind: "resource",
-        chance: 0.000029,
-        min: 1,
-        max: 1,
-        chancePerMillion: 29,
-        l2ItemId: 8761,
-        displayName: "Top-Grade Life Stone: level 70"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -2858,26 +1955,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5450",
-        kind: "other",
-        chance: 0.002263,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2263,
-        l2ItemId: 5450,
-        displayName: "Recipe: Dragon Grinder(60%)"
-      },
-      {
-        id: "l2item_5456",
-        kind: "other",
-        chance: 0.002263,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2263,
-        l2ItemId: 5456,
-        displayName: "Recipe: Tallum Glaive(60%)"
-      },
       {
         id: "l2item_6345",
         kind: "resource",
@@ -2892,16 +1969,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21318": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.090909,
-        min: 30,
-        max: 90,
-        chancePerMillion: 90909,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -2941,16 +2008,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 7353,
         l2ItemId: 4044,
         displayName: "Thons"
-      },
-      {
-        id: "l2item_5157",
-        kind: "other",
-        chance: 0.00012,
-        min: 1,
-        max: 1,
-        chancePerMillion: 120,
-        l2ItemId: 5157,
-        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
       },
       {
         id: "l2item_5496",
@@ -3003,36 +2060,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Metallic Thread"
       },
       {
-        id: "l2item_8731",
-        kind: "resource",
-        chance: 0.001527,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1527,
-        l2ItemId: 8731,
-        displayName: "Life Stone: level 70"
-      },
-      {
-        id: "l2item_8741",
-        kind: "resource",
-        chance: 0.000583,
-        min: 1,
-        max: 1,
-        chancePerMillion: 583,
-        l2ItemId: 8741,
-        displayName: "Mid-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8751",
-        kind: "resource",
-        chance: 0.000051,
-        min: 1,
-        max: 1,
-        chancePerMillion: 51,
-        l2ItemId: 8751,
-        displayName: "High-Grade Life Stone: level 70"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -3044,16 +2071,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_730",
-        kind: "resource",
-        chance: 0.005323,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5323,
-        l2ItemId: 730,
-        displayName: "Scroll: Enchant Armor (Grade A)"
-      },
       {
         id: "l2item_5478",
         kind: "resource",
@@ -3079,16 +2096,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   "21319": {
     drops: [
       {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.25,
-        min: 20,
-        max: 60,
-        chancePerMillion: 250000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
-      {
         id: "l2item_5535",
         kind: "resource",
         chance: 0.003633,
@@ -3097,106 +2104,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3633,
         l2ItemId: 5535,
         displayName: "Carnage Bow Stave"
-      },
-      {
-        id: "l2item_7649",
-        kind: "resource",
-        chance: 0.007519,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7519,
-        l2ItemId: 7649,
-        displayName: "Spellbook - Fire Vortex"
-      },
-      {
-        id: "l2item_7650",
-        kind: "resource",
-        chance: 0.007299,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7299,
-        l2ItemId: 7650,
-        displayName: "Spellbook - Ice Vortex"
-      },
-      {
-        id: "l2item_7651",
-        kind: "resource",
-        chance: 0.007576,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7576,
-        l2ItemId: 7651,
-        displayName: "Spellbook - Wind Vortex"
-      },
-      {
-        id: "l2item_7652",
-        kind: "resource",
-        chance: 0.006849,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6849,
-        l2ItemId: 7652,
-        displayName: "Spellbook - Light Vortex"
-      },
-      {
-        id: "l2item_7653",
-        kind: "resource",
-        chance: 0.007937,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7937,
-        l2ItemId: 7653,
-        displayName: "Spellbook - Dark Vortex"
-      },
-      {
-        id: "l2item_7649",
-        kind: "resource",
-        chance: 0.018357,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18357,
-        l2ItemId: 7649,
-        displayName: "Spellbook - Fire Vortex"
-      },
-      {
-        id: "l2item_7650",
-        kind: "resource",
-        chance: 0.018357,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18357,
-        l2ItemId: 7650,
-        displayName: "Spellbook - Ice Vortex"
-      },
-      {
-        id: "l2item_7651",
-        kind: "resource",
-        chance: 0.018357,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18357,
-        l2ItemId: 7651,
-        displayName: "Spellbook - Wind Vortex"
-      },
-      {
-        id: "l2item_7652",
-        kind: "resource",
-        chance: 0.018357,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18357,
-        l2ItemId: 7652,
-        displayName: "Spellbook - Light Vortex"
-      },
-      {
-        id: "l2item_7653",
-        kind: "resource",
-        chance: 0.018357,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18357,
-        l2ItemId: 7653,
-        displayName: "Spellbook - Dark Vortex"
       },
       {
         id: "adena",
@@ -3210,16 +2117,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5157",
-        kind: "other",
-        chance: 0.003204,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3204,
-        l2ItemId: 5157,
-        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
-      },
       {
         id: "l2item_5495",
         kind: "resource",
@@ -3285,16 +2182,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Crafted Leather"
       },
       {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.000114,
-        min: 1,
-        max: 1,
-        chancePerMillion: 114,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
-      },
-      {
         id: "enria",
         kind: "resource",
         chance: 0.004065,
@@ -3313,46 +2200,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3297,
         l2ItemId: 5536,
         displayName: "Bloody Orchid Head"
-      },
-      {
-        id: "l2item_8731",
-        kind: "resource",
-        chance: 0.001953,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1953,
-        l2ItemId: 8731,
-        displayName: "Life Stone: level 70"
-      },
-      {
-        id: "l2item_8741",
-        kind: "resource",
-        chance: 0.000474,
-        min: 1,
-        max: 1,
-        chancePerMillion: 474,
-        l2ItemId: 8741,
-        displayName: "Mid-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8751",
-        kind: "resource",
-        chance: 0.000057,
-        min: 1,
-        max: 1,
-        chancePerMillion: 57,
-        l2ItemId: 8751,
-        displayName: "High-Grade Life Stone: level 70"
-      },
-      {
-        id: "l2item_8761",
-        kind: "resource",
-        chance: 0.000019,
-        min: 1,
-        max: 1,
-        chancePerMillion: 19,
-        l2ItemId: 8761,
-        displayName: "Top-Grade Life Stone: level 70"
       },
       {
         id: "adena",
@@ -3451,16 +2298,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Enria"
       },
       {
-        id: "l2item_5167",
-        kind: "other",
-        chance: 0.00015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 150,
-        l2ItemId: 5167,
-        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5539",
         kind: "resource",
         chance: 0.003414,
@@ -3469,36 +2306,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3414,
         l2ItemId: 5539,
         displayName: "Blood Tornado Edge"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001473,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1473,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000241,
-        min: 1,
-        max: 1,
-        chancePerMillion: 241,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.00006,
-        min: 1,
-        max: 1,
-        chancePerMillion: 60,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
       },
       {
         id: "adena",
@@ -3546,16 +2353,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21322": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.125,
-        min: 20,
-        max: 60,
-        chancePerMillion: 125000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -3607,16 +2404,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Mold Hardener"
       },
       {
-        id: "l2item_5272",
-        kind: "other",
-        chance: 0.000048,
-        min: 1,
-        max: 1,
-        chancePerMillion: 48,
-        l2ItemId: 5272,
-        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5535",
         kind: "resource",
         chance: 0.003454,
@@ -3625,36 +2412,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3454,
         l2ItemId: 5535,
         displayName: "Carnage Bow Stave"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001383,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1383,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000382,
-        min: 1,
-        max: 1,
-        chancePerMillion: 382,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 15,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
       },
       {
         id: "adena",
@@ -3668,26 +2425,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5272",
-        kind: "other",
-        chance: 0.003046,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3046,
-        l2ItemId: 5272,
-        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
-      },
-      {
-        id: "l2item_5277",
-        kind: "other",
-        chance: 0.003046,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3046,
-        l2ItemId: 5277,
-        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
-      },
       {
         id: "l2item_5480",
         kind: "resource",
@@ -3753,16 +2490,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Enria"
       },
       {
-        id: "l2item_5277",
-        kind: "other",
-        chance: 0.000043,
-        min: 1,
-        max: 1,
-        chancePerMillion: 43,
-        l2ItemId: 5277,
-        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5536",
         kind: "resource",
         chance: 0.003404,
@@ -3771,26 +2498,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3404,
         l2ItemId: 5536,
         displayName: "Bloody Orchid Head"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001859,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1859,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000475,
-        min: 1,
-        max: 1,
-        chancePerMillion: 475,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
       },
       {
         id: "adena",
@@ -3838,26 +2545,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21324": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.058824,
-        min: 30,
-        max: 90,
-        chancePerMillion: 58824,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
-      {
-        id: "l2item_1808",
-        kind: "other",
-        chance: 0.000087,
-        min: 1,
-        max: 1,
-        chancePerMillion: 87,
-        l2ItemId: 1808,
-        displayName: "Recipe: Soulshot: S Grade"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -3939,36 +2626,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Infernal Master Blade"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001131,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1131,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000696,
-        min: 1,
-        max: 1,
-        chancePerMillion: 696,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000087,
-        min: 1,
-        max: 1,
-        chancePerMillion: 87,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -3980,16 +2637,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1808",
-        kind: "other",
-        chance: 0.002885,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2885,
-        l2ItemId: 1808,
-        displayName: "Recipe: Soulshot: S Grade"
-      },
       {
         id: "enria",
         kind: "resource",
@@ -4023,16 +2670,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 5495,
         l2ItemId: 1894,
         displayName: "Crafted Leather"
-      },
-      {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.000168,
-        min: 1,
-        max: 1,
-        chancePerMillion: 168,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
       },
       {
         id: "mold_glue",
@@ -4105,36 +2742,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Hammer Piece of Destroyer"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001091,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1091,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000293,
-        min: 1,
-        max: 1,
-        chancePerMillion: 293,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000042,
-        min: 1,
-        max: 1,
-        chancePerMillion: 42,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -4146,16 +2753,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.002789,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2789,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
-      },
       {
         id: "l2item_5503",
         kind: "resource",
@@ -4180,16 +2777,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21326": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.076923,
-        min: 20,
-        max: 60,
-        chancePerMillion: 76923,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -4221,16 +2808,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Adamantite Nugget"
       },
       {
-        id: "l2item_3957",
-        kind: "other",
-        chance: 0.000118,
-        min: 1,
-        max: 1,
-        chancePerMillion: 118,
-        l2ItemId: 3957,
-        displayName: "Recipe: Blessed Spiritshot S"
-      },
-      {
         id: "mold_lubricant",
         kind: "resource",
         chance: 0.003165,
@@ -4259,36 +2836,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3126,
         l2ItemId: 5539,
         displayName: "Blood Tornado Edge"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.000791,
-        min: 1,
-        max: 1,
-        chancePerMillion: 791,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000113,
-        min: 1,
-        max: 1,
-        chancePerMillion: 113,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000113,
-        min: 1,
-        max: 1,
-        chancePerMillion: 113,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
       },
       {
         id: "adena",
@@ -4377,16 +2924,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Thons"
       },
       {
-        id: "l2item_5277",
-        kind: "other",
-        chance: 0.000144,
-        min: 1,
-        max: 1,
-        chancePerMillion: 144,
-        l2ItemId: 5277,
-        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5547",
         kind: "resource",
         chance: 0.001796,
@@ -4417,26 +2954,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Infernal Master Blade"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002083,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2083,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000719,
-        min: 1,
-        max: 1,
-        chancePerMillion: 719,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -4459,16 +2976,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Mold Glue"
       },
       {
-        id: "l2item_5272",
-        kind: "other",
-        chance: 0.003175,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3175,
-        l2ItemId: 5272,
-        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5533",
         kind: "resource",
         chance: 0.019597,
@@ -4482,16 +2989,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21328": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.0625,
-        min: 30,
-        max: 90,
-        chancePerMillion: 62500,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -4543,16 +3040,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Enria"
       },
       {
-        id: "l2item_5282",
-        kind: "other",
-        chance: 0.00017,
-        min: 1,
-        max: 1,
-        chancePerMillion: 170,
-        l2ItemId: 5282,
-        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5532",
         kind: "resource",
         chance: 0.001706,
@@ -4571,16 +3058,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 1722,
         l2ItemId: 5543,
         displayName: "Dasparion's Staff Edge"
-      },
-      {
-        id: "l2item_6671",
-        kind: "resource",
-        chance: 0.016949,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16949,
-        l2ItemId: 6671,
-        displayName: "Deluxe Chest Key - Grade 7"
       },
       {
         id: "l2item_8341",
@@ -4603,36 +3080,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Hammer Piece of Destroyer"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002033,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2033,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.00017,
-        min: 1,
-        max: 1,
-        chancePerMillion: 170,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000057,
-        min: 1,
-        max: 1,
-        chancePerMillion: 57,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -4644,16 +3091,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5277",
-        kind: "other",
-        chance: 0.003044,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3044,
-        l2ItemId: 5277,
-        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
-      },
       {
         id: "l2item_5534",
         kind: "resource",
@@ -4709,86 +3146,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sword of Miracles Edge"
       },
       {
-        id: "l2item_7668",
-        kind: "resource",
-        chance: 0.009901,
-        min: 1,
-        max: 1,
-        chancePerMillion: 9901,
-        l2ItemId: 7668,
-        displayName: "Spellbook - Block Shield"
-      },
-      {
-        id: "l2item_7669",
-        kind: "resource",
-        chance: 0.008475,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8475,
-        l2ItemId: 7669,
-        displayName: "Spellbook - Block Wind Walk"
-      },
-      {
-        id: "l2item_7670",
-        kind: "resource",
-        chance: 0.008621,
-        min: 1,
-        max: 1,
-        chancePerMillion: 8621,
-        l2ItemId: 7670,
-        displayName: "Spellbook - Mass Block Shield"
-      },
-      {
-        id: "l2item_7671",
-        kind: "resource",
-        chance: 0.009091,
-        min: 1,
-        max: 1,
-        chancePerMillion: 9091,
-        l2ItemId: 7671,
-        displayName: "Spellbook - Mass Block Wind Walk"
-      },
-      {
-        id: "l2item_7668",
-        kind: "resource",
-        chance: 0.026604,
-        min: 1,
-        max: 1,
-        chancePerMillion: 26604,
-        l2ItemId: 7668,
-        displayName: "Spellbook - Block Shield"
-      },
-      {
-        id: "l2item_7669",
-        kind: "resource",
-        chance: 0.026604,
-        min: 1,
-        max: 1,
-        chancePerMillion: 26604,
-        l2ItemId: 7669,
-        displayName: "Spellbook - Block Wind Walk"
-      },
-      {
-        id: "l2item_7670",
-        kind: "resource",
-        chance: 0.026604,
-        min: 1,
-        max: 1,
-        chancePerMillion: 26604,
-        l2ItemId: 7670,
-        displayName: "Spellbook - Mass Block Shield"
-      },
-      {
-        id: "l2item_7671",
-        kind: "resource",
-        chance: 0.026604,
-        min: 1,
-        max: 1,
-        chancePerMillion: 26604,
-        l2ItemId: 7671,
-        displayName: "Spellbook - Mass Block Wind Walk"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -4800,26 +3157,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5162",
-        kind: "other",
-        chance: 0.003095,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3095,
-        l2ItemId: 5162,
-        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
-      },
-      {
-        id: "l2item_5167",
-        kind: "other",
-        chance: 0.003095,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3095,
-        l2ItemId: 5167,
-        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
-      },
       {
         id: "l2item_5487",
         kind: "resource",
@@ -4834,26 +3171,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21330": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000043,
-        min: 1,
-        max: 1,
-        chancePerMillion: 43,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.111111,
-        min: 20,
-        max: 60,
-        chancePerMillion: 111111,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -4945,36 +3262,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Doom Crusher Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001443,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1443,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000259,
-        min: 1,
-        max: 1,
-        chancePerMillion: 259,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000022,
-        min: 1,
-        max: 1,
-        chancePerMillion: 22,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -5020,26 +3307,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21331": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000092,
-        min: 1,
-        max: 1,
-        chancePerMillion: 92,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.076923,
-        min: 30,
-        max: 90,
-        chancePerMillion: 76923,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -5121,36 +3388,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sword of Miracles Edge"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001156,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1156,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000324,
-        min: 1,
-        max: 1,
-        chancePerMillion: 324,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000037,
-        min: 1,
-        max: 1,
-        chancePerMillion: 37,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -5196,16 +3433,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21332": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000018,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "crafted_leather",
         kind: "resource",
@@ -5287,36 +3514,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Doom Crusher Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001894,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1894,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.001056,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1056,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000044,
-        min: 1,
-        max: 1,
-        chancePerMillion: 44,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -5328,16 +3525,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5282",
-        kind: "other",
-        chance: 0.003247,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3247,
-        l2ItemId: 5282,
-        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
-      },
       {
         id: "l2item_6342",
         kind: "resource",
@@ -5362,16 +3549,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21333": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 15,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -5463,36 +3640,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Doom Crusher Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001538,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1538,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000684,
-        min: 1,
-        max: 1,
-        chancePerMillion: 684,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000057,
-        min: 1,
-        max: 1,
-        chancePerMillion: 57,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -5504,26 +3651,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1808",
-        kind: "other",
-        chance: 0.003114,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3114,
-        l2ItemId: 1808,
-        displayName: "Recipe: Soulshot: S Grade"
-      },
-      {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.003114,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3114,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
-      },
       {
         id: "l2item_5503",
         kind: "resource",
@@ -5538,26 +3665,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21334": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000187,
-        min: 1,
-        max: 1,
-        chancePerMillion: 187,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.076923,
-        min: 40,
-        max: 120,
-        chancePerMillion: 76923,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -5619,36 +3726,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Dragon Grinder Edge"
       },
       {
-        id: "l2item_6672",
-        kind: "resource",
-        chance: 0.02381,
-        min: 1,
-        max: 1,
-        chancePerMillion: 23810,
-        l2ItemId: 6672,
-        displayName: "Deluxe Chest Key - Grade 8"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002618,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2618,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000374,
-        min: 1,
-        max: 1,
-        chancePerMillion: 374,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -5684,16 +3761,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21335": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000113,
-        min: 1,
-        max: 1,
-        chancePerMillion: 113,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -5755,36 +3822,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Metallic Thread"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002494,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2494,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000227,
-        min: 1,
-        max: 1,
-        chancePerMillion: 227,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000057,
-        min: 1,
-        max: 1,
-        chancePerMillion: 57,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -5807,16 +3844,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Compound Braid"
       },
       {
-        id: "l2item_5272",
-        kind: "other",
-        chance: 0.003009,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3009,
-        l2ItemId: 5272,
-        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5495",
         kind: "resource",
         chance: 0.102794,
@@ -5830,26 +3857,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21336": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000127,
-        min: 1,
-        max: 1,
-        chancePerMillion: 127,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.066667,
-        min: 40,
-        max: 120,
-        chancePerMillion: 66667,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -5921,36 +3928,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Leather Armor Fabric"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001901,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1901,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.00038,
-        min: 1,
-        max: 1,
-        chancePerMillion: 380,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000127,
-        min: 1,
-        max: 1,
-        chancePerMillion: 127,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -5962,16 +3939,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5277",
-        kind: "other",
-        chance: 0.003537,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3537,
-        l2ItemId: 5277,
-        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
-      },
       {
         id: "l2item_5502",
         kind: "resource",
@@ -5996,16 +3963,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21337": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 15,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -6077,26 +4034,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Robe Fabric"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.00431,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4310,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000431,
-        min: 1,
-        max: 1,
-        chancePerMillion: 431,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -6108,16 +4045,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000295,
-        min: 1,
-        max: 1,
-        chancePerMillion: 295,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "high_grade_suede",
         kind: "resource",
@@ -6142,26 +4069,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21338": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000164,
-        min: 1,
-        max: 1,
-        chancePerMillion: 164,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.111111,
-        min: 30,
-        max: 90,
-        chancePerMillion: 111111,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -6243,26 +4150,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Ring Gemstone"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002809,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2809,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.00048,
-        min: 1,
-        max: 1,
-        chancePerMillion: 480,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -6308,26 +4195,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21339": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.00009,
-        min: 1,
-        max: 1,
-        chancePerMillion: 90,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.071429,
-        min: 40,
-        max: 120,
-        chancePerMillion: 71429,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -6389,36 +4256,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Separator Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001305,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1305,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000315,
-        min: 1,
-        max: 1,
-        chancePerMillion: 315,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000045,
-        min: 1,
-        max: 1,
-        chancePerMillion: 45,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -6464,16 +4301,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21340": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000013,
-        min: 1,
-        max: 1,
-        chancePerMillion: 13,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -6555,36 +4382,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Metallic Thread"
       },
       {
-        id: "l2item_6672",
-        kind: "resource",
-        chance: 0.017544,
-        min: 1,
-        max: 1,
-        chancePerMillion: 17544,
-        l2ItemId: 6672,
-        displayName: "Deluxe Chest Key - Grade 8"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001883,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1883,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000044,
-        min: 1,
-        max: 1,
-        chancePerMillion: 44,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -6596,16 +4393,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.002957,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2957,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "l2item_1889",
         kind: "resource",
@@ -6630,16 +4417,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21341": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -6721,26 +4498,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sword of Miracles Edge"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.003367,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3367,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000406,
-        min: 1,
-        max: 1,
-        chancePerMillion: 406,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -6752,16 +4509,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.003097,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3097,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "mithril_ore",
         kind: "resource",
@@ -6786,26 +4533,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21342": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000074,
-        min: 1,
-        max: 1,
-        chancePerMillion: 74,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.2,
-        min: 20,
-        max: 60,
-        chancePerMillion: 200000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -6895,26 +4622,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 891,
         l2ItemId: 8349,
         displayName: "Doom Crusher Head"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.00266,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2660,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.001403,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1403,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
       },
       {
         id: "adena",
@@ -7013,16 +4720,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Mold Lubricant"
       },
       {
-        id: "l2item_5157",
-        kind: "other",
-        chance: 0.000051,
-        min: 1,
-        max: 1,
-        chancePerMillion: 51,
-        l2ItemId: 5157,
-        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5535",
         kind: "resource",
         chance: 0.003456,
@@ -7031,36 +4728,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 3456,
         l2ItemId: 5535,
         displayName: "Carnage Bow Stave"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001866,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1866,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.00023,
-        min: 1,
-        max: 1,
-        chancePerMillion: 230,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000102,
-        min: 1,
-        max: 1,
-        chancePerMillion: 102,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
       },
       {
         id: "adena",
@@ -7075,26 +4742,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_3957",
-        kind: "other",
-        chance: 0.003048,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3048,
-        l2ItemId: 3957,
-        displayName: "Recipe: Blessed Spiritshot S"
-      },
-      {
-        id: "l2item_5157",
-        kind: "other",
-        chance: 0.003048,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3048,
-        l2ItemId: 5157,
-        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5522",
         kind: "resource",
         chance: 0.023355,
@@ -7108,16 +4755,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21351": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.111111,
-        min: 20,
-        max: 60,
-        chancePerMillion: 111111,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -7159,16 +4796,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Mold Hardener"
       },
       {
-        id: "l2item_5162",
-        kind: "other",
-        chance: 0.000075,
-        min: 1,
-        max: 1,
-        chancePerMillion: 75,
-        l2ItemId: 5162,
-        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5220",
         kind: "resource",
         chance: 0.007874,
@@ -7187,36 +4814,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 2970,
         l2ItemId: 5536,
         displayName: "Bloody Orchid Head"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001842,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1842,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000299,
-        min: 1,
-        max: 1,
-        chancePerMillion: 299,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000199,
-        min: 1,
-        max: 1,
-        chancePerMillion: 199,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
       },
       {
         id: "adena",
@@ -7305,16 +4902,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Asofe"
       },
       {
-        id: "l2item_5167",
-        kind: "other",
-        chance: 0.000228,
-        min: 1,
-        max: 1,
-        chancePerMillion: 228,
-        l2ItemId: 5167,
-        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5478",
         kind: "resource",
         chance: 0.002598,
@@ -7355,36 +4942,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Durable Metal Plate"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001597,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1597,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000257,
-        min: 1,
-        max: 1,
-        chancePerMillion: 257,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000057,
-        min: 1,
-        max: 1,
-        chancePerMillion: 57,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -7396,16 +4953,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5162",
-        kind: "other",
-        chance: 0.002789,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2789,
-        l2ItemId: 5162,
-        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
-      },
       {
         id: "l2item_5527",
         kind: "resource",
@@ -7491,46 +5038,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Blood Tornado Edge"
       },
       {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.000365,
-        min: 1,
-        max: 1,
-        chancePerMillion: 365,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002336,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2336,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000365,
-        min: 1,
-        max: 1,
-        chancePerMillion: 365,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000073,
-        min: 1,
-        max: 1,
-        chancePerMillion: 73,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -7576,26 +5083,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21354": {
     drops: [
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.090909,
-        min: 30,
-        max: 90,
-        chancePerMillion: 90909,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
-      {
-        id: "l2item_1808",
-        kind: "other",
-        chance: 0.00011,
-        min: 1,
-        max: 1,
-        chancePerMillion: 110,
-        l2ItemId: 1808,
-        displayName: "Recipe: Soulshot: S Grade"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -7657,46 +5144,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Metallic Thread"
       },
       {
-        id: "l2item_6671",
-        kind: "resource",
-        chance: 0.02439,
-        min: 1,
-        max: 1,
-        chancePerMillion: 24390,
-        l2ItemId: 6671,
-        displayName: "Deluxe Chest Key - Grade 7"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002083,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2083,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000219,
-        min: 1,
-        max: 1,
-        chancePerMillion: 219,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000055,
-        min: 1,
-        max: 1,
-        chancePerMillion: 55,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -7709,16 +5156,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_5282",
-        kind: "other",
-        chance: 0.003044,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3044,
-        l2ItemId: 5282,
-        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5541",
         kind: "resource",
         chance: 0.018784,
@@ -7727,31 +5164,11 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 18784,
         l2ItemId: 5541,
         displayName: "Tallum Glaive Edge"
-      },
-      {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.006849,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6849,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
       }
     ]
   },
   "21355": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000014,
-        min: 1,
-        max: 1,
-        chancePerMillion: 14,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -7813,36 +5230,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Durable Metal Plate"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001761,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1761,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000986,
-        min: 1,
-        max: 1,
-        chancePerMillion: 986,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.00007,
-        min: 1,
-        max: 1,
-        chancePerMillion: 70,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -7854,16 +5241,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5272",
-        kind: "other",
-        chance: 0.002951,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2951,
-        l2ItemId: 5272,
-        displayName: "Recipe: Greater Soulshot (S) Compressed Package(100%)"
-      },
       {
         id: "l2item_5495",
         kind: "resource",
@@ -7888,26 +5265,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21356": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000216,
-        min: 1,
-        max: 1,
-        chancePerMillion: 216,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.2,
-        min: 10,
-        max: 30,
-        chancePerMillion: 200000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -7969,36 +5326,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Bow Stave"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001149,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1149,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000144,
-        min: 1,
-        max: 1,
-        chancePerMillion: 144,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000072,
-        min: 1,
-        max: 1,
-        chancePerMillion: 72,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -8021,16 +5348,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Enria"
       },
       {
-        id: "l2item_5277",
-        kind: "other",
-        chance: 0.00295,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2950,
-        l2ItemId: 5277,
-        displayName: "Recipe: Greater Spiritshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5503",
         kind: "resource",
         chance: 0.112119,
@@ -8044,16 +5361,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21357": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 15,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "varnish",
         kind: "resource",
@@ -8115,36 +5422,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Bow Stave"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002316,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2316,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000838,
-        min: 1,
-        max: 1,
-        chancePerMillion: 838,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000022,
-        min: 1,
-        max: 1,
-        chancePerMillion: 22,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -8156,16 +5433,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1808",
-        kind: "other",
-        chance: 0.003202,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3202,
-        l2ItemId: 1808,
-        displayName: "Recipe: Soulshot: S Grade"
-      },
       {
         id: "mold_lubricant",
         kind: "resource",
@@ -8190,26 +5457,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21358": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000201,
-        min: 1,
-        max: 1,
-        chancePerMillion: 201,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.166667,
-        min: 20,
-        max: 60,
-        chancePerMillion: 166667,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "suede",
         kind: "resource",
@@ -8271,36 +5518,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Separator Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002315,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2315,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.00073,
-        min: 1,
-        max: 1,
-        chancePerMillion: 730,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.00005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 50,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -8312,16 +5529,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.003356,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3356,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
-      },
       {
         id: "l2item_5481",
         kind: "resource",
@@ -8346,26 +5553,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21359": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000145,
-        min: 1,
-        max: 1,
-        chancePerMillion: 145,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.076923,
-        min: 30,
-        max: 90,
-        chancePerMillion: 76923,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -8427,36 +5614,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Separator Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001276,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1276,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000522,
-        min: 1,
-        max: 1,
-        chancePerMillion: 522,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000029,
-        min: 1,
-        max: 1,
-        chancePerMillion: 29,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -8479,16 +5636,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Enria"
       },
       {
-        id: "l2item_5157",
-        kind: "other",
-        chance: 0.003114,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3114,
-        l2ItemId: 5157,
-        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5523",
         kind: "resource",
         chance: 0.023861,
@@ -8502,16 +5649,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21360": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000021,
-        min: 1,
-        max: 1,
-        chancePerMillion: 21,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -8573,36 +5710,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Separator Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.003356,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3356,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.001101,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1101,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000198,
-        min: 1,
-        max: 1,
-        chancePerMillion: 198,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -8625,16 +5732,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Stone of Purity"
       },
       {
-        id: "l2item_5162",
-        kind: "other",
-        chance: 0.004513,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4513,
-        l2ItemId: 5162,
-        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5527",
         kind: "resource",
         chance: 0.121396,
@@ -8648,16 +5745,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21361": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000077,
-        min: 1,
-        max: 1,
-        chancePerMillion: 77,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -8729,36 +5816,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Plate Armor Pattern"
       },
       {
-        id: "l2item_6672",
-        kind: "resource",
-        chance: 0.021277,
-        min: 1,
-        max: 1,
-        chancePerMillion: 21277,
-        l2ItemId: 6672,
-        displayName: "Deluxe Chest Key - Grade 8"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001312,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1312,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000695,
-        min: 1,
-        max: 1,
-        chancePerMillion: 695,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -8789,41 +5846,11 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 114331,
         l2ItemId: 5514,
         displayName: "Sealed Gauntlets of Nightmare Design"
-      },
-      {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.00677,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6770,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
       }
     ]
   },
   "21362": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000079,
-        min: 1,
-        max: 1,
-        chancePerMillion: 79,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.5,
-        min: 10,
-        max: 30,
-        chancePerMillion: 500000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "crafted_leather",
         kind: "resource",
@@ -8885,26 +5912,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Robe Fabric"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.00339,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3390,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000473,
-        min: 1,
-        max: 1,
-        chancePerMillion: 473,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -8917,16 +5924,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
     ],
     spoil: [
       {
-        id: "l2item_5282",
-        kind: "other",
-        chance: 0.003537,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3537,
-        l2ItemId: 5282,
-        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
-      },
-      {
         id: "l2item_5515",
         kind: "resource",
         chance: 0.134421,
@@ -8935,31 +5932,11 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 134421,
         l2ItemId: 5515,
         displayName: "Sealed Majestic Gauntlets Design"
-      },
-      {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.007959,
-        min: 1,
-        max: 1,
-        chancePerMillion: 7959,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
       }
     ]
   },
   "21363": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000015,
-        min: 1,
-        max: 1,
-        chancePerMillion: 15,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -9051,26 +6028,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Gauntlets Design"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.003145,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3145,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000157,
-        min: 1,
-        max: 1,
-        chancePerMillion: 157,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -9082,16 +6039,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.00295,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2950,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "crafted_leather",
         kind: "resource",
@@ -9116,26 +6063,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21364": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000158,
-        min: 1,
-        max: 1,
-        chancePerMillion: 158,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.090909,
-        min: 30,
-        max: 90,
-        chancePerMillion: 90909,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -9217,26 +6144,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Metallic Thread"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001408,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1408,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000704,
-        min: 1,
-        max: 1,
-        chancePerMillion: 704,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -9282,16 +6189,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21365": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000017,
-        min: 1,
-        max: 1,
-        chancePerMillion: 17,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "animal_skin",
         kind: "resource",
@@ -9363,36 +6260,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Leather Armor Fabric"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002915,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2915,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.001167,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1167,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000224,
-        min: 1,
-        max: 1,
-        chancePerMillion: 224,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -9404,16 +6271,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000325,
-        min: 1,
-        max: 1,
-        chancePerMillion: 325,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "l2item_6688",
         kind: "resource",
@@ -9438,26 +6295,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21366": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000212,
-        min: 1,
-        max: 1,
-        chancePerMillion: 212,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.25,
-        min: 20,
-        max: 60,
-        chancePerMillion: 250000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "crafted_leather",
         kind: "resource",
@@ -9519,36 +6356,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Plate Armor Pattern"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002227,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2227,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000477,
-        min: 1,
-        max: 1,
-        chancePerMillion: 477,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000265,
-        min: 1,
-        max: 1,
-        chancePerMillion: 265,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -9594,26 +6401,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21367": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000153,
-        min: 1,
-        max: 1,
-        chancePerMillion: 153,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.25,
-        min: 10,
-        max: 30,
-        chancePerMillion: 250000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -9665,36 +6452,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Bow Stave"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.00158,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1580,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000395,
-        min: 1,
-        max: 1,
-        chancePerMillion: 395,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000045,
-        min: 1,
-        max: 1,
-        chancePerMillion: 45,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -9740,16 +6497,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21368": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000019,
-        min: 1,
-        max: 1,
-        chancePerMillion: 19,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -9811,46 +6558,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Separator Head"
       },
       {
-        id: "l2item_6672",
-        kind: "resource",
-        chance: 0.030303,
-        min: 1,
-        max: 1,
-        chancePerMillion: 30303,
-        l2ItemId: 6672,
-        displayName: "Deluxe Chest Key - Grade 8"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.00241,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2410,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000954,
-        min: 1,
-        max: 1,
-        chancePerMillion: 954,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000083,
-        min: 1,
-        max: 1,
-        chancePerMillion: 83,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -9862,16 +6569,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.004337,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4337,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -9896,26 +6593,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21369": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000189,
-        min: 1,
-        max: 1,
-        chancePerMillion: 189,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.142857,
-        min: 30,
-        max: 90,
-        chancePerMillion: 142857,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -9977,26 +6654,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Metallic Thread"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.003344,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3344,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000557,
-        min: 1,
-        max: 1,
-        chancePerMillion: 557,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -10008,16 +6665,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_5167",
-        kind: "other",
-        chance: 0.00498,
-        min: 1,
-        max: 1,
-        chancePerMillion: 4980,
-        l2ItemId: 5167,
-        displayName: "Recipe: Blessed Spiritshot (S) Compressed Package (100%)"
-      },
       {
         id: "l2item_5528",
         kind: "resource",
@@ -10042,16 +6689,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21370": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000016,
-        min: 1,
-        max: 1,
-        chancePerMillion: 16,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -10123,36 +6760,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Durable Metal Plate"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002695,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2695,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000525,
-        min: 1,
-        max: 1,
-        chancePerMillion: 525,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000315,
-        min: 1,
-        max: 1,
-        chancePerMillion: 315,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -10198,26 +6805,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21371": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000334,
-        min: 1,
-        max: 1,
-        chancePerMillion: 334,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
-      {
-        id: "l2item_1344",
-        kind: "resource",
-        chance: 0.5,
-        min: 10,
-        max: 30,
-        chancePerMillion: 500000,
-        l2ItemId: 1344,
-        displayName: "Mithril Arrow"
-      },
       {
         id: "crafted_leather",
         kind: "resource",
@@ -10269,26 +6856,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Soul Separator Head"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002809,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2809,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.001136,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1136,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -10334,16 +6901,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21372": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000018,
-        min: 1,
-        max: 1,
-        chancePerMillion: 18,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -10415,36 +6972,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Robe Fabric"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.001706,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1706,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000341,
-        min: 1,
-        max: 1,
-        chancePerMillion: 341,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000102,
-        min: 1,
-        max: 1,
-        chancePerMillion: 102,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -10456,16 +6983,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.00346,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3460,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "mithril_ore",
         kind: "resource",
@@ -10490,16 +7007,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "21373": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.00003,
-        min: 1,
-        max: 1,
-        chancePerMillion: 30,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -10561,36 +7068,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Robe Fabric"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.003846,
-        min: 1,
-        max: 1,
-        chancePerMillion: 3846,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.00101,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1010,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000063,
-        min: 1,
-        max: 1,
-        chancePerMillion: 63,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -10602,16 +7079,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.00051,
-        min: 1,
-        max: 1,
-        chancePerMillion: 510,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -10636,16 +7103,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22122": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000194,
-        min: 1,
-        max: 1,
-        chancePerMillion: 194,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "varnish",
         kind: "resource",
@@ -10767,16 +7224,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 125000,
         l2ItemId: 6346,
         displayName: "Sealed Majestic Ring Gemstone"
-      },
-      {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
       }
     ]
   },
@@ -10883,46 +7330,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sword of Miracles Edge"
       },
       {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.000596,
-        min: 1,
-        max: 1,
-        chancePerMillion: 596,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
-      },
-      {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.006135,
-        min: 1,
-        max: 1,
-        chancePerMillion: 6135,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.001351,
-        min: 1,
-        max: 1,
-        chancePerMillion: 1351,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000199,
-        min: 1,
-        max: 1,
-        chancePerMillion: 199,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -10934,36 +7341,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
-      },
-      {
-        id: "l2item_3957",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 3957,
-        displayName: "Recipe: Blessed Spiritshot S"
-      },
-      {
-        id: "l2item_5282",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 5282,
-        displayName: "Recipe: Greater Blessed Spiritshot (S) Compressed Package(100%)"
-      },
       {
         id: "l2item_5529",
         kind: "resource",
@@ -11008,16 +7385,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22124": {
     drops: [
-      {
-        id: "l2item_959",
-        kind: "resource",
-        chance: 0.000055,
-        min: 1,
-        max: 1,
-        chancePerMillion: 55,
-        l2ItemId: 959,
-        displayName: "Scroll: Enchant Weapon (Grade S)"
-      },
       {
         id: "thread",
         kind: "resource",
@@ -11099,36 +7466,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Sealed Majestic Ring Gemstone"
       },
       {
-        id: "l2item_8732",
-        kind: "resource",
-        chance: 0.002817,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2817,
-        l2ItemId: 8732,
-        displayName: "Life Stone: level 76"
-      },
-      {
-        id: "l2item_8742",
-        kind: "resource",
-        chance: 0.000914,
-        min: 1,
-        max: 1,
-        chancePerMillion: 914,
-        l2ItemId: 8742,
-        displayName: "Mid-Grade Life Stone: level 76"
-      },
-      {
-        id: "l2item_8752",
-        kind: "resource",
-        chance: 0.000038,
-        min: 1,
-        max: 1,
-        chancePerMillion: 38,
-        l2ItemId: 8752,
-        displayName: "High-Grade Life Stone: level 76"
-      },
-      {
         id: "adena",
         kind: "adena",
         chance: 0.7,
@@ -11140,16 +7477,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_1808",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 1808,
-        displayName: "Recipe: Soulshot: S Grade"
-      },
       {
         id: "mithril_ore",
         kind: "resource",
@@ -11204,16 +7531,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22125": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000178,
-        min: 1,
-        max: 1,
-        chancePerMillion: 178,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "l2item_1895",
         kind: "resource",
@@ -11276,26 +7593,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
       }
     ],
     spoil: [
-      {
-        id: "l2item_3036",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 3036,
-        displayName: "Recipe: Spiritshot S"
-      },
-      {
-        id: "l2item_5157",
-        kind: "other",
-        chance: 0.0025,
-        min: 1,
-        max: 1,
-        chancePerMillion: 2500,
-        l2ItemId: 5157,
-        displayName: "Recipe: Soulshot (S) Compressed Package (100%)"
-      },
       {
         id: "l2item_5481",
         kind: "resource",
@@ -11373,16 +7670,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         displayName: "Thons"
       },
       {
-        id: "l2item_5162",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 5162,
-        displayName: "Recipe: Spiritshot (S) Compressed Package (100%)"
-      },
-      {
         id: "l2item_5488",
         kind: "resource",
         chance: 0.078,
@@ -11431,16 +7718,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
   },
   "22128": {
     drops: [
-      {
-        id: "l2item_960",
-        kind: "resource",
-        chance: 0.000187,
-        min: 1,
-        max: 1,
-        chancePerMillion: 187,
-        l2ItemId: 960,
-        displayName: "Scroll: Enchant Armor (Grade S)"
-      },
       {
         id: "stem",
         kind: "resource",
@@ -11552,16 +7829,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 25000,
         l2ItemId: 6690,
         displayName: "Imperial Staff Head"
-      },
-      {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.005,
-        min: 1,
-        max: 1,
-        chancePerMillion: 5000,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
       }
     ]
   },
@@ -11656,26 +7923,6 @@ export const L2_XML_DROPS_BY_NPC: Record<number, L2XmlNpcDrops> = {
         chancePerMillion: 250,
         l2ItemId: 5546,
         displayName: "Sword of Miracles Edge"
-      },
-      {
-        id: "l2item_6901",
-        kind: "other",
-        chance: 0.000928,
-        min: 1,
-        max: 1,
-        chancePerMillion: 928,
-        l2ItemId: 6901,
-        displayName: "Recipe: Shining Arrow (100%)"
-      },
-      {
-        id: "l2item_8056",
-        kind: "resource",
-        chance: 0.032258,
-        min: 1,
-        max: 1,
-        chancePerMillion: 32258,
-        l2ItemId: 8056,
-        displayName: "Key of Splendor Room"
       },
       {
         id: "adena",

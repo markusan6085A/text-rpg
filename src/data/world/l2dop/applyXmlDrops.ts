@@ -4,7 +4,8 @@ import type { DropEntry } from "../../combat/types";
 import { L2_XML_DROPS_BY_NPC, type L2XmlNpcDrops } from "./l2XmlDrops.generated";
 
 function keepL2DropRow(d: DropEntry): boolean {
-  return d.kind !== "equipment";
+  if (d.kind === "equipment" || d.kind === "other") return false;
+  return d.kind === "adena" || d.kind === "resource";
 }
 
 const L2DOP_NUMERIC_ID = /^l2dop_(\d+)/;
