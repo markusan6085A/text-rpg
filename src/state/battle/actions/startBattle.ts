@@ -1,5 +1,5 @@
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
-import { MOB_HP_MULTIPLIER } from "../../../data/balance";
+import { getMobEffectiveMaxHp } from "../../../utils/mobs/mobEffectiveMaxHp";
 import type { Mob, Zone } from "../../../data/world/types";
 import { useHeroStore } from "../../heroStore";
 import { BASE_ATTACK_ID, loadLoadout, clearLoadout } from "../loadout";
@@ -93,11 +93,10 @@ export const createStartBattle =
         if (i !== mobIndex) { // Не включаємо основного моба
           const otherMob = zone.mobs[i];
           if (otherMob && otherMob.aggressiveGroup === mob.aggressiveGroup) {
-            const isRb = (otherMob as any).isRaidBoss === true;
             aggressiveMobs.push({
               mob: otherMob,
               mobIndex: i,
-              mobHP: isRb ? (otherMob.hp ?? 1) : Math.round((otherMob.hp ?? 1) * MOB_HP_MULTIPLIER),
+              mobHP: getMobEffectiveMaxHp(otherMob),
             });
             if (import.meta.env.DEV) {
               console.log(`[Aggressive Mobs] Додано агресивного моба: ${otherMob.name} (індекс ${i})`);
@@ -329,8 +328,7 @@ export const createStartBattle =
       }
     }
 
-    const isRaidBoss = (mob as any).isRaidBoss === true;
-    const effectiveMobHp = isRaidBoss ? (mob.hp ?? 1) : Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER);
+    const effectiveMobHp = getMobEffectiveMaxHp(mob);
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,

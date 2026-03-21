@@ -10,7 +10,7 @@ import { SkillBar } from "./battle/SkillBar";
 import { BattleLog } from "./battle/BattleLog";
 import { BattlePanel } from "./battle/BattlePanel";
 import { isMobOnRespawn } from "../state/battle/mobRespawns";
-import { MOB_HP_MULTIPLIER } from "../data/balance";
+import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (path: string) => void;
@@ -449,7 +449,7 @@ export default function Battle({ navigate }: BattleProps) {
     );
     return (
       <BattlePanel
-        target={{ name: mob.name, level: mob.level, currentHp: 0, maxHp: mob.hp }}
+        target={{ name: mob.name, level: mob.level, currentHp: 0, maxHp: getMobEffectiveMaxHp(mob) }}
         buffs={[]}
         now={now}
         victoryContent={victoryContent}
@@ -458,9 +458,7 @@ export default function Battle({ navigate }: BattleProps) {
     );
   }
 
-  // maxHp: для РБ = mob.hp (як в окрестностях), для звичайних мобів = mob.hp * MOB_HP_MULTIPLIER
-  const isRaidBoss = mob ? (mob as any).isRaidBoss === true : false;
-  const mobMaxHp = mob ? (isRaidBoss ? (mob.hp ?? 1) : Math.round((mob.hp ?? 1) * MOB_HP_MULTIPLIER)) : 1;
+  const mobMaxHp = mob ? getMobEffectiveMaxHp(mob) : 1;
   const battleTarget = mob
     ? {
         name: mob.name,

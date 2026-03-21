@@ -19,6 +19,7 @@ import { getGameSettings } from "../state/gameSettings";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
+import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 
 type Navigate = (path: string) => void;
 
@@ -320,7 +321,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                           [{mob.level}]
                         </div>
                         <div className="text-[10px] text-[#a89878] mt-1 leading-none tabular-nums">
-                          {mob.hp}/{mob.hp}
+                          {getMobEffectiveMaxHp(mob)}/{getMobEffectiveMaxHp(mob)}
                         </div>
                       </div>
                     </div>
@@ -363,7 +364,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </span>
                   <span className="text-red-500">[{mob.level}]</span>
                   <span className="text-red-500">
-                    ({mob.hp}/{mob.hp})
+                    ({getMobEffectiveMaxHp(mob)}/{getMobEffectiveMaxHp(mob)})
                   </span>
                 </div>
               );
@@ -516,7 +517,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400">HP:</span>
-                  <span className="text-red-500">{selectedMob.hp}</span>
+                  <span className="text-red-500">{getMobEffectiveMaxHp(selectedMob)}</span>
                 </div>
 
                 {selectedMob.mp > 0 && (
