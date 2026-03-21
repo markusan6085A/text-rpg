@@ -3,6 +3,7 @@ import type { Mob } from "../../../data/world/types";
 import type { DropEntry, DropKind } from "../../../data/combat/types";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
+import { getL2dopResourceIconPath } from "../../../data/world/l2dop/droplistMapping";
 import { QUESTS } from "../../../data/quests";
 import { equipItemLogic } from "../../heroStore/heroInventory";
 import { getInventoryMax } from "../../heroStore";
@@ -47,6 +48,26 @@ function removeGradeFromResourceName(name: string): string {
   cleanedName = cleanedName.replace(/\s+/g, ' ').trim();
   
   return cleanedName;
+}
+
+/** Roll як у L2 XML: chance з 1_000_000; інакше поле chance (0..1). */
+function rollDropEntry(entry: DropEntry): boolean {
+  const cpm = entry.chancePerMillion;
+  if (cpm != null && cpm > 0) return Math.random() * 1_000_000 < cpm;
+  return Math.random() < (entry.chance ?? 0);
+}
+
+function rollQuantity(min: number, max: number): number {
+  const a = Math.min(min, max);
+  const b = Math.max(min, max);
+  return Math.floor(Math.random() * (b - a + 1)) + a;
+}
+
+function resolveDropIconPath(drop: DropEntry): string {
+  const fromMap = getL2dopResourceIconPath(drop.id);
+  if (fromMap) return fromMap;
+  if (drop.l2ItemId != null) return `/items/drops/resources/l2dop-by-itemid/${drop.l2ItemId}.jpg`;
+  return "/items/default_item.png";
 }
 
 /**
@@ -106,65 +127,72 @@ export function processMobDrops(
     : zoneResourceDrops;
 
 
-  // Спочатку перевіряємо загальний шанс дропа
-  const hasDrop = Math.random() < (mob.dropChance ?? 0.5);
+  // L2 XML: кожен рядок з chancePerMillion крутиться окремо; інакше — загальний шанс зони (dropChance)
+  const usesL2LineRolls = effectiveDrops.some((d) => d.chancePerMillion != null && d.chancePerMillion > 0);
+  const globalDropOk = usesL2LineRolls || Math.random() < (mob.dropChance ?? 0.5);
 
-  if (hasDrop && effectiveDrops.length > 0) {
-    // Обробляємо кожен дроп
+  if (globalDropOk && effectiveDrops.length > 0) {
     effectiveDrops.forEach((drop: DropEntry) => {
-      const dropRoll = Math.random();
-      if (dropRoll < drop.chance) {
-        // Дроп випав!
-        let itemCount = Math.floor(Math.random() * (drop.max - drop.min + 1)) + drop.min;
-        const itemDef = itemsDB[drop.id];
+      if (!rollDropEntry(drop)) return;
 
-        // Адена йде в hero.adena, не в інвентар
-        if (drop.id === "adena" || drop.kind === "adena") {
-          const premiumMultiplier = getPremiumMultiplier(hero);
-          const amount = Math.round(itemCount * premiumMultiplier);
-          adenaFromDrops += amount;
-          dropMessages.push(`Дроп: Адена x${amount}`);
-          actualDroppedItems.push({ id: "adena", name: "Адена", count: amount });
+      let itemCount = rollQuantity(drop.min ?? 1, drop.max ?? 1);
+      const itemDef = itemsDB[drop.id];
+
+      if (drop.id === "adena" || drop.kind === "adena") {
+        const premiumMultiplier = getPremiumMultiplier(hero);
+        const amount = Math.round(itemCount * premiumMultiplier);
+        adenaFromDrops += amount;
+        dropMessages.push(`Дроп: Адена x${amount}`);
+        actualDroppedItems.push({ id: "adena", name: "Адена", count: amount });
+        return;
+      }
+
+      if (drop.kind === "equipment" && !itemDef) return;
+
+      const premiumMultiplier = getPremiumMultiplier(hero);
+      if (itemDef) {
+        const resourceSlots = ["consumable", "resource", "quest"];
+        if (resourceSlots.includes(itemDef.slot)) {
+          itemCount = Math.round(itemCount * premiumMultiplier);
+        }
+      } else if (drop.kind === "resource" || drop.id.startsWith("l2item_")) {
+        itemCount = Math.round(itemCount * premiumMultiplier);
+      }
+
+      if (itemDef) {
+        const stackableSlots = ["consumable", "resource", "quest"];
+        const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
+        const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive) : -1;
+        const canAddToExisting = canStack && existingItemIndex >= 0;
+
+        if (isInventoryFull && !canAddToExisting) {
+          const displayName = removeGradeFromResourceName(itemDef.name);
+          const itemToAdd = { id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem;
+          itemsToAdd.push(itemToAdd);
+          dropMessages.push(`Дроп: ${displayName} x${itemCount} → сундук переповнення`);
+          actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
           return;
         }
 
-        // Ресурси з мобів не падають (тільки адена й екіп)
-        if (drop.kind === "resource") return;
-        const itemDefForSlot = itemsDB[drop.id];
-        if (itemDefForSlot?.slot === "resource") return;
-
-        // Преміум множник для решти (спойл, екіп)
-        if (itemDef) {
-          const resourceSlots = ["consumable", "resource", "quest"];
-          if (resourceSlots.includes(itemDef.slot)) {
-            const premiumMultiplier = getPremiumMultiplier(hero);
-            itemCount = Math.round(itemCount * premiumMultiplier);
-          }
-        }
-
-        if (itemDef) {
-          const stackableSlots = ["consumable", "resource", "quest"];
-          const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
-          // Дропи не мають hasLSPassive — стакаємо тільки з звичайними слотами (не з камнями з ЛС)
-          const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive) : -1;
-          const canAddToExisting = canStack && existingItemIndex >= 0;
-
-          if (isInventoryFull && !canAddToExisting) {
-            const displayName = removeGradeFromResourceName(itemDef.name);
-            const itemToAdd = { id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem;
-            itemsToAdd.push(itemToAdd);
-            dropMessages.push(`Дроп: ${displayName} x${itemCount} → сундук переповнення`);
-            actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
-            return;
-          }
-
-          if (existingItemIndex >= 0) {
-            const existingItem = newInventory[existingItemIndex];
-            newInventory[existingItemIndex] = {
-              ...existingItem,
-              count: (existingItem.count ?? 1) + itemCount,
-            };
-          } else if (canStack) {
+        if (existingItemIndex >= 0) {
+          const existingItem = newInventory[existingItemIndex];
+          newInventory[existingItemIndex] = {
+            ...existingItem,
+            count: (existingItem.count ?? 1) + itemCount,
+          };
+        } else if (canStack) {
+          newInventory.push({
+            id: itemDef.id,
+            name: itemDef.name,
+            type: itemDef.kind,
+            slot: itemDef.slot,
+            icon: itemDef.icon,
+            description: itemDef.description,
+            stats: itemDef.stats,
+            count: itemCount,
+          } as HeroInventoryItem);
+        } else {
+          for (let i = 0; i < itemCount; i++) {
             newInventory.push({
               id: itemDef.id,
               name: itemDef.name,
@@ -173,28 +201,51 @@ export function processMobDrops(
               icon: itemDef.icon,
               description: itemDef.description,
               stats: itemDef.stats,
-              count: itemCount,
+              count: 1,
             } as HeroInventoryItem);
-          } else {
-            for (let i = 0; i < itemCount; i++) {
-              newInventory.push({
-                id: itemDef.id,
-                name: itemDef.name,
-                type: itemDef.kind,
-                slot: itemDef.slot,
-                icon: itemDef.icon,
-                description: itemDef.description,
-                stats: itemDef.stats,
-                count: 1,
-              } as HeroInventoryItem);
-            }
           }
-
-          const displayName = removeGradeFromResourceName(itemDef.name);
-          dropMessages.push(`Дроп: ${displayName} x${itemCount}`);
-          actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
         }
+
+        const displayName = removeGradeFromResourceName(itemDef.name);
+        dropMessages.push(`Дроп: ${displayName} x${itemCount}`);
+        actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
+        return;
       }
+
+      if (drop.kind !== "resource" && !drop.id.startsWith("l2item_")) return;
+
+      const displayName = removeGradeFromResourceName(drop.displayName ?? drop.id);
+      const iconPath = resolveDropIconPath(drop);
+      const syn: HeroInventoryItem = {
+        id: drop.id,
+        name: displayName,
+        type: "resource",
+        slot: "resource",
+        icon: iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`,
+        description: "",
+        count: itemCount,
+      };
+      const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive);
+      const canAddToExisting = existingItemIndex >= 0;
+
+      if (isInventoryFull && !canAddToExisting) {
+        itemsToAdd.push(syn);
+        dropMessages.push(`Дроп: ${displayName} x${itemCount} → сундук переповнення`);
+        actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
+        return;
+      }
+
+      if (existingItemIndex >= 0) {
+        const existingItem = newInventory[existingItemIndex];
+        newInventory[existingItemIndex] = {
+          ...existingItem,
+          count: (existingItem.count ?? 1) + itemCount,
+        };
+      } else {
+        newInventory.push(syn);
+      }
+      dropMessages.push(`Дроп: ${displayName} x${itemCount}`);
+      actualDroppedItems.push({ id: drop.id, name: displayName, count: itemCount });
     });
   }
 
@@ -259,66 +310,96 @@ export function processMobDrops(
     const isInventoryFullNow = currentInventorySize >= maxSlots;
 
     mob.spoil.forEach((spoil: DropEntry) => {
-      const spoilRoll = Math.random();
-      if (spoilRoll < spoil.chance) {
-        // Спойл випав!
-        let itemCount = Math.floor(Math.random() * (spoil.max - spoil.min + 1)) + spoil.min;
-        const itemDef = itemsDB[spoil.id];
+      if (!rollDropEntry(spoil)) return;
 
-        // Ресурси з спойлів не додаємо (тільки адена й екіп)
-        if (spoil.kind === "resource" || itemDef?.slot === "resource") return;
+      let itemCount = rollQuantity(spoil.min ?? 1, spoil.max ?? 1);
+      const itemDef = itemsDB[spoil.id];
 
-        // Преміум множник для решти (consumable, quest)
-        if (itemDef) {
-          const resourceSlots = ["consumable", "resource", "quest"];
-          if (resourceSlots.includes(itemDef.slot)) {
-            const premiumMultiplier = getPremiumMultiplier(hero);
-            itemCount = Math.round(itemCount * premiumMultiplier);
-          }
+      if (spoil.kind === "equipment" && !itemDef) return;
+
+      const premiumMultiplier = getPremiumMultiplier(hero);
+      if (itemDef) {
+        const resourceSlots = ["consumable", "resource", "quest"];
+        if (resourceSlots.includes(itemDef.slot)) {
+          itemCount = Math.round(itemCount * premiumMultiplier);
         }
-
-        if (itemDef) {
-          // Перевіряємо, чи інвентар не повний
-          const stackableSlots = ["consumable", "resource", "quest"];
-          const canStack = stackableSlots.includes(itemDef.slot);
-          const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === spoil.id && !(inv as any).meta?.hasLSPassive);
-          const canAddToExisting = canStack && existingItemIndex >= 0;
-
-          // Якщо інвентар повний і не можна додати до існуючого — в overflow
-          if (isInventoryFullNow && !canAddToExisting) {
-            const displayName = removeGradeFromResourceName(itemDef.name);
-            itemsToAdd.push({ id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem);
-            dropMessages.push(`Спойл: ${displayName} x${itemCount} → сундук переповнення`);
-            actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
-            return;
-          }
-
-          if (existingItemIndex >= 0) {
-            // Якщо предмет вже є, збільшуємо кількість
-            const existingItem = newInventory[existingItemIndex];
-            newInventory[existingItemIndex] = {
-              ...existingItem,
-              count: (existingItem.count ?? 1) + itemCount,
-            };
-          } else {
-            // Якщо предмета немає, додаємо новий
-            newInventory.push({
-              id: itemDef.id,
-              name: itemDef.name,
-              type: itemDef.kind,
-              slot: itemDef.slot,
-              icon: itemDef.icon,
-              description: itemDef.description,
-              stats: itemDef.stats,
-              count: itemCount,
-            } as HeroInventoryItem);
-          }
-
-          const displayName = removeGradeFromResourceName(itemDef.name);
-          dropMessages.push(`Спойл: ${displayName} x${itemCount}`);
-          actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
-        }
+      } else if (spoil.kind === "resource" || spoil.id.startsWith("l2item_")) {
+        itemCount = Math.round(itemCount * premiumMultiplier);
       }
+
+      if (itemDef) {
+        const stackableSlots = ["consumable", "resource", "quest"];
+        const canStack = stackableSlots.includes(itemDef.slot);
+        const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === spoil.id && !(inv as any).meta?.hasLSPassive);
+        const canAddToExisting = canStack && existingItemIndex >= 0;
+
+        if (isInventoryFullNow && !canAddToExisting) {
+          const displayName = removeGradeFromResourceName(itemDef.name);
+          itemsToAdd.push({ id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: itemCount } as HeroInventoryItem);
+          dropMessages.push(`Спойл: ${displayName} x${itemCount} → сундук переповнення`);
+          actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
+          return;
+        }
+
+        if (existingItemIndex >= 0) {
+          const existingItem = newInventory[existingItemIndex];
+          newInventory[existingItemIndex] = {
+            ...existingItem,
+            count: (existingItem.count ?? 1) + itemCount,
+          };
+        } else {
+          newInventory.push({
+            id: itemDef.id,
+            name: itemDef.name,
+            type: itemDef.kind,
+            slot: itemDef.slot,
+            icon: itemDef.icon,
+            description: itemDef.description,
+            stats: itemDef.stats,
+            count: itemCount,
+          } as HeroInventoryItem);
+        }
+
+        const displayName = removeGradeFromResourceName(itemDef.name);
+        dropMessages.push(`Спойл: ${displayName} x${itemCount}`);
+        actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
+        return;
+      }
+
+      if (spoil.kind !== "resource" && !spoil.id.startsWith("l2item_")) return;
+
+      const displayName = removeGradeFromResourceName(spoil.displayName ?? spoil.id);
+      const iconPath = resolveDropIconPath(spoil);
+      const syn: HeroInventoryItem = {
+        id: spoil.id,
+        name: displayName,
+        type: "resource",
+        slot: "resource",
+        icon: iconPath.startsWith("/") ? iconPath : `/items/${iconPath}`,
+        description: "",
+        count: itemCount,
+      };
+      const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === spoil.id && !(inv as any).meta?.hasLSPassive);
+      const canAddToExisting = existingItemIndex >= 0;
+
+      if (isInventoryFullNow && !canAddToExisting) {
+        itemsToAdd.push(syn);
+        dropMessages.push(`Спойл: ${displayName} x${itemCount} → сундук переповнення`);
+        actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
+        return;
+      }
+
+      if (existingItemIndex >= 0) {
+        const existingItem = newInventory[existingItemIndex];
+        newInventory[existingItemIndex] = {
+          ...existingItem,
+          count: (existingItem.count ?? 1) + itemCount,
+        };
+      } else {
+        newInventory.push(syn);
+      }
+      dropMessages.push(`Спойл: ${displayName} x${itemCount}`);
+      actualDroppedItems.push({ id: spoil.id, name: displayName, count: itemCount });
     });
   }
 

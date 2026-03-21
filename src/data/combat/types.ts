@@ -5,9 +5,19 @@ export type DropKind = "adena" | "resource" | "equipment" | "other";
 export interface DropEntry {
   id: string;        // "adena" або ID ресурсу/шмотки
   kind: DropKind;
-  chance: number;    // 0..1 (0.25 = 25%)
+  /** 0..1; для UI, якщо немає chancePerMillion */
+  chance: number;
   min: number;       // мін. кількість
   max: number;       // макс. кількість
+  /**
+   * Шанс як у L2 XML droplist: незалежний roll, успіх якщо R < chance (R у [0, 1_000_000)).
+   * Якщо задано — використовується замість `chance` при розрахунку дропу.
+   */
+  chancePerMillion?: number;
+  /** L2 item id (для іконки l2dop-by-itemid / дебагу) */
+  l2ItemId?: number;
+  /** Підпис у UI, якщо id синтетичний (l2item_*) */
+  displayName?: string;
 }
 
 export interface Mob {

@@ -342,19 +342,20 @@ export function shuffleMobsRandomly(regular: Mob[], champions: Mob[], raidBosses
 }
 
 /** РЎС‚РІРѕСЂРёС‚Рё С‡РµРјРїС–РѕРЅР° Р· Р±Р°Р·РѕРІРѕРіРѕ РјРѕР±Р°: ~3Г— СЃС‚Р°С‚Рё, ~10Г— exp/sp/adena, РєСЂР°С‰С– drop/spoil */
-function makeChampion(base: Mob, championName: string, suffix: string): Mob {
-  const champDrops = (base.drops ?? []).map((d) => ({
+function scaleChampionDrop<T extends DropEntry>(d: T): T {
+  if (d.chancePerMillion != null) return { ...d };
+  return {
     ...d,
     chance: Math.min(0.9, (d.chance ?? 0.5) * 3),
     min: (d.min ?? 1) * 2,
     max: (d.max ?? 1) * 4,
-  }));
-  const champSpoil = (base.spoil ?? []).map((s) => ({
-    ...s,
-    chance: Math.min(0.95, (s.chance ?? 0.5) * 3),
-    min: (s.min ?? 1) * 2,
-    max: (s.max ?? 1) * 4,
-  }));
+  } as T;
+}
+
+function makeChampion(base: Mob, championName: string, suffix: string): Mob {
+  const champDrops = (base.drops ?? []).map(scaleChampionDrop);
+  const champSpoil = (base.spoil ?? []).map(scaleChampionDrop);
+  const usesL2Rates = [...champDrops, ...champSpoil].some((x) => x.chancePerMillion != null);
   return {
     ...base,
     id: `${base.id}_champion_${suffix}`,
@@ -369,7 +370,7 @@ function makeChampion(base: Mob, championName: string, suffix: string): Mob {
     sp: (base.sp ?? base.level * 2) * 10,
     adenaMin: base.adenaMin * 10,
     adenaMax: base.adenaMax * 10,
-    dropChance: 0.85,
+    dropChance: usesL2Rates ? 1 : 0.85,
     drops: champDrops.length ? champDrops : [],
     spoil: champSpoil.length ? champSpoil : [],
   };

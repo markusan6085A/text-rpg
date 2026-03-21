@@ -13,17 +13,18 @@ import {
   L2DOP_ADEN_POOL,
   L2DOP_GIRAN03_2321_MOBS,
 } from "./mobs";
+import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 
 function buildGludioZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18);
-  const champions = getGludioL2DopChampions(z.id, z.min, z.max);
+  const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
+  const champions = getGludioL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
   const raidBosses = getGludioRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
 function buildAdenZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 150, 8, 18);
-  const champions = getAdenL2DopChampions(z.id, z.min, z.max);
+  const regular = fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
+  const champions = getAdenL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
   const raidBosses = getAdenRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
@@ -57,7 +58,7 @@ export const L2DOP_ZONES: Zone[] = [
     minLevel: 55,
     maxLevel: 65,
     tpCost: 25000,
-    mobs: L2DOP_GIRAN03_2321_MOBS,
+    mobs: L2DOP_GIRAN03_2321_MOBS.map(applyL2XmlDropsToMob),
   },
   ...[
     { id: "l2dop_aden_01", name: "Aden — Окрестность (L2)", min: 40, max: 44, tp: 15000 },

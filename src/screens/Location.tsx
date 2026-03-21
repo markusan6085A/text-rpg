@@ -21,6 +21,24 @@ import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
+import type { DropEntry } from "../data/combat/types";
+
+function formatDropChanceLabel(d: Pick<DropEntry, "chance" | "chancePerMillion">): string {
+  if (d.chancePerMillion != null && d.chancePerMillion > 0) {
+    const pct = (d.chancePerMillion / 1_000_000) * 100;
+    return `${pct >= 0.01 ? pct.toFixed(2) : pct.toFixed(4)}%`;
+  }
+  return `${Math.round((d.chance ?? 0) * 100)}%`;
+}
+
+function dropLineIconPath(entry: DropEntry): string {
+  const defIcon = itemsDB[entry.id]?.icon;
+  if (defIcon) return defIcon.startsWith("/") ? defIcon : `/items/${defIcon}`;
+  const l2 = getL2dopResourceIconPath(entry.id);
+  if (l2) return l2;
+  if (entry.l2ItemId != null) return `/items/drops/resources/l2dop-by-itemid/${entry.l2ItemId}.jpg`;
+  return "/items/default_item.png";
+}
 
 type Navigate = (path: string) => void;
 
@@ -578,38 +596,39 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 {(() => {
                   const isFloranZone = zone.id?.startsWith("floran");
                   const floranProfile = isFloranZone ? getFloranMobDropProfile(selectedMob) : undefined;
-                  const displayDrops = floranProfile
-                    ? floranProfile.items.map((item) => ({ id: item.itemId, min: item.min, max: item.max, chance: item.chance }))
+                  const displayDrops: DropEntry[] = floranProfile
+                    ? floranProfile.items.map((item) => ({
+                        id: item.itemId,
+                        kind: item.itemId === "adena" ? "adena" : "resource",
+                        min: item.min,
+                        max: item.max,
+                        chance: item.chance,
+                      }))
                     : (selectedMob.drops ?? []);
                   return displayDrops.length > 0 && (
                   <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
                     <div className="space-y-1">
-                      {displayDrops.map((drop: { id: string; min: number; max: number; chance: number }, idx: number) => {
+                      {displayDrops.map((drop: DropEntry, idx: number) => {
                         const itemDef = itemsDB[drop.id];
-                        const l2ResIcon = getL2dopResourceIconPath(drop.id);
-                        const iconPath = itemDef?.icon
-                          ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
-                          : l2ResIcon ?? "/items/default_item.png";
-                        const itemName = itemDef?.name || drop.id;
-                        // Показуємо грейд тільки для зброї та броні, не для ресурсів
-                        const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other";
-                        // Використовуємо grade з itemsDB, якщо є, інакше autoDetectGrade (яка також перевіряє itemsDB)
+                        const iconPath = dropLineIconPath(drop);
+                        const itemName = itemDef?.name || drop.displayName || drop.id;
+                        const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other" || drop.kind === "resource" || drop.kind === "adena";
                         const itemGrade = !isResource ? (itemDef?.grade ?? autoDetectGrade(drop.id)) : null;
                         const gradeDisplay = itemGrade ? ` [${itemGrade}]` : "";
-                        
+                        const canInspect = !!itemDef || !!drop.displayName || drop.id.startsWith("l2item_");
+
                         return (
                           <div 
                             key={idx} 
                             className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
-                            onClick={() => itemDef && setSelectedDropItem(drop.id)}
+                            onClick={() => canInspect && setSelectedDropItem(drop.id)}
                           >
                             <img
                               src={iconPath}
                               alt={itemName}
                               className="w-5 h-5 object-contain border border-white/40 bg-black/40"
                               onError={(e) => {
-                                // Якщо іконка не завантажилась, приховуємо її
                                 (e.target as HTMLImageElement).style.display = "none";
                               }}
                             />
@@ -617,7 +636,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                               {itemName}{gradeDisplay}:
                             </span>
                             <span className="text-green-400">
-                              {drop.min}-{drop.max} ({Math.round(drop.chance * 100)}%)
+                              {drop.min}-{drop.max} ({formatDropChanceLabel(drop)})
                             </span>
                           </div>
                         );
@@ -632,31 +651,26 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Спойл:</div>
                     <div className="space-y-1">
-                      {selectedMob.spoil.map((spoil, idx) => {
+                      {selectedMob.spoil.map((spoil: DropEntry, idx) => {
                         const itemDef = itemsDB[spoil.id];
-                        const l2ResIcon = getL2dopResourceIconPath(spoil.id);
-                        const iconPath = itemDef?.icon
-                          ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
-                          : l2ResIcon ?? "/items/default_item.png";
-                        const itemName = itemDef?.name || spoil.id;
-                        // Показуємо грейд тільки для зброї та броні, не для ресурсів
-                        const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other";
-                        // Використовуємо grade з itemsDB, якщо є, інакше autoDetectGrade (яка також перевіряє itemsDB)
+                        const iconPath = dropLineIconPath(spoil);
+                        const itemName = itemDef?.name || spoil.displayName || spoil.id;
+                        const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other" || spoil.kind === "resource";
                         const itemGrade = !isResource ? (itemDef?.grade ?? autoDetectGrade(spoil.id)) : null;
                         const gradeDisplay = itemGrade ? ` [${itemGrade}]` : "";
-                        
+                        const canInspect = !!itemDef || !!spoil.displayName || spoil.id.startsWith("l2item_");
+
                         return (
                           <div 
                             key={idx} 
                             className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
-                            onClick={() => itemDef && setSelectedDropItem(spoil.id)}
+                            onClick={() => canInspect && setSelectedDropItem(spoil.id)}
                           >
                             <img
                               src={iconPath}
                               alt={itemName}
                               className="w-5 h-5 object-contain border border-white/40 bg-black/40"
                               onError={(e) => {
-                                // Якщо іконка не завантажилась, приховуємо її
                                 (e.target as HTMLImageElement).style.display = "none";
                               }}
                             />
@@ -664,7 +678,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                               {itemName}{gradeDisplay}:
                             </span>
                             <span className="text-yellow-400">
-                              {spoil.min}-{spoil.max} ({Math.round(spoil.chance * 100)}%)
+                              {spoil.min}-{spoil.max} ({formatDropChanceLabel(spoil)})
                             </span>
                           </div>
                         );
@@ -693,8 +707,45 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         )}
 
       {/* Модалка для перегляду предмета з дропу */}
-      {selectedDropItem && (() => {
+      {selectedDropItem && selectedMob && (() => {
         const itemDef = itemsDB[selectedDropItem];
+        const dropLine: DropEntry | undefined =
+          selectedMob.drops?.find((d) => d.id === selectedDropItem) ||
+          selectedMob.spoil?.find((s) => s.id === selectedDropItem);
+
+        if (!itemDef && dropLine) {
+          const iconPath = dropLineIconPath(dropLine);
+          const title = dropLine.displayName || dropLine.id;
+          return (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+              onClick={() => setSelectedDropItem(null)}
+            >
+              <div
+                className={
+                  isL2
+                    ? "rounded-xl border border-[#c7ad80]/35 p-4 max-w-md w-full shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                    : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full"
+                }
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className={isL2 ? "text-base font-semibold text-[#e8c56e]" : "text-lg font-semibold text-[#b8860b]"}>{title}</h2>
+                  <button type="button" className="text-gray-400 hover:text-white text-xl leading-none" onClick={() => setSelectedDropItem(null)}>×</button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <img src={iconPath} alt={title} className="w-16 h-16 object-contain border border-white/40 bg-black/40" />
+                  <div className="text-xs text-gray-400 space-y-1">
+                    <div>Кількість: {dropLine.min}–{dropLine.max}</div>
+                    <div>Шанс (L2): {formatDropChanceLabel(dropLine)}</div>
+                    {dropLine.l2ItemId != null && <div>L2 item id: {dropLine.l2ItemId}</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
         if (!itemDef) return null;
 
         const iconPath = itemDef.icon 
