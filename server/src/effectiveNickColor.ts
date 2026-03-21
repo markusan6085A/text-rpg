@@ -10,6 +10,9 @@ export function getEffectiveNickColor(
   const combat = String(heroJson?.pkCombatNickColor ?? "").trim();
   const combatUntil = Number(heroJson?.pkCombatNickColorUntil);
   if (combat && Number.isFinite(combatUntil) && combatUntil > now) return combat;
-  const base = String(heroJson?.nickColor ?? columnNick ?? "").trim();
+  // Порожній рядок у heroJson не має блокувати колонку Character.nickColor (?? не замінює "")
+  const fromJson = String(heroJson?.nickColor ?? "").trim();
+  const fromCol = String(columnNick ?? "").trim();
+  const base = fromJson || fromCol;
   return base || undefined;
 }

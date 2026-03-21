@@ -25,8 +25,8 @@ type UseChatOptions = {
 const memCache = new Map<string, { ts: number; data: ChatMessage[] }>();
 
 function cacheKey(channel: string, page: number, limit: number) {
-  // Version 3: added nickColor support
-  return `chat:v3:${channel}|${page}|${limit}`;
+  // v4: invalidate after server nickColor + column fallback fix
+  return `chat:v4:${channel}|${page}|${limit}`;
 }
 
 function readLS(key: string) {
