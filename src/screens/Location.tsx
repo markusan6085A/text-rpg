@@ -17,6 +17,7 @@ import { QUESTS } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 import { getGameSettings } from "../state/gameSettings";
 import { showToast } from "../state/toastStore";
+import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (path: string) => void;
 
@@ -36,6 +37,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const q = useQuery();
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const isL2 = getCityUiVariant() === "l2";
+  const l2Frame =
+    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2MobCard =
+    "w-full rounded-md mb-2 border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_4px_12px_rgba(0,0,0,0.45)] hover:border-[#c7ad80]/45 hover:brightness-[1.04] active:scale-[0.995] transition-[border-color,transform,filter] duration-150 px-2.5 py-2 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40";
 
   // Підтримуємо і ?id=, і ?zone= на всяк випадок
   const zoneId = q.get("id") || q.get("zone") || "";
@@ -110,11 +116,22 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
   if (!found) {
     return (
-      <div className="w-full text-[#c7ad80] flex items-center justify-center px-1 py-4">
-        <div className="w-full text-center space-y-3">
+      <div
+        className={
+          isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-4 py-8 flex items-center justify-center text-[#d4c4a8]`
+            : "w-full text-[#c7ad80] flex items-center justify-center px-1 py-4"
+        }
+      >
+        <div className="w-full text-center space-y-3 max-w-sm">
           <div className="text-xs font-semibold">Зона не знайдена.</div>
           <button
-            className="h-8 px-4 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#c7ad80]"
+            type="button"
+            className={
+              isL2
+                ? "h-9 px-5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#c9a44c] hover:border-[#c7ad80]/50"
+                : "h-8 px-4 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#c7ad80]"
+            }
             onClick={() => navigate("/gk")}
           >
             Телепорт
@@ -174,18 +191,54 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     navigate(`/battle?zone=${zone.id}&idx=${mobIndexInZone}`);
   };
 
-  return (
-    <div className="w-full text-[#c7ad80] px-1 py-2">
-        {/* Заголовок */}
-        <div className="text-[#c7ad80] mb-2 text-base font-semibold flex items-center gap-2">
-          <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
-          <span>{zone.name}</span>
-        </div>
+  const mobNameClass = (
+    isQuestMob: boolean,
+    isRaid: boolean,
+    isChampion: boolean,
+    isLevelDiffTooHigh: boolean,
+    l2: boolean,
+  ) => {
+    if (isQuestMob) return l2 ? "text-[#8a7a60]" : "";
+    if (isRaid) return "text-red-500";
+    if (isChampion) return "text-[#c9a44c]";
+    if (isLevelDiffTooHigh) return "text-red-500";
+    return l2 ? "text-[#e8dcc8]" : "text-[#c7ad80]";
+  };
 
-        {/* Список мобів */}
-        <div className="space-y-0">
+  return (
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#d4c4a8]`
+          : "w-full text-[#c7ad80] px-1 py-2"
+      }
+    >
+      <div className={isL2 ? "w-full max-w-[420px] mx-auto" : ""}>
+        {isL2 ? (
+          <div className="mb-3 rounded-lg border border-[#5c4a32]/45 bg-black/22 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]">
+            <div className="text-[10px] uppercase tracking-wider text-[#8a7a60]">{city.name}</div>
+            <div className="mt-1 flex items-center gap-2 text-[#e8c56e] text-[15px] font-semibold leading-tight [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]">
+              <img src="/assets/travel.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-90" />
+              <span>{zone.name}</span>
+              <span className="text-[10px] font-normal text-[#a89878] ml-auto">L2</span>
+            </div>
+          </div>
+        ) : (
+          <div className="text-[#c7ad80] mb-2 text-base font-semibold flex items-center gap-2">
+            <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
+            <span>{zone.name}</span>
+          </div>
+        )}
+
+        <div className={isL2 ? "space-y-0 mb-1" : "space-y-0"}>
           {visibleMobs.length === 0 && (
-            <div className="text-[#c7ad80]/60 text-xs py-4">
+            <div
+              className={
+                isL2
+                  ? "text-[#8a7a60] text-xs py-6 text-center rounded-lg border border-[#5c4a32]/35 bg-black/15"
+                  : "text-[#c7ad80]/60 text-xs py-4"
+              }
+            >
               У цій локації поки немає мобів.
             </div>
           )}
@@ -193,17 +246,85 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           {visibleMobs
             .map((mob, i) => {
               const globalIndex = startIndex + i;
-              // Перевіряємо респавн моба - якщо на респавні, не показуємо його
               const heroName = hero?.name;
               const onRespawn = isMobOnRespawn(zone.id, globalIndex, heroName);
-              if (onRespawn) return null; // Приховуємо моба на респавні
-              
-              const isChampion = mob.name.startsWith("[Champion]") || mob.name.startsWith("[Чемпион]");
+              if (onRespawn) return null;
+
+              const isChampion =
+                mob.name.startsWith("[Champion]") || mob.name.startsWith("[Чемпион]");
               const isRaid = (mob as any).isRaidBoss === true;
               const heroLevel = hero?.level || 1;
               const levelDiff = Math.abs(heroLevel - mob.level);
               const isLevelDiffTooHigh = levelDiff > 10;
               const isQuestMob = questMobNames.has(mob.name);
+              const nameCls = mobNameClass(
+                isQuestMob,
+                isRaid,
+                isChampion,
+                isLevelDiffTooHigh,
+                isL2,
+              );
+
+              if (isL2) {
+                return (
+                  <div
+                    key={globalIndex}
+                    role="button"
+                    tabIndex={0}
+                    className={l2MobCard}
+                    onClick={() => openBattle(globalIndex)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openBattle(globalIndex);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-2.5 w-full">
+                      <div className="relative w-9 h-9 shrink-0 rounded-md border border-[#5c4a32]/50 bg-black/35 flex items-center justify-center overflow-hidden">
+                        {mob.icon ? (
+                          <img
+                            src={mob.icon}
+                            alt=""
+                            className="w-8 h-8 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <span className="text-[10px] text-[#5c4a32]">—</span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="text-[10px] text-[#7d9b7a] hover:text-[#c8e4c4] shrink-0 underline-offset-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMob(mob);
+                        }}
+                      >
+                        (і)
+                      </button>
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className={`text-[12px] font-medium leading-snug truncate ${nameCls}`}>
+                          {mob.name}
+                        </div>
+                        {isQuestMob && (
+                          <div className="text-[9px] text-[#6b7280] mt-0.5">квест</div>
+                        )}
+                      </div>
+                      <div className="shrink-0 text-right rounded-md bg-black/30 border border-[#5c4a32]/40 px-2 py-1 min-w-[3.25rem]">
+                        <div className="text-[11px] font-semibold text-[#c45c5c] leading-none">
+                          [{mob.level}]
+                        </div>
+                        <div className="text-[10px] text-[#a89878] mt-1 leading-none tabular-nums">
+                          {mob.hp}/{mob.hp}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <div
@@ -232,43 +353,50 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     (і)
                   </span>
                   <span
-                    className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${
-                      !isQuestMob && isRaid
-                        ? "text-red-500"
-                        : !isQuestMob && isChampion
-                        ? "text-blue-400"
-                        : !isQuestMob && isLevelDiffTooHigh
-                        ? "text-red-500"
-                        : !isQuestMob
-                        ? "text-[#c7ad80]"
-                        : ""
-                    }`}
+                    className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${nameCls}`}
                     style={isQuestMob ? { color: "#6b7280" } : undefined}
                     onClick={() => openBattle(globalIndex)}
                   >
                     {mob.name}
                   </span>
                   <span className="text-red-500">[{mob.level}]</span>
-                  <span className="text-red-500">({mob.hp}/{mob.hp})</span>
+                  <span className="text-red-500">
+                    ({mob.hp}/{mob.hp})
+                  </span>
                 </div>
               );
             })
             .filter(Boolean)}
         </div>
 
-        {/* Пагінація */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-2 text-[#c7ad80] text-xs">
+          <div
+            className={
+              isL2
+                ? "flex items-center justify-center gap-3 mt-3 rounded-md border border-[#5c4a32]/45 bg-black/20 px-2 py-2 text-[11px] text-[#d4c4a8]"
+                : "flex items-center justify-center gap-2 mt-2 text-[#c7ad80] text-xs"
+            }
+          >
             <button
-              className="disabled:opacity-40"
+              type="button"
+              className={
+                isL2
+                  ? "px-2 py-1 rounded disabled:opacity-40 hover:text-[#f4e2b8]"
+                  : "disabled:opacity-40"
+              }
               disabled={currentPage <= 1}
               onClick={() => goPage(currentPage - 1)}
             >
               &lt;&lt;&lt;
             </button>
-            <span>|</span>
+            <span className={isL2 ? "text-[#5c4a32]" : ""}>|</span>
             <button
-              className="disabled:opacity-40"
+              type="button"
+              className={
+                isL2
+                  ? "px-2 py-1 rounded disabled:opacity-40 hover:text-[#f4e2b8]"
+                  : "disabled:opacity-40"
+              }
               disabled={currentPage >= totalPages}
               onClick={() => goPage(currentPage + 1)}
             >
@@ -278,10 +406,24 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         )}
 
         {zonePlayers.length > 0 && (
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
+          <div
+            className={
+              isL2
+                ? "mt-3 rounded-lg border border-[#5c4a32]/40 bg-black/15 px-2 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]"
+                : "mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]"
+            }
+          >
             {zonePlayers.map((p) => (
-              <div key={p.id} className="inline-flex items-center gap-1 text-[#c7ad80]">
+              <div
+                key={p.id}
+                className={
+                  isL2
+                    ? "inline-flex items-center gap-1 text-[#c7ad80]"
+                    : "inline-flex items-center gap-1 text-[#c7ad80]"
+                }
+              >
                 <button
+                  type="button"
                   className="hover:text-[#f4e2b8]"
                   style={p.nickColor ? { color: p.nickColor } : undefined}
                   onClick={() => navigate(`/player/${encodeURIComponent(p.id)}?pk=1`)}
@@ -289,11 +431,15 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   {p.name}
                 </button>
                 <button
+                  type="button"
                   className="text-red-500 hover:text-red-400"
                   onClick={() => {
                     const diff = Math.abs((hero?.level || 1) - p.level);
                     if (diff > 20) {
-                      showToast("Нельзя атаковать игрока, если разница уровней больше 20!", "error");
+                      showToast(
+                        "Нельзя атаковать игрока, если разница уровней больше 20!",
+                        "error",
+                      );
                       return;
                     }
                     navigate(`/player/${encodeURIComponent(p.id)}?pk=1`);
@@ -306,15 +452,20 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           </div>
         )}
 
-        {/* Кнопка Назад */}
-        <div className="flex justify-center mt-2">
+        <div className="flex justify-center mt-3">
           <button
-            className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#c7ad80] hover:bg-[#3a3a3a]"
+            type="button"
+            className={
+              isL2
+                ? "px-5 py-2.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#d4c4a8] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/45 hover:text-[#f4e2b8] active:scale-[0.99] transition-[border-color,color,transform] duration-150"
+                : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#c7ad80] hover:bg-[#3a3a3a]"
+            }
             onClick={handleBackToCity}
           >
             Назад
           </button>
         </div>
+      </div>
 
         {/* Модальне вікно з інформацією про моба */}
         {selectedMob && (
@@ -323,16 +474,31 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             onClick={() => setSelectedMob(null)}
           >
             <div
-              className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className={
+                isL2
+                  ? "rounded-xl border border-[#c7ad80]/35 p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                  : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              }
               onClick={(e) => e.stopPropagation()}
             >
               {/* Заголовок */}
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-semibold text-[#b8860b]">
+                <h2
+                  className={
+                    isL2
+                      ? "text-base font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                      : "text-lg font-semibold text-[#b8860b]"
+                  }
+                >
                   {selectedMob.name}
                 </h2>
                 <button
-                  className="text-gray-400 hover:text-white text-xl"
+                  type="button"
+                  className={
+                    isL2
+                      ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl leading-none"
+                      : "text-gray-400 hover:text-white text-xl"
+                  }
                   onClick={() => setSelectedMob(null)}
                 >
                   ×
@@ -504,7 +670,12 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 {/* Кнопка закриття */}
                 <div className="flex justify-center mt-2 pt-2 border-t border-white/40">
                   <button
-                    className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+                    type="button"
+                    className={
+                      isL2
+                        ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-[#2a2620] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40"
+                        : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+                    }
                     onClick={() => setSelectedMob(null)}
                   >
                     Закрити
@@ -532,15 +703,30 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             onClick={() => setSelectedDropItem(null)}
           >
             <div
-              className="bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className={
+                isL2
+                  ? "rounded-xl border border-[#c7ad80]/35 p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                  : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              }
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-semibold text-[#b8860b]">
+                <h2
+                  className={
+                    isL2
+                      ? "text-base font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                      : "text-lg font-semibold text-[#b8860b]"
+                  }
+                >
                   {itemDef.name} {itemGrade && `[${itemGrade}]`}
                 </h2>
                 <button
-                  className="text-gray-400 hover:text-white text-xl"
+                  type="button"
+                  className={
+                    isL2
+                      ? "text-[#8a7a60] hover:text-[#d4c4a8] text-xl leading-none"
+                      : "text-gray-400 hover:text-white text-xl"
+                  }
                   onClick={() => setSelectedDropItem(null)}
                 >
                   ×
@@ -721,8 +907,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               {/* Кнопка закриття */}
               <div className="flex justify-center pt-2 border-t border-white/40">
                 <button
+                  type="button"
                   onClick={() => setSelectedDropItem(null)}
-                  className="px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+                  className={
+                    isL2
+                      ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-[#2a2620] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40"
+                      : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+                  }
                 >
                   Закрити
                 </button>
