@@ -3,6 +3,7 @@ import { itemsDB } from "../../data/items/itemsDB";
 import { getL2dopResourceIconPath, l2ItemIdToString } from "../../data/world/l2dop/droplistMapping";
 import { resourceLootDisplayName } from "../resourceLootDisplayName";
 import type { ResourceCraftRecipe } from "../../data/crafting/resourceCraftLevel1";
+import type { StringIdCraftRecipe } from "../../data/crafting/resourceCraftTypes";
 
 const STACK_SLOTS = new Set(["consumable", "resource", "quest"]);
 
@@ -17,12 +18,10 @@ export function countResourceInInventory(inventory: HeroInventoryItem[], itemId:
   return n;
 }
 
-function aggregateIngredientNeeds(recipe: ResourceCraftRecipe): Record<string, number> {
+function aggregateStringIngredientNeeds(recipe: StringIdCraftRecipe): Record<string, number> {
   const needs: Record<string, number> = {};
   for (const ing of recipe.ingredients) {
-    const sid = l2ItemIdToString(ing.l2ItemId);
-    if (!sid) continue;
-    needs[sid] = (needs[sid] ?? 0) + ing.count;
+    needs[ing.stringId] = (needs[ing.stringId] ?? 0) + ing.count;
   }
   return needs;
 }
@@ -140,16 +139,16 @@ function addResourceStack(inv: HeroInventoryItem[], itemId: string, add: number)
   return [...inv, newItem];
 }
 
-export function tryApplyResourceCraft(
+export function tryApplyStringIdCraftRecipe(
   inventory: HeroInventoryItem[] | undefined,
-  recipe: ResourceCraftRecipe,
+  recipe: StringIdCraftRecipe,
   maxSlots: number
 ): { ok: true; inventory: HeroInventoryItem[] } | { ok: false } {
-  const outputId = l2ItemIdToString(recipe.outputL2ItemId);
+  const outputId = recipe.outputId;
   if (!outputId) return { ok: false };
 
   const inv = [...(inventory ?? [])].filter(Boolean) as HeroInventoryItem[];
-  const needs = aggregateIngredientNeeds(recipe);
+  const needs = aggregateStringIngredientNeeds(recipe);
   if (Object.keys(needs).length === 0) return { ok: false };
 
   for (const id of Object.keys(needs)) {
@@ -163,4 +162,22 @@ export function tryApplyResourceCraft(
 
   const afterAdd = addResourceStack(afterRemove, outputId, 1);
   return { ok: true, inventory: afterAdd };
+}
+
+export function tryApplyResourceCraft(
+  inventory: HeroInventoryItem[] | undefined,
+  recipe: ResourceCraftRecipe,
+  maxSlots: number
+): { ok: true; inventory: HeroInventoryItem[] } | { ok: false } {
+  const outputId = l2ItemIdToString(recipe.outputL2ItemId);
+  if (!outputId) return { ok: false };
+
+  const ingredients: StringIdCraftRecipe["ingredients"] = [];
+  for (const ing of recipe.ingredients) {
+    const sid = l2ItemIdToString(ing.l2ItemId);
+    if (!sid) return { ok: false };
+    ingredients.push({ stringId: sid, count: ing.count });
+  }
+
+  return tryApplyStringIdCraftRecipe(inventory, { outputId, ingredients }, maxSlots);
 }
