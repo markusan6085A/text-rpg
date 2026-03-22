@@ -24,3 +24,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Accidental `tsc` emit next to sources (Vite bundles .ts; root tsconfig has noEmit)
+src/data/**/*.js
+src/data/**/*.js.map
+src/data/**/*.d.ts
+src/data/**/*.d.ts.map
