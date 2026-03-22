@@ -113,7 +113,6 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
               <span className={isL2 ? "text-[#e8c56e] font-semibold" : "text-[#ff8c00]"}>
                 {selectedCity.name}
               </span>
-              {isL2 && <span className="text-[#8a7a60] text-[10px] ml-1">(L2)</span>}
               .
             </>
           ) : (

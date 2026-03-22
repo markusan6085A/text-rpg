@@ -417,7 +417,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             <div className="mt-1 flex items-center gap-2 text-[#e8c56e] text-[15px] font-semibold leading-tight [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]">
               <img src="/assets/travel.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-90" />
               <span>{zone.name}</span>
-              <span className="text-[10px] font-normal text-[#a89878] ml-auto">L2</span>
             </div>
           </div>
         ) : (
@@ -500,12 +499,21 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     }}
                   >
                     <div className="flex items-center gap-2.5 w-full">
-                      <div className="relative w-9 h-9 shrink-0 rounded-md border border-[#5c4a32]/50 bg-black/35 flex items-center justify-center overflow-hidden p-0.5">
+                      <button
+                        type="button"
+                        className="relative w-9 h-9 shrink-0 rounded-md border border-[#5c4a32]/50 bg-black/35 flex items-center justify-center overflow-hidden p-0.5 hover:border-[#c7ad80]/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40 cursor-pointer"
+                        title="Характеристики"
+                        aria-label="Характеристики моба"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMob(mob);
+                        }}
+                      >
                         {listIconSrc ? (
                           <img
                             src={listIconSrc}
                             alt=""
-                            className="max-w-[26px] max-h-[26px] w-full h-full object-contain object-center"
+                            className="max-w-[26px] max-h-[26px] w-full h-full object-contain object-center pointer-events-none"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = "none";
                             }}
@@ -513,16 +521,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         ) : (
                           <span className="text-[10px] text-[#5c4a32]">—</span>
                         )}
-                      </div>
-                      <button
-                        type="button"
-                        className="text-[10px] text-[#7d9b7a] hover:text-[#c8e4c4] shrink-0 underline-offset-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedMob(mob);
-                        }}
-                      >
-                        (і)
                       </button>
                       <div className="flex-1 min-w-0 text-left">
                         <div
@@ -557,25 +555,26 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     isPatrol ? "border-rose-900/30" : ""
                   } ${!isQuestMob && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"}`}
                 >
-                  {listIconSrc && (
-                    <img
-                      src={listIconSrc}
-                      alt=""
-                      className="w-4 h-4 object-contain flex-shrink-0"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  )}
-                  <span
-                    className="text-green-500 cursor-pointer hover:text-green-400"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedMob(mob);
-                    }}
+                  <button
+                    type="button"
+                    className="p-0 border-0 bg-transparent flex-shrink-0 cursor-pointer hover:opacity-90"
+                    title="Характеристики"
+                    aria-label="Характеристики моба"
+                    onClick={() => setSelectedMob(mob)}
                   >
-                    (і)
-                  </span>
+                    {listIconSrc ? (
+                      <img
+                        src={listIconSrc}
+                        alt=""
+                        className="w-4 h-4 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span className="text-[10px] text-[#5c4a32] w-4 h-4 inline-block text-center">—</span>
+                    )}
+                  </button>
                   <span
                     className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${nameCls}`}
                     style={isQuestMob ? { color: "#6b7280" } : undefined}
@@ -701,8 +700,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             <div
               className={
                 isL2
-                  ? "rounded-xl border border-[#c7ad80]/35 p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
-                  : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+                  ? "rounded-xl border border-[#c7ad80]/35 p-4 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+                  : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-lg w-full max-h-[90vh] overflow-y-auto"
               }
               onClick={(e) => e.stopPropagation()}
             >
@@ -730,27 +729,54 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 </button>
               </div>
 
-              {/* Основна інформація */}
-              <div className="space-y-3 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400">Рівень:</span>
-                  <span className="text-red-500">{selectedMob.level}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400">HP:</span>
-                  <span className="text-red-500">{getMobEffectiveMaxHp(selectedMob)}</span>
-                </div>
-
-                {selectedMob.mp > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-400">MP:</span>
-                    <span className="text-blue-500">{selectedMob.mp}</span>
+              {(() => {
+                const modalMobIcon = getMobListIconSrc(selectedMob);
+                const labelCls = isL2 ? "text-[#8a7a60]" : "text-gray-400";
+                return (
+                  <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start mb-3">
+                    {modalMobIcon ? (
+                      <div className="flex justify-center sm:justify-start shrink-0">
+                        <div
+                          className={
+                            isL2
+                              ? "w-[128px] h-[128px] rounded-lg border border-[#5c4a32]/60 bg-black/45 p-2 flex items-center justify-center shadow-[inset_0_1px_0_rgba(199,173,128,0.1)]"
+                              : "w-[112px] h-[112px] rounded-lg border border-white/35 bg-black/50 p-2 flex items-center justify-center"
+                          }
+                        >
+                          <img
+                            src={modalMobIcon}
+                            alt=""
+                            className="max-w-full max-h-full w-full h-full object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+                    <div className="flex-1 min-w-0 w-full space-y-2 text-xs sm:pt-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className={labelCls}>Рівень:</span>
+                        <span className="text-red-500">{selectedMob.level}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={labelCls}>HP:</span>
+                        <span className="text-red-500">{getMobEffectiveMaxHp(selectedMob)}</span>
+                      </div>
+                      {selectedMob.mp > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className={labelCls}>MP:</span>
+                          <span className="text-blue-500">{selectedMob.mp}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+                );
+              })()}
 
+              <div className="space-y-3 text-xs">
                 {/* Стати */}
-                <div className="border-t border-white/40 pt-2 mt-2">
+                <div className="border-t border-white/40 pt-2 mt-0">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Стати:</div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex items-center gap-2">

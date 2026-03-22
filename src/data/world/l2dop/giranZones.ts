@@ -97,15 +97,15 @@ function buildGiranZoneMobs(z: { id: string; min: number; max: number }) {
 }
 
 const GIRAN_ZONE_DEFS = [
-  { id: "l2dop_giran_01", name: "Giran — Дорога, луки та пагорби (L2)", min: 26, max: 38, tp: 24000 },
-  { id: "l2dop_giran_02", name: "Giran — Болота й перелісся (L2)", min: 30, max: 42, tp: 25500 },
-  { id: "l2dop_giran_03", name: "Giran — Яри та розломи (L2)", min: 34, max: 46, tp: 27000 },
-  { id: "l2dop_giran_04", name: "Giran — Долини та ущелини (L2)", min: 38, max: 50, tp: 28500 },
-  { id: "l2dop_giran_05", name: "Giran — Стежки мисливців (L2)", min: 42, max: 54, tp: 30000 },
-  { id: "l2dop_giran_06", name: "Giran — Висоти та перевали (L2)", min: 46, max: 58, tp: 31500 },
-  { id: "l2dop_giran_07", name: "Giran — Темні схили (L2)", min: 50, max: 62, tp: 33000 },
-  { id: "l2dop_giran_08", name: "Giran — Край драконових тіней (L2)", min: 54, max: 66, tp: 34500 },
-  { id: "l2dop_giran_09", name: "Giran — Верхня межа околиць (L2)", min: 56, max: 70, tp: 36000 },
+  { id: "l2dop_giran_01", name: "Giran — Дорога, луки та пагорби", min: 26, max: 38, tp: 24000 },
+  { id: "l2dop_giran_02", name: "Giran — Болота й перелісся", min: 30, max: 42, tp: 25500 },
+  { id: "l2dop_giran_03", name: "Giran — Яри та розломи", min: 34, max: 46, tp: 27000 },
+  { id: "l2dop_giran_04", name: "Giran — Долини та ущелини", min: 38, max: 50, tp: 28500 },
+  { id: "l2dop_giran_05", name: "Giran — Стежки мисливців", min: 42, max: 54, tp: 30000 },
+  { id: "l2dop_giran_06", name: "Giran — Висоти та перевали", min: 46, max: 58, tp: 31500 },
+  { id: "l2dop_giran_07", name: "Giran — Темні схили", min: 50, max: 62, tp: 33000 },
+  { id: "l2dop_giran_08", name: "Giran — Край драконових тіней", min: 54, max: 66, tp: 34500 },
+  { id: "l2dop_giran_09", name: "Giran — Верхня межа околиць", min: 56, max: 70, tp: 36000 },
 ] as const;
 
 export function buildL2DopGiranZones(): Zone[] {

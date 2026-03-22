@@ -69,7 +69,7 @@ export function buildL2DopGoddardEliteZones(): Zone[] {
   return [
     buildEliteGoddardZone({
       id: "l2dop_goddard_dragon_valley",
-      name: "Годдарт — Долина Драконів (L2)",
+      name: "Годдарт — Долина Драконів",
       tp: 46000,
       mobCount: 150,
       combatMult: 2,
@@ -87,7 +87,7 @@ export function buildL2DopGoddardEliteZones(): Zone[] {
     }),
     buildEliteGoddardZone({
       id: "l2dop_goddard_seed_destruction",
-      name: "Годдарт — Насіння Знищення (L2)",
+      name: "Годдарт — Насіння Знищення",
       tp: 51000,
       mobCount: 120,
       combatMult: 4,
