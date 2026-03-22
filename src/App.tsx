@@ -31,6 +31,7 @@ import GMShop from "./screens/GMShop";
 import TattooArtist from "./screens/TattooArtist";
 import Fishing from "./screens/Fishing";
 import Wip from "./screens/Wip";
+import ResourceCraftScreen from "./screens/City/ResourceCraftScreen";
 import Chat from "./screens/Chat";
 import OnlinePlayers from "./screens/OnlinePlayers";
 import PlayerProfile from "./screens/PlayerProfile";
@@ -538,6 +539,11 @@ function AppInner() {
           featureTitle="Книга рецептов"
           key={`recipe-book-${refreshKey}`}
         />
+      );
+
+    case "/craft/resources":
+      return renderWithLayout(
+        <ResourceCraftScreen navigate={navigate} key={`craft-resources-${refreshKey}`} />
       );
 
     case "/shop":

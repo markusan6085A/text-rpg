@@ -1,0 +1,166 @@
+import type { HeroInventoryItem } from "../../types/Hero";
+import { itemsDB } from "../../data/items/itemsDB";
+import { getL2dopResourceIconPath, l2ItemIdToString } from "../../data/world/l2dop/droplistMapping";
+import { resourceLootDisplayName } from "../resourceLootDisplayName";
+import type { ResourceCraftRecipe } from "../../data/crafting/resourceCraftLevel1";
+
+const STACK_SLOTS = new Set(["consumable", "resource", "quest"]);
+
+export function countResourceInInventory(inventory: HeroInventoryItem[], itemId: string): number {
+  let n = 0;
+  for (const raw of inventory) {
+    if (!raw) continue;
+    if ((raw as any).meta?.hasLSPassive) continue;
+    if (raw.id !== itemId) continue;
+    n += raw.count ?? 1;
+  }
+  return n;
+}
+
+function aggregateIngredientNeeds(recipe: ResourceCraftRecipe): Record<string, number> {
+  const needs: Record<string, number> = {};
+  for (const ing of recipe.ingredients) {
+    const sid = l2ItemIdToString(ing.l2ItemId);
+    if (!sid) continue;
+    needs[sid] = (needs[sid] ?? 0) + ing.count;
+  }
+  return needs;
+}
+
+function removeNeedsFromInventory(
+  inv: HeroInventoryItem[],
+  needs: Record<string, number>
+): HeroInventoryItem[] | null {
+  const rem: Record<string, number> = { ...needs };
+  const out: HeroInventoryItem[] = [];
+  for (const raw of inv) {
+    if (!raw) continue;
+    const item = raw as HeroInventoryItem;
+    if ((item as any).meta?.hasLSPassive) {
+      out.push(item);
+      continue;
+    }
+    const id = item.id;
+    const need = rem[id] ?? 0;
+    if (need <= 0) {
+      out.push(item);
+      continue;
+    }
+    const have = item.count ?? 1;
+    if (have <= need) {
+      rem[id] = need - have;
+    } else {
+      out.push({ ...item, count: have - need });
+      rem[id] = 0;
+    }
+  }
+  for (const k of Object.keys(rem)) {
+    if (rem[k]! > 0) return null;
+  }
+  return out;
+}
+
+function outputDisplayName(itemId: string): string {
+  const def = itemsDB[itemId];
+  return def?.name ?? resourceLootDisplayName(itemId);
+}
+
+function outputIconPath(itemId: string): string {
+  const def = itemsDB[itemId];
+  if (def?.icon) return def.icon.startsWith("/") ? def.icon : `/items/${def.icon}`;
+  return getL2dopResourceIconPath(itemId) ?? "/items/default_item.png";
+}
+
+function canAddOutputSlot(inv: HeroInventoryItem[], outputId: string, maxSlots: number): boolean {
+  const def = itemsDB[outputId];
+  const canStack =
+    def?.stackable !== false &&
+    (def ? STACK_SLOTS.has(def.slot) : true);
+  if (canStack) {
+    const idx = inv.findIndex(
+      (i) =>
+        i &&
+        i.id === outputId &&
+        !(i as any).meta?.hasLSPassive &&
+        STACK_SLOTS.has(i.slot)
+    );
+    if (idx >= 0) return true;
+  }
+  return inv.filter(Boolean).length < maxSlots;
+}
+
+function addResourceStack(inv: HeroInventoryItem[], itemId: string, add: number): HeroInventoryItem[] {
+  const def = itemsDB[itemId];
+  const name = outputDisplayName(itemId);
+  const icon = outputIconPath(itemId);
+  const canStack =
+    def?.stackable !== false &&
+    (def ? STACK_SLOTS.has(def.slot) : true);
+
+  if (canStack) {
+    const idx = inv.findIndex(
+      (i) =>
+        i &&
+        i.id === itemId &&
+        !(i as any).meta?.hasLSPassive &&
+        STACK_SLOTS.has(i.slot)
+    );
+    if (idx >= 0) {
+      const copy = [...inv];
+      const it = copy[idx]!;
+      copy[idx] = { ...it, count: (it.count ?? 1) + add };
+      return copy;
+    }
+  }
+
+  const newItem: HeroInventoryItem = def
+    ? {
+        id: def.id,
+        name: def.name,
+        type: def.kind,
+        slot: def.slot,
+        icon: def.icon
+          ? def.icon.startsWith("/")
+            ? def.icon
+            : `/items/${def.icon}`
+          : icon,
+        description: def.description ?? "",
+        stats: def.stats,
+        count: add,
+      }
+    : {
+        id: itemId,
+        name,
+        type: "resource",
+        slot: "resource",
+        icon,
+        description: "",
+        count: add,
+      };
+  return [...inv, newItem];
+}
+
+export function tryApplyResourceCraft(
+  inventory: HeroInventoryItem[] | undefined,
+  recipe: ResourceCraftRecipe,
+  maxSlots: number
+): { ok: true; inventory: HeroInventoryItem[] } | { ok: false } {
+  const outputId = l2ItemIdToString(recipe.outputL2ItemId);
+  if (!outputId) return { ok: false };
+
+  const inv = [...(inventory ?? [])].filter(Boolean) as HeroInventoryItem[];
+  const needs = aggregateIngredientNeeds(recipe);
+  if (Object.keys(needs).length === 0) return { ok: false };
+
+  for (const id of Object.keys(needs)) {
+    if (countResourceInInventory(inv, id) < needs[id]!) return { ok: false };
+  }
+
+  const afterRemove = removeNeedsFromInventory(inv, needs);
+  if (!afterRemove) return { ok: false };
+
+  if (!canAddOutputSlot(afterRemove, outputId, maxSlots)) return { ok: false };
+
+  const afterAdd = addResourceStack(afterRemove, outputId, 1);
+  return { ok: true, inventory: afterAdd };
+}
