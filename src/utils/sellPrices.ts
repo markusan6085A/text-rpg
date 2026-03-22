@@ -10,6 +10,7 @@ import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../data/shop/consumablesShop";
 import { regularShopItemPriceMapKey } from "../data/shop/shopItemResolve";
 import type { ItemDefinition } from "../data/items/itemsDB.types";
+import { isL2dopTierMaterialId } from "../data/world/l2dop/tieredResourceLoot";
 
 const ALL_SHOP = [
   ...NG_GRADE_SHOP_ITEMS,
@@ -107,11 +108,16 @@ export function isResourceItem(def: ItemDefinition | undefined): boolean {
 
 /** Повертає ціну продажу для предмета. null = не продається. */
 export function getSellPrice(itemId: string, itemDef?: ItemDefinition | null): number | null {
-  const def = itemDef ?? itemsDB[itemId];
-  if (!def) return null;
+  // Валюта, медаль печатей, Festival Adena — не продаються (до пошуку def)
+  if (["adena", "coin_of_luck", "coins_silver", "ancient_adena", "seven_seals_medal", "coin_of_fair"].includes(itemId)) {
+    return null;
+  }
 
-  // Валюта, медаль печатей, Festival Adena — не продаються
-  if (["adena", "coin_of_luck", "coins_silver", "ancient_adena", "seven_seals_medal", "coin_of_fair"].includes(itemId)) return null;
+  const def = itemDef ?? itemsDB[itemId];
+  // Дроп-ресурси l2dop (thread, charcoal, stem, …) часто без запису в itemsDB
+  if (!def) {
+    return isL2dopTierMaterialId(itemId) ? getResourceSellPrice(itemId) : null;
+  }
 
   // Ресурси — 1–1000
   if (isResourceItem(def)) return getResourceSellPrice(itemId);

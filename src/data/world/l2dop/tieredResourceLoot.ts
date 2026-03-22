@@ -13,7 +13,7 @@ export function l2NpcTemplateIdFromMobId(mobId: string): number | undefined {
   return m ? parseInt(m[1], 10) : undefined;
 }
 
-/** NG / низькі рівні */
+/** Усі string id матеріалів з тиерних пулів (дроп/спойл l2dop) — для продажу без окремого запису в itemsDB. */
 const T1: readonly string[] = [
   "stem",
   "varnish",
@@ -50,6 +50,18 @@ const T3: readonly string[] = ["metal_hardener", "metallic_thread", "durable_met
 
 /** Топ рецептурні */
 const T4: readonly string[] = ["mold_glue", "mold_lubricant", "mold_hardener", "enria", "asofe", "thons"];
+
+/** Для getSellPrice та ін.: id з тиерних пулів = ресурс, навіть якщо ще не доданий у itemsDB */
+export const L2DOP_TIER_MATERIAL_IDS: ReadonlySet<string> = new Set<string>([
+  ...T1,
+  ...T2,
+  ...T3,
+  ...T4,
+]);
+
+export function isL2dopTierMaterialId(id: string): boolean {
+  return L2DOP_TIER_MATERIAL_IDS.has(id);
+}
 
 function levelBracket(level: number): 1 | 2 | 3 | 4 {
   if (level <= 20) return 1;

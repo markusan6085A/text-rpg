@@ -7,6 +7,8 @@ import InventoryFilters, { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { getSellPrice } from "../utils/sellPrices";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
+import { normalizeIconPath, FALLBACK_ICON } from "../utils/itemIcon";
 
 type Navigate = (path: string) => void;
 
@@ -206,26 +208,43 @@ export default function SellItems({ navigate }: SellItemsProps) {
       }
     >
       <div className={isL2 ? "max-w-[420px] mx-auto w-full" : "w-full max-w-[360px]"}>
-        <div className="flex justify-between items-center mb-3">
-          <h1
-            className={
-              isL2
-                ? "text-lg font-bold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
-                : "text-lg font-bold text-[#b8860b]"
-            }
-          >
-            Продать вещи
-          </h1>
-          <button
-            onClick={() => navigate("/shop")}
-            className={
-              isL2
-                ? "text-xs text-[#7d9b7a] hover:text-[#9bc49a]"
-                : "text-xs text-[#99e074] hover:text-[#bbff97]"
-            }
-          >
-            ← Магазин
-          </button>
+        <div
+          className={
+            isL2
+              ? "mb-3 rounded-lg border border-[#6b5a40]/55 bg-[linear-gradient(180deg,rgba(30,26,18,0.5)_0%,rgba(8,7,5,0.85)_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] px-2.5 py-2"
+              : "mb-3"
+          }
+        >
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              {isL2 && (
+                <span
+                  className="h-5 w-0.5 shrink-0 rounded-full bg-gradient-to-b from-[#e8c56e] via-[#a08050] to-[#3d3428]"
+                  aria-hidden
+                />
+              )}
+              <h1
+                className={
+                  isL2
+                    ? "text-[12px] sm:text-[13px] font-semibold uppercase tracking-[0.12em] text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)] truncate"
+                    : "text-sm font-bold text-[#b8860b] truncate"
+                }
+              >
+                Продать вещи
+              </h1>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/shop")}
+              className={
+                isL2
+                  ? "shrink-0 rounded-md border border-[#5c4a32]/60 bg-black/30 px-2 py-1 text-[10px] font-medium text-[#c9a44c] hover:border-[#8a7348]/55 hover:text-[#e8dcc8] transition-colors"
+                  : "shrink-0 text-xs text-[#99e074] hover:text-[#bbff97]"
+              }
+            >
+              ← Магазин
+            </button>
+          </div>
         </div>
 
         <div className={isL2 ? "text-sm text-[#a89878] mb-2" : "text-sm text-gray-300 mb-2"}>
@@ -281,6 +300,9 @@ export default function SellItems({ navigate }: SellItemsProps) {
               const count = item.count ?? 1;
               const canSell = sellPrice != null && sellPrice > 0;
               const isSelected = selectMode && selectedIndices.has(globalIdx);
+              const l2ResIcon = getL2dopResourceIconPath(String(item.id || ""));
+              const imgSrc =
+                normalizeIconPath(item.icon || def?.icon || l2ResIcon) || FALLBACK_ICON;
 
               return (
                 <div
@@ -296,14 +318,14 @@ export default function SellItems({ navigate }: SellItemsProps) {
                     </button>
                   )}
                   <img
-                    src={(item.icon || def?.icon || "").startsWith("/") ? (item.icon || def?.icon) : `/items/${item.icon || def?.icon}`}
+                    src={imgSrc}
                     alt=""
                     className="w-5 h-5 object-contain flex-shrink-0"
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_ICON; }}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="text-white text-sm truncate">
-                      {def?.name || item.name}
+                      {def?.name || item.name || item.id}
                       {(def?.grade || item.grade) && (
                         <span className="text-[#9ca3af] ml-1">({def?.grade || item.grade})</span>
                       )}
