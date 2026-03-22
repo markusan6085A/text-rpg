@@ -477,7 +477,7 @@ export async function marketRoutes(app: FastifyInstance) {
     }
   );
 
-  // POST /market/listings/:id/buy  { buyerCharacterId }
+  // POST /market/listings/:id/buy  { buyerCharacterId, quantity? } — quantity ≤ stack; без поля = увесь стек
   app.post(
     "/market/listings/:id/buy",
     {
@@ -492,8 +492,9 @@ export async function marketRoutes(app: FastifyInstance) {
       await expireStaleListings(app);
 
       const listingId = String((req.params as any)?.id || "").trim();
-      const body = req.body as { buyerCharacterId?: string };
+      const body = req.body as { buyerCharacterId?: string; quantity?: unknown };
       const buyerCharacterId = String(body.buyerCharacterId || "").trim();
+      const qtyRequested = parsePositiveIntInput((body as Record<string, unknown>).quantity);
       if (!listingId || !buyerCharacterId) {
         return reply.code(400).send({ error: "listing id and buyerCharacterId required" });
       }
@@ -510,40 +511,38 @@ export async function marketRoutes(app: FastifyInstance) {
             return { err: 400 as const, msg: "cannot_buy_own_listing" };
           }
 
-          const claimed = await tx.playerMarketListing.updateMany({
-            where: { id: listingId, status: "active", expiresAt: { gt: now } },
-            data: {
-              status: "sold",
-              buyerCharacterId,
-              soldAt: now,
-            },
-          });
-          if (claimed.count !== 1) {
-            return { err: 409 as const, msg: "listing_already_sold_or_expired" };
-          }
-
           const buyer = await tx.character.findFirst({
             where: { id: buyerCharacterId, accountId: auth.accountId },
           });
           if (!buyer) {
-            await tx.playerMarketListing.update({
-              where: { id: listingId },
-              data: { status: "active", buyerCharacterId: null, soldAt: null },
-            });
             return { err: 404 as const, msg: "buyer not found" };
           }
 
           const seller = await tx.character.findUnique({ where: { id: listing.sellerCharacterId } });
           if (!seller) {
-            await tx.playerMarketListing.update({
-              where: { id: listingId },
-              data: { status: "active", buyerCharacterId: null, soldAt: null },
-            });
             return { err: 500 as const, msg: "seller_missing" };
           }
 
-          const price = listing.price;
+          const snap = JSON.parse(JSON.stringify(listing.itemSnapshot)) as Record<string, unknown>;
+          const sc = Math.max(1, Math.floor(Number(snap?.count) || 1));
+          let qty = sc;
+          if (qtyRequested !== null) {
+            if (qtyRequested < 1) return { err: 400 as const, msg: "invalid_quantity" };
+            qty = Math.min(qtyRequested, sc);
+          }
+
+          const totalP = listing.price;
           const currency = listing.currency;
+          let pay: bigint;
+          if (totalP % BigInt(sc) === 0n) {
+            const perUnit = totalP / BigInt(sc);
+            pay = perUnit * BigInt(qty);
+          } else {
+            if (qty !== sc) {
+              return { err: 400 as const, msg: "partial_purchase_unsupported" };
+            }
+            pay = totalP;
+          }
 
           let buyerAdena = BigInt(buyer.adena ?? 0);
           let buyerCoin = BigInt(buyer.coinLuck ?? 0);
@@ -551,32 +550,20 @@ export async function marketRoutes(app: FastifyInstance) {
           let sellerCoin = BigInt(seller.coinLuck ?? 0);
 
           if (currency === "adena") {
-            if (buyerAdena < price) {
-              await tx.playerMarketListing.update({
-                where: { id: listingId },
-                data: { status: "active", buyerCharacterId: null, soldAt: null },
-              });
+            if (buyerAdena < pay) {
               return { err: 400 as const, msg: "not_enough_adena" };
             }
-            buyerAdena -= price;
-            sellerAdena += price;
+            buyerAdena -= pay;
+            sellerAdena += pay;
           } else {
-            if (buyerCoin < price) {
-              await tx.playerMarketListing.update({
-                where: { id: listingId },
-                data: { status: "active", buyerCharacterId: null, soldAt: null },
-              });
+            if (buyerCoin < pay) {
               return { err: 400 as const, msg: "not_enough_coin_luck" };
             }
-            buyerCoin -= price;
-            sellerCoin += price;
+            buyerCoin -= pay;
+            sellerCoin += pay;
           }
 
           if (sellerAdena > MAX_SAFE || buyerAdena < 0n || sellerCoin > MAX_SAFE || buyerCoin < 0n) {
-            await tx.playerMarketListing.update({
-              where: { id: listingId },
-              data: { status: "active", buyerCharacterId: null, soldAt: null },
-            });
             return { err: 400 as const, msg: "currency_overflow" };
           }
 
@@ -584,7 +571,7 @@ export async function marketRoutes(app: FastifyInstance) {
           const cap = inventoryCap(buyerHj0);
           const inv = [...(buyerHj0.inventory || [])];
           const overflow = [...(buyerHj0.overflowChest || [])];
-          const item = JSON.parse(JSON.stringify(listing.itemSnapshot));
+          const item = { ...snap, count: qty };
           if (inv.length < cap) {
             inv.push(item);
           } else {
@@ -599,10 +586,6 @@ export async function marketRoutes(app: FastifyInstance) {
           };
           const buyerVal = validateHeroJson(buyerNext);
           if (!buyerVal.valid) {
-            await tx.playerMarketListing.update({
-              where: { id: listingId },
-              data: { status: "active", buyerCharacterId: null, soldAt: null },
-            });
             return { err: 400 as const, msg: "invalid_buyer_hero", errors: buyerVal.errors };
           }
           const buyerVersioned = addVersioning(buyerNext, Number(buyerHj0.heroRevision || 0));
@@ -615,13 +598,36 @@ export async function marketRoutes(app: FastifyInstance) {
           };
           const sellerVal = validateHeroJson(sellerNext);
           if (!sellerVal.valid) {
-            await tx.playerMarketListing.update({
-              where: { id: listingId },
-              data: { status: "active", buyerCharacterId: null, soldAt: null },
-            });
             return { err: 500 as const, msg: "invalid_seller_hero" };
           }
           const sellerVersioned = addVersioning(sellerNext, Number(sellerHj0.heroRevision || 0));
+
+          if (qty === sc) {
+            const claimed = await tx.playerMarketListing.updateMany({
+              where: { id: listingId, status: "active", expiresAt: { gt: now } },
+              data: {
+                status: "sold",
+                buyerCharacterId,
+                soldAt: now,
+              },
+            });
+            if (claimed.count !== 1) {
+              return { err: 409 as const, msg: "listing_already_sold_or_expired" };
+            }
+          } else {
+            const newCount = sc - qty;
+            const newPrice = totalP - pay;
+            const shrunk = await tx.playerMarketListing.updateMany({
+              where: { id: listingId, status: "active", expiresAt: { gt: now } },
+              data: {
+                price: newPrice,
+                itemSnapshot: { ...snap, count: newCount } as object,
+              },
+            });
+            if (shrunk.count !== 1) {
+              return { err: 409 as const, msg: "listing_already_sold_or_expired" };
+            }
+          }
 
           const buyerRow = await tx.character.update({
             where: { id: buyer.id },

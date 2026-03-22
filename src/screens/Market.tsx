@@ -14,7 +14,8 @@ import {
   type MarketCurrency,
 } from "../utils/api";
 import type { HeroInventoryItem } from "../types/Hero";
-import { itemsDB } from "../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
+import { calculateEnchantedStats } from "./character/inventoryUtils";
 import { normalizeIconPath, handleResourceIconError } from "../utils/itemIcon";
 import { showToast } from "../state/toastStore";
 
@@ -52,6 +53,36 @@ function displaySellItemName(it: HeroInventoryItem & { itemId?: string }): strin
 
 const formatNum = (n: number) =>
   n.toLocaleString("ru-RU").replace(/\s/g, ".");
+
+/** Часткова купівля: ціна ділиться на кількість у лоті без остачі (як на сервері). */
+function marketPartialAllowed(lotTotal: number, lotCnt: number): boolean {
+  const t = Math.floor(Number(lotTotal) || 0);
+  const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
+  return c >= 1 && t % c === 0;
+}
+
+function maxBuyableFromBalance(lotTotal: number, lotCnt: number, balance: number): number {
+  const t = Math.floor(Number(lotTotal) || 0);
+  const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
+  const bal = Math.max(0, Math.floor(Number(balance) || 0));
+  if (t < 1) return 0;
+  if (marketPartialAllowed(t, c)) {
+    const per = Math.floor(t / c);
+    if (per < 1) return 0;
+    return Math.min(c, Math.floor(bal / per));
+  }
+  return bal >= t ? c : 0;
+}
+
+function payForMarketQty(lotTotal: number, lotCnt: number, qty: number): number {
+  const t = Math.floor(Number(lotTotal) || 0);
+  const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
+  const q = Math.max(1, Math.floor(Number(qty) || 0));
+  if (marketPartialAllowed(t, c)) {
+    return Math.floor(t / c) * q;
+  }
+  return q >= c ? t : 0;
+}
 
 function msLeft(iso: string): number {
   return Math.max(0, new Date(iso).getTime() - Date.now());
@@ -130,7 +161,9 @@ export default function Market({ navigate }: MarketProps) {
   const [sellAmount, setSellAmount] = useState<string>("1");
   const [sellBusy, setSellBusy] = useState(false);
 
-  const [buyBusyId, setBuyBusyId] = useState<string | null>(null);
+  const [browseDetailListing, setBrowseDetailListing] = useState<MarketListingDTO | null>(null);
+  const [browseBuyQty, setBrowseBuyQty] = useState<string>("1");
+  const [browseBuyBusy, setBrowseBuyBusy] = useState(false);
   const [cancelBusyId, setCancelBusyId] = useState<string | null>(null);
 
   const refreshBrowse = useCallback(async () => {
@@ -270,20 +303,79 @@ export default function Market({ navigate }: MarketProps) {
     }
   };
 
-  const onBuy = async (listing: MarketListingDTO) => {
-    if (!cid) return;
-    if (listing.sellerCharacterId === cid) return;
-    setBuyBusyId(listing.id);
+  const openBrowseDetail = (L: MarketListingDTO) => {
+    const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
+    const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
+    const bal =
+      L.currency === "adena" ? Number(hero?.adena ?? 0) : Number(hero?.coinOfLuck ?? 0);
+    const maxCan = maxBuyableFromBalance(L.price, lotCnt, bal);
+    setBrowseDetailListing(L);
+    setBrowseBuyQty(String(maxCan > 0 ? maxCan : 1));
+  };
+
+  const browseBuyPreview = useMemo(() => {
+    const L = browseDetailListing;
+    if (!L || !hero) return null;
+    const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
+    const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
+    const bal =
+      L.currency === "adena" ? Number(hero.adena ?? 0) : Number(hero.coinOfLuck ?? 0);
+    const maxCan = maxBuyableFromBalance(L.price, lotCnt, bal);
+    const partial = marketPartialAllowed(L.price, lotCnt);
+    const rawQ = Math.floor(Number(String(browseBuyQty).replace(/\s/g, "")) || 0);
+    const qtyMaxPartial = Math.min(lotCnt, Math.max(0, maxCan));
+    let qty = 0;
+    if (partial) {
+      qty =
+        qtyMaxPartial <= 0 ? 0 : Math.min(qtyMaxPartial, Math.max(1, rawQ || 1));
+    } else {
+      qty = maxCan > 0 ? lotCnt : 0;
+    }
+    const pay = qty > 0 ? payForMarketQty(L.price, lotCnt, qty) : 0;
+    const rowId = itemRowId(it) || String((it as { id?: string }).id || "").trim();
+    const itemForStats = rowId ? { ...it, id: rowId } : null;
+    const enchanted = itemForStats ? calculateEnchantedStats(itemForStats) : null;
+    const itemDef = rowId ? itemsDBWithStarter[rowId] || itemsDB[rowId] : undefined;
+    return {
+      L,
+      it,
+      lotCnt,
+      bal,
+      maxCan,
+      partial,
+      qty,
+      pay,
+      enchanted,
+      itemDef,
+      rowId,
+    };
+  }, [browseDetailListing, browseBuyQty, hero]);
+
+  const onConfirmBrowseBuy = async () => {
+    if (!cid || !browseBuyPreview || browseBuyPreview.qty < 1) return;
+    const { L, qty, lotCnt } = browseBuyPreview;
+    if (L.sellerCharacterId === cid) return;
+    if (!marketPartialAllowed(L.price, lotCnt) && qty !== lotCnt) {
+      showToast("Часткова купівля недоступна для цього лоту", "info");
+      return;
+    }
+    setBrowseBuyBusy(true);
     try {
-      const res = await buyMarketListingApi(listing.id, cid);
+      const res = await buyMarketListingApi(L.id, cid, qty);
       showToast("Куплено", "success");
+      setBrowseDetailListing(null);
       await syncHeroAfterMarket(res.buyer);
       await refreshBrowse();
       await refreshMine();
     } catch (e: any) {
-      showToast(e?.message || "Не вдалося купити", "error");
+      const msg = String(e?.message || "");
+      if (msg.includes("partial_purchase") || msg.includes("partial")) {
+        showToast("Часткова купівля для цього лоту недоступна", "error");
+      } else {
+        showToast(msg || "Не вдалося купити", "error");
+      }
     } finally {
-      setBuyBusyId(null);
+      setBrowseBuyBusy(false);
     }
   };
 
@@ -406,42 +498,51 @@ export default function Market({ navigate }: MarketProps) {
                   lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
                 const curLabel = L.currency === "adena" ? "аден" : "CoL";
                 return (
-                  <div key={L.id} className={cardRow}>
+                  <button
+                    key={L.id}
+                    type="button"
+                    onClick={() => openBrowseDetail(L)}
+                    className={`${cardRow} w-full text-left cursor-pointer hover:brightness-[1.03] active:brightness-95 transition-[filter]`}
+                  >
                     <img
                       src={icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
                       alt=""
-                      className="w-10 h-10 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0"
+                      className="w-10 h-10 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0 pointer-events-none"
                       onError={handleResourceIconError}
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 pointer-events-none">
                       <div className={isL2 ? "text-[12px] font-semibold text-[#e8dcc8] truncate" : "text-sm text-amber-100 truncate"}>
                         {displaySellItemName(it)}
                         {it?.count && it.count > 1 ? ` ×${it.count}` : ""}
+                        {own ? (
+                          <span className={isL2 ? "text-[10px] text-[#6a5a48] font-normal ml-1" : "text-[10px] text-gray-500 ml-1"}>
+                            (ваш)
+                          </span>
+                        ) : null}
                       </div>
                       <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
                         Продавець: {L.sellerName}
                       </div>
                       <div className={isL2 ? "text-[10px] text-[#c9a44c] mt-0.5" : "text-[10px] text-amber-300/90 mt-0.5"}>
-                        {lotCnt > 1
-                          ? `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
-                          : `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
+                        {left <= 0 ? (
+                          <span className="text-[#9d6b6b]">Час вичерпано</span>
+                        ) : lotCnt > 1 ? (
+                          `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+                        ) : (
+                          `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`
+                        )}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      disabled={own || buyBusyId === L.id || left <= 0}
-                      onClick={() => void onBuy(L)}
+                    <span
                       className={
-                        own
-                          ? "text-[10px] px-2 py-1.5 rounded-md border border-[#5c4a32]/40 text-[#6a5a48] shrink-0 cursor-not-allowed"
-                          : isL2
-                            ? "text-[10px] px-2 py-1.5 rounded-md border border-[#7d9b7a]/55 text-[#b8d4b0] hover:brightness-110 shrink-0 disabled:opacity-40"
-                            : "text-[10px] px-2 py-1.5 rounded-md border border-green-700/50 text-green-200 shrink-0"
+                        isL2
+                          ? "text-[10px] text-[#8a7a60] shrink-0 self-center"
+                          : "text-[10px] text-gray-500 shrink-0 self-center"
                       }
                     >
-                      {own ? "Ваш" : buyBusyId === L.id ? "…" : "Купить"}
-                    </button>
-                  </div>
+                      →
+                    </span>
+                  </button>
                 );
               })
             )}
@@ -762,6 +863,317 @@ export default function Market({ navigate }: MarketProps) {
                 {sellBusy ? "…" : "Выставить"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {browseDetailListing && browseBuyPreview && hero && (
+        <div
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-3 bg-black/75"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="market-browse-detail-title"
+          onClick={() => {
+            if (!browseBuyBusy) setBrowseDetailListing(null);
+          }}
+        >
+          <div
+            className={
+              isL2
+                ? "w-full max-w-sm rounded-xl border border-[#c7ad80]/45 shadow-[0_16px_48px_rgba(0,0,0,0.75)] bg-[linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)] p-4 space-y-3 max-h-[90vh] overflow-y-auto"
+                : "w-full max-w-sm rounded-xl border border-amber-800/50 bg-[#1a1510] p-4 space-y-3 max-h-[90vh] overflow-y-auto"
+            }
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(() => {
+              const { L, it, lotCnt, bal, maxCan, partial, qty, pay, enchanted, itemDef } = browseBuyPreview;
+              const own = L.sellerCharacterId === cid;
+              const left = msLeft(L.expiresAt);
+              void tick;
+              const curLabel = L.currency === "adena" ? "аден" : "CoL";
+              const perUnit =
+                lotCnt > 1 && L.price > 0 ? Math.floor(L.price / lotCnt) : L.price;
+              const showEquipStats =
+                enchanted && (enchanted.isWeapon || enchanted.isArmor);
+              const el = Number(enchanted?.enchantLevel ?? it.enchantLevel ?? 0);
+              const {
+                pAtk,
+                mAtk,
+                pDef,
+                mDef,
+                baseStats,
+                isWeapon,
+                isArmor,
+                enchantMultiplier,
+                armorEnchantMultiplier,
+              } = enchanted || {};
+
+              return (
+                <>
+                  <div className="flex items-start justify-between gap-2">
+                    <div
+                      id="market-browse-detail-title"
+                      className={
+                        isL2
+                          ? "text-center text-[13px] font-semibold text-[#e8c56e] flex-1"
+                          : "text-center text-sm font-semibold text-amber-100 flex-1"
+                      }
+                    >
+                      Лот на ринку
+                    </div>
+                    <button
+                      type="button"
+                      className="text-[#8a7a60] hover:text-[#e8dcc8] text-lg leading-none px-1"
+                      onClick={() => !browseBuyBusy && setBrowseDetailListing(null)}
+                      aria-label="Закрити"
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <div className="flex gap-3 items-start">
+                    <img
+                      src={
+                        normalizeIconPath(it?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                      }
+                      alt=""
+                      className="w-14 h-14 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0"
+                      onError={handleResourceIconError}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className={
+                          isL2
+                            ? "text-[13px] font-medium text-[#e8dcc8] leading-snug"
+                            : "text-sm text-amber-50 leading-snug"
+                        }
+                      >
+                        {displaySellItemName(it)}
+                        {el > 0 ? ` +${el}` : ""}
+                        {lotCnt > 1 ? ` ×${lotCnt}` : ""}
+                      </div>
+                      <div className={isL2 ? "text-[10px] text-[#8a7a60] mt-1" : "text-[10px] text-gray-500 mt-1"}>
+                        Продавець: {L.sellerName}
+                      </div>
+                      <div className={isL2 ? "text-[10px] text-[#c9a44c] mt-0.5" : "text-[10px] text-amber-300/90 mt-0.5"}>
+                        {left <= 0
+                          ? "Термін лоту минув"
+                          : lotCnt > 1
+                            ? `${formatNum(L.price)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+                            : `${formatNum(L.price)} ${curLabel} · ${formatTimeLeft(left)}`}
+                      </div>
+                    </div>
+                  </div>
+
+                  {itemDef?.description ? (
+                    <p className={isL2 ? "text-[10px] text-[#a89878] leading-snug" : "text-[10px] text-gray-400 leading-snug"}>
+                      {itemDef.description}
+                    </p>
+                  ) : null}
+
+                  {showEquipStats ? (
+                    <div
+                      className={
+                        isL2
+                          ? "space-y-1 rounded-lg border border-[#5c4a32]/45 bg-black/25 px-2 py-2 text-[11px]"
+                          : "space-y-1 rounded-lg border border-black/50 bg-black/20 px-2 py-2 text-[11px]"
+                      }
+                    >
+                      <div className={isL2 ? "text-[10px] text-[#c9a44c] font-semibold mb-1" : "text-[10px] text-amber-200/90 mb-1"}>
+                        Характеристики
+                      </div>
+                      {pAtk !== undefined && pAtk > 0 && (
+                        <div className="flex justify-between gap-2 text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">Фіз. атака</span>
+                          <span className="text-red-400">
+                            {pAtk}
+                            {el > 0 && isWeapon && baseStats?.pAtk && enchantMultiplier ? (
+                              <span className="text-[#b8860b] ml-1">
+                                (+{Math.round(baseStats.pAtk * (enchantMultiplier - 1))})
+                              </span>
+                            ) : null}
+                          </span>
+                        </div>
+                      )}
+                      {mAtk !== undefined && mAtk > 0 && (
+                        <div className="flex justify-between gap-2 text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">Маг. атака</span>
+                          <span className="text-purple-400">
+                            {mAtk}
+                            {el > 0 && isWeapon && baseStats?.mAtk && enchantMultiplier ? (
+                              <span className="text-[#b8860b] ml-1">
+                                (+{Math.round(baseStats.mAtk * (enchantMultiplier - 1))})
+                              </span>
+                            ) : null}
+                          </span>
+                        </div>
+                      )}
+                      {pDef !== undefined && pDef > 0 && (
+                        <div className="flex justify-between gap-2 text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">Фіз. захист</span>
+                          <span className="text-blue-400">
+                            {pDef}
+                            {el > 0 && isArmor && baseStats?.pDef && armorEnchantMultiplier ? (
+                              <span className="text-[#b8860b] ml-1">
+                                (+{Math.round(baseStats.pDef * (armorEnchantMultiplier - 1))})
+                              </span>
+                            ) : null}
+                          </span>
+                        </div>
+                      )}
+                      {mDef !== undefined && mDef > 0 && (
+                        <div className="flex justify-between gap-2 text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">Маг. захист</span>
+                          <span className="text-cyan-400">
+                            {mDef}
+                            {el > 0 && isArmor && baseStats?.mDef && armorEnchantMultiplier ? (
+                              <span className="text-[#b8860b] ml-1">
+                                (+{Math.round(baseStats.mDef * (armorEnchantMultiplier - 1))})
+                              </span>
+                            ) : null}
+                          </span>
+                        </div>
+                      )}
+                      {itemDef?.stats?.STR ? (
+                        <div className="flex justify-between text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">STR</span>
+                          <span className="text-yellow-300">+{itemDef.stats.STR}</span>
+                        </div>
+                      ) : null}
+                      {itemDef?.stats?.DEX ? (
+                        <div className="flex justify-between text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">DEX</span>
+                          <span className="text-yellow-300">+{itemDef.stats.DEX}</span>
+                        </div>
+                      ) : null}
+                      {itemDef?.stats?.CON ? (
+                        <div className="flex justify-between text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">CON</span>
+                          <span className="text-yellow-300">+{itemDef.stats.CON}</span>
+                        </div>
+                      ) : null}
+                      {itemDef?.stats?.INT ? (
+                        <div className="flex justify-between text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">INT</span>
+                          <span className="text-yellow-300">+{itemDef.stats.INT}</span>
+                        </div>
+                      ) : null}
+                      {itemDef?.stats?.WIT ? (
+                        <div className="flex justify-between text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">WIT</span>
+                          <span className="text-yellow-300">+{itemDef.stats.WIT}</span>
+                        </div>
+                      ) : null}
+                      {itemDef?.stats?.MEN ? (
+                        <div className="flex justify-between text-[#e8dcc8]">
+                          <span className="text-[#8a7a60]">MEN</span>
+                          <span className="text-yellow-300">+{itemDef.stats.MEN}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {own ? (
+                    <p className={isL2 ? "text-[11px] text-[#8a7a60] text-center" : "text-[11px] text-gray-500 text-center"}>
+                      Це ваш лот — купівля недоступна.
+                    </p>
+                  ) : left <= 0 ? (
+                    <p className={isL2 ? "text-[11px] text-[#9d6b6b] text-center" : "text-[11px] text-red-300/90 text-center"}>
+                      Лот більше не активний.
+                    </p>
+                  ) : maxCan < 1 ? (
+                    <>
+                      <p className={isL2 ? "text-[11px] text-[#9d6b6b] text-center" : "text-[11px] text-red-300/90 text-center"}>
+                        Недостатньо {curLabel} для купівлі цього лоту.
+                      </p>
+                      <button
+                        type="button"
+                        disabled={browseBuyBusy}
+                        onClick={() => !browseBuyBusy && setBrowseDetailListing(null)}
+                        className={
+                          isL2
+                            ? "w-full py-2.5 rounded-md border border-[#5c4a32]/55 text-[11px] text-[#a89878] hover:bg-black/25"
+                            : "w-full py-2.5 rounded-md border border-black/50 text-[11px] text-gray-400"
+                        }
+                      >
+                        Закрити
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {!partial && lotCnt > 1 ? (
+                        <p className={isL2 ? "text-[10px] text-[#a89878]" : "text-[10px] text-gray-400"}>
+                          Часткова купівля недоступна (сума не ділиться на кількість без остачі) — продається лише весь стек{" "}
+                          {lotCnt} шт.
+                        </p>
+                      ) : null}
+                      <div className={isL2 ? "text-[11px] text-[#c9a44c]" : "text-[11px] text-amber-200/90"}>
+                        У вас: {formatNum(bal)} {curLabel}. Можна купити до{" "}
+                        <span className="font-semibold text-[#e8c56e]">{maxCan}</span> шт.
+                      </div>
+                      {partial ? (
+                        <div className="space-y-1.5">
+                          <label className={isL2 ? "text-[10px] text-[#a89878]" : "text-[10px] text-gray-400"}>
+                            Скільки купити (1…{Math.min(lotCnt, maxCan)})
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={browseBuyQty}
+                            onChange={(e) => setBrowseBuyQty(e.target.value.replace(/[^\d]/g, ""))}
+                            className={
+                              isL2
+                                ? "w-full rounded-md bg-black/40 border border-[#5c4a32]/55 px-3 py-2 text-[13px] text-[#e8dcc8]"
+                                : "w-full rounded-md bg-black/50 border border-black/60 px-3 py-2 text-sm text-amber-100"
+                            }
+                          />
+                        </div>
+                      ) : null}
+                      {!partial && maxCan > 0 ? (
+                        <div className={isL2 ? "text-[11px] text-[#e8dcc8]" : "text-[11px] text-amber-50"}>
+                          Кількість: <span className="font-semibold">{lotCnt}</span> шт. (повний стек)
+                        </div>
+                      ) : null}
+                      <div className={isL2 ? "text-[11px] text-center text-[#e8dcc8]" : "text-[11px] text-center text-amber-50"}>
+                        До сплати:{" "}
+                        <span className="font-semibold text-[#e8c56e]">
+                          {formatNum(pay)} {curLabel}
+                        </span>
+                        {qty > 0 && qty !== lotCnt ? (
+                          <span className={isL2 ? "text-[#8a7a60]" : "text-gray-500"}> ({qty} шт.)</span>
+                        ) : null}
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          type="button"
+                          disabled={browseBuyBusy}
+                          onClick={() => !browseBuyBusy && setBrowseDetailListing(null)}
+                          className={
+                            isL2
+                              ? "flex-1 py-2.5 rounded-md border border-[#5c4a32]/55 text-[11px] text-[#a89878] hover:bg-black/25"
+                              : "flex-1 py-2.5 rounded-md border border-black/50 text-[11px] text-gray-400"
+                          }
+                        >
+                          Закрити
+                        </button>
+                        <button
+                          type="button"
+                          disabled={browseBuyBusy || qty < 1}
+                          onClick={() => void onConfirmBrowseBuy()}
+                          className={
+                            isL2
+                              ? "flex-1 py-2.5 rounded-md bg-black/35 border border-[#c7ad80]/40 text-[#e8c56e] text-[11px] font-semibold hover:brightness-110 disabled:opacity-50"
+                              : "flex-1 py-2.5 rounded-md bg-amber-900/40 border border-amber-700/50 text-[#f4e2b8] text-[11px] disabled:opacity-50"
+                          }
+                        >
+                          {browseBuyBusy ? "…" : "Купити"}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

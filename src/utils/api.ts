@@ -356,11 +356,16 @@ export async function createMarketListingApi(
 
 export async function buyMarketListingApi(
   listingId: string,
-  buyerCharacterId: string
+  buyerCharacterId: string,
+  quantity?: number
 ): Promise<{ ok: boolean; buyer: Character; seller: Character }> {
+  const body: { buyerCharacterId: string; quantity?: number } = { buyerCharacterId };
+  if (quantity != null && Number.isFinite(quantity) && quantity >= 1) {
+    body.quantity = Math.floor(quantity);
+  }
   return apiRequest(`/market/listings/${encodeURIComponent(listingId)}/buy`, {
     method: "POST",
-    body: JSON.stringify({ buyerCharacterId }),
+    body: JSON.stringify(body),
   });
 }
 
