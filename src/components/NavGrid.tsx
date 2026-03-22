@@ -220,7 +220,7 @@ function NavIconButton({ btn, variant = "dock" }: { btn: NavButton; variant?: "d
         <img
           src={encodeURI(btn.icon)}
           alt={btn.label}
-          className="w-8 h-8 object-contain"
+          className="w-8 h-8 object-contain rounded-lg"
           style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
           width={32}
           height={32}
@@ -293,14 +293,17 @@ export function NavScrollTopRow() {
   );
 }
 
-/** Нижня fixed-панель — як раніше: на всю ширину, justify-between, flex-1 на кнопках. */
+/** Нижня панель: fixed до viewport (див. .page-bg > * — перебиваємо через !fixed). */
 export default function NavGridBottomFixed() {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-1.5 sm:px-2 md:px-3 pointer-events-none">
-      <div className="w-full max-w-full min-w-0 rounded-lg border border-[#c7ad80] bg-[#0b0806f0] px-1 py-[2px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto">
+    <div
+      className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] px-1.5 sm:px-2 md:px-3 pointer-events-none"
+      data-nav-bottom-dock
+    >
+      <div className="w-full max-w-full min-w-0 rounded-t-2xl rounded-b-lg border border-[#c7ad80] bg-[#0b0806f0] px-1.5 py-1.5 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto overflow-hidden">
         <div className="px-0 py-0 overflow-x-hidden">
           <div className="w-full flex flex-row flex-nowrap items-center justify-between gap-[0.15rem] text-[11px] text-[#d8c598]">
             {bottomRowButtons.map((btn) => (

@@ -221,8 +221,8 @@ button {
   z-index: 0;
 }
 
-/* Контент поверх оверлею */
-.page-bg > * {
+/* Контент поверх оверлею (нижній nav — fixed до viewport, data-nav-bottom-dock) */
+.page-bg > *:not([data-nav-bottom-dock]) {
   position: relative;
   z-index: 1;
 }
