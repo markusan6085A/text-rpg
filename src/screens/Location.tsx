@@ -17,7 +17,6 @@ import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 import { getGameSettings } from "../state/gameSettings";
-import { AGGRESSIVE_PATROL_SAFE_PAGES } from "../data/world/augmentPatrolMobs";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
@@ -74,29 +73,35 @@ function findZoneById(zoneId: string): { zone: Zone; city: City } | undefined {
 
 type PatrolTickCtx = { zone: Zone; start: number; visible: Mob[]; currentPage: number };
 
-/** Магічний урон патрулем на екрані локації (з 4-ї сторінки пагінації) */
-function runAggressivePatrolMagicTick(ctx: PatrolTickCtx) {
-  const h = useHeroStore.getState().hero;
-  if (!h?.name || (h.hp ?? 0) <= 0) return;
-  const lines: string[] = [];
-  let total = 0;
-  ctx.visible.forEach((mob, i) => {
-    if (!mob.aggressivePatrol) return;
+type PatrolAggroBanner = { mobIndex: number; mobName: string; damage: number };
+
+/** Перший видимий агро-патруль (не на респавні). */
+function findFirstAggroPatrolMob(ctx: PatrolTickCtx, heroName: string | undefined): { mob: Mob; globalIndex: number } | null {
+  if (!heroName) return null;
+  for (let i = 0; i < ctx.visible.length; i++) {
+    const mob = ctx.visible[i]!;
+    if (!mob.aggressivePatrol) continue;
     const gi = ctx.start + i;
-    if (isMobOnRespawn(ctx.zone.id, gi, h.name)) return;
-    if (Math.random() > 0.4) return;
-    const mAtk = mob.mAtk ?? Math.round((mob.level ?? 1) * 10);
-    const raw = Math.max(4, mAtk * 0.42) * (0.88 + Math.random() * 0.24);
-    const mDef = h.battleStats?.mDef ?? Math.round((h.level ?? 1) * 8);
-    const dmg = Math.max(1, Math.round(raw * (100 / (100 + mDef))));
-    total += dmg;
-    lines.push(`${mob.name} (−${dmg})`);
-  });
-  if (total <= 0) return;
-  useHeroStore.getState().updateHero({ hp: Math.max(0, (h.hp ?? 0) - total) });
-  const lang = getGameSettings().language;
-  const prefix = lang === "uk" ? "Патруль (магія): " : "Патруль (магия): ";
-  showToast(prefix + lines.slice(0, 2).join(", ") + (lines.length > 2 ? "…" : ""), "info");
+    if (isMobOnRespawn(ctx.zone.id, gi, heroName)) continue;
+    return { mob, globalIndex: gi };
+  }
+  return null;
+}
+
+/** Фіз. урон раз на 3 с — 100% влучання, один моб (перший агро у списку). */
+function runAggressivePatrolHit(ctx: PatrolTickCtx): PatrolAggroBanner | null {
+  const h = useHeroStore.getState().hero;
+  if (!h?.name || (h.hp ?? 0) <= 0) return null;
+  const picked = findFirstAggroPatrolMob(ctx, h.name);
+  if (!picked) return null;
+  const { mob, globalIndex } = picked;
+  const pAtk = mob.pAtk ?? Math.round((mob.level ?? 1) * 12);
+  const raw = Math.max(4, pAtk * 0.45) * (0.9 + Math.random() * 0.2);
+  const pDef = h.battleStats?.pDef ?? Math.round((h.level ?? 1) * 10);
+  const dmg = Math.max(1, Math.round(raw * (100 / (100 + pDef))));
+  const nextHp = Math.max(0, (h.hp ?? 0) - dmg);
+  useHeroStore.getState().updateHero({ hp: nextHp });
+  return { mobIndex: globalIndex, mobName: mob.name, damage: dmg };
 }
 
 export default function LocationScreen({ navigate }: { navigate: Navigate }) {
@@ -123,6 +128,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const [selectedDropItem, setSelectedDropItem] = React.useState<string | null>(null);
   const [now, setNow] = React.useState(Date.now());
   const [zonePlayers, setZonePlayers] = React.useState<OnlinePlayer[]>([]);
+  const [patrolAggroBanner, setPatrolAggroBanner] = React.useState<PatrolAggroBanner | null>(null);
 
   const patrolCtx = React.useMemo((): PatrolTickCtx | null => {
     if (!zoneId) return null;
@@ -139,27 +145,31 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const patrolCtxRef = React.useRef(patrolCtx);
   patrolCtxRef.current = patrolCtx;
 
+  /** Агро-патруль на поточній сторінці: раз на 3 с, 100% удар (перший моб у списку).
+   *  Не залежимо від hero.hp у deps — інакше банер скидався після кожного удару. */
   React.useEffect(() => {
-    if (!patrolCtx || !hero?.name || (hero.hp ?? 0) <= 0) return;
-    if (patrolCtx.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
-    const id = window.setInterval(() => {
+    setPatrolAggroBanner(null);
+    if (!patrolCtx || !hero?.name) return;
+    if ((hero.hp ?? 0) <= 0) return;
+    if (!findFirstAggroPatrolMob(patrolCtx, hero.name)) return;
+    const tick = () => {
       const c = patrolCtxRef.current;
-      if (!c || c.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
-      runAggressivePatrolMagicTick(c);
-    }, 11000);
+      if (!c) return;
+      const h = useHeroStore.getState().hero;
+      if (!h?.name || (h.hp ?? 0) <= 0) {
+        setPatrolAggroBanner(null);
+        return;
+      }
+      if (!findFirstAggroPatrolMob(c, h.name)) {
+        setPatrolAggroBanner(null);
+        return;
+      }
+      const msg = runAggressivePatrolHit(c);
+      if (msg) setPatrolAggroBanner(msg);
+    };
+    const id = window.setInterval(tick, 3000);
     return () => clearInterval(id);
-  }, [patrolCtx, hero?.name, hero?.hp]);
-
-  React.useEffect(() => {
-    if (!patrolCtx || !hero?.name || (hero.hp ?? 0) <= 0) return;
-    if (patrolCtx.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
-    const t = window.setTimeout(() => {
-      const c = patrolCtxRef.current;
-      if (!c || c.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
-      runAggressivePatrolMagicTick(c);
-    }, 700);
-    return () => clearTimeout(t);
-  }, [patrolCtx?.zone.id, patrolCtx?.currentPage, hero?.name, hero?.hp]);
+  }, [patrolCtx, hero?.name]);
 
   // Оновлюємо час кожну секунду для відображення таймера респавну
   React.useEffect(() => {
@@ -365,6 +375,23 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             <span>{zone.name}</span>
           </div>
         )}
+
+        {patrolAggroBanner ? (
+          <button
+            type="button"
+            role="alert"
+            onClick={() => openBattle(patrolAggroBanner.mobIndex)}
+            className={
+              isL2
+                ? "mb-2 w-full text-left rounded-lg border border-rose-900/55 bg-gradient-to-b from-[#3d1515]/90 to-[#1a0a0a]/90 px-3 py-2.5 text-[12px] leading-snug text-[#f0c8c8] shadow-[0_0_12px_rgba(180,40,40,0.15)] hover:border-[#c7ad80]/45 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] cursor-pointer"
+                : "mb-2 w-full text-left rounded-md border border-rose-800/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-100 hover:bg-rose-900/50 cursor-pointer"
+            }
+          >
+            {getGameSettings().language === "uk"
+              ? `Вас атакує ${patrolAggroBanner.mobName} і завдає ${patrolAggroBanner.damage} урону. Натисніть, щоб увійти в бій.`
+              : `Вас атакует ${patrolAggroBanner.mobName} и наносит ${patrolAggroBanner.damage} урона. Нажмите, чтобы войти в бой.`}
+          </button>
+        ) : null}
 
         <div className={isL2 ? "space-y-0 mb-1" : "space-y-0"}>
           {visibleMobs.length === 0 && (
