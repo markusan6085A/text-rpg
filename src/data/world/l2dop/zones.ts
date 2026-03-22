@@ -26,6 +26,7 @@ import { buildL2DopRuneZones } from "./runeZones";
 import { buildL2DopDionZones } from "./dionZones";
 import { buildL2DopFloranVillageZones } from "./floranVillageZones";
 import { buildL2DopHeineZones } from "./heineZones";
+import { buildL2DopGludinVillageZones } from "./gludinVillageZones";
 
 function buildGludioZoneMobs(z: { id: string; min: number; max: number }) {
   const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
@@ -138,5 +139,6 @@ export const L2DOP_ZONES: Zone[] = [
   ...buildL2DopDionZones(),
   ...buildL2DopFloranVillageZones(),
   ...buildL2DopHeineZones(),
+  ...buildL2DopGludinVillageZones(),
   ...buildL2DopGoddardEliteZones(),
 ];

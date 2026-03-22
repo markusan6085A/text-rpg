@@ -11,6 +11,7 @@ import { L2DOP_RUNE_POOL } from "./runeMobs.generated";
 import { L2DOP_DION_POOL } from "./dionMobs.generated";
 import { L2DOP_FLORAN_VILLAGE_POOL } from "./floranVillageMobs.generated";
 import { L2DOP_HEINE_POOL } from "./heineMobs.generated";
+import { L2DOP_GLUDIN_VILLAGE_POOL } from "./gludinVillageMobs.generated";
 
 export {
   L2DOP_GODDARD_POOL,
@@ -19,6 +20,7 @@ export {
   L2DOP_DION_POOL,
   L2DOP_FLORAN_VILLAGE_POOL,
   L2DOP_HEINE_POOL,
+  L2DOP_GLUDIN_VILLAGE_POOL,
 };
 
 function drop(
@@ -1373,3 +1375,81 @@ export function getHeineRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_HEINE_RAID_BOSSES: RaidBoss[] = HEINE_RB_BASE;
+
+/* ==================== GLUDIN VILLAGE — XML pool levels 3–22 ==================== */
+
+const GLUDIN_CHAMP_SUFFIXES = ["I", "II"];
+
+/** 2 чемпіони на зону */
+export function getGludinVillageL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_GLUDIN_VILLAGE_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length === 0) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Landing Warden",
+    "02": "Dockside Stalker",
+    "03": "Scrub Reaver",
+    "04": "Path Horror",
+    "05": "Watchtower Tyrant",
+    "06": "Gullrock King",
+    "07": "Saltflat Champion",
+    "08": "Cliffbreaker",
+    "09": "Outlook Overlord",
+  };
+  const zoneNum = zoneId.replace("gludin_village_", "");
+  const baseName = names[zoneNum] ?? "Gludin Elite";
+  const result: Mob[] = [];
+  for (let i = 0; i < 2; i++) {
+    const base = shuffled[i % shuffled.length]!;
+    const suf = GLUDIN_CHAMP_SUFFIXES[i] ?? String(i + 1);
+    result.push(makeChampion(base, `${baseName} ${suf}`, `gv${i}`));
+  }
+  return result;
+}
+
+function gludinRbDrops(_i: number): DropEntry[] {
+  return [];
+}
+
+const GLUDIN_VILLAGE_RB_BASE: RaidBoss[] = [
+  { id: "rb_gludin_village_01", name: "Raid Boss: Ferry Specter", level: 6, hp: 16000, mp: 0, pAtk: 95, mAtk: 0, pDef: 78, mDef: 55, exp: 4200, sp: 280, adenaMin: 650, adenaMax: 1200, dropChance: 1, drops: gludinRbDrops(0), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_01" },
+  { id: "rb_gludin_village_02", name: "Raid Boss: Warehouse Golem", level: 8, hp: 20000, mp: 0, pAtk: 112, mAtk: 55, pDef: 88, mDef: 62, exp: 5600, sp: 340, adenaMin: 820, adenaMax: 1500, dropChance: 1, drops: gludinRbDrops(1), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_02" },
+  { id: "rb_gludin_village_03", name: "Raid Boss: Coastal Howler", level: 10, hp: 26000, mp: 0, pAtk: 130, mAtk: 0, pDef: 98, mDef: 70, exp: 7200, sp: 410, adenaMin: 1000, adenaMax: 1850, dropChance: 1, drops: gludinRbDrops(2), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_03" },
+  { id: "rb_gludin_village_04", name: "Raid Boss: Gale Path Terror", level: 12, hp: 32000, mp: 0, pAtk: 148, mAtk: 72, pDef: 108, mDef: 78, exp: 9000, sp: 490, adenaMin: 1200, adenaMax: 2200, dropChance: 1, drops: gludinRbDrops(3), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_04" },
+  { id: "rb_gludin_village_05", name: "Raid Boss: Tower Ruin Lord", level: 14, hp: 40000, mp: 0, pAtk: 168, mAtk: 0, pDef: 120, mDef: 88, exp: 11200, sp: 580, adenaMin: 1450, adenaMax: 2650, dropChance: 1, drops: gludinRbDrops(4), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_05" },
+  { id: "rb_gludin_village_06", name: "Raid Boss: Seabird King", level: 16, hp: 50000, mp: 0, pAtk: 188, mAtk: 88, pDef: 132, mDef: 96, exp: 13800, sp: 680, adenaMin: 1750, adenaMax: 3150, dropChance: 1, drops: gludinRbDrops(5), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_06" },
+  { id: "rb_gludin_village_07", name: "Raid Boss: Saltmarsh Colossus", level: 18, hp: 62000, mp: 0, pAtk: 210, mAtk: 0, pDef: 145, mDef: 105, exp: 16800, sp: 790, adenaMin: 2100, adenaMax: 3750, dropChance: 1, drops: gludinRbDrops(6), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_07" },
+  { id: "rb_gludin_village_08", name: "Raid Boss: Cliffside Behemoth", level: 20, hp: 76000, mp: 0, pAtk: 235, mAtk: 105, pDef: 160, mDef: 118, exp: 20200, sp: 920, adenaMin: 2500, adenaMax: 4400, dropChance: 1, drops: gludinRbDrops(7), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_08" },
+  { id: "rb_gludin_village_09", name: "Raid Boss: Highland Crown", level: 22, hp: 92000, mp: 0, pAtk: 262, mAtk: 0, pDef: 178, mDef: 130, exp: 24200, sp: 1060, adenaMin: 3000, adenaMax: 5200, dropChance: 1, drops: gludinRbDrops(8), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "gludin_village_09" },
+];
+
+const GLUDIN_VILLAGE_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Tide Wraith", "Pier Reaper", "Ropebreaker"],
+  "02": ["Crane Horror", "Crate Devourer", "Dock Rat King"],
+  "03": ["Briar Fiend", "Dune Stalker", "Coast Howler"],
+  "04": ["Windscourge", "Dust Devil", "Path Revenant"],
+  "05": ["Belltower Shade", "Rampart Beast", "Sentry Terror"],
+  "06": ["Aerie Lord", "Rockfeather", "Shriek Matriarch"],
+  "07": ["Mire Titan", "Brinefang", "Flatland Horror"],
+  "08": ["Crag Reaper", "Loosestone", "Gulch King"],
+  "09": ["Skyline Fiend", "Beacon Wraith", "Border Colossus"],
+};
+
+/** 2–3 РБ на зону */
+export function getGludinVillageRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = GLUDIN_VILLAGE_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("gludin_village_", "");
+  const extraNames = GLUDIN_VILLAGE_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 2 + Math.floor(rand() * 2);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_GLUDIN_VILLAGE_RAID_BOSSES: RaidBoss[] = GLUDIN_VILLAGE_RB_BASE;

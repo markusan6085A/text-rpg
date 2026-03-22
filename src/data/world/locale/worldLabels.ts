@@ -2,6 +2,7 @@
 
 export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
   floran_village: { uk: "Флоран — селище", ru: "Флоран — деревня" },
+  gludin_village: { uk: "Глудін — селище", ru: "Глудин — деревня" },
   l2dop_gludio: { uk: "Глудіо", ru: "Глудио" },
   l2dop_giran: { uk: "Гіран", ru: "Гиран" },
   l2dop_heine: { uk: "Гейне (Heine)", ru: "Гейн (Heine)" },
@@ -14,6 +15,16 @@ export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
 };
 
 export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
+  gludin_village_01: { uk: "Глудін — Паромна пристань", ru: "Глудин — Паромная пристань" },
+  gludin_village_02: { uk: "Глудін — Склади біля причалу", ru: "Глудин — Склады у причала" },
+  gludin_village_03: { uk: "Глудін — Прибережні зарості", ru: "Глудин — Прибрежные заросли" },
+  gludin_village_04: { uk: "Глудін — Вітряна стежка", ru: "Глудин — Ветреная тропа" },
+  gludin_village_05: { uk: "Глудін — Пагорб старої варти", ru: "Глудин — Холм старой сторожки" },
+  gludin_village_06: { uk: "Глудін — Скелі чайок", ru: "Глудин — Скалы чаек" },
+  gludin_village_07: { uk: "Глудін — Солончакові низини", ru: "Глудин — Солончаковые низины" },
+  gludin_village_08: { uk: "Глудін — Стежка вздовж кручі", ru: "Глудин — Тропа вдоль утёса" },
+  gludin_village_09: { uk: "Глудін — Високий оглядовий майдан", ru: "Глудин — Высокая смотровая площадка" },
+
   floran_village_01: { uk: "Флоран — Луги біля селища", ru: "Флоран — Луга у деревни" },
   floran_village_02: { uk: "Флоран — Звивина річки", ru: "Флоран — Излучина реки" },
   floran_village_03: { uk: "Флоран — Дикий сад", ru: "Флоран — Дикий сад" },
