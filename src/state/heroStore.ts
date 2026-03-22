@@ -32,6 +32,8 @@ export interface ServerState {
   exp: number;
   level: number;
   sp: number; // 🔥 Додано SP для синхронізації
+  /** Остання відома адена з БД (GET/realtime) — для мерджу після 409 / продажу на ринку */
+  adena?: number;
   coinLuck?: number; // coinLuck з сервера; не надсилаємо PUT якщо локальне < серверного (покупка преміуму)
   heroRevision?: number;
   updatedAt: number; // Timestamp останнього оновлення
@@ -450,6 +452,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         exp: server.exp ?? current?.exp ?? 0,
         level: server.level ?? current?.level ?? 1,
         sp: server.sp ?? current?.sp ?? 0,
+        adena: (server as any).adena !== undefined ? Number((server as any).adena) : current?.adena,
         coinLuck: (server as any).coinLuck ?? current?.coinLuck,
         heroRevision: server.heroRevision ?? current?.heroRevision,
         updatedAt: server.updatedAt ?? current?.updatedAt ?? Date.now(),
@@ -469,6 +472,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         exp: state.exp ?? current?.exp ?? 0,
         level: state.level ?? current?.level ?? 1,
         sp: state.sp ?? current?.sp ?? 0,
+        adena: state.adena !== undefined ? Number(state.adena) : current?.adena,
         coinLuck: state.coinLuck ?? current?.coinLuck,
         heroRevision: state.heroRevision ?? current?.heroRevision,
         updatedAt: state.updatedAt ?? current?.updatedAt ?? Date.now(),

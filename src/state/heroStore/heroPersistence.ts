@@ -281,6 +281,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             exp: prog.exp,
             level: prog.level,
             sp: prog.sp,
+            adena: Number((freshChar as any).adena ?? 0),
             coinLuck: Number((freshChar as any).coinLuck ?? 0),
             heroRevision: hj.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? 0,
             updatedAt: Date.now(),
@@ -613,9 +614,26 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const serverCoinsSilver = Number((updatedCharacter as any).coinsSilver ?? 0);
         const serverAdena = Number((updatedCharacter as any).adena ?? 0);
         const clampedAdena = Math.max(Number(currentHero.adena ?? 0), serverAdena);
+        const clampedCoinLuck = Math.max(Number(currentHero.coinOfLuck ?? 0), serverCoinLuck);
         useHeroStore.getState().applyServerSync(
-          { heroRevision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, coins_silver: serverCoinsSilver, adena: clampedAdena } as any,
-          { exp: serverExp, level: clampedLevel, sp: serverSp, coinLuck: serverCoinLuck, heroRevision: newRevision, updatedAt: Date.now() }
+          {
+            heroRevision: newRevision,
+            exp: clampedExp,
+            sp: clampedSp,
+            level: clampedLevel,
+            coins_silver: serverCoinsSilver,
+            adena: clampedAdena,
+            coinOfLuck: clampedCoinLuck,
+          } as any,
+          {
+            exp: serverExp,
+            level: clampedLevel,
+            sp: serverSp,
+            adena: serverAdena,
+            coinLuck: serverCoinLuck,
+            heroRevision: newRevision,
+            updatedAt: Date.now(),
+          }
         );
         console.log('[saveHeroToLocalStorage] Applied server sync (no persistence chain):', { revision: newRevision, exp: clampedExp, sp: clampedSp, level: clampedLevel, serverLevel });
       }
@@ -833,11 +851,24 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               const mergedLevel = Math.max(heroBase.level ?? 1, serverLevel);
               const mergedSp = Math.max(heroBase.sp ?? 0, serverSp);
 
+              // 🔥 КРИТИЧНО: після купівлі лоту на ринку сервер уже нарахував адену/CoL, а локальний store ще старий.
+              // Без max() retry PUT перезапише БД старою сумою — «продав, а грошей немає».
+              const serverAdena = Number((currentCharacter as any).adena ?? 0);
+              const localAdena = Number(heroBase.adena ?? (heroBase as any).heroJson?.adena ?? 0);
+              const mergedAdena = Math.max(localAdena, serverAdena);
+              const serverCol = Number((currentCharacter as any).coinLuck ?? 0);
+              const localCol = Number(
+                (heroBase as any).coinOfLuck ?? (heroBase as any).heroJson?.coinOfLuck ?? 0
+              );
+              const mergedCoinLuck = Math.max(localCol, serverCol);
+
               const mergedHero = {
                 ...heroBase,
                 exp: mergedExp,
                 level: mergedLevel,
                 sp: mergedSp,
+                adena: mergedAdena,
+                coinOfLuck: mergedCoinLuck,
                 mobsKilled: mergedMobsKilled as any,
                 skills: mergedSkills,
                 heroRevision: newRevision,
@@ -848,6 +879,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
                   mobsKilled: mergedMobsKilled,
                   skills: mergedSkills,
                   heroBuffs: cleanedBuffs,
+                  adena: mergedAdena,
+                  coinOfLuck: mergedCoinLuck,
                 },
               };
 
@@ -856,6 +889,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
                 exp: mergedExp,
                 level: mergedLevel,
                 sp: serverSp,
+                adena: mergedAdena,
+                coinLuck: mergedCoinLuck,
                 heroRevision: newRevision,
                 updatedAt: Date.now(),
               });

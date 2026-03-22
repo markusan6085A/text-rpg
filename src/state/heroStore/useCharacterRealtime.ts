@@ -40,6 +40,7 @@ export function useCharacterRealtime() {
             exp,
             level,
             sp,
+            adena: Number(newRow.adena ?? 0),
             coinLuck: Number(newRow.coinLuck ?? 0),
             heroRevision,
             updatedAt: Date.now(),

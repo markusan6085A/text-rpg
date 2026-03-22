@@ -305,6 +305,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           exp: finalExp,
           level: finalLevel,
           sp: finalSp,
+          adena: Number((character as any).adena ?? mergedHero.adena ?? 0),
+          coinLuck: Number((character as any).coinLuck ?? mergedHero.coinOfLuck ?? 0),
         });
         // 🔥 Не спамимо PUT при протухлій сесії — saveHeroToLocalStorage перевірить sessionExpired, але unique skip тут уникає зайвого import
         if (!useAuthStore.getState().sessionExpired) {
@@ -796,6 +798,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         exp: prog.exp,
         level: prog.level,
         sp: Math.max(prog.sp, heroSpAfterLoad),
+        adena: Number(char?.adena ?? hydratedHero.adena ?? 0),
         coinLuck: char?.coinLuck ?? hydratedHero.coinOfLuck ?? 0,
         heroRevision: (hydratedHero as any).heroRevision,
         updatedAt: Date.now(),
