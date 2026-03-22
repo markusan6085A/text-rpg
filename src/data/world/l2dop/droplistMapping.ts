@@ -27,16 +27,21 @@ export const DROPLIST_ITEM_ID_TO_STRING: Record<number, string> = {
   1875: "stone_of_purity",
   1876: "mithril_ore",
   1877: "adamantite_nugget",
-
-  // Додаткові матеріали (якщо є в itemsDB)
+  1878: "braided_hemp",
+  1879: "cokes",
   1880: "steel",
   1881: "coarse_bone_powder",
   1882: "leather",
   1884: "cord",
   1885: "high_grade_suede",
+  1889: "compound_braid",
   1894: "crafted_leather",
+  1895: "metallic_fiber",
 
   // Високі ресурси (B-grade+)
+  5220: "metal_hardener",
+  5549: "metallic_thread",
+  5550: "durable_metal_plate",
   4039: "mold_glue",
   4040: "mold_lubricant",
   4041: "mold_hardener",
