@@ -6,8 +6,9 @@ import type { RaidBoss } from "../../bosses/floran_overlord";
 import type { DropEntry } from "../../combat/types";
 import { getMobPublicIconSrc } from "../../../utils/mobPublicIcon";
 import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
+import { L2DOP_SCHUTTGART_POOL } from "./schuttgartMobs.generated";
 
-export { L2DOP_GODDARD_POOL };
+export { L2DOP_GODDARD_POOL, L2DOP_SCHUTTGART_POOL };
 
 function drop(
   id: string,
@@ -967,3 +968,90 @@ export function getGoddardRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_GODDARD_RAID_BOSSES: RaidBoss[] = GODDARD_RB_BASE;
+
+/* ==================== SCHUTTGART (Gracia XML 22107–22227) — рівні 74–87 ==================== */
+
+const SCHUTTGART_CHAMP_SUFFIXES = [
+  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV",
+];
+
+/** 14 чемпіонів на зону (циклічно з пулу рівнів зони); суфікси id унікальні */
+export function getSchuttgartL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_SCHUTTGART_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length === 0) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Stakato Vanguard",
+    "02": "Frozen March Warden",
+    "03": "Spike Hollow Lord",
+    "04": "Cannibal Broodmaster",
+    "05": "Monastery Exile",
+    "06": "Solina Aspirant",
+    "07": "Temple Confessor",
+    "08": "Triol Intercessor",
+    "09": "Grail Crypt Keeper",
+    "10": "Primordial Hunt Leader",
+    "11": "Tyrant Ridge Overlord",
+  };
+  const zoneNum = zoneId.replace("l2dop_schuttgart_", "");
+  const baseName = names[zoneNum] ?? "Schuttgart Elite";
+  const result: Mob[] = [];
+  const CHAMP_COUNT = 14;
+  for (let i = 0; i < CHAMP_COUNT; i++) {
+    const base = shuffled[i % shuffled.length]!;
+    const suf = SCHUTTGART_CHAMP_SUFFIXES[i] ?? `#${i + 1}`;
+    result.push(makeChampion(base, `${baseName} ${suf}`, `sch${i}`));
+  }
+  return result;
+}
+
+function schuttgartRbDrops(_rbIndex: number): DropEntry[] {
+  return [];
+}
+
+const SCHUTTGART_RB_BASE: RaidBoss[] = [
+  { id: "rb_l2dop_schuttgart_01", name: "Lord of the Stakato Vanguard", level: 76, hp: 640000, mp: 0, pAtk: 3180, mAtk: 0, pDef: 980, mDef: 665, exp: 520000, sp: 30000, adenaMin: 300000, adenaMax: 460000, dropChance: 1, drops: schuttgartRbDrops(0), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_01" },
+  { id: "rb_l2dop_schuttgart_02", name: "Warden of the Ice March", level: 77, hp: 685000, mp: 0, pAtk: 3320, mAtk: 0, pDef: 1010, mDef: 685, exp: 555000, sp: 31800, adenaMin: 318000, adenaMax: 488000, dropChance: 1, drops: schuttgartRbDrops(1), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_02" },
+  { id: "rb_l2dop_schuttgart_03", name: "Spike Hollow Tyrant", level: 78, hp: 730000, mp: 0, pAtk: 3460, mAtk: 0, pDef: 1040, mDef: 705, exp: 590000, sp: 33600, adenaMin: 335000, adenaMax: 515000, dropChance: 1, drops: schuttgartRbDrops(2), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_03" },
+  { id: "rb_l2dop_schuttgart_04", name: "Broodmother of the Cannibals", level: 79, hp: 775000, mp: 0, pAtk: 3600, mAtk: 0, pDef: 1070, mDef: 725, exp: 625000, sp: 35400, adenaMin: 352000, adenaMax: 542000, dropChance: 1, drops: schuttgartRbDrops(3), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_04" },
+  { id: "rb_l2dop_schuttgart_05", name: "Fallen Pilgrim King", level: 80, hp: 820000, mp: 0, pAtk: 3740, mAtk: 1100, pDef: 1100, mDef: 780, exp: 660000, sp: 37200, adenaMin: 370000, adenaMax: 570000, dropChance: 1, drops: schuttgartRbDrops(4), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_05" },
+  { id: "rb_l2dop_schuttgart_06", name: "Archon of Solina's Gate", level: 81, hp: 865000, mp: 0, pAtk: 3880, mAtk: 0, pDef: 1130, mDef: 765, exp: 695000, sp: 39000, adenaMin: 388000, adenaMax: 598000, dropChance: 1, drops: schuttgartRbDrops(5), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_06" },
+  { id: "rb_l2dop_schuttgart_07", name: "High Confessor of Einhasad", level: 82, hp: 910000, mp: 0, pAtk: 4020, mAtk: 1250, pDef: 1160, mDef: 820, exp: 730000, sp: 40800, adenaMin: 405000, adenaMax: 625000, dropChance: 1, drops: schuttgartRbDrops(6), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_07" },
+  { id: "rb_l2dop_schuttgart_08", name: "Triol's Voice", level: 83, hp: 955000, mp: 0, pAtk: 4160, mAtk: 1300, pDef: 1190, mDef: 840, exp: 768000, sp: 42800, adenaMin: 425000, adenaMax: 655000, dropChance: 1, drops: schuttgartRbDrops(7), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_08" },
+  { id: "rb_l2dop_schuttgart_09", name: "Keeper of the False Grail", level: 84, hp: 1000000, mp: 0, pAtk: 4300, mAtk: 0, pDef: 1220, mDef: 825, exp: 805000, sp: 44800, adenaMin: 445000, adenaMax: 685000, dropChance: 1, drops: schuttgartRbDrops(8), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_09" },
+  { id: "rb_l2dop_schuttgart_10", name: "Alpha of the Ancient Herd", level: 85, hp: 1045000, mp: 0, pAtk: 4440, mAtk: 0, pDef: 1250, mDef: 845, exp: 845000, sp: 47000, adenaMin: 465000, adenaMax: 715000, dropChance: 1, drops: schuttgartRbDrops(9), isRaidBoss: true, respawnTime: 8 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_10" },
+  { id: "rb_l2dop_schuttgart_11", name: "Tyrant of Schuttgart Ridge", level: 87, hp: 1120000, mp: 0, pAtk: 4720, mAtk: 0, pDef: 1310, mDef: 885, exp: 920000, sp: 51000, adenaMin: 500000, adenaMax: 770000, dropChance: 1, drops: schuttgartRbDrops(10), isRaidBoss: true, respawnTime: 8 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_schuttgart_11" },
+];
+
+const SCHUTTGART_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Stakato Broodqueen", "Spike Warden", "Frozen Scout Alpha", "Vanguard Crusher", "Outer Perimeter Lord"],
+  "02": ["Blizzard Howler", "Icefang Patriarch", "March Overseer", "Frostline Tyrant", "Wasteland Crown"],
+  "03": ["Needleback Sovereign", "Hollow Stalker", "Spinefield Reaper", "Barbed Matriarch", "Rustfang King"],
+  "04": ["Gorefeast Patriarch", "Broodcaller", "Fleshrend Titan", "Cannibal Oracle", "Bloodline Tyrant"],
+  "05": ["Exiled Crusader", "Broken Oath Knight", "Penance Revenant", "Ashcloak Warden", "Fallen Bellkeeper"],
+  "06": ["Solina's Wrath", "Lay Brother Horror", "Silent Choir Master", "Monastery Revenant", "Candlelit Terror"],
+  "07": ["Temple Inquisitor", "Confessor Supreme", "Altar Warden", "Relic Devourer", "Sanctum Breaker"],
+  "08": ["Triol's Hand", "Offering Collector", "Ritual Archon", "Bell of Ruin", "False Prophet"],
+  "09": ["Grail Shade", "Crypt Sovereign", "Bone Reliquary", "Martyred King", "Seal Breaker"],
+  "10": ["Strider Prime", "Pachycephalos Crown", "Elroki Matriarch", "Herdfather", "Plain Devourer"],
+  "11": ["Pterosaur Alpha", "Rex of the Ridge", "Sky Tyrant", "Apex Predator", "Schuttgart Crown"],
+};
+
+/** 4–6 РБ на зону (рандомно за zoneId) */
+export function getSchuttgartRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = SCHUTTGART_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("l2dop_schuttgart_", "");
+  const extraNames = SCHUTTGART_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 4 + Math.floor(rand() * 3);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_SCHUTTGART_RAID_BOSSES: RaidBoss[] = SCHUTTGART_RB_BASE;

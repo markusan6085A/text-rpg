@@ -12,4 +12,5 @@ export const L2DOP_CITIES: City[] = [
   { id: "l2dop_aden", name: "Aden", tpCost: 48_000 },
   { id: "l2dop_oren", name: "Орен", tpCost: 51_000 },
   { id: "l2dop_goddard", name: "Годдарт", tpCost: 55_000 },
+  { id: "l2dop_schuttgart", name: "Town of Schuttgart", tpCost: 58_000 },
 ];

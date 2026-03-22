@@ -21,6 +21,7 @@ import {
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 import { buildL2DopGiranZones } from "./giranZones";
 import { buildL2DopGoddardEliteZones } from "./goddardEliteZones";
+import { buildL2DopSchuttgartZones } from "./schuttgartZones";
 
 function buildGludioZoneMobs(z: { id: string; min: number; max: number }) {
   const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
@@ -128,5 +129,6 @@ export const L2DOP_ZONES: Zone[] = [
     tpCost: z.tp,
     mobs: buildGoddardZoneMobs(z),
   })),
+  ...buildL2DopSchuttgartZones(),
   ...buildL2DopGoddardEliteZones(),
 ];

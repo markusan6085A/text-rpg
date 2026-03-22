@@ -222,7 +222,8 @@ const MOB_ICON_MAP: Record<string, string> = {
 const PREFIX_CHAMP = /^\[(?:Champion|Чемпион|Чемпіон)\]\s+/i;
 const PREFIX_RAID = /^Raid Boss:\s*/i;
 /** Суфікси імен чемпіонів (як у getGludioL2DopChampions / getAdenL2DopChampions) */
-const CHAMP_TAIL = /\s+(I{1,3}V?|IV|V|Громила|Тиран|Стража)$/i;
+const CHAMP_TAIL =
+  /\s+(XIV|XIII|XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I|I{1,3}V?|Громила|Тиран|Стража)$/i;
 
 function stripPrefixes(name: string): string {
   let s = name.trim();
@@ -263,7 +264,12 @@ function heuristicMobIcon(normalized: string): string | undefined {
   if (s.startsWith("Grazing")) return "10.png";
   if (s.includes("Ketra") || s.includes("Ketra's")) return "5.png";
   if (s.includes("Varka")) return "11.png";
-  if (/Monastic|Monastery|Solina|Silent |Warrior Monk/i.test(s)) return "16.png";
+  if (/Monastic|Monastery|Solina|Silent |Warrior Monk|Pilgrim of Light|Judge of Light/i.test(s))
+    return "16.png";
+  if (/Stakato|Cannibal/i.test(s)) return "22.png";
+  if (/Triol|Ritual|Grail|Confessor|Temple Guard/i.test(s)) return "317.png";
+  if (/Tyrannosaur|Pterosaur|Velociraptor|Deinonychus|Ornithomimus|Pachycephalosaurus|Elroki|Strider/i.test(s))
+    return "33.png";
   if (s.includes("Окраїнський Громила")) return "58.png";
   if (s.includes("Крумськ")) return "14.png";
   if (s.includes("Споров")) return "6.png";
