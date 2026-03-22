@@ -12,6 +12,7 @@ import { L2DOP_DION_POOL } from "./dionMobs.generated";
 import { L2DOP_FLORAN_VILLAGE_POOL } from "./floranVillageMobs.generated";
 import { L2DOP_HEINE_POOL } from "./heineMobs.generated";
 import { L2DOP_GLUDIN_VILLAGE_POOL } from "./gludinVillageMobs.generated";
+import { L2DOP_HUNTERS_VILLAGE_POOL } from "./huntersVillageMobs.generated";
 
 export {
   L2DOP_GODDARD_POOL,
@@ -21,6 +22,7 @@ export {
   L2DOP_FLORAN_VILLAGE_POOL,
   L2DOP_HEINE_POOL,
   L2DOP_GLUDIN_VILLAGE_POOL,
+  L2DOP_HUNTERS_VILLAGE_POOL,
 };
 
 function drop(
@@ -1453,3 +1455,87 @@ export function getGludinVillageRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_GLUDIN_VILLAGE_RAID_BOSSES: RaidBoss[] = GLUDIN_VILLAGE_RB_BASE;
+
+/* ==================== HUNTERS VILLAGE — XML pool levels 50–72 ==================== */
+
+const HUNTERS_CHAMP_SUFFIXES = ["I", "II"];
+
+/** 2 чемпіони на зону */
+export function getHuntersVillageL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_HUNTERS_VILLAGE_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length === 0) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => {
+    h = (h * 1664525 + 1013904223) | 0;
+    return (h >>> 0) / 0xffffffff;
+  };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Lodge Warden",
+    "02": "Trophy Stalker",
+    "03": "Trail Reaver",
+    "04": "Ridge King",
+    "05": "Copse Tyrant",
+    "06": "Plateau Horror",
+    "07": "Wyrm Warden",
+    "08": "Elder Patriarch",
+    "09": "Frontier Overlord",
+  };
+  const zoneNum = zoneId.replace("hunters_village_", "");
+  const baseName = names[zoneNum] ?? "Hunters Elite";
+  const result: Mob[] = [];
+  for (let i = 0; i < 2; i++) {
+    const base = shuffled[i % shuffled.length]!;
+    const suf = HUNTERS_CHAMP_SUFFIXES[i] ?? String(i + 1);
+    result.push(makeChampion(base, `${baseName} ${suf}`, `hv${i}`));
+  }
+  return result;
+}
+
+function huntersVillageRbDrops(_i: number): DropEntry[] {
+  return [];
+}
+
+const HUNTERS_VILLAGE_RB_BASE: RaidBoss[] = [
+  { id: "rb_hunters_village_01", name: "Raid Boss: Lodge Colossus", level: 54, hp: 305000, mp: 0, pAtk: 720, mAtk: 0, pDef: 500, mDef: 345, exp: 175000, sp: 9200, adenaMin: 72000, adenaMax: 112000, dropChance: 1, drops: huntersVillageRbDrops(0), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_01" },
+  { id: "rb_hunters_village_02", name: "Raid Boss: Trophy Pit Horror", level: 56, hp: 338000, mp: 0, pAtk: 768, mAtk: 420, pDef: 532, mDef: 368, exp: 195000, sp: 10200, adenaMin: 80000, adenaMax: 124000, dropChance: 1, drops: huntersVillageRbDrops(1), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_02" },
+  { id: "rb_hunters_village_03", name: "Raid Boss: East Trail Tyrant", level: 58, hp: 375000, mp: 0, pAtk: 818, mAtk: 0, pDef: 566, mDef: 392, exp: 218000, sp: 11300, adenaMin: 88000, adenaMax: 137000, dropChance: 1, drops: huntersVillageRbDrops(2), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_03" },
+  { id: "rb_hunters_village_04", name: "Raid Boss: Ridge Crown Beast", level: 60, hp: 416000, mp: 0, pAtk: 872, mAtk: 480, pDef: 602, mDef: 418, exp: 243000, sp: 12500, adenaMin: 97000, adenaMax: 151000, dropChance: 1, drops: huntersVillageRbDrops(3), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_04" },
+  { id: "rb_hunters_village_05", name: "Raid Boss: Bloodmark Ancient", level: 62, hp: 462000, mp: 0, pAtk: 930, mAtk: 0, pDef: 642, mDef: 446, exp: 270000, sp: 13800, adenaMin: 106000, adenaMax: 166000, dropChance: 1, drops: huntersVillageRbDrops(4), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_05" },
+  { id: "rb_hunters_village_06", name: "Raid Boss: Spearfall Behemoth", level: 64, hp: 512000, mp: 0, pAtk: 992, mAtk: 540, pDef: 684, mDef: 476, exp: 300000, sp: 15200, adenaMin: 116000, adenaMax: 182000, dropChance: 1, drops: huntersVillageRbDrops(5), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_06" },
+  { id: "rb_hunters_village_07", name: "Raid Boss: Wyrm Watch Sovereign", level: 66, hp: 568000, mp: 0, pAtk: 1058, mAtk: 0, pDef: 730, mDef: 508, exp: 332000, sp: 16800, adenaMin: 128000, adenaMax: 200000, dropChance: 1, drops: huntersVillageRbDrops(6), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_07" },
+  { id: "rb_hunters_village_08", name: "Raid Boss: Elder Hunt Matriarch", level: 69, hp: 640000, mp: 0, pAtk: 1142, mAtk: 620, pDef: 792, mDef: 552, exp: 378000, sp: 19000, adenaMin: 144000, adenaMax: 224000, dropChance: 1, drops: huntersVillageRbDrops(7), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_08" },
+  { id: "rb_hunters_village_09", name: "Raid Boss: Frontier Line Titan", level: 72, hp: 722000, mp: 0, pAtk: 1240, mAtk: 0, pDef: 862, mDef: 602, exp: 430000, sp: 21500, adenaMin: 162000, adenaMax: 252000, dropChance: 1, drops: huntersVillageRbDrops(8), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "hunters_village_09" },
+];
+
+const HUNTERS_VILLAGE_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Lodge Reaper", "Outskirts Wraith", "Hearth Horror"],
+  "02": ["Trophy Fiend", "Yard Stalker", "Rack Devourer"],
+  "03": ["Trailbreaker", "Game Path King", "Stalk Terror"],
+  "04": ["Ridge Revenant", "Highwalk Horror", "Crest Colossus"],
+  "05": ["Bloodwood Horror", "Mark Wraith", "Thicket Tyrant"],
+  "06": ["Spearfall King", "High Mesa Beast", "Plateau Crown"],
+  "07": ["Wyrm Herald", "Watchtower Fiend", "Scale Terror"],
+  "08": ["Elder Howler", "Master Hunt Horror", "Greybeard King"],
+  "09": ["Border Colossus", "Last Line Wraith", "Frontier Crown"],
+};
+
+/** 2–3 РБ на зону */
+export function getHuntersVillageRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = HUNTERS_VILLAGE_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => {
+    h = (h * 1664525 + 1013904223) | 0;
+    return (h >>> 0) / 0xffffffff;
+  };
+  const zoneNum = zoneId.replace("hunters_village_", "");
+  const extraNames = HUNTERS_VILLAGE_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 2 + Math.floor(rand() * 2);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_HUNTERS_VILLAGE_RAID_BOSSES: RaidBoss[] = HUNTERS_VILLAGE_RB_BASE;

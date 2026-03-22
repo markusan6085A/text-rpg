@@ -1,17 +1,18 @@
 /** Двомовні підписи для міст і зон (канонічні `name` у даних лишаються для API/збереження). */
 
 export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
-  floran_village: { uk: "Флоран — селище", ru: "Флоран — деревня" },
-  gludin_village: { uk: "Глудін — селище", ru: "Глудин — деревня" },
-  l2dop_gludio: { uk: "Глудіо", ru: "Глудио" },
-  l2dop_giran: { uk: "Гіран", ru: "Гиран" },
-  l2dop_heine: { uk: "Гейне (Heine)", ru: "Гейн (Heine)" },
-  l2dop_aden: { uk: "Аден", ru: "Аден" },
-  l2dop_oren: { uk: "Орен", ru: "Орен" },
-  l2dop_goddard: { uk: "Годдарт", ru: "Годдарт" },
-  l2dop_schuttgart: { uk: "Місто Штутгарт", ru: "Город Штутгарт" },
-  l2dop_rune: { uk: "Рун (Rune Township)", ru: "Рун (Rune Township)" },
-  l2dop_dion: { uk: "Діон (Town of Dion)", ru: "Дион (Town of Dion)" },
+  floran_village: { uk: "Floran Village", ru: "Floran Village" },
+  gludin_village: { uk: "Gludin Village", ru: "Gludin Village" },
+  hunters_village: { uk: "Hunters Village", ru: "Hunters Village" },
+  l2dop_gludio: { uk: "Town of Gludio", ru: "Town of Gludio" },
+  l2dop_giran: { uk: "Town of Giran", ru: "Town of Giran" },
+  l2dop_heine: { uk: "Heine", ru: "Heine" },
+  l2dop_aden: { uk: "Town of Aden", ru: "Town of Aden" },
+  l2dop_oren: { uk: "Town of Oren", ru: "Town of Oren" },
+  l2dop_goddard: { uk: "Town of Goddard", ru: "Town of Goddard" },
+  l2dop_schuttgart: { uk: "Town of Schuttgart", ru: "Town of Schuttgart" },
+  l2dop_rune: { uk: "Rune Township", ru: "Rune Township" },
+  l2dop_dion: { uk: "Town of Dion", ru: "Town of Dion" },
 };
 
 export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
@@ -24,6 +25,16 @@ export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
   gludin_village_07: { uk: "Глудін — Солончакові низини", ru: "Глудин — Солончаковые низины" },
   gludin_village_08: { uk: "Глудін — Стежка вздовж кручі", ru: "Глудин — Тропа вдоль утёса" },
   gludin_village_09: { uk: "Глудін — Високий оглядовий майдан", ru: "Глудин — Высокая смотровая площадка" },
+
+  hunters_village_01: { uk: "Hunters Village — околиці ложі", ru: "Hunters Village — окрестности ложи" },
+  hunters_village_02: { uk: "Hunters Village — двір трофеїв", ru: "Hunters Village — двор трофеев" },
+  hunters_village_03: { uk: "Hunters Village — стежка на схід", ru: "Hunters Village — тропа на восток" },
+  hunters_village_04: { uk: "Hunters Village — гребінь хребта", ru: "Hunters Village — гребень хребта" },
+  hunters_village_05: { uk: "Hunters Village — мітка крові", ru: "Hunters Village — кровавая метка" },
+  hunters_village_06: { uk: "Hunters Village — плато списів", ru: "Hunters Village — плато копий" },
+  hunters_village_07: { uk: "Hunters Village — варта змія", ru: "Hunters Village — стража змея" },
+  hunters_village_08: { uk: "Hunters Village — старе полювання", ru: "Hunters Village — старая охота" },
+  hunters_village_09: { uk: "Hunters Village — лінія рубежу", ru: "Hunters Village — линия рубежа" },
 
   floran_village_01: { uk: "Флоран — Луги біля селища", ru: "Флоран — Луга у деревни" },
   floran_village_02: { uk: "Флоран — Звивина річки", ru: "Флоран — Излучина реки" },
