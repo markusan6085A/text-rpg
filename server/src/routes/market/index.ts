@@ -4,6 +4,7 @@ import { prisma } from "../../db";
 import { getAuth } from "../character/auth";
 import { validateHeroJson, addVersioning } from "../../heroJsonValidator";
 import { rateLimiters, rateLimitMiddleware } from "../../rateLimiter";
+import { enqueuePlayerActivityLog, getClientIp } from "../../playerActivityLog";
 
 const LISTING_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_LISTINGS_PER_SELLER = 40;
@@ -425,7 +426,7 @@ export async function marketRoutes(app: FastifyInstance) {
           const versioned = addVersioning(nextHj, oldRevision);
 
           const expiresAt = new Date(Date.now() + LISTING_TTL_MS);
-          await tx.playerMarketListing.create({
+          const createdListing = await tx.playerMarketListing.create({
             data: {
               sellerCharacterId: characterId,
               sellerName: seller.name,
@@ -459,7 +460,18 @@ export async function marketRoutes(app: FastifyInstance) {
             },
           });
 
-          return { err: null, character: updated };
+          return {
+            err: null,
+            character: updated,
+            listMeta: {
+              listingId: createdListing.id,
+              listAmount,
+              currency,
+              price: price.toString(),
+              itemId: rowItemId(snapshot),
+              itemName: String((snapshot as any)?.name || ""),
+            },
+          };
         });
 
         if (result.err) {
@@ -468,6 +480,23 @@ export async function marketRoutes(app: FastifyInstance) {
           if ((result as any).errors) payload.errors = (result as any).errors;
           return reply.code(code === 404 ? 404 : 400).send(payload);
         }
+
+        const lm = (result as any).listMeta as {
+          listingId: string;
+          listAmount: number;
+          currency: string;
+          price: string;
+          itemId: string;
+          itemName: string;
+        };
+        enqueuePlayerActivityLog({
+          accountId: auth.accountId,
+          characterId,
+          characterName: result.character.name,
+          action: "market.list",
+          metadata: lm,
+          clientIp: getClientIp(req),
+        });
 
         return { ok: true, character: serializeCharacter(result.character) };
       } catch (e: any) {
@@ -683,7 +712,19 @@ export async function marketRoutes(app: FastifyInstance) {
             },
           });
 
-          return { err: null, buyer: buyerRow, seller: sellerRow };
+          return {
+            err: null,
+            buyer: buyerRow,
+            seller: sellerRow,
+            buyMeta: {
+              listingId,
+              qty,
+              pay: pay.toString(),
+              currency,
+              itemId: rowItemId(snap),
+              itemName: String((snap as any)?.name || ""),
+            },
+          };
         });
 
         if (out.err) {
@@ -693,6 +734,27 @@ export async function marketRoutes(app: FastifyInstance) {
           if ((out as any).errors) payload.errors = (out as any).errors;
           return reply.code(status).send(payload);
         }
+
+        const bm = (out as any).buyMeta as {
+          listingId: string;
+          qty: number;
+          pay: string;
+          currency: string;
+          itemId: string;
+          itemName: string;
+        };
+        enqueuePlayerActivityLog({
+          accountId: auth.accountId,
+          characterId: buyerCharacterId,
+          characterName: out.buyer.name,
+          action: "market.buy",
+          metadata: {
+            ...bm,
+            sellerId: out.seller.id,
+            sellerName: out.seller.name,
+          },
+          clientIp: getClientIp(req),
+        });
 
         return {
           ok: true,
@@ -773,6 +835,18 @@ export async function marketRoutes(app: FastifyInstance) {
         if (result.err) {
           const code = result.err === 403 ? 403 : 404;
           return reply.code(code).send({ error: result.msg });
+        }
+
+        const ch = result.character;
+        if (ch) {
+          enqueuePlayerActivityLog({
+            accountId: auth.accountId,
+            characterId,
+            characterName: ch.name,
+            action: "market.cancel",
+            metadata: { listingId },
+            clientIp: getClientIp(req),
+          });
         }
 
         return { ok: true, character: serializeCharacter(result.character) };

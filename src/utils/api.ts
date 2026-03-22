@@ -1679,6 +1679,78 @@ export interface AdminActionLogsResponse {
   limit: number;
 }
 
+export type PlayerActivityLogRow = {
+  id: string;
+  createdAt: string;
+  accountId: string;
+  characterId: string;
+  characterName: string;
+  action: string;
+  metadata: Record<string, unknown>;
+  clientIp: string | null;
+};
+
+export async function getPlayerActivityLogs(params?: {
+  characterId?: string;
+  characterName?: string;
+  action?: string;
+  from?: string;
+  to?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ ok: boolean; logs: PlayerActivityLogRow[]; total: number; page: number; limit: number }> {
+  const q = new URLSearchParams();
+  if (params?.characterId) q.set("characterId", params.characterId);
+  if (params?.characterName) q.set("characterName", params.characterName);
+  if (params?.action) q.set("action", params.action);
+  if (params?.from) q.set("from", params.from);
+  if (params?.to) q.set("to", params.to);
+  if (params?.page != null) q.set("page", String(params.page));
+  if (params?.limit != null) q.set("limit", String(params.limit));
+  const query = q.toString();
+  const res = await fetch(`${API_URL}/admin/activity${query ? `?${query}` : ""}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return data as { ok: boolean; logs: PlayerActivityLogRow[]; total: number; page: number; limit: number };
+}
+
+export async function getPlayerActivityRhythm(characterId: string, limit?: number): Promise<{
+  ok: boolean;
+  characterId: string;
+  syncEventsWithMobProgress: number;
+  summary: {
+    count: number;
+    minMs: number;
+    maxMs: number;
+    avgMs: number;
+    minLabel: string;
+    maxLabel: string;
+    avgLabel: string;
+  } | null;
+}> {
+  const q = new URLSearchParams();
+  q.set("characterId", characterId);
+  if (limit != null) q.set("limit", String(limit));
+  const res = await fetch(`${API_URL}/admin/activity/rhythm?${q.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return data as any;
+}
+
 export async function getAdminActionLogs(params?: {
   action?: string;
   adminLogin?: string;

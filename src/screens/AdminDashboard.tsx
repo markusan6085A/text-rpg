@@ -19,6 +19,7 @@ import { AdminSectionLetters } from "./admin/AdminSectionLetters";
 import { AdminSectionClans } from "./admin/AdminSectionClans";
 import { AdminSectionChangeClass } from "./admin/AdminSectionChangeClass";
 import { AdminSectionAuditLog } from "./admin/AdminSectionAuditLog";
+import { AdminSectionPlayerActivity } from "./admin/AdminSectionPlayerActivity";
 import { AdminSectionQuickSearch } from "./admin/AdminSectionQuickSearch";
 
 interface AdminDashboardProps {
@@ -31,6 +32,7 @@ type AdminCategoryId =
   | "character"
   | "moderation"
   | "community"
+  | "activity"
   | "audit";
 
 const CATEGORIES: { id: AdminCategoryId; label: string; hint?: string }[] = [
@@ -58,6 +60,11 @@ const CATEGORIES: { id: AdminCategoryId; label: string; hint?: string }[] = [
     id: "community",
     label: "Листи та клани",
     hint: "Пошта, листи, клани",
+  },
+  {
+    id: "activity",
+    label: "Активність гравців",
+    hint: "Синхрони, ринок, інтервали фарму",
   },
   { id: "audit", label: "Журнал", hint: "Аудит дій адміна" },
 ];
@@ -149,6 +156,8 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
             <AdminSectionClans navigate={navigate} />
           </>
         );
+      case "activity":
+        return <AdminSectionPlayerActivity />;
       case "audit":
         return <AdminSectionAuditLog />;
       default:

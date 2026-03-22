@@ -21,6 +21,7 @@ import { adminRoutes } from "./routes/admin";
 import { adminPlayersRoutes } from "./routes/adminPlayers";
 import { adminExtendedRoutes } from "./routes/adminExtended";
 import { adminLogsRoutes } from "./routes/adminLogs";
+import { adminPlayerActivityRoutes } from "./routes/adminPlayerActivity";
 import { premiumRoutes } from "./routes/premium";
 import { marketRoutes } from "./routes/market";
 import { runSevenSealsMailJob } from "./sevenSealsMail";
@@ -213,6 +214,7 @@ const start = async () => {
     await app.register(adminExtendedRoutes, { prefix: "/admin" });
     await app.register(adminPlayersRoutes, { prefix: "/admin/player" });
     await app.register(adminLogsRoutes, { prefix: "/admin/logs" });
+    await app.register(adminPlayerActivityRoutes, { prefix: "/admin/activity" });
 
     await app.register(characterRoutes);
     await app.register(marketRoutes);

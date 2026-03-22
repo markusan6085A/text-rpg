@@ -5,6 +5,11 @@ import { addNews } from "../../../news";
 import { validateHeroJson, addVersioning, checkRevision } from "../../../heroJsonValidator";
 import { safeJsonStringify } from "../../../utils/sanitizeBigInt";
 import { rateLimiters, rateLimitMiddleware } from "../../../rateLimiter";
+import {
+  buildCharacterSyncMetadata,
+  enqueuePlayerActivityLog,
+  getClientIp,
+} from "../../../playerActivityLog";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
@@ -162,6 +167,21 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       };
 
       app.log.info({ accountId: auth.accountId, characterId: id, invLen: inventory?.length ?? 0 }, "[PUT /characters/:id/inventory] Inventory updated");
+
+      enqueuePlayerActivityLog({
+        accountId: auth.accountId,
+        characterId: id,
+        characterName: existing.name,
+        action: "inventory.update",
+        metadata: {
+          inventoryLen: inventory !== undefined ? inventory.length : undefined,
+          overflowLen: overflowChest !== undefined ? overflowChest.length : undefined,
+          prevInvLen: Array.isArray(oldHeroJson.inventory) ? oldHeroJson.inventory.length : 0,
+          prevOverflowLen: Array.isArray(oldHeroJson.overflowChest) ? oldHeroJson.overflowChest.length : 0,
+        },
+        clientIp: getClientIp(req),
+      });
+
       return { ok: true, character: serialized };
     } catch (e: any) {
       app.log.error(e, `[PUT /characters/:id/inventory] Error for character ${id}`);
@@ -269,6 +289,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     });
 
     if (!existing) return reply.code(404).send({ error: "character not found" });
+
+    const heroJsonSnapshotForLog = JSON.parse(JSON.stringify(existing.heroJson || {})) as Record<
+      string,
+      unknown
+    >;
 
     if (body.level !== undefined) {
       if (typeof body.level !== 'number' || body.level < 1 || body.level > 80) {
@@ -643,6 +668,29 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       coinLuck: Number((updated as any).coinLuck ?? 0),
       coinsSilver: Number((updated as any).coinsSilver ?? 0),
     };
+
+    if (updateData.heroJson && updated) {
+      const newHj = (updated.heroJson || {}) as Record<string, unknown>;
+      const rowSnap = (c: typeof updated) => ({
+        level: Number(c.level ?? 1),
+        exp: BigInt((c as any).exp ?? 0),
+        adena: BigInt((c as any).adena ?? 0),
+        sp: Number((c as any).sp ?? 0),
+        coinLuck: BigInt((c as any).coinLuck ?? 0),
+        coinsSilver: BigInt((c as any).coinsSilver ?? 0),
+      });
+      const meta = buildCharacterSyncMetadata(heroJsonSnapshotForLog, newHj, rowSnap(existing as any), rowSnap(updated));
+      if (meta) {
+        enqueuePlayerActivityLog({
+          accountId: auth.accountId,
+          characterId: id,
+          characterName: updated.name,
+          action: "character.sync",
+          metadata: meta,
+          clientIp: getClientIp(req),
+        });
+      }
+    }
 
     return { ok: true, character: serialized };
   });

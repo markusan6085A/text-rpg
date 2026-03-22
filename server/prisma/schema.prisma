@@ -399,3 +399,20 @@ model AdminActionLog {
   @@index([targetCharacterId, createdAt])
   @@index([status, createdAt])
 }
+
+/// Події гравця для адмін-аналітики (синхрон героя, інвентар, ринок)
+model PlayerActivityLog {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  accountId     String
+  characterId   String
+  characterName String
+  action        String
+  metadata      Json     @default("{}")
+  clientIp      String?
+
+  @@index([createdAt])
+  @@index([characterId, createdAt])
+  @@index([accountId, createdAt])
+  @@index([action, createdAt])
+}

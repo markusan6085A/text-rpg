@@ -1,0 +1,95 @@
+import type { FastifyRequest } from "fastify";
+import { prisma } from "./db";
+
+export function getClientIp(req?: FastifyRequest): string | undefined {
+  if (!req) return undefined;
+  const x = req.headers["x-forwarded-for"];
+  if (typeof x === "string") return x.split(",")[0]?.trim().slice(0, 64);
+  const ip = (req as { ip?: string }).ip;
+  return typeof ip === "string" ? ip.slice(0, 64) : undefined;
+}
+
+function numField(o: Record<string, unknown> | null | undefined, k: string): number {
+  const v = o?.[k];
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function invLen(hj: Record<string, unknown> | null | undefined): number {
+  const inv = hj?.inventory;
+  return Array.isArray(inv) ? inv.length : 0;
+}
+
+type RowSnap = {
+  level: number;
+  exp: bigint;
+  adena: bigint;
+  sp: number;
+  coinLuck?: bigint;
+  coinsSilver?: bigint;
+};
+
+/**
+ * Метадані для character.sync — лише якщо є «цікаві» дельти (прогрес/лут/інвентар).
+ */
+export function buildCharacterSyncMetadata(
+  oldHj: Record<string, unknown>,
+  newHj: Record<string, unknown>,
+  oldRow: RowSnap,
+  newRow: RowSnap
+): Record<string, unknown> | null {
+  const mkOld = numField(oldHj, "mobsKilled");
+  const mkNew = numField(newHj, "mobsKilled");
+  const meta: Record<string, unknown> = {
+    mobsKilledDelta: mkNew - mkOld,
+    mobsKilledTotal: mkNew,
+    adenaDelta: Number(newRow.adena) - Number(oldRow.adena),
+    expDelta: Number(newRow.exp) - Number(oldRow.exp),
+    levelDelta: newRow.level - oldRow.level,
+    spDelta: newRow.sp - oldRow.sp,
+    invDelta: invLen(newHj) - invLen(oldHj),
+    coinLuckDelta: Number(newRow.coinLuck ?? 0n) - Number(oldRow.coinLuck ?? 0n),
+    coinsSilverDelta: Number(newRow.coinsSilver ?? 0n) - Number(oldRow.coinsSilver ?? 0n),
+  };
+  const zoneId = newHj.battleZoneId ?? newHj.zoneId ?? newHj.currentZoneId;
+  if (zoneId != null && zoneId !== "") meta.zoneId = String(zoneId);
+
+  const interesting =
+    (meta.mobsKilledDelta as number) !== 0 ||
+    (meta.adenaDelta as number) !== 0 ||
+    (meta.expDelta as number) !== 0 ||
+    (meta.levelDelta as number) !== 0 ||
+    (meta.spDelta as number) !== 0 ||
+    (meta.invDelta as number) !== 0 ||
+    (meta.coinLuckDelta as number) !== 0 ||
+    (meta.coinsSilverDelta as number) !== 0;
+
+  return interesting ? meta : null;
+}
+
+export function enqueuePlayerActivityLog(entry: {
+  accountId: string;
+  characterId: string;
+  characterName: string;
+  action: string;
+  metadata?: Record<string, unknown>;
+  clientIp?: string;
+}): void {
+  const accountId = String(entry.accountId || "").trim();
+  const characterId = String(entry.characterId || "").trim();
+  if (!accountId || !characterId) return;
+
+  void prisma.playerActivityLog
+    .create({
+      data: {
+        accountId,
+        characterId,
+        characterName: String(entry.characterName || "").trim().slice(0, 120) || "?",
+        action: String(entry.action || "unknown").trim().slice(0, 120),
+        metadata: (entry.metadata || {}) as object,
+        clientIp: entry.clientIp?.trim().slice(0, 64) || null,
+      },
+    })
+    .catch((e) => console.error("[PlayerActivityLog] write failed", e));
+}
