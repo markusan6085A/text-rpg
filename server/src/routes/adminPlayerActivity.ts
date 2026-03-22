@@ -9,6 +9,33 @@ function parseDateOrNull(v: unknown): Date | null {
   return d;
 }
 
+async function resolveCharacterIdByName(name: string): Promise<string | null> {
+  const q = name.trim();
+  if (!q) return null;
+  const ch = await prisma.character.findFirst({
+    where: { name: { contains: q, mode: "insensitive" } },
+    orderBy: { lastActivityAt: "desc" },
+    select: { id: true },
+  });
+  return ch?.id ?? null;
+}
+
+/** Якщо рядок — не існуючий id, пробуємо знайти персонажа за ніком (частково). */
+async function resolveRhythmCharacterId(characterIdRaw: string, characterNameRaw: string): Promise<string | null> {
+  const idRaw = characterIdRaw.trim();
+  const nameRaw = characterNameRaw.trim();
+
+  if (idRaw) {
+    const byId = await prisma.character.findUnique({ where: { id: idRaw }, select: { id: true } });
+    if (byId) return byId.id;
+    const byGuess = await resolveCharacterIdByName(idRaw);
+    if (byGuess) return byGuess;
+    return null;
+  }
+  if (nameRaw) return resolveCharacterIdByName(nameRaw);
+  return null;
+}
+
 export const adminPlayerActivityRoutes: FastifyPluginAsync = async (app) => {
   // GET /admin/activity?characterId=&characterName=&action=&from=&to=&page=&limit=
   app.get("/", { preHandler: [requireAdmin] }, async (req) => {
@@ -51,9 +78,14 @@ export const adminPlayerActivityRoutes: FastifyPluginAsync = async (app) => {
   // GET /admin/activity/rhythm?characterId=&limit= — інтервали між синками з mobsKilledDelta > 0
   app.get("/rhythm", { preHandler: [requireAdmin] }, async (req, reply) => {
     const q = (req.query || {}) as Record<string, string | undefined>;
-    const characterId = String(q.characterId || "").trim();
+    const characterIdRaw = String(q.characterId || "").trim();
+    const characterNameRaw = String(q.characterName || "").trim();
+    const characterId = await resolveRhythmCharacterId(characterIdRaw, characterNameRaw);
     if (!characterId) {
-      return reply.code(400).send({ error: "characterId required" });
+      return reply.code(404).send({
+        error: "character_not_found",
+        hint: "Укажите cuid персонажа или ник (поле characterName / ник в фильтрах).",
+      });
     }
     const take = Math.min(500, Math.max(10, Number.parseInt(String(q.limit || "120"), 10) || 120));
 

@@ -1721,7 +1721,11 @@ export async function getPlayerActivityLogs(params?: {
   return data as { ok: boolean; logs: PlayerActivityLogRow[]; total: number; page: number; limit: number };
 }
 
-export async function getPlayerActivityRhythm(characterId: string, limit?: number): Promise<{
+export async function getPlayerActivityRhythm(params: {
+  characterId?: string;
+  characterName?: string;
+  limit?: number;
+}): Promise<{
   ok: boolean;
   characterId: string;
   syncEventsWithMobProgress: number;
@@ -1736,8 +1740,9 @@ export async function getPlayerActivityRhythm(characterId: string, limit?: numbe
   } | null;
 }> {
   const q = new URLSearchParams();
-  q.set("characterId", characterId);
-  if (limit != null) q.set("limit", String(limit));
+  if (params.characterId?.trim()) q.set("characterId", params.characterId.trim());
+  if (params.characterName?.trim()) q.set("characterName", params.characterName.trim());
+  if (params.limit != null) q.set("limit", String(params.limit));
   const res = await fetch(`${API_URL}/admin/activity/rhythm?${q.toString()}`, {
     method: "GET",
     credentials: "include",

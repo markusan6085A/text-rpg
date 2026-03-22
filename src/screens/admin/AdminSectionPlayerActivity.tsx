@@ -80,7 +80,7 @@ export function AdminSectionPlayerActivity() {
           characterId: characterId.trim() || undefined,
           characterName: characterName.trim() || undefined,
           action: action.trim() || undefined,
-          from: fromDate ? new Date(fromDate).toISOString() : undefined,
+          from: fromDate ? new Date(`${fromDate}T00:00:00`).toISOString() : undefined,
           to: toDate ? new Date(`${toDate}T23:59:59.999`).toISOString() : undefined,
           page: nextPage,
           limit,
@@ -106,15 +106,20 @@ export function AdminSectionPlayerActivity() {
 
   const loadRhythm = async () => {
     const id = characterId.trim();
-    if (!id) {
-      setRhythmError("Укажите ID персонажа (characterId)");
+    const nick = characterName.trim();
+    if (!id && !nick) {
+      setRhythmError("Укажите ID персонажа (cuid) или ник в поле «Ник» ниже");
       return;
     }
     setRhythmLoading(true);
     setRhythmError(null);
     setRhythmText(null);
     try {
-      const r = await getPlayerActivityRhythm(id, 200);
+      const r = await getPlayerActivityRhythm({
+        characterId: id || undefined,
+        characterName: nick || undefined,
+        limit: 200,
+      });
       if (!r.summary) {
         setRhythmText(
           `Событий с ростом mobsKilled между синхронами: ${r.syncEventsWithMobProgress}. Недостаточно пар для интервалов.`
@@ -144,17 +149,23 @@ export function AdminSectionPlayerActivity() {
         Активность игроков
       </h2>
       <p className="text-xs text-gray-500 mb-2">
-        Лог с сервера: синхрон героя (дельты мобов/адены/exp/инвентаря), обновление инвентаря, рынок. IP с прокси может
-        быть неточным.
+        Записи появляются только когда клиент дергает API: сохранение героя с изменениями (мобы/адена/exp/уровень/инвентарь
+        и т.д.), PUT инвентаря, рынок. Чисто локальные действия без синка — не видны. После деплоя/рестарта старых строк
+        нет, пока игрок снова не сохранится. Очистите даты «с—по», чтобы смотреть за всё время. IP за прокси может
+        отличаться.
       </p>
 
       <div className="rounded border border-[#c7ad80]/20 bg-black/20 p-2 mb-3">
         <div className="text-[11px] text-[#c7ad80] mb-1">Ритм фарма (интервалы между синхами с +mobsKilled)</div>
+        <p className="text-[10px] text-gray-500 mb-1">
+          Можно ввести cuid в поле ID или оставить ID пустым и указать ник в строке фильтров ниже — сервер сам найдёт
+          персонажа. Если в поле ID ввести ник (не cuid), тоже попробуем найти по имени.
+        </p>
         <div className="flex flex-wrap items-center gap-2">
           <input
             value={characterId}
             onChange={(e) => setCharacterId(e.target.value)}
-            placeholder="Character ID (cuid)"
+            placeholder="Character ID (cuid) или ник"
             className={`${inputCl} flex-1 min-w-[200px]`}
           />
           <button
@@ -269,7 +280,8 @@ export function AdminSectionPlayerActivity() {
             {!loading && logs.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-2 py-3 text-center text-gray-500">
-                  Записей нет
+                  Записей нет — снимите фильтр по датам, проверьте ник/ID, миграцию PlayerActivityLog на сервере и что после
+                  включения логов игрок уже делал сохранение/рынок/инвентарь.
                 </td>
               </tr>
             ) : null}
