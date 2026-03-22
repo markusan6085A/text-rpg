@@ -16,7 +16,7 @@ import {
 import type { HeroInventoryItem } from "../types/Hero";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { calculateEnchantedStats } from "./character/inventoryUtils";
-import { normalizeIconPath, handleResourceIconError } from "../utils/itemIcon";
+import { normalizeIconPath, handleResourceIconError, FALLBACK_ICON } from "../utils/itemIcon";
 import { showToast } from "../state/toastStore";
 
 interface MarketProps {
@@ -54,6 +54,13 @@ function displaySellItemName(it: HeroInventoryItem & { itemId?: string }): strin
   const n = it.name;
   if (n && !/^[a-z0-9_]+$/i.test(String(n).trim())) return String(n);
   return n || id || "Предмет";
+}
+
+/** Як у InventoryItemList: якщо в інвентарі немає/битий icon — беремо з itemsDB за id. */
+function resolveItemIconPath(it: HeroInventoryItem & { itemId?: string }): string {
+  const key = itemRowId(it);
+  const itemDef = key ? itemsDBWithStarter[key] || itemsDB[key] : undefined;
+  return normalizeIconPath(it.icon || itemDef?.icon) || FALLBACK_ICON;
 }
 
 const formatNum = (n: number) =>
@@ -517,10 +524,7 @@ export default function Market({ navigate }: MarketProps) {
     return (
       <div key={L.id} className={listingRowCompact}>
         <img
-          src={
-            normalizeIconPath(isCol ? "/icons/col (1).png" : it?.icon) ||
-            "/items/drops/Weapon_squires_sword_i00_0.jpg"
-          }
+          src={isCol ? normalizeIconPath("/icons/col (1).png") || FALLBACK_ICON : resolveItemIconPath(it)}
           alt=""
           className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0"
           onError={handleResourceIconError}
@@ -689,9 +693,9 @@ export default function Market({ navigate }: MarketProps) {
                   listings.map((L) => {
                     const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
                     const isCol = isCoinLuckMarketListing(L);
-                    const icon = normalizeIconPath(
-                      isCol ? "/icons/col (1).png" : it?.icon
-                    );
+                    const icon = isCol
+                      ? normalizeIconPath("/icons/col (1).png") || FALLBACK_ICON
+                      : resolveItemIconPath(it);
                     const own = L.sellerCharacterId === cid;
                     const left = msLeft(L.expiresAt);
                     void tick;
@@ -710,7 +714,7 @@ export default function Market({ navigate }: MarketProps) {
                         }`}
                       >
                         <img
-                          src={icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                          src={icon}
                           alt=""
                           className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0 pointer-events-none"
                           onError={handleResourceIconError}
@@ -822,12 +826,12 @@ export default function Market({ navigate }: MarketProps) {
                           onClick={() => openSellModal(row)}
                           className={`${sellPickRow} w-full text-left opacity-90 hover:opacity-100`}
                         >
-                          <img
-                            src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
-                            alt=""
-                            className="w-6 h-6 shrink-0 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
-                            onError={handleResourceIconError}
-                          />
+                        <img
+                          src={resolveItemIconPath(it)}
+                          alt=""
+                          className="w-6 h-6 shrink-0 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                          onError={handleResourceIconError}
+                        />
                           <div className="min-w-0 flex-1">
                             <div className={isL2 ? "text-[11px] leading-tight text-[#e8dcc8] truncate" : "text-xs truncate"}>
                               {displaySellItemName(it)}
@@ -853,12 +857,12 @@ export default function Market({ navigate }: MarketProps) {
                           onClick={() => openSellModal(row)}
                           className={`${sellPickRow} w-full text-left opacity-90 hover:opacity-100`}
                         >
-                          <img
-                            src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
-                            alt=""
-                            className="w-6 h-6 shrink-0 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
-                            onError={handleResourceIconError}
-                          />
+                        <img
+                          src={resolveItemIconPath(it)}
+                          alt=""
+                          className="w-6 h-6 shrink-0 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                          onError={handleResourceIconError}
+                        />
                           <div className="min-w-0 flex-1">
                             <div className={isL2 ? "text-[11px] leading-tight text-[#e8dcc8] truncate" : "text-xs truncate"}>
                               {displaySellItemName(it)}
@@ -964,9 +968,7 @@ export default function Market({ navigate }: MarketProps) {
             </div>
             <div className="flex gap-3 items-center">
               <img
-                src={
-                  normalizeIconPath(sellModalRow.item.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"
-                }
+                src={resolveItemIconPath(sellModalRow.item)}
                 alt=""
                 className="w-12 h-12 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0"
                 onError={handleResourceIconError}
@@ -1248,8 +1250,9 @@ export default function Market({ navigate }: MarketProps) {
                   <div className="flex gap-3 items-start">
                     <img
                       src={
-                        normalizeIconPath(isColLot ? "/icons/col (1).png" : it?.icon) ||
-                        "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                        isColLot
+                          ? normalizeIconPath("/icons/col (1).png") || FALLBACK_ICON
+                          : resolveItemIconPath(it)
                       }
                       alt=""
                       className="w-14 h-14 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0"
