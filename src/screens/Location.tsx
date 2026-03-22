@@ -838,7 +838,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 ) : (
                   (() => {
                     const isFloranZone = zone.id?.startsWith("floran");
-                    const floranProfile = isFloranZone ? getFloranMobDropProfile(selectedMob) : undefined;
+                    /** L2 XML-моби (l2dop_*) і РБ мають свій дроп у даних — не підміняти старим Floran-профілем */
+                    const useLegacyFloranProfile =
+                      isFloranZone &&
+                      !selectedMob.id?.startsWith("l2dop_") &&
+                      !selectedMob.id?.startsWith("rb_") &&
+                      (selectedMob as { isRaidBoss?: boolean }).isRaidBoss !== true;
+                    const floranProfile = useLegacyFloranProfile ? getFloranMobDropProfile(selectedMob) : undefined;
                     const displayDrops: DropEntry[] = floranProfile
                       ? floranProfile.items.map((item) => ({
                           id: item.itemId,
