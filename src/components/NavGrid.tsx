@@ -1,18 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useContext, useCallback } from "react";
 import { getUnreadCount, getMyClan, getClanChat } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { getRateLimitRemainingMs } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 
-interface NavGridProps {
-  navigate?: (path: string) => void;
-  /** Якщо true — верхня панель під фіксованими барами HP/MP; інакше ближче до верху екрана. */
-  showStatusBars?: boolean;
-}
-
 type NavButton = { label: string; icon: string; path?: string; onClick?: () => void };
 
-/** Під HP/MP/EXP: форум, пошта, чат, меню, новини. */
+/** У прокручуваному контенті: форум, пошта, чат, меню, новини. */
 const topRowButtons: NavButton[] = [
   { label: "Форум", icon: "/icons/форум.jpg", path: "/forum" },
   { label: "Почта", icon: "/icons/почта.jpg", path: "/mail" },
@@ -21,7 +15,7 @@ const topRowButtons: NavButton[] = [
   { label: "Новости", icon: "/icons/новости.jpg", path: "/news" },
 ];
 
-/** Нижня панель: місто, інвентар, персонаж, стати, клан (бейдж непрочитаного на клані). */
+/** Fixed знизу: місто, інвентар, персонаж, стати, клан. */
 const bottomRowButtons: NavButton[] = [
   { label: "Город", icon: "/icons/город.jpg", path: "/city" },
   { label: "Инвентарь", icon: "/icons/инвентарь.jpg", path: "/inventory" },
@@ -33,20 +27,32 @@ const bottomRowButtons: NavButton[] = [
 const iconWrapClass =
   "rounded-lg overflow-hidden border border-[#5c4a32]/45 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] bg-black/35";
 
-/** Спільна «плавача» оболонка як у нижнього дока. */
 const dockPanelClass =
-  "w-full max-w-md mx-auto rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-3 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto";
+  "w-full max-w-md mx-auto rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-3 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px]";
 
 const dockRowClass =
   "flex flex-row flex-nowrap items-center justify-center gap-4 sm:gap-5";
 
-export default function NavGrid({ navigate, showStatusBars = true }: NavGridProps) {
+type NavGridContextValue = {
+  navigate?: (path: string) => void;
+  unreadCount: number;
+  clanUnreadCount: number;
+  handleClick: (btn: NavButton) => Promise<void>;
+};
+
+const NavGridContext = React.createContext<NavGridContextValue | null>(null);
+
+interface NavGridProviderProps {
+  navigate?: (path: string) => void;
+  children: React.ReactNode;
+}
+
+/** Один екземпляр полінгу листів/клану на все дерево навігації. */
+export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [clanUnreadCount, setClanUnreadCount] = useState(0);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const previousUnreadRef = useRef(0);
-
-  const unreadIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -74,7 +80,6 @@ export default function NavGrid({ navigate, showStatusBars = true }: NavGridProp
 
     const startTimeout = setTimeout(loadUnreadCount, 1000);
     const interval = setInterval(loadUnreadCount, 60000);
-    unreadIntervalRef.current = interval;
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") loadUnreadCount();
     };
@@ -84,11 +89,8 @@ export default function NavGrid({ navigate, showStatusBars = true }: NavGridProp
       clearTimeout(startTimeout);
       clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      unreadIntervalRef.current = null;
     };
   }, [isAuthenticated]);
-
-  const clanUnreadIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -124,120 +126,157 @@ export default function NavGrid({ navigate, showStatusBars = true }: NavGridProp
 
     const clanStartTimeout = setTimeout(loadClanUnreadCount, 20000);
     const interval = setInterval(loadClanUnreadCount, 60000);
-    clanUnreadIntervalRef.current = interval;
 
     return () => {
       clearTimeout(clanStartTimeout);
       clearInterval(interval);
-      clanUnreadIntervalRef.current = null;
     };
   }, [isAuthenticated]);
 
-  const handleClick = async (btn: NavButton) => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
+  const handleClick = useCallback(
+    async (btn: NavButton) => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
 
-    if (btn.onClick) {
-      btn.onClick();
-      return;
-    }
+      if (btn.onClick) {
+        btn.onClick();
+        return;
+      }
 
-    if (btn.label === "Клан" && navigate) {
-      const fetchClan = async (retries = 0): Promise<{ id: string } | null> => {
-        try {
-          const response = await getMyClan();
-          if (response.ok && response.clan?.id) return response.clan;
-          return null;
-        } catch (err) {
-          if (retries < 1) {
-            await new Promise((r) => setTimeout(r, 800));
-            return fetchClan(retries + 1);
+      if (btn.label === "Клан" && navigate) {
+        const fetchClan = async (retries = 0): Promise<{ id: string } | null> => {
+          try {
+            const response = await getMyClan();
+            if (response.ok && response.clan?.id) return response.clan;
+            return null;
+          } catch (err) {
+            if (retries < 1) {
+              await new Promise((r) => setTimeout(r, 800));
+              return fetchClan(retries + 1);
+            }
+            throw err;
           }
-          throw err;
-        }
-      };
-      try {
-        const clan = await fetchClan();
-        if (clan) {
-          navigate(`/clan/${clan.id}`);
-        } else {
+        };
+        try {
+          const clan = await fetchClan();
+          if (clan) {
+            navigate(`/clan/${clan.id}`);
+          } else {
+            navigate("/clans");
+          }
+        } catch (err) {
+          console.error("[NavGrid] Failed to check clan:", err);
           navigate("/clans");
         }
-      } catch (err) {
-        console.error("[NavGrid] Failed to check clan:", err);
-        navigate("/clans");
+        return;
       }
-      return;
-    }
 
-    if (btn.path && navigate) {
-      navigate(btn.path);
-      return;
-    }
-    showToast("Функція недоступна", "info");
-  };
+      if (btn.path && navigate) {
+        navigate(btn.path);
+        return;
+      }
+      showToast("Функція недоступна", "info");
+    },
+    [navigate]
+  );
 
-  const renderIconButton = (btn: NavButton) => {
-    const isMail = btn.label === "Почта";
-    const isClan = btn.label === "Клан";
-    const showMailBadge = isMail && unreadCount > 0;
-    const showClanBadge = isClan && clanUnreadCount > 0;
-    const dim = "w-8 h-8";
-    const inner = 32;
+  const value = useMemo<NavGridContextValue>(
+    () => ({
+      navigate,
+      unreadCount,
+      clanUnreadCount,
+      handleClick,
+    }),
+    [navigate, unreadCount, clanUnreadCount, handleClick]
+  );
 
-    return (
-      <button
-        key={btn.label}
-        type="button"
-        onClick={() => handleClick(btn)}
-        className="shrink-0 rounded-lg bg-transparent text-[#dba753] p-0 border-0 hover:brightness-110 transition-[filter] flex flex-col items-center justify-center focus:outline-none relative"
-        title={btn.label}
-      >
-        <span className={`${iconWrapClass} ${dim} flex items-center justify-center`}>
-          <img
-            src={encodeURI(btn.icon)}
-            alt={btn.label}
-            className={`${dim} object-contain rounded-md`}
-            style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
-            width={inner}
-            height={inner}
-          />
-        </span>
-        {showMailBadge && (
-          <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </div>
-        )}
-        {showClanBadge && (
-          <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
-            {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
-          </div>
-        )}
-      </button>
-    );
-  };
+  return <NavGridContext.Provider value={value}>{children}</NavGridContext.Provider>;
+}
 
-  /* Вище під барами; position:fixed — лишається на місці при скролі, як StatusBars (z-50). */
-  const topOffset = showStatusBars ? "top-[4.65rem]" : "top-3";
+function useNavGridCtx(): NavGridContextValue | null {
+  return useContext(NavGridContext);
+}
+
+function NavIconButton({ btn }: { btn: NavButton }) {
+  const ctx = useNavGridCtx();
+  if (!ctx) return null;
+  const { unreadCount, clanUnreadCount, handleClick } = ctx;
+  const isMail = btn.label === "Почта";
+  const isClan = btn.label === "Клан";
+  const showMailBadge = isMail && unreadCount > 0;
+  const showClanBadge = isClan && clanUnreadCount > 0;
+  const dim = "w-8 h-8";
+  const inner = 32;
 
   return (
-    <>
-      {/* Верхній док: по центру, fixed viewport — не їде зі скролом контенту */}
-      <div
-        className={`fixed left-0 right-0 z-[49] w-full min-w-0 box-border ${topOffset} pt-1 pb-2 px-2 sm:px-3 pointer-events-none bg-gradient-to-b from-[#0b0806] via-[#0b0806]/88 to-transparent`}
-        aria-label="Швидкі посилання: форум, пошта, чат, меню, новини"
-      >
-        <div className={dockPanelClass}>
-          <div className={dockRowClass}>{topRowButtons.map((btn) => renderIconButton(btn))}</div>
+    <button
+      type="button"
+      onClick={() => void handleClick(btn)}
+      className="shrink-0 rounded-lg bg-transparent text-[#dba753] p-0 border-0 hover:brightness-110 transition-[filter] flex flex-col items-center justify-center focus:outline-none relative"
+      title={btn.label}
+    >
+      <span className={`${iconWrapClass} ${dim} flex items-center justify-center`}>
+        <img
+          src={encodeURI(btn.icon)}
+          alt={btn.label}
+          className={`${dim} object-contain rounded-md`}
+          style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
+          width={inner}
+          height={inner}
+        />
+      </span>
+      {showMailBadge && (
+        <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
+          {unreadCount > 99 ? "99+" : unreadCount}
         </div>
-      </div>
+      )}
+      {showClanBadge && (
+        <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
+          {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
+        </div>
+      )}
+    </button>
+  );
+}
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-2 sm:px-3 pointer-events-none">
-        <div className={dockPanelClass}>
-          <div className={dockRowClass}>{bottomRowButtons.map((btn) => renderIconButton(btn))}</div>
+/**
+ * Верхня сітка в потоці документа — перший блок у прокрутці (над «Вигляд Місто» та іншим контентом).
+ */
+export function NavScrollTopRow() {
+  const ctx = useNavGridCtx();
+  if (!ctx) return null;
+
+  return (
+    <div
+      className="w-full min-w-0 mb-2 pt-0.5 -mt-0.5"
+      aria-label="Швидкі посилання: форум, пошта, чат, меню, новини"
+    >
+      <div className={dockPanelClass}>
+        <div className={dockRowClass}>
+          {topRowButtons.map((btn) => (
+            <NavIconButton key={btn.label} btn={btn} />
+          ))}
         </div>
       </div>
-    </>
+    </div>
+  );
+}
+
+/** Нижня fixed-панель (лише всередині NavGridProvider). */
+export default function NavGridBottomFixed() {
+  const ctx = useNavGridCtx();
+  if (!ctx) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-2 sm:px-3 pointer-events-none">
+      <div className={`${dockPanelClass} pointer-events-auto`}>
+        <div className={dockRowClass}>
+          {bottomRowButtons.map((btn) => (
+            <NavIconButton key={btn.label} btn={btn} />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

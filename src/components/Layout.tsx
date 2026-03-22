@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import NavGrid from "./NavGrid";
+import NavGridBottomFixed, { NavGridProvider, NavScrollTopRow } from "./NavGrid";
 import StatusBars from "./StatusBars";
 import SummonStatus from "./SummonStatus";
 import TutorialHint from "./TutorialHint";
@@ -404,32 +404,44 @@ export default function Layout({
         {showStatusBars ? (
           <div className="flex-shrink-0 w-full" style={{ height: "14px" }} aria-hidden />
         ) : null}
-        <div
-          ref={contentRef}
-          className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem] ${
-            showNavGrid && !blockDeathUi && showStatusBars
-              ? "pt-[6.35rem] max-[380px]:pt-[6.1rem]"
-              : showNavGrid && !blockDeathUi
-                ? "pt-[4.25rem]"
-                : ""
-          }`}
-        >
+        {showNavGrid && !blockDeathUi && navigate ? (
+          <NavGridProvider navigate={navigate}>
+            <div
+              ref={contentRef}
+              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem]"
+            >
+              <div
+                className={`w-full max-w-full min-w-0 mt-0 ${
+                  gameSettings.compactMode
+                    ? "px-1.5 py-1 max-[480px]:px-1"
+                    : "px-2 py-1 max-[480px]:px-1 sm:px-3"
+                } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
+              >
+                <NavScrollTopRow />
+                {!blockDeathUi && children}
+              </div>
+            </div>
+            <NavGridBottomFixed />
+          </NavGridProvider>
+        ) : (
           <div
-            className={`w-full max-w-full min-w-0 mt-0 ${
-              gameSettings.compactMode
-                ? "px-1.5 py-1 max-[480px]:px-1"
-                : "px-2 py-1 max-[480px]:px-1 sm:px-3"
-            } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
+            ref={contentRef}
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem]"
           >
-            {!blockDeathUi && children}
+            <div
+              className={`w-full max-w-full min-w-0 mt-0 ${
+                gameSettings.compactMode
+                  ? "px-1.5 py-1 max-[480px]:px-1"
+                  : "px-2 py-1 max-[480px]:px-1 sm:px-3"
+              } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
+            >
+              {!blockDeathUi && children}
+            </div>
           </div>
-        </div>
+        )}
         
         {/* 🔥 Футер видалено за запитом користувача */}
         </div>
-        {showNavGrid && !blockDeathUi ? (
-          <NavGrid navigate={navigate} showStatusBars={showStatusBars} />
-        ) : null}
         <Toast />
       </div>
   );
