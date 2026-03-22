@@ -10,7 +10,8 @@ import {
 } from "../../data/skills";
 import { PROFESSION_CHAIN } from "../../data/skills/professionChain";
 import { fixHeroProfession } from "../../utils/fixProfession";
-import { learnSkillLogic } from "../../state/heroStore/heroSkills";
+import { getLearnSkillFailureReason, learnSkillLogic } from "../../state/heroStore/heroSkills";
+import { ONBOARDING_GUILD_NEED_SP_KEY } from "../../state/gameSettings";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface GuildScreenProps {
@@ -48,8 +49,20 @@ export default function GuildScreen({
     try {
       const res = learnSkillLogic(hero, skillId);
       if (!res.success) {
+        if (getLearnSkillFailureReason(hero, skillId) === "sp") {
+          try {
+            sessionStorage.setItem(ONBOARDING_GUILD_NEED_SP_KEY, "1");
+          } catch {
+            /* ignore */
+          }
+        }
         showToast("Не вдалося вивчити скіл. Можливо, не вистачає SP або рівня.", "error");
         return;
+      }
+      try {
+        sessionStorage.removeItem(ONBOARDING_GUILD_NEED_SP_KEY);
+      } catch {
+        /* ignore */
       }
       if (res.updatedHero) {
         updateHero(res.updatedHero);

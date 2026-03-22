@@ -5,11 +5,15 @@ import {
   dismissTutorialHintId,
   getDismissedTutorialHintIds,
 } from "../state/gameSettings";
+import { useBattleStore } from "../state/battle/store";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { pickContextualTutorialHint } from "../utils/tutorialHintEngine";
 
 const TUTORIAL_HINT_SEEN_KEY = TUTORIAL_HINT_KEY;
 const HELPER_ICON = "/icons/helper.jpg";
+
+const EMPTY_LOADOUT: (number | string | null)[] = [];
+const EMPTY_CHARGES: number[] = [];
 
 const TUTORIAL_PATHS = [
   "/",
@@ -50,6 +54,8 @@ interface TutorialHintProps {
   navigate?: (path: string) => void;
   showStatusBars?: boolean;
   pathname: string;
+  /** Query з роутера, напр. ?zone=forest&page=1 */
+  routeSearch?: string;
   hero: unknown;
 }
 
@@ -57,17 +63,48 @@ export default function TutorialHint({
   navigate,
   showStatusBars = true,
   pathname,
+  routeSearch = "",
   hero,
 }: TutorialHintProps) {
   const [, rerender] = React.useReducer((n: number) => n + 1, 0);
 
   const pathNorm = normalizeTutorialPath(pathname);
+  const searchNorm = routeSearch.startsWith("?")
+    ? routeSearch
+    : routeSearch
+      ? `?${routeSearch}`
+      : "";
+
+  const battleStatus = useBattleStore((s) =>
+    pathNorm === "/battle" ? s.status : "idle"
+  );
+  const battleLoadout = useBattleStore((s) =>
+    pathNorm === "/battle" ? (s.loadoutSlots ?? EMPTY_LOADOUT) : EMPTY_LOADOUT
+  );
+  const battleCharges = useBattleStore((s) =>
+    pathNorm === "/battle" ? (s.activeChargeSlots ?? EMPTY_CHARGES) : EMPTY_CHARGES
+  );
+  const battleSlice =
+    pathNorm === "/battle"
+      ? {
+          status: battleStatus,
+          loadoutSlots: battleLoadout,
+          activeChargeSlots: battleCharges,
+        }
+      : undefined;
+
   /** Читаємо з storage щоразу — після resetTutorialHint() (новий герой) не лишається старий useState */
   const welcomeDismissed = getString(TUTORIAL_HINT_SEEN_KEY, null) === "1";
   const dismissedIds = getDismissedTutorialHintIds();
-  let contextual = pickContextualTutorialHint(hero, dismissedIds);
+  let contextual = pickContextualTutorialHint(hero, dismissedIds, {
+    pathname: pathNorm,
+    search: searchNorm,
+    battle: pathNorm === "/battle" ? battleSlice : undefined,
+  });
   if (
     contextual &&
+    !contextual.closeOnly &&
+    contextual.ctaPath &&
     normalizeTutorialPath(contextual.ctaPath) === pathNorm
   ) {
     contextual = null;
@@ -114,13 +151,75 @@ export default function TutorialHint({
   const handleContextualGo = () => {
     if (!contextual || !navigate) return;
     dismissTutorialHintId(contextual.id);
-    navigate(contextual.ctaPath);
+    if (!contextual.closeOnly && contextual.ctaPath) {
+      navigate(contextual.ctaPath);
+    }
     rerender();
   };
 
   if (!shouldShow) return null;
 
   const isL2 = getCityUiVariant() === "l2";
+
+  const contextualButtonsL2 =
+    showContextual && contextual ? (
+      contextual.closeOnly ? (
+        <button
+          type="button"
+          onClick={dismissContextual}
+          className="px-2.5 py-1 rounded-md border border-[#c7ad80]/50 bg-gradient-to-b from-[#4a3d28] to-[#2a2218] text-[#f5e6c8] text-[10px] font-semibold hover:border-[#e8c56e]/60 hover:brightness-110 active:scale-[0.99]"
+        >
+          Понятно
+        </button>
+      ) : (
+        <div className="flex gap-1.5 flex-shrink-0">
+          <button
+            type="button"
+            onClick={handleContextualGo}
+            className="px-2.5 py-1 rounded-md border border-[#c7ad80]/50 bg-gradient-to-b from-[#4a3d28] to-[#2a2218] text-[#f5e6c8] text-[10px] font-semibold hover:border-[#e8c56e]/60 hover:brightness-110 active:scale-[0.99]"
+          >
+            {contextual.ctaLabel}
+          </button>
+          <button
+            type="button"
+            onClick={dismissContextual}
+            className="px-2.5 py-1 rounded-md border border-[#5c4a32]/70 bg-black/30 text-[#a89878] text-[10px] hover:bg-black/45 hover:text-[#d4c4a8]"
+          >
+            Закрыть
+          </button>
+        </div>
+      )
+    ) : null;
+
+  const contextualButtonsClassic =
+    showContextual && contextual ? (
+      contextual.closeOnly ? (
+        <button
+          type="button"
+          onClick={dismissContextual}
+          className="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-black text-[10px] font-semibold"
+        >
+          Понятно
+        </button>
+      ) : (
+        <div className="flex gap-1 flex-shrink-0">
+          <button
+            type="button"
+            onClick={handleContextualGo}
+            className="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-black text-[10px] font-semibold"
+          >
+            {contextual.ctaLabel}
+          </button>
+          <button
+            type="button"
+            onClick={dismissContextual}
+            className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-amber-200 text-[10px]"
+          >
+            Закрыть
+          </button>
+        </div>
+      )
+    ) : null;
 
   const barInner = showContextual ? (
     <>
@@ -135,22 +234,7 @@ export default function TutorialHint({
         <span className="text-[#e8c56e] font-semibold">Подсказка:</span>{" "}
         {contextual!.message}
       </span>
-      <div className="flex gap-1.5 flex-shrink-0">
-        <button
-          type="button"
-          onClick={handleContextualGo}
-          className="px-2.5 py-1 rounded-md border border-[#c7ad80]/50 bg-gradient-to-b from-[#4a3d28] to-[#2a2218] text-[#f5e6c8] text-[10px] font-semibold hover:border-[#e8c56e]/60 hover:brightness-110 active:scale-[0.99]"
-        >
-          {contextual!.ctaLabel}
-        </button>
-        <button
-          type="button"
-          onClick={dismissContextual}
-          className="px-2.5 py-1 rounded-md border border-[#5c4a32]/70 bg-black/30 text-[#a89878] text-[10px] hover:bg-black/45 hover:text-[#d4c4a8]"
-        >
-          Закрыть
-        </button>
-      </div>
+      {contextualButtonsL2}
     </>
   ) : (
     <>
@@ -211,22 +295,7 @@ export default function TutorialHint({
         <span className="text-amber-400 font-medium">Подсказка:</span>{" "}
         {contextual!.message}
       </span>
-      <div className="flex gap-1 flex-shrink-0">
-        <button
-          type="button"
-          onClick={handleContextualGo}
-          className="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-black text-[10px] font-semibold"
-        >
-          {contextual!.ctaLabel}
-        </button>
-        <button
-          type="button"
-          onClick={dismissContextual}
-          className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-amber-200 text-[10px]"
-        >
-          Закрыть
-        </button>
-      </div>
+      {contextualButtonsClassic}
     </>
   ) : (
     <>

@@ -379,6 +379,7 @@ function AppInner() {
 
   // Extract pathname from path (remove query params for routing)
   const pathname = path.split('?')[0];
+  const routeSearch = path.includes("?") ? path.slice(path.indexOf("?")) : "";
 
   // Після входу через /admin/login є accessToken, але hero ще null — показуємо загрузку (завантаження в useEffect вище)
   // На мобільному loadHeroFromAPI може зависати — через 12 сек показуємо кнопку "Оновити" (heroLoadTimedOut з useEffect вище)
@@ -467,7 +468,12 @@ function AppInner() {
 
   // Router: Layout без refreshKey у key — стабільний, не ремонтується при кожному кліку (прибирає шторм GET/таймерів)
   const renderWithLayout = (children: React.ReactNode) => (
-    <Layout navigate={navigate} routePathname={pathname} key={`layout-${pathname}`}>
+    <Layout
+      navigate={navigate}
+      routePathname={pathname}
+      routeSearch={routeSearch}
+      key={`layout-${pathname}`}
+    >
       {children}
     </Layout>
   );
@@ -488,7 +494,13 @@ function AppInner() {
 
     case "/gk":
       return (
-        <Layout navigate={navigate} contentTopCompact routePathname={pathname} key={`layout-gk`}>
+        <Layout
+          navigate={navigate}
+          contentTopCompact
+          routePathname={pathname}
+          routeSearch={routeSearch}
+          key={`layout-gk`}
+        >
           <GK navigate={navigate} key={`gk-${refreshKey}`} />
         </Layout>
       );

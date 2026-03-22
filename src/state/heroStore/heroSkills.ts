@@ -1,6 +1,26 @@
 import { getSkillDef } from "../battle/loadout";
 import type { Hero } from "../../types/Hero";
 
+/** Чому не вдається вивчити наступний рівень (без зміни героя). `null` — можна вчити. */
+export function getLearnSkillFailureReason(
+  hero: Hero,
+  skillId: number
+): "sp" | "level" | "max" | "missing" | null {
+  const skillDef = getSkillDef(skillId);
+  if (!skillDef) return "missing";
+  const skills = Array.isArray(hero.skills) ? [...hero.skills] : [];
+  const existing = skills.find((s) => s.id === skillId);
+  const currentLevel = existing?.level || 0;
+  const sortedLevels = (skillDef.levels || []).sort((a, b) => a.level - b.level);
+  const levelDef = sortedLevels.find((l) => l.level > currentLevel);
+  if (!levelDef) return "max";
+  const heroLevel = hero.level || 1;
+  if (heroLevel < levelDef.requiredLevel) return "level";
+  const heroSp = hero.sp || 0;
+  if (heroSp < levelDef.spCost) return "sp";
+  return null;
+}
+
 export function learnSkillLogic(hero: Hero, skillId: number): { success: boolean; updatedHero?: Hero } {
   // Отримуємо визначення скіла
   const skillDef = getSkillDef(skillId);

@@ -26,6 +26,8 @@ interface LayoutProps {
   showStatusBars?: boolean;
   /** Поточний маршрут з App (синхронно зі state), інакше береться window.location */
   routePathname?: string;
+  /** Query з App (`?zone=...`), для підказок на /location */
+  routeSearch?: string;
   customBackground?: string; // Шлях до кастомного фону
   hideFooterButtons?: boolean; // 🔥 Приховати кнопки "Поддержка | Онлайн | Выйти"
   contentTopCompact?: boolean; // 🔥 Менший top padding — картинка (teleport) під банер
@@ -37,6 +39,7 @@ export default function Layout({
   showNavGrid = true,
   showStatusBars = true,
   routePathname,
+  routeSearch = "",
   customBackground,
   hideFooterButtons = false,
   contentTopCompact = false,
@@ -355,6 +358,7 @@ export default function Layout({
             routePathname ??
             (typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : "")
           }
+          routeSearch={routeSearch}
           hero={hero}
         />
         ) : null}

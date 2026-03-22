@@ -4,6 +4,8 @@ import { GAME_SETTINGS_KEY } from "../constants/storageKeys";
 export const TUTORIAL_HINT_KEY = "l2_tutorial_hint_seen";
 /** id контекстних підказок (рівень / професія / гільдія), JSON string[] */
 export const TUTORIAL_DISMISSED_HINT_IDS_KEY = "l2_tutorial_dismissed_hint_ids";
+/** sessionStorage: гравець натиснув «Выучить» без достатнього SP — показати підказку в гільдії */
+export const ONBOARDING_GUILD_NEED_SP_KEY = "l2_onboarding_guild_need_sp";
 
 /** Подія для перемальовування екранів після зміни мови/інших опцій. */
 export const GAME_SETTINGS_CHANGED_EVENT = "l2-game-settings-changed";
@@ -58,4 +60,11 @@ export function dismissTutorialHintId(id: string): void {
 export function resetTutorialHint() {
   removeItem(TUTORIAL_HINT_KEY);
   removeItem(TUTORIAL_DISMISSED_HINT_IDS_KEY);
+  try {
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(ONBOARDING_GUILD_NEED_SP_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
 }
