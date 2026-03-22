@@ -198,7 +198,7 @@ function useNavGridCtx(): NavGridContextValue | null {
   return useContext(NavGridContext);
 }
 
-function NavIconButton({ btn }: { btn: NavButton }) {
+function NavIconButton({ btn, variant = "dock" }: { btn: NavButton; variant?: "dock" | "bottomBar" }) {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
   const { unreadCount, clanUnreadCount, handleClick } = ctx;
@@ -208,6 +208,36 @@ function NavIconButton({ btn }: { btn: NavButton }) {
   const showClanBadge = isClan && clanUnreadCount > 0;
   const dim = "w-8 h-8";
   const inner = 32;
+
+  if (variant === "bottomBar") {
+    return (
+      <button
+        type="button"
+        onClick={() => void handleClick(btn)}
+        className="flex-1 min-w-[30px] rounded-md bg-transparent text-[#dba753] px-[2px] py-0 border-0 hover:bg-transparent transition-colors flex flex-col items-center gap-[0.12rem] focus:outline-none relative"
+        title={btn.label}
+      >
+        <img
+          src={encodeURI(btn.icon)}
+          alt={btn.label}
+          className="w-8 h-8 object-contain"
+          style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
+          width={32}
+          height={32}
+        />
+        {showMailBadge && (
+          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </div>
+        )}
+        {showClanBadge && (
+          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
+            {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
+          </div>
+        )}
+      </button>
+    );
+  }
 
   return (
     <button
@@ -263,18 +293,20 @@ export function NavScrollTopRow() {
   );
 }
 
-/** Нижня fixed-панель (лише всередині NavGridProvider). */
+/** Нижня fixed-панель — як раніше: на всю ширину, justify-between, flex-1 на кнопках. */
 export default function NavGridBottomFixed() {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-2 sm:px-3 pointer-events-none">
-      <div className={`${dockPanelClass} pointer-events-auto`}>
-        <div className={dockRowClass}>
-          {bottomRowButtons.map((btn) => (
-            <NavIconButton key={btn.label} btn={btn} />
-          ))}
+    <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-1.5 sm:px-2 md:px-3 pointer-events-none">
+      <div className="w-full max-w-full min-w-0 rounded-lg border border-[#c7ad80] bg-[#0b0806f0] px-1 py-[2px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto">
+        <div className="px-0 py-0 overflow-x-hidden">
+          <div className="w-full flex flex-row flex-nowrap items-center justify-between gap-[0.15rem] text-[11px] text-[#d8c598]">
+            {bottomRowButtons.map((btn) => (
+              <NavIconButton key={btn.label} btn={btn} variant="bottomBar" />
+            ))}
+          </div>
         </div>
       </div>
     </div>
