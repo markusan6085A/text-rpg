@@ -248,7 +248,9 @@ export default function TutorialHint({
       <span className="flex-1 min-w-0">
         <span className="text-[#e8c56e] font-semibold">Обучение:</span> откройте{" "}
         <span className="text-[#c9a44c] font-medium">Помощь</span> в меню — город,
-        телепорт, гильдия навыков, квесты и инвентарь. Внизу есть ярлыки{" "}
+        телепорт, гильдия навыков, квесты и инвентарь. Зайдите в{" "}
+        <span className="text-[#c9a44c] font-medium">магическую статую</span> за
+        бесплатным бафом. Внизу — ярлыки{" "}
         <span className="text-[#c9a44c] font-medium">Город</span> и{" "}
         <span className="text-[#c9a44c] font-medium">Телепорт</span>.
       </span>
@@ -307,8 +309,8 @@ export default function TutorialHint({
         height={32}
       />
       <span className="flex-1 min-w-0">
-        Обучение: <span className="text-amber-400 font-medium">Меню → Помощь</span>{" "}
-        — справка по городу, навыкам и квестам.
+        Обучение: <span className="text-amber-400 font-medium">Меню → Помощь</span>
+        , магическая статуя — бесплатный баф; гильдия магов — скиллы для магов.
       </span>
       <div className="flex gap-1 flex-shrink-0">
         <button

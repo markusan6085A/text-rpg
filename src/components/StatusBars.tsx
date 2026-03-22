@@ -1,7 +1,7 @@
 import React from "react";
 import { useHeroStore } from "../state/heroStore";
 import { getHeroRegenPerSecond } from "../state/heroStore/heroRegen";
-import { getExpToNext } from "../data/expTable";
+import { getExpToNext, MAX_LEVEL } from "../data/expTable";
 import { useBattleStore } from "../state/battle/store";
 import { loadBattle, persistBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
@@ -364,9 +364,11 @@ export default function StatusBars() {
   const cp = hero.cp ?? maxCp;
 
   const level = Number(hero.level ?? 1) || 1;
-  const expCurrent = Number(hero.exp ?? 0) || 0;
-  const expNeed = getExpToNext(level);
-  const expPercent = expNeed > 0 ? Math.min(100, Math.floor((expCurrent / expNeed) * 100)) : 100;
+  const expCurrent = Math.max(0, Math.floor(Number(hero.exp ?? 0) || 0));
+  const expNeedRaw = getExpToNext(level);
+  const expNeedBar =
+    level >= MAX_LEVEL ? 1 : Math.max(1, expNeedRaw);
+  const expBarValue = level >= MAX_LEVEL ? 0 : expCurrent;
   const activeIncoming =
     pkIncomingNotice && Number(pkIncomingNotice.until ?? 0) > Date.now()
       ? pkIncomingNotice
@@ -387,7 +389,7 @@ export default function StatusBars() {
         <Bar label="CP" value={cp} max={maxCp} />
         <Bar label="HP" value={hp} max={maxHp} pulse={hp / maxHp < 0.3} />
         <Bar label="MP" value={mp} max={maxMp} />
-        <Bar label="EXP" value={expPercent} max={100} />
+        <Bar label="EXP" value={expBarValue} max={expNeedBar} />
       </div>
       <div className="mt-1 text-white text-[9px] font-semibold text-left flex items-center gap-1 flex-wrap">
         <PlayerNameWithEmblem

@@ -92,3 +92,26 @@ export function getExpToNext(level: number, rate = 1): number {
   const need = Math.max(0, nextTotal - currentTotal);
   return Math.round(need * rate);
 }
+
+/**
+ * EXP у героя — прогрес поточного рівня [0, need). Надлишок переноситься в level-up
+ * (виправляє «стрибки» % після кіла, якщо в store потрапило занадто багато EXP).
+ */
+export function normalizeLevelExpPair(
+  level: number,
+  exp: number,
+  rate = 1
+): { level: number; exp: number } {
+  const EPS = 0.001;
+  let L = Math.max(1, Math.min(MAX_LEVEL, Math.floor(level)));
+  let E = Math.max(0, Math.floor(Number(exp) || 0));
+  let guard = 0;
+  while (L < MAX_LEVEL && guard++ < 40) {
+    const need = getExpToNext(L, rate);
+    if (need <= 0 || E < need - EPS) break;
+    E = Math.max(0, Math.floor(E - need));
+    L += 1;
+  }
+  if (L >= MAX_LEVEL) E = 0;
+  return { level: L, exp: E };
+}

@@ -1,4 +1,5 @@
 import type { Hero } from "../../types/Hero";
+import { normalizeLevelExpPair } from "../../data/expTable";
 import { isSevenSealsInventoryClearDay } from "../../utils/sevenSealsTime";
 
 /**
@@ -33,11 +34,11 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     : (hj.mobsKilled !== undefined && hj.mobsKilled !== null ? hj.mobsKilled : 0);
   
   // 🔥 Number() — API/мобільний повертає exp/level як string, потрібні числа для level-up
-  const exp = hero.exp !== undefined && hero.exp !== null
+  let exp = hero.exp !== undefined && hero.exp !== null
     ? Number(hero.exp) || 0
     : (hj.exp !== undefined && hj.exp !== null ? Number(hj.exp) || 0 : 0);
   
-  const level = hero.level !== undefined && hero.level !== null && hero.level > 0
+  let level = hero.level !== undefined && hero.level !== null && hero.level > 0
     ? Number(hero.level) || 1
     : (hj.level !== undefined && hj.level !== null && hj.level > 0 ? Number(hj.level) || 1 : 1);
 
@@ -45,6 +46,10 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     hero.sp !== undefined && hero.sp !== null
       ? Number(hero.sp) || 0
       : (hj.sp !== undefined && hj.sp !== null ? Number(hj.sp) || 0 : 0);
+
+  const normXp = normalizeLevelExpPair(level, exp);
+  level = normXp.level;
+  exp = normXp.exp;
 
   // 🔥 Синхронізуємо heroJson з hero (однонапрямкова синхронізація: hero → heroJson)
   // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass

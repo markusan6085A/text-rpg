@@ -134,6 +134,22 @@ function guildNeedSpFlag(): boolean {
   }
 }
 
+function isMysticHero(hero: Hero): boolean {
+  const klass = String(hero.klass ?? "");
+  if (/mystic|маг/i.test(klass)) return true;
+  const p = String(hero.profession ?? "").toLowerCase();
+  return (
+    p.includes("mystic") ||
+    p.includes("_cleric") ||
+    p.includes("_wizard") ||
+    p.includes("_oracle") ||
+    p.includes("_shaman") ||
+    p.includes("_elder") ||
+    p.includes("bishop") ||
+    p.includes("prophet")
+  );
+}
+
 function pickOnboardingTutorialHint(
   hero: Hero,
   level: number,
@@ -144,8 +160,6 @@ function pickOnboardingTutorialHint(
 
   const path = normPath(ctx.pathname);
   const zoneId = zoneIdFromLocation(ctx.pathname, ctx.search);
-  const profession = resolveChosenProfessionId(hero);
-  if (!profession) return null;
 
   const battle = ctx.battle;
   const fighting = battle?.status === "fighting";
@@ -162,6 +176,27 @@ function pickOnboardingTutorialHint(
         "У вас не хватает SP. Вернитесь в город, затем в окрестность — убейте мобов, накопите SP и снова прокачайте умение в гильдии навыков.",
       ctaPath: "/city",
       ctaLabel: "В город",
+    };
+  }
+
+  const cityLike = path === "/city" || path === "/";
+  if (cityLike && !dismissedIds.has("onboard_magic_statue")) {
+    return {
+      id: "onboard_magic_statue",
+      message:
+        "Зайдите в магическую статую в городе и возьмите бесплатный баф — он усилит персонажа перед охотой на мобов.",
+      ctaPath: "/magic-statue",
+      ctaLabel: "Магическая статуя",
+    };
+  }
+
+  if (cityLike && isMysticHero(hero) && !dismissedIds.has("onboard_mage_guild_intro")) {
+    return {
+      id: "onboard_mage_guild_intro",
+      message:
+        "Перейдите в гильдию магов в городе — там изучают боевые скиллы и заклинания за очки умений (SP).",
+      ctaPath: "/mage-guild",
+      ctaLabel: "Гильдия магов",
     };
   }
 
@@ -235,11 +270,24 @@ function pickOnboardingTutorialHint(
     "/mage-guild",
     "/help",
   ]);
+
+  const profession = resolveChosenProfessionId(hero);
+  if (!profession) return null;
+
   if (
     !learnHintBlockedPaths.has(path) &&
     affordableLearnableSkillExists(hero, profession) &&
     !dismissedIds.has("onboard_go_learn_skill")
   ) {
+    if (isMysticHero(hero)) {
+      return {
+        id: "onboard_go_learn_skill",
+        message:
+          "Доступно новое заклинание или уровень скила за SP! Перейдите в гильдию магов и изучите умение.",
+        ctaPath: "/mage-guild",
+        ctaLabel: "Гильдия магов",
+      };
+    }
     return {
       id: "onboard_go_learn_skill",
       message:

@@ -3,7 +3,7 @@ import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import type { Hero } from "../../types/Hero";
 import { hydrateHero } from "./heroHydration";
-import { getExpToNext, MAX_LEVEL } from "../../data/expTable";
+import { getExpToNext, MAX_LEVEL, normalizeLevelExpPair } from "../../data/expTable";
 
 /** Обчислює level і exp після level-up (QuestShop, адмін бонуси, тощо) */
 function computeLevelFromExp(level: number, exp: number): { level: number; exp: number } {
@@ -207,6 +207,16 @@ export function updateHeroLogic(
     (updated as any).heroJson = { ...hj, location: (partial as any).location };
     // Також оновлюємо на самому hero
     (updated as any).location = (partial as any).location;
+  }
+
+  // 🔥 EXP завжди сегмент поточного рівня; зайве переносимо в level-up (антидубль / некоректний merge)
+  if ((updated as any).level != null && (updated as any).exp != null) {
+    const n = normalizeLevelExpPair(
+      Number((updated as any).level),
+      Number((updated as any).exp)
+    );
+    (updated as any).level = n.level;
+    (updated as any).exp = n.exp;
   }
 
   // 🔥 Правило 2: Використовуємо hydrateHero перед поверненням для гарантованої синхронізації
