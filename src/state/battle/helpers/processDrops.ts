@@ -13,6 +13,7 @@ import { reportMedalDrop } from "../../../utils/api";
 import { useCharacterStore } from "../../characterStore";
 import { getFloranMobDropProfile } from "../../../data/drop/floranMobDrops";
 import { MOB_LOOT_TABLES_DISABLED } from "./mobLootTablesDisabled";
+import { resourceLootDisplayName } from "../../../utils/resourceLootDisplayName";
 
 // Функція для видалення грейдів з назв ресурсів
 // Грейди мають бути тільки в точках (enchant scrolls) та шмотках (equipment), але не в ресурсах
@@ -224,7 +225,9 @@ export function processMobDrops(
 
     if (drop.kind !== "resource" && !drop.id.startsWith("l2item_")) return;
 
-    const displayName = removeGradeFromResourceName(drop.displayName ?? drop.id);
+    const displayName = removeGradeFromResourceName(
+      drop.displayName ?? resourceLootDisplayName(drop.id)
+    );
     const iconPath = resolveDropIconPath(drop);
     const syn: HeroInventoryItem = {
       id: drop.id,
@@ -383,7 +386,9 @@ export function processMobDrops(
 
       if (spoil.kind !== "resource" && !spoil.id.startsWith("l2item_")) return;
 
-      const displayName = removeGradeFromResourceName(spoil.displayName ?? spoil.id);
+      const displayName = removeGradeFromResourceName(
+        spoil.displayName ?? resourceLootDisplayName(spoil.id)
+      );
       const iconPath = resolveDropIconPath(spoil);
       const syn: HeroInventoryItem = {
         id: spoil.id,

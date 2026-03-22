@@ -28,6 +28,7 @@ import type { DropEntry } from "../data/combat/types";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
 import { writeDeathGate } from "../utils/deathGate";
+import { resourceLootDisplayName } from "../utils/resourceLootDisplayName";
 
 function formatDropChanceLabel(d: Pick<DropEntry, "chance" | "chancePerMillion">): string {
   if (d.chancePerMillion != null && d.chancePerMillion > 0) {
@@ -863,7 +864,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                             {dropsNoAdena.map((drop: DropEntry, idx: number) => {
                               const itemDef = itemsDB[drop.id];
                               const iconPath = dropLineIconPath(drop);
-                              const itemName = itemDef?.name || drop.displayName || drop.id;
+                              const itemName =
+                                itemDef?.name || drop.displayName || resourceLootDisplayName(drop.id);
                               const isResource =
                                 itemDef?.kind === "resource" ||
                                 itemDef?.kind === "other" ||
@@ -910,7 +912,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                       {selectedMob.spoil.map((spoil: DropEntry, idx) => {
                         const itemDef = itemsDB[spoil.id];
                         const iconPath = dropLineIconPath(spoil);
-                        const itemName = itemDef?.name || spoil.displayName || spoil.id;
+                        const itemName =
+                          itemDef?.name || spoil.displayName || resourceLootDisplayName(spoil.id);
                         const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other" || spoil.kind === "resource";
                         const itemGrade = !isResource ? (itemDef?.grade ?? autoDetectGrade(spoil.id)) : null;
                         const gradeDisplay = itemGrade ? ` [${itemGrade}]` : "";
@@ -969,7 +972,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
         if (!itemDef && dropLine) {
           const iconPath = dropLineIconPath(dropLine);
-          const title = dropLine.displayName || dropLine.id;
+          const title = dropLine.displayName || resourceLootDisplayName(dropLine.id);
           return (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
