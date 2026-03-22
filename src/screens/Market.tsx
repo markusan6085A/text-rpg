@@ -500,8 +500,12 @@ export default function Market({ navigate }: MarketProps) {
     ? "flex gap-2 items-center py-1.5 px-2 rounded-md border border-[#5c4a32]/50 bg-gradient-to-b from-[#2a2318]/92 to-[#12100c]/92 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
     : "flex gap-2 items-center py-1.5 px-2 rounded-md border border-black/55 bg-[#1a1510]";
 
+  const marketBannerWrap = isL2
+    ? "relative overflow-hidden rounded-lg border border-[#8a7348]/50 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.65),0_4px_16px_rgba(0,0,0,0.45)]"
+    : "relative overflow-hidden rounded-lg border border-amber-800/45";
+
   return (
-    <div className="flex flex-col items-stretch px-2 py-4 max-w-lg mx-auto w-full min-w-0">
+    <div className="flex flex-col items-stretch px-2 py-4 max-w-xl mx-auto w-full min-w-0">
       <div className={isL2 ? l2Outer : "rounded-xl border border-white/20 bg-[#1a1510] overflow-hidden"}>
         <div
           className={
@@ -513,10 +517,29 @@ export default function Market({ navigate }: MarketProps) {
           Рынок игроков
         </div>
 
+        <div className="px-3 pt-2 pb-0">
+          <div className={marketBannerWrap}>
+            <img
+              src="/icons/bank.jpg"
+              alt=""
+              className="h-[4.5rem] sm:h-[5.25rem] w-full object-cover object-[center_40%]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/45 to-[#1a1510]/25" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/55 to-transparent" />
+            <div className="pointer-events-none absolute bottom-1.5 left-2.5 right-2 flex flex-wrap items-end justify-between gap-1">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#e8c56e] drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
+                Торговий квартал
+              </span>
+              <span className="hidden sm:inline text-[9px] text-[#a89878]/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                Лоти гравців · 24 год
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div className="px-3 py-3 space-y-3">
-          <p className={isL2 ? "text-[11px] text-[#8a7a60] leading-snug" : "text-[11px] text-[#a89878]"}>
-            Предмети — вкладка «Все лоты». Coin of Luck з балансу (не з інвентаря) — окрема вкладка: купівля лише за
-            адену. Термін лоту 24 год.
+          <p className={isL2 ? "text-[10px] text-[#8a7a60] leading-snug" : "text-[10px] text-[#a89878]"}>
+            «Все лоты» — предмети. «Coin of Luck» — CoL з балансу, оплата аденою. Лот 24 год.
           </p>
 
           <div className="flex flex-wrap gap-2 justify-center">
