@@ -162,7 +162,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const l2MobCard =
-    "w-full rounded-md mb-2 border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_4px_12px_rgba(0,0,0,0.45)] hover:border-[#c7ad80]/45 hover:brightness-[1.04] active:scale-[0.995] transition-[border-color,transform,filter] duration-150 px-2.5 py-2 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40";
+    "w-full rounded-md mb-1.5 border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_4px_12px_rgba(0,0,0,0.45)] hover:border-[#c7ad80]/45 hover:brightness-[1.04] active:scale-[0.995] transition-[border-color,transform,filter] duration-150 px-2 py-1.5 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40";
 
   // Підтримуємо і ?id=, і ?zone= на всяк випадок
   const zoneId = q.get("id") || q.get("zone") || "";
@@ -437,8 +437,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             onClick={() => openBattle(patrolAggroBanner.mobIndex)}
             className={
               isL2
-                ? "mb-2 w-full text-left rounded-lg border border-rose-900/55 bg-gradient-to-b from-[#3d1515]/90 to-[#1a0a0a]/90 px-3 py-2.5 text-[12px] leading-snug text-[#f0c8c8] shadow-[0_0_12px_rgba(180,40,40,0.15)] hover:border-[#c7ad80]/45 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] cursor-pointer"
-                : "mb-2 w-full text-left rounded-md border border-rose-800/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-100 hover:bg-rose-900/50 cursor-pointer"
+                ? "mb-1.5 w-full text-left rounded-lg border border-rose-900/55 bg-gradient-to-b from-[#3d1515]/90 to-[#1a0a0a]/90 px-2.5 py-2 text-[11px] leading-snug text-[#f0c8c8] shadow-[0_0_12px_rgba(180,40,40,0.15)] hover:border-[#c7ad80]/45 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] cursor-pointer"
+                : "mb-1.5 w-full text-left rounded-md border border-rose-800/50 bg-rose-950/40 px-2.5 py-1.5 text-xs text-rose-100 hover:bg-rose-900/50 cursor-pointer"
             }
           >
             {getGameSettings().language === "uk"
@@ -502,10 +502,10 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                       }
                     }}
                   >
-                    <div className="flex items-center gap-2.5 w-full">
+                    <div className="flex items-center gap-2 w-full">
                       <button
                         type="button"
-                        className="relative w-9 h-9 shrink-0 rounded-md border border-[#5c4a32]/50 bg-black/35 flex items-center justify-center overflow-hidden p-0.5 hover:border-[#c7ad80]/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40 cursor-pointer"
+                        className="relative w-8 h-8 shrink-0 rounded border border-[#5c4a32]/50 bg-black/35 flex items-center justify-center overflow-hidden p-0.5 hover:border-[#c7ad80]/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40 cursor-pointer"
                         title="Характеристики"
                         aria-label="Характеристики моба"
                         onClick={(e) => {
@@ -517,7 +517,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                           <img
                             src={listIconSrc}
                             alt=""
-                            className="max-w-[26px] max-h-[26px] w-full h-full object-contain object-center pointer-events-none"
+                            className="max-w-[22px] max-h-[22px] w-full h-full object-contain object-center pointer-events-none"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = "none";
                             }}
@@ -528,7 +528,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                       </button>
                       <div className="flex-1 min-w-0 text-left">
                         <div
-                          className={`text-[12px] font-medium leading-snug min-w-0 flex flex-wrap items-baseline gap-x-0.5 ${nameCls}`}
+                          className={`text-[11px] font-medium leading-tight min-w-0 flex flex-wrap items-baseline gap-x-0.5 ${nameCls}`}
                         >
                           <span className="truncate min-w-0">{displayMobName(mob.name)}</span>
                           {isPatrol ? (
@@ -536,14 +536,14 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                           ) : null}
                         </div>
                         {isQuestMob && (
-                          <div className="text-[9px] text-[#6b7280] mt-0.5">квест</div>
+                          <div className="text-[8px] text-[#6b7280] mt-px leading-none">квест</div>
                         )}
                       </div>
-                      <div className="shrink-0 text-right rounded-md bg-black/30 border border-[#5c4a32]/40 px-2 py-1 min-w-[3.25rem]">
-                        <div className="text-[11px] font-semibold text-[#c45c5c] leading-none">
+                      <div className="shrink-0 text-right rounded bg-black/30 border border-[#5c4a32]/40 px-1.5 py-0.5 min-w-[2.85rem]">
+                        <div className="text-[10px] font-semibold text-[#c45c5c] leading-none">
                           [{mob.level}]
                         </div>
-                        <div className="text-[10px] text-[#a89878] mt-1 leading-none tabular-nums">
+                        <div className="text-[9px] text-[#a89878] mt-0.5 leading-none tabular-nums">
                           {getMobEffectiveMaxHp(mob)}/{getMobEffectiveMaxHp(mob)}
                         </div>
                       </div>
