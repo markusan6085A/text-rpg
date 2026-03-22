@@ -225,6 +225,50 @@ function heuristicMobIcon(normalized: string): string | undefined {
   return undefined;
 }
 
+/**
+ * L2 XML часто дає англійські name= — підбираємо /mobs/*.png за ключовими словами.
+ * Порядок: від специфічніших шаблонів до загальніших.
+ */
+export function hintL2EnglishMobIcon(displayName: string): string | undefined {
+  const s = displayName.trim();
+  if (!s) return undefined;
+  const tests: [RegExp, string][] = [
+    [/\b(skeleton|zombie|lich|ghoul|corpse|undead|reaper|skeleton\s|grave|wight)\b/i, "16.png"],
+    [/\b(dragon|drake|wyrm|serpent\b|lindvior|valakas|antharas)\b/i, "33.png"],
+    [/\b(lizardman|lizard\b|stakato|araneid|tarantula|scorpion\b|ant\s|ant\b|spider)\b/i, "22.png"],
+    [/\b(snake|medusa|cobra)\b/i, "45.png"],
+    [/\b(ketra|varka|silenos|orc\b|ol mahum)\b/i, "5.png"],
+    [/\bgoblin\b/i, "3.png"],
+    [/\bgremlin\b/i, "1.png"],
+    [/\b(imp|fiend)\b/i, "4.png"],
+    [/\b(ogre|cyclops|troll|giant\b|grendel)\b/i, "12.png"],
+    [/\b(golem|granite|crawler|guardian of|pillar)\b/i, "13.png"],
+    [/\b(wolf|fox\b|dog\b|hyena|keltir|jackal)\b/i, "9.png"],
+    [/\b(bear|buffalo|bison|yeti|tyrant|bandersnatch|bander|beast\b|dire wolf)\b/i, "15.png"],
+    [/\b(rabbit|elpy|hare|rodent)\b/i, "2.png"],
+    [/\b(bat\b|vampire)\b/i, "18.png"],
+    [/\b(harpy|gargoyle|griffin|wyvern)\b/i, "31.png"],
+    [/\b(eye\b|beholder|gazer|observer)\b/i, "28.png"],
+    [/\b(shroom|fungus|spore|rot\s+tree)\b/i, "6.png"],
+    [/\b(worm|larva|maggot|ooze|slime)\b/i, "20.png"],
+    [/\b(doll|puppet|mannequin)\b/i, "28.png"],
+    [/\b(dwarf|troglodyte|delu\b|pashika)\b/i, "5.png"],
+    [/\b(wisp|magus|witch|shaman|warlock|necromancer|sorcerer)\b/i, "317.png"],
+    [/\b(angel|seraph)\b/i, "31.png"],
+    [/\b(demon|devil|succubus)\b/i, "317.png"],
+    [/\b(plant|treant|root\b|ivy\b|moss)\b/i, "6.png"],
+    [/\b(fairy|pixie|sprite)\b/i, "2.png"],
+    [/\b(monk|warrior monk|acolyte)\b/i, "16.png"],
+    [/\b(grazing|snipe|antelope|deer)\b/i, "10.png"],
+    [/\b(hot\s+springs|geyser|spring\b)\b/i, "12.png"],
+    [/\b(berserker|chieftain|scout|footman|warrior|soldier|elite|captain)\b/i, "5.png"],
+  ];
+  for (const [re, file] of tests) {
+    if (re.test(s)) return `/mobs/${file}`;
+  }
+  return undefined;
+}
+
 /** Повертає URL іконки /mobs/N.png або undefined */
 export function getMobPublicIconSrc(displayName: string): string | undefined {
   const core = stripPrefixes(displayName);
@@ -236,6 +280,10 @@ export function getMobPublicIconSrc(displayName: string): string | undefined {
   for (const key of candidates) {
     const h = heuristicMobIcon(key);
     if (h) return `/mobs/${h}`;
+  }
+  for (const key of candidates) {
+    const en = hintL2EnglishMobIcon(key);
+    if (en) return en;
   }
   /** Будь-яка непорожня назва — щоб не лишати «—» на екрані локації */
   if (core.trim().length >= 2) return "/mobs/98.png";
