@@ -33,7 +33,8 @@ const genderOptions = [
   { value: "Female", label: "Женский" },
 ];
 
-const CONTROL_WRAP = "w-[400px]"; // збільшена ширина для input/select
+/** Повна ширина картки — без фіксованих 400px (на вузькому екрані не вилазить за рамку) */
+const CONTROL_WRAP = "w-full max-w-full min-w-0";
 
 // Дозволені символи: букви, цифри + 4 спеціальні символи (_, -, ., @)
 const ALLOWED_NICK_CHARS = /^[a-zA-Z0-9_\-\.@]+$/;
@@ -194,32 +195,35 @@ export default function Register({ navigate }: RegisterProps) {
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.55)] bg-[radial-gradient(ellipse_100%_40%_at_50%_-10%,rgba(120,90,45,0.22)_0%,transparent_45%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const shell = isL2
-    ? "flex justify-center p-4 min-h-[100dvh] bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(90,70,40,0.35)_0%,transparent_55%),linear-gradient(180deg,#12100c_0%,#0a0907_100%)]"
-    : "flex justify-center p-4";
+    ? "flex justify-center items-start px-2.5 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4 min-h-[100dvh] box-border overflow-x-hidden bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(90,70,40,0.35)_0%,transparent_55%),linear-gradient(180deg,#12100c_0%,#0a0907_100%)]"
+    : "flex justify-center items-start px-2.5 py-2 sm:p-4 box-border overflow-x-hidden";
   const labelText = isL2 ? "text-[#d4c4a8]" : "text-white";
-  const h1Cls = isL2 ? "text-[#e8c56e] text-xl font-semibold text-center [text-shadow:0_1px_2px_rgba(0,0,0,0.75)]" : "text-white text-xl font-semibold text-center";
+  const h1Cls = isL2
+    ? "text-[#e8c56e] text-base sm:text-lg font-semibold text-center [text-shadow:0_1px_2px_rgba(0,0,0,0.75)] tracking-tight"
+    : "text-white text-base sm:text-lg font-semibold text-center";
+  const labelRowCls = "text-[11px] sm:text-xs font-medium text-center w-full";
   const inputCls = isL2
-    ? "w-full text-sm text-[#e8dcc8] placeholder-[#6a6048] bg-[#0f0a06] border border-[#5c4a32]/60 rounded-md px-2 py-2 min-h-[2.25rem]"
-    : "l2-input w-full";
+    ? "w-full box-border text-center sm:text-left text-xs sm:text-sm text-[#e8dcc8] placeholder-[#6a6048] placeholder:text-center sm:placeholder:text-left bg-[#0f0a06] border border-[#5c4a32]/60 rounded-md px-2.5 py-1.5 sm:py-2 min-h-[2rem] sm:min-h-[2.25rem]"
+    : "l2-input w-full box-border text-xs sm:text-sm min-h-[2rem]";
   const selectCls = isL2
-    ? "w-full text-sm text-[#e8dcc8] bg-[#0f0a06] border border-[#5c4a32]/60 rounded-md px-2 py-2 min-h-[2.25rem]"
-    : "l2-input w-full";
+    ? "w-full box-border text-center text-xs sm:text-sm text-[#e8dcc8] bg-[#0f0a06] border border-[#5c4a32]/60 rounded-md px-2 py-1.5 sm:py-2 min-h-[2rem] sm:min-h-[2.25rem] appearance-none pr-8"
+    : "l2-input w-full box-border text-xs sm:text-sm text-center min-h-[2rem]";
   const btnSubmit = isL2
-    ? "w-full max-w-[400px] mt-3 py-2.5 px-4 rounded-md text-sm font-medium bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 text-[#e8c56e] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/50 active:scale-[0.99] transition-all disabled:opacity-60"
-    : "l2-btn w-full max-w-[400px] mt-3";
+    ? "w-full mt-2 sm:mt-3 py-2 sm:py-2.5 px-3 rounded-md text-xs sm:text-sm font-medium bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 text-[#e8c56e] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/50 active:scale-[0.99] transition-all disabled:opacity-60"
+    : "l2-btn w-full mt-2 sm:mt-3 py-2 text-xs sm:text-sm";
   const btnBack = isL2
-    ? "w-full max-w-[400px] py-2.5 px-4 rounded-md text-sm font-medium bg-gradient-to-b from-[#2a2419] to-[#16130e] border border-[#5c4a32]/60 text-[#c9a44c] hover:border-[#c7ad80]/45"
-    : "l2-btn w-full max-w-[400px]";
+    ? "w-full py-2 sm:py-2.5 px-3 rounded-md text-xs sm:text-sm font-medium bg-gradient-to-b from-[#2a2419] to-[#16130e] border border-[#5c4a32]/60 text-[#c9a44c] hover:border-[#c7ad80]/45"
+    : "l2-btn w-full py-2 text-xs sm:text-sm";
   const errCls = isL2 ? "text-[#d4786a]" : "text-red-400";
   const mutedCls = isL2 ? "text-[#8a7a60]" : "text-gray-400";
 
   return (
     <div className={shell}>
-      <div className="w-full max-w-[420px] sm:max-w-[440px] space-y-4">
-        <div className={isL2 ? `${l2Frame} p-4 sm:p-5 space-y-4` : "space-y-4"}>
+      <div className="w-full max-w-[min(100%,22rem)] sm:max-w-[26rem] space-y-2 sm:space-y-3">
+        <div className={isL2 ? `${l2Frame} p-3 sm:p-5 space-y-2 sm:space-y-3` : "space-y-2 sm:space-y-3"}>
           <h1 className={h1Cls}>Создать героя</h1>
 
-          <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
+          <form onSubmit={handleSubmit} className="flex flex-col items-stretch gap-2 sm:gap-3 w-full min-w-0">
           {/* INPUTS */}
           {[
             {
@@ -237,13 +241,13 @@ export default function Register({ navigate }: RegisterProps) {
                     autoComplete="username"
                   />
                   {nickError && (
-                    <div className={`${errCls} text-xs mt-1 text-center`}>
+                    <div className={`${errCls} text-[10px] sm:text-xs mt-0.5 text-center leading-tight`}>
                       {nickError}
                     </div>
                   )}
                   {!nickError && username.length > 0 && (
-                    <div className={`${mutedCls} text-xs mt-1 text-center`}>
-                      {username.length}/{MAX_NICK_LENGTH} символов
+                    <div className={`${mutedCls} text-[10px] sm:text-xs mt-0.5 text-center`}>
+                      {username.length}/{MAX_NICK_LENGTH}
                     </div>
                   )}
                 </div>
@@ -277,9 +281,9 @@ export default function Register({ navigate }: RegisterProps) {
           ].map((row) => (
             <label
               key={row.label}
-              className={`${labelText} flex flex-col items-center gap-2 w-full`}
+              className={`${labelText} flex flex-col items-stretch gap-1 sm:gap-1.5 w-full min-w-0`}
             >
-              <span className="label-text">{row.label}:</span>
+              <span className={labelRowCls}>{row.label}:</span>
               <div className={CONTROL_WRAP}>{row.element}</div>
             </label>
           ))}
@@ -302,12 +306,22 @@ export default function Register({ navigate }: RegisterProps) {
           ].map((row) => (
             <label
               key={row.label}
-              className={`${labelText} flex flex-col items-center gap-2 w-full`}
+              className={`${labelText} flex flex-col items-stretch gap-1 sm:gap-1.5 w-full min-w-0`}
             >
-              <span className="label-text">{row.label}:</span>
+              <span className={labelRowCls}>{row.label}:</span>
               <div className={CONTROL_WRAP}>
                 <select
                   className={selectCls}
+                  style={
+                    isL2
+                      ? {
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23c9a44c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "right 0.5rem center",
+                          backgroundSize: "0.75rem",
+                        }
+                      : undefined
+                  }
                   value={row.value}
                   onChange={(e) => row.setter(e.target.value)}
                 >
@@ -322,7 +336,7 @@ export default function Register({ navigate }: RegisterProps) {
           ))}
 
           {error && (
-            <div className={`${errCls} text-sm text-center`}>
+            <div className={`${errCls} text-[11px] sm:text-sm text-center leading-snug px-0.5`}>
               {error}
             </div>
           )}
