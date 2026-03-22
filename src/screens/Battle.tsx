@@ -12,6 +12,8 @@ import { BattlePanel } from "./battle/BattlePanel";
 import { isMobOnRespawn } from "../state/battle/mobRespawns";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { displayMobName } from "../utils/worldDisplay";
+import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { clearDeathGate } from "../utils/deathGate";
 
 type Navigate = (path: string) => void;
@@ -21,6 +23,7 @@ interface BattleProps {
 }
 
 export default function Battle({ navigate }: BattleProps) {
+  useGameSettingsVersion();
   // navigate() робить full reload — URL не змінюється під час сесії, тому читаємо один раз (без полінгу)
   const urlParams = React.useMemo(() => new URLSearchParams(typeof window !== "undefined" ? location.search : ""), []);
   
@@ -343,7 +346,7 @@ export default function Battle({ navigate }: BattleProps) {
           {/* Інформація про моба */}
           <div className={`${vLine} pt-2`}>
             <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
-              <span>{mob.name}</span>
+              <span>{displayMobName(mob.name)}</span>
               {mob.aggressivePatrol ? (
                 <span className="text-[#5c0a0a]"> (агр)</span>
               ) : null}
@@ -464,7 +467,7 @@ export default function Battle({ navigate }: BattleProps) {
     return (
       <BattlePanel
         target={{
-          name: mob.name,
+          name: displayMobName(mob.name),
           level: mob.level,
           currentHp: 0,
           maxHp: getMobEffectiveMaxHp(mob),
@@ -481,7 +484,7 @@ export default function Battle({ navigate }: BattleProps) {
   const mobMaxHp = mob ? getMobEffectiveMaxHp(mob) : 1;
   const battleTarget = mob
     ? {
-        name: mob.name,
+        name: displayMobName(mob.name),
         level: mob.level,
         currentHp: Number.isFinite(mobHP) ? mobHP : mobMaxHp,
         maxHp: mobMaxHp,

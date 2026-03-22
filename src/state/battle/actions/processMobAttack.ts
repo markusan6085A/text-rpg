@@ -19,6 +19,7 @@ import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import type { Zone } from "../../../data/world/types";
 import { commitMobVictoryToHeroStore } from "../commitMobVictory";
 import { writeDeathGate } from "../../../utils/deathGate";
+import { displayMobName } from "../../../utils/worldDisplay";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -41,7 +42,7 @@ export const createProcessMobAttack =
       // Моб все ще оглушений - пропускаємо атаку
       const remainingStunTime = Math.ceil((state.mobStunnedUntil! - now) / 1000);
       const newLog = [
-        `${state.mob.name} оглушен и не может атаковать (осталось ${remainingStunTime} сек).`,
+        `${displayMobName(state.mob.name)} оглушен и не может атаковать (осталось ${remainingStunTime} сек).`,
         ...state.log,
       ].slice(0, 30);
       
@@ -91,7 +92,7 @@ export const createProcessMobAttack =
     const updateHero = useHeroStore.getState().updateHero;
 
     if (isMiss) {
-      const newLog = [`${state.mob.name} промахнулся.`, ...state.log].slice(0, 30);
+      const newLog = [`${displayMobName(state.mob.name)} промахнулся.`, ...state.log].slice(0, 30);
       const updates: Partial<BattleState> = {
         mobNextAttackAt: scheduleNext(now),
         log: newLog,
@@ -330,17 +331,17 @@ export const createProcessMobAttack =
     // Логіка відбиття урону
     if (reflectResult.reflected) {
       lines.push(
-        `Physical Mirror отразил ${Math.round(reflectedDamage)} урона обратно на ${state.mob.name}!`
+        `Physical Mirror отразил ${Math.round(reflectedDamage)} урона обратно на ${displayMobName(state.mob.name)}!`
       );
       if (nextMobHP <= 0) {
-        lines.push(`${state.mob.name} побежден отраженным уроном!`);
+        lines.push(`${displayMobName(state.mob.name)} побежден отраженным уроном!`);
       }
     } else {
       // Звичайний урон
       if (heroDamage === 0) {
-        lines.push(`${state.mob.name} попал, но не нанес урона.`);
+        lines.push(`${displayMobName(state.mob.name)} попал, но не нанес урона.`);
       } else {
-        lines.push(`${state.mob.name} наносит вам ${Math.round(heroDamage)} урона.`);
+        lines.push(`${displayMobName(state.mob.name)} наносит вам ${Math.round(heroDamage)} урона.`);
       }
     }
     
@@ -382,7 +383,7 @@ export const createProcessMobAttack =
               const isStunned = state.heroStunnedUntil && state.heroStunnedUntil > now;
               if (!isStunned && Math.random() < currentPhase.stunChance) {
                 heroStunnedUntil = now + currentPhase.stunDuration * 1000;
-                specialEffectsLog.push(`${state.mob.name} оглушил вас на ${currentPhase.stunDuration} сек!`);
+                specialEffectsLog.push(`${displayMobName(state.mob.name)} оглушил вас на ${currentPhase.stunDuration} сек!`);
               }
             }
 
@@ -393,7 +394,7 @@ export const createProcessMobAttack =
               if (!isBlocked && Math.random() < currentPhase.blockBuffsAndSkillsChance) {
                 heroBuffsBlockedUntil = now + currentPhase.blockDuration * 1000;
                 heroSkillsBlockedUntil = now + currentPhase.blockDuration * 1000;
-                specialEffectsLog.push(`${state.mob.name} заблокировал ваши бафы и навыки на ${currentPhase.blockDuration} сек!`);
+                specialEffectsLog.push(`${displayMobName(state.mob.name)} заблокировал ваши бафы и навыки на ${currentPhase.blockDuration} сек!`);
               }
             }
           }
@@ -408,7 +409,7 @@ export const createProcessMobAttack =
       const buffsBeforeDispel = nextBuffsAfterDispel.length;
       nextBuffsAfterDispel = []; // Знімаємо всі бафи
       if (buffsBeforeDispel > 0) {
-        specialEffectsLog.push(`${state.mob.name} зняв всі ваші бафы! (${buffsBeforeDispel} бафов удалено)`);
+        specialEffectsLog.push(`${displayMobName(state.mob.name)} зняв всі ваші бафы! (${buffsBeforeDispel} бафов удалено)`);
       }
     }
 
@@ -433,7 +434,7 @@ export const createProcessMobAttack =
             source: "skill",
           };
           nextBuffsAfterDispel = [...nextBuffsAfterDispel, curseDebuff];
-          specialEffectsLog.push(`${state.mob.name} наложил на вас проклятие: Weakness! (-17% физ. атака на 5 сек)`);
+          specialEffectsLog.push(`${displayMobName(state.mob.name)} наложил на вас проклятие: Weakness! (-17% физ. атака на 5 сек)`);
         }
       }
     }
@@ -562,7 +563,7 @@ export const createProcessMobAttack =
         mobIndex: state.mobIndex,
       });
       const lootLines = [
-        `${state.mob.name} повержен.`,
+        `${displayMobName(state.mob.name)} повержен.`,
         v.mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
         `Добыча: +${v.displayExp} EXP, +${v.displaySp} SP, +${v.displayAdena} адены`,
         ...(v.dropMessages.length > 0 ? v.dropMessages : []),

@@ -78,7 +78,7 @@ export function buildL2DopGoddardEliteZones(): Zone[] {
     }),
     buildEliteGoddardZone({
       id: "l2dop_goddard_giants_cave",
-      name: "Годдарт — Печера Гігантів (L2)",
+      name: "Годдарт — Печера Гігантів",
       tp: 48000,
       mobCount: 180,
       combatMult: 3,

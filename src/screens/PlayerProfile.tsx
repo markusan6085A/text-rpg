@@ -15,6 +15,8 @@ import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import PkProfileView from "./player/PkProfileView";
 import InvitePlayerModal from "./clan/modals/InvitePlayerModal";
 import { locations as WORLD_LOCATIONS } from "../data/world";
+import { displayStoredLocationName } from "../utils/worldDisplay";
+import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { useAutoShot } from "../state/battle/actions/useSkill/shotHelpers";
 import { calcAutoAttackInterval, calcPhysicalSkillCooldown } from "../utils/combatSpeed";
 
@@ -33,6 +35,7 @@ import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
+  useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
   const isAdmin = useAdminStore((s) => s.isAdmin);
   const [character, setCharacter] = useState<Character | null>(null);
@@ -1271,7 +1274,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           {/* Локація */}
           <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
             <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-400"}>
-              В {location}
+              В {displayStoredLocationName(location)}
             </div>
           </div>
 

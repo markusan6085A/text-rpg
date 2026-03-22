@@ -19,6 +19,8 @@ import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api
 import { getGameSettings } from "../state/gameSettings";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { displayCityName, displayMobName, displayZoneName } from "../utils/worldDisplay";
+import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../data/world/l2dop/droplistMapping";
@@ -151,6 +153,7 @@ function runAggressivePatrolHit(ctx: PatrolTickCtx): { banner: PatrolAggroBanner
 }
 
 export default function LocationScreen({ navigate }: { navigate: Navigate }) {
+  useGameSettingsVersion();
   const q = useQuery();
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
@@ -413,16 +416,16 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
       <div className={isL2 ? "w-full max-w-[420px] mx-auto" : ""}>
         {isL2 ? (
           <div className="mb-3 rounded-lg border border-[#5c4a32]/45 bg-black/22 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]">
-            <div className="text-[10px] uppercase tracking-wider text-[#8a7a60]">{city.name}</div>
+            <div className="text-[10px] uppercase tracking-wider text-[#8a7a60]">{displayCityName(city)}</div>
             <div className="mt-1 flex items-center gap-2 text-[#e8c56e] text-[15px] font-semibold leading-tight [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]">
               <img src="/assets/travel.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-90" />
-              <span>{zone.name}</span>
+              <span>{displayZoneName(zone)}</span>
             </div>
           </div>
         ) : (
           <div className="text-[#c7ad80] mb-2 text-base font-semibold flex items-center gap-2">
-            <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
-            <span>{zone.name}</span>
+            <img src="/assets/travel.png" alt={displayZoneName(zone)} className="w-3 h-3 object-contain" />
+            <span>{displayZoneName(zone)}</span>
           </div>
         )}
 
@@ -438,8 +441,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             }
           >
             {getGameSettings().language === "uk"
-              ? `Вас атакує ${patrolAggroBanner.mobName} і завдає ${patrolAggroBanner.damage} урону. Натисніть, щоб увійти в бій.`
-              : `Вас атакует ${patrolAggroBanner.mobName} и наносит ${patrolAggroBanner.damage} урона. Нажмите, чтобы войти в бой.`}
+              ? `Вас атакує ${displayMobName(patrolAggroBanner.mobName)} і завдає ${patrolAggroBanner.damage} урону. Натисніть, щоб увійти в бій.`
+              : `Вас атакует ${displayMobName(patrolAggroBanner.mobName)} и наносит ${patrolAggroBanner.damage} урона. Нажмите, чтобы войти в бой.`}
           </button>
         ) : null}
 
@@ -526,7 +529,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         <div
                           className={`text-[12px] font-medium leading-snug min-w-0 flex flex-wrap items-baseline gap-x-0.5 ${nameCls}`}
                         >
-                          <span className="truncate min-w-0">{mob.name}</span>
+                          <span className="truncate min-w-0">{displayMobName(mob.name)}</span>
                           {isPatrol ? (
                             <span className="text-[#5c0a0a] font-semibold shrink-0"> (агр)</span>
                           ) : null}
@@ -580,7 +583,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     style={isQuestMob ? { color: "#6b7280" } : undefined}
                     onClick={() => openBattle(globalIndex)}
                   >
-                    {mob.name}
+                    {displayMobName(mob.name)}
                     {isPatrol ? <span className="text-[#5c0a0a] font-semibold"> (агр)</span> : null}
                   </span>
                   <span className="text-red-500">[{mob.level}]</span>
@@ -714,7 +717,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                       : "text-lg font-semibold text-[#b8860b]"
                   }
                 >
-                  {selectedMob.name}
+                  {displayMobName(selectedMob.name)}
                 </h2>
                 <button
                   type="button"

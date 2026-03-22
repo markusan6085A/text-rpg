@@ -4,6 +4,8 @@ import { findZoneWithCity } from "./battleUtils";
 import { isMobOnRespawn } from "../../state/battle/mobRespawns";
 import { useHeroStore } from "../../state/heroStore";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { displayMobName } from "../../utils/worldDisplay";
+import { useGameSettingsVersion } from "../../hooks/useGameSettingsVersion";
 
 interface VictoryModalProps {
   navigate: (path: string) => void;
@@ -11,6 +13,7 @@ interface VictoryModalProps {
 }
 
 export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
+  useGameSettingsVersion();
   const isL2 = getCityUiVariant() === "l2";
   const { lastReward, zoneId, mobIndex, startBattle, reset, lastMobDamage, mob } = useBattleStore();
 
@@ -134,7 +137,7 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
               style={{ maxHeight: "32px" }}
             />
             <p className="text-xs">
-              <span className="text-red-500 font-semibold">{lastReward.mob}</span>
+              <span className="text-red-500 font-semibold">{displayMobName(lastReward.mob)}</span>
               {lastReward.mobAggressivePatrol ? (
                 <span className="text-[#5c0a0a] font-semibold"> (агр)</span>
               ) : null}{" "}

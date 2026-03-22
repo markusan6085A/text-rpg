@@ -3,6 +3,8 @@ import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { displayStoredLocationName } from "../utils/worldDisplay";
+import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 
 interface OnlinePlayersProps {
   navigate: (path: string) => void;
@@ -11,6 +13,7 @@ interface OnlinePlayersProps {
 type SortType = "level" | "name";
 
 export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
+  useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
   const [players, setPlayers] = useState<OnlinePlayer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,7 +185,9 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
                       }}
                     />
                     <span className={isL2 ? "text-[#8a7a60]" : "text-gray-500"}>{player.level} ур.</span>
-                    <span className={isL2 ? "text-[#8a7a60]" : "text-gray-500"}>в {player.location}</span>
+                    <span className={isL2 ? "text-[#8a7a60]" : "text-gray-500"}>
+                      в {displayStoredLocationName(player.location)}
+                    </span>
                   </div>
                   {player.power && (
                     <span className="text-yellow-400">{player.power}</span>

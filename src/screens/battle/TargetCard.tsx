@@ -2,6 +2,8 @@ import React from "react";
 import type { City, Zone, Mob } from "../../data/world/types";
 import { useBattleStore } from "../../state/battle/store";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { displayMobName } from "../../utils/worldDisplay";
+import { useGameSettingsVersion } from "../../hooks/useGameSettingsVersion";
 
 interface TargetCardProps {
   zone: Zone;
@@ -11,6 +13,7 @@ interface TargetCardProps {
 }
 
 export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps) {
+  useGameSettingsVersion();
   const isL2 = getCityUiVariant() === "l2";
   const { mobHP } = useBattleStore();
   const maxHP = typeof mob.hp === "number" ? mob.hp : 0;
@@ -37,7 +40,7 @@ export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps
       }
     >
       <div className="flex items-baseline justify-start gap-2 w-full">
-        <div className={nameClass} style={nameStyle}>{mob.name}</div>
+        <div className={nameClass} style={nameStyle}>{displayMobName(mob.name)}</div>
         <div className={levelClass} style={levelStyle}>Lv {mob.level}</div>
       </div>
       <div className="flex flex-col items-start gap-[4px] text-[11px] text-[#252524] w-full">

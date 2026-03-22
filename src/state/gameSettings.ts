@@ -3,6 +3,9 @@ import { GAME_SETTINGS_KEY } from "../constants/storageKeys";
 
 export const TUTORIAL_HINT_KEY = "l2_tutorial_hint_seen";
 
+/** Подія для перемальовування екранів після зміни мови/інших опцій. */
+export const GAME_SETTINGS_CHANGED_EVENT = "l2-game-settings-changed";
+
 export type Language = "ru" | "uk";
 export type MobsPerPage = 10 | 15 | 20 | 25 | 30;
 
@@ -34,6 +37,9 @@ export function getGameSettings(): GameSettings {
 export function setGameSettings(settings: Partial<GameSettings>) {
   const current = getGameSettings();
   setJSON(GAME_SETTINGS_KEY, { ...current, ...settings });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(GAME_SETTINGS_CHANGED_EVENT));
+  }
 }
 
 export function resetTutorialHint() {

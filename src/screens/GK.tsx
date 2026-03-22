@@ -8,6 +8,8 @@ import type { Zone } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
 import { savePreviousLocation, savePreviousCity, getPreviousCity, clearPreviousLocation } from "../utils/locationNavigation";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { displayCityName, displayZoneName } from "../utils/worldDisplay";
+import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 
 type Navigate = (path: string) => void;
 
@@ -32,6 +34,7 @@ function getZonesByCity(cityId: string): Zone[] {
 }
 
 export default function GKScreen({ navigate }: { navigate: Navigate }) {
+  useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
   const q = useQuery();
   const isL2 = getCityUiVariant() === "l2";
@@ -230,7 +233,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                   >
                     <span className="flex items-center gap-2 min-w-0">
                       <img src={iconPath} alt="" className={ico} />
-                      <span className="text-[#d4c4a8] truncate">{city.name}</span>
+                      <span className="text-[#d4c4a8] truncate">{displayCityName(city)}</span>
                     </span>
                     <span className="flex items-center gap-1 text-[#a89878] shrink-0">
                       0
@@ -246,8 +249,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                     role="button"
                     tabIndex={0}
                   >
-                    <img src={iconPath} alt={city.name} className="w-3 h-3 object-contain" />
-                    <span>{city.name}</span>
+                    <img src={iconPath} alt={displayCityName(city)} className="w-3 h-3 object-contain" />
+                    <span>{displayCityName(city)}</span>
                     <span className="ml-auto flex items-center gap-1 text-[#c7ad80]">
                       0
                       <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
@@ -287,7 +290,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                       <span className="flex items-start gap-2 min-w-0 text-left">
                         <img src="/assets/travel.png" alt="" className={`${ico} mt-0.5`} />
                         <span className="flex flex-col min-w-0">
-                          <span className="text-[#e8dcc8] leading-snug">{zone.name}</span>
+                          <span className="text-[#e8dcc8] leading-snug">{displayZoneName(zone)}</span>
                           <span className="text-[11px] text-[#c45c5c] mt-0.5">
                             ур. {zone.minLevel}–{zone.maxLevel}
                           </span>
@@ -306,8 +309,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                       className="flex items-center gap-2 text-[#c7ad80] text-xs cursor-pointer hover:text-[#f4e2b8] py-0.5"
                       onClick={() => goToZone(zone.id)}
                     >
-                      <img src="/assets/travel.png" alt={zone.name} className="w-3 h-3 object-contain" />
-                      <span>{zone.name}:</span>
+                      <img src="/assets/travel.png" alt={displayZoneName(zone)} className="w-3 h-3 object-contain" />
+                      <span>{displayZoneName(zone)}:</span>
                       <span className="text-red-500">
                         {zone.minLevel}-{zone.maxLevel}
                       </span>

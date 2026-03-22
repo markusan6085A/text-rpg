@@ -11,6 +11,7 @@ import { isMobOnRespawn, getRespawnTimeRemaining, clearMobRespawn } from "../mob
 import { itemsDB } from "../../../data/items/itemsDB";
 import { loadBattleLogs, saveBattleLogs } from "../battleLogs";
 import { savePreviousCity } from "../../../utils/locationNavigation";
+import { displayMobName } from "../../../utils/worldDisplay";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -67,7 +68,7 @@ export const createStartBattle =
         mobIndex,
         status: "idle",
         mob: undefined,
-        log: [`Моб ${mob.name} ще не респавнувся. Залишилось ${remainingSeconds} секунд.`],
+        log: [`Моб ${displayMobName(mob.name)} ще не респавнувся. Залишилось ${remainingSeconds} секунд.`],
       });
       persistSnapshot(get, persistBattle);
       return;
@@ -176,7 +177,7 @@ export const createStartBattle =
         mobNextAttackAt: saved.mobNextAttackAt ?? now + 1000 + Math.random() * 5000,
         heroNextAttackAt: heroNextAttackAtResume,
         status: saved.status === "victory" ? "victory" : saved.status ?? "fighting",
-        log: [`Fight resumed with ${saved.mob?.name || mob.name}`],
+        log: [`Fight resumed with ${displayMobName(saved.mob?.name || mob.name)}`],
         cooldowns,
         loadoutSlots: loadoutSlotsResume,
         professionForLoadout: hero?.profession ?? undefined,
@@ -285,10 +286,10 @@ export const createStartBattle =
     // Зберігаємо попередній лог, додаючи новий запис про початок бою
     // Спочатку перевіряємо savedLogs, потім prevState.log, потім новий запис
     const preservedLog = savedLogs.length > 0
-      ? [`Fight started with ${mob.name}`, ...savedLogs].slice(0, 10)
+      ? [`Fight started with ${displayMobName(mob.name)}`, ...savedLogs].slice(0, 10)
       : prevState.log && prevState.log.length > 0
-      ? [`Fight started with ${mob.name}`, ...prevState.log].slice(0, 10)
-      : [`Fight started with ${mob.name}`];
+      ? [`Fight started with ${displayMobName(mob.name)}`, ...prevState.log].slice(0, 10)
+      : [`Fight started with ${displayMobName(mob.name)}`];
     
     // 🔥 Оновлюємо location в heroJson при зміні локації (для відображення в профілі)
     if (hero && zone) {
