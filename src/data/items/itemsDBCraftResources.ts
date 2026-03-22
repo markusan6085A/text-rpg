@@ -1,6 +1,6 @@
 /**
- * Ресурси крафту (рівень 2): назви українською + іконки l2dop-by-itemid.
- * Не змінює droplistMapping — окремі id для результатів крафту.
+ * Ресурси крафту (рівні 2–3): назви українською + іконки l2dop-by-itemid.
+ * Окремі id для результатів крафту, де потрібно; решта — збіг з дропом.
  */
 import type { ItemDefinition } from "./itemsDB.types";
 
@@ -66,6 +66,99 @@ export const itemsDBCraftResources: Record<string, ItemDefinition> = {
     slot: "resource",
     icon: "/items/drops/resources/l2dop-by-itemid/1880.jpg",
     description: "Ресурс крафту.",
+    stackable: true,
+  },
+
+  /** Рівень 3 — іконки: числові L2 або файли з твоєї папки (Mithril_Alloy.jpg тощо) */
+  mithril_alloy: {
+    id: "mithril_alloy",
+    name: "Міфріловий сплав",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/Mithril_Alloy.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  crafted_leather: {
+    id: "crafted_leather",
+    name: "Вичинена шкіра",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1894.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  blacksmith_frame: {
+    id: "blacksmith_frame",
+    name: "Заготовка коваля",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/Blacksmith_Frame.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  artisans_frame: {
+    id: "artisans_frame",
+    name: "Заготовка ремісника",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/Artisan_Frame.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  oriharukon: {
+    id: "oriharukon",
+    name: "Орихалкон",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/Oriharukon.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  metal_hardener: {
+    id: "metal_hardener",
+    name: "Затверджувач металу",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/5220.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  metallic_fiber: {
+    id: "metallic_fiber",
+    name: "Металеве волокно",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1895.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  durable_metal_plate: {
+    id: "durable_metal_plate",
+    name: "Міцна сталева пластина",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/5550.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  metallic_thread: {
+    id: "metallic_thread",
+    name: "Металева нитка",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/5549.jpg",
+    description: "Ресурс крафту.",
+    stackable: true,
+  },
+  /** Для інгредієнтів крафту рівня 3 — українська назва в UI */
+  leather: {
+    id: "leather",
+    name: "Шкіра",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1882.jpg",
+    description: "Ресурс.",
     stackable: true,
   },
 };

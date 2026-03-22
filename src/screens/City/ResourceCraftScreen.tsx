@@ -13,6 +13,10 @@ import {
   RESOURCE_CRAFT_LEVEL2_RECIPES,
   RESOURCE_CRAFT_LEVEL2_UNLOCK_LEVEL,
 } from "../../data/crafting/resourceCraftLevel2";
+import {
+  RESOURCE_CRAFT_LEVEL3_RECIPES,
+  RESOURCE_CRAFT_LEVEL3_UNLOCK_LEVEL,
+} from "../../data/crafting/resourceCraftLevel3";
 import type { StringIdCraftRecipe } from "../../data/crafting/resourceCraftTypes";
 import {
   countResourceInInventory,
@@ -133,6 +137,7 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
   const level = hero?.level ?? 1;
   const unlocked1 = level >= RESOURCE_CRAFT_LEVEL1_UNLOCK_LEVEL;
   const unlocked2 = level >= RESOURCE_CRAFT_LEVEL2_UNLOCK_LEVEL;
+  const unlocked3 = level >= RESOURCE_CRAFT_LEVEL3_UNLOCK_LEVEL;
   const maxSlots = hero ? getInventoryMax(hero) : 100;
 
   const craftLevel1 = (idx: number) => {
@@ -152,6 +157,19 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
   const craftLevel2 = (idx: number) => {
     if (!hero || !unlocked2) return;
     const recipe = RESOURCE_CRAFT_LEVEL2_RECIPES[idx];
+    if (!recipe) return;
+    const result = tryApplyStringIdCraftRecipe(hero.inventory, recipe, maxSlots);
+    if (!result.ok) {
+      showToast("Не вистачає ресурсів або немає вільного слоту в інвентарі.", "error");
+      return;
+    }
+    updateHero({ inventory: result.inventory }, { persist: true });
+    showToast(`Зкрафчено: ${displayNameForId(recipe.outputId)} ×1`, "success");
+  };
+
+  const craftLevel3 = (idx: number) => {
+    if (!hero || !unlocked3) return;
+    const recipe = RESOURCE_CRAFT_LEVEL3_RECIPES[idx];
     if (!recipe) return;
     const result = tryApplyStringIdCraftRecipe(hero.inventory, recipe, maxSlots);
     if (!result.ok) {
@@ -242,6 +260,28 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
             unlocked={unlocked2}
             isL2ui={isL2}
             onCraft={() => craftLevel2(idx)}
+          />
+        ))}
+      </div>
+
+      <div className={sectionTitle}>Рівень 3</div>
+      <p className={hintClass + " mb-3"}>Відкривається з {RESOURCE_CRAFT_LEVEL3_UNLOCK_LEVEL} рівня.</p>
+      {!unlocked3 && (
+        <p className={warnClass + " mb-3"}>
+          Ваш рівень: {level}. Потрібен {RESOURCE_CRAFT_LEVEL3_UNLOCK_LEVEL}+ — крафт рівня 3 недоступний.
+        </p>
+      )}
+      <div className="flex flex-col gap-4">
+        {RESOURCE_CRAFT_LEVEL3_RECIPES.map((recipe, idx) => (
+          <RecipeCard
+            key={`l3-${recipe.outputId}-${idx}`}
+            outputId={recipe.outputId}
+            ingredients={recipe.ingredients}
+            inv={inv}
+            maxSlots={maxSlots}
+            unlocked={unlocked3}
+            isL2ui={isL2}
+            onCraft={() => craftLevel3(idx)}
           />
         ))}
       </div>
