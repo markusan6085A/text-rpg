@@ -1218,7 +1218,7 @@ export async function getSevenSealsRank(characterId: string): Promise<SevenSeals
 export async function claimSevenSealsReward(characterId: string): Promise<{
   ok: boolean;
   alreadyClaimed?: boolean;
-  bonus?: { pAtk: number; mAtk: number; pDef: number; mDef: number; rank: number };
+  bonus?: { pAtk: number; mAtk: number; pDef: number; mDef: number; rank: number; coinLuck?: number };
 }> {
   const response = await apiRequest<any>(`/seven-seals/claim`, {
     method: 'POST',

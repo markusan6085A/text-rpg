@@ -13,6 +13,7 @@ import { listCharacters, getSevenSealsRank, claimSevenSealsReward, type Characte
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { showToast } from "../../state/toastStore";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -80,6 +81,15 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             if (claimRes.ok && !claimRes.alreadyClaimed) {
               const loadedHero = await loadHeroFromAPI();
               if (loadedHero && !cancelled) useHeroStore.getState().setHero(loadedHero);
+              const b = claimRes.bonus;
+              if (b && typeof b.pAtk === "number" && !cancelled) {
+                const r = b.rank ?? data.rank ?? "?";
+                const col = b.coinLuck ?? 0;
+                showToast(
+                  `7 Печатей, ${r} місце: нараховано бонус — фіз. атака +${b.pAtk}, маг. атака +${b.mAtk}, фіз. захист +${b.pDef}, маг. захист +${b.mDef}, CoL +${col}.`,
+                  "success"
+                );
+              }
             }
           } catch {
             // ignore claim errors
