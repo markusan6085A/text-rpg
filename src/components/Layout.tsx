@@ -359,7 +359,9 @@ export default function Layout({
             aria-modal="true"
             aria-labelledby="death-screen-title"
           >
-            <div className="max-w-md w-full rounded-xl border border-[#8b2942]/80 bg-[#1a0c0c] px-5 py-6 text-center shadow-[0_0_40px_rgba(0,0,0,0.85)]">
+            <div
+              className="max-w-md w-full translate-y-[1cm] rounded-xl border border-[#8b2942]/80 bg-[#1a0c0c] px-5 py-6 text-center shadow-[0_0_40px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,200,200,0.06)]"
+            >
               <h2 id="death-screen-title" className="text-lg font-semibold text-[#f0c0c0] mb-3">
                 {getGameSettings().language === "uk" ? "Ви загинули" : "Вы погибли"}
               </h2>
@@ -372,15 +374,15 @@ export default function Layout({
                     (deathGate?.damage ??
                       Number((hero as any)?.heroJson?.killedByMobDamage)) || 0;
                   return getGameSettings().language === "uk"
-                    ? `Вас убило: ${name}. Завдано урону: ${dmg}. Натисніть кнопку нижче — інші дії заблоковані.`
-                    : `Вас убил(а): ${name}. Нанесено урона: ${dmg}. Нажмите кнопку ниже — остальное заблокировано.`;
+                    ? `Вас убило: ${name}. Завдано урону: ${dmg}.`
+                    : `Вас убил(а): ${name}. Нанесено урона: ${dmg}.`;
                 })()}
               </p>
               <button
                 type="button"
                 onClick={handleResurrectToCity}
                 disabled={resurrecting}
-                className="w-full py-3 rounded-lg border border-[#c7ad80]/80 text-[#f4e2b8] bg-[#2a1810] hover:bg-[#3d2418] disabled:opacity-60 text-sm font-semibold"
+                className="w-full py-3.5 rounded-lg text-[13px] font-semibold tracking-wide text-[#f4e8d4] disabled:opacity-55 disabled:pointer-events-none bg-gradient-to-b from-[#4a3824] via-[#342818] to-[#1e1510] border border-[#c7ad80]/85 shadow-[inset_0_1px_0_rgba(232,197,110,0.22),0_6px_20px_rgba(0,0,0,0.55)] hover:from-[#5c4830] hover:via-[#3d2e1c] hover:to-[#261a12] hover:border-[#e8c56e]/75 hover:text-[#fff8e8] hover:shadow-[inset_0_1px_0_rgba(255,220,160,0.18),0_8px_28px_rgba(0,0,0,0.6)] active:scale-[0.99] transition-[transform,box-shadow,filter,border-color] duration-150"
               >
                 {resurrecting
                   ? "…"
