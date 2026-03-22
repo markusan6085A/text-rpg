@@ -142,14 +142,22 @@ function addResourceStack(inv: HeroInventoryItem[], itemId: string, add: number)
 export function tryApplyStringIdCraftRecipe(
   inventory: HeroInventoryItem[] | undefined,
   recipe: StringIdCraftRecipe,
-  maxSlots: number
+  maxSlots: number,
+  quantity: number = 1
 ): { ok: true; inventory: HeroInventoryItem[] } | { ok: false } {
   const outputId = recipe.outputId;
   if (!outputId) return { ok: false };
+  const q = Math.floor(Number(quantity));
+  if (q < 1 || !Number.isFinite(q)) return { ok: false };
 
   const inv = [...(inventory ?? [])].filter(Boolean) as HeroInventoryItem[];
-  const needs = aggregateStringIngredientNeeds(recipe);
-  if (Object.keys(needs).length === 0) return { ok: false };
+  const baseNeeds = aggregateStringIngredientNeeds(recipe);
+  if (Object.keys(baseNeeds).length === 0) return { ok: false };
+
+  const needs: Record<string, number> = {};
+  for (const id of Object.keys(baseNeeds)) {
+    needs[id] = baseNeeds[id]! * q;
+  }
 
   for (const id of Object.keys(needs)) {
     if (countResourceInInventory(inv, id) < needs[id]!) return { ok: false };
@@ -160,14 +168,15 @@ export function tryApplyStringIdCraftRecipe(
 
   if (!canAddOutputSlot(afterRemove, outputId, maxSlots)) return { ok: false };
 
-  const afterAdd = addResourceStack(afterRemove, outputId, 1);
+  const afterAdd = addResourceStack(afterRemove, outputId, q);
   return { ok: true, inventory: afterAdd };
 }
 
 export function tryApplyResourceCraft(
   inventory: HeroInventoryItem[] | undefined,
   recipe: ResourceCraftRecipe,
-  maxSlots: number
+  maxSlots: number,
+  quantity: number = 1
 ): { ok: true; inventory: HeroInventoryItem[] } | { ok: false } {
   const outputId = l2ItemIdToString(recipe.outputL2ItemId);
   if (!outputId) return { ok: false };
@@ -179,5 +188,27 @@ export function tryApplyResourceCraft(
     ingredients.push({ stringId: sid, count: ing.count });
   }
 
-  return tryApplyStringIdCraftRecipe(inventory, { outputId, ingredients }, maxSlots);
+  return tryApplyStringIdCraftRecipe(inventory, { outputId, ingredients }, maxSlots, quantity);
+}
+
+/** Скільки разів можна виконати рецепт за наявних матеріалів і слотів (ціле ≥ 1). */
+export function computeMaxCraftable(
+  inventory: HeroInventoryItem[] | undefined,
+  recipe: StringIdCraftRecipe,
+  maxSlots: number
+): number {
+  const inv = [...(inventory ?? [])].filter(Boolean) as HeroInventoryItem[];
+  const needs = aggregateStringIngredientNeeds(recipe);
+  if (Object.keys(needs).length === 0) return 0;
+  let max = Infinity;
+  for (const id of Object.keys(needs)) {
+    const need = needs[id]!;
+    if (need <= 0) return 0;
+    const have = countResourceInInventory(inv, id);
+    max = Math.min(max, Math.floor(have / need));
+  }
+  if (!Number.isFinite(max) || max <= 0) return 0;
+  const probe = tryApplyStringIdCraftRecipe(inv, recipe, maxSlots, 1);
+  if (!probe.ok) return 0;
+  return max;
 }

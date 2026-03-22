@@ -8,6 +8,7 @@ import { resourceLootDisplayName } from "../../utils/resourceLootDisplayName";
 import {
   RESOURCE_CRAFT_LEVEL1_RECIPES,
   RESOURCE_CRAFT_LEVEL1_UNLOCK_LEVEL,
+  type ResourceCraftRecipe,
 } from "../../data/crafting/resourceCraftLevel1";
 import {
   RESOURCE_CRAFT_LEVEL2_RECIPES,
@@ -27,6 +28,7 @@ import {
   countResourceInInventory,
   tryApplyResourceCraft,
   tryApplyStringIdCraftRecipe,
+  computeMaxCraftable,
 } from "../../utils/crafting/applyResourceCraft";
 import type { HeroInventoryItem } from "../../types/Hero";
 import { showToast } from "../../state/toastStore";
@@ -39,9 +41,20 @@ function craftRowIcon(id: string): string {
   return getL2dopResourceIconPath(id) ?? "/items/default_item.png";
 }
 
-/** Craft page: English names for game resources (see CRAFT_RESOURCE_ENGLISH_NAMES). */
 function displayCraftResourceName(id: string): string {
   return CRAFT_RESOURCE_ENGLISH_NAMES[id] ?? itemsDB[id]?.name ?? resourceLootDisplayName(id);
+}
+
+function resourceRecipeToStringRecipe(recipe: ResourceCraftRecipe): StringIdCraftRecipe | null {
+  const outputId = l2ItemIdToString(recipe.outputL2ItemId);
+  if (!outputId) return null;
+  const ingredients: StringIdCraftRecipe["ingredients"] = [];
+  for (const ing of recipe.ingredients) {
+    const sid = l2ItemIdToString(ing.l2ItemId);
+    if (!sid) return null;
+    ingredients.push({ stringId: sid, count: ing.count });
+  }
+  return { outputId, ingredients };
 }
 
 interface ResourceCraftScreenProps {
@@ -50,18 +63,23 @@ interface ResourceCraftScreenProps {
 
 type IngRow = { stringId: string; count: number };
 
+type CraftModalState =
+  | { tier: 1; idx: number }
+  | { tier: 2; idx: number }
+  | { tier: 3; idx: number }
+  | { tier: 4; idx: number };
+
 function RecipeCard(props: {
   outputId: string;
   ingredients: IngRow[];
   inv: HeroInventoryItem[];
-  maxSlots: number;
   unlocked: boolean;
+  maxCraftable: number;
   isL2ui: boolean;
-  onCraft: () => void;
+  onRequestCraft: () => void;
 }) {
-  const { outputId, ingredients, inv, maxSlots, unlocked, isL2ui, onCraft } = props;
-  const recipe: StringIdCraftRecipe = { outputId, ingredients };
-  const canDo = unlocked && tryApplyStringIdCraftRecipe(inv, recipe, maxSlots).ok;
+  const { outputId, ingredients, inv, unlocked, maxCraftable, isL2ui, onRequestCraft } = props;
+  const canDo = unlocked && maxCraftable >= 1;
 
   const cardClass = isL2ui
     ? "rounded-lg border border-[#5c4a32]/55 bg-black/28 px-3 py-3 flex flex-col gap-2.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
@@ -69,7 +87,7 @@ function RecipeCard(props: {
 
   return (
     <div className={cardClass}>
-      <div className="text-[10px] uppercase tracking-[0.12em] text-[#8a7a60]">Result ×1</div>
+      <div className="text-[10px] uppercase tracking-[0.12em] text-[#8a7a60]">Результат ×1</div>
       <div className="flex items-center gap-3">
         <img
           src={craftRowIcon(outputId)}
@@ -83,7 +101,7 @@ function RecipeCard(props: {
       </div>
 
       <div className="border-t border-[#5c4a32]/35 pt-2 flex flex-col gap-1.5">
-        <div className="text-[10px] uppercase tracking-[0.12em] text-[#8a7a60]">Materials</div>
+        <div className="text-[10px] uppercase tracking-[0.12em] text-[#8a7a60]">Материалы</div>
         {ingredients.map((ing, j) => {
           const have = countResourceInInventory(inv, ing.stringId);
           const ok = have >= ing.count;
@@ -106,10 +124,16 @@ function RecipeCard(props: {
         })}
       </div>
 
+      {maxCraftable >= 1 && (
+        <p className={isL2ui ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
+          Можно за раз: до {maxCraftable} шт.
+        </p>
+      )}
+
       <button
         type="button"
         disabled={!canDo}
-        onClick={onCraft}
+        onClick={onRequestCraft}
         className={
           isL2ui
             ? `mt-1 w-full py-2 rounded-md text-[12px] font-medium border transition-colors ${
@@ -122,7 +146,7 @@ function RecipeCard(props: {
               }`
         }
       >
-        Craft
+        Крафт
       </button>
     </div>
   );
@@ -134,6 +158,9 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
   const isL2 = getCityUiVariant() === "l2";
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+
+  const [craftModal, setCraftModal] = React.useState<CraftModalState | null>(null);
+  const [craftQtyInput, setCraftQtyInput] = React.useState("1");
 
   const inv = React.useMemo(
     () => [...(hero?.inventory ?? [])].filter(Boolean) as HeroInventoryItem[],
@@ -147,70 +174,81 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
   const unlocked4 = level >= RESOURCE_CRAFT_LEVEL4_UNLOCK_LEVEL;
   const maxSlots = hero ? getInventoryMax(hero) : 100;
 
-  const craftLevel1 = (idx: number) => {
-    if (!hero || !unlocked1) return;
-    const recipe = RESOURCE_CRAFT_LEVEL1_RECIPES[idx];
-    if (!recipe) return;
-    const result = tryApplyResourceCraft(hero.inventory, recipe, maxSlots);
-    if (!result.ok) {
-      showToast("Not enough materials or no free inventory slot.", "error");
+  const resolveModalRecipe = React.useCallback(
+    (m: CraftModalState): StringIdCraftRecipe | null => {
+      if (m.tier === 1) {
+        const r = RESOURCE_CRAFT_LEVEL1_RECIPES[m.idx];
+        return r ? resourceRecipeToStringRecipe(r) : null;
+      }
+      if (m.tier === 2) return RESOURCE_CRAFT_LEVEL2_RECIPES[m.idx] ?? null;
+      if (m.tier === 3) return RESOURCE_CRAFT_LEVEL3_RECIPES[m.idx] ?? null;
+      return RESOURCE_CRAFT_LEVEL4_RECIPES[m.idx] ?? null;
+    },
+    []
+  );
+
+  const modalRecipe = craftModal ? resolveModalRecipe(craftModal) : null;
+  const modalMaxCraft = React.useMemo(() => {
+    if (!hero || !modalRecipe) return 0;
+    return computeMaxCraftable(hero.inventory, modalRecipe, maxSlots);
+  }, [hero, modalRecipe, maxSlots]);
+
+  React.useEffect(() => {
+    if (craftModal) setCraftQtyInput("1");
+  }, [craftModal]);
+
+  const commitModalCraft = React.useCallback(() => {
+    if (!hero || !craftModal || !modalRecipe) return;
+    const raw = parseInt(craftQtyInput.trim(), 10);
+    const qty = Number.isFinite(raw) ? Math.floor(raw) : 0;
+    if (qty < 1 || qty > modalMaxCraft) {
+      showToast(`Введите число от 1 до ${modalMaxCraft}.`, "error");
       return;
     }
-    const outputId = l2ItemIdToString(recipe.outputL2ItemId);
-    updateHero({ inventory: result.inventory }, { persist: true });
-    showToast(`Crafted: ${outputId ? displayCraftResourceName(outputId) : "item"} ×1`, "success");
-  };
 
-  const craftLevel2 = (idx: number) => {
-    if (!hero || !unlocked2) return;
-    const recipe = RESOURCE_CRAFT_LEVEL2_RECIPES[idx];
-    if (!recipe) return;
-    const result = tryApplyStringIdCraftRecipe(hero.inventory, recipe, maxSlots);
+    let result: { ok: true; inventory: HeroInventoryItem[] } | { ok: false };
+    if (craftModal.tier === 1) {
+      const r = RESOURCE_CRAFT_LEVEL1_RECIPES[craftModal.idx];
+      if (!r) return;
+      result = tryApplyResourceCraft(hero.inventory, r, maxSlots, qty);
+    } else {
+      result = tryApplyStringIdCraftRecipe(hero.inventory, modalRecipe, maxSlots, qty);
+    }
+
     if (!result.ok) {
-      showToast("Not enough materials or no free inventory slot.", "error");
+      showToast("Недостаточно материалов или нет свободного слота в инвентаре.", "error");
       return;
     }
-    updateHero({ inventory: result.inventory }, { persist: true });
-    showToast(`Crafted: ${displayCraftResourceName(recipe.outputId)} ×1`, "success");
-  };
 
-  const craftLevel3 = (idx: number) => {
-    if (!hero || !unlocked3) return;
-    const recipe = RESOURCE_CRAFT_LEVEL3_RECIPES[idx];
-    if (!recipe) return;
-    const result = tryApplyStringIdCraftRecipe(hero.inventory, recipe, maxSlots);
-    if (!result.ok) {
-      showToast("Not enough materials or no free inventory slot.", "error");
-      return;
-    }
+    const name = displayCraftResourceName(modalRecipe.outputId);
     updateHero({ inventory: result.inventory }, { persist: true });
-    showToast(`Crafted: ${displayCraftResourceName(recipe.outputId)} ×1`, "success");
-  };
-
-  const craftLevel4 = (idx: number) => {
-    if (!hero || !unlocked4) return;
-    const recipe = RESOURCE_CRAFT_LEVEL4_RECIPES[idx];
-    if (!recipe) return;
-    const result = tryApplyStringIdCraftRecipe(hero.inventory, recipe, maxSlots);
-    if (!result.ok) {
-      showToast("Not enough materials or no free inventory slot.", "error");
-      return;
-    }
-    updateHero({ inventory: result.inventory }, { persist: true });
-    showToast(`Crafted: ${displayCraftResourceName(recipe.outputId)} ×1`, "success");
-  };
-
-  if (!hero) {
-    return (
-      <div className="flex items-center justify-center py-10 text-gray-500 text-sm">…</div>
-    );
-  }
+    showToast(`Скрафчено: ${name} ×${qty}`, "success");
+    setCraftModal(null);
+  }, [
+    hero,
+    craftModal,
+    modalRecipe,
+    craftQtyInput,
+    modalMaxCraft,
+    maxSlots,
+    updateHero,
+  ]);
 
   const hintClass = isL2 ? "text-[11px] text-[#a89878] leading-relaxed" : "text-xs text-gray-400";
   const warnClass = "text-[11px] text-amber-400/95 mt-1";
   const sectionTitle = isL2
     ? "text-sm font-semibold text-[#d4b878] mt-6 mb-2 border-t border-[#5c4a32]/35 pt-4"
     : "text-sm font-semibold text-amber-600/90 mt-6 mb-2 border-t border-white/10 pt-4";
+
+  const modalShell = isL2
+    ? "rounded-lg border border-[#5c4a32]/70 bg-[#14110c] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.75)] max-w-sm w-[calc(100%-2rem)]"
+    : "rounded-lg border border-gray-600 bg-[#1a1a1a] p-4 max-w-sm w-[calc(100%-2rem)]";
+
+  if (!hero) {
+    return (
+      <div className="flex items-center justify-center py-10 text-gray-500 text-sm">Загрузка…</div>
+    );
+  }
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-3 sm:p-4` : "w-full max-w-lg mx-auto p-3"}>
@@ -222,111 +260,123 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
               : "text-lg font-semibold text-[#b8860b]"
           }
         >
-          Resource crafting
+          Крафт ресурсов
         </h1>
         <p className={hintClass}>
-          Each craft consumes listed materials and yields 1 resource. Success rate:{" "}
-          <span className="text-[#7fd67f] font-medium">100%</span>.
+          Материалы списываются из инвентаря, готовый ресурс попадает в инвентарь (укажите количество в окне
+          крафта). Шанс успеха: <span className="text-[#7fd67f] font-medium">100%</span>.
         </p>
       </div>
 
-      <div className={sectionTitle}>Level 1</div>
-      <p className={hintClass + " mb-3"}>Unlocks at character level {RESOURCE_CRAFT_LEVEL1_UNLOCK_LEVEL}.</p>
+      <div className={sectionTitle}>Уровень 1</div>
+      <p className={hintClass + " mb-3"}>
+        Открывается с {RESOURCE_CRAFT_LEVEL1_UNLOCK_LEVEL} уровня персонажа.
+      </p>
       {!unlocked1 && (
         <p className={warnClass + " mb-3"}>
-          Your level: {level}. Need {RESOURCE_CRAFT_LEVEL1_UNLOCK_LEVEL}+ for level 1 crafts.
+          Ваш уровень: {level}. Для крафта уровня 1 нужен {RESOURCE_CRAFT_LEVEL1_UNLOCK_LEVEL}+ уровень.
         </p>
       )}
-      <div className="flex flex-col gap-4">
-        {RESOURCE_CRAFT_LEVEL1_RECIPES.map((recipe, idx) => {
-          const outputId = l2ItemIdToString(recipe.outputL2ItemId);
-          if (!outputId) return null;
-          const ingredients: IngRow[] = recipe.ingredients
-            .map((ing) => {
-              const sid = l2ItemIdToString(ing.l2ItemId);
-              return sid ? { stringId: sid, count: ing.count } : null;
-            })
-            .filter(Boolean) as IngRow[];
-          return (
-            <RecipeCard
-              key={`l1-${recipe.outputL2ItemId}-${idx}`}
-              outputId={outputId}
-              ingredients={ingredients}
-              inv={inv}
-              maxSlots={maxSlots}
-              unlocked={unlocked1}
-              isL2ui={isL2}
-              onCraft={() => craftLevel1(idx)}
-            />
-          );
-        })}
-      </div>
+      {unlocked1 && (
+        <div className="flex flex-col gap-4">
+          {RESOURCE_CRAFT_LEVEL1_RECIPES.map((recipe, idx) => {
+            const outputId = l2ItemIdToString(recipe.outputL2ItemId);
+            if (!outputId) return null;
+            const ingredients: IngRow[] = recipe.ingredients
+              .map((ing) => {
+                const sid = l2ItemIdToString(ing.l2ItemId);
+                return sid ? { stringId: sid, count: ing.count } : null;
+              })
+              .filter(Boolean) as IngRow[];
+            const strRec = resourceRecipeToStringRecipe(recipe);
+            const maxC = strRec ? computeMaxCraftable(inv, strRec, maxSlots) : 0;
+            return (
+              <RecipeCard
+                key={`l1-${recipe.outputL2ItemId}-${idx}`}
+                outputId={outputId}
+                ingredients={ingredients}
+                inv={inv}
+                unlocked={unlocked1}
+                maxCraftable={maxC}
+                isL2ui={isL2}
+                onRequestCraft={() => setCraftModal({ tier: 1, idx })}
+              />
+            );
+          })}
+        </div>
+      )}
 
-      <div className={sectionTitle}>Level 2</div>
-      <p className={hintClass + " mb-3"}>Unlocks at character level {RESOURCE_CRAFT_LEVEL2_UNLOCK_LEVEL}.</p>
-      {!unlocked2 && (
-        <p className={warnClass + " mb-3"}>
-          Your level: {level}. Need {RESOURCE_CRAFT_LEVEL2_UNLOCK_LEVEL}+ for level 2 crafts.
+      <div className={sectionTitle}>Уровень 2</div>
+      {unlocked2 ? (
+        <div className="flex flex-col gap-4 mt-2">
+          {RESOURCE_CRAFT_LEVEL2_RECIPES.map((recipe, idx) => {
+            const maxC = computeMaxCraftable(inv, recipe, maxSlots);
+            return (
+              <RecipeCard
+                key={`l2-${recipe.outputId}-${idx}`}
+                outputId={recipe.outputId}
+                ingredients={recipe.ingredients}
+                inv={inv}
+                unlocked={unlocked2}
+                maxCraftable={maxC}
+                isL2ui={isL2}
+                onRequestCraft={() => setCraftModal({ tier: 2, idx })}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <p className={hintClass + " mb-1"}>
+          Доступен с {RESOURCE_CRAFT_LEVEL2_UNLOCK_LEVEL} уровня персонажа. При уровне {level} доступны только
+          рецепты уровня 1 (если он открыт).
         </p>
       )}
-      <div className="flex flex-col gap-4">
-        {RESOURCE_CRAFT_LEVEL2_RECIPES.map((recipe, idx) => (
-          <RecipeCard
-            key={`l2-${recipe.outputId}-${idx}`}
-            outputId={recipe.outputId}
-            ingredients={recipe.ingredients}
-            inv={inv}
-            maxSlots={maxSlots}
-            unlocked={unlocked2}
-            isL2ui={isL2}
-            onCraft={() => craftLevel2(idx)}
-          />
-        ))}
-      </div>
 
-      <div className={sectionTitle}>Level 3</div>
-      <p className={hintClass + " mb-3"}>Unlocks at character level {RESOURCE_CRAFT_LEVEL3_UNLOCK_LEVEL}.</p>
-      {!unlocked3 && (
-        <p className={warnClass + " mb-3"}>
-          Your level: {level}. Need {RESOURCE_CRAFT_LEVEL3_UNLOCK_LEVEL}+ for level 3 crafts.
-        </p>
+      <div className={sectionTitle}>Уровень 3</div>
+      {unlocked3 ? (
+        <div className="flex flex-col gap-4 mt-2">
+          {RESOURCE_CRAFT_LEVEL3_RECIPES.map((recipe, idx) => {
+            const maxC = computeMaxCraftable(inv, recipe, maxSlots);
+            return (
+              <RecipeCard
+                key={`l3-${recipe.outputId}-${idx}`}
+                outputId={recipe.outputId}
+                ingredients={recipe.ingredients}
+                inv={inv}
+                unlocked={unlocked3}
+                maxCraftable={maxC}
+                isL2ui={isL2}
+                onRequestCraft={() => setCraftModal({ tier: 3, idx })}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <p className={hintClass + " mb-1"}>Доступен с {RESOURCE_CRAFT_LEVEL3_UNLOCK_LEVEL} уровня персонажа.</p>
       )}
-      <div className="flex flex-col gap-4">
-        {RESOURCE_CRAFT_LEVEL3_RECIPES.map((recipe, idx) => (
-          <RecipeCard
-            key={`l3-${recipe.outputId}-${idx}`}
-            outputId={recipe.outputId}
-            ingredients={recipe.ingredients}
-            inv={inv}
-            maxSlots={maxSlots}
-            unlocked={unlocked3}
-            isL2ui={isL2}
-            onCraft={() => craftLevel3(idx)}
-          />
-        ))}
-      </div>
 
-      <div className={sectionTitle}>Level 4</div>
-      <p className={hintClass + " mb-3"}>Unlocks at character level {RESOURCE_CRAFT_LEVEL4_UNLOCK_LEVEL}.</p>
-      {!unlocked4 && (
-        <p className={warnClass + " mb-3"}>
-          Your level: {level}. Need {RESOURCE_CRAFT_LEVEL4_UNLOCK_LEVEL}+ for level 4 crafts.
-        </p>
+      <div className={sectionTitle}>Уровень 4</div>
+      {unlocked4 ? (
+        <div className="flex flex-col gap-4 mt-2">
+          {RESOURCE_CRAFT_LEVEL4_RECIPES.map((recipe, idx) => {
+            const maxC = computeMaxCraftable(inv, recipe, maxSlots);
+            return (
+              <RecipeCard
+                key={`l4-${recipe.outputId}-${idx}`}
+                outputId={recipe.outputId}
+                ingredients={recipe.ingredients}
+                inv={inv}
+                unlocked={unlocked4}
+                maxCraftable={maxC}
+                isL2ui={isL2}
+                onRequestCraft={() => setCraftModal({ tier: 4, idx })}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <p className={hintClass + " mb-1"}>Доступен с {RESOURCE_CRAFT_LEVEL4_UNLOCK_LEVEL} уровня персонажа.</p>
       )}
-      <div className="flex flex-col gap-4">
-        {RESOURCE_CRAFT_LEVEL4_RECIPES.map((recipe, idx) => (
-          <RecipeCard
-            key={`l4-${recipe.outputId}-${idx}`}
-            outputId={recipe.outputId}
-            ingredients={recipe.ingredients}
-            inv={inv}
-            maxSlots={maxSlots}
-            unlocked={unlocked4}
-            isL2ui={isL2}
-            onCraft={() => craftLevel4(idx)}
-          />
-        ))}
-      </div>
 
       <div className="mt-5 flex justify-center">
         <button
@@ -341,9 +391,83 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
               : "px-4 py-2 rounded border border-gray-600 text-sm text-gray-300 hover:bg-gray-800"
           }
         >
-          Back to city
+          Вернуться в город
         </button>
       </div>
+
+      {craftModal && modalRecipe && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/65 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="resource-craft-qty-title"
+          onClick={() => setCraftModal(null)}
+        >
+          <div className={modalShell} onClick={(e) => e.stopPropagation()}>
+            <h2
+              id="resource-craft-qty-title"
+              className={isL2 ? "text-sm font-semibold text-[#e8c56e] mb-2" : "text-sm font-semibold text-amber-500 mb-2"}
+            >
+              Крафт: {displayCraftResourceName(modalRecipe.outputId)}
+            </h2>
+            <p className={isL2 ? "text-[11px] text-[#a89878] mb-3" : "text-xs text-gray-400 mb-3"}>
+              Сколько единиц скрафтить? Сейчас максимум:{" "}
+              <span className="text-[#7fd67f] font-medium">{modalMaxCraft}</span>
+            </p>
+            <div className="flex flex-col gap-2 mb-4">
+              <input
+                type="number"
+                min={1}
+                max={modalMaxCraft}
+                value={craftQtyInput}
+                onChange={(e) => setCraftQtyInput(e.target.value)}
+                className={
+                  isL2
+                    ? "w-full rounded-md border border-[#5c4a32]/60 bg-black/40 px-2 py-2 text-sm text-[#d4c4a8]"
+                    : "w-full rounded border border-gray-600 bg-black/30 px-2 py-2 text-sm text-gray-200"
+                }
+              />
+              <button
+                type="button"
+                disabled={modalMaxCraft < 1}
+                onClick={() => setCraftQtyInput(String(modalMaxCraft))}
+                className={
+                  isL2
+                    ? "text-[11px] text-[#c9a44c] underline disabled:opacity-40 self-start"
+                    : "text-xs text-amber-500 underline disabled:opacity-40 self-start"
+                }
+              >
+                Поставить максимум
+              </button>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setCraftModal(null)}
+                className={
+                  isL2
+                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/55 text-[12px] text-[#c9b99a]"
+                    : "px-3 py-1.5 rounded border border-gray-600 text-xs text-gray-300"
+                }
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={commitModalCraft}
+                disabled={modalMaxCraft < 1}
+                className={
+                  isL2
+                    ? "px-3 py-1.5 rounded-md border border-[#c7ad80]/45 bg-[#2a2418] text-[12px] text-[#e8c56e] disabled:opacity-40"
+                    : "px-3 py-1.5 rounded bg-amber-700 text-xs text-white disabled:opacity-40"
+                }
+              >
+                Скрафтить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
