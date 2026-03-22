@@ -275,11 +275,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         // 🔥 Консолідуємо інвентар (заряди, банки, ресурси стакаються) — mergeInventoriesUnion(inv, []) = consolidate
         const localInv = hydratedLocalHero?.inventory ?? [];
         const consolidatedInv = mergeInventoriesUnion(localInv, []);
+        // 🔥 Як у головному merge: adena = max(локаль, сервер) — інакше продавець (твін) після купівлі лишається зі старою аденою в UI
+        const finalAdenaPreferred = Math.max(localAdena, serverAdena);
         const mergedHero: Hero = {
           ...hydratedLocalHero,
           exp: finalExp,
           level: finalLevel,
           sp: finalSp,
+          adena: finalAdenaPreferred,
           inventory: consolidatedInv,
           name: character.name,
           profession: heroForLocalRecalc.profession,
@@ -293,6 +296,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           cp: Math.min(finalCp, buffedMax.maxCp),
           battleStats: recalculated.baseFinalStats,
         };
+        (mergedHero as any).heroJson = {
+          ...((mergedHero as any).heroJson || {}),
+          adena: finalAdenaPreferred,
+        };
         (mergedHero as any).username = character.name;
         (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
         (mergedHero as any).baseMaxMp = recalculated.resources.maxMp;
@@ -305,7 +312,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           exp: finalExp,
           level: finalLevel,
           sp: finalSp,
-          adena: Number((character as any).adena ?? mergedHero.adena ?? 0),
+          adena: finalAdenaPreferred,
           coinLuck: Number((character as any).coinLuck ?? mergedHero.coinOfLuck ?? 0),
         });
         // 🔥 Не спамимо PUT при протухлій сесії — saveHeroToLocalStorage перевірить sessionExpired, але unique skip тут уникає зайвого import
