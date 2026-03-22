@@ -408,7 +408,7 @@ export default function Layout({
           ref={contentRef}
           className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem] ${
             showNavGrid && !blockDeathUi && showStatusBars
-              ? "pt-[7rem] max-[380px]:pt-[6.75rem]"
+              ? "pt-[6.35rem] max-[380px]:pt-[6.1rem]"
               : showNavGrid && !blockDeathUi
                 ? "pt-[4.25rem]"
                 : ""

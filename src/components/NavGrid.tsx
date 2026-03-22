@@ -12,22 +12,22 @@ interface NavGridProps {
 
 type NavButton = { label: string; icon: string; path?: string; onClick?: () => void };
 
-/** Під HP/MP/EXP: форум, пошта, чат, меню, клан (як на L2Dop). */
+/** Під HP/MP/EXP: форум, пошта, чат, меню, новини. */
 const topRowButtons: NavButton[] = [
   { label: "Форум", icon: "/icons/форум.jpg", path: "/forum" },
   { label: "Почта", icon: "/icons/почта.jpg", path: "/mail" },
   { label: "Чат", icon: "/icons/чат.jpg", path: "/chat" },
   { label: "Меню", icon: "/icons/меню.jpg", path: "/about" },
-  { label: "Клан", icon: "/icons/клан.jpg", path: "/clans" },
+  { label: "Новости", icon: "/icons/новости.jpg", path: "/news" },
 ];
 
-/** Нижня панель: місто, інвентар, персонаж, стати, новини. */
+/** Нижня панель: місто, інвентар, персонаж, стати, клан (бейдж непрочитаного на клані). */
 const bottomRowButtons: NavButton[] = [
   { label: "Город", icon: "/icons/город.jpg", path: "/city" },
   { label: "Инвентарь", icon: "/icons/инвентарь.jpg", path: "/inventory" },
   { label: "Персонаж", icon: "/icons/персонаж.jpg", path: "/character" },
   { label: "Статы", icon: "/icons/стати.jpg", path: "/stats" },
-  { label: "Новости", icon: "/icons/новости.jpg", path: "/news" },
+  { label: "Клан", icon: "/icons/клан.jpg", path: "/clans" },
 ];
 
 const iconWrapClass =
@@ -218,14 +218,15 @@ export default function NavGrid({ navigate, showStatusBars = true }: NavGridProp
     );
   };
 
-  const topOffset = showStatusBars ? "top-[5.5rem]" : "top-3";
+  /* Вище під барами; position:fixed — лишається на місці при скролі, як StatusBars (z-50). */
+  const topOffset = showStatusBars ? "top-[4.65rem]" : "top-3";
 
   return (
     <>
-      {/* Верхній док: та сама логіка що внизу — по центру екрана, іконки від центру в боки; контент скролиться під градієнт */}
+      {/* Верхній док: по центру, fixed viewport — не їде зі скролом контенту */}
       <div
-        className={`fixed left-0 right-0 z-[48] w-full min-w-0 box-border ${topOffset} pt-1 pb-2 px-2 sm:px-3 pointer-events-none bg-gradient-to-b from-[#0b0806] via-[#0b0806]/88 to-transparent`}
-        aria-label="Швидкі посилання: форум, пошта, чат, меню, клан"
+        className={`fixed left-0 right-0 z-[49] w-full min-w-0 box-border ${topOffset} pt-1 pb-2 px-2 sm:px-3 pointer-events-none bg-gradient-to-b from-[#0b0806] via-[#0b0806]/88 to-transparent`}
+        aria-label="Швидкі посилання: форум, пошта, чат, меню, новини"
       >
         <div className={dockPanelClass}>
           <div className={dockRowClass}>{topRowButtons.map((btn) => renderIconButton(btn))}</div>
