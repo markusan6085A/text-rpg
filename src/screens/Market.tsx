@@ -500,9 +500,67 @@ export default function Market({ navigate }: MarketProps) {
     ? "flex gap-2 items-center py-1.5 px-2 rounded-md border border-[#5c4a32]/50 bg-gradient-to-b from-[#2a2318]/92 to-[#12100c]/92 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
     : "flex gap-2 items-center py-1.5 px-2 rounded-md border border-black/55 bg-[#1a1510]";
 
-  const marketBannerWrap = isL2
-    ? "relative overflow-hidden rounded-lg border border-[#8a7348]/50 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.65),0_4px_16px_rgba(0,0,0,0.45)]"
-    : "relative overflow-hidden rounded-lg border border-amber-800/45";
+  const marketBannerShell = isL2
+    ? "rounded-lg border border-[#8a7348]/50 bg-[#080705] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.65),0_2px_10px_rgba(0,0,0,0.35)] overflow-hidden"
+    : "rounded-lg border border-amber-800/45 bg-black/40 overflow-hidden";
+
+  const marketStallBox = isL2
+    ? "rounded-lg border border-[#6b5a40]/50 bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,rgba(90,70,40,0.16)_0%,transparent_55%),linear-gradient(180deg,rgba(28,24,18,0.96)_0%,rgba(6,5,4,0.99)_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] overflow-hidden"
+    : "";
+
+  const renderMineListingRow = (L: MarketListingDTO) => {
+    const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
+    const isCol = isCoinLuckMarketListing(L);
+    const left = msLeft(L.expiresAt);
+    void tick;
+    const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
+    const lotTotal = L.price;
+    const perUnit = lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
+    const curLabel = L.currency === "adena" ? "аден" : "CoL";
+    return (
+      <div key={L.id} className={listingRowCompact}>
+        <img
+          src={
+            normalizeIconPath(isCol ? "/icons/col (1).png" : it?.icon) ||
+            "/items/drops/Weapon_squires_sword_i00_0.jpg"
+          }
+          alt=""
+          className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0"
+          onError={handleResourceIconError}
+        />
+        <div className="flex-1 min-w-0">
+          <div
+            className={
+              isL2
+                ? "text-[11px] leading-snug text-[#e8dcc8] truncate"
+                : "text-[11px] leading-snug text-amber-100 truncate"
+            }
+          >
+            <span className="font-semibold">{displaySellItemName(it)}</span>
+            {it?.count && Number(it.count) > 1 ? <span className="font-semibold"> ×{it.count}</span> : null}
+            <span className={isL2 ? "text-[#5c5248] font-normal" : "text-gray-600 font-normal"}> · </span>
+            <span className={isL2 ? "text-[#8a7a60] font-normal" : "text-gray-500 font-normal"}>Продавець: </span>
+            <span className={isL2 ? "text-[#b8a88c] font-medium" : "text-amber-200/85 font-medium"}>
+              {L.sellerName}
+            </span>
+          </div>
+          <div className={isL2 ? "text-[9px] text-[#c9a44c] mt-0.5 leading-tight" : "text-[9px] text-amber-300 mt-0.5 leading-tight"}>
+            {lotCnt > 1
+              ? `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+              : `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled={cancelBusyId === L.id}
+          onClick={() => void onCancel(L.id)}
+          className="text-[9px] px-1.5 py-1 rounded border border-[#9d6b6b]/55 text-[#e8b4b4] shrink-0 leading-tight"
+        >
+          {cancelBusyId === L.id ? "…" : "Снять"}
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col items-stretch px-2 py-4 max-w-xl mx-auto w-full min-w-0">
@@ -518,19 +576,31 @@ export default function Market({ navigate }: MarketProps) {
         </div>
 
         <div className="px-3 pt-2 pb-0">
-          <div className={marketBannerWrap}>
-            <img
-              src="/icons/bank.jpg"
-              alt=""
-              className="h-[4.5rem] sm:h-[5.25rem] w-full object-cover object-[center_40%]"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/45 to-[#1a1510]/25" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/55 to-transparent" />
-            <div className="pointer-events-none absolute bottom-1.5 left-2.5 right-2 flex flex-wrap items-end justify-between gap-1">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#e8c56e] drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
+          <div className={marketBannerShell}>
+            <div className="flex min-h-[2.25rem] items-center justify-center px-2 py-1.5">
+              <img
+                src="/icons/bank.jpg"
+                alt=""
+                className="max-h-[40px] sm:max-h-[48px] w-full object-contain object-center"
+              />
+            </div>
+            <div
+              className={
+                isL2
+                  ? "flex flex-wrap items-center justify-between gap-1 border-t border-[#5c4a32]/40 bg-black/40 px-2 py-1"
+                  : "flex flex-wrap items-center justify-between gap-1 border-t border-amber-900/35 bg-black/30 px-2 py-1"
+              }
+            >
+              <span
+                className={
+                  isL2
+                    ? "text-[9px] font-semibold uppercase tracking-[0.12em] text-[#e8c56e]"
+                    : "text-[9px] font-semibold uppercase tracking-wide text-amber-200/90"
+                }
+              >
                 Торговий квартал
               </span>
-              <span className="hidden sm:inline text-[9px] text-[#a89878]/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+              <span className={isL2 ? "text-[8px] text-[#a89878] sm:text-[9px]" : "text-[8px] text-amber-200/70 sm:text-[9px]"}>
                 Лоти гравців · 24 год
               </span>
             </div>
@@ -542,23 +612,42 @@ export default function Market({ navigate }: MarketProps) {
             «Все лоты» — предмети. «Coin of Luck» — CoL з балансу, оплата аденою. Лот 24 год.
           </p>
 
-          <div className="flex flex-wrap gap-2 justify-center">
-            {tabBtn("browse", "Все лоты")}
-            {tabBtn("coinLuck", "Coin of Luck")}
-            {tabBtn("sell", "Выставить")}
-            {tabBtn("mine", "Мои лоты")}
-          </div>
-
           <div
             className={
               isL2
-                ? "flex justify-between text-[11px] text-[#c9a44c]"
-                : "flex justify-between text-[11px] text-amber-200/80"
+                ? "rounded-lg border border-[#5c4a32]/45 bg-black/22 p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
+                : ""
             }
           >
-            <span>Адена: {formatNum(hero.adena ?? 0)}</span>
-            <span>CoL: {formatNum(hero.coinOfLuck ?? 0)}</span>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {tabBtn("browse", "Все лоты")}
+              {tabBtn("coinLuck", "Coin of Luck")}
+              {tabBtn("sell", "Выставить")}
+              {tabBtn("mine", "Мои лоты")}
+            </div>
           </div>
+
+          {isL2 ? (
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-md border border-[#5c4a32]/50 bg-gradient-to-b from-[#241e14]/95 to-black/50 px-2.5 py-1.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]">
+                <div className="text-[8px] uppercase tracking-wider text-[#8a7a60]">Адена</div>
+                <div className="text-[12px] font-semibold tabular-nums text-[#e8c56e] leading-tight">
+                  {formatNum(hero.adena ?? 0)}
+                </div>
+              </div>
+              <div className="rounded-md border border-[#5c4a32]/50 bg-gradient-to-b from-[#241e14]/95 to-black/50 px-2.5 py-1.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]">
+                <div className="text-[8px] uppercase tracking-wider text-[#8a7a60]">Coin of Luck</div>
+                <div className="text-[12px] font-semibold tabular-nums text-[#d4c4a8] leading-tight">
+                  {formatNum(hero.coinOfLuck ?? 0)}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-between text-[11px] text-amber-200/80">
+              <span>Адена: {formatNum(hero.adena ?? 0)}</span>
+              <span>CoL: {formatNum(hero.coinOfLuck ?? 0)}</span>
+            </div>
+          )}
         </div>
 
         {(tab === "browse" || tab === "coinLuck") && (
@@ -587,124 +676,157 @@ export default function Market({ navigate }: MarketProps) {
                 </button>
               </div>
             ) : null}
-            <div className="flex justify-between items-center gap-2">
-              <span className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
-                Всього: {total}
-              </span>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => void refreshBrowse()}
-                className={
-                  isL2
-                    ? "text-[10px] px-2 py-1 rounded border border-[#5c4a32]/55 text-[#e8c56e] hover:bg-black/30 disabled:opacity-50"
-                    : "text-[10px] px-2 py-1 rounded border border-black/50 text-amber-200"
-                }
-              >
-                {loading ? "…" : "Обновить"}
-              </button>
-            </div>
-            {listings.length === 0 && !loading ? (
-              <p className={isL2 ? "text-center text-[12px] text-[#8a7a60] py-6" : "text-center text-sm text-gray-500 py-6"}>
-                Немає активних лотів
-              </p>
-            ) : (
-              listings.map((L) => {
-                const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
-                const isCol = isCoinLuckMarketListing(L);
-                const icon = normalizeIconPath(
-                  isCol ? "/icons/col (1).png" : it?.icon
-                );
-                const own = L.sellerCharacterId === cid;
-                const left = msLeft(L.expiresAt);
-                void tick;
-                const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
-                const lotTotal = L.price;
-                const perUnit =
-                  lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
-                const curLabel = L.currency === "adena" ? "аден" : "CoL";
-                return (
-                  <button
-                    key={L.id}
-                    type="button"
-                    onClick={() => openBrowseDetail(L)}
-                    className={`${listingRowCompact} w-full text-left cursor-pointer hover:brightness-[1.03] active:brightness-95 transition-[filter]`}
-                  >
-                    <img
-                      src={icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
-                      alt=""
-                      className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0 pointer-events-none"
-                      onError={handleResourceIconError}
-                    />
-                    <div className="flex-1 min-w-0 pointer-events-none">
-                      <div
-                        className={
-                          isL2
-                            ? "text-[11px] leading-snug text-[#e8dcc8] truncate"
-                            : "text-[11px] leading-snug text-amber-100 truncate"
-                        }
-                      >
-                        <span className="font-semibold">{displaySellItemName(it)}</span>
-                        {it?.count && Number(it.count) > 1 ? (
-                          <span className="font-semibold"> ×{it.count}</span>
-                        ) : null}
-                        <span className={isL2 ? "text-[#5c5248] font-normal" : "text-gray-600 font-normal"}> · </span>
-                        <span className={isL2 ? "text-[#8a7a60] font-normal" : "text-gray-500 font-normal"}>
-                          Продавець:{" "}
-                        </span>
-                        <span className={isL2 ? "text-[#b8a88c] font-medium" : "text-amber-200/85 font-medium"}>
-                          {L.sellerName}
-                        </span>
-                        {own ? (
-                          <span className={isL2 ? "text-[#6a5a48] font-normal ml-1" : "text-gray-500 font-normal ml-1"}>
-                            (ваш)
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className={isL2 ? "text-[9px] text-[#c9a44c] mt-0.5 leading-tight" : "text-[9px] text-amber-300/90 mt-0.5 leading-tight"}>
-                        {left <= 0 ? (
-                          <span className="text-[#9d6b6b]">Час вичерпано</span>
-                        ) : lotCnt > 1 ? (
-                          `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
-                        ) : (
-                          `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`
-                        )}
-                      </div>
-                    </div>
-                    <span
-                      className={
-                        isL2
-                          ? "text-[9px] text-[#8a7a60] shrink-0 self-center"
-                          : "text-[9px] text-gray-500 shrink-0 self-center"
-                      }
-                    >
-                      →
+            <div className={isL2 ? marketStallBox : "space-y-2"}>
+              {isL2 ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 px-2.5 py-2 border-b border-[#4a3f2e]/55 bg-black/28">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#c9a44c]">
+                    {tab === "coinLuck" ? "CoL на біржі" : "Вітрина лотів"}
+                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] text-[#8a7a60]">
+                      Всього: <span className="text-[#d4c4a8] font-medium tabular-nums">{total}</span>
                     </span>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => void refreshBrowse()}
+                      className="text-[10px] px-2 py-1 rounded border border-[#7a6a48]/55 text-[#e8c56e] bg-black/25 hover:bg-black/40 disabled:opacity-50"
+                    >
+                      {loading ? "…" : "Обновить"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-[10px] text-gray-500">Всього: {total}</span>
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={() => void refreshBrowse()}
+                    className="text-[10px] px-2 py-1 rounded border border-black/50 text-amber-200"
+                  >
+                    {loading ? "…" : "Обновить"}
                   </button>
-                );
-              })
-            )}
-            {total > 15 && (
-              <div className="flex justify-center gap-2 pt-2">
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="text-[10px] px-2 py-1 rounded border border-[#5c4a32]/50 text-[#d4c4a8] disabled:opacity-40"
-                >
-                  Назад
-                </button>
-                <span className="text-[10px] text-[#8a7a60] self-center">{page}</span>
-                <button
-                  type="button"
-                  disabled={page * 15 >= total}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="text-[10px] px-2 py-1 rounded border border-[#5c4a32]/50 text-[#d4c4a8] disabled:opacity-40"
-                >
-                  Далі
-                </button>
+                </div>
+              )}
+              <div className={isL2 ? "px-1.5 py-1.5 space-y-1" : "space-y-2"}>
+                {listings.length === 0 && !loading ? (
+                  <p
+                    className={
+                      isL2
+                        ? "text-center text-[12px] text-[#8a7a60] py-7 px-2 rounded-md border border-dashed border-[#5c4a32]/35 bg-black/20"
+                        : "text-center text-sm text-gray-500 py-6"
+                    }
+                  >
+                    Немає активних лотів
+                  </p>
+                ) : (
+                  listings.map((L) => {
+                    const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
+                    const isCol = isCoinLuckMarketListing(L);
+                    const icon = normalizeIconPath(
+                      isCol ? "/icons/col (1).png" : it?.icon
+                    );
+                    const own = L.sellerCharacterId === cid;
+                    const left = msLeft(L.expiresAt);
+                    void tick;
+                    const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
+                    const lotTotal = L.price;
+                    const perUnit =
+                      lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
+                    const curLabel = L.currency === "adena" ? "аден" : "CoL";
+                    return (
+                      <button
+                        key={L.id}
+                        type="button"
+                        onClick={() => openBrowseDetail(L)}
+                        className={`${listingRowCompact} w-full text-left cursor-pointer hover:brightness-[1.03] active:brightness-95 transition-[filter] ${
+                          isL2 ? "hover:border-[#8a7348]/45" : ""
+                        }`}
+                      >
+                        <img
+                          src={icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                          alt=""
+                          className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0 pointer-events-none"
+                          onError={handleResourceIconError}
+                        />
+                        <div className="flex-1 min-w-0 pointer-events-none">
+                          <div
+                            className={
+                              isL2
+                                ? "text-[11px] leading-snug text-[#e8dcc8] truncate"
+                                : "text-[11px] leading-snug text-amber-100 truncate"
+                            }
+                          >
+                            <span className="font-semibold">{displaySellItemName(it)}</span>
+                            {it?.count && Number(it.count) > 1 ? (
+                              <span className="font-semibold"> ×{it.count}</span>
+                            ) : null}
+                            <span className={isL2 ? "text-[#5c5248] font-normal" : "text-gray-600 font-normal"}> · </span>
+                            <span className={isL2 ? "text-[#8a7a60] font-normal" : "text-gray-500 font-normal"}>
+                              Продавець:{" "}
+                            </span>
+                            <span className={isL2 ? "text-[#b8a88c] font-medium" : "text-amber-200/85 font-medium"}>
+                              {L.sellerName}
+                            </span>
+                            {own ? (
+                              <span className={isL2 ? "text-[#6a5a48] font-normal ml-1" : "text-gray-500 font-normal ml-1"}>
+                                (ваш)
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className={isL2 ? "text-[9px] text-[#c9a44c] mt-0.5 leading-tight" : "text-[9px] text-amber-300/90 mt-0.5 leading-tight"}>
+                            {left <= 0 ? (
+                              <span className="text-[#9d6b6b]">Час вичерпано</span>
+                            ) : lotCnt > 1 ? (
+                              `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+                            ) : (
+                              `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`
+                            )}
+                          </div>
+                        </div>
+                        <span
+                          className={
+                            isL2
+                              ? "text-[9px] text-[#8a7a60] shrink-0 self-center"
+                              : "text-[9px] text-gray-500 shrink-0 self-center"
+                          }
+                        >
+                          →
+                        </span>
+                      </button>
+                    );
+                  })
+                )}
               </div>
-            )}
+              {total > 15 && (
+                <div
+                  className={
+                    isL2
+                      ? "flex justify-center gap-2 px-2 py-2.5 border-t border-[#4a3f2e]/50 bg-black/22"
+                      : "flex justify-center gap-2 pt-2"
+                  }
+                >
+                  <button
+                    type="button"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="text-[10px] px-2 py-1 rounded border border-[#5c4a32]/50 text-[#d4c4a8] disabled:opacity-40"
+                  >
+                    Назад
+                  </button>
+                  <span className="text-[10px] text-[#8a7a60] self-center tabular-nums">{page}</span>
+                  <button
+                    type="button"
+                    disabled={page * 15 >= total}
+                    onClick={() => setPage((p) => p + 1)}
+                    className="text-[10px] px-2 py-1 rounded border border-[#5c4a32]/50 text-[#d4c4a8] disabled:opacity-40"
+                  >
+                    Далі
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -792,74 +914,43 @@ export default function Market({ navigate }: MarketProps) {
 
         {tab === "mine" && (
           <div className="px-3 pb-4 space-y-2">
-            <button
-              type="button"
-              onClick={() => void refreshMine()}
-              className="text-[10px] px-2 py-1 rounded border border-[#5c4a32]/55 text-[#e8c56e] mb-2"
-            >
-              Обновить список
-            </button>
-            {myListings.length === 0 ? (
-              <p className="text-center text-[12px] text-[#8a7a60] py-6">У вас немає активних лотів</p>
+            {isL2 ? (
+              <div className={marketStallBox}>
+                <div className="flex flex-wrap items-center justify-between gap-2 px-2.5 py-2 border-b border-[#4a3f2e]/55 bg-black/28">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#c9a44c]">Мої лоти</span>
+                  <button
+                    type="button"
+                    onClick={() => void refreshMine()}
+                    className="text-[10px] px-2 py-1 rounded border border-[#7a6a48]/55 text-[#e8c56e] bg-black/25 hover:bg-black/40"
+                  >
+                    Обновить список
+                  </button>
+                </div>
+                <div className="px-1.5 py-1.5 space-y-1">
+                  {myListings.length === 0 ? (
+                    <p className="text-center text-[12px] text-[#8a7a60] py-7 px-2 rounded-md border border-dashed border-[#5c4a32]/35 bg-black/20">
+                      У вас немає активних лотів
+                    </p>
+                  ) : (
+                    myListings.map(renderMineListingRow)
+                  )}
+                </div>
+              </div>
             ) : (
-              myListings.map((L) => {
-                const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
-                const isCol = isCoinLuckMarketListing(L);
-                const left = msLeft(L.expiresAt);
-                void tick;
-                const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
-                const lotTotal = L.price;
-                const perUnit =
-                  lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
-                const curLabel = L.currency === "adena" ? "аден" : "CoL";
-                return (
-                  <div key={L.id} className={listingRowCompact}>
-                    <img
-                      src={
-                        normalizeIconPath(isCol ? "/icons/col (1).png" : it?.icon) ||
-                        "/items/drops/Weapon_squires_sword_i00_0.jpg"
-                      }
-                      alt=""
-                      className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0"
-                      onError={handleResourceIconError}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className={
-                          isL2
-                            ? "text-[11px] leading-snug text-[#e8dcc8] truncate"
-                            : "text-[11px] leading-snug text-amber-100 truncate"
-                        }
-                      >
-                        <span className="font-semibold">{displaySellItemName(it)}</span>
-                        {it?.count && Number(it.count) > 1 ? (
-                          <span className="font-semibold"> ×{it.count}</span>
-                        ) : null}
-                        <span className={isL2 ? "text-[#5c5248] font-normal" : "text-gray-600 font-normal"}> · </span>
-                        <span className={isL2 ? "text-[#8a7a60] font-normal" : "text-gray-500 font-normal"}>
-                          Продавець:{" "}
-                        </span>
-                        <span className={isL2 ? "text-[#b8a88c] font-medium" : "text-amber-200/85 font-medium"}>
-                          {L.sellerName}
-                        </span>
-                      </div>
-                      <div className={isL2 ? "text-[9px] text-[#c9a44c] mt-0.5 leading-tight" : "text-[9px] text-amber-300 mt-0.5 leading-tight"}>
-                        {lotCnt > 1
-                          ? `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
-                          : `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      disabled={cancelBusyId === L.id}
-                      onClick={() => void onCancel(L.id)}
-                      className="text-[9px] px-1.5 py-1 rounded border border-[#9d6b6b]/55 text-[#e8b4b4] shrink-0 leading-tight"
-                    >
-                      {cancelBusyId === L.id ? "…" : "Снять"}
-                    </button>
-                  </div>
-                );
-              })
+              <>
+                <button
+                  type="button"
+                  onClick={() => void refreshMine()}
+                  className="text-[10px] px-2 py-1 rounded border border-[#5c4a32]/55 text-[#e8c56e] mb-2"
+                >
+                  Обновить список
+                </button>
+                {myListings.length === 0 ? (
+                  <p className="text-center text-[12px] text-[#8a7a60] py-6">У вас немає активних лотів</p>
+                ) : (
+                  myListings.map(renderMineListingRow)
+                )}
+              </>
             )}
           </div>
         )}
