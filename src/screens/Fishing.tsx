@@ -1,5 +1,5 @@
 // src/screens/Fishing.tsx
-// Рибалка: повноекранний фон, опис, перевірка удочки/наживки, 1 заброс = 5000 SP + 5M адени, 1 год, улов 100–300 риб
+// Рибалка: повноекранний фон, опис, перевірка удочки/наживки, 1 заброс = 5000 SP (адена зараз 0), 1 год
 // Сесія зберігається на сервері — один акаунт = одна сесія на всіх пристроях
 import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../state/heroStore";
@@ -13,7 +13,8 @@ import { isUnauthorizedError } from "../utils/isUnauthorizedError";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 
 const FISHING_COST_SP = 5000;
-const FISHING_COST_ADENA = 5_000_000;
+/** Тимчасово без списання адени за старт сесії */
+const FISHING_COST_ADENA = 0;
 const FISHING_DURATION_MS = 60 * 60 * 1000;
 const ROD_ITEM_ID = "baby_duck_rod";
 const BAIT_ITEM_ID = "gludio_fish_lure";
@@ -104,8 +105,8 @@ export default function Fishing({ navigate }: FishingProps) {
   const hasRod = rodEquipped;
   const hasBait = baitCount >= 1;
   const sp = hero?.sp ?? 0;
-  const adena = hero?.adena ?? 0;
-  const canAfford = sp >= FISHING_COST_SP && adena >= FISHING_COST_ADENA;
+  const canAfford =
+    sp >= FISHING_COST_SP && (FISHING_COST_ADENA <= 0 || (hero?.adena ?? 0) >= FISHING_COST_ADENA);
 
   const estimatedServerNow = now + serverOffsetMs;
   const ready = session && isFishingReady(session, estimatedServerNow);
@@ -267,13 +268,17 @@ export default function Fishing({ navigate }: FishingProps) {
                       {sp >= FISHING_COST_SP ? " ✓" : " ✗"}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-gray-300">Адена:</span>
-                    <span className={`text-right ${adena >= FISHING_COST_ADENA ? "text-green-400" : "text-red-400"}`}>
-                      {adena.toLocaleString()} / {FISHING_COST_ADENA.toLocaleString()}
-                      {adena >= FISHING_COST_ADENA ? " ✓" : " ✗"}
-                    </span>
-                  </div>
+                  {FISHING_COST_ADENA > 0 && (
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-gray-300">Адена:</span>
+                      <span
+                        className={`text-right ${(hero?.adena ?? 0) >= FISHING_COST_ADENA ? "text-green-400" : "text-red-400"}`}
+                      >
+                        {(hero?.adena ?? 0).toLocaleString()} / {FISHING_COST_ADENA.toLocaleString()}
+                        {(hero?.adena ?? 0) >= FISHING_COST_ADENA ? " ✓" : " ✗"}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className={`mt-4 pt-3 border-t ${isL2 ? "border-[#5c4a32]/50" : "border-white/30"}`}>
                   <p className="text-xs text-[#c7ad80] mb-2">Не вистачає:</p>
@@ -281,7 +286,11 @@ export default function Fishing({ navigate }: FishingProps) {
                     {!hasRod && <li>• Удочка (Baby Duck Rod) — надіньте в слот зброї</li>}
                     {!hasBait && <li>• Наживка (Gludio Fish Lure) — купіть у магазині</li>}
                     {sp < FISHING_COST_SP && <li>• SP — потрібно ще {(FISHING_COST_SP - sp).toLocaleString()}</li>}
-                    {adena < FISHING_COST_ADENA && <li>• Адена — потрібно ще {(FISHING_COST_ADENA - adena).toLocaleString()}</li>}
+                    {FISHING_COST_ADENA > 0 && (hero?.adena ?? 0) < FISHING_COST_ADENA && (
+                      <li>
+                        • Адена — потрібно ще {(FISHING_COST_ADENA - (hero?.adena ?? 0)).toLocaleString()}
+                      </li>
+                    )}
                   </ul>
                 </div>
                 <div className={`flex justify-center pt-4 mt-4 border-t ${isL2 ? "border-[#5c4a32]/50" : "border-white/50"}`}>
@@ -299,8 +308,9 @@ export default function Fishing({ navigate }: FishingProps) {
             className={`text-xs text-left ${isL2 ? "text-[#a89878]" : ""}`}
             style={isL2 ? undefined : { color: "#c7ad80" }}
           >
-            Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP и{" "}
-            {FISHING_COST_ADENA.toLocaleString()} аден. Нужны удочка и наживка. Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб.
+            Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP
+            {FISHING_COST_ADENA > 0 ? ` и ${FISHING_COST_ADENA.toLocaleString()} аден` : ""}. Нужны удочка и наживка.
+            Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб.
           </p>
           <div className="flex justify-start -ml-1">
             <div className="relative overflow-hidden rounded shadow-[inset_0_0_25px_10px_rgba(0,0,0,0.65)]">
@@ -339,7 +349,8 @@ export default function Fishing({ navigate }: FishingProps) {
               </div>
             )}
             <p className="text-[#cfcfcc]">
-              SP: {FISHING_COST_SP.toLocaleString()} · Адена: {FISHING_COST_ADENA.toLocaleString()}
+              SP: {FISHING_COST_SP.toLocaleString()}
+              {FISHING_COST_ADENA > 0 ? ` · Адена: ${FISHING_COST_ADENA.toLocaleString()}` : ""}
             </p>
             <button
               className="w-full py-3 rounded-md bg-[#2a2a2a] ring-1 ring-[#c7ad80]/50 text-[#c7ad80] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -350,7 +361,6 @@ export default function Fishing({ navigate }: FishingProps) {
             </button>
             <div className="rounded border border-[#c7ad80]/50 px-3 py-2 flex items-center justify-between gap-2">
               <span style={{ color: "#ff8c00" }}>SP: {sp.toLocaleString()}</span>
-              <span style={{ color: "#ffd700" }}>Адена: {adena.toLocaleString()}</span>
             </div>
           </div>
         )}
@@ -378,7 +388,6 @@ export default function Fishing({ navigate }: FishingProps) {
             <p className="text-gray-500">Вернитесь через час и нажмите «Забрать улов».</p>
             <div className="rounded border border-[#c7ad80]/50 px-3 py-2 flex items-center justify-between gap-2">
               <span style={{ color: "#ff8c00" }}>SP: {sp.toLocaleString()}</span>
-              <span style={{ color: "#ffd700" }}>Адена: {adena.toLocaleString()}</span>
             </div>
           </div>
         )}
@@ -396,7 +405,6 @@ export default function Fishing({ navigate }: FishingProps) {
             </button>
             <div className="rounded border border-[#c7ad80]/50 px-3 py-2 flex items-center justify-between gap-2">
               <span style={{ color: "#ff8c00" }}>SP: {sp.toLocaleString()}</span>
-              <span style={{ color: "#ffd700" }}>Адена: {adena.toLocaleString()}</span>
             </div>
           </div>
         )}

@@ -134,7 +134,7 @@ export default function Help({ navigate }: HelpProps) {
           </Section>
 
           <Section title="Рыбалка">
-            <p><strong>Нужно:</strong> удочка Baby Duck Rod (в слоте оружия), Gludio Fish Lure (в инвентаре), 5000 SP, 5 000 000 adena.</p>
+            <p><strong>Нужно:</strong> удочка Baby Duck Rod (в слоте оружия), Gludio Fish Lure (в инвентаре), 5000 SP.</p>
             <p><strong>Как:</strong> зайдите в <LinkBtn onClick={() => navigate("/fishing")}>Рыбалку</LinkBtn>, нажмите «Начать». Ждите 1 час, затем «Собрать».</p>
             <p>Улов зависит от заточки удочки. Рыбалка даёт EXP и рыбу в инвентарь.</p>
           </Section>

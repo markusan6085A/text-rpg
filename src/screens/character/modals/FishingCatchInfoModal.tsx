@@ -75,20 +75,6 @@ export default function FishingCatchInfoModal({ onClose }: FishingCatchInfoModal
               <div>• <span className="text-green-400">Риба</span> (fish_seawater) — кількість залежить від заточки удочки</div>
               <div>• <span className="text-yellow-400">Опит</span> — 100k–1M випадково (20% шанс 600k–1M, 40% — 400k–600k, 40% — 100k–400k)</div>
             </div>
-            <div className="text-sm font-semibold text-[#b8860b] mb-2">Що випадає з риби (при розділці)</div>
-            <div
-              className={
-                l2
-                  ? "border border-[#5c4a32]/50 rounded-md p-3 bg-[#14110c] space-y-2 text-[#d4c4a8]"
-                  : "border border-white/30 rounded p-3 bg-[#1a1a1a] space-y-2 text-gray-300"
-              }
-            >
-              <div>• <span className="text-yellow-300">Зброя/Броня</span> — шанс за 10 риб: D/C 0.7%, B/A/S 0.1%</div>
-              <div>• <span className="text-yellow-300">Бижутерія</span> — шанс за 10 риб: D/C 0.7%, B/A/S 0.1%</div>
-              <div>• <span className="text-green-400">Ресурси</span>: 0.8% кожен тип (за 1 рибу)</div>
-              <div>• <span className="text-amber-400">Скарбничка</span>: 0.3% (за 1 рибу)</div>
-              <div>• <span className="text-purple-300">Заточки</span>: 0.4% (за 1 рибу, D/C) — категорія «Заточки»</div>
-            </div>
           </div>
         </div>
 

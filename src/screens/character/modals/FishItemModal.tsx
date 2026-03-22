@@ -404,7 +404,7 @@ export default function FishItemModal({
               dismantleResult.jewelryPieces.length === 0 &&
               dismantleResult.resources.length === 0 &&
               (dismantleResult.enchantScrolls?.length ?? 0) === 0 && (
-                <div className="text-gray-400 text-center py-4">Нічого не випало</div>
+                <div className="text-gray-400 text-center py-4">Рибу розділено (дроп з розділки тимчасово вимкнено).</div>
               )}
           </div>
 
@@ -455,16 +455,10 @@ export default function FishItemModal({
             </div>
           )}
           <div>
-            <div className="text-sm font-semibold text-[#b8860b] mb-2">Шанси дропу:</div>
-            <div className="text-gray-400 text-[11px] space-y-0.5">
-              <div>Зброя/Броня/Бижутерія — за 10 риб: D/C 0.7%, B/A/S 0.1%</div>
-              <div>Ресурси — за 1 рибу: 0.8% кожен тип</div>
-              <div>Скарбничка — за 1 рибу: 0.3%</div>
-              <div>Заточки — за 1 рибу: 0.4% (D/C)</div>
-            </div>
             <button
+              type="button"
               onClick={() => setShowCatchInfoModal(true)}
-              className="mt-2 py-1.5 px-2 rounded border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/20 text-[11px]"
+              className="py-1.5 px-2 rounded border border-[#c7ad80]/60 text-[#c7ad80] hover:bg-[#c7ad80]/20 text-[11px]"
             >
               Информация об улове
             </button>

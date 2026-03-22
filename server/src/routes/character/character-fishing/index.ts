@@ -23,7 +23,8 @@ function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number
 export async function characterFishingRoutes(app: FastifyInstance) {
   // --- Fishing ---
   const FISHING_COST_SP = 5000;
-  const FISHING_COST_ADENA = 5_000_000;
+  /** Тимчасово без списання адени за старт сесії */
+  const FISHING_COST_ADENA = 0;
   const FISHING_DURATION_MS = 60 * 60 * 1000;
   const ROD_ITEM_ID = "baby_duck_rod";
   const BAIT_ITEM_ID = "gludio_fish_lure";
@@ -112,8 +113,11 @@ export async function characterFishingRoutes(app: FastifyInstance) {
 
         const sp = Number(ch.sp) ?? 0;
         const adena = Number(ch.adena) ?? 0;
-        if (sp < FISHING_COST_SP || adena < FISHING_COST_ADENA) {
-          throw new Error(`need ${FISHING_COST_SP} SP and ${FISHING_COST_ADENA} adena`);
+        if (sp < FISHING_COST_SP || (FISHING_COST_ADENA > 0 && adena < FISHING_COST_ADENA)) {
+          const need: string[] = [];
+          if (sp < FISHING_COST_SP) need.push(`${FISHING_COST_SP} SP`);
+          if (FISHING_COST_ADENA > 0 && adena < FISHING_COST_ADENA) need.push(`${FISHING_COST_ADENA} adena`);
+          throw new Error(`need ${need.join(" and ")}`);
         }
 
         const newInv = inv
@@ -136,14 +140,23 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           oldRevision
         );
 
+        const updateData: {
+          sp: { decrement: number };
+          adena?: { decrement: number };
+          heroJson: typeof updatedHeroJson;
+          lastActivityAt: Date;
+        } = {
+          sp: { decrement: FISHING_COST_SP },
+          heroJson: updatedHeroJson,
+          lastActivityAt: new Date(),
+        };
+        if (FISHING_COST_ADENA > 0) {
+          updateData.adena = { decrement: FISHING_COST_ADENA };
+        }
+
         return tx.character.update({
           where: { id: ch.id },
-          data: {
-            sp: { decrement: FISHING_COST_SP },
-            adena: { decrement: FISHING_COST_ADENA },
-            heroJson: updatedHeroJson,
-            lastActivityAt: new Date(),
-          },
+          data: updateData,
           select: {
             id: true, name: true, race: true, classId: true, sex: true, level: true,
             exp: true, sp: true, adena: true, aa: true, coinLuck: true, heroJson: true, updatedAt: true,
