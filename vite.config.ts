@@ -22,19 +22,9 @@ export default defineConfig({
             if (id.includes('react-router')) return 'vendor-router'
             if (id.includes('zustand')) return 'vendor-zustand'
           }
-          const norm = id.replace(/\\/g, '/')
-          // persist / loadout / helpers / types are imported by heroStore and stats utils.
-          // If they live in the `battle` chunk, Rollup loads: main → battle-helpers → battle store → heroStore
-          // while heroStore is still initializing → "Cannot access … before initialization" in prod.
-          if (
-            norm.includes('/state/battle/helpers') ||
-            norm.endsWith('/state/battle/persist.ts') ||
-            norm.endsWith('/state/battle/loadout.ts') ||
-            norm.endsWith('/state/battle/types.ts')
-          ) {
-            return undefined
-          }
-          if (norm.includes('/state/battle/') || norm.includes('/screens/Battle')) return 'battle'
+          // Do NOT split `state/battle` or `screens/Battle` into a separate chunk.
+          // App.tsx imports Battle before useHeroStore; a `battle` chunk that imports heroStore causes Rollup
+          // to execute modules in an order where live bindings hit the TDZ ("Cannot access … before initialization").
           if (id.includes('/screens/admin/') || id.includes('AdminDashboard') || id.includes('AdminLogin') || id.includes('AdminItemPicker') || id.includes('PlayerAdminActions')) return 'admin'
           if (id.includes('/data/skills/')) return 'data-skills'
           if (id.includes('/data/items/')) return 'data-items'
