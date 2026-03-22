@@ -4,6 +4,7 @@ export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
   floran_village: { uk: "Флоран — селище", ru: "Флоран — деревня" },
   l2dop_gludio: { uk: "Глудіо", ru: "Глудио" },
   l2dop_giran: { uk: "Гіран", ru: "Гиран" },
+  l2dop_heine: { uk: "Гейне (Heine)", ru: "Гейн (Heine)" },
   l2dop_aden: { uk: "Аден", ru: "Аден" },
   l2dop_oren: { uk: "Орен", ru: "Орен" },
   l2dop_goddard: { uk: "Годдарт", ru: "Годдарт" },
@@ -19,6 +20,13 @@ export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
   floran_village_04: { uk: "Флоран — Старе кам'яне коло", ru: "Флоран — Старый каменный круг" },
   floran_village_05: { uk: "Флоран — Ожинистий кряж", ru: "Флоран — Тернистый кряж" },
   floran_village_06: { uk: "Флоран — Прикордонні висоти", ru: "Флоран — Пограничные высоты" },
+
+  l2dop_heine_01: { uk: "Гейне — Портові склади", ru: "Гейн — Портовые склады" },
+  l2dop_heine_02: { uk: "Гейне — Причал і відливи", ru: "Гейн — Причал и отливы" },
+  l2dop_heine_03: { uk: "Гейне — Соляний шлях", ru: "Гейн — Соляной путь" },
+  l2dop_heine_04: { uk: "Гейне — Коралові мілини", ru: "Гейн — Коралловые мели" },
+  l2dop_heine_05: { uk: "Гейне — Уламки молу", ru: "Гейн — Волнорезы и утёсы" },
+  l2dop_heine_06: { uk: "Гейне — Вихід у відкрите море", ru: "Гейн — Выход в открытое море" },
 
   l2dop_gludio_01: { uk: "Глудіо — Околиця", ru: "Глудио — Окраина" },
   l2dop_gludio_02: { uk: "Глудіо — Луги", ru: "Глудио — Луга" },

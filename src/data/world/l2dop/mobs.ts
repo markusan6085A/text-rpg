@@ -10,6 +10,7 @@ import { L2DOP_SCHUTTGART_POOL } from "./schuttgartMobs.generated";
 import { L2DOP_RUNE_POOL } from "./runeMobs.generated";
 import { L2DOP_DION_POOL } from "./dionMobs.generated";
 import { L2DOP_FLORAN_VILLAGE_POOL } from "./floranVillageMobs.generated";
+import { L2DOP_HEINE_POOL } from "./heineMobs.generated";
 
 export {
   L2DOP_GODDARD_POOL,
@@ -17,6 +18,7 @@ export {
   L2DOP_RUNE_POOL,
   L2DOP_DION_POOL,
   L2DOP_FLORAN_VILLAGE_POOL,
+  L2DOP_HEINE_POOL,
 };
 
 function drop(
@@ -1302,3 +1304,72 @@ export function getFloranVillageRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_FLORAN_VILLAGE_RAID_BOSSES: RaidBoss[] = FLORAN_VILLAGE_RB_BASE;
+
+/* ==================== HEINE — XML pool levels 36–56 ==================== */
+
+const HEINE_CHAMP_SUFFIXES = ["I", "II"];
+
+/** 2 чемпіони на зону */
+export function getHeineL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_HEINE_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length === 0) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Harbor Warden",
+    "02": "Tideflat Stalker",
+    "03": "Salt Road Reaver",
+    "04": "Shallows Tyrant",
+    "05": "Breakwater King",
+    "06": "Sea Approach Horror",
+  };
+  const zoneNum = zoneId.replace("l2dop_heine_", "");
+  const baseName = names[zoneNum] ?? "Heine Elite";
+  const result: Mob[] = [];
+  for (let i = 0; i < 2; i++) {
+    const base = shuffled[i % shuffled.length]!;
+    const suf = HEINE_CHAMP_SUFFIXES[i] ?? String(i + 1);
+    result.push(makeChampion(base, `${baseName} ${suf}`, `heine${i}`));
+  }
+  return result;
+}
+
+function heineRbDrops(_i: number): DropEntry[] {
+  return [];
+}
+
+const HEINE_RB_BASE: RaidBoss[] = [
+  { id: "rb_l2dop_heine_01", name: "Raid Boss: Dockside Colossus", level: 38, hp: 125000, mp: 0, pAtk: 520, mAtk: 0, pDef: 355, mDef: 242, exp: 62000, sp: 3800, adenaMin: 22000, adenaMax: 36000, dropChance: 1, drops: heineRbDrops(0), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_heine_01" },
+  { id: "rb_l2dop_heine_02", name: "Raid Boss: Wharf Krakenborn", level: 40, hp: 138000, mp: 0, pAtk: 560, mAtk: 310, pDef: 375, mDef: 268, exp: 72000, sp: 4300, adenaMin: 26000, adenaMax: 41000, dropChance: 1, drops: heineRbDrops(1), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_heine_02" },
+  { id: "rb_l2dop_heine_03", name: "Raid Boss: Brine Road Tyrant", level: 43, hp: 158000, mp: 0, pAtk: 610, mAtk: 0, pDef: 405, mDef: 288, exp: 85000, sp: 5000, adenaMin: 30000, adenaMax: 47000, dropChance: 1, drops: heineRbDrops(2), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_heine_03" },
+  { id: "rb_l2dop_heine_04", name: "Raid Boss: Coral Abyss Lord", level: 46, hp: 182000, mp: 0, pAtk: 670, mAtk: 380, pDef: 438, mDef: 318, exp: 98000, sp: 5800, adenaMin: 35000, adenaMax: 54000, dropChance: 1, drops: heineRbDrops(3), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_heine_04" },
+  { id: "rb_l2dop_heine_05", name: "Raid Boss: Stormbreak Behemoth", level: 49, hp: 210000, mp: 0, pAtk: 730, mAtk: 0, pDef: 472, mDef: 342, exp: 115000, sp: 6600, adenaMin: 40000, adenaMax: 62000, dropChance: 1, drops: heineRbDrops(4), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_heine_05" },
+  { id: "rb_l2dop_heine_06", name: "Raid Boss: Leviathan's Herald", level: 53, hp: 248000, mp: 0, pAtk: 810, mAtk: 450, pDef: 515, mDef: 378, exp: 138000, sp: 7600, adenaMin: 47000, adenaMax: 72000, dropChance: 1, drops: heineRbDrops(5), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_heine_06" },
+];
+
+const HEINE_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Cargo Devourer", "Warehouse Wraith", "Pier Reaper"],
+  "02": ["Tidecaller", "Barnacle King", "Mudflat Terror"],
+  "03": ["Saltfang Patriarch", "Caravan Eater", "Roadbreaker"],
+  "04": ["Reef Horror", "Pearl Devourer", "Shoal Titan"],
+  "05": ["Cliff Howler", "Spray Revenant", "Breakwater Crown"],
+  "06": ["Deepwake Horror", "Swell Tyrant", "Horizon Fiend"],
+};
+
+/** 2–3 РБ на зону */
+export function getHeineRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = HEINE_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("l2dop_heine_", "");
+  const extraNames = HEINE_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 2 + Math.floor(rand() * 2);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_HEINE_RAID_BOSSES: RaidBoss[] = HEINE_RB_BASE;
