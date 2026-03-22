@@ -8,6 +8,7 @@ export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
   l2dop_goddard: { uk: "Годдарт", ru: "Годдарт" },
   l2dop_schuttgart: { uk: "Місто Штутгарт", ru: "Город Штутгарт" },
   l2dop_rune: { uk: "Рун (Rune Township)", ru: "Рун (Rune Township)" },
+  l2dop_dion: { uk: "Діон (Town of Dion)", ru: "Дион (Town of Dion)" },
 };
 
 export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
@@ -133,6 +134,18 @@ export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
     uk: "Рун — Поріг тирана",
     ru: "Рун — Порог тирана",
   },
+
+  l2dop_dion_01: { uk: "Діон — Пагорби та стежки пастухів", ru: "Дион — Холмы и тропы пастухов" },
+  l2dop_dion_02: { uk: "Діон — Підступи до вуликів", ru: "Дион — Подступы к ульям" },
+  l2dop_dion_03: { uk: "Діон — Поля біля млинів", ru: "Дион — Поля у мельниц" },
+  l2dop_dion_04: { uk: "Діон — Варта партизанів", ru: "Дион — Дозор партизан" },
+  l2dop_dion_05: { uk: "Діон — Випуск болота", ru: "Дион — Выпуск болота" },
+  l2dop_dion_06: { uk: "Діон — Шлях до Круми", ru: "Дион — Путь к Круме" },
+  l2dop_dion_07: { uk: "Діон — Старе поле битви", ru: "Дион — Старое поле битвы" },
+  l2dop_dion_08: { uk: "Діон — Зруйновані барикади", ru: "Дион — Разрушенные баррикады" },
+  l2dop_dion_09: { uk: "Діон — Володіння болотного лорда", ru: "Дион — Владения болотного лорда" },
+  l2dop_dion_10: { uk: "Діон — Туманне болото", ru: "Дион — Туманное болото" },
+  l2dop_dion_11: { uk: "Діон — Прикордонні висоти", ru: "Дион — Пограничные высоты" },
 
   l2dop_goddard_dragon_valley: { uk: "Годдарт — Долина драконів", ru: "Годдарт — Долина драконов" },
   l2dop_goddard_giants_cave: { uk: "Годдарт — Печера гігантів", ru: "Годдарт — Пещера гигантов" },

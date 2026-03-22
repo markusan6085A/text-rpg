@@ -389,6 +389,35 @@ export function hintL2EnglishMobIcon(displayName: string): string | undefined {
   return undefined;
 }
 
+/** NPC template id з `l2dop_12345` або `l2dop_12345_champion_x` */
+export function l2dopNpcIdFromMobId(mobId: string | undefined): number | undefined {
+  if (!mobId) return undefined;
+  const m = /^l2dop_(\d+)/i.exec(mobId);
+  return m ? parseInt(m[1], 10) : undefined;
+}
+
+const MOB_ICON_SLOT_MAX = 325;
+
+/** Стабільна іконка за L2 NPC id (різні спрайти; уникаємо 98.png-placeholder). */
+export function getMobIconFromL2dopNpcId(npcId: number): string {
+  let h = Math.imul(npcId, 2654435761) >>> 0;
+  let slot = (h % (MOB_ICON_SLOT_MAX - 1)) + 1;
+  if (slot >= 98) slot += 1;
+  if (slot > MOB_ICON_SLOT_MAX) slot = MOB_ICON_SLOT_MAX;
+  return `/mobs/${slot}.png`;
+}
+
+/** Fallback, якщо немає мапінгу/heuristic — не завжди одна й та сама «акула» (98.png). */
+function fallbackMobIconFromName(displayName: string): string {
+  let h = 0;
+  const s = displayName.trim();
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  let slot = (h % (MOB_ICON_SLOT_MAX - 1)) + 1;
+  if (slot >= 98) slot += 1;
+  if (slot > MOB_ICON_SLOT_MAX) slot = MOB_ICON_SLOT_MAX;
+  return `/mobs/${slot}.png`;
+}
+
 function lookupMobIconFromCandidates(candidates: string[]): string | undefined {
   for (const key of candidates) {
     const file = MOB_ICON_MAP[key];
@@ -420,12 +449,14 @@ export function getMobPublicIconSrc(displayName: string): string | undefined {
   if (resolved) return resolved;
   const core = stripPrefixes(displayName);
   /** Будь-яка непорожня назва — щоб не лишати «—» на екрані локації */
-  if (core.trim().length >= 2) return "/mobs/98.png";
+  if (core.trim().length >= 2) return fallbackMobIconFromName(core);
   return undefined;
 }
 
-/** Для рядка моба: пріоритет явного mob.icon, інакше public/mobs */
-export function getMobListIconSrc(mob: { name: string; icon?: string }): string | undefined {
+/** Для рядка моба: пріоритет явного mob.icon, інакше l2dop NPC id, інакше public/mobs */
+export function getMobListIconSrc(mob: { id?: string; name: string; icon?: string }): string | undefined {
   if (mob.icon?.trim()) return mob.icon.trim();
+  const nid = l2dopNpcIdFromMobId(mob.id);
+  if (nid != null) return getMobIconFromL2dopNpcId(nid);
   return getMobPublicIconSrc(mob.name);
 }

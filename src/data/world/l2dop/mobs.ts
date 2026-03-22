@@ -4,12 +4,13 @@
 import type { Mob } from "../types";
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import type { DropEntry } from "../../combat/types";
-import { getMobPublicIconSrc, resolveMobIconFromName } from "../../../utils/mobPublicIcon";
+import { getMobListIconSrc, getMobPublicIconSrc, resolveMobIconFromName } from "../../../utils/mobPublicIcon";
 import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
 import { L2DOP_SCHUTTGART_POOL } from "./schuttgartMobs.generated";
 import { L2DOP_RUNE_POOL } from "./runeMobs.generated";
+import { L2DOP_DION_POOL } from "./dionMobs.generated";
 
-export { L2DOP_GODDARD_POOL, L2DOP_SCHUTTGART_POOL, L2DOP_RUNE_POOL };
+export { L2DOP_GODDARD_POOL, L2DOP_SCHUTTGART_POOL, L2DOP_RUNE_POOL, L2DOP_DION_POOL };
 
 function drop(
   id: string,
@@ -368,6 +369,7 @@ export function makeChampion(base: Mob, championName: string, suffix: string): M
     name: `[Чемпіон] ${championName}`,
     icon:
       base.icon?.trim() ||
+      getMobListIconSrc({ id: base.id, name: base.name }) ||
       resolveMobIconFromName(championName) ||
       getMobPublicIconSrc(base.name),
     hp: base.hp * 3,
@@ -1137,3 +1139,90 @@ export function getRuneRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_RUNE_RAID_BOSSES: RaidBoss[] = RUNE_RB_BASE;
+
+/* ==================== TOWN OF DION — XML pool levels 28–48 ==================== */
+
+const DION_CHAMP_SUFFIXES = [
+  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV",
+];
+
+/** 14 чемпіонів на зону */
+export function getDionL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_DION_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length === 0) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Dion Hills Elite",
+    "02": "Beehive Stalker",
+    "03": "Windmill Warden",
+    "04": "Partisan Veteran",
+    "05": "Marsh Reaver",
+    "06": "Cruma Road Terror",
+    "07": "Battleground Specter",
+    "08": "Barricade Crusher",
+    "09": "Fen Lord Champion",
+    "10": "Moor Howler",
+    "11": "Highland Tyrant",
+  };
+  const zoneNum = zoneId.replace("l2dop_dion_", "");
+  const baseName = names[zoneNum] ?? "Dion Elite";
+  const result: Mob[] = [];
+  const CHAMP_COUNT = 14;
+  for (let i = 0; i < CHAMP_COUNT; i++) {
+    const base = shuffled[i % shuffled.length]!;
+    const suf = DION_CHAMP_SUFFIXES[i] ?? `#${i + 1}`;
+    result.push(makeChampion(base, `${baseName} ${suf}`, `dion${i}`));
+  }
+  return result;
+}
+
+function dionRbDrops(_rbIndex: number): DropEntry[] {
+  return [];
+}
+
+const DION_RB_BASE: RaidBoss[] = [
+  { id: "rb_l2dop_dion_01", name: "Shepherd's Bane", level: 30, hp: 88000, mp: 0, pAtk: 580, mAtk: 0, pDef: 320, mDef: 210, exp: 44000, sp: 2700, adenaMin: 3600, adenaMax: 5800, dropChance: 1, drops: dionRbDrops(0), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_01" },
+  { id: "rb_l2dop_dion_02", name: "Hive Queen's Shadow", level: 31, hp: 96000, mp: 0, pAtk: 620, mAtk: 320, pDef: 335, mDef: 225, exp: 48000, sp: 2900, adenaMin: 3900, adenaMax: 6200, dropChance: 1, drops: dionRbDrops(1), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_02" },
+  { id: "rb_l2dop_dion_03", name: "Millstone Goliath", level: 32, hp: 105000, mp: 0, pAtk: 660, mAtk: 0, pDef: 350, mDef: 238, exp: 52000, sp: 3100, adenaMin: 4200, adenaMax: 6700, dropChance: 1, drops: dionRbDrops(2), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_03" },
+  { id: "rb_l2dop_dion_04", name: "Partisan Warlord", level: 34, hp: 118000, mp: 0, pAtk: 720, mAtk: 0, pDef: 375, mDef: 255, exp: 61000, sp: 3500, adenaMin: 4800, adenaMax: 7600, dropChance: 1, drops: dionRbDrops(3), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_04" },
+  { id: "rb_l2dop_dion_05", name: "Marsh Tyrant", level: 36, hp: 132000, mp: 0, pAtk: 780, mAtk: 410, pDef: 400, mDef: 275, exp: 70000, sp: 3900, adenaMin: 5400, adenaMax: 8500, dropChance: 1, drops: dionRbDrops(4), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_05" },
+  { id: "rb_l2dop_dion_06", name: "Cruma Path Devourer", level: 38, hp: 148000, mp: 0, pAtk: 840, mAtk: 0, pDef: 425, mDef: 292, exp: 80000, sp: 4300, adenaMin: 6100, adenaMax: 9500, dropChance: 1, drops: dionRbDrops(5), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_06" },
+  { id: "rb_l2dop_dion_07", name: "Ghost of the Old Front", level: 40, hp: 165000, mp: 0, pAtk: 900, mAtk: 480, pDef: 450, mDef: 310, exp: 91000, sp: 4800, adenaMin: 6800, adenaMax: 10500, dropChance: 1, drops: dionRbDrops(6), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_07" },
+  { id: "rb_l2dop_dion_08", name: "Siegebreak Colossus", level: 42, hp: 185000, mp: 0, pAtk: 980, mAtk: 0, pDef: 480, mDef: 330, exp: 103000, sp: 5300, adenaMin: 7600, adenaMax: 11800, dropChance: 1, drops: dionRbDrops(7), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_08" },
+  { id: "rb_l2dop_dion_09", name: "Fen Matriarch", level: 44, hp: 208000, mp: 0, pAtk: 1060, mAtk: 520, pDef: 510, mDef: 352, exp: 117000, sp: 5900, adenaMin: 8500, adenaMax: 13200, dropChance: 1, drops: dionRbDrops(8), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_09" },
+  { id: "rb_l2dop_dion_10", name: "Mist Reaper", level: 46, hp: 232000, mp: 0, pAtk: 1140, mAtk: 0, pDef: 540, mDef: 375, exp: 132000, sp: 6500, adenaMin: 9400, adenaMax: 14600, dropChance: 1, drops: dionRbDrops(9), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_10" },
+  { id: "rb_l2dop_dion_11", name: "Highland Crown Beast", level: 48, hp: 258000, mp: 0, pAtk: 1220, mAtk: 560, pDef: 570, mDef: 398, exp: 148000, sp: 7200, adenaMin: 10400, adenaMax: 16200, dropChance: 1, drops: dionRbDrops(10), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_11" },
+];
+
+const DION_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Hill Howler", "Flock Terror", "Pasture Reaper", "Dustwind Alpha", "Trailbreaker"],
+  "02": ["Stinger Patriarch", "Honeycomb Horror", "Drone Tyrant", "Swarm Sovereign", "Hivebreaker"],
+  "03": ["Sailcloth Revenant", "Gristmill Giant", "Blade Axle", "Field Reaper", "Windscourge"],
+  "04": ["Outrider King", "Ambush Lord", "Skirmish Titan", "Banner Wraith", "Warpath"],
+  "05": ["Bogmother", "Leech Sovereign", "Mire Colossus", "Rotfang", "Deepfen Horror"],
+  "06": ["Caravan Devourer", "Roadblock Titan", "Stonejaw", "Marrowpicker", "Cruma Scout-King"],
+  "07": ["Fallen Captain", "Phantom Regiment", "Broken Standard", "Echo of Steel", "Last Stand"],
+  "08": ["Rampart Horror", "Splinter King", "Siege Spirit", "Breach Titan", "Ash Colossus"],
+  "09": ["Will-o-Wyrm", "Mossback Tyrant", "Reed Lord", "Blackwater Patriarch", "Fen Crown"],
+  "10": ["Fog Lurker", "Bog Howler Prime", "Mist Stalker", "Greyfen King", "Hollow Moor"],
+  "11": ["Ridgebreaker", "Skyline Terror", "Border Colossus", "Highland Apex", "Dion Crown"],
+};
+
+/** 4–6 РБ на зону */
+export function getDionRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = DION_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("l2dop_dion_", "");
+  const extraNames = DION_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 4 + Math.floor(rand() * 3);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_DION_RAID_BOSSES: RaidBoss[] = DION_RB_BASE;
