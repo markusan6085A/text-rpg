@@ -382,7 +382,11 @@ export default function Layout({
                 disabled={resurrecting}
                 className="w-full py-3 rounded-lg border border-[#c7ad80]/80 text-[#f4e2b8] bg-[#2a1810] hover:bg-[#3d2418] disabled:opacity-60 text-sm font-semibold"
               >
-                {resurrecting ? "…" : getGameSettings().language === "uk" ? "У місто (70% HP)" : "В город (70% HP)"}
+                {resurrecting
+                  ? "…"
+                  : getGameSettings().language === "uk"
+                    ? "Телепортуватися в місто"
+                    : "Телепортироваться в город"}
               </button>
             </div>
           </div>

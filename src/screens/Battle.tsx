@@ -494,7 +494,7 @@ export default function Battle({ navigate }: BattleProps) {
       target={battleTarget}
       buffs={heroBuffs || []}
       now={now}
-      backLabel={dead ? (resurrecting ? "..." : "В город (70% HP)") : "Повернутися в локацію"}
+      backLabel={dead ? (resurrecting ? "..." : "Телепортироваться в город") : "Повернутися в локацію"}
       showBackButton={status === "idle"}
       onBack={dead ? handleResurrectToCity : () => { reset(); navigate(`/location?id=${zone.id}`); }}
       isL2={isL2}

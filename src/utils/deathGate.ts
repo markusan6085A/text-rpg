@@ -1,6 +1,6 @@
 /**
  * Після смерті зберігаємо «треба в місто» у localStorage — щоб F5 не піднімав HP
- * через стару логіку load (70% при isDead).
+ * через стару логіку load при isDead.
  */
 import { getJSON, setJSON, removeItem } from "../state/persistence";
 
