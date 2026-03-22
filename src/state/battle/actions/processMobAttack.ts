@@ -111,8 +111,10 @@ export const createProcessMobAttack =
     // Обчислюємо захист щитом (якщо надітий щит)
     const shieldDefense = getTotalShieldDefense(hero, heroStats);
     
-    // Визначаємо тип атаки моба (фізична або магічна)
-    const isPhysicalAttack = (state.mob as any)?.attackType !== "magic";
+    // Патрульні моби в бою завжди б'ють фізикою (на локації — магія, див. Location.tsx)
+    const isPatrolMob = (state.mob as { aggressivePatrol?: boolean }).aggressivePatrol === true;
+    const isPhysicalAttack =
+      isPatrolMob || (state.mob as { attackType?: string }).attackType !== "magic";
     
     // Застосовуємо debuff до статів моба (зменшення pAtk/mAtk тощо)
     // Fallback без hp (як в baseAttack) — узгоджено з балансом
@@ -243,7 +245,9 @@ export const createProcessMobAttack =
         if (aggressiveMobData.mobHP <= 0) continue;
         
         const aggressiveMob = aggressiveMobData.mob;
-        const aggressiveIsPhysicalAttack = (aggressiveMob as any)?.attackType !== "magic";
+        const aggressiveIsPhysicalAttack =
+          (aggressiveMob as { aggressivePatrol?: boolean }).aggressivePatrol === true ||
+          (aggressiveMob as { attackType?: string }).attackType !== "magic";
         
         // Обчислюємо стати агресивного моба
         const aggressiveMobBaseStats = {

@@ -17,6 +17,7 @@ import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 import { getGameSettings } from "../state/gameSettings";
+import { AGGRESSIVE_PATROL_SAFE_PAGES } from "../data/world/augmentPatrolMobs";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
@@ -71,6 +72,33 @@ function findZoneById(zoneId: string): { zone: Zone; city: City } | undefined {
   return { zone, city };
 }
 
+type PatrolTickCtx = { zone: Zone; start: number; visible: Mob[]; currentPage: number };
+
+/** Магічний урон патрулем на екрані локації (з 4-ї сторінки пагінації) */
+function runAggressivePatrolMagicTick(ctx: PatrolTickCtx) {
+  const h = useHeroStore.getState().hero;
+  if (!h?.name || (h.hp ?? 0) <= 0) return;
+  const lines: string[] = [];
+  let total = 0;
+  ctx.visible.forEach((mob, i) => {
+    if (!mob.aggressivePatrol) return;
+    const gi = ctx.start + i;
+    if (isMobOnRespawn(ctx.zone.id, gi, h.name)) return;
+    if (Math.random() > 0.4) return;
+    const mAtk = mob.mAtk ?? Math.round((mob.level ?? 1) * 10);
+    const raw = Math.max(4, mAtk * 0.42) * (0.88 + Math.random() * 0.24);
+    const mDef = h.battleStats?.mDef ?? Math.round((h.level ?? 1) * 8);
+    const dmg = Math.max(1, Math.round(raw * (100 / (100 + mDef))));
+    total += dmg;
+    lines.push(`${mob.name} (−${dmg})`);
+  });
+  if (total <= 0) return;
+  useHeroStore.getState().updateHero({ hp: Math.max(0, (h.hp ?? 0) - total) });
+  const lang = getGameSettings().language;
+  const prefix = lang === "uk" ? "Патруль (магія): " : "Патруль (магия): ";
+  showToast(prefix + lines.slice(0, 2).join(", ") + (lines.length > 2 ? "…" : ""), "info");
+}
+
 export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const q = useQuery();
   const hero = useHeroStore((s) => s.hero);
@@ -95,6 +123,43 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const [selectedDropItem, setSelectedDropItem] = React.useState<string | null>(null);
   const [now, setNow] = React.useState(Date.now());
   const [zonePlayers, setZonePlayers] = React.useState<OnlinePlayer[]>([]);
+
+  const patrolCtx = React.useMemo((): PatrolTickCtx | null => {
+    if (!zoneId) return null;
+    const z = WORLD_LOCATIONS.find((l) => l.id === zoneId);
+    if (!z) return null;
+    const pageSize = getGameSettings().mobsPerPage ?? 15;
+    const totalPages = Math.max(1, Math.ceil(z.mobs.length / pageSize));
+    const currentPage = Math.min(page, totalPages);
+    const start = (currentPage - 1) * pageSize;
+    const visible = z.mobs.slice(start, start + pageSize);
+    return { zone: z, start, visible, currentPage };
+  }, [zoneId, page]);
+
+  const patrolCtxRef = React.useRef(patrolCtx);
+  patrolCtxRef.current = patrolCtx;
+
+  React.useEffect(() => {
+    if (!patrolCtx || !hero?.name || (hero.hp ?? 0) <= 0) return;
+    if (patrolCtx.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
+    const id = window.setInterval(() => {
+      const c = patrolCtxRef.current;
+      if (!c || c.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
+      runAggressivePatrolMagicTick(c);
+    }, 11000);
+    return () => clearInterval(id);
+  }, [patrolCtx, hero?.name, hero?.hp]);
+
+  React.useEffect(() => {
+    if (!patrolCtx || !hero?.name || (hero.hp ?? 0) <= 0) return;
+    if (patrolCtx.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
+    const t = window.setTimeout(() => {
+      const c = patrolCtxRef.current;
+      if (!c || c.currentPage <= AGGRESSIVE_PATROL_SAFE_PAGES) return;
+      runAggressivePatrolMagicTick(c);
+    }, 700);
+    return () => clearTimeout(t);
+  }, [patrolCtx?.zone.id, patrolCtx?.currentPage, hero?.name, hero?.hp]);
 
   // Оновлюємо час кожну секунду для відображення таймера респавну
   React.useEffect(() => {
@@ -264,12 +329,14 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     isQuestMob: boolean,
     isRaid: boolean,
     isChampion: boolean,
+    isPatrol: boolean,
     isLevelDiffTooHigh: boolean,
     l2: boolean,
   ) => {
     if (isQuestMob) return l2 ? "text-[#8a7a60]" : "";
     if (isRaid) return "text-red-500";
     if (isChampion) return "text-[#c9a44c]";
+    if (isPatrol) return l2 ? "text-[#e8a0a0]" : "text-rose-400";
     if (isLevelDiffTooHigh) return "text-red-500";
     return l2 ? "text-[#e8dcc8]" : "text-[#c7ad80]";
   };
@@ -320,8 +387,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               if (onRespawn) return null;
 
               const isChampion =
-                mob.name.startsWith("[Champion]") || mob.name.startsWith("[Чемпион]");
+                mob.name.startsWith("[Champion]") ||
+                mob.name.startsWith("[Чемпион]") ||
+                mob.name.startsWith("[Чемпіон]");
               const isRaid = (mob as any).isRaidBoss === true;
+              const isPatrol = mob.aggressivePatrol === true;
               const heroLevel = hero?.level || 1;
               const levelDiff = Math.abs(heroLevel - mob.level);
               const isLevelDiffTooHigh = levelDiff > 10;
@@ -330,6 +400,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 isQuestMob,
                 isRaid,
                 isChampion,
+                isPatrol,
                 isLevelDiffTooHigh,
                 isL2,
               );
@@ -341,7 +412,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     key={globalIndex}
                     role="button"
                     tabIndex={0}
-                    className={l2MobCard}
+                    className={`${l2MobCard}${isPatrol ? " border-rose-900/45 shadow-[0_0_14px_rgba(180,60,60,0.12)]" : ""}`}
                     onClick={() => openBattle(globalIndex)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -379,6 +450,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         <div className={`text-[12px] font-medium leading-snug truncate ${nameCls}`}>
                           {mob.name}
                         </div>
+                        {isPatrol && (
+                          <div className="text-[9px] text-rose-400/90 mt-0.5">
+                            {getGameSettings().language === "uk" ? "патруль · магія з 4 ст." : "патруль · магия с 4 стр."}
+                          </div>
+                        )}
                         {isQuestMob && (
                           <div className="text-[9px] text-[#6b7280] mt-0.5">квест</div>
                         )}
@@ -400,8 +476,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 <div
                   key={globalIndex}
                   className={`flex items-center gap-2 py-1 border-b border-solid border-white/50 text-xs ${
-                    !isQuestMob && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
-                  }`}
+                    isPatrol ? "border-rose-900/30" : ""
+                  } ${!isQuestMob && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"}`}
                 >
                   {listIconSrc && (
                     <img

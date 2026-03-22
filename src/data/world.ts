@@ -1,9 +1,10 @@
 // src/data/world.ts
 import type { City, Zone, WorldCity } from "./world/types";
 import { L2DOP_CITIES, L2DOP_ZONES } from "./world/l2dop";
+import { augmentAllZonesWithPatrolMobs } from "./world/augmentPatrolMobs";
 
 export const cities: City[] = L2DOP_CITIES;
-export const locations: Zone[] = L2DOP_ZONES;
+export const locations: Zone[] = augmentAllZonesWithPatrolMobs(L2DOP_ZONES);
 
 // ===== WORLD ДЛЯ ЗРУЧНОСТІ (місто + його зони) =====
 
