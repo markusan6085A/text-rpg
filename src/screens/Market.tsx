@@ -495,6 +495,11 @@ export default function Market({ navigate }: MarketProps) {
     ? "flex gap-3 items-center p-3 rounded-lg border border-[#5c4a32]/55 bg-gradient-to-b from-[#2e2619]/90 to-[#14110c]/90 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
     : "flex gap-3 items-center p-3 rounded-lg border border-black/60 bg-[#1a1510]";
 
+  /** Компактний рядок у списках лотів (огляд / мої лоти): нижча рамка, іконка 20×20 */
+  const listingRowCompact = isL2
+    ? "flex gap-2 items-center py-1.5 px-2 rounded-md border border-[#5c4a32]/50 bg-gradient-to-b from-[#2a2318]/92 to-[#12100c]/92 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+    : "flex gap-2 items-center py-1.5 px-2 rounded-md border border-black/55 bg-[#1a1510]";
+
   return (
     <div className="flex flex-col items-stretch px-2 py-4 max-w-lg mx-auto w-full min-w-0">
       <div className={isL2 ? l2Outer : "rounded-xl border border-white/20 bg-[#1a1510] overflow-hidden"}>
@@ -600,28 +605,40 @@ export default function Market({ navigate }: MarketProps) {
                     key={L.id}
                     type="button"
                     onClick={() => openBrowseDetail(L)}
-                    className={`${cardRow} w-full text-left cursor-pointer hover:brightness-[1.03] active:brightness-95 transition-[filter]`}
+                    className={`${listingRowCompact} w-full text-left cursor-pointer hover:brightness-[1.03] active:brightness-95 transition-[filter]`}
                   >
                     <img
                       src={icon || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
                       alt=""
-                      className="w-10 h-10 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0 pointer-events-none"
+                      className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0 pointer-events-none"
                       onError={handleResourceIconError}
                     />
                     <div className="flex-1 min-w-0 pointer-events-none">
-                      <div className={isL2 ? "text-[12px] font-semibold text-[#e8dcc8] truncate" : "text-sm text-amber-100 truncate"}>
-                        {displaySellItemName(it)}
-                        {it?.count && it.count > 1 ? ` ×${it.count}` : ""}
+                      <div
+                        className={
+                          isL2
+                            ? "text-[11px] leading-snug text-[#e8dcc8] truncate"
+                            : "text-[11px] leading-snug text-amber-100 truncate"
+                        }
+                      >
+                        <span className="font-semibold">{displaySellItemName(it)}</span>
+                        {it?.count && Number(it.count) > 1 ? (
+                          <span className="font-semibold"> ×{it.count}</span>
+                        ) : null}
+                        <span className={isL2 ? "text-[#5c5248] font-normal" : "text-gray-600 font-normal"}> · </span>
+                        <span className={isL2 ? "text-[#8a7a60] font-normal" : "text-gray-500 font-normal"}>
+                          Продавець:{" "}
+                        </span>
+                        <span className={isL2 ? "text-[#b8a88c] font-medium" : "text-amber-200/85 font-medium"}>
+                          {L.sellerName}
+                        </span>
                         {own ? (
-                          <span className={isL2 ? "text-[10px] text-[#6a5a48] font-normal ml-1" : "text-[10px] text-gray-500 ml-1"}>
+                          <span className={isL2 ? "text-[#6a5a48] font-normal ml-1" : "text-gray-500 font-normal ml-1"}>
                             (ваш)
                           </span>
                         ) : null}
                       </div>
-                      <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
-                        Продавець: {L.sellerName}
-                      </div>
-                      <div className={isL2 ? "text-[10px] text-[#c9a44c] mt-0.5" : "text-[10px] text-amber-300/90 mt-0.5"}>
+                      <div className={isL2 ? "text-[9px] text-[#c9a44c] mt-0.5 leading-tight" : "text-[9px] text-amber-300/90 mt-0.5 leading-tight"}>
                         {left <= 0 ? (
                           <span className="text-[#9d6b6b]">Час вичерпано</span>
                         ) : lotCnt > 1 ? (
@@ -634,8 +651,8 @@ export default function Market({ navigate }: MarketProps) {
                     <span
                       className={
                         isL2
-                          ? "text-[10px] text-[#8a7a60] shrink-0 self-center"
-                          : "text-[10px] text-gray-500 shrink-0 self-center"
+                          ? "text-[9px] text-[#8a7a60] shrink-0 self-center"
+                          : "text-[9px] text-gray-500 shrink-0 self-center"
                       }
                     >
                       →
@@ -773,22 +790,37 @@ export default function Market({ navigate }: MarketProps) {
                   lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
                 const curLabel = L.currency === "adena" ? "аден" : "CoL";
                 return (
-                  <div key={L.id} className={cardRow}>
+                  <div key={L.id} className={listingRowCompact}>
                     <img
                       src={
                         normalizeIconPath(isCol ? "/icons/col (1).png" : it?.icon) ||
                         "/items/drops/Weapon_squires_sword_i00_0.jpg"
                       }
                       alt=""
-                      className="w-10 h-10 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                      className="w-5 h-5 object-contain rounded border border-[#5c4a32]/35 bg-black/35 shrink-0"
                       onError={handleResourceIconError}
                     />
                     <div className="flex-1 min-w-0">
-                      <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
-                        {displaySellItemName(it)}
-                        {it?.count && it.count > 1 ? ` ×${it.count}` : ""}
+                      <div
+                        className={
+                          isL2
+                            ? "text-[11px] leading-snug text-[#e8dcc8] truncate"
+                            : "text-[11px] leading-snug text-amber-100 truncate"
+                        }
+                      >
+                        <span className="font-semibold">{displaySellItemName(it)}</span>
+                        {it?.count && Number(it.count) > 1 ? (
+                          <span className="font-semibold"> ×{it.count}</span>
+                        ) : null}
+                        <span className={isL2 ? "text-[#5c5248] font-normal" : "text-gray-600 font-normal"}> · </span>
+                        <span className={isL2 ? "text-[#8a7a60] font-normal" : "text-gray-500 font-normal"}>
+                          Продавець:{" "}
+                        </span>
+                        <span className={isL2 ? "text-[#b8a88c] font-medium" : "text-amber-200/85 font-medium"}>
+                          {L.sellerName}
+                        </span>
                       </div>
-                      <div className={isL2 ? "text-[10px] text-[#c9a44c]" : "text-[10px] text-amber-300"}>
+                      <div className={isL2 ? "text-[9px] text-[#c9a44c] mt-0.5 leading-tight" : "text-[9px] text-amber-300 mt-0.5 leading-tight"}>
                         {lotCnt > 1
                           ? `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
                           : `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
@@ -798,7 +830,7 @@ export default function Market({ navigate }: MarketProps) {
                       type="button"
                       disabled={cancelBusyId === L.id}
                       onClick={() => void onCancel(L.id)}
-                      className="text-[10px] px-2 py-1.5 rounded-md border border-[#9d6b6b]/55 text-[#e8b4b4] shrink-0"
+                      className="text-[9px] px-1.5 py-1 rounded border border-[#9d6b6b]/55 text-[#e8b4b4] shrink-0 leading-tight"
                     >
                       {cancelBusyId === L.id ? "…" : "Снять"}
                     </button>
