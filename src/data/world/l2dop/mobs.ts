@@ -670,6 +670,236 @@ export function getAdenRaidBossesForZone(zoneId: string): RaidBoss[] {
 
 export const L2DOP_ADEN_RAID_BOSSES: RaidBoss[] = ADEN_RB_BASE;
 
+/* ==================== OREN (L2) — рівні ~42–60 ==================== */
+
+export const L2DOP_MOB_OREN_42: Mob = {
+  id: "l2dop_oren_guard",
+  name: "Вартовий Околиць Орену",
+  level: 42,
+  hp: 1460,
+  mp: 500,
+  pAtk: 192,
+  mAtk: 98,
+  pDef: 182,
+  mDef: 132,
+  exp: 2280,
+  sp: 126,
+  adenaMin: 550,
+  adenaMax: 860,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+export const L2DOP_MOB_OREN_44: Mob = {
+  id: "l2dop_oren_forest",
+  name: "Тінь Лісу Мореллін",
+  level: 44,
+  hp: 1620,
+  mp: 540,
+  pAtk: 208,
+  mAtk: 0,
+  pDef: 198,
+  mDef: 138,
+  exp: 2680,
+  sp: 142,
+  adenaMin: 630,
+  adenaMax: 970,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+export const L2DOP_MOB_OREN_46: Mob = {
+  id: "l2dop_oren_spore",
+  name: "Споровий Шаман",
+  level: 46,
+  hp: 1540,
+  mp: 820,
+  pAtk: 0,
+  mAtk: 248,
+  pDef: 142,
+  mDef: 208,
+  exp: 3220,
+  sp: 170,
+  adenaMin: 730,
+  adenaMax: 1130,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+export const L2DOP_MOB_OREN_48: Mob = {
+  id: "l2dop_oren_cruma",
+  name: "Крумський Розбійник",
+  level: 48,
+  hp: 1880,
+  mp: 580,
+  pAtk: 248,
+  mAtk: 0,
+  pDef: 232,
+  mDef: 158,
+  exp: 3680,
+  sp: 184,
+  adenaMin: 830,
+  adenaMax: 1290,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+export const L2DOP_MOB_OREN_50: Mob = {
+  id: "l2dop_oren_cross",
+  name: "Злодій Хреста",
+  level: 50,
+  hp: 2050,
+  mp: 420,
+  pAtk: 268,
+  mAtk: 0,
+  pDef: 256,
+  mDef: 172,
+  exp: 4250,
+  sp: 202,
+  adenaMin: 950,
+  adenaMax: 1430,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+export const L2DOP_MOB_OREN_52: Mob = {
+  id: "l2dop_oren_hill",
+  name: "Пагорбовий Ящір",
+  level: 52,
+  hp: 2280,
+  mp: 640,
+  pAtk: 292,
+  mAtk: 118,
+  pDef: 278,
+  mDef: 192,
+  exp: 4900,
+  sp: 230,
+  adenaMin: 1090,
+  adenaMax: 1630,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+export const L2DOP_MOB_OREN_54: Mob = {
+  id: "l2dop_oren_ruin",
+  name: "Скелет Руїн Орену",
+  level: 54,
+  hp: 2480,
+  mp: 700,
+  pAtk: 318,
+  mAtk: 0,
+  pDef: 302,
+  mDef: 208,
+  exp: 5650,
+  sp: 260,
+  adenaMin: 1250,
+  adenaMax: 1860,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+export const L2DOP_MOB_OREN_56: Mob = {
+  id: "l2dop_oren_tower",
+  name: "Маг Слонової Вежі",
+  level: 56,
+  hp: 2680,
+  mp: 900,
+  pAtk: 188,
+  mAtk: 298,
+  pDef: 208,
+  mDef: 268,
+  exp: 6550,
+  sp: 292,
+  adenaMin: 1430,
+  adenaMax: 2120,
+  dropChance: 0.7,
+  drops: [],
+  spoil: [],
+};
+
+/** Пул Орену: тематичні моби + ті самі типи, що й біля Адену (рівні 33–65) */
+export const L2DOP_OREN_POOL: Mob[] = [
+  L2DOP_MOB_OREN_42,
+  L2DOP_MOB_OREN_44,
+  L2DOP_MOB_OREN_46,
+  L2DOP_MOB_OREN_48,
+  L2DOP_MOB_OREN_50,
+  L2DOP_MOB_OREN_52,
+  L2DOP_MOB_OREN_54,
+  L2DOP_MOB_OREN_56,
+  ...L2DOP_ADEN_POOL,
+];
+
+/** Два чемпіони на зону (пара) */
+export function getOrenL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_OREN_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length < 2) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const count = 2;
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Вартовий Околиць",
+    "02": "Тінь Темного Лісу",
+    "03": "Король Спор",
+    "04": "Скелет Круми",
+    "05": "Лорд Хреста",
+    "06": "Володар Пагорбів",
+    "07": "Хранитель Руїн Орену",
+    "08": "Тінь Слонової Вежі",
+  };
+  const suffixes = ["I", "II"];
+  const zoneNum = zoneId.replace("l2dop_oren_", "");
+  const baseName = names[zoneNum] ?? "Чемпіон Орену";
+  const result: Mob[] = [];
+  for (let i = 0; i < Math.min(count, shuffled.length); i++) {
+    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i)));
+  }
+  return result;
+}
+
+function orenRbDrops(_rbIndex: number): DropEntry[] {
+  return [];
+}
+
+const OREN_RB_BASE: RaidBoss[] = [
+  { id: "rb_l2dop_oren_01", name: "Капітан Оренських Вартових", level: 44, hp: 195000, mp: 0, pAtk: 410, mAtk: 0, pDef: 328, mDef: 222, exp: 92000, sp: 4800, adenaMin: 36000, adenaMax: 56000, dropChance: 1, drops: orenRbDrops(0), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_01" },
+  { id: "rb_l2dop_oren_02", name: "Володар Темного Бору", level: 46, hp: 225000, mp: 0, pAtk: 445, mAtk: 0, pDef: 352, mDef: 238, exp: 104000, sp: 5400, adenaMin: 42000, adenaMax: 65000, dropChance: 1, drops: orenRbDrops(1), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_02" },
+  { id: "rb_l2dop_oren_03", name: "Король Моря Спор", level: 48, hp: 258000, mp: 0, pAtk: 480, mAtk: 0, pDef: 378, mDef: 256, exp: 120000, sp: 6200, adenaMin: 48000, adenaMax: 74000, dropChance: 1, drops: orenRbDrops(2), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_03" },
+  { id: "rb_l2dop_oren_04", name: "Титан Крумських Залів", level: 50, hp: 295000, mp: 0, pAtk: 520, mAtk: 0, pDef: 408, mDef: 276, exp: 138000, sp: 7100, adenaMin: 55000, adenaMax: 85000, dropChance: 1, drops: orenRbDrops(3), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_04" },
+  { id: "rb_l2dop_oren_05", name: "Патріарх Хреста", level: 52, hp: 335000, mp: 0, pAtk: 560, mAtk: 0, pDef: 442, mDef: 298, exp: 158000, sp: 8100, adenaMin: 62000, adenaMax: 96000, dropChance: 1, drops: orenRbDrops(4), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_05" },
+  { id: "rb_l2dop_oren_06", name: "Громила Заборонених Пагорбів", level: 54, hp: 380000, mp: 0, pAtk: 605, mAtk: 0, pDef: 478, mDef: 322, exp: 180000, sp: 9200, adenaMin: 70000, adenaMax: 108000, dropChance: 1, drops: orenRbDrops(5), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_06" },
+  { id: "rb_l2dop_oren_07", name: "Некромант Старого Орену", level: 56, hp: 425000, mp: 0, pAtk: 650, mAtk: 420, pDef: 455, mDef: 380, exp: 204000, sp: 10400, adenaMin: 78000, adenaMax: 120000, dropChance: 1, drops: orenRbDrops(6), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_07" },
+  { id: "rb_l2dop_oren_08", name: "Хранитель Слонової Вежі", level: 58, hp: 475000, mp: 0, pAtk: 700, mAtk: 0, pDef: 548, mDef: 370, exp: 230000, sp: 11800, adenaMin: 88000, adenaMax: 135000, dropChance: 1, drops: orenRbDrops(7), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_08" },
+];
+
+const OREN_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Страж Брами Орену", "Тиран Околиць", "Дракон Оренських Полів", "Вартовий Мурів", "Повелитель Стежок"],
+  "02": ["Тінь Бору", "Древній Лісник", "Король Ворон", "Страж Моху", "Тиран Гілок"],
+  "03": ["Володар Спор", "Гриб-Титан", "Павутинний Лорд", "Тінь Гнилизни", "Король Плісняви"],
+  "04": ["Крумський Вартовий", "Титан Залів", "Страж Підземелля", "Дракон Каменю", "Повелитель Круми"],
+  "05": ["Суддя Хреста", "Тиран Розбійників", "Король Шибениці", "Страж Кайданів", "Вождь Зрадників"],
+  "06": ["Титан Пагорбів", "Кам'яний Гігант", "Буревій Степу", "Страж Ущелин", "Повелитель Вітрів"],
+  "07": ["Лорд Некрополю", "Кістяний Король", "Тінь Могил", "Страж Руїн", "Архонт Мертвих"],
+  "08": ["Маг Вежі", "Титан Слонової Кістки", "Страж Арканів", "Повелитель Таємниць", "Дракон Забуття"],
+};
+
+export function getOrenRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = OREN_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("l2dop_oren_", "");
+  const extraNames = OREN_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 3 + Math.floor(rand() * 4);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_OREN_RAID_BOSSES: RaidBoss[] = OREN_RB_BASE;
+
 /* ==================== GODDARD (L2) — рівні 73–80 (кілька L2-околиць у кожній зоні) ==================== */
 
 export function getGoddardL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
