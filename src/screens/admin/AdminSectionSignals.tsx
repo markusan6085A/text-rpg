@@ -17,6 +17,7 @@ export function AdminSectionSignals() {
   const [meta, setMeta] = useState<{
     logRowCount: number;
     logRowCap: number;
+    inGameLetterConfigured: boolean;
     emailConfigured: boolean;
     generatedAt: string;
     thresholds: Record<string, number>;
@@ -31,6 +32,7 @@ export function AdminSectionSignals() {
       setMeta({
         logRowCount: r.logRowCount,
         logRowCap: r.logRowCap,
+        inGameLetterConfigured: Boolean(r.inGameLetterConfigured),
         emailConfigured: r.emailConfigured,
         generatedAt: r.generatedAt,
         thresholds: r.thresholds,
@@ -56,8 +58,10 @@ export function AdminSectionSignals() {
       </h2>
       <p className="text-xs text-gray-500 mb-2">
         Автоматичні підказки по <code className="text-gray-400">PlayerActivityLog</code>: дуже часті синки, великі Δadena/Δexp,
-        стрибок рівня, «рівні» інтервали між синками з +mobsKilled. Це не вирок — лише для ручної перевірки. На пошту
-        лист піде лише якщо налаштовано SMTP (див. змінні середовища сервера), з cooldown на кожен тип сигналу по персонажу.
+        стрибок рівня, «рівні» інтервали між синками з +mobsKilled. Це не вирок — лише для ручної перевірки в адмінці.
+        Якщо на сервері задано <code className="text-gray-400">ADMIN_SIGNAL_LETTER_TO_NAME</code> (нік твого персонажа в грі),
+        при нових сигналах тобі прийде <strong>ігровий лист</strong> у вкладку «Пошта». Зовнішній email (SMTP) — опційно, якщо
+        ігрова пошта не спрацювала або не налаштована. Cooldown на кожен тип сигналу по персонажу — як раніше.
       </p>
 
       <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -85,11 +89,17 @@ export function AdminSectionSignals() {
       {meta ? (
         <p className="text-[11px] text-gray-500 mb-2">
           Рядків у вибірці: {meta.logRowCount}
-          {meta.logRowCount >= meta.logRowCap ? ` (ліміт ${meta.logRowCap})` : ""}. Email SMTP:{" "}
-          {meta.emailConfigured ? (
-            <span className="text-green-500/90">увімкнено</span>
+          {meta.logRowCount >= meta.logRowCap ? ` (ліміт ${meta.logRowCap})` : ""}. Ігрова пошта (Letter):{" "}
+          {meta.inGameLetterConfigured ? (
+            <span className="text-green-500/90">налаштовано</span>
           ) : (
-            <span className="text-amber-500/90">не налаштовано</span>
+            <span className="text-amber-500/90">ні — задай ADMIN_SIGNAL_LETTER_TO_NAME на сервері</span>
+          )}
+          . Email SMTP:{" "}
+          {meta.emailConfigured ? (
+            <span className="text-green-500/90">увімкнено (резерв)</span>
+          ) : (
+            <span className="text-gray-500">не налаштовано</span>
           )}
           . Оновлено: {new Date(meta.generatedAt).toLocaleString()}
         </p>

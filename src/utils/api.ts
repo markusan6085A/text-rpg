@@ -1769,6 +1769,7 @@ export async function getAdminSignalsAnalyze(hours?: number): Promise<{
   logRowCount: number;
   logRowCap: number;
   findings: AdminSignalFinding[];
+  inGameLetterConfigured: boolean;
   emailConfigured: boolean;
   generatedAt: string;
   thresholds: Record<string, number>;
@@ -1792,6 +1793,7 @@ export async function getAdminSignalsAnalyze(hours?: number): Promise<{
     logRowCount: number;
     logRowCap: number;
     findings: AdminSignalFinding[];
+    inGameLetterConfigured: boolean;
     emailConfigured: boolean;
     generatedAt: string;
     thresholds: Record<string, number>;

@@ -1,5 +1,6 @@
 import { prisma } from "../db";
 import { sendAdminAlertEmail, isAdminAlertEmailConfigured } from "../adminAlertMail";
+import { isInGameSignalLetterConfigured, sendAdminSignalsInGameLetter } from "../adminSignalInGameLetter";
 import {
   analyzePlayerActivitySignals,
   getSignalThresholdsFromEnv,
@@ -10,7 +11,7 @@ import {
 
 const MAX_LOG_ROWS = 20_000;
 
-function logSnippetForEmail(
+function logSnippetForNotify(
   rows: { createdAt: Date; action: string; metadata: unknown; clientIp: string | null }[]
 ): string {
   return rows
@@ -27,10 +28,19 @@ function logSnippetForEmail(
 
 export async function runAdminSignalEmailJob(
   log: (msg: string, meta?: object) => void
-): Promise<{ findings: number; emailed: boolean; skippedReason?: string }> {
-  if (process.env.ADMIN_SIGNAL_EMAIL_ENABLED === "0" || process.env.ADMIN_SIGNAL_EMAIL_ENABLED === "false") {
-    return { findings: 0, emailed: false, skippedReason: "ADMIN_SIGNAL_EMAIL_ENABLED=0" };
+): Promise<{
+  findings: number;
+  notified: boolean;
+  viaLetter?: boolean;
+  viaEmail?: boolean;
+  skippedReason?: string;
+}> {
+  if (process.env.ADMIN_SIGNAL_NOTIFY_DISABLED === "1" || process.env.ADMIN_SIGNAL_NOTIFY_DISABLED === "true") {
+    return { findings: 0, notified: false, skippedReason: "ADMIN_SIGNAL_NOTIFY_DISABLED" };
   }
+
+  const skipExternalEmail =
+    process.env.ADMIN_SIGNAL_EMAIL_ENABLED === "0" || process.env.ADMIN_SIGNAL_EMAIL_ENABLED === "false";
 
   const lookbackHours = Math.min(72, Math.max(1, Number(process.env.ADMIN_SIGNAL_LOOKBACK_HOURS || "6")));
   const cooldownHours = Math.max(1, Number(process.env.ADMIN_SIGNAL_EMAIL_COOLDOWN_HOURS || "6"));
@@ -65,12 +75,7 @@ export async function runAdminSignalEmailJob(
   const findings = analyzePlayerActivitySignals(logs, thresholds);
 
   if (findings.length === 0) {
-    return { findings: 0, emailed: false };
-  }
-
-  if (!isAdminAlertEmailConfigured()) {
-    log(`[AdminSignal] ${findings.length} знахідок, email не налаштовано (ADMIN_ALERT_SMTP_*, ADMIN_ALERT_EMAIL_TO)`);
-    return { findings: findings.length, emailed: false, skippedReason: "smtp_not_configured" };
+    return { findings: 0, notified: false };
   }
 
   type Notify = { finding: CharacterSignals; kinds: SignalKind[] };
@@ -92,8 +97,8 @@ export async function runAdminSignalEmailJob(
   }
 
   if (toNotify.length === 0) {
-    log(`[AdminSignal] ${findings.length} знахідок, усі типи в cooldown email (${cooldownHours}г)`);
-    return { findings: findings.length, emailed: false, skippedReason: "cooldown" };
+    log(`[AdminSignal] ${findings.length} знахідок, усі типи в cooldown сповіщень (${cooldownHours}г)`);
+    return { findings: findings.length, notified: false, skippedReason: "cooldown" };
   }
 
   const charIds = [...new Set(toNotify.map((n) => n.finding.characterId))];
@@ -114,8 +119,8 @@ export async function runAdminSignalEmailJob(
   }
 
   const lines: string[] = [];
-  lines.push(`Вікно аналізу: останні ${lookbackHours} год.`);
-  lines.push(`Рядків у логах (обрізано до ${MAX_LOG_ROWS}): ${raw.length}`);
+  lines.push(`[Адмін / сигнали] Вікно: останні ${lookbackHours} год.`);
+  lines.push(`Рядків у логах (до ${MAX_LOG_ROWS}): ${raw.length}`);
   lines.push("");
   for (const { finding: f, kinds } of toNotify) {
     lines.push(`── ${f.characterName} (${f.characterId}) account=${f.accountId} ──`);
@@ -126,33 +131,58 @@ export async function runAdminSignalEmailJob(
     }
     const recent = (byChar.get(f.characterId) ?? []).slice(0, 35);
     lines.push("  Останні події:");
-    lines.push(logSnippetForEmail(recent));
+    lines.push(logSnippetForNotify(recent));
     lines.push("");
   }
 
-  const subject = `[text-rpg] Сигнали: ${toNotify.length} персонаж(ів) (потрібна перевірка)`;
+  const subject = `Сигнали: ${toNotify.length} персонаж(ів) — перевір у адмінці`;
   const body = lines.join("\n");
 
-  try {
-    const ok = await sendAdminAlertEmail(subject, body);
-    if (!ok) {
-      return { findings: findings.length, emailed: false, skippedReason: "send_failed" };
+  let viaLetter = false;
+  if (isInGameSignalLetterConfigured()) {
+    try {
+      viaLetter = await sendAdminSignalsInGameLetter(subject, body, log);
+    } catch (e) {
+      log(`[AdminSignal] Помилка ігрового листа`, { err: String(e) });
     }
-    for (const { finding: f, kinds } of toNotify) {
-      for (const k of kinds) {
-        await prisma.adminSignalEmailSent.upsert({
-          where: {
-            characterId_signalType: { characterId: f.characterId, signalType: k },
-          },
-          create: { characterId: f.characterId, signalType: k, lastSentAt: new Date() },
-          update: { lastSentAt: new Date() },
-        });
-      }
-    }
-    log(`[AdminSignal] Email відправлено: ${toNotify.length} персонаж(ів)`);
-    return { findings: findings.length, emailed: true };
-  } catch (e) {
-    log(`[AdminSignal] Помилка відправки email`, { err: String(e) });
-    return { findings: findings.length, emailed: false, skippedReason: String(e) };
   }
+
+  let viaEmail = false;
+  if (!viaLetter && !skipExternalEmail && isAdminAlertEmailConfigured()) {
+    try {
+      viaEmail = await sendAdminAlertEmail(`[text-rpg] ${subject}`, body);
+    } catch (e) {
+      log(`[AdminSignal] Помилка email`, { err: String(e) });
+    }
+  }
+
+  if (!viaLetter && !viaEmail) {
+    if (!isInGameSignalLetterConfigured() && (!isAdminAlertEmailConfigured() || skipExternalEmail)) {
+      log(
+        `[AdminSignal] ${findings.length} знахідок — задайте ігрову пошту: ADMIN_SIGNAL_LETTER_TO_NAME=НікПерсонажа (або SMTP, якщо потрібен email)`
+      );
+    }
+    return {
+      findings: findings.length,
+      notified: false,
+      skippedReason: "no_channel_or_send_failed",
+    };
+  }
+
+  for (const { finding: f, kinds } of toNotify) {
+    for (const k of kinds) {
+      await prisma.adminSignalEmailSent.upsert({
+        where: {
+          characterId_signalType: { characterId: f.characterId, signalType: k },
+        },
+        create: { characterId: f.characterId, signalType: k, lastSentAt: new Date() },
+        update: { lastSentAt: new Date() },
+      });
+    }
+  }
+
+  if (viaLetter) log(`[AdminSignal] Сповіщення відправлено ігровою поштою`);
+  if (viaEmail) log(`[AdminSignal] Сповіщення відправлено на email`);
+
+  return { findings: findings.length, notified: true, viaLetter, viaEmail };
 }

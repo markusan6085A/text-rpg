@@ -7,6 +7,7 @@ import {
   type ActivityLogLite,
 } from "../signals/playerActivitySignals";
 import { isAdminAlertEmailConfigured } from "../adminAlertMail";
+import { isInGameSignalLetterConfigured } from "../adminSignalInGameLetter";
 
 const MAX_LOG_ROWS = 20_000;
 
@@ -49,6 +50,7 @@ export const adminSignalsRoutes: FastifyPluginAsync = async (app) => {
       logRowCount: raw.length,
       logRowCap: MAX_LOG_ROWS,
       findings,
+      inGameLetterConfigured: isInGameSignalLetterConfigured(),
       emailConfigured: isAdminAlertEmailConfigured(),
       generatedAt: new Date().toISOString(),
       thresholds: {

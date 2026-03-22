@@ -71,7 +71,7 @@ const CATEGORIES: { id: AdminCategoryId; label: string; hint?: string }[] = [
   {
     id: "signals",
     label: "Сигнали",
-    hint: "Евристики по логах, email-сповіщення",
+    hint: "Евристики по логах, ігрова пошта / опційно email",
   },
   { id: "audit", label: "Журнал", hint: "Аудит дій адміна" },
 ];
