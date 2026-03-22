@@ -22,6 +22,8 @@ import { adminPlayersRoutes } from "./routes/adminPlayers";
 import { adminExtendedRoutes } from "./routes/adminExtended";
 import { adminLogsRoutes } from "./routes/adminLogs";
 import { adminPlayerActivityRoutes } from "./routes/adminPlayerActivity";
+import { adminSignalsRoutes } from "./routes/adminSignals";
+import { runAdminSignalEmailJob } from "./jobs/adminSignalEmailJob";
 import { premiumRoutes } from "./routes/premium";
 import { marketRoutes } from "./routes/market";
 import { runSevenSealsMailJob } from "./sevenSealsMail";
@@ -215,6 +217,7 @@ const start = async () => {
     await app.register(adminPlayersRoutes, { prefix: "/admin/player" });
     await app.register(adminLogsRoutes, { prefix: "/admin/logs" });
     await app.register(adminPlayerActivityRoutes, { prefix: "/admin/activity" });
+    await app.register(adminSignalsRoutes, { prefix: "/admin/signals" });
 
     await app.register(characterRoutes);
     await app.register(marketRoutes);
@@ -306,6 +309,21 @@ const start = async () => {
         app.log.error(err, "Seven Seals mail job error:");
       }
     }, 5 * 60 * 1000); // Кожні 5 хвилин
+
+    const signalJobMs = Math.max(
+      120_000,
+      Number(process.env.ADMIN_SIGNAL_JOB_MS || String(10 * 60 * 1000))
+    );
+    setInterval(async () => {
+      try {
+        await runAdminSignalEmailJob((msg, meta) => {
+          if (meta) app.log.info(meta as any, msg);
+          else app.log.info(msg);
+        });
+      } catch (err) {
+        app.log.error(err, "Admin signal email job error:");
+      }
+    }, signalJobMs);
 
     // Запускаємо очистку одразу при старті
     setTimeout(async () => {

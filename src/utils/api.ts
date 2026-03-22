@@ -1756,6 +1756,48 @@ export async function getPlayerActivityRhythm(params: {
   return data as any;
 }
 
+export type AdminSignalFinding = {
+  characterId: string;
+  characterName: string;
+  accountId: string;
+  signals: Array<{ kind: string; detail: string; severity: "low" | "medium" | "high" }>;
+};
+
+export async function getAdminSignalsAnalyze(hours?: number): Promise<{
+  ok: boolean;
+  hours: number;
+  logRowCount: number;
+  logRowCap: number;
+  findings: AdminSignalFinding[];
+  emailConfigured: boolean;
+  generatedAt: string;
+  thresholds: Record<string, number>;
+}> {
+  const q = new URLSearchParams();
+  if (hours != null) q.set("hours", String(hours));
+  const query = q.toString();
+  const res = await fetch(`${API_URL}/admin/signals/analyze${query ? `?${query}` : ""}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as any;
+    err.status = res.status;
+    throw err;
+  }
+  return data as {
+    ok: boolean;
+    hours: number;
+    logRowCount: number;
+    logRowCap: number;
+    findings: AdminSignalFinding[];
+    emailConfigured: boolean;
+    generatedAt: string;
+    thresholds: Record<string, number>;
+  };
+}
+
 export async function getAdminActionLogs(params?: {
   action?: string;
   adminLogin?: string;

@@ -416,3 +416,13 @@ model PlayerActivityLog {
   @@index([accountId, createdAt])
   @@index([action, createdAt])
 }
+
+/// Дедуп email-сповіщень про сигнали (тип на персонажа), щоб не спамити одним і тим самим
+model AdminSignalEmailSent {
+  id           String   @id @default(cuid())
+  characterId  String
+  signalType   String
+  lastSentAt   DateTime @default(now())
+
+  @@unique([characterId, signalType])
+}

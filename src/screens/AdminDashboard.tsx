@@ -20,6 +20,7 @@ import { AdminSectionClans } from "./admin/AdminSectionClans";
 import { AdminSectionChangeClass } from "./admin/AdminSectionChangeClass";
 import { AdminSectionAuditLog } from "./admin/AdminSectionAuditLog";
 import { AdminSectionPlayerActivity } from "./admin/AdminSectionPlayerActivity";
+import { AdminSectionSignals } from "./admin/AdminSectionSignals";
 import { AdminSectionQuickSearch } from "./admin/AdminSectionQuickSearch";
 
 interface AdminDashboardProps {
@@ -33,6 +34,7 @@ type AdminCategoryId =
   | "moderation"
   | "community"
   | "activity"
+  | "signals"
   | "audit";
 
 const CATEGORIES: { id: AdminCategoryId; label: string; hint?: string }[] = [
@@ -65,6 +67,11 @@ const CATEGORIES: { id: AdminCategoryId; label: string; hint?: string }[] = [
     id: "activity",
     label: "Активність гравців",
     hint: "Синхрони, ринок, інтервали фарму",
+  },
+  {
+    id: "signals",
+    label: "Сигнали",
+    hint: "Евристики по логах, email-сповіщення",
   },
   { id: "audit", label: "Журнал", hint: "Аудит дій адміна" },
 ];
@@ -158,6 +165,8 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
         );
       case "activity":
         return <AdminSectionPlayerActivity />;
+      case "signals":
+        return <AdminSectionSignals />;
       case "audit":
         return <AdminSectionAuditLog />;
       default:
