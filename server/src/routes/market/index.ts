@@ -44,6 +44,10 @@ function serializeCharacter(c: any) {
   };
 }
 
+function rowItemId(x: any): string {
+  return String(x?.id ?? x?.itemId ?? "").trim();
+}
+
 async function applyItemReturnToHero(
   tx: Tx,
   seller: { id: string; name: string; race: string; classId: string; level: number; heroJson: any },
@@ -180,7 +184,8 @@ export async function marketRoutes(app: FastifyInstance) {
     return { ok: true, listings };
   });
 
-  // POST /market/listings  { characterId, inventoryItemId, currency, price }
+  // POST /market/listings  { characterId, inventoryItemId, currency, price, itemSource?, itemIndex? }
+  // itemSource: "inventory" | "overflowChest" + itemIndex — точний слот (стек риби/ресурсів у overflow)
   app.post(
     "/market/listings",
     {
@@ -199,6 +204,8 @@ export async function marketRoutes(app: FastifyInstance) {
         inventoryItemId?: string;
         currency?: string;
         price?: number;
+        itemSource?: string;
+        itemIndex?: number;
       };
       const characterId = String(body.characterId || "").trim();
       const inventoryItemId = String(body.inventoryItemId || "").trim();
@@ -236,24 +243,78 @@ export async function marketRoutes(app: FastifyInstance) {
 
           const hj0 = ensureHeroJsonBase(seller, (seller.heroJson as any) || {});
           const inv = [...(hj0.inventory || [])];
-          const idx = inv.findIndex((x: any) => x && String(x.id) === inventoryItemId);
-          if (idx < 0) return { err: 400 as const, msg: "item_not_in_inventory" };
+          const overflow = [...(hj0.overflowChest || [])];
 
-          const removed = inv[idx];
-          if (String(removed.id) === "overflow_chest") {
-            return { err: 400 as const, msg: "cannot_list_overflow_chest" };
-          }
+          const src =
+            body.itemSource === "overflowChest"
+              ? ("overflowChest" as const)
+              : body.itemSource === "inventory"
+                ? ("inventory" as const)
+                : null;
+          const ix =
+            typeof body.itemIndex === "number" && Number.isFinite(body.itemIndex)
+              ? Math.floor(body.itemIndex)
+              : null;
 
-          const eq = hj0.equipment || {};
-          for (const k of Object.keys(eq)) {
-            if (eq[k] === inventoryItemId) {
-              return { err: 400 as const, msg: "item_is_equipped" };
+          let removed: any;
+          let nextInv = inv;
+          let nextOverflow = overflow;
+
+          if (src !== null && ix !== null) {
+            if (src === "inventory") {
+              if (ix < 0 || ix >= inv.length) return { err: 400 as const, msg: "invalid_item_index" };
+              removed = inv[ix];
+              const rid = rowItemId(removed);
+              if (!rid) return { err: 400 as const, msg: "invalid_item" };
+              if (rid === "overflow_chest") return { err: 400 as const, msg: "cannot_list_overflow_chest" };
+              if (rid !== inventoryItemId) return { err: 400 as const, msg: "item_id_mismatch" };
+              const eq = hj0.equipment || {};
+              for (const k of Object.keys(eq)) {
+                if (eq[k] === rid) return { err: 400 as const, msg: "item_is_equipped" };
+              }
+              nextInv = [...inv];
+              nextInv.splice(ix, 1);
+            } else {
+              if (ix < 0 || ix >= overflow.length) return { err: 400 as const, msg: "invalid_item_index" };
+              removed = overflow[ix];
+              const rid = rowItemId(removed);
+              if (!rid) return { err: 400 as const, msg: "invalid_item" };
+              if (rid === "overflow_chest") return { err: 400 as const, msg: "cannot_list_overflow_chest" };
+              if (rid !== inventoryItemId) return { err: 400 as const, msg: "item_id_mismatch" };
+              nextOverflow = [...overflow];
+              nextOverflow.splice(ix, 1);
+            }
+          } else {
+            let idx = inv.findIndex((x: any) => x && rowItemId(x) === inventoryItemId);
+            if (idx >= 0) {
+              removed = inv[idx];
+              if (rowItemId(removed) === "overflow_chest") {
+                return { err: 400 as const, msg: "cannot_list_overflow_chest" };
+              }
+              const eq = hj0.equipment || {};
+              for (const k of Object.keys(eq)) {
+                if (eq[k] === inventoryItemId) {
+                  return { err: 400 as const, msg: "item_is_equipped" };
+                }
+              }
+              nextInv = [...inv];
+              nextInv.splice(idx, 1);
+            } else {
+              idx = overflow.findIndex((x: any) => x && rowItemId(x) === inventoryItemId);
+              if (idx < 0) return { err: 400 as const, msg: "item_not_in_inventory" };
+              removed = overflow[idx];
+              if (rowItemId(removed) === "overflow_chest") {
+                return { err: 400 as const, msg: "cannot_list_overflow_chest" };
+              }
+              nextOverflow = [...overflow];
+              nextOverflow.splice(idx, 1);
             }
           }
 
           const snapshot = JSON.parse(JSON.stringify(removed));
-          inv.splice(idx, 1);
-          const nextHj = { ...hj0, inventory: inv };
+          if (!snapshot.id && snapshot.itemId) snapshot.id = snapshot.itemId;
+
+          const nextHj = { ...hj0, inventory: nextInv, overflowChest: nextOverflow };
           const validation = validateHeroJson(nextHj);
           if (!validation.valid) {
             return { err: 400 as const, msg: "invalid_hero_json", errors: validation.errors };

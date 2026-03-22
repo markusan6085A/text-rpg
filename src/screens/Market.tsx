@@ -14,6 +14,7 @@ import {
   type MarketCurrency,
 } from "../utils/api";
 import type { HeroInventoryItem } from "../types/Hero";
+import { itemsDB } from "../data/items/itemsDB";
 import { normalizeIconPath, handleResourceIconError } from "../utils/itemIcon";
 import { showToast } from "../state/toastStore";
 
@@ -22,6 +23,27 @@ interface MarketProps {
 }
 
 type Tab = "browse" | "sell" | "mine";
+
+type MarketSellPick = { source: "inventory" | "overflowChest"; index: number };
+
+type MarketSellRow = { item: HeroInventoryItem; source: "inventory" | "overflowChest"; index: number };
+
+function itemRowId(it: HeroInventoryItem & { itemId?: string }): string {
+  return String(it.id ?? it.itemId ?? "").trim();
+}
+
+function pickKey(p: MarketSellPick): string {
+  return `${p.source}:${p.index}`;
+}
+
+function displaySellItemName(it: HeroInventoryItem & { itemId?: string }): string {
+  const id = itemRowId(it);
+  const fromDb = id ? (itemsDB as Record<string, { name?: string }>)[id]?.name : undefined;
+  if (fromDb) return fromDb;
+  const n = it.name;
+  if (n && !/^[a-z0-9_]+$/i.test(String(n).trim())) return String(n);
+  return n || id || "Предмет";
+}
 
 const formatNum = (n: number) =>
   n.toLocaleString("ru-RU").replace(/\s/g, ".");
@@ -84,7 +106,7 @@ export default function Market({ navigate }: MarketProps) {
   const [myListings, setMyListings] = useState<MarketListingDTO[]>([]);
   const [tick, setTick] = useState(0);
 
-  const [sellItemId, setSellItemId] = useState<string | null>(null);
+  const [sellPick, setSellPick] = useState<MarketSellPick | null>(null);
   const [sellCurrency, setSellCurrency] = useState<MarketCurrency>("adena");
   const [sellPrice, setSellPrice] = useState<string>("1");
   const [sellBusy, setSellBusy] = useState(false);
@@ -135,20 +157,30 @@ export default function Market({ navigate }: MarketProps) {
     );
   }, [hero?.equipment]);
 
-  const sellableInventory = useMemo(() => {
-    if (!hero?.inventory) return [];
-    return hero.inventory.filter((it) => {
-      if (!it?.id) return false;
-      if (it.id === "overflow_chest") return false;
-      if (equippedIds.has(it.id)) return false;
+  const sellRows = useMemo((): MarketSellRow[] => {
+    if (!hero) return [];
+    const allow = (it: HeroInventoryItem & { itemId?: string }) => {
+      const rid = itemRowId(it);
+      if (!rid) return false;
+      if (rid === "overflow_chest") return false;
       return true;
-    });
-  }, [hero?.inventory, equippedIds]);
+    };
+    const invPart: MarketSellRow[] = (hero.inventory || [])
+      .map((item, index) => ({ item, source: "inventory" as const, index }))
+      .filter(({ item }) => {
+        if (!allow(item)) return false;
+        return !equippedIds.has(itemRowId(item));
+      });
+    const ofPart: MarketSellRow[] = (hero.overflowChest || [])
+      .map((item, index) => ({ item, source: "overflowChest" as const, index }))
+      .filter(({ item }) => allow(item));
+    return [...invPart, ...ofPart];
+  }, [hero, equippedIds]);
 
-  const selectedSellItem: HeroInventoryItem | undefined = useMemo(
-    () => sellableInventory.find((i) => i.id === sellItemId),
-    [sellableInventory, sellItemId]
-  );
+  const selectedSellRow: MarketSellRow | undefined = useMemo(() => {
+    if (!sellPick) return undefined;
+    return sellRows.find((r) => r.source === sellPick.source && r.index === sellPick.index);
+  }, [sellRows, sellPick]);
 
   const syncHeroAfterMarket = async (c: Character) => {
     applyMarketCharacterPatch(c);
@@ -157,8 +189,13 @@ export default function Market({ navigate }: MarketProps) {
   };
 
   const onCreateListing = async () => {
-    if (!cid || !sellItemId) {
+    if (!cid || !sellPick || !selectedSellRow) {
       showToast("Оберіть предмет", "info");
+      return;
+    }
+    const rowId = itemRowId(selectedSellRow.item);
+    if (!rowId) {
+      showToast("Некоректний предмет", "info");
       return;
     }
     const price = Math.floor(Number(sellPrice.replace(/\s/g, "")));
@@ -169,12 +206,14 @@ export default function Market({ navigate }: MarketProps) {
     setSellBusy(true);
     try {
       const res = await createMarketListingApi(cid, {
-        inventoryItemId: sellItemId,
+        inventoryItemId: rowId,
         currency: sellCurrency,
         price,
+        itemSource: sellPick.source,
+        itemIndex: sellPick.index,
       });
       showToast("Лот виставлено (24 год)", "success");
-      setSellItemId(null);
+      setSellPick(null);
       setSellPrice("1");
       await syncHeroAfterMarket(res.character);
       await refreshBrowse();
@@ -312,7 +351,7 @@ export default function Market({ navigate }: MarketProps) {
               </p>
             ) : (
               listings.map((L) => {
-                const it = L.itemSnapshot as HeroInventoryItem;
+                const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
                 const icon = normalizeIconPath(it?.icon);
                 const own = L.sellerCharacterId === cid;
                 const left = msLeft(L.expiresAt);
@@ -327,7 +366,7 @@ export default function Market({ navigate }: MarketProps) {
                     />
                     <div className="flex-1 min-w-0">
                       <div className={isL2 ? "text-[12px] font-semibold text-[#e8dcc8] truncate" : "text-sm text-amber-100 truncate"}>
-                        {it?.name || "Предмет"}
+                        {displaySellItemName(it)}
                         {it?.count && it.count > 1 ? ` ×${it.count}` : ""}
                       </div>
                       <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
@@ -383,40 +422,90 @@ export default function Market({ navigate }: MarketProps) {
         {tab === "sell" && (
           <div className="px-3 pb-4 space-y-3">
             <p className={isL2 ? "text-[11px] text-[#a89878]" : "text-[11px] text-gray-400"}>
-              Оберіть предмет з інвентаря (не в екіпіровці). Ціна в аденах або в Coin of Luck.
+              Зброя, броня, щити, ресурси, удочки, риба — усе з основного інвентаря або з переповнення (окремий
+              блок нижче). Не можна виставити те, що зараз одягнуте.
             </p>
-            <div className="max-h-[220px] overflow-y-auto space-y-1 pr-1">
-              {sellableInventory.length === 0 ? (
+            <div className="max-h-[260px] overflow-y-auto space-y-1 pr-1">
+              {sellRows.length === 0 ? (
                 <p className="text-[12px] text-[#8a7a60] text-center py-4">Немає предметів для продажу</p>
               ) : (
-                sellableInventory.map((it) => (
-                  <button
-                    key={it.id}
-                    type="button"
-                    onClick={() => setSellItemId(it.id)}
-                    className={
-                      sellItemId === it.id
-                        ? `${cardRow} w-full text-left ring-1 ring-[#c7ad80]/40`
-                        : `${cardRow} w-full text-left opacity-90 hover:opacity-100`
-                    }
-                  >
-                    <img
-                      src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
-                      alt=""
-                      className="w-9 h-9 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
-                      onError={handleResourceIconError}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
-                        {it.name}
-                        {it.count && it.count > 1 ? ` ×${it.count}` : ""}
-                      </div>
+                <>
+                  {sellRows.some((r) => r.source === "inventory") && (
+                    <div className={isL2 ? "text-[10px] text-[#c9a44c] font-semibold pt-1" : "text-[10px] text-amber-200/80 pt-1"}>
+                      Інвентар
                     </div>
-                  </button>
-                ))
+                  )}
+                  {sellRows
+                    .filter((r) => r.source === "inventory")
+                    .map((row) => {
+                      const it = row.item;
+                      const sel = sellPick && pickKey(sellPick) === pickKey(row);
+                      return (
+                        <button
+                          key={pickKey(row)}
+                          type="button"
+                          onClick={() => setSellPick({ source: row.source, index: row.index })}
+                          className={
+                            sel
+                              ? `${cardRow} w-full text-left ring-1 ring-[#c7ad80]/40`
+                              : `${cardRow} w-full text-left opacity-90 hover:opacity-100`
+                          }
+                        >
+                          <img
+                            src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                            alt=""
+                            className="w-9 h-9 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                            onError={handleResourceIconError}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
+                              {displaySellItemName(it)}
+                              {it.count && it.count > 1 ? ` ×${it.count}` : ""}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  {sellRows.some((r) => r.source === "overflowChest") && (
+                    <div className={isL2 ? "text-[10px] text-[#c9a44c] font-semibold pt-2" : "text-[10px] text-amber-200/80 pt-2"}>
+                      Переповнення
+                    </div>
+                  )}
+                  {sellRows
+                    .filter((r) => r.source === "overflowChest")
+                    .map((row) => {
+                      const it = row.item;
+                      const sel = sellPick && pickKey(sellPick) === pickKey(row);
+                      return (
+                        <button
+                          key={pickKey(row)}
+                          type="button"
+                          onClick={() => setSellPick({ source: row.source, index: row.index })}
+                          className={
+                            sel
+                              ? `${cardRow} w-full text-left ring-1 ring-[#c7ad80]/40`
+                              : `${cardRow} w-full text-left opacity-90 hover:opacity-100`
+                          }
+                        >
+                          <img
+                            src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                            alt=""
+                            className="w-9 h-9 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                            onError={handleResourceIconError}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
+                              {displaySellItemName(it)}
+                              {it.count && it.count > 1 ? ` ×${it.count}` : ""}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                </>
               )}
             </div>
-            {selectedSellItem && (
+            {selectedSellRow && (
               <div className="space-y-2 border-t border-[#5c4a32]/35 pt-3">
                 <div className="flex gap-2 justify-center">
                   <button
@@ -484,7 +573,7 @@ export default function Market({ navigate }: MarketProps) {
               <p className="text-center text-[12px] text-[#8a7a60] py-6">У вас немає активних лотів</p>
             ) : (
               myListings.map((L) => {
-                const it = L.itemSnapshot as HeroInventoryItem;
+                const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
                 const left = msLeft(L.expiresAt);
                 void tick;
                 return (
@@ -497,7 +586,7 @@ export default function Market({ navigate }: MarketProps) {
                     />
                     <div className="flex-1 min-w-0">
                       <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
-                        {it?.name || "Предмет"}
+                        {displaySellItemName(it)}
                       </div>
                       <div className={isL2 ? "text-[10px] text-[#c9a44c]" : "text-[10px] text-amber-300"}>
                         {L.currency === "adena" ? `${formatNum(L.price)} аден` : `${formatNum(L.price)} CoL`} ·{" "}

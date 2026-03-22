@@ -336,7 +336,14 @@ export async function fetchMyMarketListings(
 
 export async function createMarketListingApi(
   characterId: string,
-  payload: { inventoryItemId: string; currency: MarketCurrency; price: number }
+  payload: {
+    inventoryItemId: string;
+    currency: MarketCurrency;
+    price: number;
+    /** Точний слот: основний інвентар або переповнення (риба/ресурси тощо) */
+    itemSource?: "inventory" | "overflowChest";
+    itemIndex?: number;
+  }
 ): Promise<{ ok: boolean; character: Character }> {
   return apiRequest(`/market/listings`, {
     method: "POST",
