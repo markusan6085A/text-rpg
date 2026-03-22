@@ -341,72 +341,130 @@ export default function Battle({ navigate }: BattleProps) {
       // Ця кнопка просто закриває екран перемоги
     };
 
+    const victoryBannerL2 =
+      "rounded-lg border border-[#7a6348]/55 bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(199,173,128,0.14)_0%,transparent_55%),linear-gradient(165deg,#2a2318_0%,#14110c_45%,#0a0907_100%)] shadow-[inset_0_1px_0_rgba(255,235,200,0.07),0_8px_28px_rgba(0,0,0,0.55)] ring-1 ring-[#c7ad80]/15 overflow-hidden";
+    const victoryLootL2 =
+      "rounded-lg border border-[#6b5a3e]/60 bg-[linear-gradient(180deg,rgba(22,18,12,0.96)_0%,rgba(8,7,5,0.98)_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.1),inset_0_-12px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(59,209,111,0.12)] overflow-hidden";
+    const victoryBtnGold =
+      "w-full text-center text-[12px] py-2.5 rounded-md border border-[#6b5940]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[#e8d4b0] shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.45)] hover:border-[#c7ad80]/45 hover:text-[#fff2d8] active:scale-[0.99] transition-[border-color,color,transform] duration-150";
+    const victoryBtnFight =
+      "w-full text-center text-[12px] py-2.5 rounded-md border border-[#2d6b45]/70 bg-gradient-to-b from-[#1a2e1f] to-[#0c1610] text-[#a8e8b8] shadow-[inset_0_1px_0_rgba(120,200,140,0.12),0_4px_14px_rgba(0,0,0,0.45)] hover:border-[#3bd16f]/55 hover:text-[#d4ffd8] active:scale-[0.99] transition-[border-color,color,transform] duration-150";
+
     const victoryContent = (
       <>
-          {/* Інформація про моба */}
-          <div className={`${vLine} pt-2`}>
-            <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
-              <span>{displayMobName(mob.name)}</span>
-              {mob.aggressivePatrol ? (
-                <span className="text-[#5c0a0a]"> (агр)</span>
-              ) : null}
-              <span>, {mob.level} ур.</span>
-            </div>
-          </div>
-
-          {/* ПОБЕДА! */}
-          <div className={`${vLine} py-2`}>
-            <div className={`${pad} text-center`}>
-              <div className="text-base font-bold text-green-500">ПОБЕДА!</div>
-            </div>
-          </div>
-
-          {/* Выпало + дроп (рамка тільки навколо списку) */}
-          <div className="mt-3">
-            <div className={pad}>
-              <div className="text-[12px] text-[#3bd16f] font-semibold">Выпало:</div>
-              <div className="mt-1 h-[2px] w-10 bg-[#3bd16f]/70 rounded-full" />
-            </div>
-            <div className="mt-2 px-3">
-              <div
-                className="
-                  rounded-lg
-                  border-2 border-[#3bd16f]/70
-                  bg-[#07140b]/45
-                  shadow-[inset_0_0_12px_rgba(59,209,111,0.18)]
-                  overflow-hidden
-                "
-              >
-                <div className="h-[2px] bg-[#3bd16f]/60" />
-                <div className="px-3 py-2 text-[12px] text-[#cfead6] space-y-1">
-                  {lastReward.exp > 0 && (
-                    <div className="flex justify-between">
-                      <span>Опыт:</span>
-                      <span className="text-[#3bd16f]">+{lastReward.exp}</span>
-                    </div>
-                  )}
-                  {lastReward.sp !== undefined && lastReward.sp > 0 && (
-                    <div className="flex justify-between">
-                      <span>SP:</span>
-                      <span className="text-[#3bd16f]">+{lastReward.sp}</span>
-                    </div>
-                  )}
-                  {lastReward.adena > 0 && (
-                    <div className="flex justify-between">
-                      <span>Adena</span>
-                      <span className="text-[#3bd16f]">(x{lastReward.adena})</span>
-                    </div>
-                  )}
-                </div>
-                <div className="h-[2px] bg-[#3bd16f]/60" />
+        {isL2 ? (
+          <div className={`${victoryBannerL2} mb-3`}>
+            <div className="h-[3px] bg-gradient-to-r from-transparent via-[#c7ad80]/50 to-transparent opacity-90" />
+            <div className={`${pad} pt-3 pb-3 text-center`}>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#a89878] mb-1">повержений</p>
+              <p className="text-base font-semibold text-[#e85c5c] drop-shadow-[0_0_12px_rgba(232,92,92,0.35)]">
+                <span>{displayMobName(mob.name)}</span>
+                {mob.aggressivePatrol ? <span className="text-[#8b2020]"> (агр)</span> : null}
+              </p>
+              <p className="text-[11px] text-[#c9a46a] mt-0.5 tabular-nums">
+                ур. <span className="text-[#f0d78c] font-medium">{mob.level}</span>
+              </p>
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#c7ad80]/50" />
+                <span className="text-lg font-black tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-b from-[#fff8e0] via-[#e8c56e] to-[#a67c2c] drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                  ПОБЕДА!
+                </span>
+                <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#c7ad80]/50" />
               </div>
             </div>
+            <div className="h-[2px] bg-gradient-to-r from-[#5c0a0a]/0 via-[#8b2020]/55 to-[#5c0a0a]/0" />
           </div>
+        ) : (
+          <>
+            <div className={`${vLine} pt-2`}>
+              <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
+                <span>{displayMobName(mob.name)}</span>
+                {mob.aggressivePatrol ? <span className="text-[#5c0a0a]"> (агр)</span> : null}
+                <span>, {mob.level} ур.</span>
+              </div>
+            </div>
+            <div className={`${vLine} py-2`}>
+              <div className={`${pad} text-center`}>
+                <div className="text-base font-bold text-green-500">ПОБЕДА!</div>
+              </div>
+            </div>
+          </>
+        )}
 
-          {/* лінія ВИЩЕ дій */}
-          <div className="px-3">{vDivider}</div>
+        {/* Трофеї / нагорода */}
+        <div className={isL2 ? "mt-1" : "mt-3"}>
+          <div
+            className={
+              isL2
+                ? `${pad} flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-[#d4b878] font-semibold`
+                : pad
+            }
+          >
+            {isL2 && <span className="h-px flex-1 max-w-[40px] bg-gradient-to-r from-[#c7ad80]/45 to-transparent" />}
+            {isL2 ? "Добыча" : <span className="text-[12px] text-[#3bd16f] font-semibold">Выпало:</span>}
+            {isL2 && <span className="h-px flex-1 bg-gradient-to-l from-[#c7ad80]/45 to-transparent" />}
+          </div>
+          {!isL2 && <div className={`${pad} -mt-1`}><div className="mt-1 h-[2px] w-10 bg-[#3bd16f]/70 rounded-full" /></div>}
+          <div className="mt-2 px-3">
+            <div className={isL2 ? victoryLootL2 : "rounded-lg border-2 border-[#3bd16f]/70 bg-[#07140b]/45 shadow-[inset_0_0_12px_rgba(59,209,111,0.18)] overflow-hidden"}>
+              {isL2 ? (
+                <div className="h-[2px] bg-gradient-to-r from-[#3bd16f]/0 via-[#3bd16f]/45 to-[#3bd16f]/0" />
+              ) : (
+                <div className="h-[2px] bg-[#3bd16f]/60" />
+              )}
+              <div className={`px-3 py-2.5 text-[12px] space-y-2 ${isL2 ? "text-[#e8dcc8]" : "text-[#cfead6]"}`}>
+                {lastReward.exp > 0 && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2 text-[#c4b8a4]">
+                      {isL2 && <img src="/victory/exp.png" alt="" className="w-4 h-4 opacity-95" />}
+                      Опыт
+                    </span>
+                    <span className={isL2 ? "text-[#f0d78c] font-semibold tabular-nums" : "text-[#3bd16f]"}>+{lastReward.exp}</span>
+                  </div>
+                )}
+                {lastReward.sp !== undefined && lastReward.sp > 0 && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2 text-[#c4b8a4]">
+                      {isL2 && <img src="/victory/sp.png" alt="" className="w-4 h-4 opacity-95" />}
+                      SP
+                    </span>
+                    <span className={isL2 ? "text-[#e8c56e] font-semibold tabular-nums" : "text-[#3bd16f]"}>+{lastReward.sp}</span>
+                  </div>
+                )}
+                {lastReward.adena > 0 && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2 text-[#c4b8a4]">
+                      {isL2 && <img src="/victory/adena.png" alt="" className="w-4 h-4 opacity-95" />}
+                      Адена
+                    </span>
+                    <span className="flex items-center gap-1">
+                      {isL2 && <img src="/assets/adena.png" alt="" className="w-3.5 h-3.5 opacity-90" />}
+                      <span className={isL2 ? "text-[#f4e2b8] font-semibold tabular-nums" : "text-[#3bd16f]"}>+{lastReward.adena}</span>
+                    </span>
+                  </div>
+                )}
+              </div>
+              {isL2 ? (
+                <div className="h-[2px] bg-gradient-to-r from-[#c7ad80]/0 via-[#c7ad80]/25 to-[#c7ad80]/0" />
+              ) : (
+                <div className="h-[2px] bg-[#3bd16f]/60" />
+              )}
+            </div>
+          </div>
+        </div>
 
-          {/* Дії без рамок */}
+        <div className="px-3 mt-3">{vDivider}</div>
+
+        {isL2 ? (
+          <div className="mt-3 px-3 grid grid-cols-1 gap-2">
+            <button type="button" onClick={handleNextOnly} className={victoryBtnGold}>
+              Бить следующего!
+            </button>
+            <button type="button" onClick={handleTakeAndNext} className={victoryBtnFight}>
+              Забрать и бить следующего!
+            </button>
+          </div>
+        ) : (
           <div className="mt-2 px-3 text-center text-[12px]">
             <span
               role="button"
@@ -428,41 +486,42 @@ export default function Battle({ navigate }: BattleProps) {
               Забрать и бить следующего!
             </span>
           </div>
+        )}
 
-          {/* Лог бою — без лінії під рамкою */}
-          <div className="mt-3 px-3">
-            <div
-              className={
-                isL2
-                  ? "text-[12px] text-[#e8c56e] font-semibold mb-2"
-                  : "text-[12px] text-[#c7ad80] font-semibold mb-2"
-              }
-            >
-              Лог бою:
-            </div>
-            <div className={`${boxLog} w-full`}>
-              <div className="px-3 py-2 text-[11px] leading-4 text-[#d4c4a8]">
-                <BattleLog noBorder />
-              </div>
+        <div className="mt-4 px-3">
+          <div
+            className={
+              isL2
+                ? "text-[11px] uppercase tracking-[0.12em] text-[#d4b878] font-semibold mb-2 flex items-center gap-2"
+                : "text-[12px] text-[#c7ad80] font-semibold mb-2"
+            }
+          >
+            {isL2 && <span className="h-px flex-1 max-w-[48px] bg-gradient-to-r from-[#c7ad80]/50 to-transparent" />}
+            Лог бою
+            {isL2 && <span className="h-px flex-1 bg-gradient-to-l from-[#c7ad80]/50 to-transparent" />}
+          </div>
+          <div className={`${boxLog} w-full`}>
+            <div className="px-3 py-2 text-[11px] leading-4 text-[#d4c4a8]">
+              <BattleLog noBorder />
             </div>
           </div>
+        </div>
 
-          {/* В окрестности + лінія під ним */}
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={handleTakeAndLocation}
-              className={
-                isL2
-                  ? "w-full px-3 text-center text-[12px] text-[#c9a44c] hover:text-[#f4e2b8] transition-colors cursor-pointer"
-                  : "w-full px-3 text-center text-[12px] text-white/90 hover:text-white transition-colors cursor-pointer"
-              }
-            >
-              В окрестности
-            </button>
-            <div className="px-3">{vDivider}</div>
-          </div>
-        </>
+        <div className="mt-4 px-3 space-y-2">
+          <button
+            type="button"
+            onClick={handleTakeAndLocation}
+            className={
+              isL2
+                ? "w-full py-2.5 rounded-md border border-[#5c4a32]/70 bg-[#1a1610]/80 text-[12px] text-[#c9a44c] hover:border-[#c7ad80]/35 hover:text-[#f4e2b8] hover:bg-[#221c14]/90 transition-all"
+                : "w-full px-3 text-center text-[12px] text-white/90 hover:text-white transition-colors cursor-pointer"
+            }
+          >
+            В окрестности
+          </button>
+          <div>{vDivider}</div>
+        </div>
+      </>
     );
     return (
       <BattlePanel
