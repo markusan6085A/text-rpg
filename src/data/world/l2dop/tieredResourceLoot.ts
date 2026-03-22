@@ -1,6 +1,6 @@
 // Тиерні ресурсні дроп/спойл для l2dop_* мобів (без XML droplist у даних моба).
 // Дроп: 3–6 видів, chancePerMillion; спойл: 1–3 види на зону (детерміновано від zoneId), ~42% мобів.
-// Спойл: chancePerMillion ≈ у 4 рази вищий за той самий ресурс як у дропі (окремий roll дисперсії).
+// Дроп: випадковий шанс 4–19% на кожен рядок (chancePerMillion). Спойл: ×2 від шансу дропу (той самий id або новий roll).
 
 import type { Mob } from "../types";
 import type { DropEntry } from "../../combat/types";
@@ -94,26 +94,17 @@ function tierOfResource(id: string): 1 | 2 | 3 | 4 {
   return 1;
 }
 
-function baseChancePerMillion(bracket: 1 | 2 | 3 | 4, tier: 1 | 2 | 3 | 4): number {
-  const tierBonus = (tier - 1) * 4500;
-  if (bracket === 1) return 15000 + tierBonus;
-  if (bracket === 2) return 19000 + tierBonus;
-  if (bracket === 3) return 24000 + tierBonus;
-  return 30000 + tierBonus;
-}
+/** 4% .. 19% на рядок дропу (L2 roll per million). */
+const DROP_CPM_MIN = 40_000;
+const DROP_CPM_MAX = 190_000;
 
-/** Спойл відносно дропу того ж тиеру (per-million roll у бою). */
-const SPOIL_CHANCE_MULT_VS_DROP = 4;
-const DROP_CPM_CAP = 520_000;
-const SPOIL_CPM_CAP = 950_000;
+/** Спойл = шанс дропу × 2 (макс. 38% при дропі 19%). */
+const SPOIL_CHANCE_MULT_VS_DROP = 2;
+const SPOIL_CPM_CAP = 400_000;
 
-/** Один roll шансу дропу для конкретного resource id (як у рядку дроп-таблиці). */
-function rollDropCpmForResource(id: string, bracket: 1 | 2 | 3 | 4, rand: () => number): number {
-  const tier = tierOfResource(id);
-  let cpm = baseChancePerMillion(bracket, tier);
-  if (tier >= 3) cpm += 6000;
-  if (tier >= 4) cpm += 5000;
-  return Math.min(DROP_CPM_CAP, Math.max(8000, Math.round(cpm * (0.92 + rand() * 0.16))));
+function rollDropCpm(rand: () => number): number {
+  const span = DROP_CPM_MAX - DROP_CPM_MIN + 1;
+  return DROP_CPM_MIN + Math.floor(rand() * span);
 }
 
 function buildDropEntries(
@@ -139,7 +130,7 @@ function buildDropEntries(
 
   return picked.map((id) => {
     const tier = tierOfResource(id);
-    const cpm = rollDropCpmForResource(id, bracket, rand);
+    const cpm = rollDropCpm(rand);
     const l2 = STRING_ID_TO_L2_ITEM_ID[id];
     const qtyRoll = rand();
     const maxQty = tier >= 3 ? (qtyRoll < 0.65 ? 2 : 3) : qtyRoll < 0.55 ? 2 : 3;
@@ -179,15 +170,14 @@ function spoilEntriesForMob(
   dropLines: DropEntry[]
 ): DropEntry[] {
   const ids = zoneSpoilResourceIds(zoneId, mobLevel);
-  const bracket = levelBracket(mobLevel);
   const rand = makeRng(hashSeed(seed + "|sp"));
   return ids.map((id) => {
     const tier = tierOfResource(id);
     const sameDrop = dropLines.find((d) => d.id === id && d.chancePerMillion != null && d.chancePerMillion > 0);
-    const dropCpm = sameDrop?.chancePerMillion ?? rollDropCpmForResource(id, bracket, rand);
+    const dropCpm = sameDrop?.chancePerMillion ?? rollDropCpm(rand);
     const cpm = Math.min(
       SPOIL_CPM_CAP,
-      Math.max(8000 * SPOIL_CHANCE_MULT_VS_DROP, dropCpm * SPOIL_CHANCE_MULT_VS_DROP)
+      Math.max(DROP_CPM_MIN * SPOIL_CHANCE_MULT_VS_DROP, dropCpm * SPOIL_CHANCE_MULT_VS_DROP)
     );
     const l2 = STRING_ID_TO_L2_ITEM_ID[id];
     return {
