@@ -115,7 +115,10 @@ export function getFloranDropProfile(id: string): DropProfile | undefined {
  *  - інакше → звичайні профілі по рівню
  */
 export function getFloranMobDropProfileId(mob: Mob): string {
-  const isChampion = mob.name.startsWith("[Champion]") || mob.name.startsWith("[Чемпион]");
+  const isChampion =
+    mob.name.startsWith("[Champion]") ||
+    mob.name.startsWith("[Чемпион]") ||
+    mob.name.startsWith("[Чемпіон]");
 
   if (isChampion) {
     if (mob.level <= 25) return "fl_champion_low";

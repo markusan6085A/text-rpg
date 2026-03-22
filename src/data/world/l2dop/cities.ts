@@ -7,6 +7,7 @@ import type { City } from "../types";
  * Міста з l2dop (екстракт з lineage.sql spawnlist.location).
  */
 export const L2DOP_CITIES: City[] = [
+  { id: "floran_village", name: "Floran Village", tpCost: 12_000 },
   { id: "l2dop_gludio", name: "Gludio", tpCost: 29_000 },
   { id: "l2dop_giran", name: "Giran", tpCost: 41_000 },
   { id: "l2dop_aden", name: "Aden", tpCost: 48_000 },

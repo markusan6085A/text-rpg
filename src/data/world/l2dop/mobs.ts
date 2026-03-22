@@ -9,8 +9,15 @@ import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
 import { L2DOP_SCHUTTGART_POOL } from "./schuttgartMobs.generated";
 import { L2DOP_RUNE_POOL } from "./runeMobs.generated";
 import { L2DOP_DION_POOL } from "./dionMobs.generated";
+import { L2DOP_FLORAN_VILLAGE_POOL } from "./floranVillageMobs.generated";
 
-export { L2DOP_GODDARD_POOL, L2DOP_SCHUTTGART_POOL, L2DOP_RUNE_POOL, L2DOP_DION_POOL };
+export {
+  L2DOP_GODDARD_POOL,
+  L2DOP_SCHUTTGART_POOL,
+  L2DOP_RUNE_POOL,
+  L2DOP_DION_POOL,
+  L2DOP_FLORAN_VILLAGE_POOL,
+};
 
 function drop(
   id: string,
@@ -1226,3 +1233,72 @@ export function getDionRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_DION_RAID_BOSSES: RaidBoss[] = DION_RB_BASE;
+
+/* ==================== FLORAN VILLAGE — XML pool levels 10–36 ==================== */
+
+const FV_CHAMP_SUFFIXES = ["I", "II"];
+
+/** 2 чемпіони на зону */
+export function getFloranVillageL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_FLORAN_VILLAGE_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length === 0) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Meadow Warden",
+    "02": "Riverbend Stalker",
+    "03": "Orchard Reaver",
+    "04": "Circle Wraith",
+    "05": "Bramble Tyrant",
+    "06": "Highland King",
+  };
+  const zoneNum = zoneId.replace("floran_village_", "");
+  const baseName = names[zoneNum] ?? "Floran Elite";
+  const result: Mob[] = [];
+  for (let i = 0; i < 2; i++) {
+    const base = shuffled[i % shuffled.length]!;
+    const suf = FV_CHAMP_SUFFIXES[i] ?? String(i + 1);
+    result.push(makeChampion(base, `${baseName} ${suf}`, `fv${i}`));
+  }
+  return result;
+}
+
+function fvRbDrops(_i: number): DropEntry[] {
+  return [];
+}
+
+const FLORAN_VILLAGE_RB_BASE: RaidBoss[] = [
+  { id: "rb_floran_village_01", name: "Raid Boss: Meadow Matriarch", level: 12, hp: 28000, mp: 0, pAtk: 165, mAtk: 0, pDef: 118, mDef: 82, exp: 8500, sp: 520, adenaMin: 1200, adenaMax: 2400, dropChance: 1, drops: fvRbDrops(0), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_01" },
+  { id: "rb_floran_village_02", name: "Raid Boss: Riverbend Horror", level: 14, hp: 32000, mp: 0, pAtk: 178, mAtk: 95, pDef: 125, mDef: 90, exp: 9800, sp: 580, adenaMin: 1400, adenaMax: 2700, dropChance: 1, drops: fvRbDrops(1), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_02" },
+  { id: "rb_floran_village_03", name: "Raid Boss: Orchard Devourer", level: 17, hp: 38000, mp: 0, pAtk: 195, mAtk: 0, pDef: 135, mDef: 96, exp: 11500, sp: 650, adenaMin: 1650, adenaMax: 3100, dropChance: 1, drops: fvRbDrops(2), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_03" },
+  { id: "rb_floran_village_04", name: "Raid Boss: Stone Circle Ancient", level: 21, hp: 46000, mp: 0, pAtk: 220, mAtk: 110, pDef: 148, mDef: 108, exp: 14200, sp: 780, adenaMin: 1950, adenaMax: 3600, dropChance: 1, drops: fvRbDrops(3), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_04" },
+  { id: "rb_floran_village_05", name: "Raid Boss: Bramble King", level: 26, hp: 58000, mp: 0, pAtk: 255, mAtk: 0, pDef: 168, mDef: 122, exp: 18500, sp: 950, adenaMin: 2400, adenaMax: 4400, dropChance: 1, drops: fvRbDrops(4), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_05" },
+  { id: "rb_floran_village_06", name: "Raid Boss: Highland Overlord", level: 32, hp: 72000, mp: 0, pAtk: 295, mAtk: 140, pDef: 192, mDef: 142, exp: 23500, sp: 1180, adenaMin: 2900, adenaMax: 5200, dropChance: 1, drops: fvRbDrops(5), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_06" },
+];
+
+const FLORAN_VILLAGE_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Thicket Horror", "Pasture Fiend", "Meadow Reaper"],
+  "02": ["Siltfang", "Ford Wraith", "Current Terror"],
+  "03": ["Rotten Bloom", "Hive Tyrant", "Root Devourer"],
+  "04": ["Runebound Shade", "Standing Stone Terror", "Circle Breaker"],
+  "05": ["Thorn Colossus", "Briar Matriarch", "Ridge Howler"],
+  "06": ["Skyline Beast", "Border Titan", "Crown Stalker"],
+};
+
+/** 2–3 РБ на зону */
+export function getFloranVillageRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = FLORAN_VILLAGE_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("floran_village_", "");
+  const extraNames = FLORAN_VILLAGE_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 2 + Math.floor(rand() * 2);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_FLORAN_VILLAGE_RAID_BOSSES: RaidBoss[] = FLORAN_VILLAGE_RB_BASE;

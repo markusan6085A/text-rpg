@@ -1,6 +1,7 @@
 /** Двомовні підписи для міст і зон (канонічні `name` у даних лишаються для API/збереження). */
 
 export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
+  floran_village: { uk: "Флоран — селище", ru: "Флоран — деревня" },
   l2dop_gludio: { uk: "Глудіо", ru: "Глудио" },
   l2dop_giran: { uk: "Гіран", ru: "Гиран" },
   l2dop_aden: { uk: "Аден", ru: "Аден" },
@@ -12,6 +13,13 @@ export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
 };
 
 export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
+  floran_village_01: { uk: "Флоран — Луги біля селища", ru: "Флоран — Луга у деревни" },
+  floran_village_02: { uk: "Флоран — Звивина річки", ru: "Флоран — Излучина реки" },
+  floran_village_03: { uk: "Флоран — Дикий сад", ru: "Флоран — Дикий сад" },
+  floran_village_04: { uk: "Флоран — Старе кам'яне коло", ru: "Флоран — Старый каменный круг" },
+  floran_village_05: { uk: "Флоран — Ожинистий кряж", ru: "Флоран — Тернистый кряж" },
+  floran_village_06: { uk: "Флоран — Прикордонні висоти", ru: "Флоран — Пограничные высоты" },
+
   l2dop_gludio_01: { uk: "Глудіо — Околиця", ru: "Глудио — Окраина" },
   l2dop_gludio_02: { uk: "Глудіо — Луги", ru: "Глудио — Луга" },
   l2dop_gludio_03: { uk: "Глудіо — Роща", ru: "Глудио — Роща" },
