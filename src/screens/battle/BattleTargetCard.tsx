@@ -9,6 +9,8 @@ export interface BattleTargetCardProps {
   compact?: boolean;
   /** Тепла рамка HP-бару як у L2-екранах */
   isL2?: boolean;
+  /** Показати темно-червоний суфікс (агр) після імені */
+  isAggressivePatrol?: boolean;
 }
 
 export function BattleTargetCard({
@@ -18,6 +20,7 @@ export function BattleTargetCard({
   maxHp,
   compact = false,
   isL2 = false,
+  isAggressivePatrol = false,
 }: BattleTargetCardProps) {
   const max = Math.round(Math.max(1, maxHp));
   const clamped = Math.round(Math.max(0, Math.min(max, currentHp)));
@@ -34,7 +37,12 @@ export function BattleTargetCard({
   return (
     <div className="flex flex-col items-start justify-center gap-1 text-left w-fit">
       <div className="flex items-baseline justify-start gap-2 w-full">
-        <div className={nameClass} style={nameStyle}>{name}</div>
+        <div className={nameClass} style={nameStyle}>
+          {name}
+          {isAggressivePatrol ? (
+            <span className="text-[#5c0a0a]"> (агр)</span>
+          ) : null}
+        </div>
         <div className={levelClass} style={levelStyle}>Lv {level}</div>
       </div>
       <div className="flex flex-col items-start gap-[4px] text-[11px] text-[#252524] w-full">

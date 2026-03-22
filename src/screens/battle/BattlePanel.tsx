@@ -23,6 +23,8 @@ export interface BattlePanelTarget {
   level: number;
   currentHp: number;
   maxHp: number;
+  /** Патрульний моб — суфікс (агр) у картці цілі */
+  isAggressivePatrol?: boolean;
 }
 
 export interface BattlePanelProps {
@@ -104,6 +106,7 @@ export function BattlePanel({
                 level={target.level}
                 currentHp={target.currentHp}
                 maxHp={target.maxHp}
+                isAggressivePatrol={target.isAggressivePatrol}
                 isL2={isL2}
               />
             </div>

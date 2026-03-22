@@ -447,14 +447,14 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         (і)
                       </button>
                       <div className="flex-1 min-w-0 text-left">
-                        <div className={`text-[12px] font-medium leading-snug truncate ${nameCls}`}>
-                          {mob.name}
+                        <div
+                          className={`text-[12px] font-medium leading-snug min-w-0 flex flex-wrap items-baseline gap-x-0.5 ${nameCls}`}
+                        >
+                          <span className="truncate min-w-0">{mob.name}</span>
+                          {isPatrol ? (
+                            <span className="text-[#5c0a0a] font-semibold shrink-0"> (агр)</span>
+                          ) : null}
                         </div>
-                        {isPatrol && (
-                          <div className="text-[9px] text-rose-400/90 mt-0.5">
-                            {getGameSettings().language === "uk" ? "патруль · магія з 4 ст." : "патруль · магия с 4 стр."}
-                          </div>
-                        )}
                         {isQuestMob && (
                           <div className="text-[9px] text-[#6b7280] mt-0.5">квест</div>
                         )}
@@ -504,6 +504,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     onClick={() => openBattle(globalIndex)}
                   >
                     {mob.name}
+                    {isPatrol ? <span className="text-[#5c0a0a] font-semibold"> (агр)</span> : null}
                   </span>
                   <span className="text-red-500">[{mob.level}]</span>
                   <span className="text-red-500">

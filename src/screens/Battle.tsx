@@ -333,7 +333,11 @@ export default function Battle({ navigate }: BattleProps) {
           {/* Інформація про моба */}
           <div className={`${vLine} pt-2`}>
             <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
-              {mob.name}, {mob.level} ур.
+              <span>{mob.name}</span>
+              {mob.aggressivePatrol ? (
+                <span className="text-[#5c0a0a]"> (агр)</span>
+              ) : null}
+              <span>, {mob.level} ур.</span>
             </div>
           </div>
 
@@ -449,7 +453,13 @@ export default function Battle({ navigate }: BattleProps) {
     );
     return (
       <BattlePanel
-        target={{ name: mob.name, level: mob.level, currentHp: 0, maxHp: getMobEffectiveMaxHp(mob) }}
+        target={{
+          name: mob.name,
+          level: mob.level,
+          currentHp: 0,
+          maxHp: getMobEffectiveMaxHp(mob),
+          isAggressivePatrol: mob.aggressivePatrol === true,
+        }}
         buffs={[]}
         now={now}
         victoryContent={victoryContent}
@@ -465,6 +475,7 @@ export default function Battle({ navigate }: BattleProps) {
         level: mob.level,
         currentHp: Number.isFinite(mobHP) ? mobHP : mobMaxHp,
         maxHp: mobMaxHp,
+        isAggressivePatrol: mob.aggressivePatrol === true,
       }
     : { name: "", level: 1, currentHp: 0, maxHp: 1 };
 

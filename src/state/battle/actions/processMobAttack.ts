@@ -577,6 +577,7 @@ export const createProcessMobAttack =
           adena: v.displayAdena,
           mob: state.mob.name ?? "",
           spoiled: v.mobSpoiled,
+          mobAggressivePatrol: (state.mob as { aggressivePatrol?: boolean }).aggressivePatrol === true,
         },
       };
       set((prev) => ({ ...(prev as any), ...(updates as any) }));

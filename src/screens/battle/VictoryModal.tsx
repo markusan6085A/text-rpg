@@ -134,7 +134,10 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
               style={{ maxHeight: "32px" }}
             />
             <p className="text-xs">
-              <span className="text-red-500 font-semibold">{lastReward.mob}</span>{" "}
+              <span className="text-red-500 font-semibold">{lastReward.mob}</span>
+              {lastReward.mobAggressivePatrol ? (
+                <span className="text-[#5c0a0a] font-semibold"> (агр)</span>
+              ) : null}{" "}
               <span className={isL2 ? "text-[#8a7a60]" : "text-gray-400"}>повержений</span>
             </p>
           </div>

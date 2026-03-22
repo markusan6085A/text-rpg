@@ -339,7 +339,14 @@ export function handleBaseAttack(
         ...newLog,
       ].filter((msg) => msg !== null),
       cooldowns: state.cooldowns,
-      lastReward: { exp: displayExp, sp: displaySp, adena: displayAdena, mob: state.mob?.name ?? "", spoiled: mobSpoiled },
+      lastReward: {
+        exp: displayExp,
+        sp: displaySp,
+        adena: displayAdena,
+        mob: state.mob?.name ?? "",
+        spoiled: mobSpoiled,
+        mobAggressivePatrol: state.mob?.aggressivePatrol === true,
+      },
     });
     return true;
   }

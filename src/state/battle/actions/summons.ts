@@ -712,12 +712,13 @@ export function processSummonAttack(
       ...(dropMessages.length > 0 ? dropMessages : []),
       ...newLog,
     ].filter((msg) => msg !== null).slice(0, 30);
-    updates.lastReward = { 
-      exp: displayExp, 
-      sp: displaySp, 
-      adena: displayAdena, 
+    updates.lastReward = {
+      exp: displayExp,
+      sp: displaySp,
+      adena: displayAdena,
       mob: mob.name ?? "",
-      spoiled: mobSpoiled
+      spoiled: mobSpoiled,
+      mobAggressivePatrol: mob.aggressivePatrol === true,
     };
   }
 

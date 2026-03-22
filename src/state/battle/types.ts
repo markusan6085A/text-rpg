@@ -48,7 +48,14 @@ export type BattleState = {
   cooldowns: CooldownMap;
   loadoutSlots: (number | string | null)[]; // Підтримка расходників (string типу "consumable:...")
   activeChargeSlots: number[]; // Індекси слотів панелі, де заряди (soulshot/spiritshot) увімкнені вручну
-  lastReward?: { exp: number; adena: number; sp?: number; mob: string; spoiled?: boolean };
+  lastReward?: {
+    exp: number;
+    adena: number;
+    sp?: number;
+    mob: string;
+    spoiled?: boolean;
+    mobAggressivePatrol?: boolean;
+  };
   lastMobDamage?: number; // 🔥 Останній урон моба для відображення в модалці
   heroBuffs: BattleBuff[];
   mobBuffs: BattleBuff[]; // Дебафи для мобів (debuff скіли)

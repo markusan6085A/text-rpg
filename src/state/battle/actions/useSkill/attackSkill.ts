@@ -230,7 +230,14 @@ export function handleAttackSkill(
         ...newLog,
       ].filter((msg) => msg !== null).slice(0, 30),
       cooldowns: updatedCooldowns,
-      lastReward: { exp: displayExp, sp: displaySp, adena: displayAdena, mob: state.mob?.name ?? "", spoiled: mobSpoiled },
+      lastReward: {
+        exp: displayExp,
+        sp: displaySp,
+        adena: displayAdena,
+        mob: state.mob?.name ?? "",
+        spoiled: mobSpoiled,
+        mobAggressivePatrol: state.mob?.aggressivePatrol === true,
+      },
       heroBuffs: updatedBuffs,
     });
     return true;
