@@ -73,7 +73,13 @@ export default function DepositItemsModal({
   };
 
   const category = CATEGORIES.find((c) => c.key === selectedCategory) || CATEGORIES[0];
-  const filteredItems = hero?.inventory?.filter((item: any) => item && category.test(item)) || [];
+  const filteredItems =
+    hero?.inventory?.filter(
+      (item: any) =>
+        item &&
+        category.test(item) &&
+        String(item.id || item.itemId || "") !== "seven_seals_medal"
+    ) || [];
   const enchantCls = clanModalEnchantClass();
 
   return (

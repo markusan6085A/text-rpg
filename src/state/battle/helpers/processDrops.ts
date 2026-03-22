@@ -14,6 +14,7 @@ import { useCharacterStore } from "../../characterStore";
 import { getFloranMobDropProfile } from "../../../data/drop/floranMobDrops";
 import { MOB_LOOT_TABLES_DISABLED } from "./mobLootTablesDisabled";
 import { resourceLootDisplayName } from "../../../utils/resourceLootDisplayName";
+import { isSevenSealsFarmWindowActive } from "../../../utils/sevenSealsTime";
 
 // Функція для видалення грейдів з назв ресурсів
 // Грейди мають бути тільки в точках (enchant scrolls) та шмотках (equipment), але не в ресурсах
@@ -566,15 +567,8 @@ export function processMobDrops(
     }
   }
 
-  // 🔥 Медальки 7 Печатей (5% шанс, тільки понеділок-п'ятниця польський час; в суботу 00:00 зникають)
-  const isEventActive = () => {
-    const now = new Date();
-    const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
-    const dayOfWeek = polandTime.getDay();
-    return dayOfWeek >= 1 && dayOfWeek <= 5; // Понеділок-п'ятниця
-  };
-
-  if (isEventActive() && Math.random() < 0.05) {
+  // Медальки 7 Печатей: 5% шанс, понеділок–субота (Europe/Warsaw); неділя — без дропу
+  if (isSevenSealsFarmWindowActive() && Math.random() < 0.05) {
     // Медалька випала!
     const medalId = "seven_seals_medal";
     const medalDef = itemsDB[medalId];

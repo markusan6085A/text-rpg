@@ -1,47 +1,16 @@
 /**
- * Розсилка листів топ-3 переможцям 7 Печатей щосуботи о 00:00 ігрового часу (Europe/Warsaw).
- * Листи відправляються від імені персонажа "Existence".
+ * Розсилка листів топ-3 переможцям 7 Печатей у неділю (ігровий час Europe/Warsaw).
+ * Тиждень збору: понеділок–субота; підсумок — неділя.
  */
 import { prisma } from "./db";
+import {
+  getSevenSealsWeekMondayStart,
+  isSundayPoland,
+  weekStartKey,
+} from "./sevenSealsTime";
 
 const SENDER_NAME = "Existence";
 const KV_KEY = "seven_seals_mail_last_week";
-
-function getWeekStartPoland(): Date {
-  const now = new Date();
-  const dayOfWeek = now.getUTCDay();
-  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  return new Date(
-    Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate() - daysToMonday,
-      0,
-      0,
-      0,
-      0
-    )
-  );
-}
-
-function getWeekStartInclusive(weekStart: Date): Date {
-  return new Date(weekStart.getTime() - 2 * 24 * 60 * 60 * 1000);
-}
-
-/** Чи зараз субота 00:00–00:59 за ігровим часом (Europe/Warsaw) */
-function isSaturdayMidnight(): boolean {
-  const now = new Date();
-  const fmt = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Europe/Warsaw",
-    weekday: "short",
-    hour: "numeric",
-    hour12: false,
-  });
-  const parts = fmt.formatToParts(now);
-  const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
-  const hour = parseInt(parts.find((p) => p.type === "hour")?.value ?? "0", 10);
-  return weekday === "Sat" && hour === 0;
-}
 
 const WINNER_MESSAGES: Record<number, string> = {
   1: `Поздравляю! Вы заняли 1 место в событии 7 Печатей!
@@ -77,10 +46,11 @@ export async function runSevenSealsMailJob(
 ): Promise<{ sent: number; skipped: string }> {
   const result = { sent: 0, skipped: "" };
   try {
-    if (!force && !isSaturdayMidnight()) return result;
+    if (!force && !isSundayPoland(new Date())) return result;
 
-    const weekStart = getWeekStartPoland();
-    const weekStartKey = weekStart.toISOString().slice(0, 10); // "2025-02-17"
+    const now = new Date();
+    const weekStart = getSevenSealsWeekMondayStart(now);
+    const weekStartKeyStr = weekStartKey(weekStart);
 
     // Перевіряємо, чи вже відправляли для цього тижня (пропускаємо при force)
     if (!force) {
@@ -88,7 +58,7 @@ export async function runSevenSealsMailJob(
         where: { key: KV_KEY },
         select: { value: true },
       });
-      if (kv?.value === weekStartKey) return result;
+      if (kv?.value === weekStartKeyStr) return result;
     }
 
     // Знаходимо відправника "Existence"
@@ -102,13 +72,8 @@ export async function runSevenSealsMailJob(
       return result;
     }
 
-    const weekStartInclusive = getWeekStartInclusive(weekStart);
-    const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-
     const medals = await prisma.sevenSealsMedal.findMany({
-      where: {
-        weekStart: { gte: weekStartInclusive, lt: weekEnd },
-      },
+      where: { weekStart },
       select: {
         characterId: true,
         character: { select: { id: true, name: true } },
@@ -138,8 +103,8 @@ export async function runSevenSealsMailJob(
       if (!force) {
         await prisma.kv.upsert({
           where: { key: KV_KEY },
-          create: { key: KV_KEY, value: weekStartKey, updatedAt: new Date() },
-          update: { value: weekStartKey, updatedAt: new Date() },
+          create: { key: KV_KEY, value: weekStartKeyStr, updatedAt: new Date() },
+          update: { value: weekStartKeyStr, updatedAt: new Date() },
         });
       }
       return result;
@@ -172,8 +137,8 @@ export async function runSevenSealsMailJob(
     if (!force) {
       await prisma.kv.upsert({
         where: { key: KV_KEY },
-        create: { key: KV_KEY, value: weekStartKey, updatedAt: new Date() },
-        update: { value: weekStartKey, updatedAt: new Date() },
+        create: { key: KV_KEY, value: weekStartKeyStr, updatedAt: new Date() },
+        update: { value: weekStartKeyStr, updatedAt: new Date() },
       });
     }
     return result;

@@ -252,6 +252,9 @@ export async function marketRoutes(app: FastifyInstance) {
       if (!characterId || !inventoryItemId) {
         return reply.code(400).send({ error: "characterId and inventoryItemId required" });
       }
+      if (inventoryItemId === "seven_seals_medal") {
+        return reply.code(400).send({ error: "seven_seals_medal cannot be listed" });
+      }
       if (currency !== "adena" && currency !== "coinLuck") {
         return reply.code(400).send({ error: "currency must be adena or coinLuck" });
       }

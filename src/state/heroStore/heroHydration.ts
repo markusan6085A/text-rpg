@@ -1,4 +1,5 @@
 import type { Hero } from "../../types/Hero";
+import { isSevenSealsInventoryClearDay } from "../../utils/sevenSealsTime";
 
 /**
  * 🔥 КРИТИЧНО: Одна точка синхронізації hero ↔ heroJson
@@ -10,21 +11,15 @@ import type { Hero } from "../../types/Hero";
  * - hero.skills, hero.mobsKilled, hero.exp, hero.level - офіційні поля
  * - heroJson.* - синхронізовані копії для збереження
  */
-/** Субота/неділя (польський час) — медалі 7 Печатей зникають */
-function isSevenSealsOffPeriod(): boolean {
-  const polandTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
-  const day = polandTime.getDay();
-  return day === 0 || day === 6; // Неділя або субота
-}
 
 export function hydrateHero(hero: Hero | null): Hero | null {
   if (!hero) return null;
 
   const hj = (hero as any).heroJson ?? {};
 
-  // 🔥 Медалі 7 Печатей: в суботу 00:00 зникають, з понеділка знову падають
+  // Медалі 7 Печатей: лише неділя (Europe/Warsaw) — тиждень збору Пн–Сб закрито; у інвентарі не показуємо стек
   let inventory = hero.inventory;
-  if (isSevenSealsOffPeriod() && Array.isArray(inventory) && inventory.length > 0) {
+  if (isSevenSealsInventoryClearDay() && Array.isArray(inventory) && inventory.length > 0) {
     inventory = inventory.filter((item: any) => item && item.id !== "seven_seals_medal") as Hero["inventory"];
   }
   
@@ -89,8 +84,8 @@ export function hydrateHero(hero: Hero | null): Hero | null {
       exp,
       level,
       sp,
-      // 🔥 inventory з hero — інакше після «Очистить» heroJson.inventory лишається старим
-      inventory: Array.isArray(hero.inventory) ? hero.inventory : (Array.isArray(hj.inventory) ? hj.inventory : []),
+      // inventory як у відфільтрованого hero (неділя — без медалей 7 Печатей)
+      inventory: Array.isArray(inventory) ? inventory : (Array.isArray(hj.inventory) ? hj.inventory : []),
       // Щоденні завдання та активні квести — синхронізуємо в heroJson для збереження
       dailyQuestsProgress,
       dailyQuestsCompleted,

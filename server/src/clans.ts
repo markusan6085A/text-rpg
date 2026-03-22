@@ -494,6 +494,9 @@ async function clanNestedRoutes(app: FastifyInstance) {
       if (!itemId) {
         return reply.code(400).send({ error: "itemId is required" });
       }
+      if (String(itemId).trim() === "seven_seals_medal") {
+        return reply.code(400).send({ error: "seven_seals_medal cannot be deposited" });
+      }
 
       const character = await prisma.character.findFirst({
         where: { accountId: auth.accountId },

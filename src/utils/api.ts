@@ -1190,6 +1190,9 @@ export interface SevenSealsRankResponse {
   ok: boolean;
   rank: number | null;
   medalCount: number;
+  fromClaimedBonus?: boolean;
+  /** Можна забрати нагороду за щойно закритий тиждень (топ-3), якщо ще не claimedWeekStart */
+  canClaimLastWeek?: boolean;
 }
 
 export async function getSevenSealsRank(characterId: string): Promise<SevenSealsRankResponse> {
@@ -1201,7 +1204,7 @@ export async function getSevenSealsRank(characterId: string): Promise<SevenSeals
   } catch (err: any) {
     // 404 = route not found (production server may not have seven-seals yet)
     if (err?.status === 404) {
-      return { ok: false, rank: null, medalCount: 0 };
+      return { ok: false, rank: null, medalCount: 0, canClaimLastWeek: false };
     }
     throw err;
   }

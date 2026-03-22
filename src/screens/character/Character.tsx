@@ -63,36 +63,38 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   const sevenSealsRankFromHero = getActiveSevenSealsRank(sevenSealsBonus);
 
   useEffect(() => {
-    if (sevenSealsRankFromHero != null) {
-      setSevenSealsRank(sevenSealsRankFromHero);
-      return;
-    }
+    let cancelled = false;
     const load = async () => {
       if (!characterId || !hero) return;
       try {
         const data = await getSevenSealsRank(characterId);
+        if (cancelled) return;
         if (data.rank != null && data.rank >= 1 && data.rank <= 3) {
           setSevenSealsRank(data.rank);
-          const heroJson = (hero as any)?.heroJson || {};
-          if (!heroJson.sevenSealsBonus) {
-            try {
-              const claimRes = await claimSevenSealsReward(characterId);
-              if (claimRes.ok && !claimRes.alreadyClaimed) {
-                const loadedHero = await loadHeroFromAPI();
-                if (loadedHero) useHeroStore.getState().setHero(loadedHero);
-              }
-            } catch {
-              // ignore claim errors
-            }
-          }
         } else {
           setSevenSealsRank(null);
         }
+        if (data.canClaimLastWeek) {
+          try {
+            const claimRes = await claimSevenSealsReward(characterId);
+            if (claimRes.ok && !claimRes.alreadyClaimed) {
+              const loadedHero = await loadHeroFromAPI();
+              if (loadedHero && !cancelled) useHeroStore.getState().setHero(loadedHero);
+            }
+          } catch {
+            // ignore claim errors
+          }
+        }
       } catch {
-        setSevenSealsRank(null);
+        if (!cancelled) {
+          setSevenSealsRank(sevenSealsRankFromHero ?? null);
+        }
       }
     };
-    load();
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, [characterId, hero?.name, sevenSealsRankFromHero]);
 
   // Завантажуємо Character для отримання createdAt

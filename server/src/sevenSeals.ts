@@ -1,40 +1,12 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "./db";
 import { getAuth } from "./routes/character/auth";
-
-// Початок тижня (понеділок) — UTC для узгодженості create/query
-// Старий код (toLocaleString+timeZone) давав некоректний результат через парсинг в local timezone
-function getWeekStartPoland(): Date {
-  const now = new Date();
-  const dayOfWeek = now.getUTCDay();
-  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  return new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate() - daysToMonday,
-    0, 0, 0, 0
-  ));
-}
-
-// Кінець поточного тижня (неділя 23:59:59.999) — бонус діє до кінця неділі
-function getWeekEndPoland(): number {
-  const weekStart = getWeekStartPoland();
-  return weekStart.getTime() + 7 * 24 * 60 * 60 * 1000 - 1;
-}
-
-// Інклюзивний фільтр: включає медалі з понеділка мінус 2 дні (на випадок timezone різниці)
-function getWeekStartInclusive(): Date {
-  const weekStart = getWeekStartPoland();
-  return new Date(weekStart.getTime() - 2 * 24 * 60 * 60 * 1000);
-}
-
-// Перевірити, чи зараз понеділок-субота (польський час)
-function isEventActive(): boolean {
-  const now = new Date();
-  const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
-  const dayOfWeek = polandTime.getDay();
-  return dayOfWeek >= 1 && dayOfWeek <= 6; // Понеділок-субота
-}
+import {
+  getLastCompletedSevenSealsWeekMondayStart,
+  getSevenSealsWeekMondayStart,
+  isSevenSealsFarmWindowActive,
+  weekStartKey,
+} from "./sevenSealsTime";
 
 export async function sevenSealsRoutes(app: FastifyInstance) {
   // GET /seven-seals/ranking - отримати рейтинг
@@ -51,18 +23,10 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
 
       if (!character) return reply.code(404).send({ error: "character not found" });
 
-      const weekStart = getWeekStartPoland();
-      const weekStartInclusive = getWeekStartInclusive();
-      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000); // наступний понеділок
+      const weekStart = getSevenSealsWeekMondayStart(new Date());
 
-      // Отримуємо рейтинг — інклюзивний фільтр (timezone bug) + верхня межа
       const medals = await prisma.sevenSealsMedal.findMany({
-        where: {
-          weekStart: {
-            gte: weekStartInclusive,
-            lt: weekEnd,
-          },
-        },
+        where: { weekStart },
         select: {
           characterId: true,
           character: {
@@ -98,13 +62,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
 
       // Знаходимо мій рейтинг та кількість медалей (той самий фільтр що й для ranking)
       const myMedals = await prisma.sevenSealsMedal.count({
-        where: {
-          characterId: character.id,
-          weekStart: {
-            gte: weekStartInclusive,
-            lt: weekEnd,
-          },
-        },
+        where: { characterId: character.id, weekStart },
       });
 
       const myRankIndex = ranking.findIndex((p) => p.characterId === character.id);
@@ -137,8 +95,8 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
 
     // Перевіряємо, чи івент активний
-    if (!isEventActive()) {
-      return reply.code(400).send({ error: "Event is not active (only Monday-Saturday)" });
+    if (!isSevenSealsFarmWindowActive(new Date())) {
+      return reply.code(400).send({ error: "Event is not active (only Monday-Saturday, Europe/Warsaw)" });
     }
 
     try {
@@ -155,9 +113,8 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "character not found" });
       }
 
-      const weekStart = getWeekStartPoland();
+      const weekStart = getSevenSealsWeekMondayStart(new Date());
 
-      // Додаємо медальку
       await prisma.sevenSealsMedal.create({
         data: {
           characterId: character.id,
@@ -191,42 +148,65 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       });
 
       const heroJson = (char?.heroJson ?? {}) as Record<string, unknown>;
-      const sevenSealsBonus = heroJson.sevenSealsBonus as { rank?: number; expiresAt?: number } | undefined;
-      const claimedRank = sevenSealsBonus && typeof sevenSealsBonus === "object" ? sevenSealsBonus.rank : undefined;
+      const sevenSealsBonus = heroJson.sevenSealsBonus as {
+        rank?: number;
+        expiresAt?: number;
+        claimedWeekStart?: string;
+      } | undefined;
+      const claimedRank =
+        sevenSealsBonus && typeof sevenSealsBonus === "object" ? sevenSealsBonus.rank : undefined;
       const expiresAt = sevenSealsBonus?.expiresAt ?? 0;
-      if (typeof claimedRank === "number" && claimedRank >= 1 && claimedRank <= 3 && expiresAt > Date.now()) {
+      const activeBonus =
+        typeof claimedRank === "number" &&
+        claimedRank >= 1 &&
+        claimedRank <= 3 &&
+        expiresAt > Date.now();
+
+      const weekStart = getSevenSealsWeekMondayStart(new Date());
+      const medalsCur = await prisma.sevenSealsMedal.findMany({
+        where: { weekStart },
+        select: { characterId: true },
+      });
+      const countsCur = new Map<string, number>();
+      medalsCur.forEach((m) => countsCur.set(m.characterId, (countsCur.get(m.characterId) ?? 0) + 1));
+      const myMedalsCur = countsCur.get(characterId) ?? 0;
+      const aboveCur = Array.from(countsCur.values()).filter((c) => c > myMedalsCur).length;
+      const provisionalRank = myMedalsCur > 0 ? aboveCur + 1 : null;
+
+      const awardWeekStart = getLastCompletedSevenSealsWeekMondayStart(new Date());
+      const awardKey = weekStartKey(awardWeekStart);
+      const medalsAward = await prisma.sevenSealsMedal.findMany({
+        where: { weekStart: awardWeekStart },
+        select: { characterId: true },
+      });
+      const countsAward = new Map<string, number>();
+      medalsAward.forEach((m) => countsAward.set(m.characterId, (countsAward.get(m.characterId) ?? 0) + 1));
+      const myAward = countsAward.get(characterId) ?? 0;
+      const aboveAward = Array.from(countsAward.values()).filter((c) => c > myAward).length;
+      const rankAward = myAward > 0 ? aboveAward + 1 : 0;
+
+      const claimedKey = sevenSealsBonus?.claimedWeekStart ?? "";
+      const canClaimLastWeek =
+        rankAward >= 1 && rankAward <= 3 && claimedKey !== awardKey;
+
+      if (activeBonus) {
         return {
           ok: true,
           characterId,
-          rank: claimedRank,
+          rank: claimedRank ?? null,
           medalCount: 0,
           fromClaimedBonus: true,
+          canClaimLastWeek,
         };
       }
-
-      const weekStartInclusive = getWeekStartInclusive();
-      const weekEnd = new Date(weekStartInclusive.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-      const medals = await prisma.sevenSealsMedal.findMany({
-        where: {
-          weekStart: { gte: weekStartInclusive, lt: weekEnd },
-        },
-        select: { characterId: true },
-      });
-
-      const medalCounts = new Map<string, number>();
-      medals.forEach((m) => medalCounts.set(m.characterId, (medalCounts.get(m.characterId) ?? 0) + 1));
-
-      const myMedals = medalCounts.get(characterId) ?? 0;
-      const aboveCount = Array.from(medalCounts.values()).filter((c) => c > myMedals).length;
-      const rank = myMedals > 0 ? aboveCount + 1 : null;
 
       return {
         ok: true,
         characterId,
-        rank: rank && rank <= 3 ? rank : null,
-        medalCount: myMedals,
+        rank: provisionalRank && provisionalRank <= 3 ? provisionalRank : null,
+        medalCount: myMedalsCur,
         fromClaimedBonus: false,
+        canClaimLastWeek,
       };
     } catch (error) {
       app.log.error(error, "Error fetching Seven Seals rank:");
@@ -253,10 +233,11 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       });
       if (!character) return reply.code(404).send({ error: "character not found" });
 
-      const weekStartInclusive = getWeekStartInclusive();
-      const weekEnd = new Date(weekStartInclusive.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const awardWeekStart = getLastCompletedSevenSealsWeekMondayStart(new Date());
+      const awardKey = weekStartKey(awardWeekStart);
+
       const medals = await prisma.sevenSealsMedal.findMany({
-        where: { weekStart: { gte: weekStartInclusive, lt: weekEnd } },
+        where: { weekStart: awardWeekStart },
         select: { characterId: true },
       });
       const medalCounts = new Map<string, number>();
@@ -269,16 +250,19 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       }
 
       const heroJson = (character.heroJson as Record<string, unknown>) || {};
-      const existing = heroJson.sevenSealsBonus as { expiresAt?: number } | undefined;
-      const now = Date.now();
-      const expiresAt = getWeekEndPoland();
-      if (existing && typeof existing === "object" && (existing.expiresAt ?? 0) > now) {
+      const existing = heroJson.sevenSealsBonus as {
+        expiresAt?: number;
+        claimedWeekStart?: string;
+      } | undefined;
+      if (existing && typeof existing === "object" && existing.claimedWeekStart === awardKey) {
         return reply.send({
           ok: true,
           alreadyClaimed: true,
           bonus: heroJson.sevenSealsBonus,
         });
       }
+
+      const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
 
       const RANGES: Record<number, { pAtk: [number, number]; pDef: [number, number]; coinLuck: [number, number] }> = {
         1: { pAtk: [125, 750], pDef: [154, 456], coinLuck: [5, 20] },
@@ -296,6 +280,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         coinLuck: coinLuckReward,
         rank,
         expiresAt,
+        claimedWeekStart: awardKey,
       };
 
       const updatedHeroJson = {

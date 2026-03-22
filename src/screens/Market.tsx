@@ -178,6 +178,7 @@ export default function Market({ navigate }: MarketProps) {
       const rid = itemRowId(it);
       if (!rid) return false;
       if (rid === "overflow_chest") return false;
+      if (rid === "seven_seals_medal") return false;
       return true;
     };
     const invPart: MarketSellRow[] = (hero.inventory || [])

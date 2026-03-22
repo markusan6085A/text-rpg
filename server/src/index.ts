@@ -293,7 +293,7 @@ const start = async () => {
       }
     }, 60 * 60 * 1000); // Кожні 1 годину
 
-    // 🔥 Розсилка листів топ-3 переможцям 7 Печатей щосуботи 00:00 (Europe/Warsaw) від Existence
+    // Розсилка листів топ-3 переможцям 7 Печатей у неділю (Europe/Warsaw) від Existence
     setInterval(async () => {
       try {
         await runSevenSealsMailJob((msg, meta) => {
