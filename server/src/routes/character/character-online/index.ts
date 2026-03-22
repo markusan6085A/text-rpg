@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { prisma } from "../../../db";
 import { getEffectiveNickColor } from "../../../effectiveNickColor";
 import { getAuth } from "../auth";
+import { effectiveCharacterLevel } from "../../../utils/effectiveCharacterLevel";
 
 export async function characterOnlineRoutes(app: FastifyInstance) {
   // GET /characters/online - список онлайн гравців (активні за останні 10 хвилин)
@@ -83,7 +84,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
         return {
           id: char.id,
           name: char.name,
-          level: char.level,
+          level: effectiveCharacterLevel(char),
           location,
           power,
           nickColor: nickColor || undefined,
@@ -278,6 +279,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
 
       const serialized = {
         ...char,
+        level: effectiveCharacterLevel(char),
         exp: Number(char.exp),
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,

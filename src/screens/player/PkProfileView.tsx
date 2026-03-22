@@ -7,6 +7,7 @@ import { cleanupBuffs } from "../../state/battle/helpers";
 import { loadBattle } from "../../state/battle/persist";
 import { BattlePanel } from "../battle/BattlePanel";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
 import { SkillBar } from "../battle/SkillBar";
 import type { BattleBuff } from "../../state/battle/types";
 
@@ -24,6 +25,8 @@ interface PkProfileViewProps {
   onAttack?: () => void;
   /** Повернутися до профілю (без PK) */
   onBack?: () => void;
+  /** Текст кнопки під логом (після поразки — «В город» + воскресіння як у бою з мобами) */
+  panelBackLabel?: string;
 }
 
 /** Мапимо defender (PK) у форму Mob для battle store — той самий вигляд і логіка відображення */
@@ -58,6 +61,7 @@ export default function PkProfileView({
   onUseSkill,
   onAttack,
   onBack,
+  panelBackLabel,
 }: PkProfileViewProps) {
   const isL2 = getCityUiVariant() === "l2";
   const myHero = useHeroStore((s) => s.hero);
@@ -81,7 +85,7 @@ export default function PkProfileView({
     if (!pkSession || !myHero?.id) return;
     const isAttacker = myHero.id === pkSession.attackerId;
     const targetFighter = isAttacker ? pkSession.defender : pkSession.attacker;
-    const level = character.level ?? 1;
+    const level = effectiveCharacterLevel(character);
     const mob = defenderToMob(targetFighter, level);
     const rawCd = isAttacker
       ? (pkSession.attackerCooldowns ?? pkSession.cooldowns ?? {})
@@ -102,7 +106,7 @@ export default function PkProfileView({
       status: pkSession.ended ? "victory" : "fighting",
       heroBuffs: uniqueBuffs,
     });
-  }, [pkSession, myHero?.id, character.level, uniqueBuffs, serverTimeDrift, pkActorBuffsFromStore]);
+  }, [pkSession, myHero?.id, character, uniqueBuffs, serverTimeDrift, pkActorBuffsFromStore]);
 
   const handleBack = () => {
     useBattleStore.getState().reset();
@@ -128,7 +132,7 @@ export default function PkProfileView({
               : "text-center text-[10px] text-[#a69a82] lowercase mb-2"
           }
         >
-          {String(professionLabel || "").toLowerCase()} · {character.level} lvl
+          {String(professionLabel || "").toLowerCase()} · {effectiveCharacterLevel(character)} lvl
         </div>
         <div
           className={
@@ -147,7 +151,7 @@ export default function PkProfileView({
   const targetFighter = isAttacker ? pkSession.defender : pkSession.attacker;
   const target = {
     name: targetFighter.name,
-    level: character.level ?? 1,
+    level: effectiveCharacterLevel(character),
     currentHp: Math.round(Math.max(0, targetFighter.hp ?? 0)),
     maxHp: Math.round(Math.max(1, targetFighter.maxHp ?? 1)),
   };
@@ -158,7 +162,7 @@ export default function PkProfileView({
         target={target}
         buffs={uniqueBuffs}
         now={nowTs}
-        backLabel="Назад в окресность!"
+        backLabel={panelBackLabel ?? "Назад в окрестность"}
         onBack={handleBack}
         showBackButton={true}
         isL2={isL2}
@@ -168,12 +172,14 @@ export default function PkProfileView({
 
       {pkSession.ended && (
         <div className="mt-2 text-center text-[12px] px-3">
-          {pkSession.winnerId === pkSession.attackerId ? (
-            <div className={isL2 ? "text-[#7d9b7a] font-semibold" : "text-green-400 font-semibold"}>Вы победили</div>
-          ) : pkSession.winnerId === pkSession.defenderId ? (
-            <div className={isL2 ? "text-[#d4786a] font-semibold" : "text-red-400 font-semibold"}>Вы проиграли</div>
-          ) : pkSession.escapedByName ? (
+          {pkSession.escapedByName ? (
             <div className={isL2 ? "text-[#e8c56e]" : "text-yellow-300"}>{pkSession.escapedByName} сбежал!</div>
+          ) : pkSession.winnerId && myHero?.id && pkSession.winnerId === myHero.id ? (
+            <div className={isL2 ? "text-[#7d9b7a] font-semibold" : "text-green-400 font-semibold"}>
+              Вы сразили игрока! Игрок мертв!
+            </div>
+          ) : pkSession.winnerId ? (
+            <div className={isL2 ? "text-[#d4786a] font-semibold" : "text-red-400 font-semibold"}>Вы проиграли</div>
           ) : (
             <div className={isL2 ? "text-[#8a7a60]" : "text-gray-300"}>Бой завершен</div>
           )}

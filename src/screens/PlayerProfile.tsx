@@ -1,5 +1,17 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { getPublicCharacter, getCharacterByName, getSevenSealsRank, payToViewPlayerStats, startPkSession, getPkSession, actPkSession, syncPkStats, type Character, type PkSessionState } from "../utils/api";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import {
+  getPublicCharacter,
+  getCharacterByName,
+  getSevenSealsRank,
+  payToViewPlayerStats,
+  startPkSession,
+  getPkSession,
+  actPkSession,
+  syncPkStats,
+  resurrectCharacter,
+  type Character,
+  type PkSessionState,
+} from "../utils/api";
 import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
@@ -33,10 +45,16 @@ import { useAdminStore } from "../state/adminStore";
 import { buffPlayer } from "../utils/api";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { effectiveCharacterLevel } from "../utils/effectiveCharacterLevel";
+import { useCharacterStore } from "../state/characterStore";
+import { setResurrectInProgress } from "../state/heroStore";
+import { clearDeathGate } from "../utils/deathGate";
 
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
   useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
+  const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
   const isAdmin = useAdminStore((s) => s.isAdmin);
   const [character, setCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState(true);
@@ -239,7 +257,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       race: character.race,
       klass: character.classId,
       gender: character.sex,
-      level: character.level,
+      level: effectiveCharacterLevel(character),
       profession: professionRaw, // Зберігаємо оригінальний регістр для відображення
       status: heroJson.status || "",
       equipment: heroJson.equipment || {},
@@ -253,7 +271,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       exp: character.exp,
       sp: character.sp,
       hp: heroJson.hp !== undefined && heroJson.hp !== null ? Number(heroJson.hp) : (heroJson.maxHp ?? 100),
-      maxHp: (heroJson.maxHp && Number(heroJson.maxHp) > 0) ? Number(heroJson.maxHp) : Math.max(100, 150 + (character.level || 1) * 12),
+      maxHp: (heroJson.maxHp && Number(heroJson.maxHp) > 0) ? Number(heroJson.maxHp) : Math.max(100, 150 + effectiveCharacterLevel(character) * 12),
       mp: heroJson.mp || heroJson.maxMp || 100,
       maxMp: heroJson.maxMp || 100,
       cp: heroJson.cp || heroJson.maxCp || 0,
@@ -264,6 +282,39 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       nickColor: heroJson.nickColor || undefined,
     };
   }, [character]);
+
+  const handlePkDefeatToCity = useCallback(async () => {
+    const cidUse = (characterId || hero?.id || "").trim();
+    if (!cidUse || !hero) return;
+    setResurrectInProgress(true);
+    try {
+      const char = await resurrectCharacter(cidUse, 0.7);
+      const hj = (char as any)?.heroJson;
+      if (hero.name) clearDeathGate(cidUse, hero.name);
+      if (hj) {
+        updateHero({
+          hp: Number(hj.hp) || 1,
+          mp: Number(hj.mp) ?? 0,
+          cp: Number(hj.cp) ?? 0,
+          heroJson: {
+            ...(hero as any)?.heroJson,
+            ...hj,
+            isDead: false,
+            deadAt: 0,
+            killedByMobName: undefined,
+            killedByMobDamage: undefined,
+            heroBuffs: [],
+          } as any,
+        });
+      }
+      useBattleStore.getState().reset();
+      navigate("/city");
+    } catch (e) {
+      console.warn("[PlayerProfile] PK defeat resurrect to city failed", e);
+    } finally {
+      setResurrectInProgress(false);
+    }
+  }, [characterId, hero, navigate, updateHero]);
 
   useEffect(() => {
     let cancelled = false;
@@ -281,7 +332,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           }
         } else if (hero?.id) {
           const myLevel = hero?.level || 1;
-          const targetLevel = character?.level || 1;
+          const targetLevel = character ? effectiveCharacterLevel(character) : 1;
           const diff = Math.abs(myLevel - targetLevel);
           if (diff > 20) {
              setPkError(`Нельзя атаковать игрока, если разница уровней больше 20! (Ваш ур: ${myLevel}, Его ур: ${targetLevel})`);
@@ -670,6 +721,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         navigate("/location");
       }
     };
+
+    const iLostPk = Boolean(
+      pkSession?.ended && pkSession.winnerId && hero.id && pkSession.winnerId !== hero.id
+    );
+
     return (
       <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-2 sm:p-3` : "w-full"}>
         {character.id !== hero?.id && (
@@ -705,7 +761,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           serverTimeDrift={serverTimeDrift}
           onUseSkill={handlePkUseSkill}
           onAttack={handlePkAttack}
-          onBack={backToLocation}
+          onBack={iLostPk ? handlePkDefeatToCity : backToLocation}
+          panelBackLabel={iLostPk ? "В город" : "Назад в окрестность"}
         />
         {showBuffModal && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>
@@ -890,7 +947,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </div>
               <div className={`${lineThin} mt-2 pt-2 pb-2`}>
                 <div className={isL2 ? "text-[#c9a44c] text-[12px]" : "text-yellow-300 text-[12px]"}>
-                  {professionLabel} - {character.level} ур.
+                  {professionLabel} - {effectiveCharacterLevel(character)} ур.
                 </div>
               </div>
             </div>
