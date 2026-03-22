@@ -319,7 +319,11 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
           <button
             className={svcBtn("text-[#c29835] hover:text-white")}
-            onClick={() => openFeature("Рынок")}
+            onClick={() => {
+              updateHero({ location: "" } as any);
+              window.scrollTo(0, 0);
+              navigate("/market");
+            }}
           >
             <img src="/assets/quest.png" alt="Рынок" className={ico} />
             <span>

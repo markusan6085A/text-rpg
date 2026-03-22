@@ -304,6 +304,66 @@ export async function clearInventoryAPI(characterId: string): Promise<Character>
   return response.character;
 }
 
+// --- Онлайн-ринок між гравцями (лот 24 год) ---
+export type MarketCurrency = "adena" | "coinLuck";
+
+export interface MarketListingDTO {
+  id: string;
+  sellerCharacterId: string;
+  sellerName: string;
+  itemSnapshot: unknown;
+  currency: MarketCurrency;
+  price: number;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export async function fetchMarketListings(
+  page = 1,
+  limit = 20
+): Promise<{ ok: boolean; listings: MarketListingDTO[]; total: number; page: number; limit: number }> {
+  return apiRequest(`/market/listings?page=${page}&limit=${limit}`, { method: "GET" });
+}
+
+export async function fetchMyMarketListings(
+  characterId: string
+): Promise<{ ok: boolean; listings: MarketListingDTO[] }> {
+  return apiRequest(
+    `/market/my-listings?characterId=${encodeURIComponent(characterId)}`,
+    { method: "GET" }
+  );
+}
+
+export async function createMarketListingApi(
+  characterId: string,
+  payload: { inventoryItemId: string; currency: MarketCurrency; price: number }
+): Promise<{ ok: boolean; character: Character }> {
+  return apiRequest(`/market/listings`, {
+    method: "POST",
+    body: JSON.stringify({ characterId, ...payload }),
+  });
+}
+
+export async function buyMarketListingApi(
+  listingId: string,
+  buyerCharacterId: string
+): Promise<{ ok: boolean; buyer: Character; seller: Character }> {
+  return apiRequest(`/market/listings/${encodeURIComponent(listingId)}/buy`, {
+    method: "POST",
+    body: JSON.stringify({ buyerCharacterId }),
+  });
+}
+
+export async function cancelMarketListingApi(
+  listingId: string,
+  characterId: string
+): Promise<{ ok: boolean; character: Character }> {
+  return apiRequest(
+    `/market/listings/${encodeURIComponent(listingId)}?characterId=${encodeURIComponent(characterId)}`,
+    { method: "DELETE" }
+  );
+}
+
 /** Сплатити 1M аден для перегляду характеристик іншого гравця */
 export async function payToViewPlayerStats(targetCharacterId: string): Promise<{ ok: boolean; newAdena: number }> {
   const response = await apiRequest<{ ok: boolean; newAdena: number }>(

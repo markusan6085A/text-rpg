@@ -77,6 +77,8 @@ model Character {
   clanLogs     ClanLog[]
   forumTopics  ForumTopic[]
   forumPosts   ForumPost[]
+  marketListingsSold   PlayerMarketListing[] @relation("MarketListingSeller")
+  marketListingsBought PlayerMarketListing[] @relation("MarketListingBuyer")
 
   @@index([accountId])
   @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
@@ -355,6 +357,27 @@ model ForumPost {
 
   @@index([topicId, createdAt])
   @@index([characterId])
+}
+
+/// Онлайн-ринок між гравцями: лот 24 год, після — предмет повертається продавцю
+model PlayerMarketListing {
+  id                String    @id @default(cuid())
+  sellerCharacterId String
+  sellerName        String
+  itemSnapshot      Json
+  currency          String // "adena" | "coinLuck"
+  price             BigInt
+  status            String    @default("active") // active | sold | expired | cancelled
+  buyerCharacterId  String?
+  createdAt         DateTime  @default(now())
+  expiresAt         DateTime
+  soldAt            DateTime?
+
+  seller Character  @relation("MarketListingSeller", fields: [sellerCharacterId], references: [id], onDelete: Cascade)
+  buyer  Character? @relation("MarketListingBuyer", fields: [buyerCharacterId], references: [id], onDelete: SetNull)
+
+  @@index([status, expiresAt])
+  @@index([sellerCharacterId, status])
 }
 
 model AdminActionLog {

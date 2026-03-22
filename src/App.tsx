@@ -31,6 +31,7 @@ import GMShop from "./screens/GMShop";
 import TattooArtist from "./screens/TattooArtist";
 import Fishing from "./screens/Fishing";
 import Wip from "./screens/Wip";
+import Market from "./screens/Market";
 import ResourceCraftScreen from "./screens/City/ResourceCraftScreen";
 import Chat from "./screens/Chat";
 import OnlinePlayers from "./screens/OnlinePlayers";
@@ -586,6 +587,9 @@ function AppInner() {
 
     case "/fishing":
       return renderWithLayout(<Fishing navigate={navigate} key={`fishing-${refreshKey}`} />);
+
+    case "/market":
+      return renderWithLayout(<Market navigate={navigate} key={`market-${refreshKey}`} />);
 
     case "/chat":
       return renderWithLayout(<Chat navigate={navigate} key={`chat-${refreshKey}`} />);

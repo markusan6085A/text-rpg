@@ -22,6 +22,7 @@ import { adminPlayersRoutes } from "./routes/adminPlayers";
 import { adminExtendedRoutes } from "./routes/adminExtended";
 import { adminLogsRoutes } from "./routes/adminLogs";
 import { premiumRoutes } from "./routes/premium";
+import { marketRoutes } from "./routes/market";
 import { runSevenSealsMailJob } from "./sevenSealsMail";
 
 // Отримуємо шлях до dist папки (frontend build)
@@ -214,6 +215,7 @@ const start = async () => {
     await app.register(adminLogsRoutes, { prefix: "/admin/logs" });
 
     await app.register(characterRoutes);
+    await app.register(marketRoutes);
     await app.register(premiumRoutes);
     await app.register(chatRoutes);
     await app.register(letterRoutes);
@@ -237,6 +239,7 @@ const start = async () => {
         request.url.startsWith("/clans") ||
         request.url.startsWith("/forum") ||
         request.url.startsWith("/leaderboard") ||
+        request.url.startsWith("/market") ||
         request.url.startsWith("/premium") ||
         request.url.startsWith("/health") ||
         request.url.startsWith("/test-db")
