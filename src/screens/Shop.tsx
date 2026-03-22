@@ -290,10 +290,6 @@ export default function Shop({ navigate }: ShopProps) {
     ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
     : "bg-[#14110c] border border-white/40 rounded-lg p-4 w-full";
 
-  const shopBannerShell = isL2
-    ? "rounded-lg border border-[#8a7348]/50 bg-[#080705] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.65),0_2px_10px_rgba(0,0,0,0.35)] overflow-hidden"
-    : "rounded-lg border border-amber-800/45 bg-black/40 overflow-hidden";
-
   return (
     <div
       className={
@@ -310,44 +306,6 @@ export default function Shop({ navigate }: ShopProps) {
         }`}
       >
         Магазин вещей
-      </div>
-
-      <div className="px-3 pt-2 pb-1">
-        <div className={shopBannerShell}>
-          <div className="flex min-h-[2.25rem] items-center justify-center px-2 py-1.5">
-            <img
-              src="/icons/zst_cf.jpg"
-              alt=""
-              className="max-h-[40px] sm:max-h-[48px] w-full object-contain object-center"
-            />
-          </div>
-          <div
-            className={
-              isL2
-                ? "flex flex-wrap items-center justify-between gap-1 border-t border-[#5c4a32]/40 bg-black/40 px-2 py-1"
-                : "flex flex-wrap items-center justify-between gap-1 border-t border-amber-900/35 bg-black/30 px-2 py-1"
-            }
-          >
-            <span
-              className={
-                isL2
-                  ? "text-[9px] font-semibold uppercase tracking-[0.12em] text-[#e8c56e]"
-                  : "text-[9px] font-semibold uppercase tracking-wide text-amber-200/90"
-              }
-            >
-              Лавка торговця
-            </span>
-            <span
-              className={
-                isL2
-                  ? "text-[8px] text-[#a89878] sm:text-[9px]"
-                  : "text-[8px] text-amber-200/70 sm:text-[9px]"
-              }
-            >
-              Фіксовані ціни · Adena
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Баланс */}

@@ -491,18 +491,15 @@ export default function Market({ navigate }: MarketProps) {
     </button>
   );
 
-  const cardRow = isL2
-    ? "flex gap-3 items-center p-3 rounded-lg border border-[#5c4a32]/55 bg-gradient-to-b from-[#2e2619]/90 to-[#14110c]/90 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
-    : "flex gap-3 items-center p-3 rounded-lg border border-black/60 bg-[#1a1510]";
+  /** Вкладка «Виставити»: вдвічі нижчі рядки за рахунок padding та меншої іконки */
+  const sellPickRow = isL2
+    ? "flex gap-2 items-center py-1 px-2 rounded-md border border-[#5c4a32]/50 bg-gradient-to-b from-[#2a2318]/92 to-[#12100c]/92 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+    : "flex gap-2 items-center py-1 px-2 rounded-md border border-black/55 bg-[#1a1510]";
 
   /** Компактний рядок у списках лотів (огляд / мої лоти): нижча рамка, іконка 20×20 */
   const listingRowCompact = isL2
     ? "flex gap-2 items-center py-1.5 px-2 rounded-md border border-[#5c4a32]/50 bg-gradient-to-b from-[#2a2318]/92 to-[#12100c]/92 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
     : "flex gap-2 items-center py-1.5 px-2 rounded-md border border-black/55 bg-[#1a1510]";
-
-  const marketBannerShell = isL2
-    ? "rounded-lg border border-[#8a7348]/50 bg-[#080705] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.65),0_2px_10px_rgba(0,0,0,0.35)] overflow-hidden"
-    : "rounded-lg border border-amber-800/45 bg-black/40 overflow-hidden";
 
   const marketStallBox = isL2
     ? "rounded-lg border border-[#6b5a40]/50 bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,rgba(90,70,40,0.16)_0%,transparent_55%),linear-gradient(180deg,rgba(28,24,18,0.96)_0%,rgba(6,5,4,0.99)_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] overflow-hidden"
@@ -573,38 +570,6 @@ export default function Market({ navigate }: MarketProps) {
           }
         >
           Рынок игроков
-        </div>
-
-        <div className="px-3 pt-2 pb-0">
-          <div className={marketBannerShell}>
-            <div className="flex min-h-[2.25rem] items-center justify-center px-2 py-1.5">
-              <img
-                src="/icons/bank.jpg"
-                alt=""
-                className="max-h-[40px] sm:max-h-[48px] w-full object-contain object-center"
-              />
-            </div>
-            <div
-              className={
-                isL2
-                  ? "flex flex-wrap items-center justify-between gap-1 border-t border-[#5c4a32]/40 bg-black/40 px-2 py-1"
-                  : "flex flex-wrap items-center justify-between gap-1 border-t border-amber-900/35 bg-black/30 px-2 py-1"
-              }
-            >
-              <span
-                className={
-                  isL2
-                    ? "text-[9px] font-semibold uppercase tracking-[0.12em] text-[#e8c56e]"
-                    : "text-[9px] font-semibold uppercase tracking-wide text-amber-200/90"
-                }
-              >
-                Торговий квартал
-              </span>
-              <span className={isL2 ? "text-[8px] text-[#a89878] sm:text-[9px]" : "text-[8px] text-amber-200/70 sm:text-[9px]"}>
-                Лоти гравців · 24 год
-              </span>
-            </div>
-          </div>
         </div>
 
         <div className="px-3 py-3 space-y-3">
@@ -855,16 +820,16 @@ export default function Market({ navigate }: MarketProps) {
                           key={pickKey(row)}
                           type="button"
                           onClick={() => openSellModal(row)}
-                          className={`${cardRow} w-full text-left opacity-90 hover:opacity-100`}
+                          className={`${sellPickRow} w-full text-left opacity-90 hover:opacity-100`}
                         >
                           <img
                             src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
                             alt=""
-                            className="w-9 h-9 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                            className="w-6 h-6 shrink-0 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
                             onError={handleResourceIconError}
                           />
                           <div className="min-w-0 flex-1">
-                            <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
+                            <div className={isL2 ? "text-[11px] leading-tight text-[#e8dcc8] truncate" : "text-xs truncate"}>
                               {displaySellItemName(it)}
                               {it.count && it.count > 1 ? ` ×${it.count}` : ""}
                             </div>
@@ -886,16 +851,16 @@ export default function Market({ navigate }: MarketProps) {
                           key={pickKey(row)}
                           type="button"
                           onClick={() => openSellModal(row)}
-                          className={`${cardRow} w-full text-left opacity-90 hover:opacity-100`}
+                          className={`${sellPickRow} w-full text-left opacity-90 hover:opacity-100`}
                         >
                           <img
                             src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
                             alt=""
-                            className="w-9 h-9 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                            className="w-6 h-6 shrink-0 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
                             onError={handleResourceIconError}
                           />
                           <div className="min-w-0 flex-1">
-                            <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
+                            <div className={isL2 ? "text-[11px] leading-tight text-[#e8dcc8] truncate" : "text-xs truncate"}>
                               {displaySellItemName(it)}
                               {it.count && it.count > 1 ? ` ×${it.count}` : ""}
                             </div>
