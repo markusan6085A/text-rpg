@@ -7,6 +7,7 @@ export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
   l2dop_oren: { uk: "Орен", ru: "Орен" },
   l2dop_goddard: { uk: "Годдарт", ru: "Годдарт" },
   l2dop_schuttgart: { uk: "Місто Штутгарт", ru: "Город Штутгарт" },
+  l2dop_rune: { uk: "Рун (Rune Township)", ru: "Рун (Rune Township)" },
 };
 
 export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
@@ -98,6 +99,39 @@ export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
   l2dop_schuttgart_11: {
     uk: "Штутгарт — Гряда тирана",
     ru: "Штутгарт — Хребет тирана",
+  },
+
+  l2dop_rune_01: {
+    uk: "Рун — Околиці міста та торговий шлях",
+    ru: "Рун — Окрестности города и торговый путь",
+  },
+  l2dop_rune_02: {
+    uk: "Рун — Підступи північного болота",
+    ru: "Рун — Подступы северного болота",
+  },
+  l2dop_rune_03: {
+    uk: "Рун — Морозні стежки",
+    ru: "Рун — Морозные тропы",
+  },
+  l2dop_rune_04: {
+    uk: "Рун — Угіддя звіролордів",
+    ru: "Рун — Угодья повелителей зверей",
+  },
+  l2dop_rune_05: {
+    uk: "Рун — Шепочучі руїни",
+    ru: "Рун — Шепчущие руины",
+  },
+  l2dop_rune_06: {
+    uk: "Рун — Давні землі вартових",
+    ru: "Рун — Древние земли стражей",
+  },
+  l2dop_rune_07: {
+    uk: "Рун — Долина попелу та жертв",
+    ru: "Рун — Долина пепла и жертв",
+  },
+  l2dop_rune_08: {
+    uk: "Рун — Поріг тирана",
+    ru: "Рун — Порог тирана",
   },
 
   l2dop_goddard_dragon_valley: { uk: "Годдарт — Долина драконів", ru: "Годдарт — Долина драконов" },

@@ -815,10 +815,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         <span className="text-blue-400">{selectedMob.sp}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-gray-400">Adena:</span>
                       <span className="text-yellow-400">
                         {selectedMob.adenaMin} - {selectedMob.adenaMax}
+                        <span className="text-gray-500 ml-1">
+                          ({Math.round((selectedMob.dropChance ?? 0.7) * 100)}% шанс)
+                        </span>
                       </span>
                     </div>
                   </div>
@@ -845,12 +848,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                           chance: item.chance,
                         }))
                       : (selectedMob.drops ?? []);
+                    const dropsNoAdena = displayDrops.filter((d) => d.id !== "adena" && d.kind !== "adena");
                     return (
-                      displayDrops.length > 0 && (
+                      dropsNoAdena.length > 0 && (
                         <div className="border-t border-white/40 pt-2 mt-2">
                           <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
                           <div className="space-y-1">
-                            {displayDrops.map((drop: DropEntry, idx: number) => {
+                            {dropsNoAdena.map((drop: DropEntry, idx: number) => {
                               const itemDef = itemsDB[drop.id];
                               const iconPath = dropLineIconPath(drop);
                               const itemName = itemDef?.name || drop.displayName || drop.id;

@@ -1,9 +1,2 @@
-import type { City, Zone } from "./types";
-
-export const RUNE_CITY: City = {
-  id: "rune",
-  name: "Rune Township",
-  tpCost: 59_000,
-};
-
-export const RUNE_ZONES: Zone[] = [];
+/** Канонічний id міста Rune у `L2DOP_CITIES` / `WORLD`. */
+export const RUNE_TOWNSHIP_CITY_ID = "l2dop_rune" as const;

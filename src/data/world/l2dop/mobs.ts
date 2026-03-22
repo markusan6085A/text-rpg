@@ -7,8 +7,9 @@ import type { DropEntry } from "../../combat/types";
 import { getMobPublicIconSrc, resolveMobIconFromName } from "../../../utils/mobPublicIcon";
 import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
 import { L2DOP_SCHUTTGART_POOL } from "./schuttgartMobs.generated";
+import { L2DOP_RUNE_POOL } from "./runeMobs.generated";
 
-export { L2DOP_GODDARD_POOL, L2DOP_SCHUTTGART_POOL };
+export { L2DOP_GODDARD_POOL, L2DOP_SCHUTTGART_POOL, L2DOP_RUNE_POOL };
 
 function drop(
   id: string,
@@ -1058,3 +1059,81 @@ export function getSchuttgartRaidBossesForZone(zoneId: string): RaidBoss[] {
 }
 
 export const L2DOP_SCHUTTGART_RAID_BOSSES: RaidBoss[] = SCHUTTGART_RB_BASE;
+
+/* ==================== RUNE TOWNSHIP — XML pool levels 66–82 ==================== */
+
+const RUNE_CHAMP_SUFFIXES = [
+  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV",
+];
+
+/** 14 чемпіонів на зону */
+export function getRuneL2DopChampions(zoneId: string, minLvl: number, maxLvl: number): Mob[] {
+  const filtered = L2DOP_RUNE_POOL.filter((m) => m.level >= minLvl && m.level <= maxLvl);
+  if (filtered.length === 0) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const shuffled = [...filtered].sort(() => rand() - 0.5);
+  const names: Record<string, string> = {
+    "01": "Rune Outskirts Elite",
+    "02": "Northern Moor Reaver",
+    "03": "Frostworn Predator",
+    "04": "Beastlord Champion",
+    "05": "Whispering Ruin Shade",
+    "06": "Sentinel Grounds Warden",
+    "07": "Ash Valley Tyrant",
+    "08": "Threshold Overlord",
+  };
+  const zoneNum = zoneId.replace("l2dop_rune_", "");
+  const baseName = names[zoneNum] ?? "Rune Elite";
+  const result: Mob[] = [];
+  const CHAMP_COUNT = 14;
+  for (let i = 0; i < CHAMP_COUNT; i++) {
+    const base = shuffled[i % shuffled.length]!;
+    const suf = RUNE_CHAMP_SUFFIXES[i] ?? `#${i + 1}`;
+    result.push(makeChampion(base, `${baseName} ${suf}`, `rune${i}`));
+  }
+  return result;
+}
+
+function runeRbDrops(_rbIndex: number): DropEntry[] {
+  return [];
+}
+
+const RUNE_RB_BASE: RaidBoss[] = [
+  { id: "rb_l2dop_rune_01", name: "Warden of the Trade Road", level: 68, hp: 385000, mp: 0, pAtk: 2650, mAtk: 0, pDef: 820, mDef: 555, exp: 310000, sp: 18500, adenaMin: 195000, adenaMax: 298000, dropChance: 1, drops: runeRbDrops(0), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_01" },
+  { id: "rb_l2dop_rune_02", name: "Patriarch of the Moor", level: 69, hp: 412000, mp: 0, pAtk: 2720, mAtk: 0, pDef: 838, mDef: 568, exp: 328000, sp: 19400, adenaMin: 205000, adenaMax: 312000, dropChance: 1, drops: runeRbDrops(1), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_02" },
+  { id: "rb_l2dop_rune_03", name: "Frostworn Ancient", level: 70, hp: 440000, mp: 0, pAtk: 2790, mAtk: 900, pDef: 855, mDef: 612, exp: 348000, sp: 20400, adenaMin: 215000, adenaMax: 328000, dropChance: 1, drops: runeRbDrops(2), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_03" },
+  { id: "rb_l2dop_rune_04", name: "Beastlord Prime", level: 72, hp: 478000, mp: 0, pAtk: 2920, mAtk: 0, pDef: 885, mDef: 598, exp: 382000, sp: 22200, adenaMin: 232000, adenaMax: 352000, dropChance: 1, drops: runeRbDrops(3), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_04" },
+  { id: "rb_l2dop_rune_05", name: "Ruin Whisperer King", level: 74, hp: 518000, mp: 0, pAtk: 3050, mAtk: 1020, pDef: 915, mDef: 638, exp: 418000, sp: 24200, adenaMin: 252000, adenaMax: 382000, dropChance: 1, drops: runeRbDrops(4), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_05" },
+  { id: "rb_l2dop_rune_06", name: "High Sentinel of Rune", level: 76, hp: 558000, mp: 0, pAtk: 3180, mAtk: 0, pDef: 945, mDef: 655, exp: 455000, sp: 26200, adenaMin: 272000, adenaMax: 412000, dropChance: 1, drops: runeRbDrops(5), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_06" },
+  { id: "rb_l2dop_rune_07", name: "Ash Offering Colossus", level: 78, hp: 598000, mp: 0, pAtk: 3310, mAtk: 1100, pDef: 975, mDef: 682, exp: 492000, sp: 28200, adenaMin: 292000, adenaMax: 442000, dropChance: 1, drops: runeRbDrops(6), isRaidBoss: true, respawnTime: 7 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_07" },
+  { id: "rb_l2dop_rune_08", name: "Tyrant of Rune's Threshold", level: 80, hp: 642000, mp: 0, pAtk: 3450, mAtk: 0, pDef: 1005, mDef: 698, exp: 532000, sp: 30400, adenaMin: 315000, adenaMax: 478000, dropChance: 1, drops: runeRbDrops(7), isRaidBoss: true, respawnTime: 8 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_08" },
+];
+
+const RUNE_RB_EXTRA_NAMES: Record<string, string[]> = {
+  "01": ["Caravan Crusher", "Roadside Reaper", "Outer Ring Lord", "Supply Wagon Terror", "Gatebreaker"],
+  "02": ["Bog Howler", "Moor Matriarch", "Tundra Stalker", "Heathland King", "Fog Revenant"],
+  "03": ["Hoarfrost Titan", "Icevein Horror", "Frozen Path Oracle", "Rimefang Patriarch", "Blizzard Crown"],
+  "04": ["Alpha Strider", "Packfather", "Clawline Sovereign", "Savanna Devourer", "Primal Huntlord"],
+  "05": ["Crypt Archon", "Echo of the Fallen", "Stone Tongue", "Broken Crown", "Ruin Devourer"],
+  "06": ["Old Watch Commander", "Banner of Ash", "Oathbound Horror", "Sentinel Prime", "Rune Shieldbreaker"],
+  "07": ["Pyre Lord", "Ash Serpent", "Offering Collector", "Cinder Tyrant", "Burnt Choir Master"],
+  "08": ["Threshold Keeper", "Last Gate Horror", "Rune Crown", "Northern Apex", "Final Warden"],
+};
+
+/** 4–6 РБ на зону */
+export function getRuneRaidBossesForZone(zoneId: string): RaidBoss[] {
+  const base = RUNE_RB_BASE.find((rb) => rb.zoneId === zoneId);
+  if (!base) return [];
+  let h = 0;
+  for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
+  const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
+  const zoneNum = zoneId.replace("l2dop_rune_", "");
+  const extraNames = RUNE_RB_EXTRA_NAMES[zoneNum] ?? [];
+  const all: RaidBoss[] = [base, ...extraNames.map((n, i) => cloneRaidBoss(base, String.fromCharCode(98 + i), n))];
+  const takeCount = 4 + Math.floor(rand() * 3);
+  return [...all].sort(() => rand() - 0.5).slice(0, Math.min(takeCount, all.length));
+}
+
+export const L2DOP_RUNE_RAID_BOSSES: RaidBoss[] = RUNE_RB_BASE;
