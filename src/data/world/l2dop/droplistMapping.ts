@@ -55,7 +55,7 @@ export function l2ItemIdToString(itemId: number): string | undefined {
   return DROPLIST_ITEM_ID_TO_STRING[itemId];
 }
 
-/** Іконка `l2dop-by-itemid/{L2 id}.jpg`. Steel (1880): у public підставлено `etc_lump_black_i00` з l2dop `1010.jpg` (у l2dop `1880.jpg` — зсув). */
+/** Іконка `l2dop-by-itemid/{L2 id}.jpg` (файли додаються через tools/sync-l2xml-drop-icons.mjs). */
 export function getL2dopResourceIconPath(stringId: string): string | undefined {
   const l2 = STRING_ID_TO_L2_ITEM_ID[stringId];
   if (l2 === undefined) return undefined;

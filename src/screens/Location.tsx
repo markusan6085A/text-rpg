@@ -12,6 +12,7 @@ import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { findSetForItem, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { savePreviousLocation, savePreviousCity } from "../utils/locationNavigation";
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
+import { MOB_LOOT_TABLES_DISABLED } from "../state/battle/helpers/mobLootTablesDisabled";
 import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
 import { QUESTS } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
@@ -609,59 +610,75 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 </div>
 
                 {/* Дроп — для Floran зон використовуємо профіль дропу (опис = фактичний дроп) */}
-                {(() => {
-                  const isFloranZone = zone.id?.startsWith("floran");
-                  const floranProfile = isFloranZone ? getFloranMobDropProfile(selectedMob) : undefined;
-                  const displayDrops: DropEntry[] = floranProfile
-                    ? floranProfile.items.map((item) => ({
-                        id: item.itemId,
-                        kind: item.itemId === "adena" ? "adena" : "resource",
-                        min: item.min,
-                        max: item.max,
-                        chance: item.chance,
-                      }))
-                    : (selectedMob.drops ?? []);
-                  return displayDrops.length > 0 && (
+                {MOB_LOOT_TABLES_DISABLED ? (
                   <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
-                    <div className="space-y-1">
-                      {displayDrops.map((drop: DropEntry, idx: number) => {
-                        const itemDef = itemsDB[drop.id];
-                        const iconPath = dropLineIconPath(drop);
-                        const itemName = itemDef?.name || drop.displayName || drop.id;
-                        const isResource = itemDef?.kind === "resource" || itemDef?.kind === "other" || drop.kind === "resource" || drop.kind === "adena";
-                        const itemGrade = !isResource ? (itemDef?.grade ?? autoDetectGrade(drop.id)) : null;
-                        const gradeDisplay = itemGrade ? ` [${itemGrade}]` : "";
-                        const canInspect = !!itemDef || !!drop.displayName || drop.id.startsWith("l2item_");
-
-                        return (
-                          <div 
-                            key={idx} 
-                            className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
-                            onClick={() => canInspect && setSelectedDropItem(drop.id)}
-                          >
-                            <img
-                              src={iconPath}
-                              alt={itemName}
-                              className="w-5 h-5 object-contain border border-white/40 bg-black/40"
-                              onError={onL2ResourceIconImgError}
-                            />
-                            <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">
-                              {itemName}{gradeDisplay}:
-                            </span>
-                            <span className="text-green-400">
-                              {drop.min}-{drop.max} ({formatDropChanceLabel(drop)})
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <p className="text-xs text-gray-500">
+                      Тимчасово вимкнено (після оновлення іконок і таблиць дропу знову з&apos;явиться).
+                    </p>
                   </div>
-                  );
-                })()}
+                ) : (
+                  (() => {
+                    const isFloranZone = zone.id?.startsWith("floran");
+                    const floranProfile = isFloranZone ? getFloranMobDropProfile(selectedMob) : undefined;
+                    const displayDrops: DropEntry[] = floranProfile
+                      ? floranProfile.items.map((item) => ({
+                          id: item.itemId,
+                          kind: item.itemId === "adena" ? "adena" : "resource",
+                          min: item.min,
+                          max: item.max,
+                          chance: item.chance,
+                        }))
+                      : (selectedMob.drops ?? []);
+                    return (
+                      displayDrops.length > 0 && (
+                        <div className="border-t border-white/40 pt-2 mt-2">
+                          <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
+                          <div className="space-y-1">
+                            {displayDrops.map((drop: DropEntry, idx: number) => {
+                              const itemDef = itemsDB[drop.id];
+                              const iconPath = dropLineIconPath(drop);
+                              const itemName = itemDef?.name || drop.displayName || drop.id;
+                              const isResource =
+                                itemDef?.kind === "resource" ||
+                                itemDef?.kind === "other" ||
+                                drop.kind === "resource" ||
+                                drop.kind === "adena";
+                              const itemGrade = !isResource ? (itemDef?.grade ?? autoDetectGrade(drop.id)) : null;
+                              const gradeDisplay = itemGrade ? ` [${itemGrade}]` : "";
+                              const canInspect = !!itemDef || !!drop.displayName || drop.id.startsWith("l2item_");
+
+                              return (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
+                                  onClick={() => canInspect && setSelectedDropItem(drop.id)}
+                                >
+                                  <img
+                                    src={iconPath}
+                                    alt={itemName}
+                                    className="w-5 h-5 object-contain border border-white/40 bg-black/40"
+                                    onError={onL2ResourceIconImgError}
+                                  />
+                                  <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">
+                                    {itemName}
+                                    {gradeDisplay}:
+                                  </span>
+                                  <span className="text-green-400">
+                                    {drop.min}-{drop.max} ({formatDropChanceLabel(drop)})
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )
+                    );
+                  })()
+                )}
 
                 {/* Спойл */}
-                {selectedMob.spoil && selectedMob.spoil.length > 0 && (
+                {!MOB_LOOT_TABLES_DISABLED && selectedMob.spoil && selectedMob.spoil.length > 0 && (
                   <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Спойл:</div>
                     <div className="space-y-1">

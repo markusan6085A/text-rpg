@@ -12,6 +12,7 @@ import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { reportMedalDrop } from "../../../utils/api";
 import { useCharacterStore } from "../../characterStore";
 import { getFloranMobDropProfile } from "../../../data/drop/floranMobDrops";
+import { MOB_LOOT_TABLES_DISABLED } from "./mobLootTablesDisabled";
 
 // Функція для видалення грейдів з назв ресурсів
 // Грейди мають бути тільки в точках (enchant scrolls) та шмотках (equipment), але не в ресурсах
@@ -115,24 +116,25 @@ export function processMobDrops(
   const inventorySize = newInventory.filter(Boolean).length;
   const isInventoryFull = inventorySize >= maxSlots;
 
-  // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) + ресурси з mob.drops
-  // Раніше mob.drops (coal, varnish, adamantite тощо) ігнорувались — тепер мержимо
-  const isFloranMob = mob.id?.startsWith("fl_") || mob.id?.includes("floran") || mob.id?.startsWith("champ_floran");
-  const floranProfile = isFloranMob ? getFloranMobDropProfile(mob) : undefined;
-  const floranDrops: DropEntry[] = floranProfile
-    ? floranProfile.items.map((item) => {
-        const def = itemsDB[item.itemId];
-        let kind: DropKind = "resource";
-        if (item.itemId === "adena") kind = "adena";
-        else if (def?.slot === "weapon" || def?.slot === "armor") kind = "equipment";
-        else if (def?.slot) kind = "resource";
-        return { id: item.itemId, kind, chance: item.chance, min: item.min, max: item.max };
-      })
-    : [];
-  const zoneResourceDrops = mob.drops ?? [];
-  const effectiveDrops: DropEntry[] = floranProfile
-    ? [...floranDrops, ...zoneResourceDrops]
-    : zoneResourceDrops;
+  let effectiveDrops: DropEntry[] = [];
+  if (!MOB_LOOT_TABLES_DISABLED) {
+    // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) + ресурси з mob.drops
+    const isFloranMob =
+      mob.id?.startsWith("fl_") || mob.id?.includes("floran") || mob.id?.startsWith("champ_floran");
+    const floranProfile = isFloranMob ? getFloranMobDropProfile(mob) : undefined;
+    const floranDrops: DropEntry[] = floranProfile
+      ? floranProfile.items.map((item) => {
+          const def = itemsDB[item.itemId];
+          let kind: DropKind = "resource";
+          if (item.itemId === "adena") kind = "adena";
+          else if (def?.slot === "weapon" || def?.slot === "armor") kind = "equipment";
+          else if (def?.slot) kind = "resource";
+          return { id: item.itemId, kind, chance: item.chance, min: item.min, max: item.max };
+        })
+      : [];
+    const zoneResourceDrops = mob.drops ?? [];
+    effectiveDrops = floranProfile ? [...floranDrops, ...zoneResourceDrops] : zoneResourceDrops;
+  }
 
 
   // L2 XML: рядки з chancePerMillion крутяться кожен окремо (без «глобального» шансу зони).
@@ -265,7 +267,7 @@ export function processMobDrops(
   // Обробляємо treasure box: падає з шансом 15% з мобів, рівень яких ±5 від рівня героя
   const heroLevel = hero.level || 1;
   const levelDiff = Math.abs(mob.level - heroLevel);
-  if (levelDiff <= 5) {
+  if (!MOB_LOOT_TABLES_DISABLED && levelDiff <= 5) {
     const treasureBoxChance = 0.15; // 15% шанс
     if (Math.random() < treasureBoxChance) {
       const treasureBoxId = "treasure_box";
@@ -317,7 +319,7 @@ export function processMobDrops(
   }
 
   // Обробляємо спойли — тільки якщо моб спойлений (Auto Spoil, Bounty Hunter)
-  if (spoiled && mob.spoil && mob.spoil.length > 0) {
+  if (!MOB_LOOT_TABLES_DISABLED && spoiled && mob.spoil && mob.spoil.length > 0) {
     // Оновлюємо розмір інвентаря після дропів
     const currentInventorySize = newInventory.filter(Boolean).length;
     const isInventoryFullNow = currentInventorySize >= maxSlots;
