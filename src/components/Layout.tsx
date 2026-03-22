@@ -404,7 +404,16 @@ export default function Layout({
         {showStatusBars ? (
           <div className="flex-shrink-0 w-full" style={{ height: "14px" }} aria-hidden />
         ) : null}
-        <div ref={contentRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem]">
+        <div
+          ref={contentRef}
+          className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem] ${
+            showNavGrid && !blockDeathUi && showStatusBars
+              ? "pt-[7rem] max-[380px]:pt-[6.75rem]"
+              : showNavGrid && !blockDeathUi
+                ? "pt-[4.25rem]"
+                : ""
+          }`}
+        >
           <div
             className={`w-full max-w-full min-w-0 mt-0 ${
               gameSettings.compactMode
@@ -418,7 +427,9 @@ export default function Layout({
         
         {/* 🔥 Футер видалено за запитом користувача */}
         </div>
-        {showNavGrid && !blockDeathUi ? <NavGrid navigate={navigate} /> : null}
+        {showNavGrid && !blockDeathUi ? (
+          <NavGrid navigate={navigate} showStatusBars={showStatusBars} />
+        ) : null}
         <Toast />
       </div>
   );

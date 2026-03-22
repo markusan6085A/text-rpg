@@ -6,6 +6,8 @@ import { showToast } from "../state/toastStore";
 
 interface NavGridProps {
   navigate?: (path: string) => void;
+  /** Якщо true — верхня панель під фіксованими барами HP/MP; інакше ближче до верху екрана. */
+  showStatusBars?: boolean;
 }
 
 type NavButton = { label: string; icon: string; path?: string; onClick?: () => void };
@@ -31,7 +33,14 @@ const bottomRowButtons: NavButton[] = [
 const iconWrapClass =
   "rounded-lg overflow-hidden border border-[#5c4a32]/45 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] bg-black/35";
 
-export default function NavGrid({ navigate }: NavGridProps) {
+/** Спільна «плавача» оболонка як у нижнього дока. */
+const dockPanelClass =
+  "w-full max-w-md mx-auto rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-3 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto";
+
+const dockRowClass =
+  "flex flex-row flex-nowrap items-center justify-center gap-4 sm:gap-5";
+
+export default function NavGrid({ navigate, showStatusBars = true }: NavGridProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [clanUnreadCount, setClanUnreadCount] = useState(0);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -169,17 +178,17 @@ export default function NavGrid({ navigate }: NavGridProps) {
     showToast("Функція недоступна", "info");
   };
 
-  const renderIconButton = (btn: NavButton, size: "sm" | "md") => {
+  const renderIconButton = (btn: NavButton) => {
     const isMail = btn.label === "Почта";
     const isClan = btn.label === "Клан";
     const showMailBadge = isMail && unreadCount > 0;
     const showClanBadge = isClan && clanUnreadCount > 0;
-    const dim = size === "sm" ? "w-7 h-7" : "w-8 h-8";
-    const inner = size === "sm" ? 28 : 32;
+    const dim = "w-8 h-8";
+    const inner = 32;
 
     return (
       <button
-        key={`${size}-${btn.label}`}
+        key={btn.label}
         type="button"
         onClick={() => handleClick(btn)}
         className="shrink-0 rounded-lg bg-transparent text-[#dba753] p-0 border-0 hover:brightness-110 transition-[filter] flex flex-col items-center justify-center focus:outline-none relative"
@@ -209,25 +218,23 @@ export default function NavGrid({ navigate }: NavGridProps) {
     );
   };
 
+  const topOffset = showStatusBars ? "top-[5.5rem]" : "top-3";
+
   return (
     <>
-      {/* Верхній ряд — під барами HP/MP (fixed блок StatusBars ~left-2 top-2) */}
+      {/* Верхній док: та сама логіка що внизу — по центру екрана, іконки від центру в боки; контент скролиться під градієнт */}
       <div
-        className="fixed left-2 z-[48] flex flex-row flex-nowrap items-center gap-1.5 pointer-events-none"
-        style={{ top: "5.75rem" }}
-        aria-label="Швидкі посилання: форум, пошта, чат"
+        className={`fixed left-0 right-0 z-[48] w-full min-w-0 box-border ${topOffset} pt-1 pb-2 px-2 sm:px-3 pointer-events-none bg-gradient-to-b from-[#0b0806] via-[#0b0806]/88 to-transparent`}
+        aria-label="Швидкі посилання: форум, пошта, чат, меню, клан"
       >
-        <div className="flex flex-row flex-nowrap items-center gap-1.5 pointer-events-auto max-w-[calc(100vw-0.75rem)]">
-          {topRowButtons.map((btn) => renderIconButton(btn, "sm"))}
+        <div className={dockPanelClass}>
+          <div className={dockRowClass}>{topRowButtons.map((btn) => renderIconButton(btn))}</div>
         </div>
       </div>
 
-      {/* Нижня панель — 5 іконок по центру */}
       <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-2 sm:px-3 pointer-events-none">
-        <div className="w-full max-w-md mx-auto rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-3 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto">
-          <div className="flex flex-row flex-nowrap items-center justify-center gap-4 sm:gap-5">
-            {bottomRowButtons.map((btn) => renderIconButton(btn, "md"))}
-          </div>
+        <div className={dockPanelClass}>
+          <div className={dockRowClass}>{bottomRowButtons.map((btn) => renderIconButton(btn))}</div>
         </div>
       </div>
     </>
