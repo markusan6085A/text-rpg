@@ -23,7 +23,12 @@ interface MarketProps {
   navigate: (path: string) => void;
 }
 
-type Tab = "browse" | "sell" | "mine";
+type Tab = "browse" | "coinLuck" | "sell" | "mine";
+
+function isCoinLuckMarketListing(L: MarketListingDTO): boolean {
+  const s = L.itemSnapshot as Record<string, unknown> | null;
+  return s?._marketKind === "coin_luck";
+}
 
 type MarketSellPick = { source: "inventory" | "overflowChest"; index: number };
 
@@ -166,10 +171,17 @@ export default function Market({ navigate }: MarketProps) {
   const [browseBuyBusy, setBrowseBuyBusy] = useState(false);
   const [cancelBusyId, setCancelBusyId] = useState<string | null>(null);
 
+  const [colSellOpen, setColSellOpen] = useState(false);
+  const [colSellAmount, setColSellAmount] = useState("1");
+  const [colSellUnit, setColSellUnit] = useState("1");
+  const [colSellBusy, setColSellBusy] = useState(false);
+
   const refreshBrowse = useCallback(async () => {
+    if (tab !== "browse" && tab !== "coinLuck") return;
+    const kind = tab === "coinLuck" ? "coin_luck" : "items";
     setLoading(true);
     try {
-      const res = await fetchMarketListings(page, 15);
+      const res = await fetchMarketListings(page, 15, kind);
       setListings(res.listings || []);
       setTotal(res.total ?? 0);
     } catch (e: any) {
@@ -177,7 +189,7 @@ export default function Market({ navigate }: MarketProps) {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, tab]);
 
   const refreshMine = useCallback(async () => {
     if (!cid) return;
@@ -303,6 +315,52 @@ export default function Market({ navigate }: MarketProps) {
     }
   };
 
+  const colSellPreview = useMemo(() => {
+    const max = Math.max(0, Math.floor(Number(hero?.coinOfLuck ?? 0)));
+    const unit = Math.floor(Number(String(colSellUnit).replace(/\s/g, "")) || 0);
+    const amt = Math.floor(Number(String(colSellAmount).replace(/\s/g, "")) || 0);
+    const lotTotal = unit * amt;
+    return { max, unit, amt, lotTotal };
+  }, [hero?.coinOfLuck, colSellUnit, colSellAmount]);
+
+  const onCreateColListing = async () => {
+    if (!cid) return;
+    const { max, unit, amt, lotTotal } = colSellPreview;
+    if (!Number.isFinite(unit) || unit < 1) {
+      showToast("Ціна за 1 CoL (адена) ≥ 1", "info");
+      return;
+    }
+    if (!Number.isFinite(amt) || amt < 1 || amt > max) {
+      showToast(`Кількість CoL від 1 до ${max}`, "info");
+      return;
+    }
+    if (!Number.isFinite(lotTotal) || lotTotal < 1 || lotTotal > Number.MAX_SAFE_INTEGER) {
+      showToast("Занадто велика сума", "info");
+      return;
+    }
+    setColSellBusy(true);
+    try {
+      const res = await createMarketListingApi(cid, {
+        listingKind: "coin_luck",
+        currency: "adena",
+        unitPrice: unit,
+        amount: amt,
+      });
+      showToast("Лот Coin of Luck виставлено (24 год)", "success");
+      setColSellOpen(false);
+      setColSellUnit("1");
+      setColSellAmount("1");
+      await syncHeroAfterMarket(res.character);
+      await refreshBrowse();
+      await refreshMine();
+      setTab("mine");
+    } catch (e: any) {
+      showToast(e?.message || "Помилка", "error");
+    } finally {
+      setColSellBusy(false);
+    }
+  };
+
   const openBrowseDetail = (L: MarketListingDTO) => {
     const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
     const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
@@ -317,6 +375,7 @@ export default function Market({ navigate }: MarketProps) {
     const L = browseDetailListing;
     if (!L || !hero) return null;
     const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
+    const isColLot = isCoinLuckMarketListing(L);
     const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
     const bal =
       L.currency === "adena" ? Number(hero.adena ?? 0) : Number(hero.coinOfLuck ?? 0);
@@ -332,13 +391,17 @@ export default function Market({ navigate }: MarketProps) {
       qty = maxCan > 0 ? lotCnt : 0;
     }
     const pay = qty > 0 ? payForMarketQty(L.price, lotCnt, qty) : 0;
-    const rowId = itemRowId(it) || String((it as { id?: string }).id || "").trim();
-    const itemForStats = rowId ? { ...it, id: rowId } : null;
+    const rowId = isColLot
+      ? "coin_of_luck"
+      : itemRowId(it) || String((it as { id?: string }).id || "").trim();
+    const itemForStats =
+      !isColLot && rowId ? ({ ...it, id: rowId } as HeroInventoryItem & { itemId?: string }) : null;
     const enchanted = itemForStats ? calculateEnchantedStats(itemForStats) : null;
     const itemDef = rowId ? itemsDBWithStarter[rowId] || itemsDB[rowId] : undefined;
     return {
       L,
       it,
+      isColLot,
       lotCnt,
       bal,
       maxCan,
@@ -381,10 +444,12 @@ export default function Market({ navigate }: MarketProps) {
 
   const onCancel = async (listingId: string) => {
     if (!cid) return;
+    const wasCol = myListings.find((x) => x.id === listingId);
+    const colLot = wasCol && isCoinLuckMarketListing(wasCol);
     setCancelBusyId(listingId);
     try {
       const res = await cancelMarketListingApi(listingId, cid);
-      showToast("Лот знято, предмет повернуто", "success");
+      showToast(colLot ? "Лот знято, Coin of Luck повернуто на баланс" : "Лот знято, предмет повернуто", "success");
       await syncHeroAfterMarket(res.character);
       await refreshBrowse();
       await refreshMine();
@@ -403,10 +468,15 @@ export default function Market({ navigate }: MarketProps) {
     );
   }
 
+  const goTab = (t: Tab) => {
+    setTab(t);
+    if (t === "browse" || t === "coinLuck") setPage(1);
+  };
+
   const tabBtn = (t: Tab, label: string) => (
     <button
       type="button"
-      onClick={() => setTab(t)}
+      onClick={() => goTab(t)}
       className={
         tab === t
           ? isL2
@@ -440,12 +510,13 @@ export default function Market({ navigate }: MarketProps) {
 
         <div className="px-3 py-3 space-y-3">
           <p className={isL2 ? "text-[11px] text-[#8a7a60] leading-snug" : "text-[11px] text-[#a89878]"}>
-            Виставте предмет на 24 год. Після закінчення часу він повернеться в інвентар. Інші гравці
-            бачать лоти й купують за адену або за Coin of Luck — залежно від валюти лоту.
+            Предмети — вкладка «Все лоты». Coin of Luck з балансу (не з інвентаря) — окрема вкладка: купівля лише за
+            адену. Термін лоту 24 год.
           </p>
 
           <div className="flex flex-wrap gap-2 justify-center">
             {tabBtn("browse", "Все лоты")}
+            {tabBtn("coinLuck", "Coin of Luck")}
             {tabBtn("sell", "Выставить")}
             {tabBtn("mine", "Мои лоты")}
           </div>
@@ -462,8 +533,32 @@ export default function Market({ navigate }: MarketProps) {
           </div>
         </div>
 
-        {tab === "browse" && (
+        {(tab === "browse" || tab === "coinLuck") && (
           <div className="px-3 pb-4 space-y-2">
+            {tab === "coinLuck" ? (
+              <div className="space-y-2">
+                <p className={isL2 ? "text-[11px] text-[#a89878]" : "text-[11px] text-gray-400"}>
+                  Тут лише лоти Coin of Luck: продавець виставляє кількість CoL з балансу, покупець платить{" "}
+                  <strong>аденою</strong>. Після покупки CoL зараховується на баланс одержувача.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const m = Math.max(0, Math.floor(Number(hero.coinOfLuck ?? 0)));
+                    setColSellAmount(m > 0 ? String(m) : "1");
+                    setColSellUnit("1");
+                    setColSellOpen(true);
+                  }}
+                  className={
+                    isL2
+                      ? "w-full py-2 rounded-md border border-[#c7ad80]/45 text-[11px] text-[#e8c56e] bg-black/30 hover:bg-black/45"
+                      : "w-full py-2 rounded-md border border-amber-700/50 text-[11px] text-amber-100 bg-amber-950/40"
+                  }
+                >
+                  Виставити Coin of Luck
+                </button>
+              </div>
+            ) : null}
             <div className="flex justify-between items-center gap-2">
               <span className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
                 Всього: {total}
@@ -488,7 +583,10 @@ export default function Market({ navigate }: MarketProps) {
             ) : (
               listings.map((L) => {
                 const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
-                const icon = normalizeIconPath(it?.icon);
+                const isCol = isCoinLuckMarketListing(L);
+                const icon = normalizeIconPath(
+                  isCol ? "/icons/col (1).png" : it?.icon
+                );
                 const own = L.sellerCharacterId === cid;
                 const left = msLeft(L.expiresAt);
                 void tick;
@@ -666,6 +764,7 @@ export default function Market({ navigate }: MarketProps) {
             ) : (
               myListings.map((L) => {
                 const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
+                const isCol = isCoinLuckMarketListing(L);
                 const left = msLeft(L.expiresAt);
                 void tick;
                 const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
@@ -676,7 +775,10 @@ export default function Market({ navigate }: MarketProps) {
                 return (
                   <div key={L.id} className={cardRow}>
                     <img
-                      src={normalizeIconPath(it?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
+                      src={
+                        normalizeIconPath(isCol ? "/icons/col (1).png" : it?.icon) ||
+                        "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                      }
                       alt=""
                       className="w-10 h-10 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
                       onError={handleResourceIconError}
@@ -867,6 +969,104 @@ export default function Market({ navigate }: MarketProps) {
         </div>
       )}
 
+      {colSellOpen && (
+        <div
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center px-3 pt-3 pb-[calc(0.75rem+2cm)] bg-black/75"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => {
+            if (!colSellBusy) setColSellOpen(false);
+          }}
+        >
+          <div
+            className={
+              isL2
+                ? "w-full max-w-sm rounded-xl border border-[#c7ad80]/45 shadow-[0_16px_48px_rgba(0,0,0,0.75)] bg-[linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)] p-4 space-y-3"
+                : "w-full max-w-sm rounded-xl border border-amber-800/50 bg-[#1a1510] p-4 space-y-3"
+            }
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={isL2 ? "text-center text-[13px] font-semibold text-[#e8c56e]" : "text-center text-sm font-semibold text-amber-100"}>
+              Виставити Coin of Luck
+            </div>
+            <p className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
+              З балансу героя (не з інвентаря). Ціна — адена за 1 CoL. Покупець платить аденою, отримує CoL на баланс.
+            </p>
+            <div className="flex gap-2 items-center">
+              <img
+                src={normalizeIconPath("/icons/col (1).png") || ""}
+                alt=""
+                className="w-11 h-11 object-contain rounded border border-[#5c4a32]/40 bg-black/40"
+                onError={handleResourceIconError}
+              />
+              <div className={isL2 ? "text-[11px] text-[#c9a44c]" : "text-[11px] text-amber-200"}>
+                Доступно: <strong>{formatNum(colSellPreview.max)}</strong> CoL
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className={isL2 ? "text-[10px] text-[#a89878]" : "text-[10px] text-gray-400"}>Кількість CoL</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={colSellAmount}
+                onChange={(e) => setColSellAmount(e.target.value.replace(/[^\d]/g, ""))}
+                className={
+                  isL2
+                    ? "w-full rounded-md bg-black/40 border border-[#5c4a32]/55 px-3 py-2 text-[13px] text-[#e8dcc8]"
+                    : "w-full rounded-md bg-black/50 border border-black/60 px-3 py-2 text-sm text-amber-100"
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className={isL2 ? "text-[10px] text-[#a89878]" : "text-[10px] text-gray-400"}>
+                Ціна за 1 CoL (адена)
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={colSellUnit}
+                onChange={(e) => setColSellUnit(e.target.value.replace(/[^\d]/g, ""))}
+                className={
+                  isL2
+                    ? "w-full rounded-md bg-black/40 border border-[#5c4a32]/55 px-3 py-2 text-[13px] text-[#e8dcc8]"
+                    : "w-full rounded-md bg-black/50 border border-black/60 px-3 py-2 text-sm text-amber-100"
+                }
+              />
+            </div>
+            <div className={isL2 ? "text-[11px] text-[#c9a44c] text-center" : "text-[11px] text-amber-200/90 text-center"}>
+              Покупець заплатить:{" "}
+              <span className="font-semibold">{formatNum(colSellPreview.lotTotal)} аден</span>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                disabled={colSellBusy}
+                onClick={() => !colSellBusy && setColSellOpen(false)}
+                className={
+                  isL2
+                    ? "flex-1 py-2.5 rounded-md border border-[#5c4a32]/55 text-[11px] text-[#a89878]"
+                    : "flex-1 py-2.5 rounded-md border border-black/50 text-[11px] text-gray-400"
+                }
+              >
+                Скасувати
+              </button>
+              <button
+                type="button"
+                disabled={colSellBusy || colSellPreview.max < 1}
+                onClick={() => void onCreateColListing()}
+                className={
+                  isL2
+                    ? "flex-1 py-2.5 rounded-md bg-black/35 border border-[#c7ad80]/40 text-[#e8c56e] text-[11px] font-semibold disabled:opacity-50"
+                    : "flex-1 py-2.5 rounded-md bg-amber-900/40 border border-amber-700/50 text-[#f4e2b8] text-[11px] disabled:opacity-50"
+                }
+              >
+                {colSellBusy ? "…" : "Выставить"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {browseDetailListing && browseBuyPreview && hero && (
         <div
           className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center px-3 pt-3 pb-[calc(0.75rem+2cm)] bg-black/75"
@@ -886,7 +1086,8 @@ export default function Market({ navigate }: MarketProps) {
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {
-              const { L, it, lotCnt, bal, maxCan, partial, qty, pay, enchanted, itemDef } = browseBuyPreview;
+              const { L, it, isColLot, lotCnt, bal, maxCan, partial, qty, pay, enchanted, itemDef } =
+                browseBuyPreview;
               const own = L.sellerCharacterId === cid;
               const left = msLeft(L.expiresAt);
               void tick;
@@ -894,8 +1095,10 @@ export default function Market({ navigate }: MarketProps) {
               const perUnit =
                 lotCnt > 1 && L.price > 0 ? Math.floor(L.price / lotCnt) : L.price;
               const showEquipStats =
-                enchanted && (enchanted.isWeapon || enchanted.isArmor);
-              const el = Number(enchanted?.enchantLevel ?? it.enchantLevel ?? 0);
+                !isColLot && enchanted && (enchanted.isWeapon || enchanted.isArmor);
+              const el = isColLot
+                ? 0
+                : Number(enchanted?.enchantLevel ?? it.enchantLevel ?? 0);
               const {
                 pAtk,
                 mAtk,
@@ -919,7 +1122,7 @@ export default function Market({ navigate }: MarketProps) {
                           : "text-center text-sm font-semibold text-amber-100 flex-1"
                       }
                     >
-                      Лот на ринку
+                      {isColLot ? "Coin of Luck" : "Лот на ринку"}
                     </div>
                     <button
                       type="button"
@@ -934,7 +1137,8 @@ export default function Market({ navigate }: MarketProps) {
                   <div className="flex gap-3 items-start">
                     <img
                       src={
-                        normalizeIconPath(it?.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                        normalizeIconPath(isColLot ? "/icons/col (1).png" : it?.icon) ||
+                        "/items/drops/Weapon_squires_sword_i00_0.jpg"
                       }
                       alt=""
                       className="w-14 h-14 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0"
@@ -949,7 +1153,7 @@ export default function Market({ navigate }: MarketProps) {
                         }
                       >
                         {displaySellItemName(it)}
-                        {el > 0 ? ` +${el}` : ""}
+                        {!isColLot && el > 0 ? ` +${el}` : ""}
                         {lotCnt > 1 ? ` ×${lotCnt}` : ""}
                       </div>
                       <div className={isL2 ? "text-[10px] text-[#8a7a60] mt-1" : "text-[10px] text-gray-500 mt-1"}>

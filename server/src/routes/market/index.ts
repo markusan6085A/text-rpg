@@ -7,6 +7,7 @@ import { rateLimiters, rateLimitMiddleware } from "../../rateLimiter";
 import { enqueuePlayerActivityLog, getClientIp } from "../../playerActivityLog";
 
 const LISTING_TTL_MS = 24 * 60 * 60 * 1000;
+const MARKET_KIND_COIN_LUCK = "coin_luck";
 const MAX_LISTINGS_PER_SELLER = 40;
 const MAX_PAGE = 50;
 const INV_MIN = 100;
@@ -127,6 +128,34 @@ async function applyItemReturnToHero(
   });
 }
 
+function isCoinLuckListingSnap(snap: unknown): boolean {
+  return Boolean(snap && typeof snap === "object" && (snap as Record<string, unknown>)._marketKind === MARKET_KIND_COIN_LUCK);
+}
+
+async function applyCoinLuckReturnToSeller(
+  tx: Tx,
+  seller: { id: string; name: string; race: string; classId: string; level: number; heroJson: any; coinLuck: bigint | number | null },
+  amount: number
+) {
+  const amt = Math.max(1, Math.floor(Number(amount) || 0));
+  if (amt < 1) throw new Error("invalid_coin_luck_amount");
+  const cur = BigInt((seller as any).coinLuck ?? 0);
+  const next = cur + BigInt(amt);
+  if (next > MAX_SAFE) throw new Error("currency_overflow");
+  const hj0 = ensureHeroJsonBase(seller, (seller.heroJson as any) || {});
+  const nextHj = { ...hj0, coinOfLuck: Number(next) };
+  const validation = validateHeroJson(nextHj);
+  if (!validation.valid) {
+    throw new Error(`invalid_hero_json: ${validation.errors.join("; ")}`);
+  }
+  const oldRevision = Number(hj0.heroRevision || 0);
+  const versioned = addVersioning(nextHj, oldRevision);
+  await tx.character.update({
+    where: { id: seller.id },
+    data: { coinLuck: next, heroJson: versioned as any, lastActivityAt: new Date() },
+  });
+}
+
 async function expireStaleListings(app: FastifyInstance) {
   const now = new Date();
   const stale = await prisma.playerMarketListing.findMany({
@@ -142,7 +171,13 @@ async function expireStaleListings(app: FastifyInstance) {
           await tx.playerMarketListing.update({ where: { id: row.id }, data: { status: "expired" } });
           return;
         }
-        await applyItemReturnToHero(tx, seller as any, row.itemSnapshot as any);
+        const snap = row.itemSnapshot as any;
+        if (isCoinLuckListingSnap(snap)) {
+          const sc = Math.max(1, Math.floor(Number(snap?.count) || 1));
+          await applyCoinLuckReturnToSeller(tx, seller as any, sc);
+        } else {
+          await applyItemReturnToHero(tx, seller as any, row.itemSnapshot as any);
+        }
         await tx.playerMarketListing.update({ where: { id: row.id }, data: { status: "expired" } });
       });
     } catch (e) {
@@ -159,13 +194,28 @@ export async function marketRoutes(app: FastifyInstance) {
 
     await expireStaleListings(app);
 
-    const q = req.query as { page?: string; limit?: string };
+    const q = req.query as { page?: string; limit?: string; kind?: string };
     const page = Math.max(1, parseInt(String(q.page || "1"), 10) || 1);
     const limit = Math.min(MAX_PAGE, Math.max(1, parseInt(String(q.limit || "20"), 10) || 20));
     const skip = (page - 1) * limit;
     const now = new Date();
 
-    const where = { status: "active" as const, expiresAt: { gt: now } };
+    const kind = String(q.kind || "all").trim().toLowerCase();
+    const baseWhere = { status: "active" as const, expiresAt: { gt: now } };
+    const where =
+      kind === "coin_luck"
+        ? {
+            ...baseWhere,
+            itemSnapshot: { path: ["_marketKind"], equals: MARKET_KIND_COIN_LUCK },
+          }
+        : kind === "items"
+          ? {
+              ...baseWhere,
+              NOT: {
+                itemSnapshot: { path: ["_marketKind"], equals: MARKET_KIND_COIN_LUCK },
+              },
+            }
+          : baseWhere;
 
     const [rows, total] = await Promise.all([
       prisma.playerMarketListing.findMany({
@@ -255,6 +305,7 @@ export async function marketRoutes(app: FastifyInstance) {
       const body = req.body as {
         characterId?: string;
         inventoryItemId?: string;
+        listingKind?: string;
         currency?: string;
         /** Загальна ціна лоту (старий клієнт): за весь стек одним платежем */
         price?: number;
@@ -267,6 +318,8 @@ export async function marketRoutes(app: FastifyInstance) {
       };
       const characterId = String(body.characterId || "").trim();
       const inventoryItemId = String(body.inventoryItemId || "").trim();
+      const listingKind = String(body.listingKind || "").trim();
+      const isColListing = listingKind === "coin_luck";
       const currency = String(body.currency || "").trim();
       const bodyRec = body as Record<string, unknown>;
       const unitP = parsePositiveIntInput(bodyRec.unitPrice);
@@ -275,11 +328,17 @@ export async function marketRoutes(app: FastifyInstance) {
       const useUnitPrice = unitP !== null && unitP >= 1;
       const explicitAmount = hasExplicitBodyField(bodyRec, "amount");
 
-      if (!characterId || !inventoryItemId) {
+      if (!characterId) {
+        return reply.code(400).send({ error: "characterId required" });
+      }
+      if (!isColListing && !inventoryItemId) {
         return reply.code(400).send({ error: "characterId and inventoryItemId required" });
       }
-      if (inventoryItemId === "seven_seals_medal") {
+      if (!isColListing && inventoryItemId === "seven_seals_medal") {
         return reply.code(400).send({ error: "seven_seals_medal cannot be listed" });
+      }
+      if (isColListing && currency !== "adena") {
+        return reply.code(400).send({ error: "coin_luck_listing_must_use_adena_price" });
       }
       if (currency !== "adena" && currency !== "coinLuck") {
         return reply.code(400).send({ error: "currency must be adena or coinLuck" });
@@ -301,6 +360,91 @@ export async function marketRoutes(app: FastifyInstance) {
           });
           if (activeCount >= MAX_LISTINGS_PER_SELLER) {
             return { err: 400 as const, msg: "too_many_active_listings" };
+          }
+
+          if (isColListing) {
+            if (!useUnitPrice || unitP === null || unitP < 1) {
+              return { err: 400 as const, msg: "unitPrice required for coin_luck" };
+            }
+            if (!explicitAmount || amtP === null || amtP < 1) {
+              return { err: 400 as const, msg: "amount required for coin_luck" };
+            }
+            const listAmount = amtP;
+            const up = unitP;
+            const sellerCoin = BigInt((seller as any).coinLuck ?? 0);
+            if (sellerCoin < BigInt(listAmount)) {
+              return { err: 400 as const, msg: "not_enough_coin_luck" };
+            }
+            const prod = BigInt(up) * BigInt(listAmount);
+            if (prod < 1n || prod > MAX_SAFE) {
+              return { err: 400 as const, msg: "invalid price" };
+            }
+            const nextCoin = sellerCoin - BigInt(listAmount);
+            const hj0 = ensureHeroJsonBase(seller, (seller.heroJson as any) || {});
+            const nextHj = { ...hj0, coinOfLuck: Number(nextCoin) };
+            const validation = validateHeroJson(nextHj);
+            if (!validation.valid) {
+              return { err: 400 as const, msg: "invalid_hero_json", errors: validation.errors };
+            }
+            const oldRevision = Number(hj0.heroRevision || 0);
+            const versioned = addVersioning(nextHj, oldRevision);
+            const expiresAt = new Date(Date.now() + LISTING_TTL_MS);
+            const snapshot = {
+              _marketKind: MARKET_KIND_COIN_LUCK,
+              count: listAmount,
+              id: "coin_of_luck",
+              itemId: "coin_of_luck",
+              name: "Coin of Luck",
+              icon: "/icons/col (1).png",
+            };
+            const createdListing = await tx.playerMarketListing.create({
+              data: {
+                sellerCharacterId: characterId,
+                sellerName: seller.name,
+                itemSnapshot: snapshot as any,
+                currency: "adena",
+                price: prod,
+                status: "active",
+                expiresAt,
+              },
+            });
+            const updated = await tx.character.update({
+              where: { id: characterId },
+              data: {
+                coinLuck: nextCoin,
+                heroJson: versioned as any,
+                lastActivityAt: new Date(),
+              },
+              select: {
+                id: true,
+                name: true,
+                race: true,
+                classId: true,
+                sex: true,
+                level: true,
+                exp: true,
+                sp: true,
+                adena: true,
+                aa: true,
+                coinLuck: true,
+                coinsSilver: true,
+                heroJson: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            });
+            return {
+              err: null,
+              character: updated,
+              listMeta: {
+                listingId: createdListing.id,
+                listAmount,
+                currency: "adena",
+                price: prod.toString(),
+                itemId: "coin_of_luck",
+                itemName: "Coin of Luck",
+              },
+            };
           }
 
           const hj0 = ensureHeroJsonBase(seller, (seller.heroJson as any) || {});
@@ -553,6 +697,10 @@ export async function marketRoutes(app: FastifyInstance) {
           }
 
           const snap = JSON.parse(JSON.stringify(listing.itemSnapshot)) as Record<string, unknown>;
+          const isColLot = isCoinLuckListingSnap(snap);
+          if (isColLot && listing.currency !== "adena") {
+            return { err: 400 as const, msg: "invalid_coin_luck_listing" };
+          }
           const sc = Math.max(1, Math.floor(Number(snap?.count) || 1));
           let qty = sc;
           if (qtyRequested !== null) {
@@ -592,27 +740,39 @@ export async function marketRoutes(app: FastifyInstance) {
             sellerCoin += pay;
           }
 
-          if (sellerAdena > MAX_SAFE || buyerAdena < 0n || sellerCoin > MAX_SAFE || buyerCoin < 0n) {
+          if (isColLot) {
+            buyerCoin += BigInt(qty);
+          }
+          if (sellerAdena > MAX_SAFE || buyerAdena < 0n || sellerCoin > MAX_SAFE || buyerCoin < 0n || buyerCoin > MAX_SAFE) {
             return { err: 400 as const, msg: "currency_overflow" };
           }
 
           const buyerHj0 = ensureHeroJsonBase(buyer, (buyer.heroJson as any) || {});
-          const cap = inventoryCap(buyerHj0);
-          const inv = [...(buyerHj0.inventory || [])];
-          const overflow = [...(buyerHj0.overflowChest || [])];
-          const item = { ...snap, count: qty };
-          if (inv.length < cap) {
-            inv.push(item);
+          let buyerNext: Record<string, unknown>;
+          if (isColLot) {
+            buyerNext = {
+              ...buyerHj0,
+              adena: Number(buyerAdena),
+              coinOfLuck: Number(buyerCoin),
+            };
           } else {
-            overflow.push(item);
+            const cap = inventoryCap(buyerHj0);
+            const inv = [...(buyerHj0.inventory || [])];
+            const overflow = [...(buyerHj0.overflowChest || [])];
+            const item = { ...snap, count: qty };
+            if (inv.length < cap) {
+              inv.push(item);
+            } else {
+              overflow.push(item);
+            }
+            buyerNext = {
+              ...buyerHj0,
+              inventory: inv,
+              overflowChest: overflow,
+              adena: Number(buyerAdena),
+              coinOfLuck: Number(buyerCoin),
+            };
           }
-          const buyerNext = {
-            ...buyerHj0,
-            inventory: inv,
-            overflowChest: overflow,
-            adena: Number(buyerAdena),
-            coinOfLuck: Number(buyerCoin),
-          };
           const buyerVal = validateHeroJson(buyerNext);
           if (!buyerVal.valid) {
             return { err: 400 as const, msg: "invalid_buyer_hero", errors: buyerVal.errors };
@@ -803,7 +963,13 @@ export async function marketRoutes(app: FastifyInstance) {
           });
           if (!seller) return { err: 404 as const, msg: "character not found" };
 
-          await applyItemReturnToHero(tx, seller as any, listing.itemSnapshot as any);
+          const cSnap = listing.itemSnapshot as any;
+          if (isCoinLuckListingSnap(cSnap)) {
+            const sc = Math.max(1, Math.floor(Number(cSnap?.count) || 1));
+            await applyCoinLuckReturnToSeller(tx, seller as any, sc);
+          } else {
+            await applyItemReturnToHero(tx, seller as any, listing.itemSnapshot as any);
+          }
           await tx.playerMarketListing.update({
             where: { id: listingId },
             data: { status: "cancelled" },

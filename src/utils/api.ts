@@ -318,11 +318,16 @@ export interface MarketListingDTO {
   expiresAt: string;
 }
 
+export type MarketListingsKindFilter = "all" | "items" | "coin_luck";
+
 export async function fetchMarketListings(
   page = 1,
-  limit = 20
+  limit = 20,
+  kind?: MarketListingsKindFilter
 ): Promise<{ ok: boolean; listings: MarketListingDTO[]; total: number; page: number; limit: number }> {
-  return apiRequest(`/market/listings?page=${page}&limit=${limit}`, { method: "GET" });
+  const q = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (kind && kind !== "all") q.set("kind", kind);
+  return apiRequest(`/market/listings?${q.toString()}`, { method: "GET" });
 }
 
 export async function fetchMyMarketListings(
@@ -337,7 +342,9 @@ export async function fetchMyMarketListings(
 export async function createMarketListingApi(
   characterId: string,
   payload: {
-    inventoryItemId: string;
+    inventoryItemId?: string;
+    /** Валюта з балансу героя (не інвентар); ціна лише в адені */
+    listingKind?: "coin_luck";
     currency: MarketCurrency;
     /** Ціна за 1 шт.; покупець платить unitPrice * amount */
     unitPrice: number;
