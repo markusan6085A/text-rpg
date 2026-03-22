@@ -18,6 +18,7 @@ import { unequipItemLogic } from "../../heroStore/heroInventory";
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import type { Zone } from "../../../data/world/types";
 import { commitMobVictoryToHeroStore } from "../commitMobVictory";
+import { writeDeathGate } from "../../../utils/deathGate";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -490,6 +491,13 @@ export const createProcessMobAttack =
       // Смерть: isDead, hp/mp/cp = 0, зняття бафів і Зарича
       const buffsAfterDeath: any[] = [];
       const deadAt = Date.now();
+      const killerLabel = state.mob?.name ?? "?";
+      const lastDmg = Math.round(heroDamage);
+      writeDeathGate(String((hero as any).id ?? "").trim() || null, hero.name, {
+        killerName: killerLabel,
+        damage: lastDmg,
+        at: deadAt,
+      });
       let equipmentAfterDeath = hero.equipment;
       let equipmentEnchantLevelsAfterDeath = hero.equipmentEnchantLevels;
       let zaricheEquippedUntilAfterDeath = hero.zaricheEquippedUntil;
@@ -511,7 +519,14 @@ export const createProcessMobAttack =
           equipment: equipmentAfterDeath,
           equipmentEnchantLevels: equipmentEnchantLevelsAfterDeath,
           zaricheEquippedUntil: zaricheEquippedUntilAfterDeath,
-          heroJson: { ...existingJson, heroBuffs: [], isDead: true, deadAt } as any,
+          heroJson: {
+            ...existingJson,
+            heroBuffs: [],
+            isDead: true,
+            deadAt,
+            killedByMobName: killerLabel,
+            killedByMobDamage: lastDmg,
+          } as any,
         },
         { persist: true }
       );

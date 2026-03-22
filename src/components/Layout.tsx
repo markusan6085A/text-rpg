@@ -17,6 +17,7 @@ import { useCharacterStore } from "../state/characterStore";
 import { useBattleStore } from "../state/battle/store";
 import { getGameSettings } from "../state/gameSettings";
 import { setString } from "../state/persistence";
+import { clearDeathGate, readDeathGate } from "../utils/deathGate";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -47,23 +48,60 @@ export default function Layout({
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
+  const deathGate = readDeathGate(characterId, hero?.name);
   const dead = hero ? isHeroDead(hero) : false;
+  /** Блокуємо UI, поки є прапорець смерті в LS або герой мертвий за isHeroDead */
+  const blockDeathUi = Boolean(deathGate) || dead;
   const [resurrecting, setResurrecting] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
 
+  // Після F5 merge міг «оживити» HP — якщо death gate ще є, знову фіксуємо смерть.
+  useEffect(() => {
+    if (!deathGate) return;
+    const h = useHeroStore.getState().hero;
+    if (!h?.name) return;
+    if ((h.hp ?? 0) <= 0 && isHeroDead(h)) return;
+    const hj = (h as any).heroJson || {};
+    updateHero(
+      {
+        hp: 0,
+        mp: 0,
+        cp: 0,
+        heroJson: {
+          ...hj,
+          heroBuffs: [],
+          isDead: true,
+          deadAt: deathGate.at,
+          killedByMobName: deathGate.killerName,
+          killedByMobDamage: deathGate.damage,
+        } as any,
+      },
+      { persist: true }
+    );
+  }, [deathGate, updateHero]);
+
   const handleResurrectToCity = async () => {
-    if (!characterId || !navigate || resurrecting) return;
+    if (!characterId || !navigate || !hero?.name || resurrecting) return;
     setResurrecting(true);
     setResurrectInProgress(true);
     try {
       const char = await resurrectCharacter(characterId, 0.7);
       const hj = (char as any)?.heroJson;
+      clearDeathGate(characterId, hero.name);
       if (hj) {
         updateHero({
           hp: Number(hj.hp) || 1,
           mp: Number(hj.mp) ?? 0,
           cp: Number(hj.cp) ?? 0,
-          heroJson: { ...(hero as any)?.heroJson, ...hj, isDead: false, deadAt: 0, heroBuffs: [] } as any,
+          heroJson: {
+            ...(hero as any)?.heroJson,
+            ...hj,
+            isDead: false,
+            deadAt: 0,
+            killedByMobName: undefined,
+            killedByMobDamage: undefined,
+            heroBuffs: [],
+          } as any,
         });
       }
       navigate("/city");
@@ -306,22 +344,47 @@ export default function Layout({
         }
       >
         {showStatusBars && <StatusBars />}
+        {!blockDeathUi ? (
         <TutorialHint
           navigate={navigate}
           showStatusBars={showStatusBars}
           pathname={typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : ""}
           hero={hero}
         />
-        {dead && navigate && (
-          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-auto">
-            <button
-              type="button"
-              onClick={handleResurrectToCity}
-              disabled={resurrecting}
-              className="pointer-events-auto text-[#c7ad80] hover:text-[#f4e2b8] disabled:opacity-60 text-sm cursor-pointer bg-transparent border-none outline-none mt-2"
-            >
-              {resurrecting ? "..." : "Вернуться в город"}
-            </button>
+        ) : null}
+        {blockDeathUi && navigate && (
+          <div
+            className="fixed inset-0 z-[200] flex flex-col items-center justify-center px-4 bg-black/92 pointer-events-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="death-screen-title"
+          >
+            <div className="max-w-md w-full rounded-xl border border-[#8b2942]/80 bg-[#1a0c0c] px-5 py-6 text-center shadow-[0_0_40px_rgba(0,0,0,0.85)]">
+              <h2 id="death-screen-title" className="text-lg font-semibold text-[#f0c0c0] mb-3">
+                {getGameSettings().language === "uk" ? "Ви загинули" : "Вы погибли"}
+              </h2>
+              <p className="text-sm text-[#d4a8a8] leading-relaxed mb-6">
+                {(() => {
+                  const name =
+                    (deathGate?.killerName ??
+                      String((hero as any)?.heroJson?.killedByMobName ?? "").trim()) || "?";
+                  const dmg =
+                    (deathGate?.damage ??
+                      Number((hero as any)?.heroJson?.killedByMobDamage)) || 0;
+                  return getGameSettings().language === "uk"
+                    ? `Вас убило: ${name}. Завдано урону: ${dmg}. Натисніть кнопку нижче — інші дії заблоковані.`
+                    : `Вас убил(а): ${name}. Нанесено урона: ${dmg}. Нажмите кнопку ниже — остальное заблокировано.`;
+                })()}
+              </p>
+              <button
+                type="button"
+                onClick={handleResurrectToCity}
+                disabled={resurrecting}
+                className="w-full py-3 rounded-lg border border-[#c7ad80]/80 text-[#f4e2b8] bg-[#2a1810] hover:bg-[#3d2418] disabled:opacity-60 text-sm font-semibold"
+              >
+                {resurrecting ? "…" : getGameSettings().language === "uk" ? "У місто (70% HP)" : "В город (70% HP)"}
+              </button>
+            </div>
           </div>
         )}
         {cooldownSec > 0 && (
@@ -329,7 +392,7 @@ export default function Layout({
             Забагато запитів. Зачекайте {cooldownSec} сек.
           </div>
         )}
-        <SummonStatus /> {/* Завжди показуємо сумон, якщо він є */}
+        {!blockDeathUi ? <SummonStatus /> : null}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
         {/* <MobDamageNotification navigate={navigate} /> */}
         {showStatusBars ? (
@@ -343,13 +406,13 @@ export default function Layout({
                 : "px-2 py-1 max-[480px]:px-1 sm:px-3"
             } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
           >
-            {!dead && children}
+            {!blockDeathUi && children}
           </div>
         </div>
         
         {/* 🔥 Футер видалено за запитом користувача */}
         </div>
-        {showNavGrid && <NavGrid navigate={navigate} />}
+        {showNavGrid && !blockDeathUi ? <NavGrid navigate={navigate} /> : null}
         <Toast />
       </div>
   );

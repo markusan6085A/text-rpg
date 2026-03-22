@@ -23,6 +23,9 @@ import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../data/world/l2dop/droplistMapping";
 import type { DropEntry } from "../data/combat/types";
+import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
+import { unequipItemLogic } from "../state/heroStore/heroInventory";
+import { writeDeathGate } from "../utils/deathGate";
 
 function formatDropChanceLabel(d: Pick<DropEntry, "chance" | "chancePerMillion">): string {
   if (d.chancePerMillion != null && d.chancePerMillion > 0) {
@@ -88,20 +91,63 @@ function findFirstAggroPatrolMob(ctx: PatrolTickCtx, heroName: string | undefine
   return null;
 }
 
-/** Фіз. урон раз на 3 с — 100% влучання, один моб (перший агро у списку). */
-function runAggressivePatrolHit(ctx: PatrolTickCtx): PatrolAggroBanner | null {
+/**
+ * Фіз. урон раз на 3 с — 100% влучання, один моб (перший агро у списку).
+ * Формула як у processMobAttack для патруля: base = max(5, mobPAtk * 0.8), variance 25%.
+ */
+function runAggressivePatrolHit(ctx: PatrolTickCtx): { banner: PatrolAggroBanner | null; died: boolean } | null {
   const h = useHeroStore.getState().hero;
   if (!h?.name || (h.hp ?? 0) <= 0) return null;
   const picked = findFirstAggroPatrolMob(ctx, h.name);
   if (!picked) return null;
   const { mob, globalIndex } = picked;
-  const pAtk = mob.pAtk ?? Math.round((mob.level ?? 1) * 12);
-  const raw = Math.max(4, pAtk * 0.45) * (0.9 + Math.random() * 0.2);
-  const pDef = h.battleStats?.pDef ?? Math.round((h.level ?? 1) * 10);
+  const mobLevel = mob.level ?? 1;
+  const mobPAtk = mob.pAtk ?? mobLevel * 20;
+  const base = Math.max(5, mobPAtk * 0.8);
+  const raw = base * (0.75 + Math.random() * 0.5);
+  const pDef = h.battleStats?.pDef ?? 0;
   const dmg = Math.max(1, Math.round(raw * (100 / (100 + pDef))));
   const nextHp = Math.max(0, (h.hp ?? 0) - dmg);
-  useHeroStore.getState().updateHero({ hp: nextHp });
-  return { mobIndex: globalIndex, mobName: mob.name, damage: dmg };
+  if (nextHp > 0) {
+    useHeroStore.getState().updateHero({ hp: nextHp });
+    return { banner: { mobIndex: globalIndex, mobName: mob.name, damage: dmg }, died: false };
+  }
+  const deadAt = Date.now();
+  const charId = String((h as any).id ?? "").trim();
+  writeDeathGate(charId || null, h.name, { killerName: mob.name, damage: dmg, at: deadAt });
+  let equipmentAfter = h.equipment;
+  let equipmentEnchantAfter = h.equipmentEnchantLevels;
+  let zaricheUntil = h.zaricheEquippedUntil;
+  if (h.equipment?.weapon === "zariche") {
+    const u = unequipItemLogic(h, "weapon");
+    equipmentAfter = u.equipment;
+    equipmentEnchantAfter = u.equipmentEnchantLevels;
+    zaricheUntil = undefined;
+  }
+  const heroZero = { ...h, hp: 0, maxHp: h.maxHp, equipment: equipmentAfter };
+  const recalculatedDead = recalculateAllStats(heroZero, []);
+  const existingJson = (h as any).heroJson || {};
+  useHeroStore.getState().updateHero(
+    {
+      hp: 0,
+      mp: 0,
+      cp: 0,
+      battleStats: recalculatedDead.finalStats,
+      equipment: equipmentAfter,
+      equipmentEnchantLevels: equipmentEnchantAfter,
+      zaricheEquippedUntil: zaricheUntil,
+      heroJson: {
+        ...existingJson,
+        heroBuffs: [],
+        isDead: true,
+        deadAt,
+        killedByMobName: mob.name,
+        killedByMobDamage: dmg,
+      } as any,
+    },
+    { persist: true }
+  );
+  return { banner: null, died: true };
 }
 
 export default function LocationScreen({ navigate }: { navigate: Navigate }) {
@@ -164,8 +210,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         setPatrolAggroBanner(null);
         return;
       }
-      const msg = runAggressivePatrolHit(c);
-      if (msg) setPatrolAggroBanner(msg);
+      const hit = runAggressivePatrolHit(c);
+      if (!hit) return;
+      if (hit.died) {
+        setPatrolAggroBanner(null);
+        return;
+      }
+      if (hit.banner) setPatrolAggroBanner(hit.banner);
     };
     const id = window.setInterval(tick, 3000);
     return () => clearInterval(id);

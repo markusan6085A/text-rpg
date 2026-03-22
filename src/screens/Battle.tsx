@@ -12,6 +12,7 @@ import { BattlePanel } from "./battle/BattlePanel";
 import { isMobOnRespawn } from "../state/battle/mobRespawns";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { clearDeathGate } from "../utils/deathGate";
 
 type Navigate = (path: string) => void;
 
@@ -60,12 +61,21 @@ export default function Battle({ navigate }: BattleProps) {
     try {
       const char = await resurrectCharacter(characterId, 0.7);
       const hj = (char as any)?.heroJson;
+      if (hero?.name) clearDeathGate(characterId, hero.name);
       if (hj) {
         updateHero({
           hp: Number(hj.hp) || 1,
           mp: Number(hj.mp) ?? 0,
           cp: Number(hj.cp) ?? 0,
-          heroJson: { ...(hero as any)?.heroJson, ...hj, isDead: false, deadAt: 0, heroBuffs: [] } as any,
+          heroJson: {
+            ...(hero as any)?.heroJson,
+            ...hj,
+            isDead: false,
+            deadAt: 0,
+            killedByMobName: undefined,
+            killedByMobDamage: undefined,
+            heroBuffs: [],
+          } as any,
         });
       }
       reset();

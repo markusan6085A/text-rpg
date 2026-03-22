@@ -578,7 +578,6 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const fillMp = newMaxIncreasedMp || oldMaxMp <= 0;
     const fillCp = newMaxIncreasedCp || oldMaxCp <= 0;
 
-    const RESURRECT_ON_LOAD_RATIO = 0.7;
     let finalHp: number;
     let finalMp: number;
     let finalCp: number;
@@ -588,11 +587,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       finalMp = Math.min(finalMaxMp, Math.max(0, Number(localHeroForMerge?.mp ?? 0)));
       finalCp = Math.min(finalMaxCp, Math.max(0, Number(localHeroForMerge?.cp ?? 0)));
     } else if (isDead) {
-      // Після оновлення сторінки після смерті: відновлюємо до 70% max — герой не лишається мертвим
-      finalHp = Math.max(1, Math.round(finalMaxHp * RESURRECT_ON_LOAD_RATIO));
-      finalMp = Math.max(0, Math.round(finalMaxMp * RESURRECT_ON_LOAD_RATIO));
-      finalCp = Math.max(0, Math.round(finalMaxCp * RESURRECT_ON_LOAD_RATIO));
-      isAliveAfterLoad = true;
+      // Після смерті на F5 — залишаємо 0 HP, доки гравець не воскресне через «У місто».
+      finalHp = 0;
+      finalMp = 0;
+      finalCp = 0;
+      isAliveAfterLoad = false;
     } else {
       finalHp = restoreFromPercentOrFallback({
         percentRaw: heroDataAny?.hpPercent,

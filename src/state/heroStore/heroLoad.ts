@@ -300,17 +300,16 @@ export function loadHero(): Hero | null {
     const finalMaxMp = buffedMax.maxMp;
     const finalMaxCp = buffedMax.maxCp;
 
-    // Після оновлення сторінки після смерті: відновлюємо HP/MP/CP до 70% max — герой не лишається мертвим
-    const RESURRECT_ON_LOAD_RATIO = 0.7;
+    // Після смерті на F5 лишаємось мертвими (HP 0), доки гравець не натисне «У місто» в UI (resurrect API).
     let finalHp: number;
     let finalMp: number;
     let finalCp: number;
     let isAliveAfterLoad = isDead;
     if (isDead) {
-      finalHp = Math.max(1, Math.round(finalMaxHp * RESURRECT_ON_LOAD_RATIO));
-      finalMp = Math.max(0, Math.round(finalMaxMp * RESURRECT_ON_LOAD_RATIO));
-      finalCp = Math.max(0, Math.round(finalMaxCp * RESURRECT_ON_LOAD_RATIO));
-      isAliveAfterLoad = true;
+      finalHp = 0;
+      finalMp = 0;
+      finalCp = 0;
+      isAliveAfterLoad = false;
     } else {
       finalHp = restoreFromPercentOrFallback({
         percentRaw: heroJsonAny.hpPercent,
