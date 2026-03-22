@@ -8,8 +8,8 @@ type NavButton = { label: string; path?: string; onClick?: () => void };
 
 /** У прокручуваному контенті. */
 const topRowButtons: NavButton[] = [
-  { label: "Форум", path: "/forum" },
   { label: "Почта", path: "/mail" },
+  { label: "Форум", path: "/forum" },
   { label: "Чат", path: "/chat" },
   { label: "Меню", path: "/about" },
   { label: "Новости", path: "/news" },
@@ -17,27 +17,28 @@ const topRowButtons: NavButton[] = [
 
 /** Fixed знизу. */
 const bottomRowButtons: NavButton[] = [
-  { label: "Город", path: "/city" },
   { label: "Инвентарь", path: "/inventory" },
   { label: "Персонаж", path: "/character" },
-  { label: "Статы", path: "/stats" },
+  { label: "Город", path: "/city" },
   { label: "Клан", path: "/clans" },
+  { label: "Статы", path: "/stats" },
 ];
 
 const topPanelClass =
-  "w-full max-w-full min-w-0 rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-1 py-1.5 sm:px-2 shadow-[0_8px_28px_rgba(0,0,0,0.45)] backdrop-blur-[1px]";
+  "w-full max-w-full min-w-0 rounded-xl border border-[#c7ad80]/80 bg-black/28 px-1.5 py-1.5 sm:px-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_6px_20px_rgba(0,0,0,0.4)] backdrop-blur-[1px]";
 
 const bottomPanelClass =
-  "w-full max-w-full min-w-0 rounded-t-2xl rounded-b-lg border border-[#c7ad80] bg-[#0b0806f0] px-1 py-1.5 sm:px-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] overflow-hidden";
+  "w-full max-w-full min-w-0 rounded-t-xl rounded-b-md border border-[#c7ad80]/80 bg-black/32 px-1.5 py-1 sm:px-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_24px_rgba(0,0,0,0.55)] backdrop-blur-[1px] overflow-hidden";
 
 const textRowClass =
-  "w-full flex flex-row flex-nowrap items-center justify-between gap-0.5 sm:gap-1";
+  "w-full flex flex-row flex-nowrap items-stretch justify-between gap-1 sm:gap-1.5";
 
-const textBtnClass =
-  "flex-1 min-w-0 basis-0 relative flex items-center justify-center rounded-md px-0.5 py-1 sm:py-1.5 text-[#c9a44c] hover:text-[#f4e2b8] hover:bg-black/35 border border-transparent hover:border-[#5c4a32]/45 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40";
+/** Рамка кнопки в теплому L2-стилі. */
+const navItemFrameClass =
+  "flex-1 min-w-0 basis-0 relative flex items-center justify-center rounded-md px-0.5 py-1 sm:py-1.5 border border-[#5c4a32]/65 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.14),0_2px_5px_rgba(0,0,0,0.5)] text-[#e8c56e] hover:from-[#3a3020] hover:to-[#1c1810] hover:border-[#c7ad80]/50 hover:text-[#f4e2b8] active:scale-[0.98] transition-[transform,colors,border-color,box-shadow] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/55";
 
 const textLabelClass =
-  "block w-full text-center text-[9px] sm:text-[10px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis";
+  "block w-full text-center text-[9px] sm:text-[10px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]";
 
 type NavGridContextValue = {
   navigate?: (path: string) => void;
@@ -217,17 +218,17 @@ function NavTextButton({ btn }: { btn: NavButton }) {
     <button
       type="button"
       onClick={() => void handleClick(btn)}
-      className={textBtnClass}
+      className={navItemFrameClass}
       title={btn.label}
     >
       <span className={textLabelClass}>{btn.label}</span>
       {showMailBadge && (
-        <span className="absolute -top-0.5 right-0 min-w-[13px] h-[13px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[13px] text-center">
+        <span className="absolute -top-1 right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
           {unreadCount > 99 ? "99" : unreadCount}
         </span>
       )}
       {showClanBadge && (
-        <span className="absolute -top-0.5 right-0 min-w-[13px] h-[13px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[13px] text-center">
+        <span className="absolute -top-1 right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
           {clanUnreadCount > 99 ? "99" : clanUnreadCount}
         </span>
       )}
@@ -243,7 +244,7 @@ export function NavScrollTopRow() {
   return (
     <div
       className="w-full min-w-0 mb-2 pt-0.5 -mt-0.5"
-      aria-label="Навігація: форум, пошта, чат, меню, новини"
+      aria-label="Навігація: пошта, форум, чат, меню, новини"
     >
       <div className={topPanelClass}>
         <div className={textRowClass}>
@@ -263,7 +264,7 @@ export default function NavGridBottomFixed() {
 
   return (
     <div
-      className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] px-1.5 sm:px-2 md:px-3 pointer-events-none"
+      className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806]/90 to-transparent pt-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] px-1.5 sm:px-2 md:px-3 pointer-events-none"
       data-nav-bottom-dock
     >
       <div className={`${bottomPanelClass} pointer-events-auto`}>

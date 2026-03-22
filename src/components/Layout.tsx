@@ -408,7 +408,7 @@ export default function Layout({
           <NavGridProvider navigate={navigate}>
             <div
               ref={contentRef}
-              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem]"
+              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[5rem] max-[380px]:pb-[4.75rem]"
             >
               <div
                 className={`w-full max-w-full min-w-0 mt-0 ${
@@ -426,7 +426,7 @@ export default function Layout({
         ) : (
           <div
             ref={contentRef}
-            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[8.5rem]"
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[5rem] max-[380px]:pb-[4.75rem]"
           >
             <div
               className={`w-full max-w-full min-w-0 mt-0 ${
