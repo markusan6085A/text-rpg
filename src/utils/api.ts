@@ -339,7 +339,10 @@ export async function createMarketListingApi(
   payload: {
     inventoryItemId: string;
     currency: MarketCurrency;
-    price: number;
+    /** Ціна за 1 шт.; покупець платить unitPrice * amount */
+    unitPrice: number;
+    /** Скільки шт. у лоті (стек) */
+    amount: number;
     /** Точний слот: основний інвентар або переповнення (риба/ресурси тощо) */
     itemSource?: "inventory" | "overflowChest";
     itemIndex?: number;

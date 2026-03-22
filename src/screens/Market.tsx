@@ -36,6 +36,11 @@ function pickKey(p: MarketSellPick): string {
   return `${p.source}:${p.index}`;
 }
 
+function stackCountOfItem(it: HeroInventoryItem): number {
+  const n = Math.floor(Number(it.count) || 1);
+  return n >= 1 ? n : 1;
+}
+
 function displaySellItemName(it: HeroInventoryItem & { itemId?: string }): string {
   const id = itemRowId(it);
   const fromDb = id ? (itemsDB as Record<string, { name?: string }>)[id]?.name : undefined;
@@ -106,9 +111,10 @@ export default function Market({ navigate }: MarketProps) {
   const [myListings, setMyListings] = useState<MarketListingDTO[]>([]);
   const [tick, setTick] = useState(0);
 
-  const [sellPick, setSellPick] = useState<MarketSellPick | null>(null);
+  const [sellModalRow, setSellModalRow] = useState<MarketSellRow | null>(null);
   const [sellCurrency, setSellCurrency] = useState<MarketCurrency>("adena");
-  const [sellPrice, setSellPrice] = useState<string>("1");
+  const [sellUnitPrice, setSellUnitPrice] = useState<string>("1");
+  const [sellAmount, setSellAmount] = useState<string>("1");
   const [sellBusy, setSellBusy] = useState(false);
 
   const [buyBusyId, setBuyBusyId] = useState<string | null>(null);
@@ -157,6 +163,15 @@ export default function Market({ navigate }: MarketProps) {
     );
   }, [hero?.equipment]);
 
+  const sellPreview = useMemo(() => {
+    if (!sellModalRow) return { max: 0, unit: 0, amt: 0, lotTotal: 0 };
+    const max = stackCountOfItem(sellModalRow.item);
+    const unit = Math.floor(Number(String(sellUnitPrice).replace(/\s/g, "")) || 0);
+    const amt = Math.floor(Number(String(sellAmount).replace(/\s/g, "")) || 0);
+    const lotTotal = unit * amt;
+    return { max, unit, amt, lotTotal };
+  }, [sellModalRow, sellUnitPrice, sellAmount]);
+
   const sellRows = useMemo((): MarketSellRow[] => {
     if (!hero) return [];
     const allow = (it: HeroInventoryItem & { itemId?: string }) => {
@@ -177,30 +192,43 @@ export default function Market({ navigate }: MarketProps) {
     return [...invPart, ...ofPart];
   }, [hero, equippedIds]);
 
-  const selectedSellRow: MarketSellRow | undefined = useMemo(() => {
-    if (!sellPick) return undefined;
-    return sellRows.find((r) => r.source === sellPick.source && r.index === sellPick.index);
-  }, [sellRows, sellPick]);
-
   const syncHeroAfterMarket = async (c: Character) => {
     applyMarketCharacterPatch(c);
     const h = await loadHeroFromAPI();
     if (h) useHeroStore.getState().setHero(h);
   };
 
+  const openSellModal = (row: MarketSellRow) => {
+    const max = stackCountOfItem(row.item);
+    setSellModalRow(row);
+    setSellAmount(String(max));
+    setSellUnitPrice("1");
+  };
+
   const onCreateListing = async () => {
-    if (!cid || !sellPick || !selectedSellRow) {
+    if (!cid || !sellModalRow) {
       showToast("Оберіть предмет", "info");
       return;
     }
-    const rowId = itemRowId(selectedSellRow.item);
+    const rowId = itemRowId(sellModalRow.item);
     if (!rowId) {
       showToast("Некоректний предмет", "info");
       return;
     }
-    const price = Math.floor(Number(sellPrice.replace(/\s/g, "")));
-    if (!Number.isFinite(price) || price < 1) {
-      showToast("Вкажіть ціну ≥ 1", "info");
+    const maxAmt = stackCountOfItem(sellModalRow.item);
+    const unit = Math.floor(Number(String(sellUnitPrice).replace(/\s/g, "")));
+    const amt = Math.floor(Number(String(sellAmount).replace(/\s/g, "")));
+    if (!Number.isFinite(unit) || unit < 1) {
+      showToast("Ціна за 1 шт. ≥ 1", "info");
+      return;
+    }
+    if (!Number.isFinite(amt) || amt < 1 || amt > maxAmt) {
+      showToast(`Кількість від 1 до ${maxAmt}`, "info");
+      return;
+    }
+    const total = unit * amt;
+    if (!Number.isFinite(total) || total < 1 || total > Number.MAX_SAFE_INTEGER) {
+      showToast("Занадто велика сума", "info");
       return;
     }
     setSellBusy(true);
@@ -208,13 +236,15 @@ export default function Market({ navigate }: MarketProps) {
       const res = await createMarketListingApi(cid, {
         inventoryItemId: rowId,
         currency: sellCurrency,
-        price,
-        itemSource: sellPick.source,
-        itemIndex: sellPick.index,
+        unitPrice: unit,
+        amount: amt,
+        itemSource: sellModalRow.source,
+        itemIndex: sellModalRow.index,
       });
       showToast("Лот виставлено (24 год)", "success");
-      setSellPick(null);
-      setSellPrice("1");
+      setSellModalRow(null);
+      setSellUnitPrice("1");
+      setSellAmount("1");
       await syncHeroAfterMarket(res.character);
       await refreshBrowse();
       await refreshMine();
@@ -356,6 +386,11 @@ export default function Market({ navigate }: MarketProps) {
                 const own = L.sellerCharacterId === cid;
                 const left = msLeft(L.expiresAt);
                 void tick;
+                const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
+                const lotTotal = L.price;
+                const perUnit =
+                  lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
+                const curLabel = L.currency === "adena" ? "аден" : "CoL";
                 return (
                   <div key={L.id} className={cardRow}>
                     <img
@@ -373,8 +408,9 @@ export default function Market({ navigate }: MarketProps) {
                         Продавець: {L.sellerName}
                       </div>
                       <div className={isL2 ? "text-[10px] text-[#c9a44c] mt-0.5" : "text-[10px] text-amber-300/90 mt-0.5"}>
-                        {L.currency === "adena" ? `${formatNum(L.price)} аден` : `${formatNum(L.price)} CoL`} ·{" "}
-                        {formatTimeLeft(left)}
+                        {lotCnt > 1
+                          ? `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+                          : `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
                       </div>
                     </div>
                     <button
@@ -439,17 +475,12 @@ export default function Market({ navigate }: MarketProps) {
                     .filter((r) => r.source === "inventory")
                     .map((row) => {
                       const it = row.item;
-                      const sel = sellPick && pickKey(sellPick) === pickKey(row);
                       return (
                         <button
                           key={pickKey(row)}
                           type="button"
-                          onClick={() => setSellPick({ source: row.source, index: row.index })}
-                          className={
-                            sel
-                              ? `${cardRow} w-full text-left ring-1 ring-[#c7ad80]/40`
-                              : `${cardRow} w-full text-left opacity-90 hover:opacity-100`
-                          }
+                          onClick={() => openSellModal(row)}
+                          className={`${cardRow} w-full text-left opacity-90 hover:opacity-100`}
                         >
                           <img
                             src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
@@ -475,17 +506,12 @@ export default function Market({ navigate }: MarketProps) {
                     .filter((r) => r.source === "overflowChest")
                     .map((row) => {
                       const it = row.item;
-                      const sel = sellPick && pickKey(sellPick) === pickKey(row);
                       return (
                         <button
                           key={pickKey(row)}
                           type="button"
-                          onClick={() => setSellPick({ source: row.source, index: row.index })}
-                          className={
-                            sel
-                              ? `${cardRow} w-full text-left ring-1 ring-[#c7ad80]/40`
-                              : `${cardRow} w-full text-left opacity-90 hover:opacity-100`
-                          }
+                          onClick={() => openSellModal(row)}
+                          className={`${cardRow} w-full text-left opacity-90 hover:opacity-100`}
                         >
                           <img
                             src={normalizeIconPath(it.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"}
@@ -505,58 +531,9 @@ export default function Market({ navigate }: MarketProps) {
                 </>
               )}
             </div>
-            {selectedSellRow && (
-              <div className="space-y-2 border-t border-[#5c4a32]/35 pt-3">
-                <div className="flex gap-2 justify-center">
-                  <button
-                    type="button"
-                    onClick={() => setSellCurrency("adena")}
-                    className={
-                      sellCurrency === "adena"
-                        ? "text-[11px] px-3 py-1 rounded-full border border-[#c7ad80]/50 text-[#e8c56e]"
-                        : "text-[11px] px-3 py-1 rounded-full border border-[#5c4a32]/40 text-[#8a7a60]"
-                    }
-                  >
-                    Адена
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSellCurrency("coinLuck")}
-                    className={
-                      sellCurrency === "coinLuck"
-                        ? "text-[11px] px-3 py-1 rounded-full border border-[#c7ad80]/50 text-[#e8c56e]"
-                        : "text-[11px] px-3 py-1 rounded-full border border-[#5c4a32]/40 text-[#8a7a60]"
-                    }
-                  >
-                    Coin of Luck
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={sellPrice}
-                  onChange={(e) => setSellPrice(e.target.value.replace(/[^\d]/g, ""))}
-                  placeholder="Ціна"
-                  className={
-                    isL2
-                      ? "w-full rounded-md bg-black/40 border border-[#5c4a32]/55 px-3 py-2 text-[13px] text-[#e8dcc8]"
-                      : "w-full rounded-md bg-black/50 border border-black/60 px-3 py-2 text-sm text-amber-100"
-                  }
-                />
-                <button
-                  type="button"
-                  disabled={sellBusy}
-                  onClick={() => void onCreateListing()}
-                  className={
-                    isL2
-                      ? "w-full py-2.5 rounded-md bg-black/35 border border-[#c7ad80]/40 text-[#e8c56e] text-[12px] font-semibold hover:brightness-110 disabled:opacity-50"
-                      : "w-full py-2.5 rounded-md bg-amber-900/40 border border-amber-700/50 text-[#f4e2b8] text-sm disabled:opacity-50"
-                  }
-                >
-                  {sellBusy ? "…" : "Выставить на продажу (24 ч)"}
-                </button>
-              </div>
-            )}
+            <p className={isL2 ? "text-[10px] text-[#6a5a48] text-center" : "text-[10px] text-gray-500 text-center"}>
+              Натисніть предмет — відкриється вікно: кількість і ціна за 1 шт. Покупець платить добуток (наприклад 10×100 = 1000 аден).
+            </p>
           </div>
         )}
 
@@ -576,6 +553,11 @@ export default function Market({ navigate }: MarketProps) {
                 const it = L.itemSnapshot as HeroInventoryItem & { itemId?: string };
                 const left = msLeft(L.expiresAt);
                 void tick;
+                const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
+                const lotTotal = L.price;
+                const perUnit =
+                  lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
+                const curLabel = L.currency === "adena" ? "аден" : "CoL";
                 return (
                   <div key={L.id} className={cardRow}>
                     <img
@@ -587,10 +569,12 @@ export default function Market({ navigate }: MarketProps) {
                     <div className="flex-1 min-w-0">
                       <div className={isL2 ? "text-[12px] text-[#e8dcc8] truncate" : "text-sm truncate"}>
                         {displaySellItemName(it)}
+                        {it?.count && it.count > 1 ? ` ×${it.count}` : ""}
                       </div>
                       <div className={isL2 ? "text-[10px] text-[#c9a44c]" : "text-[10px] text-amber-300"}>
-                        {L.currency === "adena" ? `${formatNum(L.price)} аден` : `${formatNum(L.price)} CoL`} ·{" "}
-                        {formatTimeLeft(left)}
+                        {lotCnt > 1
+                          ? `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+                          : `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
                       </div>
                     </div>
                     <button
@@ -628,6 +612,145 @@ export default function Market({ navigate }: MarketProps) {
           </button>
         </div>
       </div>
+
+      {sellModalRow && (
+        <div
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-3 bg-black/75"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="market-sell-title"
+          onClick={() => {
+            if (!sellBusy) setSellModalRow(null);
+          }}
+        >
+          <div
+            className={
+              isL2
+                ? "w-full max-w-sm rounded-xl border border-[#c7ad80]/45 shadow-[0_16px_48px_rgba(0,0,0,0.75)] bg-[linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)] p-4 space-y-3 max-h-[90vh] overflow-y-auto"
+                : "w-full max-w-sm rounded-xl border border-amber-800/50 bg-[#1a1510] p-4 space-y-3 max-h-[90vh] overflow-y-auto"
+            }
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div id="market-sell-title" className={isL2 ? "text-center text-[13px] font-semibold text-[#e8c56e]" : "text-center text-sm font-semibold text-amber-100"}>
+              Виставити на ринок
+            </div>
+            <div className="flex gap-3 items-center">
+              <img
+                src={
+                  normalizeIconPath(sellModalRow.item.icon) || "/items/drops/Weapon_squires_sword_i00_0.jpg"
+                }
+                alt=""
+                className="w-12 h-12 object-contain rounded border border-[#5c4a32]/40 bg-black/40 shrink-0"
+                onError={handleResourceIconError}
+              />
+              <div className="min-w-0 flex-1">
+                <div className={isL2 ? "text-[12px] text-[#e8dcc8] font-medium truncate" : "text-sm text-amber-50 truncate"}>
+                  {displaySellItemName(sellModalRow.item)}
+                </div>
+                <div className={isL2 ? "text-[10px] text-[#8a7a60] mt-0.5" : "text-[10px] text-gray-500 mt-0.5"}>
+                  У вас: {sellPreview.max} шт.
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className={isL2 ? "text-[10px] text-[#a89878]" : "text-[10px] text-gray-400"}>Кількість</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={sellAmount}
+                onChange={(e) => setSellAmount(e.target.value.replace(/[^\d]/g, ""))}
+                className={
+                  isL2
+                    ? "w-full rounded-md bg-black/40 border border-[#5c4a32]/55 px-3 py-2 text-[13px] text-[#e8dcc8]"
+                    : "w-full rounded-md bg-black/50 border border-black/60 px-3 py-2 text-sm text-amber-100"
+                }
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className={isL2 ? "text-[10px] text-[#a89878]" : "text-[10px] text-gray-400"}>
+                Ціна за 1 шт.
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={sellUnitPrice}
+                onChange={(e) => setSellUnitPrice(e.target.value.replace(/[^\d]/g, ""))}
+                className={
+                  isL2
+                    ? "w-full rounded-md bg-black/40 border border-[#5c4a32]/55 px-3 py-2 text-[13px] text-[#e8dcc8]"
+                    : "w-full rounded-md bg-black/50 border border-black/60 px-3 py-2 text-sm text-amber-100"
+                }
+              />
+            </div>
+
+            <div className="flex gap-2 justify-center">
+              <button
+                type="button"
+                onClick={() => setSellCurrency("adena")}
+                className={
+                  sellCurrency === "adena"
+                    ? "text-[11px] px-3 py-1 rounded-full border border-[#c7ad80]/50 text-[#e8c56e]"
+                    : "text-[11px] px-3 py-1 rounded-full border border-[#5c4a32]/40 text-[#8a7a60]"
+                }
+              >
+                Адена
+              </button>
+              <button
+                type="button"
+                onClick={() => setSellCurrency("coinLuck")}
+                className={
+                  sellCurrency === "coinLuck"
+                    ? "text-[11px] px-3 py-1 rounded-full border border-[#c7ad80]/50 text-[#e8c56e]"
+                    : "text-[11px] px-3 py-1 rounded-full border border-[#5c4a32]/40 text-[#8a7a60]"
+                }
+              >
+                Coin of Luck
+              </button>
+            </div>
+
+            <div className={isL2 ? "text-[11px] text-[#c9a44c] text-center" : "text-[11px] text-amber-200/90 text-center"}>
+              Покупець заплатить:{" "}
+              <span className="font-semibold">
+                {sellCurrency === "adena"
+                  ? `${formatNum(sellPreview.lotTotal)} аден`
+                  : `${formatNum(sellPreview.lotTotal)} CoL`}
+              </span>
+              {sellPreview.max > 1 && sellPreview.unit > 0 && sellPreview.amt > 0 ? (
+                <span className="text-[#8a7a60]"> ({sellPreview.amt}×{formatNum(sellPreview.unit)})</span>
+              ) : null}
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                disabled={sellBusy}
+                onClick={() => !sellBusy && setSellModalRow(null)}
+                className={
+                  isL2
+                    ? "flex-1 py-2.5 rounded-md border border-[#5c4a32]/55 text-[11px] text-[#a89878] hover:bg-black/25"
+                    : "flex-1 py-2.5 rounded-md border border-black/50 text-[11px] text-gray-400"
+                }
+              >
+                Скасувати
+              </button>
+              <button
+                type="button"
+                disabled={sellBusy}
+                onClick={() => void onCreateListing()}
+                className={
+                  isL2
+                    ? "flex-1 py-2.5 rounded-md bg-black/35 border border-[#c7ad80]/40 text-[#e8c56e] text-[11px] font-semibold hover:brightness-110 disabled:opacity-50"
+                    : "flex-1 py-2.5 rounded-md bg-amber-900/40 border border-amber-700/50 text-[#f4e2b8] text-[11px] disabled:opacity-50"
+                }
+              >
+                {sellBusy ? "…" : "На 24 год"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

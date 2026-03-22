@@ -48,6 +48,32 @@ function rowItemId(x: any): string {
   return String(x?.id ?? x?.itemId ?? "").trim();
 }
 
+function stackCountOf(item: any): number {
+  const n = Math.floor(Number(item?.count) || 1);
+  return n >= 1 ? n : 1;
+}
+
+/** Знімає `take` шт. зі слота: решта лишається в тому ж індексі або рядок видаляється. */
+function takeStackFromSlot(
+  arr: any[],
+  idx: number,
+  take: number
+): { nextArr: any[]; snapshot: any } | { err: string } {
+  if (idx < 0 || idx >= arr.length) return { err: "invalid_item_index" };
+  const row = arr[idx];
+  if (!row || typeof row !== "object") return { err: "invalid_item" };
+  const sc = stackCountOf(row);
+  if (take < 1 || take > sc) return { err: "invalid_amount" };
+  const next = [...arr];
+  if (take === sc) {
+    next.splice(idx, 1);
+  } else {
+    next[idx] = { ...row, count: sc - take };
+  }
+  const snapshot = JSON.parse(JSON.stringify({ ...row, count: take }));
+  return { nextArr: next, snapshot };
+}
+
 async function applyItemReturnToHero(
   tx: Tx,
   seller: { id: string; name: string; race: string; classId: string; level: number; heroJson: any },
@@ -184,7 +210,8 @@ export async function marketRoutes(app: FastifyInstance) {
     return { ok: true, listings };
   });
 
-  // POST /market/listings  { characterId, inventoryItemId, currency, price, itemSource?, itemIndex? }
+  // POST /market/listings  { characterId, inventoryItemId, currency, unitPrice, amount?, itemSource?, itemIndex? }
+  // або legacy: price (загальна сума за весь стек), без unitPrice
   // itemSource: "inventory" | "overflowChest" + itemIndex — точний слот (стек риби/ресурсів у overflow)
   app.post(
     "/market/listings",
@@ -203,14 +230,24 @@ export async function marketRoutes(app: FastifyInstance) {
         characterId?: string;
         inventoryItemId?: string;
         currency?: string;
+        /** Загальна ціна лоту (старий клієнт): за весь стек одним платежем */
         price?: number;
+        /** Ціна за 1 шт.; разом з amount дає total = unitPrice * amount */
+        unitPrice?: number;
+        /** Скільки шт. виставити (стек); за замовчуванням — увесь стек */
+        amount?: number;
         itemSource?: string;
         itemIndex?: number;
       };
       const characterId = String(body.characterId || "").trim();
       const inventoryItemId = String(body.inventoryItemId || "").trim();
       const currency = String(body.currency || "").trim();
-      const priceNum = typeof body.price === "number" ? body.price : Number(body.price);
+      const priceNumLegacy = typeof body.price === "number" ? body.price : Number(body.price);
+      const unitPriceRaw = body.unitPrice;
+      const unitPriceNum =
+        typeof unitPriceRaw === "number" ? unitPriceRaw : Number(unitPriceRaw);
+      const amountRaw = body.amount;
+      const amountNum = typeof amountRaw === "number" ? amountRaw : Number(amountRaw);
 
       if (!characterId || !inventoryItemId) {
         return reply.code(400).send({ error: "characterId and inventoryItemId required" });
@@ -218,10 +255,6 @@ export async function marketRoutes(app: FastifyInstance) {
       if (currency !== "adena" && currency !== "coinLuck") {
         return reply.code(400).send({ error: "currency must be adena or coinLuck" });
       }
-      if (!Number.isFinite(priceNum) || priceNum < 1 || priceNum > Number.MAX_SAFE_INTEGER) {
-        return reply.code(400).send({ error: "invalid price" });
-      }
-      const price = BigInt(Math.floor(priceNum));
 
       try {
         const result = await prisma.$transaction(async (tx) => {
@@ -257,8 +290,8 @@ export async function marketRoutes(app: FastifyInstance) {
               : null;
 
           let removed: any;
-          let nextInv = inv;
-          let nextOverflow = overflow;
+          let slotKind: "inventory" | "overflowChest" = "inventory";
+          let slotIndex = -1;
 
           if (src !== null && ix !== null) {
             if (src === "inventory") {
@@ -272,8 +305,8 @@ export async function marketRoutes(app: FastifyInstance) {
               for (const k of Object.keys(eq)) {
                 if (eq[k] === rid) return { err: 400 as const, msg: "item_is_equipped" };
               }
-              nextInv = [...inv];
-              nextInv.splice(ix, 1);
+              slotKind = "inventory";
+              slotIndex = ix;
             } else {
               if (ix < 0 || ix >= overflow.length) return { err: 400 as const, msg: "invalid_item_index" };
               removed = overflow[ix];
@@ -281,8 +314,8 @@ export async function marketRoutes(app: FastifyInstance) {
               if (!rid) return { err: 400 as const, msg: "invalid_item" };
               if (rid === "overflow_chest") return { err: 400 as const, msg: "cannot_list_overflow_chest" };
               if (rid !== inventoryItemId) return { err: 400 as const, msg: "item_id_mismatch" };
-              nextOverflow = [...overflow];
-              nextOverflow.splice(ix, 1);
+              slotKind = "overflowChest";
+              slotIndex = ix;
             }
           } else {
             let idx = inv.findIndex((x: any) => x && rowItemId(x) === inventoryItemId);
@@ -297,8 +330,8 @@ export async function marketRoutes(app: FastifyInstance) {
                   return { err: 400 as const, msg: "item_is_equipped" };
                 }
               }
-              nextInv = [...inv];
-              nextInv.splice(idx, 1);
+              slotKind = "inventory";
+              slotIndex = idx;
             } else {
               idx = overflow.findIndex((x: any) => x && rowItemId(x) === inventoryItemId);
               if (idx < 0) return { err: 400 as const, msg: "item_not_in_inventory" };
@@ -306,12 +339,55 @@ export async function marketRoutes(app: FastifyInstance) {
               if (rowItemId(removed) === "overflow_chest") {
                 return { err: 400 as const, msg: "cannot_list_overflow_chest" };
               }
-              nextOverflow = [...overflow];
-              nextOverflow.splice(idx, 1);
+              slotKind = "overflowChest";
+              slotIndex = idx;
             }
           }
 
-          const snapshot = JSON.parse(JSON.stringify(removed));
+          const sc = stackCountOf(removed);
+          const useUnitPrice =
+            unitPriceRaw !== undefined &&
+            unitPriceRaw !== null &&
+            String(unitPriceRaw).trim() !== "" &&
+            Number.isFinite(unitPriceNum) &&
+            Math.floor(unitPriceNum) >= 1;
+
+          let listAmount: number;
+          let price: bigint;
+
+          if (useUnitPrice) {
+            const up = Math.floor(unitPriceNum);
+            listAmount =
+              amountRaw !== undefined && amountRaw !== null && String(amountRaw).trim() !== "" && Number.isFinite(amountNum)
+                ? Math.floor(amountNum)
+                : sc;
+            if (listAmount < 1 || listAmount > sc) {
+              return { err: 400 as const, msg: "invalid_amount" };
+            }
+            const prod = BigInt(up) * BigInt(listAmount);
+            if (prod < 1n || prod > MAX_SAFE) {
+              return { err: 400 as const, msg: "invalid price" };
+            }
+            price = prod;
+          } else {
+            if (!Number.isFinite(priceNumLegacy) || priceNumLegacy < 1 || priceNumLegacy > Number.MAX_SAFE_INTEGER) {
+              return { err: 400 as const, msg: "invalid price" };
+            }
+            listAmount = sc;
+            price = BigInt(Math.floor(priceNumLegacy));
+          }
+
+          const arr = slotKind === "inventory" ? inv : overflow;
+          const taken = takeStackFromSlot(arr, slotIndex, listAmount);
+          if ("err" in taken) {
+            const m = taken.err;
+            if (m === "invalid_amount") return { err: 400 as const, msg: "invalid_amount" };
+            return { err: 400 as const, msg: m };
+          }
+          const nextInv = slotKind === "inventory" ? taken.nextArr : inv;
+          const nextOverflow = slotKind === "overflowChest" ? taken.nextArr : overflow;
+
+          const snapshot = taken.snapshot;
           if (!snapshot.id && snapshot.itemId) snapshot.id = snapshot.itemId;
 
           const nextHj = { ...hj0, inventory: nextInv, overflowChest: nextOverflow };
