@@ -157,9 +157,10 @@ export default function Register({ navigate }: RegisterProps) {
         gender,
       });
 
-      // 4. Збереження heroJson через API
+      // 4. Збереження heroJson через API (+ колонка adena, щоб GET/merge не бачили 0 замість старту з heroJson)
       await updateCharacter(character.id, {
         heroJson: coreHero,
+        adena: coreHero.adena,
       });
 
       // 5. Очищаємо бафи з попереднього героя при створенні нового

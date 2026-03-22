@@ -416,7 +416,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       fixedHero.level = character.level;
       fixedHero.exp = Number(character.exp);
       fixedHero.sp = readCharacterProgress(character).sp;
-      fixedHero.adena = character.adena;
+      // heroJson порожній — newHero вже має стартову адену; колонка character.adena може бути 0 (старий бекенд)
+      fixedHero.adena = Math.max(
+        Number(newHero.adena ?? 0),
+        Number(character.adena ?? 0),
+      );
       fixedHero.coinOfLuck = character.coinLuck;
       (fixedHero as any).coins_silver = (character as any).coinsSilver ?? 0;
       fixedHero.aa = character.aa || 0;
@@ -447,12 +451,15 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // 🔥 КРИТИЧНО: Не посилатися на fixedHero до його ініціалізації (ReferenceError якщо heroData.skills порожні)
       const serverSkillsArr = Array.isArray((heroData as any).skills) ? (heroData as any).skills : [];
       
+      const heroJsonAdena = Number((heroData as any).adena ?? 0);
+      const characterAdena = Number(character.adena ?? 0);
       fixedHero = fixHeroProfession({
         ...heroData,
         level: finalLevel,
         exp: finalExp,
         sp: readCharacterProgress(character).sp,
-        adena: character.adena,
+        // Після реєстрації адена в heroJson (createNewHero); колонка БД могла лишатися 0 — не затирати
+        adena: Math.max(heroJsonAdena, characterAdena),
         coinOfLuck: character.coinLuck,
         coins_silver: (character as any).coinsSilver ?? 0,
         aa: character.aa || 0,
@@ -686,7 +693,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const dailyQuestsResetDate = (fixedHero as any).dailyQuestsResetDate ?? (heroData as any)?.dailyQuestsResetDate ?? localHeroForMerge?.dailyQuestsResetDate;
 
     // 🔥 КРИТИЧНО: adena — max(локаль, сервер), щоб після продажу GET не перезаписував нову адена старим значенням з API
-    const serverAdenaVal = Number(fixedHero.adena ?? (heroData as any)?.adena ?? 0);
+    // fixedHero.adena може бути 0 при валідному 0 у колонці; heroJson.adena тоді губився через ?? (0 не nullish)
+    const serverAdenaVal = Math.max(
+      Number(fixedHero.adena ?? 0),
+      Number((heroData as any)?.adena ?? 0),
+      Number(character.adena ?? 0),
+    );
     const localAdenaVal = Number(localHeroForMerge?.adena ?? (localHeroForMerge as any)?.heroJson?.adena ?? 0);
     const finalAdena = Math.max(serverAdenaVal, localAdenaVal);
 
