@@ -9,8 +9,8 @@ alwaysApply: false
 Коли ресурс у itemsDB не має іконки або іконка не завантажується (404):
 
 1. **Взяти іконку з L2DOP** (l2dop.com) — стандартні L2 іконки
-2. **Додати в проєкт**: `public/items/drops/resourcesss/` — єдина папка для іконок ресурсів
-3. **Оновити itemsDB**: `icon: "/items/drops/resourcesss/файл.jpg"`
-4. **Наявні L2-іконки** у проєкті (fallback): `Etc_mineral_general_i03_0.jpg`, `Etc_mineral_rare_i03_0.jpg`, `Etc_mineral_special_i03_0.jpg`, `Etc_mineral_unique_i03_0.jpg`, `Etc_bead_*`
+2. **Додати в проєкт**: `public/items/drops/resources/l2dop-by-itemid/{L2_item_id}.jpg` (або іменовані .jpg у тій самій папці для крафту)
+3. **Оновити itemsDB**: `icon: "/items/drops/resources/l2dop-by-itemid/…"`
+4. **Наявні L2-іконки** у проєкті (fallback у `handleResourceIconError`): `Etc_mineral_general_i03_0.jpg`, тощо
 
-Коректний шлях: `/items/drops/resourcesss/` (єдина папка для ресурсів).
+Папку `resourcesss` не використовувати — видалена з проєкту.

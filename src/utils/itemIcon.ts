@@ -1,6 +1,6 @@
 /**
  * Утиліти для іконок предметів.
- * Ресурси: /items/drops/resources/; fallback на resourcesss при 404.
+ * Ресурси: /items/drops/resources/ (у т.ч. l2dop-by-itemid для L2 id).
  */
 
 /** Аліаси id -> filename для ресурсів без запису в itemsDB. Synthetic_Cokes видалено — fallback на Etc_bead */
@@ -24,51 +24,7 @@ export function normalizeIconPath(icon: string | undefined): string {
 
 export const FALLBACK_ICON = "/items/drops/Weapon_squires_sword_i00_0.jpg";
 
-/** Якщо шлях з resources і не завантажився — повертає той самий шлях з resourcesss */
-function getResourceFallbackPath(path: string): string {
-  if (path.includes("/drops/resources/")) {
-    return path.replace("/drops/resources/", "/drops/resourcesss/");
-  }
-  return path;
-}
-
-/**
- * Обробник onError для іконок ресурсів:
- * 1) Artisan_Frame.jpg → Artisans_Frame.jpg (ім’я файлу в public)
- * 2) l2dop-by-itemid ↔ l2drop-by-itemid (одна спроба альтернативної папки)
- * 3) resources → resourcesss
- * 4) заглушка
- */
+/** Після невдалого завантаження — заглушка (без папки resourcesss). */
 export function handleResourceIconError(e: React.SyntheticEvent<HTMLImageElement>): void {
-  const img = e.target as HTMLImageElement;
-  const raw = (img.getAttribute("src") || "").split("?")[0];
-
-  if (raw.includes("Artisan_Frame.jpg") && img.dataset.artisanFilenameAlt !== "1") {
-    img.dataset.artisanFilenameAlt = "1";
-    img.src = raw.replace("Artisan_Frame.jpg", "Artisans_Frame.jpg");
-    return;
-  }
-  if (img.dataset.l2ItemIdFolderTried !== "1") {
-    if (raw.includes("/l2dop-by-itemid/")) {
-      img.dataset.l2ItemIdFolderTried = "1";
-      img.src = raw.replace("/l2dop-by-itemid/", "/l2drop-by-itemid/");
-      return;
-    }
-    if (raw.includes("/l2drop-by-itemid/")) {
-      img.dataset.l2ItemIdFolderTried = "1";
-      img.src = raw.replace("/l2drop-by-itemid/", "/l2dop-by-itemid/");
-      return;
-    }
-  }
-
-  if (img.src.includes("/drops/resourcesss/") || img.src.includes(FALLBACK_ICON)) {
-    img.src = FALLBACK_ICON;
-    return;
-  }
-  const fallback = getResourceFallbackPath(img.src);
-  if (fallback !== img.src) {
-    img.src = fallback;
-  } else {
-    img.src = FALLBACK_ICON;
-  }
+  (e.target as HTMLImageElement).src = FALLBACK_ICON;
 }

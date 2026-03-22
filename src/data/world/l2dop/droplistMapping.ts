@@ -60,11 +60,11 @@ export function l2ItemIdToString(itemId: number): string | undefined {
   return DROPLIST_ITEM_ID_TO_STRING[itemId];
 }
 
-/** Іконка `l2drop-by-itemid/{L2 id}.jpg` (основна папка; l2dop — fallback у handleResourceIconError). */
+/** Іконка `l2dop-by-itemid/{L2 id}.jpg` (див. tools/sync-l2xml-drop-icons.mjs). */
 export function getL2dopResourceIconPath(stringId: string): string | undefined {
   const l2 = STRING_ID_TO_L2_ITEM_ID[stringId];
   if (l2 === undefined) return undefined;
-  return `/items/drops/resources/l2drop-by-itemid/${l2}.jpg`;
+  return `/items/drops/resources/l2dop-by-itemid/${l2}.jpg`;
 }
 
 const RECIPE_NAME_RE = /^Recipe\s*:/i;
@@ -78,7 +78,7 @@ export function isL2RecipeDrop(entry: { kind: string; displayName?: string }): b
 
 /**
  * Іконка для синтетичного дропу l2item_*: ресурси → resources/…, рецепти → recipes/…
- * `public/items/drops/{resources|recipes}/l2drop-by-itemid/{l2ItemId}.jpg`
+ * `public/items/drops/{resources|recipes}/l2dop-by-itemid/{l2ItemId}.jpg`
  */
 export function getL2DropEntryByItemIdPath(entry: {
   kind: string;
@@ -87,5 +87,5 @@ export function getL2DropEntryByItemIdPath(entry: {
 }): string | undefined {
   if (entry.l2ItemId == null) return undefined;
   const sub = isL2RecipeDrop(entry) ? "recipes" : "resources";
-  return `/items/drops/${sub}/l2drop-by-itemid/${entry.l2ItemId}.jpg`;
+  return `/items/drops/${sub}/l2dop-by-itemid/${entry.l2ItemId}.jpg`;
 }
