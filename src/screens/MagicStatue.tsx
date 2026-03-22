@@ -146,8 +146,14 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     navigate(currentPath);
   };
 
-  const hasActiveBuffs = activeBufferBuffs.length > 0 && 
-    activeBufferBuffs.some((b) => b.expiresAt > now);
+  const hasActiveBuffs =
+    activeBufferBuffs.length > 0 && activeBufferBuffs.some((b) => b.expiresAt > now);
+
+  const bufferExpiresAt = hasActiveBuffs
+    ? Math.min(...activeBufferBuffs.filter((b) => b.expiresAt > now).map((b) => b.expiresAt))
+    : 0;
+  const bufferTimeLeftSec = hasActiveBuffs ? Math.max(0, Math.floor((bufferExpiresAt - now) / 1000)) : 0;
+  const bufferTimeLabel = `${Math.floor(bufferTimeLeftSec / 60)}:${String(bufferTimeLeftSec % 60).padStart(2, "0")}`;
 
   // Видаляємо ВСІ бафи (і від статуї, і від скілів) — з першого натискання
   const removeAllBufferBuffs = () => {
@@ -200,6 +206,22 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     navigate(currentPath);
   };
 
+  const heroArtWrapL2 =
+    "rounded-lg border border-[#6b5a3e]/55 bg-[radial-gradient(ellipse_90%_70%_at_50%_15%,rgba(199,173,128,0.12)_0%,transparent_60%),linear-gradient(180deg,#1a1610_0%,#0c0a08_100%)] p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_24px_rgba(0,0,0,0.45)]";
+  const sectionCardL2 =
+    "rounded-lg border border-[#5c4a32]/45 bg-[linear-gradient(180deg,rgba(24,20,14,0.92)_0%,rgba(10,9,7,0.97)_100%)] px-3 py-3 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]";
+  const btnRestoreL2 =
+    "w-full text-left sm:text-center text-[12px] py-2.5 px-3 rounded-md border border-[#2d6b45]/75 bg-gradient-to-b from-[#1f4a32] to-[#0f2418] text-[#c8f0d4] shadow-[inset_0_1px_0_rgba(140,220,160,0.15),0_4px_14px_rgba(0,0,0,0.4)] hover:border-[#3bd16f]/55 hover:from-[#255a3e] hover:to-[#122818] active:scale-[0.99] transition-[border-color,transform,filter] duration-150";
+  const btnBuffL2 =
+    "w-full text-[12px] py-2.5 px-3 rounded-md border text-[#f4ead0] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_4px_16px_rgba(0,0,0,0.45)] active:scale-[0.99] transition-[border-color,transform,opacity] duration-150 font-medium";
+  const btnBuffL2On =
+    "border-[#6b5a8a]/80 bg-gradient-to-b from-[#3a3260] via-[#2a2648] to-[#151022] hover:border-[#9b8fd4]/55 hover:brightness-110";
+  const btnBuffL2Off = "border-[#3d3d3d]/80 bg-[#1a1a1a]/80 text-[#6a6a6a] cursor-not-allowed opacity-70 shadow-none";
+  const btnRemoveL2 =
+    "w-full text-[12px] py-2.5 px-3 rounded-md border border-[#8b3a3a]/75 bg-gradient-to-b from-[#4a2222] to-[#1a0c0c] text-[#f0c8c8] shadow-[inset_0_1px_0_rgba(255,160,160,0.1),0_4px_14px_rgba(0,0,0,0.45)] hover:border-[#c75c5c]/60 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150";
+  const btnCityL2 =
+    "w-full text-[12px] py-2.5 px-3 rounded-md border border-[#6b5940]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[#d4c4a8] shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_4px_14px_rgba(0,0,0,0.4)] hover:border-[#c7ad80]/45 hover:text-[#f4e2b8] active:scale-[0.99] transition-[border-color,color,transform] duration-150";
+
   return (
     <div
       className={
@@ -209,103 +231,127 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
       }
     >
       <div className={isL2 ? "w-full max-w-[420px] mx-auto space-y-3" : "w-full max-w-[360px] mx-auto space-y-3"}>
-        {/* Картинка */}
-        <div className="flex justify-center mb-2">
-          <img src="/stats.jpg" alt="stats" className="h-auto w-[80%] max-h-32" />
+        <div className={isL2 ? heroArtWrapL2 : "flex justify-center mb-1"}>
+          <div className="flex justify-center">
+            <img
+              src="/stats.jpg"
+              alt=""
+              className={
+                isL2
+                  ? "h-auto w-full max-w-[320px] max-h-36 rounded-md object-cover opacity-95"
+                  : "h-auto w-[80%] max-h-32"
+              }
+            />
+          </div>
         </div>
-        
-        {/* Заголовок */}
-        <div className="text-center">
+
+        <div className={isL2 ? sectionCardL2 : "text-center"}>
+          <div className="text-center">
+            {isL2 && (
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="h-px w-10 bg-gradient-to-r from-transparent to-[#c7ad80]/45" />
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[#a89878]">храм буфера</span>
+                <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#c7ad80]/45" />
+              </div>
+            )}
+            <div
+              className={
+                isL2
+                  ? "text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-b from-[#fff4d4] via-[#e8c56e] to-[#a67c2c] [text-shadow:none] drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]"
+                  : "text-lg font-semibold mb-1 text-green-500"
+              }
+            >
+              Магическая статуя
+            </div>
+            <div className={isL2 ? "text-[13px] text-[#b8a88a] mt-1" : "text-sm text-gray-400"}>
+              Бесплатные баффы на 1 час
+            </div>
+          </div>
+
           <div
             className={
               isL2
-                ? "text-lg font-semibold mb-1 text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
-                : "text-lg font-semibold mb-1 text-green-500"
+                ? "mt-3 pt-3 border-t border-[#c7ad80]/15 flex flex-wrap gap-2 justify-center"
+                : "flex flex-wrap gap-2 justify-center mt-2"
             }
           >
-            Магическая статуя
+            {BUFFER_BUFFS.map((buffDef) => {
+              const activeBuff = activeBufferBuffs.find((b) => b.stackType === buffDef.stackType);
+              const isActive = !!activeBuff && activeBuff.expiresAt > now;
+
+              return (
+                <div
+                  key={buffDef.id}
+                  className={
+                    isL2
+                      ? `relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-md overflow-hidden border transition-shadow duration-200 ${
+                          isActive
+                            ? "border-[#3bd16f]/55 shadow-[0_0_12px_rgba(59,209,111,0.2),inset_0_0_8px_rgba(0,0,0,0.6)] bg-[#0d0b08]"
+                            : "border-[#5c4a32]/40 bg-black/35 opacity-80"
+                        }`
+                      : "relative w-4 h-4 flex items-center justify-center"
+                  }
+                  title={buffDef.name}
+                >
+                  <img
+                    src={buffDef.icon}
+                    alt={buffDef.name}
+                    className={
+                      isL2
+                        ? `w-[26px] h-[26px] sm:w-7 sm:h-7 object-cover rounded-sm ${isActive ? "opacity-100" : "opacity-55"}`
+                        : `w-4 h-4 object-cover rounded ${isActive ? "opacity-100" : "opacity-60"}`
+                    }
+                  />
+                  {isActive && (
+                    <div
+                      className={
+                        isL2
+                          ? "absolute top-0.5 right-0.5 w-2 h-2 bg-[#3bd16f] rounded-full shadow-[0_0_6px_#3bd16f]"
+                          : "absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full"
+                      }
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
-          <div className={isL2 ? "text-sm text-[#a89878]" : "text-sm text-gray-400"}>
-            Бесплатные баффы на 1 час
-          </div>
+
+          {isL2 && hasActiveBuffs && (
+            <p className="text-center text-[11px] text-[#8fbc8f] mt-2 tabular-nums">
+              Действие бафов: <span className="text-[#c8f0d4] font-semibold">{bufferTimeLabel}</span>
+            </p>
+          )}
         </div>
 
-        {/* Іконки бафів */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {BUFFER_BUFFS.map((buffDef) => {
-            const activeBuff = activeBufferBuffs.find(
-              (b) => b.stackType === buffDef.stackType
-            );
-            const isActive = !!activeBuff && activeBuff.expiresAt > now;
-
-            return (
-              <div
-                key={buffDef.id}
-                className="relative w-4 h-4 flex items-center justify-center"
-                title={buffDef.name}
-              >
-                <img
-                  src={buffDef.icon}
-                  alt={buffDef.name}
-                  className={`w-4 h-4 object-cover rounded ${
-                    isActive ? "opacity-100" : "opacity-60"
-                  }`}
-                />
-                {isActive && (
-                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Кнопка відновити HP/MP/CP безкоштовно */}
-        <div className="text-center">
-          <button
-            onClick={restoreFullHpMpCp}
-            className="text-[13px] text-green-400 hover:text-green-300 cursor-pointer"
-          >
+        <div className={isL2 ? "space-y-2" : "space-y-2"}>
+          <button type="button" onClick={restoreFullHpMpCp} className={isL2 ? btnRestoreL2 : "w-full text-[13px] py-2 rounded-lg border border-green-700/60 bg-green-950/40 text-green-400 hover:bg-green-900/30"}>
             Восстановить HP MP CP бесплатно до 100%
           </button>
-        </div>
 
-        {/* Кнопка отримати всі бафи */}
-        <div className="text-center">
           <button
+            type="button"
             onClick={applyAllBufferBuffs}
             disabled={hasActiveBuffs}
-            className={`text-[13px] ${
-              hasActiveBuffs
-                ? "text-gray-500 cursor-not-allowed"
-                : "text-green-500 hover:text-green-400 cursor-pointer"
-            }`}
+            className={
+              isL2
+                ? `${btnBuffL2} ${hasActiveBuffs ? btnBuffL2Off : btnBuffL2On}`
+                : `w-full text-[13px] py-2 rounded-lg border ${
+                    hasActiveBuffs
+                      ? "border-gray-600 text-gray-500 cursor-not-allowed"
+                      : "border-violet-600/60 bg-violet-950/40 text-violet-200 hover:bg-violet-900/35"
+                  }`
+            }
           >
             {hasActiveBuffs ? "Баффы активны" : "Получить баф"}
           </button>
-        </div>
 
-        {/* Кнопка удалить баф */}
-        {hasActiveBuffs && (
-          <div className="text-center">
-            <button
-              onClick={removeAllBufferBuffs}
-              className="text-[13px] text-red-600 hover:text-red-500 cursor-pointer"
-            >
+          {hasActiveBuffs && (
+            <button type="button" onClick={removeAllBufferBuffs} className={isL2 ? btnRemoveL2 : "w-full text-[13px] py-2 rounded-lg border border-red-800/60 bg-red-950/35 text-red-300 hover:bg-red-900/25"}>
               Удалить баф
             </button>
-          </div>
-        )}
+          )}
 
-        {/* Кнопка назад */}
-        <div className="text-center">
-          <button
-            onClick={() => navigate("/city")}
-            className={
-              isL2
-                ? "text-[13px] text-[#b85c4c] hover:text-[#d4786a] cursor-pointer"
-                : "text-[13px] text-red-600 hover:text-red-500 cursor-pointer"
-            }
-          >
+          <button type="button" onClick={() => navigate("/city")} className={isL2 ? btnCityL2 : "w-full text-[13px] py-2 rounded-lg border border-amber-800/50 bg-amber-950/20 text-amber-200/90 hover:bg-amber-900/20"}>
             В город
           </button>
         </div>
