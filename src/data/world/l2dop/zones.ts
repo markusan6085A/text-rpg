@@ -13,10 +13,10 @@ import {
   shuffleMobsRandomly,
   L2DOP_GLUDIO_POOL,
   L2DOP_ADEN_POOL,
-  L2DOP_GIRAN03_2321_MOBS,
   L2DOP_GODDARD_POOL,
 } from "./mobs";
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
+import { buildL2DopGiranZones } from "./giranZones";
 
 function buildGludioZoneMobs(z: { id: string; min: number; max: number }) {
   const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
@@ -62,15 +62,7 @@ export const L2DOP_ZONES: Zone[] = [
     tpCost: z.tp,
     mobs: buildGludioZoneMobs(z),
   })),
-  {
-    id: "l2dop_giran03_2321_15",
-    name: "Giran — Печера (L2)",
-    cityId: "l2dop_giran",
-    minLevel: 55,
-    maxLevel: 65,
-    tpCost: 25000,
-    mobs: L2DOP_GIRAN03_2321_MOBS.map(applyL2XmlDropsToMob),
-  },
+  ...buildL2DopGiranZones(),
   ...[
     { id: "l2dop_aden_01", name: "Aden — Окрестность (L2)", min: 40, max: 44, tp: 15000 },
     { id: "l2dop_aden_02", name: "Aden — Долина Вигнанців (L2)", min: 42, max: 48, tp: 16500 },

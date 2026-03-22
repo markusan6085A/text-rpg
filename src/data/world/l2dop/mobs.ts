@@ -355,7 +355,7 @@ function scaleChampionDrop<T extends DropEntry>(d: T): T {
   } as T;
 }
 
-function makeChampion(base: Mob, championName: string, suffix: string): Mob {
+export function makeChampion(base: Mob, championName: string, suffix: string): Mob {
   const champDrops = (base.drops ?? []).map(scaleChampionDrop);
   const champSpoil = (base.spoil ?? []).map(scaleChampionDrop);
   const usesL2Rates = [...champDrops, ...champSpoil].some((x) => x.chancePerMillion != null);
