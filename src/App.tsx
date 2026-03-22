@@ -467,7 +467,9 @@ function AppInner() {
 
   // Router: Layout без refreshKey у key — стабільний, не ремонтується при кожному кліку (прибирає шторм GET/таймерів)
   const renderWithLayout = (children: React.ReactNode) => (
-    <Layout navigate={navigate} key={`layout-${pathname}`}>{children}</Layout>
+    <Layout navigate={navigate} routePathname={pathname} key={`layout-${pathname}`}>
+      {children}
+    </Layout>
   );
 
   switch (pathname) {
@@ -486,7 +488,7 @@ function AppInner() {
 
     case "/gk":
       return (
-        <Layout navigate={navigate} contentTopCompact key={`layout-gk`}>
+        <Layout navigate={navigate} contentTopCompact routePathname={pathname} key={`layout-gk`}>
           <GK navigate={navigate} key={`gk-${refreshKey}`} />
         </Layout>
       );

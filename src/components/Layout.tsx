@@ -24,6 +24,8 @@ interface LayoutProps {
   navigate?: (path: string) => void;
   showNavGrid?: boolean;
   showStatusBars?: boolean;
+  /** Поточний маршрут з App (синхронно зі state), інакше береться window.location */
+  routePathname?: string;
   customBackground?: string; // Шлях до кастомного фону
   hideFooterButtons?: boolean; // 🔥 Приховати кнопки "Поддержка | Онлайн | Выйти"
   contentTopCompact?: boolean; // 🔥 Менший top padding — картинка (teleport) під банер
@@ -34,6 +36,7 @@ export default function Layout({
   navigate,
   showNavGrid = true,
   showStatusBars = true,
+  routePathname,
   customBackground,
   hideFooterButtons = false,
   contentTopCompact = false,
@@ -348,7 +351,10 @@ export default function Layout({
         <TutorialHint
           navigate={navigate}
           showStatusBars={showStatusBars}
-          pathname={typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : ""}
+          pathname={
+            routePathname ??
+            (typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : "")
+          }
           hero={hero}
         />
         ) : null}

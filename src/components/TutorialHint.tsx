@@ -12,6 +12,7 @@ const TUTORIAL_HINT_SEEN_KEY = TUTORIAL_HINT_KEY;
 const HELPER_ICON = "/icons/helper.jpg";
 
 const TUTORIAL_PATHS = [
+  "/",
   "/city",
   "/location",
   "/character",
@@ -58,12 +59,11 @@ export default function TutorialHint({
   pathname,
   hero,
 }: TutorialHintProps) {
-  const [welcomeDismissed, setWelcomeDismissed] = React.useState(
-    () => getString(TUTORIAL_HINT_SEEN_KEY, null) === "1"
-  );
   const [, rerender] = React.useReducer((n: number) => n + 1, 0);
 
   const pathNorm = normalizeTutorialPath(pathname);
+  /** Читаємо з storage щоразу — після resetTutorialHint() (новий герой) не лишається старий useState */
+  const welcomeDismissed = getString(TUTORIAL_HINT_SEEN_KEY, null) === "1";
   const dismissedIds = getDismissedTutorialHintIds();
   let contextual = pickContextualTutorialHint(hero, dismissedIds);
   if (
@@ -102,13 +102,13 @@ export default function TutorialHint({
 
   const handleWelcomeGo = () => {
     setString(TUTORIAL_HINT_SEEN_KEY, "1");
-    setWelcomeDismissed(true);
+    rerender();
     navigate!("/help");
   };
 
   const handleWelcomeClose = () => {
     setString(TUTORIAL_HINT_SEEN_KEY, "1");
-    setWelcomeDismissed(true);
+    rerender();
   };
 
   const handleContextualGo = () => {
@@ -127,7 +127,7 @@ export default function TutorialHint({
       <img
         src={HELPER_ICON}
         alt=""
-        className="w-9 h-9 rounded-md border border-[#5c4a32]/70 object-cover shrink-0 hidden sm:block"
+        className="w-9 h-9 rounded-md border border-[#5c4a32]/70 object-cover shrink-0"
         width={36}
         height={36}
       />
@@ -157,7 +157,7 @@ export default function TutorialHint({
       <img
         src={HELPER_ICON}
         alt=""
-        className="w-9 h-9 rounded-md border border-[#5c4a32]/70 object-cover shrink-0 hidden sm:block"
+        className="w-9 h-9 rounded-md border border-[#5c4a32]/70 object-cover shrink-0"
         width={36}
         height={36}
       />
