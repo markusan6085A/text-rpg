@@ -746,7 +746,7 @@ export default function Market({ navigate }: MarketProps) {
                     : "flex-1 py-2.5 rounded-md bg-amber-900/40 border border-amber-700/50 text-[#f4e2b8] text-[11px] disabled:opacity-50"
                 }
               >
-                {sellBusy ? "…" : "На 24 год"}
+                {sellBusy ? "…" : "Выставить"}
               </button>
             </div>
           </div>

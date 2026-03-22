@@ -12,6 +12,31 @@ const INV_MIN = 100;
 const INV_MAX = 500;
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
 
+/** Після проксі/Vercel поля інколи приходять рядком — інакше Number() дає NaN → invalid price */
+function parsePositiveIntInput(v: unknown): number | null {
+  if (v === undefined || v === null) return null;
+  if (typeof v === "bigint") {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+  }
+  if (typeof v === "number" && Number.isFinite(v)) return Math.trunc(v);
+  if (typeof v === "string") {
+    const t = v.replace(/\s/g, "").trim();
+    if (!t) return null;
+    const n = Number(t);
+    if (!Number.isFinite(n)) return null;
+    return Math.trunc(n);
+  }
+  return null;
+}
+
+function hasExplicitBodyField(body: Record<string, unknown>, key: string): boolean {
+  const v = body[key];
+  if (v === undefined || v === null) return false;
+  if (typeof v === "string") return v.trim() !== "";
+  return true;
+}
+
 type Tx = Prisma.TransactionClient;
 
 function inventoryCap(heroJson: any): number {
@@ -242,12 +267,12 @@ export async function marketRoutes(app: FastifyInstance) {
       const characterId = String(body.characterId || "").trim();
       const inventoryItemId = String(body.inventoryItemId || "").trim();
       const currency = String(body.currency || "").trim();
-      const priceNumLegacy = typeof body.price === "number" ? body.price : Number(body.price);
-      const unitPriceRaw = body.unitPrice;
-      const unitPriceNum =
-        typeof unitPriceRaw === "number" ? unitPriceRaw : Number(unitPriceRaw);
-      const amountRaw = body.amount;
-      const amountNum = typeof amountRaw === "number" ? amountRaw : Number(amountRaw);
+      const bodyRec = body as Record<string, unknown>;
+      const unitP = parsePositiveIntInput(bodyRec.unitPrice);
+      const amtP = parsePositiveIntInput(bodyRec.amount);
+      const legacyP = parsePositiveIntInput(bodyRec.price);
+      const useUnitPrice = unitP !== null && unitP >= 1;
+      const explicitAmount = hasExplicitBodyField(bodyRec, "amount");
 
       if (!characterId || !inventoryItemId) {
         return reply.code(400).send({ error: "characterId and inventoryItemId required" });
@@ -348,22 +373,20 @@ export async function marketRoutes(app: FastifyInstance) {
           }
 
           const sc = stackCountOf(removed);
-          const useUnitPrice =
-            unitPriceRaw !== undefined &&
-            unitPriceRaw !== null &&
-            String(unitPriceRaw).trim() !== "" &&
-            Number.isFinite(unitPriceNum) &&
-            Math.floor(unitPriceNum) >= 1;
 
           let listAmount: number;
           let price: bigint;
 
-          if (useUnitPrice) {
-            const up = Math.floor(unitPriceNum);
-            listAmount =
-              amountRaw !== undefined && amountRaw !== null && String(amountRaw).trim() !== "" && Number.isFinite(amountNum)
-                ? Math.floor(amountNum)
-                : sc;
+          if (useUnitPrice && unitP !== null) {
+            const up = unitP;
+            if (explicitAmount) {
+              if (amtP === null || amtP < 1) {
+                return { err: 400 as const, msg: "invalid_amount" };
+              }
+              listAmount = amtP;
+            } else {
+              listAmount = sc;
+            }
             if (listAmount < 1 || listAmount > sc) {
               return { err: 400 as const, msg: "invalid_amount" };
             }
@@ -373,11 +396,11 @@ export async function marketRoutes(app: FastifyInstance) {
             }
             price = prod;
           } else {
-            if (!Number.isFinite(priceNumLegacy) || priceNumLegacy < 1 || priceNumLegacy > Number.MAX_SAFE_INTEGER) {
+            if (legacyP === null || legacyP < 1 || legacyP > Number.MAX_SAFE_INTEGER) {
               return { err: 400 as const, msg: "invalid price" };
             }
             listAmount = sc;
-            price = BigInt(Math.floor(priceNumLegacy));
+            price = BigInt(legacyP);
           }
 
           const arr = slotKind === "inventory" ? inv : overflow;
