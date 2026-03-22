@@ -45,7 +45,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           level: 1,
           exp: 0,
           sp: 0,
-          adena: 0,
+          adena: 50_000,
           aa: 0,
           coinLuck: 0,
           heroJson: {},

@@ -6,6 +6,7 @@ import {
 } from "../data/world";
 import type { Zone } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
+import { showToast } from "../state/toastStore";
 import { savePreviousLocation, savePreviousCity, getPreviousCity, clearPreviousLocation } from "../utils/locationNavigation";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { displayCityName, displayZoneName } from "../utils/worldDisplay";
@@ -36,6 +37,7 @@ function getZonesByCity(cityId: string): Zone[] {
 export default function GKScreen({ navigate }: { navigate: Navigate }) {
   useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
+  const updateAdena = useHeroStore((s) => s.updateAdena);
   const q = useQuery();
   const isL2 = getCityUiVariant() === "l2";
   const l2Frame =
@@ -57,6 +59,24 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   const zones = selectedCity ? getZonesByCity(selectedCity.id) : [];
 
   const handleCityChange = (cityId: string) => {
+    if (cityId === selectedCityId) return;
+
+    const destCity = WORLD_CITIES.find((c) => c.id === cityId);
+    const cityTpCost = destCity?.tpCost ?? 0;
+
+    if (!hero) {
+      showToast("Персонаж не завантажений.", "error");
+      return;
+    }
+
+    if (cityTpCost > 0) {
+      if ((hero.adena ?? 0) < cityTpCost) {
+        showToast("Недостаточно адены для телепорта в этот город!", "error");
+        return;
+      }
+      updateAdena(-cityTpCost);
+    }
+
     setSelectedCityId(cityId);
     savePreviousCity(cityId); // localStorage (per-account)
     // Зберігаємо в hero для синхронізації з сервером та City/ТП
@@ -70,6 +90,22 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const goToZone = (zoneId: string) => {
+    const zone = zones.find((z) => z.id === zoneId);
+    const zoneCost = zone?.tpCost ?? 0;
+
+    if (!hero) {
+      showToast("Персонаж не завантажений.", "error");
+      return;
+    }
+
+    if (zoneCost > 0) {
+      if ((hero.adena ?? 0) < zoneCost) {
+        showToast("Недостаточно адены для телепорта на эту локацию!", "error");
+        return;
+      }
+      updateAdena(-zoneCost);
+    }
+
     // 🔥 Зберігаємо поточне місто — щоб City та ТП пам'ятали останнє місто
     if (selectedCity) savePreviousCity(selectedCity.id);
     // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
@@ -236,7 +272,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                       <span className="text-[#d4c4a8] truncate">{displayCityName(city)}</span>
                     </span>
                     <span className="flex items-center gap-1 text-[#a89878] shrink-0">
-                      0
+                      {(city.tpCost ?? 0).toLocaleString("ru-RU")}
                       <img src="/assets/adena.png" alt="" className={ico} />
                     </span>
                   </button>
@@ -252,7 +288,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                     <img src={iconPath} alt={displayCityName(city)} className="w-3 h-3 object-contain" />
                     <span>{displayCityName(city)}</span>
                     <span className="ml-auto flex items-center gap-1 text-[#c7ad80]">
-                      0
+                      {(city.tpCost ?? 0).toLocaleString("ru-RU")}
                       <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
                     </span>
                   </div>

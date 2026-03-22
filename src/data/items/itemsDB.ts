@@ -47,7 +47,7 @@ export const itemsDBWithStarter: Record<string, ItemDefinition> = {
 };
 
 export const starterKitDefault = {
-  adena: 200,
+  adena: 50_000,
 
   // Для магів (Devotion set) — soulshot + spiritshot для старту
   itemsMage: [
