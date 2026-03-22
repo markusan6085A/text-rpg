@@ -261,6 +261,7 @@ export function hintL2EnglishMobIcon(displayName: string): string | undefined {
     [/\b(monk|warrior monk|acolyte)\b/i, "16.png"],
     [/\b(grazing|snipe|antelope|deer)\b/i, "10.png"],
     [/\b(hot\s+springs|geyser|spring\b)\b/i, "12.png"],
+    [/\b(destroyer|destruction|apocalypse|chimera|oblivion|annihilation)\b/i, "317.png"],
     [/\b(berserker|chieftain|scout|footman|warrior|soldier|elite|captain)\b/i, "5.png"],
   ];
   for (const [re, file] of tests) {

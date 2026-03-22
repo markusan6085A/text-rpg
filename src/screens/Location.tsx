@@ -115,6 +115,37 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     }
   }, [found?.zone?.name, hero?.id, updateHero]);
 
+  /** Елітні зони Годдарта: 5% засідка при відкритті — один випадковий моб (не РБ). Без aggressiveGroup бій лише з обраним мобом. */
+  React.useEffect(() => {
+    const z = found?.zone;
+    const hn = hero?.name;
+    if (!z || !hn || (hero?.hp ?? 0) <= 0) return;
+    const chance = z.entryAmbushChance;
+    if (typeof chance !== "number" || chance <= 0) return;
+    const key = `loc_ambush_${z.id}_${hn}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    if (Math.random() >= chance) return;
+    const indices: number[] = [];
+    for (let i = 0; i < z.mobs.length; i++) {
+      const m = z.mobs[i] as Mob & { isRaidBoss?: boolean };
+      if (m.isRaidBoss) continue;
+      if (isMobOnRespawn(z.id, i, hn)) continue;
+      indices.push(i);
+    }
+    if (!indices.length) return;
+    const idx = indices[Math.floor(Math.random() * indices.length)];
+    navigate(`/battle?zone=${encodeURIComponent(z.id)}&idx=${idx}`);
+  }, [found?.zone, hero?.name, navigate]);
+
+  React.useEffect(() => {
+    return () => {
+      const z = found?.zone;
+      const hn = hero?.name;
+      if (z?.id && hn) sessionStorage.removeItem(`loc_ambush_${z.id}_${hn}`);
+    };
+  }, [found?.zone?.id, found?.zone, hero?.name]);
+
   React.useEffect(() => {
     if (!found?.zone?.name || !hero?.id) return;
     // Додаємо heartbeat з characterId + location, щоб серверний online список

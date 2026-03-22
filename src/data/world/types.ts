@@ -45,6 +45,8 @@ export interface Zone {
   mobs: Mob[];
   allMobsAggressive?: boolean; // Чи всі моби на сторінці атакують одночасно (для Floran Catacombs)
   curseChanceOnAttack?: number; // Шанс на прокляття при атаці (0..1, наприклад 0.1 = 10%)
+  /** Шанс (0..1) при відкритті локації — випадковий звичайний моб починає бій (засідка) */
+  entryAmbushChance?: number;
 }
 
 // Город (як у GK)
