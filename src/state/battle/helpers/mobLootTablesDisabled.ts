@@ -1,6 +1,5 @@
 /**
- * Тимчасово: не застосовувати таблиці дропу/спойлу з мобів (L2 XML, Floran-профіль, treasure box).
- * EXP/SP/адена з полів моба, квестовий дроп, Зарич і медалі лишаються як є.
- * Вимкни в false, коли знову підключиш дроп та іконки.
+ * true: вимкнути будь-який дроп/спойл/treasure з мобів (лишаються квест, Зарич, медалі).
+ * false: звичайна логіка; при USE_CORE_RESOURCE_LOOT_ONLY див. coreL2ResourceLoot.ts.
  */
-export const MOB_LOOT_TABLES_DISABLED = true;
+export const MOB_LOOT_TABLES_DISABLED = false;

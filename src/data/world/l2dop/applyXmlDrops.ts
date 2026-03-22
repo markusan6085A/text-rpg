@@ -2,6 +2,11 @@
 import type { Mob } from "../types";
 import type { DropEntry } from "../../combat/types";
 import { L2_XML_DROPS_BY_NPC, type L2XmlNpcDrops } from "./l2XmlDrops.generated";
+import {
+  USE_CORE_RESOURCE_LOOT_ONLY,
+  getCoreResourceDrops,
+  getCoreResourceSpoil,
+} from "./coreL2ResourceLoot";
 
 function keepL2DropRow(d: DropEntry): boolean {
   if (d.kind === "equipment" || d.kind === "other") return false;
@@ -23,6 +28,14 @@ function getPack(npcId: number): L2XmlNpcDrops | undefined {
 /** Клонує моба з дропом з XML; не чіпає рейд-босів / мобів без шаблону в таблиці. */
 export function applyL2XmlDropsToMob<T extends Mob>(mob: T): T {
   const nid = l2NpcTemplateIdFromMobId(mob.id);
+  if (USE_CORE_RESOURCE_LOOT_ONLY && nid !== undefined) {
+    return {
+      ...mob,
+      drops: getCoreResourceDrops(),
+      spoil: getCoreResourceSpoil(),
+      dropChance: 1,
+    };
+  }
   if (nid === undefined) return mob;
   const pack = getPack(nid);
   const rawDrops = pack?.drops ?? [];

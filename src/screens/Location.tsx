@@ -22,6 +22,12 @@ import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../data/world/l2dop/droplistMapping";
+import {
+  USE_CORE_RESOURCE_LOOT_ONLY,
+  getCoreResourceDrops,
+  getCoreResourceSpoil,
+  findCoreLootLineForItemId,
+} from "../data/world/l2dop/coreL2ResourceLoot";
 import type { DropEntry } from "../data/combat/types";
 
 function formatDropChanceLabel(d: Pick<DropEntry, "chance" | "chancePerMillion">): string {
@@ -617,6 +623,71 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                       Тимчасово вимкнено (після оновлення іконок і таблиць дропу знову з&apos;явиться).
                     </p>
                   </div>
+                ) : USE_CORE_RESOURCE_LOOT_ONLY ? (
+                  <>
+                    <div className="border-t border-white/40 pt-2 mt-2">
+                      <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп (основні ресурси):</div>
+                      <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+                        {getCoreResourceDrops().map((drop: DropEntry, idx: number) => {
+                          const itemDef = itemsDB[drop.id];
+                          const iconPath = dropLineIconPath(drop);
+                          const itemName = itemDef?.name || drop.displayName || drop.id;
+                          const canInspect = !!itemDef || !!drop.displayName || drop.id.startsWith("l2item_");
+                          return (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
+                              onClick={() => canInspect && setSelectedDropItem(drop.id)}
+                            >
+                              <img
+                                src={iconPath}
+                                alt={itemName}
+                                className="w-5 h-5 object-contain border border-white/40 bg-black/40"
+                                onError={onL2ResourceIconImgError}
+                              />
+                              <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors text-xs">
+                                {itemName}:
+                              </span>
+                              <span className="text-green-400 text-xs">
+                                {drop.min}-{drop.max} ({formatDropChanceLabel(drop)})
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="border-t border-white/40 pt-2 mt-2">
+                      <div className="text-sm font-semibold text-[#b8860b] mb-2">Спойл:</div>
+                      <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+                        {getCoreResourceSpoil().map((spoil: DropEntry, idx: number) => {
+                          const itemDef = itemsDB[spoil.id];
+                          const iconPath = dropLineIconPath(spoil);
+                          const itemName = itemDef?.name || spoil.displayName || spoil.id;
+                          const canInspect = !!itemDef || !!spoil.displayName || spoil.id.startsWith("l2item_");
+                          return (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
+                              onClick={() => canInspect && setSelectedDropItem(spoil.id)}
+                            >
+                              <img
+                                src={iconPath}
+                                alt={itemName}
+                                className="w-5 h-5 object-contain border border-white/40 bg-black/40"
+                                onError={onL2ResourceIconImgError}
+                              />
+                              <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors text-xs">
+                                {itemName}:
+                              </span>
+                              <span className="text-yellow-400 text-xs">
+                                {spoil.min}-{spoil.max} ({formatDropChanceLabel(spoil)})
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   (() => {
                     const isFloranZone = zone.id?.startsWith("floran");
@@ -678,7 +749,10 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 )}
 
                 {/* Спойл */}
-                {!MOB_LOOT_TABLES_DISABLED && selectedMob.spoil && selectedMob.spoil.length > 0 && (
+                {!MOB_LOOT_TABLES_DISABLED &&
+                  !USE_CORE_RESOURCE_LOOT_ONLY &&
+                  selectedMob.spoil &&
+                  selectedMob.spoil.length > 0 && (
                   <div className="border-t border-white/40 pt-2 mt-2">
                     <div className="text-sm font-semibold text-[#b8860b] mb-2">Спойл:</div>
                     <div className="space-y-1">
@@ -740,7 +814,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
         const itemDef = itemsDB[selectedDropItem];
         const dropLine: DropEntry | undefined =
           selectedMob.drops?.find((d) => d.id === selectedDropItem) ||
-          selectedMob.spoil?.find((s) => s.id === selectedDropItem);
+          selectedMob.spoil?.find((s) => s.id === selectedDropItem) ||
+          (USE_CORE_RESOURCE_LOOT_ONLY ? findCoreLootLineForItemId(selectedDropItem) : undefined);
 
         if (!itemDef && dropLine) {
           const iconPath = dropLineIconPath(dropLine);
