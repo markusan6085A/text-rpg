@@ -4,34 +4,40 @@ import { useAuthStore } from "../state/authStore";
 import { getRateLimitRemainingMs } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 
-type NavButton = { label: string; icon: string; path?: string; onClick?: () => void };
+type NavButton = { label: string; path?: string; onClick?: () => void };
 
-/** У прокручуваному контенті: форум, пошта, чат, меню, новини. */
+/** У прокручуваному контенті. */
 const topRowButtons: NavButton[] = [
-  { label: "Форум", icon: "/icons/форум.jpg", path: "/forum" },
-  { label: "Почта", icon: "/icons/почта.jpg", path: "/mail" },
-  { label: "Чат", icon: "/icons/чат.jpg", path: "/chat" },
-  { label: "Меню", icon: "/icons/меню.jpg", path: "/about" },
-  { label: "Новости", icon: "/icons/новости.jpg", path: "/news" },
+  { label: "Форум", path: "/forum" },
+  { label: "Почта", path: "/mail" },
+  { label: "Чат", path: "/chat" },
+  { label: "Меню", path: "/about" },
+  { label: "Новости", path: "/news" },
 ];
 
-/** Fixed знизу: місто, інвентар, персонаж, стати, клан. */
+/** Fixed знизу. */
 const bottomRowButtons: NavButton[] = [
-  { label: "Город", icon: "/icons/город.jpg", path: "/city" },
-  { label: "Инвентарь", icon: "/icons/инвентарь.jpg", path: "/inventory" },
-  { label: "Персонаж", icon: "/icons/персонаж.jpg", path: "/character" },
-  { label: "Статы", icon: "/icons/стати.jpg", path: "/stats" },
-  { label: "Клан", icon: "/icons/клан.jpg", path: "/clans" },
+  { label: "Город", path: "/city" },
+  { label: "Инвентарь", path: "/inventory" },
+  { label: "Персонаж", path: "/character" },
+  { label: "Статы", path: "/stats" },
+  { label: "Клан", path: "/clans" },
 ];
 
-const iconWrapClass =
-  "rounded-lg overflow-hidden border border-[#5c4a32]/45 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] bg-black/35";
+const topPanelClass =
+  "w-full max-w-full min-w-0 rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-1 py-1.5 sm:px-2 shadow-[0_8px_28px_rgba(0,0,0,0.45)] backdrop-blur-[1px]";
 
-const dockPanelClass =
-  "w-full max-w-md mx-auto rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-3 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px]";
+const bottomPanelClass =
+  "w-full max-w-full min-w-0 rounded-t-2xl rounded-b-lg border border-[#c7ad80] bg-[#0b0806f0] px-1 py-1.5 sm:px-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] overflow-hidden";
 
-const dockRowClass =
-  "flex flex-row flex-nowrap items-center justify-center gap-4 sm:gap-5";
+const textRowClass =
+  "w-full flex flex-row flex-nowrap items-center justify-between gap-0.5 sm:gap-1";
+
+const textBtnClass =
+  "flex-1 min-w-0 basis-0 relative flex items-center justify-center rounded-md px-0.5 py-1 sm:py-1.5 text-[#c9a44c] hover:text-[#f4e2b8] hover:bg-black/35 border border-transparent hover:border-[#5c4a32]/45 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40";
+
+const textLabelClass =
+  "block w-full text-center text-[9px] sm:text-[10px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis";
 
 type NavGridContextValue = {
   navigate?: (path: string) => void;
@@ -198,7 +204,7 @@ function useNavGridCtx(): NavGridContextValue | null {
   return useContext(NavGridContext);
 }
 
-function NavIconButton({ btn, variant = "dock" }: { btn: NavButton; variant?: "dock" | "bottomBar" }) {
+function NavTextButton({ btn }: { btn: NavButton }) {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
   const { unreadCount, clanUnreadCount, handleClick } = ctx;
@@ -206,73 +212,30 @@ function NavIconButton({ btn, variant = "dock" }: { btn: NavButton; variant?: "d
   const isClan = btn.label === "Клан";
   const showMailBadge = isMail && unreadCount > 0;
   const showClanBadge = isClan && clanUnreadCount > 0;
-  const dim = "w-8 h-8";
-  const inner = 32;
-
-  if (variant === "bottomBar") {
-    return (
-      <button
-        type="button"
-        onClick={() => void handleClick(btn)}
-        className="flex-1 min-w-[30px] rounded-md bg-transparent text-[#dba753] px-[2px] py-0 border-0 hover:bg-transparent transition-colors flex flex-col items-center gap-[0.12rem] focus:outline-none relative"
-        title={btn.label}
-      >
-        <img
-          src={encodeURI(btn.icon)}
-          alt={btn.label}
-          className="w-8 h-8 object-contain rounded-lg"
-          style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
-          width={32}
-          height={32}
-        />
-        {showMailBadge && (
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </div>
-        )}
-        {showClanBadge && (
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
-            {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
-          </div>
-        )}
-      </button>
-    );
-  }
 
   return (
     <button
       type="button"
       onClick={() => void handleClick(btn)}
-      className="shrink-0 rounded-lg bg-transparent text-[#dba753] p-0 border-0 hover:brightness-110 transition-[filter] flex flex-col items-center justify-center focus:outline-none relative"
+      className={textBtnClass}
       title={btn.label}
     >
-      <span className={`${iconWrapClass} ${dim} flex items-center justify-center`}>
-        <img
-          src={encodeURI(btn.icon)}
-          alt={btn.label}
-          className={`${dim} object-contain rounded-md`}
-          style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
-          width={inner}
-          height={inner}
-        />
-      </span>
+      <span className={textLabelClass}>{btn.label}</span>
       {showMailBadge && (
-        <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
-          {unreadCount > 99 ? "99+" : unreadCount}
-        </div>
+        <span className="absolute -top-0.5 right-0 min-w-[13px] h-[13px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[13px] text-center">
+          {unreadCount > 99 ? "99" : unreadCount}
+        </span>
       )}
       {showClanBadge && (
-        <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
-          {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
-        </div>
+        <span className="absolute -top-0.5 right-0 min-w-[13px] h-[13px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[13px] text-center">
+          {clanUnreadCount > 99 ? "99" : clanUnreadCount}
+        </span>
       )}
     </button>
   );
 }
 
-/**
- * Верхня сітка в потоці документа — перший блок у прокрутці (над «Вигляд Місто» та іншим контентом).
- */
+/** Перший блок у прокрутці — текстові посилання в один ряд. */
 export function NavScrollTopRow() {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
@@ -280,12 +243,12 @@ export function NavScrollTopRow() {
   return (
     <div
       className="w-full min-w-0 mb-2 pt-0.5 -mt-0.5"
-      aria-label="Швидкі посилання: форум, пошта, чат, меню, новини"
+      aria-label="Навігація: форум, пошта, чат, меню, новини"
     >
-      <div className={dockPanelClass}>
-        <div className={dockRowClass}>
+      <div className={topPanelClass}>
+        <div className={textRowClass}>
           {topRowButtons.map((btn) => (
-            <NavIconButton key={btn.label} btn={btn} />
+            <NavTextButton key={btn.label} btn={btn} />
           ))}
         </div>
       </div>
@@ -293,7 +256,7 @@ export function NavScrollTopRow() {
   );
 }
 
-/** Нижня панель: fixed до viewport (див. .page-bg > * — перебиваємо через !fixed). */
+/** Нижня панель — fixed, той самий текстовий ряд. */
 export default function NavGridBottomFixed() {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
@@ -303,13 +266,11 @@ export default function NavGridBottomFixed() {
       className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] px-1.5 sm:px-2 md:px-3 pointer-events-none"
       data-nav-bottom-dock
     >
-      <div className="w-full max-w-full min-w-0 rounded-t-2xl rounded-b-lg border border-[#c7ad80] bg-[#0b0806f0] px-1.5 py-1.5 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto overflow-hidden">
-        <div className="px-0 py-0 overflow-x-hidden">
-          <div className="w-full flex flex-row flex-nowrap items-center justify-between gap-[0.15rem] text-[11px] text-[#d8c598]">
-            {bottomRowButtons.map((btn) => (
-              <NavIconButton key={btn.label} btn={btn} variant="bottomBar" />
-            ))}
-          </div>
+      <div className={`${bottomPanelClass} pointer-events-auto`}>
+        <div className={textRowClass}>
+          {bottomRowButtons.map((btn) => (
+            <NavTextButton key={btn.label} btn={btn} />
+          ))}
         </div>
       </div>
     </div>
