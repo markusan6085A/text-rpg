@@ -14,9 +14,8 @@ import Layout from "./components/Layout";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import MageGuild from "./screens/City/MageGuild";
 
-// Inventory & Equipment
+// Inventory (манекен екіпу — всередині Inventory, див. Equipment.tsx)
 import Inventory from "./screens/character/Inventory";
-import Equipment from "./screens/character/Equipment";
 import MagicStatue from "./screens/MagicStatue";
 import LearnedSkillsScreen from "./screens/character/LearnedSkillsScreen";
 import AdditionalSkillsScreen from "./screens/City/AdditionalSkillsScreen";
@@ -75,6 +74,22 @@ function PlayerAdminRedirect({ navigate, playerId }: { navigate: (path: string) 
   return (
     <div className="min-h-[120px] flex items-center justify-center text-gray-400 text-sm">
       Перенаправлення...
+    </div>
+  );
+}
+
+/** Старий URL /equipment — екіп керується з інвентаря */
+function RedirectEquipmentToInventory() {
+  React.useEffect(() => {
+    const p = window.location.pathname.replace(/\/$/, "") || "/";
+    if (p === "/equipment") {
+      window.history.replaceState(null, "", "/inventory");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    }
+  }, []);
+  return (
+    <div className="w-full flex justify-center items-center py-16 text-[#8a7a60] text-sm">
+      Перехід до інвентаря…
     </div>
   );
 }
@@ -517,7 +532,7 @@ function AppInner() {
       return renderWithLayout(<Inventory key={`inventory-${refreshKey}`} />);
 
     case "/equipment":
-      return renderWithLayout(<Equipment key={`equipment-${refreshKey}`} />);
+      return renderWithLayout(<RedirectEquipmentToInventory key={`equipment-redirect-${refreshKey}`} />);
 
     case "/guild":
     case "/mage-guild":

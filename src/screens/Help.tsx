@@ -155,7 +155,10 @@ export default function Help({ navigate }: HelpProps) {
 
           <Section title="Экипировка и инвентарь">
             <p><LinkBtn onClick={() => navigate("/inventory")}>→ Инвентарь</LinkBtn> — предметы, расходники, ресурсы.</p>
-            <p><LinkBtn onClick={() => navigate("/equipment")}>→ Экипировка</LinkBtn> — оружие, броня, бижутерия, пояс/плащ/тату при наличии.</p>
+            <p>
+              <strong>Экипировка</strong> — наденьте вещи из{" "}
+              <LinkBtn onClick={() => navigate("/inventory")}>→ Инвентаря</LinkBtn> (манекен и слоты сверху экрана инвентаря).
+            </p>
             <p>Заточка (enchant) усиливает предмет; для некоторых профессий важен тип оружия под скилл.</p>
           </Section>
 
