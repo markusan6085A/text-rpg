@@ -258,6 +258,8 @@ export function createNewHero(params: NewHeroParams): HeroCore & { sp: number; s
 
   return {
     ...heroCore,
+    profession: defaultProfession,
+    baseStatsInitial: { ...baseStats },
     hp: res.maxHp,
     maxHp: res.maxHp,
     mp: res.maxMp,

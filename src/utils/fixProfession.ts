@@ -1,7 +1,7 @@
 // Утиліта для автоматичного виправлення професій героїв
 // Використовується при завантаженні героя
 import { getJSON, setJSON } from "../state/persistence";
-import { getDefaultProfessionForKlass } from "../data/skills";
+import { getDefaultProfessionForKlass, getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 
 export function fixHeroProfession(hero: any): any {
   if (!hero) return hero;
@@ -81,15 +81,28 @@ export function fixHeroProfession(hero: any): any {
     }
   }
 
-  // Якщо професія відсутня — виводимо з klass/race
-  if (!hero.profession || String(hero.profession).trim() === "") {
+  // Професія збігається з ігровим класом (Fighter/Mystic) — це не L2 job id; інакше GuildScreen не знаходить ланцюжок і скілів
+  const rawProf = String(hero.profession ?? "").trim();
+  const rawKlass = String(hero.klass ?? "").trim();
+  if (rawProf && rawKlass && rawProf.toLowerCase() === rawKlass.toLowerCase()) {
     const defaultProf = getDefaultProfessionForKlass(hero.klass || "", hero.race);
     if (defaultProf) {
-      console.log(`[fixProfession] Встановлюю базову професію для ${hero.name || "героя"}:`, defaultProf, "(klass:", hero.klass, "race:", hero.race, ")");
-      return {
-        ...hero,
-        profession: defaultProf,
-      };
+      console.log(`[fixProfession] profession === klass (${rawProf}) → базова job id:`, defaultProf, hero.name || "");
+      return { ...hero, profession: defaultProf };
+    }
+  }
+
+  const normPid = normalizeProfessionId(hero.profession);
+  if (!rawProf || !getProfessionDefinition(normPid)) {
+    const defaultProf = getDefaultProfessionForKlass(hero.klass || "", hero.race);
+    if (defaultProf) {
+      console.log(`[fixProfession] Порожня або невідома profession → базова з klass/race:`, defaultProf, {
+        name: hero.name,
+        was: hero.profession,
+        klass: hero.klass,
+        race: hero.race,
+      });
+      return { ...hero, profession: defaultProf };
     }
   }
 
