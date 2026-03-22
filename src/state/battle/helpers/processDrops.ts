@@ -12,11 +12,6 @@ import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { reportMedalDrop } from "../../../utils/api";
 import { useCharacterStore } from "../../characterStore";
 import { getFloranMobDropProfile } from "../../../data/drop/floranMobDrops";
-import {
-  USE_CORE_RESOURCE_LOOT_ONLY,
-  getCoreResourceDrops,
-  getCoreResourceSpoil,
-} from "../../../data/world/l2dop/coreL2ResourceLoot";
 import { MOB_LOOT_TABLES_DISABLED } from "./mobLootTablesDisabled";
 
 // Функція для видалення грейдів з назв ресурсів
@@ -123,26 +118,22 @@ export function processMobDrops(
 
   let effectiveDrops: DropEntry[] = [];
   if (!MOB_LOOT_TABLES_DISABLED) {
-    if (USE_CORE_RESOURCE_LOOT_ONLY) {
-      effectiveDrops = getCoreResourceDrops();
-    } else {
-      // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) + ресурси з mob.drops
-      const isFloranMob =
-        mob.id?.startsWith("fl_") || mob.id?.includes("floran") || mob.id?.startsWith("champ_floran");
-      const floranProfile = isFloranMob ? getFloranMobDropProfile(mob) : undefined;
-      const floranDrops: DropEntry[] = floranProfile
-        ? floranProfile.items.map((item) => {
-            const def = itemsDB[item.itemId];
-            let kind: DropKind = "resource";
-            if (item.itemId === "adena") kind = "adena";
-            else if (def?.slot === "weapon" || def?.slot === "armor") kind = "equipment";
-            else if (def?.slot) kind = "resource";
-            return { id: item.itemId, kind, chance: item.chance, min: item.min, max: item.max };
-          })
-        : [];
-      const zoneResourceDrops = mob.drops ?? [];
-      effectiveDrops = floranProfile ? [...floranDrops, ...zoneResourceDrops] : zoneResourceDrops;
-    }
+    // Для Floran зон використовуємо профіль дропу (adena, weapon pieces тощо) + ресурси з mob.drops
+    const isFloranMob =
+      mob.id?.startsWith("fl_") || mob.id?.includes("floran") || mob.id?.startsWith("champ_floran");
+    const floranProfile = isFloranMob ? getFloranMobDropProfile(mob) : undefined;
+    const floranDrops: DropEntry[] = floranProfile
+      ? floranProfile.items.map((item) => {
+          const def = itemsDB[item.itemId];
+          let kind: DropKind = "resource";
+          if (item.itemId === "adena") kind = "adena";
+          else if (def?.slot === "weapon" || def?.slot === "armor") kind = "equipment";
+          else if (def?.slot) kind = "resource";
+          return { id: item.itemId, kind, chance: item.chance, min: item.min, max: item.max };
+        })
+      : [];
+    const zoneResourceDrops = mob.drops ?? [];
+    effectiveDrops = floranProfile ? [...floranDrops, ...zoneResourceDrops] : zoneResourceDrops;
   }
 
 
@@ -276,7 +267,7 @@ export function processMobDrops(
   // Обробляємо treasure box: падає з шансом 15% з мобів, рівень яких ±5 від рівня героя
   const heroLevel = hero.level || 1;
   const levelDiff = Math.abs(mob.level - heroLevel);
-  if (!MOB_LOOT_TABLES_DISABLED && !USE_CORE_RESOURCE_LOOT_ONLY && levelDiff <= 5) {
+  if (!MOB_LOOT_TABLES_DISABLED && levelDiff <= 5) {
     const treasureBoxChance = 0.15; // 15% шанс
     if (Math.random() < treasureBoxChance) {
       const treasureBoxId = "treasure_box";
@@ -328,17 +319,12 @@ export function processMobDrops(
   }
 
   // Обробляємо спойли — тільки якщо моб спойлений (Auto Spoil, Bounty Hunter)
-  const spoilLines: DropEntry[] =
-    USE_CORE_RESOURCE_LOOT_ONLY && !MOB_LOOT_TABLES_DISABLED
-      ? getCoreResourceSpoil()
-      : (mob.spoil ?? []);
-
-  if (!MOB_LOOT_TABLES_DISABLED && spoiled && spoilLines.length > 0) {
+  if (!MOB_LOOT_TABLES_DISABLED && spoiled && mob.spoil && mob.spoil.length > 0) {
     // Оновлюємо розмір інвентаря після дропів
     const currentInventorySize = newInventory.filter(Boolean).length;
     const isInventoryFullNow = currentInventorySize >= maxSlots;
 
-    spoilLines.forEach((spoil: DropEntry) => {
+    mob.spoil.forEach((spoil: DropEntry) => {
       if (!rollDropEntry(spoil)) return;
 
       let itemCount = rollQuantity(spoil.min ?? 1, spoil.max ?? 1);
