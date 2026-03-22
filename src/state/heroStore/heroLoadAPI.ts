@@ -766,10 +766,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const mergedInv = localInv.length === 0 ? [] : mergeInventoriesUnion(localInv, serverInv);
         (hydratedHero as any).inventory = mergedInv;
         (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: mergedInv };
-        if (localHeroForMerge.adena !== undefined && localHeroForMerge.adena !== null) {
-          (hydratedHero as any).adena = localHeroForMerge.adena;
-          (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, adena: localHeroForMerge.adena };
-        }
+        // ❌ НЕ перезаписувати adena лише з локалі: вище вже finalAdena = max(сервер, локаль).
+        // Якщо тут підставити localHeroForMerge.adena — продавець після продажу на ринку не бачить зарахування (сервер більший, локаль застарілий).
         const localSpVal = Number(localHeroForMerge.sp ?? (localHeroForMerge as any).heroJson?.sp ?? 0) || 0;
         const hydratedSpVal = Number((hydratedHero as any).sp ?? 0) || 0;
         const mergedSpFromLocal = Math.max(localSpVal, hydratedSpVal);
