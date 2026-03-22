@@ -266,7 +266,42 @@ function heuristicMobIcon(normalized: string): string | undefined {
   if (s.includes("Varka")) return "11.png";
   if (/Monastic|Monastery|Solina|Silent |Warrior Monk|Pilgrim of Light|Judge of Light/i.test(s))
     return "16.png";
-  if (/Stakato|Cannibal/i.test(s)) return "22.png";
+  /** Schuttgart: рейдові імена (англ.) */
+  if (/Warden of the Ice|Ice March/i.test(s) && /Warden|March/i.test(s)) return "12.png";
+  if (/Lord of the Stakato|Stakato Vanguard$/i.test(s)) return "32.png";
+  if (/Broodmother of the Cannibals|Cannibals$/i.test(s)) return "14.png";
+  if (/Fallen Pilgrim King|Pilgrim King/i.test(s)) return "16.png";
+  if (/Archon of Solina|Solina's Gate/i.test(s)) return "46.png";
+  if (/High Confessor|Confessor of Einhasad/i.test(s)) return "317.png";
+  if (/Triol's Voice/i.test(s)) return "317.png";
+  if (/Keeper of the False Grail|False Grail/i.test(s)) return "29.png";
+  if (/Alpha of the Ancient|Ancient Herd/i.test(s)) return "15.png";
+  if (/Tyrant of Schuttgart Ridge|Schuttgart Ridge$/i.test(s)) return "32.png";
+  /** Schuttgart: титули чемпіонів (до загального Stakato → 22) */
+  if (/Frozen\s+March/i.test(s) && /Warden/i.test(s)) return "12.png";
+  if (/Stakato\s+Vanguard/i.test(s)) return "32.png";
+  if (/Spike Hollow/i.test(s) && /\bLord\b/i.test(s)) return "32.png";
+  if (/Cannibal\s+Broodmaster/i.test(s)) return "14.png";
+  if (/Monastery\s+Exile/i.test(s)) return "16.png";
+  if (/Solina\s+Aspirant/i.test(s)) return "16.png";
+  if (/Temple\s+Confessor/i.test(s)) return "317.png";
+  if (/Triol\s+Intercessor/i.test(s)) return "317.png";
+  if (/Grail\s+Crypt\s+Keeper/i.test(s)) return "29.png";
+  if (/Primordial\s+Hunt\s+Leader/i.test(s)) return "15.png";
+  if (/Tyrant\s+Ridge\s+Overlord/i.test(s)) return "32.png";
+  if (/Schuttgart\s+Elite/i.test(s)) return "46.png";
+  /** Stakato / Cannibalistic — різні ролі → різні іконки */
+  if (/Stakato|Cannibalistic/i.test(s)) {
+    if (/\b(sorcerer|shaman)\b/i.test(s)) return "317.png";
+    if (/\bnurse\b/i.test(s)) return "31.png";
+    if (/\b(drone|baby)\b/i.test(s)) return "4.png";
+    if (/\b(leader|captain|lord)\b/i.test(s)) return "32.png";
+    if (/\b(guard|soldier)\b/i.test(s)) return "5.png";
+    if (/\bfollower\b/i.test(s)) return "14.png";
+    if (/\b(Female|Male)\b/i.test(s) && /Stakato/i.test(s)) return "45.png";
+    return "22.png";
+  }
+  if (/\bCannibal\b/i.test(s)) return "14.png";
   if (/Triol|Ritual|Grail|Confessor|Temple Guard/i.test(s)) return "317.png";
   if (/Tyrannosaur|Pterosaur|Velociraptor|Deinonychus|Ornithomimus|Pachycephalosaurus|Elroki|Strider/i.test(s))
     return "33.png";
@@ -280,7 +315,7 @@ function heuristicMobIcon(normalized: string): string | undefined {
     return "46.png";
   }
   if (s === "Floran Warlord" || s.endsWith(" Warlord")) return "175.png";
-  if (s === "Death Sorcerer" || s.includes("Sorcerer")) return "317.png";
+  if (s === "Death Sorcerer" || (s.includes("Sorcerer") && !/Stakato/i.test(s))) return "317.png";
   if (s.includes("Чемпіон") || s === "Чемпіон") return "31.png";
   if (s.includes("Дракон")) return "33.png";
   if (s.includes("Скелет") || s.includes("Кістей")) return "16.png";
@@ -339,6 +374,14 @@ export function hintL2EnglishMobIcon(displayName: string): string | undefined {
     [/\b(hot\s+springs|geyser|spring\b)\b/i, "12.png"],
     [/\b(destroyer|destruction|apocalypse|chimera|oblivion|annihilation)\b/i, "317.png"],
     [/\b(berserker|chieftain|scout|footman|warrior|soldier|elite|captain)\b/i, "5.png"],
+    [/\bwarden\b/i, "46.png"],
+    [/\bvanguard\b/i, "32.png"],
+    [/\b(confessor|intercessor|high priest|layperson|believer)\b/i, "317.png"],
+    [/\bkeeper\b/i, "29.png"],
+    [/\boverlord\b/i, "32.png"],
+    [/\bexile\b/i, "16.png"],
+    [/\baspirant\b/i, "16.png"],
+    [/\bbroodmaster|broodqueen|brood mother\b/i, "14.png"],
   ];
   for (const [re, file] of tests) {
     if (re.test(s)) return `/mobs/${file}`;
@@ -346,10 +389,7 @@ export function hintL2EnglishMobIcon(displayName: string): string | undefined {
   return undefined;
 }
 
-/** Повертає URL іконки /mobs/N.png або undefined */
-export function getMobPublicIconSrc(displayName: string): string | undefined {
-  const core = stripPrefixes(displayName);
-  const candidates = stripChampionSuffixes(core);
+function lookupMobIconFromCandidates(candidates: string[]): string | undefined {
   for (const key of candidates) {
     const file = MOB_ICON_MAP[key];
     if (file) return `/mobs/${file}`;
@@ -362,6 +402,23 @@ export function getMobPublicIconSrc(displayName: string): string | undefined {
     const en = hintL2EnglishMobIcon(key);
     if (en) return en;
   }
+  return undefined;
+}
+
+/**
+ * Іконка за іменем без запасного 98.png (для чемпіонів: спочатку титул, потім база).
+ */
+export function resolveMobIconFromName(displayName: string): string | undefined {
+  const core = stripPrefixes(displayName);
+  const candidates = stripChampionSuffixes(core);
+  return lookupMobIconFromCandidates(candidates);
+}
+
+/** Повертає URL іконки /mobs/N.png або undefined */
+export function getMobPublicIconSrc(displayName: string): string | undefined {
+  const resolved = resolveMobIconFromName(displayName);
+  if (resolved) return resolved;
+  const core = stripPrefixes(displayName);
   /** Будь-яка непорожня назва — щоб не лишати «—» на екрані локації */
   if (core.trim().length >= 2) return "/mobs/98.png";
   return undefined;

@@ -4,7 +4,7 @@
 import type { Mob } from "../types";
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import type { DropEntry } from "../../combat/types";
-import { getMobPublicIconSrc } from "../../../utils/mobPublicIcon";
+import { getMobPublicIconSrc, resolveMobIconFromName } from "../../../utils/mobPublicIcon";
 import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
 import { L2DOP_SCHUTTGART_POOL } from "./schuttgartMobs.generated";
 
@@ -365,7 +365,10 @@ export function makeChampion(base: Mob, championName: string, suffix: string): M
     ...base,
     id: `${base.id}_champion_${suffix}`,
     name: `[Чемпіон] ${championName}`,
-    icon: base.icon?.trim() || getMobPublicIconSrc(base.name),
+    icon:
+      base.icon?.trim() ||
+      resolveMobIconFromName(championName) ||
+      getMobPublicIconSrc(base.name),
     hp: base.hp * 3,
     mp: (base.mp ?? 0) * 3,
     pAtk: base.pAtk * 3,
