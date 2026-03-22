@@ -32,8 +32,8 @@ function buildGludinVillageZoneMobs(z: GludinZoneDef) {
     z.mobMax,
     z.typesMin,
     z.typesMax
-  ).map(applyL2XmlDropsToMob);
-  const champions = getGludinVillageL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  ).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
+  const champions = getGludinVillageL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getGludinVillageRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }

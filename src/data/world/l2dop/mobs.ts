@@ -13,6 +13,7 @@ import { L2DOP_FLORAN_VILLAGE_POOL } from "./floranVillageMobs.generated";
 import { L2DOP_HEINE_POOL } from "./heineMobs.generated";
 import { L2DOP_GLUDIN_VILLAGE_POOL } from "./gludinVillageMobs.generated";
 import { L2DOP_HUNTERS_VILLAGE_POOL } from "./huntersVillageMobs.generated";
+import { applyL2dopTieredLootToMob, l2NpcTemplateIdFromMobId } from "./tieredResourceLoot";
 
 export {
   L2DOP_GODDARD_POOL,
@@ -372,29 +373,33 @@ function scaleChampionDrop<T extends DropEntry>(d: T): T {
   } as T;
 }
 
-export function makeChampion(base: Mob, championName: string, suffix: string): Mob {
-  const champDrops = (base.drops ?? []).map(scaleChampionDrop);
-  const champSpoil = (base.spoil ?? []).map(scaleChampionDrop);
+export function makeChampion(base: Mob, championName: string, suffix: string, zoneId?: string): Mob {
+  const prepared =
+    zoneId !== undefined && l2NpcTemplateIdFromMobId(base.id) !== undefined
+      ? applyL2dopTieredLootToMob({ ...base }, zoneId, 40000 + (suffix.charCodeAt(0) % 1000) + suffix.length * 17)
+      : { ...base };
+  const champDrops = (prepared.drops ?? []).map(scaleChampionDrop);
+  const champSpoil = (prepared.spoil ?? []).map(scaleChampionDrop);
   const usesL2Rates = [...champDrops, ...champSpoil].some((x) => x.chancePerMillion != null);
   return {
-    ...base,
-    id: `${base.id}_champion_${suffix}`,
+    ...prepared,
+    id: `${prepared.id}_champion_${suffix}`,
     name: `[Чемпіон] ${championName}`,
     icon:
-      base.icon?.trim() ||
-      getMobListIconSrc({ id: base.id, name: base.name }) ||
+      prepared.icon?.trim() ||
+      getMobListIconSrc({ id: prepared.id, name: prepared.name }) ||
       resolveMobIconFromName(championName) ||
-      getMobPublicIconSrc(base.name),
-    hp: base.hp * 3,
-    mp: (base.mp ?? 0) * 3,
-    pAtk: base.pAtk * 3,
-    mAtk: (base.mAtk ?? 0) * 3,
-    pDef: base.pDef * 3,
-    mDef: base.mDef * 3,
-    exp: base.exp * 10,
-    sp: (base.sp ?? base.level * 2) * 10,
-    adenaMin: base.adenaMin * 10,
-    adenaMax: base.adenaMax * 10,
+      getMobPublicIconSrc(prepared.name),
+    hp: prepared.hp * 3,
+    mp: (prepared.mp ?? 0) * 3,
+    pAtk: prepared.pAtk * 3,
+    mAtk: (prepared.mAtk ?? 0) * 3,
+    pDef: prepared.pDef * 3,
+    mDef: prepared.mDef * 3,
+    exp: prepared.exp * 10,
+    sp: (prepared.sp ?? prepared.level * 2) * 10,
+    adenaMin: prepared.adenaMin * 10,
+    adenaMax: prepared.adenaMax * 10,
     dropChance: usesL2Rates ? 1 : 0.85,
     drops: champDrops.length ? champDrops : [],
     spoil: champSpoil.length ? champSpoil : [],
@@ -419,7 +424,7 @@ export function getGludioL2DopChampions(zoneId: string, minLvl: number, maxLvl: 
   const baseName = names[zoneNum] ?? "Глоріо Чемпіон";
   const result: Mob[] = [];
   for (let i = 0; i < Math.min(count, shuffled.length); i++) {
-    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i)));
+    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i), zoneId));
   }
   return result;
 }
@@ -641,7 +646,7 @@ export function getAdenL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
   const baseName = names[zoneNum] ?? "Аден Чемпіон";
   const result: Mob[] = [];
   for (let i = 0; i < Math.min(count, shuffled.length); i++) {
-    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i)));
+    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i), zoneId));
   }
   return result;
 }
@@ -874,7 +879,7 @@ export function getOrenL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
   const baseName = names[zoneNum] ?? "Чемпіон Орену";
   const result: Mob[] = [];
   for (let i = 0; i < Math.min(count, shuffled.length); i++) {
-    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i)));
+    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i), zoneId));
   }
   return result;
 }
@@ -944,7 +949,7 @@ export function getGoddardL2DopChampions(zoneId: string, minLvl: number, maxLvl:
   const baseName = names[zoneNum] ?? "Годдарт Чемпіон";
   const result: Mob[] = [];
   for (let i = 0; i < Math.min(count, shuffled.length); i++) {
-    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i)));
+    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i), zoneId));
   }
   return result;
 }
@@ -1022,7 +1027,7 @@ export function getSchuttgartL2DopChampions(zoneId: string, minLvl: number, maxL
   for (let i = 0; i < CHAMP_COUNT; i++) {
     const base = shuffled[i % shuffled.length]!;
     const suf = SCHUTTGART_CHAMP_SUFFIXES[i] ?? `#${i + 1}`;
-    result.push(makeChampion(base, `${baseName} ${suf}`, `sch${i}`));
+    result.push(makeChampion(base, `${baseName} ${suf}`, `sch${i}`, zoneId));
   }
   return result;
 }
@@ -1106,7 +1111,7 @@ export function getRuneL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
   for (let i = 0; i < CHAMP_COUNT; i++) {
     const base = shuffled[i % shuffled.length]!;
     const suf = RUNE_CHAMP_SUFFIXES[i] ?? `#${i + 1}`;
-    result.push(makeChampion(base, `${baseName} ${suf}`, `rune${i}`));
+    result.push(makeChampion(base, `${baseName} ${suf}`, `rune${i}`, zoneId));
   }
   return result;
 }
@@ -1187,7 +1192,7 @@ export function getDionL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
   for (let i = 0; i < CHAMP_COUNT; i++) {
     const base = shuffled[i % shuffled.length]!;
     const suf = DION_CHAMP_SUFFIXES[i] ?? `#${i + 1}`;
-    result.push(makeChampion(base, `${baseName} ${suf}`, `dion${i}`));
+    result.push(makeChampion(base, `${baseName} ${suf}`, `dion${i}`, zoneId));
   }
   return result;
 }
@@ -1266,7 +1271,7 @@ export function getFloranVillageL2DopChampions(zoneId: string, minLvl: number, m
   for (let i = 0; i < 2; i++) {
     const base = shuffled[i % shuffled.length]!;
     const suf = FV_CHAMP_SUFFIXES[i] ?? String(i + 1);
-    result.push(makeChampion(base, `${baseName} ${suf}`, `fv${i}`));
+    result.push(makeChampion(base, `${baseName} ${suf}`, `fv${i}`, zoneId));
   }
   return result;
 }
@@ -1335,7 +1340,7 @@ export function getHeineL2DopChampions(zoneId: string, minLvl: number, maxLvl: n
   for (let i = 0; i < 2; i++) {
     const base = shuffled[i % shuffled.length]!;
     const suf = HEINE_CHAMP_SUFFIXES[i] ?? String(i + 1);
-    result.push(makeChampion(base, `${baseName} ${suf}`, `heine${i}`));
+    result.push(makeChampion(base, `${baseName} ${suf}`, `heine${i}`, zoneId));
   }
   return result;
 }
@@ -1407,7 +1412,7 @@ export function getGludinVillageL2DopChampions(zoneId: string, minLvl: number, m
   for (let i = 0; i < 2; i++) {
     const base = shuffled[i % shuffled.length]!;
     const suf = GLUDIN_CHAMP_SUFFIXES[i] ?? String(i + 1);
-    result.push(makeChampion(base, `${baseName} ${suf}`, `gv${i}`));
+    result.push(makeChampion(base, `${baseName} ${suf}`, `gv${i}`, zoneId));
   }
   return result;
 }
@@ -1488,7 +1493,7 @@ export function getHuntersVillageL2DopChampions(zoneId: string, minLvl: number, 
   for (let i = 0; i < 2; i++) {
     const base = shuffled[i % shuffled.length]!;
     const suf = HUNTERS_CHAMP_SUFFIXES[i] ?? String(i + 1);
-    result.push(makeChampion(base, `${baseName} ${suf}`, `hv${i}`));
+    result.push(makeChampion(base, `${baseName} ${suf}`, `hv${i}`, zoneId));
   }
   return result;
 }

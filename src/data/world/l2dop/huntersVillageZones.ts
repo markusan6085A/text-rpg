@@ -32,8 +32,8 @@ function buildHuntersVillageZoneMobs(z: HuntersZoneDef) {
     z.mobMax,
     z.typesMin,
     z.typesMax
-  ).map(applyL2XmlDropsToMob);
-  const champions = getHuntersVillageL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  ).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
+  const champions = getHuntersVillageL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getHuntersVillageRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }

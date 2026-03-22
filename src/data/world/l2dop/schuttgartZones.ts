@@ -11,10 +11,10 @@ import {
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 
 function buildSchuttgartZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_SCHUTTGART_POOL, z.id, z.min, z.max, 140, 300, 12, 28).map(
-    applyL2XmlDropsToMob
+  const regular = fillZoneMobs(L2DOP_SCHUTTGART_POOL, z.id, z.min, z.max, 140, 300, 12, 28).map((m, i) =>
+    applyL2XmlDropsToMob(m, z.id, i)
   );
-  const champions = getSchuttgartL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const champions = getSchuttgartL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getSchuttgartRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }

@@ -51,7 +51,7 @@ function buildEliteGoddardZone(spec: {
     spec.mobCount,
     26,
     48
-  ).map((m) => applyL2XmlDropsToMob(scaleElite(m, spec.combatMult, spec.rewardMult)));
+  ).map((m, i) => applyL2XmlDropsToMob(scaleElite(m, spec.combatMult, spec.rewardMult), spec.id, i));
   const mobs = raw.map((m) => withThemeIcon(m, spec.theme));
   return {
     id: spec.id,

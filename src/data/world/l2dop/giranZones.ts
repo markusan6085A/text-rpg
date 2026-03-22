@@ -84,14 +84,16 @@ export function getGiranL2DopChampions(zoneId: string, minLvl: number, maxLvl: n
   const result: Mob[] = [];
   const n = Math.min(count, shuffled.length);
   for (let i = 0; i < n; i++) {
-    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i)));
+    result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i), zoneId));
   }
   return result;
 }
 
 function buildGiranZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_GIRAN_POOL, z.id, z.min, z.max, 200, 300, 22, 42).map(applyL2XmlDropsToMob);
-  const champions = getGiranL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const regular = fillZoneMobs(L2DOP_GIRAN_POOL, z.id, z.min, z.max, 200, 300, 22, 42).map((m, i) =>
+    applyL2XmlDropsToMob(m, z.id, i)
+  );
+  const champions = getGiranL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = buildGiranRaidBosses(z.id, z.min, z.max);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }

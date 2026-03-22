@@ -11,8 +11,10 @@ import {
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 
 function buildDionZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_DION_POOL, z.id, z.min, z.max, 220, 300, 12, 28).map(applyL2XmlDropsToMob);
-  const champions = getDionL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const regular = fillZoneMobs(L2DOP_DION_POOL, z.id, z.min, z.max, 220, 300, 12, 28).map((m, i) =>
+    applyL2XmlDropsToMob(m, z.id, i)
+  );
+  const champions = getDionL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getDionRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }

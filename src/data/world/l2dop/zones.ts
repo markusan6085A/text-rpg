@@ -30,31 +30,39 @@ import { buildL2DopHuntersVillageZones } from "./huntersVillageZones";
 import { buildL2DopGludinVillageZones } from "./gludinVillageZones";
 
 function buildGludioZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
-  const champions = getGludioL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map((m, i) =>
+    applyL2XmlDropsToMob(m, z.id, i)
+  );
+  const champions = getGludioL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getGludioRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
 function buildAdenZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map(applyL2XmlDropsToMob);
-  const champions = getAdenL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const regular = fillZoneMobs(L2DOP_ADEN_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map((m, i) =>
+    applyL2XmlDropsToMob(m, z.id, i)
+  );
+  const champions = getAdenL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getAdenRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
 /** ~200 звичайних мобів на зону (кілька L2-околиць в одній ігровій локації), чемпіони + РБ */
 function buildGoddardZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_GODDARD_POOL, z.id, z.min, z.max, 180, 220, 20, 38).map(applyL2XmlDropsToMob);
-  const champions = getGoddardL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const regular = fillZoneMobs(L2DOP_GODDARD_POOL, z.id, z.min, z.max, 180, 220, 20, 38).map((m, i) =>
+    applyL2XmlDropsToMob(m, z.id, i)
+  );
+  const champions = getGoddardL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getGoddardRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
 /** 150–300 мобів на зону, пара чемпіонів + РБ (агро патруль додається в Location) */
 function buildOrenZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_OREN_POOL, z.id, z.min, z.max, 150, 300, 10, 22).map(applyL2XmlDropsToMob);
-  const champions = getOrenL2DopChampions(z.id, z.min, z.max).map(applyL2XmlDropsToMob);
+  const regular = fillZoneMobs(L2DOP_OREN_POOL, z.id, z.min, z.max, 150, 300, 10, 22).map((m, i) =>
+    applyL2XmlDropsToMob(m, z.id, i)
+  );
+  const champions = getOrenL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getOrenRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
