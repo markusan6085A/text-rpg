@@ -1,4 +1,4 @@
-/** Вигляд екрана «Місто»: класичний або експериментальний L2-стиль. Зберігається в localStorage — легко відкатити. */
+/** Вигляд екрана «Місто»: класичний або теплий L2-стиль. Зберігається в localStorage — перемикач у Місті. */
 const STORAGE_KEY = "l2_city_ui_variant";
 
 export type CityUiVariant = "classic" | "l2";
@@ -10,7 +10,7 @@ export function getCityUiVariant(): CityUiVariant {
   } catch {
     /* ignore */
   }
-  return "classic";
+  return "l2";
 }
 
 export function setCityUiVariant(v: CityUiVariant): void {

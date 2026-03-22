@@ -9,6 +9,7 @@ import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { resetTutorialHint } from "../state/gameSettings";
 
 interface RegisterProps {
   navigate: (path: string) => void;
@@ -142,6 +143,8 @@ export default function Register({ navigate }: RegisterProps) {
         sex: gender,
       });
       setCharacterId(character.id);
+      // Обучалка під барами — показати знову для нового персонажа (ключ глобальний у браузері)
+      resetTutorialHint();
 
       // 3. Створення героя через createNewHero
       const coreHero = createNewHero({

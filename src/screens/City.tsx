@@ -127,7 +127,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1` : ""}>
-      {/* Перемикач вигляду — зберігається в localStorage (ключ l2_city_ui_variant) */}
+      {/* Перемикач вигляду — за замовчуванням L2; зберігається в localStorage (l2_city_ui_variant) */}
       <div
         className={
           isL2
@@ -136,7 +136,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         }
       >
         <span className="text-[10px] text-[#8a7a60] w-full text-center sm:w-auto">
-          Вигляд «Місто»:
+          Вигляд «Місто» (типово — L2):
         </span>
         <button
           type="button"
