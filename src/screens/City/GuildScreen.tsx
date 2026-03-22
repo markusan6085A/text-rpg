@@ -8,6 +8,7 @@ import {
   normalizeProfessionId,
   ProfessionId,
 } from "../../data/skills";
+import { PROFESSION_CHAIN } from "../../data/skills/professionChain";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { learnSkillLogic } from "../../state/heroStore/heroSkills";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
@@ -33,104 +34,6 @@ type SkillRow = {
 
 const DEFAULT_TITLE = "Гильдия навыков — изучение и прокачка";
 const DEFAULT_EMPTY = "Навыков пока нет.";
-
-const professionChain: Record<ProfessionId, ProfessionId[]> = {
-  // Human Fighter chain
-  human_fighter: ["human_fighter_warrior", "human_fighter_human_knight", "human_fighter_rogue"],
-  human_fighter_warrior: ["human_fighter_gladiator", "human_fighter_warlord"],
-  human_fighter_human_knight: ["human_fighter_paladin", "human_fighter_dark_avenger"],
-  human_fighter_gladiator: ["human_fighter_duelist"],
-  human_fighter_duelist: [],
-  human_fighter_warlord: ["human_fighter_dreadnought"],
-  human_fighter_dreadnought: [],
-  human_fighter_paladin: ["human_fighter_phoenix_knight"],
-  human_fighter_phoenix_knight: [],
-  human_fighter_hell_knight: [],
-  human_fighter_dark_avenger: ["human_fighter_hell_knight"],
-  human_fighter_titan: [],
-  human_fighter_rogue: ["human_fighter_hawkeye", "human_fighter_treasure_hunter"],
-  human_fighter_hawkeye: ["human_fighter_sagittarius"],
-  human_fighter_treasure_hunter: ["human_fighter_adventurer"],
-  human_fighter_sagittarius: [],
-  human_fighter_adventurer: [],
-  human_mystic_base: ["human_mystic_cleric", "human_mystic_wizard"],
-  human_mystic_cleric: ["human_mystic_bishop", "human_mystic_prophet"],
-  human_mystic_wizard: ["human_mystic_sorcerer", "human_mystic_necromancer", "human_mystic_warlock"],
-  human_mystic_bishop: ["human_mystic_cardinal"],
-  human_mystic_prophet: ["human_mystic_hierophant"],
-  human_mystic_hierophant: [],
-  human_mystic_cardinal: [],
-  human_mystic_warlock: ["human_mystic_arcana_lord"],
-  human_mystic_sorcerer: ["human_mystic_archmage"],
-  human_mystic_necromancer: ["human_mystic_soultaker"],
-  human_mystic_archmage: [],
-  human_mystic_soultaker: [],
-  human_mystic_arcana_lord: [],
-  dark_mystic_base: ["dark_mystic_oracle", "dark_mystic_dark_wizard"],
-  dark_mystic_oracle: ["dark_mystic_shillien_elder"],
-  dark_mystic_dark_wizard: ["dark_mystic_spellhowler", "dark_mystic_phantom_summoner"],
-  dark_mystic_spellhowler: ["dark_mystic_storm_screamer"],
-  dark_mystic_storm_screamer: [],
-  dark_mystic_shillien_elder: ["dark_mystic_shillien_saint"],
-  dark_mystic_shillien_saint: [],
-  dark_mystic_phantom_summoner: ["dark_mystic_spectral_master"],
-  dark_mystic_spectral_master: [],
-  // Orc Fighter chain
-  orc_fighter: ["orc_fighter_raider", "orc_fighter_monk"],
-  orc_fighter_raider: ["orc_fighter_destroyer"],
-  orc_fighter_destroyer: ["orc_fighter_titan"],
-  orc_fighter_titan: [],
-  orc_fighter_monk: ["orc_fighter_tyrant"],
-  orc_fighter_tyrant: ["orc_fighter_grand_khavatari"],
-  orc_fighter_grand_khavatari: [],
-  // Orc Mystic chain
-  orc_mystic_base: ["orc_mystic_shaman"],
-  orc_mystic_shaman: ["orc_mystic_warcryer", "orc_mystic_overlord"],
-  orc_mystic_warcryer: ["orc_mystic_doomcryer"],
-  orc_mystic_doomcryer: [],
-  orc_mystic_overlord: ["orc_mystic_dominator"],
-  orc_mystic_dominator: [],
-  // Dwarven Fighter chain
-  dwarven_fighter: ["dwarven_fighter_scavenger", "dwarven_fighter_artisan"],
-  dwarven_fighter_scavenger: ["dwarven_fighter_bounty_hunter"],
-  dwarven_fighter_bounty_hunter: ["dwarven_fighter_fortune_seeker"],
-  dwarven_fighter_fortune_seeker: [],
-  dwarven_fighter_artisan: ["dwarven_fighter_warsmith"],
-  dwarven_fighter_warsmith: ["dwarven_fighter_maestro"],
-  dwarven_fighter_maestro: [],
-  // Elven Fighter chain
-  elven_fighter: ["elven_fighter_elven_knight", "elven_fighter_elven_scout"],
-  elven_fighter_elven_knight: ["elven_fighter_swordsinger", "elven_fighter_temple_knight"],
-  elven_fighter_swordsinger: ["elven_fighter_sword_muse"],
-  elven_fighter_sword_muse: [],
-  elven_fighter_temple_knight: ["elven_fighter_evas_templar"],
-  elven_fighter_evas_templar: [],
-  elven_fighter_elven_scout: ["elven_fighter_silver_ranger", "elven_fighter_plainswalker"],
-  elven_fighter_silver_ranger: ["elven_fighter_moonlight_sentinel"],
-  elven_fighter_moonlight_sentinel: [],
-  elven_fighter_plainswalker: ["elven_fighter_wind_rider"],
-  elven_fighter_wind_rider: [],
-  // Elven Mystic chain
-  elven_mystic: ["elven_mystic_oracle", "elven_mystic_elven_wizard"],
-  elven_mystic_oracle: ["elven_mystic_elven_elder"],
-  elven_mystic_elven_elder: ["elven_mystic_evas_saint"],
-  elven_mystic_evas_saint: [],
-  elven_mystic_elven_wizard: ["elven_mystic_elemental_summoner", "elven_mystic_spellsinger"],
-  elven_mystic_elemental_summoner: ["elven_mystic_elemental_master"],
-  elven_mystic_elemental_master: [],
-  elven_mystic_spellsinger: ["elven_mystic_mystic_muse"],
-  elven_mystic_mystic_muse: [],
-  // Dark Fighter chain
-  dark_fighter: ["dark_fighter_assassin", "dark_fighter_palus_knight"],
-  dark_fighter_assassin: ["dark_fighter_phantom_ranger"],
-  dark_fighter_phantom_ranger: ["dark_fighter_ghost_sentinel"],
-  dark_fighter_ghost_sentinel: [],
-  dark_fighter_palus_knight: ["dark_fighter_shillien_knight", "dark_fighter_bladedancer"],
-  dark_fighter_shillien_knight: ["dark_fighter_shillien_templar"],
-  dark_fighter_shillien_templar: [],
-  dark_fighter_bladedancer: ["dark_fighter_spectral_dancer"],
-  dark_fighter_spectral_dancer: [],
-};
 
 export default function GuildScreen({
   navigate,
@@ -276,11 +179,11 @@ export default function GuildScreen({
     level: heroLevel,
   });
 
-  const nextProfessions = professionChain[chosenProfession] || [];
+  const nextProfessions = PROFESSION_CHAIN[chosenProfession] || [];
   console.log(`[GuildScreen] 🔗 Наступні професії для "${chosenProfession}":`, {
     nextProfessions,
     heroLevel,
-    professionChain: professionChain[chosenProfession],
+    professionChain: PROFESSION_CHAIN[chosenProfession],
   });
   const nextOptions = nextProfessions
     .map((pid) => {
@@ -333,7 +236,7 @@ export default function GuildScreen({
       const canLearn = heroLevel >= requiredLevel && heroSp >= spCost;
 
       // Перевіряємо, чи потрібно приховати цей рівень скіла
-      const nextProfs = professionChain[chosenProfession] || [];
+      const nextProfs = PROFESSION_CHAIN[chosenProfession] || [];
       let shouldHide = false;
       
       for (const nextProfId of nextProfs) {

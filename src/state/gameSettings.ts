@@ -2,6 +2,8 @@ import { getJSON, setJSON, removeItem } from "./persistence";
 import { GAME_SETTINGS_KEY } from "../constants/storageKeys";
 
 export const TUTORIAL_HINT_KEY = "l2_tutorial_hint_seen";
+/** id контекстних підказок (рівень / професія / гільдія), JSON string[] */
+export const TUTORIAL_DISMISSED_HINT_IDS_KEY = "l2_tutorial_dismissed_hint_ids";
 
 /** Подія для перемальовування екранів після зміни мови/інших опцій. */
 export const GAME_SETTINGS_CHANGED_EVENT = "l2-game-settings-changed";
@@ -42,6 +44,18 @@ export function setGameSettings(settings: Partial<GameSettings>) {
   }
 }
 
+export function getDismissedTutorialHintIds(): Set<string> {
+  const arr = getJSON<string[]>(TUTORIAL_DISMISSED_HINT_IDS_KEY, []);
+  return new Set(Array.isArray(arr) ? arr.map(String) : []);
+}
+
+export function dismissTutorialHintId(id: string): void {
+  const s = getDismissedTutorialHintIds();
+  s.add(id);
+  setJSON(TUTORIAL_DISMISSED_HINT_IDS_KEY, [...s]);
+}
+
 export function resetTutorialHint() {
   removeItem(TUTORIAL_HINT_KEY);
+  removeItem(TUTORIAL_DISMISSED_HINT_IDS_KEY);
 }
