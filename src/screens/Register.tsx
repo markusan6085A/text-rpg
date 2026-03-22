@@ -3,6 +3,7 @@ import { createNewHero } from "../state/heroFactory";
 import { clearBattlePersist } from "../state/battle/persist";
 import { useHeroStore } from "../state/heroStore";
 import { syncCurrentUserAndAccountHero } from "../state/heroStore/heroPersistence";
+import { savePreviousCity } from "../utils/locationNavigation";
 import { register, createCharacter, updateCharacter } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
@@ -157,10 +158,14 @@ export default function Register({ navigate }: RegisterProps) {
         gender,
       });
 
+      /** Стартове місто після реєстрації (City / GK / ТП) */
+      const START_CITY_ID = "gludin_village";
+      const heroJsonPayload = { ...coreHero, currentCityId: START_CITY_ID };
+
       // 4. Збереження heroJson через API (+ колонка adena, щоб GET/merge не бачили 0 замість старту з heroJson)
       await updateCharacter(character.id, {
-        heroJson: coreHero,
-        adena: coreHero.adena,
+        heroJson: heroJsonPayload,
+        adena: heroJsonPayload.adena,
       });
 
       // 5. Очищаємо бафи з попереднього героя при створенні нового
@@ -169,7 +174,8 @@ export default function Register({ navigate }: RegisterProps) {
       
       // 5.1. Поточний користувач для loadHero — без запису героя в accounts (ще немає повного hero)
       syncCurrentUserAndAccountHero(trimmedUsername);
-      
+      savePreviousCity(START_CITY_ID);
+
       // 6. Завантажуємо героя з API
       const loadedHero = await loadHeroFromAPI();
       if (loadedHero) {
@@ -178,7 +184,7 @@ export default function Register({ navigate }: RegisterProps) {
         navigate("/city");
       } else {
         // Fallback: встановлюємо героя вручну
-        const fallbackHero = { ...coreHero, name: trimmedUsername, username: trimmedUsername, sp: 0, skills: [] } as any;
+        const fallbackHero = { ...heroJsonPayload, name: trimmedUsername, username: trimmedUsername, sp: 0, skills: [] } as any;
         setHero(fallbackHero);
         syncCurrentUserAndAccountHero(trimmedUsername, fallbackHero);
         navigate("/city");

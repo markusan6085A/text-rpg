@@ -34,6 +34,16 @@ function getZonesByCity(cityId: string): Zone[] {
   return WORLD_LOCATIONS.filter((z) => z.cityId === cityId);
 }
 
+/** Підказка по рівнях мобів у зонах міста: мінімум з усіх minLevel — максимум з усіх maxLevel */
+function getCityMobLevelRangeLabel(cityId: string): string | null {
+  const zones = WORLD_LOCATIONS.filter((z) => z.cityId === cityId);
+  if (zones.length === 0) return null;
+  const minLvl = Math.min(...zones.map((z) => z.minLevel));
+  const maxLvl = Math.max(...zones.map((z) => z.maxLevel));
+  if (!Number.isFinite(minLvl) || !Number.isFinite(maxLvl)) return null;
+  return `${minLvl}–${maxLvl}`;
+}
+
 export default function GKScreen({ navigate }: { navigate: Navigate }) {
   useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
@@ -44,6 +54,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const l2Row =
     "w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150";
+  const l2ZoneRow =
+    "w-full text-left text-[11px] py-1.5 px-2 mb-1.5 rounded-md flex items-start gap-1.5 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_2px_10px_rgba(0,0,0,0.5)] hover:border-[#c7ad80]/50 hover:brightness-[1.03] active:scale-[0.995] transition-[border-color,transform,filter] duration-150";
 
   const defaultCityId =
     q.get("city") ||
@@ -117,6 +129,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   const adena = hero?.adena || 0;
   const ico = isL2 ? "w-4 h-4 object-contain shrink-0" : "w-3 h-3 object-contain shrink-0";
+  const icoZone = isL2 ? "w-3.5 h-3.5 object-contain shrink-0 mt-px" : "w-3 h-3 object-contain shrink-0";
 
   return (
     <div
@@ -258,6 +271,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                 const iconPath =
                   CITY_ICONS[city.id] || CITY_ICONS_BY_NAME[city.name] || "/icons/castle.png";
                 const active = city.id === selectedCityId;
+                const cityLvlRange = getCityMobLevelRangeLabel(city.id);
                 return isL2 ? (
                   <button
                     type="button"
@@ -269,7 +283,14 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                   >
                     <span className="flex items-center gap-2 min-w-0">
                       <img src={iconPath} alt="" className={ico} />
-                      <span className="text-[#d4c4a8] truncate">{displayCityName(city)}</span>
+                      <span className="text-[#d4c4a8] min-w-0 text-left">
+                        <span className="truncate block">{displayCityName(city)}</span>
+                        {cityLvlRange ? (
+                          <span className="text-[10px] text-[#8a7a60] leading-tight block mt-0.5">
+                            ур. {cityLvlRange}
+                          </span>
+                        ) : null}
+                      </span>
                     </span>
                     <span className="flex items-center gap-1 text-[#a89878] shrink-0">
                       {(city.tpCost ?? 0).toLocaleString("ru-RU")}
@@ -286,8 +307,13 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                     tabIndex={0}
                   >
                     <img src={iconPath} alt={displayCityName(city)} className="w-3 h-3 object-contain" />
-                    <span>{displayCityName(city)}</span>
-                    <span className="ml-auto flex items-center gap-1 text-[#c7ad80]">
+                    <span className="min-w-0">
+                      {displayCityName(city)}
+                      {cityLvlRange ? (
+                        <span className="text-[#a89878]"> · ур. {cityLvlRange}</span>
+                      ) : null}
+                    </span>
+                    <span className="ml-auto flex items-center gap-1 text-[#c7ad80] shrink-0">
                       {(city.tpCost ?? 0).toLocaleString("ru-RU")}
                       <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
                     </span>
@@ -320,23 +346,23 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                     <button
                       type="button"
                       key={zone.id}
-                      className={`${l2Row} justify-between w-full items-start gap-2`}
+                      className={`${l2ZoneRow} justify-between w-full items-start gap-2`}
                       onClick={() => goToZone(zone.id)}
                     >
-                      <span className="flex items-start gap-2 min-w-0 text-left">
-                        <img src="/assets/travel.png" alt="" className={`${ico} mt-0.5`} />
+                      <span className="flex items-start gap-1.5 min-w-0 text-left">
+                        <img src="/assets/travel.png" alt="" className={icoZone} />
                         <span className="flex flex-col min-w-0">
-                          <span className="text-[#e8dcc8] leading-snug">{displayZoneName(zone)}</span>
-                          <span className="text-[11px] text-[#c45c5c] mt-0.5">
+                          <span className="text-[#e8dcc8] leading-tight text-[11px]">{displayZoneName(zone)}</span>
+                          <span className="text-[10px] text-[#c45c5c] mt-px leading-none">
                             ур. {zone.minLevel}–{zone.maxLevel}
                           </span>
                         </span>
                       </span>
-                      <span className="flex flex-col items-end gap-0.5 shrink-0 text-right">
-                        <span className="text-[#f0d78c] font-medium tabular-nums">
+                      <span className="flex flex-col items-end gap-0 shrink-0 text-right">
+                        <span className="text-[#f0d78c] font-medium tabular-nums text-[10px] leading-none">
                           {zone.tpCost.toLocaleString("ru-RU")}
                         </span>
-                        <img src="/assets/adena.png" alt="" className="w-3.5 h-3.5 object-contain opacity-90" />
+                        <img src="/assets/adena.png" alt="" className="w-3 h-3 object-contain opacity-90" />
                       </span>
                     </button>
                   ) : (
