@@ -74,12 +74,25 @@ function applyMarketCharacterPatch(c: Character) {
   const overflow = Array.isArray((hj as any).overflowChest) ? (hj as any).overflowChest : hero.overflowChest;
   const adena = Number(c.adena ?? 0);
   const col = Number(c.coinLuck ?? 0);
+  const revRaw = (hj as any).heroRevision;
+  const heroRevision =
+    revRaw != null && Number.isFinite(Number(revRaw)) ? Number(revRaw) : undefined;
+
+  // КРИТИЧНО: updateHero(..., persist) синхронно викликає immediateSave → PUT з expectedRevision з serverState.
+  // Якщо спочатку оновити героя без serverState.heroRevision — 409 revision_conflict.
+  store.updateServerState({
+    coinLuck: col,
+    updatedAt: Date.now(),
+    ...(heroRevision != null ? { heroRevision } : {}),
+  });
+
   store.updateHero(
     {
       adena,
       coinOfLuck: col,
       inventory: inv as HeroInventoryItem[],
       overflowChest: overflow as HeroInventoryItem[] | undefined,
+      ...(heroRevision != null ? { heroRevision } : {}),
       heroJson: {
         ...(hero as any).heroJson,
         ...hj,
@@ -87,11 +100,11 @@ function applyMarketCharacterPatch(c: Character) {
         overflowChest: overflow,
         adena,
         coinOfLuck: col,
+        ...(heroRevision != null ? { heroRevision } : {}),
       },
     } as any,
     { persist: true }
   );
-  store.updateServerState({ coinLuck: col, updatedAt: Date.now() });
 }
 
 export default function Market({ navigate }: MarketProps) {
