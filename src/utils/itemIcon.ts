@@ -32,9 +32,35 @@ function getResourceFallbackPath(path: string): string {
   return path;
 }
 
-/** Обробник onError: спочатку пробує resourcesss (якщо шлях з resources), інакше fallback-іконка */
+/**
+ * Обробник onError для іконок ресурсів:
+ * 1) Artisan_Frame.jpg → Artisans_Frame.jpg (ім’я файлу в public)
+ * 2) l2dop-by-itemid ↔ l2drop-by-itemid (одна спроба альтернативної папки)
+ * 3) resources → resourcesss
+ * 4) заглушка
+ */
 export function handleResourceIconError(e: React.SyntheticEvent<HTMLImageElement>): void {
   const img = e.target as HTMLImageElement;
+  const raw = (img.getAttribute("src") || "").split("?")[0];
+
+  if (raw.includes("Artisan_Frame.jpg") && img.dataset.artisanFilenameAlt !== "1") {
+    img.dataset.artisanFilenameAlt = "1";
+    img.src = raw.replace("Artisan_Frame.jpg", "Artisans_Frame.jpg");
+    return;
+  }
+  if (img.dataset.l2ItemIdFolderTried !== "1") {
+    if (raw.includes("/l2dop-by-itemid/")) {
+      img.dataset.l2ItemIdFolderTried = "1";
+      img.src = raw.replace("/l2dop-by-itemid/", "/l2drop-by-itemid/");
+      return;
+    }
+    if (raw.includes("/l2drop-by-itemid/")) {
+      img.dataset.l2ItemIdFolderTried = "1";
+      img.src = raw.replace("/l2drop-by-itemid/", "/l2dop-by-itemid/");
+      return;
+    }
+  }
+
   if (img.src.includes("/drops/resourcesss/") || img.src.includes(FALLBACK_ICON)) {
     img.src = FALLBACK_ICON;
     return;

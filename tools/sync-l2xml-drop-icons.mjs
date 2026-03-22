@@ -1,5 +1,5 @@
 /**
- * Копіює іконки ресурсів у public/items/drops/resources/l2dop-by-itemid/{id}.jpg
+ * Копіює іконки ресурсів у public/items/drops/resources/l2drop-by-itemid/{id}.jpg
  * за списком l2ItemId з l2XmlDrops.generated.ts.
  *
  * Покладіть експорт іконок з клієнта/L2 у папку, де файли названі як {id}.jpg або {id}.png.
@@ -16,7 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 
 const GENERATED = path.join(root, "src", "data", "world", "l2dop", "l2XmlDrops.generated.ts");
-const OUT_DIR = path.join(root, "public", "items", "drops", "resources", "l2dop-by-itemid");
+const OUT_DIR = path.join(root, "public", "items", "drops", "resources", "l2drop-by-itemid");
 
 function parseArgs() {
   const a = process.argv.slice(2);
