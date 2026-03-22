@@ -24,7 +24,16 @@ export function normalizeIconPath(icon: string | undefined): string {
 
 export const FALLBACK_ICON = "/items/drops/Weapon_squires_sword_i00_0.jpg";
 
-/** Після невдалого завантаження — заглушка (без папки resourcesss). */
+/**
+ * Після невдалого завантаження — одна спроба fallback.
+ * Без захисту: якщо і fallback 404 (або приходить HTML), onError викликається знову → безкінечні запити в мережі.
+ */
 export function handleResourceIconError(e: React.SyntheticEvent<HTMLImageElement>): void {
-  (e.target as HTMLImageElement).src = FALLBACK_ICON;
+  const el = e.currentTarget as HTMLImageElement;
+  if (el.dataset.resourceIconFallback === "1") {
+    el.onerror = null;
+    return;
+  }
+  el.dataset.resourceIconFallback = "1";
+  el.src = FALLBACK_ICON;
 }
