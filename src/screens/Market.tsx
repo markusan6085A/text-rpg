@@ -730,7 +730,7 @@ export default function Market({ navigate }: MarketProps) {
 
       {sellModalRow && (
         <div
-          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-3 bg-black/75"
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center px-3 pt-3 pb-[calc(0.75rem+2cm)] bg-black/75"
           role="dialog"
           aria-modal="true"
           aria-labelledby="market-sell-title"
@@ -869,7 +869,7 @@ export default function Market({ navigate }: MarketProps) {
 
       {browseDetailListing && browseBuyPreview && hero && (
         <div
-          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-3 bg-black/75"
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center px-3 pt-3 pb-[calc(0.75rem+2cm)] bg-black/75"
           role="dialog"
           aria-modal="true"
           aria-labelledby="market-browse-detail-title"
