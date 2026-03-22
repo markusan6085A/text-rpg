@@ -14,7 +14,9 @@ const dividerGoldL2 = <div className="border-t border-[#c7ad80]/20 mt-2" />;
 const boxBlue =
   "rounded-lg border-2 border-[#4aa3ff]/70 bg-black/25 shadow-[inset_0_0_12px_rgba(74,163,255,0.18)] overflow-hidden";
 const boxLogL2 =
-  "rounded-lg border border-[#5c4a32]/70 bg-black/35 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] overflow-hidden";
+  "rounded-lg border border-[#6b5a3e]/55 bg-[linear-gradient(180deg,rgba(18,14,10,0.92)_0%,rgba(6,5,4,0.96)_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.14),inset_0_-8px_24px_rgba(0,0,0,0.35)] overflow-hidden";
+const skillStripL2 =
+  "rounded-lg border border-[#5c4a32]/45 bg-[radial-gradient(ellipse_95%_55%_at_50%_0%,rgba(199,173,128,0.1)_0%,transparent_58%),linear-gradient(180deg,#16120e_0%,#0a0907_100%)] px-2 py-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_0_20px_rgba(0,0,0,0.45)]";
 const l2Frame =
   "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
 
@@ -121,7 +123,9 @@ export function BattlePanel({
 
         {children != null && (
           <div className={line}>
-            <div className={pad}>{children}</div>
+            <div className={pad}>
+              {isL2 ? <div className={skillStripL2}>{children}</div> : children}
+            </div>
           </div>
         )}
 
@@ -129,11 +133,13 @@ export function BattlePanel({
           <div
             className={
               isL2
-                ? "text-[12px] text-[#e8c56e] font-semibold mb-2"
+                ? "text-[11px] uppercase tracking-[0.12em] text-[#d4b878] font-semibold mb-2 flex items-center gap-2"
                 : "text-[12px] text-[#c7ad80] font-semibold mb-2"
             }
           >
-            Лог бою:
+            {isL2 && <span className="h-px flex-1 max-w-[48px] bg-gradient-to-r from-[#c7ad80]/50 to-transparent" aria-hidden />}
+            Лог бою
+            {isL2 && <span className="h-px flex-1 bg-gradient-to-l from-[#c7ad80]/50 to-transparent" aria-hidden />}
           </div>
           <div className={`${logBox} w-full`}>
             <div className="px-3 py-2 text-[11px] leading-4 text-[#d4c4a8]">

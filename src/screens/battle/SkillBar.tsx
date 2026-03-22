@@ -6,6 +6,8 @@ import { allSkills } from "../../data/skills";
 import { MAX_SLOTS } from "../../state/battle/loadout";
 import { itemsDBWithStarter } from "../../data/items/itemsDB";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { calcAutoAttackInterval } from "../../utils/combatSpeed";
+import { applyBuffsToStats } from "../../state/battle/helpers";
 
 type LearnedSkill = {
   id: number;
@@ -51,6 +53,70 @@ function useLearnedActive(): LearnedSkill[] {
   return hasBase ? actives : [baseAttack, ...actives];
 }
 
+function skillReadyAt(
+  id: number | string | null,
+  slotInfo: { type?: string } | null,
+  cooldowns: Record<number, number>,
+  heroNextAttackAt?: number
+): number {
+  if (id === null || typeof id !== "number") return 0;
+  if (id === 0 && slotInfo?.type === "skill") return heroNextAttackAt ?? 0;
+  return cooldowns[id] ?? 0;
+}
+
+function SkillCooldownLayer({
+  readyAt,
+  now,
+  isBaseAttack,
+  attackIntervalMs,
+  uiL2,
+}: {
+  readyAt: number;
+  now: number;
+  isBaseAttack: boolean;
+  attackIntervalMs: number;
+  uiL2: boolean;
+}) {
+  const remaining = Math.max(0, readyAt - now);
+  if (remaining <= 0) return null;
+
+  if (isBaseAttack && attackIntervalMs > 0) {
+    const sweep = Math.min(1, remaining / attackIntervalMs);
+    const deg = 360 * sweep;
+    const label =
+      attackIntervalMs < 1800 ? (remaining / 1000).toFixed(1) : String(Math.max(1, Math.ceil(remaining / 1000)));
+    return (
+      <div className="absolute inset-0 z-10 rounded-md overflow-hidden pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `conic-gradient(from 0deg at 50% 50%, rgba(8,6,4,0.88) ${deg}deg, transparent ${deg}deg)`,
+          }}
+        />
+        <div
+          className={`absolute inset-0 flex items-center justify-center font-bold rounded-md ${
+            uiL2
+              ? "text-[#f0e0c0] text-[11px] tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
+              : "text-white text-xs"
+          }`}
+        >
+          {label}
+        </div>
+      </div>
+    );
+  }
+
+  const cdLeft = Math.max(0, Math.ceil(remaining / 1000));
+  return (
+    <div
+      className="absolute inset-0 z-10 bg-black/75 text-white text-xs flex items-center justify-center font-bold rounded-md"
+      style={{ minHeight: "100%" }}
+    >
+      {cdLeft}
+    </div>
+  );
+}
+
 interface SkillBarProps {
   /** У режимі PK: викликати цей callback замість useSkill (той самий вигляд, інша логіка — API) */
   onUseSkillOverride?: (skillId: number) => void;
@@ -60,6 +126,9 @@ interface SkillBarProps {
 export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps = {}) {
   const uiL2 = getCityUiVariant() === "l2";
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
+  const heroNextAttackAt = useBattleStore((s) => s.heroNextAttackAt);
+  const zoneId = useBattleStore((s) => s.zoneId);
+  const heroBuffs = useBattleStore((s) => s.heroBuffs ?? []);
   const hero = useHeroStore((s) => s.hero);
   const equipItem = useHeroStore((s) => s.equipItem);
   const heroMP = hero?.mp ?? 0;
@@ -71,8 +140,15 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
   const learnedActive = useLearnedActive();
   const slotsToShow = (loadoutSlots || []).slice(0, MAX_VISIBLE_SLOTS);
 
+  const attackIntervalMs = React.useMemo(() => {
+    if (zoneId === "fishing") return 400;
+    const buffed = applyBuffsToStats(hero?.battleStats || {}, heroBuffs);
+    const atk = Number(buffed?.attackSpeed ?? buffed?.atkSpeed ?? 0) || 0;
+    return calcAutoAttackInterval(atk);
+  }, [zoneId, hero?.battleStats, heroBuffs]);
+
   React.useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 500);
+    const id = setInterval(() => setNow(Date.now()), 100);
     return () => clearInterval(id);
   }, []);
 
@@ -202,8 +278,16 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
 
   const slotBaseClass = "relative w-9 h-9 rounded-md overflow-hidden flex items-center justify-center transition-all";
 
+  const emptySlotClass = uiL2
+    ? "w-9 h-9 rounded-md overflow-hidden flex items-center justify-center border border-[#7a6344]/65 bg-[radial-gradient(ellipse_90%_70%_at_50%_20%,rgba(199,173,128,0.14)_0%,transparent_65%),linear-gradient(165deg,#2a2318_0%,#100d09_55%,#080705_100%)] text-[#e8d4b0] text-lg font-light leading-none shadow-[inset_0_1px_0_rgba(255,235,200,0.08),0_0_14px_rgba(199,173,128,0.07),0_2px_6px_rgba(0,0,0,0.65)] ring-1 ring-[#c7ad80]/18 hover:ring-[#c7ad80]/35 hover:border-[#c7ad80]/45 hover:text-[#fff2d0] active:scale-[0.97] transition-[transform,box-shadow,border-color,color,filter] duration-150"
+    : "w-9 h-9 rounded-md border-2 border-dashed border-amber-900/70 bg-[#0d0a06] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 hover:border-amber-700/60 transition-all shadow-[inset_0_2px_6px_rgba(0,0,0,0.6)]";
+
+  const removeSlotClass = uiL2
+    ? "w-9 h-9 rounded-md overflow-hidden flex items-center justify-center border border-[#6b5940]/70 bg-gradient-to-b from-[#241e15] to-[#0f0c09] text-[#c9a46a] text-[10px] font-semibold tracking-tight shadow-[inset_0_1px_0_rgba(199,173,128,0.07),0_2px_5px_rgba(0,0,0,0.55)] ring-1 ring-[#c7ad80]/15 hover:border-[#c7ad80]/40 hover:text-[#fff0c8] active:scale-[0.98] transition-all"
+    : "w-9 h-9 rounded-md border-2 border-amber-900/60 bg-[#0d0a06] text-[#caa777] text-[11px] flex items-center justify-center hover:brightness-110 hover:border-amber-700/50 transition-all";
+
   return (
-    <div className="space-y-2">
+    <div className={uiL2 ? "space-y-2 pb-0.5" : "space-y-2"}>
       <div className={uiL2 ? "h-[1px] w-full bg-[#5c4a32]/35" : "h-[1px] w-full bg-[#1a120c]"} />
       <div className="flex justify-center">
         <div className="px-4 py-3">
@@ -216,21 +300,26 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(idx);
               const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
-              const readyAt = id !== null && typeof id === "number" ? cooldowns[id] ?? 0 : 0;
-              const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
-              
-              const disabled = id !== null && slotInfo?.type === "skill" && (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || cdLeft > 0);
+              const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
+              const isBaseAttackSkill = id === 0 && slotInfo?.type === "skill";
+              const onCooldown = readyAt > now;
+
+              const disabled =
+                id !== null &&
+                slotInfo?.type === "skill" &&
+                (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || onCooldown);
               const consumableDisabled = isConsumable && !isCharge && (slotInfo.count ?? 0) <= 0;
 
               if (id === null) {
                 return (
                   <button
                     key={`slot-${idx}`}
+                    type="button"
                     onClick={() => setPickerSlot(idx)}
-                    className="w-9 h-9 rounded-md border-2 border-dashed border-amber-900/70 bg-[#0d0a06] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 hover:border-amber-700/60 transition-all shadow-[inset_0_2px_6px_rgba(0,0,0,0.6)]"
-                    style={{ boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)" }}
+                    className={emptySlotClass}
+                    title="Додати навичку"
                   >
-                    +
+                    <span className={uiL2 ? "opacity-90 translate-y-px" : ""}>+</span>
                   </button>
                 );
               }
@@ -281,10 +370,14 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                   ) : (
                     <span className="text-[#caa777] text-xs relative z-0">?</span>
                   )}
-                  {slotInfo?.type === "skill" && cdLeft > 0 && (
-                    <div className="absolute inset-0 z-10 bg-black/75 text-white text-xs flex items-center justify-center font-bold rounded-md" style={{ minHeight: "100%" }}>
-                      {cdLeft}
-                    </div>
+                  {slotInfo?.type === "skill" && (
+                    <SkillCooldownLayer
+                      readyAt={readyAt}
+                      now={now}
+                      isBaseAttack={isBaseAttackSkill}
+                      attackIntervalMs={attackIntervalMs}
+                      uiL2={uiL2}
+                    />
                   )}
                   {isConsumable && slotInfo.count !== undefined && slotInfo.count > 1 && (
                     <div className="absolute bottom-0 right-0 bg-black/80 text-amber-200 text-[9px] px-1 rounded-tl font-semibold">
@@ -295,9 +388,10 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               );
             })}
             <button
+              type="button"
               onClick={openRemovePicker}
-              className="w-9 h-9 rounded-md border-2 border-amber-900/60 bg-[#0d0a06] text-[#caa777] text-[11px] flex items-center justify-center hover:brightness-110 hover:border-amber-700/50 transition-all"
-              style={{ boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)" }}
+              className={removeSlotClass}
+              style={!uiL2 ? { boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)" } : undefined}
               title="Убрать скиллы"
             >
               Убр.
@@ -311,21 +405,26 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(slotIndex);
               const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
-              const readyAt = id !== null && typeof id === "number" ? cooldowns[id] ?? 0 : 0;
-              const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
-              
-              const disabled = id !== null && slotInfo?.type === "skill" && (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || cdLeft > 0);
+              const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
+              const isBaseAttackSkill = id === 0 && slotInfo?.type === "skill";
+              const onCooldown = readyAt > now;
+
+              const disabled =
+                id !== null &&
+                slotInfo?.type === "skill" &&
+                (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || onCooldown);
               const consumableDisabled = isConsumable && !isCharge && (slotInfo.count ?? 0) <= 0;
 
               if (id === null) {
                 return (
                   <button
                     key={`slot-${slotIndex}`}
+                    type="button"
                     onClick={() => setPickerSlot(slotIndex)}
-                    className="w-9 h-9 rounded-md border-2 border-dashed border-amber-900/70 bg-[#0d0a06] text-[#caa777] text-xs flex items-center justify-center hover:brightness-110 hover:border-amber-700/60 transition-all"
-                    style={{ boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)" }}
+                    className={emptySlotClass}
+                    title="Додати навичку"
                   >
-                    +
+                    <span className={uiL2 ? "opacity-90 translate-y-px" : ""}>+</span>
                   </button>
                 );
               }
@@ -376,10 +475,14 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                   ) : (
                     <span className="text-[#caa777] text-xs relative z-0">?</span>
                   )}
-                  {slotInfo?.type === "skill" && cdLeft > 0 && (
-                    <div className="absolute inset-0 z-10 bg-black/75 text-white text-xs flex items-center justify-center font-bold rounded-md" style={{ minHeight: "100%" }}>
-                      {cdLeft}
-                    </div>
+                  {slotInfo?.type === "skill" && (
+                    <SkillCooldownLayer
+                      readyAt={readyAt}
+                      now={now}
+                      isBaseAttack={isBaseAttackSkill}
+                      attackIntervalMs={attackIntervalMs}
+                      uiL2={uiL2}
+                    />
                   )}
                   {isConsumable && slotInfo.count !== undefined && slotInfo.count > 1 && (
                     <div className="absolute bottom-0 right-0 bg-black/80 text-amber-200 text-[9px] px-1 rounded-tl font-semibold">
@@ -533,9 +636,9 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                     </button>
                   ))
                 : (currentList as LearnedSkill[]).map((s) => {
-                    const readyAt = cooldowns[s.id] ?? 0;
-                    const cdLeft = Math.max(0, Math.ceil((readyAt - now) / 1000));
-                    const disabled = (s.mpCost ?? 0) > heroMP || cdLeft > 0;
+                    const readyAtPick = skillReadyAt(s.id, { type: "skill" }, cooldowns, heroNextAttackAt);
+                    const onCdPick = readyAtPick > now;
+                    const disabled = (s.mpCost ?? 0) > heroMP || onCdPick;
                     return (
                       <button
                         key={`pick-${s.id}`}
