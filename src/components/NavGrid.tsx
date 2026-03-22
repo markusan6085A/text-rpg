@@ -10,18 +10,26 @@ interface NavGridProps {
 
 type NavButton = { label: string; icon: string; path?: string; onClick?: () => void };
 
-const buttons: NavButton[] = [
+/** Під HP/MP/EXP: форум, пошта, чат, меню, клан (як на L2Dop). */
+const topRowButtons: NavButton[] = [
+  { label: "Форум", icon: "/icons/форум.jpg", path: "/forum" },
   { label: "Почта", icon: "/icons/почта.jpg", path: "/mail" },
   { label: "Чат", icon: "/icons/чат.jpg", path: "/chat" },
-  { label: "Форум", icon: "/icons/форум.jpg", path: "/forum" },
+  { label: "Меню", icon: "/icons/меню.jpg", path: "/about" },
+  { label: "Клан", icon: "/icons/клан.jpg", path: "/clans" },
+];
+
+/** Нижня панель: місто, інвентар, персонаж, стати, новини. */
+const bottomRowButtons: NavButton[] = [
   { label: "Город", icon: "/icons/город.jpg", path: "/city" },
   { label: "Инвентарь", icon: "/icons/инвентарь.jpg", path: "/inventory" },
   { label: "Персонаж", icon: "/icons/персонаж.jpg", path: "/character" },
-  { label: "Клан", icon: "/icons/клан.jpg", path: "/clans" },
-  { label: "Меню", icon: "/icons/меню.jpg", path: "/about" },
   { label: "Статы", icon: "/icons/стати.jpg", path: "/stats" },
   { label: "Новости", icon: "/icons/новости.jpg", path: "/news" },
 ];
+
+const iconWrapClass =
+  "rounded-lg overflow-hidden border border-[#5c4a32]/45 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] bg-black/35";
 
 export default function NavGrid({ navigate }: NavGridProps) {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -29,16 +37,13 @@ export default function NavGrid({ navigate }: NavGridProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const previousUnreadRef = useRef(0);
 
-  // Завантажуємо кількість непрочитаних листів
-  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
   const unreadIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
-    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
     if (!isAuthenticated) {
       previousUnreadRef.current = 0;
       setUnreadCount(0);
-      return; // Cleanup спрацює автоматично через return нижче
+      return;
     }
 
     const loadUnreadCount = async () => {
@@ -53,38 +58,33 @@ export default function NavGrid({ navigate }: NavGridProps) {
         previousUnreadRef.current = nextUnread;
         setUnreadCount(nextUnread);
       } catch (err: any) {
-        console.error('[NavGrid] Failed to load unread count:', err);
+        console.error("[NavGrid] Failed to load unread count:", err);
         setUnreadCount(0);
       }
     };
 
-    // 🔥 1 с затримка — мінімальний буфер для character load, потім одразу показуємо unread в сітці
     const startTimeout = setTimeout(loadUnreadCount, 1000);
-    const interval = setInterval(loadUnreadCount, 60000); // Кожні 60 с
+    const interval = setInterval(loadUnreadCount, 60000);
     unreadIntervalRef.current = interval;
-    // 🔥 При поверненні на вкладку (напр. після читання пошти) — оновлюємо бейдж
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") loadUnreadCount();
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
-    
+
     return () => {
       clearTimeout(startTimeout);
       clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       unreadIntervalRef.current = null;
     };
-  }, [isAuthenticated]); // 🔥 Мінімальні dependencies - тільки isAuthenticated (примітив)
+  }, [isAuthenticated]);
 
-  // Завантажуємо кількість непрочитаних повідомлень клану
-  // 🔥 КРИТИЧНО: Використовуємо useRef для зберігання interval ID, щоб уникнути дублювання
   const clanUnreadIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
-    // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
     if (!isAuthenticated) {
       setClanUnreadCount(0);
-      return; // Cleanup спрацює автоматично через return нижче
+      return;
     }
 
     const loadClanUnreadCount = async () => {
@@ -96,10 +96,8 @@ export default function NavGrid({ navigate }: NavGridProps) {
           const lastVisit = localStorage.getItem(lastVisitKey);
           const lastVisitTime = lastVisit ? parseInt(lastVisit, 10) : 0;
 
-          // Завантажуємо останні повідомлення
           const chatResponse = await getClanChat(myClanResponse.clan.id, 1, 100);
           if (chatResponse.ok) {
-            // Рахуємо повідомлення, які прийшли після останнього візиту
             const unread = chatResponse.messages.filter((msg) => {
               const msgTime = new Date(msg.createdAt).getTime();
               return msgTime > lastVisitTime;
@@ -110,36 +108,32 @@ export default function NavGrid({ navigate }: NavGridProps) {
           setClanUnreadCount(0);
         }
       } catch (err: any) {
-        console.error('[NavGrid] Failed to load clan unread count:', err);
+        console.error("[NavGrid] Failed to load clan unread count:", err);
         setClanUnreadCount(0);
       }
     };
 
-    // 🔥 Перший clan unread через 20 с, щоб не спалити ліміт до PUT
     const clanStartTimeout = setTimeout(loadClanUnreadCount, 20000);
-    // 🔥 ОПТИМІЗАЦІЯ: Зменшуємо частоту поллінгу з 30 секунд до 60 секунд
-    const interval = setInterval(loadClanUnreadCount, 60000); // Оновлюємо кожні 60 секунд
-    clanUnreadIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
-    
+    const interval = setInterval(loadClanUnreadCount, 60000);
+    clanUnreadIntervalRef.current = interval;
+
     return () => {
       clearTimeout(clanStartTimeout);
       clearInterval(interval);
       clanUnreadIntervalRef.current = null;
     };
-  }, [isAuthenticated]); // 🔥 Мінімальні dependencies - тільки isAuthenticated (примітив)
+  }, [isAuthenticated]);
 
   const handleClick = async (btn: NavButton) => {
-    // 🔥 Скрол вгору при навігації - завжди показуємо верх сторінки з барами
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    
+
     if (btn.onClick) {
       btn.onClick();
       return;
     }
-    
-    // Спеціальна обробка для кнопки "Клан"
+
     if (btn.label === "Клан" && navigate) {
       const fetchClan = async (retries = 0): Promise<{ id: string } | null> => {
         try {
@@ -167,59 +161,75 @@ export default function NavGrid({ navigate }: NavGridProps) {
       }
       return;
     }
-    
+
     if (btn.path && navigate) {
-      // 🔥 ВАЖЛИВО: Завжди викликаємо navigate, навіть якщо шлях той самий
-      // Це гарантує оновлення сторінки через refreshKey
       navigate(btn.path);
       return;
     }
     showToast("Функція недоступна", "info");
   };
 
+  const renderIconButton = (btn: NavButton, size: "sm" | "md") => {
+    const isMail = btn.label === "Почта";
+    const isClan = btn.label === "Клан";
+    const showMailBadge = isMail && unreadCount > 0;
+    const showClanBadge = isClan && clanUnreadCount > 0;
+    const dim = size === "sm" ? "w-7 h-7" : "w-8 h-8";
+    const inner = size === "sm" ? 28 : 32;
+
+    return (
+      <button
+        key={`${size}-${btn.label}`}
+        type="button"
+        onClick={() => handleClick(btn)}
+        className="shrink-0 rounded-lg bg-transparent text-[#dba753] p-0 border-0 hover:brightness-110 transition-[filter] flex flex-col items-center justify-center focus:outline-none relative"
+        title={btn.label}
+      >
+        <span className={`${iconWrapClass} ${dim} flex items-center justify-center`}>
+          <img
+            src={encodeURI(btn.icon)}
+            alt={btn.label}
+            className={`${dim} object-contain rounded-md`}
+            style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
+            width={inner}
+            height={inner}
+          />
+        </span>
+        {showMailBadge && (
+          <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </div>
+        )}
+        {showClanBadge && (
+          <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none z-[1]">
+            {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
+          </div>
+        )}
+      </button>
+    );
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-1.5 sm:px-2 md:px-3 pointer-events-none">
-      <div className="w-full max-w-full min-w-0 rounded-lg border border-[#c7ad80] bg-[#0b0806f0] px-1 py-[2px] shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto">
-        <div className="px-0 py-0 overflow-x-hidden">
-          <div className="w-full flex flex-row flex-nowrap items-center justify-between gap-[0.15rem] text-[11px] text-[#d8c598]">
-            {buttons.map((btn) => {
-              const isMail = btn.label === "Почта";
-              const isClan = btn.label === "Клан";
-              const showMailBadge = isMail && unreadCount > 0;
-              const showClanBadge = isClan && clanUnreadCount > 0;
-              return (
-                <button
-                  key={btn.label}
-                  onClick={() => handleClick(btn)}
-                  className="flex-1 min-w-[30px] rounded-md bg-transparent text-[#dba753] px-[2px] py-0 border-0 hover:bg-transparent transition-colors flex flex-col items-center gap-[0.12rem] focus:outline-none relative"
-                  title={btn.label}
-                >
-                  <img
-                    src={encodeURI(btn.icon)}
-                    alt={btn.label}
-                    className="w-8 h-8 object-contain"
-                    style={{ filter: "grayscale(25%) brightness(0.92) sepia(12%)" }}
-                    width={32}
-                    height={32}
-                  />
-                  {/* Індикатор непрочитаних на пошті */}
-                  {showMailBadge && (
-                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </div>
-                  )}
-                  {/* Індикатор непрочитаних повідомлень клану */}
-                  {showClanBadge && (
-                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
-                      {clanUnreadCount > 99 ? "99+" : clanUnreadCount}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+    <>
+      {/* Верхній ряд — під барами HP/MP (fixed блок StatusBars ~left-2 top-2) */}
+      <div
+        className="fixed left-2 z-[48] flex flex-row flex-nowrap items-center gap-1.5 pointer-events-none"
+        style={{ top: "5.75rem" }}
+        aria-label="Швидкі посилання: форум, пошта, чат"
+      >
+        <div className="flex flex-row flex-nowrap items-center gap-1.5 pointer-events-auto max-w-[calc(100vw-0.75rem)]">
+          {topRowButtons.map((btn) => renderIconButton(btn, "sm"))}
+        </div>
+      </div>
+
+      {/* Нижня панель — 5 іконок по центру */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806cc] to-transparent pt-2 pb-2 px-2 sm:px-3 pointer-events-none">
+        <div className="w-full max-w-md mx-auto rounded-xl border border-[#c7ad80] bg-[#0b0806f0] px-3 py-2 shadow-[0_14px_40px_rgba(0,0,0,0.6)] backdrop-blur-[1px] pointer-events-auto">
+          <div className="flex flex-row flex-nowrap items-center justify-center gap-4 sm:gap-5">
+            {bottomRowButtons.map((btn) => renderIconButton(btn, "md"))}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
