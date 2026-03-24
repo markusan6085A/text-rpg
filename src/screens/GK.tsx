@@ -36,6 +36,9 @@ function getZonesByCity(cityId: string): Zone[] {
 }
 
 /** Підказка по рівнях мобів у зонах міста: мінімум з усіх minLevel — максимум з усіх maxLevel */
+/** Телепорти GK: безкоштовно до цього рівня включно (клієнтська перевірка адени). */
+const FREE_TELEPORT_MAX_LEVEL = 40;
+
 function getCityMobLevelRangeLabel(cityId: string): string | null {
   const zones = WORLD_LOCATIONS.filter((z) => z.cityId === cityId);
   if (zones.length === 0) return null;
@@ -71,23 +74,27 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   const zones = selectedCity ? getZonesByCity(selectedCity.id) : [];
 
+  const heroLevel = Math.max(1, Math.floor(Number(hero?.level ?? 1)));
+  const tpFreeThrough40 = heroLevel <= FREE_TELEPORT_MAX_LEVEL;
+
   const handleCityChange = (cityId: string) => {
     if (cityId === selectedCityId) return;
 
     const destCity = WORLD_CITIES.find((c) => c.id === cityId);
     const cityTpCost = destCity?.tpCost ?? 0;
+    const charge = tpFreeThrough40 ? 0 : cityTpCost;
 
     if (!hero) {
       showToast("Персонаж не завантажений.", "error");
       return;
     }
 
-    if (cityTpCost > 0) {
-      if ((hero.adena ?? 0) < cityTpCost) {
+    if (charge > 0) {
+      if ((hero.adena ?? 0) < charge) {
         showToast("Недостаточно адены для телепорта в этот город!", "error");
         return;
       }
-      updateAdena(-cityTpCost);
+      updateAdena(-charge);
     }
 
     setSelectedCityId(cityId);
@@ -105,18 +112,19 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   const goToZone = (zoneId: string) => {
     const zone = zones.find((z) => z.id === zoneId);
     const zoneCost = zone?.tpCost ?? 0;
+    const charge = tpFreeThrough40 ? 0 : zoneCost;
 
     if (!hero) {
       showToast("Персонаж не завантажений.", "error");
       return;
     }
 
-    if (zoneCost > 0) {
-      if ((hero.adena ?? 0) < zoneCost) {
+    if (charge > 0) {
+      if ((hero.adena ?? 0) < charge) {
         showToast("Недостаточно адены для телепорта на эту локацию!", "error");
         return;
       }
-      updateAdena(-zoneCost);
+      updateAdena(-charge);
     }
 
     // 🔥 Зберігаємо поточне місто — щоб City та ТП пам'ятали останнє місто
@@ -265,6 +273,19 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
           )}
         </div>
 
+        {hero && tpFreeThrough40 ? (
+          <div
+            className={
+              isL2
+                ? "mb-3 rounded-md border border-[#5c8a5c]/35 bg-black/20 px-2.5 py-2 text-[10px] leading-snug text-[#a8c9a4] text-center shadow-[inset_0_1px_0_rgba(125,155,122,0.12)]"
+                : "mb-3 rounded border border-green-700/40 bg-black/30 px-2 py-1.5 text-[10px] leading-snug text-green-200/90 text-center"
+            }
+          >
+            До 40 уровня включительно телепорты по городам и локациям —{" "}
+            <span className="font-semibold text-[#c8e4c4]">бесплатно</span>.
+          </div>
+        ) : null}
+
         <div className="mb-3">
           <div
             className={
@@ -309,14 +330,22 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                       </span>
                     </span>
                     <span className="flex flex-col items-end gap-0 shrink-0 text-right">
-                      <span className="text-[#f0d78c] font-medium tabular-nums text-[10px] leading-none">
-                        {(city.tpCost ?? 0).toLocaleString("ru-RU")}
-                      </span>
-                      <img
-                        src="/assets/adena.png"
-                        alt=""
-                        className="w-3 h-3 object-contain opacity-90"
-                      />
+                      {tpFreeThrough40 ? (
+                        <span className="text-[#7d9b7a] font-semibold tabular-nums text-[10px] leading-none">
+                          бесплатно
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-[#f0d78c] font-medium tabular-nums text-[10px] leading-none">
+                            {(city.tpCost ?? 0).toLocaleString("ru-RU")}
+                          </span>
+                          <img
+                            src="/assets/adena.png"
+                            alt=""
+                            className="w-3 h-3 object-contain opacity-90"
+                          />
+                        </>
+                      )}
                     </span>
                   </button>
                 ) : (
@@ -336,8 +365,14 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                       ) : null}
                     </span>
                     <span className="ml-auto flex items-center gap-1 text-[#c7ad80] shrink-0">
-                      {(city.tpCost ?? 0).toLocaleString("ru-RU")}
-                      <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+                      {tpFreeThrough40 ? (
+                        <span className="text-[#86b886]">бесплатно</span>
+                      ) : (
+                        <>
+                          {(city.tpCost ?? 0).toLocaleString("ru-RU")}
+                          <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+                        </>
+                      )}
                     </span>
                   </div>
                 );
@@ -381,10 +416,18 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                         </span>
                       </span>
                       <span className="flex flex-col items-end gap-0 shrink-0 text-right">
-                        <span className="text-[#f0d78c] font-medium tabular-nums text-[10px] leading-none">
-                          {zone.tpCost.toLocaleString("ru-RU")}
-                        </span>
-                        <img src="/assets/adena.png" alt="" className="w-3 h-3 object-contain opacity-90" />
+                        {tpFreeThrough40 ? (
+                          <span className="text-[#7d9b7a] font-semibold tabular-nums text-[10px] leading-none">
+                            бесплатно
+                          </span>
+                        ) : (
+                          <>
+                            <span className="text-[#f0d78c] font-medium tabular-nums text-[10px] leading-none">
+                              {zone.tpCost.toLocaleString("ru-RU")}
+                            </span>
+                            <img src="/assets/adena.png" alt="" className="w-3 h-3 object-contain opacity-90" />
+                          </>
+                        )}
                       </span>
                     </button>
                   ) : (
@@ -399,8 +442,14 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                         {zone.minLevel}-{zone.maxLevel}
                       </span>
                       <span className="ml-auto flex items-center gap-1 text-[#c7ad80]">
-                        {zone.tpCost.toLocaleString("ru-RU")}
-                        <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+                        {tpFreeThrough40 ? (
+                          <span className="text-[#86b886]">бесплатно</span>
+                        ) : (
+                          <>
+                            {zone.tpCost.toLocaleString("ru-RU")}
+                            <img src="/assets/adena.png" alt="Adena" className="w-3 h-3 object-contain" />
+                          </>
+                        )}
                       </span>
                     </div>
                   )
