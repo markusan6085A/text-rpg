@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { MobTopRatingScripts } from "./components/MobTopRatingScripts";
 import "./index.css";
 
 // Логуємо API_URL тільки в dev (у prod не розкриваємо конфіг)
@@ -15,5 +16,8 @@ if (import.meta.env.DEV) {
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // StrictMode викликає подвійні рендери в dev, що призводить до подвійних запитів
   // В production це не впливає, але для оптимізації вимкнено
-  <App />
+  <>
+    <MobTopRatingScripts />
+    <App />
+  </>
 );
