@@ -110,6 +110,36 @@ export async function refreshPkFighterStatsFromDb(session: PkSession): Promise<v
   }
 }
 
+/** Повідомлення в лог, коли клієнт просить атакуючий скіл, а сервер не може його застосувати (без підміни на базову атаку). */
+export function formatPkAttackSkillFailureMessage(
+  fighter: PkFighter,
+  cooldowns: Record<number, number>,
+  requestedSkillId: number,
+  now: number,
+  reqSkillName?: string
+): string {
+  const requested = fighter.skills.find((s) => s.id === requestedSkillId);
+  const sName =
+    String(reqSkillName || "").trim() ||
+    (requested?.name ? String(requested.name) : "") ||
+    `skill#${requestedSkillId}`;
+  if (!requested) {
+    return `${fighter.name}: не удалось использовать ${reqSkillName?.trim() || `skill#${requestedSkillId}`}.`;
+  }
+  if ((cooldowns[requested.id] ?? 0) > now) {
+    return `${fighter.name}: ${sName} на перезарядке.`;
+  }
+  if (fighter.mp < requested.mpCost) {
+    return `${fighter.name}: не хватает MP для ${sName} (нужно ${requested.mpCost}).`;
+  }
+  return `${fighter.name}: не удалось использовать ${sName}.`;
+}
+
+/** Узгоджено з client `src/data/balance.ts` + calculatePhysical/MagicDamage (PvE). */
+const L2_PHYSICAL_COEFF_PK = 70;
+const L2_MAGIC_COEFF_PK = 70;
+const L2_PVE_DMG_MULT_PK = 2.8;
+
 export function serializePkSession(session: PkSession) {
   return {
     ok: true,
@@ -134,7 +164,10 @@ export function serializePkSession(session: PkSession) {
   };
 }
 
-/** Урон як у клієнті: простий удар = pAtk - pDef, скіл = трохи більше (+ powerBonus). */
+/**
+ * Урон узгоджено з PvE: базова атака — як baseAttack (L2_PHYSICAL * pAtk/pDef * PVE_MULT);
+ * скіли — як calculatePhysicalDamage / calculateMagicDamage (L2 * (atk + 2*power) / def * PVE_MULT).
+ */
 export function computeDamage(
   attacker: PkFighter,
   defender: PkFighter,
@@ -148,7 +181,7 @@ export function computeDamage(
   const mDef = Math.max(1, Number(defender.mDef || 1));
   const skillBonus = Math.max(0, Number(powerBonus || 0));
 
-  if (!useMagic && powerBonus === 0) {
+  if (!useMagic && skillBonus === 0) {
     const hitChance = Math.max(20, Math.min(100, 90 + (attacker.accuracy || 0) - (defender.evasion || 0)));
     if (Math.random() * 100 > hitChance) {
       return { dmg: 0, isCrit: false, isMiss: true };
@@ -161,22 +194,43 @@ export function computeDamage(
 
   const critPower = attacker.critPower || 100;
   const critMult = isCrit
-    ? powerBonus > 0
+    ? skillBonus > 0
       ? Math.min(3.0, 2.0 + critPower / 1500)
       : Math.min(2.0, 1.5 + critPower / 5000)
     : 1.0;
 
-  const variance = 0.92 + Math.random() * 0.16;
-
   if (useMagic) {
+    if (skillBonus > 0) {
+      const power = Math.max(1, skillBonus);
+      const variance = 0.9 + Math.random() * 0.2;
+      const l2Base =
+        (L2_MAGIC_COEFF_PK * (mAtk + 2 * power)) / mDef * L2_PVE_DMG_MULT_PK;
+      const dmg = Math.max(1, Math.floor(l2Base * variance * critMult * shotMultiplier));
+      return { dmg, isCrit, isMiss: false };
+    }
+    const variance = 0.92 + Math.random() * 0.16;
     const raw = Math.max(0, mAtk - mDef);
     const base = raw + skillBonus;
     return { dmg: Math.max(1, Math.floor(base * variance * critMult * shotMultiplier)), isCrit, isMiss: false };
   }
 
-  const raw = Math.max(0, pAtk - pDef);
-  const base = raw + skillBonus;
-  return { dmg: Math.max(1, Math.floor(base * variance * critMult * shotMultiplier)), isCrit, isMiss: false };
+  if (skillBonus > 0) {
+    const power = Math.max(1, skillBonus);
+    const variance = 0.8 + Math.random() * 0.4;
+    const l2Base =
+      (L2_PHYSICAL_COEFF_PK * (pAtk + 2 * power)) / pDef * L2_PVE_DMG_MULT_PK;
+    const dmg = Math.max(1, Math.floor(l2Base * variance * critMult * shotMultiplier));
+    return { dmg, isCrit, isMiss: false };
+  }
+
+  const varianceBasic = 0.9 + Math.random() * 0.2;
+  const effectivePAtk = Math.max(1, pAtk * shotMultiplier);
+  const dmgBase = Math.max(
+    1,
+    Math.floor(L2_PHYSICAL_COEFF_PK * (effectivePAtk / pDef) * varianceBasic * L2_PVE_DMG_MULT_PK)
+  );
+  const dmg = Math.max(1, Math.floor(dmgBase * critMult));
+  return { dmg, isCrit, isMiss: false };
 }
 
 export function getEffectivePkNickColor(heroJson: any, now = Date.now()): string | undefined {

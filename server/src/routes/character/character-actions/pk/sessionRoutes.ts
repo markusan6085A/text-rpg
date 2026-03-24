@@ -20,6 +20,7 @@ import {
   refreshPkFighterStatsFromDb,
   computeDamage,
   getEffectivePkNickColor,
+  formatPkAttackSkillFailureMessage,
 } from "./helpers";
 import { syncPkRealtimeState, syncArenaHpOnly } from "./sync";
 import { savePkResultIfNeeded, ensureArenaLeaderboardTable } from "./results";
@@ -525,6 +526,18 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       reqBuffCooldownMs?: number
     ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
+
+      if (
+        requestedSkillId !== undefined &&
+        !(reqIsBuff || reqIsToggle) &&
+        !skill
+      ) {
+        session.log.unshift(
+          formatPkAttackSkillFailureMessage(attacker, cooldowns, requestedSkillId, now, reqSkillName)
+        );
+        session.log = session.log.slice(0, 30);
+        return 0;
+      }
 
       if ((reqIsBuff || reqIsToggle) && !skill) {
         const sName = reqSkillName || `skill#${requestedSkillId ?? "?"}`;

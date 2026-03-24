@@ -41,6 +41,10 @@ interface PlayerProfileProps {
 import { getSkillDef, getSkillDefForBattle, skillDefIsBuff, skillDefIsToggle } from "../state/battle/loadout";
 import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 import { useBattleStore } from "../state/battle/store";
+import {
+  rollbackPkPredictiveCooldownIfActionFailed,
+  rollbackPkPredictiveCooldownOnNetworkError,
+} from "../state/battle/pkPredictiveCooldownRollback";
 import { useAdminStore } from "../state/adminStore";
 import { buffPlayer } from "../utils/api";
 import { showToast } from "../state/toastStore";
@@ -555,20 +559,17 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           pkActorBuffs: res.actorBuffs.map((b) => ({ ...b, effects: b.effects ?? [] })),
         });
       }
-      const lastLog = res.session?.log?.[0] ?? "";
-      if (skillDef && (lastLog.includes("не хватает MP") || lastLog.includes("не удалось использовать")) && (isBuff || isToggle)) {
-        useBattleStore.setState((s) => {
-          const next = { ...(s.cooldowns || {}) };
-          delete next[skillId];
-          return { cooldowns: next };
-        });
-      }
+      rollbackPkPredictiveCooldownIfActionFailed(res.session?.log?.[0], {
+        heroName: String(hero?.name ?? "").trim(),
+        skillIdUsed: skillId,
+      });
       if (res.session.ended) {
         setTimeout(() => {
           loadPlayerProfile();
         }, 300);
       }
     } catch (e: any) {
+      rollbackPkPredictiveCooldownOnNetworkError(skillId);
       setPkError(e?.message || "Ошибка PK действия");
     } finally {
       setPkActing(false);
@@ -624,7 +625,12 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           loadPlayerProfile();
         }, 300);
       }
+      rollbackPkPredictiveCooldownIfActionFailed(res.session?.log?.[0], {
+        heroName: String(hero?.name ?? "").trim(),
+        skillIdUsed: undefined,
+      });
     } catch (e: any) {
+      rollbackPkPredictiveCooldownOnNetworkError(undefined);
       setPkError(e?.message || "Ошибка PK действия");
     } finally {
       setPkActing(false);
