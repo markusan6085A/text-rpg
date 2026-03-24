@@ -573,6 +573,10 @@ export interface ArenaFieldPlayer {
   id: string;
   name: string;
   level: number;
+  /** Эффективный цвет ника (колонка + heroJson, без 7 печатей — см. sevenSealsRank) */
+  nickColor?: string;
+  /** 1–3 если активен бонус победителя 7 печатей */
+  sevenSealsRank?: number;
 }
 
 export interface ArenaFieldResponse {

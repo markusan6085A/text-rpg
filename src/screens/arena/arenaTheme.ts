@@ -30,15 +30,15 @@ export function arenaSub(): string {
 export function arenaPrimaryBtn(): string {
   const isL2 = getCityUiVariant() === "l2";
   return isL2
-    ? "w-full py-3 rounded-lg font-semibold text-[13px] text-[#1a1510] bg-gradient-to-b from-[#e8c56e] to-[#9a7020] border border-[#c7ad80]/60 shadow-[0_4px_16px_rgba(0,0,0,0.5)] hover:brightness-110 active:scale-[0.99] transition-transform"
-    : "w-full py-3 rounded-lg font-semibold bg-amber-600 hover:bg-amber-500 text-black";
+    ? "w-full py-1.5 rounded-md font-semibold text-[12px] text-[#1a1510] bg-gradient-to-b from-[#e8c56e] to-[#9a7020] border border-[#c7ad80]/60 shadow-[0_2px_10px_rgba(0,0,0,0.45)] hover:brightness-110 active:scale-[0.99] transition-transform"
+    : "w-full py-1.5 rounded-md text-[12px] font-semibold bg-amber-600 hover:bg-amber-500 text-black";
 }
 
 export function arenaGhostBtn(): string {
   const isL2 = getCityUiVariant() === "l2";
   return isL2
-    ? "w-full py-2 rounded-lg text-[12px] text-[#c9a44c] border border-[#5c4a32]/70 bg-gradient-to-b from-[#2a2318] to-[#14110c] hover:border-[#c7ad80]/40"
-    : "w-full py-2 rounded-lg text-amber-200 border border-amber-800/50 hover:bg-amber-900/20";
+    ? "w-full py-1.5 rounded-md text-[11px] text-[#c9a44c] border border-[#5c4a32]/70 bg-gradient-to-b from-[#2a2318] to-[#14110c] hover:border-[#c7ad80]/40"
+    : "w-full py-1.5 rounded-md text-[11px] text-amber-200 border border-amber-800/50 hover:bg-amber-900/20";
 }
 
 /** Мінімальний Character для PkProfileView (рівень / ім'я суперника) */

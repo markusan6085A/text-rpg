@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { randomUUID } from "crypto";
 import { prisma } from "../../../../db";
 import { getAuth } from "../../auth";
+import { getEffectiveNickColor } from "../../../../effectiveNickColor";
 import { addVersioning } from "../../../../heroJsonValidator";
 import type { PkFighter, PkSession, PkSkill } from "./types";
 import { isArenaSession } from "./types";
@@ -717,12 +718,45 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
     return false;
   }
 
-  function fieldPlayersList(): Array<{ id: string; name: string; level: number }> {
-    return [...arenaField.entries()].map(([id, v]) => ({
-      id,
-      name: v.name,
-      level: v.level,
-    }));
+  function activeSevenSealsRankFromBonus(bonus: unknown): number | null {
+    if (!bonus || typeof bonus !== "object") return null;
+    const b = bonus as { rank?: number; expiresAt?: number };
+    const rank = Number(b.rank);
+    const expiresAt = Number(b.expiresAt ?? 0);
+    if (rank >= 1 && rank <= 3 && expiresAt > Date.now()) return rank;
+    return null;
+  }
+
+  async function enrichArenaFieldPlayers(): Promise<
+    Array<{ id: string; name: string; level: number; nickColor?: string; sevenSealsRank?: number }>
+  > {
+    const entries = [...arenaField.entries()];
+    if (entries.length === 0) return [];
+    const ids = entries.map(([id]) => id);
+    let chars: Array<{ id: string; nickColor: string | null; heroJson: unknown }> = [];
+    try {
+      chars = await prisma.character.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, nickColor: true, heroJson: true },
+      });
+    } catch {
+      return entries.map(([id, v]) => ({ id, name: v.name, level: v.level }));
+    }
+    const byId = new Map(chars.map((c) => [c.id, c]));
+    return entries.map(([id, v]) => {
+      const c = byId.get(id);
+      const heroJson = (c?.heroJson as any) || {};
+      const nickColor = getEffectiveNickColor(heroJson, c?.nickColor ?? null);
+      const sevenSealsRank = activeSevenSealsRankFromBonus(heroJson?.sevenSealsBonus);
+      const row: { id: string; name: string; level: number; nickColor?: string; sevenSealsRank?: number } = {
+        id,
+        name: v.name,
+        level: v.level,
+      };
+      if (nickColor) row.nickColor = nickColor;
+      if (sevenSealsRank != null) row.sevenSealsRank = sevenSealsRank;
+      return row;
+    });
   }
 
   app.get("/arena/field", async (req, reply) => {
@@ -740,7 +774,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         arenaField.get(characterId)!.lastSeen = Date.now();
       }
     }
-    const players = fieldPlayersList();
+    const players = await enrichArenaFieldPlayers();
     return reply.send({ ok: true, players, count: players.length });
   });
 
@@ -778,7 +812,8 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       lastSeen: now,
     });
 
-    return reply.send({ ok: true, players: fieldPlayersList(), count: arenaField.size });
+    const players = await enrichArenaFieldPlayers();
+    return reply.send({ ok: true, players, count: arenaField.size });
   });
 
   app.post("/arena/field/leave", async (req, reply) => {
@@ -798,7 +833,8 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       }
     }
     pruneArenaField();
-    return reply.send({ ok: true, players: fieldPlayersList(), count: arenaField.size });
+    const players = await enrichArenaFieldPlayers();
+    return reply.send({ ok: true, players, count: arenaField.size });
   });
 
   /** Активный бой арены для персонажа (чтобы защитник сам открыл матч без «принять»). */

@@ -20,6 +20,7 @@ import {
   arenaGhostBtn,
 } from "./arenaTheme";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { getNickColorStyle, isAdminNickName, ADMIN_NICK_CLASS } from "../../utils/nickColor";
 
 interface ArenaLobbyProps {
   navigate: (path: string) => void;
@@ -202,19 +203,19 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
       <div className="px-2 pt-2 pb-1">
         <h1 className={arenaTitle()}>Арена PvP</h1>
         <p className={arenaSub()}>
-          Поле боя: на нём могут быть десятки игроков. Выйдите на поле — увидите остальных. Нажмите на ник — сразу
-          начинается бой; второй игрок подключается сам. Ушли с арены или сбежали из боя — вас нельзя атаковать, у
+          Поле боя: на нём могут быть десятки игроков. Войдите на поле — увидите остальных. Кнопка «атаковать» у ника —
+          сразу начинается бой; второй игрок подключается сам. Ушли с арены или сбежали из боя — вас нельзя атаковать, у
           соперника в логе: «… сбежал». Разница уровней до 20.
         </p>
       </div>
 
-      <div className={`mx-2 mb-3 p-3 ${arenaPanel()}`}>
+      <div className={`mx-2 mb-2 p-2 ${arenaPanel()}`}>
         {err && (
           <div className={`mb-2 text-center text-[12px] ${isL2 ? "text-[#d4786a]" : "text-red-400"}`}>{err}</div>
         )}
         {!onField ? (
           <button type="button" disabled={busy || !cid} className={arenaPrimaryBtn()} onClick={handleEnterField}>
-            {busy ? "…" : "Выйти на поле арены"}
+            {busy ? "…" : "Войти!"}
           </button>
         ) : (
           <div className="space-y-2">
@@ -235,10 +236,10 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
       </div>
 
       {onField && (
-        <div className={`mx-2 mb-3 p-3 ${arenaPanel()}`}>
+        <div className={`mx-2 mb-2 p-2 ${arenaPanel()}`}>
           <div
             className={
-              isL2 ? "text-[12px] font-semibold text-[#c9a44c] mb-2" : "text-sm font-semibold text-amber-200 mb-2"
+              isL2 ? "text-[11px] font-semibold text-[#c9a44c] mb-1.5" : "text-xs font-semibold text-amber-200 mb-1.5"
             }
           >
             Игроки на поле
@@ -246,23 +247,34 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
           {others.length === 0 ? (
             <div className={arenaSub()}>Пока никого кроме вас — подождите или позовите друзей.</div>
           ) : (
-            <ul className="space-y-1.5 max-h-[min(50vh,28rem)] overflow-y-auto pr-1">
+            <ul className="space-y-1 max-h-[min(50vh,28rem)] overflow-y-auto pr-0.5">
               {others.map((p) => (
-                <li key={p.id}>
+                <li
+                  key={p.id}
+                  className={
+                    isL2
+                      ? "flex items-center gap-2 rounded-md px-2 py-1 border border-[#5c4a32]/40 bg-black/20"
+                      : "flex items-center gap-2 rounded px-2 py-1 border border-amber-900/35 bg-black/15"
+                  }
+                >
+                  <div className="min-w-0 flex-1 flex items-baseline gap-1.5 flex-wrap">
+                    <span
+                      className={`truncate text-[12px] font-medium ${isAdminNickName(p.name) ? ADMIN_NICK_CLASS : ""}`}
+                      style={getNickColorStyle(p.name, hero, p.nickColor, p.sevenSealsRank ?? null)}
+                    >
+                      {p.name}
+                    </span>
+                    <span className={isL2 ? "text-[#8a7a60] text-[11px] shrink-0" : "text-gray-500 text-[11px] shrink-0"}>
+                      {p.level} ур.
+                    </span>
+                  </div>
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => handleChallenge(p)}
-                    className={
-                      isL2
-                        ? "w-full text-left rounded-md px-2.5 py-2 border border-[#5c4a32]/45 bg-black/25 hover:border-[#c7ad80]/40 hover:bg-black/35 transition-colors disabled:opacity-50"
-                        : "w-full text-left rounded px-2 py-2 border border-amber-900/40 bg-black/20 hover:bg-amber-900/15 disabled:opacity-50"
-                    }
+                    className="shrink-0 px-2 py-0.5 rounded border border-[#7f1d1d] bg-[#b91c1c] text-[10px] font-bold text-white hover:bg-[#dc2626] active:bg-[#991b1b] disabled:opacity-45 disabled:pointer-events-none shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
                   >
-                    <span className={isL2 ? "text-[#e8c56e] font-medium" : "text-amber-200 font-medium"}>{p.name}</span>
-                    <span className={isL2 ? "text-[#8a7a60] text-[11px] ml-2" : "text-gray-500 text-xs ml-2"}>
-                      {p.level} ур. · атаковать
-                    </span>
+                    атаковать
                   </button>
                 </li>
               ))}
@@ -271,8 +283,8 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
         </div>
       )}
 
-      <div className={`mx-2 mb-3 p-3 ${arenaPanel()}`}>
-        <div className={isL2 ? "text-[12px] font-semibold text-[#c9a44c] mb-2" : "text-sm font-semibold text-amber-200 mb-2"}>
+      <div className={`mx-2 mb-2 p-2 ${arenaPanel()}`}>
+        <div className={isL2 ? "text-[11px] font-semibold text-[#c9a44c] mb-1.5" : "text-xs font-semibold text-amber-200 mb-1.5"}>
           Топ-10 арены (по победам)
         </div>
         {top.length === 0 ? (
