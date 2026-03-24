@@ -8,6 +8,8 @@ import { enqueuePlayerActivityLog, getClientIp } from "../../playerActivityLog";
 
 const LISTING_TTL_MS = 24 * 60 * 60 * 1000;
 const MARKET_KIND_COIN_LUCK = "coin_luck";
+/** Звичайний предмет на ринку (щоб фільтр «предмети» не покладався на NOT + NULL у JSON — PostgreSQL відсіює такі рядки). */
+const MARKET_KIND_ITEM = "item";
 const MAX_LISTINGS_PER_SELLER = 40;
 const MAX_PAGE = 50;
 const INV_MIN = 100;
@@ -216,9 +218,7 @@ export async function marketRoutes(app: FastifyInstance) {
         : kind === "items"
           ? {
               ...baseWhere,
-              NOT: {
-                itemSnapshot: { path: ["_marketKind"], equals: MARKET_KIND_COIN_LUCK },
-              },
+              itemSnapshot: { path: ["_marketKind"], equals: MARKET_KIND_ITEM },
             }
           : baseWhere;
 
@@ -565,6 +565,8 @@ export async function marketRoutes(app: FastifyInstance) {
 
           const snapshot = taken.snapshot;
           if (!snapshot.id && snapshot.itemId) snapshot.id = snapshot.itemId;
+          delete (snapshot as Record<string, unknown>)._marketKind;
+          (snapshot as Record<string, unknown>)._marketKind = MARKET_KIND_ITEM;
 
           const nextHj = { ...hj0, inventory: nextInv, overflowChest: nextOverflow };
           const validation = validateHeroJson(nextHj);

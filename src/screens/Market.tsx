@@ -12,6 +12,7 @@ import {
   type Character,
   type MarketListingDTO,
   type MarketCurrency,
+  type MarketListingsKindFilter,
 } from "../utils/api";
 import type { HeroInventoryItem } from "../types/Hero";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
@@ -209,20 +210,24 @@ export default function Market({ navigate }: MarketProps) {
   const [colSellUnit, setColSellUnit] = useState("1");
   const [colSellBusy, setColSellBusy] = useState(false);
 
-  const refreshBrowse = useCallback(async () => {
-    if (tab !== "browse" && tab !== "coinLuck") return;
-    const kind = tab === "coinLuck" ? "coin_luck" : "items";
-    setLoading(true);
-    try {
-      const res = await fetchMarketListings(page, 15, kind);
-      setListings(res.listings || []);
-      setTotal(res.total ?? 0);
-    } catch (e: any) {
-      showToast(e?.message || "Не вдалося завантажити ринок", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, tab]);
+  const refreshBrowse = useCallback(
+    async (kindOverride?: MarketListingsKindFilter) => {
+      const kind: MarketListingsKindFilter =
+        kindOverride ?? (tab === "coinLuck" ? "coin_luck" : "items");
+      if (!kindOverride && tab !== "browse" && tab !== "coinLuck") return;
+      setLoading(true);
+      try {
+        const res = await fetchMarketListings(page, 15, kind);
+        setListings(res.listings || []);
+        setTotal(res.total ?? 0);
+      } catch (e: any) {
+        showToast(e?.message || "Не вдалося завантажити ринок", "error");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, tab]
+  );
 
   const refreshMine = useCallback(async () => {
     if (!cid) return;
@@ -338,7 +343,7 @@ export default function Market({ navigate }: MarketProps) {
       setSellUnitPrice("1");
       setSellAmount("1");
       await syncHeroAfterMarket(res.character);
-      await refreshBrowse();
+      await refreshBrowse("items");
       await refreshMine();
       setTab("mine");
     } catch (e: any) {
@@ -384,7 +389,7 @@ export default function Market({ navigate }: MarketProps) {
       setColSellUnit("1");
       setColSellAmount("1");
       await syncHeroAfterMarket(res.character);
-      await refreshBrowse();
+      await refreshBrowse("coin_luck");
       await refreshMine();
       setTab("mine");
     } catch (e: any) {
