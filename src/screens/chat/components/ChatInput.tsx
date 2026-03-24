@@ -9,6 +9,8 @@ interface ChatInputProps {
   onRefresh: () => void;
   disabled?: boolean;
   onDisabledClick?: () => void;
+  /** Підказка в полі (наприклад клан / мут) */
+  placeholder?: string;
 }
 
 export function ChatInput({
@@ -19,6 +21,7 @@ export function ChatInput({
   onRefresh,
   disabled = false,
   onDisabledClick,
+  placeholder = "Введите сообщение...",
 }: ChatInputProps) {
   const isL2 = getCityUiVariant() === "l2";
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +48,7 @@ export function ChatInput({
           }
         }}
         onFocus={() => disabled && onDisabledClick?.()}
-        placeholder={disabled ? "Чат недоступний (мут/бан) — натисніть для деталей" : "Введите сообщение..."}
+        placeholder={placeholder}
         className={
           isL2
             ? "w-full text-sm text-[#e8dcc8] placeholder-[#6a6048] bg-[#0f0a06] border border-[#5c4a32]/55 rounded px-2 py-1.5 mb-2 disabled:opacity-70 disabled:cursor-not-allowed"

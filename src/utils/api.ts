@@ -725,6 +725,9 @@ export async function renameNick(
   return response;
 }
 
+/** Подія на window: користувач відкрив клановий чат — миттєво скинути бейдж у навігації */
+export const CLAN_CHAT_MARK_READ_EVENT = "l2_clan_chat_mark_read";
+
 // Chat API
 export interface ChatMessage {
   id: string;

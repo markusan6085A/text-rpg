@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo, useContext, useCallback } from "react";
-import { getUnreadCount, getMyClan, getClanChat } from "../utils/api";
+import {
+  CLAN_CHAT_MARK_READ_EVENT,
+  getUnreadCount,
+  getMyClan,
+  getClanChat,
+} from "../utils/api";
 import { useAuthStore } from "../state/authStore";
+import { useHeroStore } from "../state/heroStore";
 import { getRateLimitRemainingMs } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 
@@ -59,6 +65,7 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [clanUnreadCount, setClanUnreadCount] = useState(0);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const heroId = useHeroStore((s) => s.hero?.id);
   const previousUnreadRef = useRef(0);
 
   useEffect(() => {
@@ -116,7 +123,9 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
 
           const chatResponse = await getClanChat(myClanResponse.clan.id, 1, 100);
           if (chatResponse.ok) {
+            const selfId = String(heroId || "").trim();
             const unread = chatResponse.messages.filter((msg) => {
+              if (selfId && msg.characterId === selfId) return false;
               const msgTime = new Date(msg.createdAt).getTime();
               return msgTime > lastVisitTime;
             }).length;
@@ -131,14 +140,20 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
       }
     };
 
-    const clanStartTimeout = setTimeout(loadClanUnreadCount, 20000);
-    const interval = setInterval(loadClanUnreadCount, 60000);
+    const clanStartTimeout = setTimeout(loadClanUnreadCount, 4000);
+    const interval = setInterval(loadClanUnreadCount, 25000);
+
+    const onClanChatRead = () => {
+      setClanUnreadCount(0);
+    };
+    window.addEventListener(CLAN_CHAT_MARK_READ_EVENT, onClanChatRead);
 
     return () => {
       clearTimeout(clanStartTimeout);
       clearInterval(interval);
+      window.removeEventListener(CLAN_CHAT_MARK_READ_EVENT, onClanChatRead);
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, heroId]);
 
   const handleClick = useCallback(
     async (btn: NavButton) => {

@@ -19,6 +19,8 @@ type UseChatOptions = {
   cacheTtlMs?: number;         // 60_000
   autoRefresh?: boolean;       // false - disable auto refresh
   manual?: boolean;            // true - disable all automatic fetches, only manual refresh()
+  /** true — не ходити в /chat (наприклад канал клану обробляється окремо) */
+  disabled?: boolean;
 };
 
 // RAM cache (shared across all instances)
@@ -50,7 +52,7 @@ function writeLS(key: string, value: { ts: number; data: ChatMessage[] }) {
 }
 
 export function useChatMessages(opts: UseChatOptions) {
-  const { channel, page, limit = 10, cacheTtlMs = 60_000, autoRefresh = false, manual = false } = opts;
+  const { channel, page, limit = 10, cacheTtlMs = 60_000, autoRefresh = false, manual = false, disabled = false } = opts;
 
   const key = useMemo(() => cacheKey(channel, page, limit), [channel, page, limit]);
 
@@ -74,6 +76,10 @@ export function useChatMessages(opts: UseChatOptions) {
 
   // 🔥 Оновлюємо messages при зміні key (channel/page/limit) - показуємо кеш МИТТЄВО
   useEffect(() => {
+    if (disabled) {
+      setMessages([]);
+      return;
+    }
     // Синхронно показуємо кеш миттєво (не чекаємо на асинхронні операції)
     const mem = memCache.get(key);
     const ls = readLS(key);
@@ -93,7 +99,7 @@ export function useChatMessages(opts: UseChatOptions) {
     } else {
       setMessages([]);
     }
-  }, [key, channel]);
+  }, [key, channel, disabled]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +112,7 @@ export function useChatMessages(opts: UseChatOptions) {
   const pageRef = useRef(page);
   const limitRef = useRef(limit);
   const keyRef = useRef(key);
+  const disabledRef = useRef(disabled);
 
   // Оновлюємо refs при зміні
   useEffect(() => {
@@ -113,7 +120,16 @@ export function useChatMessages(opts: UseChatOptions) {
     pageRef.current = page;
     limitRef.current = limit;
     keyRef.current = key;
-  }, [channel, page, limit, key]);
+    disabledRef.current = disabled;
+  }, [channel, page, limit, key, disabled]);
+
+  useEffect(() => {
+    if (!disabled) return;
+    setMessages([]);
+    setTotalPages(undefined);
+    setError(null);
+    setLoading(false);
+  }, [disabled]);
 
   // 🔥 fetchNow оголошується ПЕРЕД useEffect, які його використовують
   const fetchNow = useCallback(
@@ -125,6 +141,11 @@ export function useChatMessages(opts: UseChatOptions) {
       const currentKey = keyRef.current;
 
       if (!currentChannel) return;
+      if (disabledRef.current) {
+        setLoading(false);
+        inFlightRef.current = false;
+        return;
+      }
 
       // анти-спам: якщо хтось випадково викликає 2 рази підряд
       const now = Date.now();
@@ -230,6 +251,7 @@ export function useChatMessages(opts: UseChatOptions) {
 
   // авто-оновлення: тільки якщо кеш протух (вимкнено за замовчуванням)
   useEffect(() => {
+    if (disabled) return;
     if (manual) return; // Manual mode - no automatic fetches
     if (!autoRefresh) return; // Вимкнено автооновлення
 
@@ -243,10 +265,11 @@ export function useChatMessages(opts: UseChatOptions) {
       fetchNow("mount_or_change");
     }
     // якщо кеш свіжий — показуємо миттєво і можна оновити кнопкою
-  }, [key, cacheTtlMs, autoRefresh, manual, fetchNow]);
+  }, [key, cacheTtlMs, autoRefresh, manual, disabled, fetchNow]);
 
   // Перше завантаження при монтуванні (тільки якщо немає кешу) - ВИМКНЕНО в manual режимі
   useEffect(() => {
+    if (disabled) return;
     if (manual) return; // Manual mode - no automatic initial load
 
     const mem = memCache.get(key);
@@ -257,12 +280,13 @@ export function useChatMessages(opts: UseChatOptions) {
     if (!hasCache) {
       fetchNow("initial_load");
     }
-  }, [key, manual, fetchNow]);
+  }, [key, manual, disabled, fetchNow]);
 
   // 🔥 ВАЖЛИВО: При зміні сторінки завжди завантажуємо актуальні дані з сервера
   // Це гарантує, що нові повідомлення з'являться на сторінці 2+
   // Розміщено ПІСЛЯ оголошення fetchNow, щоб уникнути помилки "used before declaration"
   useEffect(() => {
+    if (disabled) return;
     if (manual) return; // Manual mode - no automatic fetches
     
     // Невелика затримка, щоб уникнути конфліктів з іншими useEffect
@@ -270,7 +294,7 @@ export function useChatMessages(opts: UseChatOptions) {
       fetchNow("page_change");
     }, 150);
     return () => clearTimeout(timer);
-  }, [key, manual, fetchNow]);
+  }, [key, manual, disabled, fetchNow]);
 
   // cleanup
   useEffect(() => {
@@ -281,6 +305,7 @@ export function useChatMessages(opts: UseChatOptions) {
 
   // 🔥 Стабільний refresh - використовує актуальні channel/page/limit з refs
   const refresh = useCallback(() => {
+    if (disabledRef.current) return;
     // Використовуємо актуальні значення з refs
     const currentChannel = channelRef.current;
     const currentPage = pageRef.current;

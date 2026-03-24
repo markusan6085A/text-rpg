@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import { postChatMessage, deleteChatMessage, adminDeleteChatMessage, adminMuteChatUser, getChatRestriction } from "../utils/api";
+import {
+  postChatMessage,
+  deleteChatMessage,
+  adminDeleteChatMessage,
+  adminMuteChatUser,
+  getChatRestriction,
+  postClanChatMessage,
+  CLAN_CHAT_MARK_READ_EVENT,
+} from "../utils/api";
 import type { ChatMessage } from "../utils/api";
 import { useHeroStore } from "../state/heroStore";
 import { addDailyProgress } from "../state/dailyQuestsProgress";
 import { useAdminStore } from "../state/adminStore";
 import { useChatMessages } from "../hooks/useChatMessages";
+import { useClanChatChannel } from "../hooks/useClanChatChannel";
 
 // Types
 import type { ChatProps, ChatChannel } from "./chat/types";
@@ -51,14 +60,48 @@ export default function Chat({ navigate }: ChatProps) {
   // Hooks
   const [deletedIds, setDeletedIds] = useDeletedMessages(channel);
   const [outbox, setOutbox] = useOutbox(channel);
-  const { messages: cachedMessages, loading, error, refresh, totalPages } = useChatMessages({
+  const isClanChannel = channel === "clan";
+  const {
+    messages: globalCached,
+    loading: globalLoading,
+    error: globalError,
+    refresh: globalRefresh,
+    totalPages: globalTotalPages,
+  } = useChatMessages({
     channel,
     page,
     limit: 10,
     cacheTtlMs: 30_000,
     autoRefresh: false,
     manual: false,
+    disabled: isClanChannel,
   });
+
+  const clanChat = useClanChatChannel({
+    enabled: isClanChannel,
+    page,
+    limit: 10,
+    heroId: hero?.id,
+  });
+
+  const cachedMessages = isClanChannel ? clanChat.messages : globalCached;
+  const loading = isClanChannel ? clanChat.loading : globalLoading;
+  const error = isClanChannel ? clanChat.error : globalError;
+  const refresh = isClanChannel ? clanChat.refresh : globalRefresh;
+  const totalPages = isClanChannel ? clanChat.totalPages : globalTotalPages;
+
+  const clanBlocked =
+    isClanChannel && !clanChat.loading && !clanChat.clanId;
+
+  // Той самий лічильник, що NavGrid: позначаємо прочитане, поки відкрита вкладка «Клан»
+  useEffect(() => {
+    if (!isClanChannel || !clanChat.clanId) return;
+    const key = `clan_last_visit_${clanChat.clanId}`;
+    localStorage.setItem(key, String(Date.now()));
+    window.dispatchEvent(
+      new CustomEvent(CLAN_CHAT_MARK_READ_EVENT, { detail: { clanId: clanChat.clanId } }),
+    );
+  }, [isClanChannel, clanChat.clanId, cachedMessages.length, cachedMessages[0]?.id]);
 
   // Refs
   const deletingRef = useRef<Set<string>>(new Set());
@@ -397,7 +440,18 @@ export default function Chat({ navigate }: ChatProps) {
     setMessageText("");
 
     try {
-      await postChatMessage(channel, textToSend);
+      if (channel === "clan") {
+        const cid = clanChat.clanId;
+        if (!cid) {
+          showToast("Клановий чат доступний лише учасникам клану.", "info");
+          setOutbox((prev) => prev.filter((m) => m.id !== tempId));
+          setMessageText(textToSend);
+          return;
+        }
+        await postClanChatMessage(cid, textToSend);
+      } else {
+        await postChatMessage(channel, textToSend);
+      }
 
       // Mark as sent; removal will happen only when server confirms via refresh
       setOutbox((prev) =>
@@ -405,6 +459,10 @@ export default function Chat({ navigate }: ChatProps) {
       );
 
       addDailyProgress("daily_chat", 1);
+
+      if (channel === "clan") {
+        clanChat.refresh();
+      }
 
       // 🔥 ВАЖЛИВО: НЕ викликаємо refresh() після відправки!
       // Outbox залишиться, а коли сервер підтвердить (через ручний refresh або auto-refresh),
@@ -566,8 +624,23 @@ export default function Chat({ navigate }: ChatProps) {
         onMessageChange={setMessageText}
         onSend={sendMessage}
         onRefresh={refresh}
-        disabled={isRestricted}
-        onDisabledClick={() => setShowRestrictionModal(true)}
+        disabled={isRestricted || clanBlocked}
+        onDisabledClick={() => {
+          if (isRestricted) setShowRestrictionModal(true);
+          else if (clanBlocked) {
+            showToast(
+              "Щоб писати в клановий чат, спочатку вступіть у клан (меню «Клан»).",
+              "info",
+            );
+          }
+        }}
+        placeholder={
+          isRestricted
+            ? "Чат недоступний (мут/бан) — натисніть для деталей"
+            : clanBlocked
+              ? "Клановий чат лише для учасників клану"
+              : "Введите сообщение..."
+        }
       />
 
       <ChatMessagesList

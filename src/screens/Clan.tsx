@@ -22,6 +22,7 @@ import {
   getClanApplicationsList,
   acceptClanApplication,
   declineClanApplication,
+  CLAN_CHAT_MARK_READ_EVENT,
   type Clan,
   type ClanMember,
   type ClanChatMessage,
@@ -106,8 +107,11 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     if (clan?.id && activeTab === "chat") {
       const lastVisitKey = `clan_last_visit_${clan.id}`;
       localStorage.setItem(lastVisitKey, Date.now().toString());
+      window.dispatchEvent(
+        new CustomEvent(CLAN_CHAT_MARK_READ_EVENT, { detail: { clanId: clan.id } }),
+      );
     }
-  }, [clan?.id, activeTab]); // 🔥 Мінімальні dependencies - тільки clan.id та activeTab (примітиви)
+  }, [clan?.id, activeTab, chatMessages.length, chatMessages[0]?.id]);
 
   // Завантажуємо чат при зміні сторінки
   useEffect(() => {
