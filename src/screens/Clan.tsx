@@ -87,7 +87,8 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     try {
       const response = await getClanChat(clan.id, chatPage, 10);
       if (response.ok) {
-        setChatMessages(response.messages);
+        // Як у useClanChatChannel / вкладці «Клан» у Chat: новіші зверху
+        setChatMessages([...response.messages].reverse());
         setChatTotalPages(response.pagination.totalPages);
       }
     } catch (err) {
