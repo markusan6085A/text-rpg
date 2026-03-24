@@ -148,7 +148,8 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
       }
     };
 
-    const clanStartTimeout = setTimeout(loadClanUnreadCount, 4000);
+    // Одразу після входу / F5 — як пошта; раніше був delay 4 с, через це бейдж з’являвся «з затримкою»
+    void loadClanUnreadCount();
     const interval = setInterval(loadClanUnreadCount, 25000);
 
     const onClanChatRead = () => {
@@ -157,7 +158,6 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
     window.addEventListener(CLAN_CHAT_MARK_READ_EVENT, onClanChatRead);
 
     return () => {
-      clearTimeout(clanStartTimeout);
       clearInterval(interval);
       window.removeEventListener(CLAN_CHAT_MARK_READ_EVENT, onClanChatRead);
     };
