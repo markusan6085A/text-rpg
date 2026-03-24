@@ -160,7 +160,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
             buffDurationSec = skillDef?.duration ?? 120;
           }
         }
-        const res = await actPkSession(pkSession.id, skillId, {
+        const actOpts: NonNullable<Parameters<typeof actPkSession>[2]> = {
           isBuff,
           isToggle,
           name: skillDef?.name,
@@ -175,7 +175,13 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
                 : skillDef.cooldown * 1000
               : undefined,
           buffDurationSec,
-        });
+        };
+        if (!isBuff && !isToggle && skillDef && typeof skillDef.cooldown === "number" && skillDef.cooldown > 0) {
+          actOpts.skillBaseCooldownSec = skillDef.cooldown;
+          actOpts.isMagicAttack =
+            skillDef.category === "magic_attack" || !!(skillDef as any).isMagic;
+        }
+        const res = await actPkSession(pkSession.id, skillId, actOpts);
         if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
         setPkSession(res.session);
         if (res.actorBuffs?.length) {

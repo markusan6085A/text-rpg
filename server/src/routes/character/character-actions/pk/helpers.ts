@@ -1,5 +1,6 @@
 import { prisma } from "../../../../db";
 import type { PkFighter, PkSession, PkSkill } from "./types";
+import { calcPhysicalSkillCooldown } from "./combatSpeed";
 
 export function getLocation(heroJson: any): string {
   return String(heroJson?.location ?? heroJson?.currentLocation ?? heroJson?.zone ?? "").trim();
@@ -55,6 +56,7 @@ export function buildPkFighter(character: {
   const crit = Number(battleStats?.crit || 40);
   const mCrit = Number(battleStats?.mCrit || 4);
   const critPower = Number(battleStats?.critPower ?? battleStats?.critDamage ?? 100);
+  const attackSpeed = Math.max(0, Number(battleStats?.attackSpeed ?? battleStats?.atkSpeed ?? 200) || 200);
 
   const prefersMagic = mAtk > pAtk * 1.15;
   const skills = normalizeSkills(heroJson);
@@ -75,6 +77,7 @@ export function buildPkFighter(character: {
     crit,
     mCrit,
     critPower,
+    attackSpeed,
     prefersMagic,
     skills,
   };
@@ -97,6 +100,11 @@ export async function refreshPkFighterStatsFromDb(session: PkSession): Promise<v
     session.attacker.maxMp = maxMp;
     session.attacker.hp = Math.min(session.attacker.hp, maxHp);
     session.attacker.mp = Math.min(session.attacker.mp, maxMp);
+    const bs = heroJson?.battleStats || {};
+    session.attacker.attackSpeed = Math.max(
+      0,
+      Number(bs?.attackSpeed ?? bs?.atkSpeed ?? session.attacker.attackSpeed ?? 200) || 200
+    );
   }
   if (defenderChar?.heroJson) {
     const heroJson = (defenderChar.heroJson as any) || {};
@@ -107,6 +115,11 @@ export async function refreshPkFighterStatsFromDb(session: PkSession): Promise<v
     session.defender.maxMp = maxMp;
     session.defender.hp = Math.min(session.defender.hp, maxHp);
     session.defender.mp = Math.min(session.defender.mp, maxMp);
+    const bs = heroJson?.battleStats || {};
+    session.defender.attackSpeed = Math.max(
+      0,
+      Number(bs?.attackSpeed ?? bs?.atkSpeed ?? session.defender.attackSpeed ?? 200) || 200
+    );
   }
 }
 
@@ -133,6 +146,27 @@ export function formatPkAttackSkillFailureMessage(
     return `${fighter.name}: не хватает MP для ${sName} (нужно ${requested.mpCost}).`;
   }
   return `${fighter.name}: не удалось использовать ${sName}.`;
+}
+
+/** КД атакуючого скіла після удару: фіз. — як у клієнта (attackSpeed), маг. — baseSec * 1000. */
+export function resolvePkAttackSkillCooldownMs(
+  attacker: PkFighter,
+  skill: PkSkill,
+  useMagic: boolean,
+  reqSkillBaseCooldownSec?: number
+): number {
+  const fallbackSec = Math.max(0.5, skill.cooldownMs / 1000);
+  const baseSec =
+    typeof reqSkillBaseCooldownSec === "number" &&
+    Number.isFinite(reqSkillBaseCooldownSec) &&
+    reqSkillBaseCooldownSec > 0
+      ? Math.min(180, Math.max(0.1, reqSkillBaseCooldownSec))
+      : fallbackSec;
+  if (useMagic) {
+    return Math.round(baseSec * 1000);
+  }
+  const atkSp = attacker.attackSpeed ?? 200;
+  return calcPhysicalSkillCooldown(baseSec, atkSp);
 }
 
 /** Узгоджено з client `src/data/balance.ts` + calculatePhysical/MagicDamage (PvE). */
@@ -181,7 +215,8 @@ export function computeDamage(
   const mDef = Math.max(1, Number(defender.mDef || 1));
   const skillBonus = Math.max(0, Number(powerBonus || 0));
 
-  if (!useMagic && skillBonus === 0) {
+  /* Усі фізичні удари (база + фіз. скіли) — шанс промаху; магія без промаху (як раніше). */
+  if (!useMagic) {
     const hitChance = Math.max(20, Math.min(100, 90 + (attacker.accuracy || 0) - (defender.evasion || 0)));
     if (Math.random() * 100 > hitChance) {
       return { dmg: 0, isCrit: false, isMiss: true };

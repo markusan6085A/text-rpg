@@ -23,6 +23,8 @@ export type PkFighter = {
   crit: number;
   mCrit: number;
   critPower: number;
+  /** Як у hero.battleStats — для КД фізичних скілів (calcPhysicalSkillCooldown). */
+  attackSpeed: number;
   prefersMagic: boolean;
   skills: PkSkill[];
 };

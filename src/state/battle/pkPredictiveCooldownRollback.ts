@@ -19,10 +19,15 @@ export function rollbackPkPredictiveCooldownIfActionFailed(
   const onCd = line.includes("на перезарядке");
 
   const sid = params.skillIdUsed;
-  if (miss && sid === undefined) {
+  if (miss) {
     useBattleStore.setState((s) => {
       const next = { ...(s.cooldowns || {}) };
-      delete next[0];
+      if (sid === undefined) delete next[0];
+      else {
+        delete next[sid];
+        delete next[`${sid}_usedAt`];
+        delete next[`${sid}_originalCd`];
+      }
       return { cooldowns: next };
     });
     return;

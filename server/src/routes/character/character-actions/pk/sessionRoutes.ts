@@ -21,6 +21,7 @@ import {
   computeDamage,
   getEffectivePkNickColor,
   formatPkAttackSkillFailureMessage,
+  resolvePkAttackSkillCooldownMs,
 } from "./helpers";
 import { syncPkRealtimeState, syncArenaHpOnly } from "./sync";
 import { savePkResultIfNeeded, ensureArenaLeaderboardTable } from "./results";
@@ -376,6 +377,10 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>;
       buffCooldownMs?: number;
       buffDurationSec?: number;
+      /** Базовий КД скіла (сек), з skillDef.cooldown — для фіз. скілів перераховується через attackSpeed */
+      skillBaseCooldownSec?: number;
+      /** Чи скіл magic_attack (інше ніж prefersMagic у сесії) */
+      isMagicAttack?: boolean;
     };
     const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
     const isBuff = body.isBuff;
@@ -386,6 +391,11 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
     const buffEffects = Array.isArray(body.buffEffects) ? body.buffEffects : [];
     const buffCooldownMs = typeof body.buffCooldownMs === "number" ? body.buffCooldownMs : undefined;
     const buffDurationSec = typeof body.buffDurationSec === "number" && body.buffDurationSec > 0 ? body.buffDurationSec : 120;
+    const skillBaseCooldownSec =
+      typeof body.skillBaseCooldownSec === "number" && Number.isFinite(body.skillBaseCooldownSec) && body.skillBaseCooldownSec > 0
+        ? body.skillBaseCooldownSec
+        : undefined;
+    const isMagicAttackOpt = typeof body.isMagicAttack === "boolean" ? body.isMagicAttack : undefined;
 
     let session = pkSessions.get(sessionId);
     if (!session) {
@@ -416,6 +426,14 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
     });
     const liveAttacker = charsLive.find((c) => c.id === session.attackerId);
     const liveDefender = charsLive.find((c) => c.id === session.defenderId);
+    const patchPkAttackSpeed = (fighter: PkFighter, heroJson: any) => {
+      const bs = heroJson?.battleStats || {};
+      const sp = Math.max(0, Number(bs?.attackSpeed ?? bs?.atkSpeed ?? fighter.attackSpeed ?? 200) || 200);
+      fighter.attackSpeed = sp;
+    };
+    if (liveAttacker?.heroJson) patchPkAttackSpeed(session.attacker, liveAttacker.heroJson as any);
+    if (liveDefender?.heroJson) patchPkAttackSpeed(session.defender, liveDefender.heroJson as any);
+
     const baseLoc =
       String(session.startLocation ?? "").trim() ||
       getLocation(liveAttacker?.heroJson as any) ||
@@ -523,7 +541,9 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       reqShotMultiplier: number = 1.0,
       reqShotName?: string,
       reqBuffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>,
-      reqBuffCooldownMs?: number
+      reqBuffCooldownMs?: number,
+      reqSkillBaseCooldownSec?: number,
+      reqIsMagicAttack?: boolean
     ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
 
@@ -568,7 +588,11 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         return 0;
       }
 
-      const useMagic = skill ? attacker.prefersMagic : false;
+      const useMagic = skill
+        ? typeof reqIsMagicAttack === "boolean"
+          ? reqIsMagicAttack
+          : attacker.prefersMagic
+        : false;
       const powerBonus = skill?.powerBonus ?? 0;
       const { dmg, isCrit, isMiss } = computeDamage(attacker, defender, powerBonus, useMagic, reqShotMultiplier);
       defender.hp = Math.max(0, defender.hp - dmg);
@@ -580,7 +604,8 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         session.log.unshift(`${attacker.name} промахивается по ${defender.name}!`);
       } else if (skill) {
         attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
-        cooldowns[skill.id] = now + skill.cooldownMs;
+        const cdMs = resolvePkAttackSkillCooldownMs(attacker, skill, useMagic, reqSkillBaseCooldownSec);
+        cooldowns[skill.id] = now + cdMs;
         const sName = reqSkillName || skill.name || `skill#${skill.id}`;
         session.log.unshift(`${attacker.name} использует ${sName}.${shotText} Наносит ${dmg} урона${critText}`);
       } else {
@@ -605,7 +630,9 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         shotMultiplier,
         shotName,
         buffEffects,
-        buffCooldownMs
+        buffCooldownMs,
+        skillBaseCooldownSec,
+        isMagicAttackOpt
       );
       appliedBuffTurn = !!(
         dmg === 0 &&
@@ -633,7 +660,9 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         shotMultiplier,
         shotName,
         buffEffects,
-        buffCooldownMs
+        buffCooldownMs,
+        skillBaseCooldownSec,
+        isMagicAttackOpt
       );
       appliedBuffTurn = !!(
         dmg === 0 &&
