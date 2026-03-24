@@ -1,4 +1,13 @@
-import { allSkills, getSkillDefForProfession, getDefaultProfessionForKlass } from "../../data/skills";
+import {
+  allSkills,
+  getSkillDefForProfession,
+  getDefaultProfessionForKlass,
+  isSkillInProfession,
+  normalizeProfessionId,
+} from "../../data/skills";
+
+/** Додаткові скіли, дозволені всім професіям (узгоджено з getSkillDef). */
+const EXTRA_SKILL_IDS_ALL_PROFESSIONS = new Set([130, 429, 401]);
 import { getJSON, removeItem, setJSON } from "../persistence";
 
 export const BASE_ATTACK_ID = 0;
@@ -89,3 +98,27 @@ export const getSkillDefForBattle = (
   if (!def) return undefined;
   return { ...def, toggle: normalizeToggle(def) };
 };
+
+/** Прибирає скіли чужих професій після merge local+server або зміни класу в адмінці. */
+export function filterSkillsListForHeroProfession(
+  profession: string | null | undefined,
+  klass: string | undefined,
+  race: string | undefined,
+  skills: Array<{ id: number; level?: number }> | null | undefined
+): Array<{ id: number; level: number }> {
+  if (!Array.isArray(skills) || skills.length === 0) return [];
+  const effectiveProfession = profession || getDefaultProfessionForKlass(klass || "", race) || "";
+  const pid = normalizeProfessionId(effectiveProfession);
+  const out: Array<{ id: number; level: number }> = [];
+  for (const raw of skills) {
+    const id = Number((raw as any).id);
+    if (!id) continue;
+    const level = Math.max(1, Number((raw as any).level) || 1);
+    if (EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(id)) {
+      out.push({ id, level });
+      continue;
+    }
+    if (!pid || isSkillInProfession(id, pid)) out.push({ id, level });
+  }
+  return out;
+}

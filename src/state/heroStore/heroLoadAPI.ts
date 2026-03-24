@@ -14,6 +14,7 @@ import { hydrateHero } from "./heroHydration";
 import { readCharacterProgress } from "./heroPersistence";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
+import { filterSkillsListForHeroProfession } from "../battle/loadout";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
 
@@ -248,13 +249,24 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length === 0;
         const takeServerSkillsStrict =
           serverRevisionAdvanced && (demoteToServerLevel || serverSkillsEmpty);
-        const skillsFromServer = takeServerSkillsStrict
+        let skillsFromServer = takeServerSkillsStrict
           ? Array.isArray(heroDataForLocal?.skills)
             ? heroDataForLocal.skills
             : []
           : Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length > 0
             ? heroDataForLocal.skills
             : hydratedLocalHero.skills;
+        const profForSkillFilter =
+          (serverProfession && String(serverProfession).trim()) ? String(serverProfession) : hydratedLocalHero.profession;
+        const klassForSkillFilter =
+          (serverKlass && String(serverKlass).trim()) ? String(serverKlass) : hydratedLocalHero.klass;
+        const raceForSkillFilter = character.race ?? hydratedLocalHero.race;
+        skillsFromServer = filterSkillsListForHeroProfession(
+          profForSkillFilter,
+          klassForSkillFilter,
+          raceForSkillFilter,
+          skillsFromServer
+        );
         const heroForLocalRecalc: Hero = {
           ...hydratedLocalHero,
           level: finalLevel,
@@ -520,10 +532,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const cur = skillById.get(id);
       if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
     }
-    const finalSkillsForRecalc =
+    let finalSkillsForRecalc =
       skillById.size > 0
         ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level }))
         : (fixedHero.skills || []);
+    finalSkillsForRecalc = filterSkillsListForHeroProfession(
+      fixedHero.profession,
+      fixedHero.klass,
+      fixedHero.race,
+      finalSkillsForRecalc
+    );
 
     const serverEquip = fixedHero.equipment ?? {};
     const localEquip = localHeroForMerge?.equipment ?? {};

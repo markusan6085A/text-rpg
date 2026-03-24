@@ -10,6 +10,7 @@
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { loadBattle } from "../battle/persist";
+import { filterSkillsListForHeroProfession } from "../battle/loadout";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { getJSON, getString, removeItem, setJSON } from "../persistence";
 import type { Hero } from "../../types/Hero";
@@ -185,6 +186,12 @@ export function loadHero(): Hero | null {
         if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
       }
       fixedHero.skills = skillById.size > 0 ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level })) : (heroSkills.length > 0 ? heroSkills : jsonSkills);
+      fixedHero.skills = filterSkillsListForHeroProfession(
+        fixedHero.profession,
+        fixedHero.klass,
+        fixedHero.race,
+        fixedHero.skills
+      );
       const heroDyes = Array.isArray(fixedHero.activeDyes) ? fixedHero.activeDyes : [];
       const jsonDyes = Array.isArray((heroJson as any).activeDyes) ? (heroJson as any).activeDyes : [];
       fixedHero.activeDyes = heroDyes.length >= jsonDyes.length ? heroDyes : jsonDyes;

@@ -1,5 +1,7 @@
 import React from "react";
 import type { BattleBuff } from "../../state/battle/types";
+import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
+import { useHeroStore } from "../../state/heroStore";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 type Props = {
@@ -9,6 +11,7 @@ type Props = {
 
 export function BuffBar({ buffs, now }: Props) {
   const isL2 = getCityUiVariant() === "l2";
+  const hero = useHeroStore((s) => s.hero);
   if (!buffs || buffs.length === 0) return null;
 
   const totalsRef = React.useRef<Record<string, number>>({});
@@ -31,7 +34,13 @@ export function BuffBar({ buffs, now }: Props) {
     <div className="space-y-2">
       <div className="flex flex-wrap justify-center gap-[2px]">
         {activeBuffs.map((b, idx) => {
-          const icon = b.icon || "/skills/attack.jpg";
+          const rawIcon = typeof b.icon === "string" ? b.icon.trim() : "";
+          const sid = b.id;
+          const def =
+            hero && typeof sid === "number"
+              ? getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, sid) ?? getSkillDef(sid)
+              : undefined;
+          const icon = rawIcon.length > 0 ? rawIcon : def?.icon || "/skills/attack.jpg";
           const title = b.name || "buff";
           const isToggle = b.expiresAt === Number.MAX_SAFE_INTEGER;
           const key = `${b.id ?? idx}-${b.expiresAt}`;
