@@ -385,7 +385,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           characterId: id,
           currentCoinLuck: existing.coinLuck || 0,
           attemptedCoinLuck: body.coinLuck,
-        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${existing.coinLuck || 0} to ${body.coinLuck} (allowing for enchant)`);
+        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${existing.coinLuck || 0} to ${body.coinLuck}`);
+        return reply.code(400).send({ error: "coinLuck cannot be decreased" });
       }
     }
 
