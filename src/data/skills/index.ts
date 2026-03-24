@@ -809,6 +809,59 @@ export const PROFESSION_OPTIONS: { id: ProfessionId; label: string }[] = Object.
   (d) => ({ id: d.id, label: d.label })
 );
 
+/** Групи для адмін-селекта: раса/гілка + мін. рівень у підписі option */
+const ADMIN_PROFESSION_GROUP_RULES: { prefix: string; label: string }[] = [
+  { prefix: "human_fighter", label: "Людина — воїн" },
+  { prefix: "human_mystic", label: "Людина — маг / священик" },
+  { prefix: "elven_fighter", label: "Ельф — воїн" },
+  { prefix: "elven_mystic", label: "Ельф — маг" },
+  { prefix: "dark_fighter", label: "Темний ельф — воїн" },
+  { prefix: "dark_mystic", label: "Темний ельф — маг" },
+  { prefix: "orc_fighter", label: "Орк — воїн" },
+  { prefix: "orc_mystic", label: "Орк — шаман / некромант" },
+  { prefix: "dwarven_fighter", label: "Гном" },
+];
+
+export type AdminProfessionSelectOption = {
+  id: ProfessionId;
+  label: string;
+  minLevel: number;
+  guildLabel: string;
+};
+
+export function getAdminProfessionSelectGroups(): { groupLabel: string; options: AdminProfessionSelectOption[] }[] {
+  const buckets: { groupLabel: string; options: AdminProfessionSelectOption[] }[] = ADMIN_PROFESSION_GROUP_RULES.map((r) => ({
+    groupLabel: r.label,
+    options: [],
+  }));
+  const other: { groupLabel: string; options: AdminProfessionSelectOption[] } = { groupLabel: "Інше", options: [] };
+  for (const d of Object.values(professionDefinitions)) {
+    const guildLabel = d.guild === "mage" ? "маг. гільдія" : "воїн. гільдія";
+    const opt: AdminProfessionSelectOption = {
+      id: d.id,
+      label: d.label,
+      minLevel: d.minLevel,
+      guildLabel,
+    };
+    let placed = false;
+    for (let i = 0; i < ADMIN_PROFESSION_GROUP_RULES.length; i++) {
+      if (d.id.startsWith(ADMIN_PROFESSION_GROUP_RULES[i].prefix)) {
+        buckets[i].options.push(opt);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) other.options.push(opt);
+  }
+  const sortOpts = (arr: AdminProfessionSelectOption[]) =>
+    arr.sort((a, b) => a.minLevel - b.minLevel || a.label.localeCompare(b.label, "uk"));
+  for (const b of buckets) sortOpts(b.options);
+  sortOpts(other.options);
+  const out = buckets.filter((b) => b.options.length > 0);
+  if (other.options.length > 0) out.push(other);
+  return out;
+}
+
 const skillModules: Record<ProfessionId, Record<string, SkillDefinition>> = Object.fromEntries(
   Object.entries(professionDefinitions).map(([id, def]) => [id, def.skillModule])
 ) as Record<ProfessionId, Record<string, SkillDefinition>>;

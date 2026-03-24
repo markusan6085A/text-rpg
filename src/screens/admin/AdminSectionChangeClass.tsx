@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { adminFindPlayerByName, adminChangeClass } from "../../utils/api";
-import { PROFESSION_OPTIONS } from "../../data/skills";
+import { getAdminProfessionSelectGroups, normalizeProfessionId, type ProfessionId } from "../../data/skills";
 
 const style = { color: "#c7ad80" };
 
@@ -56,13 +56,19 @@ export function AdminSectionChangeClass() {
         setMessage("Персонажа не знайдено");
         return;
       }
-      if (data.character.profession && String(data.character.profession).toLowerCase() === String(newProfession).toLowerCase()) {
+      const curNorm = normalizeProfessionId(data.character.profession as string | null);
+      const selNorm = normalizeProfessionId(newProfession as ProfessionId);
+      if (curNorm && selNorm && curNorm === selNorm) {
         setMessage("Персонаж вже має цю професію. Оберіть іншу або натисніть «Знайти» щоб оновити дані.");
         return;
       }
       // Скіли не додаються автоматично — гравець сам вивчить у гільдії за SP. SP залишається.
       await adminChangeClass(data.character.id, newProfession, [], newSex);
-      setMessage(`Професію змінено на ${PROFESSION_OPTIONS.find((p) => p.id === newProfession)?.label ?? newProfession}. Старі скіли скинуто. SP збережено — гравець вивчить скіли в гільдії. F5.`);
+      const labelFromGroups =
+        getAdminProfessionSelectGroups()
+          .flatMap((g) => g.options)
+          .find((p) => p.id === newProfession)?.label ?? newProfession;
+      setMessage(`Професію змінено на ${labelFromGroups}. Старі скіли скинуто. SP збережено — гравець вивчить скіли в гільдії. F5.`);
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -99,13 +105,17 @@ export function AdminSectionChangeClass() {
         <select
           value={newProfession}
           onChange={(e) => setNewProfession(e.target.value)}
-          className={`${inputCl} max-w-48`}
+          className={`${inputCl} max-w-md min-w-[14rem]`}
         >
           <option value="">— Оберіть професію —</option>
-          {PROFESSION_OPTIONS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
+          {getAdminProfessionSelectGroups().map((g) => (
+            <optgroup key={g.groupLabel} label={g.groupLabel}>
+              {g.options.map((p) => (
+                <option key={p.id} value={p.id}>
+                  [lvl {p.minLevel}+] {p.label} · {p.guildLabel}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
         <select

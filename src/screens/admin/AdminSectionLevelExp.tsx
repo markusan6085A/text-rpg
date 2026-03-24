@@ -12,7 +12,12 @@ export function AdminSectionLevelExp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
-    const lvl = Math.max(0, Math.min(80, Math.floor(Number(level))));
+    const parsed = Math.floor(Number(level));
+    if (!Number.isFinite(parsed)) {
+      setMessage("Введіть число рівня 0–80");
+      return;
+    }
+    const lvl = Math.max(0, Math.min(80, parsed));
     if (!nick.trim()) {
       setMessage("Введіть нік гравця");
       return;
@@ -38,13 +43,13 @@ export function AdminSectionLevelExp() {
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Змінити lvl/exp</h2>
       <p className="text-xs text-gray-500 mb-2">Установить уровень персонажа (0–80). Опыт пересчитывается по таблице.</p>
-      <div className="flex flex-wrap items-center gap-2">
+      <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
         <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />
         <input type="number" min={0} max={80} value={level} onChange={(e) => setLevel(e.target.value)} placeholder="Рівень 0–80" className={`${inputCl} w-20`} />
-        <button type="button" onClick={handleSubmit} disabled={loading} className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50">
+        <button type="submit" disabled={loading} className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50">
           {loading ? "..." : "Встановити рівень"}
         </button>
-      </div>
+      </form>
       {message && <p className="mt-1 text-xs text-gray-500">{message}</p>}
     </section>
   );

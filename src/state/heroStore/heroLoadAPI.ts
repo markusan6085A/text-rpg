@@ -215,11 +215,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (localHasMoreProgress) {
         const reason = localDiffersFromServer ? 'local differs from server (equip/inv/buffs)' : (localHasExplicitlyUnequipped ? 'local unequipped (fewer slots)' : (localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress')));
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
-        // 🔥 merge policy: level = max(local, server) — адмін міг підняти рівень, не відкатувати
-        const finalLevel = Math.max(localLevel, serverLevel);
+        // 🔥 merge policy: зазвичай level = max(local, server) — адмін міг підняти рівень, не відкатувати.
+        // Якщо сервер новіший за останнє локальне збереження і рівень на сервері нижчий — довіряємо серверу (адмін знизив lvl).
+        const serverDemotedLevel =
+          serverLevel < localLevel &&
+          serverUpdatedAt > 0 &&
+          localLastSavedAt > 0 &&
+          serverUpdatedAt > localLastSavedAt;
+        const finalLevel = serverDemotedLevel ? serverLevel : Math.max(localLevel, serverLevel);
         const heroDataForLocal = character.heroJson as any;
         const serverExpVal = Number(heroDataForLocal?.exp ?? character.exp ?? 0);
-        const finalExp = serverLevel > localLevel ? serverExpVal : Math.max(localExp, serverExpVal);
+        const finalExp = serverDemotedLevel
+          ? serverExpVal
+          : serverLevel > localLevel
+            ? serverExpVal
+            : Math.max(localExp, serverExpVal);
         const finalSp = Math.max(localSp, serverSp); // 🔥 Не відправляти менше SP — сервер відхилить "sp cannot be decreased"
         // 🔥 КРИТИЧНО: перераховуємо maxHp/maxMp/maxCp по локальному герою (екіп + скіли), інакше після F5 залишається старий max
         // 🔥 Професію/klass беремо з сервера — адмін міг змінити клас, localStorage має стару

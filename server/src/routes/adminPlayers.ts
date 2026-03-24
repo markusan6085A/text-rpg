@@ -344,20 +344,22 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         rawSkills.map((x: any) => ({ id: Number(x.id), level: Number(x.level) || 1 })),
         lvl
       );
-      const updatedHeroJson = {
-        ...heroJson,
-        level: lvl,
-        exp: expForLevel,
-        skills: clampedSkills,
-        heroRevision: Date.now(),
-        heroJsonVersion: heroJson.heroJsonVersion || 1,
-        hp: maxHp,
-        mp: maxMp,
-        cp: maxCp,
-        maxHp,
-        maxMp,
-        maxCp,
-      };
+      const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
+      const updatedHeroJson = addVersioning(
+        {
+          ...heroJson,
+          level: lvl,
+          exp: expForLevel,
+          skills: clampedSkills,
+          hp: maxHp,
+          mp: maxMp,
+          cp: maxCp,
+          maxHp,
+          maxMp,
+          maxCp,
+        },
+        oldRev
+      );
       await prisma.character.update({
         where: { id: characterId },
         data: { level: lvl, exp: BigInt(expForLevel), heroJson: updatedHeroJson },
