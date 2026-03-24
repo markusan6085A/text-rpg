@@ -139,10 +139,15 @@ export default function StatusBars() {
     }
     let mounted = true;
     let circuitOpenUntil = 0;
+    /** Якщо сервер відповів 404 — id героя не належить цьому акаунту / застарілий кеш; не поллимо, щоб не спамити Network. */
+    let pkPollStopped = false;
     const sync = async () => {
       if (Date.now() < circuitOpenUntil) return;
+      if (pkPollStopped) return;
+      const hid = useHeroStore.getState().hero?.id;
+      if (!hid) return;
       try {
-        const st = await getPkState(hero.id);
+        const st = await getPkState(hid);
         if (!mounted) return;
         const currentHero = useHeroStore.getState().hero;
         if (!currentHero) return;
@@ -170,8 +175,13 @@ export default function StatusBars() {
         useHeroStore.getState().updateHero(patch, { persist: false });
         setPkIncomingNotice(st.pkIncoming ?? null);
         setPkDeathNotice(st.pkDeathNotice ?? null);
-      } catch {
-        circuitOpenUntil = Date.now() + 60000; // 60 сек — не поллити при 502
+      } catch (e: unknown) {
+        const status = (e as { status?: number })?.status;
+        if (status === 404) {
+          pkPollStopped = true;
+          return;
+        }
+        circuitOpenUntil = Date.now() + 60000; // 60 сек — не поллити при 502 / мережі
       }
     };
 

@@ -23,30 +23,36 @@ export default function CharacterBuffs() {
     if (!hero?.id) return;
 
     let disposed = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
     const syncFromServer = async () => {
+      const hid = useHeroStore.getState().hero?.id;
+      if (!hid || disposed) return;
       try {
-        const data = await getCharacter(hero.id);
+        const data = await getCharacter(hid);
         const serverBuffs = Array.isArray((data as any)?.heroJson?.heroBuffs)
           ? (data as any).heroJson.heroBuffs
           : [];
-        const localBuffs = Array.isArray((hero as any)?.heroJson?.heroBuffs)
-          ? (hero as any).heroJson.heroBuffs
+        const cur = useHeroStore.getState().hero;
+        const localBuffs = Array.isArray((cur as any)?.heroJson?.heroBuffs)
+          ? (cur as any).heroJson.heroBuffs
           : [];
 
         if (!disposed && JSON.stringify(serverBuffs) !== JSON.stringify(localBuffs)) {
-          // Use current state to avoid stale closures
           useHeroStore.getState().updateHero({ heroJson: { heroBuffs: serverBuffs } }, { persist: false });
         }
-      } catch {
-        // ignore
+      } catch (e: unknown) {
+        if ((e as { status?: number })?.status === 404 && intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
       }
     };
 
     syncFromServer();
-    const t = setInterval(syncFromServer, 5000);
+    intervalId = setInterval(syncFromServer, 5000);
     return () => {
       disposed = true;
-      clearInterval(t);
+      if (intervalId) clearInterval(intervalId);
     };
   }, [hero?.id]);
 
