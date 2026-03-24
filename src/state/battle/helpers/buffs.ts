@@ -67,9 +67,10 @@ export const applyBuffsToStats = (
   const flatBuffsByStat: Record<string, number> = {};
   const multiplierBuffsByStat: Record<string, number> = {};
 
-  // Спочатку збираємо всі бафи
+  // Спочатку збираємо всі бафи (effects з API може бути відсутнім — див. common-pitfalls)
   buffs.forEach((b) => {
-    b.effects.forEach((eff) => {
+    const effectList = Array.isArray(b.effects) ? b.effects : [];
+    effectList.forEach((eff) => {
       const stat = eff.stat;
       // КРИТИЧНО: mode має бути з eff.mode, якщо є multiplier - це multiplier!
       let mode = eff.mode;

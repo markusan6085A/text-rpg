@@ -24,6 +24,8 @@ import { getMyClan, inviteToClan, type Clan } from "../utils/api";
 import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
 import PlayerStatsModal from "../components/PlayerStatsModal";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
+import { cleanupBuffs } from "../state/battle/helpers";
+import type { BattleBuff } from "../state/battle/types";
 import PkProfileView from "./player/PkProfileView";
 import InvitePlayerModal from "./clan/modals/InvitePlayerModal";
 import { locations as WORLD_LOCATIONS } from "../data/world";
@@ -53,6 +55,26 @@ import { effectiveCharacterLevel } from "../utils/effectiveCharacterLevel";
 import { useCharacterStore } from "../state/characterStore";
 import { setResurrectInProgress } from "../state/heroStore";
 import { clearDeathGate } from "../utils/deathGate";
+
+/** ISO / рядок expiresAt інакше cleanupBuffs відсіює всі бафи (рядок > number → false). */
+function coerceBuffExpiresAtMs(expiresAt: unknown): number {
+  if (expiresAt === Number.MAX_SAFE_INTEGER) return Number.MAX_SAFE_INTEGER;
+  if (typeof expiresAt === "number" && Number.isFinite(expiresAt)) return expiresAt;
+  if (typeof expiresAt === "string") {
+    const t = Date.parse(expiresAt);
+    return Number.isFinite(t) ? t : 0;
+  }
+  if (expiresAt == null) return Number.MAX_SAFE_INTEGER;
+  return 0;
+}
+
+function prepareBuffsForStatsView(raw: any[]): BattleBuff[] {
+  return raw.map((b) => ({
+    ...b,
+    expiresAt: coerceBuffExpiresAtMs(b?.expiresAt),
+    effects: Array.isArray(b?.effects) ? b.effects : [],
+  })) as BattleBuff[];
+}
 
 /** Об'єкт як Hero для екіпу / recalculateAllStats; має містити baseStats з heroJson (інакше стати — дефолтні). */
 function characterToProfileHeroData(character: Character) {
@@ -908,8 +930,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             ? (charForStats as any).heroBuffs
             : [];
         const nowMs = Date.now();
-        const getExp = (b: any) => { const v = b.expiresAt; if (v == null) return Number.MAX_SAFE_INTEGER; if (typeof v === "number") return v; const n = Number(v); return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER; };
-        const activeBuffsForStats = rawBuffs.filter((b: any) => { const exp = getExp(b); return exp >= Number.MAX_SAFE_INTEGER - 1 || exp > nowMs; });
+        const activeBuffsForStats = cleanupBuffs(prepareBuffsForStatsView(rawBuffs), nowMs);
         const statsHero = characterToProfileHeroData(charForStats);
         const statsResult = recalculateAllStats(statsHero, activeBuffsForStats);
         setViewedStats(statsResult);
