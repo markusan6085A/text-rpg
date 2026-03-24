@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "extract:l2dop": "node tools/extractL2dopWorld.mjs"
+    "extract:l2dop": "node tools/extractL2dopWorld.mjs",
+    "gk:teleport-costs": "node tools/buildGkTeleportCosts.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.99.2",

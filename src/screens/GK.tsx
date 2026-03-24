@@ -12,6 +12,11 @@ import { getCityUiVariant } from "../utils/cityUiVariant";
 import { displayCityName, displayZoneName } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { getGameSettings } from "../state/gameSettings";
+import {
+  GK_FREE_TELEPORT_MAX_LEVEL,
+  resolveGkTeleportAdenaCharge,
+} from "../data/world/gkTeleportCostTable";
+import { getAccessToken, postCharacterGkTeleport } from "../utils/api";
 
 type Navigate = (path: string) => void;
 
@@ -36,9 +41,6 @@ function getZonesByCity(cityId: string): Zone[] {
 }
 
 /** Підказка по рівнях мобів у зонах міста: мінімум з усіх minLevel — максимум з усіх maxLevel */
-/** Телепорти GK: безкоштовно до цього рівня включно (клієнтська перевірка адени). */
-const FREE_TELEPORT_MAX_LEVEL = 40;
-
 function getCityMobLevelRangeLabel(cityId: string): string | null {
   const zones = WORLD_LOCATIONS.filter((z) => z.cityId === cityId);
   if (zones.length === 0) return null;
@@ -75,56 +77,99 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   const zones = selectedCity ? getZonesByCity(selectedCity.id) : [];
 
   const heroLevel = Math.max(1, Math.floor(Number(hero?.level ?? 1)));
-  const tpFreeThrough40 = heroLevel <= FREE_TELEPORT_MAX_LEVEL;
+  const tpFreeThrough40 = heroLevel <= GK_FREE_TELEPORT_MAX_LEVEL;
 
-  const handleCityChange = (cityId: string) => {
+  const handleCityChange = async (cityId: string) => {
     if (cityId === selectedCityId) return;
-
-    const destCity = WORLD_CITIES.find((c) => c.id === cityId);
-    const cityTpCost = destCity?.tpCost ?? 0;
-    const charge = tpFreeThrough40 ? 0 : cityTpCost;
 
     if (!hero) {
       showToast("Персонаж не завантажений.", "error");
       return;
     }
 
-    if (charge > 0) {
-      if ((hero.adena ?? 0) < charge) {
+    const preview = resolveGkTeleportAdenaCharge({
+      heroLevel,
+      kind: "city",
+      targetId: cityId,
+    });
+    if (preview === null) {
+      showToast("Невідоме місто для телепорту.", "error");
+      return;
+    }
+
+    const token = getAccessToken();
+    if (token) {
+      try {
+        const res = await postCharacterGkTeleport(hero.id, { kind: "city", targetId: cityId });
+        const hj = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, unknown>;
+        useHeroStore.getState().updateHero({
+          adena: res.newAdena,
+          heroJson: { ...hj, currentCityId: cityId },
+        } as any);
+      } catch (e: unknown) {
+        const msg = (e as Error)?.message || "";
+        showToast(
+          msg === "not enough adena"
+            ? "Недостаточно адены для телепорта в этот город!"
+            : msg || "Ошибка телепорта",
+          "error",
+        );
+        return;
+      }
+    } else {
+      if (preview > 0 && (hero.adena ?? 0) < preview) {
         showToast("Недостаточно адены для телепорта в этот город!", "error");
         return;
       }
-      updateAdena(-charge);
+      if (preview > 0) updateAdena(-preview);
+      const hj = (hero as any).heroJson || {};
+      useHeroStore.getState().updateHero({ heroJson: { ...hj, currentCityId: cityId } } as any);
     }
 
     setSelectedCityId(cityId);
     savePreviousCity(cityId); // localStorage (per-account)
-    // Зберігаємо в hero для синхронізації з сервером та City/ТП
-    if (hero) {
-      const hj = (hero as any).heroJson || {};
-      useHeroStore.getState().updateHero({ heroJson: { ...hj, currentCityId: cityId } } as any);
-    }
     const params = new URLSearchParams(location.search);
     params.set("city", cityId);
     history.replaceState(null, "", `/gk?${params.toString()}`);
   };
 
-  const goToZone = (zoneId: string) => {
-    const zone = zones.find((z) => z.id === zoneId);
-    const zoneCost = zone?.tpCost ?? 0;
-    const charge = tpFreeThrough40 ? 0 : zoneCost;
-
+  const goToZone = async (zoneId: string) => {
     if (!hero) {
       showToast("Персонаж не завантажений.", "error");
       return;
     }
 
-    if (charge > 0) {
-      if ((hero.adena ?? 0) < charge) {
+    const preview = resolveGkTeleportAdenaCharge({
+      heroLevel,
+      kind: "zone",
+      targetId: zoneId,
+    });
+    if (preview === null) {
+      showToast("Невідома локація для телепорту.", "error");
+      return;
+    }
+
+    const token = getAccessToken();
+    if (token) {
+      try {
+        const res = await postCharacterGkTeleport(hero.id, { kind: "zone", targetId: zoneId });
+        useHeroStore.getState().updateHero({ adena: res.newAdena } as any);
+      } catch (e: unknown) {
+        const msg = (e as Error)?.message || "";
+        showToast(
+          msg === "not enough adena"
+            ? "Недостаточно адены для телепорта на эту локацию!"
+            : msg || "Ошибка телепорта",
+          "error",
+        );
+        return;
+      }
+    } else {
+      if (preview > 0 && (hero.adena ?? 0) < preview) {
         showToast("Недостаточно адены для телепорта на эту локацию!", "error");
         return;
       }
-      updateAdena(-charge);
+      if (preview > 0) updateAdena(-preview);
     }
 
     // 🔥 Зберігаємо поточне місто — щоб City та ТП пам'ятали останнє місто
