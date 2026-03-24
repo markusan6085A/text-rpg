@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { sendLetter } from "../utils/api";
+import { useHeroStore } from "../state/heroStore";
+import { adminOwnWriteTextStyle } from "../config/admin";
 
 interface Conversation {
   playerId: string;
@@ -22,6 +24,8 @@ export default function WriteLetterModal({
   onClose,
   onSent,
 }: WriteLetterModalProps) {
+  const hero = useHeroStore((s) => s.hero);
+  const adminWrite = adminOwnWriteTextStyle(hero?.name);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -102,6 +106,7 @@ export default function WriteLetterModal({
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             className="w-full bg-transparent text-sm text-white outline-none"
+            style={adminWrite}
             placeholder="Тема листа..."
             maxLength={100}
           />
@@ -117,6 +122,7 @@ export default function WriteLetterModal({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className="w-full bg-transparent text-sm text-white resize-none outline-none"
+            style={adminWrite}
             placeholder="Введіть текст листа..."
             rows={6}
             maxLength={1000}

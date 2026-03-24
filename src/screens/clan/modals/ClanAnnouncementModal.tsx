@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { showToast } from "../../../state/toastStore";
+import { useHeroStore } from "../../../state/heroStore";
+import { adminOwnWriteTextStyle } from "../../../config/admin";
 import { type Clan } from "../../../utils/api";
 import {
   clanModalBackdropClass,
@@ -18,6 +20,7 @@ interface ClanAnnouncementModalProps {
 }
 
 export default function ClanAnnouncementModal({ clan, onSave, onClose }: ClanAnnouncementModalProps) {
+  const hero = useHeroStore((s) => s.hero);
   const [text, setText] = useState(clan.announcement || "");
   const [saving, setSaving] = useState(false);
 
@@ -41,6 +44,7 @@ export default function ClanAnnouncementModal({ clan, onSave, onClose }: ClanAnn
           value={text}
           onChange={(e) => setText(e.target.value.slice(0, 500))}
           className={clanModalTextareaClass()}
+          style={adminOwnWriteTextStyle(hero?.name)}
           placeholder="Текст оголошення (до 500 символів)"
           maxLength={500}
         />

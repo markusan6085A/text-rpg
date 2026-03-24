@@ -3,7 +3,9 @@ import { type ClanChatMessage } from "../../utils/api";
 import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
 import { EmojiText } from "../../components/EmojiText";
 import { useHeroStore } from "../../state/heroStore";
+import { useCharacterStore } from "../../state/characterStore";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isAdminCharacter, adminOwnWriteTextStyle } from "../../config/admin";
 
 interface ClanChatProps {
   messages: ClanChatMessage[];
@@ -25,7 +27,11 @@ export default function ClanChat({
   onPageChange,
 }: ClanChatProps) {
   const hero = useHeroStore((s) => s.hero);
+  const characterId = useCharacterStore((s) => s.characterId);
+  const cid = (characterId || hero?.id || "").trim();
   const isL2 = getCityUiVariant() === "l2";
+  const adminMsgStyle = (msgCid: string) =>
+    cid && msgCid === cid && isAdminCharacter(hero?.name) ? adminOwnWriteTextStyle(hero?.name) : undefined;
   const panel = isL2
     ? "bg-black/25 border border-[#5c4a32]/55 rounded p-2 max-h-64 overflow-y-auto space-y-1"
     : "bg-[#1a1a1a] border border-white/40 rounded p-2 max-h-64 overflow-y-auto space-y-1";
@@ -44,7 +50,9 @@ export default function ClanChat({
         {messages.length === 0 ? (
           <div className={isL2 ? "text-[11px] text-[#8a7a60]" : "text-[11px] text-[#9f8d73]"}>Нет сообщений</div>
         ) : (
-          messages.map((msg) => (
+          messages.map((msg) => {
+            const ownSt = adminMsgStyle(msg.characterId);
+            return (
             <div key={msg.id} className="text-[11px]">
               <PlayerNameWithEmblem
                 playerName={msg.characterName}
@@ -54,11 +62,15 @@ export default function ClanChat({
                 size={12}
                 className="font-semibold"
               />
-              <span className={isL2 ? "text-[#e8dcc8]" : "text-white"}>
+              <span
+                className={ownSt ? "" : isL2 ? "text-[#e8dcc8]" : "text-white"}
+                style={ownSt}
+              >
                 : <EmojiText>{msg.message}</EmojiText>
               </span>
             </div>
-          ))
+            );
+          })
         )}
       </div>
       {/* Пагінація чату */}
@@ -101,6 +113,7 @@ export default function ClanChat({
               onSendMessage();
             }
           }}
+          style={adminOwnWriteTextStyle(hero?.name)}
           className={
             isL2
               ? "flex-1 px-2 py-1 bg-[#0f0a06] border border-[#5c4a32]/50 text-[12px] text-[#e8dcc8] rounded placeholder-[#6a6048]"

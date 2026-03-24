@@ -17,6 +17,7 @@ import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { showToast } from "../state/toastStore";
 import { isUnauthorizedError } from "../utils/isUnauthorizedError";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { adminOwnWriteTextStyle, isAdminCharacter } from "../config/admin";
 
 interface MailProps {
   navigate: (path: string) => void;
@@ -436,6 +437,7 @@ export default function Mail({ navigate }: MailProps) {
             <textarea
               value={replyMessage}
               onChange={(e) => setReplyMessage(e.target.value)}
+              style={adminOwnWriteTextStyle(hero?.name)}
               className={
                 isL2
                   ? "w-full bg-[#0c0a08] border border-[#5c4a32]/70 rounded px-2 py-1 text-[7px] text-[#e8dcc8] resize-none mb-2 placeholder:text-[#6b5c42]"
@@ -528,7 +530,12 @@ export default function Mail({ navigate }: MailProps) {
                       })()}
                     </div>
                   ) : (
-                    <div className="text-white text-[10px]">{letter.message}</div>
+                    <div
+                      className={isOwn && isAdminCharacter(hero?.name) ? "text-[10px]" : "text-white text-[10px]"}
+                      style={isOwn && isAdminCharacter(hero?.name) ? adminOwnWriteTextStyle(hero?.name) : undefined}
+                    >
+                      {letter.message}
+                    </div>
                   )}
                 </div>
               );

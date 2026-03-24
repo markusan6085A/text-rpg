@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { adminFindPlayerByName, adminSendLetter, adminGetPlayerLetters, adminBroadcastLetter } from "../../utils/api";
+import { useHeroStore } from "../../state/heroStore";
+import { adminOwnWriteTextStyle } from "../../config/admin";
 
 const style = { color: "#c7ad80" };
 
@@ -14,6 +16,8 @@ const style = { color: "#c7ad80" };
  * Показывает входящие и исходящие письма выбранного игрока (для разбора жалоб).
  */
 export function AdminSectionLetters() {
+  const hero = useHeroStore((s) => s.hero);
+  const adminWrite = adminOwnWriteTextStyle(hero?.name);
   const [nick, setNick] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -105,10 +109,10 @@ export function AdminSectionLetters() {
       </p>
       <form onSubmit={handleSend} className="flex flex-col gap-2 mb-2">
         <div className="flex flex-wrap gap-2">
-          <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік одержувача" className={`${inputCl} w-36`} />
-          <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Тема (необовʼязково)" className={`${inputCl} w-44`} />
+          <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік одержувача" className={`${inputCl} w-36`} style={adminWrite} />
+          <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Тема (необовʼязково)" className={`${inputCl} w-44`} style={adminWrite} />
         </div>
-        <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст листа" className={`${inputCl} w-full min-h-[60px]`} rows={2} />
+        <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст листа" className={`${inputCl} w-full min-h-[60px]`} style={adminWrite} rows={2} />
         <div className="flex gap-2">
           <button type="submit" disabled={loading} className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50">
             Відправити
@@ -129,12 +133,14 @@ export function AdminSectionLetters() {
             onChange={(e) => setBroadcastSubject(e.target.value)}
             placeholder="Тема листа"
             className={inputCl}
+            style={adminWrite}
           />
           <textarea
             value={broadcastMessage}
             onChange={(e) => setBroadcastMessage(e.target.value)}
             placeholder="Текст — спасибі, оголошення тощо..."
             className={`${inputCl} min-h-[60px]`}
+            style={adminWrite}
             rows={3}
           />
           <button

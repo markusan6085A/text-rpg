@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { adminOwnWriteTextStyle } from "../../../config/admin";
 
 interface ChatInputProps {
   messageText: string;
@@ -11,6 +12,8 @@ interface ChatInputProps {
   onDisabledClick?: () => void;
   /** Підказка в полі (наприклад клан / мут) */
   placeholder?: string;
+  /** Ім'я героя — для голубого тексту в полі, якщо це Existence */
+  heroName?: string | null;
 }
 
 export function ChatInput({
@@ -22,9 +25,11 @@ export function ChatInput({
   disabled = false,
   onDisabledClick,
   placeholder = "Введите сообщение...",
+  heroName,
 }: ChatInputProps) {
   const isL2 = getCityUiVariant() === "l2";
   const inputRef = useRef<HTMLInputElement>(null);
+  const adminWrite = adminOwnWriteTextStyle(heroName);
 
   const handleSend = () => {
     if (disabled && onDisabledClick) {
@@ -49,6 +54,7 @@ export function ChatInput({
         }}
         onFocus={() => disabled && onDisabledClick?.()}
         placeholder={placeholder}
+        style={adminWrite}
         className={
           isL2
             ? "w-full text-sm text-[#e8dcc8] placeholder-[#6a6048] bg-[#0f0a06] border border-[#5c4a32]/55 rounded px-2 py-1.5 mb-2 disabled:opacity-70 disabled:cursor-not-allowed"

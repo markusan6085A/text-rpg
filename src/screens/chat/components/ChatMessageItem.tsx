@@ -6,6 +6,7 @@ import { formatTime } from "../utils";
 import { PlayerNameWithEmblem } from "../../../components/PlayerNameWithEmblem";
 import { EmojiText } from "../../../components/EmojiText";
 import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { adminOwnWriteTextStyle } from "../../../config/admin";
 
 interface ChatMessageItemProps {
   msg: ChatMessage;
@@ -38,6 +39,7 @@ export function ChatMessageItem({
   const heroName = hero.name || hero.username;
   const isOwnMessage = msg.isOwn === true || (heroName && msg.characterName?.toLowerCase() === heroName.toLowerCase());
   const canDelete = isOwnMessage && (channel === "general" || channel === "trade");
+  const adminOwnMsgStyle = isOwnMessage ? adminOwnWriteTextStyle(hero.name || hero.username) : undefined;
 
   return (
     <React.Fragment>
@@ -135,14 +137,17 @@ export function ChatMessageItem({
           </div>
           <div
             className={`mt-0.5 ${
-              msg.channel === "trade"
-                ? isL2
-                  ? "text-[#e8c56e]"
-                  : "text-yellow-400"
-                : isL2
-                  ? "text-[#e8dcc8]"
-                  : "text-white"
+              adminOwnMsgStyle
+                ? ""
+                : msg.channel === "trade"
+                  ? isL2
+                    ? "text-[#e8c56e]"
+                    : "text-yellow-400"
+                  : isL2
+                    ? "text-[#e8dcc8]"
+                    : "text-white"
             }`}
+            style={adminOwnMsgStyle}
           >
             <EmojiText>{msg.message}</EmojiText>
           </div>

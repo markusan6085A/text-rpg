@@ -624,6 +624,7 @@ export default function Chat({ navigate }: ChatProps) {
         onMessageChange={setMessageText}
         onSend={sendMessage}
         onRefresh={refresh}
+        heroName={hero?.name}
         disabled={isRestricted || clanBlocked}
         onDisabledClick={() => {
           if (isRestricted) setShowRestrictionModal(true);

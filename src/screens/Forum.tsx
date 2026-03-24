@@ -15,6 +15,7 @@ import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { adminOwnWriteTextStyle, isAdminCharacter } from "../config/admin";
 
 interface ForumProps {
   navigate: (path: string) => void;
@@ -267,6 +268,9 @@ export default function Forum({ navigate }: ForumProps) {
   const inputCl = isL2
     ? "text-sm py-1 px-2 rounded bg-black/40 border border-[#5c4a32]/45 text-[#e8dcc8] placeholder-[#6a6048]"
     : "text-sm py-1 px-2 rounded bg-black/40 border border-[#c7ad80]/30 text-white placeholder-gray-500";
+  const adminWrite = adminOwnWriteTextStyle(hero?.name);
+  const isOwnAdminPost = (postCharId: string | undefined) =>
+    isAdminCharacter(hero?.name) && !!characterId && postCharId === characterId;
   const rowBorder = isL2 ? "border-b border-[#5c4a32]/35" : "border-b border-white/30";
   const cardBorder = isL2 ? "border border-[#5c4a32]/50" : "border border-white/30";
 
@@ -367,6 +371,7 @@ export default function Forum({ navigate }: ForumProps) {
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Назва теми"
                   className={`${inputCl} w-full mb-2`}
+                  style={adminWrite}
                   maxLength={120}
                 />
                 <textarea
@@ -374,6 +379,7 @@ export default function Forum({ navigate }: ForumProps) {
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Перше повідомлення..."
                   className={`${inputCl} w-full min-h-[80px]`}
+                  style={adminWrite}
                   rows={4}
                   maxLength={2000}
                 />
@@ -557,6 +563,7 @@ export default function Forum({ navigate }: ForumProps) {
                           value={editMessage}
                           onChange={(e) => setEditMessage(e.target.value)}
                           className={`${inputCl} w-full min-h-[60px] text-[11px]`}
+                          style={adminWrite}
                           rows={3}
                           maxLength={2000}
                           autoFocus
@@ -577,8 +584,13 @@ export default function Forum({ navigate }: ForumProps) {
                     ) : (
                       <div
                         className={
-                          isL2 ? "text-[#e8dcc8] text-[11px] whitespace-pre-wrap" : "text-white text-[11px] whitespace-pre-wrap"
+                          isOwnAdminPost(p.character?.id)
+                            ? "text-[11px] whitespace-pre-wrap"
+                            : isL2
+                              ? "text-[#e8dcc8] text-[11px] whitespace-pre-wrap"
+                              : "text-white text-[11px] whitespace-pre-wrap"
                         }
+                        style={isOwnAdminPost(p.character?.id) ? adminWrite : undefined}
                       >
                         {p.message}
                       </div>
@@ -594,6 +606,7 @@ export default function Forum({ navigate }: ForumProps) {
                   onChange={(e) => setReplyMessage(e.target.value)}
                   placeholder="Відповідь..."
                   className={`${inputCl} w-full min-h-[60px] mb-2`}
+                  style={adminWrite}
                   rows={3}
                   maxLength={2000}
                 />
