@@ -212,19 +212,29 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         localSkillLevelsSum > serverSkillLevelsSum ||
         localMobsKilled > serverMobsKilled;
 
+      const localRev = Number(
+        (hydratedLocalHero as any)?.heroJson?.heroRevision ??
+          (hydratedLocalHero as any)?.heroRevision ??
+          0
+      );
+      const serverRev = Number(heroData?.heroRevision ?? 0);
+      // Локальний rev=0 (старий збережений герой) не означає «адмін оновив»; змішуємо з serverLevel лише коли rev реально ріс або сервер нижчий за локальний lvl.
+      const serverRevisionAdvanced =
+        serverRev > localRev && (localRev > 0 || serverLevel < localLevel);
+
       if (localHasMoreProgress) {
         const reason = localDiffersFromServer ? 'local differs from server (equip/inv/buffs)' : (localHasExplicitlyUnequipped ? 'local unequipped (fewer slots)' : (localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress')));
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
-        // 🔥 merge policy: зазвичай level = max(local, server) — адмін міг підняти рівень, не відкатувати.
-        // Якщо сервер новіший за останнє локальне збереження і рівень на сервері нижчий — довіряємо серверу (адмін знизив lvl).
-        const serverDemotedLevel =
+        // 🔥 merge policy: зазвичай level = max(local, server). Якщо API каже нижчий рівень — довіряємо серверу (адмін),
+        // окрім випадку «диск новіший за рядок БД» (офлайн-прогрес). Але якщо heroJson.heroRevision на сервері
+        // виріс (адмін set-level / change-class / інший клієнт) — завжди беремо рівень з API, навіть коли lastSavedAt новіший.
+        const demoteToServerLevel =
           serverLevel < localLevel &&
-          serverUpdatedAt > 0 &&
-          (localLastSavedAt === 0 || serverUpdatedAt > localLastSavedAt);
-        const finalLevel = serverDemotedLevel ? serverLevel : Math.max(localLevel, serverLevel);
+          (!localNewerByTimestamp || serverRevisionAdvanced);
+        const finalLevel = demoteToServerLevel ? serverLevel : Math.max(localLevel, serverLevel);
         const heroDataForLocal = character.heroJson as any;
         const serverExpVal = Number(heroDataForLocal?.exp ?? character.exp ?? 0);
-        const finalExp = serverDemotedLevel
+        const finalExp = demoteToServerLevel
           ? serverExpVal
           : serverLevel > localLevel
             ? serverExpVal
@@ -234,13 +244,24 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         // 🔥 Професію/klass беремо з сервера — адмін міг змінити клас, localStorage має стару
         const serverProfession = heroDataForLocal?.profession ?? heroDataForLocal?.klass;
         const serverKlass = character.classId ?? heroDataForLocal?.classId ?? heroDataForLocal?.klass;
+        const serverSkillsEmpty =
+          Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length === 0;
+        const takeServerSkillsStrict =
+          serverRevisionAdvanced && (demoteToServerLevel || serverSkillsEmpty);
+        const skillsFromServer = takeServerSkillsStrict
+          ? Array.isArray(heroDataForLocal?.skills)
+            ? heroDataForLocal.skills
+            : []
+          : Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length > 0
+            ? heroDataForLocal.skills
+            : hydratedLocalHero.skills;
         const heroForLocalRecalc: Hero = {
           ...hydratedLocalHero,
           level: finalLevel,
           exp: finalExp,
           profession: (serverProfession && String(serverProfession).trim()) ? String(serverProfession) : hydratedLocalHero.profession,
           klass: (serverKlass && String(serverKlass).trim()) ? String(serverKlass) : hydratedLocalHero.klass,
-          skills: Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length > 0 ? heroDataForLocal.skills : hydratedLocalHero.skills,
+          skills: skillsFromServer,
         };
         const now = Date.now();
         const savedBattle = loadBattle(hydratedLocalHero.name);
@@ -445,12 +466,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       // 🔥 ВАЖЛИВО: mobsKilled має зберігатися з heroJson (вже прочитано вище)
       const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
       
-      // 🔥 КРИТИЧНО: Рівень може бути в heroJson.level (новіше) або в character.level (старе)
-      // Використовуємо більше значення, щоб не втратити рівень
-      const heroJsonLevel = (heroData as any).level;
-      const finalLevel = heroJsonLevel !== undefined && heroJsonLevel > character.level 
-        ? heroJsonLevel 
-        : character.level;
+      // 🔥 Рівень: колонка БД + heroJson мають узгоджуватись; порівняння тільки через Number (рядки з API).
+      const colLvl = Math.max(1, Number(character.level ?? 1) || 1);
+      const hjLvlRaw = (heroData as any).level;
+      const hjLvl = hjLvlRaw != null && hjLvlRaw !== "" ? Number(hjLvlRaw) : NaN;
+      const finalLevel = Number.isFinite(hjLvl) && hjLvl > colLvl ? hjLvl : colLvl;
       
       // 🔥 КРИТИЧНО: EXP також може бути в heroJson
       const heroJsonExp = normalizeExpToLevelProgress((heroData as any).exp, finalLevel);
