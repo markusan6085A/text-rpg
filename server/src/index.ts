@@ -25,7 +25,7 @@ import { adminPlayerActivityRoutes } from "./routes/adminPlayerActivity";
 import { adminSignalsRoutes } from "./routes/adminSignals";
 import { runAdminSignalEmailJob } from "./jobs/adminSignalEmailJob";
 import { premiumRoutes } from "./routes/premium";
-import { marketRoutes } from "./routes/market";
+import { marketRoutes, runMarketExpireStaleListings } from "./routes/market";
 import { runSevenSealsMailJob } from "./sevenSealsMail";
 
 // Отримуємо шлях до dist папки (frontend build)
@@ -278,6 +278,18 @@ const start = async () => {
         app.log.error(err, "Error cleaning up old chat messages:");
       }
     }, 60 * 60 * 1000); // Кожні 1 годину
+
+    // 🔥 Ринок: протухлі лоти (повернення продавцю) — не лише при відкритті /market
+    setTimeout(() => {
+      runMarketExpireStaleListings(app).catch((err) =>
+        app.log.error(err, "[market] expire stale (startup)")
+      );
+    }, 8000);
+    setInterval(() => {
+      runMarketExpireStaleListings(app).catch((err) =>
+        app.log.error(err, "[market] expire stale (interval)")
+      );
+    }, 15 * 60 * 1000);
 
     // 🔥 Періодична очистка старих листів (кожні 1 годину)
     setInterval(async () => {

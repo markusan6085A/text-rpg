@@ -313,7 +313,8 @@ export interface MarketListingDTO {
   sellerName: string;
   itemSnapshot: unknown;
   currency: MarketCurrency;
-  price: number;
+  /** BigInt у БД — з API як рядок; number лишається для сумісності зі старими відповідями */
+  price: string | number;
   createdAt: string;
   expiresAt: string;
 }

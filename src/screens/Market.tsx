@@ -66,34 +66,59 @@ function resolveItemIconPath(it: HeroInventoryItem & { itemId?: string }): strin
 const formatNum = (n: number) =>
   n.toLocaleString("ru-RU").replace(/\s/g, ".");
 
-/** Часткова купівля: ціна ділиться на кількість у лоті без остачі (як на сервері). */
-function marketPartialAllowed(lotTotal: number, lotCnt: number): boolean {
-  const t = Math.floor(Number(lotTotal) || 0);
-  const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
-  return c >= 1 && t % c === 0;
-}
-
-function maxBuyableFromBalance(lotTotal: number, lotCnt: number, balance: number): number {
-  const t = Math.floor(Number(lotTotal) || 0);
-  const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
-  const bal = Math.max(0, Math.floor(Number(balance) || 0));
-  if (t < 1) return 0;
-  if (marketPartialAllowed(t, c)) {
-    const per = Math.floor(t / c);
-    if (per < 1) return 0;
-    return Math.min(c, Math.floor(bal / per));
+/** Ціна лоту з DTO (рязок з BigInt або legacy number) → bigint без втрати точності */
+function listingLotPriceBi(L: Pick<MarketListingDTO, "price">): bigint {
+  const p = L.price as unknown;
+  if (typeof p === "bigint") return p;
+  if (typeof p === "number" && Number.isFinite(p)) return BigInt(Math.trunc(p));
+  if (typeof p === "string") {
+    const t = p.replace(/\s/g, "").trim();
+    if (/^\d+$/.test(t)) {
+      try {
+        return BigInt(t);
+      } catch {
+        return 0n;
+      }
+    }
   }
-  return bal >= t ? c : 0;
+  const n = Math.trunc(Number(p));
+  return BigInt(Number.isFinite(n) ? n : 0);
 }
 
-function payForMarketQty(lotTotal: number, lotCnt: number, qty: number): number {
-  const t = Math.floor(Number(lotTotal) || 0);
+function formatPriceBi(amount: bigint): string {
+  if (amount <= 0n) return "0";
+  const s = amount.toString();
+  return s.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/** Часткова купівля: сума ділиться на кількість у лоті без остачі (як на сервері). */
+function marketPartialAllowed(lotTotal: bigint, lotCnt: number): boolean {
+  const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
+  return c >= 1 && lotTotal >= 1n && lotTotal % BigInt(c) === 0n;
+}
+
+function maxBuyableFromBalance(lotTotal: bigint, lotCnt: number, balance: number): number {
+  const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
+  const bal = BigInt(Math.max(0, Math.floor(Number(balance) || 0)));
+  if (lotTotal < 1n) return 0;
+  if (marketPartialAllowed(lotTotal, c)) {
+    const per = lotTotal / BigInt(c);
+    if (per < 1n || bal < per) return 0;
+    const byFunds = bal / per;
+    const cap = BigInt(c);
+    const q = byFunds < cap ? byFunds : cap;
+    return Number(q);
+  }
+  return bal >= lotTotal ? c : 0;
+}
+
+function payForMarketQty(lotTotal: bigint, lotCnt: number, qty: number): bigint {
   const c = Math.max(1, Math.floor(Number(lotCnt) || 1));
   const q = Math.max(1, Math.floor(Number(qty) || 0));
-  if (marketPartialAllowed(t, c)) {
-    return Math.floor(t / c) * q;
+  if (marketPartialAllowed(lotTotal, c)) {
+    return (lotTotal / BigInt(c)) * BigInt(q);
   }
-  return q >= c ? t : 0;
+  return q >= c ? lotTotal : 0n;
 }
 
 function msLeft(iso: string): number {
@@ -153,7 +178,8 @@ function applyMarketCharacterPatch(c: Character) {
 export default function Market({ navigate }: MarketProps) {
   const hero = useHeroStore((s) => s.hero);
   const characterId = useCharacterStore((s) => s.characterId);
-  const cid = hero?.id || characterId || "";
+  /** Як у Warehouse: id з current_character_id (сервер) має пріоритет — hero.id з локалі може бути hero_* і ламає GET /market/my-listings після F5 */
+  const cid = characterId || hero?.id || "";
 
   const isL2 = getCityUiVariant() === "l2";
   const l2Outer =
@@ -373,7 +399,7 @@ export default function Market({ navigate }: MarketProps) {
     const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
     const bal =
       L.currency === "adena" ? Number(hero?.adena ?? 0) : Number(hero?.coinOfLuck ?? 0);
-    const maxCan = maxBuyableFromBalance(L.price, lotCnt, bal);
+    const maxCan = maxBuyableFromBalance(listingLotPriceBi(L), lotCnt, bal);
     setBrowseDetailListing(L);
     setBrowseBuyQty(String(maxCan > 0 ? maxCan : 1));
   };
@@ -386,8 +412,9 @@ export default function Market({ navigate }: MarketProps) {
     const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
     const bal =
       L.currency === "adena" ? Number(hero.adena ?? 0) : Number(hero.coinOfLuck ?? 0);
-    const maxCan = maxBuyableFromBalance(L.price, lotCnt, bal);
-    const partial = marketPartialAllowed(L.price, lotCnt);
+    const lotTotalBi = listingLotPriceBi(L);
+    const maxCan = maxBuyableFromBalance(lotTotalBi, lotCnt, bal);
+    const partial = marketPartialAllowed(lotTotalBi, lotCnt);
     const rawQ = Math.floor(Number(String(browseBuyQty).replace(/\s/g, "")) || 0);
     const qtyMaxPartial = Math.min(lotCnt, Math.max(0, maxCan));
     let qty = 0;
@@ -397,7 +424,7 @@ export default function Market({ navigate }: MarketProps) {
     } else {
       qty = maxCan > 0 ? lotCnt : 0;
     }
-    const pay = qty > 0 ? payForMarketQty(L.price, lotCnt, qty) : 0;
+    const pay = qty > 0 ? payForMarketQty(lotTotalBi, lotCnt, qty) : 0n;
     const rowId = isColLot
       ? "coin_of_luck"
       : itemRowId(it) || String((it as { id?: string }).id || "").trim();
@@ -425,7 +452,7 @@ export default function Market({ navigate }: MarketProps) {
     if (!cid || !browseBuyPreview || browseBuyPreview.qty < 1) return;
     const { L, qty, lotCnt } = browseBuyPreview;
     if (L.sellerCharacterId === cid) return;
-    if (!marketPartialAllowed(L.price, lotCnt) && qty !== lotCnt) {
+    if (!marketPartialAllowed(listingLotPriceBi(L), lotCnt) && qty !== lotCnt) {
       showToast("Часткова купівля недоступна для цього лоту", "info");
       return;
     }
@@ -518,8 +545,8 @@ export default function Market({ navigate }: MarketProps) {
     const left = msLeft(L.expiresAt);
     void tick;
     const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
-    const lotTotal = L.price;
-    const perUnit = lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
+    const lotTotal = listingLotPriceBi(L);
+    const perUnit = lotCnt > 1 && lotTotal > 0n ? lotTotal / BigInt(lotCnt) : lotTotal;
     const curLabel = L.currency === "adena" ? "аден" : "CoL";
     return (
       <div key={L.id} className={listingRowCompact}>
@@ -547,8 +574,8 @@ export default function Market({ navigate }: MarketProps) {
           </div>
           <div className={isL2 ? "text-[9px] text-[#c9a44c] mt-0.5 leading-tight" : "text-[9px] text-amber-300 mt-0.5 leading-tight"}>
             {lotCnt > 1
-              ? `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
-              : `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
+              ? `${formatPriceBi(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatPriceBi(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+              : `${formatPriceBi(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`}
           </div>
         </div>
         <button
@@ -700,9 +727,9 @@ export default function Market({ navigate }: MarketProps) {
                     const left = msLeft(L.expiresAt);
                     void tick;
                     const lotCnt = Math.max(1, Math.floor(Number(it?.count) || 1));
-                    const lotTotal = L.price;
+                    const lotTotal = listingLotPriceBi(L);
                     const perUnit =
-                      lotCnt > 1 && lotTotal > 0 ? Math.floor(lotTotal / lotCnt) : lotTotal;
+                      lotCnt > 1 && lotTotal > 0n ? lotTotal / BigInt(lotCnt) : lotTotal;
                     const curLabel = L.currency === "adena" ? "аден" : "CoL";
                     return (
                       <button
@@ -748,9 +775,9 @@ export default function Market({ navigate }: MarketProps) {
                             {left <= 0 ? (
                               <span className="text-[#9d6b6b]">Час вичерпано</span>
                             ) : lotCnt > 1 ? (
-                              `${formatNum(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+                              `${formatPriceBi(lotTotal)} ${curLabel} за ${lotCnt} шт. (${formatPriceBi(perUnit)} за шт.) · ${formatTimeLeft(left)}`
                             ) : (
-                              `${formatNum(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`
+                              `${formatPriceBi(lotTotal)} ${curLabel} · ${formatTimeLeft(left)}`
                             )}
                           </div>
                         </div>
@@ -1205,8 +1232,8 @@ export default function Market({ navigate }: MarketProps) {
               const left = msLeft(L.expiresAt);
               void tick;
               const curLabel = L.currency === "adena" ? "аден" : "CoL";
-              const perUnit =
-                lotCnt > 1 && L.price > 0 ? Math.floor(L.price / lotCnt) : L.price;
+              const lotPB = listingLotPriceBi(L);
+              const perUnit = lotCnt > 1 && lotPB > 0n ? lotPB / BigInt(lotCnt) : lotPB;
               const showEquipStats =
                 !isColLot && enchanted && (enchanted.isWeapon || enchanted.isArmor);
               const el = isColLot
@@ -1277,8 +1304,8 @@ export default function Market({ navigate }: MarketProps) {
                         {left <= 0
                           ? "Термін лоту минув"
                           : lotCnt > 1
-                            ? `${formatNum(L.price)} ${curLabel} за ${lotCnt} шт. (${formatNum(perUnit)} за шт.) · ${formatTimeLeft(left)}`
-                            : `${formatNum(L.price)} ${curLabel} · ${formatTimeLeft(left)}`}
+                            ? `${formatPriceBi(lotPB)} ${curLabel} за ${lotCnt} шт. (${formatPriceBi(perUnit)} за шт.) · ${formatTimeLeft(left)}`
+                            : `${formatPriceBi(lotPB)} ${curLabel} · ${formatTimeLeft(left)}`}
                       </div>
                     </div>
                   </div>
@@ -1455,7 +1482,7 @@ export default function Market({ navigate }: MarketProps) {
                       <div className={isL2 ? "text-[11px] text-center text-[#e8dcc8]" : "text-[11px] text-center text-amber-50"}>
                         До сплати:{" "}
                         <span className="font-semibold text-[#e8c56e]">
-                          {formatNum(pay)} {curLabel}
+                          {formatPriceBi(pay)} {curLabel}
                         </span>
                         {qty > 0 && qty !== lotCnt ? (
                           <span className={isL2 ? "text-[#8a7a60]" : "text-gray-500"}> ({qty} шт.)</span>

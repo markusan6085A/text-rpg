@@ -186,6 +186,11 @@ async function expireStaleListings(app: FastifyInstance) {
   }
 }
 
+/** Періодичний job з server/index — повернення предметів без заходу на /market */
+export async function runMarketExpireStaleListings(app: FastifyInstance) {
+  await expireStaleListings(app);
+}
+
 export async function marketRoutes(app: FastifyInstance) {
   // GET /market/listings
   app.get("/market/listings", async (req, reply) => {
@@ -243,7 +248,7 @@ export async function marketRoutes(app: FastifyInstance) {
       sellerName: r.sellerName,
       itemSnapshot: r.itemSnapshot,
       currency: r.currency,
-      price: Number(r.price),
+      price: r.price.toString(),
       createdAt: r.createdAt.toISOString(),
       expiresAt: r.expiresAt.toISOString(),
     }));
@@ -278,7 +283,7 @@ export async function marketRoutes(app: FastifyInstance) {
       sellerName: r.sellerName,
       itemSnapshot: r.itemSnapshot,
       currency: r.currency,
-      price: Number(r.price),
+      price: r.price.toString(),
       createdAt: r.createdAt.toISOString(),
       expiresAt: r.expiresAt.toISOString(),
     }));
