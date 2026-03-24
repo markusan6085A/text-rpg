@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { adminFindPlayerByName, adminChangeClass } from "../../utils/api";
 import { getAdminProfessionSelectGroups, normalizeProfessionId, type ProfessionId } from "../../data/skills";
-
-const style = { color: "#c7ad80" };
+import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 const SEX_OPTIONS = [
   { value: "", label: "— Стать —" },
@@ -10,22 +9,42 @@ const SEX_OPTIONS = [
   { value: "female", label: "Жіноча" },
 ];
 
+type FoundCharacter = { id: string; name: string; profession: string | null };
+
 export function AdminSectionChangeClass() {
+  const isL2 = getCityUiVariant() === "l2";
+  const accentStyle = { color: isL2 ? "#e8c56e" : "#c7ad80" };
+  const mutedClass = isL2 ? "text-[#8a7a60]" : "text-gray-500";
+  const inputCl =
+    "text-sm py-2 px-3 rounded-md bg-black/40 border text-white placeholder-gray-500 w-full " +
+    (isL2 ? "border-[#5c4a32]/70 focus:border-[#c7ad80]/45" : "border-[#c7ad80]/30");
+
+  const professionGroups = useMemo(() => getAdminProfessionSelectGroups(), []);
+
   const [nick, setNick] = useState("");
+  const [found, setFound] = useState<FoundCharacter | null>(null);
   const [newProfession, setNewProfession] = useState("");
   const [newSex, setNewSex] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleSearch = async () => {
     if (!nick.trim()) return;
     setMessage(null);
+    setFound(null);
     try {
       const data = await adminFindPlayerByName(nick.trim());
-      if (data?.character) {
-        const sex = (data.character as any).sex;
+      if (data?.character?.id) {
+        const c = data.character as any;
+        const sex = c.sex;
         if (sex === "male" || sex === "female") setNewSex(sex);
-        setMessage(`Знайдено: ${data.character.name}`);
+        setFound({
+          id: c.id,
+          name: c.name,
+          profession: c.profession != null ? String(c.profession) : null,
+        });
+        setMessage(`Знайдено: ${c.name}`);
       } else {
         setMessage("Персонажа не знайдено");
       }
@@ -34,13 +53,23 @@ export function AdminSectionChangeClass() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage(null);
-    if (!nick.trim()) {
-      setMessage("Введіть нік гравця");
+  const openModal = () => {
+    if (!found) {
+      setMessage("Спочатку знайдіть персонажа за ніком.");
       return;
     }
+    setNewProfession("");
+    setMessage(null);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    if (!loading) setModalOpen(false);
+  };
+
+  const handleConfirmChange = async () => {
+    if (!found) return;
+    setMessage(null);
     if (!newProfession) {
       setMessage("Оберіть професію");
       return;
@@ -51,24 +80,20 @@ export function AdminSectionChangeClass() {
     }
     setLoading(true);
     try {
-      const data = await adminFindPlayerByName(nick.trim());
-      if (!data?.character?.id) {
-        setMessage("Персонажа не знайдено");
-        return;
-      }
-      const curNorm = normalizeProfessionId(data.character.profession as string | null);
+      const curNorm = normalizeProfessionId(found.profession);
       const selNorm = normalizeProfessionId(newProfession as ProfessionId);
       if (curNorm && selNorm && curNorm === selNorm) {
-        setMessage("Персонаж вже має цю професію. Оберіть іншу або натисніть «Знайти» щоб оновити дані.");
+        setMessage("Персонаж вже має цю професію.");
+        setLoading(false);
         return;
       }
-      // Скіли не додаються автоматично — гравець сам вивчить у гільдії за SP. SP залишається.
-      await adminChangeClass(data.character.id, newProfession, [], newSex);
+      await adminChangeClass(found.id, newProfession, [], newSex);
       const labelFromGroups =
-        getAdminProfessionSelectGroups()
-          .flatMap((g) => g.options)
-          .find((p) => p.id === newProfession)?.label ?? newProfession;
-      setMessage(`Професію змінено на ${labelFromGroups}. Старі скіли скинуто. SP збережено — гравець вивчить скіли в гільдії. F5.`);
+        professionGroups.flatMap((g) => g.options).find((p) => p.id === newProfession)?.label ?? newProfession;
+      setModalOpen(false);
+      setMessage(
+        `Професію змінено на «${labelFromGroups}» (${found.name}). Скіли скинуто, SP збережено. Гравцю — F5.`
+      );
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
     } finally {
@@ -76,68 +101,134 @@ export function AdminSectionChangeClass() {
     }
   };
 
-  const inputCl =
-    "text-sm py-1 px-2 rounded bg-black/40 border border-[#c7ad80]/30 text-white placeholder-gray-500";
+  const modalShell = isL2
+    ? "rounded-xl border border-[#c7ad80]/35 p-5 max-w-lg w-full shadow-[0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.22)_0%,transparent_55%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]"
+    : "bg-[#14110c] border border-[#c7ad80]/40 rounded-lg p-5 max-w-lg w-full shadow-xl";
+
+  const btnSecondary = isL2
+    ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#d4c4a8] hover:border-[#c7ad80]/40 disabled:opacity-50"
+    : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-gray-300 hover:bg-[#3a3a3a] disabled:opacity-50";
+
+  const btnPrimary = isL2
+    ? "px-4 py-2 rounded-md border border-[#c7ad80]/40 bg-gradient-to-b from-[#4a3d28] to-[#2a2318] text-xs font-semibold text-[#e8dcc8] hover:border-[#e8c56e]/55 hover:brightness-110 disabled:opacity-50"
+    : "px-4 py-2 rounded-md bg-[#c7ad80]/25 text-[#c7ad80] text-xs font-semibold hover:bg-[#c7ad80]/35 disabled:opacity-50";
+
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3">
-      <h2 className="text-sm font-semibold mb-2" style={style}>
+      <h2 className="text-sm font-semibold mb-2" style={accentStyle}>
         Змінити клас
       </h2>
-      <p className="text-xs text-gray-500 mb-2">
-        Знайти гравця за ніком і встановити нову професію. Старі скіли скинуться, SP збережеться — гравець вивчить скіли в гільдії.
+      <p className={`text-xs mb-3 ${mutedClass}`}>
+        Знайдіть гравця, потім відкрийте вікно вибору професії. Старі скіли знімаються, SP лишається — скіли в гільдії.
       </p>
-      <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <input
           type="text"
           value={nick}
           onChange={(e) => setNick(e.target.value)}
           placeholder="Нік"
-          className={`${inputCl} w-28`}
+          className={`${inputCl} max-w-[10rem]`}
         />
         <button
           type="button"
           onClick={handleSearch}
           disabled={loading || !nick.trim()}
-          className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+          className={btnPrimary}
         >
           Знайти
         </button>
-        <select
-          value={newProfession}
-          onChange={(e) => setNewProfession(e.target.value)}
-          className={`${inputCl} max-w-md min-w-[14rem]`}
-        >
-          <option value="">— Оберіть професію —</option>
-          {getAdminProfessionSelectGroups().map((g) => (
-            <optgroup key={g.groupLabel} label={g.groupLabel}>
-              {g.options.map((p) => (
-                <option key={p.id} value={p.id}>
-                  [lvl {p.minLevel}+] {p.label} · {p.guildLabel}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        <select
-          value={newSex}
-          onChange={(e) => setNewSex(e.target.value)}
-          className={inputCl}
-        >
-          {SEX_OPTIONS.map((o) => (
-            <option key={o.value || "empty"} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
         <button
-          type="submit"
-          disabled={loading}
-          className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
+          type="button"
+          onClick={openModal}
+          disabled={loading || !found}
+          className={btnPrimary}
         >
-          {loading ? "..." : "Змінити клас"}
+          Зміна професії…
         </button>
-      </form>
-      {message && <p className="mt-1 text-xs text-gray-500">{message}</p>}
+      </div>
+      {found && (
+        <p className={`mt-2 text-xs ${isL2 ? "text-[#d4c4a8]" : "text-gray-400"}`}>
+          Обрано: <span className="font-medium text-[#c9a44c]">{found.name}</span>
+          {found.profession ? ` · зараз: ${found.profession}` : ""}
+        </p>
+      )}
+      {message && <p className={`mt-2 text-xs ${mutedClass}`}>{message}</p>}
+
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/75 px-3 py-6"
+          onClick={closeModal}
+          role="presentation"
+        >
+          <div className={modalShell} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-2 mb-4">
+              <div>
+                <h3 className={isL2 ? "text-base font-semibold text-[#e8c56e]" : "text-base font-semibold text-[#b8860b]"}>
+                  Зміна професії
+                </h3>
+                {found && (
+                  <p className={`text-xs mt-1 ${mutedClass}`}>
+                    Персонаж: <span className="text-[#d4c4a8]">{found.name}</span>
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                className={isL2 ? "text-[#8a7a60] hover:text-[#d4c4a8] text-2xl leading-none" : "text-gray-400 hover:text-white text-2xl leading-none"}
+                onClick={closeModal}
+                aria-label="Закрити"
+              >
+                ×
+              </button>
+            </div>
+
+            <p className={`text-xs mb-4 ${isL2 ? "text-[#b5a080]" : "text-gray-400"}`}>
+              Після зміни всі вивчені скіли знімаються; гравець зможе вивчити нові в гільдії за SP. Обовʼязково оберіть стать.
+            </p>
+
+            <div className="space-y-3 mb-5">
+              <div>
+                <label className={`block text-xs mb-1 ${mutedClass}`}>Професія</label>
+                <select
+                  value={newProfession}
+                  onChange={(e) => setNewProfession(e.target.value)}
+                  className={inputCl}
+                >
+                  <option value="">— Оберіть професію —</option>
+                  {professionGroups.map((g) => (
+                    <optgroup key={g.groupLabel} label={g.groupLabel}>
+                      {g.options.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          [lvl {p.minLevel}+] {p.label} · {p.guildLabel}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={`block text-xs mb-1 ${mutedClass}`}>Стать</label>
+                <select value={newSex} onChange={(e) => setNewSex(e.target.value)} className={inputCl}>
+                  {SEX_OPTIONS.map((o) => (
+                    <option key={o.value || "empty"} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={closeModal} disabled={loading} className={btnSecondary}>
+                Скасувати
+              </button>
+              <button type="button" onClick={handleConfirmChange} disabled={loading} className={btnPrimary}>
+                {loading ? "…" : "Підтвердити зміну"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

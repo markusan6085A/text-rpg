@@ -220,8 +220,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const serverDemotedLevel =
           serverLevel < localLevel &&
           serverUpdatedAt > 0 &&
-          localLastSavedAt > 0 &&
-          serverUpdatedAt > localLastSavedAt;
+          (localLastSavedAt === 0 || serverUpdatedAt > localLastSavedAt);
         const finalLevel = serverDemotedLevel ? serverLevel : Math.max(localLevel, serverLevel);
         const heroDataForLocal = character.heroJson as any;
         const serverExpVal = Number(heroDataForLocal?.exp ?? character.exp ?? 0);
@@ -817,15 +816,19 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // Логуємо фінальні дані для діагностики
     if (hydratedHero) {
-      // 🔥 КРИТИЧНО: Оновлюємо serverState СТРОГО з серверних значень (character з API)
-      // Це запобігає помилці "exp cannot be decreased" — локальний store знає актуальний exp/level/sp з БД
+      // 🔥 КРИТИЧНО: serverState має збігатися з тим героєм, якого показуємо після merge (hydratedHero),
+      // інакше saveHeroToLocalStorage піднімає рівень назад через Math.max(local, serverState).
       const { useHeroStore } = await import('../heroStore');
       const char = character as any;
       const prog = readCharacterProgress(character);
       const heroSpAfterLoad = Number((hydratedHero as any).sp ?? 0) || 0;
+      const hLvl = Number((hydratedHero as any).level);
+      const hExp = Number((hydratedHero as any).exp);
+      const syncLevel = Number.isFinite(hLvl) && hLvl >= 1 ? hLvl : prog.level;
+      const syncExp = Number.isFinite(hExp) && hExp >= 0 ? hExp : prog.exp;
       useHeroStore.getState().updateServerState({
-        exp: prog.exp,
-        level: prog.level,
+        exp: syncExp,
+        level: syncLevel,
         sp: Math.max(prog.sp, heroSpAfterLoad),
         adena: Number(char?.adena ?? hydratedHero.adena ?? 0),
         coinLuck: char?.coinLuck ?? hydratedHero.coinOfLuck ?? 0,

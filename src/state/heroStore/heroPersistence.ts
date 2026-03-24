@@ -556,7 +556,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       serverExpKnown !== null && (sameLevelAsServer || localLevel < serverLevelKnown)
         ? Math.max(localExp, serverExpKnown)
         : localExp;
-    const levelToSend = serverLevelKnown !== null ? Math.max(localLevel, serverLevelKnown) : localLevel;
+    // Рівень беремо з героя після merge (loadHeroFromAPI). Раніше Math.max(local, serverState)
+    // відновлював старий високий рівень після зниження адмінкою.
+    const levelToSend = localLevel;
     // 🔥 SP НЕ clamp'имо при learn skill: localSp < serverSp — це очікувано (списали SP за скіл).
     // Clamp ламав: ми слали serverSp, сервер приймав, applyServerSync відкочував hero.sp назад.
     const spToSend = localSp;
@@ -606,10 +608,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const { useHeroStore } = await import('../heroStore');
       const currentHero = useHeroStore.getState().hero;
       if (currentHero) {
-        const clampedExp = Math.max(currentHero.exp ?? 0, serverExp);
+        const prevLevel = Number(currentHero.level ?? 1);
+        const clampedExp =
+          serverLevel < prevLevel ? serverExp : Math.max(currentHero.exp ?? 0, serverExp);
         const clampedSp = Math.max(currentHero.sp ?? 0, serverSp);
-        // 🔥 КРИТИЧНО: clamp level — сервер може повертати level 1 (старий), не перезаписувати лвл 2→1
-        const clampedLevel = Math.max(currentHero.level ?? 1, serverLevel);
+        // Після успішного PUT рівень у відповіді узгоджений з БД; Math.max блокував зниження (адмін / demote).
+        const clampedLevel = serverLevel;
         const serverCoinLuck = Number((updatedCharacter as any).coinLuck ?? 0);
         const serverCoinsSilver = Number((updatedCharacter as any).coinsSilver ?? 0);
         const serverAdena = Number((updatedCharacter as any).adena ?? 0);
@@ -845,10 +849,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             const heroBase = currentHero ?? hero;
             if (heroBase) {
               const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision || (serverHeroJson as any).heroRevision;
-              const serverLevel = Number(currentCharacter.level ?? 1);
-              const { sp: serverSp } = readCharacterProgress(currentCharacter);
-              // 🔥 clamp level/sp — не відправляти менше (exp вже mergedExp = max)
-              const mergedLevel = Math.max(heroBase.level ?? 1, serverLevel);
+              const progRetry = readCharacterProgress(currentCharacter);
+              const serverLevel = progRetry.level;
+              const serverSp = progRetry.sp;
+              const localLv = Number(heroBase.level ?? 1);
+              const mergedLevel =
+                serverLevel < localLv ? serverLevel : Math.max(localLv, serverLevel);
               const mergedSp = Math.max(heroBase.sp ?? 0, serverSp);
 
               // 🔥 КРИТИЧНО: після купівлі лоту на ринку сервер уже нарахував адену/CoL, а локальний store ще старий.
