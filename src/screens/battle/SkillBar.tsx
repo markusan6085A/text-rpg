@@ -2,8 +2,7 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { isShotConsumable } from "../../state/battle/actions/useSkill/shotHelpers";
 import { useHeroStore } from "../../state/heroStore";
-import { allSkills } from "../../data/skills";
-import { MAX_SLOTS } from "../../state/battle/loadout";
+import { MAX_SLOTS, getSkillDefForBattle } from "../../state/battle/loadout";
 import { itemsDBWithStarter } from "../../data/items/itemsDB";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { calcAutoAttackInterval } from "../../utils/combatSpeed";
@@ -22,11 +21,10 @@ function useLearnedActive(): LearnedSkill[] {
   if (!hero) return [];
   const learned = Array.isArray(hero.skills) ? hero.skills : [];
 
-  const skillsList = Array.isArray(allSkills) ? allSkills : [];
   const actives =
     learned
       .map((ls: any) => {
-        const def = skillsList.find((s) => s.id === ls.id);
+        const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, Number(ls.id));
         if (!def) return null;
         if (def.category === "passive") return null;
         const lvl = def.levels.find((l) => l.level === ls.level) ?? def.levels[0];
@@ -268,10 +266,30 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
       return null;
     }
     
-    // Це скіл
+    // Це скіл (іконка/вартість з професійного визначення — не з першого збігу в allSkills)
     const skill = learnedActive.find((s) => s.id === id);
     if (skill) {
       return { ...skill, type: "skill" as const };
+    }
+    if (hero && typeof id === "number" && id !== 0) {
+      const hasLearned = hero.skills?.some((s: any) => Number(s?.id) === id);
+      if (hasLearned) {
+        const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, id);
+        if (def && def.category !== "passive") {
+          const ls = hero.skills!.find((s: any) => Number(s?.id) === id);
+          const lvl = def.levels.find((l) => l.level === (ls as any)?.level) ?? def.levels[0];
+          if (lvl) {
+            return {
+              id,
+              name: def.name,
+              icon: def.icon || "/skills/attack.jpg",
+              mpCost: lvl.mpCost ?? 0,
+              cooldown: def.cooldown ?? (def.category === "toggle" ? 0 : 5),
+              type: "skill" as const,
+            };
+          }
+        }
+      }
     }
     return null;
   };

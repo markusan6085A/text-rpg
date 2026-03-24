@@ -6,6 +6,11 @@ import { loadHeroFromAPI } from "./heroStore/heroLoadAPI";
 import { updateHeroLogic } from "./heroStore/heroUpdate";
 import { saveHeroToLocalStorage, saveHeroToLocalStorageOnly } from "./heroStore/heroPersistence";
 import { hydrateHero } from "./heroStore/heroHydration";
+
+function syncLoadoutDeferred(prev: Hero | null, next: Hero | null) {
+  if (!next?.name) return;
+  void import("./battle/syncLoadoutWithHero").then((m) => m.syncBattleLoadoutAfterHeroChange(prev, next));
+}
 import { learnSkillLogic } from "./heroStore/heroSkills";
 import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
 import { itemsDB } from "../data/items/itemsDB";
@@ -333,7 +338,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       mobsKilled: (hydrated as any)?.mobsKilled ?? 0,
     });
     
+    const prevHero = get().hero;
     set({ hero: hydrated });
+    syncLoadoutDeferred(prevHero, hydrated);
     // 🔥 НЕ пишемо в localStorage з setHero — інакше один раз "старий" серверний герой перезатирає прогрес
   },
 
@@ -341,7 +348,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     console.log('[heroStore] loadHero called (from localStorage)');
     const loadedHero = loadHero();
     console.log('[heroStore] loadHero result:', loadedHero ? 'exists' : 'null');
+    const prevHero = get().hero;
     set({ hero: loadedHero });
+    if (loadedHero) syncLoadoutDeferred(prevHero, loadedHero);
     // 🔥 НЕ пишемо в localStorage з loadHero — запис тільки в updateHero / heroPersistence
   },
 
@@ -376,6 +385,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       keys.every((k) => k === "hp" || k === "mp" || k === "cp" || k === "status");
 
     set({ hero: updated });
+    syncLoadoutDeferred(prev, updated);
 
     const persist = opts?.persist !== false;
     if (!persist) return;
@@ -446,6 +456,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       (merged as any).activeQuests = prev.activeQuests;
     }
     set({ hero: merged });
+    syncLoadoutDeferred(prev, merged);
     const current = get().serverState;
     set({
       serverState: {

@@ -49,6 +49,16 @@ function normalizeToggle(def: { toggle?: unknown; category?: string }): boolean 
   );
 }
 
+/** Для PK/арени: узгоджено з normalizeToggle — skill.toggle=true має йти як toggle навіть без category */
+export function skillDefIsBuff(def: { category?: string } | null | undefined): boolean {
+  return def?.category === "buff";
+}
+
+export function skillDefIsToggle(def: { category?: string; toggle?: unknown } | null | undefined): boolean {
+  if (!def || skillDefIsBuff(def)) return false;
+  return normalizeToggle(def);
+}
+
 export const getSkillDef = (id: number) => {
   const found = allSkills.find((s) => s.id === id);
   if (!found) {

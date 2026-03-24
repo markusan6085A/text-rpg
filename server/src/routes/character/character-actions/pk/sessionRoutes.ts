@@ -480,7 +480,8 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
     ) => {
       const statKeys = ["pAtk", "pDef", "mAtk", "mDef", "maxHp", "maxMp", "accuracy", "evasion", "crit", "mCrit", "critPower"];
       for (const e of effects) {
-        const stat = String(e.stat || "").trim();
+        const raw = String(e.stat || "").trim();
+        const stat = raw === "critDamage" ? "critPower" : raw;
         if (!stat || !statKeys.includes(stat)) continue;
         const mode = String(e.mode || "flat").toLowerCase();
         const map: Record<string, number> = {
@@ -593,7 +594,11 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         buffEffects,
         buffCooldownMs
       );
-      appliedBuffTurn = !!(dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0);
+      appliedBuffTurn = !!(
+        dmg === 0 &&
+        (isBuff || isToggle) &&
+        (isToggle || (Array.isArray(buffEffects) && buffEffects.length > 0))
+      );
       session.lastHitDamage = dmg;
       session.lastHitById = session.attackerId;
       session.lastHitByName = session.attacker.name;
@@ -617,7 +622,11 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         buffEffects,
         buffCooldownMs
       );
-      appliedBuffTurn = !!(dmg === 0 && (isBuff || isToggle) && Array.isArray(buffEffects) && buffEffects.length > 0);
+      appliedBuffTurn = !!(
+        dmg === 0 &&
+        (isBuff || isToggle) &&
+        (isToggle || (Array.isArray(buffEffects) && buffEffects.length > 0))
+      );
       session.lastHitDamage = dmg;
       session.lastHitById = session.defenderId;
       session.lastHitByName = session.defender.name;

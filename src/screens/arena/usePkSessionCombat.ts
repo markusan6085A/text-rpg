@@ -5,7 +5,7 @@ import {
   syncPkStats,
   type PkSessionState,
 } from "../../utils/api";
-import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
+import { getSkillDef, getSkillDefForBattle, skillDefIsBuff, skillDefIsToggle } from "../../state/battle/loadout";
 import { processSkillEffects } from "../../state/battle/actions/useSkill/buffHelpers";
 import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
@@ -114,7 +114,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
       const skillDef = getSkillDefForBattle(hero.profession || null, hero.klass, hero.race, skillId) ?? getSkillDef(skillId);
       if (skillDef?.cooldown) {
         let cooldownMs = skillDef.cooldown * 1000;
-        if (!(skillDef as any).isMagic && (skillDef?.category as any) !== "buff" && (skillDef?.category as any) !== "toggle") {
+        if (!(skillDef as any).isMagic && !skillDefIsBuff(skillDef) && !skillDefIsToggle(skillDef)) {
           const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
           cooldownMs = calcPhysicalSkillCooldown(skillDef.cooldown, attackSpeed);
         }
@@ -123,8 +123,8 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
         }));
       }
       try {
-        const isBuff = (skillDef?.category as any) === "buff";
-        const isToggle = (skillDef?.category as any) === "toggle";
+        const isBuff = skillDefIsBuff(skillDef);
+        const isToggle = skillDefIsToggle(skillDef);
         let shotMultiplier = 1.0;
         let shotName: string | undefined;
         if (!isBuff && !isToggle) {
