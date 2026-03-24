@@ -1,4 +1,16 @@
 {
+  "headers": [
+    {
+      "source": "/mtcheck37435.txt",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate, no-transform"
+        },
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+      ]
+    }
+  ],
   "rewrites": [
     {"source": "/api/premium/buy", "destination": "https://api.l2dop.com/premium/buy"},
     {"source": "/api/:path*", "destination": "https://api.l2dop.com/:path*"},
