@@ -555,6 +555,14 @@ export async function actPkSession(
   });
 }
 
+/** Уйти с арены во время боя — соперник получит «… сбежал!». */
+export async function arenaFleePkSession(sessionId: string): Promise<PkSessionResponse> {
+  return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/arena-flee`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+}
+
 export async function getPkState(characterId: string): Promise<PkStateResponse> {
   return apiRequest<PkStateResponse>(`/characters/${encodeURIComponent(characterId)}/pk/state`, {
     method: "GET",
@@ -596,6 +604,14 @@ export async function leaveArenaField(characterId?: string): Promise<ArenaFieldR
   });
 }
 
+/** Незавершённый бой арены для этого персонажа (защитник переходит в матч автоматически). */
+export async function getArenaActiveSession(characterId: string): Promise<{ ok: boolean; sessionId: string | null }> {
+  return apiRequest<{ ok: boolean; sessionId: string | null }>(
+    `/arena/active-session?characterId=${encodeURIComponent(characterId)}`,
+    { method: "GET" }
+  );
+}
+
 export interface ArenaChallengeResponse {
   ok: boolean;
   sessionId: string;
@@ -617,22 +633,6 @@ export async function arenaChallenge(
       ...(attackerStats?.maxMp != null && { attackerMaxMp: attackerStats.maxMp }),
       ...(attackerStats?.mp != null && { attackerMp: attackerStats.mp }),
     }),
-  });
-}
-
-export interface ArenaPendingBattleResponse {
-  ok: boolean;
-  pending: { sessionId: string; attackerName: string } | null;
-}
-
-export async function getArenaPendingBattle(): Promise<ArenaPendingBattleResponse> {
-  return apiRequest<ArenaPendingBattleResponse>("/arena/pending-battle", { method: "GET" });
-}
-
-export async function clearArenaPendingBattle(): Promise<{ ok: boolean }> {
-  return apiRequest<{ ok: boolean }>("/arena/pending-battle/clear", {
-    method: "POST",
-    body: JSON.stringify({}),
   });
 }
 

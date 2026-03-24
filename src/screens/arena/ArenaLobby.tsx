@@ -5,10 +5,9 @@ import {
   joinArenaField,
   leaveArenaField,
   getArenaField,
+  getArenaActiveSession,
   arenaChallenge,
   getArenaLeaderboard,
-  getArenaPendingBattle,
-  clearArenaPendingBattle,
   type ArenaLbRow,
   type ArenaFieldPlayer,
 } from "../../utils/api";
@@ -27,6 +26,7 @@ interface ArenaLobbyProps {
 }
 
 const POLL_MS = 2500;
+const ACTIVE_SESSION_POLL_MS = 2000;
 
 export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
   const hero = useHeroStore((s) => s.hero);
@@ -39,9 +39,9 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
   const [onField, setOnField] = useState(false);
   const [players, setPlayers] = useState<ArenaFieldPlayer[]>([]);
   const [top, setTop] = useState<ArenaLbRow[]>([]);
-  const [incoming, setIncoming] = useState<{ sessionId: string; attackerName: string } | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pendingPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const activeSessPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const activeArenaRef = useRef<string | null>(null);
 
   useEffect(() => {
     getArenaLeaderboard()
@@ -56,10 +56,10 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
     }
   };
 
-  const stopPendingPoll = () => {
-    if (pendingPollRef.current) {
-      clearInterval(pendingPollRef.current);
-      pendingPollRef.current = null;
+  const stopActiveSessPoll = () => {
+    if (activeSessPollRef.current) {
+      clearInterval(activeSessPollRef.current);
+      activeSessPollRef.current = null;
     }
   };
 
@@ -76,7 +76,8 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
   useEffect(() => {
     return () => {
       stopPoll();
-      stopPendingPoll();
+      stopActiveSessPoll();
+      void leaveArenaField().catch(() => {});
     };
   }, []);
 
@@ -91,52 +92,43 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
     return () => stopPoll();
   }, [onField, cid, refreshField]);
 
+  const goMatch = useCallback(
+    (sessionId: string) => {
+      stopPoll();
+      stopActiveSessPoll();
+      setOnField(false);
+      navigate(`/arena/match?session=${encodeURIComponent(sessionId)}`);
+    },
+    [navigate]
+  );
+
+  /** Защитник: как только кто-то начал бой — сами переходим в матч (без кнопки «принять»). */
   useEffect(() => {
-    if (!hero) {
-      stopPendingPoll();
-      setIncoming(null);
+    if (!cid || !hero) {
+      stopActiveSessPoll();
+      activeArenaRef.current = null;
       return;
     }
     const tick = async () => {
       try {
-        const r = await getArenaPendingBattle();
-        setIncoming(r.pending && r.pending.sessionId ? r.pending : null);
+        const r = await getArenaActiveSession(cid);
+        const sid = r.sessionId?.trim();
+        if (!sid) {
+          activeArenaRef.current = null;
+          return;
+        }
+        if (activeArenaRef.current === sid) return;
+        activeArenaRef.current = sid;
+        goMatch(sid);
       } catch {
         /* ignore */
       }
     };
     tick();
-    stopPendingPoll();
-    pendingPollRef.current = setInterval(tick, 3000);
-    return () => stopPendingPoll();
-  }, [hero?.id]);
-
-  const goMatch = (sessionId: string) => {
-    stopPoll();
-    stopPendingPoll();
-    setOnField(false);
-    setIncoming(null);
-    navigate(`/arena/match?session=${encodeURIComponent(sessionId)}`);
-  };
-
-  const handleAcceptIncoming = async () => {
-    if (!incoming?.sessionId) return;
-    try {
-      await clearArenaPendingBattle();
-    } catch {
-      /* ignore */
-    }
-    goMatch(incoming.sessionId);
-  };
-
-  const handleDismissIncoming = async () => {
-    try {
-      await clearArenaPendingBattle();
-    } catch {
-      /* ignore */
-    }
-    setIncoming(null);
-  };
+    stopActiveSessPoll();
+    activeSessPollRef.current = setInterval(tick, ACTIVE_SESSION_POLL_MS);
+    return () => stopActiveSessPoll();
+  }, [cid, hero?.id, goMatch]);
 
   const handleEnterField = async () => {
     if (!cid) {
@@ -210,36 +202,11 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
       <div className="px-2 pt-2 pb-1">
         <h1 className={arenaTitle()}>Арена PvP</h1>
         <p className={arenaSub()}>
-          Поле боя: на нём могут быть десятки игроков. Выйдите на поле — увидите остальных. Нажмите на ник —
-          начнётся бой (как PK, бафы те же). Разница уровней до 20.
+          Поле боя: на нём могут быть десятки игроков. Выйдите на поле — увидите остальных. Нажмите на ник — сразу
+          начинается бой; второй игрок подключается сам. Ушли с арены или сбежали из боя — вас нельзя атаковать, у
+          соперника в логе: «… сбежал». Разница уровней до 20.
         </p>
       </div>
-
-      {incoming && (
-        <div
-          className={
-            isL2
-              ? "mx-2 mb-3 p-3 rounded-lg border border-[#c9a44c]/50 bg-[#2a2318]/90 shadow-[0_0_24px_rgba(201,164,76,0.15)]"
-              : "mx-2 mb-3 p-3 rounded-lg border border-amber-500/40 bg-amber-950/40"
-          }
-        >
-          <div className={isL2 ? "text-[13px] text-[#e8dcc8] text-center mb-2" : "text-sm text-amber-100 text-center mb-2"}>
-            <span className="font-semibold text-[#e8c56e]">{incoming.attackerName}</span> вызывает вас на арену
-          </div>
-          <div className="flex gap-2 justify-center">
-            <button
-              type="button"
-              className={arenaPrimaryBtn() + " !py-2 !text-[12px] max-w-[200px]"}
-              onClick={handleAcceptIncoming}
-            >
-              Принять вызов
-            </button>
-            <button type="button" className={arenaGhostBtn() + " !py-2"} onClick={handleDismissIncoming}>
-              Отклонить
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className={`mx-2 mb-3 p-3 ${arenaPanel()}`}>
         {err && (

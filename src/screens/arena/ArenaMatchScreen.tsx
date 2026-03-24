@@ -1,10 +1,12 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import {
   getPkSession,
   getPublicCharacter,
   resurrectCharacter,
+  leaveArenaField,
+  arenaFleePkSession,
   type Character,
   type PkSessionState,
 } from "../../utils/api";
@@ -16,7 +18,6 @@ import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { useBattleStore } from "../../state/battle/store";
 import { setResurrectInProgress } from "../../state/heroStore";
 import { clearDeathGate } from "../../utils/deathGate";
-import { leaveArenaField, clearArenaPendingBattle } from "../../utils/api";
 import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
 
 interface ArenaMatchScreenProps {
@@ -32,10 +33,12 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
 
   const [opponentCharacter, setOpponentCharacter] = useState<Character | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
+  const sessionEndedRef = useRef(false);
+  const fledArenaExplicitRef = useRef(false);
+  const matchMountGen = useRef(0);
 
   useEffect(() => {
-    if (!sessionIdFromUrl) return;
-    void clearArenaPendingBattle().catch(() => {});
+    fledArenaExplicitRef.current = false;
   }, [sessionIdFromUrl]);
 
   useEffect(() => {
@@ -94,6 +97,30 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
     enabled: Boolean(sessionIdFromUrl && hero?.id),
     onSessionEnded,
   });
+
+  useEffect(() => {
+    sessionEndedRef.current = Boolean(pkSession?.ended);
+  }, [pkSession?.ended]);
+
+  /** Уход с экрана боя: соперник видит «… сбежал»; microtask обходит Strict Mode (ложный unmount). */
+  useEffect(() => {
+    const sid = sessionIdFromUrl;
+    if (!sid) return;
+    matchMountGen.current += 1;
+    const gen = matchMountGen.current;
+    return () => {
+      queueMicrotask(() => {
+        if (matchMountGen.current !== gen) return;
+        const explicitFlee = fledArenaExplicitRef.current;
+        fledArenaExplicitRef.current = false;
+        if (!explicitFlee && !sessionEndedRef.current) {
+          void arenaFleePkSession(sid).catch(() => {});
+        }
+        const cid = (useCharacterStore.getState().characterId || useHeroStore.getState().hero?.id || "").trim();
+        if (cid) void leaveArenaField(cid).catch(() => {});
+      });
+    };
+  }, [sessionIdFromUrl]);
 
   const character = opponentCharacter;
 
@@ -159,6 +186,8 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
   const backToArena = async () => {
     useBattleStore.getState().reset();
     const cidUse = (characterId || hero?.id || "").trim();
+    fledArenaExplicitRef.current = true;
+    if (sessionIdFromUrl) await arenaFleePkSession(sessionIdFromUrl).catch(() => {});
     if (cidUse) await leaveArenaField(cidUse).catch(() => {});
     navigate("/arena");
   };
