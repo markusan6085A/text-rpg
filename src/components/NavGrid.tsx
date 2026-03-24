@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo, useContext, useCallback } from "react";
 import {
   CLAN_CHAT_MARK_READ_EVENT,
+  MAIL_UNREAD_SYNC_EVENT,
   getUnreadCount,
   getMyClan,
   getClanChat,
 } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useHeroStore } from "../state/heroStore";
-import { getRateLimitRemainingMs } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 
 type NavButton = { label: string; path?: string; onClick?: () => void };
@@ -76,7 +76,6 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
     }
 
     const loadUnreadCount = async () => {
-      if (getRateLimitRemainingMs() > 0) return;
       try {
         const data = await getUnreadCount();
         const nextUnread = data.unreadCount || 0;
@@ -92,16 +91,26 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
       }
     };
 
-    const startTimeout = setTimeout(loadUnreadCount, 1000);
-    const interval = setInterval(loadUnreadCount, 60000);
+    void loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 25000);
+
+    const onMailSync = (ev: Event) => {
+      const ce = ev as CustomEvent<{ unreadCount?: number }>;
+      const n = ce.detail?.unreadCount;
+      if (typeof n !== "number" || n < 0) return;
+      setUnreadCount(n);
+      previousUnreadRef.current = n;
+    };
+    window.addEventListener(MAIL_UNREAD_SYNC_EVENT, onMailSync);
+
     const onVisibilityChange = () => {
-      if (document.visibilityState === "visible") loadUnreadCount();
+      if (document.visibilityState === "visible") void loadUnreadCount();
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
-      clearTimeout(startTimeout);
       clearInterval(interval);
+      window.removeEventListener(MAIL_UNREAD_SYNC_EVENT, onMailSync);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [isAuthenticated]);
@@ -113,7 +122,6 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
     }
 
     const loadClanUnreadCount = async () => {
-      if (getRateLimitRemainingMs() > 0) return;
       try {
         const myClanResponse = await getMyClan();
         if (myClanResponse.ok && myClanResponse.clan) {

@@ -4,6 +4,7 @@ import { itemsDB } from "../../data/items/itemsDB";
 import { useCharacterStore } from "../../state/characterStore";
 import { useHeroStore } from "../../state/heroStore";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
+import { adminItemInlineButtonClass } from "../../utils/adminItemSourceSets";
 
 const style = { color: "#c7ad80" };
 
@@ -193,7 +194,11 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Видати предмет / Забрати предмет</h2>
-      <p className="text-xs text-gray-500 mb-2">Выдача или изъятие предмета из инвентаря игрока. Выбор предмета — кнопка «Вибір предметів».</p>
+      <p className="text-xs text-gray-500 mb-2">
+        Выдача или изъятие предмета из инвентаря игрока. Выбор предмета — кнопка «Вибір предметів». У списку:{" "}
+        <span className="text-rose-300/90">червона рамка — кв-шоп</span>,{" "}
+        <span className="text-emerald-300/90">зелена — магазин міста</span>.
+      </p>
       <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Нік" className={inputCl} />
@@ -212,7 +217,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
                 <div className="font-medium mb-0.5 text-[#c7ad80]" style={style}>{cat}</div>
                 <div className="flex flex-wrap gap-0.5">
                   {list.map((item) => (
-                    <button key={item.id} type="button" onClick={() => setItemId(item.id)} className="flex items-center gap-0.5 py-0.5 px-1 rounded bg-[#c7ad80]/10 text-gray-300 hover:bg-[#c7ad80]/20 text-xs" title={`${item.name}${item.grade ? ` (${item.grade})` : ""}`}>
+                    <button key={item.id} type="button" onClick={() => setItemId(item.id)} className={adminItemInlineButtonClass(item.id)} title={`${item.name}${item.grade ? ` (${item.grade})` : ""}`}>
                       <img src={getItemIcon(item.icon)} alt="" className="w-4 h-4 object-contain" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }} />
                       <span className="truncate max-w-[100px]">{item.name || item.id}</span>
                     </button>

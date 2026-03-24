@@ -1,6 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { itemsDB } from "../../data/items/itemsDB";
 import type { ItemDefinition } from "../../data/items/itemsDB.types";
+import {
+  adminItemPickerButtonClass,
+  getAdminItemPickerChrome,
+} from "../../utils/adminItemSourceSets";
 
 const style = { color: "#c7ad80" };
 
@@ -119,6 +123,24 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
           </button>
         </div>
 
+        <div className="flex flex-wrap items-center gap-3 mb-3 text-[11px] text-gray-400">
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              className="inline-block w-4 h-4 rounded border border-rose-500/70 shadow-[0_0_10px_rgba(244,63,94,0.35)] bg-gradient-to-br from-rose-900/60 to-black/50"
+              aria-hidden
+            />
+            кв-шоп
+          </span>
+          <span className="text-gray-600">·</span>
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              className="inline-block w-4 h-4 rounded border border-emerald-500/65 shadow-[0_0_10px_rgba(52,211,153,0.3)] bg-gradient-to-br from-emerald-900/50 to-black/50"
+              aria-hidden
+            />
+            магазин міста
+          </span>
+        </div>
+
         <div className="flex flex-wrap gap-2 mb-4">
           <input
             type="text"
@@ -161,7 +183,7 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
                     key={id}
                     type="button"
                     onClick={() => handleSelect(id)}
-                    className="flex flex-col items-center p-2 rounded bg-[#c7ad80]/5 border border-[#c7ad80]/20 hover:bg-[#c7ad80]/15 hover:border-[#c7ad80]/40 transition-colors"
+                    className={adminItemPickerButtonClass(getAdminItemPickerChrome(id))}
                     title={`${def.name}${def.grade ? ` (${def.grade})` : ""}`}
                   >
                     <img

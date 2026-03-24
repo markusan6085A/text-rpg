@@ -6,6 +6,7 @@ import {
   getConversationLetters,
   getUnreadCount,
   collectItemFromLetter,
+  MAIL_UNREAD_SYNC_EVENT,
   type Letter,
 } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
@@ -71,6 +72,12 @@ export default function Mail({ navigate }: MailProps) {
 
   const heroId = hero?.id;
 
+  const syncNavMailUnread = React.useCallback((n: number) => {
+    window.dispatchEvent(
+      new CustomEvent(MAIL_UNREAD_SYNC_EVENT, { detail: { unreadCount: Math.max(0, Math.floor(n)) } }),
+    );
+  }, []);
+
     const loadLetters = React.useCallback(async () => {
       if (getRateLimitRemainingMs() > 0) return;
       const isInitialLoad = letters.length === 0;
@@ -85,7 +92,9 @@ export default function Mail({ navigate }: MailProps) {
         const data = await getLetters(page, 50, characterId ?? undefined);
         setLetters(data.letters || []);
         setTotal(data.total || 0);
-        setUnreadCount(data.unreadCount || 0);
+        const u = data.unreadCount || 0;
+        setUnreadCount(u);
+        syncNavMailUnread(u);
       } catch (err: any) {
         if (isUnauthorizedError(err)) {
           setError("Сессия истекла. Войдите снова.");
@@ -96,7 +105,7 @@ export default function Mail({ navigate }: MailProps) {
       } finally {
         setLoading(false);
       }
-    }, [page, letters.length, characterId]);
+    }, [page, letters.length, characterId, syncNavMailUnread]);
 
   useEffect(() => {
     // ❗ ОПТИМІЗАЦІЯ: Завантажуємо листи (критично) - чекаємо
@@ -253,7 +262,9 @@ export default function Mail({ navigate }: MailProps) {
       // ❗ ОПТИМІЗАЦІЯ: Не критично, можна fire-and-forget
       getUnreadCount()
         .then((data) => {
-          setUnreadCount(data.unreadCount || 0);
+          const u = data.unreadCount || 0;
+          setUnreadCount(u);
+          syncNavMailUnread(u);
         })
         .catch((err) => {
           // Не критично - просто не оновлюємо лічильник
@@ -292,7 +303,9 @@ export default function Mail({ navigate }: MailProps) {
     // ❗ ОПТИМІЗАЦІЯ: Не критично, можна fire-and-forget
     getUnreadCount()
       .then((data) => {
-        setUnreadCount(data.unreadCount || 0);
+        const u = data.unreadCount || 0;
+        setUnreadCount(u);
+        syncNavMailUnread(u);
       })
       .catch(() => {
         // не критично
@@ -320,7 +333,9 @@ export default function Mail({ navigate }: MailProps) {
       // ❗ ОПТИМІЗАЦІЯ: Unread count - fire-and-forget, не блокує UI
       getUnreadCount()
         .then((data) => {
-          setUnreadCount(data.unreadCount || 0);
+          const u = data.unreadCount || 0;
+          setUnreadCount(u);
+          syncNavMailUnread(u);
         })
         .catch((err) => {
           // Не критично
@@ -392,6 +407,7 @@ export default function Mail({ navigate }: MailProps) {
               onClick={() => {
                 setSelectedConversation(null);
                 setConversationLetters([]);
+                void loadLetters();
               }}
               className={
                 isL2
