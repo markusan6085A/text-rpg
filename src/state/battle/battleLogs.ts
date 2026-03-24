@@ -36,6 +36,18 @@ export function saveBattleLogs(logs: string[], heroName?: string | null): void {
       );
     }
 
+    // Не дублюємо: persistSnapshot викликається дуже часто (тики бою), а лог той самий —
+    // інакше localStorage забивається однаковими JSON-снапшотами.
+    if (entries.length > 0) {
+      const top = entries[0];
+      if (
+        top.logs.length === newEntry.logs.length &&
+        top.logs.every((line, i) => line === newEntry.logs[i])
+      ) {
+        return;
+      }
+    }
+
     // Додаємо новий запис в початок
     entries = [newEntry, ...entries].slice(0, BATTLE_LOGS_MAX_COUNT);
 
