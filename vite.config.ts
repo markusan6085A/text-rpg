@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     // Default Vite order prefers .js over .ts — stale emitted *.js next to *.ts (e.g. skills/index.js) breaks ESM named exports.
     extensions: ['.ts', '.tsx', '.mts', '.mjs', '.js', '.jsx', '.json'],
   },
   esbuild: {
-    // Вирізає console.log, info, debug та warn у продакшен-білді, залишає console.error
-    pure: ['console.log', 'console.debug', 'console.info', 'console.warn'],
+    // Production: прибираємо всі виклики console.* і debugger — у DevTools (Console) не видно діагностичних логів із коду.
+    // У dev (`vite`) логи лишаються для розробки.
+    drop: mode === 'production' ? (['console', 'debugger'] as const) : [],
   },
   build: {
     sourcemap: false, // Приховує оригінальний код і структуру папок у DevTools (Sources)
@@ -52,4 +53,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))
