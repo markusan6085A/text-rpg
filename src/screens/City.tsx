@@ -13,6 +13,9 @@ import {
   setCityUiVariant,
   type CityUiVariant,
 } from "../utils/cityUiVariant";
+import { displayCityName } from "../utils/worldDisplay";
+import { getGameSettings } from "../state/gameSettings";
+import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 
 interface CityProps {
   navigate: (path: string) => void;
@@ -22,6 +25,7 @@ const formatNumber = (value: number) =>
   value.toLocaleString("ru-RU").replace(/\s/g, ".");
 
 const City: React.FC<CityProps> = ({ navigate }) => {
+  useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const isAdmin = useAdminStore((s) => s.isAdmin);
@@ -37,10 +41,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   const svcBtn = (classes: string) =>
     isL2
-      ? `w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2.5 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150 ${classes}`
+      ? `w-full text-left text-[11px] py-1.5 px-2.5 mb-1.5 rounded-md flex items-center gap-2 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_2px_10px_rgba(0,0,0,0.5)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150 ${classes}`
       : `w-full text-left text-[12px] py-1.5 border-b border-solid border-black/60 flex items-center gap-2 ${classes}`;
 
-  const ico = isL2 ? "w-4 h-4 object-contain shrink-0" : "w-3 h-3 object-contain shrink-0";
+  const ico = isL2 ? "w-3.5 h-3.5 object-contain shrink-0" : "w-3 h-3 object-contain shrink-0";
 
   // Перевірка адміна при відкритті міста (для кнопки «Забафать» в соціальному списку)
   React.useEffect(() => {
@@ -208,29 +212,49 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         )}
       </div>
 
-      {/* Название города */}
+      {/* Назва міста — той самий патерн, що шапка локації в Location.tsx */}
       {(() => {
         const cityId =
           (hero?.heroJson as any)?.currentCityId ||
           getPreviousCity() ||
           WORLD_CITIES[0]?.id;
         const currentCity = getCityById(cityId) || WORLD_CITIES[0];
+        const cityLabel =
+          getGameSettings().language === "uk" ? "Місто" : "Город";
         return (
           <div
             className={
               isL2
-                ? "mb-1 mx-0 px-3 py-3 rounded-lg border border-[#5c4a32]/50 bg-gradient-to-b from-[#252018]/95 to-[#100e0a]/95 text-[13px] text-[#e8dcc8] flex items-center gap-3 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
+                ? "mb-2 mx-0 rounded-lg border border-[#5c4a32]/45 bg-black/22 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
                 : "px-4 py-3 border-b border-black/70 text-[12px] text-[#cfcfcc] flex items-center gap-2"
             }
           >
-            <img
-              src="/assets/gk.jpg"
-              alt={currentCity?.name}
-              className={isL2 ? "w-7 h-7 object-contain" : "w-6 h-6 object-contain"}
-            />
-            <span className="font-semibold tracking-wide">
-              {currentCity?.name || "—"}
-            </span>
+            {isL2 ? (
+              <>
+                <div className="text-[10px] uppercase tracking-wider text-[#8a7a60]">
+                  {cityLabel}
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-[#e8c56e] text-[15px] font-semibold leading-tight [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]">
+                  <img
+                    src="/assets/gk.jpg"
+                    alt=""
+                    className="w-4 h-4 object-contain shrink-0 opacity-90 rounded-sm"
+                  />
+                  <span>{currentCity ? displayCityName(currentCity) : "—"}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <img
+                  src="/assets/gk.jpg"
+                  alt={currentCity?.name}
+                  className="w-6 h-6 object-contain"
+                />
+                <span className="font-semibold tracking-wide">
+                  {currentCity ? displayCityName(currentCity) : "—"}
+                </span>
+              </>
+            )}
           </div>
         );
       })()}
@@ -239,11 +263,11 @@ const City: React.FC<CityProps> = ({ navigate }) => {
       <div
         className={
           isL2
-            ? "px-2 py-3 pb-5 text-[12px] text-[#a89878]"
+            ? "px-2 py-2.5 pb-4 text-[11px] text-[#a89878]"
             : "px-4 py-3 border-b border-black/70 text-[12px] text-[#645b45]"
         }
       >
-        <div className={isL2 ? "pt-1 space-y-0" : "border-t border-black/60 pt-2 space-y-1.5"}>
+        <div className={isL2 ? "pt-0.5 space-y-0" : "border-t border-black/60 pt-2 space-y-1.5"}>
           <button
             className={svcBtn("text-[#2d5016] hover:text-white")}
             onClick={() => {
@@ -469,7 +493,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
             <button
               className={
                 isL2
-                  ? "w-full text-left text-[12px] text-[#c7ad80] py-2.5 px-3 mt-2 rounded-md border border-amber-800/35 bg-black/25 hover:bg-black/35 hover:text-[#e8d5b5] flex items-center gap-2"
+                  ? "w-full text-left text-[11px] text-[#c7ad80] py-1.5 px-2.5 mt-1.5 rounded-md border border-amber-800/35 bg-black/25 hover:bg-black/35 hover:text-[#e8d5b5] flex items-center gap-2"
                   : "w-full text-left text-[12px] text-[#c7ad80] py-1.5 border-t border-[#c7ad80]/30 mt-2 pt-2 hover:text-[#e8d5b5] flex items-center gap-2"
               }
               onClick={() => navigate("/admin")}

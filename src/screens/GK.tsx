@@ -11,6 +11,7 @@ import { savePreviousLocation, savePreviousCity, getPreviousCity, clearPreviousL
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { displayCityName, displayZoneName } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
+import { getGameSettings } from "../state/gameSettings";
 
 type Navigate = (path: string) => void;
 
@@ -155,18 +156,31 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         <div
           className={
             isL2
-              ? "mb-3 text-[12px] text-[#d4c4a8] rounded-lg border border-[#5c4a32]/40 bg-black/22 px-3 py-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+              ? "mb-3 rounded-lg border border-[#5c4a32]/45 bg-black/22 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
               : "text-gray-400 mb-3 text-xs border-b border-solid border-white/50 pb-2"
           }
         >
           {selectedCity ? (
-            <>
-              Вы в городе{" "}
-              <span className={isL2 ? "text-[#e8c56e] font-semibold" : "text-[#ff8c00]"}>
-                {selectedCity.name}
-              </span>
-              .
-            </>
+            isL2 ? (
+              <>
+                <div className="text-[10px] uppercase tracking-wider text-[#8a7a60]">
+                  {getGameSettings().language === "uk" ? "Місто" : "Город"}
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-[#e8c56e] text-[15px] font-semibold leading-tight [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]">
+                  <img
+                    src="/icons/teleport.jpg"
+                    alt=""
+                    className="w-4 h-4 object-contain shrink-0 opacity-90 rounded-sm"
+                  />
+                  <span>{displayCityName(selectedCity)}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                Вы в городе{" "}
+                <span className="text-[#ff8c00]">{displayCityName(selectedCity)}</span>.
+              </>
+            )
           ) : (
             <>Немає міст. Світ очищено — будемо будувати з нуля.</>
           )}
@@ -276,25 +290,33 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
                   <button
                     type="button"
                     key={city.id}
-                    className={`${l2Row} justify-between w-full ${
+                    className={`${l2ZoneRow} justify-between w-full items-start gap-2 ${
                       active ? "ring-1 ring-[#c7ad80]/35 border-[#c7ad80]/40" : ""
                     }`}
                     onClick={() => handleCityChange(city.id)}
                   >
-                    <span className="flex items-center gap-2 min-w-0">
-                      <img src={iconPath} alt="" className={ico} />
-                      <span className="text-[#d4c4a8] min-w-0 text-left">
-                        <span className="truncate block">{displayCityName(city)}</span>
+                    <span className="flex items-start gap-1.5 min-w-0 text-left">
+                      <img src={iconPath} alt="" className={icoZone} />
+                      <span className="flex flex-col min-w-0">
+                        <span className="text-[#e8dcc8] leading-tight text-[11px]">
+                          {displayCityName(city)}
+                        </span>
                         {cityLvlRange ? (
-                          <span className="text-[10px] text-[#8a7a60] leading-tight block mt-0.5">
+                          <span className="text-[10px] text-[#c45c5c] mt-px leading-none">
                             ур. {cityLvlRange}
                           </span>
                         ) : null}
                       </span>
                     </span>
-                    <span className="flex items-center gap-1 text-[#a89878] shrink-0">
-                      {(city.tpCost ?? 0).toLocaleString("ru-RU")}
-                      <img src="/assets/adena.png" alt="" className={ico} />
+                    <span className="flex flex-col items-end gap-0 shrink-0 text-right">
+                      <span className="text-[#f0d78c] font-medium tabular-nums text-[10px] leading-none">
+                        {(city.tpCost ?? 0).toLocaleString("ru-RU")}
+                      </span>
+                      <img
+                        src="/assets/adena.png"
+                        alt=""
+                        className="w-3 h-3 object-contain opacity-90"
+                      />
                     </span>
                   </button>
                 ) : (
