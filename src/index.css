@@ -374,16 +374,55 @@ button {
   letter-spacing: 0.2px;
 }
 
-/* Нік Existence: зелений світло з пульсуючим ефектом */
-@keyframes nick-existence-pulse {
-  0%, 100% {
-    text-shadow: 0 0 6px #00ff88, 0 0 12px rgba(0, 255, 136, 0.8), 0 0 20px rgba(0, 255, 136, 0.4);
+/* Нік Existence: «божественна» аура — бірюза, золотий спалах, м’який дихаючий ореол */
+@keyframes nick-existence-aura {
+  0%,
+  100% {
+    color: #7ee8d8;
+    text-shadow:
+      0 0 3px rgba(255, 255, 255, 0.45),
+      0 0 8px rgba(120, 255, 230, 0.95),
+      0 0 18px rgba(0, 220, 200, 0.65),
+      0 0 32px rgba(0, 180, 175, 0.35),
+      0 0 48px rgba(100, 255, 220, 0.12),
+      0 1px 0 rgba(0, 0, 0, 0.9);
+  }
+  25% {
+    color: #c5fff4;
+    text-shadow:
+      0 0 4px rgba(255, 255, 255, 0.55),
+      0 0 12px rgba(200, 255, 245, 1),
+      0 0 24px rgba(255, 235, 170, 0.55),
+      0 0 40px rgba(0, 255, 220, 0.45),
+      0 0 56px rgba(255, 248, 210, 0.1),
+      0 1px 0 rgba(0, 0, 0, 0.88);
   }
   50% {
-    text-shadow: 0 0 10px #00ff88, 0 0 20px rgba(0, 255, 136, 0.9), 0 0 30px rgba(0, 255, 136, 0.6);
+    color: #5dffd8;
+    text-shadow:
+      0 0 2px rgba(255, 255, 255, 0.65),
+      0 0 10px rgba(0, 255, 215, 1),
+      0 0 22px rgba(255, 220, 140, 0.5),
+      0 0 38px rgba(0, 240, 210, 0.5),
+      0 0 54px rgba(150, 255, 240, 0.18),
+      0 1px 0 rgba(0, 0, 0, 0.92);
+  }
+  75% {
+    color: #9cf0e4;
+    text-shadow:
+      0 0 3px rgba(255, 255, 255, 0.4),
+      0 0 9px rgba(150, 255, 230, 0.9),
+      0 0 20px rgba(0, 200, 195, 0.7),
+      0 0 36px rgba(80, 255, 230, 0.28),
+      0 1px 0 rgba(0, 0, 0, 0.9);
   }
 }
 
 .nick-existence-glow {
-  animation: nick-existence-pulse 2s ease-in-out infinite;
+  display: inline-block;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  animation: nick-existence-aura 3.6s ease-in-out infinite;
 }

@@ -4,9 +4,10 @@
 import type { Hero } from "../types/Hero";
 import { ADMIN_CHARACTER_NAME } from "../config/admin";
 
-/** Колір та ефект для ніка адміна (Existence): зелений світло + glow */
-const ADMIN_NICK_COLOR = "#00ff88";
-const ADMIN_NICK_GLOW = "0 0 6px #00ff88, 0 0 12px rgba(0, 255, 136, 0.8), 0 0 20px rgba(0, 255, 136, 0.4)";
+/** Колір та базове світіння ніка адміна (Existence): бірюза + золотавий акцент (L2-style) */
+const ADMIN_NICK_COLOR = "#8effe8";
+const ADMIN_NICK_GLOW =
+  "0 0 4px rgba(255,255,255,0.35), 0 0 10px rgba(100,255,230,0.9), 0 0 22px rgba(0,220,200,0.55), 0 0 36px rgba(255,230,160,0.2), 0 1px 0 rgba(0,0,0,0.85)";
 
 /** Переможець 7 Печатей: невеликий жовтий світло */
 const SEVEN_SEALS_COLOR = "#f0d030";
@@ -76,7 +77,8 @@ export function getNickColorStyle(
     return {
       color: ADMIN_NICK_COLOR,
       textShadow: ADMIN_NICK_GLOW,
-      fontWeight: 600,
+      fontWeight: 700,
+      letterSpacing: "0.04em",
     };
   }
   if (sevenSealsWinnerRank != null && sevenSealsWinnerRank >= 1 && sevenSealsWinnerRank <= 3) {
