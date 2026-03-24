@@ -37,6 +37,8 @@ type PkSession = {
   id: string;
   attackerId: string;
   defenderId: string;
+  /** pk — звичайний бій у зоні; arena — матчмейкінг, без перевірки локації */
+  sessionKind?: "pk" | "arena";
   startLocation?: string;
   attacker: PkFighter;
   defender: PkFighter;
@@ -56,6 +58,10 @@ type PkSession = {
   updatedAt: number;
   saved: boolean;
 };
+
+function isArenaSession(session: PkSession): boolean {
+  return session.sessionKind === "arena";
+}
 
 const PK_SESSION_TTL_MS = 10 * 60 * 1000;
 const pkSessions = new Map<string, PkSession>();
@@ -246,6 +252,7 @@ function serializePkSession(session: PkSession) {
       id: session.id,
       attackerId: session.attackerId,
       defenderId: session.defenderId,
+      sessionKind: session.sessionKind ?? "pk",
       attacker: session.attacker,
       defender: session.defender,
       cooldowns: session.attackerCooldowns,
@@ -395,8 +402,135 @@ async function syncPkRealtimeState(session: PkSession, actorRole: "attacker" | "
   });
 }
 
+/** Арена: лише HP/MP у heroJson, без pkIncoming / кольорів бою */
+async function syncArenaHpOnly(session: PkSession, now = Date.now()) {
+  await prisma.$transaction(async (tx) => {
+    const ids = [session.attackerId, session.defenderId].sort();
+    await tx.$queryRawUnsafe(
+      `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
+      ids[0],
+      ids[1]
+    );
+    const chars = await tx.character.findMany({
+      where: { id: { in: [session.attackerId, session.defenderId] } },
+      select: { id: true, heroJson: true },
+    });
+    for (const c of chars) {
+      const heroJson = ((c.heroJson as any) || {}) as any;
+      const f = c.id === session.attackerId ? session.attacker : session.defender;
+      const nextJson = {
+        ...heroJson,
+        hp: f.hp,
+        mp: f.mp,
+        maxHp: f.maxHp,
+        maxMp: f.maxMp,
+        arenaSyncUntil: now + 15_000,
+      };
+      await tx.character.update({
+        where: { id: c.id },
+        data: {
+          heroJson: addVersioning(nextJson, Number(heroJson.heroRevision ?? 0) || 0),
+          lastActivityAt: new Date(),
+        },
+      });
+    }
+  });
+}
+
+let arenaLbInit: Promise<void> | null = null;
+async function ensureArenaLeaderboardTable(): Promise<void> {
+  if (arenaLbInit) return arenaLbInit;
+  arenaLbInit = (async () => {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "ArenaLeaderboard" (
+        "characterId" TEXT PRIMARY KEY,
+        "wins" INTEGER NOT NULL DEFAULT 0,
+        "losses" INTEGER NOT NULL DEFAULT 0,
+        "updatedAt" BIGINT NOT NULL
+      )
+    `);
+  })();
+  return arenaLbInit;
+}
+
+async function saveArenaResultIfNeeded(session: PkSession) {
+  if (!session.ended || !session.winnerId || session.saved || !isArenaSession(session)) return;
+  const loserId = session.winnerId === session.attackerId ? session.defenderId : session.attackerId;
+  const loserFighter =
+    session.winnerId === session.attackerId ? session.defender : session.attacker;
+
+  await ensureArenaLeaderboardTable();
+  const now = Date.now();
+
+  await prisma.$transaction(async (tx) => {
+    const ids = [session.winnerId as string, loserId].sort();
+    await tx.$queryRawUnsafe(
+      `SELECT id FROM "Character" WHERE id IN ($1, $2) FOR UPDATE`,
+      ids[0],
+      ids[1]
+    );
+
+    const chars = await tx.character.findMany({
+      where: { id: { in: [session.winnerId as string, loserId] } },
+      select: { id: true, heroJson: true, name: true },
+    });
+    if (chars.length !== 2) return;
+
+    for (const c of chars) {
+      const heroJson = ((c.heroJson as any) || {}) as any;
+      const isWin = c.id === session.winnerId;
+      const aw = Number(heroJson.arenaWins ?? 0);
+      const al = Number(heroJson.arenaLosses ?? 0);
+      let next: any = {
+        ...heroJson,
+        arenaWins: isWin ? aw + 1 : aw,
+        arenaLosses: isWin ? al : al + 1,
+        pkIncoming: null,
+        pkSyncUntil: 0,
+        arenaSyncUntil: 0,
+      };
+      if (!isWin) {
+        next.hp = Math.max(1, loserFighter.maxHp);
+        next.mp = Math.max(0, loserFighter.maxMp);
+        next.cp = Math.max(0, Number(heroJson.maxCp ?? heroJson.cp ?? 0));
+        next.isDead = false;
+        next.deadAt = 0;
+        next.heroBuffs = [];
+      }
+      const versioned = addVersioning(next, Number(heroJson.heroRevision ?? 0) || 0);
+      await tx.character.update({
+        where: { id: c.id },
+        data: { heroJson: versioned, lastActivityAt: new Date() },
+      });
+    }
+
+    await tx.$executeRawUnsafe(
+      `INSERT INTO "ArenaLeaderboard" ("characterId", "wins", "losses", "updatedAt") VALUES ($1, 1, 0, $2)
+       ON CONFLICT ("characterId") DO UPDATE SET
+         "wins" = "ArenaLeaderboard"."wins" + 1,
+         "updatedAt" = EXCLUDED."updatedAt"`,
+      session.winnerId,
+      now
+    );
+    await tx.$executeRawUnsafe(
+      `INSERT INTO "ArenaLeaderboard" ("characterId", "wins", "losses", "updatedAt") VALUES ($1, 0, 1, $2)
+       ON CONFLICT ("characterId") DO UPDATE SET
+         "losses" = "ArenaLeaderboard"."losses" + 1,
+         "updatedAt" = EXCLUDED."updatedAt"`,
+      loserId,
+      now
+    );
+  });
+
+  session.saved = true;
+}
+
 async function savePkResultIfNeeded(session: PkSession) {
   if (!session.ended || !session.winnerId || session.saved) return;
+  if (isArenaSession(session)) {
+    await saveArenaResultIfNeeded(session);
+    return;
+  }
   const loserId = session.winnerId === session.attackerId ? session.defenderId : session.attackerId;
 
   await prisma.$transaction(async (tx) => {
@@ -658,7 +792,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
     try {
       if (body.logMessage || typeof body.hp === "number" || typeof body.mp === "number" || typeof body.maxHp === "number" || typeof body.maxMp === "number") {
-        await syncPkRealtimeState(session, isAttacker ? "attacker" : "defender", Date.now());
+        if (isArenaSession(session)) {
+          await syncArenaHpOnly(session, Date.now());
+        } else {
+          await syncPkRealtimeState(session, isAttacker ? "attacker" : "defender", Date.now());
+        }
       }
     } catch (e: any) {
       // Ігноруємо помилки оптимістичного блокування при фоновій синхронізації
@@ -712,8 +850,8 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       const attackerEscaped = !!baseLoc && (!attackerLocNow || attackerLocNow !== baseLoc);
       const defenderEscaped = !!baseLoc && (!defenderLocNow || defenderLocNow !== baseLoc);
       const someoneEscaped = !attackerOnline || !defenderOnline || attackerEscaped || defenderEscaped;
-      
-      if (someoneEscaped) {
+
+      if (!isArenaSession(session) && someoneEscaped) {
         const escapedChar = (!defenderOnline || defenderEscaped) ? liveDefender : liveAttacker;
         const escapedName = String(escapedChar?.name ?? "Игрок").trim() || "Игрок";
         session.ended = true;
@@ -811,7 +949,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const attackerEscaped = !!baseLoc && attackerLocNow !== baseLoc;
     const defenderEscaped = !!baseLoc && defenderLocNow !== baseLoc;
     const someoneEscaped = !attackerOnline || !defenderOnline || attackerEscaped || defenderEscaped;
-    if (someoneEscaped) {
+    if (!isArenaSession(session) && someoneEscaped) {
       const escapedChar =
         (!defenderOnline || defenderEscaped)
           ? liveDefender
@@ -1026,13 +1164,269 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       }
     }
 
-    await syncPkRealtimeState(session, actorRole, now);
+    if (isArenaSession(session)) {
+      await syncArenaHpOnly(session, now);
+    } else {
+      await syncPkRealtimeState(session, actorRole, now);
+    }
     await savePkResultIfNeeded(session);
     await savePkSessionToDb(session);
     await refreshPkFighterStatsFromDb(session);
     const response = serializePkSession(session);
     if (actorBuffs) (response as any).actorBuffs = actorBuffs;
     return reply.send(response);
+  });
+
+  // --- Арена PvP: черга + топ + зведена статистика ---
+  const arenaQueue = new Map<string, { accountId: string; level: number; joinedAt: number }>();
+  const arenaPendingByAccount = new Map<
+    string,
+    { sessionId: string; opponentId: string; opponentName: string; opponentLevel: number }
+  >();
+
+  async function hasActiveArenaSession(characterId: string): Promise<boolean> {
+    for (const s of pkSessions.values()) {
+      if (!s.ended && isArenaSession(s) && (s.attackerId === characterId || s.defenderId === characterId)) {
+        return true;
+      }
+    }
+    try {
+      const rows = await prisma.$queryRawUnsafe<Array<{ payload: unknown }>>(
+        `SELECT "payload" FROM "PkSessionStore" WHERE "expiresAt" >= $1 AND ("payload"->>'ended')::boolean = false AND (("payload"->>'attackerId' = $2) OR ("payload"->>'defenderId' = $2)) LIMIT 3`,
+        Date.now(),
+        characterId
+      );
+      for (const row of rows) {
+        if (!row?.payload) continue;
+        const p = typeof row.payload === "string" ? JSON.parse(row.payload) : row.payload;
+        if (p && p.sessionKind === "arena") return true;
+      }
+    } catch {
+      /* ignore */
+    }
+    return false;
+  }
+
+  app.post("/arena/queue/join", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    await cleanupPkSessions();
+    const body = (req.body ?? {}) as { characterId?: string };
+    const characterId = String(body.characterId ?? "").trim();
+    if (!characterId) return reply.code(400).send({ error: "characterId required" });
+
+    const meChar = await prisma.character.findFirst({
+      where: { id: characterId, accountId: auth.accountId },
+      select: { id: true, name: true, level: true, heroJson: true, lastActivityAt: true, updatedAt: true },
+    });
+    if (!meChar) return reply.code(404).send({ error: "character not found" });
+    if (!isOnline(meChar.lastActivityAt as any, meChar.updatedAt as any)) {
+      return reply.code(400).send({ error: "must be online" });
+    }
+    if (await hasActiveArenaSession(characterId)) {
+      return reply.code(400).send({ error: "already in arena battle" });
+    }
+
+    const now = Date.now();
+    const ttl = 5 * 60 * 1000;
+    for (const [cid, q] of [...arenaQueue.entries()]) {
+      if (now - q.joinedAt > ttl) arenaQueue.delete(cid);
+    }
+
+    arenaQueue.delete(characterId);
+
+    const myLevel = Math.max(1, Number(meChar.level || 1));
+    let partnerId: string | null = null;
+    let partnerData: { accountId: string; level: number; joinedAt: number } | null = null;
+    for (const [cid, data] of arenaQueue.entries()) {
+      if (cid === characterId) continue;
+      if (data.accountId === auth.accountId) continue;
+      if (Math.abs(data.level - myLevel) > 20) continue;
+      partnerId = cid;
+      partnerData = data;
+      break;
+    }
+
+    if (!partnerId || !partnerData) {
+      arenaQueue.set(characterId, { accountId: auth.accountId, level: myLevel, joinedAt: now });
+      return reply.send({
+        ok: true,
+        matched: false,
+        inQueue: true,
+        queueSize: arenaQueue.size,
+      });
+    }
+
+    arenaQueue.delete(partnerId);
+
+    const partnerChar = await prisma.character.findFirst({
+      where: { id: partnerId },
+      select: { id: true, name: true, level: true, heroJson: true, accountId: true, lastActivityAt: true, updatedAt: true },
+    });
+    if (!partnerChar || !isOnline(partnerChar.lastActivityAt as any, partnerChar.updatedAt as any)) {
+      arenaQueue.set(characterId, { accountId: auth.accountId, level: myLevel, joinedAt: now });
+      return reply.send({ ok: true, matched: false, inQueue: true, queueSize: arenaQueue.size });
+    }
+
+    const attackerId = partnerData.joinedAt <= now ? partnerId : characterId;
+    const defenderId = attackerId === partnerId ? characterId : partnerId;
+    const attackerRow = attackerId === partnerId ? partnerChar : meChar;
+    const defenderRow = attackerId === partnerId ? meChar : partnerChar;
+
+    const sessionId = randomUUID();
+    const session: PkSession = {
+      id: sessionId,
+      attackerId,
+      defenderId,
+      sessionKind: "arena",
+      startLocation: "__arena__",
+      attacker: buildPkFighter(attackerRow as any),
+      defender: buildPkFighter(defenderRow as any),
+      attackerCooldowns: {},
+      defenderCooldowns: {},
+      log: [`Арена: ${attackerRow.name} vs ${defenderRow.name}`],
+      ended: false,
+      attackerHasHit: false,
+      defenderHasHit: false,
+      createdAt: now,
+      updatedAt: now,
+      saved: false,
+    };
+
+    pkSessions.set(sessionId, session);
+    await savePkSessionToDb(session);
+
+    // partnerChar чекав у черзі — сповіщаємо його акаунт при наступному poll
+    arenaPendingByAccount.set(partnerChar.accountId, {
+      sessionId,
+      opponentId: meChar.id,
+      opponentName: String(meChar.name || "").trim() || "Игрок",
+      opponentLevel: Math.max(1, Number(meChar.level || 1)),
+    });
+
+    const serialized = serializePkSession(session);
+    return reply.send({
+      ok: true,
+      matched: true,
+      sessionId,
+      session: serialized.session,
+      opponent: {
+        id: partnerChar.id,
+        name: String(partnerChar.name || "").trim(),
+        level: Math.max(1, Number(partnerChar.level || 1)),
+      },
+    });
+  });
+
+  app.post("/arena/queue/leave", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const body = (req.body ?? {}) as { characterId?: string };
+    const characterId = String(body.characterId ?? "").trim();
+    if (characterId) {
+      const ch = await prisma.character.findFirst({
+        where: { id: characterId, accountId: auth.accountId },
+        select: { id: true },
+      });
+      if (ch) arenaQueue.delete(characterId);
+    } else {
+      for (const [cid, q] of [...arenaQueue.entries()]) {
+        if (q.accountId === auth.accountId) arenaQueue.delete(cid);
+      }
+    }
+    arenaPendingByAccount.delete(auth.accountId);
+    return reply.send({ ok: true });
+  });
+
+  app.get("/arena/queue/status", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const pending = arenaPendingByAccount.get(auth.accountId);
+    if (pending) {
+      arenaPendingByAccount.delete(auth.accountId);
+      return reply.send({
+        ok: true,
+        matched: true,
+        sessionId: pending.sessionId,
+        opponent: {
+          id: pending.opponentId,
+          name: pending.opponentName,
+          level: pending.opponentLevel,
+        },
+      });
+    }
+    let inQueue = false;
+    for (const [, q] of arenaQueue.entries()) {
+      if (q.accountId === auth.accountId) {
+        inQueue = true;
+        break;
+      }
+    }
+    return reply.send({ ok: true, matched: false, inQueue, queueSize: arenaQueue.size });
+  });
+
+  app.get("/arena/leaderboard", async (_req, reply) => {
+    await ensureArenaLeaderboardTable();
+    try {
+      const rows = await prisma.$queryRawUnsafe<
+        Array<{ characterId: string; wins: number; losses: number; name: string | null; level: number | null }>
+      >(
+        `SELECT l."characterId", l."wins", l."losses", c."name", c."level"
+         FROM "ArenaLeaderboard" l
+         LEFT JOIN "Character" c ON c."id" = l."characterId"
+         ORDER BY l."wins" DESC, l."losses" ASC, l."updatedAt" ASC
+         LIMIT 10`
+      );
+      return reply.send({ ok: true, top: rows });
+    } catch (e: any) {
+      return reply.send({ ok: true, top: [] });
+    }
+  });
+
+  app.get("/pvp/stats", async (_req, reply) => {
+    await ensureArenaLeaderboardTable();
+    let arenaTop: Array<{ characterId: string; wins: number; losses: number; name: string | null; level: number | null }> = [];
+    try {
+      arenaTop = await prisma.$queryRawUnsafe(
+        `SELECT l."characterId", l."wins", l."losses", c."name", c."level"
+         FROM "ArenaLeaderboard" l
+         LEFT JOIN "Character" c ON c."id" = l."characterId"
+         ORDER BY l."wins" DESC, l."losses" ASC
+         LIMIT 10`
+      );
+    } catch {
+      arenaTop = [];
+    }
+
+    let pkTop: Array<{ characterId: string; name: string | null; level: number | null; wins: number; losses: number }> = [];
+    try {
+      pkTop = await prisma.$queryRawUnsafe(
+        `SELECT c."id" as "characterId", c."name", c."level",
+          COALESCE(NULLIF(trim(c."heroJson"->>'pvpWins'), '')::int, 0) as wins,
+          COALESCE(NULLIF(trim(c."heroJson"->>'pvpLosses'), '')::int, 0) as losses
+         FROM "Character" c
+         WHERE COALESCE(NULLIF(trim(c."heroJson"->>'pvpWins'), '')::int, 0) > 0
+            OR COALESCE(NULLIF(trim(c."heroJson"->>'pvpLosses'), '')::int, 0) > 0
+         ORDER BY wins DESC, losses ASC
+         LIMIT 10`
+      );
+    } catch {
+      pkTop = [];
+    }
+
+    let arenaTotals = { fights: 0, accounts: 0 };
+    try {
+      const t = await prisma.$queryRawUnsafe<Array<{ fights: bigint; accounts: bigint }>>(
+        `SELECT COALESCE(SUM("wins" + "losses"), 0)::bigint as fights, COUNT(*)::bigint as accounts FROM "ArenaLeaderboard"`
+      );
+      if (t[0]) {
+        arenaTotals = { fights: Number(t[0].fights || 0), accounts: Number(t[0].accounts || 0) };
+      }
+    } catch {
+      /* ignore */
+    }
+
+    return reply.send({ ok: true, arenaTop, pkTop, arenaTotals });
   });
 
   app.get("/characters/:id/pk/state", async (req, reply) => {

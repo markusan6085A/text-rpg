@@ -281,7 +281,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
           <button
             className={svcBtn("text-[#f01912] hover:text-white")}
-            onClick={() => openFeature("Арена PVP сражений")}
+            onClick={() => {
+              window.scrollTo(0, 0);
+              navigate("/arena");
+            }}
           >
             <img src="/assets/battles.png" alt="Арена PVP сражений" className={ico} />
             <span>Арена PVP сражений</span>
@@ -289,7 +292,10 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
           <button
             className={svcBtn("text-[#808080] hover:text-white")}
-            onClick={() => openFeature("Статистика PvP Арены")}
+            onClick={() => {
+              window.scrollTo(0, 0);
+              navigate("/pvp-stats");
+            }}
           >
             <img src="/assets/rate.png" alt="Статистика PvP Арены" className={ico} />
             <span>Статистика PvP Арены</span>

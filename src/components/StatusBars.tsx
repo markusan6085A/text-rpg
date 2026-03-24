@@ -258,6 +258,7 @@ export default function StatusBars() {
       // Зупиняємо реген якщо ми в PK бою (або нас атакують, або ми на сторінці бою)
       const isPkBattle = Boolean((currentHero as any).heroJson?.pkIncoming) || 
                          window.location.search.includes('pk=1') || 
+                         window.location.pathname.includes('/arena/match') ||
                          window.location.search.includes('session=') ||
                          Boolean(useBattleStore.getState().pkSessionId);
 

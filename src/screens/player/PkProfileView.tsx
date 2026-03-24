@@ -27,6 +27,8 @@ interface PkProfileViewProps {
   onBack?: () => void;
   /** Текст кнопки під логом (після поразки — «В город» + воскресіння як у бою з мобами) */
   panelBackLabel?: string;
+  /** Тексти завантаження / результату для арени */
+  arenaMode?: boolean;
 }
 
 /** Мапимо defender (PK) у форму Mob для battle store — той самий вигляд і логіка відображення */
@@ -62,6 +64,7 @@ export default function PkProfileView({
   onAttack,
   onBack,
   panelBackLabel,
+  arenaMode = false,
 }: PkProfileViewProps) {
   const isL2 = getCityUiVariant() === "l2";
   const myHero = useHeroStore((s) => s.hero);
@@ -141,7 +144,11 @@ export default function PkProfileView({
               : "text-center text-[11px] text-gray-400 py-4"
           }
         >
-          {pkLoading ? "Создание PK сессии..." : pkError || "PK сессия недоступна"}
+          {pkLoading
+            ? arenaMode
+              ? "Подключение к арене..."
+              : "Создание PK сессии..."
+            : pkError || (arenaMode ? "Сессия арены недоступна" : "PK сессия недоступна")}
         </div>
       </div>
     );
@@ -176,7 +183,7 @@ export default function PkProfileView({
             <div className={isL2 ? "text-[#e8c56e]" : "text-yellow-300"}>{pkSession.escapedByName} сбежал!</div>
           ) : pkSession.winnerId && myHero?.id && pkSession.winnerId === myHero.id ? (
             <div className={isL2 ? "text-[#7d9b7a] font-semibold" : "text-green-400 font-semibold"}>
-              Вы сразили игрока! Игрок мертв!
+              {arenaMode ? "Победа на арене!" : "Вы сразили игрока! Игрок мертв!"}
             </div>
           ) : pkSession.winnerId ? (
             <div className={isL2 ? "text-[#d4786a] font-semibold" : "text-red-400 font-semibold"}>Вы проиграли</div>

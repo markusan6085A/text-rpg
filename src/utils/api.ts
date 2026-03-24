@@ -453,6 +453,7 @@ export interface PkSessionState {
   id: string;
   attackerId: string;
   defenderId: string;
+  sessionKind?: "pk" | "arena";
   attacker: PkSessionFighter;
   defender: PkSessionFighter;
   /** Cooldowns атакуючого (для зворотної сумісності) */
@@ -558,6 +559,66 @@ export async function getPkState(characterId: string): Promise<PkStateResponse> 
   return apiRequest<PkStateResponse>(`/characters/${encodeURIComponent(characterId)}/pk/state`, {
     method: "GET",
   });
+}
+
+export interface ArenaQueueJoinResponse {
+  ok: boolean;
+  matched?: boolean;
+  inQueue?: boolean;
+  queueSize?: number;
+  sessionId?: string;
+  session?: PkSessionState;
+  opponent?: { id: string; name: string; level: number };
+}
+
+export async function joinArenaQueue(characterId: string): Promise<ArenaQueueJoinResponse> {
+  return apiRequest<ArenaQueueJoinResponse>("/arena/queue/join", {
+    method: "POST",
+    body: JSON.stringify({ characterId }),
+  });
+}
+
+export async function leaveArenaQueue(characterId?: string): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>("/arena/queue/leave", {
+    method: "POST",
+    body: JSON.stringify(characterId ? { characterId } : {}),
+  });
+}
+
+export interface ArenaQueueStatusResponse {
+  ok: boolean;
+  matched?: boolean;
+  inQueue?: boolean;
+  queueSize?: number;
+  sessionId?: string;
+  opponent?: { id: string; name: string; level: number };
+}
+
+export async function getArenaQueueStatus(): Promise<ArenaQueueStatusResponse> {
+  return apiRequest<ArenaQueueStatusResponse>("/arena/queue/status", { method: "GET" });
+}
+
+export interface ArenaLbRow {
+  characterId: string;
+  wins: number;
+  losses: number;
+  name: string | null;
+  level: number | null;
+}
+
+export async function getArenaLeaderboard(): Promise<{ ok: boolean; top: ArenaLbRow[] }> {
+  return apiRequest<{ ok: boolean; top: ArenaLbRow[] }>("/arena/leaderboard", { method: "GET" });
+}
+
+export interface PvpStatsResponse {
+  ok: boolean;
+  arenaTop: ArenaLbRow[];
+  pkTop: Array<{ characterId: string; name: string | null; level: number | null; wins: number; losses: number }>;
+  arenaTotals: { fights: number; accounts: number };
+}
+
+export async function getPvpStats(): Promise<PvpStatsResponse> {
+  return apiRequest<PvpStatsResponse>("/pvp/stats", { method: "GET" });
 }
 
 /** Resurrect: сервер атомарно скидає isDead/deadAt, ставить hp/mp/cp на max, heroBuffs=[]. Повертає оновленого character. */

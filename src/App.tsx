@@ -41,6 +41,9 @@ import ColorizeNick from "./screens/ColorizeNick";
 import Forum from "./screens/Forum";
 import Achievements from "./screens/Achievements";
 import Leaderboard from "./screens/Leaderboard";
+import ArenaLobby from "./screens/arena/ArenaLobby";
+import ArenaMatchScreen from "./screens/arena/ArenaMatchScreen";
+import PvpArenaStatsScreen from "./screens/arena/PvpArenaStatsScreen";
 import Help from "./screens/Help";
 import ExpTable from "./screens/ExpTable";
 import Settings from "./screens/Settings";
@@ -649,6 +652,20 @@ function AppInner() {
 
     case "/leaderboard":
       return renderWithLayout(<Leaderboard navigate={navigate} key={`leaderboard-${refreshKey}`} />);
+
+    case "/arena":
+      return renderWithLayout(<ArenaLobby navigate={navigate} key={`arena-${refreshKey}`} />);
+
+    case "/arena/match": {
+      const sp = new URLSearchParams(routeSearch || "");
+      const sid = sp.get("session");
+      return renderWithLayout(
+        <ArenaMatchScreen navigate={navigate} sessionIdFromUrl={sid} key={`arena-match-${refreshKey}`} />
+      );
+    }
+
+    case "/pvp-stats":
+      return renderWithLayout(<PvpArenaStatsScreen navigate={navigate} key={`pvp-stats-${refreshKey}`} />);
 
     case "/admin/login":
       return (
