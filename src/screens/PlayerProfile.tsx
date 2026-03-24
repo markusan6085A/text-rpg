@@ -54,6 +54,55 @@ import { useCharacterStore } from "../state/characterStore";
 import { setResurrectInProgress } from "../state/heroStore";
 import { clearDeathGate } from "../utils/deathGate";
 
+/** Об'єкт як Hero для екіпу / recalculateAllStats; має містити baseStats з heroJson (інакше стати — дефолтні). */
+function characterToProfileHeroData(character: Character) {
+  const heroJson = character.heroJson || {};
+  const professionRaw = heroJson.profession || character.classId || "";
+  return {
+    id: character.id,
+    name: character.name,
+    username: character.name,
+    race: heroJson.race || character.race,
+    klass: heroJson.klass || heroJson.classId || character.classId,
+    gender: character.sex,
+    level: effectiveCharacterLevel(character),
+    profession: professionRaw,
+    status: heroJson.status || "",
+    ...(heroJson.baseStats && typeof heroJson.baseStats === "object"
+      ? { baseStats: heroJson.baseStats }
+      : {}),
+    ...(heroJson.baseStatsInitial && typeof heroJson.baseStatsInitial === "object"
+      ? { baseStatsInitial: heroJson.baseStatsInitial }
+      : {}),
+    equipment: heroJson.equipment || {},
+    equipmentEnchantLevels: heroJson.equipmentEnchantLevels || {},
+    equipmentInserts:
+      heroJson.equipmentInserts && typeof heroJson.equipmentInserts === "object"
+        ? heroJson.equipmentInserts
+        : {},
+    activeDyes: heroJson.activeDyes || [],
+    skills: Array.isArray(heroJson.skills) ? heroJson.skills : [],
+    heroJson,
+    inventory: heroJson.inventory || [],
+    adena: character.adena,
+    coinOfLuck: character.coinLuck,
+    exp: character.exp,
+    sp: character.sp,
+    hp: heroJson.hp !== undefined && heroJson.hp !== null ? Number(heroJson.hp) : (heroJson.maxHp ?? 100),
+    maxHp:
+      heroJson.maxHp && Number(heroJson.maxHp) > 0
+        ? Number(heroJson.maxHp)
+        : Math.max(100, 150 + effectiveCharacterLevel(character) * 12),
+    mp: heroJson.mp || heroJson.maxMp || 100,
+    maxMp: heroJson.maxMp || 100,
+    cp: heroJson.cp || heroJson.maxCp || 0,
+    maxCp: heroJson.maxCp || 0,
+    location: heroJson.location || heroJson.currentLocation || heroJson.zone || undefined,
+    mobsKilled: heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? undefined,
+    nickColor: heroJson.nickColor || undefined,
+  };
+}
+
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
   useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
@@ -244,48 +293,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     };
   }, [playerId, playerName]);
 
-  // Конвертуємо Character в Hero формат для CharacterEquipmentFrame
-  const heroData = useMemo(() => {
-    if (!character) return null;
-
-    const heroJson = character.heroJson || {};
-    // 🔥 profession може бути в heroJson.profession або в character.classId
-    // Приводимо до нижнього регістру для правильного визначення зображення
-    const professionRaw = heroJson.profession || character.classId || "";
-    const profession = professionRaw.toLowerCase();
-    
-    return {
-      id: character.id,
-      name: character.name,
-      username: character.name,
-      race: character.race,
-      klass: character.classId,
-      gender: character.sex,
-      level: effectiveCharacterLevel(character),
-      profession: professionRaw, // Зберігаємо оригінальний регістр для відображення
-      status: heroJson.status || "",
-      equipment: heroJson.equipment || {},
-      equipmentEnchantLevels: heroJson.equipmentEnchantLevels || {},
-      activeDyes: heroJson.activeDyes || [],
-      skills: Array.isArray(heroJson.skills) ? heroJson.skills : [],
-      heroJson,
-      inventory: heroJson.inventory || [],
-      adena: character.adena,
-      coinOfLuck: character.coinLuck,
-      exp: character.exp,
-      sp: character.sp,
-      hp: heroJson.hp !== undefined && heroJson.hp !== null ? Number(heroJson.hp) : (heroJson.maxHp ?? 100),
-      maxHp: (heroJson.maxHp && Number(heroJson.maxHp) > 0) ? Number(heroJson.maxHp) : Math.max(100, 150 + effectiveCharacterLevel(character) * 12),
-      mp: heroJson.mp || heroJson.maxMp || 100,
-      maxMp: heroJson.maxMp || 100,
-      cp: heroJson.cp || heroJson.maxCp || 0,
-      maxCp: heroJson.maxCp || 0,
-      // 🔥 Додаємо location та mobsKilled для правильного відображення
-      location: heroJson.location || heroJson.currentLocation || heroJson.zone || undefined,
-      mobsKilled: heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? undefined,
-      nickColor: heroJson.nickColor || undefined,
-    };
-  }, [character]);
+  const heroData = useMemo(() => (character ? characterToProfileHeroData(character) : null), [character]);
 
   const handlePkDefeatToCity = useCallback(async () => {
     const cidUse = (characterId || hero?.id || "").trim();
@@ -878,12 +886,32 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       const res = await payToViewPlayerStats(character.id);
       if (res.ok) {
         useHeroStore.getState().updateHero({ adena: res.newAdena });
-        const hj = character.heroJson || {};
-        const rawBuffs = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : (Array.isArray((character as any).heroBuffs) ? (character as any).heroBuffs : []);
+        let charForStats = character;
+        try {
+          const fresh =
+            playerId != null && String(playerId).trim() !== ""
+              ? await getPublicCharacter(String(playerId).trim())
+              : playerName
+                ? await getCharacterByName(playerName)
+                : null;
+          if (fresh?.id) {
+            setCharacter(fresh);
+            charForStats = fresh;
+          }
+        } catch {
+          /* лишаємо character — стати все одно з heroJson */
+        }
+        const hj = charForStats.heroJson || {};
+        const rawBuffs = Array.isArray(hj.heroBuffs)
+          ? hj.heroBuffs
+          : Array.isArray((charForStats as any).heroBuffs)
+            ? (charForStats as any).heroBuffs
+            : [];
         const nowMs = Date.now();
         const getExp = (b: any) => { const v = b.expiresAt; if (v == null) return Number.MAX_SAFE_INTEGER; if (typeof v === "number") return v; const n = Number(v); return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER; };
         const activeBuffsForStats = rawBuffs.filter((b: any) => { const exp = getExp(b); return exp >= Number.MAX_SAFE_INTEGER - 1 || exp > nowMs; });
-        const statsResult = recalculateAllStats(heroData, activeBuffsForStats);
+        const statsHero = characterToProfileHeroData(charForStats);
+        const statsResult = recalculateAllStats(statsHero, activeBuffsForStats);
         setViewedStats(statsResult);
         setShowStatsModal(true);
       }
