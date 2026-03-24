@@ -561,41 +561,79 @@ export async function getPkState(characterId: string): Promise<PkStateResponse> 
   });
 }
 
-export interface ArenaQueueJoinResponse {
-  ok: boolean;
-  matched?: boolean;
-  inQueue?: boolean;
-  queueSize?: number;
-  sessionId?: string;
-  session?: PkSessionState;
-  opponent?: { id: string; name: string; level: number };
+export interface ArenaFieldPlayer {
+  id: string;
+  name: string;
+  level: number;
 }
 
-export async function joinArenaQueue(characterId: string): Promise<ArenaQueueJoinResponse> {
-  return apiRequest<ArenaQueueJoinResponse>("/arena/queue/join", {
+export interface ArenaFieldResponse {
+  ok: boolean;
+  players: ArenaFieldPlayer[];
+  count: number;
+}
+
+/** Список гравців на полі; `characterId` — heartbeat (оновлює lastSeen, якщо ви на полі) */
+export async function getArenaField(characterId?: string): Promise<ArenaFieldResponse> {
+  const q =
+    characterId != null && characterId !== ""
+      ? `?characterId=${encodeURIComponent(characterId)}`
+      : "";
+  return apiRequest<ArenaFieldResponse>(`/arena/field${q}`, { method: "GET" });
+}
+
+export async function joinArenaField(characterId: string): Promise<ArenaFieldResponse> {
+  return apiRequest<ArenaFieldResponse>("/arena/field/join", {
     method: "POST",
     body: JSON.stringify({ characterId }),
   });
 }
 
-export async function leaveArenaQueue(characterId?: string): Promise<{ ok: boolean }> {
-  return apiRequest<{ ok: boolean }>("/arena/queue/leave", {
+export async function leaveArenaField(characterId?: string): Promise<ArenaFieldResponse> {
+  return apiRequest<ArenaFieldResponse>("/arena/field/leave", {
     method: "POST",
     body: JSON.stringify(characterId ? { characterId } : {}),
   });
 }
 
-export interface ArenaQueueStatusResponse {
+export interface ArenaChallengeResponse {
   ok: boolean;
-  matched?: boolean;
-  inQueue?: boolean;
-  queueSize?: number;
-  sessionId?: string;
-  opponent?: { id: string; name: string; level: number };
+  sessionId: string;
+  session?: PkSessionState;
 }
 
-export async function getArenaQueueStatus(): Promise<ArenaQueueStatusResponse> {
-  return apiRequest<ArenaQueueStatusResponse>("/arena/queue/status", { method: "GET" });
+export async function arenaChallenge(
+  characterId: string,
+  targetId: string,
+  attackerStats?: { hp?: number; maxHp?: number; mp?: number; maxMp?: number }
+): Promise<ArenaChallengeResponse> {
+  return apiRequest<ArenaChallengeResponse>("/arena/challenge", {
+    method: "POST",
+    body: JSON.stringify({
+      characterId,
+      targetId,
+      ...(attackerStats?.maxHp != null && { attackerMaxHp: attackerStats.maxHp }),
+      ...(attackerStats?.hp != null && { attackerHp: attackerStats.hp }),
+      ...(attackerStats?.maxMp != null && { attackerMaxMp: attackerStats.maxMp }),
+      ...(attackerStats?.mp != null && { attackerMp: attackerStats.mp }),
+    }),
+  });
+}
+
+export interface ArenaPendingBattleResponse {
+  ok: boolean;
+  pending: { sessionId: string; attackerName: string } | null;
+}
+
+export async function getArenaPendingBattle(): Promise<ArenaPendingBattleResponse> {
+  return apiRequest<ArenaPendingBattleResponse>("/arena/pending-battle", { method: "GET" });
+}
+
+export async function clearArenaPendingBattle(): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>("/arena/pending-battle/clear", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
 }
 
 export interface ArenaLbRow {

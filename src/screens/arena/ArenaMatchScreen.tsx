@@ -16,7 +16,7 @@ import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { useBattleStore } from "../../state/battle/store";
 import { setResurrectInProgress } from "../../state/heroStore";
 import { clearDeathGate } from "../../utils/deathGate";
-import { leaveArenaQueue } from "../../utils/api";
+import { leaveArenaField, clearArenaPendingBattle } from "../../utils/api";
 import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
 
 interface ArenaMatchScreenProps {
@@ -34,6 +34,11 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
   const [loadErr, setLoadErr] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!sessionIdFromUrl) return;
+    void clearArenaPendingBattle().catch(() => {});
+  }, [sessionIdFromUrl]);
+
+  useEffect(() => {
     if (!sessionIdFromUrl || !hero?.id) return;
     let alive = true;
     (async () => {
@@ -45,7 +50,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
           return;
         }
         if (s.sessionKind !== "arena") {
-          if (alive) setLoadErr("Это не арена (откройте бой через очередь арены)");
+          if (alive) setLoadErr("Это не арена (откройте бой через поле арены)");
           return;
         }
         const oid = hero.id === s.attackerId ? s.defenderId : s.attackerId;
@@ -142,7 +147,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
         });
       }
       useBattleStore.getState().reset();
-      await leaveArenaQueue(cidUse);
+      await leaveArenaField(cidUse);
       navigate("/arena");
     } catch (e) {
       console.warn("[ArenaMatch] resurrect failed", e);
@@ -154,7 +159,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
   const backToArena = async () => {
     useBattleStore.getState().reset();
     const cidUse = (characterId || hero?.id || "").trim();
-    if (cidUse) await leaveArenaQueue(cidUse).catch(() => {});
+    if (cidUse) await leaveArenaField(cidUse).catch(() => {});
     navigate("/arena");
   };
 
