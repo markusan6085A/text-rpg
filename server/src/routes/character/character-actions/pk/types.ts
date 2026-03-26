@@ -33,8 +33,10 @@ export type PkSession = {
   id: string;
   attackerId: string;
   defenderId: string;
-  /** pk — звичайний бій у зоні; arena — матчмейкінг, без перевірки локації */
-  sessionKind?: "pk" | "arena";
+  /** pk — звичайний бій у зоні; arena — матчмейкінг; tvt — Team vs Team за розкладом */
+  sessionKind?: "pk" | "arena" | "tvt";
+  /** Зв'язок раунду TvT з матчем (черга команд) */
+  tvtMatchId?: string;
   startLocation?: string;
   attacker: PkFighter;
   defender: PkFighter;
@@ -57,4 +59,13 @@ export type PkSession = {
 
 export function isArenaSession(session: PkSession): boolean {
   return session.sessionKind === "arena";
+}
+
+export function isTvtSession(session: PkSession): boolean {
+  return session.sessionKind === "tvt";
+}
+
+/** Арена та TvT: без перевірки локації, HP як на арені */
+export function isArenaLikeSession(session: PkSession): boolean {
+  return session.sessionKind === "arena" || session.sessionKind === "tvt";
 }

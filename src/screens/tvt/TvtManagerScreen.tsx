@@ -1,16 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { useHeroStore } from "../../state/heroStore";
+import { useCharacterStore } from "../../state/characterStore";
 import { TVT_DAILY_SLOTS, formatSlotSchedule, getNextSlotHint, getSlotStatus, type TvtPhase } from "./tvtSchedule";
 import { splitTvtTeams, teamModeLabel } from "./tvtTeamSplit";
 import { COIN_OF_LUCK_ICON, TVT_COIN_ICON, TVT_REWARD_COIN_OF_LUCK, TVT_REWARD_TVT_COINS } from "./tvtRewards";
-import {
-  getTvtRegisteredParticipants,
-  registerSelf,
-  unregisterSelf,
-} from "./tvtRegistrationStorage";
 import type { TvtParticipant } from "./tvtTypes";
 import { TvtNickLink } from "./TvtNickLink";
+import { getTvtState, registerTvt, unregisterTvt, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
 
 type Props = {
   navigate: (path: string) => void;
@@ -41,29 +38,80 @@ function makeDemoParticipants(count: 2 | 4 | 5): TvtParticipant[] {
 export default function TvtManagerScreen({ navigate }: Props) {
   const isL2 = getCityUiVariant() === "l2";
   const hero = useHeroStore((s) => s.hero);
+  const characterId = useCharacterStore((s) => s.characterId);
+  const cid = (characterId || hero?.id || "").trim();
+
   const [now, setNow] = useState(() => new Date());
-  const [registered, setRegistered] = useState<TvtParticipant[]>(() => getTvtRegisteredParticipants());
+  const [tvtState, setTvtState] = useState<TvtStateResponse | null>(null);
+  const [tvtErr, setTvtErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [exampleCount, setExampleCount] = useState<2 | 4 | 5>(5);
+
+  const loadState = useCallback(async () => {
+    if (!cid) return;
+    try {
+      const r = await getTvtState(cid);
+      setTvtState(r);
+      setTvtErr(null);
+    } catch (e: any) {
+      setTvtErr(e?.message || "Ошибка TvT");
+    }
+  }, [cid]);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(t);
   }, []);
 
-  const refreshRegistered = useCallback(() => {
-    setRegistered(getTvtRegisteredParticipants());
-  }, []);
+  useEffect(() => {
+    void loadState();
+    const iv = setInterval(() => void loadState(), 4000);
+    return () => clearInterval(iv);
+  }, [loadState]);
 
-  const handleRegister = () => {
-    if (!hero?.id || !hero.name) return;
-    registerSelf({ id: String(hero.id), name: String(hero.name), level: hero.level });
-    refreshRegistered();
+  /** Авто-перехід у бій TvT (той самий екран, що арена). */
+  useEffect(() => {
+    if (!cid || !hero) return;
+    const tick = async () => {
+      try {
+        const r = await getArenaActiveSession(cid);
+        const sid = r.sessionId?.trim();
+        if (sid) {
+          navigate(`/arena/match?session=${encodeURIComponent(sid)}`);
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    void tick();
+    const iv = setInterval(tick, 2500);
+    return () => clearInterval(iv);
+  }, [cid, hero, navigate]);
+
+  const handleRegister = async (slotId: string) => {
+    if (!cid) return;
+    setBusy(true);
+    try {
+      await registerTvt(cid, slotId);
+      await loadState();
+    } catch (e: any) {
+      setTvtErr(e?.message || "Не удалось записаться");
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const handleUnregister = () => {
-    if (!hero?.id) return;
-    unregisterSelf(String(hero.id));
-    refreshRegistered();
+  const handleUnregister = async () => {
+    if (!cid) return;
+    setBusy(true);
+    try {
+      await unregisterTvt(cid);
+      await loadState();
+    } catch (e: any) {
+      setTvtErr(e?.message || "Ошибка");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const l2Frame =
@@ -75,9 +123,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const slotStatuses = useMemo(() => TVT_DAILY_SLOTS.map((s) => getSlotStatus(now, s)), [now]);
 
   const demoSplit = useMemo(() => splitTvtTeams(makeDemoParticipants(exampleCount)), [exampleCount]);
-  const realSplit = useMemo(() => splitTvtTeams(registered), [registered]);
 
-  const selfRegistered = hero?.id && registered.some((p) => p.id === String(hero.id));
+  const myRegSlotId = tvtState?.myRegistration?.slotId;
+  const regs = tvtState?.registrationsBySlot ?? {};
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-2 sm:p-3` : "w-full px-3 py-4"}>
@@ -94,23 +142,19 @@ export default function TvtManagerScreen({ navigate }: Props) {
       <div
         className={
           isL2
-            ? "mx-2 mt-3 rounded-md border border-[#d4786a]/45 bg-[#1a0f0c]/80 px-3 py-2.5 text-[12px] text-[#e8c8c4] leading-snug"
-            : "mx-2 mt-3 rounded border border-red-900/60 bg-red-950/40 px-3 py-2.5 text-sm text-red-100"
+            ? "mx-2 mt-3 rounded-md border border-[#7d9b7a]/35 bg-black/25 px-3 py-2.5 text-[12px] text-[#d4c4a8] leading-snug"
+            : "mx-2 mt-3 rounded border border-green-900/40 bg-green-950/20 px-3 py-2.5 text-sm text-gray-200"
         }
       >
-        <span className="font-semibold text-[#f0a090]">Важно:</span> бой сейчас{" "}
-        <span className="text-[#f0d0c8]">не запускается</span> — нет серверного матчмейкинга и боя TvT. Запись по времени — только{" "}
-        <span className="underline decoration-[#d4786a]/60">в этом браузере</span> (демо), не создаёт матч на сервере. Расписание и фаза «бой» —{" "}
-        <span className="text-[#c9a44c]">индикатор времени</span>, без реального события в игре.
+        <span className="font-semibold text-[#7d9b7a]">Онлайн TvT:</span> запись на сервере по расписанию; в старт слота формируются команды и открывается бой (как арена). Победа команды — когда у соперников не осталось живых в очереди раундов.
       </div>
 
       <div className={isL2 ? "px-2 py-3 text-[12px] text-[#a89878] leading-snug space-y-2" : "text-gray-400 text-sm space-y-2"}>
         <p>
-          Командный бой: цель — победить команду противника. Когда подключат сервер — появятся реальные матчи; пока здесь расписание,
-          правила и предпросмотр составов.
+          Цель — уничтожить состав противника в серии дуэлей 1×1 (первый в команде A против первого в B, победитель остаётся / проигравший выбывает).
         </p>
         <p className={isL2 ? "text-[#d4c4a8]" : "text-gray-300"}>
-          <span className="text-[#e8c56e] font-semibold">Клик по нику противника</span> открывает профиль игрока — та же панель взаимодействия, что и на арене / PvP.
+          <span className="text-[#e8c56e] font-semibold">Клик по нику</span> в профиле противника — та же панель, что PvP/арена.
         </p>
       </div>
 
@@ -126,32 +170,50 @@ export default function TvtManagerScreen({ navigate }: Props) {
           Расписание (3 раза в день)
         </div>
         <div className="space-y-2">
-          {slotStatuses.map((st) => (
-            <div
-              key={st.slot.id}
-              className={
-                isL2
-                  ? "rounded-md border border-[#5c4a32]/50 bg-black/20 px-3 py-2 text-[12px] text-[#d4c4a8]"
-                  : "rounded border border-gray-700 px-3 py-2 text-sm text-gray-300"
-              }
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-[#e8c56e] font-semibold">{st.slot.label}</span>
-                <span
-                  className={
-                    st.phase === "registration"
-                      ? "text-[#7d9b7a] text-[11px]"
-                      : st.phase === "battle"
-                        ? "text-[#d4786a] text-[11px]"
-                        : "text-[#8a7a60] text-[11px]"
-                  }
-                >
-                  {phaseLabelRu(st.phase)}
-                </span>
+          {slotStatuses.map((st) => {
+            const count = regs[st.slot.id]?.length ?? 0;
+            return (
+              <div
+                key={st.slot.id}
+                className={
+                  isL2
+                    ? "rounded-md border border-[#5c4a32]/50 bg-black/20 px-3 py-2 text-[12px] text-[#d4c4a8]"
+                    : "rounded border border-gray-700 px-3 py-2 text-sm text-gray-300"
+                }
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[#e8c56e] font-semibold">{st.slot.label}</span>
+                  <span
+                    className={
+                      st.phase === "registration"
+                        ? "text-[#7d9b7a] text-[11px]"
+                        : st.phase === "battle"
+                          ? "text-[#d4786a] text-[11px]"
+                          : "text-[#8a7a60] text-[11px]"
+                    }
+                  >
+                    {phaseLabelRu(st.phase)}
+                  </span>
+                </div>
+                <div className="text-[11px] text-[#a89878] mt-1">{formatSlotSchedule(st.slot)}</div>
+                <div className="text-[11px] text-[#8a7a60] mt-1">Записалось: {count}</div>
+                {cid && st.phase === "registration" && (
+                  <button
+                    type="button"
+                    disabled={busy || Boolean(myRegSlotId)}
+                    onClick={() => handleRegister(st.slot.id)}
+                    className={
+                      isL2
+                        ? "mt-2 w-full py-1.5 rounded border border-[#5c4a32]/60 text-[11px] text-[#c9a44c] disabled:opacity-40"
+                        : "mt-2 w-full py-1.5 rounded bg-gray-700 text-xs disabled:opacity-40"
+                    }
+                  >
+                    {myRegSlotId === st.slot.id ? "Вы записаны на этот слот" : myRegSlotId ? "Уже записаны на другой слот" : `Записаться на ${st.slot.label}`}
+                  </button>
+                )}
               </div>
-              <div className="text-[11px] text-[#a89878] mt-1">{formatSlotSchedule(st.slot)}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {nextHint ? (
           <div className="mt-3 text-[12px] text-[#c9a44c]">{nextHint.message}</div>
@@ -160,9 +222,24 @@ export default function TvtManagerScreen({ navigate }: Props) {
         )}
       </div>
 
+      {tvtState?.myMatch && tvtState.myMatch.status === "active" && (
+        <div
+          className={
+            isL2
+              ? "mx-2 mt-4 rounded-md border border-[#c9a44c]/40 bg-[#1a1610]/80 px-3 py-2 text-[12px] text-[#e8dcc8]"
+              : "mx-2 mt-4 rounded border border-amber-700/50 px-3 py-2 text-sm text-amber-100"
+          }
+        >
+          <div className="font-semibold text-[#e8c56e] mb-1">Матч TvT идёт</div>
+          <div className="text-[11px] text-[#a89878]">
+            Очередь A: {tvtState.myMatch.queueALen}, B: {tvtState.myMatch.queueBLen}. Когда откроется бой — вас перенаправит в окно боя.
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 px-2">
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Награда за победу
+          Награда за победу команды
         </div>
         <div
           className={
@@ -191,7 +268,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
         <ul className={isL2 ? "text-[12px] text-[#d4c4a8] list-disc pl-5 space-y-1" : "text-sm text-gray-300 list-disc pl-5 space-y-1"}>
           <li>2 игрока — 1×1</li>
           <li>4 игрока — 2×2</li>
-          <li>5 игроков — 2×3 (союзники / противники)</li>
+          <li>5 игроков — 2×3</li>
         </ul>
       </div>
 
@@ -249,78 +326,33 @@ export default function TvtManagerScreen({ navigate }: Props) {
             </div>
           </div>
         )}
-        <p className="mt-2 text-[11px] text-[#8a7a60]">Серые ники в примере — демо, без перехода в профиль.</p>
+        <p className="mt-2 text-[11px] text-[#8a7a60]">Серые ники в примере — демо.</p>
       </div>
 
       <div className="mt-6 px-2">
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Локальный список (не сервер)
+          Ваша запись (сервер)
         </div>
-        <p className="text-[11px] text-[#8a7a60] mb-2">
-          Кнопка ниже не ставит вас в очередь на сервере и не начинает бой. Она только сохраняет ник в памяти этой вкладки для предпросмотра
-          состава. После подключения матчмейкинга список будет общий для всех игроков.
-        </p>
-        {!hero ? (
-          <p className="text-[#d4786a] text-[12px]">Войдите в игру, чтобы записаться.</p>
-        ) : selfRegistered ? (
+        {!hero || !cid ? (
+          <p className="text-[#d4786a] text-[12px]">Войдите в игру.</p>
+        ) : myRegSlotId ? (
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-[#7d9b7a] text-[12px]">Вы в списке: {hero.name}</span>
+            <span className="text-[#7d9b7a] text-[12px]">
+              Слот: {TVT_DAILY_SLOTS.find((s) => s.id === myRegSlotId)?.label ?? myRegSlotId}
+            </span>
             <button
               type="button"
               onClick={handleUnregister}
-              className={isL2 ? "text-[11px] text-[#c9a44c] underline" : "text-xs text-amber-400 underline"}
+              disabled={busy}
+              className={isL2 ? "text-[11px] text-[#c9a44c] underline disabled:opacity-40" : "text-xs text-amber-400 underline"}
             >
-              Отменить
+              Снять запись
             </button>
           </div>
         ) : (
-          <button type="button" onClick={handleRegister} className={rowBtn}>
-            <span className="text-[#e8c56e] font-semibold">Добавить себя в локальный список</span>
-            <span className="block text-[11px] text-[#8a7a60] mt-0.5 font-normal">не серверная очередь, бой не стартует</span>
-          </button>
+          <p className="text-[11px] text-[#8a7a60]">Выберите слот во время фазы «регистрация» выше.</p>
         )}
-
-        {registered.length > 0 && (
-          <div className="mt-4">
-            <div className="text-[11px] text-[#8a7a60] mb-1">Кто записался ({registered.length})</div>
-            <ul className="text-[12px] text-[#d4c4a8] space-y-0.5">
-              {registered.map((p) => (
-                <li key={p.id}>
-                  <TvtNickLink id={p.id} name={p.name} navigate={navigate} isL2={isL2} />
-                  {p.level != null ? <span className="text-[#8a7a60]"> · {p.level} ур.</span> : null}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {realSplit && registered.length >= 2 && (
-          <div className="mt-4">
-            <div className="text-[11px] text-[#e8c56e] mb-2">Текущий состав по списку</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <div className="text-[11px] text-[#7d9b7a] mb-1">Команда A · {teamModeLabel(realSplit.mode)}</div>
-                <ul className="space-y-1">
-                  {realSplit.teamA.map((p) => (
-                    <li key={p.id}>
-                      <TvtNickLink id={p.id} name={p.name} navigate={navigate} isL2={isL2} />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <div className="text-[11px] text-[#d4786a] mb-1">Команда B</div>
-                <ul className="space-y-1">
-                  {realSplit.teamB.map((p) => (
-                    <li key={p.id}>
-                      <TvtNickLink id={p.id} name={p.name} navigate={navigate} isL2={isL2} />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
+        {tvtErr && <p className="mt-2 text-[11px] text-[#d4786a]">{tvtErr}</p>}
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2 justify-center px-2 pb-2">

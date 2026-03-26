@@ -5,7 +5,7 @@ import { getAuth } from "../../auth";
 import { getEffectiveNickColor } from "../../../../effectiveNickColor";
 import { addVersioning } from "../../../../heroJsonValidator";
 import type { PkFighter, PkSession, PkSkill } from "./types";
-import { isArenaSession } from "./types";
+import { isArenaLikeSession, isTvtSession } from "./types";
 import {
   pkSessions,
   cleanupPkSessions,
@@ -25,6 +25,7 @@ import {
 } from "./helpers";
 import { syncPkRealtimeState, syncArenaHpOnly } from "./sync";
 import { savePkResultIfNeeded, ensureArenaLeaderboardTable } from "./results";
+import { abortTvtMatchOnFlee } from "../tvt/engine";
 
 export async function registerPkSessionRoutes(app: FastifyInstance) {
   app.post("/characters/pk/session/start", async (req, reply) => {
@@ -198,7 +199,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         typeof body.maxHp === "number" ||
         typeof body.maxMp === "number"
       ) {
-        if (isArenaSession(session)) {
+        if (isArenaLikeSession(session)) {
           await syncArenaHpOnly(session, Date.now());
         } else {
           await syncPkRealtimeState(session, isAttacker ? "attacker" : "defender", Date.now());
@@ -227,7 +228,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       if (session) pkSessions.set(sessionId, session);
     }
     if (!session) return reply.code(404).send({ error: "pk session not found" });
-    if (!isArenaSession(session)) return reply.code(400).send({ error: "not an arena session" });
+    if (!isArenaLikeSession(session)) return reply.code(400).send({ error: "not an arena session" });
 
     const me = await prisma.character.findFirst({
       where: {
@@ -278,6 +279,9 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       }
     });
     await savePkSessionToDb(session);
+    if (isTvtSession(session)) {
+      await abortTvtMatchOnFlee(session);
+    }
     await refreshPkFighterStatsFromDb(session);
     return reply.send(serializePkSession(session));
   });
@@ -323,7 +327,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       const defenderEscaped = !!baseLoc && (!defenderLocNow || defenderLocNow !== baseLoc);
       const someoneEscaped = !attackerOnline || !defenderOnline || attackerEscaped || defenderEscaped;
 
-      if (!isArenaSession(session) && someoneEscaped) {
+      if (!isArenaLikeSession(session) && someoneEscaped) {
         const escapedChar = !defenderOnline || defenderEscaped ? liveDefender : liveAttacker;
         const escapedName = String(escapedChar?.name ?? "Игрок").trim() || "Игрок";
         session.ended = true;
@@ -353,6 +357,9 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
           }
         });
         await savePkSessionToDb(session);
+        if (isTvtSession(session)) {
+          await abortTvtMatchOnFlee(session);
+        }
       }
     }
 
@@ -446,7 +453,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
     const attackerEscaped = !!baseLoc && attackerLocNow !== baseLoc;
     const defenderEscaped = !!baseLoc && defenderLocNow !== baseLoc;
     const someoneEscaped = !attackerOnline || !defenderOnline || attackerEscaped || defenderEscaped;
-    if (!isArenaSession(session) && someoneEscaped) {
+    if (!isArenaLikeSession(session) && someoneEscaped) {
       const escapedChar = !defenderOnline || defenderEscaped ? liveDefender : liveAttacker;
       const escapedName = String(escapedChar?.name ?? "Игрок").trim() || "Игрок";
       session.ended = true;
@@ -480,6 +487,9 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         }
       });
       await savePkSessionToDb(session);
+      if (isTvtSession(session)) {
+        await abortTvtMatchOnFlee(session);
+      }
       await refreshPkFighterStatsFromDb(session);
       return reply.send(serializePkSession(session));
     }
@@ -720,7 +730,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       }
     }
 
-    if (isArenaSession(session)) {
+    if (isArenaLikeSession(session)) {
       await syncArenaHpOnly(session, now);
     } else {
       await syncPkRealtimeState(session, actorRole, now);
@@ -748,7 +758,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
 
   async function hasActiveArenaSession(characterId: string): Promise<boolean> {
     for (const s of pkSessions.values()) {
-      if (!s.ended && isArenaSession(s) && (s.attackerId === characterId || s.defenderId === characterId)) {
+      if (!s.ended && isArenaLikeSession(s) && (s.attackerId === characterId || s.defenderId === characterId)) {
         return true;
       }
     }
@@ -761,7 +771,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       for (const row of rows) {
         if (!row?.payload) continue;
         const p = typeof row.payload === "string" ? JSON.parse(row.payload) : row.payload;
-        if (p && p.sessionKind === "arena") return true;
+        if (p && (p.sessionKind === "arena" || p.sessionKind === "tvt")) return true;
       }
     } catch {
       /* ignore */
@@ -902,7 +912,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
     if (!ch) return reply.code(403).send({ error: "forbidden" });
 
     for (const s of pkSessions.values()) {
-      if (!s.ended && isArenaSession(s) && (s.attackerId === characterId || s.defenderId === characterId)) {
+      if (!s.ended && isArenaLikeSession(s) && (s.attackerId === characterId || s.defenderId === characterId)) {
         return reply.send({ ok: true, sessionId: s.id });
       }
     }
@@ -911,7 +921,7 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         `SELECT "id" FROM "PkSessionStore" 
          WHERE "expiresAt" >= $1 
            AND ("payload"->>'ended')::boolean = false 
-           AND COALESCE("payload"->>'sessionKind','') = 'arena'
+           AND COALESCE("payload"->>'sessionKind','') IN ('arena','tvt')
            AND (("payload"->>'attackerId' = $2) OR ("payload"->>'defenderId' = $2)) 
          LIMIT 1`,
         Date.now(),

@@ -3,12 +3,14 @@ import { prisma } from "../../../db";
 import { getAuth } from "../auth";
 import { addVersioning } from "../../../heroJsonValidator";
 import { registerPkSessionRoutes } from "./pk";
+import { registerTvtRoutes } from "./tvt/routes";
 
 /**
  * Дії з персонажем (PK/арена винесені в ./pk/*).
  */
 export async function characterActionsRoutes(app: FastifyInstance) {
   await registerPkSessionRoutes(app);
+  await registerTvtRoutes(app);
 
   // POST /characters/:id/colorize-nick - зміна кольору ніка (50 Coin of Luck)
   app.post("/characters/:id/colorize-nick", async (req, reply) => {

@@ -1,7 +1,8 @@
 import { prisma } from "../../../../db";
 import { addVersioning } from "../../../../heroJsonValidator";
 import type { PkSession } from "./types";
-import { isArenaSession } from "./types";
+import { isArenaSession, isTvtSession } from "./types";
+import { onTvtPkSessionEnded } from "../tvt/engine";
 import { getEffectivePkNickColor } from "./helpers";
 
 let arenaLbInit: Promise<void> | null = null;
@@ -189,4 +190,7 @@ export async function savePkResultIfNeeded(session: PkSession) {
   });
 
   session.saved = true;
+  if (isTvtSession(session)) {
+    await onTvtPkSessionEnded(session);
+  }
 }

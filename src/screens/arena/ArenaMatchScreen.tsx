@@ -52,7 +52,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
           if (alive) setLoadErr("Сессия не найдена");
           return;
         }
-        if (s.sessionKind !== "arena") {
+        if (s.sessionKind !== "arena" && s.sessionKind !== "tvt") {
           if (alive) setLoadErr("Это не арена (откройте бой через поле арены)");
           return;
         }

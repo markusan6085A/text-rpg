@@ -501,7 +501,7 @@ export interface PkSessionState {
   id: string;
   attackerId: string;
   defenderId: string;
-  sessionKind?: "pk" | "arena";
+  sessionKind?: "pk" | "arena" | "tvt";
   attacker: PkSessionFighter;
   defender: PkSessionFighter;
   /** Cooldowns атакуючого (для зворотної сумісності) */
@@ -677,6 +677,54 @@ export async function getArenaActiveSession(characterId: string): Promise<{ ok: 
     `/arena/active-session?characterId=${encodeURIComponent(characterId)}`,
     { method: "GET" }
   );
+}
+
+export type TvtSlotDef = {
+  id: string;
+  label: string;
+  registrationOpen: { h: number; m: number };
+  battleStart: { h: number; m: number };
+};
+
+export interface TvtStateResponse {
+  ok: boolean;
+  serverNow: number;
+  dayKey: string;
+  slots: TvtSlotDef[];
+  registrationsBySlot: Record<string, string[]>;
+  myRegistration: { dayKey: string; slotId: string } | null;
+  myMatch: {
+    id: string;
+    slotId: string;
+    queueALen: number;
+    queueBLen: number;
+    currentPkSessionId: string | null;
+    status: string;
+  } | null;
+}
+
+export async function getTvtState(characterId: string): Promise<TvtStateResponse> {
+  return apiRequest<TvtStateResponse>(
+    `/characters/tvt/state?characterId=${encodeURIComponent(characterId)}`,
+    { method: "GET" }
+  );
+}
+
+export async function registerTvt(
+  characterId: string,
+  slotId: string
+): Promise<{ ok: boolean; serverNow?: number; dayKey?: string; slotId?: string }> {
+  return apiRequest(`/characters/tvt/register`, {
+    method: "POST",
+    body: JSON.stringify({ characterId, slotId }),
+  });
+}
+
+export async function unregisterTvt(characterId: string): Promise<{ ok: boolean; serverNow?: number }> {
+  return apiRequest(`/characters/tvt/unregister`, {
+    method: "POST",
+    body: JSON.stringify({ characterId }),
+  });
 }
 
 export interface ArenaChallengeResponse {
