@@ -27,7 +27,8 @@ function useLearnedActive(): LearnedSkill[] {
         const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, Number(ls.id));
         if (!def) return null;
         if (def.category === "passive") return null;
-        const lvl = def.levels.find((l) => l.level === ls.level) ?? def.levels[0];
+        const levels = Array.isArray(def.levels) ? def.levels : [];
+        const lvl = levels.find((l) => l.level === ls.level) ?? levels[0];
         if (!lvl) return null;
         return {
           id: def.id,
@@ -273,12 +274,13 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
     }
     if (hero && typeof id === "number" && id !== 0) {
       const hasLearned = hero.skills?.some((s: any) => Number(s?.id) === id);
-      if (hasLearned) {
-        const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, id);
-        if (def && def.category !== "passive") {
-          const ls = hero.skills!.find((s: any) => Number(s?.id) === id);
-          const lvl = def.levels.find((l) => l.level === (ls as any)?.level) ?? def.levels[0];
-          if (lvl) {
+        if (hasLearned) {
+          const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, id);
+          if (def && def.category !== "passive") {
+            const ls = hero.skills!.find((s: any) => Number(s?.id) === id);
+            const levels = Array.isArray(def.levels) ? def.levels : [];
+            const lvl = levels.find((l) => l.level === (ls as any)?.level) ?? levels[0];
+            if (lvl) {
             return {
               id,
               name: def.name,
@@ -328,7 +330,7 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const toggleBuffActive =
                 !!toggleSkillDef &&
                 skillDefIsToggle(toggleSkillDef) &&
-                heroBuffs.some((b: any) => b.id === id && b.expiresAt === Number.MAX_SAFE_INTEGER);
+                heroBuffs.some((b: any) => b && Number(b.expiresAt) === Number.MAX_SAFE_INTEGER && b.id === id);
 
               const disabled =
                 id !== null &&
@@ -443,7 +445,7 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const toggleBuffActive2 =
                 !!toggleSkillDef2 &&
                 skillDefIsToggle(toggleSkillDef2) &&
-                heroBuffs.some((b: any) => b.id === id && b.expiresAt === Number.MAX_SAFE_INTEGER);
+                heroBuffs.some((b: any) => b && Number(b.expiresAt) === Number.MAX_SAFE_INTEGER && b.id === id);
 
               const disabled =
                 id !== null &&

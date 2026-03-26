@@ -12,7 +12,7 @@ type Props = {
 export function BuffBar({ buffs, now }: Props) {
   const isL2 = getCityUiVariant() === "l2";
   const hero = useHeroStore((s) => s.hero);
-  if (!buffs || buffs.length === 0) return null;
+  if (!Array.isArray(buffs) || buffs.length === 0) return null;
 
   const totalsRef = React.useRef<Record<string, number>>({});
 
@@ -20,12 +20,10 @@ export function BuffBar({ buffs, now }: Props) {
   // Toggle скіли мають expiresAt === Number.MAX_SAFE_INTEGER і відображаються, якщо вони активні
   // Звичайні бафи відображаються, якщо вони не закінчилися
   const activeBuffs = buffs.filter((b) => {
-    // Toggle скіли (expiresAt === Number.MAX_SAFE_INTEGER) - завжди показуємо, якщо вони є в списку
-    if (b.expiresAt === Number.MAX_SAFE_INTEGER) {
-      return true;
-    }
-    // Звичайні бафи - показуємо тільки якщо вони не закінчилися
-    return b.expiresAt > now;
+    if (!b || typeof b !== "object") return false;
+    const exp = Number(b.expiresAt);
+    if (exp === Number.MAX_SAFE_INTEGER) return true;
+    return exp > now;
   });
   
   if (activeBuffs.length === 0) return null;
@@ -42,16 +40,17 @@ export function BuffBar({ buffs, now }: Props) {
               : undefined;
           const icon = rawIcon.length > 0 ? rawIcon : def?.icon || "/skills/attack.jpg";
           const title = b.name || "buff";
-          const isToggle = b.expiresAt === Number.MAX_SAFE_INTEGER;
-          const key = `${b.id ?? idx}-${b.expiresAt}`;
-          const remaining = isToggle ? 0 : Math.max(0, b.expiresAt - now);
+          const expN = Number(b.expiresAt);
+          const isToggle = expN === Number.MAX_SAFE_INTEGER;
+          const key = `${b.id ?? idx}-${expN}`;
+          const remaining = isToggle ? 0 : Math.max(0, expN - now);
           let total = totalsRef.current[key];
 
           if (!total || total <= 0) {
             if (b.durationMs && b.durationMs > 0) {
               total = b.durationMs;
-            } else if (b.startedAt && b.expiresAt !== Number.MAX_SAFE_INTEGER) {
-              total = Math.max(0, b.expiresAt - b.startedAt);
+            } else if (b.startedAt && expN !== Number.MAX_SAFE_INTEGER) {
+              total = Math.max(0, expN - Number(b.startedAt));
             } else {
               total = remaining;
             }
@@ -62,7 +61,7 @@ export function BuffBar({ buffs, now }: Props) {
           const deg = Math.round(percent * 360);
           return (
             <div
-              key={`buff-${b.id ?? idx}-${b.expiresAt}`}
+              key={`buff-${b.id ?? idx}-${expN}`}
               className="w-6 h-6 relative shadow-[0_4px_10px_rgba(0,0,0,0.35)]"
               title={title}
             >

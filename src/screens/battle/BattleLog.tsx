@@ -47,7 +47,7 @@ export function getColorForPkLine(line: string, myHeroName: string): string {
 }
 
 export const getColor = (line: string) => {
-  const lower = line.toLowerCase();
+  const lower = String(line ?? "").toLowerCase();
   
   // "Добыча" обробляється окремо в parseDobychaLine, тому пропускаємо тут
   if (lower.includes("добыча:")) {
@@ -183,15 +183,16 @@ export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; 
   const content = (
     <div className="space-y-1 text-[12px] leading-[1.2]">
       {lines.map((line, idx) => {
-        const dobychaLine = parseDobychaLine(line);
+        const lineStr = String(line ?? "");
+        const dobychaLine = parseDobychaLine(lineStr);
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
         }
-        let displayLine = isPk ? replaceSkillIdsWithNames(line) : line;
-        const color = isPk ? getColorForPkLine(displayLine, heroName ?? "") : getColor(line);
-        const isIncoming = isPk && line.includes("наносит") && line.includes("урона") && (() => {
+        let displayLine = isPk ? replaceSkillIdsWithNames(lineStr) : lineStr;
+        const color = isPk ? getColorForPkLine(displayLine, heroName ?? "") : getColor(lineStr);
+        const isIncoming = isPk && lineStr.includes("наносит") && lineStr.includes("урона") && (() => {
           const norm = (s: string) => String(s ?? "").trim().toLowerCase();
-          const m = line.match(/^(\S+)\s+(использует|атакует)/);
+          const m = lineStr.match(/^(\S+)\s+(использует|атакует)/);
           const actorName = norm(m?.[1] ?? "");
           const myName = norm(heroName ?? "");
           return myName && actorName !== myName;

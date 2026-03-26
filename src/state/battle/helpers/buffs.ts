@@ -17,14 +17,16 @@ const DEFAULT_BASE_STATS: Record<string, number> = {
 };
 
 export const cleanupBuffs = (buffs: BattleBuff[], now: number) => {
+  const list = Array.isArray(buffs) ? buffs : [];
   const seenStack = new Set<string>();
   const seenId = new Set<number>();
   const seenName = new Set<string>();
 
-  return buffs
-    .filter((b) => b.expiresAt > now)
+  return list
+    .filter((b) => b && typeof b === "object")
+    .filter((b) => Number(b.expiresAt) > now)
     .filter((b) => {
-      const isToggleBuff = b.expiresAt === Number.MAX_SAFE_INTEGER;
+      const isToggleBuff = Number(b.expiresAt) === Number.MAX_SAFE_INTEGER;
       if (!isToggleBuff) return true;
 
       const hasStack = b.stackType ? seenStack.has(b.stackType) : false;
@@ -68,9 +70,12 @@ export const applyBuffsToStats = (
   const multiplierBuffsByStat: Record<string, number> = {};
 
   // Спочатку збираємо всі бафи (effects з API може бути відсутнім — див. common-pitfalls)
-  buffs.forEach((b) => {
+  const buffList = Array.isArray(buffs) ? buffs : [];
+  buffList.forEach((b) => {
+    if (!b || typeof b !== "object") return;
     const effectList = Array.isArray(b.effects) ? b.effects : [];
     effectList.forEach((eff) => {
+      if (!eff || typeof eff !== "object") return;
       const stat = eff.stat;
       // КРИТИЧНО: mode має бути з eff.mode, якщо є multiplier - це multiplier!
       let mode = eff.mode;
