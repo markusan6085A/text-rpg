@@ -15,8 +15,9 @@ import { tvtMatches, tvtRegistrations, tvtStartedSlots, regKey } from "./store";
 import type { TvtMatchState } from "./types";
 
 const TVT_TVT_COINS = 2;
-const TVT_INV_ITEM = "coin_of_luck";
-const TVT_INV_QTY = 2;
+/** Coin of Luck на екрані персонажа — колонка `Character.coinLuck` (не стак у інвентарі: UI ховає coin_of_luck). */
+const TVT_COIN_OF_LUCK_AMOUNT = 2;
+const TVT_TVT_ITEM = "tvt_coin";
 
 const INV_MIN = 100;
 const INV_MAX = 500;
@@ -25,6 +26,24 @@ function inventoryCap(hj: any): number {
   const cap = hj?.inventoryCapacity;
   if (typeof cap !== "number" || cap < INV_MIN) return INV_MIN;
   return Math.min(cap, INV_MAX);
+}
+
+function pushStackedItem(
+  inv: any[],
+  overflow: any[],
+  cap: number,
+  itemId: string,
+  qty: number,
+  displayName: string
+): void {
+  const existing = inv.find((x: any) => (x?.id || x?.itemId) === itemId);
+  if (existing) {
+    existing.count = (existing.count ?? 1) + qty;
+  } else if (inv.length < cap) {
+    inv.push({ id: itemId, name: displayName, count: qty });
+  } else {
+    overflow.push({ id: itemId, name: displayName, count: qty });
+  }
 }
 
 function splitTeamIds(participantIds: string[]): { teamA: string[]; teamB: string[] } | null {
@@ -87,7 +106,11 @@ async function createTvtPkSession(attackerId: string, defenderId: string, tvtMat
   return session;
 }
 
-/** Після `finalizeTvtMatch`: +2 coin_of_luck у інвентар (або overflow) і +2 tvtCoins у heroJson. Викликається з `onTvtPkSessionEnded` → `finalizeTvtMatch` (швидка перемога або таймаут). */
+/**
+ * Після `finalizeTvtMatch`:
+ * - Coin of Luck на екрані персонажа: `Character.coinLuck` (+ мапінг у `hero.coinOfLuck` після GET).
+ * - TvT-монети: стак `tvt_coin` в інвентарі (або overflow) + лічильник у heroJson для мерджу.
+ */
 async function grantTvtVictoryRewards(characterIds: string[]) {
   for (const cid of characterIds) {
     const ch = await prisma.character.findUnique({
@@ -104,14 +127,7 @@ async function grantTvtVictoryRewards(characterIds: string[]) {
     const inv = Array.isArray(hj0.inventory) ? [...hj0.inventory] : [];
     const overflow = Array.isArray(hj0.overflowChest) ? [...hj0.overflowChest] : [];
     const cap = inventoryCap(hj0);
-    const existing = inv.find((x: any) => (x?.id || x?.itemId) === TVT_INV_ITEM);
-    if (existing) {
-      existing.count = (existing.count ?? 1) + TVT_INV_QTY;
-    } else if (inv.length < cap) {
-      inv.push({ id: TVT_INV_ITEM, name: TVT_INV_ITEM, count: TVT_INV_QTY });
-    } else {
-      overflow.push({ id: TVT_INV_ITEM, name: TVT_INV_ITEM, count: TVT_INV_QTY });
-    }
+    pushStackedItem(inv, overflow, cap, TVT_TVT_ITEM, TVT_TVT_COINS, "TvT Coin");
 
     const prevTvt = Number(hj0.tvtCoins ?? hj0.tvt_coins ?? 0);
     const nextBase = {
@@ -132,6 +148,7 @@ async function grantTvtVictoryRewards(characterIds: string[]) {
       data: {
         heroJson: versioned,
         lastActivityAt: new Date(),
+        coinLuck: { increment: TVT_COIN_OF_LUCK_AMOUNT },
       },
     });
   }

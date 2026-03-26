@@ -431,7 +431,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
       <div className="mt-6 px-2">
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Награда за победу команды (инвентарь + TvT монеты)
+          Награда за победу команды (Coin of Luck — баланс персонажа; TvT монеты — в инвентаре)
         </div>
         <div
           className={
@@ -443,7 +443,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
           <div className="flex items-center gap-2">
             <img src={COIN_OF_LUCK_ICON} alt="" className="w-8 h-8 object-contain" />
             <span className="text-[#f0d78c] font-semibold">×{TVT_REWARD_COIN_OF_LUCK}</span>
-            <span className="text-[11px] text-[#8a7a60]">Coin of Luck (инв.)</span>
+            <span className="text-[11px] text-[#8a7a60]">Coin of Luck</span>
           </div>
           <div className="flex items-center gap-2">
             <img src={TVT_COIN_ICON} alt="" className="w-8 h-8 object-contain" />

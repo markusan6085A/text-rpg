@@ -155,7 +155,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
   );
 
   const ADMIN_NO_GIVE_IDS = new Set([
-    "adena", "coin_of_luck", "coins_silver", "ancient_adena",
+    "adena", "coin_of_luck", "coins_silver", "ancient_adena", "tvt_coin",
     "overflow_chest", "current_character_id",
   ]);
 

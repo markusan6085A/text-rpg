@@ -292,6 +292,16 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     icon: "/items/drops/resources/Etc_coin_of_fair_i00_0.jpg",
     description: "Валюта для обміну.",
   },
+  /** Валюта TvT-магазину; видається переможцям матчу (стак в інвентарі). */
+  tvt_coin: {
+    id: "tvt_coin",
+    name: "TvT Coin",
+    kind: "resource",
+    slot: "resource",
+    stackable: true,
+    icon: "/items/drops/resources/Etc_event_glitter_medal_i00_0.jpg",
+    description: "Монета за перемогу в TvT.",
+  },
 
   // ===== FISHING - FISH (Drop items) =====
   fish_tuna: {

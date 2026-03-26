@@ -109,7 +109,7 @@ export function isResourceItem(def: ItemDefinition | undefined): boolean {
 /** Повертає ціну продажу для предмета. null = не продається. */
 export function getSellPrice(itemId: string, itemDef?: ItemDefinition | null): number | null {
   // Валюта, медаль печатей, Festival Adena — не продаються (до пошуку def)
-  if (["adena", "coin_of_luck", "coins_silver", "ancient_adena", "seven_seals_medal", "coin_of_fair"].includes(itemId)) {
+  if (["adena", "coin_of_luck", "coins_silver", "ancient_adena", "seven_seals_medal", "coin_of_fair", "tvt_coin"].includes(itemId)) {
     return null;
   }
 
