@@ -189,7 +189,6 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
   const myRegSlotId = tvtState?.myRegistration?.slotId;
   const regs = tvtState?.registrationsBySlot ?? {};
-  const dailyRegCount = typeof regs["daily"] === "number" ? regs["daily"] : 0;
   const hasActiveMatch = Boolean(tvtState?.hasActiveMatch);
   const myMatchActive = tvtState?.myMatch?.status === "active";
   const showRealBattle = hasActiveMatch || myMatchActive;
@@ -200,13 +199,15 @@ export default function TvtManagerScreen({ navigate }: Props) {
   );
 
   useEffect(() => {
-    const st0 = slotsForUi[0];
-    if (!st0 || gameMinutesNow == null) return;
-    const st = getSlotStatusFromMinutes(gameMinutesNow, st0);
-    if (st.phase !== "battle" || showRealBattle || dailyRegCount < 2) return;
+    if (gameMinutesNow == null) return;
+    const battleSt = slotStatuses.find((s) => s.phase === "battle");
+    if (!battleSt || showRealBattle) return;
+    const raw = regs[battleSt.slot.id] as number | undefined;
+    const cnt = typeof raw === "number" ? raw : 0;
+    if (cnt < 2) return;
     const iv = setInterval(() => void loadState(), 5_000);
     return () => clearInterval(iv);
-  }, [gameMinutesNow, showRealBattle, dailyRegCount, loadState, slotsForUi]);
+  }, [gameMinutesNow, showRealBattle, loadState, slotStatuses, regs]);
 
   /** Перехід у бій лише якщо є реальний матч на сервері або ти вже в матчі. */
   useEffect(() => {
@@ -275,16 +276,21 @@ export default function TvtManagerScreen({ navigate }: Props) {
             {gameMinutesNow == null ? "…" : formatMinutesAsClock(gameMinutesNow)}
           </span>
           <span className="text-[#6a5c48]"> (с сервера)</span>
-          {slotsForUi[0] ? (
+          {slotsForUi.length > 0 ? (
             <>
               {" · "}
-              регистрация {formatHM(slotsForUi[0].registrationOpen)} — старт {formatHM(slotsForUi[0].battleStart)}
+              {slotsForUi.map((s, i) => (
+                <span key={s.id}>
+                  {i > 0 ? " · " : ""}
+                  {formatHM(s.registrationOpen)}—{formatHM(s.battleStart)}
+                </span>
+              ))}
             </>
           ) : null}
         </p>
-        {slotsForUi[0] ? (
+        {slotsForUi.length > 0 ? (
           <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2 leading-snug" : "text-xs text-gray-500 mb-2"}>
-            Запись только с {formatHM(slotsForUi[0].registrationOpen)} до {formatHM(slotsForUi[0].battleStart)} (5 минут в сутки, игровое время).
+            Запись только в окна регистрации по слотам ниже (игровое время).
           </p>
         ) : null}
         {gameMinutesNow == null && !tvtErr ? (
