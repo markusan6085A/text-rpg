@@ -695,6 +695,8 @@ export interface TvtStateResponse {
   slots: TvtSlotDef[];
   /** Кількість записаних персонажів по слоту (без id). */
   registrationsBySlot: Record<string, number>;
+  /** Є хоча б один активний матч TvT сьогодні (щоб UI не писав «бій», якщо матчу немає). */
+  hasActiveMatch: boolean;
   myRegistration: { dayKey: string; slotId: string } | null;
   myMatch: {
     id: string;

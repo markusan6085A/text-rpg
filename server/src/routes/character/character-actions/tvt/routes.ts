@@ -118,6 +118,14 @@ export async function registerTvtRoutes(app: FastifyInstance) {
       }
     }
 
+    let hasActiveMatch = false;
+    for (const m of tvtMatches.values()) {
+      if (m.dayKey === dayKey && m.status === "active") {
+        hasActiveMatch = true;
+        break;
+      }
+    }
+
     const t = Date.now();
     return reply.send({
       ok: true,
@@ -126,6 +134,7 @@ export async function registerTvtRoutes(app: FastifyInstance) {
       dayKey,
       slots: TVT_DAILY_SLOTS,
       registrationsBySlot,
+      hasActiveMatch,
       myRegistration,
       myMatch,
     });

@@ -33,6 +33,14 @@ function phaseLabelRu(phase: TvtPhase): string {
   }
 }
 
+/** Часове вікно «бой» без реального матчу на сервері — не показуємо «іде бій». */
+function uiPhaseLabel(phase: TvtPhase, hasActiveMatch: boolean, myMatchActive: boolean): string {
+  if (phase === "battle" && !hasActiveMatch && !myMatchActive) {
+    return "нет матча";
+  }
+  return phaseLabelRu(phase);
+}
+
 function formatTvtLoadError(e: unknown): string {
   const msg = e && typeof e === "object" && "message" in e ? String((e as { message?: string }).message) : "";
   const lower = msg.toLowerCase();
@@ -123,16 +131,19 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
   const myRegSlotId = tvtState?.myRegistration?.slotId;
   const regs = tvtState?.registrationsBySlot ?? {};
+  const hasActiveMatch = Boolean(tvtState?.hasActiveMatch);
+  const myMatchActive = tvtState?.myMatch?.status === "active";
+  const showRealBattle = hasActiveMatch || myMatchActive;
 
-  const inBattlePhase = useMemo(
+  const inBattleTimeWindow = useMemo(
     () => slotStatuses.some((s) => s.phase === "battle"),
     [slotStatuses]
   );
 
-  /** Перехід у бій TvT лише коли можливий бій: рідкий poll (30 с), не постійно. */
+  /** Перехід у бій лише якщо є реальний матч на сервері або ти вже в матчі. */
   useEffect(() => {
     if (!cid || !hero) return;
-    const needArenaPoll = tvtState?.myMatch?.status === "active" || inBattlePhase;
+    const needArenaPoll = myMatchActive || (hasActiveMatch && inBattleTimeWindow);
     if (!needArenaPoll) return;
     const tick = async () => {
       try {
@@ -148,7 +159,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
     void tick();
     const iv = setInterval(tick, 30_000);
     return () => clearInterval(iv);
-  }, [cid, hero, navigate, tvtState?.myMatch?.status, inBattlePhase]);
+  }, [cid, hero, navigate, tvtState?.myMatch?.status, hasActiveMatch, inBattleTimeWindow]);
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-2 sm:p-3` : "w-full px-3 py-4"}>
@@ -163,13 +174,12 @@ export default function TvtManagerScreen({ navigate }: Props) {
       </div>
 
       <p className={isL2 ? "mx-2 mt-3 text-[12px] text-[#a89878] leading-snug" : "mx-2 mt-3 text-sm text-gray-400"}>
-        Участники делятся на две команды (любое число игроков). Побеждает команда, которая выбьет соперников.
+        Две команды на сервере. Побеждает та, что выбьет соперников.
       </p>
 
       <div className="mt-3 px-2 flex flex-wrap gap-2">
         <button type="button" className={rowBtn} onClick={() => navigate("/tvt-shop")}>
           <span className="text-[#e8c56e] font-semibold">TvT магазин</span>
-          <span className="block text-[11px] text-[#8a7a60] mt-0.5">отдельная страница</span>
         </button>
       </div>
 
@@ -191,9 +201,6 @@ export default function TvtManagerScreen({ navigate }: Props) {
             Обновить
           </button>
         </div>
-        <p className={isL2 ? "text-[10px] text-[#6a5c48] mb-1" : "text-[10px] text-gray-600 mb-1"}>
-          Данные с сервера: при открытии страницы, по кнопке «Обновить» и при возврате на вкладку (без постоянного опроса).
-        </p>
         <p className={isL2 ? "text-[11px] text-[#a89878] mb-2" : "text-xs text-gray-500 mb-2"}>
           Игровое время{" "}
           <span className="text-[#e8c56e] font-semibold">{formatMinutesAsClock(gameMinutesNow)}</span>
@@ -209,6 +216,8 @@ export default function TvtManagerScreen({ navigate }: Props) {
           {slotStatuses.map((st) => {
             const raw = regs[st.slot.id] as number | string[] | undefined;
             const count = typeof raw === "number" ? raw : Array.isArray(raw) ? raw.length : 0;
+            const phaseUi = uiPhaseLabel(st.phase, hasActiveMatch, myMatchActive);
+            const fakeBattleUi = st.phase === "battle" && !showRealBattle;
             return (
               <div
                 key={st.slot.id}
@@ -224,12 +233,12 @@ export default function TvtManagerScreen({ navigate }: Props) {
                     className={
                       st.phase === "registration"
                         ? "text-[#7d9b7a] text-[11px]"
-                        : st.phase === "battle"
+                        : st.phase === "battle" && !fakeBattleUi
                           ? "text-[#d4786a] text-[11px]"
                           : "text-[#8a7a60] text-[11px]"
                     }
                   >
-                    {phaseLabelRu(st.phase)}
+                    {phaseUi}
                   </span>
                 </div>
                 <div className="text-[11px] text-[#a89878] mt-1">{formatSlotSchedule(st.slot)}</div>
@@ -261,7 +270,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
                     Запись с {formatHM(st.slot.registrationOpen)} (ещё не время)
                   </button>
                 )}
-                {cid && (st.phase === "battle" || st.phase === "ended") && (
+                {cid && st.phase === "battle" && !showRealBattle && (
                   <button
                     type="button"
                     disabled
@@ -271,7 +280,33 @@ export default function TvtManagerScreen({ navigate }: Props) {
                         : "mt-2 w-full py-1.5 rounded bg-gray-800 text-xs text-gray-500 cursor-not-allowed"
                     }
                   >
-                    {st.phase === "battle" ? "Регистрация закрыта (идёт бой)" : "Регистрация закрыта"}
+                    Матч не начался (мало участников или не записались)
+                  </button>
+                )}
+                {cid && st.phase === "battle" && showRealBattle && (
+                  <button
+                    type="button"
+                    disabled
+                    className={
+                      isL2
+                        ? "mt-2 w-full py-1.5 rounded border border-[#5c4a32]/40 text-[11px] text-[#8a7a60] opacity-80 cursor-not-allowed"
+                        : "mt-2 w-full py-1.5 rounded bg-gray-800 text-xs text-gray-500 cursor-not-allowed"
+                    }
+                  >
+                    Регистрация закрыта (идёт бой)
+                  </button>
+                )}
+                {cid && st.phase === "ended" && (
+                  <button
+                    type="button"
+                    disabled
+                    className={
+                      isL2
+                        ? "mt-2 w-full py-1.5 rounded border border-[#5c4a32]/40 text-[11px] text-[#8a7a60] opacity-80 cursor-not-allowed"
+                        : "mt-2 w-full py-1.5 rounded bg-gray-800 text-xs text-gray-500 cursor-not-allowed"
+                    }
+                  >
+                    Регистрация закрыта
                   </button>
                 )}
                 {!cid && st.phase === "registration" && (
