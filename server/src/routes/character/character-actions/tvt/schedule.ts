@@ -24,15 +24,34 @@ export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
   { id: "daily", label: "TvT", registrationOpen: { h: 16, m: 5 }, battleStart: { h: 16, m: 10 } },
 ];
 
-/** Секунди від півночі в ігровій зоні — однакова межа з клієнтом (gameClock). Формат sv-SE стабільний у Node. */
+/** Секунди від півночі в ігровій зоні — однакова межа з клієнтом (gameClock). Intl надійніший за regex по sv-SE (Node без ICU → match null → 0 → реєстрація завжди закрита). */
 function secondsSinceMidnightGame(d: Date): number {
-  const s = d.toLocaleString("sv-SE", { timeZone: GAME_TZ });
-  const m = s.match(/\s(\d{1,2}):(\d{2}):(\d{2})/);
-  if (!m) return 0;
-  const hh = Number(m[1]);
-  const mm = Number(m[2]);
-  const ss = Number(m[3]);
-  return (hh % 24) * 3600 + (mm % 60) * 60 + (ss % 60);
+  try {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: GAME_TZ,
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: false,
+    });
+    let hh = 0;
+    let mm = 0;
+    let ss = 0;
+    for (const p of fmt.formatToParts(d)) {
+      if (p.type === "hour") hh = Number(p.value) || 0;
+      if (p.type === "minute") mm = Number(p.value) || 0;
+      if (p.type === "second") ss = Number(p.value) || 0;
+    }
+    return (hh % 24) * 3600 + (mm % 60) * 60 + (ss % 60);
+  } catch {
+    const s = d.toLocaleString("sv-SE", { timeZone: GAME_TZ });
+    const m = s.match(/\s(\d{1,2}):(\d{2}):(\d{2})/);
+    if (!m) return 0;
+    const hh = Number(m[1]);
+    const mm = Number(m[2]);
+    const sec = Number(m[3]);
+    return (hh % 24) * 3600 + (mm % 60) * 60 + (sec % 60);
+  }
 }
 
 function toSecondsHM(t: TimeHM): number {

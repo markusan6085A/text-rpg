@@ -90,6 +90,12 @@ export default function TvtManagerScreen({ navigate }: Props) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [loadState]);
 
+  /** Підтягуємо serverNow/serverMinutes, щоб фази не роз’їхались після довгого відкритої вкладки. */
+  useEffect(() => {
+    const iv = setInterval(() => void loadState(), 60_000);
+    return () => clearInterval(iv);
+  }, [loadState]);
+
   const handleRegister = async (slotId: string) => {
     if (!cid) return;
     setBusy(true);
@@ -121,8 +127,23 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const rowBtn =
     "w-full rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] px-3 py-2.5 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/50 hover:brightness-110 transition-all";
 
-  /** Той самий «ігровий» час, що в новинах (Europe/Warsaw), не UTC сервера. */
-  const gameMinutesNow = useMemo(() => getGameMinutesSinceMidnight(), [clockTick]);
+  /**
+   * Ігрові хвилини: після відповіді GET /tvt/state — з знімка сервера (той самий годинник, що реєстрація).
+   * Інакше локальний gameClock (до першого state).
+   */
+  const gameMinutesNow = useMemo(() => {
+    const s = tvtState;
+    if (
+      s != null &&
+      typeof s.serverMinutesSinceMidnight === "number" &&
+      Number.isFinite(s.serverNow)
+    ) {
+      const elapsedMin = Math.floor((Date.now() - s.serverNow) / 60_000);
+      const x = s.serverMinutesSinceMidnight + elapsedMin;
+      return ((Math.floor(x) % 1440) + 1440) % 1440;
+    }
+    return getGameMinutesSinceMidnight();
+  }, [clockTick, tvtState?.serverMinutesSinceMidnight, tvtState?.serverNow]);
 
   const slotStatuses = useMemo(
     () => TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(gameMinutesNow, s)),
