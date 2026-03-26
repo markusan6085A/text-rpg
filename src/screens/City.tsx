@@ -303,7 +303,11 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
           <button
             className={svcBtn("text-[#ff8c00] hover:text-white")}
-            onClick={() => openFeature("TvT Менеджер")}
+            onClick={() => {
+              updateHero({ location: "" } as any);
+              window.scrollTo(0, 0);
+              navigate("/tvt");
+            }}
           >
             <img src="/assets/quest.png" alt="TvT Менеджер" className={ico} />
             <span>TvT Менеджер</span>

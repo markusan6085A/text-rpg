@@ -44,6 +44,8 @@ import Leaderboard from "./screens/Leaderboard";
 import ArenaLobby from "./screens/arena/ArenaLobby";
 import ArenaMatchScreen from "./screens/arena/ArenaMatchScreen";
 import PvpArenaStatsScreen from "./screens/arena/PvpArenaStatsScreen";
+import TvtManagerScreen from "./screens/tvt/TvtManagerScreen";
+import TvtShopScreen from "./screens/tvt/TvtShopScreen";
 import Help from "./screens/Help";
 import ExpTable from "./screens/ExpTable";
 import Settings from "./screens/Settings";
@@ -650,6 +652,12 @@ function AppInner() {
 
     case "/pvp-stats":
       return renderWithLayout(<PvpArenaStatsScreen navigate={navigate} key={`pvp-stats-${refreshKey}`} />);
+
+    case "/tvt":
+      return renderWithLayout(<TvtManagerScreen navigate={navigate} key={`tvt-${refreshKey}`} />);
+
+    case "/tvt-shop":
+      return renderWithLayout(<TvtShopScreen navigate={navigate} key={`tvt-shop-${refreshKey}`} />);
 
     case "/admin/login":
       return (
