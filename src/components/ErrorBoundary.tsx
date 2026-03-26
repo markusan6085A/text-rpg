@@ -20,9 +20,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    if (import.meta.env.DEV) {
-      console.error("[ErrorBoundary]", error, info.componentStack);
-    }
+    // Завжди логувати: у production import.meta.env.DEV = false, інакше дебаг неможливий.
+    console.error("[ErrorBoundary]", error?.message ?? error, error, info.componentStack);
   }
 
   reset = () => {

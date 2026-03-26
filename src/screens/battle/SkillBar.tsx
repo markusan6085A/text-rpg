@@ -76,14 +76,15 @@ function SkillCooldownLayer({
   attackIntervalMs: number;
   uiL2: boolean;
 }) {
-  const remaining = Math.max(0, readyAt - now);
-  if (remaining <= 0) return null;
+  const remaining = Math.max(0, Number(readyAt) - now);
+  const safeRem = Number.isFinite(remaining) ? remaining : 0;
+  if (safeRem <= 0) return null;
 
   if (isBaseAttack && attackIntervalMs > 0) {
-    const sweep = Math.min(1, remaining / attackIntervalMs);
+    const sweep = Math.min(1, safeRem / attackIntervalMs);
     const deg = 360 * sweep;
     const label =
-      attackIntervalMs < 1800 ? (remaining / 1000).toFixed(1) : String(Math.max(1, Math.ceil(remaining / 1000)));
+      attackIntervalMs < 1800 ? (safeRem / 1000).toFixed(1) : String(Math.max(1, Math.ceil(safeRem / 1000)));
     return (
       <div className="absolute inset-0 z-10 rounded-md overflow-hidden pointer-events-none">
         <div
@@ -105,7 +106,7 @@ function SkillCooldownLayer({
     );
   }
 
-  const cdLeft = Math.max(0, Math.ceil(remaining / 1000));
+  const cdLeft = Math.max(0, Math.ceil(safeRem / 1000));
   return (
     <div
       className="absolute inset-0 z-10 bg-black/75 text-white text-xs flex items-center justify-center font-bold rounded-md"

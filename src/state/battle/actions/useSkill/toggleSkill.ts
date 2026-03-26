@@ -4,6 +4,7 @@ import type { SkillDefinition } from "../../../../data/skills/types";
 import type { Setter } from "./helpers";
 import { createIsSameBuff } from "./buffHelpers";
 import { skillDefIsToggle } from "../../loadout";
+import { recalculateAllStats } from "../../../../utils/stats/recalculateAllStats";
 
 /**
  * Перевіряє, чи toggle скіл вже активний, і якщо так - вимикає його
@@ -44,7 +45,16 @@ export function handleToggleOff(
   const curHP = Math.min(maxHp, hero.hp ?? maxHp);
   const curMP = Math.min(maxMp, hero.mp ?? maxMp);
   const curCP = Math.min(maxCp, hero.cp ?? maxCp);
-  updateHero({ hp: curHP, mp: curMP, cp: curCP });
+  // Як у handleBuffSkill після зміни бафів: перерахунок battleStats — інакше UI/наступні кадри можуть отримати неконсистентні стати (toggle Vicious Stance тощо).
+  let battleStatsPatch: Partial<Hero> = {};
+  try {
+    const heroForRecalc = { ...hero, hp: curHP, mp: curMP, cp: curCP };
+    const recalculated = recalculateAllStats(heroForRecalc, filtered);
+    battleStatsPatch = { battleStats: recalculated.baseFinalStats };
+  } catch (e) {
+    console.warn("[handleToggleOff] recalculateAllStats failed", e);
+  }
+  updateHero({ hp: curHP, mp: curMP, cp: curCP, ...battleStatsPatch });
   
   // Toggle скіли мають cooldown (зазвичай 1 секунда) після вимикання
   const cooldownSec = def.cooldown ?? 1;
