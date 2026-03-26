@@ -8,9 +8,9 @@ import {
   formatMinutesAsClock,
   formatSlotSchedule,
   getSlotStatusFromMinutes,
-  minutesSinceMidnightFromDate,
   type TvtPhase,
 } from "./tvtSchedule";
+import { getGameMinutesSinceMidnight } from "../../utils/gameClock";
 import { COIN_OF_LUCK_ICON, TVT_COIN_ICON, TVT_REWARD_COIN_OF_LUCK, TVT_REWARD_TVT_COINS } from "./tvtRewards";
 import { getTvtState, registerTvt, unregisterTvt, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
 
@@ -49,7 +49,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const characterId = useCharacterStore((s) => s.characterId);
   const cid = (characterId || hero?.id || "").trim();
 
-  /** Оновлення кожні 10 с, щоб useMemo з «ігровим» часом не кешував стару фазу (був баг «ожидание» під час реєстрації). */
+  /** Тік 1 с — той самий ритм, що годинник у новинах; фази TvT від ігрового часу (Warsaw). */
   const [clockTick, setClockTick] = useState(0);
   const [tvtState, setTvtState] = useState<TvtStateResponse | null>(null);
   const [tvtErr, setTvtErr] = useState<string | null>(null);
@@ -66,7 +66,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
   }, [cid]);
 
   useEffect(() => {
-    const t = setInterval(() => setClockTick((x) => x + 1), 10_000);
+    const t = setInterval(() => setClockTick((x) => x + 1), 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -113,22 +113,12 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const rowBtn =
     "w-full rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] px-3 py-2.5 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/50 hover:brightness-110 transition-all";
 
-  /** «Ігровий» час сервера; clockTick змушує перерахунок Date.now() (не кешувати стару фазу). */
-  const effectiveServerMinutes = useMemo(() => {
-    if (
-      typeof tvtState?.serverMinutesSinceMidnight === "number" &&
-      typeof tvtState?.serverNow === "number"
-    ) {
-      const elapsedMin = (Date.now() - tvtState.serverNow) / 60000;
-      const m = tvtState.serverMinutesSinceMidnight + elapsedMin;
-      return ((m % 1440) + 1440) % 1440;
-    }
-    return minutesSinceMidnightFromDate(new Date());
-  }, [tvtState?.serverMinutesSinceMidnight, tvtState?.serverNow, clockTick]);
+  /** Той самий «ігровий» час, що в новинах (Europe/Warsaw), не UTC сервера. */
+  const gameMinutesNow = useMemo(() => getGameMinutesSinceMidnight(), [clockTick]);
 
   const slotStatuses = useMemo(
-    () => TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(effectiveServerMinutes, s)),
-    [effectiveServerMinutes]
+    () => TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(gameMinutesNow, s)),
+    [gameMinutesNow]
   );
 
   const myRegSlotId = tvtState?.myRegistration?.slotId;
@@ -205,8 +195,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
           Данные с сервера: при открытии страницы, по кнопке «Обновить» и при возврате на вкладку (без постоянного опроса).
         </p>
         <p className={isL2 ? "text-[11px] text-[#a89878] mb-2" : "text-xs text-gray-500 mb-2"}>
-          Игровое время (сервер):{" "}
-          <span className="text-[#e8c56e] font-semibold">{formatMinutesAsClock(effectiveServerMinutes)}</span>
+          Игровое время{" "}
+          <span className="text-[#e8c56e] font-semibold">{formatMinutesAsClock(gameMinutesNow)}</span>
+          <span className="text-[#6a5c48]"> (как в новостях)</span>
           {TVT_DAILY_SLOTS[0] ? (
             <>
               {" · "}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getNews, type NewsItem } from "../utils/api";
+import { formatGameClockHHMM } from "../utils/gameClock";
 import { getGameTimeTag } from "../utils/news";
 import { itemsDB } from "../data/items/itemsDB";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -157,16 +158,9 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
   }, [page]);
 
   useEffect(() => {
-    // Оновлюємо польський час кожну секунду
-    const updatePolandTime = () => {
-      const now = new Date();
-      const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
-      const hours = polandTime.getHours().toString().padStart(2, "0");
-      const minutes = polandTime.getMinutes().toString().padStart(2, "0");
-      setGameTime(`${hours}:${minutes}`);
-    };
-    updatePolandTime();
-    const interval = setInterval(updatePolandTime, 1000);
+    const tick = () => setGameTime(formatGameClockHHMM());
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, []);
 

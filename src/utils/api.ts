@@ -689,7 +689,7 @@ export type TvtSlotDef = {
 export interface TvtStateResponse {
   ok: boolean;
   serverNow: number;
-  /** Хвилини від півночі за годинником сервера (той самий час, що для реєстрації TvT). */
+  /** Хвилини від півночі в ігровій зоні (Europe/Warsaw), як на бекенді для TvT — для діагностики; UI фаз бере з gameClock. */
   serverMinutesSinceMidnight: number;
   dayKey: string;
   slots: TvtSlotDef[];
