@@ -887,7 +887,22 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             // 3. Оновлюємо hero в store з актуальною ревізією та змердженими даними
             const heroBase = currentHero ?? hero;
             if (heroBase) {
-              const newRevision = (currentCharacter as any).heroRevision || (currentCharacter as any).revision || (serverHeroJson as any).heroRevision;
+              // 🔥 GET може відстати від БД (кеш/репліка); тіло 409 вже оновило serverState — не знижувати ревізію.
+              const fromGet = Number(
+                (currentCharacter as any).heroRevision ??
+                  (currentCharacter as any).revision ??
+                  (serverHeroJson as any).heroRevision ??
+                  0
+              );
+              const storeRev = Number(useHeroStore.getState().serverState?.heroRevision ?? 0);
+              const localRev = Number(
+                (heroBase as any).heroRevision ?? (heroBase as any).heroJson?.heroRevision ?? 0
+              );
+              const newRevision = Math.max(
+                Number.isFinite(fromGet) ? fromGet : 0,
+                Number.isFinite(storeRev) ? storeRev : 0,
+                Number.isFinite(localRev) ? localRev : 0
+              );
               const progRetry = readCharacterProgress(currentCharacter);
               const serverLevel = progRetry.level;
               const serverSp = progRetry.sp;
@@ -926,6 +941,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
                   heroBuffs: cleanedBuffs,
                   adena: mergedAdena,
                   coinOfLuck: mergedCoinLuck,
+                  heroRevision: newRevision,
                 },
               };
 
