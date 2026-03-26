@@ -23,6 +23,7 @@ import { adminExtendedRoutes } from "./routes/adminExtended";
 import { adminLogsRoutes } from "./routes/adminLogs";
 import { adminPlayerActivityRoutes } from "./routes/adminPlayerActivity";
 import { adminSignalsRoutes } from "./routes/adminSignals";
+import { clientErrorLogRoutes } from "./routes/clientErrorLog";
 import { runAdminSignalEmailJob } from "./jobs/adminSignalEmailJob";
 import { premiumRoutes } from "./routes/premium";
 import { marketRoutes, runMarketExpireStaleListings } from "./routes/market";
@@ -219,6 +220,7 @@ const start = async () => {
     await app.register(adminPlayerActivityRoutes, { prefix: "/admin/activity" });
     await app.register(adminSignalsRoutes, { prefix: "/admin/signals" });
 
+    await app.register(clientErrorLogRoutes);
     await app.register(characterRoutes);
     await app.register(marketRoutes);
     await app.register(premiumRoutes);
@@ -247,7 +249,8 @@ const start = async () => {
         request.url.startsWith("/market") ||
         request.url.startsWith("/premium") ||
         request.url.startsWith("/health") ||
-        request.url.startsWith("/test-db")
+        request.url.startsWith("/test-db") ||
+        request.url.startsWith("/client-error-log")
       ) {
         return reply.code(404).send({ error: "Not found" });
       }

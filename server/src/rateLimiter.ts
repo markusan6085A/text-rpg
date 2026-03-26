@@ -8,7 +8,7 @@ interface RateLimitStore {
   };
 }
 
-class RateLimiter {
+export class RateLimiter {
   private store: RateLimitStore = {};
   private cleanupInterval: NodeJS.Timeout;
 

@@ -94,6 +94,47 @@ export function getAccessToken(): string | null {
 /** Результат refresh: успіх з токеном, auth failure (401/403), або мережева помилка. */
 type RefreshResult = { token: string } | { authFailure: true } | { authFailure: false };
 
+/** Звіт у журнал адміна (AdminActionLog, system.client_error) — 409/5xx на /characters/*. Без await у критичному шляху. */
+async function reportClientErrorToServer(
+  endpoint: string,
+  status: number,
+  errorBody: unknown
+): Promise<void> {
+  try {
+    const token = getAccessToken();
+    if (!token) return;
+    const { useCharacterStore } = await import("../state/characterStore");
+    const { useHeroStore } = await import("../state/heroStore");
+    const characterId = useCharacterStore.getState().characterId;
+    const characterName = useHeroStore.getState().hero?.name;
+    const err = errorBody as Record<string, unknown>;
+    const code = String(err?.error ?? err?.reason ?? `http_${status}`).slice(0, 120);
+    const detail = [err?.message, err?.details]
+      .filter((x) => x != null && String(x).trim() !== "")
+      .map((x) => String(x))
+      .join(" ");
+    const message = detail ? detail.slice(0, 500) : undefined;
+    await fetch(`${API_URL}/client-error-log`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        characterId: characterId || undefined,
+        characterName: characterName || undefined,
+        code,
+        message,
+        httpStatus: status,
+        path: endpoint.slice(0, 300),
+      }),
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
 async function refreshAccessToken(): Promise<RefreshResult> {
   const REFRESH_TIMEOUT_MS = 8000; // При поганому інтернеті не зависати
   const ctrl = new AbortController();
@@ -186,6 +227,13 @@ async function apiRequest<T>(
     errorWithStatus.status = response.status;
     errorWithStatus.details = (errorBody as any).details || (errorBody as any).errors;
     errorWithStatus.body = errorBody;
+
+    const reportClient =
+      endpoint.includes("/characters/") &&
+      (response.status === 409 || (response.status >= 500 && response.status < 600));
+    if (reportClient) {
+      void reportClientErrorToServer(endpoint, response.status, errorBody);
+    }
 
     if (response.status === 401 || response.status === 403) {
       useAuthStore.getState().logout();

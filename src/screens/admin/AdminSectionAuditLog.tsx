@@ -19,13 +19,21 @@ export function AdminSectionAuditLog() {
   const [total, setTotal] = useState(0);
   const limit = 20;
 
-  const loadLogs = async (nextPage: number = page) => {
+  const loadLogs = async (
+    nextPage: number = page,
+    filterOverride?: { action?: string; adminLogin?: string }
+  ) => {
+    const act = filterOverride?.action !== undefined ? filterOverride.action : action;
+    const adm = filterOverride?.adminLogin !== undefined ? filterOverride.adminLogin : adminLogin;
+    if (filterOverride?.action !== undefined) setAction(filterOverride.action);
+    if (filterOverride?.adminLogin !== undefined) setAdminLogin(filterOverride.adminLogin);
+
     setLoading(true);
     setError(null);
     try {
       const res = await getAdminActionLogs({
-        action: action.trim() || undefined,
-        adminLogin: adminLogin.trim() || undefined,
+        action: act.trim() || undefined,
+        adminLogin: adm.trim() || undefined,
         target: target.trim() || undefined,
         status: status.trim() || undefined,
         from: fromDate ? new Date(fromDate).toISOString() : undefined,
@@ -75,6 +83,7 @@ export function AdminSectionAuditLog() {
       "admin.send_letter": "Системное письмо",
       "admin.disband_clan": "Роспуск клана",
       "admin.kick_from_clan": "Исключение из клана",
+      "system.client_error": "Помилка клієнта (API / гра)",
     }),
     []
   );
@@ -143,7 +152,10 @@ export function AdminSectionAuditLog() {
   return (
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3">
       <h2 className="text-sm font-semibold mb-2" style={style}>Журнал действий админов</h2>
-      <p className="text-xs text-gray-500 mb-2">Лог всех админ-действий. Фильтры, экспорт CSV.</p>
+      <p className="text-xs text-gray-500 mb-2">
+        Лог админ-действий и системных ошибок клиента (409, 5xx на /characters — залогиненный игрок).
+        Фильтр по «Логин админа»: <span className="text-[#c7ad80]/90">system</span> — только записи с игры.
+      </p>
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <input value={action} onChange={(e) => setAction(e.target.value)} placeholder="Код действия" className={`${inputCl} w-40`} />
         <input value={adminLogin} onChange={(e) => setAdminLogin(e.target.value)} placeholder="Логин админа" className={`${inputCl} w-36`} />
@@ -176,6 +188,13 @@ export function AdminSectionAuditLog() {
           disabled={!currentAdminLogin}
         >
           Мои действия
+        </button>
+        <button
+          type="button"
+          onClick={() => void loadLogs(1, { adminLogin: "system", action: "system.client_error" })}
+          className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+        >
+          Системні (гра)
         </button>
         <button
           type="button"
