@@ -54,21 +54,20 @@ function secondsSinceMidnightGame(d: Date): number {
   }
 }
 
-function toSecondsHM(t: TimeHM): number {
-  return t.h * 3600 + t.m * 60;
-}
-
 /** Хвилини від півночі (для API / діагностики). */
 export function minutesSinceMidnight(d: Date): number {
   return Math.floor(secondsSinceMidnightGame(d) / 60);
 }
 
-/** Реєстрація відкрита: [regOpen, battleStart) по секундах — без зсуву на межі хвилини. */
+/**
+ * Реєстрація відкрита: ті самі межі, що `getSlotStatusFromMinutes` на клієнті — [regOpen, battleStart) по **хвилинах** доби.
+ * Перевірка по секундах давала роз’їзд із показом «ігрових хвилин» (floor) і з API-знімком serverMinutes.
+ */
 export function isRegistrationOpenForSlot(now: Date, slot: TvtDailySlot): boolean {
-  const n = secondsSinceMidnightGame(now);
-  const a = toSecondsHM(slot.registrationOpen);
-  const b = toSecondsHM(slot.battleStart);
-  return n >= a && n < b;
+  const mins = minutesSinceMidnight(now);
+  const regOpen = slot.registrationOpen.h * 60 + slot.registrationOpen.m;
+  const battle = slot.battleStart.h * 60 + slot.battleStart.m;
+  return mins >= regOpen && mins < battle;
 }
 
 /**
@@ -76,9 +75,10 @@ export function isRegistrationOpenForSlot(now: Date, slot: TvtDailySlot): boolea
  * Раніше було 3 хв; перший тик з 0 учасниками міг позначити слот «вже стартанув» без матчу — гонка з KV.
  */
 export function isBattleStartWindow(now: Date, slot: TvtDailySlot): boolean {
-  const n = secondsSinceMidnightGame(now);
-  const b = toSecondsHM(slot.battleStart);
-  return n >= b && n < b + 15 * 60;
+  const mins = minutesSinceMidnight(now);
+  const battle = slot.battleStart.h * 60 + slot.battleStart.m;
+  const battleEnd = battle + 15;
+  return mins >= battle && mins < battleEnd;
 }
 
 /** Календарний день у ігровій зоні (для реєстрацій / матчів «сьогодні»). */
