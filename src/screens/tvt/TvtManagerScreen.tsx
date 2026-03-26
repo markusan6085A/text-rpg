@@ -21,7 +21,7 @@ type Props = {
 function phaseLabelRu(phase: TvtPhase): string {
   switch (phase) {
     case "idle":
-      return "ожидание";
+      return "до регистрации";
     case "registration":
       return "регистрация";
     case "battle":
@@ -49,7 +49,8 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const characterId = useCharacterStore((s) => s.characterId);
   const cid = (characterId || hero?.id || "").trim();
 
-  const [now, setNow] = useState(() => new Date());
+  /** Оновлення кожні 10 с, щоб useMemo з «ігровим» часом не кешував стару фазу (був баг «ожидание» під час реєстрації). */
+  const [clockTick, setClockTick] = useState(0);
   const [tvtState, setTvtState] = useState<TvtStateResponse | null>(null);
   const [tvtErr, setTvtErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -64,9 +65,8 @@ export default function TvtManagerScreen({ navigate }: Props) {
     }
   }, [cid]);
 
-  /** Локальний тік для інтерполяції «ігрового» часу (без мережі). */
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 60_000);
+    const t = setInterval(() => setClockTick((x) => x + 1), 10_000);
     return () => clearInterval(t);
   }, []);
 
@@ -113,7 +113,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const rowBtn =
     "w-full rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] px-3 py-2.5 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/50 hover:brightness-110 transition-all";
 
-  /** Той самий «ігровий» час, що на сервері для TvT (з урахуванням зміщення після serverNow). */
+  /** «Ігровий» час сервера; clockTick змушує перерахунок Date.now() (не кешувати стару фазу). */
   const effectiveServerMinutes = useMemo(() => {
     if (
       typeof tvtState?.serverMinutesSinceMidnight === "number" &&
@@ -123,8 +123,8 @@ export default function TvtManagerScreen({ navigate }: Props) {
       const m = tvtState.serverMinutesSinceMidnight + elapsedMin;
       return ((m % 1440) + 1440) % 1440;
     }
-    return minutesSinceMidnightFromDate(now);
-  }, [tvtState?.serverMinutesSinceMidnight, tvtState?.serverNow, now]);
+    return minutesSinceMidnightFromDate(new Date());
+  }, [tvtState?.serverMinutesSinceMidnight, tvtState?.serverNow, clockTick]);
 
   const slotStatuses = useMemo(
     () => TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(effectiveServerMinutes, s)),
@@ -267,7 +267,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
                         : "mt-2 w-full py-1.5 rounded bg-gray-800 text-xs text-gray-500 cursor-not-allowed"
                     }
                   >
-                    Запись с {formatHM(st.slot.registrationOpen)} (сейчас ожидание)
+                    Запись с {formatHM(st.slot.registrationOpen)} (ещё не время)
                   </button>
                 )}
                 {cid && (st.phase === "battle" || st.phase === "ended") && (
