@@ -5,7 +5,7 @@ import {
   computeBuffedMaxResources,
 } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
-import { BASE_ATTACK, getSkillDef, getSkillDefForBattle } from "../loadout";
+import { BASE_ATTACK, getSkillDef, getSkillDefForBattle, skillDefIsToggle } from "../loadout";
 import type { BattleState } from "../types";
 import { checkSkillConditions } from "../../../utils/stats/applyPassiveSkills";
 import { canAttackWithBow, isBowEquipped } from "./useSkill/arrowHelpers";
@@ -38,6 +38,7 @@ import {
   FOCUSED_FORCE_COST,
   type Setter,
 } from "./useSkill/helpers";
+import { createIsSameBuff } from "./useSkill/buffHelpers";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
 
 export const createUseSkill =
@@ -219,7 +220,9 @@ export const createUseSkill =
     const rawMpCost = levelDef.mpCost ?? 0;
     const lsGuidance = (hero.battleStats as any)?.lsGuidance ?? 0;
     const mpCost = Math.max(0, Math.round(rawMpCost * (1 - lsGuidance / 100)));
-    if ((hero.mp ?? 0) < mpCost) {
+    const isToggle = skillDefIsToggle(def);
+    const togglingToggleOff = isToggle && activeBuffs.some(createIsSameBuff(def));
+    if (!togglingToggleOff && (hero.mp ?? 0) < mpCost) {
       if (import.meta.env.DEV && skillId === 92) {
         console.warn(`[useSkill] Shield Stun (${skillId}) not enough MP. Required: ${mpCost}, Have: ${hero.mp ?? 0}`);
       }
@@ -256,30 +259,31 @@ export const createUseSkill =
       heroStats
     );
 
-    // category=buff завжди НЕ toggle — навіть якщо toggle=true в даних
-    const isToggle = def.category === "buff" ? false : (def.toggle === true);
     const cooldowns = get().cooldowns || {};
     
     if (skillId !== BASE_ATTACK.id) {
       const storedCdRaw = cooldowns[skillId];
       const storedCd = typeof storedCdRaw === "number" ? storedCdRaw : 0;
       
-      // Для toggle скілів - проста перевірка: якщо storedCd > now, то на cooldown
+      // Toggle: після вмикання ставився cooldown — він не повинен блокувати друге натискання (вимкнення)
       if (isToggle && storedCd > now) {
-        const remainingMs = storedCd - now;
-        if (import.meta.env.DEV) {
-          console.log(`[TOGGLE] Cooldown check for ${def.name} (${def.id}):`, {
-            storedCd,
-            now,
-            remainingMs,
-            remainingSeconds: Math.round(remainingMs/1000),
-            defCooldown: def.cooldown,
+        const toggleActive = activeBuffs.some(createIsSameBuff(def));
+        if (!toggleActive) {
+          const remainingMs = storedCd - now;
+          if (import.meta.env.DEV) {
+            console.log(`[TOGGLE] Cooldown check for ${def.name} (${def.id}):`, {
+              storedCd,
+              now,
+              remainingMs,
+              remainingSeconds: Math.round(remainingMs/1000),
+              defCooldown: def.cooldown,
+            });
+          }
+          setAndPersist({
+            log: [`${def.name} на перезарядці (залишилось ${Math.round(remainingMs/1000)}с)`, ...get().log].slice(0, 30),
           });
+          return;
         }
-        setAndPersist({
-          log: [`${def.name} на перезарядці (залишилось ${Math.round(remainingMs/1000)}с)`, ...get().log].slice(0, 30),
-        });
-        return;
       }
       
       // Для звичайних скілів - складніша логіка з урахуванням castSpeed

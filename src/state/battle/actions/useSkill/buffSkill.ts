@@ -23,6 +23,7 @@ import { handleSummonBuffs } from "./summonBuffs";
 import { handleWarriorBane, handleMageBane, handleDebuffSkill } from "./debuffHandlers";
 import { handleBattleRoar, handleBodyToMind, handleOtherSpecialSkill } from "./specialSkillHandlers";
 import { hasSpiritshotActive } from "./shotHelpers";
+import { skillDefIsToggle } from "../../loadout";
 
 function consumeItemsFromInventory(
   inv: HeroInventoryItem[],
@@ -167,8 +168,7 @@ export function handleBuffSkill(
     });
   }
 
-  // category=buff завжди НЕ toggle — навіть якщо toggle=true в даних
-  const isToggle = def.category === "buff" ? false : (def.toggle === true);
+  const isToggle = skillDefIsToggle(def);
   
   // 🔍 Діагностика: перевірка чи є buff з toggle:true в даних
   if (import.meta.env.DEV && def.category === "buff" && def.toggle === true) {
@@ -353,8 +353,16 @@ export function handleBuffSkill(
     healedFromMax = Math.round(healedFromMax * 2);
   }
   
-  // Toggle скіли мають cooldown (зазвичай 1 секунда) після вмикання/вимикання
-  const updatedCooldowns = { ...(get().cooldowns || {}), [skillId]: nextCD };
+  // Після вмикання toggle не ставимо cooldown на слот — інакше UI блокує друге натискання (вимкнення).
+  // Вимикання обробляє handleToggleOff і там ставить короткий cooldown.
+  const updatedCooldowns: Record<string, number> = { ...(get().cooldowns || {}) };
+  if (isToggle) {
+    if (buffWasAdded) {
+      delete updatedCooldowns[skillId];
+    }
+  } else {
+    updatedCooldowns[skillId] = nextCD;
+  }
   
   // Діагностика для toggle скілів - перевірка cooldown перед збереженням
   if (isToggle && import.meta.env.DEV) {

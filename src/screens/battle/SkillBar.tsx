@@ -2,7 +2,7 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { isShotConsumable } from "../../state/battle/actions/useSkill/shotHelpers";
 import { useHeroStore } from "../../state/heroStore";
-import { MAX_SLOTS, getSkillDefForBattle } from "../../state/battle/loadout";
+import { MAX_SLOTS, getSkillDefForBattle, skillDefIsToggle } from "../../state/battle/loadout";
 import { itemsDBWithStarter } from "../../data/items/itemsDB";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { calcAutoAttackInterval } from "../../utils/combatSpeed";
@@ -321,11 +321,21 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
               const isBaseAttackSkill = id === 0 && slotInfo?.type === "skill";
               const onCooldown = readyAt > now;
+              const toggleSkillDef =
+                typeof id === "number" && id !== 0 && hero
+                  ? getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, id)
+                  : null;
+              const toggleBuffActive =
+                !!toggleSkillDef &&
+                skillDefIsToggle(toggleSkillDef) &&
+                heroBuffs.some((b: any) => b.id === id && b.expiresAt === Number.MAX_SAFE_INTEGER);
 
               const disabled =
                 id !== null &&
                 slotInfo?.type === "skill" &&
-                (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || onCooldown);
+                (status !== "fighting" ||
+                  (!toggleBuffActive && (slotInfo.mpCost ?? 0) > heroMP) ||
+                  (onCooldown && !toggleBuffActive));
               const consumableDisabled = isConsumable && !isCharge && (slotInfo.count ?? 0) <= 0;
 
               if (id === null) {
@@ -426,11 +436,21 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
               const isBaseAttackSkill = id === 0 && slotInfo?.type === "skill";
               const onCooldown = readyAt > now;
+              const toggleSkillDef2 =
+                typeof id === "number" && id !== 0 && hero
+                  ? getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, id)
+                  : null;
+              const toggleBuffActive2 =
+                !!toggleSkillDef2 &&
+                skillDefIsToggle(toggleSkillDef2) &&
+                heroBuffs.some((b: any) => b.id === id && b.expiresAt === Number.MAX_SAFE_INTEGER);
 
               const disabled =
                 id !== null &&
                 slotInfo?.type === "skill" &&
-                (status !== "fighting" || (slotInfo.mpCost ?? 0) > heroMP || onCooldown);
+                (status !== "fighting" ||
+                  (!toggleBuffActive2 && (slotInfo.mpCost ?? 0) > heroMP) ||
+                  (onCooldown && !toggleBuffActive2));
               const consumableDisabled = isConsumable && !isCharge && (slotInfo.count ?? 0) <= 0;
 
               if (id === null) {

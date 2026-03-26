@@ -3,6 +3,7 @@ import type { Hero } from "../../../../types/Hero";
 import type { SkillDefinition } from "../../../../data/skills/types";
 import type { Setter } from "./helpers";
 import { createIsSameBuff } from "./buffHelpers";
+import { skillDefIsToggle } from "../../loadout";
 
 /**
  * Перевіряє, чи toggle скіл вже активний, і якщо так - вимикає його
@@ -17,9 +18,7 @@ export function handleToggleOff(
   setAndPersist: (updates: Partial<BattleState>) => void,
   get: () => BattleState
 ): boolean {
-  // category=buff завжди НЕ toggle — навіть якщо toggle=true в даних
-  const isToggle = def.category === "buff" ? false : (def.toggle === true);
-  if (!isToggle) {
+  if (!skillDefIsToggle(def)) {
     return false;
   }
   
