@@ -171,7 +171,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
           const clock =
             gameMinutesNow == null ? "—" : formatMinutesAsClock(gameMinutesNow);
           setTvtErr(
-            `Регистрация закрыта: сейчас ${clock} (время с сервера). Окно записи — ${formatHM(s0.registrationOpen)}–${formatHM(s0.battleStart)} (Europe/Warsaw). Если окно в интерфейсе не совпадает с API — обновите страницу (слоты с сервера).`
+            `Регистрация закрыта: сейчас ${clock} (время с сервера). Окно записи — ${formatHM(s0.registrationOpen)}–${formatHM(s0.battleStart)}. Если окно в интерфейсе не совпадает с API — обновите страницу (слоты с сервера).`
           );
         } else if (raw.toLowerCase().includes("must be online")) {
           setTvtErr(
@@ -274,7 +274,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
           <span className="text-[#e8c56e] font-semibold">
             {gameMinutesNow == null ? "…" : formatMinutesAsClock(gameMinutesNow)}
           </span>
-          <span className="text-[#6a5c48]"> (с сервера, Europe/Warsaw)</span>
+          <span className="text-[#6a5c48]"> (с сервера)</span>
           {slotsForUi[0] ? (
             <>
               {" · "}
@@ -284,12 +284,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
         </p>
         {slotsForUi[0] ? (
           <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2 leading-snug" : "text-xs text-gray-500 mb-2"}>
-            Запись только с {formatHM(slotsForUi[0].registrationOpen)} до {formatHM(slotsForUi[0].battleStart)} (5 минут в сутки, игровое время). После старта боя кнопка «Записаться» вернёт 400 — это не баг.
+            Запись только с {formatHM(slotsForUi[0].registrationOpen)} до {formatHM(slotsForUi[0].battleStart)} (5 минут в сутки, игровое время).
           </p>
         ) : null}
-        <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2 leading-snug" : "text-xs text-gray-500 mb-2"}>
-          «Записалось: N» — число <span className="text-[#c9a44c]">разных персонажей</span> (каждый со своего аккаунта нажимает «Записаться»). Отдельной админ-регистрации нет: тот же JWT и те же правила. Нужен онлайн персонажа (~10 мин активности).
-        </p>
         {gameMinutesNow == null && !tvtErr ? (
           <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2" : "text-xs text-gray-500 mb-2"}>
             Загрузка времени с сервера…
@@ -436,19 +433,19 @@ export default function TvtManagerScreen({ navigate }: Props) {
         <div
           className={
             isL2
-              ? "flex flex-wrap items-center gap-4 rounded-md border border-[#5c4a32]/40 bg-black/20 px-3 py-3"
-              : "flex flex-wrap gap-4 rounded border border-gray-700 px-3 py-3"
+              ? "flex flex-wrap items-center gap-2 rounded-md border border-[#5c4a32]/40 bg-black/20 px-2 py-2"
+              : "flex flex-wrap gap-2 rounded border border-gray-700 px-2 py-2"
           }
         >
-          <div className="flex items-center gap-2">
-            <img src={COIN_OF_LUCK_ICON} alt="" className="w-8 h-8 object-contain" />
-            <span className="text-[#f0d78c] font-semibold">×{TVT_REWARD_COIN_OF_LUCK}</span>
-            <span className="text-[11px] text-[#8a7a60]">Coin of Luck</span>
+          <div className="flex items-center gap-1">
+            <img src={COIN_OF_LUCK_ICON} alt="" className="w-4 h-4 object-contain" />
+            <span className="text-[#f0d78c] font-semibold text-[10px]">×{TVT_REWARD_COIN_OF_LUCK}</span>
+            <span className="text-[9px] text-[#8a7a60]">Coin of Luck</span>
           </div>
-          <div className="flex items-center gap-2">
-            <img src={TVT_COIN_ICON} alt="" className="w-8 h-8 object-contain" />
-            <span className="text-[#e8c56e] font-semibold">×{TVT_REWARD_TVT_COINS}</span>
-            <span className="text-[11px] text-[#8a7a60]">TvT монеты</span>
+          <div className="flex items-center gap-1">
+            <img src={TVT_COIN_ICON} alt="" className="w-4 h-4 object-contain" />
+            <span className="text-[#e8c56e] font-semibold text-[10px]">×{TVT_REWARD_TVT_COINS}</span>
+            <span className="text-[9px] text-[#8a7a60]">TvT монеты</span>
           </div>
         </div>
       </div>
