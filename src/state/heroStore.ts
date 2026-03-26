@@ -75,7 +75,11 @@ interface HeroState {
   applyServerSync: (partial: Partial<Hero>, server: Partial<ServerState>) => void;
   
   // 🔥 Оновлюємо серверний стан після GET/PATCH
-  updateServerState: (state: Partial<ServerState>) => void;
+  /** `revisionFromAuthoritativeGet`: після свіжого GET /characters/:id — heroRevision з відповіді замінює store (не Math.max зі старим), інакше stale client не відпускає expectedRevision. */
+  updateServerState: (
+    state: Partial<ServerState>,
+    opts?: { revisionFromAuthoritativeGet?: boolean }
+  ) => void;
 
   setStatus: (value: string) => void;
 
@@ -529,14 +533,16 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   },
 
   // 🔥 Оновлюємо серверний стан після GET/PATCH
-  updateServerState: (state) => {
+  updateServerState: (state, opts) => {
     const current = get().serverState;
     const hasIncomingRev =
       state.heroRevision !== undefined &&
       state.heroRevision !== null &&
       Number.isFinite(Number(state.heroRevision));
     const nextRev = hasIncomingRev
-      ? mergeHeroRevisionMonotonic(state.heroRevision, current?.heroRevision)
+      ? opts?.revisionFromAuthoritativeGet
+        ? Number(state.heroRevision)
+        : mergeHeroRevisionMonotonic(state.heroRevision, current?.heroRevision)
       : current?.heroRevision;
     set({
       serverState: {

@@ -606,6 +606,34 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     const localCoinLuck = hero.coinOfLuck ?? 0;
     const sendCoinLuck = true;
 
+    // 🔥 Pre-PUT: свіжа heroRevision з БД. Heartbeat, /state, інший таб, jobs піднімають revision, а client serverState часто лишається старим → 409.
+    try {
+      if (characterStore.characterId) {
+        const freshChar = await getCharacter(characterStore.characterId);
+        if (freshChar) {
+          const hj = (freshChar as any).heroJson || {};
+          const r = Number(hj.heroRevision);
+          const prog = readCharacterProgress(freshChar);
+          if (Number.isFinite(r)) {
+            heroStore.getState().updateServerState(
+              {
+                exp: prog.exp,
+                level: prog.level,
+                sp: prog.sp,
+                adena: Number((freshChar as any).adena ?? 0),
+                coinLuck: Number((freshChar as any).coinLuck ?? 0),
+                heroRevision: r,
+                updatedAt: Date.now(),
+              },
+              { revisionFromAuthoritativeGet: true }
+            );
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("[saveHeroToLocalStorage] Pre-PUT getCharacter revision refresh failed:", e);
+    }
+
     // 🔥 Останній read перед PUT: між обчисленням payload і fetch міг завершитись інший save / Realtime — без цього 409 revision_conflict.
     const stNow = heroStore.getState().serverState;
     const hNow = heroStore.getState().hero;
