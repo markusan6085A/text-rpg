@@ -91,9 +91,22 @@ export default function TvtManagerScreen({ navigate }: Props) {
         TvT менеджер
       </div>
 
+      <div
+        className={
+          isL2
+            ? "mx-2 mt-3 rounded-md border border-[#d4786a]/45 bg-[#1a0f0c]/80 px-3 py-2.5 text-[12px] text-[#e8c8c4] leading-snug"
+            : "mx-2 mt-3 rounded border border-red-900/60 bg-red-950/40 px-3 py-2.5 text-sm text-red-100"
+        }
+      >
+        <span className="font-semibold text-[#f0a090]">Важно:</span> бой сейчас{" "}
+        <span className="text-[#f0d0c8]">не запускается</span> — нет серверного матчмейкинга и боя TvT. Запись по времени — только{" "}
+        <span className="underline decoration-[#d4786a]/60">в этом браузере</span> (демо), не создаёт матч на сервере. Расписание и фаза «бой» —{" "}
+        <span className="text-[#c9a44c]">индикатор времени</span>, без реального события в игре.
+      </div>
+
       <div className={isL2 ? "px-2 py-3 text-[12px] text-[#a89878] leading-snug space-y-2" : "text-gray-400 text-sm space-y-2"}>
         <p>
-          Командный бой: цель — победить команду противника. Реальные матчи и матчмейкинг подключатся с сервера; здесь расписание,
+          Командный бой: цель — победить команду противника. Когда подключат сервер — появятся реальные матчи; пока здесь расписание,
           правила и предпросмотр составов.
         </p>
         <p className={isL2 ? "text-[#d4c4a8]" : "text-gray-300"}>
@@ -241,10 +254,11 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
       <div className="mt-6 px-2">
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Регистрация (локально, до сервера)
+          Локальный список (не сервер)
         </div>
         <p className="text-[11px] text-[#8a7a60] mb-2">
-          Добавляет вашего персонажа в список в этой сессии браузера. Когда на сервере появится матчмейкинг, список заменится живыми данными.
+          Кнопка ниже не ставит вас в очередь на сервере и не начинает бой. Она только сохраняет ник в памяти этой вкладки для предпросмотра
+          состава. После подключения матчмейкинга список будет общий для всех игроков.
         </p>
         {!hero ? (
           <p className="text-[#d4786a] text-[12px]">Войдите в игру, чтобы записаться.</p>
@@ -261,7 +275,8 @@ export default function TvtManagerScreen({ navigate }: Props) {
           </div>
         ) : (
           <button type="button" onClick={handleRegister} className={rowBtn}>
-            Записаться на TvT
+            <span className="text-[#e8c56e] font-semibold">Добавить себя в локальный список</span>
+            <span className="block text-[11px] text-[#8a7a60] mt-0.5 font-normal">не серверная очередь, бой не стартует</span>
           </button>
         )}
 
