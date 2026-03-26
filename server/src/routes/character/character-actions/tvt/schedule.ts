@@ -19,9 +19,9 @@ export const TVT_MATCH_MAX_MS = 15 * 60 * 1000;
 /** Без вибору цілі в фазі pick — авто-вибір противника (15 хв). */
 export const TVT_PICK_AFK_MS = 15 * 60 * 1000;
 
-/** Один щоденний слот: реєстрація 15:30–15:32 (2 хв), старт 15:32. */
+/** Один щоденний слот: реєстрація 15:40–15:42 (2 хв), старт 15:42. */
 export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
-  { id: "daily", label: "TvT", registrationOpen: { h: 15, m: 30 }, battleStart: { h: 15, m: 32 } },
+  { id: "daily", label: "TvT", registrationOpen: { h: 15, m: 40 }, battleStart: { h: 15, m: 42 } },
 ];
 
 function toMinutes(t: TimeHM): number {
