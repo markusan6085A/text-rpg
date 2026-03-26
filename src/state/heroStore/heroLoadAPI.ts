@@ -314,9 +314,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         
         // Для локально пріоритетного героя відновлюємо HP/MP/CP з урахуванням відсотка від старого макс.,
         // щоб при зміні maxHp (напр. зникли бафи або змінився екіп) відсоток здоров'я зберігався.
-        // 🔥 Консолідуємо інвентар (заряди, банки, ресурси стакаються) — mergeInventoriesUnion(inv, []) = consolidate
+        // 🔥 Union з серверним інвентарем — інакше нагороди лише в БД (TvT tvt_coin тощо) губляться: локалка без цих слотів.
         const localInv = hydratedLocalHero?.inventory ?? [];
-        const consolidatedInv = mergeInventoriesUnion(localInv, []);
+        const serverInvPreferred = Array.isArray(heroData?.inventory) ? heroData.inventory : [];
+        const consolidatedInv = mergeInventoriesUnion(localInv, serverInvPreferred);
+        const localOvPref = Array.isArray((hydratedLocalHero as any).overflowChest)
+          ? (hydratedLocalHero as any).overflowChest
+          : [];
+        const serverOvPref = Array.isArray(heroData?.overflowChest) ? heroData.overflowChest : [];
+        const mergedOverflowPreferred = mergeInventoriesUnion(localOvPref, serverOvPref);
+        const localTvtPref = Math.max(
+          Number((hydratedLocalHero as any).heroJson?.tvtCoins ?? (hydratedLocalHero as any).heroJson?.tvt_coins ?? 0),
+          0
+        );
+        const serverTvtPref = Math.max(Number(heroData?.tvtCoins ?? heroData?.tvt_coins ?? 0), 0);
+        const mergedTvtPreferred = Math.max(localTvtPref, serverTvtPref);
         // 🔥 Як у головному merge: adena = max(локаль, сервер) — інакше продавець (твін) після купівлі лишається зі старою аденою в UI
         const finalAdenaPreferred = Math.max(localAdena, serverAdena);
         const mergedHero: Hero = {
@@ -326,6 +338,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           sp: finalSp,
           adena: finalAdenaPreferred,
           inventory: consolidatedInv,
+          overflowChest: mergedOverflowPreferred,
           name: character.name,
           profession: heroForLocalRecalc.profession,
           klass: heroForLocalRecalc.klass,
@@ -341,6 +354,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         (mergedHero as any).heroJson = {
           ...((mergedHero as any).heroJson || {}),
           adena: finalAdenaPreferred,
+          inventory: consolidatedInv,
+          overflowChest: mergedOverflowPreferred,
+          tvtCoins: mergedTvtPreferred,
+          tvt_coins: mergedTvtPreferred,
         };
         (mergedHero as any).username = character.name;
         (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
