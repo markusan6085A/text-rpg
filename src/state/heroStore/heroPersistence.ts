@@ -37,7 +37,25 @@ export function syncCurrentUserAndAccountHero(username: string, hero?: Hero): vo
 let saving = false;
 let queuedHero: Hero | null = null; // Snapshot героя для відкладених збережень (не boolean!)
 let retryCount = 0;
-const MAX_RETRIES = 1; // Максимум 1 автоматичний retry при revision_conflict
+const MAX_RETRIES = 1; // Один GET+merge після 409; ревізія з тіла відповіді підтягується в applyHeroRevisionFrom409Body
+
+/** PUT 409 повертає актуальний serverState.heroRevision; без цього наступний expectedRevision знову відстає (battle/heartbeat/state). */
+async function applyHeroRevisionFrom409Body(error: any): Promise<void> {
+  if (error?.status !== 409) return;
+  const body = (error as any).body;
+  if (!body || typeof body !== "object") return;
+  const srvRev =
+    body.serverState?.heroRevision ??
+    body.heroRevision ??
+    (error as any).details?.serverState?.heroRevision;
+  if (srvRev == null || !Number.isFinite(Number(srvRev))) return;
+  const r = Number(srvRev);
+  const { useHeroStore } = await import('../heroStore');
+  useHeroStore.getState().updateServerState({
+    heroRevision: r,
+    updatedAt: Date.now(),
+  });
+}
 
 // 🔥 ВИДАЛЕНО: Глобальні змінні lastServerExp/lastServerLevel та window.__lastServerExp
 // Тепер використовуємо serverState з heroStore
@@ -751,7 +769,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       if (isExpLevelSpDecreased) {
         console.warn('[saveHeroToLocalStorage] exp/level/sp decreased — refetching from server and retrying');
       }
-      
+      if (error?.status === 409) {
+        await applyHeroRevisionFrom409Body(error);
+      }
+
       // Ігноруємо якщо це просто конфлікт при фоновому збереженні
       // Ми не хочемо спамити користувачу alert-ами
       if (retryCount >= MAX_RETRIES) {
@@ -927,6 +948,9 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             }
           }
         } catch (reloadError: any) {
+          if (reloadError?.status === 409) {
+            await applyHeroRevisionFrom409Body(reloadError);
+          }
           // 🔥 Якщо retry теж отримав 409 або exp/level/sp decreased — зупиняємося
           const reloadIsConflict = reloadError?.status === 409 || (reloadError?.message && reloadError.message.includes('revision_conflict'));
           const reloadIsExpDecreased = reloadError?.status === 400 && reloadError?.message?.includes?.('cannot be decreased');
