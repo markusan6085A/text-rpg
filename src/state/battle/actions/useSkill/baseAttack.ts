@@ -263,8 +263,10 @@ export function handleBaseAttack(
   }
   
   let attackLog = healFromVamp > 0
-    ? (isCrit ? `Критический удар! Вы наносите ${Math.round(damage)} урона и восстанавливаете ${Math.round(healFromVamp)} HP.` : `Вы наносите ${Math.round(damage)} урона и восстанавливаете ${Math.round(healFromVamp)} HP.`)
-    : (isCrit ? `Критический удар! Вы наносите ${Math.round(damage)} урона.` : `Вы наносите ${Math.round(damage)} урона.`);
+    ? (isCrit
+        ? `Критический удар! Вы наносите ${Math.round(damage)} и восстанавливаете ${Math.round(healFromVamp)} HP.`
+        : `Вы наносите ${Math.round(damage)} и восстанавливаете ${Math.round(healFromVamp)} HP.`)
+    : (isCrit ? `Критический удар! Вы наносите ${Math.round(damage)}.` : `Вы наносите ${Math.round(damage)}.`);
   
   // Add cleave damage logs
   if (cleaveLogs.length > 0) {

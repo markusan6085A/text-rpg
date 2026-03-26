@@ -192,9 +192,11 @@ export function handleAttackSkill(
     healFromVamp > 0
       ? `Вы использовали ${def.name} и восстановили ${Math.round(healFromVamp)} HP`
       : `Вы использовали ${def.name}`,
-    isCrit 
-      ? (isMagic ? `Магічний критичний удар! Ви наносите ${Math.round(totalDamage)} урона.` : `Критический удар! Вы наносите ${Math.round(totalDamage)} урона.`)
-      : `Вы наносите ${Math.round(totalDamage)} урона.`,
+    isCrit
+      ? (isMagic
+          ? `Магічний критичний удар! Ви наносите ${Math.round(totalDamage)}.`
+          : `Критический удар! Вы наносите ${Math.round(totalDamage)}.`)
+      : `Вы наносите ${Math.round(totalDamage)}.`,
     skillEffects.stun?.applied 
       ? `${state.mob?.name} оглушен на ${skillEffects.stun.duration / 1000} секунд!`
       : skillEffects.stun && !skillEffects.stun.applied

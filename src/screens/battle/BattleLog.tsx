@@ -190,13 +190,27 @@ export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; 
         }
         let displayLine = isPk ? replaceSkillIdsWithNames(lineStr) : lineStr;
         const color = isPk ? getColorForPkLine(displayLine, heroName ?? "") : getColor(lineStr);
-        const isIncoming = isPk && lineStr.includes("наносит") && lineStr.includes("урона") && (() => {
-          const norm = (s: string) => String(s ?? "").trim().toLowerCase();
-          const m = lineStr.match(/^(\S+)\s+(использует|атакует)/);
-          const actorName = norm(m?.[1] ?? "");
-          const myName = norm(heroName ?? "");
-          return myName && actorName !== myName;
-        })();
+        // Не використовувати includes("наносит") — підрядок входить у «наносите» (ваш урон), інакше «По вам:» з’являється на «Вы наносите…».
+        const isIncoming =
+          isPk &&
+          (() => {
+            const lower = lineStr.toLowerCase();
+            if (
+              lower.includes("вы наносите") ||
+              lower.includes("вы нанесли") ||
+              lower.includes("ви наносите") ||
+              lower.includes("ви нанесли")
+            ) {
+              return false;
+            }
+            if (lower.includes("наносит вам")) return true;
+            const m = lineStr.match(/^(\S+)\s+(использует|атакует)/i);
+            const norm = (s: string) => String(s ?? "").trim().toLowerCase();
+            const actorName = norm(m?.[1] ?? "");
+            const myName = norm(heroName ?? "");
+            if (!myName || !m) return false;
+            return actorName !== myName;
+          })();
         if (isIncoming) displayLine = "По вам: " + displayLine;
         return (
           <div key={idx} style={{ color }}>

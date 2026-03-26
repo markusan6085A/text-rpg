@@ -621,9 +621,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     // Розраховуємо інтервал на основі швидкості атаки (як у calcAutoAttackInterval)
     const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
     const intervalMs = Math.max(300, calcAutoAttackInterval(attackSpeed));
-
+    const readyAt = Date.now() + intervalMs;
     useBattleStore.setState((s) => ({
-      cooldowns: { ...s.cooldowns, [0]: Date.now() + intervalMs },
+      cooldowns: { ...s.cooldowns, [0]: readyAt },
+      heroNextAttackAt: readyAt,
     }));
 
     try {

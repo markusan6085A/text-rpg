@@ -210,8 +210,11 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
     setPkError(null);
     const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
     const intervalMs = Math.max(300, calcAutoAttackInterval(attackSpeed));
+    const readyAt = Date.now() + intervalMs;
+    // Як у PvE baseAttack: SkillBar для слота 0 читає heroNextAttackAt, а не лише cooldowns[0]
     useBattleStore.setState((s) => ({
-      cooldowns: { ...s.cooldowns, [0]: Date.now() + intervalMs },
+      cooldowns: { ...s.cooldowns, [0]: readyAt },
+      heroNextAttackAt: readyAt,
     }));
     try {
       let shotMultiplier = 1.0;

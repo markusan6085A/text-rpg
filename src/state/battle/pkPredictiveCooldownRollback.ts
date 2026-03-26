@@ -28,7 +28,10 @@ export function rollbackPkPredictiveCooldownIfActionFailed(
         delete next[`${sid}_usedAt`];
         delete next[`${sid}_originalCd`];
       }
-      return { cooldowns: next };
+      return {
+        cooldowns: next,
+        ...(sid === undefined ? { heroNextAttackAt: undefined } : {}),
+      };
     });
     return;
   }
@@ -53,6 +56,9 @@ export function rollbackPkPredictiveCooldownOnNetworkError(skillIdUsed: number |
       delete next[`${skillIdUsed}_usedAt`];
       delete next[`${skillIdUsed}_originalCd`];
     }
-    return { cooldowns: next };
+    return {
+      cooldowns: next,
+      ...(skillIdUsed === undefined ? { heroNextAttackAt: undefined } : {}),
+    };
   });
 }
