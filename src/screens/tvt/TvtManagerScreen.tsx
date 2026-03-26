@@ -64,35 +64,23 @@ export default function TvtManagerScreen({ navigate }: Props) {
     }
   }, [cid]);
 
+  /** Локальний тік для інтерполяції «ігрового» часу (без мережі). */
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 10_000);
+    const t = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
     void loadState();
-    const iv = setInterval(() => void loadState(), 4000);
-    return () => clearInterval(iv);
   }, [loadState]);
 
-  /** Авто-перехід у бій TvT (той самий екран, що арена). */
   useEffect(() => {
-    if (!cid || !hero) return;
-    const tick = async () => {
-      try {
-        const r = await getArenaActiveSession(cid);
-        const sid = r.sessionId?.trim();
-        if (sid) {
-          navigate(`/arena/match?session=${encodeURIComponent(sid)}`);
-        }
-      } catch {
-        /* ignore */
-      }
+    const onVis = () => {
+      if (document.visibilityState === "visible") void loadState();
     };
-    void tick();
-    const iv = setInterval(tick, 2500);
-    return () => clearInterval(iv);
-  }, [cid, hero, navigate]);
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [loadState]);
 
   const handleRegister = async (slotId: string) => {
     if (!cid) return;
@@ -146,6 +134,32 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const myRegSlotId = tvtState?.myRegistration?.slotId;
   const regs = tvtState?.registrationsBySlot ?? {};
 
+  const inBattlePhase = useMemo(
+    () => slotStatuses.some((s) => s.phase === "battle"),
+    [slotStatuses]
+  );
+
+  /** Перехід у бій TvT лише коли можливий бій: рідкий poll (30 с), не постійно. */
+  useEffect(() => {
+    if (!cid || !hero) return;
+    const needArenaPoll = tvtState?.myMatch?.status === "active" || inBattlePhase;
+    if (!needArenaPoll) return;
+    const tick = async () => {
+      try {
+        const r = await getArenaActiveSession(cid);
+        const sid = r.sessionId?.trim();
+        if (sid) {
+          navigate(`/arena/match?session=${encodeURIComponent(sid)}`);
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    void tick();
+    const iv = setInterval(tick, 30_000);
+    return () => clearInterval(iv);
+  }, [cid, hero, navigate, tvtState?.myMatch?.status, inBattlePhase]);
+
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-2 sm:p-3` : "w-full px-3 py-4"}>
       <div
@@ -170,9 +184,26 @@ export default function TvtManagerScreen({ navigate }: Props) {
       </div>
 
       <div className="mt-5 px-2">
-        <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Расписание
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c]" : "text-amber-300 text-sm"}>
+            Расписание
+          </div>
+          <button
+            type="button"
+            onClick={() => void loadState()}
+            disabled={busy}
+            className={
+              isL2
+                ? "text-[11px] px-2 py-1 rounded border border-[#5c4a32]/60 text-[#c9a44c] hover:border-[#c7ad80]/40 disabled:opacity-40"
+                : "text-xs px-2 py-1 rounded border border-gray-600 text-amber-300 disabled:opacity-40"
+            }
+          >
+            Обновить
+          </button>
         </div>
+        <p className={isL2 ? "text-[10px] text-[#6a5c48] mb-1" : "text-[10px] text-gray-600 mb-1"}>
+          Данные с сервера: при открытии страницы, по кнопке «Обновить» и при возврате на вкладку (без постоянного опроса).
+        </p>
         <p className={isL2 ? "text-[11px] text-[#a89878] mb-2" : "text-xs text-gray-500 mb-2"}>
           Игровое время (сервер):{" "}
           <span className="text-[#e8c56e] font-semibold">{formatMinutesAsClock(effectiveServerMinutes)}</span>
