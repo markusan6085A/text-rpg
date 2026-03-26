@@ -173,6 +173,10 @@ export default function TvtManagerScreen({ navigate }: Props) {
           setTvtErr(
             `Регистрация закрыта: сейчас ${clock} (время с сервера). Окно записи — ${formatHM(s0.registrationOpen)}–${formatHM(s0.battleStart)} (Europe/Warsaw). Если окно в интерфейсе не совпадает с API — обновите страницу (слоты с сервера).`
           );
+        } else if (raw.toLowerCase().includes("must be online")) {
+          setTvtErr(
+            "Нужна активность персонажа в игре (онлайн ~10 мин). Откройте игру тем же аккаунтом и подождите heartbeat — без этого запись TvT не проходит (и для админа тоже)."
+          );
         } else {
           setTvtErr(raw.trim() || "Не удалось записаться");
         }
@@ -283,6 +287,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
             Запись только с {formatHM(slotsForUi[0].registrationOpen)} до {formatHM(slotsForUi[0].battleStart)} (5 минут в сутки, игровое время). После старта боя кнопка «Записаться» вернёт 400 — это не баг.
           </p>
         ) : null}
+        <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2 leading-snug" : "text-xs text-gray-500 mb-2"}>
+          «Записалось: N» — число <span className="text-[#c9a44c]">разных персонажей</span> (каждый со своего аккаунта нажимает «Записаться»). Отдельной админ-регистрации нет: тот же JWT и те же правила. Нужен онлайн персонажа (~10 мин активности).
+        </p>
         {gameMinutesNow == null && !tvtErr ? (
           <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2" : "text-xs text-gray-500 mb-2"}>
             Загрузка времени с сервера…
