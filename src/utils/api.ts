@@ -706,11 +706,11 @@ export interface TvtStateResponse {
   } | null;
 }
 
-export async function getTvtState(characterId: string): Promise<TvtStateResponse> {
-  return apiRequest<TvtStateResponse>(
-    `/characters/tvt/state?characterId=${encodeURIComponent(characterId)}`,
-    { method: "GET" }
-  );
+/** Без characterId — лише публічні поля (час сервера, слоти, лічильники). З id — myRegistration/myMatch при валідному JWT. */
+export async function getTvtState(characterId?: string): Promise<TvtStateResponse> {
+  const id = characterId?.trim();
+  const q = id ? `?characterId=${encodeURIComponent(id)}` : "";
+  return apiRequest<TvtStateResponse>(`/characters/tvt/state${q}`, { method: "GET" });
 }
 
 export async function registerTvt(

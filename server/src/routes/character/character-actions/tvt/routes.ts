@@ -64,16 +64,13 @@ export async function registerTvtRoutes(app: FastifyInstance) {
     return reply.send({ ok: true, serverNow: Date.now() });
   });
 
+  /**
+   * Публічна частина без JWT: час сервера, слоти, кількість записів.
+   * З валідним Bearer + characterId — додаються myRegistration, myMatch.
+   */
   app.get("/characters/tvt/state", async (req, reply) => {
     const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
     const characterId = String((req.query as { characterId?: string })?.characterId ?? "").trim();
-    if (!characterId) return reply.code(400).send({ error: "characterId required" });
-    const ch = await prisma.character.findFirst({
-      where: { id: characterId, accountId: auth.accountId },
-      select: { id: true },
-    });
-    if (!ch) return reply.code(403).send({ error: "forbidden" });
 
     const now = new Date();
     const dayKey = dayKeyFromDate(now);
@@ -83,6 +80,7 @@ export async function registerTvtRoutes(app: FastifyInstance) {
       registrationsBySlot[s.id] = collectRegisteredForSlot(dayKey, s.id).length;
     }
 
+    let myRegistration: { dayKey: string; slotId: string } | null = null;
     let myMatch: {
       id: string;
       slotId: string;
@@ -92,34 +90,43 @@ export async function registerTvtRoutes(app: FastifyInstance) {
       status: string;
     } | null = null;
 
-    for (const m of tvtMatches.values()) {
-      if (m.dayKey !== dayKey) continue;
-      const inA = m.teamAIds.includes(characterId) || m.queueA.includes(characterId);
-      const inB = m.teamBIds.includes(characterId) || m.queueB.includes(characterId);
-      if (inA || inB) {
-        myMatch = {
-          id: m.id,
-          slotId: m.slotId,
-          queueALen: m.queueA.length,
-          queueBLen: m.queueB.length,
-          currentPkSessionId: m.currentPkSessionId,
-          status: m.status,
-        };
-        break;
+    if (auth && characterId) {
+      const ch = await prisma.character.findFirst({
+        where: { id: characterId, accountId: auth.accountId },
+        select: { id: true },
+      });
+      if (ch) {
+        const myReg = tvtRegistrations.get(characterId);
+        myRegistration = myReg && myReg.dayKey === dayKey ? myReg : null;
+
+        for (const m of tvtMatches.values()) {
+          if (m.dayKey !== dayKey) continue;
+          const inA = m.teamAIds.includes(characterId) || m.queueA.includes(characterId);
+          const inB = m.teamBIds.includes(characterId) || m.queueB.includes(characterId);
+          if (inA || inB) {
+            myMatch = {
+              id: m.id,
+              slotId: m.slotId,
+              queueALen: m.queueA.length,
+              queueBLen: m.queueB.length,
+              currentPkSessionId: m.currentPkSessionId,
+              status: m.status,
+            };
+            break;
+          }
+        }
       }
     }
-
-    const myReg = tvtRegistrations.get(characterId);
 
     const t = Date.now();
     return reply.send({
       ok: true,
       serverNow: t,
-      serverMinutesSinceMidnight: minutesSinceMidnight(new Date()),
+      serverMinutesSinceMidnight: minutesSinceMidnight(now),
       dayKey,
       slots: TVT_DAILY_SLOTS,
       registrationsBySlot,
-      myRegistration: myReg && myReg.dayKey === dayKey ? myReg : null,
+      myRegistration,
       myMatch,
     });
   });

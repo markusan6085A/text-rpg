@@ -55,9 +55,8 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const [busy, setBusy] = useState(false);
 
   const loadState = useCallback(async () => {
-    if (!cid) return;
     try {
-      const r = await getTvtState(cid);
+      const r = await getTvtState(cid?.trim() ? cid.trim() : undefined);
       setTvtState(r);
       setTvtErr(null);
     } catch (e: unknown) {
@@ -226,6 +225,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
                   >
                     {myRegSlotId === st.slot.id ? "Вы записаны" : myRegSlotId ? "Уже записаны" : "Записаться"}
                   </button>
+                )}
+                {!cid && st.phase === "registration" && (
+                  <p className="mt-2 text-[11px] text-[#8a7a60]">Войдите в игру, чтобы записаться.</p>
                 )}
               </div>
             );
