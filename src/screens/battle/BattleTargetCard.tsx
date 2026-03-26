@@ -22,8 +22,10 @@ export function BattleTargetCard({
   isL2 = false,
   isAggressivePatrol = false,
 }: BattleTargetCardProps) {
-  const max = Math.round(Math.max(1, maxHp));
-  const clamped = Math.round(Math.max(0, Math.min(max, currentHp)));
+  const maxRaw = Number.isFinite(maxHp) ? maxHp : 1;
+  const curRaw = Number.isFinite(currentHp) ? currentHp : 0;
+  const max = Math.round(Math.max(1, maxRaw));
+  const clamped = Math.round(Math.max(0, Math.min(max, curRaw)));
   const hpPercent = max > 0 ? Math.max(0, Math.min(100, Math.round((clamped / max) * 100))) : 0;
 
   const nameStyle = isL2 ? { color: "#e8dcc8" } : { color: "#c7ad80" };

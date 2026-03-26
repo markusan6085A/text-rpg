@@ -135,7 +135,8 @@ export const applyBuffsToStats = (
         invulnerable = invulnerable || val === 1 || val === true;
         return;
       }
-      if (typeof val !== "number") return;
+      // typeof NaN === "number" — без isFinite NaN отруює merged і ламає рендер (toggle / бафи).
+      if (typeof val !== "number" || !Number.isFinite(val)) return;
       
       // Для attackSpeed перевіряємо обидва ключі (attackSpeed та atkSpeed)
       let current: number | undefined;

@@ -57,8 +57,10 @@ export function BuffBar({ buffs, now }: Props) {
             totalsRef.current[key] = total;
           }
 
-          const percent = !isToggle && total > 0 ? Math.min(1, Math.max(0, remaining / total)) : 0;
-          const deg = Math.round(percent * 360);
+          const percent = !isToggle && total > 0 && Number.isFinite(remaining) && Number.isFinite(total)
+            ? Math.min(1, Math.max(0, remaining / total))
+            : 0;
+          const deg = Number.isFinite(percent) ? Math.round(percent * 360) : 0;
           return (
             <div
               key={`buff-${b.id ?? idx}-${expN}`}

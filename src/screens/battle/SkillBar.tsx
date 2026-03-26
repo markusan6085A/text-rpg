@@ -80,11 +80,12 @@ function SkillCooldownLayer({
   const safeRem = Number.isFinite(remaining) ? remaining : 0;
   if (safeRem <= 0) return null;
 
-  if (isBaseAttack && attackIntervalMs > 0) {
-    const sweep = Math.min(1, safeRem / attackIntervalMs);
-    const deg = 360 * sweep;
+  const safeInterval = Number.isFinite(attackIntervalMs) && attackIntervalMs > 0 ? attackIntervalMs : 2500;
+  if (isBaseAttack && safeInterval > 0) {
+    const sweep = Math.min(1, safeRem / safeInterval);
+    const deg = Number.isFinite(sweep) ? 360 * sweep : 0;
     const label =
-      attackIntervalMs < 1800 ? (safeRem / 1000).toFixed(1) : String(Math.max(1, Math.ceil(safeRem / 1000)));
+      safeInterval < 1800 ? (safeRem / 1000).toFixed(1) : String(Math.max(1, Math.ceil(safeRem / 1000)));
     return (
       <div className="absolute inset-0 z-10 rounded-md overflow-hidden pointer-events-none">
         <div
@@ -143,8 +144,10 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
   const attackIntervalMs = React.useMemo(() => {
     if (zoneId === "fishing") return 400;
     const buffed = applyBuffsToStats(hero?.battleStats || {}, heroBuffs);
-    const atk = Number(buffed?.attackSpeed ?? buffed?.atkSpeed ?? 0) || 0;
-    return calcAutoAttackInterval(atk);
+    const raw = Number(buffed?.attackSpeed ?? buffed?.atkSpeed ?? 0);
+    const atk = Number.isFinite(raw) ? raw : 0;
+    const ms = calcAutoAttackInterval(atk);
+    return Number.isFinite(ms) && ms > 0 ? ms : 2500;
   }, [zoneId, hero?.battleStats, heroBuffs]);
 
   React.useEffect(() => {

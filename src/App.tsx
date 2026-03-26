@@ -527,23 +527,7 @@ function AppInner() {
       return renderWithLayout(<Settings navigate={navigate} key={`settings-${refreshKey}`} />);
 
     case "/battle":
-      return renderWithLayout(
-        <ErrorBoundary
-          fallback={
-            <div className="flex flex-col items-center justify-center gap-3 p-4 text-center text-gray-300">
-              <p className="text-sm">Помилка завантаження бою.</p>
-              <button
-                onClick={() => { window.location.href = "/location"; }}
-                className="px-4 py-2 rounded bg-yellow-600 text-black text-sm hover:bg-yellow-500"
-              >
-                Повернутися в локацію
-              </button>
-            </div>
-          }
-        >
-          <Battle navigate={navigate} key={`battle-${refreshKey}`} />
-        </ErrorBoundary>
-      );
+      return renderWithLayout(<Battle navigate={navigate} key={`battle-${refreshKey}`} />);
 
     case "/inventory":
       return renderWithLayout(<Inventory key={`inventory-${refreshKey}`} />);

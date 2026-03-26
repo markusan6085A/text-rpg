@@ -12,7 +12,7 @@ const MIN_PHYSICAL_SKILL_CD_MULT = 0.3;
  * Формула: interval = base / (1 + attackSpeed / 1000)
  */
 export function calcAutoAttackInterval(attackSpeed: number): number {
-  const speed = Math.max(0, attackSpeed);
+  const speed = Number.isFinite(attackSpeed) ? Math.max(0, attackSpeed) : 0;
 
   if (speed >= ATTACK_SPEED_CAP) {
     return MIN_AUTO_ATTACK_MS;
@@ -35,7 +35,7 @@ export function calcPhysicalSkillCooldown(
   attackSpeed: number
 ): number {
   const baseMs = baseCooldownSec * 1000;
-  const speed = Math.max(0, attackSpeed);
+  const speed = Number.isFinite(attackSpeed) ? Math.max(0, attackSpeed) : 0;
 
   const reduced = baseMs / (1 + speed / 1000);
 
