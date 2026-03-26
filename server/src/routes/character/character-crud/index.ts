@@ -10,6 +10,7 @@ import {
   enqueuePlayerActivityLog,
   getClientIp,
 } from "../../../playerActivityLog";
+import { mergeTvtRewardsIntoIncomingHeroJson } from "../../../utils/tvtHeroJsonMerge";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
@@ -130,12 +131,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
       level: oldHeroJson.level ?? existing.level ?? 1,
     };
-    const newHeroJson = {
+    const newHeroJsonRaw = {
       ...baseJson,
       ...oldHeroJson,
       ...(inventory !== undefined ? { inventory } : {}),
       ...(overflowChest !== undefined ? { overflowChest } : {}),
     };
+    const newHeroJson = mergeTvtRewardsIntoIncomingHeroJson(oldHeroJson, newHeroJsonRaw);
     const validation = validateHeroJson(newHeroJson);
     if (!validation.valid) {
       return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
@@ -450,9 +452,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       if (body.heroJson && typeof body.heroJson === 'object' && body.heroJson.name) {
-        const clientPremiumUntil = body.heroJson.premiumUntil != null ? Number(body.heroJson.premiumUntil) : oldPremiumUntil;
+        const heroJsonMergedTvt = mergeTvtRewardsIntoIncomingHeroJson(oldHeroJson, body.heroJson);
+        const clientPremiumUntil =
+          heroJsonMergedTvt.premiumUntil != null ? Number(heroJsonMergedTvt.premiumUntil) : oldPremiumUntil;
         const clampedPremiumUntil = Math.min(clientPremiumUntil, oldPremiumUntil);
-        const heroJsonToSave = { ...body.heroJson, premiumUntil: clampedPremiumUntil };
+        const heroJsonToSave = { ...heroJsonMergedTvt, premiumUntil: clampedPremiumUntil };
         
         const oldRevision = oldHeroJson.heroRevision || 0;
         const versionedHeroJson = addVersioning(heroJsonToSave, oldRevision);
@@ -462,7 +466,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           characterId: id,
           oldRevision,
           newRevision: versionedHeroJson.heroRevision,
-          inventoryItems: body.heroJson.inventory?.length || 0,
+          inventoryItems: heroJsonMergedTvt.inventory?.length || 0,
         }, `[PUT /characters/:id] Updating heroJson for character ${id}`);
       } else {
         app.log.warn(`[PUT /characters/:id] Attempted to save empty or invalid heroJson for character ${id}, ignoring`);
