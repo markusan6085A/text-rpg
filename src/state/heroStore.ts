@@ -44,6 +44,19 @@ export interface ServerState {
   updatedAt: number; // Timestamp останнього оновлення
 }
 
+/** Не знижувати heroRevision: Supabase Realtime може прислати застарілий snapshot і зламати expectedRevision для PUT. */
+function mergeHeroRevisionMonotonic(
+  incoming: number | undefined | null,
+  current: number | undefined | null
+): number | undefined {
+  const inc = incoming != null && Number.isFinite(Number(incoming)) ? Number(incoming) : undefined;
+  const cur = current != null && Number.isFinite(Number(current)) ? Number(current) : undefined;
+  if (inc === undefined && cur === undefined) return undefined;
+  if (inc === undefined) return cur;
+  if (cur === undefined) return inc;
+  return Math.max(inc, cur);
+}
+
 interface HeroState {
   hero: Hero | null;
   serverState: ServerState | null; // 🔥 Серверний стан для clamp
@@ -455,9 +468,19 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     if (!Array.isArray((merged as any).activeQuests) && Array.isArray(prev.activeQuests)) {
       (merged as any).activeQuests = prev.activeQuests;
     }
+    const srvRevRaw = (server as any).heroRevision;
+    if (srvRevRaw != null && Number.isFinite(Number(srvRevRaw))) {
+      const r = Number(srvRevRaw);
+      const hj = (merged as any).heroJson || {};
+      if (Number(hj.heroRevision ?? 0) < r) {
+        (merged as any).heroJson = { ...hj, heroRevision: r };
+      }
+      (merged as any).heroRevision = mergeHeroRevisionMonotonic(r, (merged as any).heroRevision);
+    }
     set({ hero: merged });
     syncLoadoutDeferred(prev, merged);
     const current = get().serverState;
+    const nextHeroRev = mergeHeroRevisionMonotonic(server.heroRevision, current?.heroRevision);
     set({
       serverState: {
         exp: server.exp ?? current?.exp ?? 0,
@@ -465,7 +488,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         sp: server.sp ?? current?.sp ?? 0,
         adena: (server as any).adena !== undefined ? Number((server as any).adena) : current?.adena,
         coinLuck: (server as any).coinLuck ?? current?.coinLuck,
-        heroRevision: server.heroRevision ?? current?.heroRevision,
+        heroRevision: nextHeroRev,
         updatedAt: server.updatedAt ?? current?.updatedAt ?? Date.now(),
       },
     });
@@ -478,6 +501,13 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   // 🔥 Оновлюємо серверний стан після GET/PATCH
   updateServerState: (state) => {
     const current = get().serverState;
+    const hasIncomingRev =
+      state.heroRevision !== undefined &&
+      state.heroRevision !== null &&
+      Number.isFinite(Number(state.heroRevision));
+    const nextRev = hasIncomingRev
+      ? mergeHeroRevisionMonotonic(state.heroRevision, current?.heroRevision)
+      : current?.heroRevision;
     set({
       serverState: {
         exp: state.exp ?? current?.exp ?? 0,
@@ -485,7 +515,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         sp: state.sp ?? current?.sp ?? 0,
         adena: state.adena !== undefined ? Number(state.adena) : current?.adena,
         coinLuck: state.coinLuck ?? current?.coinLuck,
-        heroRevision: state.heroRevision ?? current?.heroRevision,
+        heroRevision: nextRev,
         updatedAt: state.updatedAt ?? current?.updatedAt ?? Date.now(),
       },
     });

@@ -172,12 +172,16 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
   } finally {
     saving = false;
     
-    // 🔥 КРИТИЧНО: Якщо була черга — беремо snapshot героя (queuedHero), а НЕ currentHero зі store.
-    // currentHero міг би бути застарілим або мати старий heroRevision → 409.
+    // 🔥 Після успішного save store має новіший heroRevision (applyServerSync). Беремо актуального героя зі store,
+    // інакше snapshot з черги може мати застарілий heroJson.heroRevision → PUT з expectedRevision на 1 менше.
     if (queuedHero) {
-      const nextHero = queuedHero;
+      const snap = queuedHero;
       queuedHero = null;
-      console.log('[saveHeroToLocalStorage] Processing queued save with snapshot hero');
+      const { useHeroStore } = await import('../heroStore');
+      const fresh = useHeroStore.getState().hero;
+      const nextHero =
+        fresh && snap?.name && fresh.name === snap.name ? fresh : snap;
+      console.log('[saveHeroToLocalStorage] Processing queued save (store hero when same name)');
       
       // Clear previous timeout if exists to prevent overlapping saves
       if ((saveHeroToLocalStorage as any)._timeoutId) {
@@ -191,8 +195,12 @@ export async function saveHeroToLocalStorage(hero: Hero): Promise<void> {
 
 // Внутрішня функція для одного збереження
 async function saveHeroOnce(hero: Hero): Promise<void> {
+  const { useHeroStore } = await import('../heroStore');
+  const live = useHeroStore.getState().hero;
+  const sourceHero =
+    live && hero?.name && live.name === hero.name ? live : hero;
   // 🔥 Правило 2: Використовуємо hydrateHero перед збереженням для гарантованої синхронізації
-  const hydrated = hydrateHero(hero);
+  const hydrated = hydrateHero(sourceHero);
   if (!hydrated) {
     console.error('[saveHeroToLocalStorage] Failed to hydrate hero!');
     return;
@@ -267,7 +275,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     }
     
     // 🔥 КРИТИЧНО: expectedRevision з serverState; fallback hero → 0 для першого sync (сервер приймає 0)
-    const heroStore = (await import('../heroStore')).useHeroStore;
+    const heroStore = useHeroStore;
     let serverState = heroStore.getState().serverState;
     // 🔥 Якщо serverState є null (наприклад, GET не пройшов при завантаженні) — робимо GET перед save,
     // щоб мати актуальні exp/level для clamp і не отримати "exp cannot be decreased"
@@ -293,7 +301,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         console.warn('[saveHeroToLocalStorage] Failed to fetch serverState before save:', e);
       }
     }
-    const expectedRevision = serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? (hero as any)?.heroRevision ?? 0;
+    let expectedRevision = serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? (hero as any)?.heroRevision ?? 0;
     if (expectedRevision === undefined || expectedRevision === null || (typeof expectedRevision === 'number' && Number.isNaN(expectedRevision))) {
       console.warn('[saveHeroToLocalStorage] No serverState.heroRevision — skipping PUT, saving to localStorage only');
       const current = getJSON<string | null>("l2_current_user", null);
@@ -579,6 +587,16 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     // ❗ Дозволяємо надсилати coinLuck завжди (щоб заточка удочки працювала)
     const localCoinLuck = hero.coinOfLuck ?? 0;
     const sendCoinLuck = true;
+
+    // 🔥 Останній read перед PUT: між обчисленням payload і fetch міг завершитись інший save / Realtime — без цього 409 revision_conflict.
+    const stNow = heroStore.getState().serverState;
+    const hNow = heroStore.getState().hero;
+    expectedRevision = Number(
+      stNow?.heroRevision ??
+        (hNow as any)?.heroJson?.heroRevision ??
+        (hNow as any)?.heroRevision ??
+        expectedRevision
+    );
 
     const updatePayload: Parameters<typeof updateCharacter>[1] = {
       heroJson: heroJsonToSave,
