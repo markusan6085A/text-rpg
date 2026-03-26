@@ -28,10 +28,17 @@ function toMinutes(t: TimeHM): number {
   return t.h * 60 + t.m;
 }
 
-/** Хвилини від півночі в ігровій зоні (як у новинах). */
+/** Хвилини від півночі в ігровій зоні (як у новинах). Intl — без парсингу toLocaleString (на Node/VPS надійніше). */
 export function minutesSinceMidnight(d: Date): number {
-  const w = new Date(d.toLocaleString("en-US", { timeZone: GAME_TZ }));
-  return w.getHours() * 60 + w.getMinutes();
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: GAME_TZ,
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(d);
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+  return hour * 60 + minute;
 }
 
 /** Реєстрація відкрита: [regOpen, battleStart) */

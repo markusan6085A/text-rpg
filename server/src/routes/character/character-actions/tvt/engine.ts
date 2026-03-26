@@ -275,6 +275,25 @@ export function collectRegisteredForSlot(dayKey: string, slotId: string): string
 
 export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): Promise<void> {
   const key = regKey(dayKey, slotId);
+  const now = new Date();
+  const slotDef = TVT_DAILY_SLOTS.find((s) => s.id === slotId);
+  if (!slotDef) return;
+
+  const participantIdsEarly = collectRegisteredForSlot(dayKey, slotId);
+  const activeForSlot = [...tvtMatches.values()].some(
+    (m) => m.dayKey === dayKey && m.slotId === slotId && m.status === "active"
+  );
+  /** Залиплий startedSlots без матчу (стара помилка / KV) — скидаємо, якщо є ≥2 записаних і ще вікно старту. */
+  if (
+    tvtStartedSlots.has(key) &&
+    !activeForSlot &&
+    participantIdsEarly.length >= 2 &&
+    isBattleStartWindow(now, slotDef)
+  ) {
+    tvtStartedSlots.delete(key);
+    await persistTvtState();
+  }
+
   if (tvtStartedSlots.has(key)) return;
 
   const participantIds = collectRegisteredForSlot(dayKey, slotId);

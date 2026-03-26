@@ -4,10 +4,17 @@
  */
 export const GAME_TIMEZONE = "Europe/Warsaw";
 
-/** Хвилини від півночі в ігровій зоні (0..1439). */
+/** Хвилини від півночі в ігровій зоні (0..1439). Intl — узгоджено з сервером TvT (`schedule.minutesSinceMidnight`). */
 export function getGameMinutesSinceMidnight(now: Date = new Date()): number {
-  const w = new Date(now.toLocaleString("en-US", { timeZone: GAME_TIMEZONE }));
-  return w.getHours() * 60 + w.getMinutes();
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: GAME_TIMEZONE,
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+  return hour * 60 + minute;
 }
 
 /** Рядок HH:MM для відображення (як у новинах). */

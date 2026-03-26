@@ -3,9 +3,15 @@ import { getAuth } from "../../auth";
 import { prisma } from "../../../../db";
 import { isOnline } from "../pk/helpers";
 import { tvtRegistrations, tvtMatches } from "./store";
-import { TVT_DAILY_SLOTS, isRegistrationOpenForSlot, dayKeyFromDate, minutesSinceMidnight } from "./schedule";
+import {
+  TVT_DAILY_SLOTS,
+  isRegistrationOpenForSlot,
+  isBattleStartWindow,
+  dayKeyFromDate,
+  minutesSinceMidnight,
+} from "./schedule";
 import { loadTvtStateFromDb, persistTvtState } from "./persistence";
-import { collectRegisteredForSlot, pickTvtTarget, runTvtTick } from "./engine";
+import { collectRegisteredForSlot, pickTvtTarget, runTvtTick, tryStartTvtMatchForSlot } from "./engine";
 
 async function loadTvtParticipantLites(ids: string[]): Promise<Array<{ id: string; name: string; level: number }>> {
   if (ids.length === 0) return [];
@@ -112,6 +118,13 @@ export async function registerTvtRoutes(app: FastifyInstance) {
 
     const now = new Date();
     const dayKey = dayKeyFromDate(now);
+
+    /** Примусова спроба старту при кожному опитуванні (тик 15 с міг пропустити / залип KV). */
+    for (const slot of TVT_DAILY_SLOTS) {
+      if (isBattleStartWindow(now, slot)) {
+        await tryStartTvtMatchForSlot(dayKey, slot.id);
+      }
+    }
 
     const registrationsBySlot: Record<string, number> = {};
     for (const s of TVT_DAILY_SLOTS) {

@@ -164,6 +164,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
   const myRegSlotId = tvtState?.myRegistration?.slotId;
   const regs = tvtState?.registrationsBySlot ?? {};
+  const dailyRegCount = typeof regs["daily"] === "number" ? regs["daily"] : 0;
   const hasActiveMatch = Boolean(tvtState?.hasActiveMatch);
   const myMatchActive = tvtState?.myMatch?.status === "active";
   const showRealBattle = hasActiveMatch || myMatchActive;
@@ -172,6 +173,15 @@ export default function TvtManagerScreen({ navigate }: Props) {
     () => slotStatuses.some((s) => s.phase === "battle"),
     [slotStatuses]
   );
+
+  useEffect(() => {
+    const st0 = TVT_DAILY_SLOTS[0];
+    if (!st0) return;
+    const st = getSlotStatusFromMinutes(gameMinutesNow, st0);
+    if (st.phase !== "battle" || showRealBattle || dailyRegCount < 2) return;
+    const iv = setInterval(() => void loadState(), 5_000);
+    return () => clearInterval(iv);
+  }, [gameMinutesNow, showRealBattle, dailyRegCount, loadState]);
 
   /** Перехід у бій лише якщо є реальний матч на сервері або ти вже в матчі. */
   useEffect(() => {
@@ -313,7 +323,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
                         : "mt-2 w-full py-1.5 rounded bg-gray-800 text-xs text-gray-500 cursor-not-allowed"
                     }
                   >
-                    Матч не начался (мало участников или не записались)
+                    {count >= 2
+                      ? "Ожидание старта на сервере — нажмите «Обновить» или подождите (обновление каждые 5 с)."
+                      : "Матч не начался (мало участников или не записались)"}
                   </button>
                 )}
                 {cid && st.phase === "battle" && showRealBattle && (
