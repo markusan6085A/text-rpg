@@ -252,20 +252,52 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-3 sm:p-4` : "w-full max-w-lg mx-auto p-3"}>
-      <div className="flex flex-col gap-1 mb-2">
-        <h1
+      <div
+        className={`flex flex-col md:flex-row gap-4 md:gap-6 items-start mb-5 pb-5 ${
+          isL2 ? "border-b border-[#5c4a32]/40" : "border-b border-white/10"
+        }`}
+      >
+        <div
           className={
             isL2
-              ? "text-base font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
-              : "text-lg font-semibold text-[#b8860b]"
+              ? "shrink-0 flex justify-center md:justify-start w-full md:w-[168px]"
+              : "shrink-0 flex justify-center"
           }
         >
-          Крафт ресурсов
-        </h1>
-        <p className={hintClass}>
-          Материалы списываются из инвентаря, готовый ресурс попадает в инвентарь (укажите количество в окне
-          крафта). Шанс успеха: <span className="text-[#7fd67f] font-medium">100%</span>.
-        </p>
+          <div
+            className={
+              isL2
+                ? "relative rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_80%_60%_at_50%_20%,rgba(199,173,128,0.12)_0%,transparent_55%),linear-gradient(180deg,#1a1510_0%,#0c0a08_100%)] p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_28px_rgba(0,0,0,0.55)]"
+                : "p-1 rounded border border-white/20 bg-black/30"
+            }
+          >
+            <img
+              src="/nps/38.png"
+              alt=""
+              className="w-[140px] md:w-full h-auto max-h-[280px] object-contain object-bottom mx-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.65)]"
+            />
+          </div>
+        </div>
+        <div className="flex-1 min-w-0 space-y-2.5">
+          <h1
+            className={
+              isL2
+                ? "text-lg font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)] tracking-wide"
+                : "text-lg font-semibold text-[#b8860b]"
+            }
+          >
+            Крафт ресурсов
+          </h1>
+          <p className={isL2 ? "text-[13px] leading-relaxed text-[#c9b99a]" : hintClass}>
+            Мастер заготовок перерабатывает сырьё из вашего инвентаря: материалы списываются, готовый ресурс
+            попадает в рюкзак. В окне крафта укажите нужное количество.{" "}
+            <span className={isL2 ? "text-[#a89878]" : ""}>Шанс успеха —</span>{" "}
+            <span className="text-[#7fd67f] font-semibold">100%</span>.
+          </p>
+          <p className={isL2 ? "text-[12px] text-[#8a7a60] italic border-l-2 border-[#c7ad80]/25 pl-3" : "text-xs text-gray-500"}>
+            Выберите рецепт ниже — кнопка «Крафт» откроет окно, где можно задать число единиц за один заход.
+          </p>
+        </div>
       </div>
 
       <div className={sectionTitle}>Уровень 1</div>

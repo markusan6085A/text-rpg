@@ -26,6 +26,14 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";
+  const btnPrimaryL2 =
+    "w-full py-2.5 px-4 rounded-md text-[13px] font-semibold tracking-wide border transition-all shadow-[inset_0_1px_0_rgba(255,235,200,0.06)] " +
+    "border-[#5c8a5c]/55 bg-gradient-to-b from-[#1e2a1c] to-[#0f140e] text-[#a8d4a8] hover:border-[#7abf7a]/55 hover:from-[#243224] hover:to-[#121a12] " +
+    "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#5c8a5c]/55";
+  const btnDangerL2 =
+    "w-full py-2.5 px-4 rounded-md text-[13px] font-semibold tracking-wide border transition-all shadow-[inset_0_1px_0_rgba(255,200,200,0.05)] " +
+    "border-[#8a4a4a]/55 bg-gradient-to-b from-[#2a1818] to-[#140c0c] text-[#e8a0a0] hover:border-[#c77a7a]/45 hover:from-[#321c1c] hover:to-[#1a0f0f] " +
+    "disabled:opacity-40 disabled:cursor-not-allowed";
   const modalPanel = isL2
     ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full max-w-[400px] max-h-[80vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
     : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-[400px] w-full max-h-[80vh] overflow-y-auto";
@@ -42,7 +50,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
         {isL2 && (
           <span className="w-4 h-4 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin shrink-0" />
         )}
-        Загрузка...
+        Загрузка…
       </div>
     );
   }
@@ -72,7 +80,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
 
     // Перевірка максимальної кількості
     if (activeDyes.length >= MAX_DYES) {
-      showToast(`Максимум ${MAX_DYES} тату! Спочатку зніміть одне.`, "info");
+      showToast(`Максимум ${MAX_DYES} татуировок! Сначала снимите одну.`, "info");
       return;
     }
 
@@ -83,7 +91,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     });
 
     if (hasConflict) {
-      showToast("Неможливо нанести конфліктуючі тату!", "error");
+      showToast("Нельзя нанести конфликтующие татуировки!", "error");
       return;
     }
     
@@ -94,7 +102,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     
     // Перевіряємо тільки якщо намагаємося нанести той самий тип тату, який вже є 2 рази
     if (sameDyeCount >= 2) {
-      showToast("Можна нанести максимум 2 однакові тату!", "info");
+      showToast("Можно нанести не более 2 одинаковых татуировок!", "info");
       return;
     }
 
@@ -104,7 +112,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     const statMinusValue = currentBaseStats[dyeItem.dyeInfo.statMinus] || 0;
     
     if (statMinusValue - dyeItem.dyeInfo.effect < MIN_STAT) {
-      showToast(`Неможливо нанести! Стат ${dyeItem.dyeInfo.statMinus} буде нижче мінімуму (${MIN_STAT}).`, "error");
+      showToast(`Нельзя нанести! Стата ${dyeItem.dyeInfo.statMinus} станет ниже минимума (${MIN_STAT}).`, "error");
       return;
     }
 
@@ -157,7 +165,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     const aaCount = ancientAdenaItem?.count || 0;
 
     if (aaCount < removeCost) {
-      showToast(`Недостатньо AA! Потрібно ${removeCost.toLocaleString()} AA для зняття.`, "error");
+      showToast(`Недостаточно AA! Нужно ${removeCost.toLocaleString()} AA для снятия.`, "error");
       return;
     }
 
@@ -194,72 +202,116 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
           : "w-full max-w-[360px] mx-auto px-3 py-2"
       }
     >
-      <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
-      {/* Заголовок */}
+      <div className={isL2 ? "max-w-[520px] mx-auto w-full" : ""}>
+      {/* NPC + текст */}
       <div
-        className={`${borderB} px-4 py-2 text-center text-[11px] tracking-[0.12em] uppercase font-semibold ${
-          isL2 ? "text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]" : "text-[#ff8c00]"
+        className={`flex flex-col sm:flex-row gap-4 sm:gap-5 px-3 sm:px-4 py-4 ${borderB} ${
+          isL2 ? "items-stretch" : ""
         }`}
       >
-        Татуировщик
-      </div>
-
-      {/* Опис */}
-      <div className={`px-4 py-3 ${borderB}`}>
-        <div className="text-[12px] text-[#ff8c00] space-y-2">
-          <p>
-            Майстер татуювань допоможе змінити вашу долю.
-          </p>
-          <p>
-            Накладайте татуювання, щоб посилити потрібні характеристики,
-            але памʼятайте — за кожну силу є своя ціна.
-          </p>
-        </div>
-        <details className="mt-2">
-          <summary className="text-[11px] text-[#cfcfcc] cursor-pointer hover:text-[#ff8c00]">
-            Що дають стати (+1)
-          </summary>
-          <div className="text-[10px] text-[#cfcfcc] mt-1.5 space-y-0.5 pl-1">
-            <div>STR: ~+3% P.Atk</div>
-            <div>DEX: ~+1% швидкість атаки, +0.8 шанс криту</div>
-            <div>CON: ~+3% Max HP/CP</div>
-            <div>INT: ~+4% M.Atk</div>
-            <div>WIT: ~+5% Casting Spd., +шанс маг. криту</div>
-            <div>MEN: ~+1% M.Def та Max MP</div>
+        <div
+          className={
+            isL2
+              ? "shrink-0 flex justify-center sm:justify-start w-full sm:w-[168px] md:w-[180px]"
+              : "shrink-0 flex justify-center"
+          }
+        >
+          <div
+            className={
+              isL2
+                ? "relative rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_80%_60%_at_50%_20%,rgba(199,173,128,0.12)_0%,transparent_55%),linear-gradient(180deg,#1a1510_0%,#0c0a08_100%)] p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_28px_rgba(0,0,0,0.55)]"
+                : "p-1 rounded border border-white/20 bg-black/30"
+            }
+          >
+            <img
+              src="/nps/65.png"
+              alt=""
+              className="w-[140px] sm:w-full h-auto max-h-[280px] object-contain object-bottom mx-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.65)]"
+            />
           </div>
-        </details>
-      </div>
+        </div>
 
-      {/* Поточна кількість тату */}
-      <div className={`px-4 py-2 ${borderB} text-[12px] ${isL2 ? "text-[#d4c4a8]" : "text-[#cfcfcc]"}`}>
-        Активних тату: {activeDyes.length} / {MAX_DYES}
-      </div>
+        <div className="flex-1 min-w-0 flex flex-col gap-3">
+          <div
+            className={`text-center sm:text-left text-[11px] tracking-[0.14em] uppercase font-semibold ${
+              isL2 ? "text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]" : "text-[#ff8c00]"
+            }`}
+          >
+            Татуировщик
+          </div>
+          <div className={`space-y-2.5 ${isL2 ? "text-[13px] leading-relaxed text-[#d4c4a8]" : "text-sm text-gray-200"}`}>
+            <p className={isL2 ? "text-[#c9b99a]" : ""}>
+              Мастер татуировок поможет изменить вашу судьбу: на теле героя можно нанести до{" "}
+              <span className="text-[#e8c56e] font-medium">{MAX_DYES}</span> символов силы.
+            </p>
+            <p className={isL2 ? "text-[#a89878]" : "text-gray-400"}>
+              Наносите татуировки, чтобы усилить нужные характеристики, но помните — за каждую силу есть своя цена.
+            </p>
+          </div>
 
-      {/* Кнопки */}
-      <div className={`px-4 py-3 ${borderB} space-y-2`}>
-        <button
-          onClick={() => setShowApplyModal(true)}
-          disabled={dyesWithInfo.length === 0 || activeDyes.length >= MAX_DYES}
-          className={`w-full py-2 px-4 text-[12px] ${
-            dyesWithInfo.length === 0 || activeDyes.length >= MAX_DYES
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-green-500 hover:text-green-400"
-          }`}
-        >
-          Нанести тату
-        </button>
+          <details className="group rounded-md border border-[#5c4a32]/35 bg-black/20 px-3 py-2">
+            <summary
+              className={`cursor-pointer list-none text-[12px] font-medium outline-none ${
+                isL2 ? "text-[#c9a44c] hover:text-[#e8c56e]" : "text-amber-500"
+              } [&::-webkit-details-marker]:hidden flex items-center gap-1.5`}
+            >
+              <span className="inline-block transition-transform group-open:rotate-90 text-[10px] opacity-80">▶</span>
+              Что дают статы (+1)
+            </summary>
+            <div
+              className={`text-[11px] mt-2 space-y-1 pl-4 border-l border-[#5c4a32]/40 ${
+                isL2 ? "text-[#b8a890]" : "text-gray-400"
+              }`}
+            >
+              <div>STR: ~+3% P.Atk</div>
+              <div>DEX: ~+1% к скорости атаки, +0.8 к шансу крита</div>
+              <div>CON: ~+3% к Max HP/CP</div>
+              <div>INT: ~+4% M.Atk</div>
+              <div>WIT: ~+5% к Casting Spd., шанс маг. крита</div>
+              <div>MEN: ~+1% M.Def и Max MP</div>
+            </div>
+          </details>
 
-        <button
-          onClick={() => setShowRemoveModal(true)}
-          disabled={activeDyes.length === 0}
-          className={`w-full py-2 px-4 text-[12px] ${
-            activeDyes.length === 0
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-red-500 hover:text-red-400"
-          }`}
-        >
-          Удалить тату
-        </button>
+          <div
+            className={`rounded-md px-3 py-2 text-[12px] font-medium ${
+              isL2
+                ? "bg-[#1a1610]/80 border border-[#5c4a32]/40 text-[#e8dcc8]"
+                : "bg-black/25 border border-white/10 text-gray-300"
+            }`}
+          >
+            Активных татуировок:{" "}
+            <span className="text-[#e8c56e] tabular-nums">
+              {activeDyes.length} / {MAX_DYES}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-1">
+            <button
+              type="button"
+              onClick={() => setShowApplyModal(true)}
+              disabled={dyesWithInfo.length === 0 || activeDyes.length >= MAX_DYES}
+              className={
+                isL2
+                  ? btnPrimaryL2
+                  : "w-full py-2 rounded bg-green-800/80 text-white text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-green-700"
+              }
+            >
+              Нанести татуировку
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowRemoveModal(true)}
+              disabled={activeDyes.length === 0}
+              className={
+                isL2
+                  ? btnDangerL2
+                  : "w-full py-2 rounded bg-red-900/60 text-red-100 text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-red-800/70"
+              }
+            >
+              Снять татуировку
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Модальне вікно нанесення */}
@@ -277,12 +329,12 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                 isL2 ? "text-[#e8c56e] border-[#5c4a32]/55" : "text-white border-white/50"
               }`}
             >
-              Виберіть тату для нанесення
+              Выберите татуировку
             </div>
 
             {dyesWithInfo.length === 0 ? (
-              <div className="text-gray-400 text-center py-4">
-                У вас немає красок в інвентарі (потрібно 1 краска для нанесення)
+              <div className="text-gray-400 text-center py-4 text-[13px]">
+                В инвентаре нет красок (для нанесения нужна 1 краска)
               </div>
             ) : (
               <div className="space-y-2">
@@ -312,7 +364,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                         {item.dyeInfo?.description}
                       </div>
                       <div className="text-orange-400 text-[10px] mt-0.5">
-                        Потрібно 1 краска для нанесення
+                        Требуется 1 краска
                       </div>
                     </div>
                     {item.count && (
@@ -330,7 +382,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                 onClick={() => setShowApplyModal(false)}
                 className="px-4 py-2 bg-[#1a1208] text-gray-400 border border-white/50 rounded text-[12px] hover:text-gray-300"
               >
-                Скасувати
+                Отмена
               </button>
             </div>
           </div>
@@ -352,12 +404,12 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                 isL2 ? "text-[#e8c56e] border-[#5c4a32]/55" : "text-white border-white/50"
               }`}
             >
-              Виберіть тату для зняття
+              Снятие татуировки
             </div>
 
             {activeDyes.length === 0 ? (
-              <div className="text-gray-400 text-center py-4">
-                У вас немає активних тату
+              <div className="text-gray-400 text-center py-4 text-[13px]">
+                Нет активных татуировок
               </div>
             ) : (
               <div className="space-y-2">
@@ -387,14 +439,15 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                           {dyeInfo?.description || `${dye.statPlus} +${dye.effect} / ${dye.statMinus} -${dye.effect}`}
                         </div>
                         <div className="text-red-400 text-[11px] mt-1">
-                          Вартість зняття: {removeCost.toLocaleString()} AA
+                          Стоимость снятия: {removeCost.toLocaleString()} AA
                         </div>
                       </div>
                       <button
+                        type="button"
                         onClick={() => handleRemoveDye(index)}
                         className="px-3 py-1 bg-red-900/30 text-red-400 border border-red-600 rounded text-[11px] hover:bg-red-900/50"
                       >
-                        Зняти
+                        Снять
                       </button>
                     </div>
                   );
@@ -407,7 +460,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                 onClick={() => setShowRemoveModal(false)}
                 className="px-4 py-2 bg-[#1a1208] text-gray-400 border border-white/50 rounded text-[12px] hover:text-gray-300"
               >
-                Скасувати
+                Отмена
               </button>
             </div>
           </div>
