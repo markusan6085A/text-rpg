@@ -42,11 +42,14 @@ export function isRegistrationOpenForSlot(now: Date, slot: TvtDailySlot): boolea
   return n >= a && n < b;
 }
 
-/** Вікно старту матчу: кілька хвилин після battleStart (тик 15 с не пропустить). */
+/**
+ * Вікно спроб старту матчу: [battleStart, battleStart + 15 хв) — як фаза «бій» у клієнта.
+ * Раніше було 3 хв; перший тик з 0 учасниками міг позначити слот «вже стартанув» без матчу — гонка з KV.
+ */
 export function isBattleStartWindow(now: Date, slot: TvtDailySlot): boolean {
   const n = minutesSinceMidnight(now);
   const b = toMinutes(slot.battleStart);
-  return n >= b && n <= b + 2;
+  return n >= b && n < b + 15;
 }
 
 /** Календарний день у ігровій зоні (для реєстрацій / матчів «сьогодні»). */

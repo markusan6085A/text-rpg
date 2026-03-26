@@ -279,6 +279,12 @@ export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): P
 
   const participantIds = collectRegisteredForSlot(dayKey, slotId);
   if (participantIds.length < 2) {
+    /** 0 учасників: не позначаємо слот як «стартанув» — інакше наступні тики ніколи не створять матч (гонка з порожньою Map). */
+    if (participantIds.length === 0) {
+      await persistTvtState();
+      return;
+    }
+    /** 1 учасник — закриваємо слот без матчу */
     tvtStartedSlots.add(key);
     for (const cid of participantIds) {
       tvtRegistrations.delete(cid);
@@ -287,11 +293,10 @@ export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): P
     return;
   }
 
-  tvtStartedSlots.add(key);
-
   const split = splitTeamIds(participantIds);
   if (!split) {
     for (const cid of participantIds) tvtRegistrations.delete(cid);
+    tvtStartedSlots.add(key);
     await persistTvtState();
     return;
   }
@@ -321,6 +326,7 @@ export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): P
   };
   beginPickPhase(match);
   tvtMatches.set(matchId, match);
+  tvtStartedSlots.add(key);
   await persistTvtState();
 }
 

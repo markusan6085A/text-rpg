@@ -602,9 +602,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       levelClamped: levelToSend !== localLevel,
     });
     
-    // ❗ Дозволяємо надсилати coinLuck завжди (щоб заточка удочки працювала)
-    const localCoinLuck = hero.coinOfLuck ?? 0;
-    const sendCoinLuck = true;
+    const localCoinLuck = Number(hero.coinOfLuck ?? 0);
 
     // 🔥 Pre-PUT: свіжа heroRevision з БД. Heartbeat, /state, інший таб, jobs піднімають revision, а client serverState часто лишається старим → 409.
     try {
@@ -653,7 +651,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       aa: hero.aa || 0,
       expectedRevision,
     };
-    if (sendCoinLuck) (updatePayload as any).coinLuck = localCoinLuck;
+    /** Не слати coinLuck нижче серверного — PUT повертає 400 «coinLuck cannot be decreased» (TvT/мердж/інший таб). */
+    const serverCoinLuckKnown = Number(stNow?.coinLuck ?? 0);
+    if (localCoinLuck >= serverCoinLuckKnown) {
+      (updatePayload as any).coinLuck = localCoinLuck;
+    }
     if ((hero as any).coins_silver !== undefined) (updatePayload as any).coinsSilver = (hero as any).coins_silver;
 
     const updatedCharacter = await updateCharacter(characterStore.characterId, updatePayload);
