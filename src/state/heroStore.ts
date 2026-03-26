@@ -5,6 +5,7 @@ import { loadHero } from "./heroStore/heroLoad";
 import { loadHeroFromAPI } from "./heroStore/heroLoadAPI";
 import { updateHeroLogic } from "./heroStore/heroUpdate";
 import { saveHeroToLocalStorage, saveHeroToLocalStorageOnly } from "./heroStore/heroPersistence";
+import { loadBattle } from "./battle/persist";
 import { hydrateHero } from "./heroStore/heroHydration";
 
 function syncLoadoutDeferred(prev: Hero | null, next: Hero | null) {
@@ -406,6 +407,31 @@ export const useHeroStore = create<HeroState>((set, get) => ({
 
     saveHeroToLocalStorageOnly(updated);
     if (onlyRegen) return; // ⛔ НІЯКОГО debouncedSave/immediateSave для регену
+
+    // У PvE/PvE-бою: лише HP/MP/CP/battleStats (toggle-бафи, урон, автоатака) — без PUT.
+    // Інакше кожен тик/тогл спамить PUT і ловить 409 (revision) + зриви UI.
+    // Синк на сервер: перемога/смерть/критичні поля, або reset() після виходу з бою.
+    if (opts?.persist !== true) {
+      const onlyBattleFluid =
+        keys.length > 0 &&
+        keys.every(
+          (k) =>
+            k === "hp" ||
+            k === "mp" ||
+            k === "cp" ||
+            k === "battleStats"
+        );
+      if (onlyBattleFluid && prev.name) {
+        try {
+          const b = loadBattle(prev.name);
+          if (b?.status === "fighting") {
+            return;
+          }
+        } catch {
+          /* ignore */
+        }
+      }
+    }
 
     // Логуємо зміни інвентаря для відстеження
     if (partial.inventory !== undefined) {

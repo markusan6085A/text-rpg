@@ -1,7 +1,8 @@
-import { clearBattlePersist, persistBattle, loadBattle } from "../persist";
+import { clearBattlePersist, persistBattle } from "../persist";
 import type { BattleState } from "../types";
 import { BASE_ATTACK } from "../loadout";
 import { useHeroStore } from "../../heroStore";
+import { saveHeroToLocalStorage } from "../../heroStore/heroPersistence";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -74,4 +75,9 @@ export const createReset =
       baseSummonStats: baseSummonStatsToSave,
       summonLastAttackAt: aliveSummon ? prev.summonLastAttackAt : undefined,
     }, heroName);
+
+    const heroAfter = useHeroStore.getState().hero;
+    if (heroAfter?.name) {
+      void saveHeroToLocalStorage(heroAfter).catch(() => {});
+    }
   };
