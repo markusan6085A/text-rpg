@@ -805,7 +805,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           onUseSkill={handlePkUseSkill}
           onAttack={handlePkAttack}
           onBack={iLostPk ? handlePkDefeatToCity : backToLocation}
-          panelBackLabel={iLostPk ? "В город" : "Назад в окрестность"}
+          panelBackLabel={iLostPk ? "Телепортироваться в город" : "Назад в окрестность"}
         />
         {showBuffModal && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>

@@ -513,6 +513,8 @@ export interface PkSessionState {
   log: string[];
   ended: boolean;
   winnerId: string | null;
+  /** Останній урон у сесії (сервер); для відображення смерті як у PvE */
+  lastHitDamage?: number;
   escapedById?: string | null;
   escapedByName?: string | null;
   updatedAt: number;

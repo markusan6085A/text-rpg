@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { Character, PkSessionState } from "../../utils/api";
 import type { Mob } from "../../data/world/types";
 import { useHeroStore } from "../../state/heroStore";
@@ -10,6 +10,9 @@ import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
 import { SkillBar } from "../battle/SkillBar";
 import type { BattleBuff } from "../../state/battle/types";
+import { writeDeathGate } from "../../utils/deathGate";
+import { unequipItemLogic } from "../../state/heroStore/heroInventory";
+import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 
 interface PkProfileViewProps {
   character: Character;
@@ -24,8 +27,8 @@ interface PkProfileViewProps {
   onUseSkill: (skillId: number) => void;
   onAttack?: () => void;
   /** Повернутися до профілю (без PK) */
-  onBack?: () => void;
-  /** Текст кнопки під логом (після поразки — «В город» + воскресіння як у бою з мобами) */
+  onBack?: () => void | Promise<void>;
+  /** Текст кнопки під логом (після поразки — як у Battle: телепорт + воскресіння) */
   panelBackLabel?: string;
   /** Тексти завантаження / результату для арени */
   arenaMode?: boolean;
@@ -69,6 +72,7 @@ export default function PkProfileView({
   const isL2 = getCityUiVariant() === "l2";
   const myHero = useHeroStore((s) => s.hero);
   const pkActorBuffsFromStore = useBattleStore((s) => s.pkActorBuffs);
+  const [backBusy, setBackBusy] = useState(false);
   const nowTs = now || Date.now();
   const heroJson = ((myHero as any)?.heroJson || {}) as any;
   const savedBattle = myHero?.name ? loadBattle(myHero.name) : null;
@@ -83,9 +87,79 @@ export default function PkProfileView({
     )
   ) as BattleBuff[];
 
+  const pkDeathAppliedForSessionRef = useRef<string | null>(null);
+
+  /** Поразка в PK: та сама клієнтська смерть, що processMobAttack (deathGate, isDead, HP 0, зняття Зарича) */
+  useEffect(() => {
+    if (!pkSession?.id || !pkSession.ended || !pkSession.winnerId) return;
+    const hero = useHeroStore.getState().hero;
+    if (!hero?.id) return;
+    if (pkSession.winnerId === hero.id) return;
+    if (pkDeathAppliedForSessionRef.current === pkSession.id) return;
+
+    pkDeathAppliedForSessionRef.current = pkSession.id;
+
+    const isAttacker = hero.id === pkSession.attackerId;
+    const killerName = isAttacker ? pkSession.defender.name : pkSession.attacker.name;
+    const lastDmg = Math.round(Number(pkSession.lastHitDamage ?? 0));
+    const deadAt = Date.now();
+    writeDeathGate(String(hero.id ?? "").trim() || null, hero.name, {
+      killerName,
+      damage: lastDmg,
+      at: deadAt,
+    });
+
+    let equipmentAfterDeath = hero.equipment;
+    let equipmentEnchantLevelsAfterDeath = hero.equipmentEnchantLevels;
+    let zaricheEquippedUntilAfterDeath = hero.zaricheEquippedUntil;
+    if (hero.equipment?.weapon === "zariche") {
+      const heroWithoutZariche = unequipItemLogic(hero, "weapon");
+      equipmentAfterDeath = heroWithoutZariche.equipment;
+      equipmentEnchantLevelsAfterDeath = heroWithoutZariche.equipmentEnchantLevels;
+      zaricheEquippedUntilAfterDeath = heroWithoutZariche.zaricheEquippedUntil;
+    }
+    const heroWithZeroHp = { ...hero, hp: 0, maxHp: hero.maxHp, equipment: equipmentAfterDeath };
+    const recalculatedDead = recalculateAllStats(heroWithZeroHp, []);
+    const existingJson = (hero as any).heroJson || {};
+    useHeroStore.getState().updateHero(
+      {
+        hp: 0,
+        mp: 0,
+        cp: 0,
+        battleStats: recalculatedDead.finalStats,
+        equipment: equipmentAfterDeath,
+        equipmentEnchantLevels: equipmentEnchantLevelsAfterDeath,
+        zaricheEquippedUntil: zaricheEquippedUntilAfterDeath,
+        heroJson: {
+          ...existingJson,
+          heroBuffs: [],
+          isDead: true,
+          deadAt,
+          killedByMobName: killerName,
+          killedByMobDamage: lastDmg,
+        } as any,
+      },
+      { persist: true }
+    );
+  }, [pkSession]);
+
   // Синхронізуємо PK-сесію з battle store — той самий store, що й при бою з мобом (лог, відкати, HP цілі)
   useEffect(() => {
     if (!pkSession || !myHero?.id) return;
+    const heroNow = useHeroStore.getState().hero;
+    const iLost =
+      !!pkSession.ended &&
+      !!pkSession.winnerId &&
+      !!heroNow?.id &&
+      pkSession.winnerId !== heroNow.id;
+    const iWon =
+      !!pkSession.ended &&
+      !!pkSession.winnerId &&
+      !!heroNow?.id &&
+      pkSession.winnerId === heroNow.id;
+    const battleStatus = iLost ? "idle" : iWon ? "victory" : pkSession.ended ? "idle" : "fighting";
+    const logLines = iLost ? ["Вы мертвы.", ...(pkSession.log ?? [])].slice(0, 30) : pkSession.log ?? [];
+
     const isAttacker = myHero.id === pkSession.attackerId;
     const targetFighter = isAttacker ? pkSession.defender : pkSession.attacker;
     const level = effectiveCharacterLevel(character);
@@ -104,17 +178,50 @@ export default function PkProfileView({
       pkSessionId: pkSession.id,
       mob,
       mobHP: Math.round(Math.max(0, targetFighter.hp ?? 0)),
-      log: pkSession.log ?? [],
+      log: logLines,
       cooldowns,
-      status: pkSession.ended ? "victory" : "fighting",
+      status: battleStatus,
       heroBuffs: uniqueBuffs,
+      ...(iLost ? { pkActorBuffs: [], activeChargeSlots: [] } : {}),
     });
   }, [pkSession, myHero?.id, character, uniqueBuffs, serverTimeDrift, pkActorBuffsFromStore]);
 
-  const handleBack = () => {
+  const iLost = Boolean(
+    pkSession &&
+      pkSession.ended &&
+      pkSession.winnerId &&
+      myHero?.id &&
+      pkSession.winnerId !== myHero.id
+  );
+
+  const showBackButton = Boolean(
+    pkSession &&
+      (iLost ||
+        (pkSession.ended && pkSession.winnerId === myHero?.id) ||
+        (pkSession.ended && !pkSession.winnerId))
+  );
+
+  const displayBackLabel = iLost
+    ? backBusy
+      ? "..."
+      : panelBackLabel ?? "Телепортироваться в город"
+    : panelBackLabel ?? (arenaMode ? "На арену" : "Назад в окрестность");
+
+  const handleBack = useCallback(() => {
+    if (iLost) {
+      void (async () => {
+        setBackBusy(true);
+        try {
+          await Promise.resolve(onBack?.());
+        } finally {
+          setBackBusy(false);
+        }
+      })();
+      return;
+    }
     useBattleStore.getState().reset();
     onBack?.();
-  };
+  }, [iLost, onBack]);
 
   if (!pkSession) {
     return (
@@ -169,9 +276,9 @@ export default function PkProfileView({
         target={target}
         buffs={uniqueBuffs}
         now={nowTs}
-        backLabel={panelBackLabel ?? "Назад в окрестность"}
+        backLabel={displayBackLabel}
         onBack={handleBack}
-        showBackButton={true}
+        showBackButton={showBackButton}
         isL2={isL2}
       >
         <SkillBar onUseSkillOverride={onUseSkill} onAttackOverride={onAttack} />

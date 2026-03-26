@@ -193,6 +193,7 @@ export function serializePkSession(session: PkSession) {
       winnerId: session.winnerId ?? null,
       escapedById: session.escapedById ?? null,
       escapedByName: session.escapedByName ?? null,
+      lastHitDamage: session.lastHitDamage ?? 0,
       updatedAt: session.updatedAt,
     },
   };

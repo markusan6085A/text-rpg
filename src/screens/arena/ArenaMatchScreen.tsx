@@ -239,7 +239,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
         onUseSkill={handlePkUseSkill}
         onAttack={handlePkAttack}
         onBack={iLost ? handleArenaDefeatToCity : backToArena}
-        panelBackLabel={iLost ? "В город" : "На арену"}
+        panelBackLabel={iLost ? "Телепортироваться в город" : "На арену"}
         arenaMode
       />
     </div>
