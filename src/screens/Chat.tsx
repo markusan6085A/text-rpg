@@ -59,7 +59,7 @@ export default function Chat({ navigate }: ChatProps) {
 
   // Hooks
   const [deletedIds, setDeletedIds] = useDeletedMessages(channel);
-  const [outbox, setOutbox] = useOutbox(channel);
+  const [outbox, setOutbox] = useOutbox(channel, hero?.id);
   const isClanChannel = channel === "clan";
   const {
     messages: globalCached,
@@ -75,6 +75,7 @@ export default function Chat({ navigate }: ChatProps) {
     autoRefresh: false,
     manual: false,
     disabled: isClanChannel,
+    cacheScope: hero?.id ?? "",
   });
 
   const clanChat = useClanChatChannel({

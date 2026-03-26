@@ -6,7 +6,7 @@ import { formatTime } from "../utils";
 import { PlayerNameWithEmblem } from "../../../components/PlayerNameWithEmblem";
 import { EmojiText } from "../../../components/EmojiText";
 import { getCityUiVariant } from "../../../utils/cityUiVariant";
-import { adminOwnWriteTextStyle } from "../../../config/admin";
+import { adminOwnWriteTextStyle, isAdminCharacter, ADMIN_OWN_WRITE_TEXT_COLOR } from "../../../config/admin";
 
 interface ChatMessageItemProps {
   msg: ChatMessage;
@@ -39,7 +39,10 @@ export function ChatMessageItem({
   const heroName = hero.name || hero.username;
   const isOwnMessage = msg.isOwn === true || (heroName && msg.characterName?.toLowerCase() === heroName.toLowerCase());
   const canDelete = isOwnMessage && (channel === "general" || channel === "trade");
-  const adminOwnMsgStyle = isOwnMessage ? adminOwnWriteTextStyle(hero.name || hero.username) : undefined;
+  const ownAdminWriteStyle = isOwnMessage ? adminOwnWriteTextStyle(hero.name || hero.username) : undefined;
+  /** Текст повідомлень Existence — голубий для всіх глядачів (не лише для автора). */
+  const messageBodyStyle =
+    isAdminCharacter(msg.characterName) ? { color: ADMIN_OWN_WRITE_TEXT_COLOR } : ownAdminWriteStyle;
 
   return (
     <React.Fragment>
@@ -137,7 +140,7 @@ export function ChatMessageItem({
           </div>
           <div
             className={`mt-0.5 ${
-              adminOwnMsgStyle
+              messageBodyStyle
                 ? ""
                 : msg.channel === "trade"
                   ? isL2
@@ -147,7 +150,7 @@ export function ChatMessageItem({
                     ? "text-[#e8dcc8]"
                     : "text-white"
             }`}
-            style={adminOwnMsgStyle}
+            style={messageBodyStyle}
           >
             <EmojiText>{msg.message}</EmojiText>
           </div>

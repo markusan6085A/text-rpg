@@ -21,14 +21,36 @@ type UseChatOptions = {
   manual?: boolean;            // true - disable all automatic fetches, only manual refresh()
   /** true — не ходити в /chat (наприклад канал клану обробляється окремо) */
   disabled?: boolean;
+  /** id персонажа — щоб кеш не змішувався між акаунтами/персами в одному браузері */
+  cacheScope?: string;
 };
 
 // RAM cache (shared across all instances)
 const memCache = new Map<string, { ts: number; data: ChatMessage[] }>();
 
-function cacheKey(channel: string, page: number, limit: number) {
-  // v4: invalidate after server nickColor + column fallback fix
-  return `chat:v4:${channel}|${page}|${limit}`;
+function cacheKey(channel: string, page: number, limit: number, cacheScope: string) {
+  const scope = cacheScope || "anon";
+  // v5: scope по characterId — інакше інший гравець бачить порожньо/старі повідомлення з LS
+  return `chat:v5:${scope}:${channel}|${page}|${limit}`;
+}
+
+/** Викликати при logout — інакше localStorage/memCache від попереднього гравця ламають чат. */
+export function clearChatClientCaches(): void {
+  for (const k of [...memCache.keys()]) {
+    if (k.startsWith("chat:")) memCache.delete(k);
+  }
+  try {
+    const toRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith("chat:v") || key.startsWith("chat:outbox:"))) {
+        toRemove.push(key);
+      }
+    }
+    toRemove.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* ignore */
+  }
 }
 
 function readLS(key: string) {
@@ -52,9 +74,18 @@ function writeLS(key: string, value: { ts: number; data: ChatMessage[] }) {
 }
 
 export function useChatMessages(opts: UseChatOptions) {
-  const { channel, page, limit = 10, cacheTtlMs = 60_000, autoRefresh = false, manual = false, disabled = false } = opts;
+  const {
+    channel,
+    page,
+    limit = 10,
+    cacheTtlMs = 60_000,
+    autoRefresh = false,
+    manual = false,
+    disabled = false,
+    cacheScope = "",
+  } = opts;
 
-  const key = useMemo(() => cacheKey(channel, page, limit), [channel, page, limit]);
+  const key = useMemo(() => cacheKey(channel, page, limit, cacheScope), [channel, page, limit, cacheScope]);
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     // 1) RAM cache - найшвидший

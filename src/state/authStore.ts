@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useCharacterStore } from "./characterStore";
+import { clearChatClientCaches } from "../hooks/useChatMessages";
 
 interface AuthState {
   accessToken: string | null;
@@ -31,6 +32,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       console.error("Logout request failed:", err);
     });
     useCharacterStore.getState().setCharacterId(null);
+    clearChatClientCaches();
     set({ accessToken: null, isAuthenticated: false, sessionExpired: true });
   },
 
