@@ -2,7 +2,15 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
-import { TVT_DAILY_SLOTS, formatSlotSchedule, getSlotStatus, type TvtPhase } from "./tvtSchedule";
+import {
+  TVT_DAILY_SLOTS,
+  formatHM,
+  formatMinutesAsClock,
+  formatSlotSchedule,
+  getSlotStatusFromMinutes,
+  minutesSinceMidnightFromDate,
+  type TvtPhase,
+} from "./tvtSchedule";
 import { COIN_OF_LUCK_ICON, TVT_COIN_ICON, TVT_REWARD_COIN_OF_LUCK, TVT_REWARD_TVT_COINS } from "./tvtRewards";
 import { getTvtState, registerTvt, unregisterTvt, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
 
@@ -58,7 +66,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
   }, [cid]);
 
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 30_000);
+    const t = setInterval(() => setNow(new Date()), 10_000);
     return () => clearInterval(t);
   }, []);
 
@@ -118,7 +126,23 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const rowBtn =
     "w-full rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] px-3 py-2.5 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/50 hover:brightness-110 transition-all";
 
-  const slotStatuses = useMemo(() => TVT_DAILY_SLOTS.map((s) => getSlotStatus(now, s)), [now]);
+  /** Той самий «ігровий» час, що на сервері для TvT (з урахуванням зміщення після serverNow). */
+  const effectiveServerMinutes = useMemo(() => {
+    if (
+      typeof tvtState?.serverMinutesSinceMidnight === "number" &&
+      typeof tvtState?.serverNow === "number"
+    ) {
+      const elapsedMin = (Date.now() - tvtState.serverNow) / 60000;
+      const m = tvtState.serverMinutesSinceMidnight + elapsedMin;
+      return ((m % 1440) + 1440) % 1440;
+    }
+    return minutesSinceMidnightFromDate(now);
+  }, [tvtState?.serverMinutesSinceMidnight, tvtState?.serverNow, now]);
+
+  const slotStatuses = useMemo(
+    () => TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(effectiveServerMinutes, s)),
+    [effectiveServerMinutes]
+  );
 
   const myRegSlotId = tvtState?.myRegistration?.slotId;
   const regs = tvtState?.registrationsBySlot ?? {};
@@ -150,9 +174,20 @@ export default function TvtManagerScreen({ navigate }: Props) {
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
           Расписание
         </div>
+        <p className={isL2 ? "text-[11px] text-[#a89878] mb-2" : "text-xs text-gray-500 mb-2"}>
+          Игровое время (сервер):{" "}
+          <span className="text-[#e8c56e] font-semibold">{formatMinutesAsClock(effectiveServerMinutes)}</span>
+          {TVT_DAILY_SLOTS[0] ? (
+            <>
+              {" · "}
+              регистрация {formatHM(TVT_DAILY_SLOTS[0].registrationOpen)} — старт {formatHM(TVT_DAILY_SLOTS[0].battleStart)}
+            </>
+          ) : null}
+        </p>
         <div className="space-y-2">
           {slotStatuses.map((st) => {
-            const count = regs[st.slot.id]?.length ?? 0;
+            const raw = regs[st.slot.id] as number | string[] | undefined;
+            const count = typeof raw === "number" ? raw : Array.isArray(raw) ? raw.length : 0;
             return (
               <div
                 key={st.slot.id}

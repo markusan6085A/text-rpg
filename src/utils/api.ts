@@ -689,9 +689,12 @@ export type TvtSlotDef = {
 export interface TvtStateResponse {
   ok: boolean;
   serverNow: number;
+  /** Хвилини від півночі за годинником сервера (той самий час, що для реєстрації TvT). */
+  serverMinutesSinceMidnight: number;
   dayKey: string;
   slots: TvtSlotDef[];
-  registrationsBySlot: Record<string, string[]>;
+  /** Кількість записаних персонажів по слоту (без id). */
+  registrationsBySlot: Record<string, number>;
   myRegistration: { dayKey: string; slotId: string } | null;
   myMatch: {
     id: string;

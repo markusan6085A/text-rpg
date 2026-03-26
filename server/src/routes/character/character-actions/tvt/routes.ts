@@ -3,7 +3,7 @@ import { getAuth } from "../../auth";
 import { prisma } from "../../../../db";
 import { isOnline } from "../pk/helpers";
 import { tvtRegistrations, tvtMatches } from "./store";
-import { TVT_DAILY_SLOTS, isRegistrationOpenForSlot, dayKeyFromDate } from "./schedule";
+import { TVT_DAILY_SLOTS, isRegistrationOpenForSlot, dayKeyFromDate, minutesSinceMidnight } from "./schedule";
 import { loadTvtStateFromDb, persistTvtState } from "./persistence";
 import { collectRegisteredForSlot, runTvtTick } from "./engine";
 
@@ -78,9 +78,9 @@ export async function registerTvtRoutes(app: FastifyInstance) {
     const now = new Date();
     const dayKey = dayKeyFromDate(now);
 
-    const registrationsBySlot: Record<string, string[]> = {};
+    const registrationsBySlot: Record<string, number> = {};
     for (const s of TVT_DAILY_SLOTS) {
-      registrationsBySlot[s.id] = collectRegisteredForSlot(dayKey, s.id);
+      registrationsBySlot[s.id] = collectRegisteredForSlot(dayKey, s.id).length;
     }
 
     let myMatch: {
@@ -111,9 +111,11 @@ export async function registerTvtRoutes(app: FastifyInstance) {
 
     const myReg = tvtRegistrations.get(characterId);
 
+    const t = Date.now();
     return reply.send({
       ok: true,
-      serverNow: Date.now(),
+      serverNow: t,
+      serverMinutesSinceMidnight: minutesSinceMidnight(new Date()),
       dayKey,
       slots: TVT_DAILY_SLOTS,
       registrationsBySlot,

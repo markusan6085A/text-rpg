@@ -1,6 +1,6 @@
 /**
  * Розклад TvT: один щоденний слот (синхронно з сервером `server/.../tvt/schedule.ts`).
- * Реєстрація 14:05, старт 14:10; фаза бою до 15 хв або до повної перемоги команди.
+ * Реєстрація 14:15, старт 14:20. Фази для UI рахують від `serverMinutesSinceMidnight` з API.
  */
 
 export type TimeHM = { h: number; m: number };
@@ -18,8 +18,8 @@ export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
   {
     id: "daily",
     label: "TvT",
-    registrationOpen: { h: 14, m: 5 },
-    battleStart: { h: 14, m: 10 },
+    registrationOpen: { h: 14, m: 15 },
+    battleStart: { h: 14, m: 20 },
   },
 ];
 
@@ -38,6 +38,14 @@ export function formatSlotSchedule(slot: TvtDailySlot): string {
   return `${formatHM(slot.registrationOpen)} — регистрация · ${formatHM(slot.battleStart)} — старт`;
 }
 
+/** Відображення «ігрового» часу (хвилини від півночі, як на сервері). */
+export function formatMinutesAsClock(minutesSinceMidnight: number): string {
+  const x = ((Math.floor(minutesSinceMidnight) % 1440) + 1440) % 1440;
+  const h = Math.floor(x / 60);
+  const min = x % 60;
+  return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+}
+
 export type TvtPhase = "idle" | "registration" | "battle" | "ended";
 
 export type TvtSlotStatus = {
@@ -49,16 +57,16 @@ export type TvtSlotStatus = {
   minutesUntilBattle: number | null;
 };
 
-function minutesSinceMidnight(d: Date): number {
+export function minutesSinceMidnightFromDate(d: Date): number {
   return d.getHours() * 60 + d.getMinutes();
 }
 
 /**
- * Фаза для слоту в межах одного дня (локальний час браузера).
+ * Фаза слоту за «хвилинами від півночі» (0..1439) — на клієнті використовуй хвилини сервера з API.
  * Реєстрація: [regOpen, battleStart), бій: [battleStart, battleStart + BATTLE_WINDOW).
  */
-export function getSlotStatus(now: Date, slot: TvtDailySlot): TvtSlotStatus {
-  const nowM = minutesSinceMidnight(now);
+export function getSlotStatusFromMinutes(nowMinutes: number, slot: TvtDailySlot): TvtSlotStatus {
+  const nowM = ((Math.floor(nowMinutes) % 1440) + 1440) % 1440;
   const regOpen = toMinutes(slot.registrationOpen);
   const battle = toMinutes(slot.battleStart);
   const battleEnd = battle + BATTLE_WINDOW_MIN;
@@ -81,9 +89,14 @@ export function getSlotStatus(now: Date, slot: TvtDailySlot): TvtSlotStatus {
   };
 }
 
+/** Локальний час браузера (fallback до першого відповіді API). */
+export function getSlotStatus(now: Date, slot: TvtDailySlot): TvtSlotStatus {
+  return getSlotStatusFromMinutes(minutesSinceMidnightFromDate(now), slot);
+}
+
 /** Найближчий слот за часом (для підказки «наступний TvT»). */
 export function getNextSlotHint(now: Date): { slot: TvtDailySlot; message: string } | null {
-  const nowM = minutesSinceMidnight(now);
+  const nowM = minutesSinceMidnightFromDate(now);
   const ordered = [...TVT_DAILY_SLOTS].sort((a, b) => toMinutes(a.battleStart) - toMinutes(b.battleStart));
 
   for (const slot of ordered) {
