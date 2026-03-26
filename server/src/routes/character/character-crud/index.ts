@@ -10,7 +10,7 @@ import {
   enqueuePlayerActivityLog,
   getClientIp,
 } from "../../../playerActivityLog";
-import { mergeTvtRewardsIntoIncomingHeroJson } from "../../../utils/tvtHeroJsonMerge";
+import { mergeHeroJsonForClientPut } from "../../../utils/tvtHeroJsonMerge";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
@@ -137,7 +137,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       ...(inventory !== undefined ? { inventory } : {}),
       ...(overflowChest !== undefined ? { overflowChest } : {}),
     };
-    const newHeroJson = mergeTvtRewardsIntoIncomingHeroJson(oldHeroJson, newHeroJsonRaw);
+    const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
     const validation = validateHeroJson(newHeroJson);
     if (!validation.valid) {
       return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
@@ -452,7 +452,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       if (body.heroJson && typeof body.heroJson === 'object' && body.heroJson.name) {
-        const heroJsonMergedTvt = mergeTvtRewardsIntoIncomingHeroJson(oldHeroJson, body.heroJson);
+        const heroJsonMergedTvt = mergeHeroJsonForClientPut(oldHeroJson, body.heroJson);
         const clientPremiumUntil =
           heroJsonMergedTvt.premiumUntil != null ? Number(heroJsonMergedTvt.premiumUntil) : oldPremiumUntil;
         const clampedPremiumUntil = Math.min(clientPremiumUntil, oldPremiumUntil);

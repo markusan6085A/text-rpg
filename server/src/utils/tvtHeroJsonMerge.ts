@@ -53,3 +53,29 @@ export function mergeTvtRewardsIntoIncomingHeroJson(existingHeroJson: any, incom
   };
   return out;
 }
+
+/**
+ * 7 Печатей: після POST /seven-seals/claim у БД є sevenSealsBonus.claimedWeekStart.
+ * Клієнтський PUT часто перезаписує heroJson без цього поля → приз знову «доступний» на кожному F5.
+ */
+function mergeSevenSealsBonusPreserve(existingHeroJson: any, incomingHeroJson: any): any {
+  const out = { ...incomingHeroJson };
+  const ex = existingHeroJson?.sevenSealsBonus;
+  const inc = incomingHeroJson?.sevenSealsBonus;
+  if (ex && typeof ex === "object" && typeof (ex as any).claimedWeekStart === "string" && (ex as any).claimedWeekStart.length > 0) {
+    const incClaimed =
+      inc && typeof inc === "object" && typeof (inc as any).claimedWeekStart === "string"
+        ? String((inc as any).claimedWeekStart)
+        : "";
+    if (!incClaimed) {
+      out.sevenSealsBonus = ex;
+    }
+  }
+  return out;
+}
+
+/** TvT + 7 Печатей — поля, які сервер не повинен втрачати через застарілий клієнтський snapshot. */
+export function mergeHeroJsonForClientPut(existingHeroJson: any, incomingHeroJson: any): any {
+  const t = mergeTvtRewardsIntoIncomingHeroJson(existingHeroJson, incomingHeroJson);
+  return mergeSevenSealsBonusPreserve(existingHeroJson, t);
+}
