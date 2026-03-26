@@ -2,11 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
-import { TVT_DAILY_SLOTS, formatSlotSchedule, getNextSlotHint, getSlotStatus, type TvtPhase } from "./tvtSchedule";
-import { splitTvtTeams, teamModeLabel } from "./tvtTeamSplit";
+import { TVT_DAILY_SLOTS, formatSlotSchedule, getSlotStatus, type TvtPhase } from "./tvtSchedule";
 import { COIN_OF_LUCK_ICON, TVT_COIN_ICON, TVT_REWARD_COIN_OF_LUCK, TVT_REWARD_TVT_COINS } from "./tvtRewards";
-import type { TvtParticipant } from "./tvtTypes";
-import { TvtNickLink } from "./TvtNickLink";
 import { getTvtState, registerTvt, unregisterTvt, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
 
 type Props = {
@@ -28,11 +25,14 @@ function phaseLabelRu(phase: TvtPhase): string {
   }
 }
 
-function makeDemoParticipants(count: 2 | 4 | 5): TvtParticipant[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `demo-${count}-${i}`,
-    name: `Игрок ${i + 1}`,
-  }));
+function formatTvtLoadError(e: unknown): string {
+  const msg = e && typeof e === "object" && "message" in e ? String((e as { message?: string }).message) : "";
+  const lower = msg.toLowerCase();
+  if (!msg.trim()) return "Ошибка TvT";
+  if (lower.includes("not found") || lower.includes("404")) {
+    return "TvT недоступен: проверьте сервер и вход в аккаунт.";
+  }
+  return msg;
 }
 
 export default function TvtManagerScreen({ navigate }: Props) {
@@ -45,7 +45,6 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const [tvtState, setTvtState] = useState<TvtStateResponse | null>(null);
   const [tvtErr, setTvtErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [exampleCount, setExampleCount] = useState<2 | 4 | 5>(5);
 
   const loadState = useCallback(async () => {
     if (!cid) return;
@@ -53,8 +52,8 @@ export default function TvtManagerScreen({ navigate }: Props) {
       const r = await getTvtState(cid);
       setTvtState(r);
       setTvtErr(null);
-    } catch (e: any) {
-      setTvtErr(e?.message || "Ошибка TvT");
+    } catch (e: unknown) {
+      setTvtErr(formatTvtLoadError(e));
     }
   }, [cid]);
 
@@ -119,10 +118,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const rowBtn =
     "w-full rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] px-3 py-2.5 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/50 hover:brightness-110 transition-all";
 
-  const nextHint = useMemo(() => getNextSlotHint(now), [now]);
   const slotStatuses = useMemo(() => TVT_DAILY_SLOTS.map((s) => getSlotStatus(now, s)), [now]);
-
-  const demoSplit = useMemo(() => splitTvtTeams(makeDemoParticipants(exampleCount)), [exampleCount]);
 
   const myRegSlotId = tvtState?.myRegistration?.slotId;
   const regs = tvtState?.registrationsBySlot ?? {};
@@ -139,24 +135,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
         TvT менеджер
       </div>
 
-      <div
-        className={
-          isL2
-            ? "mx-2 mt-3 rounded-md border border-[#7d9b7a]/35 bg-black/25 px-3 py-2.5 text-[12px] text-[#d4c4a8] leading-snug"
-            : "mx-2 mt-3 rounded border border-green-900/40 bg-green-950/20 px-3 py-2.5 text-sm text-gray-200"
-        }
-      >
-        <span className="font-semibold text-[#7d9b7a]">Онлайн TvT:</span> запись на сервере по расписанию; в старт слота формируются команды и открывается бой (как арена). Победа — когда у соперников не осталось бойцов в очереди, либо по таймауту 15 минут (выигрывает команда с большей очередью).
-      </div>
-
-      <div className={isL2 ? "px-2 py-3 text-[12px] text-[#a89878] leading-snug space-y-2" : "text-gray-400 text-sm space-y-2"}>
-        <p>
-          Цель — уничтожить состав противника в серии дуэлей 1×1 (первый в команде A против первого в B, победитель остаётся / проигравший выбывает).
-        </p>
-        <p className={isL2 ? "text-[#d4c4a8]" : "text-gray-300"}>
-          <span className="text-[#e8c56e] font-semibold">Клик по нику</span> в профиле противника — та же панель, что PvP/арена.
-        </p>
-      </div>
+      <p className={isL2 ? "mx-2 mt-3 text-[12px] text-[#a89878] leading-snug" : "mx-2 mt-3 text-sm text-gray-400"}>
+        Участники делятся на две команды (любое число игроков). Побеждает команда, которая выбьет соперников.
+      </p>
 
       <div className="mt-3 px-2 flex flex-wrap gap-2">
         <button type="button" className={rowBtn} onClick={() => navigate("/tvt-shop")}>
@@ -167,7 +148,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
       <div className="mt-5 px-2">
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Расписание (1 раз в день)
+          Расписание
         </div>
         <div className="space-y-2">
           {slotStatuses.map((st) => {
@@ -208,18 +189,13 @@ export default function TvtManagerScreen({ navigate }: Props) {
                         : "mt-2 w-full py-1.5 rounded bg-gray-700 text-xs disabled:opacity-40"
                     }
                   >
-                    {myRegSlotId === st.slot.id ? "Вы записаны на этот слот" : myRegSlotId ? "Уже записаны на другой слот" : `Записаться на ${st.slot.label}`}
+                    {myRegSlotId === st.slot.id ? "Вы записаны" : myRegSlotId ? "Уже записаны" : "Записаться"}
                   </button>
                 )}
               </div>
             );
           })}
         </div>
-        {nextHint ? (
-          <div className="mt-3 text-[12px] text-[#c9a44c]">{nextHint.message}</div>
-        ) : (
-          <div className="mt-3 text-[12px] text-[#8a7a60]">Сегодня все старты прошли — следующие бои завтра.</div>
-        )}
       </div>
 
       {tvtState?.myMatch && tvtState.myMatch.status === "active" && (
@@ -230,9 +206,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
               : "mx-2 mt-4 rounded border border-amber-700/50 px-3 py-2 text-sm text-amber-100"
           }
         >
-          <div className="font-semibold text-[#e8c56e] mb-1">Матч TvT идёт</div>
+          <div className="font-semibold text-[#e8c56e] mb-1">Матч TvT</div>
           <div className="text-[11px] text-[#a89878]">
-            Очередь A: {tvtState.myMatch.queueALen}, B: {tvtState.myMatch.queueBLen}. Когда откроется бой — вас перенаправит в окно боя.
+            Очередь A: {tvtState.myMatch.queueALen}, B: {tvtState.myMatch.queueBLen}. Откроется бой — перенаправит в окно боя.
           </div>
         </div>
       )}
@@ -263,82 +239,14 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
       <div className="mt-6 px-2">
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Правила составов
-        </div>
-        <ul className={isL2 ? "text-[12px] text-[#d4c4a8] list-disc pl-5 space-y-1" : "text-sm text-gray-300 list-disc pl-5 space-y-1"}>
-          <li>2 игрока — 1×1</li>
-          <li>4 игрока — 2×2</li>
-          <li>5 игроков — 2×3</li>
-        </ul>
-      </div>
-
-      <div className="mt-6 px-2">
-        <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Пример расстановки (демо)
-        </div>
-        <div className="flex flex-wrap gap-2 mb-3">
-          {([2, 4, 5] as const).map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setExampleCount(n)}
-              className={
-                exampleCount === n
-                  ? isL2
-                    ? "px-3 py-1 rounded text-[11px] border border-[#c7ad80]/50 bg-[#2a2418] text-[#e8c56e]"
-                    : "px-3 py-1 rounded text-xs bg-amber-600 text-black"
-                  : isL2
-                    ? "px-3 py-1 rounded text-[11px] border border-[#5c4a32]/50 text-[#8a7a60] hover:text-[#c9a44c]"
-                    : "px-3 py-1 rounded text-xs border border-gray-600 text-gray-400"
-              }
-            >
-              {n} игроков
-            </button>
-          ))}
-        </div>
-        {demoSplit && (
-          <div
-            className={
-              isL2
-                ? "grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-md border border-[#5c4a32]/40 bg-black/15 p-3"
-                : "grid grid-cols-1 sm:grid-cols-2 gap-3 rounded border border-gray-700 p-3"
-            }
-          >
-            <div>
-              <div className="text-[11px] text-[#7d9b7a] mb-1">Команда A · {teamModeLabel(demoSplit.mode)}</div>
-              <ul className="space-y-1">
-                {demoSplit.teamA.map((p) => (
-                  <li key={p.id}>
-                    <TvtNickLink id={p.id} name={p.name} navigate={navigate} isL2={isL2} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <div className="text-[11px] text-[#d4786a] mb-1">Команда B</div>
-              <ul className="space-y-1">
-                {demoSplit.teamB.map((p) => (
-                  <li key={p.id}>
-                    <TvtNickLink id={p.id} name={p.name} navigate={navigate} isL2={isL2} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-        <p className="mt-2 text-[11px] text-[#8a7a60]">Серые ники в примере — демо.</p>
-      </div>
-
-      <div className="mt-6 px-2">
-        <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Ваша запись (сервер)
+          Ваша запись
         </div>
         {!hero || !cid ? (
           <p className="text-[#d4786a] text-[12px]">Войдите в игру.</p>
         ) : myRegSlotId ? (
           <div className="flex flex-wrap gap-2 items-center">
             <span className="text-[#7d9b7a] text-[12px]">
-              Слот: {TVT_DAILY_SLOTS.find((s) => s.id === myRegSlotId)?.label ?? myRegSlotId}
+              {TVT_DAILY_SLOTS.find((s) => s.id === myRegSlotId)?.label ?? myRegSlotId}
             </span>
             <button
               type="button"
@@ -350,7 +258,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
             </button>
           </div>
         ) : (
-          <p className="text-[11px] text-[#8a7a60]">Выберите слот во время фазы «регистрация» выше.</p>
+          <p className="text-[11px] text-[#8a7a60]">Запись во время «регистрация» в расписании.</p>
         )}
         {tvtErr && <p className="mt-2 text-[11px] text-[#d4786a]">{tvtErr}</p>}
       </div>
