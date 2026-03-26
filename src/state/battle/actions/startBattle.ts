@@ -296,9 +296,12 @@ export const createStartBattle =
       const currentLocation = (hero as any).location ?? (hero as any).currentLocation ?? (hero as any).zone;
       if (currentLocation !== zone.name) {
         // Оновлюємо location в hero через updateHero (автоматично збережеться в heroJson)
-        useHeroStore.getState().updateHero({
-          location: zone.name, // 🔥 Додаємо location для збереження в heroJson
-        } as any);
+        useHeroStore.getState().updateHero(
+          {
+            location: zone.name, // 🔥 Додаємо location для збереження в heroJson
+          } as any,
+          { skipServer: true }
+        );
       }
       // 🔥 Зберігаємо місто зони — щоб City та ТП показували правильне місто
       savePreviousCity(zone.cityId);
