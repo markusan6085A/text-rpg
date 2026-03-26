@@ -1,6 +1,6 @@
 /**
  * Розклад TvT: один щоденний слот (синхронно з сервером `server/.../tvt/schedule.ts`).
- * Реєстрація 17:20–17:25, старт 17:25. Фази = ігровий час як у новинах (`gameClock.ts`), синхронно з сервером.
+ * Реєстрація 17:50–17:55, старт 17:55. Фази = ігровий час як у новинах (`gameClock.ts`), синхронно з сервером.
  */
 
 export type TimeHM = { h: number; m: number };
@@ -18,8 +18,8 @@ export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
   {
     id: "daily",
     label: "TvT",
-    registrationOpen: { h: 17, m: 20 },
-    battleStart: { h: 17, m: 25 },
+    registrationOpen: { h: 17, m: 50 },
+    battleStart: { h: 17, m: 55 },
   },
 ];
 

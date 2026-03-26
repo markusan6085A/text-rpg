@@ -299,7 +299,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     kind: "resource",
     slot: "resource",
     stackable: true,
-    icon: "/items/drops/resources/Etc_event_glitter_medal_i00_0.jpg",
+    icon: "/items/drops/resources/unnamed.jpg",
     description: "Монета за перемогу в TvT.",
   },
 
