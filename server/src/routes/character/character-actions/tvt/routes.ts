@@ -58,7 +58,12 @@ export async function registerTvtRoutes(app: FastifyInstance) {
     const slot = TVT_DAILY_SLOTS.find((s) => s.id === slotId)!;
     const now = new Date();
     if (!isRegistrationOpenForSlot(now, slot)) {
-      return reply.code(400).send({ error: "registration is closed for this slot" });
+      return reply.code(400).send({
+        error: "registration is closed for this slot",
+        serverMinutesSinceMidnight: minutesSinceMidnight(now),
+        registrationOpen: slot.registrationOpen,
+        battleStart: slot.battleStart,
+      });
     }
 
     const dayKey = dayKeyFromDate(now);

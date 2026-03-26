@@ -4,17 +4,20 @@
  */
 export const GAME_TIMEZONE = "Europe/Warsaw";
 
-/** Хвилини від півночі в ігровій зоні (0..1439). Intl — узгоджено з сервером TvT (`schedule.minutesSinceMidnight`). */
+/** Секунди від півночі в ігровій зоні — та сама логіка, що `server/.../tvt/schedule.ts` (sv-SE + Europe/Warsaw). */
+function gameSecondsSinceMidnight(now: Date): number {
+  const s = now.toLocaleString("sv-SE", { timeZone: GAME_TIMEZONE });
+  const m = s.match(/\s(\d{1,2}):(\d{2}):(\d{2})/);
+  if (!m) return 0;
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+  const ss = Number(m[3]);
+  return (hh % 24) * 3600 + (mm % 60) * 60 + (ss % 60);
+}
+
+/** Хвилини від півночі (0..1439), floor — узгоджено з сервером TvT. */
 export function getGameMinutesSinceMidnight(now: Date = new Date()): number {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: GAME_TIMEZONE,
-    hour: "numeric",
-    minute: "numeric",
-    hourCycle: "h23",
-  }).formatToParts(now);
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
-  return hour * 60 + minute;
+  return Math.floor(gameSecondsSinceMidnight(now) / 60);
 }
 
 /** Рядок HH:MM для відображення (як у новинах). */

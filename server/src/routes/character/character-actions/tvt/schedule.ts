@@ -19,33 +19,36 @@ export const TVT_MATCH_MAX_MS = 15 * 60 * 1000;
 /** Без вибору цілі в фазі pick — авто-вибір противника (15 хв). */
 export const TVT_PICK_AFK_MS = 15 * 60 * 1000;
 
-/** Один щоденний слот: реєстрація 15:40–15:42 (2 хв), старт 15:42. */
+/** Один щоденний слот: реєстрація 15:45–15:50, старт 15:50 (як у клієнта). */
 export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
-  { id: "daily", label: "TvT", registrationOpen: { h: 15, m: 40 }, battleStart: { h: 15, m: 42 } },
+  { id: "daily", label: "TvT", registrationOpen: { h: 15, m: 45 }, battleStart: { h: 15, m: 50 } },
 ];
 
-function toMinutes(t: TimeHM): number {
-  return t.h * 60 + t.m;
+/** Секунди від півночі в ігровій зоні — однакова межа з клієнтом (gameClock). Формат sv-SE стабільний у Node. */
+function secondsSinceMidnightGame(d: Date): number {
+  const s = d.toLocaleString("sv-SE", { timeZone: GAME_TZ });
+  const m = s.match(/\s(\d{1,2}):(\d{2}):(\d{2})/);
+  if (!m) return 0;
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+  const ss = Number(m[3]);
+  return (hh % 24) * 3600 + (mm % 60) * 60 + (ss % 60);
 }
 
-/** Хвилини від півночі в ігровій зоні (як у новинах). Intl — без парсингу toLocaleString (на Node/VPS надійніше). */
+function toSecondsHM(t: TimeHM): number {
+  return t.h * 3600 + t.m * 60;
+}
+
+/** Хвилини від півночі (для API / діагностики). */
 export function minutesSinceMidnight(d: Date): number {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: GAME_TZ,
-    hour: "numeric",
-    minute: "numeric",
-    hourCycle: "h23",
-  }).formatToParts(d);
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
-  return hour * 60 + minute;
+  return Math.floor(secondsSinceMidnightGame(d) / 60);
 }
 
-/** Реєстрація відкрита: [regOpen, battleStart) */
+/** Реєстрація відкрита: [regOpen, battleStart) по секундах — без зсуву на межі хвилини. */
 export function isRegistrationOpenForSlot(now: Date, slot: TvtDailySlot): boolean {
-  const n = minutesSinceMidnight(now);
-  const a = toMinutes(slot.registrationOpen);
-  const b = toMinutes(slot.battleStart);
+  const n = secondsSinceMidnightGame(now);
+  const a = toSecondsHM(slot.registrationOpen);
+  const b = toSecondsHM(slot.battleStart);
   return n >= a && n < b;
 }
 
@@ -54,9 +57,9 @@ export function isRegistrationOpenForSlot(now: Date, slot: TvtDailySlot): boolea
  * Раніше було 3 хв; перший тик з 0 учасниками міг позначити слот «вже стартанув» без матчу — гонка з KV.
  */
 export function isBattleStartWindow(now: Date, slot: TvtDailySlot): boolean {
-  const n = minutesSinceMidnight(now);
-  const b = toMinutes(slot.battleStart);
-  return n >= b && n < b + 15;
+  const n = secondsSinceMidnightGame(now);
+  const b = toSecondsHM(slot.battleStart);
+  return n >= b && n < b + 15 * 60;
 }
 
 /** Календарний день у ігровій зоні (для реєстрацій / матчів «сьогодні»). */
