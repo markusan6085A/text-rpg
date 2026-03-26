@@ -88,14 +88,20 @@ function RecipeCard(props: {
   return (
     <div className={cardClass}>
       <div className="text-[10px] uppercase tracking-[0.12em] text-[#8a7a60]">Результат ×1</div>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-row flex-nowrap items-center gap-3 min-w-0">
         <img
           src={craftRowIcon(outputId)}
           alt=""
           className="w-10 h-10 object-contain border border-[#5c4a32]/50 bg-black/40 shrink-0"
           onError={handleResourceIconError}
         />
-        <span className={isL2ui ? "text-[#d4c4a8] text-sm font-medium" : "text-gray-200 text-sm font-medium"}>
+        <span
+          className={
+            isL2ui
+              ? "text-[#d4c4a8] text-sm font-medium min-w-0 text-left"
+              : "text-gray-200 text-sm font-medium min-w-0 text-left"
+          }
+        >
           {displayCraftResourceName(outputId)}
         </span>
       </div>
@@ -106,14 +112,14 @@ function RecipeCard(props: {
           const have = countResourceInInventory(inv, ing.stringId);
           const ok = have >= ing.count;
           return (
-            <div key={`${ing.stringId}-${j}`} className="flex items-center gap-2 text-xs">
+            <div key={`${ing.stringId}-${j}`} className="flex flex-row flex-nowrap items-center gap-2 text-xs min-w-0">
               <img
                 src={craftRowIcon(ing.stringId)}
                 alt=""
                 className="w-7 h-7 object-contain border border-white/25 bg-black/40 shrink-0"
                 onError={handleResourceIconError}
               />
-              <div className={isL2ui ? "text-[#c9b99a] flex-1 min-w-0" : "text-gray-300 flex-1 min-w-0"}>
+              <div className={isL2ui ? "text-[#c9b99a] flex-1 min-w-0 text-left" : "text-gray-300 flex-1 min-w-0 text-left"}>
                 {displayCraftResourceName(ing.stringId)}{" "}
                 <span className={ok ? "text-[#7fd67f]" : "text-red-400"}>
                   ({have}/{ing.count})
@@ -253,32 +259,32 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1 p-3 sm:p-4` : "w-full max-w-lg mx-auto p-3"}>
       <div
-        className={`flex flex-col md:flex-row gap-4 md:gap-6 items-start mb-5 pb-5 ${
+        className={`flex flex-row gap-3 sm:gap-4 md:gap-6 items-start mb-5 pb-5 ${
           isL2 ? "border-b border-[#5c4a32]/40" : "border-b border-white/10"
         }`}
       >
         <div
           className={
             isL2
-              ? "shrink-0 flex justify-center md:justify-start w-full md:w-[168px]"
-              : "shrink-0 flex justify-center"
+              ? "shrink-0 w-[88px] sm:w-[120px] md:w-[168px]"
+              : "shrink-0 w-[80px] sm:w-[100px]"
           }
         >
           <div
             className={
               isL2
-                ? "relative rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_80%_60%_at_50%_20%,rgba(199,173,128,0.12)_0%,transparent_55%),linear-gradient(180deg,#1a1510_0%,#0c0a08_100%)] p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_28px_rgba(0,0,0,0.55)]"
+                ? "relative rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_80%_60%_at_50%_20%,rgba(199,173,128,0.12)_0%,transparent_55%),linear-gradient(180deg,#1a1510_0%,#0c0a08_100%)] p-1.5 sm:p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_28px_rgba(0,0,0,0.55)]"
                 : "p-1 rounded border border-white/20 bg-black/30"
             }
           >
             <img
               src="/nps/38.png"
               alt=""
-              className="w-[140px] md:w-full h-auto max-h-[280px] object-contain object-bottom mx-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.65)]"
+              className="w-full h-auto max-h-[160px] sm:max-h-[220px] md:max-h-[280px] object-contain object-bottom drop-shadow-[0_6px_16px_rgba(0,0,0,0.65)]"
             />
           </div>
         </div>
-        <div className="flex-1 min-w-0 space-y-2.5">
+        <div className="flex-1 min-w-0 space-y-2.5 text-left">
           <h1
             className={
               isL2

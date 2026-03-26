@@ -205,35 +205,33 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
       <div className={isL2 ? "max-w-[520px] mx-auto w-full" : ""}>
       {/* NPC + текст */}
       <div
-        className={`flex flex-col sm:flex-row gap-4 sm:gap-5 px-3 sm:px-4 py-4 ${borderB} ${
-          isL2 ? "items-stretch" : ""
-        }`}
+        className={`flex flex-row gap-3 sm:gap-4 md:gap-5 px-3 sm:px-4 py-4 ${borderB} items-start`}
       >
         <div
           className={
             isL2
-              ? "shrink-0 flex justify-center sm:justify-start w-full sm:w-[168px] md:w-[180px]"
-              : "shrink-0 flex justify-center"
+              ? "shrink-0 w-[88px] sm:w-[120px] md:w-[180px]"
+              : "shrink-0 w-[80px] sm:w-[100px]"
           }
         >
           <div
             className={
               isL2
-                ? "relative rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_80%_60%_at_50%_20%,rgba(199,173,128,0.12)_0%,transparent_55%),linear-gradient(180deg,#1a1510_0%,#0c0a08_100%)] p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_28px_rgba(0,0,0,0.55)]"
+                ? "relative rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_80%_60%_at_50%_20%,rgba(199,173,128,0.12)_0%,transparent_55%),linear-gradient(180deg,#1a1510_0%,#0c0a08_100%)] p-1.5 sm:p-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_28px_rgba(0,0,0,0.55)]"
                 : "p-1 rounded border border-white/20 bg-black/30"
             }
           >
             <img
               src="/nps/65.png"
               alt=""
-              className="w-[140px] sm:w-full h-auto max-h-[280px] object-contain object-bottom mx-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.65)]"
+              className="w-full h-auto max-h-[160px] sm:max-h-[220px] md:max-h-[280px] object-contain object-bottom drop-shadow-[0_6px_16px_rgba(0,0,0,0.65)]"
             />
           </div>
         </div>
 
-        <div className="flex-1 min-w-0 flex flex-col gap-3">
+        <div className="flex-1 min-w-0 flex flex-col gap-3 text-left">
           <div
-            className={`text-center sm:text-left text-[11px] tracking-[0.14em] uppercase font-semibold ${
+            className={`text-left text-[11px] tracking-[0.14em] uppercase font-semibold ${
               isL2 ? "text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]" : "text-[#ff8c00]"
             }`}
           >
@@ -343,8 +341,8 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                     key={item.id}
                     className={
                       isL2
-                        ? "flex items-center gap-3 p-2 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 bg-black/15 cursor-pointer"
-                        : "flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20 cursor-pointer"
+                        ? "flex flex-row flex-nowrap items-center gap-3 p-2 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 bg-black/15 cursor-pointer min-w-0"
+                        : "flex flex-row flex-nowrap items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20 cursor-pointer min-w-0"
                     }
                     onClick={() => handleApplyDye(item)}
                   >
@@ -356,7 +354,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                         (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
                       }}
                     />
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0 text-left">
                       <div className="text-white text-[12px] font-semibold">
                         {item.dyeInfo?.name}
                       </div>
@@ -422,8 +420,8 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                       key={index}
                       className={
                         isL2
-                          ? "flex items-center gap-3 p-2 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 bg-black/15"
-                          : "flex items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20"
+                          ? "flex flex-row flex-nowrap items-center gap-3 p-2 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 bg-black/15 min-w-0"
+                          : "flex flex-row flex-nowrap items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20 min-w-0"
                       }
                     >
                       <img
@@ -431,7 +429,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                         alt={dyeInfo?.name || dye.id}
                         className="w-10 h-10 object-contain"
                       />
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0 text-left">
                         <div className="text-white text-[12px] font-semibold">
                           {dyeInfo?.name || dye.id}
                         </div>
