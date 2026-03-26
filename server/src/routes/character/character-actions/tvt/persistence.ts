@@ -25,12 +25,7 @@ function normalizeMatch(m: TvtMatchState): TvtMatchState {
         ? "fighting"
         : "pick";
   const attackingTeam = m.attackingTeam === "A" || m.attackingTeam === "B" ? m.attackingTeam : "A";
-  const pendingAttackerId =
-    typeof m.pendingAttackerId === "string"
-      ? m.pendingAttackerId
-      : attackingTeam === "A"
-        ? m.queueA[0] ?? null
-        : m.queueB[0] ?? null;
+  const pendingAttackerId = typeof m.pendingAttackerId === "string" ? m.pendingAttackerId : null;
   const pickedDefenderId = typeof m.pickedDefenderId === "string" ? m.pickedDefenderId : null;
   const lastPickActivityAt =
     typeof m.lastPickActivityAt === "number" && Number.isFinite(m.lastPickActivityAt)

@@ -45,6 +45,7 @@ import ArenaLobby from "./screens/arena/ArenaLobby";
 import ArenaMatchScreen from "./screens/arena/ArenaMatchScreen";
 import PvpArenaStatsScreen from "./screens/arena/PvpArenaStatsScreen";
 import TvtManagerScreen from "./screens/tvt/TvtManagerScreen";
+import TvtMatchBoardScreen from "./screens/tvt/TvtMatchBoardScreen";
 import TvtShopScreen from "./screens/tvt/TvtShopScreen";
 import Help from "./screens/Help";
 import ExpTable from "./screens/ExpTable";
@@ -655,6 +656,9 @@ function AppInner() {
 
     case "/tvt":
       return renderWithLayout(<TvtManagerScreen navigate={navigate} key={`tvt-${refreshKey}`} />);
+
+    case "/tvt-match":
+      return renderWithLayout(<TvtMatchBoardScreen navigate={navigate} key={`tvt-match-${refreshKey}`} />);
 
     case "/tvt-shop":
       return renderWithLayout(<TvtShopScreen navigate={navigate} key={`tvt-shop-${refreshKey}`} />);

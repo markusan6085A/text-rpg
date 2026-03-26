@@ -706,16 +706,16 @@ export interface TvtStateResponse {
     currentPkSessionId: string | null;
     status: string;
   } | null;
-  /** Розширений стан матчу (вибір цілі, черга) — лише з JWT + characterId. */
+  /** Склад команд у матчі — лише з JWT + characterId. */
   myMatchDetail?: {
     matchId: string;
     slotId: string;
     phase: "pick" | "fighting";
-    attackingTeam: "A" | "B";
-    pendingAttackerId: string | null;
-    amIPicking: boolean;
+    mySide: "A" | "B";
+    teamA: Array<{ id: string; name: string; level: number }>;
+    teamB: Array<{ id: string; name: string; level: number }>;
+    canStartFight: boolean;
     currentPkSessionId: string | null;
-    enemies: Array<{ id: string; name: string; level: number }>;
   } | null;
 }
 

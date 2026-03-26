@@ -197,7 +197,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
     fledArenaExplicitRef.current = true;
     if (sessionIdFromUrl) await arenaFleePkSession(sessionIdFromUrl).catch(() => {});
     if (cidUse) await leaveArenaField(cidUse).catch(() => {});
-    navigate(sessionKindRef.current === "tvt" ? "/tvt" : "/arena");
+    navigate(sessionKindRef.current === "tvt" ? "/tvt-match" : "/arena");
   };
 
   if (!sessionIdFromUrl) {

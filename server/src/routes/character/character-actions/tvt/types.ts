@@ -7,7 +7,7 @@ export type TvtMatchState = {
   /** Початковий склад команд (для нагород і UI) */
   teamAIds: string[];
   teamBIds: string[];
-  /** Живі бійці по командах (порядок: хто перший атакує, коли черга команди) */
+  /** Живі бійці по командах */
   queueA: string[];
   queueB: string[];
   status: "active" | "done";
@@ -16,11 +16,10 @@ export type TvtMatchState = {
   createdAt: number;
   /** Unix ms: після цього часу матч завершується таймаутом (якщо ще active) */
   matchEndsAt: number;
-  /** pick — чекаємо вибір цілі атакуючим; fighting — активний PK */
+  /** pick — можна почати новий бій; fighting — вже йде PK */
   phase: TvtMatchPhase;
-  /** Чия черга обирати противника */
+  /** legacy (залишаємо для KV): не використовується — атакувати може будь-хто зі своєї команди */
   attackingTeam: "A" | "B";
-  /** Хто має викликати pick-target (голова черги attackingTeam) */
   pendingAttackerId: string | null;
   pickedDefenderId: string | null;
   /** Остання активність фази вибору (AFK → авто-ціль) */

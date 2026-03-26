@@ -7,7 +7,6 @@ import { pkSessions, savePkSessionToDb } from "../pk/store";
 import {
   TVT_DAILY_SLOTS,
   TVT_MATCH_MAX_MS,
-  TVT_PICK_AFK_MS,
   dayKeyFromDate,
   isBattleStartWindow,
 } from "./schedule";
@@ -163,12 +162,15 @@ function beginPickPhase(match: TvtMatchState): void {
   match.phase = "pick";
   match.currentPkSessionId = null;
   match.pickedDefenderId = null;
+  match.pendingAttackerId = null;
   match.lastPickActivityAt = Date.now();
-  match.pendingAttackerId = match.attackingTeam === "A" ? match.queueA[0] ?? null : match.queueB[0] ?? null;
 }
 
-function enemyQueueForMatch(match: TvtMatchState): string[] {
-  return match.attackingTeam === "A" ? [...match.queueB] : [...match.queueA];
+/** Суперники для атакуючого: будь-який живий з іншої команди. */
+function opponentIdsForAttacker(match: TvtMatchState, attackerId: string): string[] | null {
+  if (match.queueA.includes(attackerId)) return [...match.queueB];
+  if (match.queueB.includes(attackerId)) return [...match.queueA];
+  return null;
 }
 
 /** Почати PK після вибору цілі (або авто-після AFK). */
@@ -180,7 +182,6 @@ async function startTvtFightWithDefender(match: TvtMatchState, attackerId: strin
     match.currentPkSessionId = session.id;
     match.phase = "fighting";
     match.pickedDefenderId = defenderId;
-    match.pendingAttackerId = attackerId;
     tvtMatches.set(mid, match);
     await persistTvtState();
   } catch (e) {
@@ -189,16 +190,8 @@ async function startTvtFightWithDefender(match: TvtMatchState, attackerId: strin
   }
 }
 
-async function autoPickRandomDefender(match: TvtMatchState): Promise<void> {
-  if (match.phase !== "pick" || !match.pendingAttackerId) return;
-  const enemy = enemyQueueForMatch(match);
-  if (enemy.length === 0) return;
-  const defenderId = enemy[Math.floor(Math.random() * enemy.length)];
-  await startTvtFightWithDefender(match, match.pendingAttackerId, defenderId);
-}
-
 /**
- * Персонаж з облікового запису обирає противника в активному матчі.
+ * Будь-який бієць команди обирає будь-якого живого суперника (один активний PK на матч).
  */
 export async function pickTvtTarget(attackerId: string, defenderId: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const a = attackerId.trim();
@@ -215,10 +208,11 @@ export async function pickTvtTarget(attackerId: string, defenderId: string): Pro
     }
   }
   if (!match) return { ok: false, error: "no_match" };
+  if (match.currentPkSessionId) return { ok: false, error: "fight_in_progress" };
   if (match.phase !== "pick") return { ok: false, error: "not_pick_phase" };
-  if (match.pendingAttackerId !== a) return { ok: false, error: "not_your_turn" };
-  const enemy = enemyQueueForMatch(match);
-  if (!enemy.includes(d)) return { ok: false, error: "invalid_target" };
+  const foes = opponentIdsForAttacker(match, a);
+  if (!foes) return { ok: false, error: "not_in_match" };
+  if (!foes.includes(d)) return { ok: false, error: "invalid_target" };
 
   await startTvtFightWithDefender(match, a, d);
   return { ok: true };
@@ -240,7 +234,6 @@ export async function onTvtPkSessionEnded(session: PkSession): Promise<void> {
   }
 
   match.currentPkSessionId = null;
-  match.attackingTeam = match.attackingTeam === "A" ? "B" : "A";
   beginPickPhase(match);
   tvtMatches.set(mid, match);
 
@@ -362,15 +355,6 @@ export function runTvtTick(): void {
     const ends = match.matchEndsAt ?? match.createdAt + TVT_MATCH_MAX_MS;
     if (t > ends) {
       void finalizeTvtMatchTimeout(mid);
-      continue;
-    }
-    if (match.phase === "pick" && match.pendingAttackerId && t - match.lastPickActivityAt > TVT_PICK_AFK_MS) {
-      void (async () => {
-        const m = tvtMatches.get(mid);
-        if (!m || m.status !== "active" || m.phase !== "pick" || !m.pendingAttackerId) return;
-        if (Date.now() - m.lastPickActivityAt <= TVT_PICK_AFK_MS) return;
-        await autoPickRandomDefender(m);
-      })();
     }
   }
 }

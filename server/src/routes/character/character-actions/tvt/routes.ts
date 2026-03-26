@@ -103,9 +103,9 @@ export async function registerTvtRoutes(app: FastifyInstance) {
     const r = await pickTvtTarget(characterId, defenderId);
     if (!r.ok) {
       const code =
-        r.error === "not_your_turn"
-          ? 403
-          : r.error === "not_pick_phase" || r.error === "no_match" || r.error === "invalid_target"
+        r.error === "fight_in_progress"
+          ? 409
+          : r.error === "not_pick_phase" || r.error === "no_match" || r.error === "invalid_target" || r.error === "not_in_match"
             ? 400
             : 400;
       return reply.code(code).send({ error: r.error });
@@ -150,11 +150,11 @@ export async function registerTvtRoutes(app: FastifyInstance) {
       matchId: string;
       slotId: string;
       phase: "pick" | "fighting";
-      attackingTeam: "A" | "B";
-      pendingAttackerId: string | null;
-      amIPicking: boolean;
+      mySide: "A" | "B";
+      teamA: Array<{ id: string; name: string; level: number }>;
+      teamB: Array<{ id: string; name: string; level: number }>;
+      canStartFight: boolean;
       currentPkSessionId: string | null;
-      enemies: Array<{ id: string; name: string; level: number }>;
     } | null = null;
 
     if (auth && characterId) {
@@ -179,17 +179,18 @@ export async function registerTvtRoutes(app: FastifyInstance) {
               currentPkSessionId: m.currentPkSessionId,
               status: m.status,
             };
-            const enemyIds = m.attackingTeam === "A" ? m.queueB : m.queueA;
-            const enemies = await loadTvtParticipantLites(enemyIds);
+            const mySide = m.queueA.includes(characterId) ? "A" : "B";
+            const teamA = await loadTvtParticipantLites(m.queueA);
+            const teamB = await loadTvtParticipantLites(m.queueB);
             myMatchDetail = {
               matchId: m.id,
               slotId: m.slotId,
               phase: m.phase,
-              attackingTeam: m.attackingTeam,
-              pendingAttackerId: m.pendingAttackerId,
-              amIPicking: m.phase === "pick" && m.pendingAttackerId === characterId,
+              mySide,
+              teamA,
+              teamB,
+              canStartFight: m.phase === "pick" && !m.currentPkSessionId,
               currentPkSessionId: m.currentPkSessionId,
-              enemies,
             };
             break;
           }

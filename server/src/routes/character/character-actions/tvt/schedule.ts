@@ -19,9 +19,9 @@ export const TVT_MATCH_MAX_MS = 15 * 60 * 1000;
 /** Без вибору цілі в фазі pick — авто-вибір противника (15 хв). */
 export const TVT_PICK_AFK_MS = 15 * 60 * 1000;
 
-/** Один щоденний слот: реєстрація 15:45–15:50, старт 15:50 (як у клієнта). */
+/** Один щоденний слот: реєстрація 16:05–16:10, старт 16:10 (як у клієнта). */
 export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
-  { id: "daily", label: "TvT", registrationOpen: { h: 15, m: 45 }, battleStart: { h: 15, m: 50 } },
+  { id: "daily", label: "TvT", registrationOpen: { h: 16, m: 5 }, battleStart: { h: 16, m: 10 } },
 ];
 
 /** Секунди від півночі в ігровій зоні — однакова межа з клієнтом (gameClock). Формат sv-SE стабільний у Node. */

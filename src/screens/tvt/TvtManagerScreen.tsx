@@ -12,14 +12,7 @@ import {
 } from "./tvtSchedule";
 import { getGameMinutesSinceMidnight } from "../../utils/gameClock";
 import { COIN_OF_LUCK_ICON, TVT_COIN_ICON, TVT_REWARD_COIN_OF_LUCK, TVT_REWARD_TVT_COINS } from "./tvtRewards";
-import {
-  getTvtState,
-  registerTvt,
-  unregisterTvt,
-  getArenaActiveSession,
-  pickTvtTarget,
-  type TvtStateResponse,
-} from "../../utils/api";
+import { getTvtState, registerTvt, unregisterTvt, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
 
 type Props = {
   navigate: (path: string) => void;
@@ -97,14 +90,6 @@ export default function TvtManagerScreen({ navigate }: Props) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [loadState]);
 
-  /** Під час фази вибору цілі частіше оновлюємо стан (черга, авто-ціль). */
-  useEffect(() => {
-    const d = tvtState?.myMatchDetail;
-    if (!d || d.phase !== "pick") return;
-    const iv = setInterval(() => void loadState(), 5_000);
-    return () => clearInterval(iv);
-  }, [loadState, tvtState?.myMatchDetail?.phase]);
-
   const handleRegister = async (slotId: string) => {
     if (!cid) return;
     setBusy(true);
@@ -126,24 +111,6 @@ export default function TvtManagerScreen({ navigate }: Props) {
       await loadState();
     } catch (e: any) {
       setTvtErr(e?.message || "Ошибка");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handlePickEnemy = async (defenderId: string) => {
-    if (!cid) return;
-    setBusy(true);
-    try {
-      await pickTvtTarget(cid, defenderId);
-      await loadState();
-      const r = await getArenaActiveSession(cid);
-      const sid = r.sessionId?.trim();
-      if (sid) {
-        navigate(`/arena/match?session=${encodeURIComponent(sid)}`);
-      }
-    } catch (e: any) {
-      setTvtErr(e?.message || "Не удалось выбрать цель");
     } finally {
       setBusy(false);
     }
@@ -217,7 +184,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
       </div>
 
       <p className={isL2 ? "mx-2 mt-3 text-[12px] text-[#a89878] leading-snug" : "mx-2 mt-3 text-sm text-gray-400"}>
-        Две команды. В свой ход выберите цель по нику — откроется бой; после боя — снова TvT. Побеждает команда, выбившая соперников (или по таймауту 15 мин).
+        Две команды. Во время матча откройте «Поле боя»: список ников своей команды и противников — любой атакует любого врага. Побеждает команда, выбившая соперников (или по таймауту 15 мин).
       </p>
 
       <div className="mt-3 px-2 flex flex-wrap gap-2">
@@ -373,37 +340,19 @@ export default function TvtManagerScreen({ navigate }: Props) {
         >
           <div className="font-semibold text-[#e8c56e] mb-1">Матч TvT</div>
           <div className="text-[11px] text-[#a89878]">
-            Очередь A: {tvtState.myMatch.queueALen}, B: {tvtState.myMatch.queueBLen}.{" "}
-            {tvtState.myMatchDetail?.phase === "pick"
-              ? "Ваш ход — выберите противника по нику (или ждите союзника). Без выбора 15 мин — цель случайная."
-              : "Идёт бой — откроется окно PvP."}
+            В очереди A: {tvtState.myMatch.queueALen}, B: {tvtState.myMatch.queueBLen}. Откройте поле боя — там ники команд и атака по нику противника.
           </div>
-          {tvtState.myMatchDetail?.phase === "pick" && !tvtState.myMatchDetail.amIPicking && (
-            <div className="text-[11px] text-[#8a7a60] mt-2">Сейчас выбирает цель другой боец.</div>
-          )}
-          {tvtState.myMatchDetail?.phase === "pick" && tvtState.myMatchDetail.amIPicking && (
-            <div className="mt-3 space-y-2">
-              <div className="text-[11px] text-[#c9a44c]">Противники (клик — начать бой):</div>
-              <div className="flex flex-col gap-1.5">
-                {tvtState.myMatchDetail.enemies.map((e) => (
-                  <button
-                    key={e.id}
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void handlePickEnemy(e.id)}
-                    className={
-                      isL2
-                        ? "w-full text-left rounded border border-[#5c4a32]/60 bg-black/25 px-2 py-2 text-[12px] text-[#d4c4a8] hover:border-[#c7ad80]/45 disabled:opacity-40"
-                        : "w-full text-left rounded border border-gray-600 px-2 py-2 text-sm text-gray-200 disabled:opacity-40"
-                    }
-                  >
-                    <span className="text-[#e8c56e] font-semibold">{e.name}</span>
-                    <span className="text-[#8a7a60]"> · ур. {e.level}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => navigate("/tvt-match")}
+            className={
+              isL2
+                ? "mt-3 w-full py-2 rounded-md border border-[#c9a44c]/55 bg-[#2a2218]/90 text-[12px] text-[#f0d78c] font-semibold hover:brightness-110"
+                : "mt-3 w-full py-2 rounded bg-amber-700/40 text-white text-sm font-semibold"
+            }
+          >
+            Поле боя (ники команд)
+          </button>
         </div>
       )}
 
