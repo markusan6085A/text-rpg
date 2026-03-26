@@ -562,9 +562,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
     const serverOverflow = Array.isArray((fixedHero as any).overflowChest) ? (fixedHero as any).overflowChest : [];
     const localOverflow = Array.isArray(localHeroForMerge?.overflowChest) ? localHeroForMerge.overflowChest : [];
-    const serverOverflowTotal = serverOverflow.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
-    const localOverflowTotal = localOverflow.reduce((s: number, i: any) => s + (i.count ?? 1), 0);
-    const mergedOverflow = localOverflowTotal >= serverOverflowTotal ? localOverflow : serverOverflow;
+    /** Як інвентар — union, інакше «більший локальний overflow» затирав серверні нагороди (TvT тощо). */
+    const mergedOverflow = mergeInventoriesUnion(localOverflow, serverOverflow);
 
     const heroForRecalc: Hero = {
       ...fixedHero,
@@ -825,15 +824,34 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         }
       }
       // 🔥 КРИТИЧНО: Union-merge інвентаря — ніколи не губити предмети (удочки +1000 тощо)
-      // 🔥 ВИКЛЮЧЕННЯ: Якщо локальний інвентар порожній — користувач натиснув «Очистить», не відновлювати з сервера
+      // Порожній локальний [] + непорожній сервер — раніше затирали сервер (втрата нагород TvT після GET).
       if (localHeroForMerge) {
         const localInv = localHeroForMerge.inventory ?? [];
         const serverInv = hydratedHero.inventory ?? [];
         const localEquip = localHeroForMerge.equipment ?? {};
         const serverEquip = hydratedHero.equipment ?? {};
-        const mergedInv = localInv.length === 0 ? [] : mergeInventoriesUnion(localInv, serverInv);
+        const mergedInv = mergeInventoriesUnion(localInv, serverInv);
+        const localOv = Array.isArray((localHeroForMerge as any).overflowChest) ? (localHeroForMerge as any).overflowChest : [];
+        const serverOv = Array.isArray((hydratedHero as any).overflowChest) ? (hydratedHero as any).overflowChest : [];
+        const mergedOv = mergeInventoriesUnion(localOv, serverOv);
+        const localTvt = Math.max(
+          Number((localHeroForMerge as any).heroJson?.tvtCoins ?? (localHeroForMerge as any).heroJson?.tvt_coins ?? 0),
+          0
+        );
+        const serverTvt = Math.max(
+          Number((hydratedHero as any).heroJson?.tvtCoins ?? (hydratedHero as any).heroJson?.tvt_coins ?? 0),
+          0
+        );
+        const mergedTvt = Math.max(localTvt, serverTvt);
         (hydratedHero as any).inventory = mergedInv;
-        (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, inventory: mergedInv };
+        (hydratedHero as any).overflowChest = mergedOv;
+        (hydratedHero as any).heroJson = {
+          ...(hydratedHero as any).heroJson,
+          inventory: mergedInv,
+          overflowChest: mergedOv,
+          tvtCoins: mergedTvt,
+          tvt_coins: mergedTvt,
+        };
         // ❌ НЕ перезаписувати adena лише з локалі: вище вже finalAdena = max(сервер, локаль).
         // Якщо тут підставити localHeroForMerge.adena — продавець після продажу на ринку не бачить зарахування (сервер більший, локаль застарілий).
         const localSpVal = Number(localHeroForMerge.sp ?? (localHeroForMerge as any).heroJson?.sp ?? 0) || 0;

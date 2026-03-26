@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { getTvtState, pickTvtTarget, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 type Props = { navigate: (path: string) => void };
 
@@ -34,6 +35,15 @@ export default function TvtMatchBoardScreen({ navigate }: Props) {
     const iv = setInterval(() => void loadState(), 5_000);
     return () => clearInterval(iv);
   }, [loadState]);
+
+  const prevMatchActiveRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    const active = tvtState?.myMatch?.status === "active";
+    if (prevMatchActiveRef.current === true && active === false) {
+      void loadHeroFromAPI().catch(() => {});
+    }
+    prevMatchActiveRef.current = active ?? null;
+  }, [tvtState?.myMatch?.status]);
 
   useEffect(() => {
     if (!cid || !hero) return;
@@ -77,7 +87,8 @@ export default function TvtMatchBoardScreen({ navigate }: Props) {
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const rowStyle =
-    "w-full rounded-md border border-[#5c4a32]/60 bg-black/25 px-3 py-2 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/45 disabled:opacity-40";
+    "rounded-md border border-[#8a3030]/50 bg-black/25 px-2 py-1.5 text-[13px] text-[#e8a0a0] hover:border-[#c7ad80]/45 disabled:opacity-40";
+  const nickRowClass = "flex flex-wrap items-center gap-[0.5cm]";
 
   if (!cid || !hero) {
     return (
@@ -135,43 +146,45 @@ export default function TvtMatchBoardScreen({ navigate }: Props) {
         {d.phase === "fighting" || !d.canStartFight ? "Идёт бой — дождитесь окончания или откроется окно PvP." : "Нажмите ник противника, чтобы начать бой. Любой игрок команды может атаковать любого врага."}
       </p>
 
-      <div className="mt-4 px-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="mt-4 px-2 space-y-5">
         <div>
           <div className={isL2 ? "text-[11px] uppercase text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>Моя команда</div>
-          <ul className="space-y-1.5">
+          <div className={nickRowClass}>
             {(myTeam ?? []).map((p) => (
-              <li
+              <span
                 key={p.id}
                 className={
                   isL2
-                    ? "rounded border border-[#5c4a32]/40 bg-black/20 px-2 py-1.5 text-[12px] text-[#e8dcc8]"
-                    : "rounded border border-gray-700 px-2 py-1.5 text-sm text-gray-200"
+                    ? `whitespace-nowrap text-[13px] font-medium text-[#8fbc8f] ${p.id === cid ? "underline decoration-[#c9a44c]/60" : ""}`
+                    : `whitespace-nowrap text-sm font-medium text-emerald-400 ${p.id === cid ? "underline" : ""}`
                 }
               >
-                <span className={p.id === cid ? "text-[#e8c56e] font-semibold" : ""}>{p.name}</span>
-                <span className="text-[#8a7a60]"> · {p.level} ур.</span>
-                {p.id === cid ? <span className="text-[#7d9b7a] text-[11px]"> (вы)</span> : null}
-              </li>
+                {p.name}
+                {p.id === cid ? " (вы)" : null}
+              </span>
             ))}
-          </ul>
+          </div>
         </div>
         <div>
           <div className={isL2 ? "text-[11px] uppercase text-[#d4786a] mb-2" : "text-red-300 text-sm mb-2"}>Команда противника</div>
-          <ul className="space-y-1.5">
+          <div className={nickRowClass}>
             {(enemyTeam ?? []).map((p) => (
-              <li key={p.id}>
-                <button
-                  type="button"
-                  disabled={busy || !canClickEnemy}
-                  onClick={() => void handleAttack(p.id)}
-                  className={isL2 ? rowStyle : "w-full rounded border border-gray-600 px-3 py-2 text-left text-sm text-gray-200 disabled:opacity-40"}
-                >
-                  <span className="text-[#e8c56e] font-semibold">{p.name}</span>
-                  <span className="text-[#8a7a60]"> · {p.level} ур. — атака</span>
-                </button>
-              </li>
+              <button
+                key={p.id}
+                type="button"
+                disabled={busy || !canClickEnemy}
+                onClick={() => void handleAttack(p.id)}
+                className={
+                  isL2
+                    ? `${rowStyle} whitespace-nowrap text-[#e8a0a0] font-medium`
+                    : "rounded border border-red-900/50 bg-black/20 px-2 py-1.5 text-sm font-medium text-red-400 hover:border-red-600/50 disabled:opacity-40 whitespace-nowrap"
+                }
+              >
+                {p.name}
+                {canClickEnemy ? " — атака" : ""}
+              </button>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
 
