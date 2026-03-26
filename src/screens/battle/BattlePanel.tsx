@@ -32,13 +32,13 @@ export interface BattlePanelTarget {
 export interface BattlePanelProps {
   /** Ціль (моб або гравець) */
   target: BattlePanelTarget;
-  /** Бафи героя для BuffBar */
+  /** Бафи героя — один спільний BuffBar для мобів, PK і PvP-арени (див. JSDoc BattlePanel). */
   buffs: BattleBuff[];
   /** Поточний час (мс) для таймерів бафів */
   now: number;
   /** Лог бою. Якщо не передано — BattleLog читає з useBattleStore */
   log?: string[];
-  /** Вміст панелі навичок (SkillBar для мобів, PkSkillLoadoutBar для PK тощо). Не потрібно при victoryContent. */
+  /** Панель навичок: SkillBar; у PK/арені той самий компонент з onUseSkillOverride. Не потрібно при victoryContent. */
   children?: React.ReactNode;
   /** Кнопка "назад": текст */
   backLabel?: string;
@@ -54,7 +54,7 @@ export interface BattlePanelProps {
 
 /**
  * Універсальна панель бою: однаковий вигляд для бою з мобом, PK, олімпіади, ТВТ, арени.
- * Використовуйте цей компонент у Battle.tsx, PkProfileView, та майбутніх екранах олімпіади/арени.
+ * BuffBar не дублюється: один компонент для всіх режимів (Battle.tsx, PkProfileView, ArenaMatchScreen → той самий шлях рендеру).
  */
 export function BattlePanel({
   target,
