@@ -19,6 +19,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { setResurrectInProgress } from "../../state/heroStore";
 import { clearDeathGate } from "../../utils/deathGate";
 import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 interface ArenaMatchScreenProps {
   navigate: (path: string) => void;
@@ -37,6 +38,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
   const fledArenaExplicitRef = useRef(false);
   const matchMountGen = useRef(0);
   const sessionKindRef = useRef<"pk" | "arena" | "tvt" | undefined>(undefined);
+  const tvtHeroRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fledArenaExplicitRef.current = false;
@@ -82,9 +84,20 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
     };
   }, [sessionIdFromUrl, hero?.id]);
 
-  const onSessionEnded = () => {
-    /* hook owner may refresh */
+  const onSessionEnded = (s: PkSessionState) => {
+    if (s.sessionKind !== "tvt") return;
+    if (tvtHeroRefreshTimerRef.current) clearTimeout(tvtHeroRefreshTimerRef.current);
+    tvtHeroRefreshTimerRef.current = setTimeout(() => {
+      tvtHeroRefreshTimerRef.current = null;
+      void loadHeroFromAPI().catch(() => {});
+    }, 750);
   };
+
+  useEffect(() => {
+    return () => {
+      if (tvtHeroRefreshTimerRef.current) clearTimeout(tvtHeroRefreshTimerRef.current);
+    };
+  }, []);
 
   const {
     pkSession,

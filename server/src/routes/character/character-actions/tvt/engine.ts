@@ -87,6 +87,7 @@ async function createTvtPkSession(attackerId: string, defenderId: string, tvtMat
   return session;
 }
 
+/** Після `finalizeTvtMatch`: +2 coin_of_luck у інвентар (або overflow) і +2 tvtCoins у heroJson. Викликається з `onTvtPkSessionEnded` → `finalizeTvtMatch` (швидка перемога або таймаут). */
 async function grantTvtVictoryRewards(characterIds: string[]) {
   for (const cid of characterIds) {
     const ch = await prisma.character.findUnique({
@@ -122,7 +123,7 @@ async function grantTvtVictoryRewards(characterIds: string[]) {
     };
     const validation = validateHeroJson(nextBase);
     if (!validation.valid) {
-      console.error("[tvt] grant rewards invalid heroJson", validation.errors);
+      console.error("[tvt] grant rewards invalid heroJson", cid, validation.errors);
       continue;
     }
     const versioned = addVersioning(nextBase, Number(hj0.heroRevision ?? 0) || 0);

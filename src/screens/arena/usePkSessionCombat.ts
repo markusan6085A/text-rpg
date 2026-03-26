@@ -20,7 +20,8 @@ type Options = {
   sessionId: string | null;
   /** Якщо false — не поллимо й не бʼємо */
   enabled: boolean;
-  onSessionEnded?: () => void;
+  /** Викликається після actPkSession, коли сесія завершена (передається актуальний стан). */
+  onSessionEnded?: (session: PkSessionState) => void;
 };
 
 export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Options) {
@@ -193,7 +194,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
           heroName: String(hero?.name ?? "").trim(),
           skillIdUsed: skillId,
         });
-        if (res.session.ended) onSessionEnded?.();
+        if (res.session.ended) onSessionEnded?.(res.session);
       } catch (e: any) {
         rollbackPkPredictiveCooldownOnNetworkError(skillId);
         setPkError(e?.message || "Ошибка действия");
@@ -228,7 +229,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
       const res = await actPkSession(pkSession.id, undefined, { shotMultiplier, shotName });
       if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);
       setPkSession(res.session);
-      if (res.session.ended) onSessionEnded?.();
+      if (res.session.ended) onSessionEnded?.(res.session);
       rollbackPkPredictiveCooldownIfActionFailed(res.session?.log?.[0], {
         heroName: String(hero?.name ?? "").trim(),
         skillIdUsed: undefined,
