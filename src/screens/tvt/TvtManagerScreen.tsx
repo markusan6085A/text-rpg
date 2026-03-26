@@ -146,7 +146,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
             : "mx-2 mt-3 rounded border border-green-900/40 bg-green-950/20 px-3 py-2.5 text-sm text-gray-200"
         }
       >
-        <span className="font-semibold text-[#7d9b7a]">Онлайн TvT:</span> запись на сервере по расписанию; в старт слота формируются команды и открывается бой (как арена). Победа команды — когда у соперников не осталось живых в очереди раундов.
+        <span className="font-semibold text-[#7d9b7a]">Онлайн TvT:</span> запись на сервере по расписанию; в старт слота формируются команды и открывается бой (как арена). Победа — когда у соперников не осталось бойцов в очереди, либо по таймауту 15 минут (выигрывает команда с большей очередью).
       </div>
 
       <div className={isL2 ? "px-2 py-3 text-[12px] text-[#a89878] leading-snug space-y-2" : "text-gray-400 text-sm space-y-2"}>
@@ -167,7 +167,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
       <div className="mt-5 px-2">
         <div className={isL2 ? "text-[11px] uppercase tracking-[0.12em] text-[#c9a44c] mb-2" : "text-amber-300 text-sm mb-2"}>
-          Расписание (3 раза в день)
+          Расписание (1 раз в день)
         </div>
         <div className="space-y-2">
           {slotStatuses.map((st) => {

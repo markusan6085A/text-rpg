@@ -9,10 +9,12 @@ export type TvtDailySlot = {
   battleStart: TimeHM;
 };
 
+/** Максимальна тривалість матчу TvT (мс): далі — таймаут або раніше — повна перемога команди. */
+export const TVT_MATCH_MAX_MS = 15 * 60 * 1000;
+
+/** Один щоденний слот: реєстрація 14:05, старт 14:10 (локальний час процесу сервера). */
 export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
-  { id: "morning", label: "Утро", registrationOpen: { h: 13, m: 40 }, battleStart: { h: 13, m: 45 } },
-  { id: "day", label: "День", registrationOpen: { h: 18, m: 40 }, battleStart: { h: 18, m: 45 } },
-  { id: "evening", label: "Вечер", registrationOpen: { h: 21, m: 40 }, battleStart: { h: 21, m: 45 } },
+  { id: "daily", label: "TvT", registrationOpen: { h: 14, m: 5 }, battleStart: { h: 14, m: 10 } },
 ];
 
 function toMinutes(t: TimeHM): number {

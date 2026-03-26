@@ -12,6 +12,8 @@ export type TvtMatchState = {
   winnerTeam: "A" | "B" | null;
   currentPkSessionId: string | null;
   createdAt: number;
+  /** Unix ms: після цього часу матч завершується таймаутом (якщо ще active) */
+  matchEndsAt: number;
 };
 
 export type TvtParticipantLite = { id: string; name: string; level: number };

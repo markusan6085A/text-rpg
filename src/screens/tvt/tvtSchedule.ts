@@ -1,6 +1,6 @@
 /**
- * Розклад TvT: 3 слоти на день.
- * Реєстрація — 5 хв до старту бою (як у ТЗ: 13:40 реєстрація, 13:45 старт).
+ * Розклад TvT: один щоденний слот (синхронно з сервером `server/.../tvt/schedule.ts`).
+ * Реєстрація 14:05, старт 14:10; фаза бою до 15 хв або до повної перемоги команди.
  */
 
 export type TimeHM = { h: number; m: number };
@@ -14,30 +14,17 @@ export type TvtDailySlot = {
   battleStart: TimeHM;
 };
 
-/** За замовчуванням — три слоти; час можна змінити тут або винести в конфіг/API. */
 export const TVT_DAILY_SLOTS: TvtDailySlot[] = [
   {
-    id: "morning",
-    label: "Утро",
-    registrationOpen: { h: 13, m: 40 },
-    battleStart: { h: 13, m: 45 },
-  },
-  {
-    id: "day",
-    label: "День",
-    registrationOpen: { h: 18, m: 40 },
-    battleStart: { h: 18, m: 45 },
-  },
-  {
-    id: "evening",
-    label: "Вечер",
-    registrationOpen: { h: 21, m: 40 },
-    battleStart: { h: 21, m: 45 },
+    id: "daily",
+    label: "TvT",
+    registrationOpen: { h: 14, m: 5 },
+    battleStart: { h: 14, m: 10 },
   },
 ];
 
-/** Тривалість «бою» у хвилинах для відображення фази (до наступного слоту або кінця доби). */
-const BATTLE_WINDOW_MIN = 45;
+/** Тривалість фази «бої» для UI (хвилини) — макс. тривалість матчу на сервері. */
+const BATTLE_WINDOW_MIN = 15;
 
 function toMinutes(t: TimeHM): number {
   return t.h * 60 + t.m;

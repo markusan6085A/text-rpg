@@ -4,9 +4,12 @@ import { prisma } from "../../../../db";
 import { isOnline } from "../pk/helpers";
 import { tvtRegistrations, tvtMatches } from "./store";
 import { TVT_DAILY_SLOTS, isRegistrationOpenForSlot, dayKeyFromDate } from "./schedule";
+import { loadTvtStateFromDb, persistTvtState } from "./persistence";
 import { collectRegisteredForSlot, runTvtTick } from "./engine";
 
 export async function registerTvtRoutes(app: FastifyInstance) {
+  await loadTvtStateFromDb();
+
   setInterval(() => {
     try {
       runTvtTick();
@@ -41,6 +44,7 @@ export async function registerTvtRoutes(app: FastifyInstance) {
 
     const dayKey = dayKeyFromDate(now);
     tvtRegistrations.set(characterId, { dayKey, slotId });
+    await persistTvtState();
     return reply.send({ ok: true, serverNow: Date.now(), dayKey, slotId });
   });
 
@@ -56,6 +60,7 @@ export async function registerTvtRoutes(app: FastifyInstance) {
     });
     if (!ch) return reply.code(404).send({ error: "character not found" });
     tvtRegistrations.delete(characterId);
+    await persistTvtState();
     return reply.send({ ok: true, serverNow: Date.now() });
   });
 

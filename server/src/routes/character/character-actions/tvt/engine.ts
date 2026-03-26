@@ -4,7 +4,8 @@ import { addVersioning } from "../../../../heroJsonValidator";
 import type { PkSession } from "../pk/types";
 import { buildPkFighter } from "../pk/helpers";
 import { pkSessions, savePkSessionToDb } from "../pk/store";
-import { TVT_DAILY_SLOTS, dayKeyFromDate, isBattleStartWindow } from "./schedule";
+import { TVT_DAILY_SLOTS, TVT_MATCH_MAX_MS, dayKeyFromDate, isBattleStartWindow } from "./schedule";
+import { persistTvtState } from "./persistence";
 import { tvtMatches, tvtRegistrations, tvtStartedSlots, regKey } from "./store";
 import type { TvtMatchState } from "./types";
 
@@ -107,6 +108,18 @@ async function finalizeTvtMatch(match: TvtMatchState, winnerTeam: "A" | "B") {
   const winners = winnerTeam === "A" ? match.teamAIds : match.teamBIds;
   await grantTvtVictoryRewards(winners);
   tvtMatches.delete(match.id);
+  await persistTvtState();
+}
+
+/** Таймаут 15 хв: перемагає команда з більшою кількістю бійців у черзі; при рівності — випадково. */
+export async function finalizeTvtMatchTimeout(matchId: string): Promise<void> {
+  const match = tvtMatches.get(matchId);
+  if (!match || match.status !== "active") return;
+  let winner: "A" | "B";
+  if (match.queueA.length > match.queueB.length) winner = "A";
+  else if (match.queueB.length > match.queueA.length) winner = "B";
+  else winner = Math.random() < 0.5 ? "A" : "B";
+  await finalizeTvtMatch(match, winner);
 }
 
 /** Наступний раунд: голова queueA проти queueB (attacker A, defender B) */
@@ -125,14 +138,15 @@ export async function startNextTvtRound(matchId: string): Promise<void> {
 
   const attackerId = match.queueA[0];
   const defenderId = match.queueB[0];
-  const roundNum = match.teamAIds.length + match.teamBIds.length - match.queueA.length - match.queueB.length + 1;
   const logLine = `[TvT] Раунд — ${attackerId.slice(0, 8)}… vs ${defenderId.slice(0, 8)}…`;
   try {
     const session = await createTvtPkSession(attackerId, defenderId, matchId, logLine);
     match.currentPkSessionId = session.id;
     tvtMatches.set(matchId, match);
+    await persistTvtState();
   } catch (e) {
     console.error("[tvt] startNextTvtRound failed", e);
+    await persistTvtState();
   }
 }
 
@@ -175,6 +189,7 @@ export async function abortTvtMatchOnFlee(session: PkSession): Promise<void> {
   const match = tvtMatches.get(mid);
   if (!match) return;
   tvtMatches.delete(mid);
+  await persistTvtState();
 }
 
 export function collectRegisteredForSlot(dayKey: string, slotId: string): string[] {
@@ -195,6 +210,7 @@ export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): P
     for (const cid of participantIds) {
       tvtRegistrations.delete(cid);
     }
+    await persistTvtState();
     return;
   }
 
@@ -203,12 +219,14 @@ export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): P
   const split = splitTeamIds(participantIds);
   if (!split) {
     for (const cid of participantIds) tvtRegistrations.delete(cid);
+    await persistTvtState();
     return;
   }
 
   for (const cid of participantIds) tvtRegistrations.delete(cid);
 
   const matchId = randomUUID();
+  const createdAt = Date.now();
   const match: TvtMatchState = {
     id: matchId,
     dayKey,
@@ -220,7 +238,8 @@ export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): P
     status: "active",
     winnerTeam: null,
     currentPkSessionId: null,
-    createdAt: Date.now(),
+    createdAt,
+    matchEndsAt: createdAt + TVT_MATCH_MAX_MS,
   };
   tvtMatches.set(matchId, match);
   await startNextTvtRound(matchId);
@@ -232,5 +251,12 @@ export function runTvtTick(): void {
   for (const slot of TVT_DAILY_SLOTS) {
     if (!isBattleStartWindow(now, slot)) continue;
     void tryStartTvtMatchForSlot(dayKey, slot.id);
+  }
+  const t = Date.now();
+  for (const [mid, match] of [...tvtMatches.entries()]) {
+    if (match.status !== "active") continue;
+    const ends = match.matchEndsAt ?? match.createdAt + TVT_MATCH_MAX_MS;
+    if (t <= ends) continue;
+    void finalizeTvtMatchTimeout(mid);
   }
 }
