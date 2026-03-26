@@ -226,6 +226,32 @@ export default function TvtManagerScreen({ navigate }: Props) {
                     {myRegSlotId === st.slot.id ? "Вы записаны" : myRegSlotId ? "Уже записаны" : "Записаться"}
                   </button>
                 )}
+                {cid && st.phase === "idle" && st.minutesUntilRegistration != null && (
+                  <button
+                    type="button"
+                    disabled
+                    className={
+                      isL2
+                        ? "mt-2 w-full py-1.5 rounded border border-[#5c4a32]/40 text-[11px] text-[#8a7a60] opacity-80 cursor-not-allowed"
+                        : "mt-2 w-full py-1.5 rounded bg-gray-800 text-xs text-gray-500 cursor-not-allowed"
+                    }
+                  >
+                    Запись с {formatHM(st.slot.registrationOpen)} (сейчас ожидание)
+                  </button>
+                )}
+                {cid && (st.phase === "battle" || st.phase === "ended") && (
+                  <button
+                    type="button"
+                    disabled
+                    className={
+                      isL2
+                        ? "mt-2 w-full py-1.5 rounded border border-[#5c4a32]/40 text-[11px] text-[#8a7a60] opacity-80 cursor-not-allowed"
+                        : "mt-2 w-full py-1.5 rounded bg-gray-800 text-xs text-gray-500 cursor-not-allowed"
+                    }
+                  >
+                    {st.phase === "battle" ? "Регистрация закрыта (идёт бой)" : "Регистрация закрыта"}
+                  </button>
+                )}
                 {!cid && st.phase === "registration" && (
                   <p className="mt-2 text-[11px] text-[#8a7a60]">Войдите в игру, чтобы записаться.</p>
                 )}
