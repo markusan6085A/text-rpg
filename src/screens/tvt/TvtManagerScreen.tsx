@@ -96,19 +96,6 @@ export default function TvtManagerScreen({ navigate }: Props) {
     return () => clearInterval(iv);
   }, [loadState]);
 
-  const handleRegister = async (slotId: string) => {
-    if (!cid) return;
-    setBusy(true);
-    try {
-      await registerTvt(cid, slotId);
-      await loadState();
-    } catch (e: any) {
-      setTvtErr(e?.message || "Не удалось записаться");
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const handleUnregister = async () => {
     if (!cid) return;
     setBusy(true);
@@ -148,6 +135,33 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const slotStatuses = useMemo(
     () => TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(gameMinutesNow, s)),
     [gameMinutesNow]
+  );
+
+  const handleRegister = useCallback(
+    async (slotId: string) => {
+      if (!cid) return;
+      setBusy(true);
+      try {
+        await registerTvt(cid, slotId);
+        await loadState();
+      } catch (e: any) {
+        const raw = String((e?.body as { error?: string } | undefined)?.error ?? e?.message ?? "");
+        const s0 = TVT_DAILY_SLOTS[0];
+        if (
+          s0 &&
+          (raw.toLowerCase().includes("registration is closed") || raw.toLowerCase().includes("closed for this slot"))
+        ) {
+          setTvtErr(
+            `Регистрация закрыта: сейчас ${formatMinutesAsClock(gameMinutesNow)}. Окно записи — ${formatHM(s0.registrationOpen)}–${formatHM(s0.battleStart)} (игровое время Europe/Warsaw). Это 5 минут в сутки, не весь день.`
+          );
+        } else {
+          setTvtErr(raw.trim() || "Не удалось записаться");
+        }
+      } finally {
+        setBusy(false);
+      }
+    },
+    [cid, gameMinutesNow, loadState]
   );
 
   const myRegSlotId = tvtState?.myRegistration?.slotId;
@@ -243,6 +257,11 @@ export default function TvtManagerScreen({ navigate }: Props) {
             </>
           ) : null}
         </p>
+        {TVT_DAILY_SLOTS[0] ? (
+          <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2 leading-snug" : "text-xs text-gray-500 mb-2"}>
+            Запись только с {formatHM(TVT_DAILY_SLOTS[0].registrationOpen)} до {formatHM(TVT_DAILY_SLOTS[0].battleStart)} (5 минут в сутки, игровое время). После старта боя кнопка «Записаться» вернёт 400 — это не баг.
+          </p>
+        ) : null}
         <div className="space-y-2">
           {slotStatuses.map((st) => {
             const raw = regs[st.slot.id] as number | string[] | undefined;
