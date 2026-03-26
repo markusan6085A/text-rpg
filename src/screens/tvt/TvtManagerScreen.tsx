@@ -10,7 +10,6 @@ import {
   getSlotStatusFromMinutes,
   type TvtPhase,
 } from "./tvtSchedule";
-import { getGameMinutesSinceMidnight } from "../../utils/gameClock";
 import { COIN_OF_LUCK_ICON, TVT_COIN_ICON, TVT_REWARD_COIN_OF_LUCK, TVT_REWARD_TVT_COINS } from "./tvtRewards";
 import { getTvtState, registerTvt, unregisterTvt, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
 
@@ -57,7 +56,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
   const characterId = useCharacterStore((s) => s.characterId);
   const cid = (characterId || hero?.id || "").trim();
 
-  /** Тік 1 с — той самий ритм, що годинник у новинах; фази TvT від ігрового часу (Warsaw). */
+  /** Тік 1 с — оновлення інтерполяції хвилини між serverNow і Date.now() (лише зміщення від знімка сервера). */
   const [clockTick, setClockTick] = useState(0);
   const [tvtState, setTvtState] = useState<TvtStateResponse | null>(null);
   const [tvtErr, setTvtErr] = useState<string | null>(null);
@@ -90,9 +89,9 @@ export default function TvtManagerScreen({ navigate }: Props) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [loadState]);
 
-  /** Підтягуємо serverNow/serverMinutes, щоб фази не роз’їхались після довгого відкритої вкладки. */
+  /** Свіжий знімок часу з сервера (хвилини/фази без довгого дрейфу). */
   useEffect(() => {
-    const iv = setInterval(() => void loadState(), 60_000);
+    const iv = setInterval(() => void loadState(), 30_000);
     return () => clearInterval(iv);
   }, [loadState]);
 
@@ -115,10 +114,10 @@ export default function TvtManagerScreen({ navigate }: Props) {
     "w-full rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] px-3 py-2.5 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/50 hover:brightness-110 transition-all";
 
   /**
-   * Ігрові хвилини: після відповіді GET /tvt/state — з знімка сервера (той самий годинник, що реєстрація).
-   * Інакше локальний gameClock (до першого state).
+   * Хвилини доби тільки з сервера: GET /characters/tvt/state (serverMinutesSinceMidnight + зміщення по serverNow).
+   * Без локального часу ПК — поки немає відповіді, null.
    */
-  const gameMinutesNow = useMemo(() => {
+  const gameMinutesNow = useMemo((): number | null => {
     const s = tvtState;
     if (
       s != null &&
@@ -129,11 +128,14 @@ export default function TvtManagerScreen({ navigate }: Props) {
       const x = s.serverMinutesSinceMidnight + elapsedMin;
       return ((Math.floor(x) % 1440) + 1440) % 1440;
     }
-    return getGameMinutesSinceMidnight();
+    return null;
   }, [clockTick, tvtState?.serverMinutesSinceMidnight, tvtState?.serverNow]);
 
   const slotStatuses = useMemo(
-    () => TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(gameMinutesNow, s)),
+    () =>
+      gameMinutesNow == null
+        ? []
+        : TVT_DAILY_SLOTS.map((s) => getSlotStatusFromMinutes(gameMinutesNow, s)),
     [gameMinutesNow]
   );
 
@@ -151,8 +153,10 @@ export default function TvtManagerScreen({ navigate }: Props) {
           s0 &&
           (raw.toLowerCase().includes("registration is closed") || raw.toLowerCase().includes("closed for this slot"))
         ) {
+          const clock =
+            gameMinutesNow == null ? "—" : formatMinutesAsClock(gameMinutesNow);
           setTvtErr(
-            `Регистрация закрыта: сейчас ${formatMinutesAsClock(gameMinutesNow)}. Окно записи — ${formatHM(s0.registrationOpen)}–${formatHM(s0.battleStart)} (игровое время Europe/Warsaw). Это 5 минут в сутки, не весь день.`
+            `Регистрация закрыта: сейчас ${clock} (время с сервера). Окно записи — ${formatHM(s0.registrationOpen)}–${formatHM(s0.battleStart)} (Europe/Warsaw). Это 5 минут в сутки, не весь день.`
           );
         } else {
           setTvtErr(raw.trim() || "Не удалось записаться");
@@ -178,7 +182,7 @@ export default function TvtManagerScreen({ navigate }: Props) {
 
   useEffect(() => {
     const st0 = TVT_DAILY_SLOTS[0];
-    if (!st0) return;
+    if (!st0 || gameMinutesNow == null) return;
     const st = getSlotStatusFromMinutes(gameMinutesNow, st0);
     if (st.phase !== "battle" || showRealBattle || dailyRegCount < 2) return;
     const iv = setInterval(() => void loadState(), 5_000);
@@ -248,8 +252,10 @@ export default function TvtManagerScreen({ navigate }: Props) {
         </div>
         <p className={isL2 ? "text-[11px] text-[#a89878] mb-2" : "text-xs text-gray-500 mb-2"}>
           Игровое время{" "}
-          <span className="text-[#e8c56e] font-semibold">{formatMinutesAsClock(gameMinutesNow)}</span>
-          <span className="text-[#6a5c48]"> (как в новостях)</span>
+          <span className="text-[#e8c56e] font-semibold">
+            {gameMinutesNow == null ? "…" : formatMinutesAsClock(gameMinutesNow)}
+          </span>
+          <span className="text-[#6a5c48]"> (с сервера, Europe/Warsaw)</span>
           {TVT_DAILY_SLOTS[0] ? (
             <>
               {" · "}
@@ -260,6 +266,11 @@ export default function TvtManagerScreen({ navigate }: Props) {
         {TVT_DAILY_SLOTS[0] ? (
           <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2 leading-snug" : "text-xs text-gray-500 mb-2"}>
             Запись только с {formatHM(TVT_DAILY_SLOTS[0].registrationOpen)} до {formatHM(TVT_DAILY_SLOTS[0].battleStart)} (5 минут в сутки, игровое время). После старта боя кнопка «Записаться» вернёт 400 — это не баг.
+          </p>
+        ) : null}
+        {gameMinutesNow == null && !tvtErr ? (
+          <p className={isL2 ? "text-[11px] text-[#8a7a60] mb-2" : "text-xs text-gray-500 mb-2"}>
+            Загрузка времени с сервера…
           </p>
         ) : null}
         <div className="space-y-2">
