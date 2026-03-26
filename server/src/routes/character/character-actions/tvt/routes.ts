@@ -5,7 +5,20 @@ import { isOnline } from "../pk/helpers";
 import { tvtRegistrations, tvtMatches } from "./store";
 import { TVT_DAILY_SLOTS, isRegistrationOpenForSlot, dayKeyFromDate, minutesSinceMidnight } from "./schedule";
 import { loadTvtStateFromDb, persistTvtState } from "./persistence";
-import { collectRegisteredForSlot, runTvtTick } from "./engine";
+import { collectRegisteredForSlot, pickTvtTarget, runTvtTick } from "./engine";
+
+async function loadTvtParticipantLites(ids: string[]): Promise<Array<{ id: string; name: string; level: number }>> {
+  if (ids.length === 0) return [];
+  const rows = await prisma.character.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, name: true, level: true },
+  });
+  const map = new Map(rows.map((r) => [r.id, r]));
+  return ids.map((id) => {
+    const r = map.get(id);
+    return { id, name: r?.name ?? id.slice(0, 8), level: Number(r?.level ?? 1) };
+  });
+}
 
 export async function registerTvtRoutes(app: FastifyInstance) {
   await loadTvtStateFromDb();
@@ -64,6 +77,31 @@ export async function registerTvtRoutes(app: FastifyInstance) {
     return reply.send({ ok: true, serverNow: Date.now() });
   });
 
+  app.post("/characters/tvt/pick-target", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const body = (req.body ?? {}) as { characterId?: string; defenderId?: string };
+    const characterId = String(body.characterId ?? "").trim();
+    const defenderId = String(body.defenderId ?? "").trim();
+    if (!characterId || !defenderId) return reply.code(400).send({ error: "characterId and defenderId required" });
+    const ch = await prisma.character.findFirst({
+      where: { id: characterId, accountId: auth.accountId },
+      select: { id: true },
+    });
+    if (!ch) return reply.code(404).send({ error: "character not found" });
+    const r = await pickTvtTarget(characterId, defenderId);
+    if (!r.ok) {
+      const code =
+        r.error === "not_your_turn"
+          ? 403
+          : r.error === "not_pick_phase" || r.error === "no_match" || r.error === "invalid_target"
+            ? 400
+            : 400;
+      return reply.code(code).send({ error: r.error });
+    }
+    return reply.send({ ok: true, serverNow: Date.now() });
+  });
+
   /**
    * Публічна частина без JWT: час сервера, слоти, кількість записів.
    * З валідним Bearer + characterId — додаються myRegistration, myMatch.
@@ -90,6 +128,17 @@ export async function registerTvtRoutes(app: FastifyInstance) {
       status: string;
     } | null = null;
 
+    let myMatchDetail: {
+      matchId: string;
+      slotId: string;
+      phase: "pick" | "fighting";
+      attackingTeam: "A" | "B";
+      pendingAttackerId: string | null;
+      amIPicking: boolean;
+      currentPkSessionId: string | null;
+      enemies: Array<{ id: string; name: string; level: number }>;
+    } | null = null;
+
     if (auth && characterId) {
       const ch = await prisma.character.findFirst({
         where: { id: characterId, accountId: auth.accountId },
@@ -111,6 +160,18 @@ export async function registerTvtRoutes(app: FastifyInstance) {
               queueBLen: m.queueB.length,
               currentPkSessionId: m.currentPkSessionId,
               status: m.status,
+            };
+            const enemyIds = m.attackingTeam === "A" ? m.queueB : m.queueA;
+            const enemies = await loadTvtParticipantLites(enemyIds);
+            myMatchDetail = {
+              matchId: m.id,
+              slotId: m.slotId,
+              phase: m.phase,
+              attackingTeam: m.attackingTeam,
+              pendingAttackerId: m.pendingAttackerId,
+              amIPicking: m.phase === "pick" && m.pendingAttackerId === characterId,
+              currentPkSessionId: m.currentPkSessionId,
+              enemies,
             };
             break;
           }
@@ -137,6 +198,7 @@ export async function registerTvtRoutes(app: FastifyInstance) {
       hasActiveMatch,
       myRegistration,
       myMatch,
+      myMatchDetail,
     });
   });
 }

@@ -1,5 +1,6 @@
 import { prisma } from "../../../../db";
 import { TVT_MATCH_MAX_MS, dayKeyFromDate } from "./schedule";
+import type { TvtMatchPhase } from "./types";
 import { tvtMatches, tvtRegistrations, tvtStartedSlots } from "./store";
 import type { TvtMatchState } from "./types";
 
@@ -17,7 +18,33 @@ function normalizeMatch(m: TvtMatchState): TvtMatchState {
     typeof m.matchEndsAt === "number" && Number.isFinite(m.matchEndsAt)
       ? m.matchEndsAt
       : (m.createdAt || Date.now()) + TVT_MATCH_MAX_MS;
-  return { ...m, matchEndsAt: ends };
+  const phase: TvtMatchPhase =
+    m.phase === "pick" || m.phase === "fighting"
+      ? m.phase
+      : m.currentPkSessionId
+        ? "fighting"
+        : "pick";
+  const attackingTeam = m.attackingTeam === "A" || m.attackingTeam === "B" ? m.attackingTeam : "A";
+  const pendingAttackerId =
+    typeof m.pendingAttackerId === "string"
+      ? m.pendingAttackerId
+      : attackingTeam === "A"
+        ? m.queueA[0] ?? null
+        : m.queueB[0] ?? null;
+  const pickedDefenderId = typeof m.pickedDefenderId === "string" ? m.pickedDefenderId : null;
+  const lastPickActivityAt =
+    typeof m.lastPickActivityAt === "number" && Number.isFinite(m.lastPickActivityAt)
+      ? m.lastPickActivityAt
+      : Date.now();
+  return {
+    ...m,
+    matchEndsAt: ends,
+    phase,
+    attackingTeam,
+    pendingAttackerId,
+    pickedDefenderId,
+    lastPickActivityAt,
+  };
 }
 
 /** Завантажити з БД у in-memory maps (тільки записи поточного dayKey). */

@@ -1,16 +1,32 @@
 import { randomUUID } from "crypto";
 import { prisma } from "../../../../db";
-import { addVersioning } from "../../../../heroJsonValidator";
+import { addVersioning, validateHeroJson } from "../../../../heroJsonValidator";
 import type { PkSession } from "../pk/types";
 import { buildPkFighter } from "../pk/helpers";
 import { pkSessions, savePkSessionToDb } from "../pk/store";
-import { TVT_DAILY_SLOTS, TVT_MATCH_MAX_MS, dayKeyFromDate, isBattleStartWindow } from "./schedule";
+import {
+  TVT_DAILY_SLOTS,
+  TVT_MATCH_MAX_MS,
+  TVT_PICK_AFK_MS,
+  dayKeyFromDate,
+  isBattleStartWindow,
+} from "./schedule";
 import { persistTvtState } from "./persistence";
 import { tvtMatches, tvtRegistrations, tvtStartedSlots, regKey } from "./store";
 import type { TvtMatchState } from "./types";
 
-const TVT_COIN_LUCK = 2;
 const TVT_TVT_COINS = 2;
+const TVT_INV_ITEM = "coin_of_luck";
+const TVT_INV_QTY = 2;
+
+const INV_MIN = 100;
+const INV_MAX = 500;
+
+function inventoryCap(hj: any): number {
+  const cap = hj?.inventoryCapacity;
+  if (typeof cap !== "number" || cap < INV_MIN) return INV_MIN;
+  return Math.min(cap, INV_MAX);
+}
 
 function splitTeamIds(participantIds: string[]): { teamA: string[]; teamB: string[] } | null {
   const n = participantIds.length;
@@ -76,24 +92,45 @@ async function grantTvtVictoryRewards(characterIds: string[]) {
   for (const cid of characterIds) {
     const ch = await prisma.character.findUnique({
       where: { id: cid },
-      select: { id: true, heroJson: true, coinLuck: true },
+      select: { id: true, name: true, race: true, classId: true, level: true, heroJson: true },
     });
     if (!ch) continue;
-    const hj = ((ch.heroJson as any) || {}) as any;
-    const prevTvt = Number(hj.tvtCoins ?? hj.tvt_coins ?? 0);
-    const nextJson = addVersioning(
-      {
-        ...hj,
-        tvtCoins: prevTvt + TVT_TVT_COINS,
-        tvt_coins: prevTvt + TVT_TVT_COINS,
-      },
-      Number(hj.heroRevision ?? 0) || 0
-    );
+    const hj0 = { ...((ch.heroJson as any) || {}) };
+    hj0.name = hj0.name || ch.name;
+    hj0.race = hj0.race || ch.race;
+    hj0.classId = hj0.classId || ch.classId;
+    hj0.level = hj0.level ?? ch.level;
+
+    const inv = Array.isArray(hj0.inventory) ? [...hj0.inventory] : [];
+    const overflow = Array.isArray(hj0.overflowChest) ? [...hj0.overflowChest] : [];
+    const cap = inventoryCap(hj0);
+    const existing = inv.find((x: any) => (x?.id || x?.itemId) === TVT_INV_ITEM);
+    if (existing) {
+      existing.count = (existing.count ?? 1) + TVT_INV_QTY;
+    } else if (inv.length < cap) {
+      inv.push({ id: TVT_INV_ITEM, name: TVT_INV_ITEM, count: TVT_INV_QTY });
+    } else {
+      overflow.push({ id: TVT_INV_ITEM, name: TVT_INV_ITEM, count: TVT_INV_QTY });
+    }
+
+    const prevTvt = Number(hj0.tvtCoins ?? hj0.tvt_coins ?? 0);
+    const nextBase = {
+      ...hj0,
+      inventory: inv,
+      overflowChest: overflow,
+      tvtCoins: prevTvt + TVT_TVT_COINS,
+      tvt_coins: prevTvt + TVT_TVT_COINS,
+    };
+    const validation = validateHeroJson(nextBase);
+    if (!validation.valid) {
+      console.error("[tvt] grant rewards invalid heroJson", validation.errors);
+      continue;
+    }
+    const versioned = addVersioning(nextBase, Number(hj0.heroRevision ?? 0) || 0);
     await prisma.character.update({
       where: { id: cid },
       data: {
-        coinLuck: { increment: TVT_COIN_LUCK },
-        heroJson: nextJson,
+        heroJson: versioned,
         lastActivityAt: new Date(),
       },
     });
@@ -122,32 +159,69 @@ export async function finalizeTvtMatchTimeout(matchId: string): Promise<void> {
   await finalizeTvtMatch(match, winner);
 }
 
-/** Наступний раунд: голова queueA проти queueB (attacker A, defender B) */
-export async function startNextTvtRound(matchId: string): Promise<void> {
-  const match = tvtMatches.get(matchId);
-  if (!match || match.status !== "active") return;
+function beginPickPhase(match: TvtMatchState): void {
+  match.phase = "pick";
+  match.currentPkSessionId = null;
+  match.pickedDefenderId = null;
+  match.lastPickActivityAt = Date.now();
+  match.pendingAttackerId = match.attackingTeam === "A" ? match.queueA[0] ?? null : match.queueB[0] ?? null;
+}
 
-  if (match.queueA.length === 0) {
-    await finalizeTvtMatch(match, "B");
-    return;
-  }
-  if (match.queueB.length === 0) {
-    await finalizeTvtMatch(match, "A");
-    return;
-  }
+function enemyQueueForMatch(match: TvtMatchState): string[] {
+  return match.attackingTeam === "A" ? [...match.queueB] : [...match.queueA];
+}
 
-  const attackerId = match.queueA[0];
-  const defenderId = match.queueB[0];
+/** Почати PK після вибору цілі (або авто-після AFK). */
+async function startTvtFightWithDefender(match: TvtMatchState, attackerId: string, defenderId: string): Promise<void> {
+  const mid = match.id;
   const logLine = `[TvT] Раунд — ${attackerId.slice(0, 8)}… vs ${defenderId.slice(0, 8)}…`;
   try {
-    const session = await createTvtPkSession(attackerId, defenderId, matchId, logLine);
+    const session = await createTvtPkSession(attackerId, defenderId, mid, logLine);
     match.currentPkSessionId = session.id;
-    tvtMatches.set(matchId, match);
+    match.phase = "fighting";
+    match.pickedDefenderId = defenderId;
+    match.pendingAttackerId = attackerId;
+    tvtMatches.set(mid, match);
     await persistTvtState();
   } catch (e) {
-    console.error("[tvt] startNextTvtRound failed", e);
+    console.error("[tvt] startTvtFightWithDefender failed", e);
     await persistTvtState();
   }
+}
+
+async function autoPickRandomDefender(match: TvtMatchState): Promise<void> {
+  if (match.phase !== "pick" || !match.pendingAttackerId) return;
+  const enemy = enemyQueueForMatch(match);
+  if (enemy.length === 0) return;
+  const defenderId = enemy[Math.floor(Math.random() * enemy.length)];
+  await startTvtFightWithDefender(match, match.pendingAttackerId, defenderId);
+}
+
+/**
+ * Персонаж з облікового запису обирає противника в активному матчі.
+ */
+export async function pickTvtTarget(attackerId: string, defenderId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const a = attackerId.trim();
+  const d = defenderId.trim();
+  if (!a || !d) return { ok: false, error: "characterId and defenderId required" };
+  if (a === d) return { ok: false, error: "invalid_target" };
+
+  let match: TvtMatchState | null = null;
+  for (const m of tvtMatches.values()) {
+    if (m.status !== "active") continue;
+    if (m.queueA.includes(a) || m.queueB.includes(a)) {
+      match = m;
+      break;
+    }
+  }
+  if (!match) return { ok: false, error: "no_match" };
+  if (match.phase !== "pick") return { ok: false, error: "not_pick_phase" };
+  if (match.pendingAttackerId !== a) return { ok: false, error: "not_your_turn" };
+  const enemy = enemyQueueForMatch(match);
+  if (!enemy.includes(d)) return { ok: false, error: "invalid_target" };
+
+  await startTvtFightWithDefender(match, a, d);
+  return { ok: true };
 }
 
 export async function onTvtPkSessionEnded(session: PkSession): Promise<void> {
@@ -156,19 +230,18 @@ export async function onTvtPkSessionEnded(session: PkSession): Promise<void> {
   const match = tvtMatches.get(mid);
   if (!match || match.status !== "active") return;
 
-  const a0 = match.queueA[0];
-  const b0 = match.queueB[0];
-  if (!a0 || !b0) return;
-
-  if (session.winnerId === a0) {
-    match.queueB.shift();
-  } else if (session.winnerId === b0) {
-    match.queueA.shift();
+  const loserId = session.winnerId === session.attackerId ? session.defenderId : session.attackerId;
+  if (match.queueA.includes(loserId)) {
+    match.queueA = match.queueA.filter((x) => x !== loserId);
+  } else if (match.queueB.includes(loserId)) {
+    match.queueB = match.queueB.filter((x) => x !== loserId);
   } else {
     return;
   }
 
   match.currentPkSessionId = null;
+  match.attackingTeam = match.attackingTeam === "A" ? "B" : "A";
+  beginPickPhase(match);
   tvtMatches.set(mid, match);
 
   if (match.queueA.length === 0) {
@@ -180,7 +253,7 @@ export async function onTvtPkSessionEnded(session: PkSession): Promise<void> {
     return;
   }
 
-  await startNextTvtRound(mid);
+  await persistTvtState();
 }
 
 export async function abortTvtMatchOnFlee(session: PkSession): Promise<void> {
@@ -240,9 +313,15 @@ export async function tryStartTvtMatchForSlot(dayKey: string, slotId: string): P
     currentPkSessionId: null,
     createdAt,
     matchEndsAt: createdAt + TVT_MATCH_MAX_MS,
+    phase: "pick",
+    attackingTeam: "A",
+    pendingAttackerId: null,
+    pickedDefenderId: null,
+    lastPickActivityAt: Date.now(),
   };
+  beginPickPhase(match);
   tvtMatches.set(matchId, match);
-  await startNextTvtRound(matchId);
+  await persistTvtState();
 }
 
 export function runTvtTick(): void {
@@ -256,7 +335,17 @@ export function runTvtTick(): void {
   for (const [mid, match] of [...tvtMatches.entries()]) {
     if (match.status !== "active") continue;
     const ends = match.matchEndsAt ?? match.createdAt + TVT_MATCH_MAX_MS;
-    if (t <= ends) continue;
-    void finalizeTvtMatchTimeout(mid);
+    if (t > ends) {
+      void finalizeTvtMatchTimeout(mid);
+      continue;
+    }
+    if (match.phase === "pick" && match.pendingAttackerId && t - match.lastPickActivityAt > TVT_PICK_AFK_MS) {
+      void (async () => {
+        const m = tvtMatches.get(mid);
+        if (!m || m.status !== "active" || m.phase !== "pick" || !m.pendingAttackerId) return;
+        if (Date.now() - m.lastPickActivityAt <= TVT_PICK_AFK_MS) return;
+        await autoPickRandomDefender(m);
+      })();
+    }
   }
 }

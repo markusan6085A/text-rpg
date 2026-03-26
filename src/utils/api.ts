@@ -706,6 +706,17 @@ export interface TvtStateResponse {
     currentPkSessionId: string | null;
     status: string;
   } | null;
+  /** Розширений стан матчу (вибір цілі, черга) — лише з JWT + characterId. */
+  myMatchDetail?: {
+    matchId: string;
+    slotId: string;
+    phase: "pick" | "fighting";
+    attackingTeam: "A" | "B";
+    pendingAttackerId: string | null;
+    amIPicking: boolean;
+    currentPkSessionId: string | null;
+    enemies: Array<{ id: string; name: string; level: number }>;
+  } | null;
 }
 
 /** Без characterId — лише публічні поля (час сервера, слоти, лічильники). З id — myRegistration/myMatch при валідному JWT. */
@@ -729,6 +740,16 @@ export async function unregisterTvt(characterId: string): Promise<{ ok: boolean;
   return apiRequest(`/characters/tvt/unregister`, {
     method: "POST",
     body: JSON.stringify({ characterId }),
+  });
+}
+
+export async function pickTvtTarget(
+  characterId: string,
+  defenderId: string
+): Promise<{ ok: boolean; serverNow?: number }> {
+  return apiRequest(`/characters/tvt/pick-target`, {
+    method: "POST",
+    body: JSON.stringify({ characterId, defenderId }),
   });
 }
 

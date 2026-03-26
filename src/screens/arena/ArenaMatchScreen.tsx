@@ -36,6 +36,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
   const sessionEndedRef = useRef(false);
   const fledArenaExplicitRef = useRef(false);
   const matchMountGen = useRef(0);
+  const sessionKindRef = useRef<"pk" | "arena" | "tvt" | undefined>(undefined);
 
   useEffect(() => {
     fledArenaExplicitRef.current = false;
@@ -52,6 +53,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
           if (alive) setLoadErr("Сессия не найдена");
           return;
         }
+        sessionKindRef.current = s.sessionKind;
         if (s.sessionKind !== "arena" && s.sessionKind !== "tvt") {
           if (alive) setLoadErr("Это не арена (откройте бой через поле арены)");
           return;
@@ -102,6 +104,10 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
     sessionEndedRef.current = Boolean(pkSession?.ended);
   }, [pkSession?.ended]);
 
+  useEffect(() => {
+    sessionKindRef.current = pkSession?.sessionKind;
+  }, [pkSession?.sessionKind]);
+
   /** Уход с экрана боя: соперник видит «… сбежал»; microtask обходит Strict Mode (ложный unmount). */
   useEffect(() => {
     const sid = sessionIdFromUrl;
@@ -149,6 +155,8 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
     return () => clearInterval(t);
   }, []);
 
+  const isTvt = pkSession?.sessionKind === "tvt";
+
   const handleArenaDefeatToCity = async () => {
     const cidUse = (characterId || hero?.id || "").trim();
     if (!cidUse || !hero) return;
@@ -175,7 +183,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
       }
       useBattleStore.getState().reset();
       await leaveArenaField(cidUse);
-      navigate("/arena");
+      navigate(sessionKindRef.current === "tvt" ? "/city" : "/arena");
     } catch (e) {
       console.warn("[ArenaMatch] resurrect failed", e);
     } finally {
@@ -189,7 +197,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
     fledArenaExplicitRef.current = true;
     if (sessionIdFromUrl) await arenaFleePkSession(sessionIdFromUrl).catch(() => {});
     if (cidUse) await leaveArenaField(cidUse).catch(() => {});
-    navigate("/arena");
+    navigate(sessionKindRef.current === "tvt" ? "/tvt" : "/arena");
   };
 
   if (!sessionIdFromUrl) {
@@ -215,6 +223,10 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
 
   const iLost = Boolean(pkSession?.ended && pkSession.winnerId && hero.id && pkSession.winnerId !== hero.id);
 
+  const matchTitle = isTvt ? "TvT · PvP" : "Арена · PvP";
+  const backLabelWin = isTvt ? "К TvT" : "На арену";
+  const backLabelLoss = isTvt ? "В город" : "Телепортироваться в город";
+
   return (
     <div className={`w-full min-w-0 my-1 p-2 sm:p-3 ${arenaOuterFrame()}`}>
       <div
@@ -224,7 +236,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
             : "mb-2 text-center text-xs uppercase tracking-widest text-amber-400/90"
         }
       >
-        Арена · PvP
+        {matchTitle}
       </div>
       <PkProfileView
         character={character}
@@ -239,7 +251,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
         onUseSkill={handlePkUseSkill}
         onAttack={handlePkAttack}
         onBack={iLost ? handleArenaDefeatToCity : backToArena}
-        panelBackLabel={iLost ? "Телепортироваться в город" : "На арену"}
+        panelBackLabel={iLost ? backLabelLoss : backLabelWin}
         arenaMode
       />
     </div>
