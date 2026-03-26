@@ -12,9 +12,11 @@ type Props = {
 export function BuffBar({ buffs, now }: Props) {
   const isL2 = getCityUiVariant() === "l2";
   const hero = useHeroStore((s) => s.hero);
-  if (!Array.isArray(buffs) || buffs.length === 0) return null;
-
+  // 🔥 useRef має бути ДО будь-якого return — інакше при вимиканні останнього бафа/toggle (buffs → [])
+  // змінюється кількість хуків → React падає, чорний екран до F5.
   const totalsRef = React.useRef<Record<string, number>>({});
+
+  if (!Array.isArray(buffs) || buffs.length === 0) return null;
 
   // Фільтруємо бафи: показуємо тільки активні бафи та toggle скіли
   // Toggle скіли мають expiresAt === Number.MAX_SAFE_INTEGER і відображаються, якщо вони активні
