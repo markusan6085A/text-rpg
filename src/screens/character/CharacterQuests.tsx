@@ -348,7 +348,6 @@ export default function CharacterQuests() {
                     >
                       <div className="font-semibold mb-1">Прогрес:</div>
                       {(() => {
-                        // Групуємо квестові предмети по itemId для відображення прогресу
                         const groupedDrops: Record<string, { itemId: string; requiredCount: number; mobNames: string[] }> = {};
                         quest.questDrops.forEach((questDrop) => {
                           if (!groupedDrops[questDrop.itemId]) {
@@ -363,31 +362,43 @@ export default function CharacterQuests() {
                           }
                         });
                         return Object.values(groupedDrops).map((group) => {
-                          // Перевіряємо інвентар для точного прогресу
                           const inventoryItem = hero.inventory?.find((item) => item.id === group.itemId);
                           const itemCount = inventoryItem?.count || 0;
                           const currentProgress = Math.min(itemCount, group.requiredCount);
                           const itemDef = itemsDB[group.itemId];
-                          // Використовуємо назву з itemsDB, або очищаємо itemId від префіксу "quest_" та "_token"
-                          const displayName = itemDef?.name || group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
+                          const labelCharcoal =
+                            group.itemId === "quest_gludio_charcoal"
+                              ? "Charcoal"
+                              : itemDef?.name ||
+                                group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
                           return (
-                            <div key={group.itemId} className="ml-2 flex items-center gap-1.5">
+                            <div key={group.itemId} className="ml-2">
                               {itemDef?.icon && (
-                                <img 
-                                  src={itemDef.icon} 
-                                  alt={itemDef.name || group.itemId} 
-                                  className="w-4 h-4 object-contain flex-shrink-0"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = "none";
-                                  }}
-                                />
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <img
+                                    src={itemDef.icon}
+                                    alt=""
+                                    className="w-4 h-4 object-contain flex-shrink-0"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = "none";
+                                    }}
+                                  />
+                                  <span className="font-semibold">
+                                    Принеси {group.requiredCount} {labelCharcoal}
+                                  </span>
+                                </div>
+                              )}
+                              {!itemDef?.icon && (
+                                <div className="font-semibold mb-0.5">
+                                  Принеси {group.requiredCount} {labelCharcoal}
+                                </div>
                               )}
                               <span>
-                                {displayName}: {currentProgress}({group.requiredCount}) з {group.mobNames.join(", ")}
+                                {currentProgress}/{group.requiredCount} · з {group.mobNames.join(", ")}
                               </span>
-                              {currentProgress >= group.requiredCount && (
+                              {currentProgress >= group.requiredCount ? (
                                 <span className="text-green-400 ml-1">✓</span>
-                              )}
+                              ) : null}
                             </div>
                           );
                         });
@@ -484,9 +495,7 @@ export default function CharacterQuests() {
                   {/* Детальна інформація про квестові предмети */}
                   {quest.questDrops && quest.questDrops.length > 0 && (
                     <div className={isL2 ? "text-[#8a7a60] text-[10px] mb-2" : "text-gray-400 text-[10px] mb-2"}>
-                      <div className="font-semibold mb-1">Потрібно зібрати:</div>
                       {(() => {
-                        // Групуємо квестові предмети по itemId
                         const groupedDrops: Record<string, { itemId: string; requiredCount: number; mobNames: string[] }> = {};
                         quest.questDrops.forEach((questDrop) => {
                           if (!groupedDrops[questDrop.itemId]) {
@@ -502,23 +511,29 @@ export default function CharacterQuests() {
                         });
                         return Object.values(groupedDrops).map((group, idx) => {
                           const itemDef = itemsDB[group.itemId];
-                          // Використовуємо назву з itemsDB, або очищаємо itemId від префіксу "quest_" та "_token"
-                          const displayName = itemDef?.name || group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
+                          const labelCharcoal =
+                            group.itemId === "quest_gludio_charcoal"
+                              ? "Charcoal"
+                              : itemDef?.name ||
+                                group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
                           return (
-                            <div key={idx} className="ml-2 flex items-center gap-1.5">
-                              {itemDef?.icon && (
-                                <img 
-                                  src={itemDef.icon} 
-                                  alt={itemDef.name || group.itemId} 
-                                  className="w-4 h-4 object-contain flex-shrink-0"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = "none";
-                                  }}
-                                />
-                              )}
-                              <span>
-                                {group.requiredCount}x {displayName} з {group.mobNames.join(", ")}
-                              </span>
+                            <div key={idx} className="ml-2">
+                              <div className="flex items-center gap-1.5 mb-0.5">
+                                {itemDef?.icon ? (
+                                  <img
+                                    src={itemDef.icon}
+                                    alt=""
+                                    className="w-4 h-4 object-contain flex-shrink-0"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = "none";
+                                    }}
+                                  />
+                                ) : null}
+                                <span className="font-semibold">
+                                  Принеси {group.requiredCount} {labelCharcoal}
+                                </span>
+                              </div>
+                              <span>з {group.mobNames.join(", ")}</span>
                             </div>
                           );
                         });

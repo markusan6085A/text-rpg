@@ -388,14 +388,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const mobNameClass = (
-    questHighlight: "kill" | "drop" | null,
+    questHighlight: "kill" | null,
     isRaid: boolean,
     isChampion: boolean,
     isPatrol: boolean,
     isLevelDiffTooHigh: boolean,
     l2: boolean,
   ) => {
-    if (questHighlight === "drop") return l2 ? "text-[#ea8c2a]" : "text-orange-400";
     if (questHighlight === "kill") return l2 ? "text-[#8a7a60]" : "";
     if (isRaid) return "text-red-500";
     if (isChampion) return "text-[#c9a44c]";
@@ -438,8 +437,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           >
             <div className="font-semibold text-[#c9a44c] mb-1">Помощник</div>
             <p className="mb-2 opacity-95">
-              Задания для этой местности берутся во вкладке персонажа «Квесты». Откройте её и примите квест — цели на
-              локации подсветятся серым (нужно убить) и оранжевым (дроп для квеста).
+              Задания для этой местности берутся во вкладке персонажа «Квесты». Откройте её и примите квест — мобы,
+              которых нужно убить для счётчика квеста, подсвечиваются серым.
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <button
@@ -581,9 +580,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         {questHighlight === "kill" && (
                           <div className="text-[8px] text-[#6b7280] mt-px leading-none">квест · цель</div>
                         )}
-                        {questHighlight === "drop" && (
-                          <div className="text-[8px] text-[#b8732f] mt-px leading-none">квест · дроп</div>
-                        )}
                       </div>
                       <div className="shrink-0 text-right rounded bg-black/30 border border-[#5c4a32]/40 px-1.5 py-0.5 min-w-[2.85rem]">
                         <div className="text-[10px] font-semibold text-[#c45c5c] leading-none">
@@ -627,13 +623,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </button>
                   <span
                     className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${nameCls}`}
-                    style={
-                      questHighlight === "kill"
-                        ? { color: "#6b7280" }
-                        : questHighlight === "drop"
-                          ? { color: "#ea8c2a" }
-                          : undefined
-                    }
+                    style={questHighlight === "kill" ? { color: "#6b7280" } : undefined}
                     onClick={() => openBattle(globalIndex)}
                   >
                     {displayMobName(mob.name)}
