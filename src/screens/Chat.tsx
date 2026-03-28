@@ -30,6 +30,7 @@ import { ChatInput } from "./chat/components/ChatInput";
 import { ChatRestrictionModal } from "./chat/components/ChatRestrictionModal";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { NavInlineGrid } from "../components/NavGrid";
 
 type Restriction = { mutedUntil: number | null; bannedUntil: string | null };
 
@@ -668,6 +669,16 @@ export default function Chat({ navigate }: ChatProps) {
         onRefresh={refresh}
         messagesTopRef={messagesTopRef}
       />
+
+      <div
+        className={
+          isL2
+            ? "mt-1.5 pt-2 border-t border-[#5c4a32]/65 shrink-0"
+            : "mt-2 pt-2 border-t border-white/15 shrink-0"
+        }
+      >
+        <NavInlineGrid />
+      </div>
 
       {error && (
         <div className={`text-xs text-center px-1 ${isL2 ? "text-[#d4786a]" : "text-red-400"}`}>

@@ -320,6 +320,13 @@ export default function Layout({
 
   const gameSettings = getGameSettings();
 
+  const navScrollBottomPad = React.useMemo(() => {
+    const p = (routePathname || "").split("?")[0]?.replace(/\/+$/, "") || "";
+    return p === "/chat"
+      ? "pb-28 max-[380px]:pb-24"
+      : "pb-[14rem] max-[380px]:pb-[13.5rem]";
+  }, [routePathname]);
+
   const handleLogout = () => {
     setLogoutConfirm(true);
   };
@@ -423,7 +430,7 @@ export default function Layout({
           <NavGridProvider navigate={navigate} routePathname={routePathname ?? ""}>
             <div
               ref={contentRef}
-              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[14rem] max-[380px]:pb-[13.5rem]"
+              className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 ${navScrollBottomPad}`}
             >
               <div
                 className={`w-full max-w-full min-w-0 mt-0 ${

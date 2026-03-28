@@ -11,7 +11,6 @@ import { useHeroStore } from "../state/heroStore";
 import { useOnlineCountStore } from "../state/onlineCountStore";
 import { showToast } from "../state/toastStore";
 import { setString } from "../state/persistence";
-import { getPreviousLocation } from "../utils/locationNavigation";
 import {
   rememberLocationIfLeaving,
   peekLocationReturnHref,
@@ -23,16 +22,14 @@ type NavButton = {
   label: string;
   path?: string;
   onClick?: () => void;
-  /** Телепорт у окрестности: /location?id=... або /gk */
-  isLocationEntry?: boolean;
 };
 
-/** Компактні «пігулки» лише з текстом (~втричі менші за попередні) */
+/** Пігулки в стилі L2 (як HeroStatusStrip): золотиста рамка, градієнт */
 const pillClass =
-  "relative flex min-h-[22px] w-full items-center justify-center rounded-full border border-[#4a4540]/90 bg-[#2c2a28] px-1.5 py-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-[#e8c56e] hover:bg-[#353330] hover:border-[#6b5c48] hover:text-[#f4e2b8] active:scale-[0.98] transition-[transform,background-color,border-color,color] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/55";
+  "relative flex min-h-[30px] w-full items-center justify-center rounded-full border border-[#6b5344]/70 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] px-2 py-1 shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_2px_10px_rgba(0,0,0,0.45)] text-[#e8dcc8] hover:from-[#2a241c] hover:via-[#1c1610] hover:to-[#120f0c] hover:border-[#c7ad80]/50 hover:text-[#f4ebd9] active:scale-[0.98] transition-[transform,background-color,border-color,color] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/45";
 
 const pillLabelClass =
-  "block max-w-full text-center text-[7px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_1px_rgba(0,0,0,0.9)]";
+  "block max-w-full text-center text-[10px] sm:text-[11px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_2px_rgba(0,0,0,0.92)]";
 
 const navGridRows: NavButton[][] = [
   [
@@ -41,7 +38,6 @@ const navGridRows: NavButton[][] = [
     { label: "Форум", path: "/forum" },
   ],
   [
-    { label: "Окрестности", isLocationEntry: true },
     { label: "Клан", path: "/clans" },
     { label: "Город", path: "/city" },
   ],
@@ -206,15 +202,6 @@ export function NavGridProvider({
         return;
       }
 
-      if (btn.isLocationEntry && navigate) {
-        const z = getPreviousLocation();
-        const target = z ? `/location?id=${encodeURIComponent(z)}&page=1` : "/gk";
-        beforeNavigate(target);
-        clearLocationReturnHref();
-        navigate(target);
-        return;
-      }
-
       if (btn.label === "Клан" && navigate) {
         const fetchClan = async (retries = 0): Promise<{ id: string } | null> => {
           try {
@@ -288,12 +275,12 @@ function NavPillButton({ btn }: { btn: NavButton }) {
     >
       <span className={pillLabelClass}>{btn.label}</span>
       {showMailBadge && (
-        <span className="absolute -top-0.5 right-0.5 min-w-[12px] h-[11px] px-0.5 rounded-full bg-red-600 text-white text-[6px] font-bold leading-[11px] text-center shadow-sm ring-1 ring-black/40">
+        <span className="absolute -top-0.5 right-0.5 min-w-[14px] h-[13px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[13px] text-center shadow-sm ring-1 ring-black/40">
           {unreadCount > 99 ? "99" : unreadCount}
         </span>
       )}
       {showClanBadge && (
-        <span className="absolute -top-0.5 right-0.5 min-w-[12px] h-[11px] px-0.5 rounded-full bg-red-600 text-white text-[6px] font-bold leading-[11px] text-center shadow-sm ring-1 ring-black/40">
+        <span className="absolute -top-0.5 right-0.5 min-w-[14px] h-[13px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[13px] text-center shadow-sm ring-1 ring-black/40">
           {clanUnreadCount > 99 ? "99" : clanUnreadCount}
         </span>
       )}
@@ -301,39 +288,33 @@ function NavPillButton({ btn }: { btn: NavButton }) {
   );
 }
 
-function NavBottomDockGrid() {
+/** Сітка кнопок навігації (усередині рамки чату або у фіксованому докі) */
+export function NavInlineGrid({ className = "" }: { className?: string }) {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
 
   return (
-    <div className="w-full min-w-0 space-y-1 pointer-events-auto px-2 pt-1.5 sm:px-2" aria-label="Навігація гри">
+    <div className={`w-full min-w-0 space-y-1.5 pointer-events-auto ${className}`} aria-label="Навігація гри">
       {navGridRows.map((row, ri) => (
         <div
           key={ri}
-          className={
-            row.length === 2
-              ? "flex w-full justify-center gap-1"
-              : "grid w-full grid-cols-3 gap-1"
-          }
+          className={row.length === 2 ? "grid w-full grid-cols-2 gap-1.5" : "grid w-full grid-cols-3 gap-1.5"}
         >
           {row.map((btn) => (
-            <div
-              key={btn.label}
-              className={row.length === 2 ? "min-w-0 max-w-[48%] flex-1" : "min-w-0"}
-            >
+            <div key={btn.label} className="min-w-0">
               <NavPillButton btn={btn} />
             </div>
           ))}
         </div>
       ))}
       <div className="flex justify-center">
-        <div className="w-full max-w-[min(100%,240px)] min-w-0">
+        <div className="w-full max-w-[min(100%,280px)] min-w-0">
           {navGridWide.map((btn) => (
             <NavPillButton key={btn.label} btn={btn} />
           ))}
         </div>
       </div>
-      <div className="grid w-full grid-cols-2 gap-1">
+      <div className="grid w-full grid-cols-2 gap-1.5">
         {navGridSecondary.map((btn) => (
           <NavPillButton key={btn.label} btn={btn} />
         ))}
@@ -353,7 +334,8 @@ export default function NavGridBottomFixed() {
   }, [ctx?.routePathname]);
 
   if (!ctx) return null;
-  const { navigate } = ctx;
+  const { navigate, routePathname } = ctx;
+  const hideMainGridOnChat = routePathname === "/chat";
 
   const onBackLocation = () => {
     const href = consumeLocationReturnHref();
@@ -382,7 +364,7 @@ export default function NavGridBottomFixed() {
             </div>
           </div>
         ) : null}
-        <NavBottomDockGrid />
+        {hideMainGridOnChat ? null : <NavInlineGrid className="px-2 pt-1.5 sm:px-2" />}
         <div className="pointer-events-auto border-t border-[#c7ad80]/45 bg-[#0a0908]/98 px-2 py-1.5 pb-[max(0.35rem,env(safe-area-inset-bottom))] sm:px-2">
           <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[8px] sm:text-[9px] text-[#d4af37]">
             <button
