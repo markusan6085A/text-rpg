@@ -25,40 +25,37 @@ type NavButton = {
   onClick?: () => void;
   /** Телепорт у окрестности: /location?id=... або /gk */
   isLocationEntry?: boolean;
-  icon: string;
 };
 
+/** Компактні «пігулки» лише з текстом (~втричі менші за попередні) */
 const pillClass =
-  "relative flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-full border border-[#4a4540] bg-[#2c2a28] px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] text-[#e8c56e] hover:bg-[#353330] hover:border-[#6b5c48] hover:text-[#f4e2b8] active:scale-[0.98] transition-[transform,background-color,border-color,color] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/55";
+  "relative flex min-h-[22px] w-full items-center justify-center rounded-full border border-[#4a4540]/90 bg-[#2c2a28] px-1.5 py-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-[#e8c56e] hover:bg-[#353330] hover:border-[#6b5c48] hover:text-[#f4e2b8] active:scale-[0.98] transition-[transform,background-color,border-color,color] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/55";
 
 const pillLabelClass =
-  "block max-w-[calc(100%-22px)] text-center text-[9px] sm:text-[10px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]";
+  "block max-w-full text-center text-[7px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_1px_rgba(0,0,0,0.9)]";
 
-/** Верхня сітка (як на референсі) */
-const topGridRows: NavButton[][] = [
+const navGridRows: NavButton[][] = [
   [
-    { label: "Почта", path: "/mail", icon: "/icons/verx.png" },
-    { label: "Чат", path: "/chat", icon: "/icons/fpn.png" },
-    { label: "Форум", path: "/forum", icon: "/icons/clanns.png" },
+    { label: "Почта", path: "/mail" },
+    { label: "Чат", path: "/chat" },
+    { label: "Форум", path: "/forum" },
   ],
   [
-    { label: "Окрестности", isLocationEntry: true, icon: "/icons/teleport.jpg" },
-    { label: "Клан", path: "/clans", icon: "/icons/clann.jpg" },
-    { label: "Город", path: "/city", icon: "/icons/teleport.jpg" },
+    { label: "Окрестности", isLocationEntry: true },
+    { label: "Клан", path: "/clans" },
+    { label: "Город", path: "/city" },
   ],
   [
-    { label: "Инвентарь", path: "/inventory", icon: "/icons/bank.jpg" },
-    { label: "Персонаж", path: "/character", icon: "/icons/helper.jpg" },
+    { label: "Инвентарь", path: "/inventory" },
+    { label: "Персонаж", path: "/character" },
   ],
 ];
 
-const topGridWide: NavButton[] = [
-  { label: "Рейтинги", path: "/leaderboard", icon: "/icons/zst_cf.jpg" },
-];
+const navGridWide: NavButton[] = [{ label: "Рейтинги", path: "/leaderboard" }];
 
-const topGridSecondary: NavButton[] = [
-  { label: "Меню", path: "/about", icon: "/icons/fon.png" },
-  { label: "Новости", path: "/news", icon: "/icons/battle.jpg" },
+const navGridSecondary: NavButton[] = [
+  { label: "Меню", path: "/about" },
+  { label: "Новости", path: "/news" },
 ];
 
 type NavGridContextValue = {
@@ -76,13 +73,6 @@ interface NavGridProviderProps {
   /** Синхронно з App — для оновлення кнопки «назад в окрестности» */
   routePathname?: string;
   children: React.ReactNode;
-}
-
-function navIconOnError(e: React.SyntheticEvent<HTMLImageElement>) {
-  const el = e.currentTarget;
-  if (el.dataset.fallback === "1") return;
-  el.dataset.fallback = "1";
-  el.src = "/icons/clanns.png";
 }
 
 export function NavGridProvider({
@@ -296,22 +286,14 @@ function NavPillButton({ btn }: { btn: NavButton }) {
       className={pillClass}
       title={btn.label}
     >
-      <img
-        src={btn.icon}
-        alt=""
-        className="h-5 w-5 shrink-0 rounded object-cover opacity-95"
-        width={20}
-        height={20}
-        onError={navIconOnError}
-      />
       <span className={pillLabelClass}>{btn.label}</span>
       {showMailBadge && (
-        <span className="absolute -top-0.5 right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
+        <span className="absolute -top-0.5 right-0.5 min-w-[12px] h-[11px] px-0.5 rounded-full bg-red-600 text-white text-[6px] font-bold leading-[11px] text-center shadow-sm ring-1 ring-black/40">
           {unreadCount > 99 ? "99" : unreadCount}
         </span>
       )}
       {showClanBadge && (
-        <span className="absolute -top-0.5 right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
+        <span className="absolute -top-0.5 right-0.5 min-w-[12px] h-[11px] px-0.5 rounded-full bg-red-600 text-white text-[6px] font-bold leading-[11px] text-center shadow-sm ring-1 ring-black/40">
           {clanUnreadCount > 99 ? "99" : clanUnreadCount}
         </span>
       )}
@@ -319,41 +301,40 @@ function NavPillButton({ btn }: { btn: NavButton }) {
   );
 }
 
-/** Перший блок у прокрутці — «пігулки» у сітці */
-export function NavScrollTopRow() {
+function NavBottomDockGrid() {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
 
   return (
-    <div
-      className="w-full min-w-0 mb-2 pt-0.5 -mt-0.5 space-y-2"
-      aria-label="Навігація гри"
-    >
-      {topGridRows.map((row, ri) => (
+    <div className="w-full min-w-0 space-y-1 pointer-events-auto px-2 pt-1.5 sm:px-2" aria-label="Навігація гри">
+      {navGridRows.map((row, ri) => (
         <div
           key={ri}
           className={
             row.length === 2
-              ? "flex w-full justify-center gap-2"
-              : "grid w-full grid-cols-3 gap-2"
+              ? "flex w-full justify-center gap-1"
+              : "grid w-full grid-cols-3 gap-1"
           }
         >
           {row.map((btn) => (
-            <div key={btn.label} className={row.length === 2 ? "min-w-0 max-w-[46%] flex-1" : "min-w-0"}>
+            <div
+              key={btn.label}
+              className={row.length === 2 ? "min-w-0 max-w-[48%] flex-1" : "min-w-0"}
+            >
               <NavPillButton btn={btn} />
             </div>
           ))}
         </div>
       ))}
       <div className="flex justify-center">
-        <div className="w-full max-w-[min(100%,280px)] min-w-0">
-          {topGridWide.map((btn) => (
+        <div className="w-full max-w-[min(100%,240px)] min-w-0">
+          {navGridWide.map((btn) => (
             <NavPillButton key={btn.label} btn={btn} />
           ))}
         </div>
       </div>
-      <div className="grid w-full grid-cols-2 gap-2">
-        {topGridSecondary.map((btn) => (
+      <div className="grid w-full grid-cols-2 gap-1">
+        {navGridSecondary.map((btn) => (
           <NavPillButton key={btn.label} btn={btn} />
         ))}
       </div>
@@ -361,7 +342,7 @@ export function NavScrollTopRow() {
   );
 }
 
-/** Низ: повернення в окрестности + футер як на референсі */
+/** Низ: сітка навігації + повернення в окрестности + футер */
 export default function NavGridBottomFixed() {
   const ctx = useNavGridCtx();
   const onlineCount = useOnlineCountStore((s) => s.onlineCount);
@@ -385,7 +366,6 @@ export default function NavGridBottomFixed() {
 
   const backBtn: NavButton = {
     label: "Окрестности",
-    icon: "/icons/teleport.jpg",
     onClick: onBackLocation,
   };
 
@@ -394,56 +374,61 @@ export default function NavGridBottomFixed() {
       className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border pointer-events-none"
       data-nav-bottom-dock
     >
-      {returnHref ? (
-        <div className="pointer-events-auto px-2 pb-1 sm:px-3">
-          <NavPillButton btn={backBtn} />
-        </div>
-      ) : null}
-      <div className="pointer-events-auto border-t border-[#c7ad80]/45 bg-[#0a0908]/98 px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3">
-        <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-center text-[10px] sm:text-[11px] text-[#d4af37]">
-          <button
-            type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
-            onClick={() => {
-              setString("l2_last_feature", "Позвать друзей");
-              navigate?.("/wip");
-            }}
-          >
-            Позвать друзей
-          </button>
-          <span className="text-[#6b5c48] select-none" aria-hidden>
-            |
-          </span>
-          <button
-            type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
-            onClick={() => {
-              setString("l2_last_feature", "Поддержка");
-              navigate?.("/wip");
-            }}
-          >
-            Служба поддержки
-          </button>
-          <span className="text-[#6b5c48] select-none" aria-hidden>
-            |
-          </span>
-          <button
-            type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
-            onClick={() => navigate?.("/stats")}
-          >
-            Статы
-          </button>
-          <span className="text-[#6b5c48] select-none" aria-hidden>
-            |
-          </span>
-          <button
-            type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
-            onClick={() => navigate?.("/online-players")}
-          >
-            Онлайн: {onlineCount}
-          </button>
+      <div className="pointer-events-none bg-gradient-to-t from-[#0a0908]/98 via-[#0a0908]/95 to-transparent pt-1">
+        {returnHref ? (
+          <div className="pointer-events-auto px-2 pb-1">
+            <div className="mx-auto max-w-[240px]">
+              <NavPillButton btn={backBtn} />
+            </div>
+          </div>
+        ) : null}
+        <NavBottomDockGrid />
+        <div className="pointer-events-auto border-t border-[#c7ad80]/45 bg-[#0a0908]/98 px-2 py-1.5 pb-[max(0.35rem,env(safe-area-inset-bottom))] sm:px-2">
+          <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[8px] sm:text-[9px] text-[#d4af37]">
+            <button
+              type="button"
+              className="hover:text-[#f0d878] hover:underline underline-offset-2"
+              onClick={() => {
+                setString("l2_last_feature", "Позвать друзей");
+                navigate?.("/wip");
+              }}
+            >
+              Позвать друзей
+            </button>
+            <span className="text-[#6b5c48] select-none" aria-hidden>
+              |
+            </span>
+            <button
+              type="button"
+              className="hover:text-[#f0d878] hover:underline underline-offset-2"
+              onClick={() => {
+                setString("l2_last_feature", "Поддержка");
+                navigate?.("/wip");
+              }}
+            >
+              Служба поддержки
+            </button>
+            <span className="text-[#6b5c48] select-none" aria-hidden>
+              |
+            </span>
+            <button
+              type="button"
+              className="hover:text-[#f0d878] hover:underline underline-offset-2"
+              onClick={() => navigate?.("/stats")}
+            >
+              Статы
+            </button>
+            <span className="text-[#6b5c48] select-none" aria-hidden>
+              |
+            </span>
+            <button
+              type="button"
+              className="hover:text-[#f0d878] hover:underline underline-offset-2"
+              onClick={() => navigate?.("/online-players")}
+            >
+              Онлайн: {onlineCount}
+            </button>
+          </div>
         </div>
       </div>
     </div>

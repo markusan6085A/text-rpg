@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import NavGridBottomFixed, { NavGridProvider, NavScrollTopRow } from "./NavGrid";
+import NavGridBottomFixed, { NavGridProvider } from "./NavGrid";
 import StatusBars from "./StatusBars";
 import HeroStatusStrip from "./HeroStatusStrip";
 import SummonStatus from "./SummonStatus";
@@ -423,7 +423,7 @@ export default function Layout({
           <NavGridProvider navigate={navigate} routePathname={routePathname ?? ""}>
             <div
               ref={contentRef}
-              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[5rem] max-[380px]:pb-[4.75rem]"
+              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[14rem] max-[380px]:pb-[13.5rem]"
             >
               <div
                 className={`w-full max-w-full min-w-0 mt-0 ${
@@ -432,7 +432,6 @@ export default function Layout({
                     : "px-2 py-1 max-[480px]:px-1 sm:px-3"
                 } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
               >
-                <NavScrollTopRow />
                 <HeroStatusStrip hidden={blockDeathUi} />
                 {!blockDeathUi && children}
               </div>
@@ -442,7 +441,7 @@ export default function Layout({
         ) : (
           <div
             ref={contentRef}
-            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[5rem] max-[380px]:pb-[4.75rem]"
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[14rem] max-[380px]:pb-[13.5rem]"
           >
             <div
               className={`w-full max-w-full min-w-0 mt-0 ${
