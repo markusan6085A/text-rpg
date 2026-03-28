@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import NavGridBottomFixed, { NavGridProvider, NavScrollTopRow } from "./NavGrid";
 import StatusBars from "./StatusBars";
+import HeroStatusStrip from "./HeroStatusStrip";
 import SummonStatus from "./SummonStatus";
 import TutorialHint from "./TutorialHint";
 import Toast from "./Toast";
@@ -432,6 +433,7 @@ export default function Layout({
                 } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
               >
                 <NavScrollTopRow />
+                <HeroStatusStrip hidden={blockDeathUi} />
                 {!blockDeathUi && children}
               </div>
             </div>
@@ -449,6 +451,7 @@ export default function Layout({
                   : "px-2 py-1 max-[480px]:px-1 sm:px-3"
               } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
             >
+              <HeroStatusStrip hidden={blockDeathUi} />
               {!blockDeathUi && children}
             </div>
           </div>

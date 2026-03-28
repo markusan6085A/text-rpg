@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
-import { useBattleStore } from "../../state/battle/store";
 import { useCharacterStore } from "../../state/characterStore";
 import { getProfessionDefinition, normalizeProfessionId } from "../../data/skills";
 import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
@@ -15,9 +14,6 @@ import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { showToast } from "../../state/toastStore";
-import HeroResourceBars from "../../components/HeroResourceBars";
-import { getHeroResourceValues } from "../../utils/heroBuffedResources";
-
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
   return num.toLocaleString("ru-RU");
@@ -55,12 +51,6 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   });
 
   const isL2 = getCityUiVariant() === "l2";
-  const battleStatus = useBattleStore((s) => s.status);
-  const inBattle = battleStatus !== "idle";
-  const resBars = useMemo(
-    () => (hero ? getHeroResourceValues(hero, inBattle) : null),
-    [hero, inBattle, hero?.hp, hero?.mp, hero?.cp, hero?.maxHp, hero?.maxMp, hero?.maxCp],
-  );
 
   const l2MenuMark = isL2 ? (
     <span
@@ -255,32 +245,6 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
               }
         }
       >
-        {isL2 && (
-          <div className="w-full mb-3 rounded-lg border border-[#6b5344]/65 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_10px_36px_rgba(0,0,0,0.5)] p-3">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-              <span className="text-[13px] font-bold text-[#f4ebd9] [text-shadow:0_2px_5px_rgba(0,0,0,0.92)] truncate max-w-[68%]">
-                {nickname}
-              </span>
-              <span className="text-[12px] text-[#e8c56e] font-semibold tabular-nums whitespace-nowrap">
-                {level} ур.
-              </span>
-            </div>
-            {resBars && (
-              <div className="mt-2.5">
-                <HeroResourceBars
-                  hp={resBars.hp}
-                  maxHp={resBars.maxHp}
-                  mp={resBars.mp}
-                  maxMp={resBars.maxMp}
-                  cp={resBars.cp}
-                  maxCp={resBars.maxCp}
-                  lowHpPulse={resBars.maxHp > 0 && resBars.hp / resBars.maxHp < 0.3}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
         {/* ВЕРХ — МОЙ ПЕРСОНАЖ + КНОПКИ */}
         <div
           className={
