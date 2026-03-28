@@ -8,69 +8,12 @@ import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers
 import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { getMaxResources } from "../state/battle/helpers/getMaxResources";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
-import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "./PlayerNameWithEmblem";
+import HeroResourceBars from "./HeroResourceBars";
 import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
 import { getMyClan, getPkState } from "../utils/api";
 import { isPremiumActive } from "../utils/premium/isPremiumActive";
-
-type BarKey = "CP" | "HP" | "MP" | "EXP";
-
-const COLORS: Record<BarKey, { fill: string; bg: string; text: string }> = {
-  CP: { 
-    fill: "linear-gradient(to right, #ffd700, #ffcc00 50%, #e6b800)",
-    bg: "linear-gradient(to bottom, #4a3d0a, #2d2306)",
-    text: "#ffffff" 
-  },
-  HP: { 
-    fill: "linear-gradient(to right, #ff4444, #ff6b35 50%, #e22b3a)",
-    bg: "linear-gradient(to bottom, #4a0b13, #2c070c)",
-    text: "#ffffff" 
-  },
-  MP: { 
-    fill: "linear-gradient(to right, #4488ff, #2e8bff 50%, #1160c5)",
-    bg: "linear-gradient(to bottom, #0d2f4e, #081b2c)",
-    text: "#ffffff" 
-  },
-  EXP: { 
-    fill: "linear-gradient(to right, #00cc00, #00aa00 50%, #008800)",
-    bg: "linear-gradient(to bottom, #0a2e0a, #051905)",
-    text: "#ffffff" 
-  },
-};
-
-function Bar({
-  label,
-  value,
-  max,
-  pulse,
-}: {
-  label: BarKey;
-  value: number;
-  max: number;
-  pulse?: boolean;
-}) {
-  const safeValue = Math.max(0, Math.round(value));
-  const safeMax = Math.max(1, Math.round(max));
-  const percent = Math.min(100, Math.floor((safeValue / safeMax) * 100));
-  const colors = COLORS[label];
-
-  return (
-    <div className="w-full h-[0.4rem] rounded-[2px] overflow-hidden relative" style={{ background: colors.bg }}>
-      <div
-        className={`h-full ${pulse ? "animate-pulse" : ""}`}
-        style={{
-          width: `${percent}%`,
-          background: colors.fill,
-        }}
-      />
-      <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[7px] font-semibold" style={{ color: colors.text }}>
-        <span>{label}</span>
-        <span>{label === "EXP" ? `${percent}%` : `${safeValue}/${safeMax}`}</span>
-      </div>
-    </div>
-  );
-}
+import { getCombinedHeroBuffs, getHeroResourceValues } from "../utils/heroBuffedResources";
 
 export default function StatusBars() {
   const hero = useHeroStore((s) => s.hero);
@@ -81,30 +24,6 @@ export default function StatusBars() {
   const [pkDeathNotice, setPkDeathNotice] = React.useState<any>(null);
   
   const inBattle = battleStatus !== "idle";
-
-  // Бафи для конкретного героя (поза інтервалом використовувати currentHero, щоб не було stale closure).
-  // У бою реген використовує buffed max (computeBuffedMaxResources); поза боєм реген/стоп/hpFull мають порівнювати з buffedMaxHp, інакше реген зупиняється на hero.maxHp і полоса не доходить до 100%.
-  const getCombinedBuffsFor = React.useCallback((h: typeof hero, inBattleNow: boolean) => {
-    if (!h?.name) return [];
-    const now = Date.now();
-    const savedBattle = loadBattle(h.name);
-    const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
-    const battleBuffs = cleanupBuffs(useBattleStore.getState().heroBuffs || [], now);
-    const heroJson = (h as any)?.heroJson || {};
-    const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
-    const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => b?.expiresAt && b.expiresAt > now);
-
-    const baseBuffs = inBattleNow ? battleBuffs : savedBuffs;
-    const all = [...baseBuffs, ...activeHeroJsonBuffs];
-    return all.filter((buff, index, self) =>
-      index === self.findIndex((b) =>
-        (b.id && buff.id && b.id === buff.id) ||
-        (!b.id && !buff.id && b.name === buff.name)
-      )
-    );
-  }, []);
-
-  const getCombinedBuffs = React.useCallback(() => getCombinedBuffsFor(hero, inBattle), [hero, inBattle, getCombinedBuffsFor]);
 
   // Завантажуємо клан для відображення емблеми (відкладаємо 100ms, щоб бари відмалювалися першими)
   // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан один раз при зміні hero, не поллимо
@@ -247,7 +166,7 @@ export default function StatusBars() {
 
       const inBattleNow = useBattleStore.getState().status !== "idle";
       const baseMax = getMaxResources(currentHero);
-      const combinedBuffs = getCombinedBuffsFor(currentHero, inBattleNow);
+      const combinedBuffs = getCombinedHeroBuffs(currentHero, inBattleNow);
       const { maxHp: buffedMaxHp, maxMp: buffedMaxMp, maxCp: buffedMaxCp } =
         computeBuffedMaxResources(baseMax, combinedBuffs);
 
@@ -364,15 +283,7 @@ export default function StatusBars() {
   // ВАЖЛИВО: Перевірка hero має бути ПІСЛЯ всіх хуків (useEffect тощо)
   if (!hero) return null;
 
-  // Бази з hero, buffed max = base + бафи статуї/скілів (як у City та бою)
-  const baseMax = getMaxResources(hero);
-  const battleBuffs = getCombinedBuffs();
-  const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, battleBuffs);
-
-  // Читаємо ресурси з hero (єдине джерело правди)
-  const hp = hero.hp ?? maxHp;
-  const mp = hero.mp ?? maxMp;
-  const cp = hero.cp ?? maxCp;
+  const { hp, mp, cp, maxHp, maxMp, maxCp } = getHeroResourceValues(hero, inBattle);
 
   const level = Number(hero.level ?? 1) || 1;
   const expCurrent = Math.max(0, Math.floor(Number(hero.exp ?? 0) || 0));
@@ -396,12 +307,20 @@ export default function StatusBars() {
         pointerEvents: "none",
       }}
     >
-      <div className="flex flex-col gap-0.5 w-[90px]">
-        <Bar label="CP" value={cp} max={maxCp} />
-        <Bar label="HP" value={hp} max={maxHp} pulse={hp / maxHp < 0.3} />
-        <Bar label="MP" value={mp} max={maxMp} />
-        <Bar label="EXP" value={expBarValue} max={expNeedBar} />
-      </div>
+      <HeroResourceBars
+        className="min-w-[138px]"
+        hp={hp}
+        maxHp={maxHp}
+        mp={mp}
+        maxMp={maxMp}
+        cp={cp}
+        maxCp={maxCp}
+        expCurrent={expBarValue}
+        expMax={expNeedBar}
+        showExp
+        compact
+        lowHpPulse={maxHp > 0 && hp / maxHp < 0.3}
+      />
       <div className="mt-1 text-white text-[9px] font-semibold text-left flex items-center gap-1 flex-wrap">
         <PlayerNameWithEmblem
           playerName={hero.name}
@@ -440,8 +359,7 @@ export default function StatusBars() {
           </div>
         </div>
       )}
-      {/* Крапкова лінія під барами */}
-      <div className="mt-1 w-full border-t border-solid border-white/35"></div>
+      <div className="mt-1 w-full border-t border-solid border-[#5c4a32]/45" />
     </div>
   );
 }

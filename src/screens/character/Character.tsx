@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useHeroStore } from "../../state/heroStore";
+import { useBattleStore } from "../../state/battle/store";
 import { useCharacterStore } from "../../state/characterStore";
 import { getProfessionDefinition, normalizeProfessionId } from "../../data/skills";
 import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
@@ -14,6 +15,8 @@ import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { showToast } from "../../state/toastStore";
+import HeroResourceBars from "../../components/HeroResourceBars";
+import { getHeroResourceValues } from "../../utils/heroBuffedResources";
 
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -38,16 +41,6 @@ function raceLabelRu(race: string): string {
   return map[r] || race || "—";
 }
 
-function L2ResourceBar({ cur, max, fill }: { cur: number; max: number; fill: string }) {
-  const cap = Math.max(1, max);
-  const p = Math.min(100, Math.round((cur / cap) * 100));
-  return (
-    <div className="h-2 flex-1 min-w-0 rounded-[3px] bg-black/55 overflow-hidden border border-[#2a241c] shadow-[inset_0_1px_3px_rgba(0,0,0,0.65)]">
-      <div className="h-full transition-[width] duration-300" style={{ width: `${p}%`, background: fill }} />
-    </div>
-  );
-}
-
 interface CharacterProps {
   navigate?: (path: string) => void;
 }
@@ -62,6 +55,12 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   });
 
   const isL2 = getCityUiVariant() === "l2";
+  const battleStatus = useBattleStore((s) => s.status);
+  const inBattle = battleStatus !== "idle";
+  const resBars = useMemo(
+    () => (hero ? getHeroResourceValues(hero, inBattle) : null),
+    [hero, inBattle, hero?.hp, hero?.mp, hero?.cp, hero?.maxHp, hero?.maxMp, hero?.maxCp],
+  );
 
   const l2MenuMark = isL2 ? (
     <span
@@ -269,30 +268,19 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
                 {level} ур.
               </span>
             </div>
-            <div className="mt-2.5 flex items-center gap-1.5">
-              <span className="text-[9px] text-[#b59a72] w-5 shrink-0 font-semibold">HP</span>
-              <L2ResourceBar
-                cur={Number(hero.hp ?? 0)}
-                max={Math.max(1, Number(hero.maxHp ?? 1))}
-                fill="linear-gradient(180deg,#d05050,#801c1c)"
-              />
-            </div>
-            <div className="mt-1 flex items-center gap-1.5">
-              <span className="text-[9px] text-[#b59a72] w-5 shrink-0 font-semibold">MP</span>
-              <L2ResourceBar
-                cur={Number(hero.mp ?? 0)}
-                max={Math.max(1, Number(hero.maxMp ?? 1))}
-                fill="linear-gradient(180deg,#5c9fd8,#284a78)"
-              />
-            </div>
-            <div className="mt-1 flex items-center gap-1.5">
-              <span className="text-[9px] text-[#b59a72] w-5 shrink-0 font-semibold">CP</span>
-              <L2ResourceBar
-                cur={Number(hero.cp ?? 0)}
-                max={Math.max(1, Number(hero.maxCp ?? 1))}
-                fill="linear-gradient(180deg,#e0bc68,#7a5a28)"
-              />
-            </div>
+            {resBars && (
+              <div className="mt-2.5">
+                <HeroResourceBars
+                  hp={resBars.hp}
+                  maxHp={resBars.maxHp}
+                  mp={resBars.mp}
+                  maxMp={resBars.maxMp}
+                  cp={resBars.cp}
+                  maxCp={resBars.maxCp}
+                  lowHpPulse={resBars.maxHp > 0 && resBars.hp / resBars.maxHp < 0.3}
+                />
+              </div>
+            )}
             <button
               type="button"
               onClick={() => navigate("/daily-quests")}
