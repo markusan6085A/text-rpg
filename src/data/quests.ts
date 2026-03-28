@@ -22,6 +22,8 @@ export interface Quest {
   rewards?: {
     exp?: number;
     adena?: number;
+    /** Серебряные монеты (quest shop), hero.coins_silver */
+    coins_silver?: number;
     items?: Array<{ id: string; count: number }>;
   };
   requirements?: {
@@ -46,12 +48,12 @@ export const QUESTS: Quest[] = [
     icon: "/nps/6.png",
     name: "Окраина Глудио: волки и уголь",
     description:
-      "Убейте 5 волков в окрестностях Глудио. Принеси 5 Charcoal (выпадает с разных мобов зоны). После выполнения условий сдай через вкладку «Квесты» персонажа.",
+      "Убейте 5 волков в окрестностях Глудио. Принеси 5 Charcoal (выпадает с разных мобов зоны). После выполнения условий сдай через вкладку «Квесты» персонажа. Награда: 20 серебряных монет — можно потратить в квест-шопе.",
     level: 1,
     location: "Глудио — Окраина",
     locationLevel: "1–5",
     requirements: { level: 1 },
-    rewards: { adena: 100_000, exp: 50_000 },
+    rewards: { adena: 100_000, exp: 50_000, coins_silver: 20 },
     questKillTargets: [
       {
         mobName: "Волк",

@@ -151,6 +151,9 @@ export default function CharacterQuests() {
       newAdena += rewards.adena;
     }
 
+    const addSilver = Math.max(0, Math.floor(Number(rewards.coins_silver ?? 0)));
+    const newCoinsSilver = (hero.coins_silver ?? 0) + addSilver;
+
     let expPayload: { exp?: number } = {};
     if (rewards.exp && rewards.exp > 0) {
       const expEnabled = getGameSettings().expEnabled !== false;
@@ -195,6 +198,7 @@ export default function CharacterQuests() {
       completedQuests: newCompletedQuests,
       inventory: newInventory,
       adena: newAdena,
+      ...(addSilver > 0 ? { coins_silver: newCoinsSilver } : {}),
       ...expPayload,
     });
   };
@@ -435,6 +439,12 @@ export default function CharacterQuests() {
                       <span className="font-semibold">Нагороди:</span>
                       {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
                       {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
+                      {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3.5 h-3.5 object-contain" />
+                          Серебряные монеты: {quest.rewards.coins_silver}
+                        </span>
+                      )}
                       {quest.rewards.items?.map((item, idx) => {
                         const itemDef = itemsDB[item.id];
                         return (
@@ -547,6 +557,12 @@ export default function CharacterQuests() {
                         <span className="font-semibold">Нагороди:</span>
                         {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
                         {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
+                        {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
+                          <span className="inline-flex items-center gap-1">
+                            <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3.5 h-3.5 object-contain" />
+                            Серебряные монеты: {quest.rewards.coins_silver}
+                          </span>
+                        )}
                         {quest.rewards.items?.map((item, idx) => {
                           const itemDef = itemsDB[item.id];
                           return (
