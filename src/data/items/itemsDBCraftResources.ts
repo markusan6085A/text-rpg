@@ -77,6 +77,15 @@ export const itemsDBCraftResources: Record<string, ItemDefinition> = {
     description: "Craft resource.",
     stackable: true,
   },
+  varnish: {
+    id: "varnish",
+    name: "Varnish",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1865.jpg",
+    description: "Craft resource.",
+    stackable: true,
+  },
   steel_mold: {
     id: "steel_mold",
     name: "Steel Mold",

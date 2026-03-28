@@ -42,6 +42,18 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     description: "Захисне тату, що збільшує фізичний та магічний захист на 50, а також максимальне HP на 150.",
     grade: "D",
   },
+  tattoo_gludio_ruins_cr_passive: {
+    id: "tattoo_gludio_ruins_cr_passive",
+    name: "Тату стійкості руїн",
+    kind: "tattoo",
+    slot: "tattoo",
+    icon: "/items/drops/item/R_talisman_cr_up_passive_0.jpg",
+    description:
+      "Нагорода за квест у руїнах Глудіо: +50 фіз. захисту, +50 маг. захисту, +300 HP, +100 MP.",
+    grade: "C",
+    stats: { pDef: 50, mDef: 50, maxHp: 300, maxMp: 100 },
+    stackable: false,
+  },
   quest_belt: {
     id: "quest_belt",
     name: "Пояс Захисту",

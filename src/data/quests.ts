@@ -183,6 +183,37 @@ export const QUESTS: Quest[] = [
       },
     ],
   },
+  {
+    id: "gludio_ruins_rb_varnish_tattoo",
+    icon: "/nps/6.png",
+    name: "Глудио — Руины: рейд и лак",
+    description:
+      "На локации «Глудио — Руины» убейте рейдового босса зоны (в т.ч. Raid Boss: Король Руїн) и сдайте 30 Varnish. Награда: 500 000 адены, 350 000 опыта и тату «Тату стійкості руїн» (+50 pDef / +50 mDef / +300 HP / +100 MP).",
+    level: 14,
+    location: "Глудио — Руины",
+    locationLevel: "14–22",
+    requirements: { level: 14 },
+    rewards: {
+      adena: 500_000,
+      exp: 350_000,
+      items: [{ id: "tattoo_gludio_ruins_cr_passive", count: 1 }],
+    },
+    questKillTargets: [
+      {
+        mobName: "Рейдовий бос зони (Руїни)",
+        progressKey: "gludio_ruins_raid_kill",
+        requiredCount: 1,
+        raidBossKillInZone: "l2dop_gludio_05",
+      },
+    ],
+    questDrops: [
+      { mobName: "Гоблин", itemId: "varnish", requiredCount: 30 },
+      { mobName: "Скелет", itemId: "varnish", requiredCount: 30 },
+      { mobName: "Волк", itemId: "varnish", requiredCount: 30 },
+      { mobName: "Орк Воїн", itemId: "varnish", requiredCount: 30 },
+      { mobName: "Ельпі", itemId: "varnish", requiredCount: 30 },
+    ],
+  },
 ];
 
 export const QUESTS_BY_LOCATION: Record<string, Quest[]> = {};
