@@ -242,7 +242,7 @@ const parsePoluchilLine = (line: string): React.ReactNode | null => {
 };
 
 const parseVypaloLine = (line: string): React.ReactNode | null => {
-  const m = line.match(/^Выпало:\s*(.+)\s+адены,\s*(.+)\s+EXP\s+и\s+(.+)\s+SP$/i);
+  const m = line.match(/^Выпало:\s*(.+)\s+адены?,\s*(.+)\s+EXP\s+и\s+(.+)\s+SP$/i);
   if (!m) return null;
   const [, adenaNum, expNum, spNum] = m;
   return (
@@ -251,7 +251,7 @@ const parseVypaloLine = (line: string): React.ReactNode | null => {
       <span className="inline-flex items-baseline gap-0 text-[#facc15] font-medium ml-1">
         {inlineLootIcon(ICON_ADENA)}
         <span className="tabular-nums">{adenaNum.trim()}</span>
-        <span> адены,</span>
+        <span> аден,</span>
       </span>
       <span> </span>
       <span className="inline-flex items-baseline gap-0 text-[#86efac] font-medium">
