@@ -331,20 +331,13 @@ export default function Battle({ navigate }: BattleProps) {
     const cardSp = formatLootIntEn(lastReward.sp ?? 0);
     const cardAdena = formatLootIntEn(lastReward.adena);
 
-    const vLootIcon = (src: string) => (
-      <img
-        src={src}
-        alt=""
-        className="inline-block w-3.5 h-3.5 opacity-90 align-[-0.15em] mx-0.5 shrink-0"
-      />
-    );
-
-    const victoryNotify =
-      "rounded-md border border-[#3d3d3d] bg-[#1c1c1c] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] px-3 py-3";
+    const victoryNotifyL2 =
+      "rounded-lg border border-[#5c4a32]/70 bg-black/35 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] overflow-hidden px-3 py-3";
+    const victoryInnerDividerL2 = "border-t border-[#c7ad80]/15";
     const btnContinueL2 =
-      "text-left text-[12px] py-1 text-[#b89a5c] hover:text-[#d4b878] hover:underline bg-transparent border-0 cursor-pointer w-fit font-medium transition-colors";
-    const btnNextL2 =
-      "w-full text-center text-[12px] py-2 rounded border border-[#3d3d3d] bg-[#262626] text-[#c4c4c4] hover:bg-[#2e2e2e] hover:text-[#e0e0e0] transition-colors";
+      "text-left text-[12px] py-1 text-[#c9a44c] hover:text-[#e8d4a8] hover:underline bg-transparent border-0 cursor-pointer w-fit font-medium transition-colors";
+    const textHitNextL2 =
+      "text-left text-[12px] py-0.5 text-[#8a7a60] hover:text-[#c9a44c] bg-transparent border-0 cursor-pointer w-fit transition-colors";
 
     const victoryContent = (
       <>
@@ -356,32 +349,29 @@ export default function Battle({ navigate }: BattleProps) {
               <span> · ур. {mob.level}</span>
             </p>
             <div className={`${pad} mb-2`}>
-              <div className={victoryNotify}>
+              <div className={victoryNotifyL2}>
                 <div className="flex items-center gap-2">
-                  <span className="text-[#8b6914] text-lg leading-none select-none shrink-0" aria-hidden>
+                  <span className="text-[#9d8265] text-lg leading-none select-none shrink-0" aria-hidden>
                     ⚔
                   </span>
-                  <span className="text-[12px] font-bold text-[#2ee659] tracking-wide leading-tight">
+                  <span className="text-[12px] font-bold text-[#3bd16f] tracking-wide leading-tight">
                     ВЫ ПОБЕДИЛИ МОНСТРА!
                   </span>
                 </div>
-                <div className="mt-2.5 border-t border-[#2a2a2a] pt-2.5 text-[12px] text-[#c8c8c8] leading-relaxed text-left">
+                <div className={`mt-2.5 ${victoryInnerDividerL2} pt-2.5 text-[12px] text-[#d4c4a8] leading-relaxed text-left`}>
                   <span>Выпало:</span>{" "}
-                  {vLootIcon("/assets/adena.png")}
                   <span className="tabular-nums">{cardAdena}</span>
                   <span> аден, </span>
-                  {vLootIcon("/victory/exp.png")}
                   <span className="tabular-nums">{cardExp}</span>
                   <span> EXP и </span>
-                  {vLootIcon("/victory/sp.png")}
                   <span className="tabular-nums">{cardSp}</span>
                   <span> SP</span>
                 </div>
-                <div className="mt-3 flex flex-col gap-2 items-stretch pt-1 border-t border-[#2a2a2a]">
+                <div className={`mt-3 flex flex-col gap-1 items-stretch pt-2 ${victoryInnerDividerL2}`}>
                   <button type="button" onClick={handleContinueToLocation} className={btnContinueL2}>
                     Продолжить
                   </button>
-                  <button type="button" onClick={handleHitNextMob} className={btnNextL2}>
+                  <button type="button" onClick={handleHitNextMob} className={textHitNextL2}>
                     Бить следующего!
                   </button>
                 </div>
@@ -398,37 +388,34 @@ export default function Battle({ navigate }: BattleProps) {
               </div>
             </div>
             <div className={`${pad} mb-2 mt-2`}>
-              <div className="rounded-md border border-neutral-600 bg-neutral-900 px-3 py-3 shadow-inner">
+              <div className={`${boxLog} px-3 py-3`}>
                 <div className="flex items-center gap-2">
                   <span className="text-[#a67c2c] text-lg leading-none" aria-hidden>
                     ⚔
                   </span>
                   <span className="text-[12px] font-bold text-green-500 tracking-wide">ВЫ ПОБЕДИЛИ МОНСТРА!</span>
                 </div>
-                <div className="mt-2.5 border-t border-neutral-700 pt-2.5 text-[12px] text-neutral-300 leading-relaxed text-left">
+                <div className="mt-2.5 border-t border-[#c7ad80]/25 pt-2.5 text-[12px] text-[#d4c4a8] leading-relaxed text-left">
                   <span>Выпало:</span>{" "}
-                  {vLootIcon("/assets/adena.png")}
                   <span className="tabular-nums">{cardAdena}</span>
                   <span> аден, </span>
-                  {vLootIcon("/victory/exp.png")}
                   <span className="tabular-nums">{cardExp}</span>
                   <span> EXP и </span>
-                  {vLootIcon("/victory/sp.png")}
                   <span className="tabular-nums">{cardSp}</span>
                   <span> SP</span>
                 </div>
-                <div className="mt-3 flex flex-col gap-2 border-t border-neutral-700 pt-3">
+                <div className="mt-3 flex flex-col gap-1 border-t border-[#c7ad80]/25 pt-3">
                   <button
                     type="button"
                     onClick={handleContinueToLocation}
-                    className="text-left text-[12px] text-amber-600/90 hover:text-amber-400 hover:underline bg-transparent border-0 cursor-pointer p-0 w-fit"
+                    className="text-left text-[12px] text-[#c9a44c] hover:text-[#e8d4a8] hover:underline bg-transparent border-0 cursor-pointer p-0 w-fit font-medium"
                   >
                     Продолжить
                   </button>
                   <button
                     type="button"
                     onClick={handleHitNextMob}
-                    className="w-full text-center text-[12px] py-2 rounded border border-neutral-600 bg-neutral-800 text-neutral-200 hover:bg-neutral-700 transition-colors"
+                    className="text-left text-[12px] text-[#8a7a60] hover:text-[#c9a44c] bg-transparent border-0 cursor-pointer p-0 w-fit"
                   >
                     Бить следующего!
                   </button>
