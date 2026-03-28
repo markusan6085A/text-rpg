@@ -466,13 +466,15 @@ const ANCIENT_TOMB_ZONE_ROWS = [
 ] as const;
 
 export function buildL2DopAncientTombFieldsZones(): Zone[] {
-  return ANCIENT_TOMB_ZONE_ROWS.map((z) => ({
+  return ANCIENT_TOMB_ZONE_ROWS.map((z, i) => ({
     id: z.id,
     name: z.name,
     cityId: "ancient_tomb_fields",
     minLevel: z.min,
     maxLevel: z.max,
     tpCost: z.tp,
+    /** Засідка при вході: від 5% на перших насипах до 14% біля тронного кургану. */
+    entryAmbushChance: Math.min(0.14, 0.05 + i * 0.01),
     mobs: buildAncientTombFieldsZoneMobs(z) as Mob[],
   }));
 }

@@ -19,7 +19,7 @@ import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api
 import { getGameSettings } from "../state/gameSettings";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
-import { displayCityName, displayMobName, displayZoneName } from "../utils/worldDisplay";
+import { displayCityName, displayMobName, displayZoneName, displayZoneLore } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
@@ -344,6 +344,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   }
 
   const { zone, city } = found;
+  const zoneLoreText = displayZoneLore(zone.id);
 
   // Моби з активних квестів — показуємо сірим текстом (беремо з hero та heroJson на випадок гідрації)
   const activeQuests = React.useMemo(() => {
@@ -419,6 +420,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               <img src="/assets/travel.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-90" />
               <span>{displayZoneName(zone)}</span>
             </div>
+            {zoneLoreText ? (
+              <p className="mt-2 text-[11px] leading-relaxed text-[#a89878] border-t border-[#5c4a32]/30 pt-2">
+                {zoneLoreText}
+              </p>
+            ) : null}
           </div>
         ) : (
           <div className="text-[#c7ad80] mb-2 text-base font-semibold flex items-center gap-2">
@@ -426,6 +432,12 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
             <span>{displayZoneName(zone)}</span>
           </div>
         )}
+
+        {!isL2 && zoneLoreText ? (
+          <p className="mb-2 text-[11px] leading-snug text-[#c7ad80]/85 border-l-2 border-[#c7ad80]/40 pl-2">
+            {zoneLoreText}
+          </p>
+        ) : null}
 
         {zone.id === "l2dop_gludio_01" && !gludioQuestHintDismissed && (
           <div

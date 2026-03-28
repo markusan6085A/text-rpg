@@ -1,5 +1,5 @@
 import { locations } from "../data/world";
-import { CITY_LABELS, ZONE_LABELS } from "../data/world/locale/worldLabels";
+import { CITY_LABELS, ZONE_LABELS, ZONE_LORE } from "../data/world/locale/worldLabels";
 import { localizeMobDisplayName } from "../data/world/locale/mobLocale";
 import { getGameSettings, type Language } from "../state/gameSettings";
 
@@ -16,6 +16,13 @@ export function displayCityName(city: { id: string; name: string }): string {
 export function displayZoneName(zone: { id: string; name: string }): string {
   const row = ZONE_LABELS[zone.id];
   if (!row) return zone.name;
+  return getUiLang() === "uk" ? row.uk : row.ru;
+}
+
+/** Текст «про місце» для екрана локації; якщо немає — порожній рядок. */
+export function displayZoneLore(zoneId: string): string {
+  const row = ZONE_LORE[zoneId];
+  if (!row) return "";
   return getUiLang() === "uk" ? row.uk : row.ru;
 }
 
