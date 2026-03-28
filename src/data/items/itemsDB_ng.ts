@@ -82,6 +82,16 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
   },
 
   // ===== QUEST ITEMS (КВЕСТОВІ ПРЕДМЕТИ) =====
+  // Gludio Outskirts (l2dop_gludio_01)
+  quest_gludio_charcoal: {
+    id: "quest_gludio_charcoal",
+    name: "Charcoal",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/etc_reagent_blue_i00.png",
+    description: "Квестовий предмет. Уголь для здачі в квесті «Окраина Глудио».",
+    grade: "NG",
+  },
   // Floran Outskirts
   quest_skull_black: {
     id: "quest_skull_black",

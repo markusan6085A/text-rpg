@@ -86,6 +86,17 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
 
   const characterId = useCharacterStore((s) => s.characterId);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tab") !== "quests") return;
+    setShowQuests(true);
+    params.delete("tab");
+    const qs = params.toString();
+    const path = window.location.pathname + (qs ? `?${qs}` : "");
+    window.history.replaceState({}, "", path);
+  }, []);
+
   const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus;
   const sevenSealsRankFromHero = getActiveSevenSealsRank(sevenSealsBonus);
 

@@ -4,6 +4,12 @@ import { useHeroStore } from "../../state/heroStore";
 import { QUESTS, QUESTS_BY_LOCATION, type Quest } from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { getGameSettings } from "../../state/gameSettings";
+import { getPremiumMultiplier } from "../../utils/premium/isPremiumActive";
+
+function questIconSrc(quest: { icon?: string }) {
+  return quest.icon || "/assets/quest.png";
+}
 
 export default function CharacterQuests() {
   const hero = useHeroStore((s) => s.hero);
@@ -36,18 +42,22 @@ export default function CharacterQuests() {
   const activeQuestsWithDetails = activeQuests.map((activeQuest) => {
     const questDef = QUESTS.find((q) => q.id === activeQuest.questId);
     if (!questDef) return null;
-    
-    // Оновлюємо прогрес на основі інвентаря
+
     const progress: Record<string, number> = { ...activeQuest.progress };
     if (questDef.questDrops) {
       questDef.questDrops.forEach((questDrop) => {
         const inventoryItem = hero.inventory?.find((item) => item.id === questDrop.itemId);
         const itemCount = inventoryItem?.count || 0;
-        // Прогрес = мінімум між кількістю в інвентарі та потрібною кількістю
         progress[questDrop.itemId] = Math.min(itemCount, questDrop.requiredCount);
       });
     }
-    
+    if (questDef.questKillTargets) {
+      questDef.questKillTargets.forEach((kt) => {
+        const v = activeQuest.progress?.[kt.progressKey] ?? 0;
+        progress[kt.progressKey] = Math.min(v, kt.requiredCount);
+      });
+    }
+
     return { ...questDef, progress };
   }).filter((q): q is Quest & { progress: Record<string, number> } => q !== null);
 
@@ -64,11 +74,16 @@ export default function CharacterQuests() {
     const questDef = QUESTS.find((q) => q.id === questId);
     if (!questDef) return;
 
+    const initProgress: Record<string, number> = { ...(questDef.progress || {}) };
+    for (const kt of questDef.questKillTargets ?? []) {
+      initProgress[kt.progressKey] = initProgress[kt.progressKey] ?? 0;
+    }
+
     const newActiveQuests = [
       ...activeQuests,
       {
         questId,
-        progress: questDef.progress ? { ...questDef.progress } : {},
+        progress: initProgress,
       },
     ];
 
@@ -77,75 +92,70 @@ export default function CharacterQuests() {
 
   // Функція для завершення квесту
   const completeQuest = (questId: string) => {
-    console.log("[completeQuest] Початок завершення квесту:", questId);
     const questDef = QUESTS.find((q) => q.id === questId);
-    if (!questDef) {
-      console.log("[completeQuest] Квест не знайдено:", questId);
-      return;
+    if (!questDef) return;
+
+    const hasDrops = questDef.questDrops && questDef.questDrops.length > 0;
+    const hasKills = questDef.questKillTargets && questDef.questKillTargets.length > 0;
+    if (!hasDrops && !hasKills) return;
+
+    const aqEntry = activeQuests.find((a) => a.questId === questId);
+
+    if (hasKills) {
+      for (const kt of questDef.questKillTargets!) {
+        if ((aqEntry?.progress?.[kt.progressKey] ?? 0) < kt.requiredCount) return;
+      }
     }
 
-    // Перевіряємо, чи всі предмети зібрані (перевіряємо інвентар напряму)
-    if (!questDef.questDrops) {
-      console.log("[completeQuest] Немає questDrops");
-      return;
-    }
-
-    // Групуємо по itemId для перевірки (беремо максимальну потрібну кількість)
-    const itemsToCheck: Record<string, number> = {};
-    questDef.questDrops.forEach((questDrop) => {
-      if (!itemsToCheck[questDrop.itemId] || itemsToCheck[questDrop.itemId] < questDrop.requiredCount) {
-        itemsToCheck[questDrop.itemId] = questDrop.requiredCount;
-      }
-    });
-
-    let allCollected = true;
-    Object.entries(itemsToCheck).forEach(([itemId, requiredCount]) => {
-      const inventoryItem = hero.inventory?.find((item) => item.id === itemId);
-      const itemCount = inventoryItem?.count || 0;
-      console.log(`[completeQuest] Перевірка ${itemId}: має ${itemCount}, потрібно ${requiredCount}`);
-      if (itemCount < requiredCount) {
-        allCollected = false;
-      }
-    });
-
-    if (!allCollected) {
-      console.log("[completeQuest] Не всі предмети зібрані");
-      return;
-    }
-
-    console.log("[completeQuest] Всі предмети зібрані, завершуємо квест");
-
-    // Видаляємо квестові предмети з інвентаря
-    // Групуємо по itemId, щоб не видаляти кілька разів один і той самий предмет
-    const newInventory = [...(hero.inventory || [])];
-    const itemsToRemove: Record<string, number> = {};
-    
-    questDef.questDrops.forEach((questDrop) => {
-      // Для кожного унікального itemId зберігаємо максимальну потрібну кількість
-      if (!itemsToRemove[questDrop.itemId] || itemsToRemove[questDrop.itemId] < questDrop.requiredCount) {
-        itemsToRemove[questDrop.itemId] = questDrop.requiredCount;
-      }
-    });
-    
-    // Видаляємо предмети
-    Object.entries(itemsToRemove).forEach(([itemId, requiredCount]) => {
-      const itemIndex = newInventory.findIndex((item) => item.id === itemId);
-      if (itemIndex >= 0) {
-        const item = newInventory[itemIndex];
-        const newCount = (item.count || 1) - requiredCount;
-        if (newCount <= 0) {
-          newInventory.splice(itemIndex, 1);
-        } else {
-          newInventory[itemIndex] = { ...item, count: newCount };
+    if (hasDrops) {
+      const itemsToCheck: Record<string, number> = {};
+      questDef.questDrops!.forEach((questDrop) => {
+        if (!itemsToCheck[questDrop.itemId] || itemsToCheck[questDrop.itemId] < questDrop.requiredCount) {
+          itemsToCheck[questDrop.itemId] = questDrop.requiredCount;
         }
-      }
-    });
+      });
+      let allCollected = true;
+      Object.entries(itemsToCheck).forEach(([itemId, requiredCount]) => {
+        const inventoryItem = hero.inventory?.find((item) => item.id === itemId);
+        const itemCount = inventoryItem?.count || 0;
+        if (itemCount < requiredCount) allCollected = false;
+      });
+      if (!allCollected) return;
+    }
 
-    // Додаємо нагороди
+    const newInventory = [...(hero.inventory || [])];
+    if (hasDrops) {
+      const itemsToRemove: Record<string, number> = {};
+      questDef.questDrops!.forEach((questDrop) => {
+        if (!itemsToRemove[questDrop.itemId] || itemsToRemove[questDrop.itemId] < questDrop.requiredCount) {
+          itemsToRemove[questDrop.itemId] = questDrop.requiredCount;
+        }
+      });
+      Object.entries(itemsToRemove).forEach(([itemId, requiredCount]) => {
+        const itemIndex = newInventory.findIndex((item) => item.id === itemId);
+        if (itemIndex >= 0) {
+          const item = newInventory[itemIndex];
+          const newCount = (item.count || 1) - requiredCount;
+          if (newCount <= 0) {
+            newInventory.splice(itemIndex, 1);
+          } else {
+            newInventory[itemIndex] = { ...item, count: newCount };
+          }
+        }
+      });
+    }
+
     const rewards = questDef.rewards || {};
     let newAdena = hero.adena || 0;
     if (rewards.adena) {
       newAdena += rewards.adena;
+    }
+
+    let expPayload: { exp?: number } = {};
+    if (rewards.exp && rewards.exp > 0) {
+      const expEnabled = getGameSettings().expEnabled !== false;
+      const add = expEnabled ? Math.round(rewards.exp * getPremiumMultiplier(hero)) : 0;
+      expPayload = { exp: Math.floor(Number(hero.exp ?? 0)) + add };
     }
 
     // Додаємо предмети-нагороди
@@ -180,21 +190,13 @@ export default function CharacterQuests() {
     const newActiveQuests = activeQuests.filter((aq) => aq.questId !== questId);
     const newCompletedQuests = [...completedQuests, questId];
 
-    console.log("[completeQuest] Оновлюємо героя:", {
-      newActiveQuests: newActiveQuests.length,
-      newCompletedQuests: newCompletedQuests.length,
-      inventoryItems: newInventory.length,
-      newAdena,
-    });
-
     updateHero({
       activeQuests: newActiveQuests,
       completedQuests: newCompletedQuests,
       inventory: newInventory,
       adena: newAdena,
+      ...expPayload,
     });
-
-    console.log("[completeQuest] Квест завершено успішно");
   };
 
   // Функція для оновлення прогресу квесту (викликається при зборі предметів)
@@ -278,7 +280,7 @@ export default function CharacterQuests() {
                   }
                 >
                   <div className="flex items-center gap-2">
-                    <img src="/assets/quest.png" alt="Quest" className="w-3 h-3 object-contain" />
+                    <img src={questIconSrc(locationQuests[0])} alt="" className="w-4 h-4 object-contain shrink-0" />
                     <span className="text-orange-400 text-xs font-semibold">{location}</span>
                     {locationQuests[0]?.locationLevel && (
                       <span className={isL2 ? "text-[#8a7a60] text-[10px]" : "text-gray-400 text-[10px]"}>
@@ -305,17 +307,32 @@ export default function CharacterQuests() {
           </div>
           <div className="space-y-2">
             {activeQuestsWithDetails.map((quest) => {
-              const canComplete = quest.questDrops?.every((questDrop) => {
-                // Перевіряємо інвентар для точного прогресу
-                const inventoryItem = hero.inventory?.find((item) => item.id === questDrop.itemId);
-                const itemCount = inventoryItem?.count || 0;
-                return itemCount >= questDrop.requiredCount;
-              });
+              const aq = activeQuests.find((a) => a.questId === quest.id);
+              const itemsOk =
+                !quest.questDrops?.length ||
+                (() => {
+                  const itemsToCheck: Record<string, number> = {};
+                  quest.questDrops!.forEach((qd) => {
+                    if (!itemsToCheck[qd.itemId] || itemsToCheck[qd.itemId] < qd.requiredCount) {
+                      itemsToCheck[qd.itemId] = qd.requiredCount;
+                    }
+                  });
+                  return Object.entries(itemsToCheck).every(([itemId, req]) => {
+                    const inv = hero.inventory?.find((i) => i.id === itemId);
+                    return (inv?.count ?? 0) >= req;
+                  });
+                })();
+              const killsOk =
+                !quest.questKillTargets?.length ||
+                quest.questKillTargets.every(
+                  (kt) => (aq?.progress?.[kt.progressKey] ?? 0) >= kt.requiredCount
+                );
+              const canComplete = itemsOk && killsOk;
 
               return (
                 <div key={quest.id} className={`${rowB} py-2`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <img src="/assets/quest.png" alt="Quest" className="w-3 h-3 object-contain" />
+                    <img src={questIconSrc(quest)} alt="" className="w-4 h-4 object-contain shrink-0" />
                     <span className="text-green-400 text-xs font-semibold">{quest.name}</span>
                   </div>
                   <div className={isL2 ? "text-[#8a7a60] text-[11px] mb-2" : "text-gray-400 text-[11px] mb-2"}>
@@ -378,6 +395,29 @@ export default function CharacterQuests() {
                     </div>
                   )}
 
+                  {quest.questKillTargets && quest.questKillTargets.length > 0 && (
+                    <div
+                      className={
+                        isL2 ? "text-[#9d8265] text-[10px] mb-2" : "text-[#b8860b]/60 text-[10px] mb-2"
+                      }
+                    >
+                      <div className="font-semibold mb-1">Убийства:</div>
+                      {quest.questKillTargets.map((kt) => {
+                        const cur = Math.min(
+                          aq?.progress?.[kt.progressKey] ?? 0,
+                          kt.requiredCount
+                        );
+                        const ok = cur >= kt.requiredCount;
+                        return (
+                          <div key={kt.progressKey} className="ml-2">
+                            {kt.mobName}: {cur}/{kt.requiredCount}
+                            {ok ? <span className="text-green-400 ml-1">✓</span> : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   {/* Нагороди */}
                   {quest.rewards && (
                     <div className="text-[#ff8c00] text-[10px] mb-2 flex items-center gap-2">
@@ -434,7 +474,7 @@ export default function CharacterQuests() {
               <div key={quest.id} className={`${rowB} py-2 flex items-start gap-3`}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <img src="/assets/quest.png" alt="Quest" className="w-3 h-3 object-contain" />
+                    <img src={questIconSrc(quest)} alt="" className="w-4 h-4 object-contain shrink-0" />
                     <span className="text-green-400 text-xs font-semibold">{quest.name}</span>
                   </div>
                   <div className={isL2 ? "text-[#8a7a60] text-[11px] mb-2" : "text-gray-400 text-[11px] mb-2"}>

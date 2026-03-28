@@ -8,6 +8,8 @@ import { useHeroStore } from "../heroStore";
 import { getPremiumMultiplier } from "../../utils/premium/isPremiumActive";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { reportRaidBossKill } from "../../utils/api";
+import { QUESTS } from "../../data/quests";
+import { applyQuestKillProgressOnVictory } from "../../utils/quests/questKillOnVictory";
 import { processMobDrops } from "./helpers/processDrops";
 import { hasAutoSpoilActive } from "./actions/useSkill/helpers";
 import { setMobRespawn } from "./mobRespawns";
@@ -102,6 +104,11 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         }
         return aq;
       });
+    }
+    const baseAfterDrops = victoryUpdates.activeQuests ?? curHero.activeQuests ?? [];
+    const killNext = applyQuestKillProgressOnVictory(mob, baseAfterDrops, QUESTS);
+    if (killNext) {
+      victoryUpdates.activeQuests = killNext;
     }
     if (dropResult.zaricheEquipped && dropResult.zaricheEquippedUntil) {
       if (dropResult.newEquipment) victoryUpdates.equipment = dropResult.newEquipment;

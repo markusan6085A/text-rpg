@@ -13,7 +13,7 @@ import { findSetForItem, formatSetStatsForDisplay } from "../data/sets/armorSets
 import { savePreviousLocation, savePreviousCity } from "../utils/locationNavigation";
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 import { MOB_LOOT_TABLES_DISABLED } from "../state/battle/helpers/mobLootTablesDisabled";
-import { getQuestMobNames } from "../utils/quests/getQuestMobNames";
+import { getQuestMobHighlightForMob } from "../utils/quests/questMobHighlight";
 import { QUESTS } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 import { getGameSettings } from "../state/gameSettings";
@@ -179,6 +179,9 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const [now, setNow] = React.useState(Date.now());
   const [zonePlayers, setZonePlayers] = React.useState<OnlinePlayer[]>([]);
   const [patrolAggroBanner, setPatrolAggroBanner] = React.useState<PatrolAggroBanner | null>(null);
+  const [gludioQuestHintDismissed, setGludioQuestHintDismissed] = React.useState(
+    () => typeof localStorage !== "undefined" && localStorage.getItem("gludio_quest_tab_hint") === "1"
+  );
 
   const patrolCtx = React.useMemo((): PatrolTickCtx | null => {
     if (!zoneId) return null;
@@ -350,12 +353,6 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     if (Array.isArray(fromJson) && fromJson.length > 0) return fromJson;
     return [];
   }, [hero?.activeQuests, (hero as any)?.heroJson?.activeQuests]);
-  const activeQuestIdsKey = activeQuests.map((aq) => aq.questId).join(",");
-  const questMobNames = React.useMemo(
-    () => getQuestMobNames(activeQuests, QUESTS),
-    [activeQuestIdsKey, activeQuests]
-  );
-
   // ===== пагінація по мобах (з налаштувань: 10 15 20 25 30) =====
   const pageSize = getGameSettings().mobsPerPage ?? 15;
   const totalMobs = zone.mobs.length;
@@ -391,14 +388,15 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const mobNameClass = (
-    isQuestMob: boolean,
+    questHighlight: "kill" | "drop" | null,
     isRaid: boolean,
     isChampion: boolean,
     isPatrol: boolean,
     isLevelDiffTooHigh: boolean,
     l2: boolean,
   ) => {
-    if (isQuestMob) return l2 ? "text-[#8a7a60]" : "";
+    if (questHighlight === "drop") return l2 ? "text-[#ea8c2a]" : "text-orange-400";
+    if (questHighlight === "kill") return l2 ? "text-[#8a7a60]" : "";
     if (isRaid) return "text-red-500";
     if (isChampion) return "text-[#c9a44c]";
     if (isPatrol) return l2 ? "text-[#e8a0a0]" : "text-rose-400";
@@ -427,6 +425,51 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           <div className="text-[#c7ad80] mb-2 text-base font-semibold flex items-center gap-2">
             <img src="/assets/travel.png" alt={displayZoneName(zone)} className="w-3 h-3 object-contain" />
             <span>{displayZoneName(zone)}</span>
+          </div>
+        )}
+
+        {zone.id === "l2dop_gludio_01" && !gludioQuestHintDismissed && (
+          <div
+            className={
+              isL2
+                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
+                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
+            }
+          >
+            <div className="font-semibold text-[#c9a44c] mb-1">Помощник</div>
+            <p className="mb-2 opacity-95">
+              Задания для этой местности берутся во вкладке персонажа «Квесты». Откройте её и примите квест — цели на
+              локации подсветятся серым (нужно убить) и оранжевым (дроп для квеста).
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className={
+                  isL2
+                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
+                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
+                }
+                onClick={() => navigate("/character?tab=quests")}
+              >
+                Открыть вкладку «Квесты»
+              </button>
+              <button
+                type="button"
+                className={
+                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
+                }
+                onClick={() => {
+                  try {
+                    localStorage.setItem("gludio_quest_tab_hint", "1");
+                  } catch {
+                    /* ignore */
+                  }
+                  setGludioQuestHintDismissed(true);
+                }}
+              >
+                Скрыть
+              </button>
+            </div>
           </div>
         )}
 
@@ -476,9 +519,9 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               const heroLevel = hero?.level || 1;
               const levelDiff = Math.abs(heroLevel - mob.level);
               const isLevelDiffTooHigh = levelDiff > 10;
-              const isQuestMob = questMobNames.has(mob.name);
+              const questHighlight = getQuestMobHighlightForMob(mob, activeQuests, QUESTS);
               const nameCls = mobNameClass(
-                isQuestMob,
+                questHighlight,
                 isRaid,
                 isChampion,
                 isPatrol,
@@ -535,8 +578,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                             <span className="text-[#5c0a0a] font-semibold shrink-0"> (агр)</span>
                           ) : null}
                         </div>
-                        {isQuestMob && (
-                          <div className="text-[8px] text-[#6b7280] mt-px leading-none">квест</div>
+                        {questHighlight === "kill" && (
+                          <div className="text-[8px] text-[#6b7280] mt-px leading-none">квест · цель</div>
+                        )}
+                        {questHighlight === "drop" && (
+                          <div className="text-[8px] text-[#b8732f] mt-px leading-none">квест · дроп</div>
                         )}
                       </div>
                       <div className="shrink-0 text-right rounded bg-black/30 border border-[#5c4a32]/40 px-1.5 py-0.5 min-w-[2.85rem]">
@@ -557,7 +603,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   key={globalIndex}
                   className={`flex items-center gap-2 py-1 border-b border-solid border-white/50 text-xs ${
                     isPatrol ? "border-rose-900/30" : ""
-                  } ${!isQuestMob && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"}`}
+                  } ${!questHighlight && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"}`}
                 >
                   <button
                     type="button"
@@ -581,7 +627,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </button>
                   <span
                     className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${nameCls}`}
-                    style={isQuestMob ? { color: "#6b7280" } : undefined}
+                    style={
+                      questHighlight === "kill"
+                        ? { color: "#6b7280" }
+                        : questHighlight === "drop"
+                          ? { color: "#ea8c2a" }
+                          : undefined
+                    }
                     onClick={() => openBattle(globalIndex)}
                   >
                     {displayMobName(mob.name)}
