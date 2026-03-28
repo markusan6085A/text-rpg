@@ -18,6 +18,11 @@ const ITEMS_PER_PAGE = 25;
 // Валюта — показується в балансі персонажа, не в інвентарі
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
 
+const spaNavigate = (path: string) => {
+  window.history.pushState({}, "", path);
+  window.dispatchEvent(new PopStateEvent("popstate"));
+};
+
 export default function Inventory() {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
@@ -215,6 +220,32 @@ export default function Inventory() {
             Инвентарь
           </div>
         )}
+        <div className={isL2 ? "w-full mb-3" : "w-full mb-2"}>
+          <button
+            type="button"
+            onClick={() => spaNavigate("/quests")}
+            className={
+              isL2
+                ? "w-full rounded-lg border border-[#c7ad80]/40 bg-[linear-gradient(180deg,rgba(55,44,28,0.55)_0%,rgba(18,14,10,0.95)_100%)] px-3 py-2.5 text-left shadow-[inset_0_1px_0_rgba(212,175,108,0.12),0_6px_20px_rgba(0,0,0,0.4)] hover:border-[#e8c56e]/45 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150"
+                : "w-full rounded border border-[#c7ad80]/50 bg-[#2a241c] px-2 py-2 text-left hover:bg-[#3a3228]"
+            }
+          >
+            <div className="flex items-center gap-2">
+              <img src="/nps/6.png" alt="" className="w-8 h-8 object-contain shrink-0 opacity-95" />
+              <div className="min-w-0 flex-1">
+                <div className={isL2 ? "text-[12px] font-semibold text-[#e8c56e]" : "text-sm font-semibold text-[#ffd700]"}>
+                  Квесты персонажа
+                </div>
+                <div className={isL2 ? "text-[10px] text-[#a89878] mt-0.5" : "text-[11px] text-gray-400 mt-0.5"}>
+                  Сюжетные и региональные задания
+                </div>
+              </div>
+              <span className={isL2 ? "text-[#8a7a60] text-lg shrink-0" : "text-gray-500"} aria-hidden>
+                ›
+              </span>
+            </div>
+          </button>
+        </div>
         <Equipment compact={true} />
 
         <div

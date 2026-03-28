@@ -448,7 +448,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
                     : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
                 }
-                onClick={() => navigate("/character?tab=quests")}
+                onClick={() => navigate("/quests")}
               >
                 Открыть вкладку «Квесты»
               </button>

@@ -1,23 +1,16 @@
-// src/screens/Quests.tsx
-import React, { useState } from "react";
+// src/screens/Quests.tsx — окрема сторінка квестів персонажа (сюжет / регіон)
+import React from "react";
 import { useHeroStore } from "../state/heroStore";
-import { QUESTS, QUESTS_BY_LOCATION } from "../data/quests";
-import { itemsDB } from "../data/items/itemsDB";
+import CharacterQuests from "./character/CharacterQuests";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 
 type Navigate = (path: string) => void;
 
 export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const isL2 = getCityUiVariant() === "l2";
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
-  const rowL2 =
-    "w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150";
-  const questCardL2 =
-    "rounded-md border border-[#5c4a32]/60 bg-black/20 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)] px-2.5 py-2 mb-2";
 
   if (!hero) {
     return (
@@ -36,128 +29,6 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
     );
   }
 
-  const activeQuests = hero.activeQuests || [];
-  const completedQuests = hero.completedQuests || [];
-
-  // Отримуємо унікальні локації з квестів
-  const locations = Array.from(new Set(QUESTS.map(q => q.location).filter(Boolean))) as string[];
-
-  // Функція для прийняття квесту
-  const acceptQuest = (questId: string) => {
-    const questDef = QUESTS.find((q) => q.id === questId);
-    if (!questDef) return;
-
-    const newActiveQuests = [
-      ...activeQuests,
-      {
-        questId,
-        progress: questDef.progress ? { ...questDef.progress } : {},
-      },
-    ];
-
-    updateHero({ activeQuests: newActiveQuests });
-  };
-
-  // Якщо локація не вибрана, показуємо список локацій
-  if (!selectedLocation) {
-    return (
-      <div
-        className={
-          isL2
-            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#e8dcc8]`
-            : "w-full text-[#f4e2b8] px-1 py-2"
-        }
-      >
-        <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
-          <div
-            className={
-              isL2
-                ? "text-[#e8c56e] mb-3 text-[13px] border-b border-[#c7ad80]/20 pb-2 font-semibold [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
-                : "text-[#ffd700] mb-2 text-xs border-b border-solid border-white/50 pb-2 font-semibold"
-            }
-            style={isL2 ? undefined : { textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
-          >
-            Квести
-          </div>
-
-          <div className={isL2 ? "space-y-0" : "space-y-2"}>
-            {locations.length === 0 ? (
-              <div
-                className={
-                  isL2
-                    ? "text-[#8a7a60] text-xs text-center py-6 rounded-lg border border-[#5c4a32]/35"
-                    : "text-[#b8860b]/60 text-xs text-center py-4"
-                }
-              >
-                Поки що немає доступних локацій з квестами.
-              </div>
-            ) : (
-              locations.map((location) => {
-                const locationQuests = QUESTS_BY_LOCATION[location] || [];
-                const availableLocationQuests = locationQuests.filter(
-                  (quest) =>
-                    !completedQuests.includes(quest.id) &&
-                    !activeQuests.some((aq) => aq.questId === quest.id) &&
-                    (!quest.requirements?.level || (hero.level || 1) >= quest.requirements.level)
-                );
-
-                if (availableLocationQuests.length === 0) return null;
-
-                return (
-                  <button
-                    type="button"
-                    key={location}
-                    onClick={() => setSelectedLocation(location)}
-                    className={
-                      isL2
-                        ? `${rowL2} text-[#d4c4a8]`
-                        : "w-full text-left border-b border-solid border-white/50 py-2 hover:bg-black/20"
-                    }
-                  >
-                    <div className="flex items-center gap-2 w-full min-w-0">
-                      <img
-                        src="/assets/quest.png"
-                        alt=""
-                        className={isL2 ? "w-4 h-4 object-contain shrink-0" : "w-3 h-3 object-contain"}
-                      />
-                      <span
-                        className={
-                          isL2
-                            ? "text-[#c9a44c] text-xs font-semibold truncate"
-                            : "text-orange-400 text-xs font-semibold"
-                        }
-                      >
-                        {location}
-                      </span>
-                      {locationQuests[0]?.locationLevel && (
-                        <span
-                          className={
-                            isL2 ? "text-[#8a7a60] text-[10px] ml-auto shrink-0" : "text-gray-400 text-[10px]"
-                          }
-                        >
-                          ({locationQuests[0].locationLevel})
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Якщо локація вибрана, показуємо квести з цієї локації
-  const locationQuests = QUESTS_BY_LOCATION[selectedLocation] || [];
-  const availableQuests = locationQuests.filter(
-    (quest) =>
-      !completedQuests.includes(quest.id) &&
-      !activeQuests.some((aq) => aq.questId === quest.id) &&
-      (!quest.requirements?.level || (hero.level || 1) >= quest.requirements.level)
-  );
-
   return (
     <div
       className={
@@ -167,157 +38,84 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
       }
     >
       <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
-        <div className="flex items-center gap-2 mb-3">
-          <button
-            type="button"
-            onClick={() => setSelectedLocation(null)}
-            className={
-              isL2
-                ? "text-[#c9a44c] text-xs hover:text-[#f4e2b8] shrink-0"
-                : "text-gray-400 text-xs hover:text-gray-300"
-            }
-          >
-            ← Назад
-          </button>
-          <div
-            className={
-              isL2
-                ? "text-[#e8c56e] text-xs border-b border-[#c7ad80]/20 pb-2 font-semibold flex-1 min-w-0 [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
-                : "text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1"
-            }
-            style={isL2 ? undefined : { textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
-          >
-            {selectedLocation} {locationQuests[0]?.locationLevel && `(${locationQuests[0].locationLevel})`}
-          </div>
-        </div>
-
-        <div className={isL2 ? "space-y-0" : "space-y-2"}>
-          {availableQuests.length === 0 ? (
-            <div
+        {/* Шапка */}
+        <div
+          className={
+            isL2
+              ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-[linear-gradient(180deg,rgba(40,32,20,0.55)_0%,rgba(10,8,6,0.92)_100%)] px-3 py-3 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_8px_28px_rgba(0,0,0,0.45)]"
+              : "mb-2 border-b border-[#c7ad80]/40 pb-2"
+          }
+        >
+          <div className="flex items-start gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/inventory")}
               className={
                 isL2
-                  ? "text-[#8a7a60] text-xs text-center py-6 rounded-lg border border-[#5c4a32]/35"
-                  : "text-[#b8860b]/60 text-xs text-center py-4"
+                  ? "shrink-0 text-[11px] text-[#c9a44c] hover:text-[#f4e2b8] underline-offset-2 hover:underline"
+                  : "shrink-0 text-xs text-gray-400 hover:text-gray-200"
               }
             >
-              Поки що немає доступних квестів у цій локації.
-            </div>
-          ) : (
-            availableQuests.map((quest) => (
+              ← Инвентарь
+            </button>
+            <div className="min-w-0 flex-1 text-right">
               <div
-                key={quest.id}
                 className={
-                  isL2 ? questCardL2 : "border-b border-solid border-white/50 py-2"
+                  isL2
+                    ? "text-[10px] uppercase tracking-[0.14em] text-[#8a7a60]"
+                    : "text-[10px] text-gray-500 uppercase"
                 }
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <img src="/assets/quest.png" alt="" className="w-3 h-3 object-contain shrink-0" />
-                  <span
-                    className={
-                      isL2 ? "text-[#7d9b7a] text-xs font-semibold" : "text-green-400 text-xs font-semibold"
-                    }
-                  >
-                    {quest.name}
-                  </span>
-                </div>
-                <div
-                  className={
-                    isL2 ? "text-[#a89878] text-[11px] mb-2" : "text-gray-400 text-[11px] mb-2"
-                  }
-                >
-                  {quest.description}
-                </div>
-              
-              {/* Детальна інформація про квестові предмети */}
-              {quest.questDrops && quest.questDrops.length > 0 && (
-                <div
-                  className={
-                    isL2 ? "text-[#8a7a60] text-[10px] mb-2" : "text-gray-400 text-[10px] mb-2"
-                  }
-                >
-                  <div className="font-semibold mb-1">Потрібно зібрати:</div>
-                  {(() => {
-                    // Групуємо квестові предмети по itemId
-                    const groupedDrops: Record<string, { itemId: string; requiredCount: number; mobNames: string[] }> = {};
-                    quest.questDrops.forEach((questDrop) => {
-                      if (!groupedDrops[questDrop.itemId]) {
-                        groupedDrops[questDrop.itemId] = {
-                          itemId: questDrop.itemId,
-                          requiredCount: questDrop.requiredCount,
-                          mobNames: [],
-                        };
-                      }
-                      if (!groupedDrops[questDrop.itemId].mobNames.includes(questDrop.mobName)) {
-                        groupedDrops[questDrop.itemId].mobNames.push(questDrop.mobName);
-                      }
-                    });
-                    return Object.values(groupedDrops).map((group, idx) => {
-                      const itemDef = itemsDB[group.itemId];
-                      // Використовуємо назву з itemsDB, або очищаємо itemId від префіксу "quest_" та "_token"
-                      const displayName = itemDef?.name || group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
-                      return (
-                        <div key={idx} className="ml-2 flex items-center gap-1.5">
-                          {itemDef?.icon && (
-                            <img 
-                              src={itemDef.icon} 
-                              alt={itemDef.name || group.itemId} 
-                              className="w-4 h-4 object-contain flex-shrink-0"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = "none";
-                              }}
-                            />
-                          )}
-                          <span>
-                            {group.requiredCount}x {displayName} з {group.mobNames.join(", ")}
-                          </span>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              )}
-
-              {quest.rewards && (
-                <div
-                  className={
-                    isL2
-                      ? "text-[#d4a574] text-[10px] mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-                      : "text-[#ff8c00] text-[10px] mb-2 flex items-center gap-2 justify-between"
-                  }
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold">Нагороди:</span>
-                    {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
-                    {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
-                    {quest.rewards.items?.map((item, idx) => {
-                      const itemDef = itemsDB[item.id];
-                      return (
-                        <span key={idx} className="flex items-center gap-1">
-                          {itemDef?.icon && (
-                            <img src={itemDef.icon} alt={itemDef.name} className="w-4 h-4 object-contain" />
-                          )}
-                          <span>{itemDef?.name || item.id} x{item.count}</span>
-                          {idx < (quest.rewards?.items?.length || 0) - 1 ? ", " : ""}
-                        </span>
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    className={
-                      isL2
-                        ? "text-[#c9a44c] text-[10px] hover:text-[#f4e2b8] underline cursor-pointer shrink-0 self-start sm:self-auto"
-                        : "text-purple-400 text-[10px] hover:text-purple-300 underline cursor-pointer"
-                    }
-                    onClick={() => acceptQuest(quest.id)}
-                  >
-                    Взять квест
-                  </button>
-                </div>
-              )}
+                Journal
+              </div>
+              <h1
+                className={
+                  isL2
+                    ? "mt-0.5 text-[15px] font-semibold leading-tight text-[#e8c56e] [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
+                    : "text-sm font-semibold text-[#ffd700]"
+                }
+              >
+                Квесты персонажа
+              </h1>
+              <p className={isL2 ? "mt-1 text-[11px] text-[#a89878] leading-snug" : "mt-0.5 text-[11px] text-gray-400"}>
+                {hero.name ?? "—"} · Lv. {hero.level ?? 1}
+              </p>
             </div>
-          ))
-        )}
+          </div>
+          <p
+            className={
+              isL2
+                ? "mt-2 text-[11px] text-[#c9baa5] border-t border-[#5c4a32]/35 pt-2 leading-relaxed"
+                : "mt-2 text-[11px] text-gray-400"
+            }
+          >
+            Сюжетные и региональные задания. Примите квест и следуйте целям на локации.
+          </p>
+        </div>
+
+        {/* Контент квестів */}
+        <div
+          className={
+            isL2
+              ? "rounded-lg border border-[#5c4a32]/40 bg-black/22 px-2 py-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+              : ""
+          }
+        >
+          <CharacterQuests />
+        </div>
+
+        <div className={isL2 ? "mt-3 flex justify-center" : "mt-2 flex justify-center"}>
+          <button
+            type="button"
+            onClick={() => navigate("/character")}
+            className={
+              isL2
+                ? "text-[11px] text-[#8a7a60] hover:text-[#d4c4a8] underline-offset-2 hover:underline"
+                : "text-xs text-gray-500 hover:text-gray-300"
+            }
+          >
+            Профиль персонажа
+          </button>
         </div>
       </div>
     </div>

@@ -5,7 +5,6 @@ import { getProfessionDefinition, normalizeProfessionId } from "../../data/skill
 import { getExpToNext, EXP_TABLE, MAX_LEVEL } from "../../data/expTable";
 import CharacterEquipmentFrame from "./CharacterEquipmentFrame";
 import RecipeBookButton from "./RecipeBookButton";
-import CharacterQuests from "./CharacterQuests";
 import CharacterBuffs from "./CharacterBuffs";
 import SevenSealsBonusModal from "../../components/SevenSealsBonusModal";
 import { getActiveSevenSealsRank } from "../../utils/sevenSealsBonus";
@@ -79,7 +78,6 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
 
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState("");
-  const [showQuests, setShowQuests] = useState(false);
   const [characterData, setCharacterData] = useState<Character | null>(null);
   const [sevenSealsRank, setSevenSealsRank] = useState<number | null>(null);
   const [showSevenSealsModal, setShowSevenSealsModal] = useState(false);
@@ -90,11 +88,12 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("tab") !== "quests") return;
-    setShowQuests(true);
     params.delete("tab");
     const qs = params.toString();
-    const path = window.location.pathname + (qs ? `?${qs}` : "");
-    window.history.replaceState({}, "", path);
+    const base = window.location.pathname + (qs ? `?${qs}` : "");
+    window.history.replaceState({}, "", base);
+    window.history.pushState({}, "", "/quests");
+    window.dispatchEvent(new PopStateEvent("popstate"));
   }, []);
 
   const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus;
@@ -479,7 +478,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
           />
           <button
             type="button"
-            onClick={() => setShowQuests(!showQuests)}
+            onClick={() => navigate("/quests")}
             className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
           >
             {l2MenuMark}
@@ -597,11 +596,6 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
           )}
         </div>
 
-        {showQuests && (
-          <div className="w-full mt-2">
-            <CharacterQuests />
-          </div>
-        )}
       </div>
 
       {showSevenSealsModal && sevenSealsRank !== null && (

@@ -88,7 +88,7 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     name: "Charcoal",
     kind: "resource",
     slot: "resource",
-    icon: "/items/drops/resources/etc_reagent_blue_i00.png",
+    icon: "/nps/1871.jpg",
     description: "Квестовий предмет. Уголь для здачі в квесті «Окраина Глудио».",
     grade: "NG",
   },
