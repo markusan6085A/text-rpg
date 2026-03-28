@@ -21,6 +21,25 @@ import { L2DOP_GIRAN_POOL } from "./giranMobs.generated";
 import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 
+/**
+ * Усі моби «Полів древних гробниць» сильніші за базових l2dop (HP/MP/атака/захист).
+ * У повідомленні було ×2 і ×3 — тут ×3; зміни константу, якщо потрібно ×2.
+ */
+export const ANCIENT_TOMB_MOB_COMBAT_MULT = 3;
+
+function scaleAncientTombMobCombat<T extends Mob | RaidBoss>(mob: T): T {
+  const k = ANCIENT_TOMB_MOB_COMBAT_MULT;
+  return {
+    ...mob,
+    hp: Math.max(1, Math.round(mob.hp * k)),
+    mp: Math.round((mob.mp ?? 0) * k),
+    pAtk: Math.max(1, Math.round(mob.pAtk * k)),
+    mAtk: Math.round((mob.mAtk ?? 0) * k),
+    pDef: Math.max(1, Math.round(mob.pDef * k)),
+    mDef: Math.max(1, Math.round(mob.mDef * k)),
+  };
+}
+
 function mergeMobPoolsUnique(pools: Mob[][]): Mob[] {
   const seen = new Set<string>();
   const out: Mob[] = [];
@@ -449,7 +468,8 @@ function buildAncientTombFieldsZoneMobs(z: { id: string; min: number; max: numbe
     injectAncientTombAncientAdena(applyL2XmlDropsToMob(m, z.id, 2000 + i))
   );
   const raidBosses = getAncientTombRaidBossesForZone(z.id);
-  return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
+  const shuffled = shuffleMobsRandomly(regular, champions, raidBosses, z.id);
+  return shuffled.map((m) => scaleAncientTombMobCombat(m));
 }
 
 const ANCIENT_TOMB_ZONE_ROWS = [
