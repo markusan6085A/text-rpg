@@ -3,6 +3,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
 import { getSkillDef } from "../../state/battle/loadout";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { itemsDB } from "../../data/items/itemsDB";
 
 /** Замінює skill#N у рядку на назву скіла з skillsDB */
 export function replaceSkillIdsWithNames(line: string): string {
@@ -49,10 +50,12 @@ export function getColorForPkLine(line: string, myHeroName: string): string {
 export const getColor = (line: string) => {
   const lower = String(line ?? "").toLowerCase();
   
-  // "Добыча" обробляється окремо в parseDobychaLine, тому пропускаємо тут
+  // "Добыча" / «получил» / «Выпало» — окремі парсери з іконками
   if (lower.includes("добыча:")) {
     return "#d9c4a3"; // бежевий (буде перезаписано в parseDobychaLine)
   }
+  if (/^выпало:/i.test(lower)) return "#e8dcc8";
+  if (lower.includes("получил") && lower.includes(" exp ") && lower.includes(" и ")) return "#e8dcc8";
   
   // Raid Boss повержен — теплий акцент (L2-стиль)
   if (lower.includes("raid boss") && lower.includes("повержен")) {
@@ -171,22 +174,161 @@ const parseDobychaLine = (line: string) => {
   return <div>{parts}</div>;
 };
 
+const ICON_EXP = "/victory/exp.png";
+const ICON_SP = "/victory/sp.png";
+const ICON_ADENA = "/assets/adena.png";
+
+function inlineLootIcon(src: string) {
+  return (
+    <img
+      src={src}
+      alt=""
+      className="inline-block w-3.5 h-3.5 opacity-95 align-[-0.15em] mx-0.5 shrink-0"
+    />
+  );
+}
+
+/** Як removeGradeFromResourceName у processDrops — для збігу імені в логу з itemsDB. */
+function stripGradesForLootMatch(name: string): string {
+  if (!name) return name;
+  return name
+    .replace(/\s*\[NG\]\s*/gi, "")
+    .replace(/\s*\[D\]\s*/gi, "")
+    .replace(/\s*\[C\]\s*/gi, "")
+    .replace(/\s*\[B\]\s*/gi, "")
+    .replace(/\s*\[A\]\s*/gi, "")
+    .replace(/\s*\[S\]\s*/gi, "")
+    .trim();
+}
+
+let dropDisplayNameToIcon: Map<string, string> | null = null;
+
+function iconPathForDropDisplayName(displayName: string): string | null {
+  const n = displayName.trim();
+  if (n === "Адена") return ICON_ADENA;
+  if (!dropDisplayNameToIcon) {
+    dropDisplayNameToIcon = new Map<string, string>();
+    for (const def of Object.values(itemsDB)) {
+      const k = stripGradesForLootMatch(def.name);
+      if (!k || dropDisplayNameToIcon.has(k)) continue;
+      const ic = def.icon;
+      if (!ic) continue;
+      dropDisplayNameToIcon.set(k, ic.startsWith("/") ? ic : `/items/${ic}`);
+    }
+  }
+  return dropDisplayNameToIcon.get(stripGradesForLootMatch(n)) ?? null;
+}
+
+const parsePoluchilLine = (line: string): React.ReactNode | null => {
+  const m = line.match(/^(.+?)\s+получил\s+(.+?)\s+EXP\s+и\s+(.+?)\s+SP$/i);
+  if (!m) return null;
+  const [, hero, expNum, spNum] = m;
+  return (
+    <div className="text-[#e8dcc8]">
+      <span>{hero} получил </span>
+      <span className="inline-flex items-baseline gap-0 text-[#86efac] font-medium">
+        {inlineLootIcon(ICON_EXP)}
+        <span className="tabular-nums">{expNum}</span>
+        <span> EXP</span>
+      </span>
+      <span> и </span>
+      <span className="inline-flex items-baseline gap-0 text-[#ca8a04] font-medium">
+        {inlineLootIcon(ICON_SP)}
+        <span className="tabular-nums">{spNum}</span>
+        <span> SP</span>
+      </span>
+    </div>
+  );
+};
+
+const parseVypaloLine = (line: string): React.ReactNode | null => {
+  const m = line.match(/^Выпало:\s*(.+)\s+адены,\s*(.+)\s+EXP\s+и\s+(.+)\s+SP$/i);
+  if (!m) return null;
+  const [, adenaNum, expNum, spNum] = m;
+  return (
+    <div className="text-[#e8dcc8]">
+      <span className="text-[#d9c4a3]">Выпало:</span>
+      <span className="inline-flex items-baseline gap-0 text-[#facc15] font-medium ml-1">
+        {inlineLootIcon(ICON_ADENA)}
+        <span className="tabular-nums">{adenaNum.trim()}</span>
+        <span> адены,</span>
+      </span>
+      <span> </span>
+      <span className="inline-flex items-baseline gap-0 text-[#86efac] font-medium">
+        {inlineLootIcon(ICON_EXP)}
+        <span className="tabular-nums">{expNum.trim()}</span>
+        <span> EXP и </span>
+      </span>
+      <span className="inline-flex items-baseline gap-0 text-[#ca8a04] font-medium">
+        {inlineLootIcon(ICON_SP)}
+        <span className="tabular-nums">{spNum.trim()}</span>
+        <span> SP</span>
+      </span>
+    </div>
+  );
+};
+
+const parseLootKindDropLine = (line: string): React.ReactNode | null => {
+  const m = line.match(/^(Дроп|Спойл|Квест):\s*(.+)$/i);
+  if (!m) return null;
+  const kind = m[1];
+  const rest = m[2];
+  const m2 = rest.match(/^(.+?)\s+x(\d+)([\s\S]*)$/);
+  if (!m2) return null;
+  const rawName = m2[1].trim();
+  const count = m2[2];
+  const tail = m2[3] || "";
+  const icon = iconPathForDropDisplayName(rawName);
+  const color = getColor(line);
+  return (
+    <div style={{ color }} className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+      {icon ? inlineLootIcon(icon) : null}
+      <span>
+        {kind}: {rawName} x{count}
+        {tail}
+      </span>
+    </div>
+  );
+};
+
 const LOG_MAX_LINES = 10;
 
-export function BattleLog({ noBorder, lines: linesProp }: { noBorder?: boolean; lines?: string[] }) {
+export function BattleLog({
+  noBorder,
+  lines: linesProp,
+  maxLines,
+}: {
+  noBorder?: boolean;
+  lines?: string[];
+  /** Якщо задано (наприклад екран перемоги) — більше рядків, щоб вмістити весь дроп. */
+  maxLines?: number;
+}) {
   const { log, pkSessionId } = useBattleStore();
   const heroName = useHeroStore((s) => s.hero?.name ?? "");
   const isPk = Boolean(pkSessionId);
-  // Лог зберігається як [найновіше, ...старіші]. Показуємо перші 10 = 10 останніх повідомлень; нові з’являються, старі зникають.
-  const fromStore = [...(Array.isArray(log) ? log : [])].slice(0, LOG_MAX_LINES);
-  const lines = linesProp != null ? linesProp.slice(0, LOG_MAX_LINES) : fromStore;
+  const cap = maxLines ?? LOG_MAX_LINES;
+  // Лог зберігається як [найновіше, ...старіші]. Показуємо перші N = N останніх повідомлень; нові з’являються, старі зникають.
+  const fromStore = [...(Array.isArray(log) ? log : [])].slice(0, cap);
+  const lines = linesProp != null ? linesProp.slice(0, cap) : fromStore;
   const content = (
-    <div className="space-y-1 text-[12px] leading-[1.2]">
+    <div className="space-y-1 text-[12px] leading-[1.35]">
       {lines.map((line, idx) => {
         const lineStr = String(line ?? "");
         const dobychaLine = parseDobychaLine(lineStr);
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
+        }
+        const poluchil = parsePoluchilLine(lineStr);
+        if (poluchil) {
+          return <div key={idx}>{poluchil}</div>;
+        }
+        const vypalo = parseVypaloLine(lineStr);
+        if (vypalo) {
+          return <div key={idx}>{vypalo}</div>;
+        }
+        const lootDrop = parseLootKindDropLine(lineStr);
+        if (lootDrop) {
+          return <div key={idx}>{lootDrop}</div>;
         }
         let displayLine = isPk ? replaceSkillIdsWithNames(lineStr) : lineStr;
         const color = isPk ? getColorForPkLine(displayLine, heroName ?? "") : getColor(lineStr);

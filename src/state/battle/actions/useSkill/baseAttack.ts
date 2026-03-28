@@ -13,6 +13,7 @@ import { canAttackWithBow, useArrow, getWeaponGrade } from "./arrowHelpers";
 import { itemsDB } from "../../../../data/items/itemsDB";
 import { MOB_DEFENSE_MULTIPLIER, L2_PHYSICAL_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER } from "../../../../data/balance";
 import { commitMobVictoryToHeroStore } from "../../commitMobVictory";
+import { buildVictoryResourceLogLines } from "../../helpers/victoryLootLogLines";
 import { mobSpGainFromMob } from "../../mobSpGain";
 
 export function handleBaseAttack(
@@ -325,7 +326,13 @@ export function handleBaseAttack(
       lootMessages.push(`Whirlwind Attack: добыча умножена на ${lootMultiplier} (убито ${cleaveKills} дополнительных врагов)`);
     }
     
-    lootMessages.push(`Добыча: +${displayExp} EXP, +${displaySp} SP, +${displayAdena} адены`);
+    const [lootLine1, lootLine2] = buildVictoryResourceLogLines(
+      hero.name ?? "Герой",
+      displayExp,
+      displaySp,
+      displayAdena
+    );
+    lootMessages.push(lootLine1, lootLine2);
     
     // Додаємо повідомлення про дропи
     if (dropMessages.length > 0) {

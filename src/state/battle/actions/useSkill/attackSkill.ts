@@ -9,6 +9,7 @@ import type { Hero } from "../../../../types/Hero";
 import type { SkillDefinition, SkillLevelDefinition } from "../../../../data/skills/types";
 import { recalculateAllStats } from "../../../../utils/stats/recalculateAllStats";
 import { commitMobVictoryToHeroStore } from "../../commitMobVictory";
+import { buildVictoryResourceLogLines } from "../../helpers/victoryLootLogLines";
 import { mobSpGainFromMob } from "../../mobSpGain";
 import { canAttackWithBow, useArrow, isBowEquipped, getWeaponGrade } from "./arrowHelpers";
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
@@ -227,7 +228,12 @@ export function handleAttackSkill(
       log: [
         `${state.mob?.name} повержен.`,
         mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
-        `Добыча: +${displayExp} EXP, +${displaySp} SP, +${displayAdena} адены`,
+        ...buildVictoryResourceLogLines(
+          hero.name ?? "Герой",
+          displayExp,
+          displaySp,
+          displayAdena
+        ),
         ...(dropMessages.length > 0 ? dropMessages : []),
         ...newLog,
       ].filter((msg) => msg !== null).slice(0, 30),

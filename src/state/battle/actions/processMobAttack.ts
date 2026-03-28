@@ -18,6 +18,7 @@ import { unequipItemLogic } from "../../heroStore/heroInventory";
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import type { Zone } from "../../../data/world/types";
 import { commitMobVictoryToHeroStore } from "../commitMobVictory";
+import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 import { writeDeathGate } from "../../../utils/deathGate";
 import { displayMobName } from "../../../utils/worldDisplay";
 
@@ -565,7 +566,12 @@ export const createProcessMobAttack =
       const lootLines = [
         `${displayMobName(state.mob.name)} повержен.`,
         v.mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
-        `Добыча: +${v.displayExp} EXP, +${v.displaySp} SP, +${v.displayAdena} адены`,
+        ...buildVictoryResourceLogLines(
+          hero.name ?? "Герой",
+          v.displayExp,
+          v.displaySp,
+          v.displayAdena
+        ),
         ...(v.dropMessages.length > 0 ? v.dropMessages : []),
       ].filter((msg) => msg !== null) as string[];
       const combinedLog = [

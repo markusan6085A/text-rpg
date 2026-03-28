@@ -16,6 +16,7 @@ import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonB
 import { hasSpiritshotActive } from "./useSkill/shotHelpers";
 import { MOB_DEFENSE_MULTIPLIER } from "../../../data/balance";
 import { commitMobVictoryToHeroStore } from "../commitMobVictory";
+import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -708,7 +709,12 @@ export function processSummonAttack(
     updates.log = [
       `${mob.name} повержен.`,
       mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
-      `Добыча: +${displayExp} EXP, +${displaySp} SP, +${displayAdena} адены`,
+      ...buildVictoryResourceLogLines(
+        curHero.name ?? "Герой",
+        displayExp,
+        displaySp,
+        displayAdena
+      ),
       ...(dropMessages.length > 0 ? dropMessages : []),
       ...newLog,
     ].filter((msg) => msg !== null).slice(0, 30);

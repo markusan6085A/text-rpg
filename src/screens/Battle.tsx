@@ -331,11 +331,6 @@ export default function Battle({ navigate }: BattleProps) {
       handleTakeAndNext();
     };
 
-    const handleTakeAndLocation = () => {
-      reset();
-      navigate(`/location?id=${zone.id}`);
-    };
-
     const handleTakeAll = () => {
       // Дроп вже застосований при вбивстві моба
       // Ця кнопка просто закриває екран перемоги
@@ -501,25 +496,10 @@ export default function Battle({ navigate }: BattleProps) {
             {isL2 && <span className="h-px flex-1 bg-gradient-to-l from-[#c7ad80]/50 to-transparent" />}
           </div>
           <div className={`${boxLog} w-full`}>
-            <div className="px-3 py-2 text-[11px] leading-4 text-[#d4c4a8]">
-              <BattleLog noBorder />
+            <div className="px-3 py-2 text-[12px] leading-[1.35] text-[#d4c4a8]">
+              <BattleLog noBorder maxLines={18} />
             </div>
           </div>
-        </div>
-
-        <div className="mt-4 px-3 space-y-2">
-          <button
-            type="button"
-            onClick={handleTakeAndLocation}
-            className={
-              isL2
-                ? "w-full py-2.5 rounded-md border border-[#5c4a32]/70 bg-[#1a1610]/80 text-[12px] text-[#c9a44c] hover:border-[#c7ad80]/35 hover:text-[#f4e2b8] hover:bg-[#221c14]/90 transition-all"
-                : "w-full px-3 text-center text-[12px] text-white/90 hover:text-white transition-colors cursor-pointer"
-            }
-          >
-            В окрестности
-          </button>
-          <div>{vDivider}</div>
         </div>
       </>
     );
