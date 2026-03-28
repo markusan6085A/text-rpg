@@ -440,8 +440,8 @@ export default function Mail({ navigate }: MailProps) {
               style={adminOwnWriteTextStyle(hero?.name)}
               className={
                 isL2
-                  ? "w-full bg-[#0c0a08] border border-[#5c4a32]/70 rounded px-2 py-1 text-[7px] text-[#e8dcc8] resize-none mb-2 placeholder:text-[#6b5c42]"
-                  : "w-full bg-[#0b0806] border border-white/50 rounded px-2 py-1 text-[7px] text-white resize-none mb-2"
+                  ? "w-full bg-[#0c0a08] border border-[#5c4a32]/70 rounded px-2.5 py-2 text-sm leading-snug text-[#e8dcc8] resize-none mb-2 placeholder:text-[#8a7a60]"
+                  : "w-full bg-[#0b0806] border border-white/50 rounded px-2.5 py-2 text-sm leading-snug text-white resize-none mb-2 placeholder:text-gray-500"
               }
               placeholder="Введіть повідомлення..."
               rows={3}
