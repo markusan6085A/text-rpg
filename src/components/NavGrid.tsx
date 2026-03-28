@@ -47,8 +47,6 @@ const navGridRows: NavButton[][] = [
   ],
 ];
 
-const navGridWide: NavButton[] = [{ label: "Рейтинги", path: "/leaderboard" }];
-
 const navGridSecondary: NavButton[] = [
   { label: "Меню", path: "/about" },
   { label: "Новости", path: "/news" },
@@ -288,7 +286,7 @@ function NavPillButton({ btn }: { btn: NavButton }) {
   );
 }
 
-/** Сітка кнопок навігації (усередині рамки чату або у фіксованому докі) */
+/** Сітка кнопок навігації — лише в прокручуваному контенті Layout */
 export function NavInlineGrid({ className = "" }: { className?: string }) {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
@@ -307,13 +305,6 @@ export function NavInlineGrid({ className = "" }: { className?: string }) {
           ))}
         </div>
       ))}
-      <div className="flex justify-center">
-        <div className="w-full max-w-[min(100%,280px)] min-w-0">
-          {navGridWide.map((btn) => (
-            <NavPillButton key={btn.label} btn={btn} />
-          ))}
-        </div>
-      </div>
       <div className="grid w-full grid-cols-2 gap-1.5">
         {navGridSecondary.map((btn) => (
           <NavPillButton key={btn.label} btn={btn} />
@@ -323,8 +314,8 @@ export function NavInlineGrid({ className = "" }: { className?: string }) {
   );
 }
 
-/** Низ: сітка навігації + повернення в окрестности + футер */
-export default function NavGridBottomFixed() {
+/** Навігація + футер у прокрутці (разом зі сторінкою), без fixed */
+export function NavScrollFooter() {
   const ctx = useNavGridCtx();
   const onlineCount = useOnlineCountStore((s) => s.onlineCount);
   const [returnHref, setReturnHref] = useState<string | null>(() => peekLocationReturnHref());
@@ -334,8 +325,7 @@ export default function NavGridBottomFixed() {
   }, [ctx?.routePathname]);
 
   if (!ctx) return null;
-  const { navigate, routePathname } = ctx;
-  const hideMainGridOnChat = routePathname === "/chat";
+  const { navigate } = ctx;
 
   const onBackLocation = () => {
     const href = consumeLocationReturnHref();
@@ -353,64 +343,60 @@ export default function NavGridBottomFixed() {
 
   return (
     <div
-      className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border pointer-events-none"
-      data-nav-bottom-dock
+      className="mt-4 w-full max-w-full min-w-0 border-t border-[#5c4a32]/60 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-auto"
+      data-nav-scroll-footer
     >
-      <div className="pointer-events-none bg-gradient-to-t from-[#0a0908]/98 via-[#0a0908]/95 to-transparent pt-1">
-        {returnHref ? (
-          <div className="pointer-events-auto px-2 pb-1">
-            <div className="mx-auto max-w-[240px]">
-              <NavPillButton btn={backBtn} />
-            </div>
-          </div>
-        ) : null}
-        {hideMainGridOnChat ? null : <NavInlineGrid className="px-2 pt-1.5 sm:px-2" />}
-        <div className="pointer-events-auto border-t border-[#c7ad80]/45 bg-[#0a0908]/98 px-2 py-1.5 pb-[max(0.35rem,env(safe-area-inset-bottom))] sm:px-2">
-          <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[8px] sm:text-[9px] text-[#d4af37]">
-            <button
-              type="button"
-              className="hover:text-[#f0d878] hover:underline underline-offset-2"
-              onClick={() => {
-                setString("l2_last_feature", "Позвать друзей");
-                navigate?.("/wip");
-              }}
-            >
-              Позвать друзей
-            </button>
-            <span className="text-[#6b5c48] select-none" aria-hidden>
-              |
-            </span>
-            <button
-              type="button"
-              className="hover:text-[#f0d878] hover:underline underline-offset-2"
-              onClick={() => {
-                setString("l2_last_feature", "Поддержка");
-                navigate?.("/wip");
-              }}
-            >
-              Служба поддержки
-            </button>
-            <span className="text-[#6b5c48] select-none" aria-hidden>
-              |
-            </span>
-            <button
-              type="button"
-              className="hover:text-[#f0d878] hover:underline underline-offset-2"
-              onClick={() => navigate?.("/stats")}
-            >
-              Статы
-            </button>
-            <span className="text-[#6b5c48] select-none" aria-hidden>
-              |
-            </span>
-            <button
-              type="button"
-              className="hover:text-[#f0d878] hover:underline underline-offset-2"
-              onClick={() => navigate?.("/online-players")}
-            >
-              Онлайн: {onlineCount}
-            </button>
-          </div>
+      {returnHref ? (
+        <div className="mb-3 max-w-[280px] mx-auto w-full">
+          <NavPillButton btn={backBtn} />
+        </div>
+      ) : null}
+      <NavInlineGrid />
+      <div className="mt-3 pt-2.5 border-t border-[#c7ad80]/35">
+        <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[9px] sm:text-[10px] text-[#d4af37]">
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => {
+              setString("l2_last_feature", "Позвать друзей");
+              navigate?.("/wip");
+            }}
+          >
+            Позвать друзей
+          </button>
+          <span className="text-[#6b5c48] select-none" aria-hidden>
+            |
+          </span>
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => {
+              setString("l2_last_feature", "Поддержка");
+              navigate?.("/wip");
+            }}
+          >
+            Служба поддержки
+          </button>
+          <span className="text-[#6b5c48] select-none" aria-hidden>
+            |
+          </span>
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => navigate?.("/stats")}
+          >
+            Статы
+          </button>
+          <span className="text-[#6b5c48] select-none" aria-hidden>
+            |
+          </span>
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => navigate?.("/online-players")}
+          >
+            Онлайн: {onlineCount}
+          </button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import NavGridBottomFixed, { NavGridProvider } from "./NavGrid";
+import { NavGridProvider, NavScrollFooter } from "./NavGrid";
 import StatusBars from "./StatusBars";
 import HeroStatusStrip from "./HeroStatusStrip";
 import SummonStatus from "./SummonStatus";
@@ -320,13 +320,6 @@ export default function Layout({
 
   const gameSettings = getGameSettings();
 
-  const navScrollBottomPad = React.useMemo(() => {
-    const p = (routePathname || "").split("?")[0]?.replace(/\/+$/, "") || "";
-    return p === "/chat"
-      ? "pb-28 max-[380px]:pb-24"
-      : "pb-[14rem] max-[380px]:pb-[13.5rem]";
-  }, [routePathname]);
-
   const handleLogout = () => {
     setLogoutConfirm(true);
   };
@@ -430,7 +423,7 @@ export default function Layout({
           <NavGridProvider navigate={navigate} routePathname={routePathname ?? ""}>
             <div
               ref={contentRef}
-              className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 ${navScrollBottomPad}`}
+              className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-3"
             >
               <div
                 className={`w-full max-w-full min-w-0 mt-0 ${
@@ -441,14 +434,14 @@ export default function Layout({
               >
                 <HeroStatusStrip hidden={blockDeathUi} />
                 {!blockDeathUi && children}
+                {!blockDeathUi ? <NavScrollFooter /> : null}
               </div>
             </div>
-            <NavGridBottomFixed />
           </NavGridProvider>
         ) : (
           <div
             ref={contentRef}
-            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[14rem] max-[380px]:pb-[13.5rem]"
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-3"
           >
             <div
               className={`w-full max-w-full min-w-0 mt-0 ${
