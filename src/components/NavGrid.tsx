@@ -8,46 +8,62 @@ import {
 } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useHeroStore } from "../state/heroStore";
+import { useOnlineCountStore } from "../state/onlineCountStore";
 import { showToast } from "../state/toastStore";
+import { setString } from "../state/persistence";
+import { getPreviousLocation } from "../utils/locationNavigation";
+import {
+  rememberLocationIfLeaving,
+  peekLocationReturnHref,
+  consumeLocationReturnHref,
+  clearLocationReturnHref,
+} from "../utils/locationReturnNav";
 
-type NavButton = { label: string; path?: string; onClick?: () => void };
+type NavButton = {
+  label: string;
+  path?: string;
+  onClick?: () => void;
+  /** Телепорт у окрестности: /location?id=... або /gk */
+  isLocationEntry?: boolean;
+  icon: string;
+};
 
-/** У прокручуваному контенті. */
-const topRowButtons: NavButton[] = [
-  { label: "Почта", path: "/mail" },
-  { label: "Форум", path: "/forum" },
-  { label: "Чат", path: "/chat" },
-  { label: "Меню", path: "/about" },
-  { label: "Новости", path: "/news" },
+const pillClass =
+  "relative flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-full border border-[#4a4540] bg-[#2c2a28] px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] text-[#e8c56e] hover:bg-[#353330] hover:border-[#6b5c48] hover:text-[#f4e2b8] active:scale-[0.98] transition-[transform,background-color,border-color,color] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/55";
+
+const pillLabelClass =
+  "block max-w-[calc(100%-22px)] text-center text-[9px] sm:text-[10px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]";
+
+/** Верхня сітка (як на референсі) */
+const topGridRows: NavButton[][] = [
+  [
+    { label: "Почта", path: "/mail", icon: "/icons/verx.png" },
+    { label: "Чат", path: "/chat", icon: "/icons/fpn.png" },
+    { label: "Форум", path: "/forum", icon: "/icons/clanns.png" },
+  ],
+  [
+    { label: "Окрестности", isLocationEntry: true, icon: "/icons/teleport.jpg" },
+    { label: "Клан", path: "/clans", icon: "/icons/clann.jpg" },
+    { label: "Город", path: "/city", icon: "/icons/teleport.jpg" },
+  ],
+  [
+    { label: "Инвентарь", path: "/inventory", icon: "/icons/bank.jpg" },
+    { label: "Персонаж", path: "/character", icon: "/icons/helper.jpg" },
+  ],
 ];
 
-/** Fixed знизу. */
-const bottomRowButtons: NavButton[] = [
-  { label: "Инвентарь", path: "/inventory" },
-  { label: "Персонаж", path: "/character" },
-  { label: "Город", path: "/city" },
-  { label: "Клан", path: "/clans" },
-  { label: "Статы", path: "/stats" },
+const topGridWide: NavButton[] = [
+  { label: "Рейтинги", path: "/leaderboard", icon: "/icons/zst_cf.jpg" },
 ];
 
-const topPanelClass =
-  "w-full max-w-full min-w-0 rounded-xl border border-[#c7ad80]/80 bg-black/28 px-1.5 py-1.5 sm:px-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_6px_20px_rgba(0,0,0,0.4)] backdrop-blur-[1px]";
-
-const bottomPanelClass =
-  "w-full max-w-full min-w-0 rounded-t-xl rounded-b-md border border-[#c7ad80]/80 bg-black/32 px-1.5 py-1 sm:px-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_8px_24px_rgba(0,0,0,0.55)] backdrop-blur-[1px] overflow-hidden";
-
-const textRowClass =
-  "w-full flex flex-row flex-nowrap items-stretch justify-between gap-1 sm:gap-1.5";
-
-/** Рамка кнопки в теплому L2-стилі. */
-const navItemFrameClass =
-  "flex-1 min-w-0 basis-0 relative flex items-center justify-center rounded-md px-0.5 py-1 sm:py-1.5 border border-[#5c4a32]/65 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.14),0_2px_5px_rgba(0,0,0,0.5)] text-[#e8c56e] hover:from-[#3a3020] hover:to-[#1c1810] hover:border-[#c7ad80]/50 hover:text-[#f4e2b8] active:scale-[0.98] transition-[transform,colors,border-color,box-shadow] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/55";
-
-const textLabelClass =
-  "block w-full text-center text-[9px] sm:text-[10px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]";
+const topGridSecondary: NavButton[] = [
+  { label: "Меню", path: "/about", icon: "/icons/fon.png" },
+  { label: "Новости", path: "/news", icon: "/icons/battle.jpg" },
+];
 
 type NavGridContextValue = {
   navigate?: (path: string) => void;
+  routePathname: string;
   unreadCount: number;
   clanUnreadCount: number;
   handleClick: (btn: NavButton) => Promise<void>;
@@ -57,16 +73,33 @@ const NavGridContext = React.createContext<NavGridContextValue | null>(null);
 
 interface NavGridProviderProps {
   navigate?: (path: string) => void;
+  /** Синхронно з App — для оновлення кнопки «назад в окрестности» */
+  routePathname?: string;
   children: React.ReactNode;
 }
 
-/** Один екземпляр полінгу листів/клану на все дерево навігації. */
-export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
+function navIconOnError(e: React.SyntheticEvent<HTMLImageElement>) {
+  const el = e.currentTarget;
+  if (el.dataset.fallback === "1") return;
+  el.dataset.fallback = "1";
+  el.src = "/icons/clanns.png";
+}
+
+export function NavGridProvider({
+  navigate,
+  routePathname = "",
+  children,
+}: NavGridProviderProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [clanUnreadCount, setClanUnreadCount] = useState(0);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const heroId = useHeroStore((s) => s.hero?.id);
   const previousUnreadRef = useRef(0);
+
+  const pathNorm = useMemo(
+    () => (routePathname || "").split("?")[0]?.replace(/\/+$/, "") || "",
+    [routePathname],
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -85,7 +118,7 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
         }
         previousUnreadRef.current = nextUnread;
         setUnreadCount(nextUnread);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("[NavGrid] Failed to load unread count:", err);
         setUnreadCount(0);
       }
@@ -142,13 +175,12 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
         } else {
           setClanUnreadCount(0);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("[NavGrid] Failed to load clan unread count:", err);
         setClanUnreadCount(0);
       }
     };
 
-    // Одразу після входу / F5 — як пошта; раніше був delay 4 с, через це бейдж з’являвся «з затримкою»
     void loadClanUnreadCount();
     const interval = setInterval(loadClanUnreadCount, 25000);
 
@@ -163,6 +195,16 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
     };
   }, [isAuthenticated, heroId]);
 
+  const beforeNavigate = useCallback((targetPath: string) => {
+    if (typeof window === "undefined" || !targetPath) return;
+    const pn = window.location.pathname;
+    const sc = window.location.search || "";
+    rememberLocationIfLeaving(pn, sc, targetPath);
+    if (targetPath.split("?")[0]?.replace(/\/+$/, "") === "/city") {
+      clearLocationReturnHref();
+    }
+  }, []);
+
   const handleClick = useCallback(
     async (btn: NavButton) => {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -171,6 +213,15 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
 
       if (btn.onClick) {
         btn.onClick();
+        return;
+      }
+
+      if (btn.isLocationEntry && navigate) {
+        const z = getPreviousLocation();
+        const target = z ? `/location?id=${encodeURIComponent(z)}&page=1` : "/gk";
+        beforeNavigate(target);
+        clearLocationReturnHref();
+        navigate(target);
         return;
       }
 
@@ -190,35 +241,36 @@ export function NavGridProvider({ navigate, children }: NavGridProviderProps) {
         };
         try {
           const clan = await fetchClan();
-          if (clan) {
-            navigate(`/clan/${clan.id}`);
-          } else {
-            navigate("/clans");
-          }
+          const target = clan ? `/clan/${clan.id}` : "/clans";
+          beforeNavigate(target);
+          navigate(target);
         } catch (err) {
           console.error("[NavGrid] Failed to check clan:", err);
+          beforeNavigate("/clans");
           navigate("/clans");
         }
         return;
       }
 
       if (btn.path && navigate) {
+        beforeNavigate(btn.path);
         navigate(btn.path);
         return;
       }
       showToast("Функція недоступна", "info");
     },
-    [navigate]
+    [navigate, beforeNavigate],
   );
 
   const value = useMemo<NavGridContextValue>(
     () => ({
       navigate,
+      routePathname: pathNorm,
       unreadCount,
       clanUnreadCount,
       handleClick,
     }),
-    [navigate, unreadCount, clanUnreadCount, handleClick]
+    [navigate, pathNorm, unreadCount, clanUnreadCount, handleClick],
   );
 
   return <NavGridContext.Provider value={value}>{children}</NavGridContext.Provider>;
@@ -228,7 +280,7 @@ function useNavGridCtx(): NavGridContextValue | null {
   return useContext(NavGridContext);
 }
 
-function NavTextButton({ btn }: { btn: NavButton }) {
+function NavPillButton({ btn }: { btn: NavButton }) {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
   const { unreadCount, clanUnreadCount, handleClick } = ctx;
@@ -241,17 +293,25 @@ function NavTextButton({ btn }: { btn: NavButton }) {
     <button
       type="button"
       onClick={() => void handleClick(btn)}
-      className={navItemFrameClass}
+      className={pillClass}
       title={btn.label}
     >
-      <span className={textLabelClass}>{btn.label}</span>
+      <img
+        src={btn.icon}
+        alt=""
+        className="h-5 w-5 shrink-0 rounded object-cover opacity-95"
+        width={20}
+        height={20}
+        onError={navIconOnError}
+      />
+      <span className={pillLabelClass}>{btn.label}</span>
       {showMailBadge && (
-        <span className="absolute -top-1 right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
+        <span className="absolute -top-0.5 right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
           {unreadCount > 99 ? "99" : unreadCount}
         </span>
       )}
       {showClanBadge && (
-        <span className="absolute -top-1 right-0.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
+        <span className="absolute -top-0.5 right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[14px] text-center shadow-sm ring-1 ring-black/40">
           {clanUnreadCount > 99 ? "99" : clanUnreadCount}
         </span>
       )}
@@ -259,42 +319,131 @@ function NavTextButton({ btn }: { btn: NavButton }) {
   );
 }
 
-/** Перший блок у прокрутці — текстові посилання в один ряд. */
+/** Перший блок у прокрутці — «пігулки» у сітці */
 export function NavScrollTopRow() {
   const ctx = useNavGridCtx();
   if (!ctx) return null;
 
   return (
     <div
-      className="w-full min-w-0 mb-2 pt-0.5 -mt-0.5"
-      aria-label="Навігація: пошта, форум, чат, меню, новини"
+      className="w-full min-w-0 mb-2 pt-0.5 -mt-0.5 space-y-2"
+      aria-label="Навігація гри"
     >
-      <div className={topPanelClass}>
-        <div className={textRowClass}>
-          {topRowButtons.map((btn) => (
-            <NavTextButton key={btn.label} btn={btn} />
+      {topGridRows.map((row, ri) => (
+        <div
+          key={ri}
+          className={
+            row.length === 2
+              ? "flex w-full justify-center gap-2"
+              : "grid w-full grid-cols-3 gap-2"
+          }
+        >
+          {row.map((btn) => (
+            <div key={btn.label} className={row.length === 2 ? "min-w-0 max-w-[46%] flex-1" : "min-w-0"}>
+              <NavPillButton btn={btn} />
+            </div>
           ))}
         </div>
+      ))}
+      <div className="flex justify-center">
+        <div className="w-full max-w-[min(100%,280px)] min-w-0">
+          {topGridWide.map((btn) => (
+            <NavPillButton key={btn.label} btn={btn} />
+          ))}
+        </div>
+      </div>
+      <div className="grid w-full grid-cols-2 gap-2">
+        {topGridSecondary.map((btn) => (
+          <NavPillButton key={btn.label} btn={btn} />
+        ))}
       </div>
     </div>
   );
 }
 
-/** Нижня панель — fixed, той самий текстовий ряд. */
+/** Низ: повернення в окрестности + футер як на референсі */
 export default function NavGridBottomFixed() {
   const ctx = useNavGridCtx();
+  const onlineCount = useOnlineCountStore((s) => s.onlineCount);
+  const [returnHref, setReturnHref] = useState<string | null>(() => peekLocationReturnHref());
+
+  useEffect(() => {
+    setReturnHref(peekLocationReturnHref());
+  }, [ctx?.routePathname]);
+
   if (!ctx) return null;
+  const { navigate } = ctx;
+
+  const onBackLocation = () => {
+    const href = consumeLocationReturnHref();
+    setReturnHref(null);
+    if (href && navigate) {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      navigate(href);
+    }
+  };
+
+  const backBtn: NavButton = {
+    label: "Окрестности",
+    icon: "/icons/teleport.jpg",
+    onClick: onBackLocation,
+  };
 
   return (
     <div
-      className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border bg-gradient-to-t from-[#0b0806] via-[#0b0806]/90 to-transparent pt-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] px-1.5 sm:px-2 md:px-3 pointer-events-none"
+      className="!fixed bottom-0 left-0 right-0 z-50 w-full min-w-0 box-border pointer-events-none"
       data-nav-bottom-dock
     >
-      <div className={`${bottomPanelClass} pointer-events-auto`}>
-        <div className={textRowClass}>
-          {bottomRowButtons.map((btn) => (
-            <NavTextButton key={btn.label} btn={btn} />
-          ))}
+      {returnHref ? (
+        <div className="pointer-events-auto px-2 pb-1 sm:px-3">
+          <NavPillButton btn={backBtn} />
+        </div>
+      ) : null}
+      <div className="pointer-events-auto border-t border-[#c7ad80]/45 bg-[#0a0908]/98 px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3">
+        <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-center text-[10px] sm:text-[11px] text-[#d4af37]">
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => {
+              setString("l2_last_feature", "Позвать друзей");
+              navigate?.("/wip");
+            }}
+          >
+            Позвать друзей
+          </button>
+          <span className="text-[#6b5c48] select-none" aria-hidden>
+            |
+          </span>
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => {
+              setString("l2_last_feature", "Поддержка");
+              navigate?.("/wip");
+            }}
+          >
+            Служба поддержки
+          </button>
+          <span className="text-[#6b5c48] select-none" aria-hidden>
+            |
+          </span>
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => navigate?.("/stats")}
+          >
+            Статы
+          </button>
+          <span className="text-[#6b5c48] select-none" aria-hidden>
+            |
+          </span>
+          <button
+            type="button"
+            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            onClick={() => navigate?.("/online-players")}
+          >
+            Онлайн: {onlineCount}
+          </button>
         </div>
       </div>
     </div>

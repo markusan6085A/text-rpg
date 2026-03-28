@@ -420,7 +420,7 @@ export default function Layout({
           <div className="flex-shrink-0 w-full" style={{ height: "14px" }} aria-hidden />
         ) : null}
         {showNavGrid && !blockDeathUi && navigate ? (
-          <NavGridProvider navigate={navigate}>
+          <NavGridProvider navigate={navigate} routePathname={routePathname ?? ""}>
             <div
               ref={contentRef}
               className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative z-10 w-full min-w-0 pb-[5rem] max-[380px]:pb-[4.75rem]"
