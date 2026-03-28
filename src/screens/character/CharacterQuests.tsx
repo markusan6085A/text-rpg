@@ -11,7 +11,12 @@ function questIconSrc(quest: { icon?: string }) {
   return quest.icon || "/assets/quest.png";
 }
 
-export default function CharacterQuests() {
+type CharacterQuestsProps = {
+  /** true на /quests — без дубля шапки, контент одразу під банером сторінки */
+  embedInQuestPage?: boolean;
+};
+
+export default function CharacterQuests({ embedInQuestPage = false }: CharacterQuestsProps = {}) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -222,14 +227,50 @@ export default function CharacterQuests() {
     updateHero({ activeQuests: newActiveQuests });
   };
 
-  // Якщо локація не вибрана і є активні квести, показуємо їх, інакше показуємо список локацій
-  const showLocationList = !selectedLocation && activeQuestsWithDetails.length === 0;
+  const orphanActive = activeQuests.filter((aq) => !QUESTS.some((q) => q.id === aq.questId));
+  const showLocationList =
+    !selectedLocation && activeQuestsWithDetails.length === 0 && orphanActive.length === 0;
+
+  const clearOrphanQuests = () => {
+    const valid = activeQuests.filter((aq) => QUESTS.some((q) => q.id === aq.questId));
+    updateHero({ activeQuests: valid });
+  };
 
   return (
     <div className={isL2 ? "w-full text-[#d4c4a8] px-1 py-2" : "w-full text-[#f4e2b8] px-1 py-2"}>
-      {/* Заголовок */}
-      <div className="flex items-center gap-2 mb-2">
-        {selectedLocation && (
+      {!embedInQuestPage && (
+        <div className="flex items-center gap-2 mb-2">
+          {selectedLocation && (
+            <button
+              onClick={() => setSelectedLocation(null)}
+              className={
+                isL2 ? "text-[#8a7a60] text-xs hover:text-[#d4c4a8]" : "text-gray-400 text-xs hover:text-gray-300"
+              }
+            >
+              ← Назад
+            </button>
+          )}
+          <div
+            className={
+              isL2
+                ? "text-[#e8c56e] text-xs border-b border-solid border-[#5c4a32]/45 pb-2 font-semibold flex-1"
+                : "text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1"
+            }
+            style={isL2 ? undefined : { textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
+          >
+            {selectedLocation
+              ? `${selectedLocation} ${
+                  QUESTS_BY_LOCATION[selectedLocation]?.[0]?.locationLevel
+                    ? `(${QUESTS_BY_LOCATION[selectedLocation][0].locationLevel})`
+                    : ""
+                }`
+              : "Мої Квести"}
+          </div>
+        </div>
+      )}
+
+      {embedInQuestPage && selectedLocation && (
+        <div className="flex items-center gap-2 mb-2">
           <button
             onClick={() => setSelectedLocation(null)}
             className={
@@ -238,21 +279,49 @@ export default function CharacterQuests() {
           >
             ← Назад
           </button>
-        )}
+          <div
+            className={
+              isL2
+                ? "text-[#e8c56e] text-xs border-b border-solid border-[#5c4a32]/45 pb-2 font-semibold flex-1"
+                : "text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1"
+            }
+          >
+            {selectedLocation}{" "}
+            {QUESTS_BY_LOCATION[selectedLocation]?.[0]?.locationLevel
+              ? `(${QUESTS_BY_LOCATION[selectedLocation][0].locationLevel})`
+              : ""}
+          </div>
+        </div>
+      )}
+
+      {orphanActive.length > 0 && (
         <div
           className={
             isL2
-              ? "text-[#e8c56e] text-xs border-b border-solid border-[#5c4a32]/45 pb-2 font-semibold flex-1"
-              : "text-[#ffd700] text-xs border-b border-solid border-white/50 pb-2 font-semibold flex-1"
+              ? "mb-3 rounded-md border border-amber-900/50 bg-black/30 px-2 py-2 text-[11px] text-[#d4c4a8]"
+              : "mb-3 rounded border border-amber-800/40 px-2 py-2 text-[11px] text-amber-100"
           }
-          style={isL2 ? undefined : { textShadow: "0 0 8px rgba(255, 215, 0, 0.5)" }}
         >
-          {selectedLocation ? `${selectedLocation} ${QUESTS_BY_LOCATION[selectedLocation]?.[0]?.locationLevel ? `(${QUESTS_BY_LOCATION[selectedLocation][0].locationLevel})` : ""}` : "Мої Квести"}
+          <div className="font-semibold text-amber-200/90 mb-1">Застаріле завдання в журналі</div>
+          <p className="text-[10px] opacity-90 mb-2">
+            Активний квест не знайдено в поточній версії гри — приберіть запис, щоб знову бачити список локацій.
+          </p>
+          <button
+            type="button"
+            onClick={clearOrphanQuests}
+            className={
+              isL2
+                ? "text-[10px] px-2 py-1 rounded border border-[#5c4a32]/70 text-[#e8c56e] hover:border-[#c7ad80]/45"
+                : "text-[10px] px-2 py-1 rounded border border-amber-700/60 text-amber-200"
+            }
+          >
+            Очистити
+          </button>
         </div>
-      </div>
+      )}
 
       {/* Список локацій (якщо немає активних квестів і локація не вибрана) */}
-      {showLocationList && (
+      {showLocationList && locations.length > 0 && (
         <div className="mb-2">
           <div
             className={
