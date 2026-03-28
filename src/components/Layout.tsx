@@ -24,7 +24,7 @@ interface LayoutProps {
   children: React.ReactNode;
   navigate?: (path: string) => void;
   showNavGrid?: boolean;
-  /** Підказки TutorialHint (не плутати з ресурсним HUD) */
+  /** Підказки TutorialHint + смуга HeroStatusStrip (CP/HP/MP/EXP під шапкою) */
   showStatusBars?: boolean;
   /** Фіксовані CP/HP/MP/XP у куті — за замовчуванням вимкнено; бари в контенті (напр. /character) */
   showResourceHud?: boolean;
@@ -432,7 +432,7 @@ export default function Layout({
                     : "px-2 py-1 max-[480px]:px-1 sm:px-3"
                 } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
               >
-                <HeroStatusStrip hidden={blockDeathUi} />
+                <HeroStatusStrip hidden={blockDeathUi || !showStatusBars} />
                 {!blockDeathUi && children}
                 {!blockDeathUi ? <NavScrollFooter /> : null}
               </div>
@@ -450,7 +450,7 @@ export default function Layout({
                   : "px-2 py-1 max-[480px]:px-1 sm:px-3"
               } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
             >
-              <HeroStatusStrip hidden={blockDeathUi} />
+              <HeroStatusStrip hidden={blockDeathUi || !showStatusBars} />
               {!blockDeathUi && children}
             </div>
           </div>
