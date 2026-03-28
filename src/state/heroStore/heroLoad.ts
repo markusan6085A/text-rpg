@@ -69,9 +69,10 @@ export function loadHero(): Hero | null {
       }
     }
 
-    // Міграція: видаляємо legacy-валюту з інвентаря (adena, coin_of_luck, coins_silver — тепер у hero.*)
+    // Міграція: видаляємо з інвентаря лише ту валюту, що перенесена у поля героя (adena, coin_of_luck, coins_silver).
+    // Ancient Adena (ancient_adena) лишається стеком у інвентарі — GM Shop / татуювання за нього рахують inventory.
     // Міграція: об'єднуємо стакабельні предмети (соски, ресурси, квест-айтеми, банки)
-    const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
+    const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver"]);
     if (fixedHero.inventory && Array.isArray(fixedHero.inventory)) {
       let inventoryConsolidated = false;
       const consolidatedInventory: any[] = [];
