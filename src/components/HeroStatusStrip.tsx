@@ -3,6 +3,7 @@ import { useHeroStore } from "../state/heroStore";
 import { useBattleStore } from "../state/battle/store";
 import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getHeroResourceValues } from "../utils/heroBuffedResources";
+import { getExpToNext, MAX_LEVEL } from "../data/expTable";
 import HeroResourceBars from "./HeroResourceBars";
 
 type HeroStatusStripProps = {
@@ -23,6 +24,16 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
     () => (hero ? getHeroResourceValues(hero, inBattle) : null),
     [hero, inBattle, hero?.hp, hero?.mp, hero?.cp, hero?.maxHp, hero?.maxMp, hero?.maxCp],
   );
+
+  const expForBar = useMemo(() => {
+    if (!hero) return { cur: 0, max: 1 };
+    const level = Number(hero.level ?? 1) || 1;
+    const expCurrent = Math.max(0, Math.floor(Number(hero.exp ?? 0) || 0));
+    const expNeedRaw = getExpToNext(level);
+    const expMax = level >= MAX_LEVEL ? 1 : Math.max(1, expNeedRaw);
+    const cur = level >= MAX_LEVEL ? 0 : expCurrent;
+    return { cur, max: expMax };
+  }, [hero, hero?.level, hero?.exp]);
 
   if (hidden || !hero || !resBars) return null;
 
@@ -52,6 +63,10 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
             maxMp={resBars.maxMp}
             cp={resBars.cp}
             maxCp={resBars.maxCp}
+            expCurrent={expForBar.cur}
+            expMax={expForBar.max}
+            showExp
+            expGray
             lowHpPulse={lowHp}
           />
         </div>
@@ -75,6 +90,10 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
         maxMp={resBars.maxMp}
         cp={resBars.cp}
         maxCp={resBars.maxCp}
+        expCurrent={expForBar.cur}
+        expMax={expForBar.max}
+        showExp
+        expGray
         lowHpPulse={lowHp}
         compact
       />

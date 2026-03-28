@@ -6,6 +6,8 @@ export const HERO_BAR_FILLS = {
   mp: "linear-gradient(180deg,#5c9fd8,#284a78)",
   cp: "linear-gradient(180deg,#e0bc68,#7a5a28)",
   exp: "linear-gradient(90deg,#5c4018,#c9a44c,#fce9a8)",
+  /** Смуга EXP у стрічці під ніком (як CP/HP/MP, але нейтрально-сіра заливка). */
+  expGray: "linear-gradient(180deg,#c4c4c4,#6b6b6b)",
 } as const;
 
 export interface HeroResourceBarsProps {
@@ -18,6 +20,8 @@ export interface HeroResourceBarsProps {
   expCurrent?: number;
   expMax?: number;
   showExp?: boolean;
+  /** Сірий EXP-бар (теплий HUD у куті лишається золотим). */
+  expGray?: boolean;
   /** Вужчі рядки для закріпленого HUD у куті */
   compact?: boolean;
   lowHpPulse?: boolean;
@@ -75,6 +79,7 @@ export default function HeroResourceBars({
   expCurrent = 0,
   expMax = 1,
   showExp = false,
+  expGray = false,
   compact = false,
   lowHpPulse = false,
   className = "",
@@ -94,10 +99,10 @@ export default function HeroResourceBars({
       <ResourceTrack label="MP" cur={mp} max={maxMp} fill={HERO_BAR_FILLS.mp} compact={compact} />
       {showExp && (
         <ResourceTrack
-          label="XP"
+          label="EXP"
           cur={expCurrent}
           max={expCap}
-          fill={HERO_BAR_FILLS.exp}
+          fill={expGray ? HERO_BAR_FILLS.expGray : HERO_BAR_FILLS.exp}
           compact={compact}
         />
       )}
