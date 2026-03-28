@@ -13,6 +13,7 @@ export const CITY_LABELS: Record<string, { uk: string; ru: string }> = {
   l2dop_schuttgart: { uk: "Town of Schuttgart", ru: "Town of Schuttgart" },
   l2dop_rune: { uk: "Rune Township", ru: "Rune Township" },
   l2dop_dion: { uk: "Town of Dion", ru: "Town of Dion" },
+  ancient_tomb_fields: { uk: "Ancient Tomb Fields", ru: "Ancient Tomb Fields" },
 };
 
 export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
@@ -188,4 +189,15 @@ export const ZONE_LABELS: Record<string, { uk: string; ru: string }> = {
   l2dop_goddard_dragon_valley: { uk: "Годдарт — Долина драконів", ru: "Годдарт — Долина драконов" },
   l2dop_goddard_giants_cave: { uk: "Годдарт — Печера гігантів", ru: "Годдарт — Пещера гигантов" },
   l2dop_goddard_seed_destruction: { uk: "Годдарт — Насіння знищення", ru: "Годдарт — Семя разрушения" },
+
+  ancient_tomb_fields_01: { uk: "Ancient Tomb Fields — поріг пилу", ru: "Ancient Tomb Fields — порог пыли" },
+  ancient_tomb_fields_02: { uk: "Ancient Tomb Fields — попелястий лог", ru: "Ancient Tomb Fields — пепельная лощина" },
+  ancient_tomb_fields_03: { uk: "Ancient Tomb Fields — стежка рун", ru: "Ancient Tomb Fields — тропа рун" },
+  ancient_tomb_fields_04: { uk: "Ancient Tomb Fields — гравійний марш", ru: "Ancient Tomb Fields — гравийный марш" },
+  ancient_tomb_fields_05: { uk: "Ancient Tomb Fields — кістяне плато", ru: "Ancient Tomb Fields — костяное плато" },
+  ancient_tomb_fields_06: { uk: "Ancient Tomb Fields — гряда викопних", ru: "Ancient Tomb Fields — гряда окаменелостей" },
+  ancient_tomb_fields_07: { uk: "Ancient Tomb Fields — долина мозку", ru: "Ancient Tomb Fields — долина костного мозга" },
+  ancient_tomb_fields_08: { uk: "Ancient Tomb Fields — глибини курганів", ru: "Ancient Tomb Fields — глубины курганов" },
+  ancient_tomb_fields_09: { uk: "Ancient Tomb Fields — простір Королевого падіння", ru: "Ancient Tomb Fields — просторье Королевого паденья" },
+  ancient_tomb_fields_10: { uk: "Ancient Tomb Fields — край Тронного кургану", ru: "Ancient Tomb Fields — край Тронного кургана" },
 };

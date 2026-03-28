@@ -21,6 +21,7 @@ const zoneFiles = [
   "gludinVillageZones.ts",
   "huntersVillageZones.ts",
   "goddardEliteZones.ts",
+  "ancientTombFieldsZones.ts",
 ].map((f) => path.join(worldL2, f));
 
 const zoneCosts = {};
