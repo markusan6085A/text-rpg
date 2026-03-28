@@ -1439,6 +1439,8 @@ export interface SevenSealsRankingResponse {
   }>;
   myRank: number | null;
   myMedals: number;
+  /** true під час паузи (нд або сб 22:00+, Варшава) — дроп медалей вимкнено */
+  weekPaused?: boolean;
 }
 
 export async function getSevenSealsRanking(): Promise<SevenSealsRankingResponse> {
@@ -1458,8 +1460,11 @@ export async function reportMedalDrop(characterId: string): Promise<{ ok: boolea
 
 export interface SevenSealsRankResponse {
   ok: boolean;
+  /** Статус «переможець» лише з активного бонусу після офіційної видачі */
   rank: number | null;
   medalCount: number;
+  /** Поточний тиждень: місце в таблиці без статусу переможця */
+  provisionalRank?: number | null;
   fromClaimedBonus?: boolean;
   /** Можна забрати нагороду за щойно закритий тиждень (топ-3), якщо ще не claimedWeekStart */
   canClaimLastWeek?: boolean;
@@ -2401,7 +2406,13 @@ export async function adminKickFromClan(clanId: string, characterId: string): Pr
 }
 
 /** Адмін: Seven Seals — розіслати листи топ-3 */
-export async function adminSevenSealsSendMail(): Promise<{ ok: boolean; sent?: number; skipped?: number }> {
+export async function adminSevenSealsSendMail(): Promise<{
+  ok: boolean;
+  finalized?: boolean;
+  weekKey?: string;
+  top3?: number;
+  skipped?: string;
+}> {
   const res = await fetch(`${API_URL}/admin/seven-seals/send-mail`, { method: "POST", credentials: "include" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data as ApiError).error || "Forbidden");

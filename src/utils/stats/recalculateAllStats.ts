@@ -146,7 +146,7 @@ export function recalculateAllStats(
     hero.activeDyes
   );
 
-  // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати до кінця неділі
+  // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати до наступної суботи 22:00 (Europe/Warsaw)
   const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus as { pAtk?: number; mAtk?: number; pDef?: number; mDef?: number; expiresAt?: number } | undefined;
   if (sevenSealsBonus && typeof sevenSealsBonus === "object") {
     const expiresAt = sevenSealsBonus.expiresAt ?? 0;

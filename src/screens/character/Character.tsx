@@ -96,11 +96,9 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
       try {
         const data = await getSevenSealsRank(characterId);
         if (cancelled) return;
-        if (data.rank != null && data.rank >= 1 && data.rank <= 3) {
-          setSevenSealsRank(data.rank);
-        } else {
-          setSevenSealsRank(null);
-        }
+        const claimed =
+          data.rank != null && data.rank >= 1 && data.rank <= 3 ? data.rank : null;
+        setSevenSealsRank(claimed ?? sevenSealsRankFromHero ?? null);
         if (data.canClaimLastWeek) {
           try {
             const claimRes = await claimSevenSealsReward(characterId);

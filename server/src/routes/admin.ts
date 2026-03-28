@@ -2,7 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { requireAdmin } from "./adminGuard";
 import { prisma } from "../db";
 import { setMuted } from "../chatMute";
-import { runSevenSealsMailJob } from "../sevenSealsMail";
+import { runSevenSealsFinalizeJob } from "../sevenSealsFinalize";
 
 export const adminRoutes: FastifyPluginAsync = async (app) => {
   // GET /ping → /admin/ping з prefix
@@ -27,10 +27,16 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     return { ok: true };
   });
 
-  // POST /admin/seven-seals/send-mail — примусова розсилка листів топ-3 (для тесту)
+  // POST /admin/seven-seals/send-mail — примусовий фінал тижня (ТОП-3, нагороди, листи)
   app.post("/seven-seals/send-mail", { preHandler: [requireAdmin] }, async (req, reply) => {
-    const r = await runSevenSealsMailJob(() => {}, true);
-    return { ok: true, sent: r.sent, skipped: r.skipped || undefined };
+    const r = await runSevenSealsFinalizeJob(() => {}, true);
+    return {
+      ok: true,
+      finalized: r.finalized,
+      weekKey: r.weekKey,
+      top3: r.top3,
+      skipped: r.skipped || undefined,
+    };
   });
 
   // POST /admin/chat/mute — адмін мут гравця в чаті (characterId, durationMinutes)

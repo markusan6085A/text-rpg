@@ -7,9 +7,10 @@ import {
   isSevenSealsFarmWindowActive,
   weekStartKey,
 } from "./sevenSealsTime";
+import { grantSevenSealsRewardIfNeeded } from "./sevenSealsRewards";
 
 export async function sevenSealsRoutes(app: FastifyInstance) {
-  // GET /seven-seals/ranking - отримати рейтинг
+  // GET /seven-seals/ranking - поточний тиждень збору (медалі з понеділка 00:00 нового циклу)
   app.get("/seven-seals/ranking", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -38,9 +39,8 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         },
       });
 
-      // Групуємо по characterId та рахуємо кількість
       const medalCounts = new Map<string, { characterId: string; characterName: string; count: number }>();
-      
+
       medals.forEach((medal) => {
         const charId = medal.characterId;
         const charName = medal.character?.name || "Unknown";
@@ -49,10 +49,12 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         medalCounts.set(charId, current);
       });
 
-      // Сортуємо по кількості медалей (від більшого до меншого)
       const ranking = Array.from(medalCounts.values())
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 100) // Топ 100
+        .sort((a, b) => {
+          if (b.count !== a.count) return b.count - a.count;
+          return a.characterId.localeCompare(b.characterId);
+        })
+        .slice(0, 100)
         .map((player, index) => ({
           characterId: player.characterId,
           characterName: player.characterName,
@@ -60,7 +62,6 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
           rank: index + 1,
         }));
 
-      // Знаходимо мій рейтинг та кількість медалей (той самий фільтр що й для ranking)
       const myMedals = await prisma.sevenSealsMedal.count({
         where: { characterId: character.id, weekStart },
       });
@@ -73,6 +74,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         ranking,
         myRank,
         myMedals,
+        weekPaused: !isSevenSealsFarmWindowActive(new Date()),
       };
     } catch (error) {
       app.log.error(error, "Error fetching Seven Seals ranking:");
@@ -83,7 +85,6 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
-  // POST /seven-seals/medal - зафіксувати випадання медальки
   app.post("/seven-seals/medal", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -94,13 +95,13 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "characterId is required" });
     }
 
-    // Перевіряємо, чи івент активний
     if (!isSevenSealsFarmWindowActive(new Date())) {
-      return reply.code(400).send({ error: "Event is not active (only Monday-Saturday, Europe/Warsaw)" });
+      return reply
+        .code(400)
+        .send({ error: "Event farm window closed (Mon 00:00–Sat 22:00 Europe/Warsaw only)" });
     }
 
     try {
-      // Перевіряємо, чи персонаж належить цьому акаунту
       const character = await prisma.character.findFirst({
         where: {
           id: body.characterId,
@@ -132,8 +133,10 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /seven-seals/rank/:characterId — ранг персонажа (медалі поточного тижня або heroJson.sevenSealsBonus)
-  // Переможці = топ-3 по медалях; якщо є sevenSealsBonus — вже забрали нагороду
+  /**
+   * Ранг «переможця» лише з активного sevenSealsBonus (після офіційної видачі).
+   * Поточний лідерборд тижня не дає статусу переможця минулого тижня.
+   */
   app.get("/seven-seals/rank/:characterId", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -186,26 +189,15 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       const rankAward = myAward > 0 ? aboveAward + 1 : 0;
 
       const claimedKey = sevenSealsBonus?.claimedWeekStart ?? "";
-      const canClaimLastWeek =
-        rankAward >= 1 && rankAward <= 3 && claimedKey !== awardKey;
-
-      if (activeBonus) {
-        return {
-          ok: true,
-          characterId,
-          rank: claimedRank ?? null,
-          medalCount: 0,
-          fromClaimedBonus: true,
-          canClaimLastWeek,
-        };
-      }
+      const canClaimLastWeek = rankAward >= 1 && rankAward <= 3 && claimedKey !== awardKey;
 
       return {
         ok: true,
         characterId,
-        rank: provisionalRank && provisionalRank <= 3 ? provisionalRank : null,
+        rank: activeBonus ? (claimedRank ?? null) : null,
         medalCount: myMedalsCur,
-        fromClaimedBonus: false,
+        provisionalRank,
+        fromClaimedBonus: !!activeBonus,
         canClaimLastWeek,
       };
     } catch (error) {
@@ -217,7 +209,6 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
-  // POST /seven-seals/claim — отримати нагороду за 1-3 місце (топ-3 по медалях тижня)
   app.post("/seven-seals/claim", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -229,7 +220,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     try {
       const character = await prisma.character.findFirst({
         where: { id: characterId, accountId: auth.accountId },
-        select: { id: true, heroJson: true, coinLuck: true },
+        select: { id: true, heroJson: true },
       });
       if (!character) return reply.code(404).send({ error: "character not found" });
 
@@ -250,11 +241,8 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
       }
 
       const heroJson = (character.heroJson as Record<string, unknown>) || {};
-      const existing = heroJson.sevenSealsBonus as {
-        expiresAt?: number;
-        claimedWeekStart?: string;
-      } | undefined;
-      if (existing && typeof existing === "object" && existing.claimedWeekStart === awardKey) {
+      const existing = heroJson.sevenSealsBonus as { claimedWeekStart?: string } | undefined;
+      if (existing?.claimedWeekStart === awardKey) {
         return reply.send({
           ok: true,
           alreadyClaimed: true,
@@ -262,42 +250,14 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         });
       }
 
-      const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
-
-      const RANGES: Record<number, { pAtk: [number, number]; pDef: [number, number]; coinLuck: [number, number] }> = {
-        1: { pAtk: [125, 750], pDef: [154, 456], coinLuck: [5, 20] },
-        2: { pAtk: [100, 500], pDef: [100, 400], coinLuck: [5, 15] },
-        3: { pAtk: [80, 300], pDef: [80, 300], coinLuck: [5, 10] },
-      };
-      const r = RANGES[rank] || RANGES[3];
-      const rand = (min: number, max: number) => Math.floor(min + Math.random() * (max - min + 1));
-      const coinLuckReward = rand(r.coinLuck[0], r.coinLuck[1]);
-      const sevenSealsBonus = {
-        pAtk: rand(r.pAtk[0], r.pAtk[1]),
-        mAtk: rand(r.pAtk[0], r.pAtk[1]),
-        pDef: rand(r.pDef[0], r.pDef[1]),
-        mDef: rand(r.pDef[0], r.pDef[1]),
-        coinLuck: coinLuckReward,
-        rank,
-        expiresAt,
-        claimedWeekStart: awardKey,
-      };
-
-      const updatedHeroJson = {
-        ...heroJson,
-        sevenSealsBonus,
-      };
-      await prisma.character.update({
-        where: { id: characterId },
-        data: {
-          heroJson: updatedHeroJson,
-          coinLuck: { increment: coinLuckReward },
-        },
-      });
+      const grant = await grantSevenSealsRewardIfNeeded(prisma, characterId, rank, awardWeekStart, new Date());
+      if (!grant.applied) {
+        return reply.code(400).send({ error: grant.skipped || "claim_failed" });
+      }
 
       return reply.send({
         ok: true,
-        bonus: sevenSealsBonus,
+        bonus: grant.bonus,
       });
     } catch (error) {
       app.log.error(error, "Error claiming Seven Seals reward:");
@@ -308,7 +268,6 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     }
   });
 
-  // POST /seven-seals/add — нарахування очок (адмін/тест)
   app.post("/seven-seals/add", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });

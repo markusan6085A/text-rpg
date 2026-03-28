@@ -3,6 +3,7 @@ import { getSevenSealsRanking } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isSevenSealsFarmWindowActive, isSevenSealsTechnicalPause } from "../utils/sevenSealsTime";
 
 interface SevenSealsProps {
   navigate: (path: string) => void;
@@ -22,6 +23,7 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
   const [myRank, setMyRank] = useState<number | null>(null);
   const [myMedals, setMyMedals] = useState(0);
   const [showRewards, setShowRewards] = useState(false);
+  const [weekPaused, setWeekPaused] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -34,6 +36,7 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
         setRanking(data.ranking || []);
         setMyRank(data.myRank || null);
         setMyMedals(data.myMedals || 0);
+        setWeekPaused(!!data.weekPaused);
       } catch (err: any) {
         if (!mounted) return;
         console.error("Error loading Seven Seals ranking:", err);
@@ -54,13 +57,7 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const bc = isL2 ? "border-[#5c4a32]/50" : "border-white/40";
 
-  // Перевіряємо, чи зараз понеділок-субота (польський час)
-  const isEventActive = () => {
-    const now = new Date();
-    const polandTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Warsaw" }));
-    const dayOfWeek = polandTime.getDay(); // 0 = неділя, 1 = понеділок, ..., 6 = субота
-    return dayOfWeek >= 1 && dayOfWeek <= 6; // Понеділок-субота
-  };
+  const isEventActive = () => isSevenSealsFarmWindowActive();
 
   // Тільки 3 переможці отримують нагороди
   const topRanking = ranking.slice(0, 3);
@@ -103,9 +100,18 @@ export default function SevenSeals({ navigate }: SevenSealsProps) {
 
       {/* Статус ивента */}
       <div className="px-2 mb-2">
-        <div className={`text-center text-sm py-2 border-t border-b ${bc} ${isEventActive() ? 'text-green-400' : 'text-red-400'}`}>
-          {isEventActive() ? '✓ Ивент активен (Понедельник - Суббота)' : '✗ Ивент неактивен (Воскресенье)'}
+        <div className={`text-center text-sm py-2 border-t border-b ${bc} ${isEventActive() ? 'text-green-400' : 'text-amber-400'}`}>
+          {isEventActive()
+            ? '✓ Сбор медалей: понедельник 00:00 — суббота 22:00 (Europe/Warsaw)'
+            : isSevenSealsTechnicalPause()
+              ? '⏸ Пауза: суббота 22:00 — воскресенье (медали не падают, рейтинг недели зафиксирован)'
+              : '✗ Ивент неактивен'}
         </div>
+        {weekPaused ? (
+          <div className={`text-center text-[11px] mt-1 ${isL2 ? "text-[#8a7a60]" : "text-gray-500"}`}>
+            На сервере сейчас пауза недели — таблица показывает зачёт текущего цикла; медали с мобов не падают.
+          </div>
+        ) : null}
       </div>
 
       {/* Мои медальки та Убил мобов */}

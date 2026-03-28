@@ -27,7 +27,7 @@ import { clientErrorLogRoutes } from "./routes/clientErrorLog";
 import { runAdminSignalEmailJob } from "./jobs/adminSignalEmailJob";
 import { premiumRoutes } from "./routes/premium";
 import { marketRoutes, runMarketExpireStaleListings } from "./routes/market";
-import { runSevenSealsMailJob } from "./sevenSealsMail";
+import { runSevenSealsFinalizeJob } from "./sevenSealsFinalize";
 
 // Отримуємо шлях до dist папки (frontend build)
 // Якщо сервер запускається з server/, то process.cwd() = server/
@@ -313,15 +313,15 @@ const start = async () => {
       }
     }, 60 * 60 * 1000); // Кожні 1 годину
 
-    // Розсилка листів топ-3 переможцям 7 Печатей у неділю (Europe/Warsaw) від Existence
+    // 7 Печатей: фінал тижня (субота 22:00+ Варшава) — ТОП-3, нагороди, листи
     setInterval(async () => {
       try {
-        await runSevenSealsMailJob((msg, meta) => {
+        await runSevenSealsFinalizeJob((msg, meta) => {
           if (meta) app.log.info(meta as any, msg);
           else app.log.info(msg);
         });
       } catch (err) {
-        app.log.error(err, "Seven Seals mail job error:");
+        app.log.error(err, "Seven Seals finalize job error:");
       }
     }, 5 * 60 * 1000); // Кожні 5 хвилин
 
