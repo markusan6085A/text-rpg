@@ -9,20 +9,16 @@ export function formatLootIntEn(n: number): string {
 }
 
 /**
- * Два рядки для бортового логу після вбивства моба (референс: «получил … EXP и … SP», «Выпало: …»).
+ * Рядок нагороди для бортового логу (лише «Выпало: …», без «получил …»).
  */
 export function buildVictoryResourceLogLines(
-  heroName: string,
+  _heroName: string,
   displayExp: number,
   displaySp: number,
   displayAdena: number
-): [string, string] {
-  const name = String(heroName ?? "").trim() || "Герой";
+): string[] {
   const e = formatLootInt(displayExp);
   const s = formatLootInt(displaySp);
   const a = formatLootInt(displayAdena);
-  return [
-    `${name} получил ${e} EXP и ${s} SP`,
-    `Выпало: ${a} аден, ${e} EXP и ${s} SP`,
-  ];
+  return [`Выпало: ${a} аден, ${e} EXP и ${s} SP`];
 }

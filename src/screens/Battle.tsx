@@ -327,12 +327,6 @@ export default function Battle({ navigate }: BattleProps) {
       navigate(`/location?id=${zone.id}`);
     };
 
-    const victoryBannerL2 =
-      "rounded-lg border border-[#7a6348]/55 bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(199,173,128,0.14)_0%,transparent_55%),linear-gradient(165deg,#2a2318_0%,#14110c_45%,#0a0907_100%)] shadow-[inset_0_1px_0_rgba(255,235,200,0.07),0_8px_28px_rgba(0,0,0,0.55)] ring-1 ring-[#c7ad80]/15 overflow-hidden";
-    const victoryBtnFight =
-      "w-full text-center text-[12px] py-2.5 rounded-md border border-[#2d6b45]/70 bg-gradient-to-b from-[#1a2e1f] to-[#0c1610] text-[#a8e8b8] shadow-[inset_0_1px_0_rgba(120,200,140,0.12),0_4px_14px_rgba(0,0,0,0.45)] hover:border-[#3bd16f]/55 hover:text-[#d4ffd8] active:scale-[0.99] transition-[border-color,color,transform] duration-150";
-
-    const heroDisplayName = ((hero?.name ?? "Герой").trim() || "Герой");
     const cardExp = formatLootIntEn(lastReward.exp);
     const cardSp = formatLootIntEn(lastReward.sp ?? 0);
     const cardAdena = formatLootIntEn(lastReward.adena);
@@ -341,148 +335,110 @@ export default function Battle({ navigate }: BattleProps) {
       <img
         src={src}
         alt=""
-        className="inline-block w-3.5 h-3.5 opacity-95 align-[-0.15em] mx-0.5 shrink-0"
+        className="inline-block w-3.5 h-3.5 opacity-90 align-[-0.15em] mx-0.5 shrink-0"
       />
     );
+
+    const victoryNotify =
+      "rounded-md border border-[#3d3d3d] bg-[#1c1c1c] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] px-3 py-3";
+    const btnContinueL2 =
+      "text-left text-[12px] py-1 text-[#b89a5c] hover:text-[#d4b878] hover:underline bg-transparent border-0 cursor-pointer w-fit font-medium transition-colors";
+    const btnNextL2 =
+      "w-full text-center text-[12px] py-2 rounded border border-[#3d3d3d] bg-[#262626] text-[#c4c4c4] hover:bg-[#2e2e2e] hover:text-[#e0e0e0] transition-colors";
 
     const victoryContent = (
       <>
         {isL2 ? (
-          <div className={`${victoryBannerL2} mb-3`}>
-            <div className="h-[3px] bg-gradient-to-r from-transparent via-[#c7ad80]/50 to-transparent opacity-90" />
-            <div className={`${pad} pt-3 pb-3 text-center`}>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#a89878] mb-1">повержений</p>
-              <p className="text-base font-semibold text-[#e85c5c] drop-shadow-[0_0_12px_rgba(232,92,92,0.35)]">
-                <span>{displayMobName(mob.name)}</span>
-                {mob.aggressivePatrol ? <span className="text-[#8b2020]"> (агр)</span> : null}
-              </p>
-              <p className="text-[11px] text-[#c9a46a] mt-0.5 tabular-nums">
-                ур. <span className="text-[#f0d78c] font-medium">{mob.level}</span>
-              </p>
-              <div className="mt-4 flex items-center justify-center gap-2 px-1">
-                <span className="text-[#b89858] text-base leading-none select-none shrink-0" aria-hidden>
-                  ⚔
-                </span>
-                <span className="text-[13px] font-bold text-[#3bd16f] tracking-wide leading-tight text-left">
-                  ВЫ ПОБЕДИЛИ МОНСТРА!
-                </span>
-              </div>
-              <div className="mt-3 max-w-md mx-auto text-left text-[13px] leading-snug text-[#eaeaea] space-y-2 px-1">
-                <p>
-                  <span>{heroDisplayName} получил </span>
-                  <span className="inline text-[#86efac] font-medium whitespace-normal">
-                    {vLootIcon("/victory/exp.png")}
-                    <span className="tabular-nums">{cardExp}</span>
-                    <span> EXP и </span>
+          <>
+            <p className={`${pad} text-center text-[11px] text-[#8a7860] mb-2`}>
+              <span className="text-[#e85c5c] font-medium">{displayMobName(mob.name)}</span>
+              {mob.aggressivePatrol ? <span className="text-[#8b2020]"> (агр)</span> : null}
+              <span> · ур. {mob.level}</span>
+            </p>
+            <div className={`${pad} mb-2`}>
+              <div className={victoryNotify}>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#8b6914] text-lg leading-none select-none shrink-0" aria-hidden>
+                    ⚔
                   </span>
-                  <span className="inline text-[#ca8a04] font-medium whitespace-normal">
-                    {vLootIcon("/victory/sp.png")}
-                    <span className="tabular-nums">{cardSp}</span>
-                    <span> SP</span>
+                  <span className="text-[12px] font-bold text-[#2ee659] tracking-wide leading-tight">
+                    ВЫ ПОБЕДИЛИ МОНСТРА!
                   </span>
-                </p>
-                <p>
-                  <span className="text-[#d0c4b0]">Выпало:</span>{" "}
-                  <span className="inline text-[#facc15] font-medium whitespace-normal">
-                    {vLootIcon("/assets/adena.png")}
-                    <span className="tabular-nums">{cardAdena}</span>
-                    <span> аден, </span>
-                  </span>
-                  <span className="inline text-[#86efac] font-medium whitespace-normal">
-                    {vLootIcon("/victory/exp.png")}
-                    <span className="tabular-nums">{cardExp}</span>
-                    <span> EXP и </span>
-                  </span>
-                  <span className="inline text-[#ca8a04] font-medium whitespace-normal">
-                    {vLootIcon("/victory/sp.png")}
-                    <span className="tabular-nums">{cardSp}</span>
-                    <span> SP</span>
-                  </span>
-                </p>
+                </div>
+                <div className="mt-2.5 border-t border-[#2a2a2a] pt-2.5 text-[12px] text-[#c8c8c8] leading-relaxed text-left">
+                  <span>Выпало:</span>{" "}
+                  {vLootIcon("/assets/adena.png")}
+                  <span className="tabular-nums">{cardAdena}</span>
+                  <span> аден, </span>
+                  {vLootIcon("/victory/exp.png")}
+                  <span className="tabular-nums">{cardExp}</span>
+                  <span> EXP и </span>
+                  {vLootIcon("/victory/sp.png")}
+                  <span className="tabular-nums">{cardSp}</span>
+                  <span> SP</span>
+                </div>
+                <div className="mt-3 flex flex-col gap-2 items-stretch pt-1 border-t border-[#2a2a2a]">
+                  <button type="button" onClick={handleContinueToLocation} className={btnContinueL2}>
+                    Продолжить
+                  </button>
+                  <button type="button" onClick={handleHitNextMob} className={btnNextL2}>
+                    Бить следующего!
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="h-[2px] bg-gradient-to-r from-[#5c0a0a]/0 via-[#8b2020]/55 to-[#5c0a0a]/0" />
-          </div>
+          </>
         ) : (
           <>
             <div className={`${vLine} pt-2`}>
-              <div className={`${pad} text-center text-lg font-semibold text-red-500`}>
+              <div className={`${pad} text-center text-sm font-semibold text-red-500`}>
                 <span>{displayMobName(mob.name)}</span>
                 {mob.aggressivePatrol ? <span className="text-[#5c0a0a]"> (агр)</span> : null}
                 <span>, {mob.level} ур.</span>
               </div>
             </div>
-            <div className={`${pad} mt-2 text-center`}>
-              <p className="text-sm font-bold text-[#3bd16f] tracking-wide">ВЫ ПОБЕДИЛИ МОНСТРА!</p>
-              <div className="mt-2 text-left max-w-md mx-auto text-[13px] text-[#e8e8e8] space-y-2">
-                <p>
-                  <span>{heroDisplayName} получил </span>
-                  <span className="text-[#86efac] font-medium">
-                    {vLootIcon("/victory/exp.png")}
-                    {cardExp} EXP и{" "}
+            <div className={`${pad} mb-2 mt-2`}>
+              <div className="rounded-md border border-neutral-600 bg-neutral-900 px-3 py-3 shadow-inner">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#a67c2c] text-lg leading-none" aria-hidden>
+                    ⚔
                   </span>
-                  <span className="text-[#ca8a04] font-medium">
-                    {vLootIcon("/victory/sp.png")}
-                    {cardSp} SP
-                  </span>
-                </p>
-                <p>
-                  <span className="text-[#cfcfcf]">Выпало:</span>{" "}
-                  <span className="text-[#facc15] font-medium">
-                    {vLootIcon("/assets/adena.png")}
-                    {cardAdena} аден,{" "}
-                  </span>
-                  <span className="text-[#86efac] font-medium">
-                    {vLootIcon("/victory/exp.png")}
-                    {cardExp} EXP и{" "}
-                  </span>
-                  <span className="text-[#ca8a04] font-medium">
-                    {vLootIcon("/victory/sp.png")}
-                    {cardSp} SP
-                  </span>
-                </p>
+                  <span className="text-[12px] font-bold text-green-500 tracking-wide">ВЫ ПОБЕДИЛИ МОНСТРА!</span>
+                </div>
+                <div className="mt-2.5 border-t border-neutral-700 pt-2.5 text-[12px] text-neutral-300 leading-relaxed text-left">
+                  <span>Выпало:</span>{" "}
+                  {vLootIcon("/assets/adena.png")}
+                  <span className="tabular-nums">{cardAdena}</span>
+                  <span> аден, </span>
+                  {vLootIcon("/victory/exp.png")}
+                  <span className="tabular-nums">{cardExp}</span>
+                  <span> EXP и </span>
+                  {vLootIcon("/victory/sp.png")}
+                  <span className="tabular-nums">{cardSp}</span>
+                  <span> SP</span>
+                </div>
+                <div className="mt-3 flex flex-col gap-2 border-t border-neutral-700 pt-3">
+                  <button
+                    type="button"
+                    onClick={handleContinueToLocation}
+                    className="text-left text-[12px] text-amber-600/90 hover:text-amber-400 hover:underline bg-transparent border-0 cursor-pointer p-0 w-fit"
+                  >
+                    Продолжить
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleHitNextMob}
+                    className="w-full text-center text-[12px] py-2 rounded border border-neutral-600 bg-neutral-800 text-neutral-200 hover:bg-neutral-700 transition-colors"
+                  >
+                    Бить следующего!
+                  </button>
+                </div>
               </div>
             </div>
           </>
         )}
 
-        <div className="px-3 mt-3">{vDivider}</div>
-
-        {isL2 ? (
-          <div className="mt-3 px-3 grid grid-cols-1 gap-2">
-            <button
-              type="button"
-              onClick={handleContinueToLocation}
-              className={
-                "w-full text-center text-[12px] py-2.5 rounded-md border border-[#6b5940]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] " +
-                "text-[#e8c56e] shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.45)] " +
-                "hover:border-[#c7ad80]/45 hover:text-[#fff2d8] active:scale-[0.99] transition-[border-color,color,transform] duration-150"
-              }
-            >
-              Продолжить
-            </button>
-            <button type="button" onClick={handleHitNextMob} className={victoryBtnFight}>
-              Бить следующего!
-            </button>
-          </div>
-        ) : (
-          <div className="mt-2 px-3 text-center text-[12px] space-y-2">
-            <button
-              type="button"
-              onClick={handleContinueToLocation}
-              className="w-full py-2 rounded-lg border border-[#c7ad80]/60 text-[#e8c56e] bg-black/30 hover:bg-black/45 transition-colors"
-            >
-              Продолжить
-            </button>
-            <button
-              type="button"
-              onClick={handleHitNextMob}
-              className="w-full py-2 rounded-lg border border-[#3bd16f]/70 text-[#3bd16f] bg-[#07140b]/50 hover:bg-[#0a1f14] transition-colors"
-            >
-              Бить следующего!
-            </button>
-          </div>
-        )}
+        <div className="px-3 mt-2">{vDivider}</div>
 
         <div className="mt-4 px-3">
           <div
