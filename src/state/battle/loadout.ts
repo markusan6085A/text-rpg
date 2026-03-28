@@ -13,6 +13,18 @@ import { getJSON, removeItem, setJSON } from "../persistence";
 export const BASE_ATTACK_ID = 0;
 export const MAX_SLOTS = 60;
 
+/**
+ * ID вивчених скілів як числа (у JSON/БД id часто приходить рядком).
+ * Без цього панель бою при startBattle/setLoadout вважає скіли «не вивченими» і очищає слоти.
+ */
+export function getHeroLearnedSkillNumericIds(hero: { skills?: any[] } | null | undefined): Set<number> {
+  return new Set(
+    (hero?.skills ?? [])
+      .map((s: any) => Number(s?.id))
+      .filter((id: number) => Number.isFinite(id))
+  );
+}
+
 /** Очищає loadout (викликати при зміні професії) */
 export const clearLoadout = (heroName?: string): void => {
   if (!heroName) return;

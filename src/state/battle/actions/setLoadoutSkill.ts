@@ -1,5 +1,5 @@
 import { useHeroStore } from "../../heroStore";
-import { MAX_SLOTS, saveLoadout } from "../loadout";
+import { MAX_SLOTS, saveLoadout, getHeroLearnedSkillNumericIds } from "../loadout";
 import { persistBattle } from "../persist";
 import { persistSnapshot } from "../helpers";
 import type { BattleState } from "../types";
@@ -16,14 +16,14 @@ export const createSetLoadoutSkill =
     const hero = useHeroStore.getState().hero;
     if (!hero) return;
 
-    const allowedSkills = (hero.skills || []).map((s: any) => s.id);
+    const allowedSkillIds = getHeroLearnedSkillNumericIds(hero);
     const targetId = skillId === null ? null : skillId;
 
     // Перевіряємо чи це расходник (рядковий ID)
     const isConsumable = typeof targetId === "string" && targetId.startsWith("consumable:");
     
     // Перевіряємо скіли (тільки для числових ID)
-    if (targetId !== null && targetId !== 0 && typeof targetId === "number" && !allowedSkills.includes(targetId)) return;
+    if (targetId !== null && targetId !== 0 && typeof targetId === "number" && !allowedSkillIds.has(targetId)) return;
 
     let nextSlots = [...state.loadoutSlots];
 

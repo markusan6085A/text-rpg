@@ -2,7 +2,7 @@ import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import { getMobEffectiveMaxHp } from "../../../utils/mobs/mobEffectiveMaxHp";
 import type { Mob, Zone } from "../../../data/world/types";
 import { useHeroStore } from "../../heroStore";
-import { BASE_ATTACK_ID, loadLoadout, clearLoadout } from "../loadout";
+import { BASE_ATTACK_ID, loadLoadout, clearLoadout, getHeroLearnedSkillNumericIds } from "../loadout";
 import { loadBattle, persistBattle } from "../persist";
 import { cleanupBuffs, persistSnapshot, applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
@@ -158,7 +158,7 @@ export const createStartBattle =
           : heroName
           ? loadLoadout(heroName)
           : [];
-        const heroSkillIds = new Set((hero?.skills ?? []).map((s: any) => s?.id).filter((id: any) => typeof id === "number"));
+        const heroSkillIds = getHeroLearnedSkillNumericIds(hero);
         loadoutSlotsResume = rawSlots.map((s) =>
           typeof s === "number" ? (s === BASE_ATTACK_ID || heroSkillIds.has(s) ? s : null) : s
         );
@@ -323,7 +323,7 @@ export const createStartBattle =
       loadoutSlotsNew = loadLoadout(heroName);
     } else {
       const rawNew = loadLoadout(heroName);
-      const heroSkillIdsNew = new Set((hero?.skills ?? []).map((s: any) => s?.id).filter((id: any) => typeof id === "number"));
+      const heroSkillIdsNew = getHeroLearnedSkillNumericIds(hero);
       loadoutSlotsNew = rawNew.map((s) =>
         typeof s === "number" ? (s === BASE_ATTACK_ID || heroSkillIdsNew.has(s) ? s : null) : s
       );

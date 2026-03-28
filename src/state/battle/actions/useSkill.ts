@@ -138,7 +138,7 @@ export const createUseSkill =
     // ------------------------
     // Active skill
     // ------------------------
-    const learned = (hero.skills || []).find((s: any) => s.id === skillId);
+    const learned = (hero.skills || []).find((s: any) => Number(s.id) === skillId);
     if (!learned) return;
 
     const def = getSkillDefForBattle(hero.profession, hero.klass, hero.race, skillId) ?? getSkillDef(skillId);
