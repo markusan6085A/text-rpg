@@ -49,9 +49,43 @@ function removeQuestTurnInFromInventory(inv: HeroInventoryItem[], questItemId: s
 type CharacterQuestsProps = {
   /** true на /quests — без дубля шапки, контент одразу під банером сторінки */
   embedInQuestPage?: boolean;
+  /** Для кнопки переходу на крафт ресурсів (див. quest.resourceCraftHint) */
+  navigate?: (path: string) => void;
 };
 
-export default function CharacterQuests({ embedInQuestPage = false }: CharacterQuestsProps = {}) {
+function QuestResourceCraftCallout(props: {
+  hint: string;
+  navigate?: (path: string) => void;
+  isL2: boolean;
+}) {
+  const { hint, navigate, isL2 } = props;
+  return (
+    <div
+      className={
+        isL2
+          ? "mb-2 rounded border border-[#5c4a32]/45 bg-black/25 px-2 py-1.5 text-[10px] text-[#c9b99a]"
+          : "mb-2 rounded border border-white/15 bg-black/20 px-2 py-1.5 text-[10px] text-gray-300"
+      }
+    >
+      <div className="leading-snug">{hint}</div>
+      {navigate ? (
+        <button
+          type="button"
+          onClick={() => navigate("/craft/resources")}
+          className={
+            isL2
+              ? "mt-1.5 text-[10px] font-semibold text-[#c9a44c] hover:text-[#f0e0c0] underline underline-offset-2"
+              : "mt-1.5 text-[10px] font-semibold text-purple-400 hover:text-purple-300 underline"
+          }
+        >
+          Крафт ресурсів →
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+export default function CharacterQuests({ embedInQuestPage = false, navigate }: CharacterQuestsProps = {}) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -440,7 +474,10 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
                   <div className={isL2 ? "text-[#8a7a60] text-[11px] mb-2" : "text-gray-400 text-[11px] mb-2"}>
                     {quest.description}
                   </div>
-                  
+                  {quest.resourceCraftHint ? (
+                    <QuestResourceCraftCallout hint={quest.resourceCraftHint} navigate={navigate} isL2={isL2} />
+                  ) : null}
+
                   {/* Прогрес */}
                   {quest.questDrops && (
                     <div
@@ -601,7 +638,10 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
                   <div className={isL2 ? "text-[#8a7a60] text-[11px] mb-2" : "text-gray-400 text-[11px] mb-2"}>
                     {quest.description}
                   </div>
-                  
+                  {quest.resourceCraftHint ? (
+                    <QuestResourceCraftCallout hint={quest.resourceCraftHint} navigate={navigate} isL2={isL2} />
+                  ) : null}
+
                   {/* Детальна інформація про квестові предмети */}
                   {quest.questDrops && quest.questDrops.length > 0 && (
                     <div className={isL2 ? "text-[#8a7a60] text-[10px] mb-2" : "text-gray-400 text-[10px] mb-2"}>

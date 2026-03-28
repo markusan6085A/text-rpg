@@ -5,6 +5,15 @@
 import type { ItemDefinition } from "./itemsDB.types";
 
 export const itemsDBCraftResources: Record<string, ItemDefinition> = {
+  cokes: {
+    id: "cokes",
+    name: "Cokes",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1879.jpg",
+    description: "Craft resource.",
+    stackable: true,
+  },
   varnish_of_purity: {
     id: "varnish_of_purity",
     name: "Varnish of Purity",

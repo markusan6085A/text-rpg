@@ -49,6 +49,8 @@ export interface Quest {
   }>;
   /** Лічильники вбивств (оновлюються при перемозі над мобом) */
   questKillTargets?: QuestKillTarget[];
+  /** Коротка підказка + кнопка «Крафт ресурсів» у вкладці квестів (якщо передано navigate) */
+  resourceCraftHint?: string;
 }
 
 /** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
@@ -212,6 +214,26 @@ export const QUESTS: Quest[] = [
       { mobName: "Волк", itemId: "varnish", requiredCount: 30 },
       { mobName: "Орк Воїн", itemId: "varnish", requiredCount: 30 },
       { mobName: "Ельпі", itemId: "varnish", requiredCount: 30 },
+    ],
+  },
+  {
+    id: "gludio_lizards_cokes",
+    icon: "/nps/6.png",
+    name: "Глудио — Ящеры: кокс для кузни",
+    description:
+      "В зоне «Глудио — Ящеры» добудь 15 Coal и 15 Charcoal (ящеры и мобы зоны). В городе открой крафт ресурсов (с 20 ур.): 3 Charcoal + 3 Coal = 1 Cokes. Сделай 5 Cokes и сдай.",
+    level: 20,
+    location: "Глудио — Ящеры",
+    locationLevel: "18–28",
+    requirements: { level: 20 },
+    resourceCraftHint: "Крафт (20 лвл.): 3 Charcoal + 3 Coal → 1× Cokes.",
+    rewards: { adena: 200_000, exp: 120_000, coins_silver: 18 },
+    questDrops: [
+      {
+        mobName: "дроп Coal/Charcoal в зоне, затем крафт в городе",
+        itemId: "cokes",
+        requiredCount: 5,
+      },
     ],
   },
 ];

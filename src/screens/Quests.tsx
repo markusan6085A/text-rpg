@@ -118,7 +118,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
               : "mt-2"
           }
         >
-          <CharacterQuests embedInQuestPage />
+          <CharacterQuests embedInQuestPage navigate={navigate} />
         </div>
 
         <div className={isL2 ? "mt-3 flex justify-center" : "mt-2 flex justify-center"}>
