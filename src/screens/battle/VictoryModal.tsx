@@ -1,6 +1,6 @@
 import React from "react";
 import { useBattleStore } from "../../state/battle/store";
-import { findZoneWithCity } from "./battleUtils";
+import { findZoneWithCity, locationPathForZoneMob } from "./battleUtils";
 import { isMobOnRespawn } from "../../state/battle/mobRespawns";
 import { useHeroStore } from "../../state/heroStore";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
@@ -65,13 +65,13 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
       } else {
         // Немає більше доступних мобів в зоні
         reset();
-        navigate(`/location?id=${zone.id}`);
+        navigate(locationPathForZoneMob(zone.id, currentMobIndex));
       }
     } else {
       // Якщо немає зони або індексу, повертаємося в локацію
       reset();
       if (zone) {
-        navigate(`/location?id=${zone.id}`);
+        navigate(locationPathForZoneMob(zoneId, currentMobIndex));
       } else {
         navigate("/location");
       }
@@ -87,7 +87,7 @@ export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
     // Нагорода вже застосована, повертаємося в локацію
     reset();
     if (zone) {
-      navigate(`/location?id=${zone.id}`);
+      navigate(locationPathForZoneMob(zoneId, currentMobIndex));
     } else {
       navigate("/location");
     }

@@ -1,6 +1,7 @@
 import React from "react";
 import type { City, Zone } from "../../data/world/types";
 import { cities as WORLD_CITIES, locations as WORLD_LOCATIONS } from "../../data/world";
+import { getGameSettings } from "../../state/gameSettings";
 
   export function useBattleQuery() {
   // Використовуємо стан для відстеження змін URL
@@ -51,4 +52,19 @@ export function findZoneWithCity(zoneId: string): { zone: Zone; city: City } | u
   const city = WORLD_CITIES.find((c) => c.id === zone.cityId);
   if (!city) return undefined;
   return { zone, city };
+}
+
+/**
+ * Шлях до екрана окрестности з тією ж сторінкою списку мобів, що й глобальний індекс моба в зоні
+ * (щоб після «Продовжити» не кидало на початок списку).
+ */
+export function locationPathForZoneMob(zoneId: string, mobIndexInZone: number): string {
+  const found = findZoneWithCity(zoneId);
+  if (!found) return `/location?id=${encodeURIComponent(zoneId)}`;
+  const pageSize = getGameSettings().mobsPerPage ?? 15;
+  const totalPages = Math.max(1, Math.ceil(found.zone.mobs.length / pageSize));
+  const safeIdx = Math.max(0, mobIndexInZone);
+  const rawPage = Math.floor(safeIdx / pageSize) + 1;
+  const page = Math.min(Math.max(1, rawPage), totalPages);
+  return `/location?id=${encodeURIComponent(found.zone.id)}&page=${page}`;
 }

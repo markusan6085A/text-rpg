@@ -5,7 +5,7 @@ import { useCharacterStore } from "../state/characterStore";
 import { useHeroStore, setResurrectInProgress } from "../state/heroStore";
 import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { resurrectCharacter } from "../utils/api";
-import { findZoneWithCity } from "./battle/battleUtils";
+import { findZoneWithCity, locationPathForZoneMob } from "./battle/battleUtils";
 import { SkillBar } from "./battle/SkillBar";
 import { BattleLog } from "./battle/BattleLog";
 import { BattlePanel } from "./battle/BattlePanel";
@@ -233,7 +233,7 @@ export default function Battle({ navigate }: BattleProps) {
       // Визначаємо, куди повертатися: якщо це fishing зона - на риболовлю, інакше - в окрестность
       const isRespawnError = errorMessage.includes("ще не респавнувся");
       const isFishingZone = zoneId === "fishing";
-      const returnPath = isFishingZone ? "/fishing" : `/location?id=${zoneId}`;
+      const returnPath = isFishingZone ? "/fishing" : locationPathForZoneMob(zoneId, mobIndex);
       const returnButtonText = isFishingZone ? "Повернутися до риболовлі" : "Повернутися в окрестность";
       
       return (
@@ -317,14 +317,14 @@ export default function Battle({ navigate }: BattleProps) {
           }, 100);
         } else {
           reset();
-          navigate(`/location?id=${zone.id}`);
+          navigate(locationPathForZoneMob(zone.id, battleMobIndex ?? mobIndex));
         }
       }
     };
 
     const handleContinueToLocation = () => {
       reset();
-      navigate(`/location?id=${zone.id}`);
+      navigate(locationPathForZoneMob(zone.id, battleMobIndex ?? mobIndex));
     };
 
     const cardExp = formatLootIntEn(lastReward.exp);
@@ -482,7 +482,14 @@ export default function Battle({ navigate }: BattleProps) {
       now={now}
       backLabel={dead ? (resurrecting ? "..." : "Телепортироваться в город") : "Повернутися в локацію"}
       showBackButton={status === "idle"}
-      onBack={dead ? handleResurrectToCity : () => { reset(); navigate(`/location?id=${zone.id}`); }}
+      onBack={
+        dead
+          ? handleResurrectToCity
+          : () => {
+              reset();
+              navigate(locationPathForZoneMob(zone.id, mobIndex));
+            }
+      }
       isL2={isL2}
     >
       <SkillBar />
