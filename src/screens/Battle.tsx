@@ -338,6 +338,8 @@ export default function Battle({ navigate }: BattleProps) {
       "text-left text-[12px] py-1 text-[#c9a44c] hover:text-[#e8d4a8] hover:underline bg-transparent border-0 cursor-pointer w-fit font-medium transition-colors";
     const textHitNextL2 =
       "text-left text-[12px] py-0.5 text-[#8a7a60] hover:text-[#c9a44c] bg-transparent border-0 cursor-pointer w-fit transition-colors";
+    const btnBackUnderLogL2 =
+      "px-5 py-2 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#d4c4a8] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/45 hover:text-[#f4e2b8] active:scale-[0.99] transition-[border-color,color,transform] duration-150";
 
     const victoryContent = (
       <>
@@ -444,6 +446,19 @@ export default function Battle({ navigate }: BattleProps) {
               <BattleLog noBorder maxLines={18} />
             </div>
           </div>
+          <div className="mt-3 flex justify-center">
+            <button
+              type="button"
+              onClick={handleContinueToLocation}
+              className={
+                isL2
+                  ? btnBackUnderLogL2
+                  : "px-4 py-2 bg-yellow-600 rounded text-black text-sm hover:bg-yellow-700"
+              }
+            >
+              Назад в околицю
+            </button>
+          </div>
         </div>
       </>
     );
@@ -475,21 +490,21 @@ export default function Battle({ navigate }: BattleProps) {
       }
     : { name: "", level: 1, currentHp: 0, maxHp: 1 };
 
+  const leaveBattleToLocation = () => {
+    reset();
+    navigate(locationPathForZoneMob(zone.id, battleMobIndex ?? mobIndex));
+  };
+
   return (
     <BattlePanel
       target={battleTarget}
       buffs={heroBuffs || []}
       now={now}
-      backLabel={dead ? (resurrecting ? "..." : "Телепортироваться в город") : "Повернутися в локацію"}
-      showBackButton={status === "idle"}
-      onBack={
-        dead
-          ? handleResurrectToCity
-          : () => {
-              reset();
-              navigate(locationPathForZoneMob(zone.id, mobIndex));
-            }
+      backLabel={
+        dead ? (resurrecting ? "..." : "Телепортироваться в город") : isL2 ? "Назад в околицю" : "Повернутися в локацію"
       }
+      showBackButton={dead || status === "fighting" || status === "idle"}
+      onBack={dead ? handleResurrectToCity : leaveBattleToLocation}
       isL2={isL2}
     >
       <SkillBar />
