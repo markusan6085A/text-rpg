@@ -42,6 +42,11 @@ export interface Quest {
   questKillTargets?: QuestKillTarget[];
 }
 
+/** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
+export const QUEST_ITEM_TURN_IN_ALIASES: Record<string, readonly string[]> = {
+  quest_gludio_charcoal: ["charcoal"],
+};
+
 export const QUESTS: Quest[] = [
   {
     id: "gludio_outskirts_wolf_charcoal",

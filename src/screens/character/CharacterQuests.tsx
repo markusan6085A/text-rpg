@@ -1,14 +1,49 @@
 // src/screens/character/CharacterQuests.tsx
 import React, { useState } from "react";
 import { useHeroStore } from "../../state/heroStore";
-import { QUESTS, QUESTS_BY_LOCATION, type Quest } from "../../data/quests";
+import { QUESTS, QUESTS_BY_LOCATION, QUEST_ITEM_TURN_IN_ALIASES, type Quest } from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
+import type { HeroInventoryItem } from "../../types/Hero";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { getGameSettings } from "../../state/gameSettings";
 import { getPremiumMultiplier } from "../../utils/premium/isPremiumActive";
 
 function questIconSrc(quest: { icon?: string }) {
   return quest.icon || "/assets/quest.png";
+}
+
+/** Кількість для здачі: квестовий id + алиаси (напр. charcoal з дропу зони). */
+function countQuestTurnInInInventory(inv: HeroInventoryItem[] | undefined, questItemId: string): number {
+  const aliases = QUEST_ITEM_TURN_IN_ALIASES[questItemId];
+  const ids = aliases ? ([questItemId, ...aliases] as const) : [questItemId];
+  const set = new Set<string>(ids);
+  let sum = 0;
+  for (const it of inv ?? []) {
+    if (set.has(it.id)) sum += it.count ?? 1;
+  }
+  return sum;
+}
+
+/** Зняти required з усіх стеків і за всіма id (канонічний + алиаси). */
+function removeQuestTurnInFromInventory(inv: HeroInventoryItem[], questItemId: string, toRemove: number): HeroInventoryItem[] {
+  const aliases = QUEST_ITEM_TURN_IN_ALIASES[questItemId];
+  const order = aliases ? [questItemId, ...aliases] : [questItemId];
+  let remaining = Math.max(0, Math.floor(toRemove));
+  const out = [...inv];
+  for (const itemId of order) {
+    for (let i = out.length - 1; i >= 0 && remaining > 0; i--) {
+      if (out[i].id !== itemId) continue;
+      const c = out[i].count ?? 1;
+      if (c <= remaining) {
+        remaining -= c;
+        out.splice(i, 1);
+      } else {
+        out[i] = { ...out[i], count: c - remaining };
+        remaining = 0;
+      }
+    }
+  }
+  return out;
 }
 
 type CharacterQuestsProps = {
@@ -51,8 +86,7 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
     const progress: Record<string, number> = { ...activeQuest.progress };
     if (questDef.questDrops) {
       questDef.questDrops.forEach((questDrop) => {
-        const inventoryItem = hero.inventory?.find((item) => item.id === questDrop.itemId);
-        const itemCount = inventoryItem?.count || 0;
+        const itemCount = countQuestTurnInInInventory(hero.inventory, questDrop.itemId);
         progress[questDrop.itemId] = Math.min(itemCount, questDrop.requiredCount);
       });
     }
@@ -121,14 +155,13 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
       });
       let allCollected = true;
       Object.entries(itemsToCheck).forEach(([itemId, requiredCount]) => {
-        const inventoryItem = hero.inventory?.find((item) => item.id === itemId);
-        const itemCount = inventoryItem?.count || 0;
+        const itemCount = countQuestTurnInInInventory(hero.inventory, itemId);
         if (itemCount < requiredCount) allCollected = false;
       });
       if (!allCollected) return;
     }
 
-    const newInventory = [...(hero.inventory || [])];
+    let newInventory = [...(hero.inventory || [])];
     if (hasDrops) {
       const itemsToRemove: Record<string, number> = {};
       questDef.questDrops!.forEach((questDrop) => {
@@ -136,18 +169,9 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
           itemsToRemove[questDrop.itemId] = questDrop.requiredCount;
         }
       });
-      Object.entries(itemsToRemove).forEach(([itemId, requiredCount]) => {
-        const itemIndex = newInventory.findIndex((item) => item.id === itemId);
-        if (itemIndex >= 0) {
-          const item = newInventory[itemIndex];
-          const newCount = (item.count || 1) - requiredCount;
-          if (newCount <= 0) {
-            newInventory.splice(itemIndex, 1);
-          } else {
-            newInventory[itemIndex] = { ...item, count: newCount };
-          }
-        }
-      });
+      for (const [itemId, requiredCount] of Object.entries(itemsToRemove)) {
+        newInventory = removeQuestTurnInFromInventory(newInventory, itemId, requiredCount);
+      }
     }
 
     const rewards = questDef.rewards || {};
@@ -391,8 +415,7 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
                     }
                   });
                   return Object.entries(itemsToCheck).every(([itemId, req]) => {
-                    const inv = hero.inventory?.find((i) => i.id === itemId);
-                    return (inv?.count ?? 0) >= req;
+                    return countQuestTurnInInInventory(hero.inventory, itemId) >= req;
                   });
                 })();
               const killsOk =
@@ -435,8 +458,7 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
                           }
                         });
                         return Object.values(groupedDrops).map((group) => {
-                          const inventoryItem = hero.inventory?.find((item) => item.id === group.itemId);
-                          const itemCount = inventoryItem?.count || 0;
+                          const itemCount = countQuestTurnInInInventory(hero.inventory, group.itemId);
                           const currentProgress = Math.min(itemCount, group.requiredCount);
                           const itemDef = itemsDB[group.itemId];
                           const labelCharcoal =
