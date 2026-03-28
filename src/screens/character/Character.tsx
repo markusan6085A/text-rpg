@@ -257,10 +257,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
       >
         {isL2 && (
           <div className="w-full mb-3 rounded-lg border border-[#6b5344]/65 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_10px_36px_rgba(0,0,0,0.5)] p-3">
-            <div className="text-[10px] uppercase tracking-[0.12em] text-[#d4a574] font-semibold text-center [text-shadow:0_1px_2px_rgba(0,0,0,0.88)]">
-              Онлайн-игра — Линейдж
-            </div>
-            <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
               <span className="text-[13px] font-bold text-[#f4ebd9] [text-shadow:0_2px_5px_rgba(0,0,0,0.92)] truncate max-w-[68%]">
                 {nickname}
               </span>
@@ -281,13 +278,6 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
                 />
               </div>
             )}
-            <button
-              type="button"
-              onClick={() => navigate("/daily-quests")}
-              className="mt-2.5 w-full text-center text-[11px] text-[#7d9b7a] hover:text-[#b8dcc0] underline underline-offset-2 decoration-[#5a7058]/85"
-            >
-              Ежедневный бонус
-            </button>
           </div>
         )}
 

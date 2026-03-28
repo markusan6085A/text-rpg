@@ -23,7 +23,10 @@ interface LayoutProps {
   children: React.ReactNode;
   navigate?: (path: string) => void;
   showNavGrid?: boolean;
+  /** Підказки TutorialHint (не плутати з ресурсним HUD) */
   showStatusBars?: boolean;
+  /** Фіксовані CP/HP/MP/XP у куті — за замовчуванням вимкнено; бари в контенті (напр. /character) */
+  showResourceHud?: boolean;
   /** Поточний маршрут з App (синхронно зі state), інакше береться window.location */
   routePathname?: string;
   /** Query з App (`?zone=...`), для підказок на /location */
@@ -38,6 +41,7 @@ export default function Layout({
   navigate,
   showNavGrid = true,
   showStatusBars = true,
+  showResourceHud = false,
   routePathname,
   routeSearch = "",
   customBackground,
@@ -349,7 +353,7 @@ export default function Layout({
               }
         }
       >
-        {showStatusBars && <StatusBars />}
+        <StatusBars showResourceHud={showResourceHud} />
         {!blockDeathUi ? (
         <TutorialHint
           navigate={navigate}
@@ -411,7 +415,7 @@ export default function Layout({
         {!blockDeathUi ? <SummonStatus /> : null}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
         {/* <MobDamageNotification navigate={navigate} /> */}
-        {showStatusBars ? (
+        {showResourceHud ? (
           <div className="flex-shrink-0 w-full" style={{ height: "14px" }} aria-hidden />
         ) : null}
         {showNavGrid && !blockDeathUi && navigate ? (

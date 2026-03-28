@@ -15,7 +15,12 @@ import { getMyClan, getPkState } from "../utils/api";
 import { isPremiumActive } from "../utils/premium/isPremiumActive";
 import { getCombinedHeroBuffs, getHeroResourceValues } from "../utils/heroBuffedResources";
 
-export default function StatusBars() {
+type StatusBarsProps = {
+  /** Якщо false — лише фонові ефекти (реген, PK) + сповіщення PK, без смуг у куті */
+  showResourceHud?: boolean;
+};
+
+export default function StatusBars({ showResourceHud = false }: StatusBarsProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const battleStatus = useBattleStore((s) => s.status);
@@ -28,7 +33,7 @@ export default function StatusBars() {
   // Завантажуємо клан для відображення емблеми (відкладаємо 100ms, щоб бари відмалювалися першими)
   // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан один раз при зміні hero, не поллимо
   React.useEffect(() => {
-    if (!hero) {
+    if (!showResourceHud || !hero) {
       setMyClan(null);
       return;
     }
@@ -47,7 +52,7 @@ export default function StatusBars() {
         });
     }, 100);
     return () => clearTimeout(id);
-  }, [hero?.name]);
+  }, [hero?.name, showResourceHud]);
 
   // PK realtime sync: підтягувати серверний HP/MP і вхідну атаку, щоб бари падали всюди.
   // 🔥 Circuit breaker: при 502/помилці — не поллимо 60 сек, щоб не було спаму червоних помилок у Network
@@ -283,14 +288,6 @@ export default function StatusBars() {
   // ВАЖЛИВО: Перевірка hero має бути ПІСЛЯ всіх хуків (useEffect тощо)
   if (!hero) return null;
 
-  const { hp, mp, cp, maxHp, maxMp, maxCp } = getHeroResourceValues(hero, inBattle);
-
-  const level = Number(hero.level ?? 1) || 1;
-  const expCurrent = Math.max(0, Math.floor(Number(hero.exp ?? 0) || 0));
-  const expNeedRaw = getExpToNext(level);
-  const expNeedBar =
-    level >= MAX_LEVEL ? 1 : Math.max(1, expNeedRaw);
-  const expBarValue = level >= MAX_LEVEL ? 0 : expCurrent;
   const activeIncoming =
     pkIncomingNotice && Number(pkIncomingNotice.until ?? 0) > Date.now()
       ? pkIncomingNotice
@@ -300,6 +297,15 @@ export default function StatusBars() {
       ? pkDeathNotice
       : null;
 
+  if (!showResourceHud && !activeIncoming && !activeDeath) return null;
+
+  const res = showResourceHud ? getHeroResourceValues(hero, inBattle) : null;
+  const level = Number(hero.level ?? 1) || 1;
+  const expCurrent = Math.max(0, Math.floor(Number(hero.exp ?? 0) || 0));
+  const expNeedRaw = getExpToNext(level);
+  const expNeedBar = level >= MAX_LEVEL ? 1 : Math.max(1, expNeedRaw);
+  const expBarValue = level >= MAX_LEVEL ? 0 : expCurrent;
+
   return (
     <div 
       className="fixed top-2 left-2 z-50"
@@ -307,33 +313,37 @@ export default function StatusBars() {
         pointerEvents: "none",
       }}
     >
-      <HeroResourceBars
-        className="min-w-[138px]"
-        hp={hp}
-        maxHp={maxHp}
-        mp={mp}
-        maxMp={maxMp}
-        cp={cp}
-        maxCp={maxCp}
-        expCurrent={expBarValue}
-        expMax={expNeedBar}
-        showExp
-        compact
-        lowHpPulse={maxHp > 0 && hp / maxHp < 0.3}
-      />
-      <div className="mt-1 text-white text-[9px] font-semibold text-left flex items-center gap-1 flex-wrap">
-        <PlayerNameWithEmblem
-          playerName={hero.name}
-          hero={hero}
-          clan={myClan}
-          sevenSealsWinnerRank={getActiveSevenSealsRank((hero as any)?.heroJson?.sevenSealsBonus)}
-          size={8}
-        />
-        {isPremiumActive(hero) && (
-          <span className="text-[#22c55e] font-bold" style={{ fontSize: "10px" }}>x2</span>
-        )}
-        <span className="text-gray-400"> — {level} ур.</span>
-      </div>
+      {showResourceHud && res && (
+        <>
+          <HeroResourceBars
+            className="min-w-[138px]"
+            hp={res.hp}
+            maxHp={res.maxHp}
+            mp={res.mp}
+            maxMp={res.maxMp}
+            cp={res.cp}
+            maxCp={res.maxCp}
+            expCurrent={expBarValue}
+            expMax={expNeedBar}
+            showExp
+            compact
+            lowHpPulse={res.maxHp > 0 && res.hp / res.maxHp < 0.3}
+          />
+          <div className="mt-1 text-white text-[9px] font-semibold text-left flex items-center gap-1 flex-wrap">
+            <PlayerNameWithEmblem
+              playerName={hero.name}
+              hero={hero}
+              clan={myClan}
+              sevenSealsWinnerRank={getActiveSevenSealsRank((hero as any)?.heroJson?.sevenSealsBonus)}
+              size={8}
+            />
+            {isPremiumActive(hero) && (
+              <span className="text-[#22c55e] font-bold" style={{ fontSize: "10px" }}>x2</span>
+            )}
+            <span className="text-gray-400"> — {level} ур.</span>
+          </div>
+        </>
+      )}
       {activeIncoming && (
         <div 
           className="mt-1 px-1 py-[2px] border border-white/25 bg-black/55 text-[9px] text-[#d9c4a3] w-fit max-w-[180px] cursor-pointer"
@@ -359,7 +369,9 @@ export default function StatusBars() {
           </div>
         </div>
       )}
-      <div className="mt-1 w-full border-t border-solid border-[#5c4a32]/45" />
+      {showResourceHud ? (
+        <div className="mt-1 w-full border-t border-solid border-[#5c4a32]/45" />
+      ) : null}
     </div>
   );
 }
