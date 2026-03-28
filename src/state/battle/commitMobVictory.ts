@@ -106,7 +106,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       });
     }
     const baseAfterDrops = victoryUpdates.activeQuests ?? curHero.activeQuests ?? [];
-    const killNext = applyQuestKillProgressOnVictory(mob, baseAfterDrops, QUESTS);
+    const killNext = applyQuestKillProgressOnVictory(mob, baseAfterDrops, QUESTS, zoneId ?? null);
     if (killNext) {
       victoryUpdates.activeQuests = killNext;
     }

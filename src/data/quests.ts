@@ -2,12 +2,16 @@
 // Файл для зберігання даних квестів
 
 export type QuestKillTarget = {
-  /** Канонічна назва моба (як у даних зони) */
+  /** Канонічна назва моба (як у даних зони) або підпис у UI */
   mobName: string;
   /** Лічильник за id (наприклад l2dop_20120 для Волка, включно з чемпіонами) */
   mobIdPrefix?: string;
   requiredCount: number;
   progressKey: string;
+  /** Вбивства агро-мобів (aggressivePatrol / aggressiveGroup) лише в цій зоні (id зони, напр. l2dop_gludio_02) */
+  aggressiveKillsInZone?: string;
+  /** Будь-який рейд-бос зони (isRaidBoss) у цій зоні */
+  raidBossKillInZone?: string;
 };
 
 export interface Quest {
@@ -22,6 +26,7 @@ export interface Quest {
   rewards?: {
     exp?: number;
     adena?: number;
+    sp?: number;
     /** Серебряные монеты (quest shop), hero.coins_silver */
     coins_silver?: number;
     items?: Array<{ id: string; count: number }>;
@@ -72,6 +77,38 @@ export const QUESTS: Quest[] = [
       { mobName: "Материй Кельтир", itemId: "quest_gludio_charcoal", requiredCount: 5 },
       { mobName: "Молодой Шакал", itemId: "quest_gludio_charcoal", requiredCount: 5 },
       { mobName: "Бородатий Шакал", itemId: "quest_gludio_charcoal", requiredCount: 5 },
+    ],
+  },
+  {
+    id: "gludio_marsh_aggro_rb_suede",
+    icon: "/nps/6.png",
+    name: "Глудио — Луга: агро, рейд и замша",
+    description:
+      "На локации «Глудио — Луга» убейте 10 агрессивных мобов (агро-патруль или группа), одного рейдового босса зоны (в т.ч. «Raid Boss: Страж Лугів» и др.) и сдайте 10 Suede. Награда: 50 000 SP, 150 000 адены, 20 серебряных монет.",
+    level: 3,
+    location: "Глудио — Луга",
+    locationLevel: "3–8",
+    requirements: { level: 3 },
+    rewards: { sp: 50_000, adena: 150_000, coins_silver: 20 },
+    questKillTargets: [
+      {
+        mobName: "Агресивні моби (Луга)",
+        progressKey: "gludio_marsh_aggro_kills",
+        requiredCount: 10,
+        aggressiveKillsInZone: "l2dop_gludio_02",
+      },
+      {
+        mobName: "Рейдовий бос зони (Луга)",
+        progressKey: "gludio_marsh_raid_kill",
+        requiredCount: 1,
+        raidBossKillInZone: "l2dop_gludio_02",
+      },
+    ],
+    questDrops: [
+      { mobName: "Гоблин", itemId: "suede", requiredCount: 10 },
+      { mobName: "Бес", itemId: "suede", requiredCount: 10 },
+      { mobName: "Старий Бес", itemId: "suede", requiredCount: 10 },
+      { mobName: "Орк Лучник", itemId: "suede", requiredCount: 10 },
     ],
   },
 ];

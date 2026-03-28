@@ -518,7 +518,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               const heroLevel = hero?.level || 1;
               const levelDiff = Math.abs(heroLevel - mob.level);
               const isLevelDiffTooHigh = levelDiff > 10;
-              const questHighlight = getQuestMobHighlightForMob(mob, activeQuests, QUESTS);
+              const questHighlight = getQuestMobHighlightForMob(mob, activeQuests, QUESTS, zone.id);
               const nameCls = mobNameClass(
                 questHighlight,
                 isRaid,

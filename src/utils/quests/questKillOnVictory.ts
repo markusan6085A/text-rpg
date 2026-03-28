@@ -8,10 +8,12 @@ import { mobMatchesKillTarget } from "./questMobHighlight";
 export function applyQuestKillProgressOnVictory(
   mob: Mob,
   activeQuests: Array<{ questId: string; progress: Record<string, number> }>,
-  allQuests: Quest[]
+  allQuests: Quest[],
+  zoneId?: string | null
 ): Array<{ questId: string; progress: Record<string, number> }> | null {
   if (!activeQuests?.length) return null;
   const questById = new Map(allQuests.map((q) => [q.id, q]));
+  const mobForMatch = mob as Mob & { isRaidBoss?: boolean };
   let changed = false;
   const next = activeQuests.map((aq) => {
     const def = questById.get(aq.questId);
@@ -19,7 +21,7 @@ export function applyQuestKillProgressOnVictory(
     const prog = { ...(aq.progress || {}) };
     let touched = false;
     for (const kt of def.questKillTargets) {
-      if (!mobMatchesKillTarget(mob, kt)) continue;
+      if (!mobMatchesKillTarget(mobForMatch, kt, zoneId)) continue;
       const cur = prog[kt.progressKey] ?? 0;
       if (cur >= kt.requiredCount) continue;
       prog[kt.progressKey] = cur + 1;

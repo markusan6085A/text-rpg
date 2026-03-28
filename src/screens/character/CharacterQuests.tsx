@@ -190,6 +190,11 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
       expPayload = { exp: Math.floor(Number(hero.exp ?? 0)) + add };
     }
 
+    let spPayload: { sp?: number } = {};
+    if (rewards.sp != null && Number(rewards.sp) > 0) {
+      spPayload = { sp: Math.floor(Number(hero.sp ?? 0)) + Math.floor(Number(rewards.sp)) };
+    }
+
     // Додаємо предмети-нагороди
     if (rewards.items) {
       rewards.items.forEach((rewardItem) => {
@@ -229,6 +234,7 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
       adena: newAdena,
       ...(addSilver > 0 ? { coins_silver: newCoinsSilver } : {}),
       ...expPayload,
+      ...spPayload,
     });
   };
 
@@ -529,6 +535,9 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
                     <div className="text-[#ff8c00] text-[10px] mb-2 flex items-center gap-2">
                       <span className="font-semibold">Нагороди:</span>
                       {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
+                      {quest.rewards.sp != null && Number(quest.rewards.sp) > 0 && (
+                        <span>SP: {Number(quest.rewards.sp).toLocaleString("ru-RU")} </span>
+                      )}
                       {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
                       {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
                         <span className="inline-flex items-center gap-1">
@@ -647,6 +656,9 @@ export default function CharacterQuests({ embedInQuestPage = false }: CharacterQ
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">Нагороди:</span>
                         {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
+                        {quest.rewards.sp != null && Number(quest.rewards.sp) > 0 && (
+                          <span>SP: {Number(quest.rewards.sp).toLocaleString("ru-RU")} </span>
+                        )}
                         {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
                         {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
                           <span className="inline-flex items-center gap-1">
