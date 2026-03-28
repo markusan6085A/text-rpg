@@ -30,3 +30,9 @@ src/data/**/*.js
 src/data/**/*.js.map
 src/data/**/*.d.ts
 src/data/**/*.d.ts.map
+
+# TypeScript incremental build (local only)
+*.tsbuildinfo
+
+# Local scratch exports
+temp_*.txt
