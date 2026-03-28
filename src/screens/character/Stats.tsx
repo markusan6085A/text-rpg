@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { getCritMultiplier, getSkillCritMultiplier } from "../../state/battle/actions/useSkill/helpers";
 import { useHeroStore } from "../../state/heroStore";
@@ -12,6 +12,7 @@ import CharacterBuffs from "./CharacterBuffs";
 import { getMyClan } from "../../utils/api";
 import { SET_STAT_FORMULAS_UI } from "../../data/sets/statBonusFormulas";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { getHeroResourceValues } from "../../utils/heroBuffedResources";
 
 export default function Stats() {
   const hero = useHeroStore((s) => s.hero);
@@ -82,6 +83,20 @@ export default function Stats() {
     };
     loadClan();
   }, [hero]);
+
+  const resourceValues = useMemo(() => {
+    if (!hero) return null;
+    return getHeroResourceValues(hero, battleStatus === "fighting");
+  }, [
+    hero,
+    battleStatus,
+    hero?.hp,
+    hero?.mp,
+    hero?.cp,
+    hero?.maxHp,
+    hero?.maxMp,
+    hero?.maxCp,
+  ]);
 
   if (!hero || !baseStats || !combatStats) {
     return (
@@ -203,6 +218,50 @@ export default function Stats() {
         <div className="mb-4">
           <CharacterBuffs />
         </div>
+
+        {/* Ресурси: поточне / максимум (як у HUD) + SP */}
+        {resourceValues && (
+          <div className="mb-4">
+            <div
+              className={
+                isL2
+                  ? "text-[#7d9b7a] font-semibold text-sm mb-2"
+                  : "text-green-500 font-semibold text-sm mb-2"
+              }
+            >
+              Ресурсы
+            </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+              <div className="flex justify-between gap-2">
+                <span className={isL2 ? "text-[#e8c56e]" : "text-amber-400"}>CP</span>
+                <span className={`${valClass} tabular-nums`}>
+                  {formatStatValue(Math.round(resourceValues.cp))} /{" "}
+                  {formatStatValue(Math.round(resourceValues.maxCp))}
+                </span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className={isL2 ? "text-[#c45c5c]" : "text-red-400"}>HP</span>
+                <span className={`${valClass} tabular-nums`}>
+                  {formatStatValue(Math.round(resourceValues.hp))} /{" "}
+                  {formatStatValue(Math.round(resourceValues.maxHp))}
+                </span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className={isL2 ? "text-[#6b8cc9]" : "text-sky-400"}>MP</span>
+                <span className={`${valClass} tabular-nums`}>
+                  {formatStatValue(Math.round(resourceValues.mp))} /{" "}
+                  {formatStatValue(Math.round(resourceValues.maxMp))}
+                </span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className={isL2 ? "text-[#9ed686]" : "text-lime-400"}>SP</span>
+                <span className={`${valClass} tabular-nums`}>
+                  {formatStatValue(Math.round(Number(hero.sp) || 0))}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Базовые характеристики */}
         <div className="mb-4">
