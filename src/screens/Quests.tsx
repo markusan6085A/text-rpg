@@ -38,59 +38,82 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
       }
     >
       <div className={isL2 ? "max-w-[420px] mx-auto w-full" : ""}>
-        {/* Шапка */}
+        {/* Шапка + ілюстрація 6.png + сюжетний підзаголовок */}
         <div
           className={
             isL2
-              ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-[linear-gradient(180deg,rgba(40,32,20,0.55)_0%,rgba(10,8,6,0.92)_100%)] px-3 py-3 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_8px_28px_rgba(0,0,0,0.45)]"
+              ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-[linear-gradient(180deg,rgba(48,38,22,0.75)_0%,rgba(12,10,8,0.96)_100%)] px-3 py-3 shadow-[inset_0_1px_0_rgba(199,173,128,0.14),0_8px_28px_rgba(0,0,0,0.45)]"
               : "mb-2 border-b border-[#c7ad80]/40 pb-2"
           }
         >
-          <div className="flex items-start gap-2">
-            <button
-              type="button"
-              onClick={() => navigate("/inventory")}
+          <div className="flex gap-3 items-start">
+            <div
               className={
                 isL2
-                  ? "shrink-0 text-[11px] text-[#c9a44c] hover:text-[#f4e2b8] underline-offset-2 hover:underline"
-                  : "shrink-0 text-xs text-gray-400 hover:text-gray-200"
+                  ? "relative shrink-0 rounded-lg border border-[#c7ad80]/35 bg-black/40 p-1 shadow-[inset_0_0_12px_rgba(0,0,0,0.65)]"
+                  : "shrink-0 p-1 rounded border border-[#c7ad80]/40"
               }
             >
-              ← Инвентарь
-            </button>
-            <div className="min-w-0 flex-1 text-right">
-              <div
-                className={
-                  isL2
-                    ? "text-[10px] uppercase tracking-[0.14em] text-[#8a7a60]"
-                    : "text-[10px] text-gray-500 uppercase"
-                }
-              >
-                Journal
+              <img
+                src="/nps/6.png"
+                alt="Квести"
+                width={72}
+                height={72}
+                className="w-[72px] h-[72px] object-contain rounded-sm"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/quest.png";
+                }}
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div
+                    className={
+                      isL2
+                        ? "text-[10px] uppercase tracking-[0.18em] text-[#b89a6a]"
+                        : "text-[10px] text-gray-500 uppercase tracking-widest"
+                    }
+                  >
+                    Сюжетний журнал
+                  </div>
+                  <h1
+                    className={
+                      isL2
+                        ? "mt-1 text-[16px] font-semibold leading-tight text-[#f0d78c] [text-shadow:0_1px_4px_rgba(0,0,0,0.92),0_0_18px_rgba(184,134,11,0.25)]"
+                        : "text-base font-semibold text-[#ffd700]"
+                    }
+                  >
+                    Квести
+                  </h1>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/inventory")}
+                  className={
+                    isL2
+                      ? "shrink-0 text-[10px] text-[#c9a44c] hover:text-[#f4e2b8] underline-offset-2 hover:underline"
+                      : "shrink-0 text-[10px] text-gray-400 hover:text-gray-200"
+                  }
+                >
+                  ← Инвент.
+                </button>
               </div>
-              <h1
+              <p
                 className={
                   isL2
-                    ? "mt-0.5 text-[15px] font-semibold leading-tight text-[#e8c56e] [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
-                    : "text-sm font-semibold text-[#ffd700]"
+                    ? "mt-2 text-[11px] italic text-[#c4b49a] leading-relaxed [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                    : "mt-2 text-[11px] italic text-[#d4c4a8]"
                 }
               >
-                Квесты персонажа
-              </h1>
-              <p className={isL2 ? "mt-1 text-[11px] text-[#a89878] leading-snug" : "mt-0.5 text-[11px] text-gray-400"}>
-                {hero.name ?? "—"} · Lv. {hero.level ?? 1}
+                Твій шлях складається з обітниць і битв. Кожен запис тут — ланка сюжету: регіональні доручення, нагороди
+                та нагадування, куди йти далі.
+              </p>
+              <p className={isL2 ? "mt-1.5 text-[10px] text-[#8a7a60]" : "mt-1 text-[10px] text-gray-500"}>
+                {hero.name ?? "—"} · рів. {hero.level ?? 1}
               </p>
             </div>
           </div>
-          <p
-            className={
-              isL2
-                ? "mt-2 text-[11px] text-[#c9baa5] border-t border-[#5c4a32]/35 pt-2 leading-relaxed"
-                : "mt-2 text-[11px] text-gray-400"
-            }
-          >
-            Сюжетные и региональные задания. Примите квест и следуйте целям на локации.
-          </p>
         </div>
 
         {/* Контент квестів */}
@@ -101,7 +124,7 @@ export default function QuestsScreen({ navigate }: { navigate: Navigate }) {
               : ""
           }
         >
-          <CharacterQuests />
+          <CharacterQuests embedInQuestPage />
         </div>
 
         <div className={isL2 ? "mt-3 flex justify-center" : "mt-2 flex justify-center"}>
