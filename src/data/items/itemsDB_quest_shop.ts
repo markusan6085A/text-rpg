@@ -47,7 +47,7 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     name: "Тату стійкості руїн",
     kind: "tattoo",
     slot: "tattoo",
-    icon: "/items/drops/item/R_talisman_cr_up_passive_0.jpg",
+    icon: "/items/drops/item/R_talisman_cr_up_active_0.jpg",
     description:
       "Нагорода за квест у руїнах Глудіо: +50 фіз. захисту, +50 маг. захисту, +300 HP, +100 MP.",
     grade: "C",
