@@ -15,8 +15,8 @@ import OverflowChestModal from "./modals/OverflowChestModal";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 const ITEMS_PER_PAGE = 25;
-// Валюта — показується в балансі персонажа, не в інвентарі
-const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
+// Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
+const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver"]);
 
 const spaNavigate = (path: string) => {
   window.history.pushState({}, "", path);

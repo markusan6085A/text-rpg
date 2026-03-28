@@ -52,12 +52,12 @@ export function loadItemFromWarehouse(
   return getJSON<HeroInventoryItem | null>(key, null);
 }
 
-const LEGACY_CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
+const LEGACY_CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver"]);
 
 /**
  * Завантажує весь склад по characterId.
  * Якщо по characterId порожньо — пробує legacy-ключ по heroName (міграція після зміни ніка/коду).
- * Legacy-валюта (coins_silver, coin_of_luck тощо) — прибираємо, вони тепер у hero.*
+ * Legacy-валюта в полях героя (adena/coin_of_luck/coins_silver) — прибираємо з комірок. Ancient Adena — стек у інвентарі/складі, не чіпаємо.
  */
 export function loadWarehouse(
   characterId: string,
