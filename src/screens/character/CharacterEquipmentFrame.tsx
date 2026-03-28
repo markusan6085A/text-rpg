@@ -369,27 +369,45 @@ export default function CharacterEquipmentFrame({
   // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true або heroOverride)
   const slotClassName = (allowUnequip || (heroOverride && onItemClick))
     ? isL2
-      ? "w-6 h-6 bg-black/50 cursor-pointer rounded-sm border border-[#5c4a32]/55 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+      ? "w-6 h-6 bg-black/55 cursor-pointer rounded-sm border border-[#5c4a32]/65 shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_6px_14px_rgba(0,0,0,0.65)]"
       : "w-6 h-6 bg-black/50 cursor-pointer"
     : isL2
-      ? "w-6 h-6 bg-black/50 rounded-sm border border-[#5c4a32]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
+      ? "w-6 h-6 bg-black/55 rounded-sm border border-[#5c4a32]/55 shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_6px_12px_rgba(0,0,0,0.55)]"
       : "w-6 h-6 bg-black/50";
 
-  return (
+  const stageFrame =
+    isL2
+      ? "rounded-lg border-2 border-[#9a7d58]/85 bg-[#0c0a08] shadow-[0_0_0_1px_rgba(0,0,0,0.92),0_24px_56px_rgba(0,0,0,0.58),inset_0_2px_0_rgba(230,200,155,0.22),inset_0_-8px_24px_rgba(0,0,0,0.45)] [transform:rotateX(5.5deg)] [transform-origin:center_bottom] max-[480px]:[transform:none]"
+      : "";
+
+  const viewport = (
     <div
-      className="relative flex justify-center overflow-hidden"
+      className={`relative flex justify-center ${isL2 ? "overflow-hidden" : "overflow-hidden"}`}
       style={{
         width: "300px",
-        minHeight: "220px",
-        /* BACKUP: border-2, borderColor: "#1a1a1a", rounded-xl, boxShadow - прибрано внутрішню рамку */
+        minHeight: isL2 ? "238px" : "220px",
         paddingTop: "10px",
         paddingBottom: "28px",
-        marginTop: marginTop,
-        /* BACKUP: boxShadow: "inset 0 0 20px rgba(0, 0, 0, 0.6)" - прибрано тінь */
       }}
     >
-      {/* Фото героя як фон (2D — 3D вимкнено через краш на деяких пристроях) */}
-      <div className="absolute inset-0" style={{ backgroundColor: "transparent" }}>
+      {/* Сцена: у L2 — градієнт «небо / двір» + обʼємна рамка (лише CSS, без WebGL) */}
+      <div className="absolute inset-0" style={{ backgroundColor: isL2 ? undefined : "transparent" }}>
+        {isL2 && (
+          <>
+            <div
+              className="absolute inset-0 z-0 bg-gradient-to-b from-[#7ab8df] from-[0%] via-[#b8cada] via-[28%] to-[#4a3f34] to-[100%]"
+              aria-hidden
+            />
+            <div
+              className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_130%_55%_at_50%_12%,rgba(255,255,255,0.5)_0%,transparent_58%)]"
+              aria-hidden
+            />
+            <div
+              className="absolute inset-0 z-0 bg-gradient-to-t from-[#1c120e]/92 via-[#0a0806]/25 to-[#0a0806]/55"
+              aria-hidden
+            />
+          </>
+        )}
         {characterImage ? (
           <>
             <img
@@ -398,13 +416,16 @@ export default function CharacterEquipmentFrame({
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
-                objectPosition: "center",
+                objectFit: isL2 ? "contain" : "cover",
+                objectPosition: isL2 ? "center bottom" : "center",
                 opacity: imageError ? 0 : 1,
                 transition: "opacity 0.3s ease-in-out",
                 position: "absolute",
                 top: 0,
                 left: 0,
+                zIndex: 1,
+                filter: isL2 ? "drop-shadow(0 14px 22px rgba(0,0,0,0.72)) drop-shadow(0 0 24px rgba(0,0,0,0.35))" : undefined,
+                transform: isL2 ? "translateZ(0) scale(1.04)" : undefined,
               }}
               onLoad={() => {
                 setImageLoaded(true);
@@ -432,11 +453,14 @@ export default function CharacterEquipmentFrame({
                   style={{
                     width: "100%",
                     height: "100%",
-                    objectFit: "cover",
-                    objectPosition: "center",
+                    objectFit: isL2 ? "contain" : "cover",
+                    objectPosition: isL2 ? "center bottom" : "center",
                     position: "absolute",
                     top: 0,
                     left: 0,
+                    zIndex: 1,
+                    filter: isL2 ? "drop-shadow(0 14px 22px rgba(0,0,0,0.72))" : undefined,
+                    transform: isL2 ? "scale(1.04)" : undefined,
                   }}
                 />
               );
@@ -449,7 +473,7 @@ export default function CharacterEquipmentFrame({
         )}
       </div>
       {/* Левые слоты */}
-      <div className="absolute left-2 top-2 flex flex-col gap-1 z-10">
+      <div className="absolute left-2 top-2 flex flex-col gap-1 z-20">
         {(["head", "armor", "legs", "gloves", "boots", "belt"] as const).map((slot) => {
           const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
           return (
@@ -533,7 +557,7 @@ export default function CharacterEquipmentFrame({
       </div>
 
       {/* Правые слоты */}
-      <div className="absolute right-2 top-2 flex flex-col gap-1 items-end z-10">
+      <div className="absolute right-2 top-2 flex flex-col gap-1 items-end z-20">
         {(["jewelry", "necklace", "earring_left", "earring_right", "ring_left", "ring_right"] as const).map((slot) => {
           const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
           return (
@@ -587,6 +611,23 @@ export default function CharacterEquipmentFrame({
         </div>
       </div>
 
+    </div>
+  );
+
+  if (isL2) {
+    return (
+      <div
+        className="relative mx-auto flex justify-center [perspective:920px] max-[480px]:[perspective:none]"
+        style={{ marginTop, width: "308px", maxWidth: "100%" }}
+      >
+        <div className={stageFrame}>{viewport}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex justify-center" style={{ marginTop }}>
+      {viewport}
     </div>
   );
 }

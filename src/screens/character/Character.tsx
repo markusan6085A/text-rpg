@@ -20,6 +20,34 @@ const formatNumber = (num: number) => {
   return num.toLocaleString("ru-RU");
 };
 
+function raceLabelRu(race: string): string {
+  const r = String(race || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "");
+  const map: Record<string, string> = {
+    human: "Человек",
+    elf: "Эльф",
+    elven: "Эльф",
+    darkelf: "Тёмный эльф",
+    dark: "Тёмный эльф",
+    dwarf: "Гном",
+    dwarven: "Гном",
+    orc: "Орк",
+  };
+  return map[r] || race || "—";
+}
+
+function L2ResourceBar({ cur, max, fill }: { cur: number; max: number; fill: string }) {
+  const cap = Math.max(1, max);
+  const p = Math.min(100, Math.round((cur / cap) * 100));
+  return (
+    <div className="h-2 flex-1 min-w-0 rounded-[3px] bg-black/55 overflow-hidden border border-[#2a241c] shadow-[inset_0_1px_3px_rgba(0,0,0,0.65)]">
+      <div className="h-full transition-[width] duration-300" style={{ width: `${p}%`, background: fill }} />
+    </div>
+  );
+}
+
 interface CharacterProps {
   navigate?: (path: string) => void;
 }
@@ -34,6 +62,15 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   });
 
   const isL2 = getCityUiVariant() === "l2";
+
+  const l2MenuMark = isL2 ? (
+    <span
+      className="w-4 shrink-0 text-center text-[10px] leading-none text-[#ddbf7a] [text-shadow:0_1px_2px_rgba(0,0,0,0.95)]"
+      aria-hidden
+    >
+      ✧
+    </span>
+  ) : null;
 
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
@@ -219,6 +256,53 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
               }
         }
       >
+        {isL2 && (
+          <div className="w-full mb-3 rounded-lg border border-[#6b5344]/65 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_10px_36px_rgba(0,0,0,0.5)] p-3">
+            <div className="text-[10px] uppercase tracking-[0.12em] text-[#d4a574] font-semibold text-center [text-shadow:0_1px_2px_rgba(0,0,0,0.88)]">
+              Онлайн-игра — Линейдж
+            </div>
+            <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+              <span className="text-[13px] font-bold text-[#f4ebd9] [text-shadow:0_2px_5px_rgba(0,0,0,0.92)] truncate max-w-[68%]">
+                {nickname}
+              </span>
+              <span className="text-[12px] text-[#e8c56e] font-semibold tabular-nums whitespace-nowrap">
+                {level} ур.
+              </span>
+            </div>
+            <div className="mt-2.5 flex items-center gap-1.5">
+              <span className="text-[9px] text-[#b59a72] w-5 shrink-0 font-semibold">HP</span>
+              <L2ResourceBar
+                cur={Number(hero.hp ?? 0)}
+                max={Math.max(1, Number(hero.maxHp ?? 1))}
+                fill="linear-gradient(180deg,#d05050,#801c1c)"
+              />
+            </div>
+            <div className="mt-1 flex items-center gap-1.5">
+              <span className="text-[9px] text-[#b59a72] w-5 shrink-0 font-semibold">MP</span>
+              <L2ResourceBar
+                cur={Number(hero.mp ?? 0)}
+                max={Math.max(1, Number(hero.maxMp ?? 1))}
+                fill="linear-gradient(180deg,#5c9fd8,#284a78)"
+              />
+            </div>
+            <div className="mt-1 flex items-center gap-1.5">
+              <span className="text-[9px] text-[#b59a72] w-5 shrink-0 font-semibold">CP</span>
+              <L2ResourceBar
+                cur={Number(hero.cp ?? 0)}
+                max={Math.max(1, Number(hero.maxCp ?? 1))}
+                fill="linear-gradient(180deg,#e0bc68,#7a5a28)"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/daily-quests")}
+              className="mt-2.5 w-full text-center text-[11px] text-[#7d9b7a] hover:text-[#b8dcc0] underline underline-offset-2 decoration-[#5a7058]/85"
+            >
+              Ежедневный бонус
+            </button>
+          </div>
+        )}
+
         {/* ВЕРХ — МОЙ ПЕРСОНАЖ + КНОПКИ */}
         <div
           className={
@@ -238,6 +322,18 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
               >
                 Мой персонаж
               </div>
+              {isL2 && (
+                <p className="text-[11px] text-[#c9baa5] mt-1.5 leading-snug">
+                  {raceLabelRu(race)}
+                  {gender ? ` · ${gender.toLowerCase() === "female" ? "Ж" : "М"}` : ""}
+                  {" · "}
+                  {(() => {
+                    const profId = normalizeProfessionId(profession as any);
+                    const profDef = profId ? getProfessionDefinition(profId) : null;
+                    return profDef?.label || profession || "—";
+                  })()}
+                </p>
+              )}
               {isPremiumActive(hero) && (
                 <div className="text-[11px] text-[#22c55e] mt-1">
                   включен премиум аккаунт х2
@@ -323,10 +419,18 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
               : "w-[330px] text-left text-[12px] text-[#c7ad80] mt-1 space-y-1"
           }
         >
+          {isL2 && (
+            <div className={infoRow("text-[12px]")}>
+              {l2MenuMark}
+              <span>
+                Уровень: <span className="text-[#f0d78c] tabular-nums">{level}</span>
+              </span>
+            </div>
+          )}
           <div className={infoRow("text-[12px]")}>
             <img src="/icons/adena.png" alt="Adena" className={ico} />
             <span>
-              Аденa: <span className="text-[#f0d78c]">{adena}</span>
+              Аденa: <span className="text-[#f0d78c]">{formatNumber(adena)}</span>
             </span>
           </div>
           <div className={infoRow("text-[12px]")}>
@@ -346,14 +450,36 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             </span>
           </div>
 
-          <div className={infoRow("text-[12px]")}>
-            <img src="/icons/star.png" alt="Experience" className={ico} />
-            <span>
-              Опыт:{" "}
-              <span className="text-[#e8a85c]">{formatNumber(expCurrentDisplay)}</span> /{" "}
-              <span className="text-[#9d8265]">{formatNumber(expToNextDisplay)}</span>
-            </span>
-          </div>
+          {isL2 ? (
+            <div className={`${l2RowBase} flex flex-col items-stretch gap-1.5 text-[12px]`}>
+              <div className="flex items-center gap-2 w-full">
+                <img src="/icons/star.png" alt="Experience" className={ico} />
+                <span className="min-w-0">
+                  Опыт:{" "}
+                  <span className="text-[#e8a85c]">{formatNumber(expCurrentDisplay)}</span> /{" "}
+                  <span className="text-[#9d8265]">{formatNumber(expToNextDisplay)}</span>
+                  <span className="text-[#8a7a60] ml-1">({expPercent}%)</span>
+                </span>
+              </div>
+              <div className="pl-6 w-full">
+                <div className="h-2 rounded overflow-hidden bg-black/55 border border-[#2a241c] shadow-[inset_0_1px_3px_rgba(0,0,0,0.55)]">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#5c4018] via-[#c9a44c] to-[#fce9a8]"
+                    style={{ width: `${expPercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className={infoRow("text-[12px]")}>
+              <img src="/icons/star.png" alt="Experience" className={ico} />
+              <span>
+                Опыт:{" "}
+                <span className="text-[#e8a85c]">{formatNumber(expCurrentDisplay)}</span> /{" "}
+                <span className="text-[#9d8265]">{formatNumber(expToNextDisplay)}</span>
+              </span>
+            </div>
+          )}
 
           <div className={infoRow("text-[12px]")}>
             <img src="/icons/news.png" alt="SP" className={ico} />
@@ -362,11 +488,37 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             </span>
           </div>
 
+          {isL2 && (
+            <div className={infoRow("text-[12px]")}>
+              {l2MenuMark}
+              <span>
+                Класс:{" "}
+                <span className="text-[#d4b878]">
+                  {(() => {
+                    const profId = normalizeProfessionId(profession as any);
+                    const profDef = profId ? getProfessionDefinition(profId) : null;
+                    return profDef?.label || profession || "—";
+                  })()}
+                </span>
+              </span>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => navigate("/stats")}
+            className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
+          >
+            {l2MenuMark}
+            <img src="/icons/rate.png" alt="Characteristics" className={ico} />
+            <span>Характеристики</span>
+          </button>
           <button
             type="button"
             onClick={() => navigate("/learned-skills")}
             className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
           >
+            {l2MenuMark}
             <img src="/icons/news.png" alt="Skills" className={ico} />
             <span>Умения</span>
           </button>
@@ -379,8 +531,18 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             onClick={() => setShowQuests(!showQuests)}
             className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
           >
+            {l2MenuMark}
             <img src="/icons/news.png" alt="Quests" className={ico} />
             <span>Мои квесты</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/achievements")}
+            className={svcBtn("text-[#c9a44c] hover:text-[#f4e2b8]")}
+          >
+            {l2MenuMark}
+            <img src="/icons/star.png" alt="Achievements" className={ico} />
+            <span>Достижения</span>
           </button>
 
           <div className={infoRow("text-[12px] text-[#a89878]")}>
@@ -393,6 +555,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
               onClick={() => setShowSevenSealsModal(true)}
               className={svcBtn("text-left")}
             >
+              {l2MenuMark}
               <span
                 className={
                   sevenSealsRank === 1
@@ -411,6 +574,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             onClick={() => navigate("/daily-quests")}
             className={svcBtn("text-[#7d9b7a] hover:text-[#c8e4c4]")}
           >
+            {l2MenuMark}
             <img src="/icons/battles.png" alt="Daily Quests" className={ico} />
             <span>Ежедневные задания</span>
           </button>
@@ -420,6 +584,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
             onClick={() => navigate("/premium-account")}
             className={svcBtn("text-[#d4b88a] hover:text-[#f4e8d4]")}
           >
+            {l2MenuMark}
             <img src="/icons/coin.png" alt="Premium" className={ico} />
             <span>Премиум аккаунт (ускоренная прокачка)</span>
           </button>

@@ -46,6 +46,14 @@ export default function RecipeBookButton({ navigate, className }: RecipeBookButt
       onClick={() => navigate("/recipe-book")}
       className={className ?? (isL2 ? l2RowClass : defaultRowClass)}
     >
+      {isL2 && (
+        <span
+          className="w-4 shrink-0 text-center text-[10px] leading-none text-[#ddbf7a] [text-shadow:0_1px_2px_rgba(0,0,0,0.95)]"
+          aria-hidden
+        >
+          ✧
+        </span>
+      )}
       <img
         src="/icons/news.png"
         alt="Recipe Book"
