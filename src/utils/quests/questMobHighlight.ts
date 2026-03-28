@@ -28,6 +28,8 @@ export function mobMatchesKillTarget(
     if (mob.isRaidBoss) return false;
     return !!(mob.aggressivePatrol || mob.aggressiveGroup);
   }
+  if (target.killInZoneId && (!zoneId || zoneId !== target.killInZoneId)) return false;
+  if (target.mobNamePrefix && mob.name.startsWith(target.mobNamePrefix)) return true;
   if (target.mobIdPrefix && mob.id.startsWith(target.mobIdPrefix)) return true;
   if (mob.name === target.mobName) return true;
   return false;

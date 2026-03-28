@@ -12,6 +12,10 @@ export type QuestKillTarget = {
   aggressiveKillsInZone?: string;
   /** Будь-який рейд-бос зони (isRaidBoss) у цій зоні */
   raidBossKillInZone?: string;
+  /** mob.name починається з цього (напр. "[Чемпіон] Рощовий Лорд" для III/IV тощо) */
+  mobNamePrefix?: string;
+  /** Лічити вбивство лише в цій зоні (разом із mobIdPrefix / mobName / mobNamePrefix) */
+  killInZoneId?: string;
 };
 
 export interface Quest {
@@ -109,6 +113,41 @@ export const QUESTS: Quest[] = [
       { mobName: "Бес", itemId: "suede", requiredCount: 10 },
       { mobName: "Старий Бес", itemId: "suede", requiredCount: 10 },
       { mobName: "Орк Лучник", itemId: "suede", requiredCount: 10 },
+    ],
+  },
+  {
+    id: "gludio_grove_orc_champion_thread",
+    icon: "/nps/6.png",
+    name: "Глудио — Роща: орки, чемпион и нить",
+    description:
+      "У околицях «Глудио — Роща» убийте 15 Орк Воїн, одного чемпіона «Рощовий Лорд» (напр. [Чемпіон] Рощовий Лорд III) та здайте 5 Thread. Нагорода: 50 000 SP, 50 000 досвіду, 100 000 адени, 10 серебряных монет.",
+    level: 5,
+    location: "Глудио — Роща",
+    locationLevel: "5–12",
+    requirements: { level: 5 },
+    rewards: { sp: 50_000, exp: 50_000, adena: 100_000, coins_silver: 10 },
+    questKillTargets: [
+      {
+        mobName: "Орк Воїн",
+        mobIdPrefix: "l2dop_20093",
+        requiredCount: 15,
+        progressKey: "gludio_grove_orc_fighter",
+        killInZoneId: "l2dop_gludio_03",
+      },
+      {
+        mobName: "[Чемпіон] Рощовий Лорд",
+        mobNamePrefix: "[Чемпіон] Рощовий Лорд",
+        requiredCount: 1,
+        progressKey: "gludio_grove_champion_lord",
+        killInZoneId: "l2dop_gludio_03",
+      },
+    ],
+    questDrops: [
+      { mobName: "Гоблин", itemId: "thread", requiredCount: 5 },
+      { mobName: "Скелет", itemId: "thread", requiredCount: 5 },
+      { mobName: "Орк Воїн", itemId: "thread", requiredCount: 5 },
+      { mobName: "Глаз Монстра", itemId: "thread", requiredCount: 5 },
+      { mobName: "Ельпі", itemId: "thread", requiredCount: 5 },
     ],
   },
 ];
