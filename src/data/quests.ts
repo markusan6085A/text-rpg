@@ -150,6 +150,39 @@ export const QUESTS: Quest[] = [
       { mobName: "Ельпі", itemId: "thread", requiredCount: 5 },
     ],
   },
+  {
+    id: "gludio_swamp_aggro_rb_champion",
+    icon: "/nps/6.png",
+    name: "Глудио — Болото: агро, рейд и чемпион",
+    description:
+      "На локации «Глудио — Болото» убейте 10 агрессивных мобов (агро-патруль или группа), одного рейдового босса зоны (в т.ч. Raid Boss: Страж Болота и др.) и чемпиона «Болотний Тінь» (напр. [Чемпіон] Болотний Тінь III). Награда: 300 000 адены, 100 000 опыта, 20 серебряных монет.",
+    level: 10,
+    location: "Глудио — Болото",
+    locationLevel: "10–18",
+    requirements: { level: 10 },
+    rewards: { adena: 300_000, exp: 100_000, coins_silver: 20 },
+    questKillTargets: [
+      {
+        mobName: "Агресивні моби (Болото)",
+        progressKey: "gludio_swamp_aggro_kills",
+        requiredCount: 10,
+        aggressiveKillsInZone: "l2dop_gludio_04",
+      },
+      {
+        mobName: "Рейдовий бос зони (Болото)",
+        progressKey: "gludio_swamp_raid_kill",
+        requiredCount: 1,
+        raidBossKillInZone: "l2dop_gludio_04",
+      },
+      {
+        mobName: "[Чемпіон] Болотний Тінь",
+        mobNamePrefix: "[Чемпіон] Болотний Тінь",
+        requiredCount: 1,
+        progressKey: "gludio_swamp_champion_shadow",
+        killInZoneId: "l2dop_gludio_04",
+      },
+    ],
+  },
 ];
 
 export const QUESTS_BY_LOCATION: Record<string, Quest[]> = {};
