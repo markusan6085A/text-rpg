@@ -54,7 +54,17 @@ export function handleToggleOff(
   } catch (e) {
     console.warn("[handleToggleOff] recalculateAllStats failed", e);
   }
-  updateHero({ hp: curHP, mp: curMP, cp: curCP, ...battleStatsPatch });
+  // heroJson.heroBuffs інакше лишається зі старим toggle — saveHeroToLocalStorageOnly мерджить json+battle
+  // з пріоритетом json і «Продолжить» після вбивства знову піднімає тогл.
+  const hj =
+    (hero as any).heroJson && typeof (hero as any).heroJson === "object" ? { ...(hero as any).heroJson } : {};
+  updateHero({
+    hp: curHP,
+    mp: curMP,
+    cp: curCP,
+    ...battleStatsPatch,
+    heroJson: { ...hj, heroBuffs: filtered },
+  });
   
   // Toggle скіли мають cooldown (зазвичай 1 секунда) після вимикання
   const cooldownSec = def.cooldown ?? 1;

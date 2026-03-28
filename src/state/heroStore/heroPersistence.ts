@@ -125,7 +125,8 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const battleState = loadBattle(hydrated.name);
   const battleBuffs = Array.isArray(battleState?.heroBuffs) ? battleState.heroBuffs : [];
   const jsonBuffs = Array.isArray(currentJson.heroBuffs) ? currentJson.heroBuffs : [];
-  const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
+  // Спочатку battle — актуальний список з бою (toggle off, диспел); інакше застарілий запис у json перекривав би snapshot
+  const mergedBuffs = [...battleBuffs, ...jsonBuffs].filter((b: any, i: number, arr: any[]) =>
     arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
   );
   const wasFullHp = Number(hydrated.hp ?? 0) >= Number(hydrated.maxHp ?? 1);
@@ -753,7 +754,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const savedBattle = loadBattle(hero.name);
         const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
         const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
-        const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
+        const mergedBuffs = [...battleBuffs, ...jsonBuffs].filter((b: any, i: number, arr: any[]) =>
           arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
         );
         const heroJson = {
