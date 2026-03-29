@@ -5,10 +5,12 @@ import {
   isSkillInProfession,
   normalizeProfessionId,
 } from "../../data/skills";
+import type { Hero } from "../../types/Hero";
 
 /** Додаткові скіли, дозволені всім професіям (узгоджено з getSkillDef). */
 const EXTRA_SKILL_IDS_ALL_PROFESSIONS = new Set([130, 429, 401]);
 import { getJSON, removeItem, setJSON } from "../persistence";
+import { loadBattle, persistBattle } from "./persist";
 
 export const BASE_ATTACK_ID = 0;
 export const MAX_SLOTS = 60;
@@ -57,6 +59,81 @@ export const saveLoadout = (heroName: string | undefined, slots: (number | strin
   const key = `l2_loadout_${heroName}`;
   setJSON(key, slots);
 };
+
+/** Прибирає з панелі неіснуючі / пасивні скіли (після merge або відновлення з heroJson). */
+export function sanitizeBattleLoadoutSlots(
+  slots: (number | string | null)[],
+  hero: Hero
+): (number | string | null)[] {
+  const learned = new Set(
+    (Array.isArray(hero.skills) ? hero.skills : []).map((s: any) => Number(s?.id)).filter((x) => !Number.isNaN(x))
+  );
+  const out = slots.map((slot) => {
+    if (slot === null || slot === undefined) return null;
+    if (typeof slot === "string") return slot;
+    const n = Number(slot);
+    if (n === BASE_ATTACK_ID) return BASE_ATTACK_ID;
+    if (!learned.has(n)) return null;
+    const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, n);
+    if (!def) return null;
+    if (def.category === "passive") return null;
+    return n;
+  });
+  if (!out.length) return [BASE_ATTACK_ID, null];
+  if (out[0] === null || out[0] === undefined) out[0] = BASE_ATTACK_ID;
+  return out;
+}
+
+export function normalizeRawLoadoutSlots(raw: unknown[]): (number | string | null)[] {
+  const normalized = raw
+    .map((v: any) => (typeof v === "number" || typeof v === "string" || v === null ? v : null))
+    .slice(0, MAX_SLOTS);
+  if (normalized.length === 0) normalized.push(BASE_ATTACK_ID);
+  if (normalized[0] === null || normalized[0] === undefined) normalized[0] = BASE_ATTACK_ID;
+  if (!normalized.includes(BASE_ATTACK_ID) && normalized.length < MAX_SLOTS) normalized.push(BASE_ATTACK_ID);
+  if (!normalized.includes(null) && normalized.length < MAX_SLOTS) normalized.push(null);
+  return normalized;
+}
+
+/** true якщо у ключу l2_loadout немає розкладки (очищено сховище) або лише базова атака. */
+export function loadoutStorageIsEmptyOrDefault(heroName: string | undefined): boolean {
+  if (!heroName) return true;
+  const parsed = getJSON<(number | string | null)[] | null>(`l2_loadout_${heroName}`, null);
+  if (!Array.isArray(parsed)) return true;
+  const nonTrivial = parsed.some((v, idx) => {
+    if (v === null || v === undefined) return false;
+    if (typeof v === "string") return true;
+    const n = Number(v);
+    if (!Number.isFinite(n)) return false;
+    if (idx === 0 && n === BASE_ATTACK_ID) return false;
+    return true;
+  });
+  return !nonTrivial;
+}
+
+/**
+ * Якщо локальний l2_loadout порожній/дефолтний — відновити панель із heroJson.battleLoadoutSlots (після F5/очищення кешу).
+ * Не перезаписує активну локальну розкладку на тому ж пристрої.
+ */
+export function seedBattleLoadoutFromHeroJsonIfNeeded(hero: Hero | null): void {
+  if (!hero?.name) return;
+  if (!loadoutStorageIsEmptyOrDefault(hero.name)) return;
+  const raw = (hero as any).heroJson?.battleLoadoutSlots;
+  if (!Array.isArray(raw) || raw.length === 0) return;
+  const normalized = normalizeRawLoadoutSlots(raw as unknown[]);
+  const sanitized = sanitizeBattleLoadoutSlots(normalized, hero);
+  saveLoadout(hero.name, sanitized);
+  const saved = loadBattle(hero.name) || {};
+  persistBattle(
+    {
+      ...saved,
+      loadoutSlots: sanitized,
+      professionForLoadout: hero.profession,
+      heroName: hero.name,
+    },
+    hero.name
+  );
+}
 
 export const BASE_ATTACK = { id: BASE_ATTACK_ID, name: "Attack", icon: "/skills/attack.jpg" };
 /** Нормалізує toggle до суворого boolean — buff завжди не-toggle, тільки category=toggle явно toggle */

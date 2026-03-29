@@ -15,6 +15,7 @@ import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
 import { loadBattle } from "../battle/persist";
+import { loadLoadout } from "../battle/loadout";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { hydrateHero } from "./heroHydration";
 
@@ -103,6 +104,7 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : [],
     ...(inventoryCapacity !== undefined ? { inventoryCapacity } : {}),
     overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
+    battleLoadoutSlots: loadLoadout(hero.name),
   };
 }
 
@@ -541,6 +543,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       ...(hero.inventoryCapacity !== undefined || existingHeroJson.inventoryCapacity !== undefined ? { inventoryCapacity: hero.inventoryCapacity ?? existingHeroJson.inventoryCapacity } : {}),
       // 🔥 Сундук переповнення
       overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : (Array.isArray((existingHeroJson as any).overflowChest) ? (existingHeroJson as any).overflowChest : []),
+      // Панель скілів у бою — дублюємо в heroJson для синку після очищення localStorage / іншого ПК
+      battleLoadoutSlots: loadLoadout(hero.name),
     };
     
     // Логуємо для діагностики
