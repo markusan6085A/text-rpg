@@ -14,6 +14,7 @@ import { processMobDrops } from "./helpers/processDrops";
 import { hasAutoSpoilActive } from "./actions/useSkill/helpers";
 import { setMobRespawn } from "./mobRespawns";
 import { mobSpGainFromMob } from "./mobSpGain";
+import { isChampionMob } from "../../utils/mobs/isChampionMob";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -233,9 +234,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     } else if (isFishingZone) {
       respawnTime = 5000;
     } else {
-      const isChampion =
-        mob?.name?.startsWith("[Champion]") || mob?.name?.startsWith("[Чемпион]");
-      respawnTime = isChampion ? 600000 : 30000;
+      respawnTime = isChampionMob(mob) ? 600000 : 30000;
     }
     setMobRespawn(zoneId, mobIndex, respawnTime, heroName);
   }

@@ -21,6 +21,7 @@ import { commitMobVictoryToHeroStore } from "../commitMobVictory";
 import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 import { writeDeathGate } from "../../../utils/deathGate";
 import { displayMobName } from "../../../utils/worldDisplay";
+import { isChampionMob } from "../../../utils/mobs/isChampionMob";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -165,6 +166,8 @@ export const createProcessMobAttack =
       // Якщо зараз б'є по 200, а потрібно 450, то множник = 450/200 = 2.25
       // Але враховуючи, що вже є damageMultiplier, просто збільшимо базовий урон
       base = base * 2.25;
+    } else if (isChampionMob(state.mob)) {
+      base = base * 4;
     }
     
     const variance = 0.25;
@@ -203,6 +206,14 @@ export const createProcessMobAttack =
           shieldBlockRate,
           roll: Math.random() * 100,
         });
+      }
+    }
+
+    let mobCritChampion = false;
+    if (isChampionMob(state.mob) && !invulnerable && mitigated > 0) {
+      if (Math.random() < 0.6) {
+        mitigated = Math.max(1, Math.round(mitigated * 2));
+        mobCritChampion = true;
       }
     }
 
@@ -264,6 +275,9 @@ export const createProcessMobAttack =
         let aggressiveBase = aggressiveIsPhysicalAttack
           ? Math.max(5, aggressiveMobPAtk * 0.8)
           : Math.max(5, aggressiveMobMAtk * 0.8);
+        if (isChampionMob(aggressiveMob)) {
+          aggressiveBase *= 4;
+        }
         
         const aggressiveVariance = 0.25;
         const aggressiveRaw = aggressiveBase * (1 - aggressiveVariance + Math.random() * aggressiveVariance * 2);
@@ -281,6 +295,14 @@ export const createProcessMobAttack =
             aggressiveMitigated = Math.max(1, aggressiveMitigated - shieldDefense);
           }
         }
+
+        let aggressiveCrit = false;
+        if (isChampionMob(aggressiveMob) && !invulnerable && aggressiveMitigated > 0) {
+          if (Math.random() < 0.6) {
+            aggressiveMitigated = Math.max(1, Math.round(aggressiveMitigated * 2));
+            aggressiveCrit = true;
+          }
+        }
         
         // Перевіряємо промах (з меншою ймовірністю для агресивних мобів)
         const aggressiveDodgeChance = dodgeChance * 0.7; // Агресивні моби точніші
@@ -290,10 +312,11 @@ export const createProcessMobAttack =
           aggressiveDamageLines.push(`${aggressiveMob.name} промахнулся.`);
         } else {
           totalAggressiveDamage += aggressiveMitigated;
+          const critTag = aggressiveCrit ? " (крит!)" : "";
           if (aggressiveShieldBlocked) {
-            aggressiveDamageLines.push(`${aggressiveMob.name} атакует, щит блокирует! (${Math.round(aggressiveMitigated)} урона)`);
+            aggressiveDamageLines.push(`${aggressiveMob.name} атакует, щит блокирует! (${Math.round(aggressiveMitigated)} урона${critTag})`);
           } else {
-            aggressiveDamageLines.push(`${aggressiveMob.name} наносит ${Math.round(aggressiveMitigated)} урона.`);
+            aggressiveDamageLines.push(`${aggressiveMob.name} наносит ${Math.round(aggressiveMitigated)} урона${critTag}.`);
           }
         }
       }
@@ -342,7 +365,8 @@ export const createProcessMobAttack =
       if (heroDamage === 0) {
         lines.push(`${displayMobName(state.mob.name)} попал, но не нанес урона.`);
       } else {
-        lines.push(`${displayMobName(state.mob.name)} наносит вам ${Math.round(heroDamage)} урона.`);
+        const critTag = mobCritChampion ? " (крит!)" : "";
+        lines.push(`${displayMobName(state.mob.name)} наносит вам ${Math.round(heroDamage)} урона${critTag}.`);
       }
     }
     
