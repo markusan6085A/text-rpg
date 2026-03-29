@@ -47,7 +47,8 @@ export function displayStoredLocationName(stored: string | undefined | null): st
 }
 
 /**
- * Локація для публічного профілю: зона за id (якщо збережено), інакше рядок location з heroJson.
+ * Локація для публічного профілю: зона за id (якщо збережено), інакше рядок location з heroJson,
+ * інакше місто за currentCityId (гравець у місті, location очищено).
  */
 export function formatPublicProfileLocation(
   heroJson: unknown,
@@ -67,6 +68,17 @@ export function formatPublicProfileLocation(
     }
   }
   const raw = String(hj.location ?? hj.currentLocation ?? hj.zone ?? heroTopLocation ?? "").trim();
-  if (!raw) return "";
-  return displayStoredLocationName(raw);
+  if (raw) return displayStoredLocationName(raw);
+
+  // У місті: сервер heartbeat очищає location; currentCityId лишається в heroJson (heroPersistence).
+  const cityIdRaw = hj.currentCityId ?? hj.lastCityId ?? hj.cityId;
+  const cityId = cityIdRaw != null ? String(cityIdRaw).trim() : "";
+  if (cityId) {
+    const city = getCityById(cityId);
+    if (city) {
+      const label = displayCityName(city);
+      return getUiLang() === "uk" ? `місті ${label}` : `городе ${label}`;
+    }
+  }
+  return "";
 }
