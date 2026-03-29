@@ -31,15 +31,28 @@ interface NewsProps {
 interface RaidBossDropModalProps {
   bossName: string;
   bossLevel?: number;
+  /** Застаріле: таблиця можливого дропу — не показуємо в UI */
   drops?: any[];
   actualDrops?: Array<{ id: string; name: string; count: number }>;
+  /** Фактично отримано з РБ (adena / exp / sp) */
+  killRewards?: { adena: number; exp: number; sp: number };
   killerName?: string;
   killerId?: string;
   onClose: () => void;
   navigate: (path: string) => void;
 }
 
-function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName, killerId, onClose, navigate }: RaidBossDropModalProps) {
+function RaidBossDropModal({
+  bossName,
+  bossLevel,
+  drops: _drops,
+  actualDrops,
+  killRewards,
+  killerName,
+  killerId,
+  onClose,
+  navigate,
+}: RaidBossDropModalProps) {
   const hero = useHeroStore((s) => s.hero);
   const isL2 = getCityUiVariant() === "l2";
   const modalPanel = isL2
@@ -49,8 +62,13 @@ function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName
   const killerLinkCls = isL2
     ? "text-[#c9a44c] cursor-pointer hover:opacity-80 transition-colors font-semibold"
     : "text-blue-200 cursor-pointer hover:opacity-80 transition-colors font-semibold";
-  const hasActualDrops = actualDrops && actualDrops.length > 0;
-  const displayDrops = hasActualDrops ? actualDrops! : (drops ?? []);
+  const hasItems = Array.isArray(actualDrops) && actualDrops.length > 0;
+  const hasKillRewards =
+    killRewards != null &&
+    typeof killRewards === "object" &&
+    ["adena", "exp", "sp"].every((k) => typeof (killRewards as Record<string, unknown>)[k] === "number");
+  const hasLegacyBossTable = Array.isArray(_drops) && _drops.length > 0;
+  const hasAnyLoot = hasKillRewards || hasItems;
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
       <div 
@@ -76,41 +94,63 @@ function RaidBossDropModal({ bossName, bossLevel, drops, actualDrops, killerName
           </div>
         )}
         
-        {displayDrops.length > 0 && (
+        {hasAnyLoot && (
           <div className={`border-t pt-2 mt-2 ${borderSep}`}>
-            <div className="text-sm font-semibold text-[#b8860b] mb-2">{hasActualDrops ? "Отримано:" : "Дроп:"}</div>
+            <div className="text-sm font-semibold text-[#b8860b] mb-2">Отримано:</div>
             <div className="space-y-1">
-              {displayDrops.map((drop: any, idx: number) => {
-                const itemDef = itemsDB[drop.id];
-                const iconPath = itemDef?.icon 
-                  ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
-                  : "/items/default_item.png";
-                const itemName = drop.name || itemDef?.name || drop.id;
-                const isActual = typeof drop.count === "number";
-                
-                return (
-                  <div 
-                    key={idx} 
-                    className="flex items-center gap-2 p-1 rounded"
-                  >
-                    <img
-                      src={iconPath}
-                      alt={itemName}
-                      className={`w-5 h-5 object-contain border bg-black/40 ${isL2 ? "border-[#5c4a32]/60" : "border-white/40"}`}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                    <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">
-                      {itemName}:
-                    </span>
-                    <span className="text-green-400">
-                      {isActual ? `x${drop.count}` : `${drop.min ?? 0}-${drop.max ?? 0} (${Math.round((drop.chance || 0) * 100)}%)`}
-                    </span>
+              {hasKillRewards && (
+                <>
+                  <div className="flex items-center justify-between gap-2 text-sm py-0.5">
+                    <span className="text-gray-400">Адена</span>
+                    <span className="text-amber-200 tabular-nums">{killRewards!.adena.toLocaleString()}</span>
                   </div>
-                );
-              })}
+                  <div className="flex items-center justify-between gap-2 text-sm py-0.5">
+                    <span className="text-gray-400">Досвід (EXP)</span>
+                    <span className="text-cyan-200/90 tabular-nums">{killRewards!.exp.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 text-sm py-0.5">
+                    <span className="text-gray-400">SP</span>
+                    <span className="text-violet-200/90 tabular-nums">{killRewards!.sp.toLocaleString()}</span>
+                  </div>
+                </>
+              )}
+              {hasItems &&
+                actualDrops!.map((drop, idx) => {
+                  const itemDef = itemsDB[drop.id];
+                  const iconPath = itemDef?.icon
+                    ? itemDef.icon.startsWith("/")
+                      ? itemDef.icon
+                      : `/items/${itemDef.icon}`
+                    : "/items/default_item.png";
+                  const itemName = drop.name || itemDef?.name || drop.id;
+                  return (
+                    <div key={`${drop.id}-${idx}`} className="flex items-center gap-2 p-1 rounded">
+                      <img
+                        src={iconPath}
+                        alt={itemName}
+                        className={`w-5 h-5 object-contain border bg-black/40 ${isL2 ? "border-[#5c4a32]/60" : "border-white/40"}`}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                      <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">{itemName}:</span>
+                      <span className="text-green-400 tabular-nums">×{drop.count}</span>
+                    </div>
+                  );
+                })}
             </div>
+          </div>
+        )}
+
+        {!hasAnyLoot && hasLegacyBossTable && (
+          <div className={`border-t pt-2 mt-2 ${borderSep} text-sm text-gray-500`}>
+            Для цієї новини не збережено фактичний дроп (запис до оновлення). Можливий дроп з таблиці не показується.
+          </div>
+        )}
+
+        {!hasAnyLoot && !hasLegacyBossTable && (
+          <div className={`border-t pt-2 mt-2 ${borderSep} text-sm text-gray-500`}>
+            Немає даних про отриманий дроп.
           </div>
         )}
 
@@ -134,7 +174,15 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [gameTime, setGameTime] = useState<string>("00:00");
-  const [selectedBossDrop, setSelectedBossDrop] = useState<{ bossName: string; bossLevel?: number; drops?: any[]; actualDrops?: Array<{ id: string; name: string; count: number }>; killerName?: string; killerId?: string } | null>(null);
+  const [selectedBossDrop, setSelectedBossDrop] = useState<{
+    bossName: string;
+    bossLevel?: number;
+    drops?: any[];
+    actualDrops?: Array<{ id: string; name: string; count: number }>;
+    killRewards?: { adena: number; exp: number; sp: number };
+    killerName?: string;
+    killerId?: string;
+  } | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -244,6 +292,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
       const bossLevel = item.metadata?.bossLevel;
       const drops = item.metadata?.bossDrops;
       const actualDrops = item.metadata?.actualDroppedItems;
+      const killRewards = item.metadata?.killRewards;
       text = (
         <>
           <PlayerNameWithEmblem
@@ -266,7 +315,15 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             className="text-yellow-300 cursor-pointer hover:opacity-80 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
-              setSelectedBossDrop({ bossName, bossLevel, drops, actualDrops, killerName: item.characterName || undefined, killerId: item.characterId });
+              setSelectedBossDrop({
+                bossName,
+                bossLevel,
+                drops,
+                actualDrops,
+                killRewards,
+                killerName: item.characterName || undefined,
+                killerId: item.characterId,
+              });
             }}
           >
             {bossName}
@@ -390,6 +447,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
           bossLevel={selectedBossDrop.bossLevel}
           drops={selectedBossDrop.drops}
           actualDrops={selectedBossDrop.actualDrops}
+          killRewards={selectedBossDrop.killRewards}
           killerName={selectedBossDrop.killerName}
           killerId={selectedBossDrop.killerId}
           onClose={() => setSelectedBossDrop(null)}

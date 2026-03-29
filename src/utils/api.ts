@@ -1281,6 +1281,8 @@ export interface NewsItem {
     bossLevel?: number;
     bossDrops?: any[];
     actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
+    /** Фактично отримано з тіла РБ (нові новини); без таблиці можливого дропу */
+    killRewards?: { adena: number; exp: number; sp: number };
     hoursAbsent?: number;
     subject?: string;
     messagePreview?: string;
@@ -1313,8 +1315,10 @@ export async function reportRaidBossKill(params: {
   characterName?: string;
   bossName: string;
   bossLevel?: number;
+  /** Не надсилати — у новинах показуємо лише фактичний дроп і killRewards */
   bossDrops?: any[];
   actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
+  killRewards: { adena: number; exp: number; sp: number };
 }): Promise<{ ok: boolean }> {
   const response = await apiRequest<{ ok: boolean }>('/news/raid-boss-kill', {
     method: 'POST',

@@ -216,8 +216,12 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       characterName: curHeroForLog.name,
       bossName: mob?.name || "",
       bossLevel: mob?.level,
-      bossDrops: mob?.drops || [],
-      actualDroppedItems: actualDroppedItems.length > 0 ? actualDroppedItems : undefined,
+      actualDroppedItems: actualDroppedItems,
+      killRewards: {
+        adena: displayAdena,
+        exp: displayExp,
+        sp: displaySp,
+      },
     }).catch((err) => {
       console.error("Error reporting raid boss kill:", err);
     });

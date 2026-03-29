@@ -79,6 +79,7 @@ export async function newsRoutes(app: FastifyInstance) {
       bossLevel?: number;
       bossDrops?: any[];
       actualDroppedItems?: Array<{ id: string; name: string; count: number }>;
+      killRewards?: { adena?: number; exp?: number; sp?: number };
     };
 
     if (!body.characterId || !body.bossName) {
@@ -102,17 +103,25 @@ export async function newsRoutes(app: FastifyInstance) {
         return reply.code(404).send({ error: "character not found" });
       }
 
+      const metadata: Record<string, unknown> = {
+        bossName: body.bossName,
+        bossLevel: body.bossLevel,
+        actualDroppedItems: Array.isArray(body.actualDroppedItems) ? body.actualDroppedItems : [],
+      };
+      if (body.killRewards != null && typeof body.killRewards === "object") {
+        metadata.killRewards = {
+          adena: Math.max(0, Math.floor(Number((body.killRewards as { adena?: number }).adena ?? 0))),
+          exp: Math.max(0, Math.floor(Number((body.killRewards as { exp?: number }).exp ?? 0))),
+          sp: Math.max(0, Math.floor(Number((body.killRewards as { sp?: number }).sp ?? 0))),
+        };
+      }
+
       // Додаємо новину (хто кого убив і що отримав)
       await addNews({
         type: "raid_boss_kill",
         characterId: character.id,
         characterName: character.name,
-        metadata: {
-          bossName: body.bossName,
-          bossLevel: body.bossLevel,
-          bossDrops: body.bossDrops || [],
-          actualDroppedItems: body.actualDroppedItems || [],
-        },
+        metadata,
       });
 
       return { ok: true };
