@@ -1,5 +1,5 @@
-// Дроп епік-РБ Queen Ant: Ring of Queen Ant 30%; інші 21 рядок — 4–7% (різні chancePerMillion).
-// Предмети — топові з B-grade магазину (аналог скріну L2DB).
+// Дроп епік-РБ Queen Ant: Ring of Queen Ant ~30%; інші рядки — D-grade шмот (4–7%), як у економіці проєкту.
+// Унікальні roll по chancePerMillion.
 
 import type { DropEntry } from "../../combat/types";
 
@@ -19,7 +19,7 @@ function secondary(id: string, index: number): DropEntry {
   };
 }
 
-/** 22 рядки: кільце 30% + 21 шмот з магазину 4–7% кожен (незалежні roll). */
+/** Кільце + 21 рядок D-grade з магазину/сетів (аналог скріну, але грейд D). */
 export const QUEEN_ANT_EPIC_DROPS: DropEntry[] = [
   {
     id: "ring_of_queen_ant",
@@ -30,25 +30,25 @@ export const QUEEN_ANT_EPIC_DROPS: DropEntry[] = [
     chancePerMillion: 300_000,
     l2ItemId: 6660,
   },
-  secondary("shop_weapon_b_sword_of_valhalla", 0),
-  secondary("shop_weapon_b_deadman_s_glory", 1),
-  secondary("shop_weapon_b_lance", 2),
-  secondary("shop_weapon_b_dark_elven_long_bow", 3),
-  secondary("shop_weapon_b_hell_knife", 4),
-  secondary("shop_weapon_b_spirit_s_staff", 5),
-  secondary("shop_weapon_b_staff_of_evil_spirits", 6),
-  secondary("shop_weapon_b_spell_breaker", 7),
-  secondary("shop_weapon_b_arthro_nail", 8),
-  secondary("doom_shield", 9),
-  secondary("blue_wolf_breastplate", 10),
-  secondary("blue_wolf_gaiters", 11),
-  secondary("avadon_robe", 12),
-  secondary("leather_armor_of_doom_of_fortune", 13),
-  secondary("blue_wolf_gloves", 14),
-  secondary("blue_wolf_boots", 15),
-  secondary("blue_wolf_helmet", 16),
-  secondary("shop_jewelry_b_ring_of_black_ore", 17),
-  secondary("shop_jewelry_b_adamantite_earring", 18),
-  secondary("shop_jewelry_b_necklace_of_black_ore", 19),
+  secondary("shop_weapon_d_knights_sword", 0),
+  secondary("shop_weapon_d_tomahawk", 1),
+  secondary("shop_weapon_d_war_hammer", 2),
+  secondary("shop_weapon_d_dark_elven_bow", 3),
+  secondary("shop_weapon_d_shilen_knife", 4),
+  secondary("shop_weapon_d_atuba_hammer", 5),
+  secondary("shop_weapon_d_baguette_dual_sword", 6),
+  secondary("shop_weapon_d_two_handed_sword", 7),
+  secondary("shop_weapon_d_triple_edged_jamadhr", 8),
+  secondary("plate_shield", 9),
+  secondary("mithril_breastplate", 10),
+  secondary("mithril_gaiters", 11),
+  secondary("tunic_of_knowledge", 12),
+  secondary("reinforced_leather_shirt", 13),
+  secondary("mithril_gloves", 14),
+  secondary("mithril_boots", 15),
+  secondary("mithril_helmet", 16),
+  secondary("shop_jewelry_d_mithril_ring", 17),
+  secondary("shop_jewelry_d_elven_earing", 18),
+  secondary("shop_jewelry_d_necklace_of_darkness", 19),
   secondary("d_enchant_weapon_scroll", 20),
 ];

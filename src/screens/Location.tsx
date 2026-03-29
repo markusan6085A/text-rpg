@@ -822,6 +822,18 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 </button>
               </div>
 
+              {selectedMob.lore && (
+                <p
+                  className={
+                    isL2
+                      ? "mb-3 text-[11px] sm:text-xs leading-relaxed text-[#c4b89a]/95 border-l-2 border-[#7c3aed]/45 pl-2.5 italic"
+                      : "mb-3 text-xs leading-relaxed text-violet-200/90 border-l-2 border-violet-500/40 pl-2.5 italic"
+                  }
+                >
+                  {selectedMob.lore}
+                </p>
+              )}
+
               {(() => {
                 const modalMobIcon = getMobListIconSrc(selectedMob);
                 const labelCls = isL2 ? "text-[#8a7a60]" : "text-gray-400";

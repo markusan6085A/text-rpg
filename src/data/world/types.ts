@@ -7,6 +7,8 @@ export interface Mob {
   name: string;
   level: number;
   icon?: string; // Іконка моба
+  /** Короткий лор (епік-РБ тощо) — показ у картці моба на локації */
+  lore?: string;
   
   // Ресурси
   hp: number;
