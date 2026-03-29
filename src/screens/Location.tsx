@@ -6,6 +6,7 @@ import {
 } from "../data/world";
 import type { City, Zone, Mob } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
+import { ensureWorldZoneLoaded } from "../state/worldMobHpStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { isMobOnRespawn, getRespawnTimeRemaining } from "../state/battle/mobRespawns";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
@@ -184,6 +185,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const [gludioQuestHintDismissed, setGludioQuestHintDismissed] = React.useState(
     () => typeof localStorage !== "undefined" && localStorage.getItem("gludio_quest_tab_hint") === "1"
   );
+
+  React.useEffect(() => {
+    if (!zoneId) return;
+    void ensureWorldZoneLoaded(zoneId);
+  }, [zoneId]);
 
   const patrolCtx = React.useMemo((): PatrolTickCtx | null => {
     if (!zoneId) return null;

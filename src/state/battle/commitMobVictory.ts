@@ -17,7 +17,8 @@ import { mobSpGainFromMob } from "./mobSpGain";
 import { isChampionMob } from "../../utils/mobs/isChampionMob";
 import { getZoneActivityLabel } from "../../data/world";
 import { usePartyStore } from "../partyStore";
-import { postPartyKillShare } from "../../utils/api";
+import { postPartyKillShare, postWorldMobKill } from "../../utils/api";
+import { applyWorldMobKillLocal } from "../worldMobHpStore";
 import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
 
 export type MobVictoryCommitParams = {
@@ -316,6 +317,11 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       respawnTime = isChampionMob(mob) ? 600000 : 30000;
     }
     setMobRespawn(zoneId, mobIndex, respawnTime, heroName);
+    void postWorldMobKill(zoneId, mobIndex, respawnTime)
+      .then((res) => {
+        if (res?.ok) applyWorldMobKillLocal(zoneId, mobIndex, respawnTime, res.respawnAt);
+      })
+      .catch(() => {});
   }
 
   return {

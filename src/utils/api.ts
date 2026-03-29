@@ -1895,6 +1895,41 @@ export async function postPartyKillShare(payload: {
   });
 }
 
+/** Глобальний стан HP/респавну мобів у зоні (сервер — джерело правди). */
+export async function fetchWorldZoneMobStateApi(zoneId: string): Promise<{
+  ok: boolean;
+  hp: Record<string, { currentHp: number; maxHp: number }>;
+  respawn: Record<string, string>;
+}> {
+  const enc = encodeURIComponent(zoneId);
+  return apiRequest(`/world/zones/${enc}`, { method: "GET" });
+}
+
+export async function putWorldMobHp(
+  zoneId: string,
+  mobIndex: number,
+  currentHp: number,
+  maxHp: number
+): Promise<{ ok: boolean }> {
+  const enc = encodeURIComponent(zoneId);
+  return apiRequest(`/world/zones/${enc}/mobs/${mobIndex}/hp`, {
+    method: "PUT",
+    body: JSON.stringify({ currentHp, maxHp }),
+  });
+}
+
+export async function postWorldMobKill(
+  zoneId: string,
+  mobIndex: number,
+  respawnDelayMs: number
+): Promise<{ ok: boolean; respawnAt?: string }> {
+  const enc = encodeURIComponent(zoneId);
+  return apiRequest(`/world/zones/${enc}/mobs/${mobIndex}/kill`, {
+    method: "POST",
+    body: JSON.stringify({ respawnDelayMs }),
+  });
+}
+
 export async function applyToClan(clanId: string): Promise<{ ok: boolean; application?: { id: string } }> {
   return apiRequest<{ ok: boolean; application?: { id: string } }>(`/clans/${clanId}/apply`, {
     method: 'POST',

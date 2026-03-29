@@ -1,6 +1,7 @@
 // src/state/battle/mobRespawns.ts
 // Система респавну мобів: зберігаємо timestamp респавну для кожного моба
 
+import { getWorldRespawnUntilMs } from "../worldMobHpStore";
 import { getJSON, setJSON } from "../persistence";
 
 // Ключ для зберігання респавнів (залежить від ніку героя)
@@ -76,6 +77,11 @@ export const getRespawnTimeRemaining = (
   mobIndex: number,
   heroName?: string | null
 ): number => {
+  const serverUntil = getWorldRespawnUntilMs(zoneId, mobIndex);
+  if (serverUntil != null && serverUntil > Date.now()) {
+    return Math.ceil((serverUntil - Date.now()) / 1000);
+  }
+
   const respawns = loadMobRespawns(heroName);
   const mobKey = `${zoneId}_${mobIndex}`;
   const respawnAt = respawns[mobKey];

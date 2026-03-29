@@ -15,6 +15,7 @@ import { clanRoutes } from "./clans";
 import { partiesRoutes } from "./parties";
 import { forumRoutes } from "./forum";
 import { leaderboardRoutes } from "./leaderboard";
+import { worldMobStateRoutes } from "./routes/worldMobState";
 import { authRefreshRoutes } from "./routes/authRefresh";
 import { authLogoutRoutes } from "./routes/authLogout";
 import { adminAuthRoutes } from "./routes/adminAuth";
@@ -233,6 +234,7 @@ const start = async () => {
     await app.register(partiesRoutes, { prefix: "/parties" });
     await app.register(forumRoutes);
     await app.register(leaderboardRoutes);
+    await app.register(worldMobStateRoutes);
 
     // ✅ ТІЛЬКИ ТУТ:
     app.setNotFoundHandler(async (request, reply) => {
@@ -249,6 +251,7 @@ const start = async () => {
         request.url.startsWith("/parties") ||
         request.url.startsWith("/forum") ||
         request.url.startsWith("/leaderboard") ||
+        request.url.startsWith("/world") ||
         request.url.startsWith("/market") ||
         request.url.startsWith("/premium") ||
         request.url.startsWith("/health") ||

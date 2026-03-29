@@ -1,5 +1,7 @@
 import type { BattleState } from "../types";
 import { saveBattleLogs } from "../battleLogs";
+import { getMobEffectiveMaxHp } from "../../../utils/mobs/mobEffectiveMaxHp";
+import { scheduleWorldMobHpSync } from "../../worldMobHpStore";
 
 // Не імпортуємо heroStore — уникнення циклу: heroStore → heroLoadAPI → battle/helpers → heroStore
 
@@ -62,5 +64,17 @@ export const persistSnapshot = (
     toPersist.professionForLoadout = (merged as any).professionForLoadout;
   }
   persist(toPersist as Partial<BattleState>, heroName);
+
+  if (
+    merged.status === "fighting" &&
+    merged.zoneId != null &&
+    merged.mobIndex != null &&
+    typeof merged.mobHP === "number" &&
+    merged.mobHP > 0 &&
+    merged.mob
+  ) {
+    const maxHp = getMobEffectiveMaxHp(merged.mob);
+    scheduleWorldMobHpSync(merged.zoneId, merged.mobIndex, merged.mobHP, maxHp);
+  }
 };
 

@@ -12,6 +12,10 @@ import { itemsDB } from "../../../data/items/itemsDB";
 import { loadBattleLogs, saveBattleLogs } from "../battleLogs";
 import { savePreviousCity } from "../../../utils/locationNavigation";
 import { displayMobName } from "../../../utils/worldDisplay";
+import {
+  ensureWorldZoneLoaded,
+  getWorldMobHpForSlot,
+} from "../../worldMobHpStore";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -23,7 +27,7 @@ const findZone = (zoneId: string): Zone | undefined =>
 
 export const createStartBattle =
   (set: Setter, get: () => BattleState): BattleState["startBattle"] =>
-  (zoneId, mobIndex) => {
+  async (zoneId, mobIndex) => {
     const zone = findZone(zoneId);
     const mob = zone?.mobs?.[mobIndex];
     const hero = useHeroStore.getState().hero;
@@ -59,6 +63,8 @@ export const createStartBattle =
       persistSnapshot(get, persistBattle);
       return;
     }
+
+    await ensureWorldZoneLoaded(zoneId, { force: true }).catch(() => {});
 
     // Перевіряємо, чи моб на респавні
     if (isMobOnRespawn(zoneId, mobIndex, heroName)) {
@@ -123,6 +129,12 @@ export const createStartBattle =
       (hero.hp ?? 0) > 0;
 
     if (canResume) {
+      const serverSlot = getWorldMobHpForSlot(zoneId, mobIndex);
+      const resumeMobHp =
+        serverSlot && serverSlot.currentHp > 0
+          ? Math.max(1, Math.min(serverSlot.currentHp, serverSlot.maxHp))
+          : saved.mobHP;
+
       const professionChanged =
         heroName &&
         hero?.profession &&
@@ -172,7 +184,7 @@ export const createStartBattle =
         zoneId,
         mob: saved.mob as Mob,
         mobIndex,
-        mobHP: saved.mobHP,
+        mobHP: resumeMobHp,
         mobStunnedUntil: saved.mobStunnedUntil,
         mobNextAttackAt: saved.mobNextAttackAt ?? now + 1000 + Math.random() * 5000,
         heroNextAttackAt: heroNextAttackAtResume,
@@ -332,7 +344,12 @@ export const createStartBattle =
       }
     }
 
-    const effectiveMobHp = getMobEffectiveMaxHp(mob);
+    const maxFromDef = getMobEffectiveMaxHp(mob);
+    const serverSlotNew = getWorldMobHpForSlot(zoneId, mobIndex);
+    const effectiveMobHp =
+      serverSlotNew && serverSlotNew.currentHp > 0
+        ? Math.max(1, Math.min(serverSlotNew.currentHp, serverSlotNew.maxHp))
+        : maxFromDef;
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,

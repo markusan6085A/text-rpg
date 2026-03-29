@@ -108,7 +108,7 @@ export type BattleState = {
     ratio: number; // 0-1 of max HP/MP to restore
     sourceBuffId?: number;
   } | null;
-  startBattle: (zoneId: string, mobIndex: number) => void;
+  startBattle: (zoneId: string, mobIndex: number) => void | Promise<void>;
   useSkill: (skillId: number | string) => void; // Підтримка расходників (string типу "consumable:...")
   setLoadoutSkill: (slotIndex: number, skillId: number | string | null) => void;
   toggleChargeSlot: (slotIndex: number) => void; // Увімкнути/вимкнути заряд у слоті (тільки для soulshot/spiritshot)

@@ -471,3 +471,28 @@ model AdminSignalEmailSent {
 
   @@unique([characterId, signalType])
 }
+
+/// Глобальний поточний HP моба в зоні (спільний для всіх гравців)
+model ZoneMobHp {
+  id        String   @id @default(cuid())
+  zoneId    String
+  mobIndex  Int
+  currentHp Int
+  maxHp     Int
+  updatedAt DateTime @updatedAt
+
+  @@unique([zoneId, mobIndex])
+  @@index([zoneId])
+}
+
+/// Глобальний респавн після вбивства (поки respawnAt у майбутньому — моб недоступний)
+model ZoneMobRespawn {
+  id        String   @id @default(cuid())
+  zoneId    String
+  mobIndex  Int
+  respawnAt DateTime
+
+  @@unique([zoneId, mobIndex])
+  @@index([zoneId])
+  @@index([respawnAt])
+}
