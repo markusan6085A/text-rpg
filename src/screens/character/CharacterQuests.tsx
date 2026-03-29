@@ -1,7 +1,14 @@
 // src/screens/character/CharacterQuests.tsx
 import React, { useState } from "react";
 import { useHeroStore } from "../../state/heroStore";
-import { QUESTS, QUESTS_BY_LOCATION, QUEST_ITEM_TURN_IN_ALIASES, type Quest } from "../../data/quests";
+import {
+  QUESTS,
+  QUESTS_BY_LOCATION,
+  QUEST_ITEM_TURN_IN_ALIASES,
+  ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
+  isHeroElvenMysticBaseForFirstProfQuest,
+  type Quest,
+} from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
 import type { HeroInventoryItem } from "../../types/Hero";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
@@ -139,7 +146,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     (quest) =>
       !completedQuests.includes(quest.id) &&
       !activeQuests.some((aq) => aq.questId === quest.id) &&
-      (!quest.requirements?.level || (hero.level || 1) >= quest.requirements.level)
+      (!quest.requirements?.level || (hero.level || 1) >= quest.requirements.level) &&
+      !(quest.id === ELVEN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroElvenMysticBaseForFirstProfQuest(hero))
   );
 
   // Функція для прийняття квесту

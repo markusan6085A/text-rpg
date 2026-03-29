@@ -53,6 +53,23 @@ export interface Quest {
   resourceCraftHint?: string;
 }
 
+/** Квест першої професії тільки для світлого ельфа-мага (базова профа `elven_mystic`). */
+export const ELVEN_MYSTIC_FIRST_PROF_QUEST_ID = "elven_mystic_first_profession_materials";
+
+export function isHeroElvenMysticBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  if (p !== "elven_mystic" && p !== "elven_mystic_base") return false;
+  const r = String(hero.race || "").toLowerCase();
+  if (r.includes("dark") || r.includes("темн")) return false;
+  return true;
+}
+
 /** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
 export const QUEST_ITEM_TURN_IN_ALIASES: Record<string, readonly string[]> = {
   quest_gludio_charcoal: ["charcoal"],
@@ -234,6 +251,23 @@ export const QUESTS: Quest[] = [
         itemId: "cokes",
         requiredCount: 5,
       },
+    ],
+  },
+  {
+    id: ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь мага Эльфов — материалы для первой профессии",
+    description:
+      "Принесите 15 Animal Skin, 10 Thread и 5 Iron Ore. Сдайте задание во вкладке персонажа «Квесты». После сдачи на 20 уровне в Гильдии магов откроется выбор первой профессии (Elven Wizard / Elven Oracle).",
+    level: 18,
+    location: "Гильдия магов — первая профессия",
+    locationLevel: "18–20",
+    requirements: { level: 18 },
+    rewards: { exp: 25_000, adena: 50_000 },
+    questDrops: [
+      { mobName: "Орк Воин, Monster Eye и др.", itemId: "animal_skin", requiredCount: 15 },
+      { mobName: "Гоблин, Скелет, Элпи и др.", itemId: "thread", requiredCount: 10 },
+      { mobName: "Гриб, Летучая мышь, Орк и др.", itemId: "iron_ore", requiredCount: 5 },
     ],
   },
 ];
