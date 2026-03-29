@@ -57,7 +57,7 @@ export default function SummonStatus() {
       style={{ zIndex: 1 }}
     >
       <div className="flex flex-col gap-1 w-full min-w-0">
-        {/* Ряд 1: бафи + іконка + ім’я зліва / Lv справа (як у смуги героя) */}
+        {/* Ряд 1: бафи + іконка + ім’я (рівень у рядку зі статами/барами) */}
         <div className="flex items-center gap-1 min-w-0 w-full">
           {activeSummonBuffs.length > 0 && (
             <div className="flex flex-wrap gap-0.5 shrink-0">
@@ -90,65 +90,63 @@ export default function SummonStatus() {
               }}
             />
           )}
-          <div className="flex flex-1 min-w-0 items-baseline justify-between gap-2">
-            <span className="text-[10px] font-semibold text-[#ffe9c0] truncate">{name}</span>
-            <span className="text-[9px] text-[#e8c56e] font-semibold tabular-nums whitespace-nowrap shrink-0">
-              Lv {level}
+          <span className="text-[10px] font-semibold text-[#ffe9c0] truncate flex-1 min-w-0">{name}</span>
+        </div>
+
+        {/* Ряд 2: стати зліва | короткі HP/MP по центру | Lv + відклик справа */}
+        <div className="flex items-center gap-1.5 min-w-0 w-full">
+          <div className="flex flex-wrap gap-x-1 gap-y-0 leading-tight text-[7px] text-[#caa777] min-w-0 flex-1">
+            <span>
+              П-Урон: <span className="text-white">{pAtk}</span>
+            </span>
+            <span>
+              М-Урон: <span className="text-white">{mAtk}</span>
+            </span>
+            <span>
+              П-Деф: <span className="text-white">{pDef}</span>
+            </span>
+            <span>
+              М-Деф: <span className="text-white">{mDef}</span>
             </span>
           </div>
-        </div>
-
-        {/* Ряд 2: стати одразу під ім’ям / рівнем — компактно */}
-        <div className="flex flex-wrap gap-x-1.5 gap-y-0 leading-tight text-[7px] text-[#caa777]">
-          <span>
-            П-Урон: <span className="text-white">{pAtk}</span>
-          </span>
-          <span>
-            М-Урон: <span className="text-white">{mAtk}</span>
-          </span>
-          <span>
-            П-Деф: <span className="text-white">{pDef}</span>
-          </span>
-          <span>
-            М-Деф: <span className="text-white">{mDef}</span>
-          </span>
-        </div>
-
-        {/* Ряд 3: HP/MP + кнопка — вище по вертикалі, нижчі смуги */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-1 min-w-0">
-          <div className="flex flex-col gap-[3px] flex-1 min-w-0 w-full">
-            <div className="w-full h-[0.35rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#4a0b13] to-[#2c070c]">
+          <div className="flex flex-col gap-[2px] w-[5.5rem] sm:w-[6.25rem] shrink-0 max-w-[42%]">
+            <div className="w-full h-[0.32rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#4a0b13] to-[#2c070c]">
               <div
                 className="h-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"
                 style={{ width: `${hpPercent}%` }}
               />
-              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[6px] font-semibold text-[#ffecec] leading-none">
+              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[5px] font-semibold text-[#ffecec] leading-none">
                 <span>HP</span>
-                <span className="tabular-nums">
+                <span className="tabular-nums truncate max-w-[70%] text-right">
                   {hp}/{maxHp}
                 </span>
               </div>
             </div>
-            <div className="w-full h-[0.35rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#0d2f4e] to-[#081b2c]">
+            <div className="w-full h-[0.32rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#0d2f4e] to-[#081b2c]">
               <div
                 className="h-full bg-gradient-to-r from-[#4488ff] via-[#2e8bff] to-[#1160c5]"
                 style={{ width: `${mpPercent}%` }}
               />
-              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[6px] font-semibold text-[#e6f3ff] leading-none">
+              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[5px] font-semibold text-[#e6f3ff] leading-none">
                 <span>MP</span>
-                <span className="tabular-nums">
+                <span className="tabular-nums truncate max-w-[70%] text-right">
                   {mp}/{maxMp}
                 </span>
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="w-full sm:w-auto shrink-0 px-1.5 py-0.5 bg-red-600/80 hover:bg-red-700 text-white text-[8px] font-semibold rounded border border-red-800"
-          >
-            Відкликати
-          </button>
+          <div className="flex flex-col items-end gap-0.5 shrink-0">
+            <span className="text-[9px] text-[#e8c56e] font-semibold tabular-nums whitespace-nowrap">
+              Lv {level}
+            </span>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="px-1.5 py-0.5 bg-red-600/80 hover:bg-red-700 text-white text-[8px] font-semibold rounded border border-red-800 whitespace-nowrap"
+            >
+              Відкликати
+            </button>
+          </div>
         </div>
       </div>
     </div>
