@@ -57,6 +57,9 @@ export function buildCharacterSyncMetadata(
   const spDelta = useHjSp ? numField(newHj, "sp") - numField(oldHj, "sp") : newRow.sp - oldRow.sp;
   const expSnapshot = useHjExp ? numField(newHj, "exp") : Number(newRow.exp);
   const spSnapshot = useHjSp ? numField(newHj, "sp") : newRow.sp;
+  /** Рівень з heroJson (клієнт) vs levelSnapshot = колонка Character.level після збереження */
+  const heroJsonLevel = hasNumericHeroJsonField(newHj, "level") ? numField(newHj, "level") : undefined;
+
   const meta: Record<string, unknown> = {
     mobsKilledDelta: mkNew - mkOld,
     mobsKilledTotal: mkNew,
@@ -67,6 +70,7 @@ export function buildCharacterSyncMetadata(
     spDelta,
     spSnapshot,
     levelSnapshot: newRow.level,
+    ...(heroJsonLevel !== undefined ? { heroJsonLevel } : {}),
     invDelta: invLen(newHj) - invLen(oldHj),
     coinLuckDelta: Number(newRow.coinLuck ?? 0n) - Number(oldRow.coinLuck ?? 0n),
     coinsSilverDelta: Number(newRow.coinsSilver ?? 0n) - Number(oldRow.coinsSilver ?? 0n),

@@ -51,6 +51,13 @@ function summarizeMetadata(action: string, m: Record<string, unknown>): string {
     const inv = Number(m.invDelta ?? 0);
     if (inv !== 0) parts.push(`инв ${inv > 0 ? "+" : ""}${inv}`);
     if (m.zoneId && !m.killZoneName && !m.killZoneId) parts.push(`зона ${m.zoneId}`);
+    const ls = Number(m.levelSnapshot ?? NaN);
+    const hjL = Number(m.heroJsonLevel ?? NaN);
+    if (Number.isFinite(ls) && Number.isFinite(hjL) && ls !== hjL) {
+      parts.push(`ур.: БД ${ls} ≠ heroJson ${hjL}`);
+    } else if (Number.isFinite(hjL)) {
+      parts.push(`ур. heroJson ${hjL}`);
+    }
     return parts.length ? parts.join(", ") : safeJson(m);
   }
   if (action === "market.buy") {
