@@ -4,6 +4,7 @@ import { useHeroStore } from "../state/heroStore";
 import { respondPartyInvite, leaveParty } from "../utils/api";
 import { showToast } from "../state/toastStore";
 import { getCityUiVariant } from "../utils/cityUiVariant";
+import { formatPartyApiError } from "../utils/partyApiErrors";
 
 /**
  * Запрошення в пати + один рядок складу групи (без вимоги бути в одній локації).
@@ -51,8 +52,8 @@ export default function PartyHud() {
       await leaveParty();
       showToast("Ви вийшли з пати", "success");
       await refreshParty();
-    } catch (e: any) {
-      showToast(e?.message || "Не вдалося вийти", "error");
+    } catch (e: unknown) {
+      showToast(formatPartyApiError(e) || "Не вдалося вийти", "error");
     }
   };
 
@@ -61,8 +62,8 @@ export default function PartyHud() {
       await respondPartyInvite(id, accept);
       showToast(accept ? "Ви в пати" : "Запрошення відхилено", accept ? "success" : "info");
       await Promise.all([refreshParty(), refreshInvites()]);
-    } catch (e: any) {
-      showToast(e?.message || "Помилка", "error");
+    } catch (e: unknown) {
+      showToast(formatPartyApiError(e) || "Помилка", "error");
     }
   };
 

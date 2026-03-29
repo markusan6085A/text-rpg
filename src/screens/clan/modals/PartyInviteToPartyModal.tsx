@@ -7,6 +7,7 @@ import {
   clanModalIsL2,
   clanModalPanelClass,
 } from "./clanModalL2";
+import { formatPartyApiError } from "../../../utils/partyApiErrors";
 
 interface PartyInviteToPartyModalProps {
   playerName: string;
@@ -28,8 +29,8 @@ export default function PartyInviteToPartyModal({ playerName, onInvite, onClose 
       await onInvite();
       showToast("Запрошення надіслано", "success");
       onClose();
-    } catch (err: any) {
-      showToast(err?.message || "Помилка запрошення", "error");
+    } catch (err: unknown) {
+      showToast(formatPartyApiError(err) || "Помилка запрошення", "error");
     } finally {
       setLoading(false);
     }

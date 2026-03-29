@@ -177,13 +177,13 @@ export async function partiesRoutes(app: FastifyInstance) {
       where: { characterId: targetCharacterId },
     });
     if (targetBusy) {
-      return reply.code(400).send({ error: "forbidden" });
+      return reply.code(400).send({ error: "already_in_party" });
     }
 
     const party = await ensurePartyForInviter(me.id);
     const count = await prisma.partyMember.count({ where: { partyId: party.id } });
     if (count >= PARTY_MAX) {
-      return reply.code(400).send({ error: "forbidden" });
+      return reply.code(400).send({ error: "party_full" });
     }
 
     const invite = await prisma.partyInvite.upsert({
@@ -238,7 +238,7 @@ export async function partiesRoutes(app: FastifyInstance) {
 
     const inParty = await prisma.partyMember.findUnique({ where: { characterId: me.id } });
     if (inParty) {
-      return reply.code(400).send({ error: "forbidden" });
+      return reply.code(400).send({ error: "already_in_party" });
     }
 
     const memberCount = await prisma.partyMember.count({ where: { partyId: invite.partyId } });
@@ -247,7 +247,7 @@ export async function partiesRoutes(app: FastifyInstance) {
         where: { id: inviteId },
         data: { status: "declined" },
       });
-      return reply.code(400).send({ error: "forbidden" });
+      return reply.code(400).send({ error: "party_full" });
     }
 
     await prisma.$transaction([
