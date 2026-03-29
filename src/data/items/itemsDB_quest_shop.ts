@@ -91,7 +91,7 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     name: "Ring of Queen Ant",
     kind: "ring",
     slot: "rfinger;lfinger",
-    icon: "/items/drops/accessory_ring_of_queen_ant_i00.png",
+    icon: "/items/drops/ring-of-queen-ant.png",
     description: "Кільце Королеви мурахів B-grade. Трофей з епік-рейду.",
     grade: "B",
     stackable: false,
