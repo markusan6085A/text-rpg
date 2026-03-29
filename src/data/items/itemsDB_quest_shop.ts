@@ -49,8 +49,8 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     slot: "tattoo",
     icon: "/items/drops/item/R_talisman_cr_up_active_0.jpg",
     description:
-      "Нагорода за квест у руїнах Глудіо: +50 фіз. захисту, +50 маг. захисту, +300 HP, +100 MP.",
-    grade: "C",
+      "Нагорода за квест у руїнах Глудіо (D-grade, з 20 рів.): +50 фіз. захисту, +50 маг. захисту, +300 HP, +100 MP.",
+    grade: "D",
     stats: { pDef: 50, mDef: 50, maxHp: 300, maxMp: 100 },
     stackable: false,
   },
