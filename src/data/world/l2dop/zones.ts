@@ -29,13 +29,14 @@ import { buildL2DopHeineZones } from "./heineZones";
 import { buildL2DopHuntersVillageZones } from "./huntersVillageZones";
 import { buildL2DopGludinVillageZones } from "./gludinVillageZones";
 import { buildL2DopAncientTombFieldsZones } from "./ancientTombFieldsZones";
+import { appendEpicRaidBosses } from "./epicRaidBosses";
 
 function buildGludioZoneMobs(z: { id: string; min: number; max: number }) {
   const regular = fillZoneMobs(L2DOP_GLUDIO_POOL, z.id, z.min, z.max, 30, 150, 8, 18).map((m, i) =>
     applyL2XmlDropsToMob(m, z.id, i)
   );
   const champions = getGludioL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
-  const raidBosses = getGludioRaidBossesForZone(z.id);
+  const raidBosses = appendEpicRaidBosses(z.id, getGludioRaidBossesForZone(z.id));
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
@@ -44,7 +45,7 @@ function buildAdenZoneMobs(z: { id: string; min: number; max: number }) {
     applyL2XmlDropsToMob(m, z.id, i)
   );
   const champions = getAdenL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
-  const raidBosses = getAdenRaidBossesForZone(z.id);
+  const raidBosses = appendEpicRaidBosses(z.id, getAdenRaidBossesForZone(z.id));
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
@@ -54,7 +55,7 @@ function buildGoddardZoneMobs(z: { id: string; min: number; max: number }) {
     applyL2XmlDropsToMob(m, z.id, i)
   );
   const champions = getGoddardL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
-  const raidBosses = getGoddardRaidBossesForZone(z.id);
+  const raidBosses = appendEpicRaidBosses(z.id, getGoddardRaidBossesForZone(z.id));
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
@@ -64,7 +65,7 @@ function buildOrenZoneMobs(z: { id: string; min: number; max: number }) {
     applyL2XmlDropsToMob(m, z.id, i)
   );
   const champions = getOrenL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
-  const raidBosses = getOrenRaidBossesForZone(z.id);
+  const raidBosses = appendEpicRaidBosses(z.id, getOrenRaidBossesForZone(z.id));
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
 }
 
