@@ -93,9 +93,9 @@ export default function SummonStatus() {
           <span className="text-[10px] font-semibold text-[#ffe9c0] truncate flex-1 min-w-0">{name}</span>
         </div>
 
-        {/* Ряд 2: стати зліва | короткі HP/MP по центру | Lv + відклик справа */}
-        <div className="flex items-center gap-1.5 min-w-0 w-full">
-          <div className="flex flex-wrap gap-x-1 gap-y-0 leading-tight text-[7px] text-[#caa777] min-w-0 flex-1">
+        {/* Ряд 2: стати зліва | короткі HP/MP по центру | Lv + відклик справа (items-start — не тягнути вниз при переносі статів) */}
+        <div className="flex items-start gap-1.5 min-w-0 w-full">
+          <div className="flex flex-wrap gap-x-1 gap-y-0 leading-tight text-[7px] text-[#caa777] min-w-0 flex-1 content-start">
             <span>
               П-Урон: <span className="text-white">{pAtk}</span>
             </span>
@@ -109,43 +109,45 @@ export default function SummonStatus() {
               М-Деф: <span className="text-white">{mDef}</span>
             </span>
           </div>
-          <div className="flex flex-col gap-[2px] w-[5.5rem] sm:w-[6.25rem] shrink-0 max-w-[42%]">
-            <div className="w-full h-[0.32rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#4a0b13] to-[#2c070c]">
-              <div
-                className="h-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"
-                style={{ width: `${hpPercent}%` }}
-              />
-              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[5px] font-semibold text-[#ffecec] leading-none">
-                <span>HP</span>
-                <span className="tabular-nums truncate max-w-[70%] text-right">
-                  {hp}/{maxHp}
-                </span>
+          <div className="flex items-start gap-1.5 shrink-0 -mt-0.5">
+            <div className="flex flex-col gap-[2px] w-[5.5rem] sm:w-[6.25rem] max-w-[42%]">
+              <div className="w-full h-[0.32rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#4a0b13] to-[#2c070c]">
+                <div
+                  className="h-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"
+                  style={{ width: `${hpPercent}%` }}
+                />
+                <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[5px] font-semibold text-[#ffecec] leading-none">
+                  <span>HP</span>
+                  <span className="tabular-nums truncate max-w-[70%] text-right">
+                    {hp}/{maxHp}
+                  </span>
+                </div>
+              </div>
+              <div className="w-full h-[0.32rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#0d2f4e] to-[#081b2c]">
+                <div
+                  className="h-full bg-gradient-to-r from-[#4488ff] via-[#2e8bff] to-[#1160c5]"
+                  style={{ width: `${mpPercent}%` }}
+                />
+                <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[5px] font-semibold text-[#e6f3ff] leading-none">
+                  <span>MP</span>
+                  <span className="tabular-nums truncate max-w-[70%] text-right">
+                    {mp}/{maxMp}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="w-full h-[0.32rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#0d2f4e] to-[#081b2c]">
-              <div
-                className="h-full bg-gradient-to-r from-[#4488ff] via-[#2e8bff] to-[#1160c5]"
-                style={{ width: `${mpPercent}%` }}
-              />
-              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[5px] font-semibold text-[#e6f3ff] leading-none">
-                <span>MP</span>
-                <span className="tabular-nums truncate max-w-[70%] text-right">
-                  {mp}/{maxMp}
-                </span>
-              </div>
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="text-[9px] text-[#e8c56e] font-semibold tabular-nums whitespace-nowrap">
+                Lv {level}
+              </span>
+              <button
+                type="button"
+                onClick={handleDismiss}
+                className="px-1.5 py-0.5 bg-red-600/80 hover:bg-red-700 text-white text-[8px] font-semibold rounded border border-red-800 whitespace-nowrap"
+              >
+                Відкликати
+              </button>
             </div>
-          </div>
-          <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <span className="text-[9px] text-[#e8c56e] font-semibold tabular-nums whitespace-nowrap">
-              Lv {level}
-            </span>
-            <button
-              type="button"
-              onClick={handleDismiss}
-              className="px-1.5 py-0.5 bg-red-600/80 hover:bg-red-700 text-white text-[8px] font-semibold rounded border border-red-800 whitespace-nowrap"
-            >
-              Відкликати
-            </button>
           </div>
         </div>
       </div>
