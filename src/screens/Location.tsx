@@ -23,6 +23,7 @@ import { displayCityName, displayMobName, displayZoneName, displayZoneLore } fro
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
+import { isChampionMob } from "../utils/mobs/isChampionMob";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../data/world/l2dop/droplistMapping";
 import type { DropEntry } from "../data/combat/types";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
@@ -521,10 +522,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               const onRespawn = isMobOnRespawn(zone.id, globalIndex, heroName);
               if (onRespawn) return null;
 
-              const isChampion =
-                mob.name.startsWith("[Champion]") ||
-                mob.name.startsWith("[Чемпион]") ||
-                mob.name.startsWith("[Чемпіон]");
+              const isChampion = isChampionMob(mob);
               const isRaid = (mob as any).isRaidBoss === true;
               const isPatrol = mob.aggressivePatrol === true;
               const heroLevel = hero?.level || 1;
@@ -859,6 +857,12 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 {/* Досвід та валюта */}
                 <div className="border-t border-white/40 pt-2 mt-2">
                   <div className="text-sm font-semibold text-[#b8860b] mb-2">Нагороди:</div>
+                  {isChampionMob(selectedMob) ? (
+                    <p className="text-[10px] text-[#c9a44c] mb-2 leading-snug pr-0.5">
+                      Чемпіон: EXP, SP і Adena — уже повна нагорода за вбивство (множник у даних; у l2dop з пулу зазвичай
+                      ×10 до базового моба, у класичних зонах часто ще вищий коефіцієнт до звичайного моба тут).
+                    </p>
+                  ) : null}
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-gray-400">Досвід:</span>
