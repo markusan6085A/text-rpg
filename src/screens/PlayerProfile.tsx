@@ -29,7 +29,7 @@ import type { BattleBuff } from "../state/battle/types";
 import PkProfileView from "./player/PkProfileView";
 import InvitePlayerModal from "./clan/modals/InvitePlayerModal";
 import { locations as WORLD_LOCATIONS } from "../data/world";
-import { displayStoredLocationName } from "../utils/worldDisplay";
+import { formatPublicProfileLocation } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { useAutoShot } from "../state/battle/actions/useSkill/shotHelpers";
 import { calcAutoAttackInterval, calcPhysicalSkillCooldown } from "../utils/combatSpeed";
@@ -878,11 +878,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.killedMobs ?? stats.totalKills ?? 0;
   const pvpWins = stats.pvpWins || stats.pvp_wins || 0;
   const pvpLosses = stats.pvpLosses || stats.pvp_losses || 0;
-  // 🔥 location може зберігатися в різних місцях - перевіряємо всі варіанти
-  // Виправлено: спочатку перевіряємо stats, потім heroData
-  const location = stats.location || stats.currentLocation || stats.zone || heroData?.location || "Talking Island Village";
-  
-  // 🔥 Діагностика: виводимо знайдені значення (тільки в dev режимі)
+  const profileLocationLabel = formatPublicProfileLocation(character.heroJson, heroData?.location);
+
   if (import.meta.env.DEV) {
     console.log('[PlayerProfile] mobsKilled:', mobsKilled, 'from fields:', {
       mobsKilled: stats.mobsKilled,
@@ -890,11 +887,12 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       killedMobs: stats.killedMobs,
       totalKills: stats.totalKills,
     });
-    console.log('[PlayerProfile] location:', location, 'from fields:', {
+    console.log('[PlayerProfile] location resolved:', profileLocationLabel, {
       'stats.location': stats.location,
       'stats.currentLocation': stats.currentLocation,
       'stats.zone': stats.zone,
       'heroData.location': heroData?.location,
+      zoneId: stats.zoneId,
     });
   }
   const handleViewStats = async () => {
@@ -1326,10 +1324,29 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             isL2 ? "text-[#a89878] border-[#5c4a32]/45" : "text-gray-300 border-white/50"
           }`}
         >
-          {/* Профессия */}
-          <div className="flex justify-between">
-            <span>Профессия:</span>
-            <span className="text-yellow-300">{professionLabel}</span>
+          {/* Профессия + адена — акцентний блок */}
+          <div
+            className={
+              isL2
+                ? "rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,rgba(90,70,40,0.2)_0%,transparent_55%),linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(0,0,0,0.15)_100%)] p-2.5 space-y-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                : "rounded-lg border border-white/20 bg-white/5 p-2.5 space-y-2"
+            }
+          >
+            <div className="flex justify-between items-baseline gap-2">
+              <span className={isL2 ? "text-[#c9a44c]" : "text-amber-200"}>Профессия</span>
+              <span className={`font-semibold ${isL2 ? "text-[#f0d78c]" : "text-yellow-300"}`}>
+                {professionLabel}
+              </span>
+            </div>
+            <div className="flex justify-between items-baseline gap-2">
+              <span className={isL2 ? "text-[#8ebf88]" : "text-lime-300"}>Адена</span>
+              <span
+                className={`tabular-nums font-semibold ${isL2 ? "text-[#e8dcc8]" : "text-white"}`}
+                title={`${Number(character.adena ?? 0)}`}
+              >
+                {Number(character.adena ?? 0).toLocaleString("ru-RU")}
+              </span>
+            </div>
           </div>
 
           {/* Преміум */}
@@ -1392,8 +1409,21 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
           {/* Локація */}
           <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
-            <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-400"}>
-              В {displayStoredLocationName(location)}
+            <div
+              className={
+                isL2
+                  ? "text-[11px] leading-snug text-[#d4c4a8] px-1"
+                  : "text-[11px] leading-snug text-gray-200 px-1"
+              }
+            >
+              <span className={isL2 ? "text-[#8a7a60]" : "text-gray-400"}>Локация: </span>
+              <span className="font-medium">
+                {profileLocationLabel.trim()
+                  ? `В ${profileLocationLabel}`
+                  : isL2
+                    ? "не зафіксована (гравець у місті або дані ще не збережені)"
+                    : "неизвестна"}
+              </span>
             </div>
           </div>
 

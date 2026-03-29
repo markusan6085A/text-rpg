@@ -1,4 +1,4 @@
-import { locations } from "../data/world";
+import { getCityById, getLocationById, locations } from "../data/world";
 import { CITY_LABELS, ZONE_LABELS, ZONE_LORE } from "../data/world/locale/worldLabels";
 import { localizeMobDisplayName } from "../data/world/locale/mobLocale";
 import { getGameSettings, type Language } from "../state/gameSettings";
@@ -32,13 +32,41 @@ export function displayMobName(canonicalName: string): string {
 }
 
 /**
- * Рядок location з heroJson (канонічна назва зони) → підпис обраною мовою.
- * Якщо зона невідома — пробуємо як ім'я моба/довільний рядок.
+ * Рядок location з heroJson (id зони або канонічна назва) → підпис обраною мовою.
+ * Якщо зона невідома в даних — повертаємо сирий рядок (не через displayMobName: там «king»→«король»
+ * ламає, наприклад, «Talking Island»).
  */
 export function displayStoredLocationName(stored: string | undefined | null): string {
   const s = String(stored ?? "").trim();
   if (!s) return "";
+  const byId = getLocationById(s);
+  if (byId) return displayZoneName(byId);
   const z = locations.find((l) => l.name === s);
   if (z) return displayZoneName(z);
-  return displayMobName(s);
+  return s;
+}
+
+/**
+ * Локація для публічного профілю: зона за id (якщо збережено), інакше рядок location з heroJson.
+ */
+export function formatPublicProfileLocation(
+  heroJson: unknown,
+  heroTopLocation?: string | null | undefined
+): string {
+  const hj =
+    heroJson && typeof heroJson === "object" ? (heroJson as Record<string, unknown>) : {};
+  const idRaw = hj.zoneId ?? hj.lastZoneId ?? hj.currentZoneId;
+  const id = idRaw != null ? String(idRaw).trim() : "";
+  if (id) {
+    const zone = getLocationById(id);
+    if (zone) {
+      const city = getCityById(zone.cityId);
+      const zLabel = displayZoneName(zone);
+      if (city) return `${displayCityName(city)} — ${zLabel}`;
+      return zLabel;
+    }
+  }
+  const raw = String(hj.location ?? hj.currentLocation ?? hj.zone ?? heroTopLocation ?? "").trim();
+  if (!raw) return "";
+  return displayStoredLocationName(raw);
 }
