@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
-import { calculateEnchantedStats } from "../screens/character/inventoryUtils";
+import { calculateEnchantedStats, getSetInfo } from "../screens/character/inventoryUtils";
+import { SetBonusDisplay } from "../screens/character/SetBonusDisplay";
 import type { HeroInventoryItem } from "../types/Hero";
 
 interface PlayerItemModalProps {
@@ -24,6 +25,8 @@ export default function PlayerItemModal({
   const item = useMemo((): HeroInventoryItem | null => {
     if (!itemDef) return null;
     return {
+      id: itemDef.id,
+      name: itemDef.name,
       ...itemDef,
       enchantLevel,
       slot,
@@ -35,6 +38,8 @@ export default function PlayerItemModal({
     if (!item) return null;
     return calculateEnchantedStats(item);
   }, [item]);
+
+  const setInfoText = useMemo(() => (item ? getSetInfo(item) : null), [item]);
 
   if (!itemId) {
     return null;
@@ -226,6 +231,17 @@ export default function PlayerItemModal({
             </div>
           )}
         </div>
+
+        {/* Бонуси сету (як у EquipableItemModal при перегляді свого інвентаря) */}
+        {setInfoText && (
+          <>
+            <div className="w-full h-px bg-gray-600 mb-3"></div>
+            <div className="mb-3">
+              <div className="text-sm font-semibold text-[#b8860b] mb-2">Сет:</div>
+              <SetBonusDisplay text={setInfoText} className="text-yellow-400 text-xs" />
+            </div>
+          </>
+        )}
 
         {/* Риска */}
         <div className="w-full h-px bg-gray-600 mb-3"></div>
