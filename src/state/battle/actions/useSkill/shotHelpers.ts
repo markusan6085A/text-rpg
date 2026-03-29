@@ -134,7 +134,10 @@ function inventoryHasShotStack(
   return found ? { item: found } : null;
 }
 
-/** Спочатку слоти з activeChargeSlots (увімкнені кліком), потім усі інші — як у L2 достатньо мати заряд на панелі */
+/**
+ * Лише індекси слотів, увімкнених кліком (activeChargeSlots).
+ * Без увімкнення заряд на панелі не споживається і бонус до урону не дається.
+ */
 function buildShotSlotScanOrder(
   loadoutSlots: (number | string | null)[],
   activeChargeSlots: number[] | readonly number[] | unknown[]
@@ -142,16 +145,14 @@ function buildShotSlotScanOrder(
   const len = loadoutSlots.length;
   const seen = new Set<number>();
   const out: number[] = [];
-  const add = (raw: unknown) => {
-    const n = typeof raw === "string" ? parseInt(raw, 10) : Number(raw);
-    if (!Number.isFinite(n) || n < 0 || n >= len) return;
+  for (const x of activeChargeSlots ?? []) {
+    const n = typeof x === "string" ? parseInt(x, 10) : Number(x);
+    if (!Number.isFinite(n) || n < 0 || n >= len) continue;
     const i = Math.floor(n);
-    if (seen.has(i)) return;
+    if (seen.has(i)) continue;
     seen.add(i);
     out.push(i);
-  };
-  for (const x of activeChargeSlots ?? []) add(x);
-  for (let i = 0; i < len; i++) add(i);
+  }
   return out;
 }
 
@@ -165,27 +166,8 @@ function applyShotConsumptionToInventory(inventory: any[], actualItemId: string,
     .filter(Boolean) as any[];
 }
 
-/** Перший стак у інвентарі відповідного типу/грейду (резерв, якщо панель порожня або slot у БД не consumable) */
-function findFirstConsumableStackInInventory(
-  inventory: any[],
-  shotType: "soulshot" | "spiritshot",
-  weaponGrade: "NG" | "D" | "C" | "B" | "A" | "S" | null,
-  toConsume: number
-): { actualItemId: string } | null {
-  for (const invItem of inventory) {
-    if ((invItem.count ?? 0) < toConsume) continue;
-    const noid = String(invItem.id || "").replace(/^shop_/, "").toLowerCase();
-    if (!isShotConsumable(noid, shotType)) continue;
-    const sg = getShotGrade(noid);
-    if (weaponGrade != null && sg != null && sg !== weaponGrade) continue;
-    if (!invItem.id) continue;
-    return { actualItemId: invItem.id };
-  }
-  return null;
-}
-
 /**
- * Soulshot/spiritshot: спочатку слоти панелі, інакше — перший відповідний стак у інвентарі.
+ * Soulshot/spiritshot: тільки зі слотів панелі, увімкнених через toggleChargeSlot (activeChargeSlots).
  * Удар: 1 заряд. Ударний скіл: 2 заряди.
  */
 export function useAutoShot(
@@ -227,15 +209,6 @@ export function useAutoShot(
       return { inventory: updated };
     }
 
-    const direct = findFirstConsumableStackInInventory(inv, shotType, weaponGrade, toConsume);
-    if (direct) {
-      const updated = applyShotConsumptionToInventory(inv, direct.actualItemId, toConsume);
-      out.used = true;
-      out.multiplier = SHOT_DAMAGE_MULTIPLIER;
-      out.shotType = shotType;
-      return { inventory: updated };
-    }
-
     return {};
   }, { persist: true });
 
@@ -260,7 +233,7 @@ export function useAutoShot(
 }
 
 /**
- * Перевіряє чи spiritshot увімкнений на панелі і є в інвентарі (для магів, хіл x2).
+ * Spiritshot увімкнений кліком по слоту заряду (activeChargeSlots) і є стак у інвентарі (хіл x2 тощо).
  */
 export function hasSpiritshotActive(
   hero: Hero,
@@ -270,7 +243,6 @@ export function hasSpiritshotActive(
   const h = useHeroStore.getState().hero ?? hero;
   const inv = h?.inventory;
   if (!inv?.length) return false;
-  const weaponGrade = getWeaponGrade(h);
   for (const slotIndex of buildShotSlotScanOrder(loadoutSlots, activeChargeSlots)) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
@@ -278,6 +250,6 @@ export function hasSpiritshotActive(
     if (!isShotConsumable(itemId, "spiritshot")) continue;
     if (inventoryHasShotStack(inv, itemId, "spiritshot", 1)) return true;
   }
-  return findFirstConsumableStackInInventory(inv, "spiritshot", weaponGrade, 1) != null;
+  return false;
 }
 
