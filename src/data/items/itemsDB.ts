@@ -18,12 +18,13 @@ import { itemsDBQuestShop } from './itemsDB_quest_shop';
 import { itemsDBCrystals } from './itemsDB_crystals';
 import { itemsDBCraftResources } from './itemsDBCraftResources';
 import { starterKitItems } from '../starterKitItems';
+import { applyShopJewelryStatsToItemsDB } from '../shop/jewelryStatsByShopId';
 
 // Експортуємо тип для зручності використання
 export type { ItemDefinition } from './itemsDB.types';
 
 // Об'єднуємо всі частини
-export const itemsDB: Record<string, ItemDefinition> = {
+const itemsDBRaw: Record<string, ItemDefinition> = {
   ...itemsDBChunk0,
   ...itemsDBChunk1,
   ...itemsDBChunk2,
@@ -39,6 +40,9 @@ export const itemsDB: Record<string, ItemDefinition> = {
   ...itemsDBCrystals,
   ...itemsDBCraftResources,
 };
+
+/** M.Def / maxMp для біжутерії з магазину (l2elo / Interlude) */
+export const itemsDB: Record<string, ItemDefinition> = applyShopJewelryStatsToItemsDB(itemsDBRaw);
 
 // Об'єднуємо itemsDB з starterKitItems для стартового набору
 export const itemsDBWithStarter: Record<string, ItemDefinition> = {
