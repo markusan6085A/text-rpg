@@ -305,8 +305,11 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     });
   }
 
+  // Інвентар часто має лише `type` (з heroFactory / дропу), без `kind`
+  const itemKindForEquip = item.kind ?? item.type ?? itemDef?.kind;
+
   // Тату можна одягати в слот "tattoo"
-  if (slot === "tattoo" && item.kind !== "tattoo") {
+  if (slot === "tattoo" && itemKindForEquip !== "tattoo") {
     return hero;
   }
 
