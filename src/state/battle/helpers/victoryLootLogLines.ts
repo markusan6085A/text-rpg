@@ -22,3 +22,20 @@ export function buildVictoryResourceLogLines(
   const a = formatLootInt(displayAdena);
   return [`Выпало: ${a} аден, ${e} EXP и ${s} SP`];
 }
+
+/** Рядки для союзників у пати (рівна частка EXP/адена/SP, як на сервері kill-share). */
+export function buildPartyMemberVictoryLogLines(
+  members: { characterId: string; name: string }[],
+  killerCharacterId: string,
+  eachExp: number,
+  eachSp: number,
+  eachAdena: number
+): string[] {
+  if (eachExp === 0 && eachSp === 0 && eachAdena === 0) return [];
+  const e = formatLootInt(eachExp);
+  const s = formatLootInt(eachSp);
+  const a = formatLootInt(eachAdena);
+  return members
+    .filter((m) => m.characterId !== killerCharacterId)
+    .map((m) => `${m.name} получил ${e} EXP, ${a} аден и ${s} SP.`);
+}

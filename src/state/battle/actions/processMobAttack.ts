@@ -597,6 +597,7 @@ export const createProcessMobAttack =
           v.displayAdena
         ),
         ...(v.dropMessages.length > 0 ? v.dropMessages : []),
+        ...(v.partyMemberLootLines.length > 0 ? v.partyMemberLootLines : []),
       ].filter((msg) => msg !== null) as string[];
       const combinedLog = [
         ...(v.levelUpMessage ? [v.levelUpMessage] : []),

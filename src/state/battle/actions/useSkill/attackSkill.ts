@@ -218,7 +218,8 @@ export function handleAttackSkill(
       zoneId: state.zoneId,
       mobIndex: state.mobIndex,
     });
-    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage } = v;
+    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage, partyMemberLootLines } =
+      v;
     if (levelUpMessage) newLog.unshift(levelUpMessage);
 
     setAndPersist({
@@ -235,6 +236,7 @@ export function handleAttackSkill(
           displayAdena
         ),
         ...(dropMessages.length > 0 ? dropMessages : []),
+        ...(partyMemberLootLines.length > 0 ? partyMemberLootLines : []),
         ...newLog,
       ].filter((msg) => msg !== null).slice(0, 30),
       cooldowns: updatedCooldowns,

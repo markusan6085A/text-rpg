@@ -219,6 +219,36 @@ function iconPathForDropDisplayName(displayName: string): string | null {
   return dropDisplayNameToIcon.get(stripGradesForLootMatch(n)) ?? null;
 }
 
+/** Частка союзника в пати: «Нік получил 612 EXP, 187 аден и 34 SP.» */
+const parsePartyMemberShareLine = (line: string): React.ReactNode | null => {
+  const m = line.match(
+    /^(.+?)\s+получил\s+(.+?)\s+EXP,\s+(.+?)\s+аден\s+и\s+(.+?)\s+SP\.?$/i
+  );
+  if (!m) return null;
+  const [, name, expNum, adenaNum, spNum] = m;
+  return (
+    <div className="text-[#e8dcc8]">
+      <span className="text-[#c4b498] font-medium">{name.trim()}</span>
+      <span> получил </span>
+      <span className="inline-flex items-baseline gap-0 text-[#86efac] font-medium">
+        {inlineLootIcon(ICON_EXP)}
+        <span className="tabular-nums">{expNum.trim()}</span>
+        <span> EXP, </span>
+      </span>
+      <span className="inline-flex items-baseline gap-0 text-[#facc15] font-medium">
+        {inlineLootIcon(ICON_ADENA)}
+        <span className="tabular-nums">{adenaNum.trim()}</span>
+        <span> аден и </span>
+      </span>
+      <span className="inline-flex items-baseline gap-0 text-[#ca8a04] font-medium">
+        {inlineLootIcon(ICON_SP)}
+        <span className="tabular-nums">{spNum.trim()}</span>
+        <span> SP.</span>
+      </span>
+    </div>
+  );
+};
+
 const parsePoluchilLine = (line: string): React.ReactNode | null => {
   const m = line.match(/^(.+?)\s+получил\s+(.+?)\s+EXP\s+и\s+(.+?)\s+SP$/i);
   if (!m) return null;
@@ -317,6 +347,10 @@ export function BattleLog({
         const dobychaLine = parseDobychaLine(lineStr);
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
+        }
+        const partyShare = parsePartyMemberShareLine(lineStr);
+        if (partyShare) {
+          return <div key={idx}>{partyShare}</div>;
         }
         const poluchil = parsePoluchilLine(lineStr);
         if (poluchil) {

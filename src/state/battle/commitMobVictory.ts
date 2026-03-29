@@ -18,6 +18,7 @@ import { isChampionMob } from "../../utils/mobs/isChampionMob";
 import { getZoneActivityLabel } from "../../data/world";
 import { usePartyStore } from "../partyStore";
 import { postPartyKillShare } from "../../utils/api";
+import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -46,6 +47,8 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   dropMessages: string[];
   mobSpoiled: boolean;
   levelUpMessage?: string;
+  /** Рядки в лог бою про частку союзників пати (якщо пати > 1). */
+  partyMemberLootLines: string[];
 } {
   const {
     mob,
@@ -82,6 +85,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   let levelUpMessage: string | undefined;
 
   let partySharePayload: { baseExp: number; baseSp: number; baseAdena: number } | null = null;
+  let partyLogMeta: { heroId: string; eEach: number; sEach: number; aEach: number } | null = null;
   const partyN = (() => {
     try {
       const p = usePartyStore.getState().party;
@@ -156,6 +160,14 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         baseSp: finalSpGain,
         baseAdena: finalAdenaGain,
       };
+      if (curHero.id) {
+        partyLogMeta = {
+          heroId: String(curHero.id),
+          eEach,
+          sEach,
+          aEach,
+        };
+      }
     }
 
     displayExp = applyExpGain;
@@ -254,6 +266,24 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     void postPartyKillShare(partySharePayload).catch(() => {});
   }
 
+  let partyMemberLootLines: string[] = [];
+  if (partyLogMeta?.heroId) {
+    try {
+      const party = usePartyStore.getState().party;
+      if (party?.members?.length) {
+        partyMemberLootLines = buildPartyMemberVictoryLogLines(
+          party.members,
+          partyLogMeta.heroId,
+          partyLogMeta.eEach,
+          partyLogMeta.sEach,
+          partyLogMeta.aEach
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
   const isRaidBoss = (mob as any)?.isRaidBoss === true;
   if (isRaidBoss && curHeroForLog) {
     reportRaidBossKill({
@@ -288,5 +318,13 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     setMobRespawn(zoneId, mobIndex, respawnTime, heroName);
   }
 
-  return { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage };
+  return {
+    displayExp,
+    displaySp,
+    displayAdena,
+    dropMessages,
+    mobSpoiled,
+    levelUpMessage,
+    partyMemberLootLines,
+  };
 }

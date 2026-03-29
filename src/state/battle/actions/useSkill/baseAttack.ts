@@ -307,7 +307,8 @@ export function handleBaseAttack(
       zoneId: state.zoneId,
       mobIndex: state.mobIndex,
     });
-    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage } = v;
+    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage, partyMemberLootLines } =
+      v;
     if (levelUpMessage) newLog.unshift(levelUpMessage);
 
     const maxAfter = computeMaxNow(activeBuffs);
@@ -337,6 +338,9 @@ export function handleBaseAttack(
     // Додаємо повідомлення про дропи
     if (dropMessages.length > 0) {
       lootMessages.push(...dropMessages);
+    }
+    if (partyMemberLootLines.length > 0) {
+      lootMessages.push(...partyMemberLootLines);
     }
 
     setAndPersist({

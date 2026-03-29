@@ -700,7 +700,8 @@ export function processSummonAttack(
       zoneId: state.zoneId,
       mobIndex: state.mobIndex,
     });
-    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage } = v;
+    const { displayExp, displaySp, displayAdena, dropMessages, mobSpoiled, levelUpMessage, partyMemberLootLines } =
+      v;
     if (levelUpMessage) newLog.unshift(levelUpMessage);
 
     updates.status = "victory";
@@ -716,6 +717,7 @@ export function processSummonAttack(
         displayAdena
       ),
       ...(dropMessages.length > 0 ? dropMessages : []),
+      ...(partyMemberLootLines.length > 0 ? partyMemberLootLines : []),
       ...newLog,
     ].filter((msg) => msg !== null).slice(0, 30);
     updates.lastReward = {
