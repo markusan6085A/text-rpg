@@ -13,11 +13,9 @@ export interface ShotResult {
  * Визначає грейд зброї з екіпіровки
  */
 function getWeaponGrade(hero: Hero): "NG" | "D" | "C" | "B" | "A" | "S" | null {
-  if (!hero?.equipment?.weapon) return null;
-  
-  const weaponId = hero.equipment.weapon;
-  
-  // Використовуємо функцію з arrowHelpers для кращого визначення грейду
+  const weaponId = hero?.equipment?.weapon ?? hero?.equipment?.lrhand ?? null;
+  if (!weaponId) return null;
+
   return getWeaponGradeFromArrowHelpers(weaponId);
 }
 

@@ -3,29 +3,43 @@
 
 import type { Hero, HeroInventoryItem } from "../../../../types/Hero";
 import { itemsDB } from "../../../../data/items/itemsDB";
+import type { ItemDefinition } from "../../../../data/items/itemsDB.types";
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
 
+function gradeFromItemsDb(def: ItemDefinition | undefined): "NG" | "D" | "C" | "B" | "A" | "S" | null {
+  const g = def?.grade;
+  return g ?? null;
+}
+
 /**
- * Визначає грейд зброї за itemId
+ * Визначає грейд зброї за itemId (спочатку itemsDB — інакше Spirit's Staff / Dasparion's дають хибний S через _s_ у назві)
  */
 export function getWeaponGrade(itemId: string | null | undefined): "NG" | "D" | "C" | "B" | "A" | "S" | null {
   if (!itemId) return null;
-  
-  const id = itemId.toLowerCase();
+
+  const raw = itemId;
+  const id = raw.toLowerCase();
+  const candidates = [raw, id, id.replace(/^shop_/, ""), id.startsWith("shop_") ? id : `shop_${id}`];
+  for (const key of candidates) {
+    const g = gradeFromItemsDb(itemsDB[key]);
+    if (g) return g;
+  }
+
+  const idLo = id;
   // Зброя типу weapon_iron_hammer_ng, weapon_sword_d — грейд в кінці
-  if (id.endsWith("_ng")) return "NG";
-  if (id.endsWith("_d")) return "D";
-  if (id.endsWith("_c")) return "C";
-  if (id.endsWith("_b")) return "B";
-  if (id.endsWith("_a")) return "A";
-  if (id.endsWith("_s")) return "S";
-  if (id.startsWith("s_") || id.includes("_s_")) return "S";
-  if (id.startsWith("a_") || id.includes("_a_")) return "A";
-  if (id.startsWith("b_") || id.includes("_b_")) return "B";
-  if (id.startsWith("c_") || id.includes("_c_")) return "C";
-  if (id.startsWith("d_") || id.includes("_d_")) return "D";
-  if (id.startsWith("ng_") || id.includes("_ng_")) return "NG";
-  
+  if (idLo.endsWith("_ng")) return "NG";
+  if (idLo.endsWith("_d")) return "D";
+  if (idLo.endsWith("_c")) return "C";
+  if (idLo.endsWith("_b")) return "B";
+  if (idLo.endsWith("_a")) return "A";
+  if (idLo.endsWith("_s")) return "S";
+  if (idLo.startsWith("s_") || idLo.includes("_s_")) return "S";
+  if (idLo.startsWith("a_") || idLo.includes("_a_")) return "A";
+  if (idLo.startsWith("b_") || idLo.includes("_b_")) return "B";
+  if (idLo.startsWith("c_") || idLo.includes("_c_")) return "C";
+  if (idLo.startsWith("d_") || idLo.includes("_d_")) return "D";
+  if (idLo.startsWith("ng_") || idLo.includes("_ng_")) return "NG";
+
   return null;
 }
 
