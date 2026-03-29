@@ -382,6 +382,30 @@ export default function Stats() {
                 <span className="text-[#c88a5c]">Сила крита</span>
                 <span className={valClass}>{formatStatValue(combatStats.critPower)} (×{Math.min(2.0, (1.5 + (combatStats.critPower ?? 0) / 5000)).toFixed(2)} атака / ×{Math.min(3.0, (2.0 + (combatStats.critPower ?? 0) / 1500)).toFixed(2)} скіли)</span>
               </div>
+              {(combatStats as any).poisonResist ? (
+                <div className="flex justify-between">
+                  <span className="text-[#c88a5c]">Стійк. до отрути</span>
+                  <span className={valClass}>{formatStatValue((combatStats as any).poisonResist)}%</span>
+                </div>
+              ) : null}
+              {(combatStats as any).holdResist ? (
+                <div className="flex justify-between">
+                  <span className="text-[#c88a5c]">Стійк. до утримання</span>
+                  <span className={valClass}>{formatStatValue((combatStats as any).holdResist)}%</span>
+                </div>
+              ) : null}
+              {(combatStats as any).poisonChanceBonus ? (
+                <div className="flex justify-between">
+                  <span className="text-[#c88a5c]">Шанс отрути (бонус)</span>
+                  <span className={valClass}>+{formatStatValue((combatStats as any).poisonChanceBonus)}%</span>
+                </div>
+              ) : null}
+              {(combatStats as any).holdChanceBonus ? (
+                <div className="flex justify-between">
+                  <span className="text-[#c88a5c]">Шанс утримання (бонус)</span>
+                  <span className={valClass}>+{formatStatValue((combatStats as any).holdChanceBonus)}%</span>
+                </div>
+              ) : null}
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. каста</span>
                 <span className={valClass}>{formatStatValue(combatStats.castSpeed)}</span>

@@ -92,9 +92,20 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     kind: "ring",
     slot: "rfinger;lfinger",
     icon: "/items/drops/ring-of-queen-ant.png",
-    description: "Кільце Королеви мурахів B-grade. Трофей з епік-рейду.",
+    description:
+      "Кільце Королеви мурахів (epic). M.Def +40, Max MP +46. Пасиви: опір отруєнню та утриманню +30%, шанс отруїти та накласти утримання +30%, точність +2, сила крит. удару +15%. У L2 два таких кільця не підсумовують пасиви — у грі діє лише одне екіповане (унікальне правило).",
     grade: "B",
     stackable: false,
-    stats: { mDef: 40, maxMp: 46 },
+    stats: {
+      mDef: 40,
+      maxMp: 46,
+      accuracy: 2,
+      /** ~+15% до множника кріт-удару (див. getCritMultiplier: +450 ≈ +0.15 до множника) */
+      critPower: 450,
+      poisonResist: 30,
+      holdResist: 30,
+      poisonChanceBonus: 30,
+      holdChanceBonus: 30,
+    },
   },
 };

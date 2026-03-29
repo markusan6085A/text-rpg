@@ -26,6 +26,29 @@ export interface CombatStats {
   shieldBlockPower?: number;
   /** % bonus to magic skill damage (from set INT bonuses) */
   magicSkillPower?: number;
+  /** % стійкість до отрути (для resistStat poison у скілах) */
+  poisonResist?: number;
+  /** % стійкість до утримання/root */
+  holdResist?: number;
+  /** % бонус до шансу накласти отруту (закладка під атакуючі ефекти) */
+  poisonChanceBonus?: number;
+  /** % бонус до шансу накласти утримання */
+  holdChanceBonus?: number;
+}
+
+const RING_OF_QUEEN_ANT_ID = "ring_of_queen_ant";
+
+/** Перший слот (лексикографічно) з цим id — єдиний, що дає статти; як у L2 для унікальних епік-кєць. */
+function primaryEquipmentSlotForItem(
+  equipment: Record<string, string | null> | undefined,
+  itemId: string
+): string | null {
+  if (!equipment) return null;
+  const slots = Object.entries(equipment)
+    .filter(([, id]) => id === itemId)
+    .map(([s]) => s)
+    .sort();
+  return slots[0] ?? null;
 }
 
 export function calcCombatStats(
@@ -79,10 +102,19 @@ export function calcCombatStats(
   let mDefPercentBonus = 0;
   let pAtkPercentBonus = 0;
   let mAtkPercentBonus = 0;
+  let poisonResist = 0;
+  let holdResist = 0;
+  let poisonChanceBonus = 0;
+  let holdChanceBonus = 0;
+
+  const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
 
   // 2. Equipment bonuses
   if (equipment) {
     Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
+      if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
+        return;
+      }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
       if (itemId && itemDef && itemDef.stats) {
         const itemStats = itemDef.stats;
@@ -141,6 +173,10 @@ export function calcCombatStats(
         if (itemStats.critPower) critPower += itemStats.critPower;
         if (itemStats.shieldBlockRate) shieldBlockRate += itemStats.shieldBlockRate;
         if (itemStats.shieldBlockPower) shieldBlockPower += itemStats.shieldBlockPower;
+        if (itemStats.poisonResist) poisonResist += itemStats.poisonResist;
+        if (itemStats.holdResist) holdResist += itemStats.holdResist;
+        if (itemStats.poisonChanceBonus) poisonChanceBonus += itemStats.poisonChanceBonus;
+        if (itemStats.holdChanceBonus) holdChanceBonus += itemStats.holdChanceBonus;
       }
     });
     // Відсоткові бонуси будуть застосовані після set bonuses
@@ -199,6 +235,10 @@ export function calcCombatStats(
     if (setBonuses.critDamage) critPower += setBonuses.critDamage;
     // Підтримка skillCritPower (магічна сила крита)
     if (setBonuses.skillCritPower) critPower += setBonuses.skillCritPower;
+    if (setBonuses.poisonResist) poisonResist += setBonuses.poisonResist;
+    if (setBonuses.holdResist) holdResist += setBonuses.holdResist;
+    if (setBonuses.poisonChanceBonus) poisonChanceBonus += setBonuses.poisonChanceBonus;
+    if (setBonuses.holdChanceBonus) holdChanceBonus += setBonuses.holdChanceBonus;
     
     if (setBonuses.attackSpeed) attackSpeed += setBonuses.attackSpeed;
     if (setBonuses.castSpeed) castSpeed += setBonuses.castSpeed;
@@ -321,6 +361,10 @@ export function calcCombatStats(
     shieldBlockRate,
     shieldBlockPower,
     magicSkillPower: magicSkillPower > 0 ? magicSkillPower : undefined,
+    ...(poisonResist > 0 ? { poisonResist } : {}),
+    ...(holdResist > 0 ? { holdResist } : {}),
+    ...(poisonChanceBonus > 0 ? { poisonChanceBonus } : {}),
+    ...(holdChanceBonus > 0 ? { holdChanceBonus } : {}),
   };
 }
 
