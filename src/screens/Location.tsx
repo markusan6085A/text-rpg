@@ -25,7 +25,7 @@ import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { isChampionMob } from "../utils/mobs/isChampionMob";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../data/world/l2dop/droplistMapping";
-import { isL2EpicRaidBossMob } from "../data/world/l2dop/epicRaidBosses";
+import { getEpicRaidBossNamesForZone, isL2EpicRaidBossMob } from "../data/world/l2dop/epicRaidBosses";
 import type { DropEntry } from "../data/combat/types";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
@@ -957,48 +957,64 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         }))
                       : (selectedMob.drops ?? []);
                     const dropsNoAdena = displayDrops.filter((d) => d.id !== "adena" && d.kind !== "adena");
+                    const isRaid = (selectedMob as { isRaidBoss?: boolean }).isRaidBoss === true;
+                    const epicNames = getEpicRaidBossNamesForZone(zone.id);
+                    const showEpicHint =
+                      isRaid &&
+                      dropsNoAdena.length === 0 &&
+                      epicNames.length > 0 &&
+                      !isL2EpicRaidBossMob(selectedMob);
                     return (
-                      dropsNoAdena.length > 0 && (
+                      (dropsNoAdena.length > 0 || showEpicHint) && (
                         <div className="border-t border-white/40 pt-2 mt-2">
                           <div className="text-sm font-semibold text-[#b8860b] mb-2">Дроп:</div>
-                          <div className="space-y-1">
-                            {dropsNoAdena.map((drop: DropEntry, idx: number) => {
-                              const itemDef = itemsDB[drop.id];
-                              const iconPath = dropLineIconPath(drop);
-                              const itemName =
-                                itemDef?.name || drop.displayName || resourceLootDisplayName(drop.id);
-                              const isResource =
-                                itemDef?.kind === "resource" ||
-                                itemDef?.kind === "other" ||
-                                drop.kind === "resource" ||
-                                drop.kind === "adena";
-                              const itemGrade = !isResource ? (itemDef?.grade ?? autoDetectGrade(drop.id)) : null;
-                              const gradeDisplay = itemGrade ? ` [${itemGrade}]` : "";
-                              const canInspect = !!itemDef || !!drop.displayName || drop.id.startsWith("l2item_");
+                          {dropsNoAdena.length > 0 ? (
+                            <div className="space-y-1">
+                              {dropsNoAdena.map((drop: DropEntry, idx: number) => {
+                                const itemDef = itemsDB[drop.id];
+                                const iconPath = dropLineIconPath(drop);
+                                const itemName =
+                                  itemDef?.name || drop.displayName || resourceLootDisplayName(drop.id);
+                                const isResource =
+                                  itemDef?.kind === "resource" ||
+                                  itemDef?.kind === "other" ||
+                                  drop.kind === "resource" ||
+                                  drop.kind === "adena";
+                                const itemGrade = !isResource ? (itemDef?.grade ?? autoDetectGrade(drop.id)) : null;
+                                const gradeDisplay = itemGrade ? ` [${itemGrade}]` : "";
+                                const canInspect = !!itemDef || !!drop.displayName || drop.id.startsWith("l2item_");
 
-                              return (
-                                <div
-                                  key={idx}
-                                  className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
-                                  onClick={() => canInspect && setSelectedDropItem(drop.id)}
-                                >
-                                  <img
-                                    src={iconPath}
-                                    alt={itemName}
-                                    className="w-5 h-5 object-contain border border-white/40 bg-black/40"
-                                    onError={onL2ResourceIconImgError}
-                                  />
-                                  <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">
-                                    {itemName}
-                                    {gradeDisplay}:
-                                  </span>
-                                  <span className="text-green-400">
-                                    {drop.min}-{drop.max} ({formatDropChanceLabel(drop)})
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
+                                return (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-800/50 p-1 rounded transition-colors"
+                                    onClick={() => canInspect && setSelectedDropItem(drop.id)}
+                                  >
+                                    <img
+                                      src={iconPath}
+                                      alt={itemName}
+                                      className="w-5 h-5 object-contain border border-white/40 bg-black/40"
+                                      onError={onL2ResourceIconImgError}
+                                    />
+                                    <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">
+                                      {itemName}
+                                      {gradeDisplay}:
+                                    </span>
+                                    <span className="text-green-400">
+                                      {drop.min}-{drop.max} ({formatDropChanceLabel(drop)})
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : null}
+                          {showEpicHint ? (
+                            <p className="text-[11px] leading-snug text-[#a89878] mt-1">
+                              Для цього рейдбоса таблиця дропу порожня. Епік-РБ цієї зони (у т.ч.{" "}
+                              <span className="text-[#c9a44c] font-medium">Ring of Queen Ant</span> ~30%) дивись у
+                              картці окремого моба з іменем на кшталт: {epicNames.join(", ")}.
+                            </p>
+                          ) : null}
                         </div>
                       )
                     );

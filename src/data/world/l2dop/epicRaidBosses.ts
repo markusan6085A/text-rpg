@@ -204,6 +204,11 @@ for (const rb of L2_EPIC_RAID_BOSSES) {
   EPIC_BY_ZONE.set(z, list);
 }
 
+/** Назви епік-РБ у зоні (для підказки в UI: повний дроп лише в їх картці). */
+export function getEpicRaidBossNamesForZone(zoneId: string): string[] {
+  return (EPIC_BY_ZONE.get(zoneId) ?? []).map((b) => b.name);
+}
+
 /** Епік L2 у списку локації / бою (за id або прапорцем). */
 export function isL2EpicRaidBossMob(mob: { id?: string; isEpicRaidBoss?: boolean }): boolean {
   return mob.isEpicRaidBoss === true || (typeof mob.id === "string" && mob.id.startsWith("rb_epic_l2_"));
