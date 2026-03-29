@@ -352,8 +352,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           cp: Math.min(finalCp, buffedMax.maxCp),
           battleStats: recalculated.baseFinalStats,
         };
+        const serverHeroJson = character.heroJson as Record<string, unknown> | null | undefined;
+        const serverSeven = serverHeroJson?.sevenSealsBonus;
         (mergedHero as any).heroJson = {
           ...((mergedHero as any).heroJson || {}),
+          ...(serverSeven && typeof serverSeven === "object"
+            ? { sevenSealsBonus: serverSeven }
+            : {}),
           adena: finalAdenaPreferred,
           inventory: consolidatedInv,
           overflowChest: mergedOverflowPreferred,

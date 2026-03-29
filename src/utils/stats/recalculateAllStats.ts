@@ -23,6 +23,7 @@ import { computeBuffedMaxResources, applyBuffsToStats } from "../../state/battle
 import { getMaxResources } from "../../state/battle/helpers/getMaxResources";
 import { getSkillDef } from "../../state/battle/loadout";
 import type { BattleBuff } from "../../state/battle/types";
+import { getSevenSealsBonusFromHero } from "../sevenSealsBonus";
 
 export interface RecalculatedStats {
   baseStats: {
@@ -147,9 +148,10 @@ export function recalculateAllStats(
   );
 
   // 3.5. Бонус 7 печатей (победитель 1-3 місце) — рандомні стати до наступної суботи 22:00 (Europe/Warsaw)
-  const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus as { pAtk?: number; mAtk?: number; pDef?: number; mDef?: number; expiresAt?: number } | undefined;
+  // У heroJson або на верхньому рівні (спред з character.heroJson у loadHeroFromAPI)
+  const sevenSealsBonus = getSevenSealsBonusFromHero(hero);
   if (sevenSealsBonus && typeof sevenSealsBonus === "object") {
-    const expiresAt = sevenSealsBonus.expiresAt ?? 0;
+    const expiresAt = Number(sevenSealsBonus.expiresAt) || 0;
     if (expiresAt > Date.now()) {
       const b = sevenSealsBonus;
       combatStats = {

@@ -10,7 +10,7 @@ import { getMaxResources } from "../state/battle/helpers/getMaxResources";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
 import { PlayerNameWithEmblem } from "./PlayerNameWithEmblem";
 import HeroResourceBars from "./HeroResourceBars";
-import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
+import { getActiveSevenSealsRank, getSevenSealsBonusFromHero } from "../utils/sevenSealsBonus";
 import { getMyClan, getPkState } from "../utils/api";
 import { isPremiumActive } from "../utils/premium/isPremiumActive";
 import { getCombinedHeroBuffs, getHeroResourceValues } from "../utils/heroBuffedResources";
@@ -334,7 +334,7 @@ export default function StatusBars({ showResourceHud = false }: StatusBarsProps)
               playerName={hero.name}
               hero={hero}
               clan={myClan}
-              sevenSealsWinnerRank={getActiveSevenSealsRank((hero as any)?.heroJson?.sevenSealsBonus)}
+              sevenSealsWinnerRank={getActiveSevenSealsRank(getSevenSealsBonusFromHero(hero))}
               size={8}
             />
             {isPremiumActive(hero) && (

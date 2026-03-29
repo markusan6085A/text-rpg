@@ -7,7 +7,7 @@ import CharacterEquipmentFrame from "./CharacterEquipmentFrame";
 import RecipeBookButton from "./RecipeBookButton";
 import CharacterBuffs from "./CharacterBuffs";
 import SevenSealsBonusModal from "../../components/SevenSealsBonusModal";
-import { getActiveSevenSealsRank } from "../../utils/sevenSealsBonus";
+import { getActiveSevenSealsRank, getSevenSealsBonusFromHero } from "../../utils/sevenSealsBonus";
 import { listCharacters, getSevenSealsRank, claimSevenSealsReward, type Character } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
@@ -602,7 +602,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
         <SevenSealsBonusModal
           rank={sevenSealsRank as 1 | 2 | 3}
           playerName={nickname}
-          bonus={(hero as any)?.heroJson?.sevenSealsBonus}
+          bonus={getSevenSealsBonusFromHero(hero) as { pAtk: number; mAtk: number; pDef: number; mDef: number; coinLuck?: number } | undefined}
           onClose={() => setShowSevenSealsModal(false)}
         />
       )}
