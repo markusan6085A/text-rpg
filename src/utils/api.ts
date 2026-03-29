@@ -235,10 +235,16 @@ async function apiRequest<T>(
       void reportClientErrorToServer(endpoint, response.status, errorBody);
     }
 
-    if (response.status === 401 || response.status === 403) {
+    // 401 = сесія недійсна — вихід. 403 = «заборонено дію», але користувач ще автентифікований
+    // (наприклад PUT /world/.../hp під час респавну моба). Раніше 403 теж викликав logout() —
+    // гравець вилітав з гри при будь-якій забороненій операції.
+    if (response.status === 401) {
       useAuthStore.getState().logout();
-      // ❗ Не скидаємо admin — apiRequest тільки для game API; admin використовує cookies окремо
       errorWithStatus.unauthorized = true;
+      throw errorWithStatus;
+    }
+    if (response.status === 403) {
+      errorWithStatus.forbidden = true;
       throw errorWithStatus;
     }
 
