@@ -5,6 +5,7 @@ import { getCityUiVariant } from "../utils/cityUiVariant";
 import { getHeroResourceValues } from "../utils/heroBuffedResources";
 import { getExpToNext, MAX_LEVEL } from "../data/expTable";
 import HeroResourceBars from "./HeroResourceBars";
+import SummonStatus from "./SummonStatus";
 
 type HeroStatusStripProps = {
   /** Не показувати під час екрана смерті / блокування */
@@ -70,6 +71,7 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
             lowHpPulse={lowHp}
           />
         </div>
+        <SummonStatus />
       </div>
     );
   }
@@ -97,6 +99,7 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
         lowHpPulse={lowHp}
         compact
       />
+      <SummonStatus />
     </div>
   );
 }

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { NavGridProvider, NavScrollFooter } from "./NavGrid";
 import StatusBars from "./StatusBars";
 import HeroStatusStrip from "./HeroStatusStrip";
-import SummonStatus from "./SummonStatus";
 import TutorialHint from "./TutorialHint";
 import Toast from "./Toast";
 import ConfirmModal from "./ConfirmModal";
@@ -413,7 +412,6 @@ export default function Layout({
             Забагато запитів. Зачекайте {cooldownSec} сек.
           </div>
         )}
-        {!blockDeathUi ? <SummonStatus /> : null}
         {/* 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно */}
         {/* <MobDamageNotification navigate={navigate} /> */}
         {showResourceHud ? (
