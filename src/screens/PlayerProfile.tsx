@@ -539,8 +539,9 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
       if (hero && !isBuff && !isToggle) {
         const battleState = useBattleStore.getState();
-        const isPhysical = !(skillDef as any)?.isMagic;
-        const isMagic = !!(skillDef as any)?.isMagic;
+        const cat = skillDef?.category;
+        const isMagic = cat === "magic_attack";
+        const isPhysical = cat === "physical_attack";
         const consumeCount = skillId === 1 ? 1 : 2;
         
         const shotResult = useAutoShot(

@@ -1,7 +1,6 @@
 // src/state/battle/actions/useSkill/shotHelpers.ts
 import { useHeroStore } from "../../../heroStore";
 import type { Hero } from "../../../../types/Hero";
-import { itemsDB } from "../../../../data/items/itemsDB";
 import { getWeaponGrade as getWeaponGradeFromArrowHelpers } from "./arrowHelpers";
 
 export interface ShotResult {
@@ -72,18 +71,66 @@ function findShotInInventory(
 
 /** Чи itemId є soulshot або spiritshot */
 export function isShotConsumable(itemId: string, shotType: "soulshot" | "spiritshot"): boolean {
-  return itemId.startsWith(shotType);
+  const id = itemId.toLowerCase().replace(/^shop_/, "");
+  if (id.startsWith(shotType)) return true;
+  const parts = id.split("_").filter(Boolean);
+  return parts.includes(shotType);
 }
 
-/** Грейд заряду з itemId (soulshot_ng → NG, spiritshot_d → D тощо) */
+/** Грейд заряду з itemId: soulshot_ng, spiritshot_c, c_spiritshot, d_soulshot тощо */
 function getShotGrade(itemId: string): "NG" | "D" | "C" | "B" | "A" | "S" | null {
-  const id = itemId.toLowerCase();
-  if (id.endsWith("_ng_silver") || id.endsWith("_ng")) return "NG";
-  const suffix = id.split("_").pop() ?? "";
+  const id = itemId.toLowerCase().replace(/^shop_/, "");
+  if (id.endsWith("_ng_silver")) return "NG";
+  if (id.endsWith("_ng")) return "NG";
+  const parts = id.split("_").filter(Boolean);
   const gradeMap: Record<string, "NG" | "D" | "C" | "B" | "A" | "S"> = {
-    ng: "NG", d: "D", c: "C", b: "B", a: "A", s: "S",
+    ng: "NG",
+    d: "D",
+    c: "C",
+    b: "B",
+    a: "A",
+    s: "S",
   };
-  return gradeMap[suffix] ?? null;
+  const last = parts[parts.length - 1] ?? "";
+  if (gradeMap[last]) return gradeMap[last];
+  // spiritshot_c / soulshot_d — грейд після типу
+  if (last === "spiritshot" || last === "soulshot") {
+    const prev = parts[parts.length - 2];
+    if (prev && gradeMap[prev]) return gradeMap[prev];
+  }
+  // c_spiritshot / d_soulshot — грейд префіксом
+  if (parts.length >= 2 && (parts[1] === "spiritshot" || parts[1] === "soulshot")) {
+    const first = parts[0];
+    if (first && gradeMap[first]) return gradeMap[first];
+  }
+  return null;
+}
+
+/** Канонічний id як у itemsDB (spiritshot_c, soulshot_ng) для пошуку стаку в інвентарі */
+function canonicalShotIdForInventory(panelItemId: string, expectedShotType: "soulshot" | "spiritshot"): string | null {
+  const id = panelItemId.toLowerCase().replace(/^shop_/, "");
+  if (!isShotConsumable(id, expectedShotType)) return null;
+  const g = getShotGrade(id);
+  if (!g) return null;
+  const gk = g === "NG" ? "ng" : g.toLowerCase();
+  return expectedShotType === "spiritshot" ? `spiritshot_${gk}` : `soulshot_${gk}`;
+}
+
+function inventoryHasShotStack(
+  inventory: { id?: string; count?: number }[],
+  panelItemId: string,
+  expectedShotType: "soulshot" | "spiritshot",
+  minCount: number
+): { item: { id?: string; count?: number } } | null {
+  const id = panelItemId.toLowerCase().replace(/^shop_/, "");
+  const canonical = canonicalShotIdForInventory(id, expectedShotType);
+  const found = inventory.find((i: any) => {
+    if ((i.count ?? 0) < minCount) return false;
+    const iid = (i.id || "").replace(/^shop_/, "");
+    if (canonical && (iid === canonical || i.id === canonical || i.id === `shop_${canonical}`)) return true;
+    return iid === id || i.id === panelItemId || i.id === id;
+  });
+  return found ? { item: found } : null;
 }
 
 /**
@@ -134,14 +181,12 @@ export function useAutoShot(
     const rawItemId = slotId.replace("consumable:", "");
     const itemId = rawItemId.replace(/^shop_/, "") || rawItemId;
     if (!isShotConsumable(itemId, shotType)) continue;
-    // Грейд shot має збігатися з грейдом зброї (або приймаємо будь-який, якщо weaponGrade невідомий)
-    if (weaponGrade != null && getShotGrade(itemId) !== weaponGrade) continue;
-    // 🔥 Інвентар може мати id "soulshot_d" або "shop_soulshot_d" (з магазину)
-    const invItem = currentInventory.find((i: any) => {
-      const iid = (i.id || "").replace(/^shop_/, "");
-      return (iid === itemId || i.id === itemId) && (i.count ?? 0) >= toConsume;
-    });
-    if (!invItem) continue;
+    // Грейд shot має збігатися з грейдом зброї; якщо грейд заряду не розпарсився — не відсіюємо (було: null !== C і заряд ніколи не ївся)
+    const shotGrade = getShotGrade(itemId);
+    if (weaponGrade != null && shotGrade != null && shotGrade !== weaponGrade) continue;
+    const invStack = inventoryHasShotStack(currentInventory, itemId, shotType, toConsume);
+    if (!invStack?.item) continue;
+    const invItem = invStack.item as any;
 
     // Витрачаємо заряди (1 за удар, 2 за ударний скіл)
     const actualItemId = invItem.id;
@@ -187,11 +232,7 @@ export function hasSpiritshotActive(
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
     const itemId = (slotId.replace("consumable:", "") || "").replace(/^shop_/, "");
     if (!isShotConsumable(itemId, "spiritshot")) continue;
-    const has = hero.inventory.some((i: any) => {
-      const iid = (i.id || "").replace(/^shop_/, "");
-      return (iid === itemId || i.id === itemId) && (i.count ?? 0) > 0;
-    });
-    if (has) return true;
+    if (inventoryHasShotStack(hero.inventory, itemId, "spiritshot", 1)) return true;
   }
   return false;
 }
