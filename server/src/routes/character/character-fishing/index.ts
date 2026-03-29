@@ -11,13 +11,44 @@ function getExpToNext(level: number): number {
   return Math.max(0, Number(EXP_TABLE[lvl] ?? 0) - Number(EXP_TABLE[lvl - 1] ?? 0));
 }
 
-function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number {
-  const levelNum = Math.max(1, Math.min(MAX_LEVEL, Number(levelRaw) || 1));
-  const need = Math.max(0, Number(getExpToNext(levelNum)) || 0);
-  let exp = Math.max(0, Number(rawExp) || 0);
+function readExpAsNumber(raw: unknown): number {
+  if (typeof raw === "bigint") return Number(raw);
+  const n = Math.floor(Number(raw));
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
 
-  if (need <= 0 || levelNum >= MAX_LEVEL) return 0;
-  return Math.max(0, exp);
+/**
+ * EXP у БД і в heroJson — прогрес поточного рівня (не накопичувальний з 1 лвл).
+ * Інколи колонки Character відстають від heroJson після бойового прогресу; беремо max(level),
+ * при рівній віддачі — max(exp), щоб рибалка не «скида» лвл.
+ */
+function pickBestLevelExpPair(
+  dbLevelRaw: unknown,
+  dbExpRaw: unknown,
+  hjLevelRaw: unknown,
+  hjExpRaw: unknown
+): { level: number; exp: number } {
+  const L1 = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(dbLevelRaw) || 1)));
+  const E1 = readExpAsNumber(dbExpRaw);
+  const L2 = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(hjLevelRaw) || 1)));
+  const E2 = readExpAsNumber(hjExpRaw);
+
+  if (L2 > L1) return { level: L2, exp: E2 };
+  if (L1 > L2) return { level: L1, exp: E1 };
+  return { level: L1, exp: Math.max(E1, E2) };
+}
+
+function applyLevelUpsInPlace(level: number, exp: number): { level: number; exp: number } {
+  let nextLevel = Math.max(1, Math.min(MAX_LEVEL, level));
+  let nextExp = Math.max(0, Math.floor(exp));
+  while (nextLevel < MAX_LEVEL) {
+    const need = getExpToNext(nextLevel);
+    if (need <= 0 || nextExp < need) break;
+    nextExp -= need;
+    nextLevel += 1;
+  }
+  if (nextLevel >= MAX_LEVEL) nextExp = 0;
+  return { level: nextLevel, exp: Math.max(0, Math.floor(nextExp)) };
 }
 
 export async function characterFishingRoutes(app: FastifyInstance) {
@@ -237,15 +268,13 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           expGained = 100000 + Math.floor(Math.random() * 300001); // 100,000 - 400,000
         }
 
-        let nextLevel = Math.max(1, Math.min(MAX_LEVEL, Number(ch.level) || 1));
-        let nextExp = normalizeExpToLevelProgress(ch.exp, nextLevel) + expGained;
-        while (nextLevel < MAX_LEVEL) {
-          const need = getExpToNext(nextLevel);
-          if (need <= 0 || nextExp < need) break;
-          nextExp -= need;
-          nextLevel += 1;
-        }
-        if (nextLevel >= MAX_LEVEL) nextExp = 0;
+        const baseline = pickBestLevelExpPair(ch.level, ch.exp, heroJson.level, heroJson.exp);
+        const normalized = applyLevelUpsInPlace(baseline.level, baseline.exp);
+        let nextLevel = normalized.level;
+        let nextExp = normalized.exp + expGained;
+        const afterFish = applyLevelUpsInPlace(nextLevel, nextExp);
+        nextLevel = afterFish.level;
+        nextExp = afterFish.exp;
 
         const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
         const existing = inv.find((i: any) => (i?.id ?? i?.itemId) === FISH_ITEM_ID);
@@ -265,7 +294,13 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         const prevTotal = Number(restHero.fishCaughtTotal ?? 0) || 0;
         const oldRevision = heroJson.heroRevision ?? 0;
         const updatedHeroJson = addVersioning(
-          { ...restHero, inventory: inv, fishCaughtTotal: prevTotal + fishCount },
+          {
+            ...restHero,
+            inventory: inv,
+            fishCaughtTotal: prevTotal + fishCount,
+            level: nextLevel,
+            exp: nextExp,
+          },
           oldRevision
         );
 
