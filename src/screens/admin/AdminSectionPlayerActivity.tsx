@@ -33,9 +33,13 @@ function summarizeMetadata(action: string, m: Record<string, unknown>): string {
     const ad = Number(m.adenaDelta ?? 0);
     if (ad !== 0) parts.push(`адена ${ad > 0 ? "+" : ""}${ad}`);
     const ex = Number(m.expDelta ?? 0);
+    const expSnap = Number(m.expSnapshot ?? NaN);
     if (ex !== 0) parts.push(`опыт ${ex > 0 ? "+" : ""}${ex}`);
+    else if (Number.isFinite(expSnap)) parts.push(`опыт сегм. ${expSnap}`);
     const sp = Number(m.spDelta ?? 0);
+    const spSnap = Number(m.spSnapshot ?? NaN);
     if (sp !== 0) parts.push(`SP ${sp > 0 ? "+" : ""}${sp}`);
+    else if (Number.isFinite(spSnap)) parts.push(`SP ${spSnap}`);
     const inv = Number(m.invDelta ?? 0);
     if (inv !== 0) parts.push(`инв ${inv > 0 ? "+" : ""}${inv}`);
     if (m.zoneId) parts.push(`зона ${m.zoneId}`);
