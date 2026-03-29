@@ -16,9 +16,16 @@ export function getSevenSealsBonusFromHero(hero: unknown): SevenSealsBonusLike |
   const hj = h.heroJson as Record<string, unknown> | undefined;
   const fromHj = hj?.sevenSealsBonus;
   const fromTop = h.sevenSealsBonus;
-  if (fromHj && typeof fromHj === "object") return fromHj as SevenSealsBonusLike;
-  if (fromTop && typeof fromTop === "object") return fromTop as SevenSealsBonusLike;
-  return undefined;
+
+  /** Лише непрострочений бонус; інакше порожній `{}` у heroJson не має «перекривати» валідний бонус з верхнього рівня після merge. */
+  const pickActive = (v: unknown): SevenSealsBonusLike | undefined => {
+    if (!v || typeof v !== "object") return undefined;
+    const exp = Number((v as SevenSealsBonusLike).expiresAt) || 0;
+    if (exp <= Date.now()) return undefined;
+    return v as SevenSealsBonusLike;
+  };
+
+  return pickActive(fromHj) ?? pickActive(fromTop);
 }
 
 /** Чи бонус 7 Печатей активний (не прострочений) */

@@ -96,7 +96,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     window.dispatchEvent(new PopStateEvent("popstate"));
   }, []);
 
-  const sevenSealsBonus = (hero as any)?.heroJson?.sevenSealsBonus;
+  const sevenSealsBonus = getSevenSealsBonusFromHero(hero);
   const sevenSealsRankFromHero = getActiveSevenSealsRank(sevenSealsBonus);
 
   useEffect(() => {
