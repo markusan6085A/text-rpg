@@ -74,6 +74,18 @@ export function buildCharacterSyncMetadata(
   const zoneId = newHj.battleZoneId ?? newHj.zoneId ?? newHj.currentZoneId;
   if (zoneId != null && zoneId !== "") meta.zoneId = String(zoneId);
 
+  const mkDelta = (meta.mobsKilledDelta as number) ?? 0;
+  if (mkDelta !== 0) {
+    const mobName = newHj.lastKillMobName ?? newHj.lastBattleMobName;
+    const mobId = newHj.lastKillMobId;
+    const zName = newHj.lastKillZoneName;
+    const zId = newHj.lastKillZoneId ?? newHj.battleZoneId ?? newHj.zoneId ?? newHj.currentZoneId;
+    if (typeof mobName === "string" && mobName.trim()) meta.killMobName = mobName.trim().slice(0, 200);
+    if (typeof mobId === "string" && mobId.trim()) meta.killMobId = mobId.trim().slice(0, 120);
+    if (typeof zName === "string" && zName.trim()) meta.killZoneName = zName.trim().slice(0, 200);
+    if (typeof zId === "string" && zId.trim()) meta.killZoneId = String(zId).trim().slice(0, 120);
+  }
+
   const interesting =
     (meta.mobsKilledDelta as number) !== 0 ||
     (meta.adenaDelta as number) !== 0 ||

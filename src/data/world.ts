@@ -24,3 +24,16 @@ export function getLocationsByCityId(cityId: string): Zone[] {
 export function getLocationById(id: string): Zone | undefined {
   return locations.find((loc) => loc.id === id);
 }
+
+/** Мітка зони для логів адмінки (місто — локація) */
+export function getZoneActivityLabel(zoneId: string | undefined): string | undefined {
+  if (!zoneId || typeof zoneId !== "string") return undefined;
+  const zone = getLocationById(zoneId);
+  if (!zone) {
+    if (zoneId === "fishing") return "Рибалка";
+    return zoneId;
+  }
+  const city = getCityById(zone.cityId);
+  if (city) return `${city.name} — ${zone.name}`;
+  return zone.name;
+}

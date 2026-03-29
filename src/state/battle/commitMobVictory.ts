@@ -15,6 +15,7 @@ import { hasAutoSpoilActive } from "./actions/useSkill/helpers";
 import { setMobRespawn } from "./mobRespawns";
 import { mobSpGainFromMob } from "./mobSpGain";
 import { isChampionMob } from "../../utils/mobs/isChampionMob";
+import { getZoneActivityLabel } from "../../data/world";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -205,6 +206,16 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     (victoryUpdates as any).battleStats = useBuffedBattleStats
       ? recalculatedAfter.finalStats
       : recalculatedAfter.baseFinalStats;
+
+    const hj = (curHero as any).heroJson || {};
+    (victoryUpdates as any).heroJson = {
+      ...hj,
+      lastKillMobId: mob.id,
+      lastKillMobName: String(mob.name ?? "").slice(0, 200),
+      lastKillZoneId: zoneId ?? hj.lastKillZoneId,
+      lastKillZoneName: zoneId ? getZoneActivityLabel(zoneId) : hj.lastKillZoneName,
+      ...(zoneId ? { battleZoneId: zoneId, zoneId: zoneId } : {}),
+    };
 
     return victoryUpdates;
   });

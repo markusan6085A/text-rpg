@@ -30,6 +30,14 @@ function summarizeMetadata(action: string, m: Record<string, unknown>): string {
     const parts: string[] = [];
     const mk = Number(m.mobsKilledDelta ?? 0);
     if (mk !== 0) parts.push(`мобы +${mk}`);
+    if (typeof m.killMobName === "string" && m.killMobName.trim()) {
+      parts.push(`моб: ${m.killMobName.trim()}`);
+    }
+    if (typeof m.killZoneName === "string" && m.killZoneName.trim()) {
+      parts.push(`локация: ${m.killZoneName.trim()}`);
+    } else if (typeof m.killZoneId === "string" && m.killZoneId.trim()) {
+      parts.push(`локация: ${m.killZoneId.trim()}`);
+    }
     const ad = Number(m.adenaDelta ?? 0);
     if (ad !== 0) parts.push(`адена ${ad > 0 ? "+" : ""}${ad}`);
     const ex = Number(m.expDelta ?? 0);
@@ -42,7 +50,7 @@ function summarizeMetadata(action: string, m: Record<string, unknown>): string {
     else if (Number.isFinite(spSnap)) parts.push(`SP ${spSnap}`);
     const inv = Number(m.invDelta ?? 0);
     if (inv !== 0) parts.push(`инв ${inv > 0 ? "+" : ""}${inv}`);
-    if (m.zoneId) parts.push(`зона ${m.zoneId}`);
+    if (m.zoneId && !m.killZoneName && !m.killZoneId) parts.push(`зона ${m.zoneId}`);
     return parts.length ? parts.join(", ") : safeJson(m);
   }
   if (action === "market.buy") {
