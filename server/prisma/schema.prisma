@@ -79,6 +79,9 @@ model Character {
   forumPosts   ForumPost[]
   marketListingsSold   PlayerMarketListing[] @relation("MarketListingSeller")
   marketListingsBought PlayerMarketListing[] @relation("MarketListingBuyer")
+  partyMember         PartyMember?
+  partyInvitesFrom    PartyInvite[] @relation("PartyInviteFrom")
+  partyInvitesTo      PartyInvite[] @relation("PartyInviteTo")
 
   @@index([accountId])
   @@index([lastActivityAt]) // Індекс для швидкого пошуку онлайн гравців
@@ -415,6 +418,48 @@ model PlayerActivityLog {
   @@index([characterId, createdAt])
   @@index([accountId, createdAt])
   @@index([action, createdAt])
+}
+
+/// Група до 5 персонажів; локація не перевіряється.
+model Party {
+  id                String   @id @default(cuid())
+  leaderCharacterId String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  members PartyMember[]
+  invites PartyInvite[]
+
+  @@index([leaderCharacterId])
+}
+
+model PartyMember {
+  id          String   @id @default(cuid())
+  partyId     String
+  characterId String   @unique
+  joinedAt    DateTime @default(now())
+
+  party     Party     @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([partyId])
+}
+
+model PartyInvite {
+  id              String   @id @default(cuid())
+  partyId       String
+  fromCharacterId String
+  toCharacterId   String
+  status        String   @default("pending") // pending | accepted | declined
+  createdAt     DateTime @default(now())
+
+  party       Party     @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  fromCharacter Character @relation("PartyInviteFrom", fields: [fromCharacterId], references: [id], onDelete: Cascade)
+  toCharacter   Character @relation("PartyInviteTo", fields: [toCharacterId], references: [id], onDelete: Cascade)
+
+  @@unique([partyId, toCharacterId])
+  @@index([toCharacterId, status])
+  @@index([partyId])
 }
 
 /// Дедуп email-сповіщень про сигнали (тип на персонажа), щоб не спамити одним і тим самим

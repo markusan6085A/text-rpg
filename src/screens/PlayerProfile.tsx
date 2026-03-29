@@ -20,7 +20,7 @@ import PlayerItemModal from "../components/PlayerItemModal";
 import { useHeroStore } from "../state/heroStore";
 import { getNickColorStyle } from "../utils/nickColor";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
-import { getMyClan, inviteToClan, type Clan } from "../utils/api";
+import { getMyClan, inviteToClan, inviteToParty, type Clan } from "../utils/api";
 import SevenSealsBonusModal from "../components/SevenSealsBonusModal";
 import PlayerStatsModal from "../components/PlayerStatsModal";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
@@ -28,6 +28,8 @@ import { cleanupBuffs } from "../state/battle/helpers";
 import type { BattleBuff } from "../state/battle/types";
 import PkProfileView from "./player/PkProfileView";
 import InvitePlayerModal from "./clan/modals/InvitePlayerModal";
+import PartyInviteToPartyModal from "./clan/modals/PartyInviteToPartyModal";
+import { usePartyStore } from "../state/partyStore";
 import { locations as WORLD_LOCATIONS } from "../data/world";
 import { formatPublicProfileLocation } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
@@ -153,6 +155,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [pkError, setPkError] = useState<string | null>(null);
   const [myClan, setMyClan] = useState<Clan | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showPartyInviteModal, setShowPartyInviteModal] = useState(false);
   const [showBuffModal, setShowBuffModal] = useState(false);
   const [buffPlayerLoading, setBuffPlayerLoading] = useState(false);
   const [buffLoading, setBuffLoading] = useState(false);
@@ -1108,6 +1111,18 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               </div>
             </div>
           )}
+          {character.id !== hero?.id && hero?.id && (
+            <div className={`${lineThin} py-1`}>
+              <div className={boxPad}>
+                <span
+                  onClick={() => setShowPartyInviteModal(true)}
+                  className="cursor-pointer hover:text-cyan-300 transition-colors text-[12px] text-cyan-400 text-center block"
+                >
+                  Запросити в пати
+                </span>
+              </div>
+            </div>
+          )}
           {character.id !== hero?.id && (
             <div className={`${lineThin} py-1`}>
               <div className={boxPad}>
@@ -1258,6 +1273,17 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               await inviteToClan(myClan.id, character.id);
             }}
             onClose={() => setShowInviteModal(false)}
+          />
+        )}
+
+        {showPartyInviteModal && character && (
+          <PartyInviteToPartyModal
+            playerName={character.name}
+            onInvite={async () => {
+              await inviteToParty(character.id);
+              await usePartyStore.getState().refreshParty();
+            }}
+            onClose={() => setShowPartyInviteModal(false)}
           />
         )}
 

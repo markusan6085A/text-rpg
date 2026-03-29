@@ -3,6 +3,7 @@ import { NavGridProvider, NavScrollFooter } from "./NavGrid";
 import StatusBars from "./StatusBars";
 import HeroStatusStrip from "./HeroStatusStrip";
 import TutorialHint from "./TutorialHint";
+import PartyHud from "./PartyHud";
 import Toast from "./Toast";
 import ConfirmModal from "./ConfirmModal";
 // 🔥 ПРИБРАНО: MobDamageNotification - не працює правильно
@@ -431,6 +432,7 @@ export default function Layout({
                 } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
               >
                 <HeroStatusStrip hidden={blockDeathUi || !showStatusBars} />
+                {!blockDeathUi && showStatusBars ? <PartyHud /> : null}
                 {!blockDeathUi && children}
                 {!blockDeathUi ? <NavScrollFooter /> : null}
               </div>
@@ -449,6 +451,7 @@ export default function Layout({
               } ${gameSettings.largeFont ? "text-[17px]" : ""}`}
             >
               <HeroStatusStrip hidden={blockDeathUi || !showStatusBars} />
+              {!blockDeathUi && showStatusBars ? <PartyHud /> : null}
               {!blockDeathUi && children}
             </div>
           </div>

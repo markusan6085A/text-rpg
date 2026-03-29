@@ -1834,6 +1834,67 @@ export async function inviteToClan(clanId: string, characterId: string): Promise
   });
 }
 
+// ——— Party (до 5 осіб; локація не перевіряється) ———
+
+export type PartyMemberDto = { characterId: string; name: string; level: number };
+export type PartyDto = { id: string; leaderCharacterId: string; members: PartyMemberDto[] };
+export type PartyInviteMine = {
+  id: string;
+  partyId: string;
+  fromCharacterId: string;
+  fromName: string;
+  createdAt: string;
+  partySize: number;
+};
+
+export async function getPartyCurrent(): Promise<{ ok: boolean; party: PartyDto | null }> {
+  return apiRequest<{ ok: boolean; party: PartyDto | null }>("/parties/current", { method: "GET" });
+}
+
+export async function getPartyInvitesMine(): Promise<{ ok: boolean; invites: PartyInviteMine[] }> {
+  return apiRequest<{ ok: boolean; invites: PartyInviteMine[] }>("/parties/invites/mine", { method: "GET" });
+}
+
+export async function inviteToParty(targetCharacterId: string): Promise<{ ok: boolean; invite?: { id: string } }> {
+  return apiRequest<{ ok: boolean; invite?: { id: string } }>("/parties/invite", {
+    method: "POST",
+    body: JSON.stringify({ targetCharacterId }),
+  });
+}
+
+export async function respondPartyInvite(
+  inviteId: string,
+  accept: boolean
+): Promise<{ ok: boolean; accepted?: boolean }> {
+  return apiRequest<{ ok: boolean; accepted?: boolean }>(`/parties/invites/${inviteId}/respond`, {
+    method: "POST",
+    body: JSON.stringify({ accept }),
+  });
+}
+
+export async function leaveParty(): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>("/parties/leave", { method: "POST", body: JSON.stringify({}) });
+}
+
+export async function kickPartyMember(characterId: string): Promise<{ ok: boolean }> {
+  return apiRequest<{ ok: boolean }>("/parties/kick", {
+    method: "POST",
+    body: JSON.stringify({ characterId }),
+  });
+}
+
+/** Сервер нараховує частку EXP/SP/адени іншим членам пати; убивця вже отримав свою частку локально. */
+export async function postPartyKillShare(payload: {
+  baseExp: number;
+  baseSp: number;
+  baseAdena: number;
+}): Promise<{ ok: boolean; applied?: number; partySize?: number }> {
+  return apiRequest<{ ok: boolean; applied?: number; partySize?: number }>("/parties/kill-share", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function applyToClan(clanId: string): Promise<{ ok: boolean; application?: { id: string } }> {
   return apiRequest<{ ok: boolean; application?: { id: string } }>(`/clans/${clanId}/apply`, {
     method: 'POST',

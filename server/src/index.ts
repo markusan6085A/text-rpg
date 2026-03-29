@@ -12,6 +12,7 @@ import { letterRoutes } from "./letters";
 import { newsRoutes } from "./news";
 import { sevenSealsRoutes } from "./sevenSeals";
 import { clanRoutes } from "./clans";
+import { partiesRoutes } from "./parties";
 import { forumRoutes } from "./forum";
 import { leaderboardRoutes } from "./leaderboard";
 import { authRefreshRoutes } from "./routes/authRefresh";
@@ -229,6 +230,7 @@ const start = async () => {
     await app.register(newsRoutes);
     await app.register(sevenSealsRoutes);
     await app.register(clanRoutes);
+    await app.register(partiesRoutes, { prefix: "/parties" });
     await app.register(forumRoutes);
     await app.register(leaderboardRoutes);
 
@@ -244,6 +246,7 @@ const start = async () => {
         request.url.startsWith("/news") ||
         request.url.startsWith("/seven-seals") ||
         request.url.startsWith("/clans") ||
+        request.url.startsWith("/parties") ||
         request.url.startsWith("/forum") ||
         request.url.startsWith("/leaderboard") ||
         request.url.startsWith("/market") ||

@@ -16,6 +16,8 @@ import { setMobRespawn } from "./mobRespawns";
 import { mobSpGainFromMob } from "./mobSpGain";
 import { isChampionMob } from "../../utils/mobs/isChampionMob";
 import { getZoneActivityLabel } from "../../data/world";
+import { usePartyStore } from "../partyStore";
+import { postPartyKillShare } from "../../utils/api";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -79,6 +81,16 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   let curHeroForLog: Hero | null = null;
   let levelUpMessage: string | undefined;
 
+  let partySharePayload: { baseExp: number; baseSp: number; baseAdena: number } | null = null;
+  const partyN = (() => {
+    try {
+      const p = usePartyStore.getState().party;
+      return p && p.members.length > 1 ? p.members.length : 0;
+    } catch {
+      return 0;
+    }
+  })();
+
   useHeroStore.getState().updateHero((prev) => {
     const curHero = prev ?? useHeroStore.getState().hero;
     if (!curHero) return {};
@@ -128,16 +140,34 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       dropResult.adenaFromDrops != null && dropResult.adenaFromDrops > 0
         ? dropResult.adenaFromDrops
         : Math.round(adenaGain * premiumMultiplier);
-    displayExp = finalExpGain;
-    displaySp = finalSpGain;
-    displayAdena = finalAdenaGain;
+
+    let applyExpGain = finalExpGain;
+    let applySpGain = finalSpGain;
+    let applyAdenaGain = finalAdenaGain;
+    if (partyN > 1) {
+      const eEach = Math.floor(finalExpGain / partyN);
+      const sEach = Math.floor(finalSpGain / partyN);
+      const aEach = Math.floor(finalAdenaGain / partyN);
+      applyExpGain = finalExpGain - eEach * (partyN - 1);
+      applySpGain = finalSpGain - sEach * (partyN - 1);
+      applyAdenaGain = finalAdenaGain - aEach * (partyN - 1);
+      partySharePayload = {
+        baseExp: finalExpGain,
+        baseSp: finalSpGain,
+        baseAdena: finalAdenaGain,
+      };
+    }
+
+    displayExp = applyExpGain;
+    displaySp = applySpGain;
+    displayAdena = applyAdenaGain;
 
     const completed = curHero.dailyQuestsCompleted ?? [];
     const cur = curHero.dailyQuestsProgress ?? {};
     const nextProgress: Record<string, number> = { ...cur };
     if (!completed.includes("daily_kills")) nextProgress.daily_kills = (cur.daily_kills ?? 0) + 1;
     if (!completed.includes("daily_adena_farm")) {
-      nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + finalAdenaGain;
+      nextProgress.daily_adena_farm = (cur.daily_adena_farm ?? 0) + applyAdenaGain;
     }
 
     const newCompleted = [...completed];
@@ -156,7 +186,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     }
 
     let level = Number(curHero.level ?? 1) || 1;
-    let exp = Math.floor(Number(curHero.exp ?? 0)) + finalExpGain + rewardExp;
+    let exp = Math.floor(Number(curHero.exp ?? 0)) + applyExpGain + rewardExp;
     const EPS = 0.001;
     let leveled = false;
     let levelUps = 0;
@@ -188,8 +218,8 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     Object.assign(victoryUpdates, {
       level,
       exp,
-      sp: (curHero.sp ?? 0) + finalSpGain + rewardSp,
-      adena: (curHero.adena ?? 0) + finalAdenaGain + rewardAdena,
+      sp: (curHero.sp ?? 0) + applySpGain + rewardSp,
+      adena: (curHero.adena ?? 0) + applyAdenaGain + rewardAdena,
       mobsKilled: newMobsKilled,
       hp: leveled ? updMaxHp : postVictoryHp,
       mp: leveled ? updMaxMp : postVictoryMp,
@@ -219,6 +249,10 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
 
     return victoryUpdates;
   });
+
+  if (partySharePayload) {
+    void postPartyKillShare(partySharePayload).catch(() => {});
+  }
 
   const isRaidBoss = (mob as any)?.isRaidBoss === true;
   if (isRaidBoss && curHeroForLog) {
