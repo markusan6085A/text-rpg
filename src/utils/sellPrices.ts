@@ -36,6 +36,9 @@ function buildShopPriceMap(): Record<string, number> {
   return map;
 }
 
+/** Greater Dye (dye_str_con … з GM-шопу) — без магазинної ціни в ALL_SHOP падали в S-grade fallback (1.5M) */
+const GREATER_DYE_SELL_ADENA = 20000;
+
 /** Базові ціни по грейду для екіпу (30% від типової ціни магазину) — fallback для дроп-предметів */
 const GRADE_BASE_SELL: Record<string, number> = {
   NG: 300,
@@ -114,6 +117,8 @@ export function getSellPrice(itemId: string, itemDef?: ItemDefinition | null): n
   }
 
   const def = itemDef ?? itemsDB[itemId];
+  // Greater Dye з GM (усі id dye_*): фіксована ціна, не S-grade fallback
+  if (itemId.startsWith("dye_")) return GREATER_DYE_SELL_ADENA;
   // Дроп-ресурси l2dop (thread, charcoal, stem, …) часто без запису в itemsDB
   if (!def) {
     return isL2dopTierMaterialId(itemId) ? getResourceSellPrice(itemId) : null;
