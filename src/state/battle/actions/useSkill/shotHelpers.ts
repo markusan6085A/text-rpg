@@ -3,6 +3,9 @@ import { useHeroStore } from "../../../heroStore";
 import type { Hero } from "../../../../types/Hero";
 import { getWeaponGrade as getWeaponGradeFromArrowHelpers } from "./arrowHelpers";
 
+/** Soulshot / spiritshot damage bonus vs uncharged (+60% → ×1.6). */
+export const SHOT_DAMAGE_MULTIPLIER = 1.6;
+
 export interface ShotResult {
   used: boolean;
   multiplier: number; // Множник урону (1.0 = без зміни, >1.0 = збільшений)
@@ -219,7 +222,7 @@ export function useAutoShot(
       if (!invStack?.item?.id) continue;
       const updated = applyShotConsumptionToInventory(inv, invStack.item.id, toConsume);
       out.used = true;
-      out.multiplier = 1.4;
+      out.multiplier = SHOT_DAMAGE_MULTIPLIER;
       out.shotType = shotType;
       return { inventory: updated };
     }
@@ -228,7 +231,7 @@ export function useAutoShot(
     if (direct) {
       const updated = applyShotConsumptionToInventory(inv, direct.actualItemId, toConsume);
       out.used = true;
-      out.multiplier = 1.4;
+      out.multiplier = SHOT_DAMAGE_MULTIPLIER;
       out.shotType = shotType;
       return { inventory: updated };
     }
