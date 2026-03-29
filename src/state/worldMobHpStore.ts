@@ -12,8 +12,18 @@ type ZoneEntry = {
 
 const zoneCache = new Map<string, ZoneEntry>();
 const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
-const DEBOUNCE_MS = 1200;
+const DEBOUNCE_MS = 600;
 const CACHE_TTL_MS = 20000;
+
+function patchZoneMobHpCache(zoneId: string, mobIndex: number, currentHp: number, maxHp: number) {
+  let cur = zoneCache.get(zoneId);
+  if (!cur) {
+    cur = { fetchedAt: Date.now(), hp: {}, respawnUntil: {} };
+    zoneCache.set(zoneId, cur);
+  }
+  cur.hp[mobIndex] = { currentHp, maxHp };
+  cur.fetchedAt = Date.now();
+}
 
 function mergeZonePayload(
   zoneId: string,
@@ -97,9 +107,36 @@ export function scheduleWorldMobHpSync(
     k,
     setTimeout(() => {
       debounceTimers.delete(k);
-      void putWorldMobHp(zoneId, mobIndex, currentHp, maxHp).catch(() => {});
+      void putWorldMobHp(zoneId, mobIndex, currentHp, maxHp)
+        .then(() => patchZoneMobHpCache(zoneId, mobIndex, currentHp, maxHp))
+        .catch(() => {});
     }, DEBOUNCE_MS)
   );
+}
+
+/**
+ * Скасовує відкладений PUT і одразу зберігає HP (вихід з бою / уникнення гонки з startBattle).
+ */
+export function flushWorldMobHpSyncAsync(
+  zoneId: string,
+  mobIndex: number,
+  currentHp: number,
+  maxHp: number
+): Promise<void> {
+  const k = `${zoneId}_${mobIndex}`;
+  const pending = debounceTimers.get(k);
+  if (pending) {
+    clearTimeout(pending);
+    debounceTimers.delete(k);
+  }
+  const token = getAccessToken();
+  if (!token) return Promise.resolve();
+  if (currentHp < 1 || maxHp < 1 || currentHp > maxHp) return Promise.resolve();
+  return putWorldMobHp(zoneId, mobIndex, currentHp, maxHp)
+    .then(() => {
+      patchZoneMobHpCache(zoneId, mobIndex, currentHp, maxHp);
+    })
+    .catch(() => {});
 }
 
 /** Після успішного POST /kill — оновити кеш локально. */

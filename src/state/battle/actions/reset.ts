@@ -3,6 +3,8 @@ import type { BattleState } from "../types";
 import { BASE_ATTACK } from "../loadout";
 import { useHeroStore } from "../../heroStore";
 import { saveHeroToLocalStorage } from "../../heroStore/heroPersistence";
+import { flushWorldMobHpSyncAsync } from "../../worldMobHpStore";
+import { getMobEffectiveMaxHp } from "../../../utils/mobs/mobEffectiveMaxHp";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -13,6 +15,17 @@ export const createReset =
   (set: Setter, get: () => BattleState): BattleState["reset"] =>
   () => {
     const prev = get();
+    if (
+      prev.status === "fighting" &&
+      prev.zoneId != null &&
+      prev.mobIndex != null &&
+      typeof prev.mobHP === "number" &&
+      prev.mobHP > 0 &&
+      prev.mob
+    ) {
+      const maxHp = getMobEffectiveMaxHp(prev.mob);
+      void flushWorldMobHpSyncAsync(prev.zoneId, prev.mobIndex, prev.mobHP, maxHp);
+    }
     const hero = useHeroStore.getState().hero;
     const heroName = hero?.name;
     

@@ -16,6 +16,7 @@ import { displayMobName } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { clearDeathGate } from "../utils/deathGate";
 import { formatLootIntEn } from "../state/battle/helpers/victoryLootLogLines";
+import { flushWorldMobHpSyncAsync } from "../state/worldMobHpStore";
 
 type Navigate = (path: string) => void;
 
@@ -490,7 +491,23 @@ export default function Battle({ navigate }: BattleProps) {
       }
     : { name: "", level: 1, currentHp: 0, maxHp: 1 };
 
-  const leaveBattleToLocation = () => {
+  const leaveBattleToLocation = async () => {
+    const st = useBattleStore.getState();
+    if (
+      st.status === "fighting" &&
+      st.zoneId != null &&
+      st.mobIndex != null &&
+      st.mob &&
+      typeof st.mobHP === "number" &&
+      st.mobHP > 0
+    ) {
+      await flushWorldMobHpSyncAsync(
+        st.zoneId,
+        st.mobIndex,
+        st.mobHP,
+        getMobEffectiveMaxHp(st.mob)
+      ).catch(() => {});
+    }
     reset();
     navigate(locationPathForZoneMob(zone.id, battleMobIndex ?? mobIndex));
   };
