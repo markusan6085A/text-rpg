@@ -85,4 +85,16 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     grade: "D",
     stackable: true,
   },
+  /** Епік-дроп Queen Ant (L2 item id 6660). */
+  ring_of_queen_ant: {
+    id: "ring_of_queen_ant",
+    name: "Ring of Queen Ant",
+    kind: "ring",
+    slot: "rfinger;lfinger",
+    icon: "/items/drops/accessory_ring_of_queen_ant_i00.png",
+    description: "Кільце Королеви мурахів B-grade. Трофей з епік-рейду.",
+    grade: "B",
+    stackable: false,
+    stats: { mDef: 40, maxMp: 46 },
+  },
 };

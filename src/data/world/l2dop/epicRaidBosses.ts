@@ -4,6 +4,7 @@
 // тут додаємо окремі сутності зі статами як у відповідного зонного РБ того ж tier.
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
+import { QUEEN_ANT_EPIC_DROPS } from "./queenAntEpicDrops";
 
 const EPIC_RESPAWN_SEC = 12 * 60 * 60;
 
@@ -24,7 +25,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     adenaMin: 6800,
     adenaMax: 10500,
     dropChance: 1,
-    drops: [],
+    drops: [...QUEEN_ANT_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
