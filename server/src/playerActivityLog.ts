@@ -16,6 +16,11 @@ function numField(o: Record<string, unknown> | null | undefined, k: string): num
   return Number.isFinite(n) ? n : 0;
 }
 
+function hasNumericHeroJsonField(hj: Record<string, unknown> | null | undefined, k: string): boolean {
+  if (!hj || hj[k] == null || hj[k] === "") return false;
+  return Number.isFinite(Number(hj[k]));
+}
+
 function invLen(hj: Record<string, unknown> | null | undefined): number {
   const inv = hj?.inventory;
   return Array.isArray(inv) ? inv.length : 0;
@@ -41,13 +46,22 @@ export function buildCharacterSyncMetadata(
 ): Record<string, unknown> | null {
   const mkOld = numField(oldHj, "mobsKilled");
   const mkNew = numField(newHj, "mobsKilled");
+  // EXP/SP у PUT часто в heroJson; колонки Character.exp/sp можуть відставати
+  const useHjExp =
+    hasNumericHeroJsonField(oldHj, "exp") || hasNumericHeroJsonField(newHj, "exp");
+  const expDelta = useHjExp
+    ? numField(newHj, "exp") - numField(oldHj, "exp")
+    : Number(newRow.exp) - Number(oldRow.exp);
+  const useHjSp =
+    hasNumericHeroJsonField(oldHj, "sp") || hasNumericHeroJsonField(newHj, "sp");
+  const spDelta = useHjSp ? numField(newHj, "sp") - numField(oldHj, "sp") : newRow.sp - oldRow.sp;
   const meta: Record<string, unknown> = {
     mobsKilledDelta: mkNew - mkOld,
     mobsKilledTotal: mkNew,
     adenaDelta: Number(newRow.adena) - Number(oldRow.adena),
-    expDelta: Number(newRow.exp) - Number(oldRow.exp),
+    expDelta,
     levelDelta: newRow.level - oldRow.level,
-    spDelta: newRow.sp - oldRow.sp,
+    spDelta,
     invDelta: invLen(newHj) - invLen(oldHj),
     coinLuckDelta: Number(newRow.coinLuck ?? 0n) - Number(oldRow.coinLuck ?? 0n),
     coinsSilverDelta: Number(newRow.coinsSilver ?? 0n) - Number(oldRow.coinsSilver ?? 0n),
