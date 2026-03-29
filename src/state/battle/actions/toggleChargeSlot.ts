@@ -12,9 +12,12 @@ export const createToggleChargeSlot =
   (set: Setter, get: () => BattleState): BattleState["toggleChargeSlot"] =>
   (slotIndex: number) => {
     const state = get();
-    const current = state.activeChargeSlots || [];
-    const has = current.includes(slotIndex);
-    const next = has ? current.filter((i) => i !== slotIndex) : [...current, slotIndex];
+    const idx = Math.max(0, Math.floor(Number(slotIndex)));
+    const current = (state.activeChargeSlots || []).map((i) =>
+      typeof i === "string" ? parseInt(i, 10) : Number(i)
+    ).filter((n) => Number.isFinite(n) && n >= 0) as number[];
+    const has = current.includes(idx);
+    const next = has ? current.filter((i) => i !== idx) : [...current, idx];
     set({ activeChargeSlots: next });
     persistSnapshot(get, persistBattle, { activeChargeSlots: next });
   };

@@ -133,6 +133,27 @@ function inventoryHasShotStack(
   return found ? { item: found } : null;
 }
 
+/** Спочатку слоти з activeChargeSlots (увімкнені кліком), потім усі інші — як у L2 достатньо мати заряд на панелі */
+function buildShotSlotScanOrder(
+  loadoutSlots: (number | string | null)[],
+  activeChargeSlots: number[] | readonly number[] | unknown[]
+): number[] {
+  const len = loadoutSlots.length;
+  const seen = new Set<number>();
+  const out: number[] = [];
+  const add = (raw: unknown) => {
+    const n = typeof raw === "string" ? parseInt(raw, 10) : Number(raw);
+    if (!Number.isFinite(n) || n < 0 || n >= len) return;
+    const i = Math.floor(n);
+    if (seen.has(i)) return;
+    seen.add(i);
+    out.push(i);
+  };
+  for (const x of activeChargeSlots ?? []) add(x);
+  for (let i = 0; i < len; i++) add(i);
+  return out;
+}
+
 /**
  * Використовує soulshot/spiritshot тільки якщо гравець увімкнув заряд на панелі (клік по слоту).
  * Удар: 1 заряд. Ударний скіл: 2 заряди.
@@ -173,8 +194,10 @@ export function useAutoShot(
     return { used: false, multiplier: 1.0, shotType: null };
   }
 
-  // Шукаємо слот з зарядом того ж грейду, що й зброя, який увімкнений і має достатньо зарядів
-  for (const slotIndex of activeChargeSlots) {
+  const slotOrder = buildShotSlotScanOrder(loadoutSlots, activeChargeSlots);
+
+  // Шукаємо слот: спочатку увімкнені (activeChargeSlots), далі будь-який слот панелі з відповідним зарядом
+  for (const slotIndex of slotOrder) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
     // 🔥 Нормалізуємо: магазин може додати shop_soulshot_d — шукаємо canonical id
@@ -204,12 +227,13 @@ export function useAutoShot(
     };
   }
 
-  if (import.meta.env.DEV && shotType && activeChargeSlots.length > 0) {
+  if (import.meta.env.DEV && shotType) {
     console.log("[useAutoShot] No shot consumed:", {
       shotType,
       weaponGrade,
       activeChargeSlots,
-      loadoutAtSlots: activeChargeSlots.map((i) => loadoutSlots[i]),
+      slotOrderSample: slotOrder.slice(0, 12),
+      loadoutAtSlots: activeChargeSlots.map((i) => loadoutSlots[typeof i === "string" ? parseInt(i, 10) : Number(i)]),
       invShotCount: currentInventory.filter((i: any) =>
         (i.id || "").toLowerCase().includes(shotType)
       ).map((i: any) => ({ id: i.id, count: i.count })),
@@ -227,7 +251,7 @@ export function hasSpiritshotActive(
   activeChargeSlots: number[] = []
 ): boolean {
   if (!hero?.inventory) return false;
-  for (const slotIndex of activeChargeSlots) {
+  for (const slotIndex of buildShotSlotScanOrder(loadoutSlots, activeChargeSlots)) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
     const itemId = (slotId.replace("consumable:", "") || "").replace(/^shop_/, "");
