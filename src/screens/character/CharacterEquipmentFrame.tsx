@@ -375,19 +375,23 @@ export default function CharacterEquipmentFrame({
       ? "w-6 h-6 bg-black/50 rounded-sm border border-[#5c4a32]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
       : "w-6 h-6 bg-black/50";
 
+  const frameShell = isL2
+    ? "rounded-xl border-2 border-[#c7ad80]/50 shadow-[0_0_0_1px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(199,173,128,0.18),0_10px_36px_rgba(0,0,0,0.65)] bg-[linear-gradient(165deg,rgba(45,38,28,0.95)_0%,rgba(12,10,8,0.98)_45%,rgba(8,6,5,1)_100%)]"
+    : "rounded-lg border-2 border-[#888]/60 shadow-lg bg-black/50";
+
   return (
-    <div
-      className="relative flex justify-center overflow-hidden"
-      style={{
-        width: "300px",
-        minHeight: "220px",
-        paddingTop: "10px",
-        paddingBottom: "28px",
-        marginTop: marginTop,
-      }}
-    >
+    <div className="w-full flex justify-center" style={{ marginTop }}>
+      <div
+        className={`relative flex justify-center overflow-hidden box-border ${frameShell}`}
+        style={{
+          width: "300px",
+          minHeight: "220px",
+          paddingTop: "10px",
+          paddingBottom: "28px",
+        }}
+      >
       {/* Фото героя як фон (2D — 3D/WebGL вимкнено через краш на деяких пристроях) */}
-      <div className="absolute inset-0" style={{ backgroundColor: "transparent" }}>
+      <div className="absolute inset-[3px] rounded-lg overflow-hidden" style={{ backgroundColor: "rgba(0,0,0,0.35)" }}>
         {characterImage ? (
           <>
             <img
@@ -585,6 +589,7 @@ export default function CharacterEquipmentFrame({
         </div>
       </div>
 
+      </div>
     </div>
   );
 }
