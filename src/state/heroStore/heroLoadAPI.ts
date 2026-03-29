@@ -28,7 +28,46 @@ function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number
   let exp = Math.max(0, Number(rawExp) || 0);
 
   if (need <= 0 || levelNum >= MAX_LEVEL) return 0;
+  const floorTotal = EXP_TABLE[levelNum - 1] ?? 0;
+  const ceilTotal = EXP_TABLE[levelNum] ?? floorTotal;
+  // Колонка character.exp інколи зберігає cumulative total замість сегмента [0, need) — приводимо до сегмента
+  if (ceilTotal > floorTotal && exp >= floorTotal && exp < ceilTotal) {
+    exp = exp - floorTotal;
+  }
   return Math.max(0, Math.min(exp, Math.max(0, need - 1)));
+}
+
+/** Рівень для merge: вищий з колонки БД та heroJson (узгоджено з гілкою heroJson нижче). */
+function resolveFinalLevelFromServer(character: any, heroData: any): number {
+  const colLvl = Math.max(1, Number(character.level ?? 1) || 1);
+  const hjLvlRaw = heroData?.level;
+  const hjLvl = hjLvlRaw != null && hjLvlRaw !== "" ? Number(hjLvlRaw) : NaN;
+  return Number.isFinite(hjLvl) && hjLvl > colLvl ? hjLvl : colLvl;
+}
+
+/**
+ * Після PUT exp/level часто лише в heroJson; колонка character.exp може бути застарілою/іншої семантики.
+ * Не брати Math.max(heroJson, column) — інакше «зелена смуга» після F5 стрибає вгору.
+ */
+function resolveServerPathExp(character: any, heroData: any, finalLevel: number): number {
+  const colLvl = Math.max(1, Number(character.level ?? 1) || 1);
+  const hjLvlRaw = heroData?.level;
+  const hjLvl = hjLvlRaw != null && hjLvlRaw !== "" ? Number(hjLvlRaw) : NaN;
+  const hjExpRaw = heroData?.exp;
+  const hasHeroJsonExp =
+    hjExpRaw != null &&
+    hjExpRaw !== "" &&
+    Number.isFinite(Number(hjExpRaw)) &&
+    Number(hjExpRaw) >= 0;
+  const characterExp = normalizeExpToLevelProgress(character.exp, finalLevel);
+  if (!hasHeroJsonExp) return characterExp;
+  if (!Number.isFinite(hjLvl) || hjLvl === finalLevel) {
+    return normalizeExpToLevelProgress(hjExpRaw, finalLevel);
+  }
+  if (hjLvl < finalLevel) {
+    return characterExp;
+  }
+  return normalizeExpToLevelProgress(hjExpRaw, finalLevel);
 }
 
 /** Чи предмет стакається. Камні з ЛС (meta.hasLSPassive) — ніколи не стакаються. */
@@ -154,10 +193,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const serverMobsKilled = Number(heroData?.mobsKilled ?? 0);
       const localMobsKilled = Number((hydratedLocalHero as any).mobsKilled ?? (hydratedLocalHero as any).heroJson?.mobsKilled ?? 0);
       // 🔥 КРИТИЧНО: Всі значення в Number() — API може повертати рядки, інакше localExp > serverExp дає хибний результат
-      const serverExp = normalizeExpToLevelProgress(
-        character.exp ?? heroData?.exp ?? 0,
-        character.level ?? heroData?.level ?? 1
-      );
+      const finalLevelForCompare = resolveFinalLevelFromServer(character, heroData);
+      const serverExp = resolveServerPathExp(character, heroData, finalLevelForCompare);
       const localExp = normalizeExpToLevelProgress(
         hydratedLocalHero.exp ?? (hydratedLocalHero as any).heroJson?.exp ?? 0,
         hydratedLocalHero.level ?? (hydratedLocalHero as any).heroJson?.level ?? 1
@@ -503,15 +540,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const finalMobsKilled = mobsKilledFromData !== undefined ? mobsKilledFromData : 0;
       
       // 🔥 Рівень: колонка БД + heroJson мають узгоджуватись; порівняння тільки через Number (рядки з API).
-      const colLvl = Math.max(1, Number(character.level ?? 1) || 1);
-      const hjLvlRaw = (heroData as any).level;
-      const hjLvl = hjLvlRaw != null && hjLvlRaw !== "" ? Number(hjLvlRaw) : NaN;
-      const finalLevel = Number.isFinite(hjLvl) && hjLvl > colLvl ? hjLvl : colLvl;
-      
-      // 🔥 КРИТИЧНО: EXP також може бути в heroJson
-      const heroJsonExp = normalizeExpToLevelProgress((heroData as any).exp, finalLevel);
-      const characterExp = normalizeExpToLevelProgress(character.exp, finalLevel);
-      const finalExp = Math.max(heroJsonExp, characterExp);
+      const finalLevel = resolveFinalLevelFromServer(character, heroData);
+      const finalExp = resolveServerPathExp(character, heroData, finalLevel);
       
       // 🔥 КРИТИЧНО: Не посилатися на fixedHero до його ініціалізації (ReferenceError якщо heroData.skills порожні)
       const serverSkillsArr = Array.isArray((heroData as any).skills) ? (heroData as any).skills : [];
