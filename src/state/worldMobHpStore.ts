@@ -15,6 +15,26 @@ const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const DEBOUNCE_MS = 600;
 const CACHE_TTL_MS = 20000;
 
+const worldMobHpCacheListeners = new Set<() => void>();
+
+/** UI (Location тощо) підписується на оновлення кешу HP після GET/PUT або локального patch. */
+export function subscribeWorldMobHpCache(listener: () => void): () => void {
+  worldMobHpCacheListeners.add(listener);
+  return () => {
+    worldMobHpCacheListeners.delete(listener);
+  };
+}
+
+function notifyWorldMobHpCache() {
+  for (const fn of worldMobHpCacheListeners) {
+    try {
+      fn();
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 function patchZoneMobHpCache(zoneId: string, mobIndex: number, currentHp: number, maxHp: number) {
   let cur = zoneCache.get(zoneId);
   if (!cur) {
@@ -23,6 +43,7 @@ function patchZoneMobHpCache(zoneId: string, mobIndex: number, currentHp: number
   }
   cur.hp[mobIndex] = { currentHp, maxHp };
   cur.fetchedAt = Date.now();
+  notifyWorldMobHpCache();
 }
 
 function mergeZonePayload(
@@ -46,6 +67,7 @@ function mergeZonePayload(
     if (t > Date.now()) respawnUntil[idx] = t;
   }
   zoneCache.set(zoneId, { fetchedAt: Date.now(), hp, respawnUntil });
+  notifyWorldMobHpCache();
 }
 
 /**
@@ -159,4 +181,5 @@ export function applyWorldMobKillLocal(
     delete cur.respawnUntil[mobIndex];
   }
   cur.fetchedAt = Date.now();
+  notifyWorldMobHpCache();
 }

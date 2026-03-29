@@ -6,7 +6,11 @@ import {
 } from "../data/world";
 import type { City, Zone, Mob } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
-import { ensureWorldZoneLoaded } from "../state/worldMobHpStore";
+import {
+  ensureWorldZoneLoaded,
+  getWorldMobHpForSlot,
+  subscribeWorldMobHpCache,
+} from "../state/worldMobHpStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { isMobOnRespawn, getRespawnTimeRemaining } from "../state/battle/mobRespawns";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
@@ -70,6 +74,16 @@ type Navigate = (path: string) => void;
 
 function useQuery() {
   return React.useMemo(() => new URLSearchParams(location.search), []);
+}
+
+/** Поточне HP зі світового кешу (сервер/local patch) або повний max, якщо запису ще немає */
+function getMobWorldHpDisplay(zoneId: string, globalIndex: number, mob: Mob): { current: number; max: number } {
+  const max = getMobEffectiveMaxHp(mob);
+  if (!zoneId) return { current: max, max };
+  const slot = getWorldMobHpForSlot(zoneId, globalIndex);
+  if (!slot || !Number.isFinite(slot.currentHp)) return { current: max, max };
+  const cur = Math.max(0, Math.min(Math.round(slot.currentHp), max));
+  return { current: cur, max };
 }
 
 function findZoneById(zoneId: string): { zone: Zone; city: City } | undefined {
@@ -186,9 +200,25 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     () => typeof localStorage !== "undefined" && localStorage.getItem("gludio_quest_tab_hint") === "1"
   );
 
+  const [, setWorldMobHpBump] = React.useState(0);
+  React.useEffect(() => {
+    return subscribeWorldMobHpCache(() => setWorldMobHpBump((n) => n + 1));
+  }, []);
+
   React.useEffect(() => {
     if (!zoneId) return;
     void ensureWorldZoneLoaded(zoneId);
+  }, [zoneId]);
+
+  React.useEffect(() => {
+    if (!zoneId) return;
+    const onVis = () => {
+      if (document.visibilityState === "visible") {
+        void ensureWorldZoneLoaded(zoneId);
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
   }, [zoneId]);
 
   const patrolCtx = React.useMemo((): PatrolTickCtx | null => {
@@ -553,6 +583,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 isL2,
               );
               const listIconSrc = getMobListIconSrc(mob);
+              const { current: mobCurHp, max: mobMaxHp } = getMobWorldHpDisplay(zone.id, globalIndex, mob);
 
               if (isL2) {
                 return (
@@ -627,7 +658,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                             isEpicRaid ? "text-violet-200/80" : "text-[#a89878]"
                           }`}
                         >
-                          {getMobEffectiveMaxHp(mob)}/{getMobEffectiveMaxHp(mob)}
+                          {mobCurHp}/{mobMaxHp}
                         </div>
                       </div>
                     </div>
@@ -674,7 +705,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </span>
                   <span className={isEpicRaid ? "text-violet-400" : "text-red-500"}>[{mob.level}]</span>
                   <span className={isEpicRaid ? "text-violet-400/90" : "text-red-500"}>
-                    ({getMobEffectiveMaxHp(mob)}/{getMobEffectiveMaxHp(mob)})
+                    ({mobCurHp}/{mobMaxHp})
                   </span>
                 </div>
               );
@@ -837,6 +868,14 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               {(() => {
                 const modalMobIcon = getMobListIconSrc(selectedMob);
                 const labelCls = isL2 ? "text-[#8a7a60]" : "text-gray-400";
+                const selIdx = found?.zone?.mobs.indexOf(selectedMob) ?? -1;
+                const modalHp =
+                  selIdx >= 0 && zoneId
+                    ? getMobWorldHpDisplay(zoneId, selIdx, selectedMob)
+                    : {
+                        current: getMobEffectiveMaxHp(selectedMob),
+                        max: getMobEffectiveMaxHp(selectedMob),
+                      };
                 return (
                   <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start mb-3">
                     {modalMobIcon ? (
@@ -877,7 +916,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                             isL2EpicRaidBossMob(selectedMob) ? "text-violet-400 font-semibold" : "text-red-500"
                           }
                         >
-                          {getMobEffectiveMaxHp(selectedMob)}
+                          {modalHp.current}/{modalHp.max}
                         </span>
                       </div>
                       {selectedMob.mp > 0 && (
