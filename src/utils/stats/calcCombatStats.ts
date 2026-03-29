@@ -34,12 +34,21 @@ export interface CombatStats {
   poisonChanceBonus?: number;
   /** % бонус до шансу накласти утримання */
   holdChanceBonus?: number;
+  /** % опір land-rate bleed (дебафи/скили з stat bleed), додається до resistStat цілі */
+  bleedResist?: number;
+  /** % до базового шансу накласти bleed (акаунт атакуючого) */
+  bleedChanceBonus?: number;
+  /** % бонус до отриманого зцілення (хіл-скили, банки HP) */
+  healReceivedBonus?: number;
+  /** % зменшення витрати MP на активні скіли (після lsGuidance) */
+  mpSkillCostReduction?: number;
 }
 
-const RING_OF_QUEEN_ANT_ID = "ring_of_queen_ant";
+export const RING_OF_QUEEN_ANT_ID = "ring_of_queen_ant";
+export const EARRING_OF_ORFEN_ID = "earring_of_orfen";
 
-/** Перший слот (лексикографічно) з цим id — єдиний, що дає статти; як у L2 для унікальних епік-кєць. */
-function primaryEquipmentSlotForItem(
+/** Перший слот (лексикографічно) з цим id — єдиний, що дає статти; як у L2 для унікальних епіків. */
+export function primaryEquipmentSlotForItem(
   equipment: Record<string, string | null> | undefined,
   itemId: string
 ): string | null {
@@ -106,13 +115,21 @@ export function calcCombatStats(
   let holdResist = 0;
   let poisonChanceBonus = 0;
   let holdChanceBonus = 0;
+  let bleedResist = 0;
+  let bleedChanceBonus = 0;
+  let healReceivedBonus = 0;
+  let mpSkillCostReduction = 0;
 
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
+  const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
 
   // 2. Equipment bonuses
   if (equipment) {
     Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
       if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
         return;
       }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
@@ -177,6 +194,10 @@ export function calcCombatStats(
         if (itemStats.holdResist) holdResist += itemStats.holdResist;
         if (itemStats.poisonChanceBonus) poisonChanceBonus += itemStats.poisonChanceBonus;
         if (itemStats.holdChanceBonus) holdChanceBonus += itemStats.holdChanceBonus;
+        if (itemStats.bleedResist) bleedResist += itemStats.bleedResist;
+        if (itemStats.bleedChanceBonus) bleedChanceBonus += itemStats.bleedChanceBonus;
+        if (itemStats.healReceivedBonus) healReceivedBonus += itemStats.healReceivedBonus;
+        if (itemStats.mpSkillCostReduction) mpSkillCostReduction += itemStats.mpSkillCostReduction;
       }
     });
     // Відсоткові бонуси будуть застосовані після set bonuses
@@ -239,6 +260,10 @@ export function calcCombatStats(
     if (setBonuses.holdResist) holdResist += setBonuses.holdResist;
     if (setBonuses.poisonChanceBonus) poisonChanceBonus += setBonuses.poisonChanceBonus;
     if (setBonuses.holdChanceBonus) holdChanceBonus += setBonuses.holdChanceBonus;
+    if (setBonuses.bleedResist) bleedResist += setBonuses.bleedResist;
+    if (setBonuses.bleedChanceBonus) bleedChanceBonus += setBonuses.bleedChanceBonus;
+    if (setBonuses.healReceivedBonus) healReceivedBonus += setBonuses.healReceivedBonus;
+    if (setBonuses.mpSkillCostReduction) mpSkillCostReduction += setBonuses.mpSkillCostReduction;
     
     if (setBonuses.attackSpeed) attackSpeed += setBonuses.attackSpeed;
     if (setBonuses.castSpeed) castSpeed += setBonuses.castSpeed;
@@ -365,6 +390,10 @@ export function calcCombatStats(
     ...(holdResist > 0 ? { holdResist } : {}),
     ...(poisonChanceBonus > 0 ? { poisonChanceBonus } : {}),
     ...(holdChanceBonus > 0 ? { holdChanceBonus } : {}),
+    ...(bleedResist > 0 ? { bleedResist } : {}),
+    ...(bleedChanceBonus > 0 ? { bleedChanceBonus } : {}),
+    ...(healReceivedBonus > 0 ? { healReceivedBonus } : {}),
+    ...(mpSkillCostReduction > 0 ? { mpSkillCostReduction } : {}),
   };
 }
 

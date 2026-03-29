@@ -4,6 +4,7 @@
 // тут додаємо окремі сутності зі статами як у відповідного зонного РБ того ж tier.
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
+import { ORFEN_EPIC_DROPS } from "./orfenEpicDrops";
 import { QUEEN_ANT_EPIC_DROPS } from "./queenAntEpicDrops";
 
 const EPIC_RESPAWN_SEC = 12 * 60 * 60;
@@ -61,6 +62,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
   {
     id: "rb_epic_l2_orfen",
     name: "Raid Boss: Orfen",
+    lore:
+      "Владарка Моря спор — не міф для глудіанських караванів: під зеленою плесінню і грибковими шатрами ходить легенда про павукоподібну сутність, що не терпить чужинців. Орфен збирає навколо себе отруйних слуг і старі таємниці Башхтарів; у її лігві іноді знаходять не лише C-grade трофеї, а й сережку з блакитним каменем — ніби уламок самого моря спор, що шепоче про кров і відновлення.",
     level: 52,
     hp: 335000,
     mp: 0,
@@ -73,7 +76,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     adenaMin: 62000,
     adenaMax: 96000,
     dropChance: 1,
-    drops: [],
+    drops: [...ORFEN_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,

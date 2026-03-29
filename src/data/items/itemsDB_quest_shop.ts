@@ -85,6 +85,26 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     grade: "D",
     stackable: true,
   },
+  /** Епік-дроп Orfen (L2 item id 6661). Другий екземпляр у парі сережок не дає пасивні від equipment (див. calcCombatStats / calcResources). */
+  earring_of_orfen: {
+    id: "earring_of_orfen",
+    name: "Earring of Orfen",
+    kind: "earring",
+    slot: "rear;lear",
+    icon: "/items/drops/earring-orfen.png",
+    description:
+      "Трофей з Моря спор: насичено-блакитний камінь, ніби крапля застиглої отрути найчистішого шматку. За легендами Орфен випестувала його з роси грибів-паразитів. Дарує міцний магічний оберіг (M.Def +71, Max MP +31), стійкість до кровотечі та люті клинків (+20% до шансу накласти bleed на ціль від ваших скілів із bleed), відчуття, ніжніше відновлення життя (+6% до HP від зцілення і банок), і легку економію польоту мани (−5% витрат MP на активні скіли). Як у L2: дві такі сережки не подвоюють ці пасиви.",
+    grade: "B",
+    stackable: false,
+    stats: {
+      mDef: 71,
+      maxMp: 31,
+      bleedResist: 20,
+      bleedChanceBonus: 20,
+      healReceivedBonus: 6,
+      mpSkillCostReduction: 5,
+    },
+  },
   /** Епік-дроп Queen Ant (L2 item id 6660). */
   ring_of_queen_ant: {
     id: "ring_of_queen_ant",

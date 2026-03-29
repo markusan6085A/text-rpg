@@ -10,9 +10,13 @@ export function applySkillDebuffs(caster, targets, skill, level) {
         const stat = mod.stat;
         const modValue = mod.value ?? level.power;
         const current = hero[stat] ?? 0;
-        const baseChance = mod.chance ?? skill.chance ?? 100;
+        const baseChanceRaw = mod.chance ?? skill.chance ?? 100;
+        const bleedFromGear = stat === "bleed" ? (caster?.bleedChanceBonus ?? 0) : 0;
+        const baseChance = baseChanceRaw + bleedFromGear;
         const resistStat = mod.resistStat ?? ("debuffResist" as keyof typeof hero);
-        const resistValue = (hero[resistStat] as number | undefined) ?? 0;
+        const resistBase = (hero[resistStat] as number | undefined) ?? 0;
+        const bleedResistExtra = stat === "bleed" ? (hero?.bleedResist ?? 0) : 0;
+        const resistValue = resistBase + bleedResistExtra;
         const finalChance = computeLandRate(baseChance, resistValue);
         const landed = Math.random() * 100 < finalChance;
         if (!landed) {

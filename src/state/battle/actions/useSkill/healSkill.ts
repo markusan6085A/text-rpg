@@ -36,9 +36,11 @@ export function handleHealSkill(
   
   const basePower = typeof levelDef.power === "number" ? levelDef.power : 0;
   const healBonus = heroStats?.healPower ?? 0;
+  const healRecv = heroStats?.healReceivedBonus ?? 0;
   const healAmountRaw =
     def.powerType === "percent" ? Math.round(maxHp * (basePower / 100)) : basePower;
   let healAmount = Math.round(healAmountRaw * (1 + Math.max(0, healBonus) / 100));
+  healAmount = Math.round(healAmount * (1 + Math.max(0, healRecv) / 100));
   
   // Якщо spiritshot увімкнений на панелі - збільшуємо хіл в 2 рази
   const spiritshotActive = hasSpiritshotActive(hero, state.loadoutSlots ?? [], state.activeChargeSlots ?? []);

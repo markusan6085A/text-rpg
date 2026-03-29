@@ -5,7 +5,7 @@ import { useHeroStore } from "../../heroStore";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { hasSpiritshotActive } from "./useSkill/shotHelpers";
-import { computeBuffedMaxResources } from "../helpers";
+import { applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
 import { cleanupBuffs } from "../helpers";
 import { handleEnchantScroll } from "./enchantScroll";
 
@@ -97,6 +97,10 @@ export function handleConsumable(
         healAmount = 200; // Малі банки
       }
       
+      const buffedCombat = applyBuffsToStats(hero.battleStats || {}, activeBuffs);
+      const healRecv = buffedCombat?.healReceivedBonus ?? 0;
+      healAmount = Math.round(healAmount * (1 + Math.max(0, healRecv) / 100));
+
       // Якщо spiritshot увімкнений на панелі - збільшуємо хіл в 2 рази
       const spiritshotActive = hasSpiritshotActive(hero, state.loadoutSlots ?? [], state.activeChargeSlots ?? []);
       if (spiritshotActive) {

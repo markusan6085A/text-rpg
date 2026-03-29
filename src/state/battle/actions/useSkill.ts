@@ -219,7 +219,11 @@ export const createUseSkill =
 
     const rawMpCost = levelDef.mpCost ?? 0;
     const lsGuidance = (hero.battleStats as any)?.lsGuidance ?? 0;
-    const mpCost = Math.max(0, Math.round(rawMpCost * (1 - lsGuidance / 100)));
+    const mpSkillRed = (hero.battleStats as any)?.mpSkillCostReduction ?? 0;
+    const mpCost = Math.max(
+      0,
+      Math.round(rawMpCost * (1 - lsGuidance / 100) * (1 - mpSkillRed / 100))
+    );
     const isToggle = skillDefIsToggle(def);
     const togglingToggleOff = isToggle && activeBuffs.some(createIsSameBuff(def));
     if (!togglingToggleOff && (hero.mp ?? 0) < mpCost) {

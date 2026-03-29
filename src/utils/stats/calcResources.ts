@@ -5,6 +5,11 @@
 import type { HeroBaseStats } from "../../state/heroFactory";
 import { getActiveSetBonuses } from "../../data/sets/armorSets";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
+import {
+  EARRING_OF_ORFEN_ID,
+  primaryEquipmentSlotForItem,
+  RING_OF_QUEEN_ANT_ID,
+} from "./calcCombatStats";
 
 export interface Resources {
   hp: number;
@@ -39,8 +44,16 @@ export function calcResources(
   // Equipment bonuses для ресурсів (maxMp з броні)
   // Спочатку додаємо flat бонуси
   let flatMaxHpBonus = 0;
+  const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
+  const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
   if (equipment) {
-    Object.values(equipment).forEach((itemId: any) => {
+    Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
+      if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
+        return;
+      }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
       if (itemId && itemDef && itemDef.stats) {
         const itemStats = itemDef.stats;
@@ -56,7 +69,13 @@ export function calcResources(
   
   // Потім застосовуємо відсоткові бонуси (від базового maxHp + flat бонусів)
   if (equipment) {
-    Object.values(equipment).forEach((itemId: any) => {
+    Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
+      if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
+        return;
+      }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
       if (itemId && itemDef && itemDef.stats) {
         const itemStats = itemDef.stats;
