@@ -3,7 +3,8 @@ import type { HeroInventoryItem } from "../../types/Hero";
 import { getJSON, setJSON } from "../persistence";
 
 const WAREHOUSE_KEY_PREFIX = "l2_warehouse_";
-const WAREHOUSE_MAX_SLOTS = 10;
+/** Скільки фізичних комірок у localStorage (узгоджено з Warehouse.tsx). */
+export const WAREHOUSE_MAX_SLOTS = 10;
 
 /**
  * Ключ складу: по characterId (не по імені), щоб склад не губився при зміні ніка.
@@ -99,6 +100,31 @@ export function loadWarehouse(
 export function clearWarehouse(characterId: string): void {
   for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
     saveItemToWarehouse(characterId, i, null);
+  }
+}
+
+/**
+ * Після завантаження героя з API: якщо локальні ключі складу порожні (нова вкладка / очищення cookie),
+ * відновити комірки з heroJson.warehouseSlots. Якщо локальний склад уже не порожній — не перезаписуємо.
+ */
+export function seedWarehouseFromHeroJsonIfStorageEmpty(
+  characterId: string | undefined,
+  slots: unknown,
+  heroNameFallback?: string
+): void {
+  const id = typeof characterId === "string" && characterId.trim().length > 0 ? characterId.trim() : "";
+  if (!id) return;
+  const current = loadWarehouse(id, heroNameFallback);
+  const hasLocal = current.some((x) => x != null);
+  if (hasLocal) return;
+  if (!Array.isArray(slots) || slots.length === 0) return;
+  for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
+    const raw = slots[i];
+    if (raw != null && typeof raw === "object") {
+      saveItemToWarehouse(id, i, raw as HeroInventoryItem);
+    } else {
+      saveItemToWarehouse(id, i, null);
+    }
   }
 }
 

@@ -57,6 +57,10 @@ export function validateHeroJson(heroJson: any): { valid: boolean; errors: strin
     errors.push('heroJson.skills must be an array');
   }
 
+  if (heroJson.warehouseSlots !== undefined && !Array.isArray(heroJson.warehouseSlots)) {
+    errors.push('heroJson.warehouseSlots must be an array');
+  }
+
   if (heroJson.heroBuffs !== undefined && !Array.isArray(heroJson.heroBuffs)) {
     errors.push('heroJson.heroBuffs must be an array');
   }

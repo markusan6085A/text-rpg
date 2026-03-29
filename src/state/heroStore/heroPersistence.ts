@@ -16,6 +16,7 @@ import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
 import { loadBattle } from "../battle/persist";
 import { loadLoadout } from "../battle/loadout";
+import { loadWarehouse, seedWarehouseFromHeroJsonIfStorageEmpty } from "../warehouse/warehousePersistence";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { hydrateHero } from "./heroHydration";
 
@@ -105,6 +106,12 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     ...(inventoryCapacity !== undefined ? { inventoryCapacity } : {}),
     overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
     battleLoadoutSlots: loadLoadout(hero.name),
+    ...(() => {
+      const widRaw = (hero as any).id;
+      const wid = typeof widRaw === "string" && String(widRaw).trim().length > 0 ? String(widRaw).trim() : "";
+      if (!wid) return {};
+      return { warehouseSlots: loadWarehouse(wid, hero.name) };
+    })(),
   };
 }
 
@@ -362,7 +369,15 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     // 🔥 КРИТИЧНО: Завжди робимо MERGE з існуючим heroJson, щоб не втратити дані
     // Ніколи не перезаписуємо heroJson об'єктом, який містить тільки skills/mobsKilled/buffs
     const existingHeroJson = (hero as any).heroJson ?? {};
-    
+    const widForWarehouse = characterStore.characterId || (hero as any).id;
+    if (typeof widForWarehouse === "string" && widForWarehouse.trim().length > 0) {
+      seedWarehouseFromHeroJsonIfStorageEmpty(
+        widForWarehouse.trim(),
+        existingHeroJson.warehouseSlots,
+        hero.name
+      );
+    }
+
     // Логуємо mobsKilled для діагностики (завжди, не тільки в DEV)
     console.log('[saveHeroToLocalStorage] mobsKilled to save:', currentMobsKilled, 'from hero:', {
       mobsKilled: (hero as any).mobsKilled,
@@ -545,6 +560,15 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : (Array.isArray((existingHeroJson as any).overflowChest) ? (existingHeroJson as any).overflowChest : []),
       // Панель скілів у бою — дублюємо в heroJson для синку після очищення localStorage / іншого ПК
       battleLoadoutSlots: loadLoadout(hero.name),
+      // Клієнтський склад (localStorage) — дублюємо в heroJson, щоб F5 / очищення cookie не губили речі
+      warehouseSlots: (() => {
+        const cid = characterStore.characterId || (hero as any).id;
+        const wid = typeof cid === "string" && String(cid).trim().length > 0 ? String(cid).trim() : "";
+        if (wid) return loadWarehouse(wid, hero.name);
+        return Array.isArray((existingHeroJson as any).warehouseSlots)
+          ? (existingHeroJson as any).warehouseSlots
+          : [];
+      })(),
     };
     
     // Логуємо для діагностики

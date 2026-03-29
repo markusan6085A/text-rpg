@@ -15,6 +15,7 @@ import { readCharacterProgress } from "./heroPersistence";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
 import { filterSkillsListForHeroProfession, seedBattleLoadoutFromHeroJsonIfNeeded } from "../battle/loadout";
+import { seedWarehouseFromHeroJsonIfStorageEmpty } from "../warehouse/warehousePersistence";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
 
@@ -939,6 +940,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
     const finalHero = hydratedHero || heroWithRecalculatedStats;
     if (finalHero) {
+      const wid = (finalHero as any)?.id;
+      seedWarehouseFromHeroJsonIfStorageEmpty(wid, (finalHero as any)?.heroJson?.warehouseSlots, finalHero.name);
       seedBattleLoadoutFromHeroJsonIfNeeded(finalHero);
     }
     if (import.meta.env.DEV && finalHero) {

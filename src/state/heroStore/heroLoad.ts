@@ -11,6 +11,7 @@ import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { loadBattle } from "../battle/persist";
 import { filterSkillsListForHeroProfession, seedBattleLoadoutFromHeroJsonIfNeeded } from "../battle/loadout";
+import { seedWarehouseFromHeroJsonIfStorageEmpty } from "../warehouse/warehousePersistence";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { getJSON, getString, removeItem, setJSON } from "../persistence";
 import type { Hero } from "../../types/Hero";
@@ -383,6 +384,8 @@ export function loadHero(): Hero | null {
     // 🔥 ЄДИНЕ ДЖЕРЕЛО ПРАВДИ: НЕ пишемо hero в localStorage тут.
     const result = hydratedHero || heroWithRecalculatedStats;
     if (result) {
+      const wid = (result as any)?.id;
+      seedWarehouseFromHeroJsonIfStorageEmpty(wid, (result as any)?.heroJson?.warehouseSlots, result.name);
       seedBattleLoadoutFromHeroJsonIfNeeded(result);
     }
     if (import.meta.env.DEV && result) {
