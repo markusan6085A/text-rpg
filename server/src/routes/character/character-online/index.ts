@@ -220,6 +220,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
 
       const serialized = {
         ...char,
+        level: effectiveCharacterLevel(char),
         exp: Number(char.exp),
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,
