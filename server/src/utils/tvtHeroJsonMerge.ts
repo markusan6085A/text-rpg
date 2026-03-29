@@ -74,8 +74,25 @@ function mergeSevenSealsBonusPreserve(existingHeroJson: any, incomingHeroJson: a
   return out;
 }
 
-/** TvT + 7 Печатей — поля, які сервер не повинен втрачати через застарілий клієнтський snapshot. */
+/**
+ * Рибалка: сесія лише в heroJson; POST /fishing/start пише в БД, а PUT героя з клієнта часто
+ * не містить fishingSession → без цього мерджу активний заброс затирався.
+ */
+function mergeFishingSessionPreserve(existingHeroJson: any, incomingHeroJson: any): any {
+  const out = { ...incomingHeroJson };
+  const ex = existingHeroJson?.fishingSession;
+  const inc = incomingHeroJson?.fishingSession;
+  const exValid = ex && typeof ex.startedAt === "number";
+  const incValid = inc && typeof inc.startedAt === "number";
+  if (exValid && !incValid) {
+    out.fishingSession = ex;
+  }
+  return out;
+}
+
+/** TvT + 7 Печатей + рибалка — поля, які сервер не повинен втрачати через застарілий клієнтський snapshot. */
 export function mergeHeroJsonForClientPut(existingHeroJson: any, incomingHeroJson: any): any {
   const t = mergeTvtRewardsIntoIncomingHeroJson(existingHeroJson, incomingHeroJson);
-  return mergeSevenSealsBonusPreserve(existingHeroJson, t);
+  const s = mergeSevenSealsBonusPreserve(existingHeroJson, t);
+  return mergeFishingSessionPreserve(existingHeroJson, s);
 }

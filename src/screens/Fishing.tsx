@@ -58,7 +58,12 @@ export default function Fishing({ navigate }: FishingProps) {
     setLoading(true);
     fetchFishingSession(activeCharacterId)
       .then((res) => {
-        setSessionState(res.session);
+        const hj = (useHeroStore.getState().hero as any)?.heroJson?.fishingSession;
+        const fallback =
+          hj && typeof hj.startedAt === "number"
+            ? ({ startedAt: Number(hj.startedAt), fishCount: hj.fishCount } as api.FishingSession)
+            : null;
+        setSessionState(res.session ?? fallback);
         setServerOffsetMs((res.serverNow ?? Date.now()) - Date.now());
         setLoading(false);
       })
