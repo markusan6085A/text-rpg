@@ -26,6 +26,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -48,6 +49,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -70,6 +72,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -92,6 +95,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -114,6 +118,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -136,6 +141,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -158,6 +164,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -180,6 +187,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     dropChance: 1,
     drops: [],
     isRaidBoss: true,
+    isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
@@ -193,6 +201,11 @@ for (const rb of L2_EPIC_RAID_BOSSES) {
   const list = EPIC_BY_ZONE.get(z) ?? [];
   list.push(rb);
   EPIC_BY_ZONE.set(z, list);
+}
+
+/** Епік L2 у списку локації / бою (за id або прапорцем). */
+export function isL2EpicRaidBossMob(mob: { id?: string; isEpicRaidBoss?: boolean }): boolean {
+  return mob.isEpicRaidBoss === true || (typeof mob.id === "string" && mob.id.startsWith("rb_epic_l2_"));
 }
 
 /** Додати епік-РБ для цієї зони (якщо є) до вже зібраного списку зонних РБ. */

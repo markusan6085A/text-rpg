@@ -25,6 +25,7 @@ import { getMobListIconSrc } from "../utils/mobPublicIcon";
 import { getMobEffectiveMaxHp } from "../utils/mobs/mobEffectiveMaxHp";
 import { isChampionMob } from "../utils/mobs/isChampionMob";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../data/world/l2dop/droplistMapping";
+import { isL2EpicRaidBossMob } from "../data/world/l2dop/epicRaidBosses";
 import type { DropEntry } from "../data/combat/types";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
 import { unequipItemLogic } from "../state/heroStore/heroInventory";
@@ -391,6 +392,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
   const mobNameClass = (
     questHighlight: "kill" | null,
+    isEpicRaid: boolean,
     isRaid: boolean,
     isChampion: boolean,
     isPatrol: boolean,
@@ -398,6 +400,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     l2: boolean,
   ) => {
     if (questHighlight === "kill") return l2 ? "text-[#8a7a60]" : "";
+    if (isEpicRaid) {
+      return l2
+        ? "text-[#e9d5ff] [text-shadow:0_0_12px_rgba(124,58,237,0.45)]"
+        : "text-violet-300";
+    }
     if (isRaid) return "text-red-500";
     if (isChampion) return "text-[#c9a44c]";
     if (isPatrol) return l2 ? "text-[#e8a0a0]" : "text-rose-400";
@@ -524,6 +531,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
               const isChampion = isChampionMob(mob);
               const isRaid = (mob as any).isRaidBoss === true;
+              const isEpicRaid = isL2EpicRaidBossMob(mob);
               const isPatrol = mob.aggressivePatrol === true;
               const heroLevel = hero?.level || 1;
               const levelDiff = Math.abs(heroLevel - mob.level);
@@ -531,6 +539,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               const questHighlight = getQuestMobHighlightForMob(mob, activeQuests, QUESTS, zone.id);
               const nameCls = mobNameClass(
                 questHighlight,
+                isEpicRaid,
                 isRaid,
                 isChampion,
                 isPatrol,
@@ -545,7 +554,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     key={globalIndex}
                     role="button"
                     tabIndex={0}
-                    className={`${l2MobCard}${isPatrol ? " border-rose-900/45 shadow-[0_0_14px_rgba(180,60,60,0.12)]" : ""}`}
+                    className={`${l2MobCard}${
+                      isEpicRaid
+                        ? " border-violet-500/45 shadow-[0_0_20px_rgba(109,40,217,0.22)]"
+                        : ""
+                    }${isPatrol ? " border-rose-900/45 shadow-[0_0_14px_rgba(180,60,60,0.12)]" : ""}`}
                     onClick={() => openBattle(globalIndex)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -591,11 +604,23 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                           <div className="text-[8px] text-[#6b7280] mt-px leading-none">квест · цель</div>
                         )}
                       </div>
-                      <div className="shrink-0 text-right rounded bg-black/30 border border-[#5c4a32]/40 px-1.5 py-0.5 min-w-[2.85rem]">
-                        <div className="text-[10px] font-semibold text-[#c45c5c] leading-none">
+                      <div
+                        className={`shrink-0 text-right rounded bg-black/30 px-1.5 py-0.5 min-w-[2.85rem] ${
+                          isEpicRaid ? "border border-violet-500/45" : "border border-[#5c4a32]/40"
+                        }`}
+                      >
+                        <div
+                          className={`text-[10px] font-semibold leading-none ${
+                            isEpicRaid ? "text-violet-300" : "text-[#c45c5c]"
+                          }`}
+                        >
                           [{mob.level}]
                         </div>
-                        <div className="text-[9px] text-[#a89878] mt-0.5 leading-none tabular-nums">
+                        <div
+                          className={`text-[9px] mt-0.5 leading-none tabular-nums ${
+                            isEpicRaid ? "text-violet-200/80" : "text-[#a89878]"
+                          }`}
+                        >
                           {getMobEffectiveMaxHp(mob)}/{getMobEffectiveMaxHp(mob)}
                         </div>
                       </div>
@@ -607,9 +632,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               return (
                 <div
                   key={globalIndex}
-                  className={`flex items-center gap-2 py-1 border-b border-solid border-white/50 text-xs ${
-                    isPatrol ? "border-rose-900/30" : ""
-                  } ${!questHighlight && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"}`}
+                  className={`flex items-center gap-2 py-1 border-b border-solid text-xs ${
+                    isEpicRaid ? "border-violet-500/35 border-white/30" : "border-white/50"
+                  } ${isPatrol ? "border-rose-900/30" : ""} ${
+                    !questHighlight && isLevelDiffTooHigh ? "text-red-500" : "text-[#c7ad80]"
+                  }`}
                 >
                   <button
                     type="button"
@@ -639,8 +666,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     {displayMobName(mob.name)}
                     {isPatrol ? <span className="text-[#5c0a0a] font-semibold"> (агр)</span> : null}
                   </span>
-                  <span className="text-red-500">[{mob.level}]</span>
-                  <span className="text-red-500">
+                  <span className={isEpicRaid ? "text-violet-400" : "text-red-500"}>[{mob.level}]</span>
+                  <span className={isEpicRaid ? "text-violet-400/90" : "text-red-500"}>
                     ({getMobEffectiveMaxHp(mob)}/{getMobEffectiveMaxHp(mob)})
                   </span>
                 </div>
@@ -765,9 +792,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               <div className="flex items-center justify-between mb-2">
                 <h2
                   className={
-                    isL2
-                      ? "text-base font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
-                      : "text-lg font-semibold text-[#b8860b]"
+                    isL2EpicRaidBossMob(selectedMob)
+                      ? isL2
+                        ? "text-base font-semibold text-[#e9d5ff] [text-shadow:0_0_14px_rgba(124,58,237,0.4)]"
+                        : "text-lg font-semibold text-violet-300"
+                      : isL2
+                        ? "text-base font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]"
+                        : "text-lg font-semibold text-[#b8860b]"
                   }
                 >
                   {displayMobName(selectedMob.name)}
@@ -813,11 +844,23 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     <div className="flex-1 min-w-0 w-full space-y-2 text-xs sm:pt-0.5">
                       <div className="flex items-center gap-2">
                         <span className={labelCls}>Рівень:</span>
-                        <span className="text-red-500">{selectedMob.level}</span>
+                        <span
+                          className={
+                            isL2EpicRaidBossMob(selectedMob) ? "text-violet-400 font-semibold" : "text-red-500"
+                          }
+                        >
+                          {selectedMob.level}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={labelCls}>HP:</span>
-                        <span className="text-red-500">{getMobEffectiveMaxHp(selectedMob)}</span>
+                        <span
+                          className={
+                            isL2EpicRaidBossMob(selectedMob) ? "text-violet-400 font-semibold" : "text-red-500"
+                          }
+                        >
+                          {getMobEffectiveMaxHp(selectedMob)}
+                        </span>
                       </div>
                       {selectedMob.mp > 0 && (
                         <div className="flex items-center gap-2">

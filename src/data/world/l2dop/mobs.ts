@@ -353,13 +353,21 @@ export function fillZoneMobs(
   return result.sort(() => rand() - 0.5);
 }
 
+/** L2 епік-РБ (Queen Ant, Valakas, …) — завжди на початку списку локації, щоб були видні на 1-й сторінці. */
+function isL2EpicRaidBossEntry(r: RaidBoss): boolean {
+  return (r as { isEpicRaidBoss?: boolean }).isEpicRaidBoss === true || String(r.id || "").startsWith("rb_epic_l2_");
+}
+
 /** Р—РјС–С€Р°С‚Рё РјРѕР±С–РІ, С‡РµРјРїС–РѕРЅС–РІ С– Р Р‘ РІРёРїР°РґРєРѕРІРѕ (РґРµС‚РµСЂРјС–РЅРѕРІР°РЅРѕ РїРѕ zoneId) вЂ” РЅРµ РІ РєС–РЅС†С– СЃРїРёСЃРєСѓ */
 export function shuffleMobsRandomly(regular: Mob[], champions: Mob[], raidBosses: RaidBoss[], zoneId: string): (Mob | RaidBoss)[] {
-  const all = [...regular, ...champions, ...raidBosses];
+  const epics = raidBosses.filter(isL2EpicRaidBossEntry);
+  const otherRaid = raidBosses.filter((r) => !isL2EpicRaidBossEntry(r));
+  const rest = [...regular, ...champions, ...otherRaid];
   let h = 0;
   for (let i = 0; i < zoneId.length; i++) h = (h * 31 + zoneId.charCodeAt(i)) | 0;
   const rand = () => { h = (h * 1664525 + 1013904223) | 0; return (h >>> 0) / 0xffffffff; };
-  return [...all].sort(() => rand() - 0.5);
+  const shuffledRest = [...rest].sort(() => rand() - 0.5);
+  return [...epics, ...shuffledRest];
 }
 
 /** РЎС‚РІРѕСЂРёС‚Рё С‡РµРјРїС–РѕРЅР° Р· Р±Р°Р·РѕРІРѕРіРѕ РјРѕР±Р°: ~3Г— СЃС‚Р°С‚Рё, ~10Г— exp/sp/adena, РєСЂР°С‰С– drop/spoil */

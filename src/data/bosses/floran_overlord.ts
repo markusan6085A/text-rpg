@@ -4,6 +4,8 @@ import type { DropEntry } from "../combat/types";
 
 export interface RaidBoss extends Mob {
   isRaidBoss: true;
+  /** Канонічні епіки L2 (Queen Ant, Valakas, …) — окремий стиль у списку локації */
+  isEpicRaidBoss?: boolean;
   respawnTime: number;
   dropProfileId: string;
   aiProfileId: string;
