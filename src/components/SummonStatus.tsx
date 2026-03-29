@@ -53,12 +53,12 @@ export default function SummonStatus() {
 
   return (
     <div
-      className="w-full mt-2.5 pt-2.5 border-t border-[#5c4030]/55 pointer-events-auto"
+      className="w-full mt-1.5 pt-1.5 border-t border-[#5c4030]/55 pointer-events-auto"
       style={{ zIndex: 1 }}
     >
-      <div className="flex flex-col gap-1.5 w-full min-w-0">
-        {/* Заголовок: іконка, бафи, ім’я — зліва як у основного HUD */}
-        <div className="flex items-center gap-1.5 min-w-0">
+      <div className="flex flex-col gap-1 w-full min-w-0">
+        {/* Ряд 1: бафи + іконка + ім’я зліва / Lv справа (як у смуги героя) */}
+        <div className="flex items-center gap-1 min-w-0 w-full">
           {activeSummonBuffs.length > 0 && (
             <div className="flex flex-wrap gap-0.5 shrink-0">
               {activeSummonBuffs.slice(0, 4).map((buff, idx) => (
@@ -84,20 +84,22 @@ export default function SummonStatus() {
             <img
               src={icon}
               alt={name}
-              className="w-6 h-6 object-contain flex-shrink-0"
+              className="w-5 h-5 object-contain flex-shrink-0"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
           )}
-          <div className="flex flex-col min-w-0 flex-1">
-            <div className="text-[10px] font-semibold text-[#ffe9c0] truncate">{name}</div>
-            <div className="text-[9px] text-[#caa777]">Lv {level}</div>
+          <div className="flex flex-1 min-w-0 items-baseline justify-between gap-2">
+            <span className="text-[10px] font-semibold text-[#ffe9c0] truncate">{name}</span>
+            <span className="text-[9px] text-[#e8c56e] font-semibold tabular-nums whitespace-nowrap shrink-0">
+              Lv {level}
+            </span>
           </div>
         </div>
 
-        {/* Стати — переносяться на новий рядок на вузькому екрані */}
-        <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[8px] text-[#caa777]">
+        {/* Ряд 2: стати одразу під ім’ям / рівнем — компактно */}
+        <div className="flex flex-wrap gap-x-1.5 gap-y-0 leading-tight text-[7px] text-[#caa777]">
           <span>
             П-Урон: <span className="text-white">{pAtk}</span>
           </span>
@@ -112,27 +114,27 @@ export default function SummonStatus() {
           </span>
         </div>
 
-        {/* Смуги на всю ширину картки + кнопка під ними на дуже вузьких */}
-        <div className="flex flex-col sm:flex-row sm:items-end gap-1.5 min-w-0">
-          <div className="flex flex-col gap-0.5 flex-1 min-w-0 w-full">
-            <div className="w-full h-[0.45rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#4a0b13] to-[#2c070c]">
+        {/* Ряд 3: HP/MP + кнопка — вище по вертикалі, нижчі смуги */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 min-w-0">
+          <div className="flex flex-col gap-[3px] flex-1 min-w-0 w-full">
+            <div className="w-full h-[0.35rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#4a0b13] to-[#2c070c]">
               <div
                 className="h-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"
                 style={{ width: `${hpPercent}%` }}
               />
-              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[7px] font-semibold text-[#ffecec]">
+              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[6px] font-semibold text-[#ffecec] leading-none">
                 <span>HP</span>
                 <span className="tabular-nums">
                   {hp}/{maxHp}
                 </span>
               </div>
             </div>
-            <div className="w-full h-[0.45rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#0d2f4e] to-[#081b2c]">
+            <div className="w-full h-[0.35rem] rounded-[2px] overflow-hidden relative bg-gradient-to-b from-[#0d2f4e] to-[#081b2c]">
               <div
                 className="h-full bg-gradient-to-r from-[#4488ff] via-[#2e8bff] to-[#1160c5]"
                 style={{ width: `${mpPercent}%` }}
               />
-              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[7px] font-semibold text-[#e6f3ff]">
+              <div className="absolute inset-0 flex items-center justify-between px-0.5 text-[6px] font-semibold text-[#e6f3ff] leading-none">
                 <span>MP</span>
                 <span className="tabular-nums">
                   {mp}/{maxMp}
@@ -143,7 +145,7 @@ export default function SummonStatus() {
           <button
             type="button"
             onClick={handleDismiss}
-            className="w-full sm:w-auto shrink-0 px-2 py-1 bg-red-600/80 hover:bg-red-700 text-white text-[9px] font-semibold rounded border border-red-800"
+            className="w-full sm:w-auto shrink-0 px-1.5 py-0.5 bg-red-600/80 hover:bg-red-700 text-white text-[8px] font-semibold rounded border border-red-800"
           >
             Відкликати
           </button>
