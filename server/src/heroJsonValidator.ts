@@ -12,6 +12,8 @@ export interface HeroJsonStructure {
   skills?: any[];
   heroBuffs?: any[];
   location?: string;
+  /** Виставляється лише адмінкою set-level; клієнт знижує рівень з сервера тільки якщо це значення зросло */
+  adminLevelSetAt?: number;
   heroJsonVersion?: number; // Версія схеми heroJson
   heroRevision?: number; // Ревізія для optimistic locking
 }

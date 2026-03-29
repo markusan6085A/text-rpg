@@ -706,11 +706,14 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       const currentHero = useHeroStore.getState().hero;
       if (currentHero) {
         const prevLevel = Number(currentHero.level ?? 1);
+        const locAdm = Number((currentHero as any)?.heroJson?.adminLevelSetAt ?? 0);
+        const srvHj = (updatedCharacter as any)?.heroJson || {};
+        const srvAdm = Number(srvHj?.adminLevelSetAt ?? 0);
+        const adminDemoteOk = srvAdm > locAdm && serverLevel < prevLevel;
+        const clampedLevel = adminDemoteOk ? serverLevel : Math.max(prevLevel, serverLevel);
         const clampedExp =
-          serverLevel < prevLevel ? serverExp : Math.max(currentHero.exp ?? 0, serverExp);
+          clampedLevel < prevLevel ? serverExp : Math.max(currentHero.exp ?? 0, serverExp);
         const clampedSp = Math.max(currentHero.sp ?? 0, serverSp);
-        // Після успішного PUT рівень у відповіді узгоджений з БД; Math.max блокував зниження (адмін / demote).
-        const clampedLevel = serverLevel;
         const serverCoinLuck = Number((updatedCharacter as any).coinLuck ?? 0);
         const serverCoinsSilver = Number((updatedCharacter as any).coinsSilver ?? 0);
         const serverAdena = Number((updatedCharacter as any).adena ?? 0);
@@ -968,8 +971,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               const serverLevel = progRetry.level;
               const serverSp = progRetry.sp;
               const localLv = Number(heroBase.level ?? 1);
-              const mergedLevel =
-                serverLevel < localLv ? serverLevel : Math.max(localLv, serverLevel);
+              const locAdmRetry = Number((heroBase as any)?.heroJson?.adminLevelSetAt ?? 0);
+              const srvAdmRetry = Number((serverHeroJson as any)?.adminLevelSetAt ?? 0);
+              const adminDemoteRetry =
+                srvAdmRetry > locAdmRetry && serverLevel < localLv;
+              const mergedLevel = adminDemoteRetry ? serverLevel : Math.max(localLv, serverLevel);
               const mergedSp = Math.max(heroBase.sp ?? 0, serverSp);
 
               // 🔥 КРИТИЧНО: після купівлі лоту на ринку сервер уже нарахував адену/CoL, а локальний store ще старий.

@@ -345,6 +345,7 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         lvl
       );
       const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
+      const adminLevelSetAt = Date.now();
       const updatedHeroJson = addVersioning(
         {
           ...heroJson,
@@ -357,6 +358,8 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
           maxHp,
           maxMp,
           maxCp,
+          // Клієнт дозволяє знизити рівень лише якщо це поле новіше за збережене локально
+          adminLevelSetAt,
         },
         oldRev
       );

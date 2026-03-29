@@ -482,6 +482,24 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const prev = get().hero;
     if (!prev) return;
     const merged = hydrateHero({ ...prev, ...partial } as any) ?? ({ ...prev, ...partial } as Hero);
+    const prevLv = Number(prev.level ?? 1);
+    const nextLv = Number((merged as any).level ?? prevLv);
+    const prevHj = (prev as any).heroJson || {};
+    const mergedHj = (merged as any).heroJson || {};
+    const admMerged = Number(mergedHj.adminLevelSetAt ?? (partial as any)?.heroJson?.adminLevelSetAt ?? 0);
+    const admPrev = Number(prevHj.adminLevelSetAt ?? 0);
+    const adminDemoteSync = admMerged > admPrev && nextLv < prevLv;
+    if (nextLv < prevLv && !adminDemoteSync) {
+      (merged as any).level = prevLv;
+      (merged as any).exp = prev.exp;
+      if ((merged as any).heroJson && typeof (merged as any).heroJson === "object") {
+        (merged as any).heroJson = {
+          ...(merged as any).heroJson,
+          level: prevLv,
+          exp: prev.exp,
+        };
+      }
+    }
     // 🔥 Адена: ніколи не зменшувати — якщо PUT від попереднього продажу прийшов пізно, не перезаписати новішу adena
     const prevAdena = Number(prev.adena ?? 0);
     const partialAdena = Number((partial as any).adena ?? 0);
@@ -517,8 +535,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const nextHeroRev = mergeHeroRevisionMonotonic(server.heroRevision, current?.heroRevision);
     set({
       serverState: {
-        exp: server.exp ?? current?.exp ?? 0,
-        level: server.level ?? current?.level ?? 1,
+        exp: (merged as any).exp ?? server.exp ?? current?.exp ?? 0,
+        level: Number((merged as any).level ?? server.level ?? current?.level ?? 1),
         sp: server.sp ?? current?.sp ?? 0,
         adena: (server as any).adena !== undefined ? Number((server as any).adena) : current?.adena,
         coinLuck: (server as any).coinLuck ?? current?.coinLuck,

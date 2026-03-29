@@ -227,12 +227,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (localHasMoreProgress) {
         const reason = localDiffersFromServer ? 'local differs from server (equip/inv/buffs)' : (localHasExplicitlyUnequipped ? 'local unequipped (fewer slots)' : (localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress')));
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
-        // 🔥 merge policy: зазвичай level = max(local, server). Якщо API каже нижчий рівень — довіряємо серверу (адмін),
-        // окрім випадку «диск новіший за рядок БД» (офлайн-прогрес). Але якщо heroJson.heroRevision на сервері
-        // виріс (адмін set-level / change-class / інший клієнт) — завжди беремо рівень з API, навіть коли lastSavedAt новіший.
-        const demoteToServerLevel =
-          serverLevel < localLevel &&
-          (!localNewerByTimestamp || serverRevisionAdvanced);
+        // 🔥 Рівень з API не знижуємо через mere heroRevision — лише після admin set-level (поле adminLevelSetAt).
+        const localAdminAt = Number((hydratedLocalHero as any)?.heroJson?.adminLevelSetAt ?? 0);
+        const serverAdminAt = Number((character.heroJson as any)?.adminLevelSetAt ?? 0);
+        const adminDemotedLevel =
+          serverLevel < localLevel && serverAdminAt > localAdminAt;
+        const demoteToServerLevel = adminDemotedLevel;
         const finalLevel = demoteToServerLevel ? serverLevel : Math.max(localLevel, serverLevel);
         const heroDataForLocal = character.heroJson as any;
         const serverExpVal = Number(heroDataForLocal?.exp ?? character.exp ?? 0);
@@ -359,6 +359,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           ...(serverSeven && typeof serverSeven === "object"
             ? { sevenSealsBonus: serverSeven }
             : {}),
+          ...(Number.isFinite(serverAdminAt) && serverAdminAt > 0 ? { adminLevelSetAt: serverAdminAt } : {}),
           adena: finalAdenaPreferred,
           inventory: consolidatedInv,
           overflowChest: mergedOverflowPreferred,
@@ -806,6 +807,54 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       ...(preferLocalAlive || finalHp > 0 || isAliveAfterLoad ? { isDead: false, deadAt: 0 } : {}),
       heroBuffs: isDead && !isAliveAfterLoad ? [] : (loadedHeroJson.heroBuffs ?? finalBuffs),
     };
+
+    if (localBelongsToCharacter && hydratedLocalHero) {
+      const locLvl = Number(hydratedLocalHero.level ?? (hydratedLocalHero as any)?.heroJson?.level ?? 1);
+      const curLvl = Number(heroWithRecalculatedStats.level ?? 1);
+      const locAdmMain = Number((hydratedLocalHero as any)?.heroJson?.adminLevelSetAt ?? 0);
+      const srvAdmMain = Number((character.heroJson as any)?.adminLevelSetAt ?? 0);
+      const adminDemoteMain = srvAdmMain > locAdmMain && curLvl < locLvl;
+      if (!adminDemoteMain && locLvl > curLvl) {
+        const newExp = normalizeExpToLevelProgress(
+          (hydratedLocalHero as any).exp ?? (hydratedLocalHero as any).heroJson?.exp ?? 0,
+          locLvl
+        );
+        const bumpedHero: Hero = {
+          ...heroWithRecalculatedStats,
+          level: locLvl,
+          exp: newExp,
+        };
+        const re = recalculateAllStats(bumpedHero, savedBuffs);
+        const buffed2 = computeBuffedMaxResources(
+          {
+            maxHp: re.resources.maxHp,
+            maxMp: re.resources.maxMp,
+            maxCp: re.resources.maxCp,
+          },
+          savedBuffs
+        );
+        const hpRatio = finalMaxHp > 0 ? finalHp / finalMaxHp : 1;
+        const mpRatio = finalMaxMp > 0 ? finalMp / finalMaxMp : 1;
+        const cpRatio = finalMaxCp > 0 ? finalCp / finalMaxCp : 1;
+        heroWithRecalculatedStats.level = locLvl;
+        heroWithRecalculatedStats.exp = newExp;
+        heroWithRecalculatedStats.maxHp = buffed2.maxHp;
+        heroWithRecalculatedStats.maxMp = buffed2.maxMp;
+        heroWithRecalculatedStats.maxCp = buffed2.maxCp;
+        heroWithRecalculatedStats.hp = Math.min(buffed2.maxHp, Math.max(0, Math.round(hpRatio * buffed2.maxHp)));
+        heroWithRecalculatedStats.mp = Math.min(buffed2.maxMp, Math.max(0, Math.round(mpRatio * buffed2.maxMp)));
+        heroWithRecalculatedStats.cp = Math.min(buffed2.maxCp, Math.max(0, Math.round(cpRatio * buffed2.maxCp)));
+        heroWithRecalculatedStats.battleStats = re.baseFinalStats;
+        (heroWithRecalculatedStats as any).baseMaxHp = re.resources.maxHp;
+        (heroWithRecalculatedStats as any).baseMaxMp = re.resources.maxMp;
+        (heroWithRecalculatedStats as any).baseMaxCp = re.resources.maxCp;
+        (heroWithRecalculatedStats as any).heroJson = {
+          ...(heroWithRecalculatedStats as any).heroJson,
+          level: locLvl,
+          exp: newExp,
+        };
+      }
+    }
     
     // 🔥 Правило 2: Використовуємо hydrateHero для синхронізації heroJson
     const hydratedHero = hydrateHero(heroWithRecalculatedStats);
