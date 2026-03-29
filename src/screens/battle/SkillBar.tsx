@@ -16,6 +16,12 @@ type LearnedSkill = {
   cooldown: number;
 };
 
+function itemDefByInventoryId(itemId: string | undefined) {
+  if (!itemId) return undefined;
+  const stripped = itemId.replace(/^shop_/, "");
+  return itemsDBWithStarter[itemId] ?? itemsDBWithStarter[stripped];
+}
+
 function useLearnedActive(): LearnedSkill[] {
   const hero = useHeroStore((s) => s.hero);
   if (!hero) return [];
@@ -184,7 +190,12 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
   const consumables = React.useMemo(() => {
     if (!hero?.inventory) return [];
     return hero.inventory
-      .filter((item: any) => item && item.slot === "consumable" && (item.count ?? 0) > 0)
+      .filter((item: any) => {
+        if (!item?.id || (item.count ?? 0) <= 0) return false;
+        const def = itemDefByInventoryId(item.id);
+        const slot = def?.slot || item.slot;
+        return slot === "consumable";
+      })
       .map((item: any) => ({
         id: `consumable:${item.id}`,
         name: item.name,
@@ -240,9 +251,14 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
     // Перевіряємо чи це расходник
     if (typeof id === "string" && id.startsWith("consumable:")) {
       const itemId = id.replace("consumable:", "");
-      const itemDef = itemsDBWithStarter[itemId];
+      const itemDef = itemDefByInventoryId(itemId);
+      const canonical = itemId.replace(/^shop_/, "");
       if (itemDef) {
-        const invItem = hero?.inventory?.find((i: any) => i.id === itemId);
+        const invItem = hero?.inventory?.find((i: any) => {
+          if (!i?.id) return false;
+          const iid = String(i.id).replace(/^shop_/, "");
+          return iid === canonical || i.id === itemId || i.id === canonical;
+        });
         return {
           id,
           name: itemDef.name,

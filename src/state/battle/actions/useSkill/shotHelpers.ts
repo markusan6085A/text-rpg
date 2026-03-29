@@ -154,15 +154,38 @@ function buildShotSlotScanOrder(
   return out;
 }
 
+function applyShotConsumptionToInventory(inventory: any[], actualItemId: string, toConsume: number): any[] {
+  return inventory
+    .map((inv: any) => {
+      if (inv.id !== actualItemId) return inv;
+      const newCount = (inv.count ?? 1) - toConsume;
+      return newCount > 0 ? { ...inv, count: newCount } : null;
+    })
+    .filter(Boolean) as any[];
+}
+
+/** Перший стак у інвентарі відповідного типу/грейду (резерв, якщо панель порожня або slot у БД не consumable) */
+function findFirstConsumableStackInInventory(
+  inventory: any[],
+  shotType: "soulshot" | "spiritshot",
+  weaponGrade: "NG" | "D" | "C" | "B" | "A" | "S" | null,
+  toConsume: number
+): { actualItemId: string } | null {
+  for (const invItem of inventory) {
+    if ((invItem.count ?? 0) < toConsume) continue;
+    const noid = String(invItem.id || "").replace(/^shop_/, "").toLowerCase();
+    if (!isShotConsumable(noid, shotType)) continue;
+    const sg = getShotGrade(noid);
+    if (weaponGrade != null && sg != null && sg !== weaponGrade) continue;
+    if (!invItem.id) continue;
+    return { actualItemId: invItem.id };
+  }
+  return null;
+}
+
 /**
- * Використовує soulshot/spiritshot тільки якщо гравець увімкнув заряд на панелі (клік по слоту).
+ * Soulshot/spiritshot: спочатку слоти панелі, інакше — перший відповідний стак у інвентарі.
  * Удар: 1 заряд. Ударний скіл: 2 заряди.
- * @param hero - герой
- * @param isPhysical - чи це фізична атака
- * @param isMagic - чи це магічна атака
- * @param loadoutSlots - слоти панелі
- * @param activeChargeSlots - індекси слотів, де заряд увімкнено
- * @param consumeCount - скільки зарядів витратити (1 = удар, 2 = ударний скіл)
  */
 export function useAutoShot(
   hero: Hero,
@@ -172,74 +195,67 @@ export function useAutoShot(
   activeChargeSlots: number[] = [],
   consumeCount: number = 1
 ): ShotResult {
-  if (!hero?.inventory) {
-    return { used: false, multiplier: 1.0, shotType: null };
-  }
-
   const shotType = isMagic ? "spiritshot" : isPhysical ? "soulshot" : null;
   if (!shotType) {
     return { used: false, multiplier: 1.0, shotType: null };
   }
 
-  const weaponGrade = getWeaponGrade(hero);
-  // 🔥 Якщо грейд зброї не визначено — приймаємо будь-який shot (fallback для нестандартної зброї)
-
   const toConsume = Math.max(1, Math.min(10, consumeCount));
-
-  const heroStore = useHeroStore.getState();
-  // 🔥 Беремо свіжий hero зі store — інакше inventory може бути застарілим і споживання не зберігається
-  const currentHero = heroStore.hero;
-  const currentInventory = currentHero?.inventory ?? hero?.inventory;
-  if (!currentInventory?.length) {
-    return { used: false, multiplier: 1.0, shotType: null };
-  }
-
   const slotOrder = buildShotSlotScanOrder(loadoutSlots, activeChargeSlots);
+  const out: ShotResult = { used: false, multiplier: 1.0, shotType: null };
 
-  // Шукаємо слот: спочатку увімкнені (activeChargeSlots), далі будь-який слот панелі з відповідним зарядом
-  for (const slotIndex of slotOrder) {
-    const slotId = loadoutSlots[slotIndex];
-    if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
-    // 🔥 Нормалізуємо: магазин може додати shop_soulshot_d — шукаємо canonical id
-    const rawItemId = slotId.replace("consumable:", "");
-    const itemId = rawItemId.replace(/^shop_/, "") || rawItemId;
-    if (!isShotConsumable(itemId, shotType)) continue;
-    // Грейд shot має збігатися з грейдом зброї; якщо грейд заряду не розпарсився — не відсіюємо (було: null !== C і заряд ніколи не ївся)
-    const shotGrade = getShotGrade(itemId);
-    if (weaponGrade != null && shotGrade != null && shotGrade !== weaponGrade) continue;
-    const invStack = inventoryHasShotStack(currentInventory, itemId, shotType, toConsume);
-    if (!invStack?.item) continue;
-    const invItem = invStack.item as any;
+  useHeroStore.getState().updateHero((prev) => {
+    if (!prev?.inventory?.length) return {};
+    const weaponGrade = getWeaponGrade(prev);
+    const inv = prev.inventory;
 
-    // Витрачаємо заряди (1 за удар, 2 за ударний скіл)
-    const actualItemId = invItem.id;
-    const updatedInventory = currentInventory.map((inv: any) => {
-      if (inv.id !== actualItemId) return inv;
-      const newCount = (inv.count ?? 1) - toConsume;
-      return newCount > 0 ? { ...inv, count: newCount } : null;
-    }).filter(Boolean) as any[];
-    heroStore.updateHero({ inventory: updatedInventory }, { persist: true });
+    for (const slotIndex of slotOrder) {
+      const slotId = loadoutSlots[slotIndex];
+      if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
+      const rawItemId = slotId.replace("consumable:", "");
+      const itemId = rawItemId.replace(/^shop_/, "") || rawItemId;
+      if (!isShotConsumable(itemId, shotType)) continue;
+      const shotGrade = getShotGrade(itemId);
+      if (weaponGrade != null && shotGrade != null && shotGrade !== weaponGrade) continue;
+      const invStack = inventoryHasShotStack(inv, itemId, shotType, toConsume);
+      if (!invStack?.item?.id) continue;
+      const updated = applyShotConsumptionToInventory(inv, invStack.item.id, toConsume);
+      out.used = true;
+      out.multiplier = 1.4;
+      out.shotType = shotType;
+      return { inventory: updated };
+    }
 
-    return {
-      used: true,
-      multiplier: 1.4,
-      shotType,
-    };
-  }
+    const direct = findFirstConsumableStackInInventory(inv, shotType, weaponGrade, toConsume);
+    if (direct) {
+      const updated = applyShotConsumptionToInventory(inv, direct.actualItemId, toConsume);
+      out.used = true;
+      out.multiplier = 1.4;
+      out.shotType = shotType;
+      return { inventory: updated };
+    }
 
-  if (import.meta.env.DEV && shotType) {
+    return {};
+  }, { persist: true });
+
+  if (import.meta.env.DEV && shotType && !out.used) {
+    const prev = useHeroStore.getState().hero;
+    const inv = prev?.inventory ?? hero?.inventory ?? [];
     console.log("[useAutoShot] No shot consumed:", {
       shotType,
-      weaponGrade,
+      weaponGrade: prev ? getWeaponGrade(prev) : getWeaponGrade(hero),
       activeChargeSlots,
       slotOrderSample: slotOrder.slice(0, 12),
-      loadoutAtSlots: activeChargeSlots.map((i) => loadoutSlots[typeof i === "string" ? parseInt(i, 10) : Number(i)]),
-      invShotCount: currentInventory.filter((i: any) =>
-        (i.id || "").toLowerCase().includes(shotType)
-      ).map((i: any) => ({ id: i.id, count: i.count })),
+      loadoutShotSlots: slotOrder
+        .map((i) => loadoutSlots[i])
+        .filter((v) => typeof v === "string" && v.startsWith("consumable:")),
+      invShotCount: inv
+        .filter((i: any) => (i.id || "").toLowerCase().includes(shotType))
+        .map((i: any) => ({ id: i.id, count: i.count })),
     });
   }
-  return { used: false, multiplier: 1.0, shotType: null };
+
+  return out;
 }
 
 /**
@@ -250,14 +266,17 @@ export function hasSpiritshotActive(
   loadoutSlots: (number | string | null)[] = [],
   activeChargeSlots: number[] = []
 ): boolean {
-  if (!hero?.inventory) return false;
+  const h = useHeroStore.getState().hero ?? hero;
+  const inv = h?.inventory;
+  if (!inv?.length) return false;
+  const weaponGrade = getWeaponGrade(h);
   for (const slotIndex of buildShotSlotScanOrder(loadoutSlots, activeChargeSlots)) {
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
     const itemId = (slotId.replace("consumable:", "") || "").replace(/^shop_/, "");
     if (!isShotConsumable(itemId, "spiritshot")) continue;
-    if (inventoryHasShotStack(hero.inventory, itemId, "spiritshot", 1)) return true;
+    if (inventoryHasShotStack(inv, itemId, "spiritshot", 1)) return true;
   }
-  return false;
+  return findFirstConsumableStackInInventory(inv, "spiritshot", weaponGrade, 1) != null;
 }
 
