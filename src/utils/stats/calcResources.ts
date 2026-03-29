@@ -112,7 +112,7 @@ export function calcResources(
           maxCp -= Math.round(15 * effectMultiplier);
           break;
         case "MEN":
-          maxMp -= Math.round(50 * effectMultiplier);
+          // Не знімаємо MP flat: занижений baseStats.MEN уже зменшує maxMp через menBonus вище (було подвійний штраф, гравці скаржились «забагато МП»).
           break;
       }
     }
