@@ -1,6 +1,7 @@
 import type { Hero } from "../../types/Hero";
 import { normalizeLevelExpPair } from "../../data/expTable";
 import { isSevenSealsInventoryClearDay } from "../../utils/sevenSealsTime";
+import { mergeActiveSevenSealsBonus } from "../../utils/sevenSealsBonus";
 
 /**
  * 🔥 КРИТИЧНО: Одна точка синхронізації hero ↔ heroJson
@@ -63,8 +64,11 @@ export function hydrateHero(hero: Hero | null): Hero | null {
   const activeQuests = Array.isArray(hero.activeQuests) ? hero.activeQuests
     : (Array.isArray(hj.activeQuests) ? hj.activeQuests : []);
 
+  const mergedSevenSealsBonus = mergeActiveSevenSealsBonus(hj.sevenSealsBonus, (hero as any).sevenSealsBonus);
+
   const hydratedHero: Hero = {
     ...hero,
+    ...(mergedSevenSealsBonus ? { sevenSealsBonus: mergedSevenSealsBonus as any } : {}),
     inventory: inventory ?? hero.inventory,
     skills,
     mobsKilled: mobsKilled as any,
@@ -77,6 +81,7 @@ export function hydrateHero(hero: Hero | null): Hero | null {
     activeQuests: activeQuests as any,
     heroJson: {
       ...hj,
+      ...(mergedSevenSealsBonus ? { sevenSealsBonus: mergedSevenSealsBonus } : {}),
       // 🔥 КРИТИЧНО: heroJson завжди синхронізований з hero (для серіалізації)
       name: hero.name || hj.name || '',
       race: hero.race || hj.race || '',

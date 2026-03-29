@@ -131,6 +131,7 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   }
   // 🔥 КРИТИЧНО: isDead/deadAt тільки з поточного героя — не з попереднього snapshot; після оживлення смерть не "липне" в localStorage
   const currentJson = (hero as any).heroJson ?? {};
+  const hydratedJson = (hydrated as any).heroJson && typeof (hydrated as any).heroJson === "object" ? (hydrated as any).heroJson : {};
   const battleState = loadBattle(hydrated.name);
   const battleBuffs = Array.isArray(battleState?.heroBuffs) ? battleState.heroBuffs : [];
   const jsonBuffs = Array.isArray(currentJson.heroBuffs) ? currentJson.heroBuffs : [];
@@ -145,6 +146,7 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const inventoryToSave = Array.isArray(hydrated.inventory) ? hydrated.inventory : (Array.isArray(currentJson.inventory) ? currentJson.inventory : []);
   const heroJson = {
     ...currentJson,
+    ...hydratedJson,
     ...buildBackupHeroJson(hydrated),
     inventory: inventoryToSave,
     hp: Number(hydrated.hp ?? 0),
