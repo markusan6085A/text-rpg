@@ -135,7 +135,7 @@ export function recalculateAllStats(
   }
 
   // 2. level scaling -> resources (використовуємо зрощені стати)
-  const resources = calcResources(grownBaseStats, level, hero.equipment, hero.activeDyes);
+  const resources = calcResources(grownBaseStats, level, hero.equipment);
 
   // 3. level scaling + equipment bonuses -> combat stats (використовуємо зрощені стати)
   let combatStats = calcCombatStats(

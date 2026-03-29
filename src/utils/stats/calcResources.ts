@@ -18,14 +18,7 @@ export interface Resources {
 export function calcResources(
   baseStats: HeroBaseStats,
   level: number,
-  equipment?: Record<string, string | null>,
-  activeDyes?: Array<{
-    id: string;
-    statPlus: "STR" | "CON" | "DEX" | "INT" | "MEN" | "WIT";
-    statMinus: "STR" | "CON" | "DEX" | "INT" | "MEN" | "WIT";
-    effect: number;
-    grade: "D" | "C" | "B" | "A" | "S";
-  }>
+  equipment?: Record<string, string | null>
 ): Resources {
   const lvl = Math.max(1, level);
   
@@ -86,42 +79,8 @@ export function calcResources(
     }
   }
   
-  // Прямі бонуси від тату (dyes) - додаються після всіх інших бонусів
-  // CON тату дає прямий бонус до HP, MEN тату дає прямий бонус до MP
-  if (activeDyes && activeDyes.length > 0) {
-    for (const dye of activeDyes) {
-      const effectMultiplier = dye.effect;
-      
-      switch (dye.statPlus) {
-        case "CON":
-          // CON впливає на HP: +1 = +100 HP, +5 = +500 HP
-          maxHp += Math.round(100 * effectMultiplier);
-          maxCp += Math.round(60 * effectMultiplier); // CP також збільшується (60% від HP)
-          break;
-        case "MEN":
-          // MEN впливає на MP: +1 = +50 MP, +5 = +250 MP
-          maxMp += Math.round(50 * effectMultiplier);
-          break;
-      }
-      
-      // Мінусові стати також впливають (віднімаються)
-      switch (dye.statMinus) {
-        case "CON":
-          // Від'ємне HP зменшено вдвічі: -1 = -25 HP, -5 = -125 HP (було -50/-250)
-          maxHp -= Math.round(25 * effectMultiplier);
-          maxCp -= Math.round(15 * effectMultiplier);
-          break;
-        case "MEN":
-          // Не знімаємо MP flat: занижений baseStats.MEN уже зменшує maxMp через menBonus вище (було подвійний штраф, гравці скаржились «забагато МП»).
-          break;
-      }
-    }
-    
-    // Гарантуємо мінімальні значення після застосування тату
-    maxHp = Math.max(1, maxHp);
-    maxMp = Math.max(1, maxMp);
-    maxCp = Math.max(1, maxCp);
-  }
+  // Краски (CON/MEN): зміна HP/MP/CP лише через baseStats → conBonus/menBonus після recalculateAllStats.
+  // Окремі flat тут давали подвійний рахунок разом із базою (як було з -MEN на MP).
   
   // ❗ calcResources = формула MAX, не поточний стан. HP/MP/CP — runtime state, не задаємо тут.
   return {

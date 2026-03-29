@@ -224,8 +224,8 @@ export function calcCombatStats(
     mAtk = Math.round(mAtk * (1 + mAtkPercentBonus / 100));
   }
 
-  // 4. Прямі бонуси від тату (dyes) - додаються після всіх інших бонусів
-  // Тату дають значні прямі бонуси до бойових статів, не через базові стати
+  // 4. Прямі бонуси від тату (dyes) — для STR/DEX/INT/WIT (додатково до зміни baseStats у формулах).
+  // CON/MEN тут не дублюємо: pDef/mDef уже з baseStats.CON / baseStats.MEN (вирівняно з HP/MP через conBonus/menBonus).
   if (activeDyes && activeDyes.length > 0) {
     for (const dye of activeDyes) {
       // Базові множники для кожного ефекту (для +1 ефекту)
@@ -245,11 +245,6 @@ export function calcCombatStats(
           crit += Math.round(20 * effectMultiplier);
           attackSpeed += Math.round(30 * effectMultiplier);
           break;
-        case "CON":
-          // CON впливає на фізичний захист та HP (через calcResources, тут тільки pDef)
-          // +1 = +30 pDef
-          pDef += Math.round(30 * effectMultiplier);
-          break;
         case "INT":
           // INT впливає на магічний урон: +1 = +50 mAtk, +5 = +250 mAtk
           mAtk += Math.round(50 * effectMultiplier);
@@ -259,11 +254,6 @@ export function calcCombatStats(
           // +1 = +30 castSpeed, +20 mCrit
           castSpeed += Math.round(30 * effectMultiplier);
           mCrit += Math.round(20 * effectMultiplier);
-          break;
-        case "MEN":
-          // MEN впливає на магічний захист та MP (через calcResources, тут тільки mDef)
-          // +1 = +30 mDef
-          mDef += Math.round(30 * effectMultiplier);
           break;
       }
       
@@ -278,18 +268,12 @@ export function calcCombatStats(
           crit -= Math.round(20 * effectMultiplier);
           attackSpeed -= Math.round(30 * effectMultiplier);
           break;
-        case "CON":
-          pDef -= Math.round(30 * effectMultiplier);
-          break;
         case "INT":
           mAtk -= Math.round(50 * effectMultiplier);
           break;
         case "WIT":
           castSpeed -= Math.round(30 * effectMultiplier);
           mCrit -= Math.round(20 * effectMultiplier);
-          break;
-        case "MEN":
-          mDef -= Math.round(30 * effectMultiplier);
           break;
       }
     }
