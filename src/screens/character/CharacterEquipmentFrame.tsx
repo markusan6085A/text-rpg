@@ -243,6 +243,50 @@ export default function CharacterEquipmentFrame({
     );
   };
 
+  /** Заточка для відображення на іконці слота (як у L2 на іконці предмета, не на моделі). */
+  function getEnchantDisplayForSlot(slot: string): number {
+    const eq = hero.equipment ?? {};
+    const lv = hero.equipmentEnchantLevels ?? {};
+    const num = (k: string) => Math.max(0, Math.floor(Number(lv[k] ?? 0)));
+
+    if (slot === "weapon") {
+      const w = eq.weapon ?? "";
+      const lr = eq.lrhand ?? "";
+      if (lr && !w) return num("lrhand");
+      const weaponId = w || lr;
+      if (weaponId && isTwoHandedWeapon(weaponId)) {
+        const sh = eq.shield ?? "";
+        if (sh === weaponId) return Math.max(num("weapon"), num("shield"));
+      }
+      return Math.max(num("weapon"), lr ? num("lrhand") : 0);
+    }
+    if (slot === "shield") {
+      const w = eq.weapon ?? "";
+      const s = eq.shield ?? "";
+      if (w && s && w === s && isTwoHandedWeapon(w)) {
+        return Math.max(num("weapon"), num("shield"));
+      }
+      return num("shield");
+    }
+    if (slot === "armor" || slot === "legs") {
+      const a = eq.armor ?? "";
+      const l = eq.legs ?? "";
+      if (a && a === l) return Math.max(num("armor"), num("legs"));
+    }
+    return num(slot);
+  }
+
+  function EnchantOnIcon({ level }: { level: number }) {
+    if (level <= 0) return null;
+    return (
+      <span
+        className="pointer-events-none absolute bottom-0 right-0 z-[35] min-w-[16px] rounded-sm border border-black/60 bg-black/70 px-0.5 text-center text-[8px] font-bold leading-tight text-yellow-300 shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
+      >
+        +{level}
+      </span>
+    );
+  }
+
   // Логіка отримання іконки слота
   const getSlotIcon = (slot: string) => {
     if (!hero || !hero.equipment) return SLOT_ICONS[slot];
@@ -278,9 +322,9 @@ export default function CharacterEquipmentFrame({
       return SLOT_ICONS[slot];
     }
     
-    // Для слота оружия: якщо надіто дворучне оружие, показуємо іконку оружия
+    // Для слота оружия: weapon або dual lrhand
     if (slot === "weapon") {
-      const weaponId = hero.equipment["weapon"];
+      const weaponId = hero.equipment["weapon"] || hero.equipment["lrhand"];
       if (weaponId) {
         const weaponDef = itemsDBWithStarter[weaponId] || itemsDB[weaponId];
         if (weaponDef) {
@@ -323,7 +367,7 @@ export default function CharacterEquipmentFrame({
   const handleItemClick = (slot: string) => {
     if (heroOverride && onItemClick) {
       const itemId = hero?.equipment?.[slot] || null;
-      const enchantLevel = hero?.equipmentEnchantLevels?.[slot] ?? 0;
+      const enchantLevel = getEnchantDisplayForSlot(slot);
       onItemClick(slot, itemId, enchantLevel);
     } else if (allowUnequip) {
       handleUnequip(slot);
@@ -451,41 +495,34 @@ export default function CharacterEquipmentFrame({
         )}
       </div>
       {/* Левые слоты */}
-      <div className="absolute left-2 top-2 flex flex-col gap-1 z-10">
+      <div className="absolute left-2 top-2 flex flex-col gap-1 z-20">
         {(["head", "armor", "legs", "gloves", "boots", "belt"] as const).map((slot) => {
-          const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
+          const enchantLevel = getEnchantDisplayForSlot(slot);
           return (
-            <div key={slot} className="relative">
+            <div key={slot} className="relative h-6 w-6 shrink-0">
               <img 
                 src={getSlotIcon(slot)} 
-                className={slotClassName}
+                className={`${slotClassName} !h-full !w-full object-contain`}
                 onClick={heroOverride && onItemClick 
                   ? () => handleItemClick(slot)
                   : allowUnequip 
                     ? () => handleUnequip(slot) 
                     : undefined}
               />
-              {enchantLevel > 0 && (
-                <div 
-                  className="absolute -bottom-0.5 -right-0.5 bg-[#b8860b] text-black text-[7px] font-bold px-0.5 rounded leading-none"
-                  style={{ minWidth: "10px", textAlign: "center" }}
-                >
-                  +{enchantLevel}
-                </div>
-              )}
+              <EnchantOnIcon level={enchantLevel} />
             </div>
           );
         })}
 
         <div className="flex gap-1 mt-1 items-center">
           {(["weapon", "shield"] as const).map((slot) => {
-            const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
+            const enchantLevel = getEnchantDisplayForSlot(slot);
             const isDisabled = slot === "shield" && hero.equipment?.weapon && isTwoHandedWeapon(hero.equipment.weapon);
             return (
-              <div key={slot} className="relative">
+              <div key={slot} className="relative h-6 w-6 shrink-0">
                 <img 
                   src={getSlotIcon(slot)} 
-                  className={`${slotClassName} ${
+                  className={`${slotClassName} !h-full !w-full object-contain ${
                     isDisabled ? "ring-2 ring-yellow-400 ring-opacity-75" : ""
                   }`}
                   onClick={heroOverride && onItemClick 
@@ -495,14 +532,7 @@ export default function CharacterEquipmentFrame({
                       : undefined}
                   title=""
                 />
-                {enchantLevel > 0 && (
-                  <div 
-                    className="absolute -bottom-0.5 -right-0.5 bg-[#b8860b] text-black text-[7px] font-bold px-0.5 rounded leading-none"
-                    style={{ minWidth: "10px", textAlign: "center" }}
-                  >
-                    +{enchantLevel}
-                  </div>
-                )}
+                <EnchantOnIcon level={enchantLevel} />
               </div>
             );
           })}
@@ -535,54 +565,40 @@ export default function CharacterEquipmentFrame({
       </div>
 
       {/* Правые слоты */}
-      <div className="absolute right-2 top-2 flex flex-col gap-1 items-end z-10">
+      <div className="absolute right-2 top-2 flex flex-col gap-1 items-end z-20">
         {(["jewelry", "necklace", "earring_left", "earring_right", "ring_left", "ring_right"] as const).map((slot) => {
-          const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
+          const enchantLevel = getEnchantDisplayForSlot(slot);
           return (
-            <div key={slot} className="relative">
+            <div key={slot} className="relative h-6 w-6 shrink-0">
               <img 
                 src={getSlotIcon(slot)} 
-                className={slotClassName}
+                className={`${slotClassName} !h-full !w-full object-contain`}
                 onClick={heroOverride && onItemClick 
                   ? () => handleItemClick(slot)
                   : allowUnequip 
                     ? () => handleUnequip(slot) 
                     : undefined}
               />
-              {enchantLevel > 0 && (
-                <div 
-                  className="absolute -bottom-0.5 -right-0.5 bg-[#b8860b] text-black text-[7px] font-bold px-0.5 rounded leading-none"
-                  style={{ minWidth: "10px", textAlign: "center" }}
-                >
-                  +{enchantLevel}
-                </div>
-              )}
+              <EnchantOnIcon level={enchantLevel} />
             </div>
           );
         })}
 
         <div className="flex gap-1 mt-1">
           {(["tattoo", "cloak"] as const).map((slot) => {
-            const enchantLevel = hero.equipmentEnchantLevels?.[slot] ?? 0;
+            const enchantLevel = getEnchantDisplayForSlot(slot);
             return (
-              <div key={slot} className="relative">
+              <div key={slot} className="relative h-6 w-6 shrink-0">
                 <img 
                   src={getSlotIcon(slot)} 
-                  className={slotClassName}
+                  className={`${slotClassName} !h-full !w-full object-contain`}
                   onClick={heroOverride && onItemClick 
                     ? () => handleItemClick(slot)
                     : allowUnequip 
                       ? () => handleUnequip(slot) 
                       : undefined}
                 />
-                {enchantLevel > 0 && (
-                  <div 
-                    className="absolute -bottom-0.5 -right-0.5 bg-[#b8860b] text-black text-[7px] font-bold px-0.5 rounded leading-none"
-                    style={{ minWidth: "10px", textAlign: "center" }}
-                  >
-                    +{enchantLevel}
-                  </div>
-                )}
+                <EnchantOnIcon level={enchantLevel} />
               </div>
             );
           })}
