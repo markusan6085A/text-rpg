@@ -14,7 +14,7 @@ import { getMaxResources } from "../helpers/getMaxResources";
 import { computeBuffedMaxResources } from "../helpers";
 import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonBuffs";
 import { hasSpiritshotActive } from "./useSkill/shotHelpers";
-import { MOB_DEFENSE_MULTIPLIER } from "../../../data/balance";
+import { getMobTargetStatsForHeroDamage } from "../helpers/mobTargetStats";
 import { commitMobVictoryToHeroStore } from "../commitMobVictory";
 import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 
@@ -643,12 +643,9 @@ export function processSummonAttack(
     });
   }
   
-  // Mob defense — fallback + balance multiplier (same as baseAttack/attackSkill)
-  const mobLevel = mob.level ?? 1;
-  const mobPDefRaw = (mob as any)?.pDef ?? Math.round(mobLevel * 12);
-  const mobMDefRaw = (mob as any)?.mDef ?? Math.round(mobLevel * 10);
-  const mobPDef = Math.max(5, Math.round(mobPDefRaw * MOB_DEFENSE_MULTIPLIER));
-  const mobMDef = Math.max(5, Math.round(mobMDefRaw * MOB_DEFENSE_MULTIPLIER));
+  const { pDef: mobPDefRaw, mDef: mobMDefRaw } = getMobTargetStatsForHeroDamage(mob, state.mobBuffs, now);
+  const mobPDef = Math.max(5, mobPDefRaw);
+  const mobMDef = Math.max(5, mobMDefRaw);
 
   // Summon uses physical or magic attack (50/50 chance or based on type)
   const useMagic = summonMAtk > summonPAtk || Math.random() > 0.5;

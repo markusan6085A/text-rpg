@@ -48,8 +48,10 @@ export function calculateMagicDamage(
       ? target?.darkResist ?? 0
       : 0;
 
+  // Від'ємний опір (після Surrender тощо) = вразливість; обмежуємо розгін множника
+  const resistClamped = Math.max(-80, Math.min(95, resistPenalty));
   const elementMultiplier =
-    (1 + Math.max(0, attackBonus) / 100) * (1 - Math.max(0, resistPenalty) / 100);
+    (1 + Math.max(0, attackBonus) / 100) * (1 - resistClamped / 100);
 
   const variance = 0.9 + Math.random() * 0.2; // 0.9 - 1.1
 

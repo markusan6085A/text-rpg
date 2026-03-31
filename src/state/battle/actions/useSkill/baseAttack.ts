@@ -11,7 +11,8 @@ import type { Mob } from "../../../../data/world/types";
 import { useAutoShot } from "./shotHelpers";
 import { canAttackWithBow, useArrow, getWeaponGrade } from "./arrowHelpers";
 import { itemsDB } from "../../../../data/items/itemsDB";
-import { MOB_DEFENSE_MULTIPLIER, L2_PHYSICAL_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER } from "../../../../data/balance";
+import { L2_PHYSICAL_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER } from "../../../../data/balance";
+import { getMobTargetStatsForHeroDamage } from "../../helpers/mobTargetStats";
 import { commitMobVictoryToHeroStore } from "../../commitMobVictory";
 import { buildVictoryResourceLogLines } from "../../helpers/victoryLootLogLines";
 import { mobSpGainFromMob } from "../../mobSpGain";
@@ -151,8 +152,7 @@ export function handleBaseAttack(
   // Обчислюємо урон (L2-стиль: damage = 70*pAtk/pDef для базової атаки)
   let damage = baseDmgWithShot;
   if (!isFishingZone && state.mob) {
-    const mobPDefRaw = state.mob.pDef ?? Math.round((state.mob.level ?? 1) * 12);
-    const mobPDef = Math.max(1, Math.round(mobPDefRaw * MOB_DEFENSE_MULTIPLIER));
+    const { pDef: mobPDef } = getMobTargetStatsForHeroDamage(state.mob, state.mobBuffs, now);
     const effectivePAtk = Math.max(1, pAtk * physicalDamageMultiplier * shotResult.multiplier);
     // L2 формула: 70 * pAtk / pDef; L2_PVE_DAMAGE_MULTIPLIER компенсує MOB_HP/DEF
     const variance = 0.9 + Math.random() * 0.2;

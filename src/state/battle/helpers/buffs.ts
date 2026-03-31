@@ -16,6 +16,20 @@ const DEFAULT_BASE_STATS: Record<string, number> = {
   magicCritRate: 4,
 };
 
+/** Для calculateMagicDamage: при базі 0 % дебаф опору дає від'ємний стат (вразливість). */
+const ELEMENTAL_RESIST_STATS = new Set<string>([
+  "fireResist",
+  "waterResist",
+  "windResist",
+  "earthResist",
+  "holyResist",
+  "darkResist",
+]);
+
+function isElementalResistStat(s: string): boolean {
+  return ELEMENTAL_RESIST_STATS.has(s);
+}
+
 export const cleanupBuffs = (buffs: BattleBuff[], now: number) => {
   const list = Array.isArray(buffs) ? buffs : [];
   const seenStack = new Set<string>();
@@ -228,7 +242,13 @@ export const applyBuffsToStats = (
     } else {
       baseValue = typeof stats?.[targetStat] === "number" ? stats[targetStat] : (merged[targetStat] ?? 0);
     }
-    merged[targetStat] = baseValue * multiplierBuffsByStat[targetStat];
+    const mult = multiplierBuffsByStat[targetStat];
+    if (isElementalResistStat(targetStat) && baseValue === 0 && mult !== 1) {
+      // 0 * 0.7 лишалось 0; для Surrender (multiplier < 1) еквівалент −(1−m)*100 п.в. опору
+      merged[targetStat] = mult < 1 ? 100 * (mult - 1) : 0;
+    } else {
+      merged[targetStat] = baseValue * mult;
+    }
     if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
       merged["atkSpeed"] = merged[targetStat];
       merged["attackSpeed"] = merged[targetStat];
@@ -276,7 +296,11 @@ export const applyBuffsToStats = (
         : typeof stats?.[targetStat] === "number" ? stats[targetStat]
         : (DEFAULT_BASE_STATS[targetStat] ?? 0);
     }
-    merged[targetStat] = baseValue * (1 + totalPercent / 100);
+    if (isElementalResistStat(targetStat) && baseValue === 0 && totalPercent < 0) {
+      merged[targetStat] = totalPercent;
+    } else {
+      merged[targetStat] = baseValue * (1 + totalPercent / 100);
+    }
     if (targetStat === "atkSpeed" || targetStat === "attackSpeed") {
       merged["atkSpeed"] = merged[targetStat];
       merged["attackSpeed"] = merged[targetStat];

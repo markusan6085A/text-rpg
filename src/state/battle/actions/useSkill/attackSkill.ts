@@ -13,7 +13,7 @@ import { buildVictoryResourceLogLines } from "../../helpers/victoryLootLogLines"
 import { mobSpGainFromMob } from "../../mobSpGain";
 import { canAttackWithBow, useArrow, isBowEquipped, getWeaponGrade } from "./arrowHelpers";
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
-import { MOB_DEFENSE_MULTIPLIER } from "../../../../data/balance";
+import { getMobTargetStatsForHeroDamage } from "../../helpers/mobTargetStats";
 
 export function handleAttackSkill(
   skillId: number,
@@ -68,12 +68,9 @@ export function handleAttackSkill(
     }
   }
 
-  const mobPDefRaw = state.mob?.pDef ?? Math.round((state.mob?.level ?? 1) * 12);
-  const mobMDefRaw = state.mob?.mDef ?? Math.round((state.mob?.level ?? 1) * 10);
-  const targetStats = {
-    pDef: Math.max(1, Math.round(mobPDefRaw * MOB_DEFENSE_MULTIPLIER)),
-    mDef: Math.max(1, Math.round(mobMDefRaw * MOB_DEFENSE_MULTIPLIER)),
-  };
+  const targetStats = state.mob
+    ? getMobTargetStatsForHeroDamage(state.mob, state.mobBuffs, now)
+    : { pDef: 1, mDef: 1, fireResist: 0, waterResist: 0, windResist: 0, earthResist: 0, holyResist: 0, darkResist: 0 };
 
   // Заряди тільки якщо увімкнені на панелі (ударний скіл = 2 заряди)
   const shotResult = useAutoShot(hero, isPhysical, isMagic, state.loadoutSlots ?? [], state.activeChargeSlots ?? [], 2);

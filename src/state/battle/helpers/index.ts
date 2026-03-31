@@ -2,4 +2,5 @@
 export { cleanupBuffs, applyBuffsToStats } from "./buffs";
 export { computeBuffedMaxResources } from "./resources";
 export { persistSnapshot, sanitizeLog, sanitizeLine } from "./persist";
+export { mobBaseCombatStats, getMobTargetStatsForHeroDamage } from "./mobTargetStats";
 
