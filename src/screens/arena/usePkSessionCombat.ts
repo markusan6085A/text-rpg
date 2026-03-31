@@ -119,7 +119,12 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
       const skillDef = getSkillDefForBattle(hero.profession || null, hero.klass, hero.race, skillId) ?? getSkillDef(skillId);
       if (skillDef?.cooldown) {
         let cooldownMs = skillDef.cooldown * 1000;
-        if (!(skillDef as any).isMagic && !skillDefIsBuff(skillDef) && !skillDefIsToggle(skillDef)) {
+        if (
+          !(skillDef as any).isMagic &&
+          !skillDefIsBuff(skillDef) &&
+          !skillDefIsToggle(skillDef) &&
+          skillDef.category !== "debuff"
+        ) {
           const attackSpeed = (hero as any)?.attackSpeed ?? (hero as any)?.atkSpeed ?? 200;
           cooldownMs = calcPhysicalSkillCooldown(skillDef.cooldown, attackSpeed);
         }
@@ -130,6 +135,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
       try {
         const isBuff = skillDefIsBuff(skillDef);
         const isToggle = skillDefIsToggle(skillDef);
+        const isDebuff = skillDef?.category === "debuff";
         let shotMultiplier = 1.0;
         let shotName: string | undefined;
         if (!isBuff && !isToggle) {
@@ -152,6 +158,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
         }
         let buffEffects: any[] | undefined;
         let buffDurationSec: number | undefined;
+        let debuffEffects: any[] | undefined;
         if (isBuff || isToggle) {
           if (skillDef) {
             const learned = hero?.skills?.find((s: any) => (s?.id ?? s) === skillId);
@@ -160,15 +167,22 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
             buffEffects = levelDef ? processSkillEffects(skillDef, levelDef) : undefined;
             buffDurationSec = skillDef?.duration ?? 120;
           }
+        } else if (isDebuff && skillDef) {
+          const learned = hero?.skills?.find((s: any) => (s?.id ?? s) === skillId);
+          const skillLevel = (learned as any)?.level ?? 1;
+          const levelDef = skillDef.levels?.find((l: any) => l.level === skillLevel) ?? skillDef.levels?.[0];
+          debuffEffects = levelDef ? processSkillEffects(skillDef, levelDef) : [];
         }
         const actOpts: NonNullable<Parameters<typeof actPkSession>[2]> = {
           isBuff,
           isToggle,
+          isDebuff,
           name: skillDef?.name,
           target: skillDef?.target,
           shotMultiplier,
           shotName,
           buffEffects,
+          debuffEffects,
           buffCooldownMs:
             (isBuff || isToggle) && skillDef?.cooldown
               ? skillDef.category === "toggle"
@@ -180,7 +194,12 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
         if (!isBuff && !isToggle && skillDef && typeof skillDef.cooldown === "number" && skillDef.cooldown > 0) {
           actOpts.skillBaseCooldownSec = skillDef.cooldown;
           actOpts.isMagicAttack =
-            skillDef.category === "magic_attack" || !!(skillDef as any).isMagic;
+            skillDef.category === "magic_attack" ||
+            !!(skillDef as any).isMagic ||
+            (isDebuff && !!(skillDef as any).isMagic);
+        }
+        if (!isBuff && !isToggle && !isDebuff && skillDef && (skillDef as any).element) {
+          actOpts.skillElement = String((skillDef as any).element);
         }
         const res = await actPkSession(pkSession.id, skillId, actOpts);
         if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);

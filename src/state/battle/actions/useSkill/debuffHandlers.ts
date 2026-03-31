@@ -126,7 +126,8 @@ export function handleMageBane(
 }
 
 /**
- * Обробляє debuff скіли (застосування до мобів)
+ * Обробляє debuff скіли (застосування до мобів).
+ * У PvE бій 1v1: scope "area" так само вішає дебаф на поточного моба (немає інших цілей у state).
  */
 export function handleDebuffSkill(
   def: SkillDefinition,

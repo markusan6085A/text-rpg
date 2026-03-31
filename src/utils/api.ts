@@ -499,6 +499,19 @@ export interface PkSessionFighter {
   pDef: number;
   mAtk: number;
   mDef: number;
+  /** З сервера buildPkFighter — для стихій / дебафів опору в PK */
+  accuracy?: number;
+  evasion?: number;
+  crit?: number;
+  mCrit?: number;
+  critPower?: number;
+  attackSpeed?: number;
+  fireResist?: number;
+  waterResist?: number;
+  windResist?: number;
+  earthResist?: number;
+  holyResist?: number;
+  darkResist?: number;
   prefersMagic: boolean;
   skills: PkSessionSkill[];
 }
@@ -606,16 +619,20 @@ export async function actPkSession(
   options?: {
     isBuff?: boolean;
     isToggle?: boolean;
+    isDebuff?: boolean;
     name?: string;
     target?: string;
     shotMultiplier?: number;
     shotName?: string;
     buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>;
+    debuffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>;
     buffCooldownMs?: number;
     buffDurationSec?: number;
     /** З skillDef.cooldown — сервер рахує фіз. КД через attackSpeed */
     skillBaseCooldownSec?: number;
     isMagicAttack?: boolean;
+    /** skillDef.element для magic_attack / стихійного урону */
+    skillElement?: string;
   }
 ): Promise<PkSessionResponse> {
   return apiRequest<PkSessionResponse>(`/characters/pk/session/${encodeURIComponent(sessionId)}/act`, {

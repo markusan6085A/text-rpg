@@ -10,8 +10,12 @@ export const skill_1083: SkillDefinition = {
   powerType: "none",
   target: "enemy",
   scope: "single",
+  element: "fire",
   castTime: 1.5,
   cooldown: 8,
+  duration: 10,
+  chance: 80,
+  effects: [{ stat: "fireResist", mode: "percent", value: -25, resistStat: "wit" }],
   levels: [
   {
     "level": 1,

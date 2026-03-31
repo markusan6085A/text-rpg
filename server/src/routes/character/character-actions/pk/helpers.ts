@@ -31,6 +31,25 @@ export function normalizeSkills(heroJson: any): PkSkill[] {
   }));
 }
 
+/** Після завантаження сесії з БД у старих payload може не бути стихійних полів. */
+export function ensurePkFighterElementalFields(f: PkFighter): void {
+  const z = (n: unknown) => (Number.isFinite(Number(n)) ? Number(n) : 0);
+  f.fireResist = z(f.fireResist);
+  f.waterResist = z(f.waterResist);
+  f.windResist = z(f.windResist);
+  f.earthResist = z(f.earthResist);
+  f.holyResist = z(f.holyResist);
+  f.darkResist = z(f.darkResist);
+  f.fireAttack = z(f.fireAttack);
+  f.waterAttack = z(f.waterAttack);
+  f.windAttack = z(f.windAttack);
+  f.earthAttack = z(f.earthAttack);
+  f.holyAttack = z(f.holyAttack);
+  f.darkAttack = z(f.darkAttack);
+  f.magicSkillPower = z(f.magicSkillPower);
+  f.physSkillPower = z(f.physSkillPower);
+}
+
 export function buildPkFighter(character: {
   id: string;
   name: string;
@@ -58,6 +77,22 @@ export function buildPkFighter(character: {
   const critPower = Number(battleStats?.critPower ?? battleStats?.critDamage ?? 100);
   const attackSpeed = Math.max(0, Number(battleStats?.attackSpeed ?? battleStats?.atkSpeed ?? 200) || 200);
 
+  const num = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+  const fireResist = num(battleStats?.fireResist);
+  const waterResist = num(battleStats?.waterResist);
+  const windResist = num(battleStats?.windResist);
+  const earthResist = num(battleStats?.earthResist);
+  const holyResist = num(battleStats?.holyResist);
+  const darkResist = num(battleStats?.darkResist);
+  const fireAttack = num(battleStats?.fireAttack);
+  const waterAttack = num(battleStats?.waterAttack);
+  const windAttack = num(battleStats?.windAttack);
+  const earthAttack = num(battleStats?.earthAttack);
+  const holyAttack = num(battleStats?.holyAttack);
+  const darkAttack = num(battleStats?.darkAttack);
+  const magicSkillPower = num(battleStats?.magicSkillPower);
+  const physSkillPower = num(battleStats?.physSkillPower);
+
   const prefersMagic = mAtk > pAtk * 1.15;
   const skills = normalizeSkills(heroJson);
 
@@ -78,6 +113,20 @@ export function buildPkFighter(character: {
     mCrit,
     critPower,
     attackSpeed,
+    fireResist,
+    waterResist,
+    windResist,
+    earthResist,
+    holyResist,
+    darkResist,
+    fireAttack,
+    waterAttack,
+    windAttack,
+    earthAttack,
+    holyAttack,
+    darkAttack,
+    magicSkillPower,
+    physSkillPower,
     prefersMagic,
     skills,
   };
@@ -199,6 +248,48 @@ export function serializePkSession(session: PkSession) {
   };
 }
 
+const PK_ELEMENT_IDS = new Set(["fire", "water", "wind", "earth", "holy", "dark"]);
+
+function normalizePkSkillElement(raw: string | null | undefined): string | null {
+  const s = String(raw || "").trim().toLowerCase();
+  return PK_ELEMENT_IDS.has(s) ? s : null;
+}
+
+/** Як у клієнті calculateMagicDamage: атака стихією + опір (від'ємний опір = вразливість). */
+function pkElementMultiplier(attacker: PkFighter, defender: PkFighter, element: string | null): number {
+  if (!element) return 1;
+  const attackBonus =
+    element === "fire"
+      ? attacker.fireAttack
+      : element === "water"
+        ? attacker.waterAttack
+        : element === "wind"
+          ? attacker.windAttack
+          : element === "earth"
+            ? attacker.earthAttack
+            : element === "holy"
+              ? attacker.holyAttack
+              : element === "dark"
+                ? attacker.darkAttack
+                : 0;
+  const resistPenalty =
+    element === "fire"
+      ? defender.fireResist
+      : element === "water"
+        ? defender.waterResist
+        : element === "wind"
+          ? defender.windResist
+          : element === "earth"
+            ? defender.earthResist
+            : element === "holy"
+              ? defender.holyResist
+              : element === "dark"
+                ? defender.darkResist
+                : 0;
+  const resistClamped = Math.max(-80, Math.min(95, resistPenalty));
+  return (1 + Math.max(0, attackBonus) / 100) * (1 - resistClamped / 100);
+}
+
 /**
  * Урон узгоджено з PvE: базова атака — як baseAttack (L2_PHYSICAL * pAtk/pDef * PVE_MULT);
  * скіли — як calculatePhysicalDamage / calculateMagicDamage (L2 * (atk + 2*power) / def * PVE_MULT).
@@ -208,7 +299,8 @@ export function computeDamage(
   defender: PkFighter,
   powerBonus: number,
   useMagic: boolean,
-  shotMultiplier: number = 1.0
+  shotMultiplier: number = 1.0,
+  skillElement?: string | null
 ): { dmg: number; isCrit: boolean; isMiss: boolean } {
   const pAtk = Math.max(1, Number(attacker.pAtk || 1));
   const mAtk = Math.max(1, Number(attacker.mAtk || 1));
@@ -235,13 +327,18 @@ export function computeDamage(
       : Math.min(2.0, 1.5 + critPower / 5000)
     : 1.0;
 
+  const element = normalizePkSkillElement(skillElement);
+
   if (useMagic) {
     if (skillBonus > 0) {
       const power = Math.max(1, skillBonus);
       const variance = 0.9 + Math.random() * 0.2;
-      const l2Base =
+      let l2Base =
         (L2_MAGIC_COEFF_PK * (mAtk + 2 * power)) / mDef * L2_PVE_DMG_MULT_PK;
-      const dmg = Math.max(1, Math.floor(l2Base * variance * critMult * shotMultiplier));
+      const magicSkillMult = 1 + (attacker.magicSkillPower || 0) / 100;
+      l2Base *= magicSkillMult;
+      const elemMult = pkElementMultiplier(attacker, defender, element);
+      const dmg = Math.max(1, Math.floor(l2Base * variance * critMult * shotMultiplier * elemMult));
       return { dmg, isCrit, isMiss: false };
     }
     const variance = 0.92 + Math.random() * 0.16;
@@ -253,9 +350,12 @@ export function computeDamage(
   if (skillBonus > 0) {
     const power = Math.max(1, skillBonus);
     const variance = 0.8 + Math.random() * 0.4;
-    const l2Base =
+    let l2Base =
       (L2_PHYSICAL_COEFF_PK * (pAtk + 2 * power)) / pDef * L2_PVE_DMG_MULT_PK;
-    const dmg = Math.max(1, Math.floor(l2Base * variance * critMult * shotMultiplier));
+    const physSkillMult = 1 + (attacker.physSkillPower || 0) / 100;
+    l2Base *= physSkillMult;
+    const elemMult = pkElementMultiplier(attacker, defender, element);
+    const dmg = Math.max(1, Math.floor(l2Base * variance * critMult * shotMultiplier * elemMult));
     return { dmg, isCrit, isMiss: false };
   }
 

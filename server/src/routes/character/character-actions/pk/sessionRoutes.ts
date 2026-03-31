@@ -14,6 +14,7 @@ import {
 } from "./store";
 import {
   buildPkFighter,
+  ensurePkFighterElementalFields,
   getLocation,
   isOnline,
   serializePkSession,
@@ -296,6 +297,8 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
     if (session) pkSessions.set(sessionId, session);
     else session = pkSessions.get(sessionId);
     if (!session) return reply.code(404).send({ error: "pk session not found" });
+    ensurePkFighterElementalFields(session.attacker);
+    ensurePkFighterElementalFields(session.defender);
 
     const myChar = await prisma.character.findFirst({
       where: {
@@ -377,17 +380,21 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       skillId?: number;
       isBuff?: boolean;
       isToggle?: boolean;
+      isDebuff?: boolean;
       name?: string;
       target?: string;
       shotMultiplier?: number;
       shotName?: string;
       buffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>;
+      debuffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>;
       buffCooldownMs?: number;
       buffDurationSec?: number;
       /** Базовий КД скіла (сек), з skillDef.cooldown — для фіз. скілів перераховується через attackSpeed */
       skillBaseCooldownSec?: number;
       /** Чи скіл magic_attack (інше ніж prefersMagic у сесії) */
       isMagicAttack?: boolean;
+      /** Стихія magic_attack (узгоджено з client skillDef.element) */
+      skillElement?: string;
     };
     const skillId = body.skillId !== undefined ? Number(body.skillId) : undefined;
     const isBuff = body.isBuff;
@@ -403,6 +410,12 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         ? body.skillBaseCooldownSec
         : undefined;
     const isMagicAttackOpt = typeof body.isMagicAttack === "boolean" ? body.isMagicAttack : undefined;
+    const isDebuff = body.isDebuff === true;
+    const debuffEffects = Array.isArray(body.debuffEffects) ? body.debuffEffects : [];
+    const skillElementRaw =
+      typeof body.skillElement === "string" && body.skillElement.trim()
+        ? body.skillElement.trim()
+        : undefined;
 
     let session = pkSessions.get(sessionId);
     if (!session) {
@@ -410,6 +423,8 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       if (session) pkSessions.set(sessionId, session);
     }
     if (!session) return reply.code(404).send({ error: "pk session not found" });
+    ensurePkFighterElementalFields(session.attacker);
+    ensurePkFighterElementalFields(session.defender);
 
     const me = await prisma.character.findFirst({
       where: {
@@ -503,11 +518,46 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       return requested;
     };
 
+    const ELEM_RES = new Set([
+      "fireResist",
+      "waterResist",
+      "windResist",
+      "earthResist",
+      "holyResist",
+      "darkResist",
+    ]);
+
     const applyBuffEffects = (
       fighter: PkFighter,
       effects: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>
     ) => {
-      const statKeys = ["pAtk", "pDef", "mAtk", "mDef", "maxHp", "maxMp", "accuracy", "evasion", "crit", "mCrit", "critPower"];
+      const statKeys = [
+        "pAtk",
+        "pDef",
+        "mAtk",
+        "mDef",
+        "maxHp",
+        "maxMp",
+        "accuracy",
+        "evasion",
+        "crit",
+        "mCrit",
+        "critPower",
+        "fireResist",
+        "waterResist",
+        "windResist",
+        "earthResist",
+        "holyResist",
+        "darkResist",
+        "fireAttack",
+        "waterAttack",
+        "windAttack",
+        "earthAttack",
+        "holyAttack",
+        "darkAttack",
+        "magicSkillPower",
+        "physSkillPower",
+      ];
       for (const e of effects) {
         const raw = String(e.stat || "").trim();
         const stat = raw === "critDamage" ? "critPower" : raw;
@@ -525,19 +575,47 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
           crit: fighter.crit,
           mCrit: fighter.mCrit,
           critPower: fighter.critPower,
+          fireResist: fighter.fireResist,
+          waterResist: fighter.waterResist,
+          windResist: fighter.windResist,
+          earthResist: fighter.earthResist,
+          holyResist: fighter.holyResist,
+          darkResist: fighter.darkResist,
+          fireAttack: fighter.fireAttack,
+          waterAttack: fighter.waterAttack,
+          windAttack: fighter.windAttack,
+          earthAttack: fighter.earthAttack,
+          holyAttack: fighter.holyAttack,
+          darkAttack: fighter.darkAttack,
+          magicSkillPower: fighter.magicSkillPower,
+          physSkillPower: fighter.physSkillPower,
         };
         if (!(stat in map)) continue;
         let newVal = map[stat];
         if (mode === "percent" && typeof e.value === "number") {
-          newVal = Math.round(newVal * (1 + e.value / 100));
+          if (ELEM_RES.has(stat) && newVal === 0 && e.value < 0) {
+            newVal = e.value;
+          } else {
+            newVal = Math.round(newVal * (1 + e.value / 100));
+          }
         } else if (mode === "flat" && typeof e.value === "number") {
-          newVal = Math.max(0, newVal + e.value);
+          if (ELEM_RES.has(stat)) {
+            newVal = newVal + e.value;
+          } else {
+            newVal = Math.max(0, newVal + e.value);
+          }
         } else if (mode === "multiplier" && (typeof e.multiplier === "number" || typeof e.value === "number")) {
           const m = typeof e.multiplier === "number" ? e.multiplier : 1 + (e.value ?? 0) / 100;
-          newVal = Math.round(newVal * m);
+          if (ELEM_RES.has(stat) && newVal === 0 && m !== 1) {
+            newVal = m < 1 ? 100 * (m - 1) : 0;
+          } else {
+            newVal = Math.round(newVal * m);
+          }
         }
         (fighter as any)[stat] = newVal;
       }
+      fighter.pDef = Math.max(1, Math.round(fighter.pDef));
+      fighter.mDef = Math.max(1, Math.round(fighter.mDef));
     };
 
     const doTurn = (
@@ -553,7 +631,10 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
       reqBuffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>,
       reqBuffCooldownMs?: number,
       reqSkillBaseCooldownSec?: number,
-      reqIsMagicAttack?: boolean
+      reqIsMagicAttack?: boolean,
+      reqIsDebuff?: boolean,
+      reqDebuffEffects?: Array<{ stat: string; mode: string; value?: number; multiplier?: number }>,
+      reqSkillElement?: string
     ): number => {
       const skill = pickSkill(attacker, cooldowns, requestedSkillId);
 
@@ -598,13 +679,45 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         return 0;
       }
 
+      if (skill && reqIsDebuff) {
+        if (!Array.isArray(reqDebuffEffects) || reqDebuffEffects.length === 0) {
+          session.log.unshift(
+            `${attacker.name}: дебафф без эффектов (${reqSkillName || skill.name || `skill#${skill.id}`}).`
+          );
+          session.log = session.log.slice(0, 30);
+          return 0;
+        }
+        attacker.mp = Math.max(0, attacker.mp - skill.mpCost);
+        const useMagicCd =
+          typeof reqIsMagicAttack === "boolean" ? reqIsMagicAttack : true;
+        const cdMs = resolvePkAttackSkillCooldownMs(
+          attacker,
+          skill,
+          useMagicCd,
+          reqSkillBaseCooldownSec
+        );
+        cooldowns[skill.id] = now + cdMs;
+        applyBuffEffects(defender, reqDebuffEffects);
+        const sName = reqSkillName || skill.name || `skill#${skill.id}`;
+        session.log.unshift(`${attacker.name}: дебафф ${sName} на ${defender.name}`);
+        session.log = session.log.slice(0, 30);
+        return 0;
+      }
+
       const useMagic = skill
         ? typeof reqIsMagicAttack === "boolean"
           ? reqIsMagicAttack
           : attacker.prefersMagic
         : false;
       const powerBonus = skill?.powerBonus ?? 0;
-      const { dmg, isCrit, isMiss } = computeDamage(attacker, defender, powerBonus, useMagic, reqShotMultiplier);
+      const { dmg, isCrit, isMiss } = computeDamage(
+        attacker,
+        defender,
+        powerBonus,
+        useMagic,
+        reqShotMultiplier,
+        reqSkillElement
+      );
       defender.hp = Math.max(0, defender.hp - dmg);
 
       const critText = isCrit ? " (критический удар!)" : "";
@@ -642,7 +755,10 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         buffEffects,
         buffCooldownMs,
         skillBaseCooldownSec,
-        isMagicAttackOpt
+        isMagicAttackOpt,
+        isDebuff,
+        debuffEffects,
+        skillElementRaw
       );
       appliedBuffTurn = !!(
         dmg === 0 &&
@@ -672,7 +788,10 @@ export async function registerPkSessionRoutes(app: FastifyInstance) {
         buffEffects,
         buffCooldownMs,
         skillBaseCooldownSec,
-        isMagicAttackOpt
+        isMagicAttackOpt,
+        isDebuff,
+        debuffEffects,
+        skillElementRaw
       );
       appliedBuffTurn = !!(
         dmg === 0 &&

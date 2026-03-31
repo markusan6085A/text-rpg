@@ -25,6 +25,21 @@ export type PkFighter = {
   critPower: number;
   /** Як у hero.battleStats — для КД фізичних скілів (calcPhysicalSkillCooldown). */
   attackSpeed: number;
+  /** Узгоджено з клієнтом calculateMagicDamage (battleStats). */
+  fireResist: number;
+  waterResist: number;
+  windResist: number;
+  earthResist: number;
+  holyResist: number;
+  darkResist: number;
+  fireAttack: number;
+  waterAttack: number;
+  windAttack: number;
+  earthAttack: number;
+  holyAttack: number;
+  darkAttack: number;
+  magicSkillPower: number;
+  physSkillPower: number;
   prefersMagic: boolean;
   skills: PkSkill[];
 };
