@@ -92,6 +92,43 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     description: "Квестовий предмет. Уголь для здачі в квесті «Окраина Глудио».",
     grade: "NG",
   },
+  /** Світлий ельф-воїн — перша профа (Floran, Venomous Spider) */
+  quest_elf_fprof_spider_fang: {
+    id: "quest_elf_fprof_spider_fang",
+    name: "Клык ядовитого паука",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resours/Etc_fang_red_i00_0.jpg",
+    description: "Квестовый трофей. Падает с Venomous Spider в зонах Floran Village.",
+    grade: "NG",
+  },
+  quest_elf_fprof_lirein_leaf: {
+    id: "quest_elf_fprof_lirein_leaf",
+    name: "Лист духа лирейна",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resours/Kimerian_enter_easy_0.jpg",
+    description: "Квестовый трофей. Падает с Lirein в зонах Floran Village.",
+    grade: "NG",
+  },
+  quest_elf_fprof_bone_shard: {
+    id: "quest_elf_fprof_bone_shard",
+    name: "Осколок кости вождя",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resours/Etc_piece_bone_black_i00_0.jpg",
+    description: "Квестовый трофей. Падает с Tracker Skeleton Leader в зонах Floran Village.",
+    grade: "NG",
+  },
+  quest_elf_fprof_ratman_badge: {
+    id: "quest_elf_fprof_ratman_badge",
+    name: "Жетон крысолюда-вождя",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resours/Etc_badge_silver_i02_0.jpg",
+    description: "Квестовый трофей. Падает с Boogle Ratman Leader в зонах Floran Village.",
+    grade: "NG",
+  },
   // Floran Outskirts
   quest_skull_black: {
     id: "quest_skull_black",

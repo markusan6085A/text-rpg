@@ -46,6 +46,8 @@ export interface Quest {
     itemId: string;
     requiredCount: number;
     location?: string;
+    /** Якщо задано — дроп і підказка на локації лише для зон з id, що починається з префікса (напр. floran_village). */
+    dropZoneIdPrefix?: string;
   }>;
   /** Лічильники вбивств (оновлюються при перемозі над мобом) */
   questKillTargets?: QuestKillTarget[];
@@ -65,6 +67,23 @@ export function isHeroElvenMysticBaseForFirstProfQuest(hero: {
     .replace(/-/g, "_")
     .trim();
   if (p !== "elven_mystic" && p !== "elven_mystic_base") return false;
+  const r = String(hero.race || "").toLowerCase();
+  if (r.includes("dark") || r.includes("темн")) return false;
+  return true;
+}
+
+/** Квест першої професії — світлий ельф-воїн (база `elven_fighter`). */
+export const ELVEN_FIGHTER_FIRST_PROF_QUEST_ID = "elven_fighter_first_profession_trophies";
+
+export function isHeroElvenFighterBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  if (p !== "elven_fighter") return false;
   const r = String(hero.race || "").toLowerCase();
   if (r.includes("dark") || r.includes("темн")) return false;
   return true;
@@ -268,6 +287,50 @@ export const QUESTS: Quest[] = [
       { mobName: "Орк Воин, Monster Eye и др.", itemId: "animal_skin", requiredCount: 15 },
       { mobName: "Гоблин, Скелет, Элпи и др.", itemId: "thread", requiredCount: 10 },
       { mobName: "Гриб, Летучая мышь, Орк и др.", itemId: "iron_ore", requiredCount: 5 },
+    ],
+  },
+  {
+    id: ELVEN_FIGHTER_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь воина Эльфов — трофеи для первой профессии",
+    description:
+      "Гильдия воинов эльфов ждёт доказательств вашей готовности. Охотьтесь в окрестностях Floran Village (зоны «Дикий сад» 15–21 ур. и «Старое каменное кольцо» 19–25 ур.). " +
+      "Добудите и сдайте во вкладке «Квесты»: 10× Клык ядовитого паука (Venomous Spider), 10× Лист духа (Lirein), 8× Осколок кости вождя скелетов (Tracker Skeleton Leader), 6× Жетон крысолюда (Boogle Ratman Leader). " +
+      "Пока квест активен, эти мобы отмечены подсказкой «квест · добыча»; как только нужный предмет собран в нужном количестве — метка с этого типа мобов пропадает. После сдачи на 20 уровне в гильдии откроется выбор первой профессии (Elven Knight / Elven Scout).",
+    level: 18,
+    location: "Floran Village — окрестности (флоранские зоны)",
+    locationLevel: "15–25",
+    requirements: { level: 18 },
+    rewards: { exp: 25_000, adena: 50_000 },
+    questDrops: [
+      {
+        mobName: "Venomous Spider",
+        itemId: "quest_elf_fprof_spider_fang",
+        requiredCount: 10,
+        location: "floran_village_03 / floran_village_04",
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Lirein",
+        itemId: "quest_elf_fprof_lirein_leaf",
+        requiredCount: 10,
+        location: "floran_village_03 / floran_village_04",
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Tracker Skeleton Leader",
+        itemId: "quest_elf_fprof_bone_shard",
+        requiredCount: 8,
+        location: "floran_village_03 / floran_village_04",
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Boogle Ratman Leader",
+        itemId: "quest_elf_fprof_ratman_badge",
+        requiredCount: 6,
+        location: "floran_village_03 / floran_village_04",
+        dropZoneIdPrefix: "floran_village",
+      },
     ],
   },
 ];

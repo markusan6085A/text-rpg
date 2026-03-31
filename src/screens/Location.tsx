@@ -22,7 +22,9 @@ import { getQuestMobHighlightForMob } from "../utils/quests/questMobHighlight";
 import {
   QUESTS,
   ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
+  ELVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
+  isHeroElvenFighterBaseForFirstProfQuest,
 } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 import { getGameSettings } from "../state/gameSettings";
@@ -207,6 +209,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     () =>
       typeof localStorage !== "undefined" &&
       localStorage.getItem("elven_mystic_first_prof_helper_18") === "1"
+  );
+  const [elvenFighterFirstProfHelperDismissed, setElvenFighterFirstProfHelperDismissed] = React.useState(
+    () =>
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem("elven_fighter_first_prof_helper_18") === "1"
   );
 
   const [, setWorldMobHpBump] = React.useState(0);
@@ -409,6 +416,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     !(hero.completedQuests || []).includes(ELVEN_MYSTIC_FIRST_PROF_QUEST_ID) &&
     !elvenFirstProfHelperDismissed;
 
+  const showElvenFighterFirstProfLocationHelper =
+    !!hero &&
+    (hero.level ?? 1) >= 18 &&
+    isHeroElvenFighterBaseForFirstProfQuest(hero) &&
+    !(hero.completedQuests || []).includes(ELVEN_FIGHTER_FIRST_PROF_QUEST_ID) &&
+    !elvenFighterFirstProfHelperDismissed;
+
   // ===== пагінація по мобах (з налаштувань: 10 15 20 25 30) =====
   const pageSize = getGameSettings().mobsPerPage ?? 15;
   const totalMobs = zone.mobs.length;
@@ -444,7 +458,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   };
 
   const mobNameClass = (
-    questHighlight: "kill" | null,
+    questHighlight: "kill" | "drop" | null,
     isEpicRaid: boolean,
     isRaid: boolean,
     isChampion: boolean,
@@ -452,7 +466,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     isLevelDiffTooHigh: boolean,
     l2: boolean,
   ) => {
-    if (questHighlight === "kill") return l2 ? "text-[#8a7a60]" : "";
+    if (questHighlight === "kill" || questHighlight === "drop") return l2 ? "text-[#8a7a60]" : "";
     if (isEpicRaid) {
       return l2
         ? "text-[#e9d5ff] [text-shadow:0_0_12px_rgba(124,58,237,0.45)]"
@@ -592,6 +606,54 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           </div>
         )}
 
+        {showElvenFighterFirstProfLocationHelper && (
+          <div
+            className={
+              isL2
+                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
+                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
+            }
+          >
+            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
+              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
+              Помощник
+            </div>
+            <p className="mb-2 opacity-95">
+              Вы достигли 18 ур. Возьмите квест «Путь воина Эльфов — трофеи» во вкладке «Квесты» и соберите трофеи с
+              мобов Floran Village (подсказка «квест · добыча» в списке).
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className={
+                  isL2
+                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
+                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
+                }
+                onClick={() => navigate("/quests")}
+              >
+                Вкладка «Квесты»
+              </button>
+              <button
+                type="button"
+                className={
+                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
+                }
+                onClick={() => {
+                  try {
+                    localStorage.setItem("elven_fighter_first_prof_helper_18", "1");
+                  } catch {
+                    /* ignore */
+                  }
+                  setElvenFighterFirstProfHelperDismissed(true);
+                }}
+              >
+                Скрыть
+              </button>
+            </div>
+          </div>
+        )}
+
         {patrolAggroBanner ? (
           <button
             type="button"
@@ -636,7 +698,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               const heroLevel = hero?.level || 1;
               const levelDiff = Math.abs(heroLevel - mob.level);
               const isLevelDiffTooHigh = levelDiff > 10;
-              const questHighlight = getQuestMobHighlightForMob(mob, activeQuests, QUESTS, zone.id);
+              const questHighlight = getQuestMobHighlightForMob(
+                mob,
+                activeQuests,
+                QUESTS,
+                zone.id,
+                hero?.inventory
+              );
               const nameCls = mobNameClass(
                 questHighlight,
                 isEpicRaid,
@@ -704,6 +772,9 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                         {questHighlight === "kill" && (
                           <div className="text-[8px] text-[#6b7280] mt-px leading-none">квест · цель</div>
                         )}
+                        {questHighlight === "drop" && (
+                          <div className="text-[8px] text-[#6b7280] mt-px leading-none">квест · добыча</div>
+                        )}
                       </div>
                       <div
                         className={`shrink-0 text-right rounded bg-black/30 px-1.5 py-0.5 min-w-[2.85rem] ${
@@ -761,7 +832,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                   </button>
                   <span
                     className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${nameCls}`}
-                    style={questHighlight === "kill" ? { color: "#6b7280" } : undefined}
+                    style={
+                      questHighlight === "kill" || questHighlight === "drop"
+                        ? { color: "#6b7280" }
+                        : undefined
+                    }
                     onClick={() => openBattle(globalIndex)}
                   >
                     {displayMobName(mob.name)}

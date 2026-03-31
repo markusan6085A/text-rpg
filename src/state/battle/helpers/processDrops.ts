@@ -91,7 +91,8 @@ function resolveDropIconPath(drop: DropEntry): string {
 export function processMobDrops(
   mob: Mob,
   hero: Hero,
-  spoiled: boolean = false
+  spoiled: boolean = false,
+  battleZoneId?: string | null
 ): {
   newInventory: HeroInventoryItem[];
   dropMessages: string[];
@@ -434,76 +435,81 @@ export function processMobDrops(
 
     // Перевіряємо, чи цей моб має квестові дропи
     questDef.questDrops.forEach((questDrop) => {
-      if (mob.name === questDrop.mobName) {
-        // Перераховуємо розмір інвентаря перед кожним квестовим предметом (щоб кілька дропів підряд не переповнювали)
-        const currentInventorySizeForQuests = newInventory.filter(Boolean).length;
-        const isInventoryFullForQuests = currentInventorySizeForQuests >= maxSlots;
+      if (mob.name !== questDrop.mobName) return;
+      if (
+        questDrop.dropZoneIdPrefix &&
+        (!battleZoneId || !String(battleZoneId).startsWith(questDrop.dropZoneIdPrefix))
+      ) {
+        return;
+      }
+      // Перераховуємо розмір інвентаря перед кожним квестовим предметом (щоб кілька дропів підряд не переповнювали)
+      const currentInventorySizeForQuests = newInventory.filter(Boolean).length;
+      const isInventoryFullForQuests = currentInventorySizeForQuests >= maxSlots;
 
-        // Перевіряємо інвентар для поточного прогресу
-        const inventoryItem = newInventory.find((item: HeroInventoryItem) => item.id === questDrop.itemId);
-        const currentItemCount = inventoryItem?.count || 0;
-        const currentProgress = Math.min(currentItemCount, questDrop.requiredCount);
-        
-          // Перевіряємо, чи ще потрібно збирати цей предмет
-        if (currentProgress < questDrop.requiredCount) {
-          // Перевіряємо, чи інвентар не повний (квестові предмети стакаються з звичайними слотами)
-          const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === questDrop.itemId && !(inv as any).meta?.hasLSPassive);
-          const canAddToExisting = existingItemIndex >= 0;
+      // Перевіряємо інвентар для поточного прогресу
+      const inventoryItem = newInventory.find((item: HeroInventoryItem) => item.id === questDrop.itemId);
+      const currentItemCount = inventoryItem?.count || 0;
+      const currentProgress = Math.min(currentItemCount, questDrop.requiredCount);
 
-          // Якщо інвентар повний і не можна додати до існуючого — в overflow
-          if (isInventoryFullForQuests && !canAddToExisting) {
-            const itemDef = itemsDB[questDrop.itemId];
-            if (itemDef) {
-              itemsToAdd.push({ id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 } as HeroInventoryItem);
-              dropMessages.push(`Квест: ${itemDef.name} x1 → сундук переповнення`);
-              questProgressUpdates.push({ questId: activeQuest.questId, itemId: questDrop.itemId, count: 1 });
-            }
-            return;
+      // Перевіряємо, чи ще потрібно збирати цей предмет
+      if (currentProgress < questDrop.requiredCount) {
+        // Перевіряємо, чи інвентар не повний (квестові предмети стакаються з звичайними слотами)
+        const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === questDrop.itemId && !(inv as any).meta?.hasLSPassive);
+        const canAddToExisting = existingItemIndex >= 0;
+
+        // Якщо інвентар повний і не можна додати до існуючого — в overflow
+        if (isInventoryFullForQuests && !canAddToExisting) {
+          const itemDef = itemsDB[questDrop.itemId];
+          if (itemDef) {
+            itemsToAdd.push({ id: itemDef.id, name: itemDef.name, type: itemDef.kind, slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 } as HeroInventoryItem);
+            dropMessages.push(`Квест: ${itemDef.name} x1 → сундук переповнення`);
+            questProgressUpdates.push({ questId: activeQuest.questId, itemId: questDrop.itemId, count: 1 });
           }
+          return;
+        }
 
-          // Шанс дропу квестового предмета (100%)
-          if (Math.random() < 1.0) {
-            const itemDef = itemsDB[questDrop.itemId];
-            if (itemDef) {
-              // Шукаємо, чи вже є такий предмет в інвентарі (не стакати з камнями з ЛС)
-              const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === questDrop.itemId && !(inv as any).meta?.hasLSPassive);
+        // Шанс дропу квестового предмета (100%)
+        if (Math.random() < 1.0) {
+          const itemDef = itemsDB[questDrop.itemId];
+          if (itemDef) {
+            // Шукаємо, чи вже є такий предмет в інвентарі (не стакати з камнями з ЛС)
+            const existingItemIndex2 = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === questDrop.itemId && !(inv as any).meta?.hasLSPassive);
 
-              if (existingItemIndex >= 0) {
-                // Якщо предмет вже є, збільшуємо кількість
-                const existingItem = newInventory[existingItemIndex];
-                const newCount = (existingItem.count ?? 1) + 1;
-                newInventory[existingItemIndex] = {
-                  ...existingItem,
-                  count: newCount,
-                };
-                
-                // Формат: Квест: Назва x1 5(15)
-                const displayProgress = Math.min(newCount, questDrop.requiredCount);
-                dropMessages.push(`Квест: ${itemDef.name} x1 ${displayProgress}(${questDrop.requiredCount})`);
-              } else {
-                // Якщо предмета немає, додаємо новий
-                newInventory.push({
-                  id: itemDef.id,
-                  name: itemDef.name,
-                  type: itemDef.kind,
-                  slot: itemDef.slot,
-                  icon: itemDef.icon,
-                  description: itemDef.description,
-                  stats: itemDef.stats,
-                  count: 1,
-                } as HeroInventoryItem);
-                
-                // Формат: Квест: Назва x1 1(15)
-                dropMessages.push(`Квест: ${itemDef.name} x1 1(${questDrop.requiredCount})`);
-              }
-              
-              // Додаємо оновлення прогресу квесту
-              questProgressUpdates.push({
-                questId: activeQuest.questId,
-                itemId: questDrop.itemId,
+            if (existingItemIndex2 >= 0) {
+              // Якщо предмет вже є, збільшуємо кількість
+              const existingItem = newInventory[existingItemIndex2];
+              const newCount = (existingItem.count ?? 1) + 1;
+              newInventory[existingItemIndex2] = {
+                ...existingItem,
+                count: newCount,
+              };
+
+              // Формат: Квест: Назва x1 5(15)
+              const displayProgress = Math.min(newCount, questDrop.requiredCount);
+              dropMessages.push(`Квест: ${itemDef.name} x1 ${displayProgress}(${questDrop.requiredCount})`);
+            } else {
+              // Якщо предмета немає, додаємо новий
+              newInventory.push({
+                id: itemDef.id,
+                name: itemDef.name,
+                type: itemDef.kind,
+                slot: itemDef.slot,
+                icon: itemDef.icon,
+                description: itemDef.description,
+                stats: itemDef.stats,
                 count: 1,
-              });
+              } as HeroInventoryItem);
+
+              // Формат: Квест: Назва x1 1(15)
+              dropMessages.push(`Квест: ${itemDef.name} x1 1(${questDrop.requiredCount})`);
             }
+
+            // Додаємо оновлення прогресу квесту
+            questProgressUpdates.push({
+              questId: activeQuest.questId,
+              itemId: questDrop.itemId,
+              count: 1,
+            });
           }
         }
       }

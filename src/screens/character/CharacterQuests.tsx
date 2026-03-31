@@ -6,7 +6,9 @@ import {
   QUESTS_BY_LOCATION,
   QUEST_ITEM_TURN_IN_ALIASES,
   ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
+  ELVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
+  isHeroElvenFighterBaseForFirstProfQuest,
   type Quest,
 } from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
@@ -139,7 +141,12 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     }
 
     return { ...questDef, progress };
-  }).filter((q): q is Quest & { progress: Record<string, number> } => q !== null);
+  }).filter((q): q is Quest & { progress: Record<string, number> } => {
+    if (q == null) return false;
+    if (q.id === ELVEN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroElvenMysticBaseForFirstProfQuest(hero)) return false;
+    if (q.id === ELVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroElvenFighterBaseForFirstProfQuest(hero)) return false;
+    return true;
+  });
 
   // Отримуємо доступні квести (не завершені та не активні)
   const availableQuests = QUESTS.filter(
@@ -147,7 +154,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
       !completedQuests.includes(quest.id) &&
       !activeQuests.some((aq) => aq.questId === quest.id) &&
       (!quest.requirements?.level || (hero.level || 1) >= quest.requirements.level) &&
-      !(quest.id === ELVEN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroElvenMysticBaseForFirstProfQuest(hero))
+      !(quest.id === ELVEN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroElvenMysticBaseForFirstProfQuest(hero)) &&
+      !(quest.id === ELVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroElvenFighterBaseForFirstProfQuest(hero))
   );
 
   // Функція для прийняття квесту

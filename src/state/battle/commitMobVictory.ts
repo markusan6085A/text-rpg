@@ -101,7 +101,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     if (!curHero) return {};
     curHeroForLog = curHero;
 
-    const dropResult = processMobDrops(mob, curHero, mobSpoiled);
+    const dropResult = processMobDrops(mob, curHero, mobSpoiled, zoneId);
     dropMessages = dropResult.dropMessages;
     actualDroppedItems = dropResult.actualDroppedItems ?? [];
 

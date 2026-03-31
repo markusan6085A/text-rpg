@@ -1,7 +1,22 @@
 /**
- * Підсвітка мобів на екрані локації для активних квестів (лише цілі вбивств — сірий текст).
+ * Підсвітка мобів на екрані локації для активних квестів:
+ * - цілі вбивств (сірий текст + «квест · цель»);
+ * - квестовий дроп (сірий текст + «квест · добыча»), поки не набрано requiredCount для цього itemId у парі mob+зона.
  */
-import type { Quest, QuestKillTarget } from "../../data/quests";
+import { QUEST_ITEM_TURN_IN_ALIASES, type Quest, type QuestKillTarget } from "../../data/quests";
+
+function countQuestItemInInventory(
+  inv: { id: string; count?: number }[] | undefined,
+  questItemId: string
+): number {
+  const aliases = QUEST_ITEM_TURN_IN_ALIASES[questItemId];
+  const ids = aliases ? new Set<string>([questItemId, ...aliases]) : new Set<string>([questItemId]);
+  let sum = 0;
+  for (const it of inv ?? []) {
+    if (ids.has(it.id)) sum += it.count ?? 1;
+  }
+  return sum;
+}
 
 export interface ActiveQuestLike {
   questId: string;
@@ -45,14 +60,32 @@ export function getQuestMobHighlightForMob(
   },
   activeQuests: ActiveQuestLike[],
   allQuests: Quest[],
-  zoneId?: string | null
-): "kill" | null {
+  zoneId?: string | null,
+  inventory?: { id: string; count?: number }[] | null
+): "kill" | "drop" | null {
   const questById = new Map(allQuests.map((q) => [q.id, q]));
   for (const aq of activeQuests) {
     const quest = questById.get(aq.questId);
-    if (!quest?.questKillTargets?.length) continue;
-    for (const kt of quest.questKillTargets) {
-      if (mobMatchesKillTarget(mob, kt, zoneId)) return "kill";
+    if (!quest) continue;
+
+    if (quest.questDrops?.length && inventory) {
+      for (const qd of quest.questDrops) {
+        if (qd.mobName !== mob.name) continue;
+        if (
+          qd.dropZoneIdPrefix &&
+          (!zoneId || !String(zoneId).startsWith(qd.dropZoneIdPrefix))
+        ) {
+          continue;
+        }
+        const have = countQuestItemInInventory(inventory, qd.itemId);
+        if (have < qd.requiredCount) return "drop";
+      }
+    }
+
+    if (quest.questKillTargets?.length) {
+      for (const kt of quest.questKillTargets) {
+        if (mobMatchesKillTarget(mob, kt, zoneId)) return "kill";
+      }
     }
   }
   return null;
