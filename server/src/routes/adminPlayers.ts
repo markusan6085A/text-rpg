@@ -851,7 +851,10 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       const newClassId = newProfession.toLowerCase().includes("mystic") ? "Маг" : "Воїн";
       const newSkills = skills
         .filter((s: any) => s && typeof s.id === "number")
-        .map((s: any) => ({ id: Number(s.id), level: Math.max(1, Math.min(15, Number(s.level ?? 1) || 1)) }));
+        .map((s: any) => ({
+          id: Number(s.id),
+          level: Math.max(1, Math.min(100, Number(s.level ?? 1) || 1)),
+        }));
 
       const patched = addVersioning(
         {
