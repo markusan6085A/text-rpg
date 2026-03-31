@@ -238,7 +238,7 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "divine_boots", slot: "boots" },
     ],
     bonuses: {
-      setStats: { INT: 1, MEN: 1, CON: 1 },
+      setStats: { INT: 2, MEN: 1, CON: 1 },
     },
   },
 
