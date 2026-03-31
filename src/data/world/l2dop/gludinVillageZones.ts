@@ -11,7 +11,7 @@ import {
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 
 /**
- * Квестові моби перших проф Gludin (людина + орк) — підмішувати в «старші» зони селища,
+ * Квестові моби перших проф Gludin (людина + орк + гном) — підмішувати в «старші» зони селища,
  * бо fillZoneMobs випадково може не взяти тип; частина мобів 20–21 при діапазоні зони 15–19 теж не потрапляла б у пул без примусу.
  */
 const GLUDIN_FIRST_PROF_QUEST_MOB_NAMES: readonly string[] = [
@@ -30,6 +30,10 @@ const GLUDIN_FIRST_PROF_QUEST_MOB_NAMES: readonly string[] = [
   "Orc Shaman",
   "Mana Seeker",
   "Will-O-Wisp",
+  "Pitchstone Golem",
+  "Dwarf Ghost",
+  "Ruin Imp",
+  "Obsidian Golem",
 ];
 
 const GLUDIN_FIRST_PROF_INJECT_ZONE_IDS = new Set<string>([

@@ -201,6 +201,27 @@ export function isHeroOrcMysticBaseForFirstProfQuest(hero: {
   return p === "orc_mystic_base";
 }
 
+/** Раса гном (укр./рос./англ.). */
+export function isHeroDwarvenRaceForQuests(hero: { race?: string | null }): boolean {
+  const r = String(hero.race || "").toLowerCase();
+  return r.includes("dwarf") || r.includes("гном") || r.includes("dwarven");
+}
+
+/** Квест першої професії — гном-воїн (база `dwarven_fighter`). Окремого «мага» у гномів немає. */
+export const DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID = "dwarven_fighter_first_profession_samples";
+
+export function isHeroDwarvenFighterBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  if (!isHeroDwarvenRaceForQuests(hero)) return false;
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  return p === "dwarven_fighter";
+}
+
 /** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
 export const QUEST_ITEM_TURN_IN_ALIASES: Record<string, readonly string[]> = {
   quest_gludio_charcoal: ["charcoal"],
@@ -387,69 +408,37 @@ export const QUESTS: Quest[] = [
   {
     id: ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
     icon: "/nps/6.png",
-    name: "Путь мага Эльфов — материалы для первой профессии",
+    name: "Путь мага Эльфов — отзвуки стихий",
     description:
-      "Принесите 15 Animal Skin, 10 Thread и 5 Iron Ore. Сдайте задание во вкладке персонажа «Квесты». После сдачи на 20 уровне в Гильдии магов откроется выбор первой профессии (Elven Wizard / Elven Oracle).",
+      "Гильдия магов требует доказательств владения силами в окрестностях Floran Village (зоны «Дикий сад» и «Старый каменный круг», 15–25 ур.). " +
+      "Добудите квестовые эссенции с Lirein, Will-O-Wisp и Undine; пока квест активен, мобы помечены «квест · добыча». " +
+      "Сдайте во вкладке «Квесты». После сдачи на 20 уровне в гильдии откроется выбор первой профессии (Elven Wizard / Elven Oracle).",
     level: 18,
-    location: "Гильдия магов — первая профессия",
-    locationLevel: "18–20",
+    location: "Floran Village — окрестности",
+    locationLevel: "15–25",
     requirements: { level: 18 },
     rewards: { exp: 25_000, adena: 50_000 },
     questDrops: [
       {
-        mobName: "Orc Fighter",
-        itemId: "animal_skin",
+        mobName: "Lirein",
+        itemId: "quest_elf_mprof_lirein_whisper",
         requiredCount: 15,
-        farmHint:
-          "Animal Skin: Gludin Village и др. — Orc Fighter, Monster Eye, Wolf, Goblin (англ. имена в игре); метка «квест · добыча».",
+        location: "floran_village_03 / floran_village_04",
+        dropZoneIdPrefix: "floran_village",
       },
       {
-        mobName: "Monster Eye",
-        itemId: "animal_skin",
-        requiredCount: 15,
-      },
-      {
-        mobName: "Wolf",
-        itemId: "animal_skin",
-        requiredCount: 15,
-      },
-      {
-        mobName: "Goblin",
-        itemId: "animal_skin",
-        requiredCount: 15,
-      },
-      {
-        mobName: "Goblin",
-        itemId: "thread",
+        mobName: "Will-O-Wisp",
+        itemId: "quest_elf_mprof_wisp_flame",
         requiredCount: 10,
-        farmHint:
-          "Thread: низкоуровневые зоны — Goblin, Skeleton, Vampire Bat.",
+        location: "floran_village_03 / floran_village_04",
+        dropZoneIdPrefix: "floran_village",
       },
       {
-        mobName: "Skeleton",
-        itemId: "thread",
-        requiredCount: 10,
-      },
-      {
-        mobName: "Vampire Bat",
-        itemId: "thread",
-        requiredCount: 10,
-      },
-      {
-        mobName: "Walking Fungus",
-        itemId: "iron_ore",
+        mobName: "Undine",
+        itemId: "quest_elf_mprof_undine_mirror",
         requiredCount: 5,
-        farmHint: "Iron Ore: Walking Fungus, Ore Bat, Orc Fighter.",
-      },
-      {
-        mobName: "Ore Bat",
-        itemId: "iron_ore",
-        requiredCount: 5,
-      },
-      {
-        mobName: "Orc Fighter",
-        itemId: "iron_ore",
-        requiredCount: 5,
+        location: "floran_village_03 / floran_village_04",
+        dropZoneIdPrefix: "floran_village",
       },
     ],
   },
@@ -757,6 +746,50 @@ export const QUESTS: Quest[] = [
       {
         mobName: "Will-O-Wisp",
         itemId: "quest_orc_mprof_wisp_cinder",
+        requiredCount: 10,
+        requiredCountRandom: { min: 4, max: 10 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+    ],
+  },
+  {
+    id: DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь гнома — образцы руин и шахт",
+    description:
+      "Гильдия ремесленников поручает собрать компоненты из руин и заброшенных работ окрестностей Gludin Village (зоны 11–22 уровня). " +
+      "Количество каждого типа и бонус к награде определяются при приёме. После сдачи на 20 уровне откроется выбор Scavenger / Artisan.",
+    level: 18,
+    location: "Gludin Village — окрестности",
+    locationLevel: "15–22",
+    requirements: { level: 18 },
+    randomFirstProfBonus: true,
+    rewards: { exp: 22_000, adena: 45_000, coins_silver: 3 },
+    questDrops: [
+      {
+        mobName: "Pitchstone Golem",
+        itemId: "quest_dwarf_fprof_pitchstone_chip",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Dwarf Ghost",
+        itemId: "quest_dwarf_fprof_ghost_dust",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Ruin Imp",
+        itemId: "quest_dwarf_fprof_ruin_ember",
+        requiredCount: 12,
+        requiredCountRandom: { min: 5, max: 12 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Obsidian Golem",
+        itemId: "quest_dwarf_fprof_obsidian_splinter",
         requiredCount: 10,
         requiredCountRandom: { min: 4, max: 10 },
         dropZoneIdPrefix: "gludin_village",

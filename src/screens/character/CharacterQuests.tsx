@@ -13,6 +13,7 @@ import {
   DARK_MYSTIC_FIRST_PROF_QUEST_ID,
   ORC_FIGHTER_FIRST_PROF_QUEST_ID,
   ORC_MYSTIC_FIRST_PROF_QUEST_ID,
+  DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
   isHeroElvenFighterBaseForFirstProfQuest,
   isHeroHumanFighterBaseForFirstProfQuest,
@@ -21,6 +22,7 @@ import {
   isHeroDarkMysticBaseForFirstProfQuest,
   isHeroOrcFighterBaseForFirstProfQuest,
   isHeroOrcMysticBaseForFirstProfQuest,
+  isHeroDwarvenFighterBaseForFirstProfQuest,
   type Quest,
 } from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
@@ -180,6 +182,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     if (q.id === DARK_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroDarkMysticBaseForFirstProfQuest(hero)) return false;
     if (q.id === ORC_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroOrcFighterBaseForFirstProfQuest(hero)) return false;
     if (q.id === ORC_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroOrcMysticBaseForFirstProfQuest(hero)) return false;
+    if (q.id === DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroDwarvenFighterBaseForFirstProfQuest(hero)) return false;
     return true;
   });
 
@@ -196,7 +199,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
       !(quest.id === DARK_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroDarkFighterBaseForFirstProfQuest(hero)) &&
       !(quest.id === DARK_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroDarkMysticBaseForFirstProfQuest(hero)) &&
       !(quest.id === ORC_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroOrcFighterBaseForFirstProfQuest(hero)) &&
-      !(quest.id === ORC_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroOrcMysticBaseForFirstProfQuest(hero))
+      !(quest.id === ORC_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroOrcMysticBaseForFirstProfQuest(hero)) &&
+      !(quest.id === DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroDwarvenFighterBaseForFirstProfQuest(hero))
   );
 
   // Функція для прийняття квесту

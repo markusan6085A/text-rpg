@@ -30,6 +30,7 @@ import {
   DARK_MYSTIC_FIRST_PROF_QUEST_ID,
   ORC_FIGHTER_FIRST_PROF_QUEST_ID,
   ORC_MYSTIC_FIRST_PROF_QUEST_ID,
+  DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
   isHeroElvenFighterBaseForFirstProfQuest,
   isHeroHumanFighterBaseForFirstProfQuest,
@@ -38,6 +39,7 @@ import {
   isHeroDarkMysticBaseForFirstProfQuest,
   isHeroOrcFighterBaseForFirstProfQuest,
   isHeroOrcMysticBaseForFirstProfQuest,
+  isHeroDwarvenFighterBaseForFirstProfQuest,
 } from "../data/quests";
 import { getOnlinePlayers, sendHeartbeat, type OnlinePlayer } from "../utils/api";
 import { getGameSettings } from "../state/gameSettings";
@@ -257,6 +259,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     () =>
       typeof localStorage !== "undefined" &&
       localStorage.getItem("orc_mystic_first_prof_helper_18_gludin") === "1"
+  );
+  const [dwarvenFighterFirstProfHelperDismissed, setDwarvenFighterFirstProfHelperDismissed] = React.useState(
+    () =>
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem("dwarven_fighter_first_prof_helper_18_gludin") === "1"
   );
 
   const [, setWorldMobHpBump] = React.useState(0);
@@ -491,6 +498,13 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     isHeroOrcMysticBaseForFirstProfQuest(hero) &&
     !(hero.completedQuests || []).includes(ORC_MYSTIC_FIRST_PROF_QUEST_ID) &&
     !orcMysticFirstProfHelperDismissed;
+  const showDwarvenFighterFirstProfLocationHelper =
+    isGludinVillageZone &&
+    !!hero &&
+    (hero.level ?? 1) >= 18 &&
+    isHeroDwarvenFighterBaseForFirstProfQuest(hero) &&
+    !(hero.completedQuests || []).includes(DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID) &&
+    !dwarvenFighterFirstProfHelperDismissed;
 
   const isFloranVillageZone = zone.id.startsWith("floran_village");
   const showDarkFighterFirstProfLocationHelper =
@@ -657,7 +671,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
               Помощник
             </div>
             <p className="mb-2 opacity-95">
-              Вы достигли 18 ур. Самое время взять квест для профессии.
+              Вы достигли 18 ур. «Путь мага Эльфов — отзвуки стихий»: квестовые эссенции с Lirein, Will-O-Wisp и Undine в
+              окрестностях <span className="font-semibold">Floran Village</span> — метка «квест · добыча» в списке мобов.
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <button
@@ -923,6 +938,54 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     /* ignore */
                   }
                   setOrcMysticFirstProfHelperDismissed(true);
+                }}
+              >
+                Скрыть
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showDwarvenFighterFirstProfLocationHelper && (
+          <div
+            className={
+              isL2
+                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
+                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
+            }
+          >
+            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
+              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
+              Помощник
+            </div>
+            <p className="mb-2 opacity-95">
+              Вы в Gludin Village. «Путь гнома — образцы руин и шахт»: Pitchstone Golem, Dwarf Ghost, Ruin Imp, Obsidian
+              Golem — объёмы и бонус к награде при приёме квеста.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className={
+                  isL2
+                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
+                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
+                }
+                onClick={() => navigate("/quests")}
+              >
+                Вкладка «Квесты»
+              </button>
+              <button
+                type="button"
+                className={
+                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
+                }
+                onClick={() => {
+                  try {
+                    localStorage.setItem("dwarven_fighter_first_prof_helper_18_gludin", "1");
+                  } catch {
+                    /* ignore */
+                  }
+                  setDwarvenFighterFirstProfHelperDismissed(true);
                 }}
               >
                 Скрыть

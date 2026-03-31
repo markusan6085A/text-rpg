@@ -22,6 +22,7 @@ import {
   DARK_MYSTIC_FIRST_PROF_QUEST_ID,
   ORC_FIGHTER_FIRST_PROF_QUEST_ID,
   ORC_MYSTIC_FIRST_PROF_QUEST_ID,
+  DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
   isHeroElvenFighterBaseForFirstProfQuest,
   isHeroHumanFighterBaseForFirstProfQuest,
@@ -30,6 +31,7 @@ import {
   isHeroDarkMysticBaseForFirstProfQuest,
   isHeroOrcFighterBaseForFirstProfQuest,
   isHeroOrcMysticBaseForFirstProfQuest,
+  isHeroDwarvenFighterBaseForFirstProfQuest,
 } from "../../data/quests";
 
 interface GuildScreenProps {
@@ -241,6 +243,7 @@ export default function GuildScreen({
   const darkMysticFirstProfQuestDone = completedQuestIds.includes(DARK_MYSTIC_FIRST_PROF_QUEST_ID);
   const orcFighterFirstProfQuestDone = completedQuestIds.includes(ORC_FIGHTER_FIRST_PROF_QUEST_ID);
   const orcMysticFirstProfQuestDone = completedQuestIds.includes(ORC_MYSTIC_FIRST_PROF_QUEST_ID);
+  const dwarvenFighterFirstProfQuestDone = completedQuestIds.includes(DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID);
   const needsElvenFirstProfQuest =
     isHeroElvenMysticBaseForFirstProfQuest(hero) && !elvenFirstProfQuestDone;
   const needsElvenFighterFirstProfQuest =
@@ -257,6 +260,8 @@ export default function GuildScreen({
     isHeroOrcFighterBaseForFirstProfQuest(hero) && !orcFighterFirstProfQuestDone;
   const needsOrcMysticFirstProfQuest =
     isHeroOrcMysticBaseForFirstProfQuest(hero) && !orcMysticFirstProfQuestDone;
+  const needsDwarvenFighterFirstProfQuest =
+    isHeroDwarvenFighterBaseForFirstProfQuest(hero) && !dwarvenFighterFirstProfQuestDone;
   const canChooseProfession =
     nextOptions.length > 0 &&
     !needsElvenFirstProfQuest &&
@@ -266,7 +271,8 @@ export default function GuildScreen({
     !needsDarkFighterFirstProfQuest &&
     !needsDarkMysticFirstProfQuest &&
     !needsOrcFighterFirstProfQuest &&
-    !needsOrcMysticFirstProfQuest;
+    !needsOrcMysticFirstProfQuest &&
+    !needsDwarvenFighterFirstProfQuest;
   console.log(`[GuildScreen] ✅ Доступні професії для вибору:`, {
     count: nextOptions.length,
     options: nextOptions.map(o => ({ id: o.id, label: o.def?.label, minLevel: o.def?.minLevel })),
@@ -512,8 +518,8 @@ export default function GuildScreen({
                     Возьмите квест для профессии!
                   </div>
                   <p className={isL2 ? "text-[#c9b99a]" : "text-[#e8dcc8]"}>
-                    Сначала во вкладке персонажа «Квесты» примите задание «Путь мага Эльфов» и принесите: 15 Animal
-                    Skin, 10 Thread, 5 Iron Ore. После сдачи на 20 уровне здесь появится выбор профессии.
+                    Во вкладке «Квесты» примите «Путь мага Эльфов — отзвуки стихий»: квестовые эссенции с Lirein, Will-O-Wisp
+                    и Undine в окрестностях Floran Village. После сдачи на 20 уровне здесь появится выбор профессии.
                   </p>
                   <button
                     type="button"
@@ -757,6 +763,40 @@ export default function GuildScreen({
                   <p className={isL2 ? "text-[#c9b99a]" : "text-[#e8dcc8]"}>
                     Примите «Путь орка-шамана — обереги стихий»: материалы с Orc Shaman, Enku Orc Shaman, Mana Seeker и
                     Will-O-Wisp в Gludin Village.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/quests")}
+                    className={
+                      isL2
+                        ? "text-[11px] font-semibold text-[#c9a44c] hover:text-[#f0e0c0] underline underline-offset-2"
+                        : "text-[11px] font-semibold text-amber-300 hover:text-amber-200 underline"
+                    }
+                  >
+                    Открыть «Квесты» →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {needsDwarvenFighterFirstProfQuest && heroLevel >= 18 && (
+            <div
+              className={
+                isL2
+                  ? "p-3 space-y-2 rounded-lg border border-amber-900/40 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                  : "p-3 space-y-2 rounded-lg border border-amber-700/30 bg-black/20"
+              }
+            >
+              <div className="flex items-start gap-2">
+                <img src="/nps/6.png" alt="" className="w-8 h-8 object-contain shrink-0 opacity-95 mt-0.5" />
+                <div className="text-[11px] leading-snug space-y-2">
+                  <div className={isL2 ? "text-[#e8c56e] font-semibold" : "text-amber-200 font-semibold"}>
+                    Возьмите квест для профессии!
+                  </div>
+                  <p className={isL2 ? "text-[#c9b99a]" : "text-[#e8dcc8]"}>
+                    Примите «Путь гнома — образцы руин и шахт»: компоненты с Pitchstone Golem, Dwarf Ghost, Ruin Imp и
+                    Obsidian Golem в Gludin Village (объёмы и бонус — при приёме).
                   </p>
                   <button
                     type="button"
