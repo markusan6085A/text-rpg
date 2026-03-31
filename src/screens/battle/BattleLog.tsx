@@ -2,7 +2,7 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
 import { getSkillDef } from "../../state/battle/loadout";
-import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { useCityUiVariant } from "../../utils/cityUiVariant";
 import { itemsDB } from "../../data/items/itemsDB";
 
 /** Замінює skill#N у рядку на назву скіла з skillsDB */
@@ -335,6 +335,9 @@ export function BattleLog({
 }) {
   const { log, pkSessionId } = useBattleStore();
   const heroName = useHeroStore((s) => s.hero?.name ?? "");
+  const cityUi = useCityUiVariant();
+  const isModern = cityUi !== "classic";
+  const isBattleTest = cityUi === "l2test";
   const isPk = Boolean(pkSessionId);
   const cap = maxLines ?? LOG_MAX_LINES;
   // Лог зберігається як [найновіше, ...старіші]. Показуємо перші N = N останніх повідомлень; нові з’являються, старі зникають.
@@ -397,15 +400,16 @@ export function BattleLog({
     </div>
   );
   if (noBorder) return content;
-  const isL2 = isWarmCityUi(getCityUiVariant());
   return (
     <div
       className={
-        isL2
-          ? "border rounded p-2 bg-black/35 border-[#5c4a32]/70 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)]"
-          : "border-2 rounded p-2 bg-black/30"
+        isBattleTest
+          ? "border rounded p-2 bg-black/40 border-cyan-950/55 shadow-[inset_0_3px_10px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(94,234,212,0.08)]"
+          : isModern
+            ? "border rounded p-2 bg-black/35 border-[#5c4a32]/70 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)]"
+            : "border-2 rounded p-2 bg-black/30"
       }
-      style={isL2 ? undefined : { borderColor: "rgba(255,255,255,0.5)" }}
+      style={isModern ? undefined : { borderColor: "rgba(255,255,255,0.5)" }}
     >
       {content}
     </div>

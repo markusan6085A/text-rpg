@@ -2,7 +2,7 @@ import React from "react";
 import type { BattleBuff } from "../../state/battle/types";
 import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
 import { useHeroStore } from "../../state/heroStore";
-import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { useCityUiVariant } from "../../utils/cityUiVariant";
 
 type Props = {
   buffs: BattleBuff[];
@@ -10,7 +10,9 @@ type Props = {
 };
 
 export function BuffBar({ buffs, now }: Props) {
-  const isL2 = isWarmCityUi(getCityUiVariant());
+  const cityUi = useCityUiVariant();
+  const isModern = cityUi !== "classic";
+  const isBattleTest = cityUi === "l2test";
   const hero = useHeroStore((s) => s.hero);
   // 🔥 useRef має бути ДО будь-якого return — інакше при вимиканні останнього бафа/toggle (buffs → [])
   // змінюється кількість хуків → React падає, чорний екран до F5.
@@ -79,9 +81,11 @@ export function BuffBar({ buffs, now }: Props) {
               )}
               <div
                 className={
-                  isL2
-                    ? "absolute inset-[1px] rounded border border-[#5c4a32]/60 bg-[#14110c] overflow-hidden shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
-                    : "absolute inset-[1px] rounded border border-white/30 bg-[#1a1a1a] overflow-hidden"
+                  isBattleTest
+                    ? "absolute inset-[1px] rounded border border-cyan-900/55 bg-[#0f172a] overflow-hidden shadow-[inset_0_1px_0_rgba(94,234,212,0.1)]"
+                    : isModern
+                      ? "absolute inset-[1px] rounded border border-[#5c4a32]/60 bg-[#14110c] overflow-hidden shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
+                      : "absolute inset-[1px] rounded border border-white/30 bg-[#1a1a1a] overflow-hidden"
                 }
               >
                 <img src={icon} alt={title} className="w-full h-full object-cover" />
@@ -89,9 +93,11 @@ export function BuffBar({ buffs, now }: Props) {
               {b.stacks && b.stacks > 0 && (
                 <div
                   className={
-                    isL2
-                      ? "absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-[#5c4a32]/65"
-                      : "absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-white/50"
+                    isBattleTest
+                      ? "absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-cyan-200 border border-cyan-800/55"
+                      : isModern
+                        ? "absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-[#5c4a32]/65"
+                        : "absolute bottom-[-2px] right-[-2px] px-1 py-[1px] rounded bg-black/75 text-[9px] leading-none text-[#ffdca8] border border-white/50"
                   }
                 >
                   {b.stacks}
@@ -101,7 +107,11 @@ export function BuffBar({ buffs, now }: Props) {
           );
         })}
       </div>
-      <div className={isL2 ? "h-[1px] w-full bg-[#5c4a32]/35" : "h-[1px] w-full bg-[#1a120c]"} />
+      <div
+        className={
+          isBattleTest ? "h-[1px] w-full bg-cyan-500/22" : isModern ? "h-[1px] w-full bg-[#5c4a32]/35" : "h-[1px] w-full bg-[#1a120c]"
+        }
+      />
     </div>
   );
 }

@@ -20,6 +20,20 @@ const skillStripL2 =
 const l2Frame =
   "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
 
+/** Тема «Тест» — той самий профільний холодний 3D-фрейм, що й у Character / HeroStatusStrip */
+const testFrame =
+  "rounded-2xl overflow-hidden border border-cyan-900/40 bg-[linear-gradient(180deg,#020617_0%,#0a1628_28%,#000510_72%,#000000_100%)] shadow-[inset_0_1px_0_rgba(94,234,212,0.11),inset_0_-10px_28px_rgba(0,0,0,0.55),0_14px_40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.85),0_2px_0_rgba(8,145,178,0.08)]";
+
+const lineTest = "border-t border-cyan-500/18";
+const boxLogTest =
+  "rounded-xl border border-cyan-950/50 bg-[linear-gradient(180deg,rgba(15,23,42,0.95)_0%,rgba(2,6,23,0.98)_100%)] shadow-[inset_0_3px_12px_rgba(0,0,0,0.78),inset_0_1px_0_rgba(94,234,212,0.08),0_1px_0_rgba(255,255,255,0.03)] overflow-hidden";
+
+const skillStripTest =
+  "rounded-xl border border-cyan-950/45 bg-[linear-gradient(180deg,#0f172a_0%,#020617_52%,#000510_100%)] px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),inset_0_-6px_18px_rgba(0,0,0,0.55),0_4px_0_rgba(0,0,0,0.25)]";
+
+const backBtnTest =
+  "px-5 py-2 rounded-xl border border-cyan-800/55 bg-[linear-gradient(180deg,#1e293b_0%,#0f172a_100%)] text-xs text-cyan-100/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_6px_16px_rgba(0,0,0,0.55)] hover:border-cyan-500/45 hover:text-white active:scale-[0.99] transition-[border-color,color,transform] duration-150";
+
 export interface BattlePanelTarget {
   name: string;
   level: number;
@@ -52,6 +66,8 @@ export interface BattlePanelProps {
   victoryContent?: React.ReactNode;
   /** Теплий L2-фрейм і лог без «синьої» рамки */
   isL2?: boolean;
+  /** Тема «Тест» (l2test) — холодний cyan/indigo 3D, як екран персонажа */
+  isBattleTest?: boolean;
 }
 
 /**
@@ -70,24 +86,37 @@ export function BattlePanel({
   showBackButton = false,
   victoryContent,
   isL2 = false,
+  isBattleTest = false,
 }: BattlePanelProps) {
-  const line = isL2 ? lineGoldL2 : lineGold;
-  const logBox = isL2 ? boxLogL2 : boxBlue;
-  const bottomDivider = isL2 ? dividerGoldL2 : dividerGold;
-  const backBtn = isL2
-    ? "px-5 py-2 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#d4c4a8] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/45 hover:text-[#f4e2b8] active:scale-[0.99] transition-[border-color,color,transform] duration-150"
-    : "px-4 py-2 bg-yellow-600 rounded text-black text-sm";
+  const line = isBattleTest ? lineTest : isL2 ? lineGoldL2 : lineGold;
+  const logBox = isBattleTest ? boxLogTest : isL2 ? boxLogL2 : boxBlue;
+  const bottomDivider = isBattleTest ? (
+    <div className="border-t border-cyan-500/15 mt-2" />
+  ) : isL2 ? (
+    dividerGoldL2
+  ) : (
+    dividerGold
+  );
+  const backBtn = isBattleTest
+    ? backBtnTest
+    : isL2
+      ? "px-5 py-2 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#d4c4a8] shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/45 hover:text-[#f4e2b8] active:scale-[0.99] transition-[border-color,color,transform] duration-150"
+      : "px-4 py-2 bg-yellow-600 rounded text-black text-sm";
 
   if (victoryContent) {
     return (
       <div
         className={
-          isL2
-            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#e8dcc8]`
-            : "w-full text-white py-2"
+          isBattleTest
+            ? `${testFrame} w-full min-w-0 my-1 px-3 py-3 text-slate-100`
+            : isL2
+              ? `${l2Frame} w-full min-w-0 my-1 px-3 py-3 text-[#e8dcc8]`
+              : "w-full text-white py-2"
         }
       >
-        <div className={isL2 ? "w-full max-w-[400px] mx-auto" : "w-full max-w-[360px] mx-auto"}>
+        <div
+          className={isL2 || isBattleTest ? "w-full max-w-[400px] mx-auto" : "w-full max-w-[360px] mx-auto"}
+        >
           {victoryContent}
         </div>
       </div>
@@ -97,12 +126,14 @@ export function BattlePanel({
   return (
     <div
       className={
-        isL2
-          ? `${l2Frame} w-full min-w-0 my-1 px-3 py-2 text-[#e8dcc8]`
-          : "w-full text-white pt-0 pb-2"
+        isBattleTest
+          ? `${testFrame} w-full min-w-0 my-1 px-3 py-2 text-slate-100`
+          : isL2
+            ? `${l2Frame} w-full min-w-0 my-1 px-3 py-2 text-[#e8dcc8]`
+            : "w-full text-white pt-0 pb-2"
       }
     >
-      <div className={isL2 ? "w-full max-w-[400px] mx-auto" : "w-full max-w-[360px] mx-auto"}>
+      <div className={isL2 || isBattleTest ? "w-full max-w-[400px] mx-auto" : "w-full max-w-[360px] mx-auto"}>
         <div className={`${line} pt-2`}>
           <div className={pad}>
             <div className="flex flex-col items-center gap-2">
@@ -115,6 +146,7 @@ export function BattlePanel({
                   maxHp={target.maxHp}
                   isAggressivePatrol={target.isAggressivePatrol}
                   isL2={isL2}
+                  isBattleTest={isBattleTest}
                 />
               </div>
             </div>
@@ -130,7 +162,13 @@ export function BattlePanel({
         {children != null && (
           <div className={line}>
             <div className={pad}>
-              {isL2 ? <div className={skillStripL2}>{children}</div> : children}
+              {isBattleTest ? (
+                <div className={skillStripTest}>{children}</div>
+              ) : isL2 ? (
+                <div className={skillStripL2}>{children}</div>
+              ) : (
+                children
+              )}
             </div>
           </div>
         )}
@@ -138,17 +176,36 @@ export function BattlePanel({
         <div className="mt-3 px-3">
           <div
             className={
-              isL2
-                ? "text-[11px] uppercase tracking-[0.12em] text-[#d4b878] font-semibold mb-2 flex items-center gap-2"
-                : "text-[12px] text-[#c7ad80] font-semibold mb-2"
+              isBattleTest
+                ? "text-[11px] uppercase tracking-[0.12em] text-cyan-200/85 font-semibold mb-2 flex items-center gap-2"
+                : isL2
+                  ? "text-[11px] uppercase tracking-[0.12em] text-[#d4b878] font-semibold mb-2 flex items-center gap-2"
+                  : "text-[12px] text-[#c7ad80] font-semibold mb-2"
             }
           >
-            {isL2 && <span className="h-px flex-1 max-w-[48px] bg-gradient-to-r from-[#c7ad80]/50 to-transparent" aria-hidden />}
+            {isBattleTest && (
+              <span
+                className="h-px flex-1 max-w-[48px] bg-gradient-to-r from-cyan-400/45 to-transparent"
+                aria-hidden
+              />
+            )}
+            {isL2 && !isBattleTest && (
+              <span className="h-px flex-1 max-w-[48px] bg-gradient-to-r from-[#c7ad80]/50 to-transparent" aria-hidden />
+            )}
             Лог бою
-            {isL2 && <span className="h-px flex-1 bg-gradient-to-l from-[#c7ad80]/50 to-transparent" aria-hidden />}
+            {isBattleTest && (
+              <span className="h-px flex-1 bg-gradient-to-l from-cyan-400/45 to-transparent" aria-hidden />
+            )}
+            {isL2 && !isBattleTest && (
+              <span className="h-px flex-1 bg-gradient-to-l from-[#c7ad80]/50 to-transparent" aria-hidden />
+            )}
           </div>
           <div className={`${logBox} w-full`}>
-            <div className="px-3 py-2 text-[11px] leading-4 text-[#d4c4a8]">
+            <div
+              className={`px-3 py-2 text-[11px] leading-4 ${
+                isBattleTest ? "text-slate-300" : "text-[#d4c4a8]"
+              }`}
+            >
               <BattleLog noBorder lines={log} />
             </div>
           </div>

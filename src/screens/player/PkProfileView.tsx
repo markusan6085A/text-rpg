@@ -6,7 +6,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { loadBattle } from "../../state/battle/persist";
 import { BattlePanel } from "../battle/BattlePanel";
-import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { useCityUiVariant } from "../../utils/cityUiVariant";
 import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
 import { SkillBar } from "../battle/SkillBar";
 import type { BattleBuff } from "../../state/battle/types";
@@ -69,7 +69,9 @@ export default function PkProfileView({
   panelBackLabel,
   arenaMode = false,
 }: PkProfileViewProps) {
-  const isL2 = isWarmCityUi(getCityUiVariant());
+  const cityUi = useCityUiVariant();
+  const isL2 = cityUi !== "classic";
+  const isBattleTest = cityUi === "l2test";
   const myHero = useHeroStore((s) => s.hero);
   const pkActorBuffsFromStore = useBattleStore((s) => s.pkActorBuffs);
   const [backBusy, setBackBusy] = useState(false);
@@ -225,30 +227,40 @@ export default function PkProfileView({
 
   if (!pkSession) {
     return (
-      <div className={isL2 ? "w-full text-[#d4c4a8] py-2 px-2" : "w-full text-white py-2"}>
+      <div
+        className={
+          isBattleTest ? "w-full text-slate-200 py-2 px-2" : isL2 ? "w-full text-[#d4c4a8] py-2 px-2" : "w-full text-white py-2"
+        }
+      >
         <div
           className={
-            isL2
-              ? "text-center text-[14px] text-[#e8c56e] font-semibold [text-shadow:0_1px_2px_rgba(0,0,0,0.75)]"
-              : "text-center text-[14px] text-[#dec28e] font-semibold"
+            isBattleTest
+              ? "text-center text-[14px] text-cyan-200 font-semibold [text-shadow:0_1px_2px_rgba(0,0,0,0.75)]"
+              : isL2
+                ? "text-center text-[14px] text-[#e8c56e] font-semibold [text-shadow:0_1px_2px_rgba(0,0,0,0.75)]"
+                : "text-center text-[14px] text-[#dec28e] font-semibold"
           }
         >
           {character.name}
         </div>
         <div
           className={
-            isL2
-              ? "text-center text-[10px] text-[#8a7a60] lowercase mb-2"
-              : "text-center text-[10px] text-[#a69a82] lowercase mb-2"
+            isBattleTest
+              ? "text-center text-[10px] text-slate-400 lowercase mb-2"
+              : isL2
+                ? "text-center text-[10px] text-[#8a7a60] lowercase mb-2"
+                : "text-center text-[10px] text-[#a69a82] lowercase mb-2"
           }
         >
           {String(professionLabel || "").toLowerCase()} · {effectiveCharacterLevel(character)} lvl
         </div>
         <div
           className={
-            isL2
-              ? "text-center text-[11px] text-[#a89470] py-4 rounded-md border border-[#5c4a32]/40 bg-black/20"
-              : "text-center text-[11px] text-gray-400 py-4"
+            isBattleTest
+              ? "text-center text-[11px] text-slate-400 py-4 rounded-xl border border-cyan-950/45 bg-black/25"
+              : isL2
+                ? "text-center text-[11px] text-[#a89470] py-4 rounded-md border border-[#5c4a32]/40 bg-black/20"
+                : "text-center text-[11px] text-gray-400 py-4"
           }
         >
           {pkLoading
@@ -271,7 +283,9 @@ export default function PkProfileView({
   };
 
   return (
-    <div className={isL2 ? "w-full text-[#d4c4a8]" : "w-full text-white"}>
+    <div
+      className={isBattleTest ? "w-full text-slate-200" : isL2 ? "w-full text-[#d4c4a8]" : "w-full text-white"}
+    >
       <BattlePanel
         target={target}
         buffs={uniqueBuffs}
@@ -280,6 +294,7 @@ export default function PkProfileView({
         onBack={handleBack}
         showBackButton={showBackButton}
         isL2={isL2}
+        isBattleTest={isBattleTest}
       >
         <SkillBar onUseSkillOverride={onUseSkill} onAttackOverride={onAttack} />
       </BattlePanel>
@@ -287,20 +302,44 @@ export default function PkProfileView({
       {pkSession.ended && (
         <div className="mt-2 text-center text-[12px] px-3">
           {pkSession.escapedByName ? (
-            <div className={isL2 ? "text-[#e8c56e]" : "text-yellow-300"}>{pkSession.escapedByName} сбежал!</div>
+            <div
+              className={
+                isBattleTest ? "text-cyan-200" : isL2 ? "text-[#e8c56e]" : "text-yellow-300"
+              }
+            >
+              {pkSession.escapedByName} сбежал!
+            </div>
           ) : pkSession.winnerId && myHero?.id && pkSession.winnerId === myHero.id ? (
-            <div className={isL2 ? "text-[#7d9b7a] font-semibold" : "text-green-400 font-semibold"}>
+            <div
+              className={
+                isBattleTest ? "text-emerald-400 font-semibold" : isL2 ? "text-[#7d9b7a] font-semibold" : "text-green-400 font-semibold"
+              }
+            >
               {arenaMode ? "Победа на арене!" : "Вы сразили игрока! Игрок мертв!"}
             </div>
           ) : pkSession.winnerId ? (
-            <div className={isL2 ? "text-[#d4786a] font-semibold" : "text-red-400 font-semibold"}>Вы проиграли</div>
+            <div
+              className={
+                isBattleTest ? "text-rose-400 font-semibold" : isL2 ? "text-[#d4786a] font-semibold" : "text-red-400 font-semibold"
+              }
+            >
+              Вы проиграли
+            </div>
           ) : (
-            <div className={isL2 ? "text-[#8a7a60]" : "text-gray-300"}>Бой завершен</div>
+            <div className={isBattleTest ? "text-slate-400" : isL2 ? "text-[#8a7a60]" : "text-gray-300"}>
+              Бой завершен
+            </div>
           )}
         </div>
       )}
       {pkError && (
-        <div className={`mt-1 text-center text-[11px] px-3 ${isL2 ? "text-[#d4786a]" : "text-red-400"}`}>{pkError}</div>
+        <div
+          className={`mt-1 text-center text-[11px] px-3 ${
+            isBattleTest ? "text-rose-400" : isL2 ? "text-[#d4786a]" : "text-red-400"
+          }`}
+        >
+          {pkError}
+        </div>
       )}
     </div>
   );
