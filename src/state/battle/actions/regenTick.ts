@@ -10,6 +10,7 @@ import { getMaxResources } from "../helpers/getMaxResources";
 import { persistBattle } from "../persist";
 import type { BattleState } from "../types";
 import { processSummonAttack } from "./summons";
+import { processMobBleedTicks } from "./aggressiveMobSkills";
 import { processToggleTicks } from "./toggleTicks";
 import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonBuffs";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
@@ -61,7 +62,7 @@ export const createRegenTick =
 
     // Фікс №1: не перезаписувати heroBuffs тим, що повернув processToggleTicks (може бути тільки toggle-бафи).
     // Мерджимо cleanedBuffs + buffsAfterTicks з dedup — інакше бафи статуї (source=buffer) зникають.
-    const mergedHeroBuffs = cleanupBuffs(mergeBuffsDedup(cleanedBuffs, buffsAfterTicks), now);
+    let mergedHeroBuffs = cleanupBuffs(mergeBuffsDedup(cleanedBuffs, buffsAfterTicks), now);
     if (import.meta.env.DEV) {
       console.log("REGEN cleaned:", cleanedBuffs.length, "afterTicks:", buffsAfterTicks.length, "merged:", mergedHeroBuffs.length);
     }
@@ -74,6 +75,9 @@ export const createRegenTick =
     const baseMax = getMaxResources(heroAfterTicks);
     const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, mergedHeroBuffs);
 
+    const bleedResult = processMobBleedTicks(mergedHeroBuffs, now, maxHp);
+    mergedHeroBuffs = cleanupBuffs(bleedResult.buffs, now);
+
     const { hpRegen, mpRegen, cpRegen } = getHeroRegenPerSecond(heroAfterTicks, mergedHeroBuffs);
 
     // Читаємо поточні ресурси з hero (єдине джерело правди)
@@ -81,8 +85,10 @@ export const createRegenTick =
     const curMP = Math.min(maxMp, heroAfterTicks.mp ?? maxMp);
     const curCP = Math.min(maxCp, heroAfterTicks.cp ?? maxCp);
 
+    const hpAfterBleed = Math.max(0, curHP - bleedResult.hpLoss);
+
     // Завжди використовуємо АКТУАЛЬНЕ maxHp з computeBuffedMaxResources (з урахуванням бафів)
-    const nextHP = Math.min(maxHp, curHP + hpRegen);
+    const nextHP = Math.min(maxHp, hpAfterBleed + hpRegen);
     const nextMP = Math.min(maxMp, curMP + mpRegen);
     const nextCP = Math.min(maxCp, curCP + cpRegen);
 
@@ -137,17 +143,19 @@ export const createRegenTick =
       processSummonAttack({ ...state, summon: updatedSummon, summonBuffs: cleanedSummonBuffs }, now, set, get);
     }
 
-    // Додаємо повідомлення про toggle ticks в лог (якщо є)
-    const newLog = tickLogMessages.length > 0
-      ? [...tickLogMessages, ...state.log].slice(0, 30)
-      : state.log;
+    // Додаємо повідомлення про toggle ticks і кровотечу в лог (якщо є)
+    const tickAndBleedMessages = [...tickLogMessages, ...bleedResult.messages];
+    const newLog =
+      tickAndBleedMessages.length > 0
+        ? [...tickAndBleedMessages, ...state.log].slice(0, 30)
+        : state.log;
 
     const updates: Partial<BattleState> = {
       heroBuffs: mergedHeroBuffs,
       summonBuffs: cleanedSummonBuffs,
       ...(updatedSummon !== state.summon ? { summon: updatedSummon } : {}),
       cooldowns: state.cooldowns || {},
-      ...(tickLogMessages.length > 0 ? { log: newLog } : {}),
+      ...(tickAndBleedMessages.length > 0 ? { log: newLog } : {}),
     };
 
     set((prev) => ({ ...(prev as any), ...(updates as any) }));

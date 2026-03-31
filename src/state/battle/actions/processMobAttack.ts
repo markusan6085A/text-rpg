@@ -22,6 +22,7 @@ import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 import { writeDeathGate } from "../../../utils/deathGate";
 import { displayMobName } from "../../../utils/worldDisplay";
 import { isChampionMob } from "../../../utils/mobs/isChampionMob";
+import { rollAggressiveMobSkills } from "./aggressiveMobSkills";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -90,7 +91,7 @@ export const createProcessMobAttack =
     const curHeroMP = Math.min(maxMp, hero.mp ?? maxMp);
     const curHeroCP = Math.min(maxCp, hero.cp ?? maxCp);
 
-    const heroStats = applyBuffsToStats(hero.battleStats || {}, nextBuffs);
+    let heroStats = applyBuffsToStats(hero.battleStats || {}, nextBuffs);
     const invulnerable = !!heroStats.invulnerable;
 
     const dodgeChance = Math.max(0, Math.min(80, Math.round(heroStats.evasion ?? 0)));
@@ -116,6 +117,20 @@ export const createProcessMobAttack =
       return;
     }
 
+    const isRaidBossForSkills = (state.mob as any).isRaidBoss === true;
+    const skillRoll = rollAggressiveMobSkills(state.mob, now, nextBuffs, isRaidBossForSkills);
+    if (skillRoll.logLines.length > 0) {
+      nextBuffs = skillRoll.buffs;
+    }
+    let heroStunnedFromAggroSkill: number | undefined;
+    if (skillRoll.heroStunnedUntil) {
+      heroStunnedFromAggroSkill = Math.max(
+        state.heroStunnedUntil ?? 0,
+        skillRoll.heroStunnedUntil
+      );
+    }
+
+    heroStats = applyBuffsToStats(hero.battleStats || {}, nextBuffs);
     const pDef = heroStats.pDef ?? 0;
     const mDef = heroStats.mDef ?? 0;
     
@@ -358,7 +373,7 @@ export const createProcessMobAttack =
 
     const nextHeroHP = Math.max(0, curHeroHP - heroDamage);
 
-    const lines: string[] = [];
+    const lines: string[] = [...skillRoll.logLines];
     
     // Логіка блоку щита
     if (shieldBlocked) {
@@ -399,7 +414,10 @@ export const createProcessMobAttack =
     const newLog = [...lines, ...state.log].slice(0, 30);
 
     // Застосування спеціальних дій рейд-босів (stun, block buffs/skills)
-    let heroStunnedUntil = state.heroStunnedUntil;
+    let heroStunnedUntil =
+      heroStunnedFromAggroSkill && heroStunnedFromAggroSkill > (state.heroStunnedUntil ?? 0)
+        ? heroStunnedFromAggroSkill
+        : state.heroStunnedUntil;
     let heroBuffsBlockedUntil = state.heroBuffsBlockedUntil;
     let heroSkillsBlockedUntil = state.heroSkillsBlockedUntil;
     let nextBuffsAfterDispel = nextBuffs; // Для зняття бафів

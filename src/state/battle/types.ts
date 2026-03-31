@@ -15,12 +15,14 @@ export type BattleBuff = {
   startedAt?: number;
   durationMs?: number;
   stacks?: number;
-  source?: "buffer" | "skill" | "summon"; // Джерело бафа: "buffer" = від статуї, "skill" = від скілу, "summon" = від сумону
+  source?: "buffer" | "skill" | "summon" | "mob_skill"; // mob_skill — дебафи агро/чемпіонів
   // Toggle tick effects
   hpPerTick?: number; // HP споживання/відновлення на tick
   mpPerTick?: number; // MP споживання/відновлення на tick
   tickInterval?: number; // Інтервал tick в секундах
   lastTickAt?: number; // Timestamp останнього tick
+  /** DOT від моба: від maxHp кожен tickInterval с (див. processMobBleedTicks) */
+  bleedPercentMaxHp?: number;
 };
 
 export type BattleState = {
