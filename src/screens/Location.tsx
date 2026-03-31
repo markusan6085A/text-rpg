@@ -19,6 +19,7 @@ import { savePreviousLocation, savePreviousCity } from "../utils/locationNavigat
 import { getFloranMobDropProfile } from "../data/drop/floranMobDrops";
 import { MOB_LOOT_TABLES_DISABLED } from "../state/battle/helpers/mobLootTablesDisabled";
 import { getQuestMobHighlightForMob } from "../utils/quests/questMobHighlight";
+import { mergeActiveQuestsForUi } from "../utils/quests/mergeActiveQuestsForUi";
 import {
   QUESTS,
   ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
@@ -430,11 +431,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
 
   // Моби з активних квестів — показуємо сірим текстом (беремо з hero та heroJson на випадок гідрації)
   const activeQuests = React.useMemo(() => {
-    const fromHero = hero?.activeQuests;
-    const fromJson = (hero as any)?.heroJson?.activeQuests;
-    if (Array.isArray(fromHero) && fromHero.length > 0) return fromHero;
-    if (Array.isArray(fromJson) && fromJson.length > 0) return fromJson;
-    return [];
+    return mergeActiveQuestsForUi(hero?.activeQuests, (hero as any)?.heroJson?.activeQuests);
   }, [hero?.activeQuests, (hero as any)?.heroJson?.activeQuests]);
 
   const showElvenFirstProfLocationHelper =
@@ -955,7 +952,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 activeQuests,
                 QUESTS,
                 zone.id,
-                hero?.inventory
+                hero?.inventory ?? []
               );
               const nameCls = mobNameClass(
                 questHighlight,
@@ -1083,7 +1080,7 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     )}
                   </button>
                   <span
-                    className={`flex-1 cursor-pointer hover:text-[#f4e2b8] ${nameCls}`}
+                    className={`flex-1 flex flex-col cursor-pointer hover:text-[#f4e2b8] ${nameCls}`}
                     style={
                       questHighlight === "kill" || questHighlight === "drop"
                         ? { color: "#6b7280" }
@@ -1091,8 +1088,16 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                     }
                     onClick={() => openBattle(globalIndex)}
                   >
-                    {displayMobName(mob.name)}
-                    {isPatrol ? <span className="text-[#5c0a0a] font-semibold"> (агр)</span> : null}
+                    <span>
+                      {displayMobName(mob.name)}
+                      {isPatrol ? <span className="text-[#5c0a0a] font-semibold"> (агр)</span> : null}
+                    </span>
+                    {questHighlight === "kill" ? (
+                      <span className="text-[8px] text-gray-500 leading-none mt-0.5">квест · цель</span>
+                    ) : null}
+                    {questHighlight === "drop" ? (
+                      <span className="text-[8px] text-gray-500 leading-none mt-0.5">квест · добыча</span>
+                    ) : null}
                   </span>
                   <span className={isEpicRaid ? "text-violet-400" : "text-red-500"}>[{mob.level}]</span>
                   <span className={isEpicRaid ? "text-violet-400/90" : "text-red-500"}>

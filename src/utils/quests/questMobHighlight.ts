@@ -5,6 +5,7 @@
  */
 import { QUEST_ITEM_TURN_IN_ALIASES, type Quest, type QuestKillTarget } from "../../data/quests";
 import { getEffectiveQuestDropNeed } from "./questDropEffectiveNeed";
+import { mobMatchesQuestDropName } from "./questDropMobMatch";
 
 function countQuestItemInInventory(
   inv: { id: string; count?: number }[] | undefined,
@@ -23,6 +24,7 @@ export interface ActiveQuestLike {
   questId: string;
   progress?: Record<string, number>;
   rolledQuestDropNeeds?: Record<string, number>;
+  rolledRewardBonus?: { adena: number; exp: number; coins_silver: number };
 }
 
 export function mobMatchesKillTarget(
@@ -70,9 +72,10 @@ export function getQuestMobHighlightForMob(
     const quest = questById.get(aq.questId);
     if (!quest) continue;
 
-    if (quest.questDrops?.length && inventory) {
+    if (quest.questDrops?.length) {
+      const inv = inventory ?? [];
       for (const qd of quest.questDrops) {
-        if (qd.mobName !== mob.name) continue;
+        if (!mobMatchesQuestDropName(mob.name, qd.mobName)) continue;
         if (
           qd.dropZoneIdPrefix &&
           (!zoneId || !String(zoneId).startsWith(qd.dropZoneIdPrefix))
@@ -80,7 +83,7 @@ export function getQuestMobHighlightForMob(
           continue;
         }
         const need = getEffectiveQuestDropNeed(qd, aq as any);
-        const have = countQuestItemInInventory(inventory, qd.itemId);
+        const have = countQuestItemInInventory(inv, qd.itemId);
         if (have < need) return "drop";
       }
     }

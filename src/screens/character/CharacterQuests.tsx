@@ -21,6 +21,7 @@ import {
 } from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
 import { getEffectiveQuestDropNeed } from "../../utils/quests/questDropEffectiveNeed";
+import { mergeActiveQuestsForUi } from "../../utils/quests/mergeActiveQuestsForUi";
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { getGameSettings } from "../../state/gameSettings";
@@ -137,7 +138,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     );
   }
 
-  const activeQuests = hero.activeQuests || [];
+  const activeQuests = mergeActiveQuestsForUi(hero.activeQuests, (hero as any)?.heroJson?.activeQuests);
   const completedQuests = hero.completedQuests || [];
 
   // Отримуємо унікальні локації з квестів

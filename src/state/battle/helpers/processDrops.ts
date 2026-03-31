@@ -6,6 +6,8 @@ import { itemsDB } from "../../../data/items/itemsDB";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../../../data/world/l2dop/droplistMapping";
 import { QUESTS } from "../../../data/quests";
 import { getEffectiveQuestDropNeed } from "../../../utils/quests/questDropEffectiveNeed";
+import { mobMatchesQuestDropName } from "../../../utils/quests/questDropMobMatch";
+import { mergeActiveQuestsForUi } from "../../../utils/quests/mergeActiveQuestsForUi";
 import { equipItemLogic } from "../../heroStore/heroInventory";
 import { getInventoryMax } from "../../heroStore";
 import { addItemsWithOverflow } from "../../heroStore/inventoryOverflow";
@@ -428,7 +430,7 @@ export function processMobDrops(
 
   // ❗ ОБРОБКА КВЕСТОВИХ ДРОПІВ
   // Перевіряємо активні квести та додаємо квестові предмети, якщо моб відповідає
-  const activeQuests = hero.activeQuests || [];
+  const activeQuests = mergeActiveQuestsForUi(hero.activeQuests, (hero as any)?.heroJson?.activeQuests);
 
   activeQuests.forEach((activeQuest) => {
     const questDef = QUESTS.find((q) => q.id === activeQuest.questId);
@@ -436,7 +438,7 @@ export function processMobDrops(
 
     // Перевіряємо, чи цей моб має квестові дропи
     questDef.questDrops.forEach((questDrop) => {
-      if (mob.name !== questDrop.mobName) return;
+      if (!mobMatchesQuestDropName(mob.name, questDrop.mobName)) return;
       if (
         questDrop.dropZoneIdPrefix &&
         (!battleZoneId || !String(battleZoneId).startsWith(questDrop.dropZoneIdPrefix))
