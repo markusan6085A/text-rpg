@@ -167,6 +167,40 @@ export function isHeroDarkMysticBaseForFirstProfQuest(hero: {
   return p === "dark_mystic_base";
 }
 
+/** Раса орк (укр./рос./англ.). */
+export function isHeroOrcRaceForQuests(hero: { race?: string | null }): boolean {
+  const r = String(hero.race || "").toLowerCase();
+  return r.includes("orc") || r.includes("орк");
+}
+
+export const ORC_FIGHTER_FIRST_PROF_QUEST_ID = "orc_fighter_first_profession_totems";
+
+export const ORC_MYSTIC_FIRST_PROF_QUEST_ID = "orc_mystic_first_profession_charms";
+
+export function isHeroOrcFighterBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  if (!isHeroOrcRaceForQuests(hero)) return false;
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  return p === "orc_fighter";
+}
+
+export function isHeroOrcMysticBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  if (!isHeroOrcRaceForQuests(hero)) return false;
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  return p === "orc_mystic_base";
+}
+
 /** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
 export const QUEST_ITEM_TURN_IN_ALIASES: Record<string, readonly string[]> = {
   quest_gludio_charcoal: ["charcoal"],
@@ -363,25 +397,59 @@ export const QUESTS: Quest[] = [
     rewards: { exp: 25_000, adena: 50_000 },
     questDrops: [
       {
-        mobName: "Орк Воин, Monster Eye и др.",
+        mobName: "Orc Fighter",
         itemId: "animal_skin",
         requiredCount: 15,
         farmHint:
-          "Animal Skin: окрестности Глудио / старт (1–12 ур.) — Orc Fighter, Monster Eye, волки, гоблины; смотрите дроп в карточке моба на локации.",
+          "Animal Skin: Gludin Village и др. — Orc Fighter, Monster Eye, Wolf, Goblin (англ. имена в игре); метка «квест · добыча».",
       },
       {
-        mobName: "Гоблин, Скелет, Элпи и др.",
+        mobName: "Monster Eye",
+        itemId: "animal_skin",
+        requiredCount: 15,
+      },
+      {
+        mobName: "Wolf",
+        itemId: "animal_skin",
+        requiredCount: 15,
+      },
+      {
+        mobName: "Goblin",
+        itemId: "animal_skin",
+        requiredCount: 15,
+      },
+      {
+        mobName: "Goblin",
         itemId: "thread",
         requiredCount: 10,
         farmHint:
-          "Thread: те же зоны — Goblin, Skeleton, Fell Hound (Элпи) и др.; дроп в таблице моба.",
+          "Thread: низкоуровневые зоны — Goblin, Skeleton, Vampire Bat.",
       },
       {
-        mobName: "Гриб, Летучая мышь, Орк и др.",
+        mobName: "Skeleton",
+        itemId: "thread",
+        requiredCount: 10,
+      },
+      {
+        mobName: "Vampire Bat",
+        itemId: "thread",
+        requiredCount: 10,
+      },
+      {
+        mobName: "Walking Fungus",
         itemId: "iron_ore",
         requiredCount: 5,
-        farmHint:
-          "Iron Ore: слабые мобы с рудой (грибы, летучие мыши, орки) — низкоуровневые зоны; дроп в карточке моба.",
+        farmHint: "Iron Ore: Walking Fungus, Ore Bat, Orc Fighter.",
+      },
+      {
+        mobName: "Ore Bat",
+        itemId: "iron_ore",
+        requiredCount: 5,
+      },
+      {
+        mobName: "Orc Fighter",
+        itemId: "iron_ore",
+        requiredCount: 5,
       },
     ],
   },
@@ -604,6 +672,94 @@ export const QUESTS: Quest[] = [
         requiredCount: 10,
         requiredCountRandom: { min: 4, max: 10 },
         dropZoneIdPrefix: "floran_village",
+      },
+    ],
+  },
+  {
+    id: ORC_FIGHTER_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь орка-воина — тотемы клана",
+    description:
+      "Провидцы требуют доказательств из окрестностей Gludin Village (зоны 11–22 уровня). Случайные количества трофеев и бонус к награде определяются при приёме и отображаются в активном квесте. " +
+      "Мобы с нужным дропом помечены «квест · добыча», пока не набран нужный объём. После сдачи на 20 уровне откроется выбор Orc Raider / Orc Monk.",
+    level: 18,
+    location: "Gludin Village — окрестности",
+    locationLevel: "15–22",
+    requirements: { level: 18 },
+    randomFirstProfBonus: true,
+    rewards: { exp: 22_000, adena: 45_000, coins_silver: 3 },
+    questDrops: [
+      {
+        mobName: "Vuku Orc Fighter",
+        itemId: "quest_orc_fprof_vuku_trophy",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Vuku Orc Archer",
+        itemId: "quest_orc_fprof_archer_feather",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Enku Orc Shaman",
+        itemId: "quest_orc_fprof_enku_fetish",
+        requiredCount: 12,
+        requiredCountRandom: { min: 5, max: 12 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Enku Orc Champion",
+        itemId: "quest_orc_fprof_champion_brand",
+        requiredCount: 10,
+        requiredCountRandom: { min: 4, max: 10 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+    ],
+  },
+  {
+    id: ORC_MYSTIC_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь орка-шамана — обереги стихий",
+    description:
+      "Соберите конденсаты сил в окрестностях Gludin Village. Число каждого компонента и дополнительная награда выпадают при приёме. " +
+      "После сдачи на 20 уровне доступен путь Orc Shaman.",
+    level: 18,
+    location: "Gludin Village — окрестности",
+    locationLevel: "15–22",
+    requirements: { level: 18 },
+    randomFirstProfBonus: true,
+    rewards: { exp: 22_000, adena: 45_000, coins_silver: 3 },
+    questDrops: [
+      {
+        mobName: "Orc Shaman",
+        itemId: "quest_orc_mprof_shaman_claw",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Enku Orc Shaman",
+        itemId: "quest_orc_mprof_enku_totem",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Mana Seeker",
+        itemId: "quest_orc_mprof_mana_fractal",
+        requiredCount: 12,
+        requiredCountRandom: { min: 5, max: 12 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Will-O-Wisp",
+        itemId: "quest_orc_mprof_wisp_cinder",
+        requiredCount: 10,
+        requiredCountRandom: { min: 4, max: 10 },
+        dropZoneIdPrefix: "gludin_village",
       },
     ],
   },

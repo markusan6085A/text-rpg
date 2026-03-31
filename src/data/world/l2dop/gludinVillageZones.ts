@@ -1,6 +1,6 @@
 // Gludin Village — 9 зон, різна кількість мобів 150–300 на зону, 2 чемпіони, 2–3 РБ; іконки l2dop_* через NPC id; агро — augmentPatrolMobs.
 
-import type { Zone } from "../types";
+import type { Mob, Zone } from "../types";
 import {
   fillZoneMobs,
   getGludinVillageL2DopChampions,
@@ -9,6 +9,49 @@ import {
   L2DOP_GLUDIN_VILLAGE_POOL,
 } from "./mobs";
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
+
+/**
+ * Квестові моби перших проф Gludin (людина + орк) — підмішувати в «старші» зони селища,
+ * бо fillZoneMobs випадково може не взяти тип; частина мобів 20–21 при діапазоні зони 15–19 теж не потрапляла б у пул без примусу.
+ */
+const GLUDIN_FIRST_PROF_QUEST_MOB_NAMES: readonly string[] = [
+  "Evil Eye Seer",
+  "Arachnid Tracker",
+  "Stink Zombie",
+  "Skeleton Scout",
+  "Lirein Elder",
+  "Salamander Noble",
+  "Undine Noble",
+  "Undead Slave",
+  "Vuku Orc Fighter",
+  "Vuku Orc Archer",
+  "Enku Orc Shaman",
+  "Enku Orc Champion",
+  "Orc Shaman",
+  "Mana Seeker",
+  "Will-O-Wisp",
+];
+
+const GLUDIN_FIRST_PROF_INJECT_ZONE_IDS = new Set<string>([
+  "gludin_village_06",
+  "gludin_village_07",
+  "gludin_village_08",
+  "gludin_village_09",
+]);
+
+function injectGludinFirstProfQuestMobs(regular: Mob[], zoneId: string): Mob[] {
+  if (!GLUDIN_FIRST_PROF_INJECT_ZONE_IDS.has(zoneId)) return regular;
+  const namesPresent = new Set(regular.map((m) => m.name));
+  const injected: Mob[] = [];
+  for (const name of GLUDIN_FIRST_PROF_QUEST_MOB_NAMES) {
+    if (namesPresent.has(name)) continue;
+    const template = L2DOP_GLUDIN_VILLAGE_POOL.find((m) => m.name === name);
+    if (!template) continue;
+    injected.push({ ...template });
+    namesPresent.add(name);
+  }
+  return injected.length > 0 ? [...injected, ...regular] : regular;
+}
 
 type GludinZoneDef = {
   id: string;
@@ -23,7 +66,7 @@ type GludinZoneDef = {
 };
 
 function buildGludinVillageZoneMobs(z: GludinZoneDef) {
-  const regular = fillZoneMobs(
+  const filled = fillZoneMobs(
     L2DOP_GLUDIN_VILLAGE_POOL,
     z.id,
     z.min,
@@ -32,7 +75,9 @@ function buildGludinVillageZoneMobs(z: GludinZoneDef) {
     z.mobMax,
     z.typesMin,
     z.typesMax
-  ).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
+  );
+  const regularWithQuest = injectGludinFirstProfQuestMobs(filled, z.id);
+  const regular = regularWithQuest.map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const champions = getGludinVillageL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getGludinVillageRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
