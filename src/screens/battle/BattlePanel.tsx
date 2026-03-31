@@ -121,7 +121,7 @@ export function BattlePanel({
           </div>
         </div>
 
-        <div className={`${line} pt-3 mt-[2cm]`}>
+        <div className={`${line} pt-3 mt-[1cm]`}>
           <div className={pad}>
             <BuffBar buffs={buffs} now={now} />
           </div>

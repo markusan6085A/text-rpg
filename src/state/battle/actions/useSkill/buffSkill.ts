@@ -249,8 +249,13 @@ export function handleBuffSkill(
   // Обробка стекування бафів (Sonic Focus, Focused Force)
   newBuffs = processStackingBuffs(newBuffs, def, effList, now, activeBuffs);
 
-  // Додаємо новий баф, якщо є ефекти
-  if (effList.length > 0 && def.id !== SONIC_FOCUS_ID && def.id !== FOCUSED_FORCE_ID) {
+  // Додаємо новий баф на героя, якщо є ефекти. Дебафи на моба — лише в mobBuffs (handleDebuffSkill), не дублювати в heroBuffs.
+  if (
+    effList.length > 0 &&
+    def.id !== SONIC_FOCUS_ID &&
+    def.id !== FOCUSED_FORCE_ID &&
+    def.category !== "debuff"
+  ) {
     const newBuff = createToggleBuff(def, effList, now, finalDurationSec, isToggle);
     
     // 🔥 КРИТИЧНО: Перевіряємо чи є вже такий самий баф, але кращого рівня
