@@ -18,10 +18,14 @@ import {
   ELVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   HUMAN_FIGHTER_FIRST_PROF_QUEST_ID,
   HUMAN_MYSTIC_FIRST_PROF_QUEST_ID,
+  DARK_FIGHTER_FIRST_PROF_QUEST_ID,
+  DARK_MYSTIC_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
   isHeroElvenFighterBaseForFirstProfQuest,
   isHeroHumanFighterBaseForFirstProfQuest,
   isHeroHumanMysticBaseForFirstProfQuest,
+  isHeroDarkFighterBaseForFirstProfQuest,
+  isHeroDarkMysticBaseForFirstProfQuest,
 } from "../../data/quests";
 
 interface GuildScreenProps {
@@ -229,6 +233,8 @@ export default function GuildScreen({
   const elvenFighterFirstProfQuestDone = completedQuestIds.includes(ELVEN_FIGHTER_FIRST_PROF_QUEST_ID);
   const humanFighterFirstProfQuestDone = completedQuestIds.includes(HUMAN_FIGHTER_FIRST_PROF_QUEST_ID);
   const humanMysticFirstProfQuestDone = completedQuestIds.includes(HUMAN_MYSTIC_FIRST_PROF_QUEST_ID);
+  const darkFighterFirstProfQuestDone = completedQuestIds.includes(DARK_FIGHTER_FIRST_PROF_QUEST_ID);
+  const darkMysticFirstProfQuestDone = completedQuestIds.includes(DARK_MYSTIC_FIRST_PROF_QUEST_ID);
   const needsElvenFirstProfQuest =
     isHeroElvenMysticBaseForFirstProfQuest(hero) && !elvenFirstProfQuestDone;
   const needsElvenFighterFirstProfQuest =
@@ -237,12 +243,18 @@ export default function GuildScreen({
     isHeroHumanFighterBaseForFirstProfQuest(hero) && !humanFighterFirstProfQuestDone;
   const needsHumanMysticFirstProfQuest =
     isHeroHumanMysticBaseForFirstProfQuest(hero) && !humanMysticFirstProfQuestDone;
+  const needsDarkFighterFirstProfQuest =
+    isHeroDarkFighterBaseForFirstProfQuest(hero) && !darkFighterFirstProfQuestDone;
+  const needsDarkMysticFirstProfQuest =
+    isHeroDarkMysticBaseForFirstProfQuest(hero) && !darkMysticFirstProfQuestDone;
   const canChooseProfession =
     nextOptions.length > 0 &&
     !needsElvenFirstProfQuest &&
     !needsElvenFighterFirstProfQuest &&
     !needsHumanFighterFirstProfQuest &&
-    !needsHumanMysticFirstProfQuest;
+    !needsHumanMysticFirstProfQuest &&
+    !needsDarkFighterFirstProfQuest &&
+    !needsDarkMysticFirstProfQuest;
   console.log(`[GuildScreen] ✅ Доступні професії для вибору:`, {
     count: nextOptions.length,
     options: nextOptions.map(o => ({ id: o.id, label: o.def?.label, minLevel: o.def?.minLevel })),
@@ -596,6 +608,75 @@ export default function GuildScreen({
                     Во вкладке «Квесты» примите «Путь человека-мага — эссенции для первой профессии»: соберите эссенции с
                     Lirein Elder, Salamander Noble, Undine Noble и Undead Slave в Gludin Village. После сдачи на 20 уровне
                     откроется выбор Cleric / Wizard.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/quests")}
+                    className={
+                      isL2
+                        ? "text-[11px] font-semibold text-[#c9a44c] hover:text-[#f0e0c0] underline underline-offset-2"
+                        : "text-[11px] font-semibold text-amber-300 hover:text-amber-200 underline"
+                    }
+                  >
+                    Открыть «Квесты» →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {needsDarkFighterFirstProfQuest && heroLevel >= 18 && (
+            <div
+              className={
+                isL2
+                  ? "p-3 space-y-2 rounded-lg border border-amber-900/40 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                  : "p-3 space-y-2 rounded-lg border border-amber-700/30 bg-black/20"
+              }
+            >
+              <div className="flex items-start gap-2">
+                <img src="/nps/6.png" alt="" className="w-8 h-8 object-contain shrink-0 opacity-95 mt-0.5" />
+                <div className="text-[11px] leading-snug space-y-2">
+                  <div className={isL2 ? "text-[#e8c56e] font-semibold" : "text-amber-200 font-semibold"}>
+                    Возьмите квест для профессии!
+                  </div>
+                  <p className={isL2 ? "text-[#c9b99a]" : "text-[#e8dcc8]"}>
+                    Во вкладке «Квесты» примите «Путь тёмного эльфа-воина — эффигии кошмара»: трофеи с Lesser Dark Horror,
+                    Shade Horror, Crypt Horror и Oblivion Watcher в зонах Floran Village (объёмы и бонус — при приёме).
+                    После сдачи на 20 уровне откроется выбор первой профессии.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/quests")}
+                    className={
+                      isL2
+                        ? "text-[11px] font-semibold text-[#c9a44c] hover:text-[#f0e0c0] underline underline-offset-2"
+                        : "text-[11px] font-semibold text-amber-300 hover:text-amber-200 underline"
+                    }
+                  >
+                    Открыть «Квесты» →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {needsDarkMysticFirstProfQuest && heroLevel >= 18 && (
+            <div
+              className={
+                isL2
+                  ? "p-3 space-y-2 rounded-lg border border-amber-900/40 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                  : "p-3 space-y-2 rounded-lg border border-amber-700/30 bg-black/20"
+              }
+            >
+              <div className="flex items-start gap-2">
+                <img src="/nps/6.png" alt="" className="w-8 h-8 object-contain shrink-0 opacity-95 mt-0.5" />
+                <div className="text-[11px] leading-snug space-y-2">
+                  <div className={isL2 ? "text-[#e8c56e] font-semibold" : "text-amber-200 font-semibold"}>
+                    Возьмите квест для профессии!
+                  </div>
+                  <p className={isL2 ? "text-[#c9b99a]" : "text-[#e8dcc8]"}>
+                    Примите «Путь тёмного эльфа-мага — знаки стихий»: конденсаты с Will-O-Wisp, Mana Seeker, Scarlet
+                    Salamander и Undine в Floran Village. Доп. награда показывается в активном квесте.
                   </p>
                   <button
                     type="button"

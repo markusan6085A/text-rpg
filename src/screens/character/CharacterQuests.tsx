@@ -9,10 +9,14 @@ import {
   ELVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   HUMAN_FIGHTER_FIRST_PROF_QUEST_ID,
   HUMAN_MYSTIC_FIRST_PROF_QUEST_ID,
+  DARK_FIGHTER_FIRST_PROF_QUEST_ID,
+  DARK_MYSTIC_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
   isHeroElvenFighterBaseForFirstProfQuest,
   isHeroHumanFighterBaseForFirstProfQuest,
   isHeroHumanMysticBaseForFirstProfQuest,
+  isHeroDarkFighterBaseForFirstProfQuest,
+  isHeroDarkMysticBaseForFirstProfQuest,
   type Quest,
 } from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
@@ -166,6 +170,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     if (q.id === ELVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroElvenFighterBaseForFirstProfQuest(hero)) return false;
     if (q.id === HUMAN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroHumanFighterBaseForFirstProfQuest(hero)) return false;
     if (q.id === HUMAN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroHumanMysticBaseForFirstProfQuest(hero)) return false;
+    if (q.id === DARK_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroDarkFighterBaseForFirstProfQuest(hero)) return false;
+    if (q.id === DARK_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroDarkMysticBaseForFirstProfQuest(hero)) return false;
     return true;
   });
 
@@ -178,7 +184,9 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
       !(quest.id === ELVEN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroElvenMysticBaseForFirstProfQuest(hero)) &&
       !(quest.id === ELVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroElvenFighterBaseForFirstProfQuest(hero)) &&
       !(quest.id === HUMAN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroHumanFighterBaseForFirstProfQuest(hero)) &&
-      !(quest.id === HUMAN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroHumanMysticBaseForFirstProfQuest(hero))
+      !(quest.id === HUMAN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroHumanMysticBaseForFirstProfQuest(hero)) &&
+      !(quest.id === DARK_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroDarkFighterBaseForFirstProfQuest(hero)) &&
+      !(quest.id === DARK_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroDarkMysticBaseForFirstProfQuest(hero))
   );
 
   // Функція для прийняття квесту

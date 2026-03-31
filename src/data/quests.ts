@@ -51,7 +51,7 @@ export interface Quest {
     /** При прийнятті квесту випадкова кількість [min..max] зберігається в activeQuest.rolledQuestDropNeeds[itemId]; requiredCount = верхня межа для fallback */
     requiredCountRandom?: { min: number; max: number };
   }>;
-  /** Після прийняття згенерувати rolledRewardBonus у записі активного квесту (людські перші профи). */
+  /** Після прийняття згенерувати rolledRewardBonus у записі активного квесту (людські / темноельфійські перші профи). */
   randomFirstProfBonus?: boolean;
   /** Лічильники вбивств (оновлюються при перемозі над мобом) */
   questKillTargets?: QuestKillTarget[];
@@ -129,6 +129,40 @@ export function isHeroHumanMysticBaseForFirstProfQuest(hero: {
     .replace(/-/g, "_")
     .trim();
   return p === "human_mystic_base" || p === "human_mystic";
+}
+
+/** Темний ельф за полем раси (укр./рос./англ.). */
+export function isHeroDarkElfRaceForQuests(hero: { race?: string | null }): boolean {
+  const r = String(hero.race || "").toLowerCase();
+  return r.includes("dark") || r.includes("темн") || r.includes("тёмн");
+}
+
+export const DARK_FIGHTER_FIRST_PROF_QUEST_ID = "dark_elf_fighter_first_profession_effigies";
+
+export const DARK_MYSTIC_FIRST_PROF_QUEST_ID = "dark_elf_mystic_first_profession_sigils";
+
+export function isHeroDarkFighterBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  if (!isHeroDarkElfRaceForQuests(hero)) return false;
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  return p === "dark_fighter";
+}
+
+export function isHeroDarkMysticBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  if (!isHeroDarkElfRaceForQuests(hero)) return false;
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  return p === "dark_mystic_base";
 }
 
 /** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
@@ -461,6 +495,95 @@ export const QUESTS: Quest[] = [
         requiredCount: 10,
         requiredCountRandom: { min: 4, max: 10 },
         dropZoneIdPrefix: "gludin_village",
+      },
+    ],
+  },
+  {
+    id: DARK_FIGHTER_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь тёмного эльфа-воина — эффигии кошмара",
+    description:
+      "Гильдия наёмников требует доказательства из окрестностей Floran Village (зоны «Дикий сад» и «Старое каменное кольцо», 15–25 ур.). " +
+      "Случайные количества трофеев и бонус к награде определяются при приёме и отображаются в активном квесте. " +
+      "После сдачи на 20 уровне откроется выбор Palus Knight / Assassin.",
+    level: 18,
+    location: "Floran Village — окрестности",
+    locationLevel: "15–25",
+    requirements: { level: 18 },
+    randomFirstProfBonus: true,
+    rewards: { exp: 22_000, adena: 45_000, coins_silver: 3 },
+    questDrops: [
+      {
+        mobName: "Lesser Dark Horror",
+        itemId: "quest_defelf_fprof_lesser_cinder",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Shade Horror",
+        itemId: "quest_defelf_fprof_shade_hook",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Crypt Horror",
+        itemId: "quest_defelf_fprof_crypt_chain",
+        requiredCount: 12,
+        requiredCountRandom: { min: 5, max: 12 },
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Oblivion Watcher",
+        itemId: "quest_defelf_fprof_oblivion_tag",
+        requiredCount: 10,
+        requiredCountRandom: { min: 4, max: 10 },
+        dropZoneIdPrefix: "floran_village",
+      },
+    ],
+  },
+  {
+    id: DARK_MYSTIC_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь тёмного эльфа-мага — знаки стихий",
+    description:
+      "Гильдия тёмной магии поручает собрать конденсаты сил в Floran Village. Число каждого компонента и дополнительная награда выпадают при приёме. " +
+      "После сдачи на 20 уровне доступны Dark Wizard / Shillien Oracle.",
+    level: 18,
+    location: "Floran Village — окрестности",
+    locationLevel: "15–25",
+    requirements: { level: 18 },
+    randomFirstProfBonus: true,
+    rewards: { exp: 22_000, adena: 45_000, coins_silver: 3 },
+    questDrops: [
+      {
+        mobName: "Will-O-Wisp",
+        itemId: "quest_defelf_mprof_wisp_husk",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Mana Seeker",
+        itemId: "quest_defelf_mprof_mana_splinter",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Scarlet Salamander",
+        itemId: "quest_defelf_mprof_ember_scale",
+        requiredCount: 12,
+        requiredCountRandom: { min: 5, max: 12 },
+        dropZoneIdPrefix: "floran_village",
+      },
+      {
+        mobName: "Undine",
+        itemId: "quest_defelf_mprof_undine_drop",
+        requiredCount: 10,
+        requiredCountRandom: { min: 4, max: 10 },
+        dropZoneIdPrefix: "floran_village",
       },
     ],
   },
