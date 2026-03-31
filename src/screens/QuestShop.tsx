@@ -126,6 +126,26 @@ const QUEST_SHOP_ITEM_MAPPING: Record<number, string> = {
   // Accessories
   10004: "quest_belt",
   10005: "quest_cloak",
+  101201: "tattoo_magic_c",
+  101202: "tattoo_magic_b",
+  101203: "tattoo_magic_a",
+  101204: "tattoo_magic_s",
+  101205: "tattoo_physical_c",
+  101206: "tattoo_physical_b",
+  101207: "tattoo_physical_a",
+  101208: "tattoo_physical_s",
+  101209: "tattoo_defense_c",
+  101210: "tattoo_defense_b",
+  101211: "tattoo_defense_a",
+  101212: "tattoo_defense_s",
+  101213: "quest_belt_c",
+  101214: "quest_belt_b",
+  101215: "quest_belt_a",
+  101216: "quest_belt_s",
+  101217: "quest_cloak_c",
+  101218: "quest_cloak_b",
+  101219: "quest_cloak_a",
+  101220: "quest_cloak_s",
   // Enchant Scrolls (blessed)
   10010: "blessed_scroll_enchant_weapon_grade_d",
   10011: "blessed_scroll_enchant_armor_grade_d",
@@ -211,8 +231,11 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       return true;
     }
     if (selectedCategory === "items") {
-      // Тату та аксесуари (belt, cloak) - всі S-grade, не фільтруємо по грейду
-      return item.type === "tattoo" || (item.type === "armor" && (item.category === "belt" || item.category === "cloak"));
+      const isQuestItem =
+        item.type === "tattoo" ||
+        (item.type === "armor" && (item.category === "belt" || item.category === "cloak"));
+      if (!isQuestItem) return false;
+      return item.grade === selectedGrade;
     }
     if (selectedCategory === "enchant_scrolls") {
       if (item.category !== "enchant_scroll") return false;
@@ -515,8 +538,8 @@ export default function QuestShop({ navigate }: QuestShopProps) {
           </button>
         </div>
 
-        {/* Фільтри по грейдах (для всіх категорій) */}
-        {(selectedCategory === "weapons" || selectedCategory === "sets" || selectedCategory === "enchant_scrolls") && (
+        {/* Фільтри по грейдах (включно з тату/пояс/плащ у «Ітеми») */}
+        {(selectedCategory === "weapons" || selectedCategory === "sets" || selectedCategory === "items" || selectedCategory === "enchant_scrolls") && (
           <div className="flex gap-2 mt-2">
             {["D", "C", "B", "A", "S"].map((grade) => {
               // Кольори для кожного грейду
