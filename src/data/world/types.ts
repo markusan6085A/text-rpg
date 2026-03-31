@@ -36,6 +36,8 @@ export interface Mob {
   aggressiveGroup?: string; // Група агресивних мобів (якщо вказано, всі моби з цією групою на сторінці атакують одночасно)
   /** Патруль: на локації (з 4-ї сторінки) періодично б'є магією; у бої — фіз. урон (без aggressiveGroup) */
   aggressivePatrol?: boolean;
+  /** Явний тип удару в бою; без поля — за евристикою mAtk vs pAtk (див. resolveMobAttackKind) */
+  attackType?: "physical" | "magic";
 }
 
 // Окрестность / локація

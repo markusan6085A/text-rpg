@@ -22,6 +22,7 @@ import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 import { writeDeathGate } from "../../../utils/deathGate";
 import { displayMobName } from "../../../utils/worldDisplay";
 import { isChampionMob } from "../../../utils/mobs/isChampionMob";
+import { resolveMobAttackKind } from "../../../utils/mobs/resolveMobAttackKind";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -115,10 +116,8 @@ export const createProcessMobAttack =
     // Обчислюємо захист щитом (якщо надітий щит)
     const shieldDefense = getTotalShieldDefense(hero, heroStats);
     
-    // Патрульні моби в бою завжди б'ють фізикою (на локації — магія, див. Location.tsx)
-    const isPatrolMob = (state.mob as { aggressivePatrol?: boolean }).aggressivePatrol === true;
-    const isPhysicalAttack =
-      isPatrolMob || (state.mob as { attackType?: string }).attackType !== "magic";
+    const attackKind = resolveMobAttackKind(state.mob);
+    const isPhysicalAttack = attackKind === "physical";
     
     // Застосовуємо debuff до статів моба (зменшення pAtk/mAtk тощо)
     // Fallback без hp (як в baseAttack) — узгоджено з балансом
@@ -130,8 +129,14 @@ export const createProcessMobAttack =
       mDef: state.mob.mDef ?? Math.round(mobLevel * 10),
     };
     const mobStatsWithDebuffs = applyBuffsToStats(mobBaseStats, cleanedMobBuffs);
-    const mobPAtk = Math.max(1, mobStatsWithDebuffs.pAtk ?? mobBaseStats.pAtk);
-    const mobMAtk = Math.max(1, mobStatsWithDebuffs.mAtk ?? mobBaseStats.mAtk);
+    let mobPAtk = Math.max(1, mobStatsWithDebuffs.pAtk ?? mobBaseStats.pAtk);
+    let mobMAtk = Math.max(1, mobStatsWithDebuffs.mAtk ?? mobBaseStats.mAtk);
+    if (isPhysicalAttack && mobPAtk <= 1) {
+      mobPAtk = Math.max(mobPAtk, Math.round(mobLevel * 20));
+    }
+    if (!isPhysicalAttack && mobMAtk <= 1) {
+      mobMAtk = Math.max(mobMAtk, Math.round(mobLevel * 15));
+    }
     
     // Базовий урон для звичайних мобів
     // Для фізичних атак використовуємо pAtk, для магічних - mAtk
@@ -259,17 +264,22 @@ export const createProcessMobAttack =
         if (aggressiveMobData.mobHP <= 0) continue;
         
         const aggressiveMob = aggressiveMobData.mob;
-        const aggressiveIsPhysicalAttack =
-          (aggressiveMob as { aggressivePatrol?: boolean }).aggressivePatrol === true ||
-          (aggressiveMob as { attackType?: string }).attackType !== "magic";
-        
-        // Обчислюємо стати агресивного моба
+        const aggLevel = aggressiveMob.level ?? 1;
+        const aggKind = resolveMobAttackKind(aggressiveMob);
+        const aggressiveIsPhysicalAttack = aggKind === "physical";
+
         const aggressiveMobBaseStats = {
-          pAtk: aggressiveMob.pAtk ?? (aggressiveMob.level ?? 1) * 20,
+          pAtk: aggressiveMob.pAtk ?? aggLevel * 20,
           mAtk: aggressiveMob.mAtk ?? 0,
         };
-        const aggressiveMobPAtk = aggressiveMobBaseStats.pAtk;
-        const aggressiveMobMAtk = aggressiveMobBaseStats.mAtk;
+        let aggressiveMobPAtk = Math.max(1, aggressiveMobBaseStats.pAtk);
+        let aggressiveMobMAtk = Math.max(1, aggressiveMobBaseStats.mAtk);
+        if (aggressiveIsPhysicalAttack && aggressiveMobPAtk <= 1) {
+          aggressiveMobPAtk = Math.max(aggressiveMobPAtk, Math.round(aggLevel * 20));
+        }
+        if (!aggressiveIsPhysicalAttack && aggressiveMobMAtk <= 1) {
+          aggressiveMobMAtk = Math.max(aggressiveMobMAtk, Math.round(aggLevel * 15));
+        }
         
         // Базовий урон для агресивного моба (80% від pAtk/mAtk)
         let aggressiveBase = aggressiveIsPhysicalAttack
