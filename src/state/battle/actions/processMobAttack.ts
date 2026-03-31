@@ -22,7 +22,6 @@ import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 import { writeDeathGate } from "../../../utils/deathGate";
 import { displayMobName } from "../../../utils/worldDisplay";
 import { isChampionMob } from "../../../utils/mobs/isChampionMob";
-import { resolveMobAttackKind } from "../../../utils/mobs/resolveMobAttackKind";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -30,6 +29,13 @@ type Setter = (
 ) => void;
 
 const scheduleNext = (now: number) => now + 1000 + Math.random() * 5000; // 1-6 seconds
+
+/** Захист цілі: raw * mobAtk / (mobAtk + def) — ближче до очікуваного «~atk при def < atk», ніж 100/(100+def) */
+function applyMobToHeroMitigation(raw: number, mobAtkStat: number, heroDefense: number): number {
+  const atk = Math.max(1, mobAtkStat);
+  const def = Math.max(0, heroDefense);
+  return Math.max(1, Math.round((raw * atk) / (atk + def)));
+}
 
 export const createProcessMobAttack =
   (set: Setter, get: () => BattleState): BattleState["processMobAttack"] =>
@@ -116,11 +122,16 @@ export const createProcessMobAttack =
     // Обчислюємо захист щитом (якщо надітий щит)
     const shieldDefense = getTotalShieldDefense(hero, heroStats);
     
-    const attackKind = resolveMobAttackKind(state.mob);
-    const isPhysicalAttack = attackKind === "physical";
-    
+    // Кожен удар: 50% фіз / 50% маг (якщо задано attackType — лишається явний вибір)
+    const mobExplicitKind = (state.mob as { attackType?: string }).attackType;
+    const isPhysicalAttack =
+      mobExplicitKind === "physical"
+        ? true
+        : mobExplicitKind === "magic"
+          ? false
+          : Math.random() < 0.5;
+
     // Застосовуємо debuff до статів моба (зменшення pAtk/mAtk тощо)
-    // Fallback без hp (як в baseAttack) — узгоджено з балансом
     const mobLevel = state.mob.level ?? 1;
     const mobBaseStats = {
       pAtk: state.mob.pAtk ?? mobLevel * 20,
@@ -131,19 +142,12 @@ export const createProcessMobAttack =
     const mobStatsWithDebuffs = applyBuffsToStats(mobBaseStats, cleanedMobBuffs);
     let mobPAtk = Math.max(1, mobStatsWithDebuffs.pAtk ?? mobBaseStats.pAtk);
     let mobMAtk = Math.max(1, mobStatsWithDebuffs.mAtk ?? mobBaseStats.mAtk);
-    if (isPhysicalAttack && mobPAtk <= 1) {
-      mobPAtk = Math.max(mobPAtk, Math.round(mobLevel * 20));
-    }
-    if (!isPhysicalAttack && mobMAtk <= 1) {
-      mobMAtk = Math.max(mobMAtk, Math.round(mobLevel * 15));
-    }
-    
-    // Базовий урон для звичайних мобів
-    // Для фізичних атак використовуємо pAtk, для магічних - mAtk
-    let base = isPhysicalAttack 
-      ? Math.max(5, mobPAtk * 0.8) // 80% від pAtk моба
-      : Math.max(5, mobMAtk * 0.8); // 80% від mAtk моба
-    
+    if (mobPAtk <= 1) mobPAtk = Math.round(mobLevel * 20);
+    if (mobMAtk <= 1) mobMAtk = Math.round(mobLevel * 15);
+
+    // База — відображуваний pAtk/mAtk цього удару (без 0.8), далі variance та мітигація atk/(atk+def)
+    let base = isPhysicalAttack ? Math.max(5, mobPAtk) : Math.max(5, mobMAtk);
+
     // Для рейд-босів використовуємо AI профіль з множником урону
     const isRaidBoss = (state.mob as any).isRaidBoss === true;
     if (isRaidBoss) {
@@ -152,38 +156,31 @@ export const createProcessMobAttack =
       if (aiProfileId) {
         const aiProfile = getRaidBossAIProfile(aiProfileId);
         if (aiProfile) {
-          // Визначаємо поточну фазу на основі HP%
           const currentHpPercent = (state.mobHP / state.mob.hp) * 100;
           const currentPhase = aiProfile.phases.find(
             (phase) => currentHpPercent <= phase.fromHpPercent && currentHpPercent > phase.toHpPercent
           );
-          
+
           if (currentPhase) {
-            // Застосовуємо множник урону з фази
             base = base * currentPhase.damageMultiplier;
           } else {
-            // Якщо фаза не знайдена, використовуємо множник з першої фази
             base = base * (aiProfile.phases[0]?.damageMultiplier ?? 1.0);
           }
         }
       }
-      // Для рейд-босів також збільшуємо базовий урон (450 замість 200)
-      // Якщо зараз б'є по 200, а потрібно 450, то множник = 450/200 = 2.25
-      // Але враховуючи, що вже є damageMultiplier, просто збільшимо базовий урон
       base = base * 2.25;
     } else if (isChampionMob(state.mob)) {
       base = base * 4;
     }
-    
+
     const variance = 0.25;
     const raw = base * (1 - variance + Math.random() * variance * 2);
-    
-    // Застосовуємо захист (правильна формула Lineage 2 стиль)
-    // Для фізичних атак використовуємо pDef, для магічних - mDef
-    // Формула: damage = raw * (100 / (100 + defense))
-    // Це забезпечує правильне масштабування захисту
+
     const defense = isPhysicalAttack ? pDef : mDef;
-    let mitigated = invulnerable ? 0 : Math.max(1, Math.round(raw * (100 / (100 + defense))));
+    const atkForMitigation = isPhysicalAttack ? mobPAtk : mobMAtk;
+    let mitigated = invulnerable
+      ? 0
+      : applyMobToHeroMitigation(raw, atkForMitigation, defense);
     
     // Перевіряємо блок щита (якщо надітий щит)
     const shieldBlockRate = heroStats.shieldBlockRate ?? 0;
@@ -197,12 +194,12 @@ export const createProcessMobAttack =
         mitigated = Math.max(1, mitigated - shieldDefense);
         
         if (import.meta.env.DEV) {
+          const preBlock = applyMobToHeroMitigation(raw, atkForMitigation, defense);
           console.log(`[Shield Block] Blocked!`, {
             rawDamage: raw,
-            afterPDef: Math.round(raw * (100 / (100 + pDef))),
+            afterMitigation: preBlock,
             shieldBlockRate,
             shieldDefense,
-            damageBeforeBlock: Math.round(raw * (100 / (100 + pDef))),
             finalDamage: mitigated,
           });
         }
@@ -214,11 +211,12 @@ export const createProcessMobAttack =
       }
     }
 
-    let mobCritChampion = false;
-    if (isChampionMob(state.mob) && !invulnerable && mitigated > 0) {
-      if (Math.random() < 0.6) {
+    let mobCritFromMob = false;
+    if (!invulnerable && mitigated > 0) {
+      const critChance = isRaidBoss ? 0.2 : 0.4;
+      if (Math.random() < critChance) {
         mitigated = Math.max(1, Math.round(mitigated * 2));
-        mobCritChampion = true;
+        mobCritFromMob = true;
       }
     }
 
@@ -265,8 +263,13 @@ export const createProcessMobAttack =
         
         const aggressiveMob = aggressiveMobData.mob;
         const aggLevel = aggressiveMob.level ?? 1;
-        const aggKind = resolveMobAttackKind(aggressiveMob);
-        const aggressiveIsPhysicalAttack = aggKind === "physical";
+        const aggExplicit = (aggressiveMob as { attackType?: string }).attackType;
+        const aggressiveIsPhysicalAttack =
+          aggExplicit === "physical"
+            ? true
+            : aggExplicit === "magic"
+              ? false
+              : Math.random() < 0.5;
 
         const aggressiveMobBaseStats = {
           pAtk: aggressiveMob.pAtk ?? aggLevel * 20,
@@ -274,27 +277,28 @@ export const createProcessMobAttack =
         };
         let aggressiveMobPAtk = Math.max(1, aggressiveMobBaseStats.pAtk);
         let aggressiveMobMAtk = Math.max(1, aggressiveMobBaseStats.mAtk);
-        if (aggressiveIsPhysicalAttack && aggressiveMobPAtk <= 1) {
-          aggressiveMobPAtk = Math.max(aggressiveMobPAtk, Math.round(aggLevel * 20));
-        }
-        if (!aggressiveIsPhysicalAttack && aggressiveMobMAtk <= 1) {
-          aggressiveMobMAtk = Math.max(aggressiveMobMAtk, Math.round(aggLevel * 15));
-        }
-        
-        // Базовий урон для агресивного моба (80% від pAtk/mAtk)
+        if (aggressiveMobPAtk <= 1) aggressiveMobPAtk = Math.round(aggLevel * 20);
+        if (aggressiveMobMAtk <= 1) aggressiveMobMAtk = Math.round(aggLevel * 15);
+
         let aggressiveBase = aggressiveIsPhysicalAttack
-          ? Math.max(5, aggressiveMobPAtk * 0.8)
-          : Math.max(5, aggressiveMobMAtk * 0.8);
+          ? Math.max(5, aggressiveMobPAtk)
+          : Math.max(5, aggressiveMobMAtk);
         if (isChampionMob(aggressiveMob)) {
           aggressiveBase *= 4;
         }
-        
+        const aggIsRb = (aggressiveMob as any).isRaidBoss === true;
+        if (aggIsRb) {
+          aggressiveBase *= 2.25;
+        }
+
         const aggressiveVariance = 0.25;
         const aggressiveRaw = aggressiveBase * (1 - aggressiveVariance + Math.random() * aggressiveVariance * 2);
-        
-        // Застосовуємо захист
+
         const aggressiveDefense = aggressiveIsPhysicalAttack ? pDef : mDef;
-        let aggressiveMitigated = invulnerable ? 0 : Math.max(1, Math.round(aggressiveRaw * (100 / (100 + aggressiveDefense))));
+        const aggAtkForRatio = aggressiveIsPhysicalAttack ? aggressiveMobPAtk : aggressiveMobMAtk;
+        let aggressiveMitigated = invulnerable
+          ? 0
+          : applyMobToHeroMitigation(aggressiveRaw, aggAtkForRatio, aggressiveDefense);
         
         // Перевіряємо блок щита (з меншою ймовірністю для агресивних мобів)
         let aggressiveShieldBlocked = false;
@@ -307,8 +311,9 @@ export const createProcessMobAttack =
         }
 
         let aggressiveCrit = false;
-        if (isChampionMob(aggressiveMob) && !invulnerable && aggressiveMitigated > 0) {
-          if (Math.random() < 0.6) {
+        if (!invulnerable && aggressiveMitigated > 0) {
+          const aggCrit = aggIsRb ? 0.2 : 0.4;
+          if (Math.random() < aggCrit) {
             aggressiveMitigated = Math.max(1, Math.round(aggressiveMitigated * 2));
             aggressiveCrit = true;
           }
@@ -375,7 +380,7 @@ export const createProcessMobAttack =
       if (heroDamage === 0) {
         lines.push(`${displayMobName(state.mob.name)} попал, но не нанес урона.`);
       } else {
-        const critTag = mobCritChampion ? " (крит!)" : "";
+        const critTag = mobCritFromMob ? " (крит!)" : "";
         lines.push(`${displayMobName(state.mob.name)} наносит вам ${Math.round(heroDamage)} урона${critTag}.`);
       }
     }
