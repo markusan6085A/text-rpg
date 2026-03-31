@@ -28,5 +28,5 @@ export function mobMatchesQuestDropName(mobName: string, questDropMobName: strin
   const right = normalizeQuestMobNameToken(questDropMobName);
   if (!left || !right) return false;
   if (left === right) return true;
-  return left.localeCompare(right, "en", { sensitivity: "accent" }) === 0;
+  return left.localeCompare(right, "en", { sensitivity: "base" }) === 0;
 }
