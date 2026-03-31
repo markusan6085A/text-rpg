@@ -15,7 +15,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Helm (Quest Shop)",
     grade: "D",
     armorType: "light",
-    stats: { pDef: 35, mDef: 18 },
+    stats: { pDef: 70, mDef: 36 },
   },
   shadow_brigandine: {
     id: "shadow_brigandine",
@@ -26,7 +26,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Brigandine (Quest Shop)",
     grade: "D",
     armorType: "light",
-    stats: { pDef: 73, mDef: 22 },
+    stats: { pDef: 146, mDef: 44 },
   },
   shadow_gloves: {
     id: "shadow_gloves",
@@ -37,7 +37,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Gloves (Quest Shop)",
     grade: "D",
     armorType: "light",
-    stats: { pDef: 22, mDef: 15 },
+    stats: { pDef: 44, mDef: 30 },
   },
   shadow_boots: {
     id: "shadow_boots",
@@ -48,7 +48,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Boots (Quest Shop)",
     grade: "D",
     armorType: "light",
-    stats: { pDef: 24, mDef: 15 },
+    stats: { pDef: 48, mDef: 30 },
   },
   // Shadow Oath Set (D-grade Heavy Armor)
   shadow_oath_helm: {
@@ -60,7 +60,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Helm (Quest Shop)",
     grade: "D",
     armorType: "heavy",
-    stats: { pDef: 37, mDef: 6 },
+    stats: { pDef: 74, mDef: 12 },
   },
   shadow_oath_armor: {
     id: "shadow_oath_armor",
@@ -71,7 +71,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Armor (Quest Shop)",
     grade: "D",
     armorType: "heavy",
-    stats: { pDef: 95, mDef: 12 },
+    stats: { pDef: 190, mDef: 24 },
   },
   shadow_oath_gauntlets: {
     id: "shadow_oath_gauntlets",
@@ -82,7 +82,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Gauntlets (Quest Shop)",
     grade: "D",
     armorType: "heavy",
-    stats: { pDef: 25, mDef: 5 },
+    stats: { pDef: 50, mDef: 10 },
   },
   shadow_oath_sabaton: {
     id: "shadow_oath_sabaton",
@@ -93,7 +93,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Shadow Oath Sabaton (Quest Shop)",
     grade: "D",
     armorType: "heavy",
-    stats: { pDef: 25, mDef: 5 },
+    stats: { pDef: 50, mDef: 10 },
   },
   // Monster Shield (D-grade)
   monster_shield: {
@@ -104,7 +104,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/monster.jpg",
     description: "Monster Shield (Quest Shop)",
     grade: "D",
-    stats: { sDef: 120, pDef: 90, shieldBlockRate: 25 },
+    stats: { sDef: 240, pDef: 180, shieldBlockRate: 25 },
   },
   // ===== D-GRADE SHIELDS (Магазин вещей) =====
   bronze_shield: {
@@ -147,7 +147,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Шолом клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
-    stats: { pDef: 22, mDef: 40 },
+    stats: { pDef: 44, mDef: 80 },
   },
   clan_oath_aketon: {
     id: "clan_oath_aketon",
@@ -158,7 +158,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Акетон клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
-    stats: { pDef: 49, mDef: 50 },
+    stats: { pDef: 98, mDef: 100 },
   },
   clan_oath_padded_gloves_robe: {
     id: "clan_oath_padded_gloves_robe",
@@ -169,7 +169,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Підбиті рукавиці клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
-    stats: { pDef: 24, mDef: 36 },
+    stats: { pDef: 48, mDef: 72 },
   },
   clan_oath_sandals_robe: {
     id: "clan_oath_sandals_robe",
@@ -180,7 +180,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     description: "Сандалі клятви D-grade (Oath Set).",
     grade: "D",
     armorType: "robe",
-    stats: { pDef: 20, mDef: 36 },
+    stats: { pDef: 40, mDef: 72 },
   },
   // D-Grade
   soulshot_d: {

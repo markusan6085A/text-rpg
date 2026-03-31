@@ -137,7 +137,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "clan_oath_padded_gloves_robe", slot: "gloves" },
       { itemId: "clan_oath_sandals_robe", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { MEN: 1, WIT: 1, INT: 1 },
+    },
   },
 
   // ===== D-GRADE СЕТ SHADOW (Light Armor Set) =====
@@ -151,7 +153,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "shadow_gloves", slot: "gloves" },
       { itemId: "shadow_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 1, DEX: 1, MEN: 1 },
+    },
   },
 
   // ===== D-GRADE СЕТ SHADOW OATH (Heavy Armor Set) =====
@@ -165,7 +169,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "shadow_oath_gauntlets", slot: "gloves" },
       { itemId: "shadow_oath_sabaton", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 1, CON: 1, MEN: 1 },
+    },
   },
 
   // ===== C-GRADE СЕТ DEMON'S (Magic Armor Set - Robe) =====
@@ -231,7 +237,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "divine_gloves", slot: "gloves" },
       { itemId: "divine_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { INT: 1, MEN: 1, CON: 1 },
+    },
   },
 
   // ===== C-GRADE СЕТ DRAKE LEATHER (Light Armor Set) =====
@@ -245,7 +253,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "drake_leather_gloves", slot: "gloves" },
       { itemId: "drake_leather_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 3, DEX: 2, CON: 1 },
+    },
   },
 
   // ===== B-GRADE СЕТ AVADON (Magic Armor Set - Robe) =====
@@ -276,7 +286,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "doom_gloves", slot: "gloves" },
       { itemId: "doom_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { CON: 2, INT: 1, WIT: 3, MEN: 3 },
+    },
   },
 
   // ===== B-GRADE СЕТ BLUE WOLF (Heavy Armor Set) =====
@@ -307,7 +319,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "bound_blue_wolf_gloves", slot: "gloves" },
       { itemId: "bound_blue_wolf_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 3, DEX: 1, CON: 3 },
+    },
   },
 
   // ===== B-GRADE СЕТ ZUBEI'S (Heavy Armor Set) =====
@@ -322,7 +336,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "zubeis_gauntlets", slot: "gloves" },
       { itemId: "zubeis_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 3, DEX: 1, CON: 3 },
+    },
   },
 
   // ===== B-GRADE СЕТ DOOM OF FORTUNE (Light Armor Set) =====
@@ -401,7 +417,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "majestic_heavy_gauntlets", slot: "gloves" },
       { itemId: "majestic_heavy_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 4, DEX: 3, CON: 6, MEN: 3 },
+    },
   },
 
   // ===== A-GRADE СЕТ NIGHTMARE LIGHT (Light Armor Set - Quest Shop) =====
@@ -415,7 +433,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "nightmare_light_gauntlets", slot: "gloves" },
       { itemId: "nightmare_light_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 6, DEX: 5, CON: 3, MEN: 2 },
+    },
   },
 
   // ===== A-GRADE СЕТ BOUND DARK CRYSTAL (Magic Armor Set - Robe - Quest Shop) =====
@@ -429,7 +449,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "bound_dark_crystal_gloves", slot: "gloves" },
       { itemId: "bound_dark_crystal_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { CON: 2, WIT: 4, INT: 3, MEN: 3 },
+    },
   },
 
   // ===== S-GRADE СЕТ MAJOR ARCANA (Magic Armor Set - Robe) =====
@@ -493,7 +515,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "moirai_gloves", slot: "gloves" },
       { itemId: "moirai_shoes", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { CON: 5, WIT: 7, INT: 5, MEN: 5 },
+    },
   },
 
   // ===== S-GRADE СЕТ VESPER (Heavy Armor Set - Quest Shop) =====
@@ -508,7 +532,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "vesper_gauntlets", slot: "gloves" },
       { itemId: "vesper_boots", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 5, MEN: 4, DEX: 5, CON: 10 },
+    },
   },
 
   // ===== S-GRADE СЕТ VESPER LEATHER (Light Armor Set - Quest Shop) =====
@@ -523,7 +549,9 @@ export const ARMOR_SETS: ArmorSet[] = [
       { itemId: "vesper_leather_gloves_quest", slot: "gloves" },
       { itemId: "vesper_leather_boots_quest", slot: "boots" },
     ],
-    bonuses: {},
+    bonuses: {
+      setStats: { STR: 9, DEX: 7, CON: 5, MEN: 4 },
+    },
   },
 ];
 

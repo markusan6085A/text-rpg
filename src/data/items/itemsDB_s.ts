@@ -177,7 +177,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Circlet (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
-    stats: { pDef: 55, mDef: 100 },
+    stats: { pDef: 110, mDef: 200 },
   },
   moirai_tunic: {
     id: "moirai_tunic",
@@ -188,7 +188,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Tunic (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
-    stats: { pDef: 123, mDef: 125 },
+    stats: { pDef: 246, mDef: 250 },
   },
   moirai_stockings: {
     id: "moirai_stockings",
@@ -199,7 +199,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Stockings (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
-    stats: { pDef: 75, mDef: 105 },
+    stats: { pDef: 150, mDef: 210 },
   },
   moirai_gloves: {
     id: "moirai_gloves",
@@ -210,7 +210,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Gloves (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
-    stats: { pDef: 60, mDef: 90 },
+    stats: { pDef: 120, mDef: 180 },
   },
   moirai_shoes: {
     id: "moirai_shoes",
@@ -221,7 +221,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Moirai Shoes (S-grade Quest Shop)",
     grade: "S",
     armorType: "robe",
-    stats: { pDef: 50, mDef: 90 },
+    stats: { pDef: 100, mDef: 180 },
   },
 
   
@@ -293,7 +293,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Helmet (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
-    stats: { pDef: 93, mDef: 15 },
+    stats: { pDef: 186, mDef: 30 },
   },
   vesper_breastplate: {
     id: "vesper_breastplate",
@@ -304,7 +304,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Breastplate (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
-    stats: { pDef: 238, mDef: 30 },
+    stats: { pDef: 476, mDef: 60 },
   },
   vesper_gaiters: {
     id: "vesper_gaiters",
@@ -315,7 +315,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Gaiters (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
-    stats: { pDef: 153, mDef: 25 },
+    stats: { pDef: 306, mDef: 50 },
   },
   vesper_gauntlets: {
     id: "vesper_gauntlets",
@@ -326,7 +326,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Gauntlets (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
-    stats: { pDef: 63, mDef: 13 },
+    stats: { pDef: 126, mDef: 26 },
   },
   vesper_boots: {
     id: "vesper_boots",
@@ -337,7 +337,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Boots (S-grade Quest Shop)",
     grade: "S",
     armorType: "heavy",
-    stats: { pDef: 63, mDef: 13 },
+    stats: { pDef: 126, mDef: 26 },
   },
 
   
@@ -351,7 +351,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Helmet (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
-    stats: { pDef: 88, mDef: 45 },
+    stats: { pDef: 176, mDef: 90 },
   },
   vesper_leather_breastplate_quest: {
     id: "vesper_leather_breastplate_quest",
@@ -362,7 +362,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Breastplate (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
-    stats: { pDef: 183, mDef: 55 },
+    stats: { pDef: 366, mDef: 110 },
   },
   vesper_leather_leggings_quest: {
     id: "vesper_leather_leggings_quest",
@@ -373,7 +373,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Leggings (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
-    stats: { pDef: 115, mDef: 45 },
+    stats: { pDef: 230, mDef: 90 },
   },
   vesper_leather_gloves_quest: {
     id: "vesper_leather_gloves_quest",
@@ -384,7 +384,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Gloves (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
-    stats: { pDef: 55, mDef: 38 },
+    stats: { pDef: 110, mDef: 76 },
   },
   vesper_leather_boots_quest: {
     id: "vesper_leather_boots_quest",
@@ -395,7 +395,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     description: "Vesper Leather Boots (S-grade Quest Shop)",
     grade: "S",
     armorType: "light",
-    stats: { pDef: 60, mDef: 38 },
+    stats: { pDef: 120, mDef: 76 },
   },
 
   
@@ -408,7 +408,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_s/Vesper_Shield.jpg",
     description: "Vesper Shield (S-grade Quest Shop)",
     grade: "S",
-    stats: { sDef: 300, pDef: 225, shieldBlockRate: 32 },
+    stats: { sDef: 600, pDef: 450, shieldBlockRate: 32 },
   },
 
   // S-Grade

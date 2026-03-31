@@ -167,7 +167,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Majestic Circlet (A-grade Quest Shop)",
     grade: "A",
     armorType: "heavy",
-    stats: { pDef: 74, mDef: 12 },
+    stats: { pDef: 148, mDef: 24 },
   },
   majestic_heavy_plate_armor: {
     id: "majestic_heavy_plate_armor",
@@ -178,7 +178,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Majestic Plate Armor (A-grade Quest Shop)",
     grade: "A",
     armorType: "heavy",
-    stats: { pDef: 190, mDef: 24 },
+    stats: { pDef: 380, mDef: 48 },
   },
   majestic_heavy_gauntlets: {
     id: "majestic_heavy_gauntlets",
@@ -189,7 +189,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Majestic Gauntlets (A-grade Quest Shop)",
     grade: "A",
     armorType: "heavy",
-    stats: { pDef: 50, mDef: 10 },
+    stats: { pDef: 100, mDef: 20 },
   },
   majestic_heavy_boots: {
     id: "majestic_heavy_boots",
@@ -200,7 +200,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Majestic Boots (A-grade Quest Shop)",
     grade: "A",
     armorType: "heavy",
-    stats: { pDef: 50, mDef: 10 },
+    stats: { pDef: 100, mDef: 20 },
   },
 
   
@@ -214,7 +214,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Helm of Nightmare (A-grade Quest Shop)",
     grade: "A",
     armorType: "light",
-    stats: { pDef: 70, mDef: 36 },
+    stats: { pDef: 140, mDef: 72 },
   },
   nightmare_light_leather_armor: {
     id: "nightmare_light_leather_armor",
@@ -225,7 +225,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Leather Armor of Nightmare (A-grade Quest Shop)",
     grade: "A",
     armorType: "light",
-    stats: { pDef: 146, mDef: 44 },
+    stats: { pDef: 292, mDef: 88 },
   },
   nightmare_light_gauntlets: {
     id: "nightmare_light_gauntlets",
@@ -236,7 +236,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Gauntlets of Nightmare (A-grade Quest Shop)",
     grade: "A",
     armorType: "light",
-    stats: { pDef: 44, mDef: 30 },
+    stats: { pDef: 88, mDef: 60 },
   },
   nightmare_light_boots: {
     id: "nightmare_light_boots",
@@ -247,7 +247,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Boots of Nightmare (A-grade Quest Shop)",
     grade: "A",
     armorType: "light",
-    stats: { pDef: 48, mDef: 30 },
+    stats: { pDef: 96, mDef: 60 },
   },
 
   
@@ -261,7 +261,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Bound Dark Crystal Helmet (A-grade Quest Shop)",
     grade: "A",
     armorType: "robe",
-    stats: { pDef: 44, mDef: 80 },
+    stats: { pDef: 88, mDef: 160 },
   },
   bound_dark_crystal_robe: {
     id: "bound_dark_crystal_robe",
@@ -272,7 +272,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Bound Dark Crystal Robe (A-grade Quest Shop)",
     grade: "A",
     armorType: "robe",
-    stats: { pDef: 98, mDef: 100 },
+    stats: { pDef: 196, mDef: 200 },
   },
   bound_dark_crystal_gloves: {
     id: "bound_dark_crystal_gloves",
@@ -283,7 +283,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Bound Dark Crystal Gloves (A-grade Quest Shop)",
     grade: "A",
     armorType: "robe",
-    stats: { pDef: 48, mDef: 72 },
+    stats: { pDef: 96, mDef: 144 },
   },
   bound_dark_crystal_boots: {
     id: "bound_dark_crystal_boots",
@@ -294,7 +294,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     description: "Bound Dark Crystal Boots (A-grade Quest Shop)",
     grade: "A",
     armorType: "robe",
-    stats: { pDef: 40, mDef: 72 },
+    stats: { pDef: 80, mDef: 144 },
   },
 
   
@@ -307,7 +307,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_а/monster.jpg",
     description: "Monster Shield (A-grade Quest Shop)",
     grade: "A",
-    stats: { sDef: 240, pDef: 180, shieldBlockRate: 30 },
+    stats: { sDef: 480, pDef: 360, shieldBlockRate: 30 },
   },
 
   

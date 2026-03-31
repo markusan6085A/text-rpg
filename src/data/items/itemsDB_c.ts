@@ -183,7 +183,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Divine Helmet (Quest Shop)",
     grade: "C",
     armorType: "robe",
-    stats: { pDef: 33, mDef: 60 },
+    stats: { pDef: 66, mDef: 120 },
   },
   divine_tunic: {
     id: "divine_tunic",
@@ -194,7 +194,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Divine Tunic (Quest Shop)",
     grade: "C",
     armorType: "robe",
-    stats: { pDef: 74, mDef: 75 },
+    stats: { pDef: 148, mDef: 150 },
   },
   divine_stockings: {
     id: "divine_stockings",
@@ -205,7 +205,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Divine Stockings (Quest Shop)",
     grade: "C",
     armorType: "robe",
-    stats: { pDef: 45, mDef: 63 },
+    stats: { pDef: 90, mDef: 126 },
   },
   divine_gloves: {
     id: "divine_gloves",
@@ -216,7 +216,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Divine Gloves (Quest Shop)",
     grade: "C",
     armorType: "robe",
-    stats: { pDef: 36, mDef: 54 },
+    stats: { pDef: 72, mDef: 108 },
   },
   divine_boots: {
     id: "divine_boots",
@@ -227,7 +227,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Divine Boots (Quest Shop)",
     grade: "C",
     armorType: "robe",
-    stats: { pDef: 30, mDef: 54 },
+    stats: { pDef: 60, mDef: 108 },
   },
   // Drake Leather Set (C-grade Light Armor) - Quest Shop
   drake_leather_helmet: {
@@ -239,7 +239,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Drake Leather Helmet (Quest Shop)",
     grade: "C",
     armorType: "light",
-    stats: { pDef: 52, mDef: 27 },
+    stats: { pDef: 104, mDef: 54 },
   },
   drake_leather_armor: {
     id: "drake_leather_armor",
@@ -250,7 +250,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Drake Leather Armor (Quest Shop)",
     grade: "C",
     armorType: "light",
-    stats: { pDef: 110, mDef: 33 },
+    stats: { pDef: 220, mDef: 66 },
   },
   drake_leather_gloves: {
     id: "drake_leather_gloves",
@@ -261,7 +261,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Drake Leather Gloves (Quest Shop)",
     grade: "C",
     armorType: "light",
-    stats: { pDef: 33, mDef: 22 },
+    stats: { pDef: 66, mDef: 44 },
   },
   drake_leather_boots: {
     id: "drake_leather_boots",
@@ -272,7 +272,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     description: "Drake Leather Boots (Quest Shop)",
     grade: "C",
     armorType: "light",
-    stats: { pDef: 36, mDef: 22 },
+    stats: { pDef: 72, mDef: 44 },
   },
   // Monster Shield (C-grade) - Quest Shop
   monster_shield_c: {
@@ -283,7 +283,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/monster.jpg",
     description: "Monster Shield C-grade (Quest Shop)",
     grade: "C",
-    stats: { sDef: 180, pDef: 135, shieldBlockRate: 28 },
+    stats: { sDef: 360, pDef: 270, shieldBlockRate: 28 },
   },
   // ===== C-GRADE SHIELDS (Магазин вещей) =====
   composite_shield: {

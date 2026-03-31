@@ -91,7 +91,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Helmet (Quest Shop)",
     grade: "B",
     armorType: "robe",
-    stats: { pDef: 33, mDef: 54 },
+    stats: { pDef: 66, mDef: 108 },
   },
   doom_tunic: {
     id: "doom_tunic",
@@ -102,7 +102,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Tunic of Doom (Quest Shop)",
     grade: "B",
     armorType: "robe",
-    stats: { pDef: 74, mDef: 75 },
+    stats: { pDef: 148, mDef: 150 },
   },
   doom_stockings: {
     id: "doom_stockings",
@@ -113,7 +113,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Stockings of Doom (Quest Shop)",
     grade: "B",
     armorType: "robe",
-    stats: { pDef: 45, mDef: 63 },
+    stats: { pDef: 90, mDef: 126 },
   },
   doom_gloves: {
     id: "doom_gloves",
@@ -124,7 +124,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Gloves (Quest Shop)",
     grade: "B",
     armorType: "robe",
-    stats: { pDef: 36, mDef: 54 },
+    stats: { pDef: 72, mDef: 108 },
   },
   doom_boots: {
     id: "doom_boots",
@@ -135,7 +135,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Doom Boots (Quest Shop)",
     grade: "B",
     armorType: "robe",
-    stats: { pDef: 30, mDef: 54 },
+    stats: { pDef: 60, mDef: 108 },
   },
   // Monster Shield (B-grade) - Quest Shop
   monster_shield_b: {
@@ -146,7 +146,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/arrom_d/monster.jpg",
     description: "Monster Shield B-grade (Quest Shop)",
     grade: "B",
-    stats: { sDef: 240, pDef: 180, shieldBlockRate: 28 },
+    stats: { sDef: 480, pDef: 360, shieldBlockRate: 28 },
   },
   // Blue Wolf Set (B-grade Heavy Armor)
   blue_wolf_helmet: {
@@ -214,7 +214,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Helmet (Quest Shop)",
     grade: "B",
     armorType: "light",
-    stats: { pDef: 52, mDef: 27 },
+    stats: { pDef: 104, mDef: 54 },
   },
   bound_blue_wolf_armor: {
     id: "bound_blue_wolf_armor",
@@ -225,7 +225,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Leather Armor (Quest Shop)",
     grade: "B",
     armorType: "light",
-    stats: { pDef: 110, mDef: 33 },
+    stats: { pDef: 220, mDef: 66 },
   },
   bound_blue_wolf_gloves: {
     id: "bound_blue_wolf_gloves",
@@ -236,7 +236,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Gloves (Quest Shop)",
     grade: "B",
     armorType: "light",
-    stats: { pDef: 33, mDef: 22 },
+    stats: { pDef: 66, mDef: 44 },
   },
   bound_blue_wolf_boots: {
     id: "bound_blue_wolf_boots",
@@ -247,7 +247,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Bound Blue Wolf Boots (Quest Shop)",
     grade: "B",
     armorType: "light",
-    stats: { pDef: 36, mDef: 22 },
+    stats: { pDef: 72, mDef: 44 },
   },
   // Zubei's Set (B-grade Heavy Armor) - Quest Shop
   zubeis_helmet: {
@@ -259,7 +259,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Helmet (Quest Shop)",
     grade: "B",
     armorType: "heavy",
-    stats: { pDef: 55, mDef: 9 },
+    stats: { pDef: 110, mDef: 18 },
   },
   zubeis_breastplate: {
     id: "zubeis_breastplate",
@@ -270,7 +270,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Breastplate (Quest Shop)",
     grade: "B",
     armorType: "heavy",
-    stats: { pDef: 140, mDef: 18 },
+    stats: { pDef: 280, mDef: 36 },
   },
   zubeis_gaiters: {
     id: "zubeis_gaiters",
@@ -281,7 +281,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Gaiters (Quest Shop)",
     grade: "B",
     armorType: "heavy",
-    stats: { pDef: 90, mDef: 15 },
+    stats: { pDef: 180, mDef: 30 },
   },
   zubeis_gauntlets: {
     id: "zubeis_gauntlets",
@@ -292,7 +292,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Gauntlets (Quest Shop)",
     grade: "B",
     armorType: "heavy",
-    stats: { pDef: 38, mDef: 8 },
+    stats: { pDef: 76, mDef: 16 },
   },
   zubeis_boots: {
     id: "zubeis_boots",
@@ -303,7 +303,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     description: "Zubei's Boots (Quest Shop)",
     grade: "B",
     armorType: "heavy",
-    stats: { pDef: 38, mDef: 8 },
+    stats: { pDef: 76, mDef: 16 },
   },
   // Doom of Fortune Set (B-grade Light Armor)
   doom_helmet_of_fortune: {
