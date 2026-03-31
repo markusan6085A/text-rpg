@@ -886,19 +886,23 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             const mergedMobsKilled = Math.max(localMobsKilled, serverMobsKilled);
             const mergedExp = Math.max(localExp, serverExp);
             
-            // Об'єднуємо skills (уникаємо дублікатів)
-            const mergedSkills = [...serverSkills];
-            localSkills.forEach((localSkill: any) => {
-              const existing = mergedSkills.find((s: any) => s.id === localSkill.id);
-              if (existing) {
-                // Якщо локальний рівень вищий - оновлюємо
-                if (localSkill.level > existing.level) {
-                  existing.level = localSkill.level;
+            // Явний skills: [] на сервері (напр. після admin change-class) — не зливати з локалкою при retry PUT.
+            let mergedSkills: any[];
+            if (Array.isArray((serverHeroJson as any).skills) && (serverHeroJson as any).skills.length === 0) {
+              mergedSkills = [];
+            } else {
+              mergedSkills = [...serverSkills];
+              localSkills.forEach((localSkill: any) => {
+                const existing = mergedSkills.find((s: any) => s.id === localSkill.id);
+                if (existing) {
+                  if (localSkill.level > existing.level) {
+                    existing.level = localSkill.level;
+                  }
+                } else {
+                  mergedSkills.push(localSkill);
                 }
-              } else {
-                mergedSkills.push(localSkill);
-              }
-            });
+              });
+            }
             
             // 🔥 КРИТИЧНО: Об'єднуємо бафи з нормалізацією та очищенням прострочених
             const heroName = localSource.name ?? hero.name;

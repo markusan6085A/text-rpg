@@ -302,8 +302,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const rawLocalSrvSkills = heroDataForLocal?.skills;
         const serverSkillsEmpty =
           Array.isArray(rawLocalSrvSkills) && rawLocalSrvSkills.length === 0;
+        // Явний skills: [] після change-class / скидання — завжди брати з сервера, навіть якщо localRev=0 і serverRevisionAdvanced хибний (інакше старі скіли з localStorage повертаються).
         const takeServerSkillsStrict =
-          serverRevisionAdvanced && (demoteToServerLevel || serverSkillsEmpty);
+          serverSkillsEmpty || (serverRevisionAdvanced && demoteToServerLevel);
         // Якщо в heroJson з API є масив skills (навіть порожній) — це джерело правди; інакше після адмін-скидання локальні скіли «оживали»
         let skillsFromServer = takeServerSkillsStrict
           ? Array.isArray(rawLocalSrvSkills)
@@ -607,31 +608,43 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           .filter((s) => Number.isFinite(s.id) && s.id > 0)
       );
     } else {
-      const serverSkillsForMerge = Array.isArray(rawHeroSkillsMerge) ? rawHeroSkillsMerge : [];
-      const localSkills = localHeroForMerge?.skills || [];
-      const skillById = new Map<number, { id: number; level: number }>();
-      for (const s of serverSkillsForMerge) {
-        const id = Number((s as any).id);
-        const lvl = Number((s as any).level) || 1;
-        if (id) skillById.set(id, { id, level: lvl });
+      // Явний порожній skills у heroJson (не «поле відсутнє») — не union-мерджити з localStorage, інакше після адмін-зміни класу старі ID лишаються.
+      const serverSkillsExplicitlyEmpty =
+        Array.isArray(rawHeroSkillsMerge) && rawHeroSkillsMerge.length === 0;
+      if (serverSkillsExplicitlyEmpty) {
+        finalSkillsForRecalc = filterSkillsListForHeroProfession(
+          fixedHero.profession,
+          fixedHero.klass,
+          fixedHero.race,
+          []
+        );
+      } else {
+        const serverSkillsForMerge = Array.isArray(rawHeroSkillsMerge) ? rawHeroSkillsMerge : [];
+        const localSkills = localHeroForMerge?.skills || [];
+        const skillById = new Map<number, { id: number; level: number }>();
+        for (const s of serverSkillsForMerge) {
+          const id = Number((s as any).id);
+          const lvl = Number((s as any).level) || 1;
+          if (id) skillById.set(id, { id, level: lvl });
+        }
+        for (const s of localSkills) {
+          const id = Number((s as any).id);
+          const lvl = Number((s as any).level) || 1;
+          if (!id) continue;
+          const cur = skillById.get(id);
+          if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
+        }
+        finalSkillsForRecalc =
+          skillById.size > 0
+            ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level }))
+            : (fixedHero.skills || []);
+        finalSkillsForRecalc = filterSkillsListForHeroProfession(
+          fixedHero.profession,
+          fixedHero.klass,
+          fixedHero.race,
+          finalSkillsForRecalc
+        );
       }
-      for (const s of localSkills) {
-        const id = Number((s as any).id);
-        const lvl = Number((s as any).level) || 1;
-        if (!id) continue;
-        const cur = skillById.get(id);
-        if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
-      }
-      finalSkillsForRecalc =
-        skillById.size > 0
-          ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level }))
-          : (fixedHero.skills || []);
-      finalSkillsForRecalc = filterSkillsListForHeroProfession(
-        fixedHero.profession,
-        fixedHero.klass,
-        fixedHero.race,
-        finalSkillsForRecalc
-      );
     }
 
     const serverEquip = fixedHero.equipment ?? {};
