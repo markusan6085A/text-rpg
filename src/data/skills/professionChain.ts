@@ -13,7 +13,6 @@ export const PROFESSION_CHAIN: Record<ProfessionId, ProfessionId[]> = {
   human_fighter_phoenix_knight: [],
   human_fighter_hell_knight: [],
   human_fighter_dark_avenger: ["human_fighter_hell_knight"],
-  human_fighter_titan: [],
   human_fighter_rogue: ["human_fighter_hawkeye", "human_fighter_treasure_hunter"],
   human_fighter_hawkeye: ["human_fighter_sagittarius"],
   human_fighter_treasure_hunter: ["human_fighter_adventurer"],

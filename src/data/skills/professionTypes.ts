@@ -12,7 +12,6 @@ export type ProfessionId =
   | "human_fighter_hell_knight"
   | "human_fighter_dark_avenger"
   | "human_fighter_dreadnought"
-  | "human_fighter_titan"
   | "human_fighter_human_knight"
   | "human_fighter_rogue"
   | "human_fighter_hawkeye"

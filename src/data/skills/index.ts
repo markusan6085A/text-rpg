@@ -6,7 +6,6 @@ import {
   HumanFighterPaladinSkills,
   HumanFighterDarkAvengerSkills,
   HumanFighterDreadnoughtSkills,
-  HumanFighterTitanSkills,
   HumanFighterWarlordSkills,
   HumanFighterHumanKnightSkills,
   HumanFighterPhoenixKnightSkills,
@@ -175,14 +174,6 @@ const professionDefinitions: Record<ProfessionId, ProfessionDefinition> = {
     label: "Dreadnought",
     klasses: [KL_HUMAN_FIGHTER_BASE, KL_HUMAN_FIGHTER_ADV],
     skillModule: HumanFighterDreadnoughtSkills,
-    minLevel: 76,
-    guild: "fighter",
-  },
-  human_fighter_titan: {
-    id: "human_fighter_titan",
-    label: "Titan",
-    klasses: [KL_HUMAN_FIGHTER_BASE, KL_HUMAN_FIGHTER_ADV],
-    skillModule: HumanFighterTitanSkills,
     minLevel: 76,
     guild: "fighter",
   },
@@ -439,7 +430,7 @@ const professionDefinitions: Record<ProfessionId, ProfessionDefinition> = {
     label: "Titan",
     klasses: [KL_HUMAN_FIGHTER_BASE, KL_HUMAN_FIGHTER_ADV],
     skillModule: OrcFighterTitanSkills,
-    minLevel: 76,
+    minLevel: 40,
     guild: "fighter",
   },
   orc_fighter_monk: {
@@ -968,7 +959,7 @@ const API_VARIANT_TO_PROFESSION_ID: Record<string, ProfessionId> = {
   adventurer: "human_fighter_adventurer",
   rogue: "human_fighter_rogue",
   warrior: "human_fighter_warrior",
-  titan: "human_fighter_titan",
+  titan: "orc_fighter_titan",
   scavenger: "dwarven_fighter_scavenger",
   bounty_hunter: "dwarven_fighter_bounty_hunter",
   fortune_seeker: "dwarven_fighter_fortune_seeker",
@@ -983,6 +974,9 @@ export const normalizeProfessionId = (id: ProfessionId | string | null): Profess
   if (!id) return null;
   const s = String(id).trim();
   if (!s) return null;
+  // Помилкова професія в даних: Titan лише орк (Destroyer → Titan); у людей — Dreadnought.
+  const lowerEarly = s.toLowerCase();
+  if (lowerEarly === "human_fighter_titan") return "human_fighter_dreadnought";
   if (s === "human_mystic_advanced") return "human_mystic_cleric";
   if (s === "human_mystic") return "human_mystic_base";
   if (s === "elven_mystic_base") return "elven_mystic";

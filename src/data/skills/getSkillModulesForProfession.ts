@@ -185,13 +185,6 @@ export function getSkillModulesForProfession(
       skillModules["human_fighter_human_knight"],
       skillModules["human_fighter_dark_avenger"],
     ];
-  if (pid === "human_fighter_titan")
-    return [
-      skillModules["human_fighter"],
-      skillModules["human_fighter_warrior"],
-      skillModules["human_fighter_gladiator"],
-      skillModules["human_fighter_titan"],
-    ];
   if (pid === "human_fighter_human_knight")
     return [
       skillModules["human_fighter"],

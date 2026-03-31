@@ -1,4 +1,4 @@
-﻿import * as common from "./common";
+import * as common from "./common";
 import * as Warrior from "./Warrior";
 import * as Gladiator from "./Gladiator";
 import * as Duelist from "./Duelist";
@@ -51,10 +51,6 @@ export const HumanFighterDarkAvengerSkills: Record<string, SkillDefinition> = {
 
 export const HumanFighterDreadnoughtSkills: Record<string, SkillDefinition> = {
   ...pickSkillDefs(Dreadnought),
-};
-
-export const HumanFighterTitanSkills: Record<string, SkillDefinition> = {
-  ...pickSkillDefs(Warrior),
 };
 
 export const HumanFighterWarlordSkills: Record<string, SkillDefinition> = {
