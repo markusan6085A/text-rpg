@@ -129,7 +129,7 @@ export function getSkillModulesForProfession(
       skillModules["dark_mystic_spectral_master"],
     ];
 
-  // Human Fighter: base -> warrior -> gladiator/paladin -> dark_avenger/dreadnought/titan
+  // Human Fighter: base -> warrior/knight/rogue -> … (classic до 3-ї профи, без GoD awakening)
   if (pid === "human_fighter") return [skillModules["human_fighter"]];
   if (pid === "human_fighter_warrior")
     return [skillModules["human_fighter"], skillModules["human_fighter_warrior"]];

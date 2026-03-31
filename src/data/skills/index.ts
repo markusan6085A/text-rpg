@@ -166,7 +166,7 @@ const professionDefinitions: Record<ProfessionId, ProfessionDefinition> = {
     label: "Dark Avenger",
     klasses: [KL_HUMAN_FIGHTER_BASE, KL_HUMAN_FIGHTER_ADV],
     skillModule: HumanFighterDarkAvengerSkills,
-    minLevel: 76,
+    minLevel: 40,
     guild: "fighter",
   },
   human_fighter_dreadnought: {
