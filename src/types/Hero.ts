@@ -137,6 +137,10 @@ export interface Hero {
   activeQuests?: Array<{
     questId: string;
     progress: Record<string, number>;
+    /** Зафіксовані при прийнятті вимоги по questDrops (itemId → потрібна кількість), якщо у рядку є requiredCountRandom */
+    rolledQuestDropNeeds?: Record<string, number>;
+    /** Додаткова нагорода при здачі (для квестів з randomFirstProfBonus) */
+    rolledRewardBonus?: { adena: number; exp: number; coins_silver: number };
   }>;
   completedQuests?: string[]; // Масив ID завершених квестів
 

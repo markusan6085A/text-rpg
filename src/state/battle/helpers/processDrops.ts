@@ -5,6 +5,7 @@ import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../../../data/world/l2dop/droplistMapping";
 import { QUESTS } from "../../../data/quests";
+import { getEffectiveQuestDropNeed } from "../../../utils/quests/questDropEffectiveNeed";
 import { equipItemLogic } from "../../heroStore/heroInventory";
 import { getInventoryMax } from "../../heroStore";
 import { addItemsWithOverflow } from "../../heroStore/inventoryOverflow";
@@ -442,6 +443,7 @@ export function processMobDrops(
       ) {
         return;
       }
+      const need = getEffectiveQuestDropNeed(questDrop, activeQuest as any);
       // Перераховуємо розмір інвентаря перед кожним квестовим предметом (щоб кілька дропів підряд не переповнювали)
       const currentInventorySizeForQuests = newInventory.filter(Boolean).length;
       const isInventoryFullForQuests = currentInventorySizeForQuests >= maxSlots;
@@ -449,10 +451,10 @@ export function processMobDrops(
       // Перевіряємо інвентар для поточного прогресу
       const inventoryItem = newInventory.find((item: HeroInventoryItem) => item.id === questDrop.itemId);
       const currentItemCount = inventoryItem?.count || 0;
-      const currentProgress = Math.min(currentItemCount, questDrop.requiredCount);
+      const currentProgress = Math.min(currentItemCount, need);
 
       // Перевіряємо, чи ще потрібно збирати цей предмет
-      if (currentProgress < questDrop.requiredCount) {
+      if (currentProgress < need) {
         // Перевіряємо, чи інвентар не повний (квестові предмети стакаються з звичайними слотами)
         const existingItemIndex = newInventory.findIndex((inv: HeroInventoryItem) => inv.id === questDrop.itemId && !(inv as any).meta?.hasLSPassive);
         const canAddToExisting = existingItemIndex >= 0;
@@ -485,8 +487,8 @@ export function processMobDrops(
               };
 
               // Формат: Квест: Назва x1 5(15)
-              const displayProgress = Math.min(newCount, questDrop.requiredCount);
-              dropMessages.push(`Квест: ${itemDef.name} x1 ${displayProgress}(${questDrop.requiredCount})`);
+              const displayProgress = Math.min(newCount, need);
+              dropMessages.push(`Квест: ${itemDef.name} x1 ${displayProgress}(${need})`);
             } else {
               // Якщо предмета немає, додаємо новий
               newInventory.push({
@@ -501,7 +503,7 @@ export function processMobDrops(
               } as HeroInventoryItem);
 
               // Формат: Квест: Назва x1 1(15)
-              dropMessages.push(`Квест: ${itemDef.name} x1 1(${questDrop.requiredCount})`);
+              dropMessages.push(`Квест: ${itemDef.name} x1 1(${need})`);
             }
 
             // Додаємо оновлення прогресу квесту

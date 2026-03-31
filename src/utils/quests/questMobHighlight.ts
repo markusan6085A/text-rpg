@@ -4,6 +4,7 @@
  * - квестовий дроп (сірий текст + «квест · добыча»), поки не набрано requiredCount для цього itemId у парі mob+зона.
  */
 import { QUEST_ITEM_TURN_IN_ALIASES, type Quest, type QuestKillTarget } from "../../data/quests";
+import { getEffectiveQuestDropNeed } from "./questDropEffectiveNeed";
 
 function countQuestItemInInventory(
   inv: { id: string; count?: number }[] | undefined,
@@ -21,6 +22,7 @@ function countQuestItemInInventory(
 export interface ActiveQuestLike {
   questId: string;
   progress?: Record<string, number>;
+  rolledQuestDropNeeds?: Record<string, number>;
 }
 
 export function mobMatchesKillTarget(
@@ -77,8 +79,9 @@ export function getQuestMobHighlightForMob(
         ) {
           continue;
         }
+        const need = getEffectiveQuestDropNeed(qd, aq as any);
         const have = countQuestItemInInventory(inventory, qd.itemId);
-        if (have < qd.requiredCount) return "drop";
+        if (have < need) return "drop";
       }
     }
 

@@ -7,18 +7,36 @@ import {
   QUEST_ITEM_TURN_IN_ALIASES,
   ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
   ELVEN_FIGHTER_FIRST_PROF_QUEST_ID,
+  HUMAN_FIGHTER_FIRST_PROF_QUEST_ID,
+  HUMAN_MYSTIC_FIRST_PROF_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
   isHeroElvenFighterBaseForFirstProfQuest,
+  isHeroHumanFighterBaseForFirstProfQuest,
+  isHeroHumanMysticBaseForFirstProfQuest,
   type Quest,
 } from "../../data/quests";
 import { itemsDB } from "../../data/items/itemsDB";
-import type { HeroInventoryItem } from "../../types/Hero";
+import { getEffectiveQuestDropNeed } from "../../utils/quests/questDropEffectiveNeed";
+import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { getGameSettings } from "../../state/gameSettings";
 import { getPremiumMultiplier } from "../../utils/premium/isPremiumActive";
 
 function questIconSrc(quest: { icon?: string }) {
   return quest.icon || "/assets/quest.png";
+}
+
+function rollQuestIntInclusive(min: number, max: number): number {
+  const a = Math.min(min, max);
+  const b = Math.max(min, max);
+  return a + Math.floor(Math.random() * (b - a + 1));
+}
+
+function questDropNeedLabel(qd: NonNullable<Quest["questDrops"]>[number]): string {
+  if (qd.requiredCountRandom) {
+    return `${qd.requiredCountRandom.min}–${qd.requiredCountRandom.max} (случайно)`;
+  }
+  return String(qd.requiredCount);
 }
 
 /** Кількість для здачі: квестовий id + алиаси (напр. charcoal з дропу зони). */
@@ -130,7 +148,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     if (questDef.questDrops) {
       questDef.questDrops.forEach((questDrop) => {
         const itemCount = countQuestTurnInInInventory(hero.inventory, questDrop.itemId);
-        progress[questDrop.itemId] = Math.min(itemCount, questDrop.requiredCount);
+        const need = getEffectiveQuestDropNeed(questDrop, activeQuest as any);
+        progress[questDrop.itemId] = Math.min(itemCount, need);
       });
     }
     if (questDef.questKillTargets) {
@@ -145,6 +164,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     if (q == null) return false;
     if (q.id === ELVEN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroElvenMysticBaseForFirstProfQuest(hero)) return false;
     if (q.id === ELVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroElvenFighterBaseForFirstProfQuest(hero)) return false;
+    if (q.id === HUMAN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroHumanFighterBaseForFirstProfQuest(hero)) return false;
+    if (q.id === HUMAN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroHumanMysticBaseForFirstProfQuest(hero)) return false;
     return true;
   });
 
@@ -155,7 +176,9 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
       !activeQuests.some((aq) => aq.questId === quest.id) &&
       (!quest.requirements?.level || (hero.level || 1) >= quest.requirements.level) &&
       !(quest.id === ELVEN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroElvenMysticBaseForFirstProfQuest(hero)) &&
-      !(quest.id === ELVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroElvenFighterBaseForFirstProfQuest(hero))
+      !(quest.id === ELVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroElvenFighterBaseForFirstProfQuest(hero)) &&
+      !(quest.id === HUMAN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroHumanFighterBaseForFirstProfQuest(hero)) &&
+      !(quest.id === HUMAN_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroHumanMysticBaseForFirstProfQuest(hero))
   );
 
   // Функція для прийняття квесту
@@ -168,13 +191,34 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
       initProgress[kt.progressKey] = initProgress[kt.progressKey] ?? 0;
     }
 
-    const newActiveQuests = [
-      ...activeQuests,
-      {
-        questId,
-        progress: initProgress,
-      },
-    ];
+    let rolledQuestDropNeeds: Record<string, number> | undefined;
+    for (const qd of questDef.questDrops ?? []) {
+      if (qd.requiredCountRandom) {
+        if (!rolledQuestDropNeeds) rolledQuestDropNeeds = {};
+        rolledQuestDropNeeds[qd.itemId] = rollQuestIntInclusive(
+          qd.requiredCountRandom.min,
+          qd.requiredCountRandom.max
+        );
+      }
+    }
+
+    let rolledRewardBonus: { adena: number; exp: number; coins_silver: number } | undefined;
+    if (questDef.randomFirstProfBonus) {
+      rolledRewardBonus = {
+        adena: rollQuestIntInclusive(14_000, 52_000),
+        exp: rollQuestIntInclusive(2_800, 12_500),
+        coins_silver: rollQuestIntInclusive(2, 10),
+      };
+    }
+
+    const newEntry: NonNullable<Hero["activeQuests"]>[number] = {
+      questId,
+      progress: initProgress,
+      ...(rolledQuestDropNeeds ? { rolledQuestDropNeeds } : {}),
+      ...(rolledRewardBonus ? { rolledRewardBonus } : {}),
+    };
+
+    const newActiveQuests = [...activeQuests, newEntry];
 
     updateHero({ activeQuests: newActiveQuests });
   };
@@ -199,8 +243,9 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     if (hasDrops) {
       const itemsToCheck: Record<string, number> = {};
       questDef.questDrops!.forEach((questDrop) => {
-        if (!itemsToCheck[questDrop.itemId] || itemsToCheck[questDrop.itemId] < questDrop.requiredCount) {
-          itemsToCheck[questDrop.itemId] = questDrop.requiredCount;
+        const need = getEffectiveQuestDropNeed(questDrop, aqEntry as any);
+        if (!itemsToCheck[questDrop.itemId] || itemsToCheck[questDrop.itemId] < need) {
+          itemsToCheck[questDrop.itemId] = need;
         }
       });
       let allCollected = true;
@@ -215,8 +260,9 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     if (hasDrops) {
       const itemsToRemove: Record<string, number> = {};
       questDef.questDrops!.forEach((questDrop) => {
-        if (!itemsToRemove[questDrop.itemId] || itemsToRemove[questDrop.itemId] < questDrop.requiredCount) {
-          itemsToRemove[questDrop.itemId] = questDrop.requiredCount;
+        const need = getEffectiveQuestDropNeed(questDrop, aqEntry as any);
+        if (!itemsToRemove[questDrop.itemId] || itemsToRemove[questDrop.itemId] < need) {
+          itemsToRemove[questDrop.itemId] = need;
         }
       });
       for (const [itemId, requiredCount] of Object.entries(itemsToRemove)) {
@@ -225,18 +271,23 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     }
 
     const rewards = questDef.rewards || {};
+    const bonus = aqEntry?.rolledRewardBonus;
     let newAdena = hero.adena || 0;
     if (rewards.adena) {
       newAdena += rewards.adena;
     }
+    if (bonus?.adena) newAdena += bonus.adena;
 
-    const addSilver = Math.max(0, Math.floor(Number(rewards.coins_silver ?? 0)));
+    const addSilver =
+      Math.max(0, Math.floor(Number(rewards.coins_silver ?? 0))) +
+      Math.max(0, Math.floor(Number(bonus?.coins_silver ?? 0)));
     const newCoinsSilver = (hero.coins_silver ?? 0) + addSilver;
 
     let expPayload: { exp?: number } = {};
-    if (rewards.exp && rewards.exp > 0) {
+    const totalBaseExp = Math.max(0, Number(rewards.exp ?? 0)) + Math.max(0, Number(bonus?.exp ?? 0));
+    if (totalBaseExp > 0) {
       const expEnabled = getGameSettings().expEnabled !== false;
-      const add = expEnabled ? Math.round(rewards.exp * getPremiumMultiplier(hero)) : 0;
+      const add = expEnabled ? Math.round(totalBaseExp * getPremiumMultiplier(hero)) : 0;
       expPayload = { exp: Math.floor(Number(hero.exp ?? 0)) + add };
     }
 
@@ -466,8 +517,9 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                 (() => {
                   const itemsToCheck: Record<string, number> = {};
                   quest.questDrops!.forEach((qd) => {
-                    if (!itemsToCheck[qd.itemId] || itemsToCheck[qd.itemId] < qd.requiredCount) {
-                      itemsToCheck[qd.itemId] = qd.requiredCount;
+                    const need = getEffectiveQuestDropNeed(qd, aq as any);
+                    if (!itemsToCheck[qd.itemId] || itemsToCheck[qd.itemId] < need) {
+                      itemsToCheck[qd.itemId] = need;
                     }
                   });
                   return Object.entries(itemsToCheck).every(([itemId, req]) => {
@@ -503,14 +555,21 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                     >
                       <div className="font-semibold mb-1">Прогрес:</div>
                       {(() => {
-                        const groupedDrops: Record<string, { itemId: string; requiredCount: number; mobNames: string[] }> = {};
+                        const groupedDrops: Record<string, { itemId: string; requiredCount: number; mobNames: string[] }> =
+                          {};
                         quest.questDrops.forEach((questDrop) => {
+                          const need = getEffectiveQuestDropNeed(questDrop, aq as any);
                           if (!groupedDrops[questDrop.itemId]) {
                             groupedDrops[questDrop.itemId] = {
                               itemId: questDrop.itemId,
-                              requiredCount: questDrop.requiredCount,
+                              requiredCount: need,
                               mobNames: [],
                             };
+                          } else {
+                            groupedDrops[questDrop.itemId].requiredCount = Math.max(
+                              groupedDrops[questDrop.itemId].requiredCount,
+                              need
+                            );
                           }
                           if (!groupedDrops[questDrop.itemId].mobNames.includes(questDrop.mobName)) {
                             groupedDrops[questDrop.itemId].mobNames.push(questDrop.mobName);
@@ -585,19 +644,28 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
 
                   {/* Нагороди */}
                   {quest.rewards && (
-                    <div className="text-[#ff8c00] text-[10px] mb-2 flex items-center gap-2">
-                      <span className="font-semibold">Нагороди:</span>
-                      {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
-                      {quest.rewards.sp != null && Number(quest.rewards.sp) > 0 && (
-                        <span>SP: {Number(quest.rewards.sp).toLocaleString("ru-RU")} </span>
-                      )}
-                      {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
-                      {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
-                        <span className="inline-flex items-center gap-1">
-                          <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3.5 h-3.5 object-contain" />
-                          Серебряные монеты: {quest.rewards.coins_silver}
-                        </span>
-                      )}
+                    <div className="text-[#ff8c00] text-[10px] mb-2 flex flex-col gap-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold">Нагороди:</span>
+                        {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
+                        {quest.rewards.sp != null && Number(quest.rewards.sp) > 0 && (
+                          <span>SP: {Number(quest.rewards.sp).toLocaleString("ru-RU")} </span>
+                        )}
+                        {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
+                        {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
+                          <span className="inline-flex items-center gap-1">
+                            <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3.5 h-3.5 object-contain" />
+                            Серебряные монеты: {quest.rewards.coins_silver}
+                          </span>
+                        )}
+                      </div>
+                      {aq?.rolledRewardBonus ? (
+                        <div className={isL2 ? "text-[#9d8265]" : "text-[#b8860b]"}>
+                          Дод. при здачі: +{aq.rolledRewardBonus.adena.toLocaleString("ru-RU")} адени, +
+                          {aq.rolledRewardBonus.exp.toLocaleString("ru-RU")} EXP, +{aq.rolledRewardBonus.coins_silver}{" "}
+                          серебра
+                        </div>
+                      ) : null}
                       {quest.rewards.items?.map((item, idx) => {
                         const itemDef = itemsDB[item.id];
                         return (
@@ -662,12 +730,14 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                   {quest.questDrops && quest.questDrops.length > 0 && (
                     <div className={isL2 ? "text-[#8a7a60] text-[10px] mb-2" : "text-gray-400 text-[10px] mb-2"}>
                       {(() => {
-                        const groupedDrops: Record<string, { itemId: string; requiredCount: number; mobNames: string[] }> = {};
+                        const groupedDrops: Record<string, { itemId: string; needLabel: string; mobNames: string[] }> =
+                          {};
                         quest.questDrops.forEach((questDrop) => {
+                          const nl = questDropNeedLabel(questDrop);
                           if (!groupedDrops[questDrop.itemId]) {
                             groupedDrops[questDrop.itemId] = {
                               itemId: questDrop.itemId,
-                              requiredCount: questDrop.requiredCount,
+                              needLabel: nl,
                               mobNames: [],
                             };
                           }
@@ -696,7 +766,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                                   />
                                 ) : null}
                                 <span className="font-semibold">
-                                  Принеси {group.requiredCount} {labelCharcoal}
+                                  Принеси {group.needLabel} {labelCharcoal}
                                 </span>
                               </div>
                               <span>з {group.mobNames.join(", ")}</span>
@@ -708,20 +778,27 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                   )}
 
                   {quest.rewards && (
-                    <div className="text-[#ff8c00] text-[10px] mb-2 flex items-center gap-2 justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">Нагороди:</span>
-                        {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
-                        {quest.rewards.sp != null && Number(quest.rewards.sp) > 0 && (
-                          <span>SP: {Number(quest.rewards.sp).toLocaleString("ru-RU")} </span>
-                        )}
-                        {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
-                        {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
-                          <span className="inline-flex items-center gap-1">
-                            <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3.5 h-3.5 object-contain" />
-                            Серебряные монеты: {quest.rewards.coins_silver}
+                    <div className="text-[#ff8c00] text-[10px] mb-2 flex items-start gap-2 justify-between">
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold">Нагороди:</span>
+                          {quest.rewards.exp && <span>EXP: {quest.rewards.exp.toLocaleString("ru-RU")} </span>}
+                          {quest.rewards.sp != null && Number(quest.rewards.sp) > 0 && (
+                            <span>SP: {Number(quest.rewards.sp).toLocaleString("ru-RU")} </span>
+                          )}
+                          {quest.rewards.adena && <span>Адена: {quest.rewards.adena.toLocaleString("ru-RU")} </span>}
+                          {!!quest.rewards.coins_silver && quest.rewards.coins_silver > 0 && (
+                            <span className="inline-flex items-center gap-1">
+                              <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3.5 h-3.5 object-contain" />
+                              Серебряные монеты: {quest.rewards.coins_silver}
+                            </span>
+                          )}
+                        </div>
+                        {quest.randomFirstProfBonus ? (
+                          <span className={isL2 ? "text-[#9d8265] text-[9px]" : "text-gray-500 text-[9px]"}>
+                            Плюс випадковий бонус (адена / EXP / срібло) після прийняття квесту.
                           </span>
-                        )}
+                        ) : null}
                         {quest.rewards.items?.map((item, idx) => {
                           const itemDef = itemsDB[item.id];
                           return (
@@ -736,7 +813,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                         })}
                       </div>
                       <button
-                        className="text-purple-400 text-[10px] hover:text-purple-300 underline cursor-pointer"
+                        className="text-purple-400 text-[10px] hover:text-purple-300 underline cursor-pointer shrink-0"
                         onClick={() => acceptQuest(quest.id)}
                       >
                         Взять квест

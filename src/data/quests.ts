@@ -48,7 +48,11 @@ export interface Quest {
     location?: string;
     /** Якщо задано — дроп і підказка на локації лише для зон з id, що починається з префікса (напр. floran_village). */
     dropZoneIdPrefix?: string;
+    /** При прийнятті квесту випадкова кількість [min..max] зберігається в activeQuest.rolledQuestDropNeeds[itemId]; requiredCount = верхня межа для fallback */
+    requiredCountRandom?: { min: number; max: number };
   }>;
+  /** Після прийняття згенерувати rolledRewardBonus у записі активного квесту (людські перші профи). */
+  randomFirstProfBonus?: boolean;
   /** Лічильники вбивств (оновлюються при перемозі над мобом) */
   questKillTargets?: QuestKillTarget[];
   /** Коротка підказка + кнопка «Крафт ресурсів» у вкладці квестів (якщо передано navigate) */
@@ -87,6 +91,44 @@ export function isHeroElvenFighterBaseForFirstProfQuest(hero: {
   const r = String(hero.race || "").toLowerCase();
   if (r.includes("dark") || r.includes("темн")) return false;
   return true;
+}
+
+/** Людина (не темний ельф, не орк, не гном). */
+export function isHeroHumanRaceForQuests(hero: { race?: string | null }): boolean {
+  const r = String(hero.race || "").toLowerCase();
+  if (r.includes("dark") || r.includes("темн") || r.includes("тёмн")) return false;
+  if (r.includes("elf") || r.includes("ельф") || r.includes("эльф")) return false;
+  if (r.includes("orc") || r.includes("орк")) return false;
+  if (r.includes("dwarf") || r.includes("гном") || r.includes("dwarven")) return false;
+  return r.includes("human") || r.includes("человек") || r.includes("людин") || r.trim() === "";
+}
+
+export const HUMAN_FIGHTER_FIRST_PROF_QUEST_ID = "human_fighter_first_profession_reagents";
+
+export const HUMAN_MYSTIC_FIRST_PROF_QUEST_ID = "human_mystic_first_profession_essences";
+
+export function isHeroHumanFighterBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  if (!isHeroHumanRaceForQuests(hero)) return false;
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  return p === "human_fighter";
+}
+
+export function isHeroHumanMysticBaseForFirstProfQuest(hero: {
+  profession?: string | null;
+  race?: string | null;
+}): boolean {
+  if (!isHeroHumanRaceForQuests(hero)) return false;
+  const p = String(hero.profession || "")
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .trim();
+  return p === "human_mystic_base" || p === "human_mystic";
 }
 
 /** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
@@ -330,6 +372,95 @@ export const QUESTS: Quest[] = [
         requiredCount: 6,
         location: "floran_village_03 / floran_village_04",
         dropZoneIdPrefix: "floran_village",
+      },
+    ],
+  },
+  {
+    id: HUMAN_FIGHTER_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь человека-воина — реагенты для первой профессии",
+    description:
+      "Гильдия бойцов поручает собрать редкие реагенты в окрестностях Gludin Village (зоны 15–19 и 17–22 уровня). " +
+      "Цель каждого предмета определяется случайно при приёме квеста (диапазон указан ниже). Дополнительная награда (адена, опыт, серебряные монеты) тоже выпадает случайно один раз — смотрите блок «Доп. награда» в активном квесте. " +
+      "Мобы с нужным дропом помечены «квест · добыча», пока не набран нужный объём. После сдачи на 20 уровне откроется выбор первой профессии (Warrior / Knight / Rogue).",
+    level: 18,
+    location: "Gludin Village — окрестности",
+    locationLevel: "15–22",
+    requirements: { level: 18 },
+    randomFirstProfBonus: true,
+    rewards: { exp: 22_000, adena: 45_000, coins_silver: 3 },
+    questDrops: [
+      {
+        mobName: "Evil Eye Seer",
+        itemId: "quest_human_fprof_seer_orb",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Arachnid Tracker",
+        itemId: "quest_human_fprof_tracker_spur",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Stink Zombie",
+        itemId: "quest_human_fprof_zombie_ichor",
+        requiredCount: 12,
+        requiredCountRandom: { min: 5, max: 12 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Skeleton Scout",
+        itemId: "quest_human_fprof_scout_sigil",
+        requiredCount: 10,
+        requiredCountRandom: { min: 4, max: 10 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+    ],
+  },
+  {
+    id: HUMAN_MYSTIC_FIRST_PROF_QUEST_ID,
+    icon: "/nps/6.png",
+    name: "Путь человека-мага — эссенции для первой профессии",
+    description:
+      "Гильдия магов просит собрать магические эссенции у мобов Gludin Village (зоны 15–22 уровня). Количество каждого компонента случайно при приёме задания; есть случайный бонус к награде — он уже показан в активном квесте. " +
+      "После сдачи на 20 уровне откроется путь Cleric / Wizard.",
+    level: 18,
+    location: "Gludin Village — окрестности",
+    locationLevel: "15–22",
+    requirements: { level: 18 },
+    randomFirstProfBonus: true,
+    rewards: { exp: 22_000, adena: 45_000, coins_silver: 3 },
+    questDrops: [
+      {
+        mobName: "Lirein Elder",
+        itemId: "quest_human_mprof_fae_branch",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Salamander Noble",
+        itemId: "quest_human_mprof_salamander_core",
+        requiredCount: 14,
+        requiredCountRandom: { min: 6, max: 14 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Undine Noble",
+        itemId: "quest_human_mprof_undine_tear",
+        requiredCount: 12,
+        requiredCountRandom: { min: 5, max: 12 },
+        dropZoneIdPrefix: "gludin_village",
+      },
+      {
+        mobName: "Undead Slave",
+        itemId: "quest_human_mprof_bone_script",
+        requiredCount: 10,
+        requiredCountRandom: { min: 4, max: 10 },
+        dropZoneIdPrefix: "gludin_village",
       },
     ],
   },
