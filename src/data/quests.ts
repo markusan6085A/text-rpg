@@ -50,6 +50,8 @@ export interface Quest {
     dropZoneIdPrefix?: string;
     /** При прийнятті квесту випадкова кількість [min..max] зберігається в activeQuest.rolledQuestDropNeeds[itemId]; requiredCount = верхня межа для fallback */
     requiredCountRandom?: { min: number; max: number };
+    /** Підказка у вкладці «Квести»: де фармити цей тип предмета (зона, орієнтир). */
+    farmHint?: string;
   }>;
   /** Після прийняття згенерувати rolledRewardBonus у записі активного квесту (людські / темноельфійські перші профи). */
   randomFirstProfBonus?: boolean;
@@ -360,9 +362,27 @@ export const QUESTS: Quest[] = [
     requirements: { level: 18 },
     rewards: { exp: 25_000, adena: 50_000 },
     questDrops: [
-      { mobName: "Орк Воин, Monster Eye и др.", itemId: "animal_skin", requiredCount: 15 },
-      { mobName: "Гоблин, Скелет, Элпи и др.", itemId: "thread", requiredCount: 10 },
-      { mobName: "Гриб, Летучая мышь, Орк и др.", itemId: "iron_ore", requiredCount: 5 },
+      {
+        mobName: "Орк Воин, Monster Eye и др.",
+        itemId: "animal_skin",
+        requiredCount: 15,
+        farmHint:
+          "Animal Skin: окрестности Глудио / старт (1–12 ур.) — Orc Fighter, Monster Eye, волки, гоблины; смотрите дроп в карточке моба на локации.",
+      },
+      {
+        mobName: "Гоблин, Скелет, Элпи и др.",
+        itemId: "thread",
+        requiredCount: 10,
+        farmHint:
+          "Thread: те же зоны — Goblin, Skeleton, Fell Hound (Элпи) и др.; дроп в таблице моба.",
+      },
+      {
+        mobName: "Гриб, Летучая мышь, Орк и др.",
+        itemId: "iron_ore",
+        requiredCount: 5,
+        farmHint:
+          "Iron Ore: слабые мобы с рудой (грибы, летучие мыши, орки) — низкоуровневые зоны; дроп в карточке моба.",
+      },
     ],
   },
   {

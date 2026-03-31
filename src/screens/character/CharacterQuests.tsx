@@ -22,6 +22,7 @@ import {
 import { itemsDB } from "../../data/items/itemsDB";
 import { getEffectiveQuestDropNeed } from "../../utils/quests/questDropEffectiveNeed";
 import { mergeActiveQuestsForUi } from "../../utils/quests/mergeActiveQuestsForUi";
+import { collectFarmCaptionsForItemId } from "../../utils/quests/questDropFarmHint";
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 import { getGameSettings } from "../../state/gameSettings";
@@ -585,6 +586,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                           }
                         });
                         return Object.values(groupedDrops).map((group) => {
+                          const farmCaptions = collectFarmCaptionsForItemId(quest, group.itemId);
                           const itemCount = countQuestTurnInInInventory(hero.inventory, group.itemId);
                           const currentProgress = Math.min(itemCount, group.requiredCount);
                           const itemDef = itemsDB[group.itemId];
@@ -616,8 +618,24 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                                 </div>
                               )}
                               <span>
-                                {currentProgress}/{group.requiredCount} · з {group.mobNames.join(", ")}
+                                {currentProgress}/{group.requiredCount} · мобы / источник: {group.mobNames.join(", ")}
                               </span>
+                              {farmCaptions.length > 0 ? (
+                                <div
+                                  className={
+                                    isL2
+                                      ? "mt-1 pl-0.5 text-[9px] leading-snug text-[#7d9a7a] border-l border-[#5c4a32]/50"
+                                      : "mt-1 pl-0.5 text-[9px] leading-snug text-emerald-200/80 border-l border-emerald-700/40"
+                                  }
+                                >
+                                  <span className="font-semibold opacity-95">Подсказка по фарму:</span>
+                                  {farmCaptions.map((c) => (
+                                    <div key={c} className="mt-0.5 opacity-95">
+                                      • {c}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : null}
                               {currentProgress >= group.requiredCount ? (
                                 <span className="text-green-400 ml-1">✓</span>
                               ) : null}
@@ -755,6 +773,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                           }
                         });
                         return Object.values(groupedDrops).map((group, idx) => {
+                          const farmCaptions = collectFarmCaptionsForItemId(quest, group.itemId);
                           const itemDef = itemsDB[group.itemId];
                           const labelCharcoal =
                             group.itemId === "quest_gludio_charcoal"
@@ -778,7 +797,23 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                                   Принеси {group.needLabel} {labelCharcoal}
                                 </span>
                               </div>
-                              <span>з {group.mobNames.join(", ")}</span>
+                              <span>мобы / источник: {group.mobNames.join(", ")}</span>
+                              {farmCaptions.length > 0 ? (
+                                <div
+                                  className={
+                                    isL2
+                                      ? "mt-1 text-[9px] leading-snug text-[#7d9a7a] border-l border-[#5c4a32]/50 pl-1.5"
+                                      : "mt-1 text-[9px] leading-snug text-emerald-200/80 border-l border-emerald-700/40 pl-1.5"
+                                  }
+                                >
+                                  <span className="font-semibold opacity-95">Подсказка по фарму:</span>
+                                  {farmCaptions.map((c) => (
+                                    <div key={c} className="mt-0.5 opacity-95">
+                                      • {c}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : null}
                             </div>
                           );
                         });
