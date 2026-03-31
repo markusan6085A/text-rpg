@@ -112,12 +112,10 @@ export function loadoutStorageIsEmptyOrDefault(heroName: string | undefined): bo
 }
 
 /**
- * Якщо локальний l2_loadout порожній/дефолтний — відновити панель із heroJson.battleLoadoutSlots (після F5/очищення кешу).
- * Не перезаписує активну локальну розкладку на тому ж пристрої.
+ * Примусово вирівняти `l2_loadout_*` і battle snapshot під `heroJson.battleLoadoutSlots` (новіший snapshot з API / інший пристрій).
  */
-export function seedBattleLoadoutFromHeroJsonIfNeeded(hero: Hero | null): void {
+export function applyBattleLoadoutFromHeroJson(hero: Hero | null): void {
   if (!hero?.name) return;
-  if (!loadoutStorageIsEmptyOrDefault(hero.name)) return;
   const raw = (hero as any).heroJson?.battleLoadoutSlots;
   if (!Array.isArray(raw) || raw.length === 0) return;
   const normalized = normalizeRawLoadoutSlots(raw as unknown[]);
@@ -133,6 +131,16 @@ export function seedBattleLoadoutFromHeroJsonIfNeeded(hero: Hero | null): void {
     },
     hero.name
   );
+}
+
+/**
+ * Якщо локальний l2_loadout порожній/дефолтний — відновити панель із heroJson.battleLoadoutSlots (після F5/очищення кешу).
+ * Не перезаписує активну локальну розкладку на тому ж пристрої.
+ */
+export function seedBattleLoadoutFromHeroJsonIfNeeded(hero: Hero | null): void {
+  if (!hero?.name) return;
+  if (!loadoutStorageIsEmptyOrDefault(hero.name)) return;
+  applyBattleLoadoutFromHeroJson(hero);
 }
 
 export const BASE_ATTACK = { id: BASE_ATTACK_ID, name: "Attack", icon: "/skills/attack.jpg" };

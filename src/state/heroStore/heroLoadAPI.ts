@@ -14,7 +14,11 @@ import { hydrateHero } from "./heroHydration";
 import { readCharacterProgress } from "./heroPersistence";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
-import { filterSkillsListForHeroProfession, seedBattleLoadoutFromHeroJsonIfNeeded } from "../battle/loadout";
+import {
+  applyBattleLoadoutFromHeroJson,
+  filterSkillsListForHeroProfession,
+  seedBattleLoadoutFromHeroJsonIfNeeded,
+} from "../battle/loadout";
 import {
   applyWarehouseSlotsFromHeroJson,
   seedWarehouseFromHeroJsonIfStorageEmpty,
@@ -1043,7 +1047,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       } else {
         seedWarehouseFromHeroJsonIfStorageEmpty(wid, whSlots, finalHero.name);
       }
-      seedBattleLoadoutFromHeroJsonIfNeeded(finalHero);
+      if (preferServerSnapshot) {
+        applyBattleLoadoutFromHeroJson(finalHero);
+      } else {
+        seedBattleLoadoutFromHeroJsonIfNeeded(finalHero);
+      }
     }
     if (import.meta.env.DEV && finalHero) {
       const hj = (finalHero as any)?.heroJson || {};
