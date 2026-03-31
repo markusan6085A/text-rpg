@@ -176,8 +176,8 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
       return {
         id: learned.id,
         name: skillDef.name,
-        description: skillDef.description,
-        icon: skillDef.icon,
+        description: skillDef.description ?? "",
+        icon: skillDef.icon && String(skillDef.icon).trim().length > 0 ? skillDef.icon : "/skills/skill0000.gif",
         category: skillDef.category || "none",
         level: learned.level,
         maxLevel: skillDef.levels.length,
@@ -312,30 +312,19 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
                 </div>
                 <div className="space-y-2">
                   {skills.map((skill) => {
-                    // Розділяємо опис на англійську та російську частини
-                    const descriptionParts = skill.description.split("\n\n");
-                    // Беремо тільки російську частину (остання частина після \n\n)
+                    const descriptionParts = (skill.description || "").split("\n\n");
                     let russianDescription = "";
                     if (descriptionParts.length > 1) {
-                      // Якщо є \n\n, беремо частину після нього (російський переклад)
                       russianDescription = descriptionParts.slice(1).join("\n\n");
                     } else {
-                      // Якщо немає \n\n, перевіряємо, чи текст містить кирилицю
-                      const text = descriptionParts[0] || "";
-                      const hasCyrillic = /[А-Яа-яЁё]/.test(text);
-                      if (hasCyrillic) {
-                        // Якщо є кирилиця, це вже російський текст
-                        russianDescription = text;
-                      } else {
-                        // Якщо немає кирилиці, це англійський текст - не показуємо
-                        russianDescription = "Переклад відсутній";
-                      }
+                      // Без подвійного переносу показуємо весь опис (англ. або одна мова) — не підміняти «Переклад відсутній»
+                      russianDescription = descriptionParts[0] || "";
                     }
                     
                     const skillValues = formatSkillValues(skill.skillDef, skill.levelDef);
                     
-                    // Спеціальна обробка для іконок
-                    let iconSrc = skill.icon.startsWith("/") ? skill.icon : `/skills/${skill.icon}`;
+                    const iconBase = skill.icon && String(skill.icon).trim().length > 0 ? skill.icon : "/skills/skill0000.gif";
+                    let iconSrc = iconBase.startsWith("/") ? iconBase : `/skills/${iconBase}`;
                     // Спеціальна обробка для Light Armor Mastery (skill 227) для Rogue
                     if (skill.id === 227 && (skill.skillDef as any)?.code === "HF_0227") {
                       iconSrc = "/skills/skill0233.gif";

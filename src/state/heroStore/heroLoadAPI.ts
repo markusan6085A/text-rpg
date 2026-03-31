@@ -299,16 +299,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         // 🔥 Професію/klass беремо з сервера — адмін міг змінити клас, localStorage має стару
         const serverProfession = heroDataForLocal?.profession ?? heroDataForLocal?.klass;
         const serverKlass = character.classId ?? heroDataForLocal?.classId ?? heroDataForLocal?.klass;
+        const rawLocalSrvSkills = heroDataForLocal?.skills;
         const serverSkillsEmpty =
-          Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length === 0;
+          Array.isArray(rawLocalSrvSkills) && rawLocalSrvSkills.length === 0;
         const takeServerSkillsStrict =
           serverRevisionAdvanced && (demoteToServerLevel || serverSkillsEmpty);
+        // Якщо в heroJson з API є масив skills (навіть порожній) — це джерело правди; інакше після адмін-скидання локальні скіли «оживали»
         let skillsFromServer = takeServerSkillsStrict
-          ? Array.isArray(heroDataForLocal?.skills)
-            ? heroDataForLocal.skills
+          ? Array.isArray(rawLocalSrvSkills)
+            ? rawLocalSrvSkills
             : []
-          : Array.isArray(heroDataForLocal?.skills) && heroDataForLocal.skills.length > 0
-            ? heroDataForLocal.skills
+          : Array.isArray(rawLocalSrvSkills)
+            ? rawLocalSrvSkills
             : hydratedLocalHero.skills;
         const profForSkillFilter =
           (serverProfession && String(serverProfession).trim()) ? String(serverProfession) : hydratedLocalHero.profession;
@@ -583,35 +585,54 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       } as Hero);
     }
 
-    // 🔥 КРИТИЧНО: Union-merge equipment і skills — ніколи не губити плащ/пояс/доп. скіли після F5.
-    // Беремо об'єднання: екіп = всі слоти з сервера + локаль (локаль має пріоритет на конфлікт);
-    // скіли = об'єднання по id з більшим рівнем.
-    // 🔥 localHeroForMerge = null, якщо локаль належить ІНШОМУ персонажу (Register: новий герой не підтягує чужі скіли/інвентар)
-    const serverSkillsForMerge = Array.isArray((heroData as any)?.skills) ? (heroData as any).skills : [];
-    const localSkills = localHeroForMerge?.skills || [];
-    const skillById = new Map<number, { id: number; level: number }>();
-    for (const s of serverSkillsForMerge) {
-      const id = Number((s as any).id);
-      const lvl = Number((s as any).level) || 1;
-      if (id) skillById.set(id, { id, level: lvl });
+    // 🔥 Скіли: при новішому snapshot з API не union-мерджити з локалкою — інакше після адмін-скидання / зміни класу старі ID знову в hero.skills та на екрані «Вивчені».
+    // Екіп/інвентар як раніше — union далі нижче.
+    const rawHeroSkillsMerge = (heroData as any)?.skills;
+    let finalSkillsForRecalc: Array<{ id: number; level: number }>;
+    if (preferServerSnapshot) {
+      const list = Array.isArray(rawHeroSkillsMerge)
+        ? rawHeroSkillsMerge
+        : Array.isArray((fixedHero as any)?.skills)
+          ? (fixedHero as any).skills
+          : [];
+      finalSkillsForRecalc = filterSkillsListForHeroProfession(
+        fixedHero.profession,
+        fixedHero.klass,
+        fixedHero.race,
+        (list as any[])
+          .map((s: any) => ({
+            id: Number(s?.id),
+            level: Math.max(1, Number(s?.level) || 1),
+          }))
+          .filter((s) => Number.isFinite(s.id) && s.id > 0)
+      );
+    } else {
+      const serverSkillsForMerge = Array.isArray(rawHeroSkillsMerge) ? rawHeroSkillsMerge : [];
+      const localSkills = localHeroForMerge?.skills || [];
+      const skillById = new Map<number, { id: number; level: number }>();
+      for (const s of serverSkillsForMerge) {
+        const id = Number((s as any).id);
+        const lvl = Number((s as any).level) || 1;
+        if (id) skillById.set(id, { id, level: lvl });
+      }
+      for (const s of localSkills) {
+        const id = Number((s as any).id);
+        const lvl = Number((s as any).level) || 1;
+        if (!id) continue;
+        const cur = skillById.get(id);
+        if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
+      }
+      finalSkillsForRecalc =
+        skillById.size > 0
+          ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level }))
+          : (fixedHero.skills || []);
+      finalSkillsForRecalc = filterSkillsListForHeroProfession(
+        fixedHero.profession,
+        fixedHero.klass,
+        fixedHero.race,
+        finalSkillsForRecalc
+      );
     }
-    for (const s of localSkills) {
-      const id = Number((s as any).id);
-      const lvl = Number((s as any).level) || 1;
-      if (!id) continue;
-      const cur = skillById.get(id);
-      if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
-    }
-    let finalSkillsForRecalc =
-      skillById.size > 0
-        ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level }))
-        : (fixedHero.skills || []);
-    finalSkillsForRecalc = filterSkillsListForHeroProfession(
-      fixedHero.profession,
-      fixedHero.klass,
-      fixedHero.race,
-      finalSkillsForRecalc
-    );
 
     const serverEquip = fixedHero.equipment ?? {};
     const localEquip = localHeroForMerge?.equipment ?? {};
