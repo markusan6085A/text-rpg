@@ -104,6 +104,33 @@ export function clearWarehouse(characterId: string): void {
 }
 
 /**
+ * Примусово вирівняти localStorage-склад під масив з heroJson (онлайн / інший пристрій новіший за lastSavedAt).
+ * Якщо slots не масив — трактуємо як порожній склад.
+ */
+export function applyWarehouseSlotsFromHeroJson(
+  characterId: string | undefined,
+  slots: unknown,
+  _heroNameFallback?: string
+): void {
+  const id = typeof characterId === "string" && characterId.trim().length > 0 ? characterId.trim() : "";
+  if (!id) return;
+  const arr = Array.isArray(slots) ? slots : [];
+  for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
+    const raw = arr[i];
+    if (raw != null && typeof raw === "object") {
+      const item = raw as HeroInventoryItem;
+      if (LEGACY_CURRENCY_IDS.has((item as any).id || (item as any).itemId || "")) {
+        saveItemToWarehouse(id, i, null);
+      } else {
+        saveItemToWarehouse(id, i, item);
+      }
+    } else {
+      saveItemToWarehouse(id, i, null);
+    }
+  }
+}
+
+/**
  * Після завантаження героя з API: якщо локальні ключі складу порожні (нова вкладка / очищення cookie),
  * відновити комірки з heroJson.warehouseSlots. Якщо локальний склад уже не порожній — не перезаписуємо.
  */

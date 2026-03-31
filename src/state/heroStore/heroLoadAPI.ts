@@ -15,7 +15,10 @@ import { readCharacterProgress } from "./heroPersistence";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
 import { filterSkillsListForHeroProfession, seedBattleLoadoutFromHeroJsonIfNeeded } from "../battle/loadout";
-import { seedWarehouseFromHeroJsonIfStorageEmpty } from "../warehouse/warehousePersistence";
+import {
+  applyWarehouseSlotsFromHeroJson,
+  seedWarehouseFromHeroJsonIfStorageEmpty,
+} from "../warehouse/warehousePersistence";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
 
@@ -1029,8 +1032,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
     const finalHero = hydratedHero || heroWithRecalculatedStats;
     if (finalHero) {
-      const wid = (finalHero as any)?.id;
-      seedWarehouseFromHeroJsonIfStorageEmpty(wid, (finalHero as any)?.heroJson?.warehouseSlots, finalHero.name);
+      const wid =
+        (typeof characterStore.characterId === "string" && characterStore.characterId.trim().length > 0
+          ? characterStore.characterId.trim()
+          : String((finalHero as any)?.id ?? "").trim()) || undefined;
+      const whSlots = (finalHero as any)?.heroJson?.warehouseSlots;
+      // Той самий критерій, що й merge героя: новіший snapshot з API → склад не лишаємо «старим» лише в цьому браузері.
+      if (preferServerSnapshot && wid) {
+        applyWarehouseSlotsFromHeroJson(wid, whSlots, finalHero.name);
+      } else {
+        seedWarehouseFromHeroJsonIfStorageEmpty(wid, whSlots, finalHero.name);
+      }
       seedBattleLoadoutFromHeroJsonIfNeeded(finalHero);
     }
     if (import.meta.env.DEV && finalHero) {
