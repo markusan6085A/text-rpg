@@ -43,6 +43,7 @@ export default function Battle({ navigate }: BattleProps) {
     zoneId: battleZoneId,
     mobIndex: battleMobIndex,
     heroBuffs,
+    mobBuffs,
     reset,
     lastReward,
     log,
@@ -515,6 +516,7 @@ export default function Battle({ navigate }: BattleProps) {
   return (
     <BattlePanel
       target={battleTarget}
+      targetDebuffs={mobBuffs ?? []}
       buffs={heroBuffs || []}
       now={now}
       backLabel={

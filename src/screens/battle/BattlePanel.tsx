@@ -32,6 +32,8 @@ export interface BattlePanelTarget {
 export interface BattlePanelProps {
   /** Ціль (моб або гравець) */
   target: BattlePanelTarget;
+  /** Дебафи на цілі (PvE: useBattleStore.mobBuffs). Для PK/арени зазвичай порожньо. */
+  targetDebuffs?: BattleBuff[];
   /** Бафи героя — один спільний BuffBar для мобів, PK і PvP-арени (див. JSDoc BattlePanel). */
   buffs: BattleBuff[];
   /** Поточний час (мс) для таймерів бафів */
@@ -54,10 +56,11 @@ export interface BattlePanelProps {
 
 /**
  * Універсальна панель бою: однаковий вигляд для бою з мобом, PK, олімпіади, ТВТ, арени.
- * BuffBar не дублюється: один компонент для всіх режимів (Battle.tsx, PkProfileView, ArenaMatchScreen → той самий шлях рендеру).
+ * Два BuffBar: дебафи на цілі (targetDebuffs, PvE) та бафи героя (buffs); для PK targetDebuffs не передають.
  */
 export function BattlePanel({
   target,
+  targetDebuffs,
   buffs,
   now,
   log,
@@ -102,20 +105,23 @@ export function BattlePanel({
       <div className={isL2 ? "w-full max-w-[400px] mx-auto" : "w-full max-w-[360px] mx-auto"}>
         <div className={`${line} pt-2`}>
           <div className={pad}>
-            <div className="flex justify-center -mt-1">
-              <BattleTargetCard
-                name={target.name}
-                level={target.level}
-                currentHp={target.currentHp}
-                maxHp={target.maxHp}
-                isAggressivePatrol={target.isAggressivePatrol}
-                isL2={isL2}
-              />
+            <div className="flex flex-col items-center gap-2">
+              <BuffBar buffs={targetDebuffs ?? []} now={now} />
+              <div className="flex justify-center -mt-1">
+                <BattleTargetCard
+                  name={target.name}
+                  level={target.level}
+                  currentHp={target.currentHp}
+                  maxHp={target.maxHp}
+                  isAggressivePatrol={target.isAggressivePatrol}
+                  isL2={isL2}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className={`${line} pt-3`}>
+        <div className={`${line} pt-3 mt-[2cm]`}>
           <div className={pad}>
             <BuffBar buffs={buffs} now={now} />
           </div>
