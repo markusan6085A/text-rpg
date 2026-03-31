@@ -111,6 +111,36 @@ export function loadoutStorageIsEmptyOrDefault(heroName: string | undefined): bo
   return !nonTrivial;
 }
 
+/** У панелі є числовий скіл, якого немає у вивчених (після адмін-скидання скілів / зміни класу без professionForLoadout у battle JSON). */
+export function battleLoadoutStaleForHero(
+  hero: Hero | null | undefined,
+  loadoutSlots: (number | string | null)[] | null | undefined
+): boolean {
+  if (!hero || !Array.isArray(loadoutSlots)) return false;
+  const learned = getHeroLearnedSkillNumericIds(hero);
+  return loadoutSlots.some(
+    (s) => typeof s === "number" && s !== BASE_ATTACK_ID && !learned.has(s)
+  );
+}
+
+const profNorm = (p: unknown) => String(p ?? "").trim();
+
+/** Розсинхрон панелі/бафів після зміни професії або коли панель містить уже невивчені скіли. */
+export function professionOrLoadoutMismatchForBattle(
+  heroName: string | null | undefined,
+  hero: Hero | null | undefined,
+  saved: { professionForLoadout?: string; loadoutSlots?: (number | string | null)[] } | null | undefined
+): boolean {
+  if (!heroName || !hero?.profession) return false;
+  const hp = profNorm(hero.profession);
+  const savedProfRaw = saved && (saved as any).professionForLoadout != null ? (saved as any).professionForLoadout : "";
+  const savedProf = profNorm(savedProfRaw);
+  const profMismatch = !!savedProf && savedProf !== hp;
+  const staleSaved = battleLoadoutStaleForHero(hero, saved?.loadoutSlots);
+  const staleLocal = battleLoadoutStaleForHero(hero, loadLoadout(heroName));
+  return profMismatch || staleSaved || staleLocal;
+}
+
 /**
  * Примусово вирівняти `l2_loadout_*` і battle snapshot під `heroJson.battleLoadoutSlots` (новіший snapshot з API / інший пристрій).
  */

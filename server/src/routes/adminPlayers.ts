@@ -862,6 +862,9 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
           skills: newSkills,
           gender: newSex,
           loadout: [],
+          // Клієнт синкає панель бою та бафи з heroJson — без очищення лишаються скилли/бафи старого класу
+          heroBuffs: [],
+          battleLoadoutSlots: [0, null],
         },
         Number(heroJson.heroRevision ?? 0) || 0
       );

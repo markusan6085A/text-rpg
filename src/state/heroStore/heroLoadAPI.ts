@@ -4,7 +4,7 @@ import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { fixHeroProfession } from "../../utils/fixProfession";
-import { loadBattle } from "../battle/persist";
+import { loadBattle, persistBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { createNewHero } from "../heroFactory";
 import type { Hero } from "../../types/Hero";
@@ -16,7 +16,11 @@ import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
 import {
   applyBattleLoadoutFromHeroJson,
+  battleLoadoutStaleForHero,
+  clearLoadout,
   filterSkillsListForHeroProfession,
+  loadLoadout,
+  professionOrLoadoutMismatchForBattle,
   seedBattleLoadoutFromHeroJsonIfNeeded,
 } from "../battle/loadout";
 import {
@@ -646,19 +650,23 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const savedBattle = loadBattle(fixedHero.name);
     
     // 🔥 КРИТИЧНО: Бафи можуть бути в heroJson.heroBuffs (з сервера) або в savedBattle.heroBuffs (localStorage)
-    // Сервер зберігає heroBuffs на верхньому рівні heroJson (character.heroJson.heroBuffs)
-    // fixedHero = { ...heroData } → heroBuffs може бути у fixedHero.heroBuffs або fixedHero.heroJson?.heroBuffs
-    const heroJsonBuffs = Array.isArray((fixedHero as any).heroBuffs) 
-      ? (fixedHero as any).heroBuffs 
-      : Array.isArray((fixedHero as any).heroJson?.heroBuffs) 
-        ? (fixedHero as any).heroJson.heroBuffs 
+    const heroJsonBuffsRaw = Array.isArray((fixedHero as any).heroBuffs)
+      ? (fixedHero as any).heroBuffs
+      : Array.isArray((fixedHero as any).heroJson?.heroBuffs)
+        ? (fixedHero as any).heroJson.heroBuffs
         : [];
-    // Професія змінилась (напр. через адмінку) — toggle-бафи від старої професії не використовуємо
-    const professionChanged =
-      fixedHero.name &&
-      fixedHero.profession &&
-      (savedBattle as any)?.professionForLoadout &&
-      (savedBattle as any).professionForLoadout !== fixedHero.profession;
+    // Професія змінилась (адмінка) або панель бою містить скіли, яких немає у вивчених — інакше лишаються старі бафи/слоти без professionForLoadout у battle JSON
+    const profMismatchBattle =
+      !!(fixedHero.name && fixedHero.profession && (savedBattle as any)?.professionForLoadout) &&
+      String((savedBattle as any).professionForLoadout).trim() !== String(fixedHero.profession).trim();
+    const profMismatchLocal =
+      !!(localBelongsToCharacter && hydratedLocalHero?.profession && fixedHero.profession) &&
+      String(hydratedLocalHero!.profession).trim() !== String(fixedHero.profession).trim();
+    const staleBar =
+      battleLoadoutStaleForHero(fixedHero as Hero, savedBattle?.loadoutSlots) ||
+      battleLoadoutStaleForHero(fixedHero as Hero, loadLoadout(fixedHero.name));
+    const professionChanged = !!(profMismatchBattle || profMismatchLocal || staleBar);
+    const heroJsonBuffs = professionChanged ? [] : heroJsonBuffsRaw;
     const savedBattleBuffs = professionChanged ? [] : (savedBattle?.heroBuffs || []);
     
     // Об'єднуємо бафи з сервера та з battle (статуя зберігає в battle). При однаковому id/stackType
@@ -847,7 +855,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     (heroWithRecalculatedStats as any).heroJson = {
       ...loadedHeroJson,
       ...(preferLocalAlive || finalHp > 0 || isAliveAfterLoad ? { isDead: false, deadAt: 0 } : {}),
-      heroBuffs: isDead && !isAliveAfterLoad ? [] : (loadedHeroJson.heroBuffs ?? finalBuffs),
+      heroBuffs:
+        isDead && !isAliveAfterLoad
+          ? []
+          : professionChanged
+            ? finalBuffs
+            : (loadedHeroJson.heroBuffs ?? finalBuffs),
     };
 
     if (localBelongsToCharacter && hydratedLocalHero) {
@@ -1051,6 +1064,41 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         applyBattleLoadoutFromHeroJson(finalHero);
       } else {
         seedBattleLoadoutFromHeroJsonIfNeeded(finalHero);
+      }
+      const hn = finalHero.name;
+      if (hn) {
+        const savedBt = loadBattle(hn);
+        if (professionOrLoadoutMismatchForBattle(hn, finalHero, savedBt)) {
+          clearLoadout(hn);
+          const slots = loadLoadout(hn);
+          persistBattle(
+            {
+              ...savedBt,
+              heroName: hn,
+              heroBuffs: [],
+              summon: undefined,
+              summonBuffs: [],
+              baseSummonStats: undefined,
+              summonLastAttackAt: undefined,
+              loadoutSlots: slots,
+              professionForLoadout: finalHero.profession,
+            },
+            hn
+          );
+          const { useBattleStore } = await import("../battle/store");
+          const st = useBattleStore.getState();
+          if (st.heroName === hn || st.heroName == null || st.heroName === "") {
+            useBattleStore.setState({
+              heroBuffs: [],
+              loadoutSlots: slots,
+              professionForLoadout: finalHero.profession,
+              summon: undefined,
+              summonBuffs: [],
+              baseSummonStats: undefined,
+              summonLastAttackAt: undefined,
+            });
+          }
+        }
       }
     }
     if (import.meta.env.DEV && finalHero) {

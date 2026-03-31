@@ -6,7 +6,7 @@
 import { useHeroStore } from "../heroStore";
 import { useBattleStore } from "./store";
 import { loadBattle, persistBattle, BATTLE_VERSION } from "./persist";
-import { loadLoadout, clearLoadout } from "./loadout";
+import { loadLoadout, clearLoadout, professionOrLoadoutMismatchForBattle } from "./loadout";
 import { initialState } from "./initialState";
 import type { BattleState } from "./types";
 
@@ -26,13 +26,10 @@ export function hydrateBattleStoreFromStorage(): void {
     const isVersionCompatible = saved.version === BATTLE_VERSION || saved.version == null;
     if (!belongsToCurrentHero || !isVersionCompatible) return;
 
-    const restoredSummon = saved.summon && saved.summon.hp > 0 ? saved.summon : null;
-    // Професія змінилась (напр. через адмінку) — toggle-бафи від старої професії не відновлюємо
-    const professionChanged =
-      heroName &&
-      hero?.profession &&
-      (saved as any)?.professionForLoadout &&
-      (saved as any).professionForLoadout !== hero.profession;
+    // Професія / панель розійшлись із героєм (адмінка, невивчені скіли на bar)
+    const professionChanged = professionOrLoadoutMismatchForBattle(heroName, hero, saved);
+    const restoredSummon =
+      professionChanged ? null : saved.summon && saved.summon.hp > 0 ? saved.summon : null;
 
     let heroBuffsToRestore: any[];
     let loadoutSlotsToRestore: (number | string | null)[];
@@ -45,6 +42,10 @@ export function hydrateBattleStoreFromStorage(): void {
         {
           ...saved,
           heroBuffs: [],
+          summon: undefined,
+          summonBuffs: [],
+          baseSummonStats: undefined,
+          summonLastAttackAt: undefined,
           loadoutSlots: loadoutSlotsToRestore,
           professionForLoadout: hero.profession,
         },
@@ -60,9 +61,9 @@ export function hydrateBattleStoreFromStorage(): void {
     const restored: Partial<BattleState> = {
       heroName: saved.heroName,
       summon: restoredSummon,
-      summonLastAttackAt: saved.summonLastAttackAt,
-      summonBuffs: saved.summonBuffs ?? [],
-      baseSummonStats: saved.baseSummonStats,
+      summonLastAttackAt: professionChanged ? undefined : saved.summonLastAttackAt,
+      summonBuffs: professionChanged ? [] : saved.summonBuffs ?? [],
+      baseSummonStats: professionChanged ? undefined : saved.baseSummonStats,
       heroBuffs: heroBuffsToRestore,
       cooldowns: saved.cooldowns ?? {},
       loadoutSlots: loadoutSlotsToRestore,

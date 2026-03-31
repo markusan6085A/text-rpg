@@ -2,7 +2,13 @@ import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import { getMobEffectiveMaxHp } from "../../../utils/mobs/mobEffectiveMaxHp";
 import type { Mob, Zone } from "../../../data/world/types";
 import { useHeroStore } from "../../heroStore";
-import { BASE_ATTACK_ID, loadLoadout, clearLoadout, getHeroLearnedSkillNumericIds } from "../loadout";
+import {
+  BASE_ATTACK_ID,
+  loadLoadout,
+  clearLoadout,
+  getHeroLearnedSkillNumericIds,
+  professionOrLoadoutMismatchForBattle,
+} from "../loadout";
 import { loadBattle, persistBattle } from "../persist";
 import { cleanupBuffs, persistSnapshot, applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
@@ -33,9 +39,10 @@ export const createStartBattle =
     const hero = useHeroStore.getState().hero;
     const heroName = hero?.name;
     const saved = loadBattle(heroName);
+    const classOrLoadoutMismatch = professionOrLoadoutMismatchForBattle(heroName, hero, saved);
     const now = Date.now();
     // 🔥 КРИТИЧНО: Об'єднуємо бафи з localStorage і heroJson.heroBuffs (бафи від інших гравців)
-    const battleBuffs = saved?.heroBuffs || [];
+    const battleBuffs = classOrLoadoutMismatch ? [] : saved?.heroBuffs || [];
     const heroJsonBuffs = Array.isArray((hero as any)?.heroBuffs) ? (hero as any).heroBuffs
       : Array.isArray((hero as any)?.heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs
       : [];
@@ -135,11 +142,7 @@ export const createStartBattle =
           ? Math.max(1, Math.min(serverSlot.currentHp, serverSlot.maxHp))
           : saved.mobHP;
 
-      const professionChanged =
-        heroName &&
-        hero?.profession &&
-        (saved as any)?.professionForLoadout &&
-        (saved as any).professionForLoadout !== hero.profession;
+      const professionChanged = classOrLoadoutMismatch;
       const cooldowns: CooldownMap = {};
       Object.entries(saved.cooldowns || {}).forEach(([k, v]) => {
         const ts = typeof v === "number" ? v : 0;
@@ -148,7 +151,7 @@ export const createStartBattle =
       const heroBuffs = professionChanged ? [] : cleanupBuffs(saved.heroBuffs || [], now);
       const mobBuffs = cleanupBuffs(saved.mobBuffs || [], now); // Очищаємо застарілі debuff мобів
       const restoredSummon =
-        saved.summon && saved.summon.hp > 0 ? saved.summon : null;
+        professionChanged ? null : saved.summon && saved.summon.hp > 0 ? saved.summon : null;
 
       // Обчислюємо інтервал auto-attack для resume
       // Для риболовлі: фіксований інтервал 0.4 сек (400 мс)
@@ -197,8 +200,8 @@ export const createStartBattle =
         lastReward: saved.lastReward,
         heroBuffs,
         mobBuffs,
-        summonBuffs: saved.summonBuffs || [],
-        baseSummonStats: saved.baseSummonStats,
+        summonBuffs: professionChanged ? [] : saved.summonBuffs || [],
+        baseSummonStats: professionChanged ? undefined : saved.baseSummonStats,
         summon: restoredSummon,
         resurrection: saved.resurrection ?? null,
       });
@@ -290,7 +293,8 @@ export const createStartBattle =
     // Зберігаємо сумон зі збереженого стану (localStorage) або з попереднього стану, якщо він живий
     const savedSummon = saved?.summon && saved.summon.hp > 0 ? saved.summon : null;
     const prevSummon = prevState.summon && prevState.summon.hp > 0 ? prevState.summon : null;
-    const preservedSummon = savedSummon || prevSummon;
+    let preservedSummon = savedSummon || prevSummon;
+    if (classOrLoadoutMismatch) preservedSummon = null;
     
     // 🔥 Завантажуємо збережені логи бою (останні 10 протягом 5 хвилин)
     const savedLogs = loadBattleLogs(heroName);
@@ -324,13 +328,8 @@ export const createStartBattle =
       ? (saved as any).activeChargeSlots
       : (prevState.activeChargeSlots?.length ? prevState.activeChargeSlots : (get().activeChargeSlots ?? []));
 
-    const professionChangedNew =
-      heroName &&
-      hero?.profession &&
-      (saved as any)?.professionForLoadout &&
-      (saved as any).professionForLoadout !== hero.profession;
     let loadoutSlotsNew: (number | string | null)[];
-    if (professionChangedNew) {
+    if (classOrLoadoutMismatch) {
       clearLoadout(heroName);
       loadoutSlotsNew = loadLoadout(heroName);
     } else {
@@ -370,7 +369,7 @@ export const createStartBattle =
       professionForLoadout: hero?.profession ?? undefined,
       activeChargeSlots: activeChargeSlotsForNewBattle,
       lastReward: undefined,
-      heroBuffs: professionChangedNew ? [] : (preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332)),
+      heroBuffs: classOrLoadoutMismatch ? [] : (preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332)),
       mobBuffs: [],
       summonBuffs: preservedSummon ? (saved?.summonBuffs || prevState.summonBuffs || []) : [],
       baseSummonStats: preservedSummon ? (saved?.baseSummonStats || prevState.baseSummonStats) : undefined,

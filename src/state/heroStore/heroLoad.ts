@@ -10,7 +10,12 @@
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { loadBattle } from "../battle/persist";
-import { filterSkillsListForHeroProfession, seedBattleLoadoutFromHeroJsonIfNeeded } from "../battle/loadout";
+import {
+  battleLoadoutStaleForHero,
+  filterSkillsListForHeroProfession,
+  loadLoadout,
+  seedBattleLoadoutFromHeroJsonIfNeeded,
+} from "../battle/loadout";
 import { seedWarehouseFromHeroJsonIfStorageEmpty } from "../warehouse/warehousePersistence";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { getJSON, getString, removeItem, setJSON } from "../persistence";
@@ -272,12 +277,19 @@ export function loadHero(): Hero | null {
     // Перераховуємо стати при завантаженні героя з урахуванням бафів
     const now = Date.now();
     const savedBattle = loadBattle(fixedHero.name);
-    const heroJsonBuffs = Array.isArray((fixedHero as any).heroBuffs) ? (fixedHero as any).heroBuffs : Array.isArray((fixedHero as any).heroJson?.heroBuffs) ? (fixedHero as any).heroJson.heroBuffs : [];
-    const professionChanged =
-      fixedHero.name &&
-      fixedHero.profession &&
-      (savedBattle as any)?.professionForLoadout &&
-      (savedBattle as any).professionForLoadout !== fixedHero.profession;
+    const heroJsonBuffsRaw = Array.isArray((fixedHero as any).heroBuffs)
+      ? (fixedHero as any).heroBuffs
+      : Array.isArray((fixedHero as any).heroJson?.heroBuffs)
+        ? (fixedHero as any).heroJson.heroBuffs
+        : [];
+    const profMismatchBattle =
+      !!(fixedHero.name && fixedHero.profession && (savedBattle as any)?.professionForLoadout) &&
+      String((savedBattle as any).professionForLoadout).trim() !== String(fixedHero.profession).trim();
+    const staleBar =
+      battleLoadoutStaleForHero(fixedHero, savedBattle?.loadoutSlots) ||
+      battleLoadoutStaleForHero(fixedHero, loadLoadout(fixedHero.name));
+    const professionChanged = !!(profMismatchBattle || staleBar);
+    const heroJsonBuffs = professionChanged ? [] : heroJsonBuffsRaw;
     const savedBattleBuffs = professionChanged ? [] : (savedBattle?.heroBuffs || []);
     const allBuffsRaw = [...heroJsonBuffs, ...savedBattleBuffs];
     const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
