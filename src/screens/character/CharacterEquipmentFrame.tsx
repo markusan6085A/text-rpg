@@ -415,7 +415,7 @@ export default function CharacterEquipmentFrame({
 
   // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true або heroOverride)
   const slotClassTest =
-    "w-6 h-6 bg-slate-950/80 rounded-md border border-cyan-400/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_10px_rgba(34,211,238,0.15)]";
+    "w-6 h-6 bg-[linear-gradient(180deg,#1e293b_0%,#020617_100%)] rounded-md border border-cyan-950/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-2px_5px_rgba(0,0,0,0.6),0_2px_0_rgba(0,0,0,0.35)]";
   const slotClassGold =
     "w-6 h-6 bg-black/50 rounded-sm border border-[#c9a44c]/50 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_0_8px_rgba(212,175,55,0.12)]";
   const slotClassGoldRo =
@@ -434,7 +434,7 @@ export default function CharacterEquipmentFrame({
         : "w-6 h-6 bg-black/50";
 
   const frameShell = isTestEquip
-    ? "rounded-2xl border-2 border-cyan-400/45 shadow-[0_0_32px_rgba(34,211,238,0.18),inset_0_1px_0_rgba(255,255,255,0.08)] bg-[linear-gradient(165deg,rgba(15,23,42,0.96)_0%,rgba(30,27,75,0.94)_45%,rgba(2,6,23,1)_100%)]"
+    ? "rounded-2xl border border-cyan-950/40 shadow-[inset_0_1px_0_rgba(94,234,212,0.08),inset_0_-10px_28px_rgba(0,0,0,0.55),0_10px_32px_rgba(0,0,0,0.85)] bg-[linear-gradient(165deg,#050a12_0%,#020617_38%,#000000_100%)]"
     : isGoldL2
       ? "rounded-xl border-2 border-[#d4af37]/45 shadow-[0_0_0_1px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(199,173,128,0.22),0_10px_40px_rgba(0,0,0,0.65),0_0_28px_rgba(184,134,11,0.14)] bg-[linear-gradient(165deg,rgba(45,38,28,0.95)_0%,rgba(12,10,8,0.98)_45%,rgba(8,6,5,1)_100%)]"
       : "rounded-lg border-2 border-[#888]/60 shadow-lg bg-black/50";

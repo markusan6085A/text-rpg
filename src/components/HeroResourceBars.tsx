@@ -10,13 +10,13 @@ export const HERO_BAR_FILLS = {
   expGray: "linear-gradient(180deg,#c4c4c4,#6b6b6b)",
 } as const;
 
-/** Холодна палітра для теми «Тест» (профіль). */
+/** Холодна палітра для теми «Тест» (профіль) — темніший низ для об’єму. */
 export const HERO_BAR_FILLS_PROFILE_TEST = {
-  cp: "linear-gradient(180deg,#5eead4,#0f766e)",
-  hp: "linear-gradient(180deg,#fb7185,#9f1239)",
-  mp: "linear-gradient(180deg,#93c5fd,#1d4ed8)",
-  exp: "linear-gradient(90deg,#a78bfa,#6366f1,#c4b5fd)",
-  expGray: "linear-gradient(180deg,#94a3b8,#475569)",
+  cp: "linear-gradient(180deg,#2dd4bf,#0d9488,#022c22)",
+  hp: "linear-gradient(180deg,#f87171,#9f1239,#450a0a)",
+  mp: "linear-gradient(180deg,#60a5fa,#1e40af,#172554)",
+  exp: "linear-gradient(90deg,#6d28d9,#4338ca,#1e1b4b)",
+  expGray: "linear-gradient(180deg,#475569,#1e293b,#020617)",
 } as const;
 
 export interface HeroResourceBarsProps {
@@ -68,23 +68,23 @@ function ResourceTrack({
   const h = thin ? "h-1" : compact ? "h-1.5" : premiumShine || profileTest ? "h-2.5" : "h-2";
   const labelCls = compact ? "text-[8px] w-[26px]" : "text-[9px] w-5";
   const trackRing = profileTest
-    ? "border-cyan-500/45 shadow-[inset_0_1px_3px_rgba(0,0,0,0.75),0_0_14px_rgba(34,211,238,0.18)]"
+    ? "border-cyan-950/60 shadow-[inset_0_3px_10px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(94,234,212,0.09),0_1px_0_rgba(255,255,255,0.04)]"
     : premiumShine
       ? "border-[#6b5344]/90 shadow-[inset_0_1px_3px_rgba(0,0,0,0.75),0_0_10px_rgba(212,175,55,0.12)]"
       : "border-[#2a241c] shadow-[inset_0_1px_3px_rgba(0,0,0,0.65)]";
   const fillExtra = profileTest
-    ? "shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_0_10px_rgba(34,211,238,0.35)]"
+    ? "shadow-[inset_0_2px_0_rgba(255,255,255,0.22),inset_0_-2px_4px_rgba(0,0,0,0.45)]"
     : premiumShine
       ? "shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_0_8px_rgba(255,200,120,0.25)]"
       : "";
-  const labelColor = profileTest ? "text-cyan-100/90" : "text-[#b59a72]";
+  const labelColor = profileTest ? "text-cyan-400/80" : "text-[#b59a72]";
   return (
     <div className={`flex items-center ${compact ? "gap-1" : "gap-1.5"}`}>
       <span className={`shrink-0 font-semibold ${labelColor} ${labelCls} tabular-nums`}>
         {label}
       </span>
       <div
-        className={`${h} flex-1 min-w-0 rounded-[3px] bg-black/55 overflow-hidden border ${trackRing}`}
+        className={`${h} flex-1 min-w-0 ${profileTest ? "rounded-[4px]" : "rounded-[3px]"} ${profileTest ? "bg-[#020617]" : "bg-black/55"} overflow-hidden border ${trackRing}`}
       >
         <div
           className={`h-full transition-[width] duration-300 ${pulse ? "animate-pulse" : ""} ${fillExtra}`}

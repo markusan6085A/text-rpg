@@ -82,14 +82,14 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
   if (isTestProfileHud) {
     return (
       <div
-        className="w-full max-w-[420px] mx-auto mb-2 rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-b from-slate-900 via-indigo-950/90 to-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_32px_rgba(34,211,238,0.16)] p-3 text-slate-100"
+        className="w-full max-w-[420px] mx-auto mb-2 rounded-2xl border border-cyan-950/45 bg-[linear-gradient(180deg,#0a101a_0%,#030712_52%,#000000_100%)] p-3 text-slate-200 shadow-[inset_0_1px_0_rgba(94,234,212,0.1),inset_0_-8px_22px_rgba(0,0,0,0.5),0_10px_28px_rgba(0,0,0,0.82),0_0_0_1px_rgba(0,0,0,0.65)]"
         aria-label="Ресурси персонажа"
       >
         <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-          <span className="text-[13px] font-bold text-cyan-50 truncate max-w-[68%] [text-shadow:0_0_18px_rgba(34,211,238,0.35)]">
+          <span className="text-[13px] font-bold text-cyan-100/90 truncate max-w-[68%] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)]">
             {nickname}
           </span>
-          <span className="text-[12px] text-violet-200 font-semibold tabular-nums whitespace-nowrap">
+          <span className="text-[12px] text-violet-300/85 font-semibold tabular-nums whitespace-nowrap drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
             {level} ур.
           </span>
         </div>
