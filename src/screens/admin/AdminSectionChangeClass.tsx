@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { adminFindPlayerByName, adminChangeClass } from "../../utils/api";
 import { getAdminProfessionSelectGroups, normalizeProfessionId, type ProfessionId } from "../../data/skills";
-import { buildLearnedSkillsForProfessionAtCharacterLevel } from "../../utils/professionLearnedAtLevel";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
 
 const SEX_OPTIONS = [
@@ -10,7 +9,7 @@ const SEX_OPTIONS = [
   { value: "female", label: "Жіноча" },
 ];
 
-type FoundCharacter = { id: string; name: string; profession: string | null; level: number };
+type FoundCharacter = { id: string; name: string; profession: string | null };
 
 export function AdminSectionChangeClass() {
   const isL2 = getCityUiVariant() === "l2";
@@ -44,7 +43,6 @@ export function AdminSectionChangeClass() {
           id: c.id,
           name: c.name,
           profession: c.profession != null ? String(c.profession) : null,
-          level: Math.max(1, Math.min(80, Number(c.level) || 1)),
         });
         setMessage(`Знайдено: ${c.name}`);
       } else {
@@ -89,19 +87,12 @@ export function AdminSectionChangeClass() {
         setLoading(false);
         return;
       }
-      const pidNorm = normalizeProfessionId(newProfession as ProfessionId);
-      if (!pidNorm) {
-        setMessage("Невідомий id професії — оберіть зі списку.");
-        setLoading(false);
-        return;
-      }
-      const grantedSkills = buildLearnedSkillsForProfessionAtCharacterLevel(pidNorm, found.level);
-      await adminChangeClass(found.id, newProfession, grantedSkills, newSex);
+      await adminChangeClass(found.id, newProfession, [], newSex);
       const labelFromGroups =
         professionGroups.flatMap((g) => g.options).find((p) => p.id === newProfession)?.label ?? newProfession;
       setModalOpen(false);
       setMessage(
-        `Професію змінено на «${labelFromGroups}» (${found.name}). Скілів нової профи: ${grantedSkills.length}. Гравцю — F5.`
+        `Професію змінено на «${labelFromGroups}» (${found.name}). Старі скіли зняті; нові — вчити в гільдії. Гравцю — F5.`
       );
     } catch (err: any) {
       setMessage(err?.message || "Помилка");
@@ -128,7 +119,7 @@ export function AdminSectionChangeClass() {
         Змінити клас
       </h2>
       <p className={`text-xs mb-3 ${mutedClass}`}>
-        Знайдіть гравця, потім оберіть професію. Старі скіли знімаються; видаються скіли нової профи до рівня персонажа (як у гільдії). SP не чіпаємо.
+        Знайдіть гравця, потім оберіть професію. Старі скіли знімаються — нові гравець вчить сам у гільдії. SP не чіпаємо.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <input
