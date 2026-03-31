@@ -173,11 +173,15 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     }
     // 🔥 КРИТИЧНО: У server path не використовуємо hydratedLocalHero, якщо він належить ІНШОМУ персонажу.
     // Інакше новий герой (Register) підтягував би skills/inventory/gender зі старого — баг.
-    // 🔥 Multi-browser sync: якщо сервер новіший (інший браузер зробив зміни) — не мержити з локальним.
+    // 🔥 Multi-device / online: якщо сервер оновлений після останнього локального збереження — пріоритет snapshot з API
+    // (інакше ПК тягне старий екіп/стан із localStorage, навіть після гри на телефоні).
     const serverUpdatedAt = character?.updatedAt ? new Date(character.updatedAt).getTime() : 0;
-    const localLastSavedAt = (hydratedLocalHero as any)?.lastSavedAt || 0;
-    const serverNewer = localLastSavedAt > 0 && serverUpdatedAt > localLastSavedAt;
-    const localHeroForMerge = (localBelongsToCharacter && !serverNewer) ? hydratedLocalHero : null;
+    const localLastSavedAtOuter = (hydratedLocalHero as any)?.lastSavedAt || 0;
+    const preferServerSnapshot =
+      serverUpdatedAt > 0 &&
+      (localLastSavedAtOuter === 0 || serverUpdatedAt > localLastSavedAtOuter);
+    const localHeroForMerge =
+      localBelongsToCharacter && !preferServerSnapshot ? hydratedLocalHero : null;
     
     // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
     // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
@@ -261,7 +265,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const serverRevisionAdvanced =
         serverRev > localRev && (localRev > 0 || serverLevel < localLevel);
 
-      if (localHasMoreProgress) {
+      // Не «local preferred», якщо сервер новіший за локальний файл — інакше інший пристрій ніколи не «пробивається» в UI.
+      if (localHasMoreProgress && !preferServerSnapshot) {
         const reason = localDiffersFromServer ? 'local differs from server (equip/inv/buffs)' : (localHasExplicitlyUnequipped ? 'local unequipped (fewer slots)' : (localHasActiveBuffsNotOnServer ? 'local has active buffs' : (localNewerByTimestamp ? 'lastSavedAt > server.updatedAt' : 'more progress')));
         console.warn('[loadHeroFromAPI] Local preferred:', reason, localHasActiveBuffsNotOnServer ? { localActiveBuffsCount, serverActiveBuffsCount } : { localLevel, serverLevel, localExp, serverExp, localSp, serverSp, localAdena, serverAdena, localSkillLevelsSum, serverSkillLevelsSum, localMobsKilled, serverMobsKilled });
         // 🔥 Рівень з API не знижуємо через mere heroRevision — лише після admin set-level (поле adminLevelSetAt).
