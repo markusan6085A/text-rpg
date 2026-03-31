@@ -1,4 +1,4 @@
-﻿import { SkillDefinition } from "../../../types";
+import { SkillDefinition } from "../../../types";
 
 // Mana Recovery - 1 level from XML
 // Multiplies MP regen by 1.2 (20% increase)
@@ -7,7 +7,7 @@ export const skill_0214: SkillDefinition = {
   code: "DM_0214",
   name: "Mana Recovery",
   description: "Increases MP recovery speed.\n\nУвеличивает скорость восстановления MP на 20%.",
-  icon: "/skills/Skill0214_0.jpg",
+  icon: "/skills/skill0214.gif",
   category: "passive",
   powerType: "none",
   target: "self",

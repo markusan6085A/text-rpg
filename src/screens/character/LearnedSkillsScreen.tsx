@@ -5,9 +5,46 @@ import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { AdditionalSkills } from "../../data/skills/additional";
 import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { buildSkillIconCandidates } from "../../utils/skillIconUrls";
 
 interface LearnedSkillsScreenProps {
   navigate: (path: string) => void;
+}
+
+function LearnedSkillIcon({
+  skillId,
+  name,
+  declared,
+}: {
+  skillId: number;
+  name: string;
+  /** Шлях з SkillDefinition.icon */
+  declared?: string | null;
+}) {
+  const candidates = React.useMemo(() => buildSkillIconCandidates(skillId, declared), [skillId, declared]);
+  const [idx, setIdx] = React.useState(0);
+  const [givenUp, setGivenUp] = React.useState(false);
+  const src = candidates[idx] ?? "";
+
+  if (givenUp || !src) {
+    return <span className="w-5 h-5 shrink-0 inline-block" aria-hidden />;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
+      onError={() => {
+        setIdx((i) => {
+          const next = i + 1;
+          if (next < candidates.length) return next;
+          setGivenUp(true);
+          return i;
+        });
+      }}
+    />
+  );
 }
 
 export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenProps) {
@@ -177,7 +214,7 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
         id: learned.id,
         name: skillDef.name,
         description: skillDef.description ?? "",
-        icon: skillDef.icon && String(skillDef.icon).trim().length > 0 ? skillDef.icon : "/skills/skill0000.gif",
+        icon: skillDef.icon,
         category: skillDef.category || "none",
         level: learned.level,
         maxLevel: skillDef.levels.length,
@@ -322,34 +359,22 @@ export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenPro
                     }
                     
                     const skillValues = formatSkillValues(skill.skillDef, skill.levelDef);
-                    
-                    const iconBase = skill.icon && String(skill.icon).trim().length > 0 ? skill.icon : "/skills/skill0000.gif";
-                    let iconSrc = iconBase.startsWith("/") ? iconBase : `/skills/${iconBase}`;
-                    // Спеціальна обробка для Light Armor Mastery (skill 227) для Rogue
+
+                    let iconDeclared = skill.icon && String(skill.icon).trim().length > 0 ? String(skill.icon).trim() : undefined;
                     if (skill.id === 227 && (skill.skillDef as any)?.code === "HF_0227") {
-                      iconSrc = "/skills/skill0233.gif";
+                      iconDeclared = "/skills/skill0233.gif";
                     }
-                    // Спеціальна обробка для Guts (skill 139) для OrcRaider
                     if (skill.id === 139 && (skill.skillDef as any)?.code === "OR_0139") {
-                      iconSrc = "/skills/skill0139.gif";
+                      iconDeclared = "/skills/skill0139.gif";
                     }
-                    // Для додаткових скілів іконка вже правильна (з /dopskills/)
-                    // Не потрібно нічого змінювати
-                    
+
                     return (
                       <div
                         key={skill.id}
                         className={isL2 ? skillCardL2 : ""}
                       >
                         <div className="flex items-start gap-2">
-                          <img
-                            src={iconSrc}
-                            alt={skill.name}
-                            className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
-                            }}
-                          />
+                          <LearnedSkillIcon skillId={skill.id} name={skill.name} declared={iconDeclared} />
                           <div className="flex-1 min-w-0">
                             <div
                               className={

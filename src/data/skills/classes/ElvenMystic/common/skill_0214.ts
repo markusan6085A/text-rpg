@@ -6,7 +6,7 @@ export const skill_0214: SkillDefinition = {
   code: "EM_0214",
   name: "Mana Recovery",
   description: "Increases MP recovery speed when wearing a robe jacket and robe pants. Increases MP regeneration when wearing Robe by 20%.\n\nУскоряет регенерацию MP при ношении мантии и штанов мантии на 20%. Пассивный навык.",
-  icon: "/skills/Skill0214_0.jpg",
+  icon: "/skills/skill0214.gif",
   category: "passive",
   type: "passive",
   powerType: "none",
