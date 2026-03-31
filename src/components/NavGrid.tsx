@@ -17,6 +17,7 @@ import {
   consumeLocationReturnHref,
   clearLocationReturnHref,
 } from "../utils/locationReturnNav";
+import { useCityUiVariant } from "../utils/cityUiVariant";
 
 type NavButton = {
   label: string;
@@ -28,8 +29,15 @@ type NavButton = {
 const pillClass =
   "relative flex min-h-[30px] w-full items-center justify-center rounded-full border border-[#6b5344]/70 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] px-2 py-1 shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_2px_10px_rgba(0,0,0,0.45)] text-[#e8dcc8] hover:from-[#2a241c] hover:via-[#1c1610] hover:to-[#120f0c] hover:border-[#c7ad80]/50 hover:text-[#f4ebd9] active:scale-[0.98] transition-[transform,background-color,border-color,color] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/45";
 
+/** Тема «Тест» (l2test) — cyan/indigo, глибокий inset як у персонажі/бою */
+const pillClassTest =
+  "relative flex min-h-[30px] w-full items-center justify-center rounded-full border border-cyan-950/55 bg-[linear-gradient(180deg,#1e293b_0%,#0f172a_40%,#020617_100%)] px-2 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-4px_12px_rgba(0,0,0,0.55),0_2px_0_rgba(0,0,0,0.4),0_6px_16px_rgba(0,0,0,0.5)] text-cyan-50/95 hover:border-cyan-500/50 hover:bg-[linear-gradient(180deg,#243b53_0%,#172554_42%,#0f172a_100%)] hover:text-white hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.14),inset_0_-4px_14px_rgba(0,0,0,0.6),0_0_20px_rgba(34,211,238,0.08)] active:scale-[0.98] transition-[transform,background-color,border-color,color,box-shadow] duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400/45";
+
 const pillLabelClass =
   "block max-w-full text-center text-[10px] sm:text-[11px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis [text-shadow:0_1px_2px_rgba(0,0,0,0.92)]";
+
+const pillLabelClassTest =
+  "block max-w-full text-center text-[10px] sm:text-[11px] font-semibold leading-tight whitespace-nowrap overflow-hidden text-ellipsis text-cyan-50/95 [text-shadow:0_1px_3px_rgba(0,0,0,0.95),0_0_14px_rgba(34,211,238,0.12)]";
 
 const navGridRows: NavButton[][] = [
   [
@@ -257,6 +265,8 @@ function useNavGridCtx(): NavGridContextValue | null {
 
 function NavPillButton({ btn }: { btn: NavButton }) {
   const ctx = useNavGridCtx();
+  const cityUi = useCityUiVariant();
+  const isNavTest = cityUi === "l2test";
   if (!ctx) return null;
   const { unreadCount, clanUnreadCount, handleClick } = ctx;
   const isMail = btn.label === "Почта";
@@ -268,10 +278,10 @@ function NavPillButton({ btn }: { btn: NavButton }) {
     <button
       type="button"
       onClick={() => void handleClick(btn)}
-      className={pillClass}
+      className={isNavTest ? pillClassTest : pillClass}
       title={btn.label}
     >
-      <span className={pillLabelClass}>{btn.label}</span>
+      <span className={isNavTest ? pillLabelClassTest : pillLabelClass}>{btn.label}</span>
       {showMailBadge && (
         <span className="absolute -top-0.5 right-0.5 min-w-[14px] h-[13px] px-0.5 rounded-full bg-red-600 text-white text-[7px] font-bold leading-[13px] text-center shadow-sm ring-1 ring-black/40">
           {unreadCount > 99 ? "99" : unreadCount}
@@ -317,6 +327,8 @@ export function NavInlineGrid({ className = "" }: { className?: string }) {
 /** Навігація + футер у прокрутці (разом зі сторінкою), без fixed */
 export function NavScrollFooter() {
   const ctx = useNavGridCtx();
+  const cityUi = useCityUiVariant();
+  const isNavTest = cityUi === "l2test";
   const onlineCount = useOnlineCountStore((s) => s.onlineCount);
   const [returnHref, setReturnHref] = useState<string | null>(() => peekLocationReturnHref());
 
@@ -343,7 +355,9 @@ export function NavScrollFooter() {
 
   return (
     <div
-      className="mt-4 w-full max-w-full min-w-0 border-t border-[#5c4a32]/60 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-auto"
+      className={`mt-4 w-full max-w-full min-w-0 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-auto ${
+        isNavTest ? "border-t border-cyan-900/45" : "border-t border-[#5c4a32]/60"
+      }`}
       data-nav-scroll-footer
     >
       {returnHref ? (
@@ -352,11 +366,23 @@ export function NavScrollFooter() {
         </div>
       ) : null}
       <NavInlineGrid />
-      <div className="mt-3 pt-2.5 border-t border-[#c7ad80]/35">
-        <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[9px] sm:text-[10px] text-[#d4af37]">
+      <div
+        className={
+          isNavTest ? "mt-3 pt-2.5 border-t border-cyan-500/22" : "mt-3 pt-2.5 border-t border-[#c7ad80]/35"
+        }
+      >
+        <div
+          className={`flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5 text-center text-[9px] sm:text-[10px] ${
+            isNavTest ? "text-cyan-400/85" : "text-[#d4af37]"
+          }`}
+        >
           <button
             type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            className={
+              isNavTest
+                ? "hover:text-cyan-100 hover:underline underline-offset-2"
+                : "hover:text-[#f0d878] hover:underline underline-offset-2"
+            }
             onClick={() => {
               setString("l2_last_feature", "Позвать друзей");
               navigate?.("/wip");
@@ -364,12 +390,16 @@ export function NavScrollFooter() {
           >
             Позвать друзей
           </button>
-          <span className="text-[#6b5c48] select-none" aria-hidden>
+          <span className={isNavTest ? "text-slate-600 select-none" : "text-[#6b5c48] select-none"} aria-hidden>
             |
           </span>
           <button
             type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            className={
+              isNavTest
+                ? "hover:text-cyan-100 hover:underline underline-offset-2"
+                : "hover:text-[#f0d878] hover:underline underline-offset-2"
+            }
             onClick={() => {
               setString("l2_last_feature", "Поддержка");
               navigate?.("/wip");
@@ -377,22 +407,30 @@ export function NavScrollFooter() {
           >
             Служба поддержки
           </button>
-          <span className="text-[#6b5c48] select-none" aria-hidden>
+          <span className={isNavTest ? "text-slate-600 select-none" : "text-[#6b5c48] select-none"} aria-hidden>
             |
           </span>
           <button
             type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            className={
+              isNavTest
+                ? "hover:text-cyan-100 hover:underline underline-offset-2"
+                : "hover:text-[#f0d878] hover:underline underline-offset-2"
+            }
             onClick={() => navigate?.("/stats")}
           >
             Статы
           </button>
-          <span className="text-[#6b5c48] select-none" aria-hidden>
+          <span className={isNavTest ? "text-slate-600 select-none" : "text-[#6b5c48] select-none"} aria-hidden>
             |
           </span>
           <button
             type="button"
-            className="hover:text-[#f0d878] hover:underline underline-offset-2"
+            className={
+              isNavTest
+                ? "hover:text-cyan-100 hover:underline underline-offset-2"
+                : "hover:text-[#f0d878] hover:underline underline-offset-2"
+            }
             onClick={() => navigate?.("/online-players")}
           >
             Онлайн: {onlineCount}
