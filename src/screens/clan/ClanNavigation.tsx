@@ -1,5 +1,5 @@
 import React from "react";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 type TabType = "chat" | "history" | "members" | "storage" | "management" | "quests";
 
@@ -18,7 +18,7 @@ export default function ClanNavigation({
   onDeleteClan,
   onManagementClick,
 }: ClanNavigationProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const sepT = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/50";
   const tabActive = isL2 ? "text-[#e8c56e]" : "text-[#f4e2b8]";
   const tabIdle = isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]";

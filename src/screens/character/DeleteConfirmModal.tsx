@@ -1,6 +1,6 @@
 import React from "react";
 import { itemsDB } from "../../data/items/itemsDB";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface DeleteConfirmModalProps {
   item: any;
@@ -15,7 +15,7 @@ export default function DeleteConfirmModal({
   onConfirm,
   onCancel,
 }: DeleteConfirmModalProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4">
       <div

@@ -2,7 +2,7 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
 import { getSkillDef } from "../../state/battle/loadout";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { itemsDB } from "../../data/items/itemsDB";
 
 /** Замінює skill#N у рядку на назву скіла з skillsDB */
@@ -397,7 +397,7 @@ export function BattleLog({
     </div>
   );
   if (noBorder) return content;
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   return (
     <div
       className={

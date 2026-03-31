@@ -2,7 +2,7 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
 import { getJSON, setJSON } from "../../state/persistence";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 export type MiniSkill = {
   id: number;
@@ -17,7 +17,7 @@ interface MiniVerticalSlotsProps {
 }
 
 export function MiniVerticalSlots({ learned }: MiniVerticalSlotsProps) {
-  const uiL2 = getCityUiVariant() === "l2";
+  const uiL2 = isWarmCityUi(getCityUiVariant());
   const { useSkill, status, cooldowns } = useBattleStore();
   const hero = useHeroStore((s) => s.hero);
   const heroMP = hero?.mp ?? 0;

@@ -6,7 +6,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { loadBattle } from "../../state/battle/persist";
 import { BattlePanel } from "../battle/BattlePanel";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
 import { SkillBar } from "../battle/SkillBar";
 import type { BattleBuff } from "../../state/battle/types";
@@ -69,7 +69,7 @@ export default function PkProfileView({
   panelBackLabel,
   arenaMode = false,
 }: PkProfileViewProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const myHero = useHeroStore((s) => s.hero);
   const pkActorBuffsFromStore = useBattleStore((s) => s.pkActorBuffs);
   const [backBusy, setBackBusy] = useState(false);

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { adminFindPlayerByName, adminChangeClass } from "../../utils/api";
 import { getAdminProfessionSelectGroups, normalizeProfessionId, type ProfessionId } from "../../data/skills";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 const SEX_OPTIONS = [
   { value: "", label: "— Стать —" },
@@ -12,7 +12,7 @@ const SEX_OPTIONS = [
 type FoundCharacter = { id: string; name: string; profession: string | null };
 
 export function AdminSectionChangeClass() {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const accentStyle = { color: isL2 ? "#e8c56e" : "#c7ad80" };
   const mutedClass = isL2 ? "text-[#8a7a60]" : "text-gray-500";
   const inputCl =

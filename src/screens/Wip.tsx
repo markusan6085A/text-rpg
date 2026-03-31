@@ -1,6 +1,6 @@
 import React from "react";
 import { getString } from "../state/persistence";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 type GameUser = {
   username: string;
@@ -16,7 +16,7 @@ interface WipProps {
 
 const Wip: React.FC<WipProps> = ({ navigate, user, featureTitle }) => {
   const title = featureTitle ?? getString("l2_last_feature", "Раздел");
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Outer =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
 

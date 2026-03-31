@@ -3,7 +3,7 @@ import { type Clan } from "../../utils/api";
 import { useHeroStore } from "../../state/heroStore";
 import { ClanNameWithEmblem } from "../../components/ClanNameWithEmblem";
 import { handleNumberInput } from "../../utils/numberInput";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface ClanHeaderProps {
   clan: Clan;
@@ -36,7 +36,7 @@ export default function ClanHeader({
   onWithdrawAdena,
   onCoinLuckAction,
 }: ClanHeaderProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const sepT = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/50";
   const sepB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-white/50";
   const labelCls = isL2 ? "text-[#c9a44c]" : "text-[#c7ad80]";

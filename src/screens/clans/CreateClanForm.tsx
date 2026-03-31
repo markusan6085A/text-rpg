@@ -1,5 +1,5 @@
 import React from "react";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface CreateClanFormProps {
   clanName: string;
@@ -16,7 +16,7 @@ export default function CreateClanForm({
   onToggleForm,
   onCreateClan,
 }: CreateClanFormProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   return (
     <>
       <div className="flex justify-center">

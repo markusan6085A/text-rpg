@@ -12,7 +12,7 @@ import {
 import { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB } from "../data/items/itemsDB";
 import { showToast } from "../state/toastStore";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 interface WarehouseProps {
   navigate: (path: string) => void;
@@ -107,7 +107,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     setInventoryPage(1);
   }, [currentCategory]);
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";

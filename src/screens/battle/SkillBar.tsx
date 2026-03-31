@@ -4,7 +4,7 @@ import { isShotConsumable } from "../../state/battle/actions/useSkill/shotHelper
 import { useHeroStore } from "../../state/heroStore";
 import { MAX_SLOTS, getSkillDefForBattle, skillDefIsToggle } from "../../state/battle/loadout";
 import { itemsDBWithStarter } from "../../data/items/itemsDB";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { calcAutoAttackInterval } from "../../utils/combatSpeed";
 import { applyBuffsToStats } from "../../state/battle/helpers";
 
@@ -131,7 +131,7 @@ interface SkillBarProps {
 }
 
 export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps = {}) {
-  const uiL2 = getCityUiVariant() === "l2";
+  const uiL2 = isWarmCityUi(getCityUiVariant());
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const heroNextAttackAt = useBattleStore((s) => s.heroNextAttackAt);
   const zoneId = useBattleStore((s) => s.zoneId);

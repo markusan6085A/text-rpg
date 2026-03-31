@@ -1,6 +1,6 @@
 import React from "react";
 import { type Clan } from "../../utils/api";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface ClanManagementProps {
   clan: Clan;
@@ -21,7 +21,7 @@ export default function ClanManagement({
   onSkillTree,
   onDragonLair,
 }: ClanManagementProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const btnCls = isL2
     ? "w-full text-left px-2 py-1 text-[#c9a44c] hover:text-[#e8c56e] transition-colors"
     : "w-full text-left px-2 py-1 text-[#c7ad80] hover:text-[#f4e2b8] transition-colors";

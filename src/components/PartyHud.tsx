@@ -3,7 +3,7 @@ import { usePartyStore } from "../state/partyStore";
 import { useHeroStore } from "../state/heroStore";
 import { respondPartyInvite, leaveParty } from "../utils/api";
 import { showToast } from "../state/toastStore";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { getCityUiVariant, isWarmCityUi } from "../utils/cityUiVariant";
 import { formatPartyApiError } from "../utils/partyApiErrors";
 
 /**
@@ -11,7 +11,7 @@ import { formatPartyApiError } from "../utils/partyApiErrors";
  */
 export default function PartyHud() {
   const variant = getCityUiVariant();
-  const isL2 = variant === "l2";
+  const isL2 = isWarmCityUi(variant);
   const hero = useHeroStore((s) => s.hero);
   const party = usePartyStore((s) => s.party);
   const invites = usePartyStore((s) => s.invites);

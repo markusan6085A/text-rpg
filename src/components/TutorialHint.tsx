@@ -6,7 +6,7 @@ import {
   getDismissedTutorialHintIds,
 } from "../state/gameSettings";
 import { useBattleStore } from "../state/battle/store";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { pickContextualTutorialHint } from "../utils/tutorialHintEngine";
 
 const TUTORIAL_HINT_SEEN_KEY = TUTORIAL_HINT_KEY;
@@ -159,7 +159,7 @@ export default function TutorialHint({
 
   if (!shouldShow) return null;
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
 
   const contextualButtonsL2 =
     showContextual && contextual ? (

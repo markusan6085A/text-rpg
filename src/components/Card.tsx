@@ -1,8 +1,8 @@
 import type { PropsWithChildren } from "react";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 export default function Card({ children }: PropsWithChildren) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   return (
     <div
       className={

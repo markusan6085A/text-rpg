@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import {
   buyMarketListingApi,
   cancelMarketListingApi,
@@ -182,7 +182,7 @@ export default function Market({ navigate }: MarketProps) {
   /** Як у Warehouse: id з current_character_id (сервер) має пріоритет — hero.id з локалі може бути hero_* і ламає GET /market/my-listings після F5 */
   const cid = characterId || hero?.id || "";
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Outer =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
 

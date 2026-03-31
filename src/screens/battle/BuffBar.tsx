@@ -2,7 +2,7 @@ import React from "react";
 import type { BattleBuff } from "../../state/battle/types";
 import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
 import { useHeroStore } from "../../state/heroStore";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 type Props = {
   buffs: BattleBuff[];
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export function BuffBar({ buffs, now }: Props) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const hero = useHeroStore((s) => s.hero);
   // 🔥 useRef має бути ДО будь-якого return — інакше при вимиканні останнього бафа/toggle (buffs → [])
   // змінюється кількість хуків → React падає, чорний екран до F5.

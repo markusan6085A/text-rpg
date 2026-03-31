@@ -1,6 +1,6 @@
 import React from "react";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 /** Розширені ключі для пошуку в itemsDB (shop_, quest_ і т.д. можуть не знаходитися напряму) */
 function resolveLookupIds(item: any): string[] {
@@ -133,7 +133,7 @@ export default function InventoryFilters({
   onCategoryChange,
   onGradeChange,
 }: InventoryFiltersProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const firstRow = CATEGORIES.slice(0, 5);
   const secondRow = CATEGORIES.slice(5);
   const showGradeSub = GRADE_CATEGORIES.includes(currentCategory);

@@ -7,14 +7,14 @@ import {
   arenaSub,
   arenaGhostBtn,
 } from "./arenaTheme";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface PvpArenaStatsScreenProps {
   navigate: (path: string) => void;
 }
 
 export default function PvpArenaStatsScreen({ navigate }: PvpArenaStatsScreenProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const [data, setData] = useState<PvpStatsResponse | null>(null);
   const [err, setErr] = useState<string | null>(null);
 

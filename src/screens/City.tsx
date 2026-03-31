@@ -10,6 +10,7 @@ import { cities as WORLD_CITIES, getCityById } from "../data/world";
 import { isFishingReady } from "../state/fishing/fishingPersistence";
 import {
   getCityUiVariant,
+  isWarmCityUi,
   setCityUiVariant,
   type CityUiVariant,
 } from "../utils/cityUiVariant";
@@ -32,7 +33,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const [cityUi, setCityUi] = React.useState<CityUiVariant>(() =>
     getCityUiVariant(),
   );
-  const isL2 = cityUi === "l2";
+  const isL2 = isWarmCityUi(cityUi);
 
   const persistCityUi = (v: CityUiVariant) => {
     setCityUiVariant(v);
@@ -170,7 +171,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
             <button
               type="button"
               className={`text-[10px] px-2 py-1 rounded-md border transition-colors ${
-                !isL2
+                cityUi === "classic"
                   ? "border-amber-500/60 bg-amber-900/30 text-[#f4e2b8]"
                   : "border-white/10 text-[#9a8a70] hover:border-amber-700/40"
               }`}
@@ -181,13 +182,24 @@ const City: React.FC<CityProps> = ({ navigate }) => {
             <button
               type="button"
               className={`text-[10px] px-2 py-1 rounded-md border transition-colors ${
-                isL2
+                cityUi === "l2"
                   ? "border-amber-500/60 bg-amber-900/30 text-[#f4e2b8]"
                   : "border-white/10 text-[#9a8a70] hover:border-amber-700/40"
               }`}
               onClick={() => persistCityUi("l2")}
             >
               L2
+            </button>
+            <button
+              type="button"
+              className={`text-[10px] px-2 py-1 rounded-md border transition-colors ${
+                cityUi === "l2test"
+                  ? "border-cyan-500/55 bg-cyan-950/40 text-cyan-100 shadow-[0_0_12px_rgba(34,211,238,0.2)]"
+                  : "border-white/10 text-[#9a8a70] hover:border-cyan-700/40"
+              }`}
+              onClick={() => persistCityUi("l2test")}
+            >
+              Тест
             </button>
           </div>
         </div>

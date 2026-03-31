@@ -14,7 +14,7 @@ import PkProfileView from "../player/PkProfileView";
 import { getProfessionDefinition, normalizeProfessionId } from "../../data/skills";
 import { usePkSessionCombat } from "./usePkSessionCombat";
 import { arenaOuterFrame, minimalOpponentCharacter } from "./arenaTheme";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { useBattleStore } from "../../state/battle/store";
 import { setResurrectInProgress } from "../../state/heroStore";
 import { clearDeathGate } from "../../utils/deathGate";
@@ -30,7 +30,7 @@ export default function ArenaMatchScreen({ navigate, sessionIdFromUrl }: ArenaMa
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
 
   const [opponentCharacter, setOpponentCharacter] = useState<Character | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);

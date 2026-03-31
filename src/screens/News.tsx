@@ -6,7 +6,7 @@ import { itemsDB } from "../data/items/itemsDB";
 import { getNickColorStyle } from "../utils/nickColor";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 type Route =
   | "/"
@@ -54,7 +54,7 @@ function RaidBossDropModal({
   navigate,
 }: RaidBossDropModalProps) {
   const hero = useHeroStore((s) => s.hero);
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const modalPanel = isL2
     ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
     : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto";
@@ -212,7 +212,7 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const nameLinkCls = isL2

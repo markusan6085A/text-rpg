@@ -1,6 +1,6 @@
 import React from "react";
 import { type ClanInvite } from "../../../utils/api";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ClanInvitesModalProps {
   invites: ClanInvite[];
@@ -9,7 +9,7 @@ interface ClanInvitesModalProps {
 }
 
 export default function ClanInvitesModal({ invites, onRespond, onClose }: ClanInvitesModalProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div

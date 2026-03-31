@@ -4,7 +4,7 @@ import { getSkillsForProfession, normalizeProfessionId, getProfessionDefinition,
 import { getSkillDef, getSkillDefForBattle } from "../../state/battle/loadout";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { AdditionalSkills } from "../../data/skills/additional";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { buildSkillIconCandidates } from "../../utils/skillIconUrls";
 
 interface LearnedSkillsScreenProps {
@@ -50,7 +50,7 @@ function LearnedSkillIcon({
 export default function LearnedSkillsScreen({ navigate }: LearnedSkillsScreenProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const skillCardL2 =

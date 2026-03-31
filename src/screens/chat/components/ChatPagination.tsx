@@ -1,5 +1,5 @@
 import React from "react";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ChatPaginationProps {
   page: number;
@@ -20,7 +20,7 @@ export function ChatPagination({
   onRefresh,
   messagesTopRef,
 }: ChatPaginationProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   // Використовуємо totalPages з пропсів, якщо є, інакше обчислюємо
   // 🔥 ВАЖЛИВО: Якщо totalPages не передано, використовуємо fallback, але перевіряємо також messagesCount
   // Якщо на поточній сторінці є 10 повідомлень, це означає, що може бути більше сторінок

@@ -10,7 +10,7 @@ import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectA
 import { QUEST_SHOP_ITEM_MAPPING as BASE_QUEST_MAPPING } from "../data/shop/itemMappings";
 import type { Hero } from "../types/Hero";
 import { showToast } from "../state/toastStore";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
 
 type Navigate = (path: string) => void;
@@ -429,7 +429,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     return "/items/drops/Weapon_squires_sword_i00_0.jpg"; // дефолтна іконка
   };
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const rowL2 =

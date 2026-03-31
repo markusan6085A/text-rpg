@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getOnlinePlayers, type OnlinePlayer } from "../utils/api";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { displayStoredLocationName } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 
@@ -61,7 +61,7 @@ export default function OnlinePlayers({ navigate }: OnlinePlayersProps) {
     return sorted;
   }, [players, sortBy]);
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const innerPanel = isL2

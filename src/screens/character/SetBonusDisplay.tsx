@@ -1,9 +1,9 @@
 import React from "react";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 /** Рендерить текст бонусів сету з статами фіолетовим кольором */
 export function SetBonusDisplay({ text, className = "" }: { text: string; className?: string }) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const lines = text.split("\n");
   return (
     <div className={`whitespace-pre-line ${isL2 ? "text-[#d4c4a8]" : ""} ${className}`}>

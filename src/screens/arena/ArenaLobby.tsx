@@ -19,7 +19,7 @@ import {
   arenaPrimaryBtn,
   arenaGhostBtn,
 } from "./arenaTheme";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { getNickColorStyle, isAdminNickName, ADMIN_NICK_CLASS } from "../../utils/nickColor";
 
 interface ArenaLobbyProps {
@@ -33,7 +33,7 @@ export default function ArenaLobby({ navigate }: ArenaLobbyProps) {
   const hero = useHeroStore((s) => s.hero);
   const characterId = useCharacterStore((s) => s.characterId);
   const cid = (characterId || hero?.id || "").trim();
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);

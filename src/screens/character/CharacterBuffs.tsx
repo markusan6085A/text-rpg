@@ -4,7 +4,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { getCharacter } from "../../utils/api";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 export default function CharacterBuffs() {
   const hero = useHeroStore((s) => s.hero);
@@ -86,7 +86,7 @@ export default function CharacterBuffs() {
 
   if (uniqueBuffs.length === 0) return null;
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
 
   return (
     <div

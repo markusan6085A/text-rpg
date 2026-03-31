@@ -1,7 +1,7 @@
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 export function isCharacterModalL2(): boolean {
-  return getCityUiVariant() === "l2";
+  return isWarmCityUi(getCityUiVariant());
 }
 
 /** Зовнішня панель модалок інвентаря / персонажа */

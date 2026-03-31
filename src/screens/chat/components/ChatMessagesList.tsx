@@ -3,7 +3,7 @@ import type { ChatMessage } from "../../../utils/api";
 import type { Hero } from "../../../types/Hero";
 import type { ChatChannel } from "../types";
 import { ChatMessageItem } from "./ChatMessageItem";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ChatMessagesListProps {
   messages: ChatMessage[];
@@ -32,7 +32,7 @@ export function ChatMessagesList({
   onAdminDelete,
   onMute,
 }: ChatMessagesListProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const emptyCls = isL2 ? "text-center text-[#8a7a60] text-sm py-4" : "text-center text-gray-400 text-sm py-4";
   return (
     <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { adminCheck, adminStats, adminLogout } from "../utils/api";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { AdminSectionItems } from "./admin/AdminSectionItems";
 import { AdminSectionLevelExp } from "./admin/AdminSectionLevelExp";
 import { AdminSectionAdena } from "./admin/AdminSectionAdena";
@@ -79,7 +79,7 @@ const CATEGORIES: { id: AdminCategoryId; label: string; hint?: string }[] = [
 type LayoutMode = "tabs" | "full";
 
 export default function AdminDashboard({ navigate }: AdminDashboardProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const [admin, setAdmin] = useState<{ login?: string } | null>(null);
   const [stats, setStats] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);

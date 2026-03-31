@@ -4,13 +4,13 @@ import Card from "../components/Card";
 import DockButton from "../components/DockButton";
 import { RACES, CLASSES } from "../data/base";
 import type { Race, Klass } from "../data/base";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 export default function CreateScreen({ onStart }: { onStart: (p: { name: string; race: Race; klass: Klass }) => void; }) {
   const [name, setName] = useState("");
   const [race, setRace] = useState<Race>("Людина");
   const [klass, setKlass] = useState<Klass>("Воїн");
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
 
   const fieldLbl = isL2 ? "text-sm mb-1 text-[#a89470]" : "text-sm mb-1";
   const inputCls = isL2

@@ -1,7 +1,7 @@
 import React from "react";
 import type { RecalculatedStats } from "../utils/stats/recalculateAllStats";
 import { hasShieldEquipped, getTotalShieldDefense } from "../utils/shield/shieldDefense";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 const formatStatValue = (v: number) => {
   if (v === Math.floor(v)) return String(Math.round(v));
@@ -19,7 +19,7 @@ interface PlayerStatsModalProps {
 
 export default function PlayerStatsModal({ playerName, stats, hero, onClose }: PlayerStatsModalProps) {
   const { baseStats, finalStats } = stats;
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Shell =
     "bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.22)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)] border border-[#c7ad80]/40 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.55)]";
   const sectionTitle = isL2 ? "text-[#7d9b7a] font-semibold text-sm mb-2" : "text-green-500 font-semibold text-sm mb-2";

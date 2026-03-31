@@ -1,6 +1,6 @@
 import React from "react";
 import { useHeroStore } from "../../state/heroStore";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface RecipeBookButtonProps {
   navigate: (path: string) => void;
@@ -20,7 +20,7 @@ const l2RowClass =
 
 export default function RecipeBookButton({ navigate, className }: RecipeBookButtonProps) {
   const hero = useHeroStore((s) => s.hero);
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
 
   if (!hero) return null;
 

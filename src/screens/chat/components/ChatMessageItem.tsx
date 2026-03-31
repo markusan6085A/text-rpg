@@ -5,7 +5,7 @@ import type { ChatChannel } from "../types";
 import { formatTime } from "../utils";
 import { PlayerNameWithEmblem } from "../../../components/PlayerNameWithEmblem";
 import { EmojiText } from "../../../components/EmojiText";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 import { adminOwnWriteTextStyle, isAdminCharacter, ADMIN_OWN_WRITE_TEXT_COLOR } from "../../../config/admin";
 
 interface ChatMessageItemProps {
@@ -35,7 +35,7 @@ export function ChatMessageItem({
   onAdminDelete,
   onMute,
 }: ChatMessageItemProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const heroName = hero.name || hero.username;
   const isOwnMessage = msg.isOwn === true || (heroName && msg.characterName?.toLowerCase() === heroName.toLowerCase());
   const canDelete = isOwnMessage && (channel === "general" || channel === "trade");

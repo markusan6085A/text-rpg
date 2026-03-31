@@ -210,7 +210,6 @@ export default function CharacterEquipmentFrame({
   }, [hero?.name, hero?.profession, hero?.klass, hero?.gender, hero?.race]);
 
   const cityUi = useCityUiVariant();
-  const isL2 = cityUi === "l2";
 
   if (!hero) return null;
 
@@ -411,18 +410,34 @@ export default function CharacterEquipmentFrame({
     };
   }, [characterImage]);
 
-  // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true або heroOverride)
-  const slotClassName = (allowUnequip || (heroOverride && onItemClick))
-    ? isL2
-      ? "w-6 h-6 bg-black/50 cursor-pointer rounded-sm border border-[#c9a44c]/50 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_0_8px_rgba(212,175,55,0.12)]"
-      : "w-6 h-6 bg-black/50 cursor-pointer"
-    : isL2
-      ? "w-6 h-6 bg-black/50 rounded-sm border border-[#c9a44c]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.06),0_0_6px_rgba(212,175,55,0.08)]"
-      : "w-6 h-6 bg-black/50";
+  const isGoldL2 = cityUi === "l2";
+  const isTestEquip = cityUi === "l2test";
 
-  const frameShell = isL2
-    ? "rounded-xl border-2 border-[#d4af37]/45 shadow-[0_0_0_1px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(199,173,128,0.22),0_10px_40px_rgba(0,0,0,0.65),0_0_28px_rgba(184,134,11,0.14)] bg-[linear-gradient(165deg,rgba(45,38,28,0.95)_0%,rgba(12,10,8,0.98)_45%,rgba(8,6,5,1)_100%)]"
-    : "rounded-lg border-2 border-[#888]/60 shadow-lg bg-black/50";
+  // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true або heroOverride)
+  const slotClassTest =
+    "w-6 h-6 bg-slate-950/80 rounded-md border border-cyan-400/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_10px_rgba(34,211,238,0.15)]";
+  const slotClassGold =
+    "w-6 h-6 bg-black/50 rounded-sm border border-[#c9a44c]/50 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_0_8px_rgba(212,175,55,0.12)]";
+  const slotClassGoldRo =
+    "w-6 h-6 bg-black/50 rounded-sm border border-[#c9a44c]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.06),0_0_6px_rgba(212,175,55,0.08)]";
+
+  const slotClassName = (allowUnequip || (heroOverride && onItemClick))
+    ? isTestEquip
+      ? `${slotClassTest} cursor-pointer`
+      : isGoldL2
+        ? `${slotClassGold} cursor-pointer`
+        : "w-6 h-6 bg-black/50 cursor-pointer"
+    : isTestEquip
+      ? slotClassTest
+      : isGoldL2
+        ? slotClassGoldRo
+        : "w-6 h-6 bg-black/50";
+
+  const frameShell = isTestEquip
+    ? "rounded-2xl border-2 border-cyan-400/45 shadow-[0_0_32px_rgba(34,211,238,0.18),inset_0_1px_0_rgba(255,255,255,0.08)] bg-[linear-gradient(165deg,rgba(15,23,42,0.96)_0%,rgba(30,27,75,0.94)_45%,rgba(2,6,23,1)_100%)]"
+    : isGoldL2
+      ? "rounded-xl border-2 border-[#d4af37]/45 shadow-[0_0_0_1px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(199,173,128,0.22),0_10px_40px_rgba(0,0,0,0.65),0_0_28px_rgba(184,134,11,0.14)] bg-[linear-gradient(165deg,rgba(45,38,28,0.95)_0%,rgba(12,10,8,0.98)_45%,rgba(8,6,5,1)_100%)]"
+      : "rounded-lg border-2 border-[#888]/60 shadow-lg bg-black/50";
 
   return (
     <div className="w-full flex justify-center" style={{ marginTop }}>
@@ -490,7 +505,15 @@ export default function CharacterEquipmentFrame({
             })()}
           </>
         ) : (
-          <div className={isL2 ? "text-[#8a7a60] text-xs text-center p-4" : "text-gray-500 text-xs text-center p-4"}>
+          <div
+            className={
+              isTestEquip
+                ? "text-cyan-200/50 text-xs text-center p-4"
+                : isGoldL2
+                  ? "text-[#8a7a60] text-xs text-center p-4"
+                  : "text-gray-500 text-xs text-center p-4"
+            }
+          >
             Немає зображення персонажа
           </div>
         )}

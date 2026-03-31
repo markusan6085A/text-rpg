@@ -1,6 +1,6 @@
 import React from "react";
 import type { ChatChannel } from "../types";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ChatTabsProps {
   channel: ChatChannel;
@@ -9,7 +9,7 @@ interface ChatTabsProps {
 }
 
 export function ChatTabs({ channel, onChannelChange, onRefresh }: ChatTabsProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const tabs: Array<{ key: ChatChannel; label: string }> = [
     { key: "general", label: "Общ" },
     { key: "trade", label: "Торг" },

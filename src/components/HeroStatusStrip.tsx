@@ -20,7 +20,8 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
   const battleStatus = useBattleStore((s) => s.status);
   const inBattle = battleStatus !== "idle";
   const cityUi = useCityUiVariant();
-  const isL2 = cityUi === "l2";
+  const isGoldL2Hud = cityUi === "l2";
+  const isTestProfileHud = cityUi === "l2test";
 
   const resBars = useMemo(
     () => (hero ? getHeroResourceValues(hero, inBattle) : null),
@@ -43,7 +44,7 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
   const level = hero.level ?? 1;
   const lowHp = resBars.maxHp > 0 && resBars.hp / resBars.maxHp < 0.3;
 
-  if (isL2) {
+  if (isGoldL2Hud) {
     return (
       <div
         className="w-full max-w-[420px] mx-auto mb-2 rounded-lg border border-[#b59a72]/40 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_10px_36px_rgba(0,0,0,0.5),0_0_24px_rgba(184,134,11,0.12)] p-3 text-[#e8dcc8]"
@@ -70,6 +71,41 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
             showExp
             expGray
             premiumShine
+            lowHpPulse={lowHp}
+          />
+        </div>
+        <SummonStatus />
+      </div>
+    );
+  }
+
+  if (isTestProfileHud) {
+    return (
+      <div
+        className="w-full max-w-[420px] mx-auto mb-2 rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-b from-slate-900 via-indigo-950/90 to-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_32px_rgba(34,211,238,0.16)] p-3 text-slate-100"
+        aria-label="Ресурси персонажа"
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+          <span className="text-[13px] font-bold text-cyan-50 truncate max-w-[68%] [text-shadow:0_0_18px_rgba(34,211,238,0.35)]">
+            {nickname}
+          </span>
+          <span className="text-[12px] text-violet-200 font-semibold tabular-nums whitespace-nowrap">
+            {level} ур.
+          </span>
+        </div>
+        <div className="mt-2.5">
+          <HeroResourceBars
+            hp={resBars.hp}
+            maxHp={resBars.maxHp}
+            mp={resBars.mp}
+            maxMp={resBars.maxMp}
+            cp={resBars.cp}
+            maxCp={resBars.maxCp}
+            expCurrent={expForBar.cur}
+            expMax={expForBar.max}
+            showExp
+            expGray
+            profileTest
             lowHpPulse={lowHp}
           />
         </div>

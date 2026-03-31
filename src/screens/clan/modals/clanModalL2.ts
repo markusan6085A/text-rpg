@@ -1,7 +1,7 @@
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 export function clanModalIsL2(): boolean {
-  return getCityUiVariant() === "l2";
+  return isWarmCityUi(getCityUiVariant());
 }
 
 const L2_FRAME =

@@ -1,7 +1,7 @@
 import React from "react";
 import type { City, Zone, Mob } from "../../data/world/types";
 import { useBattleStore } from "../../state/battle/store";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { displayMobName } from "../../utils/worldDisplay";
 import { useGameSettingsVersion } from "../../hooks/useGameSettingsVersion";
 
@@ -14,7 +14,7 @@ interface TargetCardProps {
 
 export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps) {
   useGameSettingsVersion();
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const { mobHP } = useBattleStore();
   const maxHP = typeof mob.hp === "number" ? mob.hp : 0;
   const hpValue = Number.isFinite(mobHP) ? mobHP : maxHP;

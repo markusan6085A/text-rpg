@@ -3,7 +3,7 @@ import type { ClanMember } from "../../../utils/api";
 import { PlayerNameWithEmblem } from "../../../components/PlayerNameWithEmblem";
 import { useHeroStore } from "../../../state/heroStore";
 import type { Clan } from "../../../utils/api";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ClanMembersModalProps {
   members: ClanMember[];
@@ -18,7 +18,7 @@ export default function ClanMembersModal({
   onClose,
   onPlayerClick,
 }: ClanMembersModalProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const hero = useHeroStore((s) => s.hero);
   const [page, setPage] = useState(1);
   const membersPerPage = 10;

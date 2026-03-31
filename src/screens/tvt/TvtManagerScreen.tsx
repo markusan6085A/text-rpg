@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import {
@@ -52,7 +52,7 @@ function formatTvtLoadError(e: unknown): string {
 }
 
 export default function TvtManagerScreen({ navigate }: Props) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const hero = useHeroStore((s) => s.hero);
   const characterId = useCharacterStore((s) => s.characterId);
   const cid = (characterId || hero?.id || "").trim();

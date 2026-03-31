@@ -30,7 +30,7 @@ import { getEffectiveQuestDropNeed } from "../../utils/quests/questDropEffective
 import { mergeActiveQuestsForUi } from "../../utils/quests/mergeActiveQuestsForUi";
 import { collectFarmCaptionsForItemId } from "../../utils/quests/questDropFarmHint";
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { getGameSettings } from "../../state/gameSettings";
 import { getPremiumMultiplier } from "../../utils/premium/isPremiumActive";
 
@@ -128,7 +128,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const rowB = isL2 ? "border-b border-solid border-[#5c4a32]/40" : "border-b border-solid border-white/50";
 
   if (!hero) {

@@ -6,7 +6,7 @@ import { useHeroStore } from "../state/heroStore";
 import InventoryFilters, { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { getSellPrice } from "../utils/sellPrices";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
 import { normalizeIconPath, FALLBACK_ICON } from "../utils/itemIcon";
 
@@ -29,7 +29,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const modalPanel = isL2

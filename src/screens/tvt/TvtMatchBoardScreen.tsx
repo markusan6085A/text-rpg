@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { getTvtState, pickTvtTarget, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
@@ -8,7 +8,7 @@ import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 type Props = { navigate: (path: string) => void };
 
 export default function TvtMatchBoardScreen({ navigate }: Props) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const hero = useHeroStore((s) => s.hero);
   const characterId = useCharacterStore((s) => s.characterId);
   const cid = (characterId || hero?.id || "").trim();

@@ -9,7 +9,7 @@ import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { resetTutorialHint } from "../state/gameSettings";
 
 interface RegisterProps {
@@ -198,7 +198,7 @@ export default function Register({ navigate }: RegisterProps) {
     }
   };
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.55)] bg-[radial-gradient(ellipse_100%_40%_at_50%_-10%,rgba(120,90,45,0.22)_0%,transparent_45%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const shell = isL2

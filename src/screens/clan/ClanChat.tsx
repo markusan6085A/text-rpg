@@ -4,7 +4,7 @@ import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
 import { EmojiText } from "../../components/EmojiText";
 import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { isAdminCharacter, adminOwnWriteTextStyle } from "../../config/admin";
 
 interface ClanChatProps {
@@ -29,7 +29,7 @@ export default function ClanChat({
   const hero = useHeroStore((s) => s.hero);
   const characterId = useCharacterStore((s) => s.characterId);
   const cid = (characterId || hero?.id || "").trim();
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const adminMsgStyle = (msgCid: string) =>
     cid && msgCid === cid && isAdminCharacter(hero?.name) ? adminOwnWriteTextStyle(hero?.name) : undefined;
   const panel = isL2

@@ -3,7 +3,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { findZoneWithCity, locationPathForZoneMob } from "./battleUtils";
 import { isMobOnRespawn } from "../../state/battle/mobRespawns";
 import { useHeroStore } from "../../state/heroStore";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { displayMobName } from "../../utils/worldDisplay";
 import { useGameSettingsVersion } from "../../hooks/useGameSettingsVersion";
 
@@ -14,7 +14,7 @@ interface VictoryModalProps {
 
 export default function VictoryModal({ navigate, onClose }: VictoryModalProps) {
   useGameSettingsVersion();
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const { lastReward, zoneId, mobIndex, startBattle, reset, lastMobDamage, mob } = useBattleStore();
 
   if (!lastReward || !zoneId) {

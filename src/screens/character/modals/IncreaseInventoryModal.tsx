@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useHeroStore } from "../../../state/heroStore";
 import { INVENTORY_MAX_ITEMS, INVENTORY_ABSOLUTE_MAX, getInventoryMax } from "../../../state/heroStore";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 const COST_PER_SLOT = 1; // 1 Coin of Luck = +1 слот
 
@@ -10,7 +10,7 @@ interface IncreaseInventoryModalProps {
 }
 
 export default function IncreaseInventoryModal({ onClose }: IncreaseInventoryModalProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const [quantity, setQuantity] = useState(1);

@@ -1,5 +1,5 @@
 import React from "react";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 
 interface ChatRestrictionModalProps {
   type: "mute" | "ban";
@@ -10,7 +10,7 @@ interface ChatRestrictionModalProps {
 
 /** Модалка "Ви отримали мут/бан" — classic або теплий L2 */
 export function ChatRestrictionModal({ type, message, timeLeftText, onClose }: ChatRestrictionModalProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const title = type === "mute" ? "У вас мут" : "У вас бан чату";
 
   const panel = isL2

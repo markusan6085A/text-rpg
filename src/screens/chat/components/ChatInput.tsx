@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { getCityUiVariant } from "../../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
 import { adminOwnWriteTextStyle } from "../../../config/admin";
 
 interface ChatInputProps {
@@ -27,7 +27,7 @@ export function ChatInput({
   placeholder = "Введите сообщение...",
   heroName,
 }: ChatInputProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const inputRef = useRef<HTMLInputElement>(null);
   const adminWrite = adminOwnWriteTextStyle(heroName);
 

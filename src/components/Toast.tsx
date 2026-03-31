@@ -1,6 +1,6 @@
 import React from "react";
 import { useToastStore, type ToastItem, type ToastType } from "../state/toastStore";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 function defaultTitle(type: ToastType): string {
   switch (type) {
@@ -30,7 +30,7 @@ export default function Toast() {
 }
 
 function ToastOverlay({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const title = item.title?.trim() || defaultTitle(item.type);
 
   const panel =

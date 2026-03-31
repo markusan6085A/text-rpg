@@ -12,7 +12,7 @@ import DeleteConfirmModal from "./DeleteConfirmModal";
 import IncreaseInventoryModal from "./modals/IncreaseInventoryModal";
 import TransferItemModal from "./modals/TransferItemModal";
 import OverflowChestModal from "./modals/OverflowChestModal";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -43,7 +43,7 @@ export default function Inventory() {
   const [wipeError, setWipeError] = useState<string | null>(null);
   const characterId = useCharacterStore((s) => s.characterId);
 
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   const l2RowBase =

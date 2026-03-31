@@ -1,7 +1,7 @@
 import React from "react";
 import { ClanNameWithEmblem } from "../../components/ClanNameWithEmblem";
 import type { Clan } from "../../utils/api";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
 interface ClanListItem {
   id: string;
@@ -25,7 +25,7 @@ export default function ClanList({
   onClanClick,
   onPageChange,
 }: ClanListProps) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const totalPages = Math.max(1, Math.ceil(clans.length / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;

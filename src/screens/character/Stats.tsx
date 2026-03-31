@@ -11,7 +11,7 @@ import { hasShieldEquipped, getTotalShieldDefense } from "../../utils/shield/shi
 import CharacterBuffs from "./CharacterBuffs";
 import { getMyClan } from "../../utils/api";
 import { SET_STAT_FORMULAS_UI } from "../../data/sets/statBonusFormulas";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { getHeroResourceValues } from "../../utils/heroBuffedResources";
 
 export default function Stats() {
@@ -22,7 +22,7 @@ export default function Stats() {
   const [combatStats, setCombatStats] = useState<any>(null);
   const [playerClan, setPlayerClan] = useState<any>(null);
   const [showSetFormulas, setShowSetFormulas] = useState(false);
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame =
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
   // 🔥 Таймер — перерахунок статів щосекунди, щоб зникали бафи при простроченні

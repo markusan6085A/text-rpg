@@ -1,4 +1,4 @@
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 export default function DockButton({
   onClick,
@@ -7,7 +7,7 @@ export default function DockButton({
   onClick?: () => void;
   children: React.ReactNode;
 }) {
-  const isL2 = getCityUiVariant() === "l2";
+  const isL2 = isWarmCityUi(getCityUiVariant());
   return (
     <button
       type="button"
