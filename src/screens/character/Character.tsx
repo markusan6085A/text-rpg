@@ -11,7 +11,7 @@ import { getActiveSevenSealsRank, getSevenSealsBonusFromHero } from "../../utils
 import { listCharacters, getSevenSealsRank, claimSevenSealsReward, type Character } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { useCityUiVariant } from "../../utils/cityUiVariant";
 import { showToast } from "../../state/toastStore";
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
@@ -49,7 +49,8 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     window.dispatchEvent(new PopStateEvent("popstate"));
   });
 
-  const isL2 = getCityUiVariant() === "l2";
+  const cityUi = useCityUiVariant();
+  const isL2 = cityUi === "l2";
 
   const l2MenuMark = isL2 ? (
     <span
@@ -64,7 +65,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
 
   const l2RowBase =
-    "w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2.5 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)]";
+    "w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2.5 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#7a6548]/85 shadow-[inset_0_1px_0_rgba(199,173,128,0.14),0_4px_14px_rgba(0,0,0,0.55),0_0_12px_rgba(184,134,11,0.1)]";
 
   const svcBtn = (classes: string) =>
     isL2
@@ -171,6 +172,11 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
   const adena = hero?.adena || 0;
   const coins = hero?.coinOfLuck || 0;
   const silverCoins = hero?.coins_silver ?? 0;
+  const classLabel = (() => {
+    const profId = normalizeProfessionId(profession as any);
+    const profDef = profId ? getProfessionDefinition(profId) : null;
+    return profDef?.label || profession || "—";
+  })();
 
   // -----------------------------
   // EXP calculation
@@ -226,7 +232,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
 
   const topBtn =
     isL2
-      ? "w-[76px] h-[24px] rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e7d7b3] leading-none shadow-[inset_0_1px_0_rgba(199,173,128,0.1)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150"
+      ? "w-[76px] h-[26px] rounded-md border border-[#8a734f]/90 bg-gradient-to-b from-[#3d3224] via-[#252016] to-[#100d0a] text-[10px] font-semibold text-[#f0e6d4] leading-none shadow-[inset_0_1px_0_rgba(255,230,190,0.2),0_4px_10px_rgba(0,0,0,0.45)] hover:border-[#d4af37]/55 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150"
       : "w-[76px] h-[22px] rounded-md border border-[#c7ad80] bg-[#1f1d1a]/80 text-[12px] text-[#e7d7b3] leading-none shadow-[inset_0_0_8px_rgba(0,0,0,0.75)] hover:bg-[#2a2723]/80 active:translate-y-[1px]";
 
   return (
@@ -257,7 +263,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
         <div
           className={
             isL2
-              ? "w-full mb-3 rounded-lg border border-[#5c4a32]/45 bg-black/22 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-3"
+              ? "w-full mb-3 rounded-lg border border-[#c9a44c]/40 bg-black/35 p-3 shadow-[inset_0_1px_0_rgba(255,220,180,0.08),0_0_24px_rgba(184,134,11,0.12)]"
               : "w-full px-3 mb-1 mt-0"
           }
         >
@@ -266,60 +272,93 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
               <div
                 className={
                   isL2
-                    ? "text-[13px] font-semibold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_14px_rgba(184,134,11,0.35)] leading-tight"
+                    ? "text-[14px] font-bold text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_16px_rgba(184,134,11,0.4)] leading-tight tracking-wide"
                     : "text-[12px] font-semibold text-[#d6c29a] leading-none"
                 }
               >
                 Мой персонаж
               </div>
               {isL2 && (
-                <p className="text-[11px] text-[#c9baa5] mt-1.5 leading-snug">
-                  {raceLabelRu(race)}
-                  {gender ? ` · ${gender.toLowerCase() === "female" ? "Ж" : "М"}` : ""}
-                  {" · "}
-                  {(() => {
-                    const profId = normalizeProfessionId(profession as any);
-                    const profDef = profId ? getProfessionDefinition(profId) : null;
-                    return profDef?.label || profession || "—";
-                  })()}
+                <p className="text-[11px] text-[#e8dcc8] mt-2 leading-snug">
+                  <span className="text-[#d4b878]">
+                    {raceLabelRu(race)} – {level} – {classLabel}
+                  </span>
+                  {gender ? (
+                    <span className="text-[#8a7a60]">
+                      {" "}
+                      ({gender.toLowerCase() === "female" ? "Ж" : "М"})
+                    </span>
+                  ) : null}
                 </p>
               )}
-              {isPremiumActive(hero) && (
-                <div className="text-[11px] text-[#22c55e] mt-1">
+              {!isL2 && (
+                <>
+                  {isPremiumActive(hero) && (
+                    <div className="text-[11px] text-[#22c55e] mt-1">
+                      включен премиум аккаунт х2
+                    </div>
+                  )}
+                  <div className="h-px bg-[#6b5b3f]/60 mt-2" />
+                </>
+              )}
+              {isL2 && isPremiumActive(hero) && (
+                <div className="text-[11px] text-[#22c55e] mt-1.5">
                   включен премиум аккаунт х2
                 </div>
               )}
-              <div
-                className={
-                  isL2 ? "h-px bg-[#5c4a32]/50 mt-2" : "h-px bg-[#6b5b3f]/60 mt-2"
-                }
-              />
+              {isL2 && <div className="h-px bg-[#5c4a32]/55 mt-2.5" />}
             </div>
             <div className="flex flex-col gap-1.5 flex-shrink-0">
-              <button
-                type="button"
-                onClick={() => (window.location.href = "/")}
-                className={topBtn}
-              >
-                Выход
-              </button>
-              <button type="button" onClick={() => navigate("/about")} className={topBtn}>
-                Меню
-              </button>
+              {isL2 ? (
+                <>
+                  <button type="button" onClick={() => navigate("/warehouse")} className={topBtn}>
+                    Склад
+                  </button>
+                  <button type="button" onClick={() => navigate("/about")} className={topBtn}>
+                    Меню
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = "/";
+                    }}
+                    className={topBtn}
+                  >
+                    Выход
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = "/";
+                    }}
+                    className={topBtn}
+                  >
+                    Выход
+                  </button>
+                  <button type="button" onClick={() => navigate("/about")} className={topBtn}>
+                    Меню
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           <div
             className={
               isL2
-                ? "border-t border-[#5c4a32]/35 pt-2 pb-1 mt-3"
+                ? "border-t border-[#5c4a32]/40 pt-2 pb-1 mt-3"
                 : "border-t border-solid border-[#c7ad80]/60 pt-2 pb-2 mt-2"
             }
           >
-            <div className="text-xs text-[#d4c4a8]">
+            <div className={`text-xs ${isL2 ? "text-[#d4c4a8]" : "text-[#d4c4a8]"}`}>
               Статус:{" "}
               {status ? (
                 <span className="text-[#f0d78c]">{status}</span>
+              ) : isL2 ? (
+                <span className="text-red-400/95 font-medium">off</span>
               ) : (
                 <span className="text-[#8a7a60]">нет</span>
               )}
@@ -333,21 +372,20 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
                 ред
               </button>
             </div>
-            <div
-              className={
-                isL2
-                  ? "text-[11px] text-[#d4b878] mt-2 border-t border-[#5c4a32]/35 pt-2"
-                  : "text-[11px] text-yellow-300 mt-1 border-t border-solid border-[#c7ad80]/60 pt-1"
-              }
-            >
-              Профессия:{" "}
-              {(() => {
-                const profId = normalizeProfessionId(profession as any);
-                const profDef = profId ? getProfessionDefinition(profId) : null;
-                return profDef?.label || profession || "Нет";
-              })()}
-            </div>
-            <CharacterBuffs />
+            {!isL2 && (
+              <div className="text-[11px] text-yellow-300 mt-1 border-t border-solid border-[#c7ad80]/60 pt-1">
+                Профессия: {classLabel === "—" ? "Нет" : classLabel}
+              </div>
+            )}
+            {isL2 ? (
+              <div className="mt-2 border-t border-[#5c4a32]/35 pt-2">
+                <CharacterBuffs />
+              </div>
+            ) : (
+              <>
+                <CharacterBuffs />
+              </>
+            )}
           </div>
           {!isL2 && <div className="border-b border-solid border-[#c7ad80]/60" />}
         </div>

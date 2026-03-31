@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useBattleStore } from "../state/battle/store";
-import { getCityUiVariant } from "../utils/cityUiVariant";
+import { useCityUiVariant } from "../utils/cityUiVariant";
 import { getHeroResourceValues } from "../utils/heroBuffedResources";
 import { getExpToNext, MAX_LEVEL } from "../data/expTable";
 import HeroResourceBars from "./HeroResourceBars";
@@ -19,7 +19,8 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
   const hero = useHeroStore((s) => s.hero);
   const battleStatus = useBattleStore((s) => s.status);
   const inBattle = battleStatus !== "idle";
-  const isL2 = getCityUiVariant() === "l2";
+  const cityUi = useCityUiVariant();
+  const isL2 = cityUi === "l2";
 
   const resBars = useMemo(
     () => (hero ? getHeroResourceValues(hero, inBattle) : null),
@@ -45,7 +46,7 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
   if (isL2) {
     return (
       <div
-        className="w-full max-w-[420px] mx-auto mb-2 rounded-lg border border-[#6b5344]/65 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_10px_36px_rgba(0,0,0,0.5)] p-3 text-[#e8dcc8]"
+        className="w-full max-w-[420px] mx-auto mb-2 rounded-lg border border-[#b59a72]/40 bg-gradient-to-b from-[#221c14] via-[#15120e] to-[#0c0a08] shadow-[inset_0_1px_0_rgba(212,175,108,0.14),0_10px_36px_rgba(0,0,0,0.5),0_0_24px_rgba(184,134,11,0.12)] p-3 text-[#e8dcc8]"
         aria-label="Ресурси персонажа"
       >
         <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
@@ -68,6 +69,7 @@ export default function HeroStatusStrip({ hidden = false }: HeroStatusStripProps
             expMax={expForBar.max}
             showExp
             expGray
+            premiumShine
             lowHpPulse={lowHp}
           />
         </div>

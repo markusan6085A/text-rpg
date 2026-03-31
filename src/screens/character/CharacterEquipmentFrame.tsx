@@ -3,7 +3,7 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { SLOT_ICONS } from "./constants";
 import { useHeroStore } from "../../state/heroStore";
 import { GM_SHOP_ITEMS } from "../GMShop";
-import { getCityUiVariant } from "../../utils/cityUiVariant";
+import { useCityUiVariant } from "../../utils/cityUiVariant";
 // Маппінг profession -> зображення
 const professionImageMap: Record<string, string> = {
   human_fighter: "Human-voin.jpg",
@@ -209,9 +209,10 @@ export default function CharacterEquipmentFrame({
     }
   }, [hero?.name, hero?.profession, hero?.klass, hero?.gender, hero?.race]);
 
-  if (!hero) return null;
+  const cityUi = useCityUiVariant();
+  const isL2 = cityUi === "l2";
 
-  const isL2 = getCityUiVariant() === "l2";
+  if (!hero) return null;
 
   // Визначення дворучного оружия (списа, посохи, луки, глефи, сокири)
   const isTwoHandedWeapon = (itemId: string | undefined): boolean => {
@@ -413,14 +414,14 @@ export default function CharacterEquipmentFrame({
   // Стилі для слотів (з cursor-pointer та onClick, якщо allowUnequip = true або heroOverride)
   const slotClassName = (allowUnequip || (heroOverride && onItemClick))
     ? isL2
-      ? "w-6 h-6 bg-black/50 cursor-pointer rounded-sm border border-[#5c4a32]/55 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+      ? "w-6 h-6 bg-black/50 cursor-pointer rounded-sm border border-[#c9a44c]/50 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_0_8px_rgba(212,175,55,0.12)]"
       : "w-6 h-6 bg-black/50 cursor-pointer"
     : isL2
-      ? "w-6 h-6 bg-black/50 rounded-sm border border-[#5c4a32]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.05)]"
+      ? "w-6 h-6 bg-black/50 rounded-sm border border-[#c9a44c]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.06),0_0_6px_rgba(212,175,55,0.08)]"
       : "w-6 h-6 bg-black/50";
 
   const frameShell = isL2
-    ? "rounded-xl border-2 border-[#c7ad80]/50 shadow-[0_0_0_1px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(199,173,128,0.18),0_10px_36px_rgba(0,0,0,0.65)] bg-[linear-gradient(165deg,rgba(45,38,28,0.95)_0%,rgba(12,10,8,0.98)_45%,rgba(8,6,5,1)_100%)]"
+    ? "rounded-xl border-2 border-[#d4af37]/45 shadow-[0_0_0_1px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(199,173,128,0.22),0_10px_40px_rgba(0,0,0,0.65),0_0_28px_rgba(184,134,11,0.14)] bg-[linear-gradient(165deg,rgba(45,38,28,0.95)_0%,rgba(12,10,8,0.98)_45%,rgba(8,6,5,1)_100%)]"
     : "rounded-lg border-2 border-[#888]/60 shadow-lg bg-black/50";
 
   return (

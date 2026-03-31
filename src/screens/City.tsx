@@ -131,42 +131,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1` : ""}>
-      {/* Перемикач вигляду — за замовчуванням L2; зберігається в localStorage (l2_city_ui_variant) */}
-      <div
-        className={
-          isL2
-            ? "flex flex-wrap items-center justify-center gap-2 px-2 py-2.5 border-b border-[#c7ad80]/20 bg-black/25"
-            : "flex flex-wrap items-center justify-center gap-2 px-3 py-2 border-b border-black/50"
-        }
-      >
-        <span className="text-[10px] text-[#8a7a60] w-full text-center sm:w-auto">
-          Вигляд «Місто» (типово — L2):
-        </span>
-        <button
-          type="button"
-          className={`text-[11px] px-2.5 py-1 rounded-md border transition-colors ${
-            !isL2
-              ? "border-amber-500/60 bg-amber-900/30 text-[#f4e2b8]"
-              : "border-white/10 text-[#9a8a70] hover:border-amber-700/40"
-          }`}
-          onClick={() => persistCityUi("classic")}
-        >
-          Класичний
-        </button>
-        <button
-          type="button"
-          className={`text-[11px] px-2.5 py-1 rounded-md border transition-colors ${
-            isL2
-              ? "border-amber-500/60 bg-amber-900/30 text-[#f4e2b8]"
-              : "border-white/10 text-[#9a8a70] hover:border-amber-700/40"
-          }`}
-          onClick={() => persistCityUi("l2")}
-        >
-          L2-стиль (тест)
-        </button>
-      </div>
-
-      {/* Приветствие */}
+      {/* Приветствие + перемикач теми в шапці блоку */}
       <div
         className={
           isL2
@@ -175,15 +140,55 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         }
       >
         <div
-          className={
-            isL2
-              ? "text-center space-y-2 mb-2 font-semibold text-[13px] text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_18px_rgba(184,134,11,0.4)]"
-              : "text-orange-400 text-center space-y-1 mb-3"
-          }
+          className={`flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3 ${
+            isL2 ? "mb-3" : "mb-3"
+          }`}
         >
-          <div>Ласкаво просимо до міста.</div>
-          <div className={isL2 ? "font-normal text-[#d4b878] text-[12px]" : ""}>
-            Оберіть необхідний сервіс зі списку нижче.
+          <div
+            className={
+              isL2
+                ? "text-center sm:text-left space-y-1.5 font-semibold text-[13px] text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_18px_rgba(184,134,11,0.4)] flex-1 min-w-0"
+                : "text-orange-400 text-center sm:text-left space-y-1 flex-1 min-w-0"
+            }
+          >
+            <div>Ласкаво просимо до міста.</div>
+            <div className={isL2 ? "font-normal text-[#d4b878] text-[12px]" : ""}>
+              Оберіть необхідний сервіс зі списку нижче.
+            </div>
+          </div>
+          {/* Перемикач вигляду (той самий ключ localStorage — інші екрани лише читають) */}
+          <div
+            className={
+              isL2
+                ? "flex flex-wrap items-center justify-center sm:justify-end gap-1.5 shrink-0 rounded-md border border-[#5c4a32]/45 px-2 py-1.5 bg-black/28"
+                : "flex flex-wrap items-center justify-center sm:justify-end gap-1.5 shrink-0"
+            }
+          >
+            <span className="text-[9px] text-[#8a7a60] w-full sm:w-auto text-center sm:text-right leading-none">
+              Тема UI:
+            </span>
+            <button
+              type="button"
+              className={`text-[10px] px-2 py-1 rounded-md border transition-colors ${
+                !isL2
+                  ? "border-amber-500/60 bg-amber-900/30 text-[#f4e2b8]"
+                  : "border-white/10 text-[#9a8a70] hover:border-amber-700/40"
+              }`}
+              onClick={() => persistCityUi("classic")}
+            >
+              Класичний
+            </button>
+            <button
+              type="button"
+              className={`text-[10px] px-2 py-1 rounded-md border transition-colors ${
+                isL2
+                  ? "border-amber-500/60 bg-amber-900/30 text-[#f4e2b8]"
+                  : "border-white/10 text-[#9a8a70] hover:border-amber-700/40"
+              }`}
+              onClick={() => persistCityUi("l2")}
+            >
+              L2
+            </button>
           </div>
         </div>
 
