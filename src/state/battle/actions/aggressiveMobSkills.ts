@@ -8,6 +8,12 @@ const SKILL_TRY_CHANCE = 0.34;
 const STACK_PDEF = "MOB_AGG_PDEF_SHRED";
 const STACK_MDEF = "MOB_AGG_MDEF_SHRED";
 const STACK_BLEED = "MOB_AGG_BLEED";
+const STACK_STUN = "MOB_AGG_STUN";
+
+const ICON_PDEF = "/dopskills/skill4437.png";
+const ICON_MDEF = "/dopskills/skill4430.png";
+const ICON_BLEED = "/dopskills/skill4268.png";
+const ICON_STUN = "/dopskills/skill1536.png";
 
 const BUFF_DURATION_MS = 12_000;
 const BLEED_DURATION_MS = 5000;
@@ -52,7 +58,7 @@ export function rollAggressiveMobSkills(
     const b: BattleBuff = {
       id: -91001,
       name: "Поріз броні",
-      icon: "/skills/attack.jpg",
+      icon: ICON_PDEF,
       stackType: STACK_PDEF,
       effects: [{ stat: "pDef", mode: "percent", value: -20 }],
       expiresAt: now + BUFF_DURATION_MS,
@@ -66,7 +72,7 @@ export function rollAggressiveMobSkills(
     const b: BattleBuff = {
       id: -91002,
       name: "Розклад магії",
-      icon: "/skills/attack.jpg",
+      icon: ICON_MDEF,
       stackType: STACK_MDEF,
       effects: [{ stat: "mDef", mode: "percent", value: -20 }],
       expiresAt: now + BUFF_DURATION_MS,
@@ -80,7 +86,7 @@ export function rollAggressiveMobSkills(
     const b: BattleBuff = {
       id: -91003,
       name: "Кровотеча",
-      icon: "/skills/attack.jpg",
+      icon: ICON_BLEED,
       stackType: STACK_BLEED,
       effects: [],
       expiresAt: now + BLEED_DURATION_MS,
@@ -95,6 +101,18 @@ export function rollAggressiveMobSkills(
     logLines.push(`${label}: кровотеча! 15% від макс. HP щосек (5 сек).`);
   } else {
     heroStunnedUntil = now + STUN_MS;
+    const stunBuff: BattleBuff = {
+      id: -91004,
+      name: "Оглушення",
+      icon: ICON_STUN,
+      stackType: STACK_STUN,
+      effects: [],
+      expiresAt: now + STUN_MS,
+      startedAt: now,
+      durationMs: STUN_MS,
+      source: "mob_skill",
+    };
+    buffs = upsertByStackType(buffs, stunBuff);
     logLines.push(`${label}: оглушення 3 сек.`);
   }
 
