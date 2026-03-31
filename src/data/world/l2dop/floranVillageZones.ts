@@ -1,6 +1,6 @@
 // Floran Village — 6 зон (id починається з floran* для дроп-профілів), 120–250 мобів, 2 чемпіони, 2–3 РБ; агро-патруль додає augmentPatrolMobs.
 
-import type { Zone } from "../types";
+import type { Mob, Zone } from "../types";
 import {
   fillZoneMobs,
   getFloranVillageL2DopChampions,
@@ -10,10 +10,44 @@ import {
 } from "./mobs";
 import { applyL2XmlDropsToMob } from "./applyXmlDrops";
 
+/**
+ * Квестові моби перших проф Floran (світлий ельф-воїн + темний ельф).
+ * Завжди додаємо в 03/04: (1) fillZoneMobs інколи не обирає тип; (2) у _04 рівні зони 19–25, а частина мобів 15–18 —
+ * без примусу вони ніколи не потрапляють у список, хоча квест описує обидві зони.
+ */
+const FLORAN_FIRST_PROF_QUEST_MOB_NAMES: readonly string[] = [
+  "Venomous Spider",
+  "Lirein",
+  "Tracker Skeleton Leader",
+  "Boogle Ratman Leader",
+  "Lesser Dark Horror",
+  "Shade Horror",
+  "Crypt Horror",
+  "Oblivion Watcher",
+  "Will-O-Wisp",
+  "Mana Seeker",
+  "Scarlet Salamander",
+  "Undine",
+];
+
+function injectFloranFirstProfQuestMobs(regular: Mob[], zoneId: string): Mob[] {
+  if (zoneId !== "floran_village_03" && zoneId !== "floran_village_04") return regular;
+  const namesPresent = new Set(regular.map((m) => m.name));
+  const injected: Mob[] = [];
+  for (const name of FLORAN_FIRST_PROF_QUEST_MOB_NAMES) {
+    if (namesPresent.has(name)) continue;
+    const template = L2DOP_FLORAN_VILLAGE_POOL.find((m) => m.name === name);
+    if (!template) continue;
+    injected.push({ ...template });
+    namesPresent.add(name);
+  }
+  return injected.length > 0 ? [...injected, ...regular] : regular;
+}
+
 function buildFloranVillageZoneMobs(z: { id: string; min: number; max: number }) {
-  const regular = fillZoneMobs(L2DOP_FLORAN_VILLAGE_POOL, z.id, z.min, z.max, 120, 250, 6, 16).map((m, i) =>
-    applyL2XmlDropsToMob(m, z.id, i)
-  );
+  const filled = fillZoneMobs(L2DOP_FLORAN_VILLAGE_POOL, z.id, z.min, z.max, 120, 250, 6, 16);
+  const regularWithQuest = injectFloranFirstProfQuestMobs(filled, z.id);
+  const regular = regularWithQuest.map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const champions = getFloranVillageL2DopChampions(z.id, z.min, z.max).map((m, i) => applyL2XmlDropsToMob(m, z.id, i));
   const raidBosses = getFloranVillageRaidBossesForZone(z.id);
   return shuffleMobsRandomly(regular, champions, raidBosses, z.id);
