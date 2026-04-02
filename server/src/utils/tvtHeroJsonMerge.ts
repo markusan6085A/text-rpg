@@ -2,7 +2,12 @@
  * При PUT /characters/:id клієнт може надіслати застарілий heroJson (автозбереження до GET після TvT).
  * Coin of Luck у колонці coinLuck не затирається; tvt_coin / tvtCoins лише в heroJson — їх не можна
  * перезаписувати меншим значенням з клієнта, інакше нагорода зникає з інвентаря.
+ *
+ * Не-TvT інвентар мерджимо union з БД + вхідний snapshot: інакше порожній / undefined inventory
+ * з другого пристрою затирав би весь інвентар у БД.
  */
+import { mergeInventoriesUnionForPut } from "./inventoryMergeUnion";
+
 const TVT_ITEM_ID = "tvt_coin";
 
 function sumTvtCoinInList(list: unknown): number {
@@ -22,7 +27,7 @@ function mergeTvtCoinList(existingList: unknown, incomingList: unknown): any[] {
   const sumOld = sumTvtCoinInList(existingList);
   const sumNew = sumTvtCoinInList(incomingList);
   const total = Math.max(sumOld, sumNew);
-  const base = listWithoutTvt(incomingList);
+  const base = mergeInventoriesUnionForPut(listWithoutTvt(existingList), listWithoutTvt(incomingList));
   if (total <= 0) return base;
   const tpl =
     (Array.isArray(incomingList) &&
