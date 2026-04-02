@@ -347,6 +347,20 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           </button>
 
           <button
+            className={svcBtn("text-[#c4a5f5] hover:text-white")}
+            onClick={() => {
+              window.scrollTo(0, 0);
+              navigate("/epic-bosses");
+            }}
+          >
+            <img src="/assets/quest.png" alt="Епік-боси" className={ico} />
+            <span>
+              Информация: эпик-боссы{" "}
+              <span className="text-[11px] text-[#808080]">— локации, дроп, респ</span>
+            </span>
+          </button>
+
+          <button
             className={svcBtn("text-[#99e074] hover:text-[#bbff97]")}
             onClick={() => {
               window.scrollTo(0, 0);

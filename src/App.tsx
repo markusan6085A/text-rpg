@@ -48,6 +48,7 @@ import TvtManagerScreen from "./screens/tvt/TvtManagerScreen";
 import TvtMatchBoardScreen from "./screens/tvt/TvtMatchBoardScreen";
 import TvtShopScreen from "./screens/tvt/TvtShopScreen";
 import Help from "./screens/Help";
+import EpicBossesInfo from "./screens/EpicBossesInfo";
 import ExpTable from "./screens/ExpTable";
 import Settings from "./screens/Settings";
 import News from "./screens/News";
@@ -522,6 +523,9 @@ function AppInner() {
 
     case "/help":
       return renderWithLayout(<Help navigate={navigate} key={`help-${refreshKey}`} />);
+
+    case "/epic-bosses":
+      return renderWithLayout(<EpicBossesInfo navigate={navigate} key={`epic-bosses-${refreshKey}`} />);
 
     case "/exp-table":
       return renderWithLayout(<ExpTable navigate={navigate} key={`exp-table-${refreshKey}`} />);
