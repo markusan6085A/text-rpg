@@ -52,7 +52,7 @@ import { useAdminStore } from "../state/adminStore";
 import { buffPlayer } from "../utils/api";
 import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
-import { L2_WARM_OUTER_FRAME } from "./location/locationL2ClassNames";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { effectiveCharacterLevel } from "../utils/effectiveCharacterLevel";
 import { useCharacterStore } from "../state/characterStore";
 import { setResurrectInProgress } from "../state/heroStore";

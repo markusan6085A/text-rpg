@@ -13,6 +13,7 @@ import IncreaseInventoryModal from "./modals/IncreaseInventoryModal";
 import TransferItemModal from "./modals/TransferItemModal";
 import OverflowChestModal from "./modals/OverflowChestModal";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -44,8 +45,7 @@ export default function Inventory() {
   const characterId = useCharacterStore((s) => s.characterId);
 
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const l2RowBase =
     "w-full text-[11px] py-2 px-2.5 mb-2 rounded-md flex items-center gap-2 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)]";
   const l2ToolbarBtnSecondary =

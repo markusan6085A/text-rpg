@@ -38,7 +38,7 @@ import {
   formatTimeLeft,
 } from "./market/marketHelpers";
 import { applyMarketCharacterPatch } from "./market/applyMarketCharacterPatch";
-import { L2_WARM_OUTER_FRAME } from "./location/locationL2ClassNames";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 
 interface MarketProps {
   navigate: (path: string) => void;

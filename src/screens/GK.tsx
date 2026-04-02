@@ -4,6 +4,7 @@ import {
   cities as WORLD_CITIES,
   locations as WORLD_LOCATIONS,
 } from "../data/world";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import type { Zone } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
@@ -56,8 +57,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
   const updateAdena = useHeroStore((s) => s.updateAdena);
   const q = useQuery();
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const l2Row =
     "w-full text-left text-[12px] py-2.5 px-3 mb-2 rounded-md flex items-center gap-2 bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12),0_4px_14px_rgba(0,0,0,0.55)] hover:border-[#c7ad80]/50 hover:brightness-110 active:scale-[0.99] transition-[border-color,transform,filter] duration-150";
   const l2ZoneRow =

@@ -9,6 +9,7 @@ import { getSellPrice } from "../utils/sellPrices";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
 import { normalizeIconPath, FALLBACK_ICON } from "../utils/itemIcon";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 
 type Navigate = (path: string) => void;
 
@@ -30,8 +31,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const modalPanel = isL2
     ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
     : "bg-[#14110c] border border-white/40 rounded-lg p-4 w-full";

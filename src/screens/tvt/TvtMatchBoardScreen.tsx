@@ -4,6 +4,7 @@ import { useHeroStore } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { getTvtState, pickTvtTarget, getArenaActiveSession, type TvtStateResponse } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 
 type Props = { navigate: (path: string) => void };
 
@@ -84,8 +85,7 @@ export default function TvtMatchBoardScreen({ navigate }: Props) {
     }
   };
 
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const rowStyle =
     "rounded-md border border-[#8a3030]/50 bg-black/25 px-2 py-1.5 text-[13px] text-[#e8a0a0] hover:border-[#c7ad80]/45 disabled:opacity-40";
   const nickRowClass = "flex flex-wrap items-center gap-[0.5cm]";

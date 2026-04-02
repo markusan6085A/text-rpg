@@ -1,5 +1,6 @@
 import React from "react";
 import { isWarmCityUi, getCityUiVariant } from "../../../utils/cityUiVariant";
+import { L2_WARM_OUTER_FRAME } from "../../../utils/l2WarmLayoutClassNames";
 
 interface ChatRestrictionModalProps {
   type: "mute" | "ban";
@@ -14,7 +15,7 @@ export function ChatRestrictionModal({ type, message, timeLeftText, onClose }: C
   const title = type === "mute" ? "У вас мут" : "У вас бан чату";
 
   const panel = isL2
-    ? "w-full max-w-sm rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)] p-4"
+    ? `${L2_WARM_OUTER_FRAME} w-full max-w-sm p-4`
     : "w-full max-w-sm rounded-lg border border-[#c7ad80]/50 bg-[#1a1a1a] p-4 shadow-xl";
 
   return (

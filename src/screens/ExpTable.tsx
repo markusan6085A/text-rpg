@@ -1,6 +1,7 @@
 import React from "react";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../data/expTable";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 
 type Navigate = (p: string) => void;
 
@@ -13,8 +14,7 @@ function formatNum(n: number): string {
 
 export default function ExpTable({ navigate }: { navigate: Navigate }) {
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const innerPanel = isL2
     ? "rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
     : "";

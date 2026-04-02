@@ -1,6 +1,7 @@
 import React from "react";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { TVT_COIN_ICON } from "./tvtRewards";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 
 type Props = {
   navigate: (path: string) => void;
@@ -11,8 +12,7 @@ type Props = {
  */
 export default function TvtShopScreen({ navigate }: Props) {
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const rowBtn =
     "w-full rounded-md border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] px-3 py-2.5 text-left text-[13px] text-[#d4c4a8] hover:border-[#c7ad80]/50 hover:brightness-110 transition-all";
 

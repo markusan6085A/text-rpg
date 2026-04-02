@@ -6,6 +6,7 @@ import { cleanupBuffs } from "../state/battle/helpers";
 import type { BattleBuff } from "../state/battle/types";
 import { useBattleStore } from "../state/battle/store";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 
 interface MagicStatueProps {
   navigate: (path: string) => void;
@@ -25,8 +26,7 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
   }, []);
 
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
 
   if (!hero) {
     return (

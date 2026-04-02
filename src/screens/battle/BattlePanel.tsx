@@ -3,6 +3,7 @@ import { BattleTargetCard } from "./BattleTargetCard";
 import { BuffBar } from "./BuffBar";
 import { BattleLog } from "./BattleLog";
 import type { BattleBuff } from "../../state/battle/types";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 
 /** Спільні стилі панелі бою (моб, PK, олімпіада, ТВТ, арена) */
 const lineGold = "border-t border-[#c7ad80]/80";
@@ -17,8 +18,7 @@ const boxLogL2 =
   "rounded-lg border border-[#6b5a3e]/55 bg-[linear-gradient(180deg,rgba(18,14,10,0.92)_0%,rgba(6,5,4,0.96)_100%)] shadow-[inset_0_1px_0_rgba(199,173,128,0.14),inset_0_-8px_24px_rgba(0,0,0,0.35)] overflow-hidden";
 const skillStripL2 =
   "rounded-lg border border-[#5c4a32]/45 bg-[radial-gradient(ellipse_95%_55%_at_50%_0%,rgba(199,173,128,0.1)_0%,transparent_58%),linear-gradient(180deg,#16120e_0%,#0a0907_100%)] px-2 py-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.08),0_0_20px_rgba(0,0,0,0.45)]";
-const l2Frame =
-  "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+const l2Frame = L2_WARM_OUTER_FRAME;
 
 /** Тема «Тест» — той самий профільний холодний 3D-фрейм, що й у Character / HeroStatusStrip */
 const testFrame =

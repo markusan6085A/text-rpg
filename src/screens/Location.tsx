@@ -60,7 +60,7 @@ import {
   type PatrolTickCtx,
   type PatrolAggroBanner,
 } from "./location/locationPatrolAggro";
-import { L2_LOCATION_FRAME, L2_LOCATION_MOB_CARD } from "./location/locationL2ClassNames";
+import { L2_LOCATION_FRAME, L2_LOCATION_MOB_CARD } from "../utils/l2WarmLayoutClassNames";
 
 type Navigate = (path: string) => void;
 

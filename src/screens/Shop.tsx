@@ -17,6 +17,7 @@ import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectA
 import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 
 // У категорії «Стрелы» тільки стріли грейдів NG, D, C, B, A, S (один тип на грейд)
 const ARROW_GRADE_IDS = ["wooden_arrow", "bone_arrow", "fine_steel_arrow", "silver_arrow", "mithril_arrow", "shining_arrow"];
@@ -277,8 +278,7 @@ export default function Shop({ navigate }: ShopProps) {
   };
 
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const rowL2 =
     "flex items-center gap-2 py-2 px-2 mb-1.5 rounded-md bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] hover:border-[#c7ad80]/50 transition-[border-color] duration-150";
   const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";

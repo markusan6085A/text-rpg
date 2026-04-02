@@ -13,6 +13,7 @@ import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { isPremiumActive } from "../../utils/premium/isPremiumActive";
 import { useCityUiVariant } from "../../utils/cityUiVariant";
 import { showToast } from "../../state/toastStore";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 // Форматирование чисел (как в City)
 const formatNumber = (num: number) => {
   return num.toLocaleString("ru-RU");
@@ -71,8 +72,7 @@ export default function Character({ navigate: navigateProp }: CharacterProps = {
     </span>
   ) : null;
 
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
 
   const testFrame =
     "rounded-2xl overflow-hidden border border-cyan-900/40 bg-[linear-gradient(180deg,#020617_0%,#0a1628_28%,#000510_72%,#000000_100%)] shadow-[inset_0_1px_0_rgba(94,234,212,0.11),inset_0_-10px_28px_rgba(0,0,0,0.55),0_14px_40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.85),0_2px_0_rgba(8,145,178,0.08)]";

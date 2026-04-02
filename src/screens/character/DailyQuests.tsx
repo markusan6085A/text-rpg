@@ -6,6 +6,7 @@ import { DAILY_QUESTS, type DailyQuest } from "../../data/dailyQuests";
 import { getGameSettings } from "../../state/gameSettings";
 import { EXP_GAIN_RATE, SP_GAIN_RATE } from "../../data/balance";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 
 interface Navigate {
   (path: string): void;
@@ -31,8 +32,7 @@ export default function DailyQuests({ navigate }: { navigate: Navigate }) {
   const updateHero = useHeroStore((s) => s.updateHero);
   const lastResetCheck = useRef<string | null>(null);
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const questCardL2 =
     "rounded-md border border-[#5c4a32]/60 bg-black/20 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)] px-2.5 py-2 mb-2";
 

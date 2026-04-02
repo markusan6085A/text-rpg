@@ -7,6 +7,7 @@ import {
   normalizeProfessionId,
   ProfessionId,
 } from "../../data/skills";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 import { AdditionalSkills } from "../../data/skills/additional";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { showToast } from "../../state/toastStore";
@@ -46,8 +47,7 @@ export default function AdditionalSkillsScreen({
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const skillCardL2 =
     "space-y-2 rounded-md border border-[#5c4a32]/60 bg-gradient-to-b from-[#1a1610]/90 to-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-2.5";
   const skillCardClassic = "space-y-2 rounded-md border border-[#c7ad80]/25 bg-black/25 p-2.5";

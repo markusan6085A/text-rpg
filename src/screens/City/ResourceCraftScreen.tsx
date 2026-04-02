@@ -10,6 +10,7 @@ import {
   RESOURCE_CRAFT_LEVEL1_UNLOCK_LEVEL,
   type ResourceCraftRecipe,
 } from "../../data/crafting/resourceCraftLevel1";
+import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 import {
   RESOURCE_CRAFT_LEVEL2_RECIPES,
   RESOURCE_CRAFT_LEVEL2_UNLOCK_LEVEL,
@@ -162,8 +163,7 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
 
   const [craftModal, setCraftModal] = React.useState<CraftModalState | null>(null);
   const [craftQtyInput, setCraftQtyInput] = React.useState("1");

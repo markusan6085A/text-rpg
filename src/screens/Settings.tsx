@@ -7,6 +7,7 @@ import {
   type GameSettings,
   type Language,
 } from "../state/gameSettings";
+import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { t } from "../utils/i18n";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
@@ -24,8 +25,7 @@ export default function Settings({ navigate }: SettingsProps) {
   }, []);
 
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Frame = L2_WARM_OUTER_FRAME;
   const cardClass = isL2
     ? "border border-[#5c4a32]/70 rounded-lg p-3 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
     : "border border-white/30 rounded-lg p-3 bg-black/20";
