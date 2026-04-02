@@ -1,0 +1,786 @@
+import type { FastifyInstance } from "fastify";
+import { prisma } from "../db";
+import { getAuth } from "../routes/character/auth";
+import { addVersioning } from "../heroJsonValidator";
+import { removeItemFromInventory, addItemToInventory, pickSafeItemFields } from "../utils/inventoryHelpers";
+import { registerClanInviteNestedRoutes } from "../routes/clans/invites";
+import { registerClanApplicationNestedRoutes } from "../routes/clans/applications";
+import { registerClanMemberNestedRoutes } from "../routes/clans/members";
+import { ensureClanWarehouseTable } from "./ensureClanWarehouseTable";
+
+export async function clanNestedRoutes(app: FastifyInstance) {
+  // POST /clans/:id/adena/deposit - покласти адену в клан
+  app.post("/clans/:id/adena/deposit", async (req, reply) => {
+    app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/adena/deposit called");
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+    
+    app.log.info({ id, amount }, "Processing adena deposit");
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const isMember = await prisma.clanMember.findFirst({
+      where: {
+        clanId: id,
+        characterId: character.id,
+      },
+    });
+
+    const isCreator = await prisma.clan.findFirst({
+      where: {
+        id,
+        creatorId: character.id,
+      },
+    });
+
+    if (!isMember && !isCreator) {
+      return reply.code(403).send({ error: "you are not a member of this clan" });
+    }
+
+    if (amount > (character.adena || 0)) {
+      return reply.code(400).send({ error: "insufficient adena" });
+    }
+
+    // Оновлюємо адену гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { adena: { decrement: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { adena: { increment: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "adena_deposited",
+        characterId: character.id,
+        message: `${character.name} положил ${amount} адены в клан`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
+  // POST /clans/:id/adena/withdraw - забрати адену з клану (тільки для глави)
+  app.post("/clans/:id/adena/withdraw", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const clan = await prisma.clan.findUnique({
+      where: { id },
+    });
+
+    if (!clan) {
+      return reply.code(404).send({ error: "clan not found" });
+    }
+
+    if (clan.creatorId !== character.id) {
+      return reply.code(403).send({ error: "only clan leader can withdraw adena" });
+    }
+
+    if (amount > clan.adena) {
+      return reply.code(400).send({ error: "insufficient adena in clan" });
+    }
+
+    // Оновлюємо адену гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { adena: { increment: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { adena: { decrement: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "adena_withdrawn",
+        characterId: character.id,
+        message: `${character.name} забрал ${amount} адены из клана`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
+  // POST /clans/:id/coin-luck/deposit - покласти Coin of Luck в клан
+  app.post("/clans/:id/coin-luck/deposit", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const isMember = await prisma.clanMember.findFirst({
+      where: {
+        clanId: id,
+        characterId: character.id,
+      },
+    });
+
+    const isCreator = await prisma.clan.findFirst({
+      where: {
+        id,
+        creatorId: character.id,
+      },
+    });
+
+    if (!isMember && !isCreator) {
+      return reply.code(403).send({ error: "you are not a member of this clan" });
+    }
+
+    if (amount > (character.coinLuck || 0)) {
+      return reply.code(400).send({ error: "insufficient coin of luck" });
+    }
+
+    // Оновлюємо Coin of Luck гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { coinLuck: { decrement: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { coinLuck: { increment: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "coin_luck_deposited",
+        characterId: character.id,
+        message: `${character.name} положил ${amount} Coin of Luck в клан`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
+  // POST /clans/:id/coin-luck/withdraw - забрати Coin of Luck з клану (тільки для глави)
+  app.post("/clans/:id/coin-luck/withdraw", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { amount } = req.body as { amount?: number };
+
+    if (!amount || amount <= 0) {
+      return reply.code(400).send({ error: "amount must be greater than 0" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const clan = await prisma.clan.findUnique({
+      where: { id },
+    });
+
+    if (!clan) {
+      return reply.code(404).send({ error: "clan not found" });
+    }
+
+    if (clan.creatorId !== character.id) {
+      return reply.code(403).send({ error: "only clan leader can withdraw coin of luck" });
+    }
+
+    if (amount > clan.coinLuck) {
+      return reply.code(400).send({ error: "insufficient coin of luck in clan" });
+    }
+
+    // Оновлюємо Coin of Luck гравця та клану
+    await prisma.character.update({
+      where: { id: character.id },
+      data: { coinLuck: { increment: amount } },
+    });
+
+    await prisma.clan.update({
+      where: { id },
+      data: { coinLuck: { decrement: amount } },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "coin_luck_withdrawn",
+        characterId: character.id,
+        message: `${character.name} забрал ${amount} Coin of Luck из клана`,
+        metadata: { amount },
+      },
+    });
+
+    return { ok: true };
+  });
+
+  // GET /clans/:id/warehouse - склад клану
+  app.get("/clans/:id/warehouse", async (req, reply) => {
+    try {
+      await ensureClanWarehouseTable(app);
+      app.log.info({ url: req.url, params: req.params }, "GET /clans/:id/warehouse called");
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const { id } = req.params as { id: string };
+      const { page = "1", limit = "10" } = req.query as { page?: string; limit?: string };
+
+      const pageNum = parseInt(page, 10) || 1;
+      const limitNum = Math.min(parseInt(limit, 10) || 10, 50);
+
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+      });
+
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const isMember = await prisma.clanMember.findFirst({
+        where: {
+          clanId: id,
+          characterId: character.id,
+        },
+      });
+
+      const isCreator = await prisma.clan.findFirst({
+        where: {
+          id,
+          creatorId: character.id,
+        },
+      });
+
+      if (!isMember && !isCreator) {
+        return reply.code(403).send({ error: "you are not a member of this clan" });
+      }
+
+      // Переконаємося, що таблиця існує перед використанням
+      let items: any[] = [];
+      let total = 0;
+      try {
+        items = await prisma.clanWarehouse.findMany({
+          where: { clanId: id },
+          orderBy: { depositedAt: "desc" },
+          take: limitNum,
+          skip: (pageNum - 1) * limitNum,
+        });
+
+        total = await prisma.clanWarehouse.count({
+          where: { clanId: id },
+        });
+      } catch (queryError: any) {
+        app.log.warn({ error: queryError.message, code: queryError.code }, "Error during warehouse query, checking if table exists...");
+        if (queryError?.message?.includes('does not exist') || queryError?.code === '42P01' || queryError?.message?.includes('ClanWarehouse')) {
+          app.log.warn("ClanWarehouse table missing during query, ensuring it exists...");
+          await ensureClanWarehouseTable(app);
+          // Невелика затримка, щоб дати базі час на створення таблиці
+          await new Promise(resolve => setTimeout(resolve, 100));
+          // Спробуємо ще раз після створення таблиці
+          try {
+            items = await prisma.clanWarehouse.findMany({
+              where: { clanId: id },
+              orderBy: { depositedAt: "desc" },
+              take: limitNum,
+              skip: (pageNum - 1) * limitNum,
+            });
+
+            total = await prisma.clanWarehouse.count({
+              where: { clanId: id },
+            });
+            app.log.info({ itemsCount: items.length, total }, "Query successful after table creation");
+          } catch (retryError: any) {
+            app.log.error({ error: retryError.message }, "Query failed even after table creation");
+            throw retryError;
+          }
+        } else {
+          throw queryError;
+        }
+      }
+
+      return {
+        ok: true,
+        items: items.map((item) => ({
+          id: item.id,
+          itemId: item.itemId,
+          qty: item.qty,
+          meta: item.meta || {},
+          depositedBy: item.depositedBy || null,
+          depositedAt: item.depositedAt,
+        })),
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum),
+        },
+      };
+    } catch (error: any) {
+      app.log.error({ error: error.message, stack: error.stack }, "Error in warehouse GET");
+      return reply.code(500).send({ error: error.message || "Internal server error" });
+    }
+  });
+
+  // POST /clans/:id/warehouse/deposit - покласти предмет в склад
+  app.post("/clans/:id/warehouse/deposit", async (req, reply) => {
+    try {
+      await ensureClanWarehouseTable(app);
+      app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/warehouse/deposit called");
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const { id } = req.params as { id: string };
+      const { itemId, qty = 1, meta = {} } = req.body as { itemId?: string; qty?: number; meta?: any };
+
+      app.log.info({ id, itemId, qty, meta }, "Processing warehouse deposit");
+
+      if (!itemId) {
+        return reply.code(400).send({ error: "itemId is required" });
+      }
+      if (String(itemId).trim() === "seven_seals_medal") {
+        return reply.code(400).send({ error: "seven_seals_medal cannot be deposited" });
+      }
+
+      const character = await prisma.character.findFirst({
+        where: { accountId: auth.accountId },
+        select: { id: true, name: true, heroJson: true },
+      });
+
+      if (!character) {
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const isMember = await prisma.clanMember.findFirst({
+        where: {
+          clanId: id,
+          characterId: character.id,
+        },
+      });
+
+      const isCreator = await prisma.clan.findFirst({
+        where: {
+          id,
+          creatorId: character.id,
+        },
+      });
+
+      if (!isMember && !isCreator) {
+        return reply.code(403).send({ error: "you are not a member of this clan" });
+      }
+
+      const qtyNum = Math.max(1, Math.floor(Number(qty) || 1));
+      const heroJson = (character.heroJson as any) || {};
+      const currentInventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+      let newInventory: any[];
+      let transferItem: any;
+      try {
+        const result = removeItemFromInventory(currentInventory, {
+          id: String(itemId),
+          count: qtyNum,
+          enchantLevel: (meta && typeof meta === "object" && Number(meta.enchantLevel)) || 0,
+        });
+        newInventory = result.newInventory;
+        transferItem = result.transferItem;
+      } catch (invErr: any) {
+        return reply.code(400).send({ error: invErr.message || "not enough items in inventory" });
+      }
+
+      // Перевіряємо ліміт складу (200 предметів)
+      // Спочатку переконаємося, що таблиця існує
+      let currentCount = 0;
+      try {
+        currentCount = await prisma.clanWarehouse.count({
+          where: { clanId: id },
+        });
+      } catch (countError: any) {
+        app.log.warn({ error: countError.message, code: countError.code }, "Error during count, checking if table exists...");
+        if (countError?.message?.includes('does not exist') || countError?.code === '42P01' || countError?.message?.includes('ClanWarehouse')) {
+          app.log.warn("ClanWarehouse table missing during count, ensuring it exists...");
+          await ensureClanWarehouseTable(app);
+          // Невелика затримка, щоб дати базі час на створення таблиці
+          await new Promise(resolve => setTimeout(resolve, 100));
+          // Спробуємо ще раз після створення таблиці
+          try {
+            currentCount = await prisma.clanWarehouse.count({
+              where: { clanId: id },
+            });
+            app.log.info({ currentCount }, "Count successful after table creation");
+          } catch (retryError: any) {
+            app.log.error({ error: retryError.message }, "Count failed even after table creation");
+            throw retryError;
+          }
+        } else {
+          throw countError;
+        }
+      }
+
+      if (currentCount >= 200) {
+        return reply.code(400).send({ error: "clan warehouse is full (200 items max)" });
+      }
+
+      const metaData = (meta && typeof meta === "object" && !Array.isArray(meta))
+        ? meta
+        : { name: transferItem?.name, icon: transferItem?.icon, slot: transferItem?.slot };
+
+      const clanExists = await prisma.clan.findUnique({
+        where: { id },
+        select: { id: true },
+      });
+
+      if (!clanExists) {
+        return reply.code(404).send({ error: "clan not found" });
+      }
+
+      app.log.info({ clanId: id, itemId, qty: qtyNum, metaData, depositedBy: character.id }, "Creating warehouse item");
+
+      let warehouseItem;
+      try {
+        warehouseItem = await prisma.$transaction(async (tx) => {
+          const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+          const updatedHeroJson = addVersioning(
+            { ...heroJson, inventory: newInventory },
+            oldRevision
+          );
+          await tx.character.update({
+            where: { id: character.id },
+            data: { heroJson: updatedHeroJson },
+          });
+          return tx.clanWarehouse.create({
+            data: {
+              clanId: id,
+              itemId: String(itemId),
+              qty: qtyNum,
+              meta: metaData,
+              depositedBy: character.id,
+            },
+          });
+        });
+      } catch (createError: any) {
+        app.log.warn({ error: createError.message, code: createError.code }, "Error during warehouse create, checking if table exists...");
+        if (createError?.message?.includes('does not exist') || createError?.code === '42P01' || createError?.message?.includes('ClanWarehouse')) {
+          app.log.warn("ClanWarehouse table missing during create, ensuring it exists...");
+          await ensureClanWarehouseTable(app);
+          await new Promise(resolve => setTimeout(resolve, 100));
+          try {
+            warehouseItem = await prisma.$transaction(async (tx) => {
+              const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+              const updatedHeroJson = addVersioning(
+                { ...heroJson, inventory: newInventory },
+                oldRevision
+              );
+              await tx.character.update({
+                where: { id: character.id },
+                data: { heroJson: updatedHeroJson },
+              });
+              return tx.clanWarehouse.create({
+                data: {
+                  clanId: id,
+                  itemId: String(itemId),
+                  qty: qtyNum,
+                  meta: metaData,
+                  depositedBy: character.id,
+                },
+              });
+            });
+            app.log.info({ warehouseItemId: warehouseItem.id }, "Create successful after table creation");
+          } catch (retryError: any) {
+            app.log.error({ error: retryError.message }, "Create failed even after table creation");
+            throw retryError;
+          }
+        } else {
+          throw createError;
+        }
+      }
+
+      app.log.info({ warehouseItemId: warehouseItem.id }, "Warehouse item created");
+
+      // Додаємо лог
+      try {
+        await prisma.clanLog.create({
+          data: {
+            clanId: id,
+            type: "item_deposited",
+            characterId: character.id,
+            message: `${character.name} положил предмет в склад`,
+            metadata: { itemId: String(itemId), qty: Number(qty) || 1 } as any,
+          },
+        });
+      } catch (logError: any) {
+        app.log.warn({ logError: logError.message }, "Failed to create clan log, but item was deposited");
+        // Не кидаємо помилку, бо предмет вже покладено
+      }
+
+      return {
+        ok: true,
+        item: {
+          id: warehouseItem.id,
+          itemId: warehouseItem.itemId,
+          qty: warehouseItem.qty,
+          meta: warehouseItem.meta || {},
+          depositedBy: warehouseItem.depositedBy || null,
+          depositedAt: warehouseItem.depositedAt,
+        },
+      };
+    } catch (error: any) {
+      app.log.error({ error: error.message, stack: error.stack }, "Error in warehouse deposit");
+      return reply.code(500).send({ error: error.message || "Internal server error" });
+    }
+  });
+
+  // POST /clans/:id/warehouse/withdraw - забрати предмет зі складу
+  // itemId в body = id запису ClanWarehouse (warehouse row id), не itemId предмета
+  app.post("/clans/:id/warehouse/withdraw", async (req, reply) => {
+    try {
+      await ensureClanWarehouseTable(app);
+    } catch (error: any) {
+      app.log.error({ error: error.message }, "Failed to ensure ClanWarehouse table");
+    }
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { itemId: warehouseRowId } = req.body as { itemId?: string };
+
+    if (!warehouseRowId) {
+      return reply.code(400).send({ error: "itemId is required" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+      select: { id: true, name: true, heroJson: true },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const isMember = await prisma.clanMember.findFirst({
+      where: {
+        clanId: id,
+        characterId: character.id,
+      },
+    });
+
+    const isCreator = await prisma.clan.findFirst({
+      where: {
+        id,
+        creatorId: character.id,
+      },
+    });
+
+    if (!isMember && !isCreator) {
+      return reply.code(403).send({ error: "you are not a member of this clan" });
+    }
+
+    const warehouseItem = await prisma.clanWarehouse.findFirst({
+      where: {
+        clanId: id,
+        id: warehouseRowId,
+      },
+    });
+
+    if (!warehouseItem) {
+      return reply.code(404).send({ error: "item not found in warehouse" });
+    }
+
+    const meta = (warehouseItem.meta as any) || {};
+    const itemToAdd = pickSafeItemFields(
+      {
+        id: warehouseItem.itemId,
+        name: meta.name,
+        icon: meta.icon,
+        slot: meta.slot,
+        kind: meta.kind,
+        count: warehouseItem.qty,
+      },
+      warehouseItem.qty
+    );
+
+    const heroJson = (character.heroJson as any) || {};
+    const currentInventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+    const newInventory = addItemToInventory(currentInventory, itemToAdd);
+    const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
+    const updatedHeroJson = addVersioning(
+      { ...heroJson, inventory: newInventory },
+      oldRevision
+    );
+
+    await prisma.$transaction(async (tx) => {
+      await tx.character.update({
+        where: { id: character.id },
+        data: { heroJson: updatedHeroJson },
+      });
+      await tx.clanWarehouse.delete({
+        where: { id: warehouseItem.id },
+      });
+      await tx.clanLog.create({
+        data: {
+          clanId: id,
+          type: "item_withdrawn",
+          characterId: character.id,
+          message: `${character.name} забрал предмет из склада`,
+          metadata: { itemId: warehouseItem.itemId, qty: warehouseItem.qty },
+        },
+      });
+    });
+
+    return { ok: true };
+  });
+
+  // POST /clans/:id/emblem - встановити емблему клану (тільки для глави)
+  app.post("/clans/:id/emblem", async (req, reply) => {
+    app.log.info({ url: req.url, params: req.params, body: req.body }, "POST /clans/:id/emblem called");
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { emblem } = req.body as { emblem?: string };
+
+    if (!emblem) {
+      return reply.code(400).send({ error: "emblem is required" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+
+    if (!character) {
+      return reply.code(404).send({ error: "character not found" });
+    }
+
+    const clan = await prisma.clan.findUnique({
+      where: { id },
+      include: {
+        creator: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    if (!clan) {
+      return reply.code(404).send({ error: "clan not found" });
+    }
+
+    // Перевіряємо, чи гравець є головою клану
+    if (clan.creatorId !== character.id) {
+      return reply.code(403).send({ error: "only clan leader can set emblem" });
+    }
+
+    // Оновлюємо емблему
+    const updatedClan = await prisma.clan.update({
+      where: { id },
+      data: { emblem } as any,
+      include: {
+        creator: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    // Додаємо лог
+    await prisma.clanLog.create({
+      data: {
+        clanId: id,
+        type: "emblem_changed",
+        characterId: character.id,
+        message: `${character.name} изменил эмблему клана`,
+        metadata: { emblem },
+      },
+    });
+
+    return {
+      ok: true,
+      clan: updatedClan,
+    };
+  });
+
+  // Invite, apply, leave, transfer
+  registerClanInviteNestedRoutes(app);
+  registerClanApplicationNestedRoutes(app);
+  registerClanMemberNestedRoutes(app);
+
+  // PATCH /clans/:id/announcement - оголошення клану (лідер/зам)
+  app.patch("/clans/:id/announcement", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const { id } = req.params as { id: string };
+    const { announcement } = req.body as { announcement?: string };
+
+    const character = await prisma.character.findFirst({
+      where: { accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const isLeader = await prisma.clan.findFirst({
+      where: { id, creatorId: character.id },
+    });
+    const isDeputy = await prisma.clanMember.findFirst({
+      where: { clanId: id, characterId: character.id, isDeputy: true },
+    });
+    if (!isLeader && !isDeputy) {
+      return reply.code(403).send({ error: "only leader or deputy can set announcement" });
+    }
+
+    const text = announcement != null ? String(announcement).slice(0, 500) : "";
+    const updated = await prisma.clan.update({
+      where: { id },
+      data: { announcement: text },
+    });
+
+    return { ok: true, announcement: updated.announcement };
+  });
+}
