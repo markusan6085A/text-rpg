@@ -762,7 +762,6 @@ export default function GuildScreen({
                                 <div>{spellReq.bookName}</div>
                                 <div className="opacity-90">Шанс дропа с подходящих мобов — ~{Math.round(spellReq.dropChance * 100)}% за убийство (макс. 1 книга за раз).</div>
                                 <div className="text-[10px] leading-snug">{spellReq.huntHintRu}</div>
-                                <div className="text-[10px] opacity-80">Ключевые типы мобов: {spellReq.mobPatterns.join(", ")}</div>
                               </div>
                             </div>
                             {spellbookInInventory > 0 ? (
