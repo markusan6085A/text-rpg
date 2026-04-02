@@ -3,9 +3,9 @@
 // У папці l2dop немає окремих записів «Queen Ant / Valakas» — тільки загальні РБ у mobs.ts;
 // тут додаємо окремі сутності зі статами як у відповідного зонного РБ того ж tier.
 //
-// Респавн усіх епіків: EPIC_RESPAWN_SEC (= 12 год, див. константу нижче).
-// Уже з дропом у коді: Queen Ant, Core, Orfen, Zaken; гранд-епіки Baium / Frintezza / Antharas / Valakas (GRAND _EPIC_DROPS);
-// xmlGrandRaidBossEpics.ts зараз порожній (колишні Schuttgart-епіки прибрані).
+// Респавн: base respawnTime (сек) для логіки/підказок; детальний текст — respawnLabelUkr (± рандом).
+// Уже з дропом: QA/Core/Orfen (біжутерія 30%); Zaken + гранд-епіки (біжутерія 100%).
+// xmlGrandRaidBossEpics.ts зараз порожній.
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import { CORE_EPIC_DROPS } from "./coreEpicDrops";
@@ -20,8 +20,7 @@ import { QUEEN_ANT_EPIC_DROPS } from "./queenAntEpicDrops";
 import { ZAKEN_EPIC_DROPS } from "./zakenEpicDrops";
 import { XML_GRAND_RAID_BOSS_EPICS } from "./xmlGrandRaidBossEpics";
 
-/** 12 год (43200 с) — спільний респ для всіх епіків у цьому списку. */
-const EPIC_RESPAWN_SEC = 12 * 60 * 60;
+const H = 60 * 60;
 
 /** Епіки додаються до пулу raidBosses зони з тим самим tier, що й звичайний РБ цієї зони. */
 export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
@@ -45,7 +44,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...QUEEN_ANT_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    respawnTime: 24 * H,
+    respawnLabelUkr: "24 год ± 4 год (~раз на добу)",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_dion_07",
@@ -68,7 +68,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...CORE_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    respawnTime: 36 * H,
+    respawnLabelUkr: "36 год ± 4 год",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_oren_04",
@@ -93,7 +94,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...ORFEN_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    respawnTime: 36 * H,
+    respawnLabelUkr: "36 год ± 4 год",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_oren_05",
@@ -116,7 +118,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...ZAKEN_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    respawnTime: 48 * H,
+    respawnLabelUkr: "48 год ± 2 год",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_aden_07",
@@ -139,7 +142,9 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...BAIUM_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    /** База 120 год + до 8 год рандому — для числового поля ~середина вікна */
+    respawnTime: 124 * H,
+    respawnLabelUkr: "5 діб (120 год) + рандом 0–8 год",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_goddard_03",
@@ -162,7 +167,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...FRINTEZZA_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    respawnTime: 48 * H,
+    respawnLabelUkr: "48 год ± 2 год",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_goddard_06",
@@ -185,7 +191,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...ANTHARAS_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    respawnTime: 192 * H,
+    respawnLabelUkr: "8 діб (192 год)",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_goddard_07",
@@ -208,7 +215,8 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     drops: [...VALAKAS_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
-    respawnTime: EPIC_RESPAWN_SEC,
+    respawnTime: 264 * H,
+    respawnLabelUkr: "11 діб (264 год), стабільно",
     dropProfileId: "rb_l2dop_aden_drop",
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_schuttgart_11",

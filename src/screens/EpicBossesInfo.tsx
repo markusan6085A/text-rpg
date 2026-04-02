@@ -5,7 +5,7 @@ import { L2_EPIC_RAID_BOSSES } from "../data/world/l2dop/epicRaidBosses";
 import type { RaidBoss } from "../data/bosses/floran_overlord";
 import { findZoneWithCity } from "./battle/battleUtils";
 import { displayCityName, displayMobName, displayZoneName } from "../utils/worldDisplay";
-import { itemsDB } from "../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import type { DropEntry } from "../data/combat/types";
 import { resourceLootDisplayName } from "../utils/resourceLootDisplayName";
@@ -24,12 +24,28 @@ interface EpicBossesInfoProps {
 function formatRespawnUkr(sec: number): string {
   const s = Math.max(0, Math.floor(sec));
   const h = Math.floor(s / 3600);
+  const d = Math.floor(h / 24);
+  const hr = h % 24;
   const m = Math.floor((s % 3600) / 60);
   if (h <= 0 && m <= 0) return "—";
+  if (d > 0 && m === 0 && hr === 0) return `${d} діб`;
+  if (d > 0 && m === 0) return `${d} діб ${hr} год`;
   if (m === 0) return `${h} год`;
   if (h === 0) return `${m} хв`;
   return `${h} год ${m} хв`;
 }
+
+/** Шанс випадіння ключової біжутерії з епіка (для таблиці в інфо). */
+const EPIC_JEWELRY_INFO: { bossUa: string; itemId: string; chanceLabel: string }[] = [
+  { bossUa: "Queen Ant (Королева мурахів)", itemId: "ring_of_queen_ant", chanceLabel: "30%" },
+  { bossUa: "Core (Ядро)", itemId: "ring_of_core", chanceLabel: "30%" },
+  { bossUa: "Orfen (Орфен)", itemId: "earring_of_orfen", chanceLabel: "30%" },
+  { bossUa: "Zaken (Закен)", itemId: "earring_of_zaken", chanceLabel: "100%" },
+  { bossUa: "Frintezza (Фрінтеза)", itemId: "necklace_of_frintezza", chanceLabel: "100%" },
+  { bossUa: "Baium (Баюм)", itemId: "ring_of_baium", chanceLabel: "100%" },
+  { bossUa: "Antharas (Антарас)", itemId: "earring_of_antharas", chanceLabel: "100%" },
+  { bossUa: "Valakas (Валакас)", itemId: "necklace_of_valakas", chanceLabel: "100%" },
+];
 
 type EpicRow = {
   boss: RaidBoss;
@@ -99,6 +115,70 @@ export default function EpicBossesInfo({ navigate }: EpicBossesInfoProps) {
             <p className="text-[11px] text-[#8a7a60] mt-1 leading-snug">
               Де стоїть кожен епік: місто та локація. Натисніть ім’я боса — повний дроп. Предмет у списку — картка предмета.
             </p>
+            <div className="mt-3 space-y-2 text-[11px] text-[#a89878] leading-snug border border-[#5c4a32]/45 rounded-lg p-2.5 bg-black/20">
+              <p className="font-semibold text-[#e8c56e]">Початкові епіки (low level)</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                <li>
+                  <strong>Queen Ant</strong>: 24 год ± 4 год (~раз на добу).
+                </li>
+                <li>
+                  <strong>Core</strong>: 36 год ± 4 год.
+                </li>
+                <li>
+                  <strong>Orfen</strong>: 36 год ± 4 год.
+                </li>
+              </ul>
+              <p className="font-semibold text-[#e8c56e] pt-1">Середній рівень</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                <li>
+                  <strong>Zaken</strong>: 48 год ± 2 год.
+                </li>
+                <li>
+                  <strong>Frintezza</strong>: 48 год ± 2 год.
+                </li>
+              </ul>
+              <p className="font-semibold text-[#e8c56e] pt-1">Вищі епіки (top tier)</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                <li>
+                  <strong>Baium</strong>: 5 діб (120 год) + рандом 0–8 год.
+                </li>
+                <li>
+                  <strong>Antharas</strong>: 8 діб (192 год).
+                </li>
+                <li>
+                  <strong>Valakas</strong>: 11 діб (264 год), стабільно.
+                </li>
+              </ul>
+            </div>
+            <div className="mt-3 rounded-lg border border-[#5c4a32]/45 overflow-hidden">
+              <div className="text-[11px] font-semibold text-[#b8860b] px-2.5 py-1.5 bg-black/30">
+                Шанс епічної біжутерії
+              </div>
+              <table className="w-full text-[10px] text-[#d4c4a8]">
+                <thead>
+                  <tr className="border-b border-[#5c4a32]/40 text-[#8a7a60]">
+                    <th className="text-left font-medium py-1 px-2">Епік-бос</th>
+                    <th className="text-left font-medium py-1 px-2">Предмет</th>
+                    <th className="text-right font-medium py-1 px-2">Шанс</th>
+                    <th className="text-right font-medium py-1 px-2">Кількість</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {EPIC_JEWELRY_INFO.map((row) => {
+                    const nm =
+                      itemsDBWithStarter[row.itemId]?.name ?? itemsDB[row.itemId]?.name ?? row.itemId;
+                    return (
+                      <tr key={row.itemId} className="border-b border-[#5c4a32]/25">
+                        <td className="py-1 px-2 align-top">{row.bossUa}</td>
+                        <td className="py-1 px-2 align-top text-[#c9a44c]">{nm}</td>
+                        <td className="py-1 px-2 text-right whitespace-nowrap">{row.chanceLabel}</td>
+                        <td className="py-1 px-2 text-right whitespace-nowrap">1 шт.</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
           <button
             type="button"
@@ -136,7 +216,10 @@ export default function EpicBossesInfo({ navigate }: EpicBossesInfoProps) {
                   </button>
                   <span className="text-[#6b5b48]">·</span>
                   <span className="text-[11px] text-[#a89878]">
-                    Респавн: <span className="text-[#c9a44c]">{formatRespawnUkr(boss.respawnTime)}</span>
+                    Респавн:{" "}
+                    <span className="text-[#c9a44c]">
+                      {boss.respawnLabelUkr ?? formatRespawnUkr(boss.respawnTime)}
+                    </span>
                   </span>
                 </div>
 
@@ -148,7 +231,7 @@ export default function EpicBossesInfo({ navigate }: EpicBossesInfoProps) {
                     ) : (
                       <div className="space-y-1">
                         {dropsNoAdena.map((drop: DropEntry, idx: number) => {
-                          const itemDef = itemsDB[drop.id];
+                          const itemDef = itemsDBWithStarter[drop.id] ?? itemsDB[drop.id];
                           const iconPath = dropLineIconPath(drop);
                           const itemName =
                             itemDef?.name || drop.displayName || resourceLootDisplayName(drop.id);

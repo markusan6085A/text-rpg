@@ -1,5 +1,4 @@
-// Дроп гранд-епіків (Baium, Frintezza, Antharas, Valakas): унікальний «реліквійний» рядок ~30% (як QA/Core/Orfen),
-// решта — 30 позицій S-grade з економіки проєкту (шанси по chancePerMillion, як у Zaken).
+// Дроп гранд-епіків (Baium, Frintezza, Antharas, Valakas): унікальна біжутерія 100% (1 шт.); решта — 30 позицій S-grade.
 
 import type { DropEntry } from "../../combat/types";
 
@@ -60,7 +59,7 @@ function buildGrandEpicDrops(epic: {
       chance: 0,
       min: 1,
       max: 1,
-      chancePerMillion: 300_000,
+      chancePerMillion: 1_000_000,
       l2ItemId: epic.l2ItemId,
     },
     ...GRAND_EPIC_SECONDARIES.map((id, i) => secondary(id, i)),

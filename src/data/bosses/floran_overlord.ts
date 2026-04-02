@@ -7,6 +7,8 @@ export interface RaidBoss extends Mob {
   /** Канонічні епіки L2 (Queen Ant, Valakas, …) — окремий стиль у списку локації */
   isEpicRaidBoss?: boolean;
   respawnTime: number;
+  /** Підказка респавну українською (± рандом, доби) — якщо є, показується в «Епік-боси» замість лише годин з секунд */
+  respawnLabelUkr?: string;
   dropProfileId: string;
   aiProfileId: string;
   zoneId: string;
