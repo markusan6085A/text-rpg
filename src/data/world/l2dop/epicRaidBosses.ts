@@ -4,11 +4,16 @@
 // тут додаємо окремі сутності зі статами як у відповідного зонного РБ того ж tier.
 //
 // Респавн усіх епіків: EPIC_RESPAWN_SEC (= 12 год, див. константу нижче).
-// Уже з дропом у коді: Queen Ant, Core, Orfen, Zaken (QUEEN_ANT / CORE / ORFEN / ZAKEN _EPIC_DROPS).
-// Без дропу (drops: []): Baium, Frintezza, Antharas, Valakas.
+// Уже з дропом у коді: Queen Ant, Core, Orfen, Zaken; гранд-епіки Baium / Frintezza / Antharas / Valakas (GRAND _EPIC_DROPS).
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import { CORE_EPIC_DROPS } from "./coreEpicDrops";
+import {
+  ANTHARAS_EPIC_DROPS,
+  BAIUM_EPIC_DROPS,
+  FRINTEZZA_EPIC_DROPS,
+  VALAKAS_EPIC_DROPS,
+} from "./grandEpicRaidDrops";
 import { ORFEN_EPIC_DROPS } from "./orfenEpicDrops";
 import { QUEEN_ANT_EPIC_DROPS } from "./queenAntEpicDrops";
 import { ZAKEN_EPIC_DROPS } from "./zakenEpicDrops";
@@ -129,7 +134,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     adenaMin: 220000,
     adenaMax: 340000,
     dropChance: 1,
-    drops: [],
+    drops: [...BAIUM_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
@@ -152,7 +157,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     adenaMin: 268000,
     adenaMax: 415000,
     dropChance: 1,
-    drops: [],
+    drops: [...FRINTEZZA_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
@@ -175,7 +180,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     adenaMin: 285000,
     adenaMax: 440000,
     dropChance: 1,
-    drops: [],
+    drops: [...ANTHARAS_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
@@ -198,7 +203,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     adenaMin: 500000,
     adenaMax: 770000,
     dropChance: 1,
-    drops: [],
+    drops: [...VALAKAS_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,

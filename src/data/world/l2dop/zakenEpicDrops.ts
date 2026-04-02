@@ -26,7 +26,7 @@ export const ZAKEN_EPIC_DROPS: DropEntry[] = [
     min: 1,
     max: 1,
     chancePerMillion: 1_000_000,
-    l2ItemId: 6663,
+    l2ItemId: 6659,
   },
   secondary("shop_weapon_b_sword_of_damascus", 0),
   secondary("shop_weapon_b_lance", 1),

@@ -6,9 +6,13 @@ import type { HeroBaseStats } from "../../state/heroFactory";
 import { getActiveSetBonuses } from "../../data/sets/armorSets";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import {
+  EARRING_OF_ANTHARAS_ID,
   EARRING_OF_ORFEN_ID,
   EARRING_OF_ZAKEN_ID,
+  NECKLACE_OF_FRINTEZZA_ID,
+  NECKLACE_OF_VALAKAS_ID,
   primaryEquipmentSlotForItem,
+  RING_OF_BAIUM_ID,
   RING_OF_CORE_ID,
   RING_OF_QUEEN_ANT_ID,
 } from "./calcCombatStats";
@@ -48,8 +52,12 @@ export function calcResources(
   let flatMaxHpBonus = 0;
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
   const ringOfCorePrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_CORE_ID);
+  const ringOfBaiumPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_BAIUM_ID);
   const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
   const zakenEarringPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ZAKEN_ID);
+  const antharasEarringPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ANTHARAS_ID);
+  const valakasNecklacePrimarySlot = primaryEquipmentSlotForItem(equipment, NECKLACE_OF_VALAKAS_ID);
+  const frintezzaNecklacePrimarySlot = primaryEquipmentSlotForItem(equipment, NECKLACE_OF_FRINTEZZA_ID);
   if (equipment) {
     Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
       if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
@@ -58,10 +66,22 @@ export function calcResources(
       if (itemId === RING_OF_CORE_ID && ringOfCorePrimarySlot != null && slot !== ringOfCorePrimarySlot) {
         return;
       }
+      if (itemId === RING_OF_BAIUM_ID && ringOfBaiumPrimarySlot != null && slot !== ringOfBaiumPrimarySlot) {
+        return;
+      }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
         return;
       }
       if (itemId === EARRING_OF_ZAKEN_ID && zakenEarringPrimarySlot != null && slot !== zakenEarringPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ANTHARAS_ID && antharasEarringPrimarySlot != null && slot !== antharasEarringPrimarySlot) {
+        return;
+      }
+      if (itemId === NECKLACE_OF_VALAKAS_ID && valakasNecklacePrimarySlot != null && slot !== valakasNecklacePrimarySlot) {
+        return;
+      }
+      if (itemId === NECKLACE_OF_FRINTEZZA_ID && frintezzaNecklacePrimarySlot != null && slot !== frintezzaNecklacePrimarySlot) {
         return;
       }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
@@ -86,10 +106,22 @@ export function calcResources(
       if (itemId === RING_OF_CORE_ID && ringOfCorePrimarySlot != null && slot !== ringOfCorePrimarySlot) {
         return;
       }
+      if (itemId === RING_OF_BAIUM_ID && ringOfBaiumPrimarySlot != null && slot !== ringOfBaiumPrimarySlot) {
+        return;
+      }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
         return;
       }
       if (itemId === EARRING_OF_ZAKEN_ID && zakenEarringPrimarySlot != null && slot !== zakenEarringPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ANTHARAS_ID && antharasEarringPrimarySlot != null && slot !== antharasEarringPrimarySlot) {
+        return;
+      }
+      if (itemId === NECKLACE_OF_VALAKAS_ID && valakasNecklacePrimarySlot != null && slot !== valakasNecklacePrimarySlot) {
+        return;
+      }
+      if (itemId === NECKLACE_OF_FRINTEZZA_ID && frintezzaNecklacePrimarySlot != null && slot !== frintezzaNecklacePrimarySlot) {
         return;
       }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];

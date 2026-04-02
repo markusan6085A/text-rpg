@@ -378,7 +378,7 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
       holdChanceBonus: 30,
     },
   },
-  /** Епік-дроп Zaken (L2 item id 6663). Друга сережка в парі не дублює пасиви — як Earring of Orfen. */
+  /** Епік-дроп Zaken (L2 item id 6659; пасив skill 3559 з l2dop). Друга сережка не дублює пасиви — як Earring of Orfen. */
   earring_of_zaken: {
     id: "earring_of_zaken",
     name: "Earring of Zaken",
@@ -386,18 +386,105 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     slot: "rear;lear",
     icon: "/items/drops/earring_of_zaken_i00.png",
     description:
-      "Трофей з Дзеркального лісу: наче крапля застиглої крові корабельних ліхтарів. Як Vampiric Rage — відновлює частину HP від ваших ударів (+4%), підсилює отримане зцілення, дає стійкість до шоку/оглушення та кровотечі (+20%), такий самий бонус до шансу накласти ці стани на ворога, і міцніший опір ментальним ефектам (страх, мовчання тощо, +20% mental). Друга така сережка не подвоює пасиви.",
+      "Трофей з Дзеркального лісу. M.Def +71, Max MP +31. Пасив (як у XML): краще відхилення кровотечі (−40% вразливості), +10% до отриманого зцілення, поглинання частини урону (−4% вхідної шкоди), стійкість до оглушення/шоку (+40%), до ментальних ефектів (+40%). Друга така сережка не подвоює бонуси.",
     grade: "A",
     stackable: false,
     stats: {
-      mDef: 60,
-      vampirism: 4,
+      mDef: 71,
+      maxMp: 31,
       healReceivedBonus: 10,
-      stunResist: 20,
-      stunChanceBonus: 20,
-      bleedResist: 20,
-      bleedChanceBonus: 20,
-      mentalResist: 20,
+      damageTakenReduction: 4,
+      stunResist: 40,
+      stunChanceBonus: 40,
+      bleedResist: 40,
+      bleedChanceBonus: 40,
+      mentalResist: 40,
+    },
+  },
+  /** Епік Baium (6658, skill 3561). Друге кільце не дублює пасиви. */
+  ring_of_baium: {
+    id: "ring_of_baium",
+    name: "Ring of Baium",
+    kind: "ring",
+    slot: "rfinger;lfinger",
+    icon: "/items/drops/ring_of_baium_i00.png",
+    description:
+      "Перстень імператора з Келбіму. M.Def +48, Max MP +21. Пасив з l2dop: сильніший опір отруті (+80%), +2 Accuracy, ~+15% сила криту, опір утриманню/root (+60%), +4% швидкості фіз. атаки та касту.",
+    grade: "S",
+    stackable: false,
+    stats: {
+      mDef: 48,
+      maxMp: 21,
+      accuracy: 2,
+      critPower: 450,
+      poisonResist: 80,
+      holdResist: 60,
+      attackSpeed: 20,
+      castSpeed: 20,
+    },
+  },
+  /** Намисто Валакаса (6657, skill 3557). Одне намисто — один комплект пасивів. */
+  necklace_of_valakas: {
+    id: "necklace_of_valakas",
+    name: "Necklace of Valakas",
+    kind: "necklace",
+    slot: "necklace",
+    icon: "/items/drops/necklace_of_valakas_i00.png",
+    description:
+      "Камінь червоного дракона. M.Def +95, Max MP +42, +445 Max HP. Пасив з l2dop: +4% P.Atk, +8% M.Atk, помітний бонус до маг. криту та сили маг. скілів, легкий опір сну та вогню (частково зведено до підтримуваних полів бою).",
+    grade: "S",
+    stackable: false,
+    stats: {
+      mDef: 95,
+      maxMp: 42,
+      maxHp: 445,
+      pAtkPercent: 4,
+      mAtkPercent: 8,
+      mCrit: 120,
+      magicSkillPower: 12,
+    },
+  },
+  /** Сережка Антарас (6656, skill 3558). */
+  earring_of_antharas: {
+    id: "earring_of_antharas",
+    name: "Earring of Antharas",
+    kind: "earring",
+    slot: "rear;lear",
+    icon: "/items/drops/earring_of_antaras_i00.png",
+    description:
+      "Трофей земляного дракона. M.Def +71, Max MP +31. Пасив 3558: опір кровотечі (+80%), +10% отриманого зцілення, поглинання (−4% вхідної шкоди), опір stun/shock та менталці (+60%), −5% витрат MP на скіли, легкий опір землі.",
+    grade: "S",
+    stackable: false,
+    stats: {
+      mDef: 71,
+      maxMp: 31,
+      bleedResist: 80,
+      healReceivedBonus: 10,
+      damageTakenReduction: 4,
+      stunResist: 60,
+      mentalResist: 60,
+      mpSkillCostReduction: 5,
+    },
+  },
+  /** Намисто Фрінтези (8191, skill 3604). Файл іконки — frintessa (орфографія клієнта L2). */
+  necklace_of_frintezza: {
+    id: "necklace_of_frintezza",
+    name: "Frintezza's Necklace",
+    kind: "necklace",
+    slot: "necklace",
+    icon: "/items/drops/necklace_of_frintessa_i00.png",
+    description:
+      "Трофей з Залу Фрінтези. M.Def +95, Max MP +42. Пасив 3604: опір сну/отруті/крові/паралічу/шоку та темряві (узагальнено у підтримувані відсотки пасивів), відбиття частини урону закладене в майбутні механіки; тут — сильні універсальні резисти.",
+    grade: "A",
+    stackable: false,
+    stats: {
+      mDef: 95,
+      maxMp: 42,
+      poisonResist: 50,
+      bleedResist: 50,
+      stunResist: 30,
+      holdResist: 30,
+      mentalResist: 15,
     },
   },
 };

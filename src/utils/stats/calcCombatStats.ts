@@ -56,8 +56,12 @@ export interface CombatStats {
 
 export const RING_OF_QUEEN_ANT_ID = "ring_of_queen_ant";
 export const RING_OF_CORE_ID = "ring_of_core";
+export const RING_OF_BAIUM_ID = "ring_of_baium";
 export const EARRING_OF_ORFEN_ID = "earring_of_orfen";
 export const EARRING_OF_ZAKEN_ID = "earring_of_zaken";
+export const EARRING_OF_ANTHARAS_ID = "earring_of_antharas";
+export const NECKLACE_OF_VALAKAS_ID = "necklace_of_valakas";
+export const NECKLACE_OF_FRINTEZZA_ID = "necklace_of_frintezza";
 
 /** Перший слот (лексикографічно) з цим id — єдиний, що дає статти; як у L2 для унікальних епіків. */
 export function primaryEquipmentSlotForItem(
@@ -139,8 +143,12 @@ export function calcCombatStats(
 
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
   const ringOfCorePrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_CORE_ID);
+  const ringOfBaiumPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_BAIUM_ID);
   const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
   const zakenEarringPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ZAKEN_ID);
+  const antharasEarringPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ANTHARAS_ID);
+  const valakasNecklacePrimarySlot = primaryEquipmentSlotForItem(equipment, NECKLACE_OF_VALAKAS_ID);
+  const frintezzaNecklacePrimarySlot = primaryEquipmentSlotForItem(equipment, NECKLACE_OF_FRINTEZZA_ID);
 
   // 2. Equipment bonuses
   if (equipment) {
@@ -151,10 +159,22 @@ export function calcCombatStats(
       if (itemId === RING_OF_CORE_ID && ringOfCorePrimarySlot != null && slot !== ringOfCorePrimarySlot) {
         return;
       }
+      if (itemId === RING_OF_BAIUM_ID && ringOfBaiumPrimarySlot != null && slot !== ringOfBaiumPrimarySlot) {
+        return;
+      }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
         return;
       }
       if (itemId === EARRING_OF_ZAKEN_ID && zakenEarringPrimarySlot != null && slot !== zakenEarringPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ANTHARAS_ID && antharasEarringPrimarySlot != null && slot !== antharasEarringPrimarySlot) {
+        return;
+      }
+      if (itemId === NECKLACE_OF_VALAKAS_ID && valakasNecklacePrimarySlot != null && slot !== valakasNecklacePrimarySlot) {
+        return;
+      }
+      if (itemId === NECKLACE_OF_FRINTEZZA_ID && frintezzaNecklacePrimarySlot != null && slot !== frintezzaNecklacePrimarySlot) {
         return;
       }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
@@ -213,6 +233,7 @@ export function calcCombatStats(
         if (itemStats.mpRegen) mpRegen += itemStats.mpRegen;
         if (itemStats.cpRegen) cpRegen += itemStats.cpRegen;
         if (itemStats.critPower) critPower += itemStats.critPower;
+        if (itemStats.magicSkillPower) magicSkillPower += itemStats.magicSkillPower;
         if (itemStats.shieldBlockRate) shieldBlockRate += itemStats.shieldBlockRate;
         if (itemStats.shieldBlockPower) shieldBlockPower += itemStats.shieldBlockPower;
         if (itemStats.poisonResist) poisonResist += itemStats.poisonResist;
