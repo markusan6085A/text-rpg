@@ -48,6 +48,7 @@ import {
 import { L2_LOCATION_FRAME, L2_LOCATION_MOB_CARD } from "../utils/l2WarmLayoutClassNames";
 import { LocationMobDetailModal } from "./location/LocationMobDetailModal";
 import { LocationDropInspectModal } from "./location/LocationDropInspectModal";
+import { LocationQuestHelperBanners } from "./location/LocationQuestHelperBanners";
 
 type Navigate = (path: string) => void;
 
@@ -471,482 +472,50 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           </p>
         ) : null}
 
-        {zone.id === "l2dop_gludio_01" && !gludioQuestHintDismissed && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1">Помощник</div>
-            <p className="mb-2 opacity-95">
-              Задания для этой местности берутся во вкладке персонажа «Квесты». Откройте её и примите квест — мобы,
-              которых нужно убить для счётчика квеста, подсвечиваются серым.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Открыть вкладку «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("gludio_quest_tab_hint", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setGludioQuestHintDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showElvenFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              Вы достигли 18 ур. «Путь мага Эльфов — отзвуки стихий»: квестовые эссенции с Lirein, Will-O-Wisp и Undine в
-              окрестностях <span className="font-semibold">Floran Village</span> — метка «квест · добыча» в списке мобов.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("elven_mystic_first_prof_helper_18", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setElvenFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showElvenFighterFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              Вы достигли 18 ур. Возьмите квест «Путь воина Эльфов — трофеи» во вкладке «Квесты» и соберите трофеи с
-              мобов Floran Village (подсказка «квест · добыча» в списке).
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("elven_fighter_first_prof_helper_18", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setElvenFighterFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showHumanFighterFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              Вы в Gludin Village. Возьмите «Путь человека-воина — реагенты для первой профессии» во вкладке «Квесты»: цели
-              и бонус к награде выпадают при приёме; нужные мобы отмечены «квест · добыча».
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("human_fighter_first_prof_helper_18_gludin", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setHumanFighterFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showHumanMysticFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              Вы в Gludin Village. Возьмите «Путь человека-мага — эссенции для первой профессии» — эссенции с элементалей и
-              нежити этой зоны; объёмы и доп. награда задаются при приёме квеста.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("human_mystic_first_prof_helper_18_gludin", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setHumanMysticFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showOrcFighterFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              Вы в Gludin Village. Квест «Путь орка-воина — тотемы клана»: Vuku Orc Fighter / Archer, Enku Orc Shaman /
-              Champion; цели и бонус фиксируются при приёме.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("orc_fighter_first_prof_helper_18_gludin", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setOrcFighterFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showOrcMysticFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              «Путь орка-шамана — обереги стихий» в Gludin: Orc Shaman, Enku Orc Shaman, Mana Seeker, Will-O-Wisp — метки «квест
-              · добыча» до нужного количества.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("orc_mystic_first_prof_helper_18_gludin", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setOrcMysticFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showDwarvenFighterFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              Вы в Gludin Village. «Путь гнома — образцы руин и шахт»: Pitchstone Golem, Dwarf Ghost, Ruin Imp, Obsidian
-              Golem — объёмы и бонус к награде при приёме квеста.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("dwarven_fighter_first_prof_helper_18_gludin", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setDwarvenFighterFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showDarkFighterFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              Вы в Floran Village. Квест «Путь тёмного эльфа-воина — эффигии кошмара»: кошмары и стражи забвения этой зоны;
-              цели и бонус фиксируются при приёме.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("dark_fighter_first_prof_helper_18_floran", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setDarkFighterFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showDarkMysticFirstProfLocationHelper && (
-          <div
-            className={
-              isL2
-                ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
-                : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
-            }
-          >
-            <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
-              <img src="/nps/6.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95" />
-              Помощник
-            </div>
-            <p className="mb-2 opacity-95">
-              «Путь тёмного эльфа-мага — знаки стихий»: огоньки, искатели маны, саламандры и индисы Floran Village — метки
-              «квест · добыча» до нужного количества.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={
-                  isL2
-                    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
-                    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5"
-                }
-                onClick={() => navigate("/quests")}
-              >
-                Вкладка «Квесты»
-              </button>
-              <button
-                type="button"
-                className={
-                  isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500 hover:text-gray-300"
-                }
-                onClick={() => {
-                  try {
-                    localStorage.setItem("dark_mystic_first_prof_helper_18_floran", "1");
-                  } catch {
-                    /* ignore */
-                  }
-                  setDarkMysticFirstProfHelperDismissed(true);
-                }}
-              >
-                Скрыть
-              </button>
-            </div>
-          </div>
-        )}
+        <LocationQuestHelperBanners
+          isL2={isL2}
+          navigate={navigate}
+          showGludioQuestHint={zone.id === "l2dop_gludio_01" && !gludioQuestHintDismissed}
+          onDismissGludioQuestHint={() => setGludioQuestHintDismissed(true)}
+          firstProf={{
+            elvenMystic: {
+              show: showElvenFirstProfLocationHelper,
+              onDismiss: () => setElvenFirstProfHelperDismissed(true),
+            },
+            elvenFighter: {
+              show: showElvenFighterFirstProfLocationHelper,
+              onDismiss: () => setElvenFighterFirstProfHelperDismissed(true),
+            },
+            humanFighter: {
+              show: showHumanFighterFirstProfLocationHelper,
+              onDismiss: () => setHumanFighterFirstProfHelperDismissed(true),
+            },
+            humanMystic: {
+              show: showHumanMysticFirstProfLocationHelper,
+              onDismiss: () => setHumanMysticFirstProfHelperDismissed(true),
+            },
+            orcFighter: {
+              show: showOrcFighterFirstProfLocationHelper,
+              onDismiss: () => setOrcFighterFirstProfHelperDismissed(true),
+            },
+            orcMystic: {
+              show: showOrcMysticFirstProfLocationHelper,
+              onDismiss: () => setOrcMysticFirstProfHelperDismissed(true),
+            },
+            dwarvenFighter: {
+              show: showDwarvenFighterFirstProfLocationHelper,
+              onDismiss: () => setDwarvenFighterFirstProfHelperDismissed(true),
+            },
+            darkFighter: {
+              show: showDarkFighterFirstProfLocationHelper,
+              onDismiss: () => setDarkFighterFirstProfHelperDismissed(true),
+            },
+            darkMystic: {
+              show: showDarkMysticFirstProfLocationHelper,
+              onDismiss: () => setDarkMysticFirstProfHelperDismissed(true),
+            },
+          }}
+        />
 
         {patrolAggroBanner ? (
           <button
