@@ -61,6 +61,9 @@ import {
   characterToProfileHeroData,
   prepareBuffsForStatsView,
 } from "./player/playerProfileUtils";
+import { PlayerProfileActiveBuffsList } from "./player/PlayerProfileActiveBuffsList";
+import { PlayerProfileBuffModal } from "./player/PlayerProfileBuffModal";
+import { PlayerProfileMetaPanel } from "./player/PlayerProfileMetaPanel";
 
 export default function PlayerProfile({ navigate, playerId, playerName }: PlayerProfileProps) {
   useGameSettingsVersion();
@@ -93,7 +96,6 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [showPartyInviteModal, setShowPartyInviteModal] = useState(false);
   const [showBuffModal, setShowBuffModal] = useState(false);
   const [buffPlayerLoading, setBuffPlayerLoading] = useState(false);
-  const [buffLoading, setBuffLoading] = useState(false);
   // 🔥 Таймер — перерендер щосекунди, щоб бафи інших гравців зникали при простроченні
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -746,61 +748,14 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           panelBackLabel={iLostPk ? "Телепортироваться в город" : "Назад в окрестность"}
         />
         {showBuffModal && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>
-            <div
-              className={
-                isL2
-                  ? `${L2_WARM_OUTER_FRAME} max-w-[340px] w-full max-h-[80vh] overflow-y-auto`
-                  : "bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto"
-              }
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className={
-                  isL2
-                    ? "p-3 border-b border-[#5c4a32]/45 font-semibold text-[#e8c56e]"
-                    : "p-3 border-b border-[#c7ad80]/30 font-semibold text-[#c7ad80]"
-                }
-              >
-                Забафать игрока
-              </div>
-              <div className="p-2">
-                {myBuffSkills.length === 0 ? (
-                  <p className={isL2 ? "text-[#8a7a60] text-sm" : "text-gray-400 text-sm"}>Нет баф-скиллов с целью Ally/Party</p>
-                ) : (
-                  myBuffSkills.map((buff) => (
-                    <button
-                      key={buff.id}
-                      type="button"
-                      onClick={() => handleBuffPlayer(buff.id)}
-                      disabled={buffLoading}
-                      className={
-                        isL2
-                          ? "w-full flex items-center gap-2 p-2 rounded-md border border-transparent hover:border-[#5c4a32]/55 hover:bg-black/25 text-left text-sm text-[#d4c4a8] disabled:opacity-50"
-                          : "w-full flex items-center gap-2 p-2 rounded hover:bg-[#c7ad80]/10 text-left text-sm disabled:opacity-50"
-                      }
-                    >
-                      <img src={buff.icon} alt="" className="w-8 h-8 object-contain" />
-                      <span>{buff.name}</span>
-                    </button>
-                  ))
-                )}
-              </div>
-              <div className={isL2 ? "p-2 border-t border-[#5c4a32]/45" : "p-2 border-t border-[#c7ad80]/30"}>
-                <button
-                  type="button"
-                  onClick={() => setShowBuffModal(false)}
-                  className={
-                    isL2
-                      ? "w-full py-2 rounded-md bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 text-[#c9a44c] text-sm hover:border-[#c7ad80]/45"
-                      : "w-full py-1 text-[#c7ad80] text-sm"
-                  }
-                >
-                  Закрити
-                </button>
-              </div>
-            </div>
-          </div>
+          <PlayerProfileBuffModal
+            isL2={isL2}
+            variant="pk"
+            skills={myBuffSkills}
+            busy={buffPlayerLoading}
+            onClose={() => setShowBuffModal(false)}
+            onSelectBuff={(id) => void handleBuffPlayer(id)}
+          />
         )}
       </div>
     );
@@ -1092,78 +1047,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           </div>
         </div>
 
-        {/* Активні бафи гравця — джерело: heroJson.heroBuffs або character.heroBuffs; реальний час по expiresAt */}
-        {(() => {
-          const heroJson = character.heroJson || {};
-          const fromJson = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
-          const fromChar = Array.isArray((character as any).heroBuffs) ? (character as any).heroBuffs : [];
-          const allBuffs = fromJson.length ? fromJson : fromChar;
-
-          const getExpiresAt = (b: any): number => {
-            const v = b.expiresAt;
-            if (v == null) return Number.MAX_SAFE_INTEGER; // без expiresAt = постійний (показуємо)
-            if (typeof v === "number") return v;
-            const n = Number(v);
-            return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER;
-          };
-
-          const activeBuffs = allBuffs.filter((b: any) => {
-            const exp = getExpiresAt(b);
-            if (exp >= Number.MAX_SAFE_INTEGER - 1) return true; // toggle або постійний
-            return exp > now;
-          });
-
-          if (allBuffs.length === 0) return null;
-
-          return (
-            <div
-              className={
-                isL2
-                  ? "mb-4 border-t border-solid border-[#5c4a32]/45 pt-3"
-                  : "mb-4 border-t border-solid border-white/50 pt-3"
-              }
-            >
-              <div
-                className={
-                  isL2
-                    ? "text-[#e8c56e] text-sm font-semibold mb-2 border-b border-solid border-[#5c4a32]/45 pb-1"
-                    : "text-[#dec28e] text-sm font-semibold mb-2 border-b border-solid border-white/50 pb-1"
-                }
-              >
-                Активні бафи {activeBuffs.length > 0 && `(${activeBuffs.length})`}
-              </div>
-              {activeBuffs.length === 0 && allBuffs.length > 0 && (
-                <div className="text-xs text-gray-500 py-2">
-                  Всі бафи закінчились
-                </div>
-              )}
-              {activeBuffs.length === 0 && allBuffs.length === 0 && (
-                <div className="text-xs text-gray-500 py-2">
-                  Немає активних бафів
-                </div>
-              )}
-              {/* 🔥 Тільки іконки в ряд з переносом - зменшені в 1.5 рази */}
-              <div className="flex flex-wrap gap-1.5">
-                {activeBuffs.map((buff: any, idx: number) => {
-                  let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
-                  
-                  return (
-                    <img
-                      key={idx}
-                      src={iconSrc}
-                      alt={buff.name || "Buff"}
-                      className="w-5 h-5 object-contain"
-                      title={buff.name || "Buff"} // Показуємо назву при hover
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
+        <PlayerProfileActiveBuffsList isL2={isL2} character={character} now={now} />
 
         {/* Модалка бонусу 7 печатей */}
         {showSevenSealsModal && sevenSealsRank !== null && (
@@ -1222,181 +1106,33 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           />
         )}
 
-        {/* Модалка «Забафать игрока» — для всіх гравців */}
         {showBuffModal && character && hero && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowBuffModal(false)}>
-            <div
-              className={
-                isL2
-                  ? "bg-[#14110c] border border-[#c7ad80]/35 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
-                  : "bg-[#1a1a1a] border border-[#c7ad80]/50 rounded-lg max-w-[340px] w-full max-h-[80vh] overflow-y-auto"
-              }
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className={
-                  isL2
-                    ? "px-3 py-2 border-b border-[#5c4a32]/45 flex justify-between items-center"
-                    : "px-3 py-2 border-b border-[#c7ad80]/30 flex justify-between items-center"
-                }
-              >
-                <span className={isL2 ? "text-[#e8c56e] font-semibold text-sm" : "text-[#c7ad80] font-semibold text-sm"}>
-                  Забафать {character.name}
-                </span>
-                <button
-                  onClick={() => setShowBuffModal(false)}
-                  className={isL2 ? "text-[#8a7a60] hover:text-[#e8dcc8] text-lg" : "text-gray-400 hover:text-white text-lg"}
-                >
-                  ×
-                </button>
-              </div>
-              <div className="p-3">
-                {myBuffSkills.length === 0 ? (
-                  <p className={isL2 ? "text-[#8a7a60] text-xs" : "text-gray-400 text-xs"}>
-                    У вас немає бафів, що можна накласти на інших (ally/party).
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {myBuffSkills.map((buff) => (
-                      <button
-                        key={buff.id}
-                        onClick={() => handleBuffPlayer(buff.id)}
-                        disabled={buffPlayerLoading}
-                        className={
-                          isL2
-                            ? "flex items-center gap-1.5 px-2 py-1.5 rounded bg-[#0f0a06] border border-[#5c4a32]/50 hover:bg-black/30 disabled:opacity-50 text-left"
-                            : "flex items-center gap-1.5 px-2 py-1.5 rounded bg-[#2a2a2a] border border-[#c7ad80]/30 hover:bg-[#c7ad80]/20 disabled:opacity-50 text-left"
-                        }
-                      >
-                        <img src={buff.icon} alt="" className="w-6 h-6 object-contain" />
-                        <span className={isL2 ? "text-xs text-[#e8dcc8]" : "text-xs text-white"}>{buff.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <PlayerProfileBuffModal
+            isL2={isL2}
+            variant="profile"
+            targetName={character.name}
+            skills={myBuffSkills}
+            busy={buffPlayerLoading}
+            onClose={() => setShowBuffModal(false)}
+            onSelectBuff={(id) => void handleBuffPlayer(id)}
+          />
         )}
 
-        {/* Інформація */}
-        <div
-          className={`space-y-2 text-[11px] border-t border-solid pt-3 ${
-            isL2 ? "text-[#a89878] border-[#5c4a32]/45" : "text-gray-300 border-white/50"
-          }`}
-        >
-          {/* Профессия + адена — акцентний блок */}
-          <div
-            className={
-              isL2
-                ? "rounded-lg border border-[#5c4a32]/50 bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,rgba(90,70,40,0.2)_0%,transparent_55%),linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(0,0,0,0.15)_100%)] p-2.5 space-y-2 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
-                : "rounded-lg border border-white/20 bg-white/5 p-2.5 space-y-2"
-            }
-          >
-            <div className="flex justify-between items-baseline gap-2">
-              <span className={isL2 ? "text-[#c9a44c]" : "text-amber-200"}>Профессия</span>
-              <span className={`font-semibold ${isL2 ? "text-[#f0d78c]" : "text-yellow-300"}`}>
-                {professionLabel}
-              </span>
-            </div>
-            <div className="flex justify-between items-baseline gap-2">
-              <span className={isL2 ? "text-[#8ebf88]" : "text-lime-300"}>Адена</span>
-              <span
-                className={`tabular-nums font-semibold ${isL2 ? "text-[#e8dcc8]" : "text-white"}`}
-                title={`${Number(character.adena ?? 0)}`}
-              >
-                {Number(character.adena ?? 0).toLocaleString("ru-RU")}
-              </span>
-            </div>
-          </div>
-
-          {/* Преміум */}
-          {premiumActive && premiumTime && (
-            <div className="flex justify-between">
-              <span>Будет активен ещ премиум:</span>
-              <span className="text-green-300">{premiumTime}</span>
-            </div>
-          )}
-
-          {/* Социальный статус */}
-          <div
-            className={`border-t border-solid pt-2 mt-2 ${
-              isL2 ? "border-[#5c4a32]/40" : "border-white/50"
-            }`}
-          >
-            <div className="font-semibold mb-1">Социальный статус</div>
-            <div className="grid grid-cols-2 gap-2 text-[10px]">
-              <div className="flex justify-between">
-                <span>Карма</span>
-                <span className={karma >= 0 ? "text-green-400" : "text-red-400"}>{karma}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Рек.</span>
-                <span>0</span>
-              </div>
-              <div className="flex justify-between">
-                <span>PK</span>
-                <span className={pk === 0 ? (isL2 ? "text-[#7d9b7a]" : "text-green-400") : isL2 ? "text-[#d4786a]" : "text-red-400"}>
-                  {pk}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Убил мобов</span>
-                <span>{mobsKilled}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* PvP */}
-          <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
-            <div className="flex justify-between text-[10px]">
-              <span>PvP побед/поражений</span>
-              <span className={pvpWins > pvpLosses ? "text-green-400" : "text-gray-400"}>
-                {pvpWins}/{pvpLosses}
-              </span>
-            </div>
-          </div>
-
-          {/* Подарки */}
-          <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
-            <div className="flex justify-between text-[10px]">
-              <span>Подарки</span>
-              <span>({giftsCount})</span>
-            </div>
-            {giftsCount === 0 && (
-              <div className="text-gray-500 text-[10px] mt-1">Подарков нет...</div>
-            )}
-          </div>
-
-          {/* Локація */}
-          <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
-            <div
-              className={
-                isL2
-                  ? "text-[11px] leading-snug text-[#d4c4a8] px-1"
-                  : "text-[11px] leading-snug text-gray-200 px-1"
-              }
-            >
-              <span className={isL2 ? "text-[#8a7a60]" : "text-gray-400"}>Локация: </span>
-              <span className="font-medium">
-                {profileLocationLabel.trim()
-                  ? `В ${profileLocationLabel}`
-                  : isL2
-                    ? "не зафіксована (гравець у місті або дані ще не збережені)"
-                    : "неизвестна"}
-              </span>
-            </div>
-          </div>
-
-          {/* Дата реєстрації */}
-          {character.createdAt && (
-            <div className={`border-t border-solid pt-2 ${isL2 ? "border-[#5c4a32]/40" : "border-white/50"}`}>
-              <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-400"}>
-                Рег-я: {formatLastSeen(character.createdAt)}
-              </div>
-            </div>
-          )}
-        </div>
+        <PlayerProfileMetaPanel
+          isL2={isL2}
+          professionLabel={professionLabel}
+          character={character}
+          premiumActive={premiumActive}
+          premiumTime={premiumTime}
+          karma={karma}
+          pk={pk}
+          mobsKilled={mobsKilled}
+          pvpWins={pvpWins}
+          pvpLosses={pvpLosses}
+          giftsCount={giftsCount}
+          profileLocationLabel={profileLocationLabel}
+          formatLastSeen={formatLastSeen}
+        />
 
         {/* Кнопка назад - просто текст */}
         <div className="mt-4">
