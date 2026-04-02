@@ -267,9 +267,9 @@ const parseVypaloLine = (line: string): React.ReactNode | null => {
   );
 };
 
-/** Книги гільдії магів: повідомлення з mysticSpellbookDrops (не префікс «Дроп:»). */
+/** Книги гільдії магів: повідомлення з mysticSpellbookDrops (не префікс «Дроп:»). Без емодзі — одна іконка предмета. */
 const parseSpellbookLootLine = (line: string): React.ReactNode | null => {
-  const m = line.match(/^📕\s*Книга заклинания:\s*(.+)$/i);
+  const m = line.match(/^(?:📕\s*)?Книга заклинания:\s*(.+)$/i);
   if (!m) return null;
   const rawName = m[1].trim();
   const icon = getLootIconPathForDisplayName(rawName);
@@ -277,7 +277,7 @@ const parseSpellbookLootLine = (line: string): React.ReactNode | null => {
     <div style={{ color: "#ca8a04" }} className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
       {icon ? inlineLootIcon(icon) : null}
       <span>
-        📕 Книга заклинания: {rawName}
+        Книга заклинания: {rawName}
       </span>
     </div>
   );

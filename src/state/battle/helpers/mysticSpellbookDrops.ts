@@ -42,7 +42,7 @@ export function rollMysticSpellbookDropForMobKill(
       description: def.description,
       count: 1,
     };
-    const msg = `📕 Книга заклинания: ${def.name}`;
+    const msg = `Книга заклинания: ${def.name}`;
     return { item, message: msg };
   }
   return null;
