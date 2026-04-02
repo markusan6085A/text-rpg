@@ -87,6 +87,7 @@ export default function GuildScreen({
 
   const learnOpts = spellbookMode ? { mageGuildSpellbooks: true as const } : undefined;
   const updateHero = useHeroStore((s) => s.updateHero);
+  const setHero = useHeroStore((s) => s.setHero);
 
   const handleTurnInSpellbook = async (skillId: number) => {
     if (!characterId) {
@@ -108,7 +109,8 @@ export default function GuildScreen({
           updateHero({ ...h, heroJson: { ...hj, spellbookGuild: { ...prev, [gk]: true } } } as any);
         }
       }
-      await loadHeroFromAPI();
+      const synced = await loadHeroFromAPI();
+      if (synced) setHero(synced);
       showToast("Книга сдана гильдии. Теперь можно выучить уровень за SP.", "success");
     } catch {
       showToast("Не удалось сдать книгу. Проверьте, что книга в инвентаре.", "error");
@@ -139,7 +141,8 @@ export default function GuildScreen({
         } catch {
           /* ignore */
         }
-        await loadHeroFromAPI();
+        const synced = await loadHeroFromAPI();
+        if (synced) setHero(synced);
       } catch (e: any) {
         if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
           console.warn("Ігноруємо revision conflict при вивченні скіла");

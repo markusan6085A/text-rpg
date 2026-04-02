@@ -49,6 +49,7 @@ export default function AdditionalSkillsScreen({
 }: AdditionalSkillsScreenProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const setHero = useHeroStore((s) => s.setHero);
   const characterId = useCharacterStore((s) => s.characterId);
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
@@ -213,7 +214,8 @@ export default function AdditionalSkillsScreen({
     if (characterId) {
       try {
         await postLearnAdditionalSkill(characterId, { skillId });
-        await loadHeroFromAPI();
+        const synced = await loadHeroFromAPI();
+        if (synced) setHero(synced);
         showToast("Навык изучен.", "success");
       } catch (e: any) {
         if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {

@@ -535,14 +535,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         // 🔥 КРИТИЧНО: Оновлюємо serverState.heroRevision перед background save — інакше heroPersistence пропускає PUT (expectedRevision undefined)
         // Без цього Browser 1 з level 7 ніколи не синхронізується → Browser 2 завжди бачить level 1 з API
         const serverRev = (character.heroJson as any)?.heroRevision ?? (character as any)?.heroRevision;
-        useHeroStore.getState().updateServerState({
-          heroRevision: serverRev != null ? Number(serverRev) : undefined,
-          exp: finalExp,
-          level: finalLevel,
-          sp: finalSp,
-          adena: finalAdenaPreferred,
-          coinLuck: Number((character as any).coinLuck ?? mergedHero.coinOfLuck ?? 0),
-        });
+        useHeroStore.getState().updateServerState(
+          {
+            heroRevision: serverRev != null ? Number(serverRev) : undefined,
+            exp: finalExp,
+            level: finalLevel,
+            sp: finalSp,
+            adena: finalAdenaPreferred,
+            coinLuck: Number((character as any).coinLuck ?? mergedHero.coinOfLuck ?? 0),
+          },
+          { revisionFromAuthoritativeGet: true }
+        );
         // 🔥 Не спамимо PUT при протухлій сесії — saveHeroToLocalStorage перевірить sessionExpired, але unique skip тут уникає зайвого import
         if (!useAuthStore.getState().sessionExpired) {
           import('./heroPersistence').then(({ saveHeroToLocalStorage }) => {
@@ -1156,15 +1159,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const hExp = Number((hydratedHero as any).exp);
       const syncLevel = Number.isFinite(hLvl) && hLvl >= 1 ? hLvl : prog.level;
       const syncExp = Number.isFinite(hExp) && hExp >= 0 ? hExp : prog.exp;
-      useHeroStore.getState().updateServerState({
-        exp: syncExp,
-        level: syncLevel,
-        sp: Math.max(prog.sp, heroSpAfterLoad),
-        adena: Number(char?.adena ?? hydratedHero.adena ?? 0),
-        coinLuck: char?.coinLuck ?? hydratedHero.coinOfLuck ?? 0,
-        heroRevision: (hydratedHero as any).heroRevision,
-        updatedAt: Date.now(),
-      });
+      useHeroStore.getState().updateServerState(
+        {
+          exp: syncExp,
+          level: syncLevel,
+          sp: Math.max(prog.sp, heroSpAfterLoad),
+          adena: Number(char?.adena ?? hydratedHero.adena ?? 0),
+          coinLuck: char?.coinLuck ?? hydratedHero.coinOfLuck ?? 0,
+          heroRevision: (hydratedHero as any).heroRevision,
+          updatedAt: Date.now(),
+        },
+        { revisionFromAuthoritativeGet: true }
+      );
       
       console.log('[loadHeroFromAPI] Final hero after hydration:', {
         skillsCount: hydratedHero.skills?.length || 0,
