@@ -60,6 +60,7 @@ import { clearDeathGate } from "../utils/deathGate";
 import {
   characterToProfileHeroData,
   prepareBuffsForStatsView,
+  filterProfileBuffsByLearnedSkills,
 } from "./player/playerProfileUtils";
 import { PlayerProfileActiveBuffsList } from "./player/PlayerProfileActiveBuffsList";
 import { PlayerProfileBuffModal } from "./player/PlayerProfileBuffModal";
@@ -816,11 +817,12 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           /* лишаємо character — стати все одно з heroJson */
         }
         const hj = charForStats.heroJson || {};
-        const rawBuffs = Array.isArray(hj.heroBuffs)
-          ? hj.heroBuffs
-          : Array.isArray((charForStats as any).heroBuffs)
-            ? (charForStats as any).heroBuffs
-            : [];
+        const hjB = hj.heroBuffs;
+        const useHj = Array.isArray(hjB);
+        const fallbackB = Array.isArray((charForStats as any).heroBuffs)
+          ? (charForStats as any).heroBuffs
+          : [];
+        const rawBuffs = filterProfileBuffsByLearnedSkills(useHj ? hjB : fallbackB, Array.isArray(hj.skills) ? hj.skills : []);
         const nowMs = Date.now();
         const activeBuffsForStats = cleanupBuffs(prepareBuffsForStatsView(rawBuffs), nowMs);
         const statsHero = characterToProfileHeroData(charForStats);

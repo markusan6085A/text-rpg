@@ -22,6 +22,24 @@ export function prepareBuffsForStatsView(raw: any[]): BattleBuff[] {
   })) as BattleBuff[];
 }
 
+/** Бафи/тоггли з id скіла: показуємо лише якщо скіл ще у списку вивчених (після зміни класу в адмінці). */
+export function filterProfileBuffsByLearnedSkills(
+  buffs: any[],
+  learnedSkills: Array<{ id: number; level?: number }> | undefined
+): any[] {
+  const ids = new Set(
+    (Array.isArray(learnedSkills) ? learnedSkills : [])
+      .map((s) => Number(s?.id))
+      .filter((n) => Number.isFinite(n) && n > 0)
+  );
+  if (ids.size === 0) return buffs;
+  return buffs.filter((b) => {
+    const bid = b?.id != null ? Number(b.id) : NaN;
+    if (!Number.isFinite(bid) || bid <= 0) return true;
+    return ids.has(bid);
+  });
+}
+
 /** Об'єкт як Hero для екіпу / recalculateAllStats; має містити baseStats з heroJson (інакше стати — дефолтні). */
 export function characterToProfileHeroData(character: Character) {
   const heroJson = character.heroJson || {};

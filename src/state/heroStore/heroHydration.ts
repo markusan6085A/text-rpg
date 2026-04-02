@@ -101,6 +101,8 @@ export function hydrateHero(hero: Hero | null): Hero | null {
       dailyQuestsCompleted,
       dailyQuestsResetDate,
       activeQuests,
+      // Соціальний статус (екран персонажа) — зберігається в heroJson для PUT і публічного профілю
+      status: (hero as any).status ?? hj.status ?? "",
     },
   };
 

@@ -105,6 +105,9 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     activeQuests: Array.isArray(hero.activeQuests) ? hero.activeQuests : [],
     ...(inventoryCapacity !== undefined ? { inventoryCapacity } : {}),
     overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
+    status: String(
+      (hero as any).status ?? (hero as any).heroJson?.status ?? ""
+    ).slice(0, 280),
     battleLoadoutSlots: loadLoadout(hero.name),
     ...(() => {
       const widRaw = (hero as any).id;
