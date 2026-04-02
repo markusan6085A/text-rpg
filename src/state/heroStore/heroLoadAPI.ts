@@ -29,9 +29,58 @@ import {
 } from "../warehouse/warehousePersistence";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { EXP_TABLE, getExpToNext, MAX_LEVEL } from "../../data/expTable";
+import {
+  getDefaultProfessionForKlass,
+  getProfessionDefinition,
+  normalizeProfessionId,
+} from "../../data/skills";
 
 // 🔥 ВИДАЛЕНО: window.__lastServerExp та глобальні змінні
 // Тепер використовуємо serverState з heroStore
+
+/**
+ * Інакше profession з heroJson на кшталт «Маг» (як клас) відсікає всі скіли у filterSkillsListForHeroProfession
+ * після learn-skill, бо getSkillModulesForProfession не знаходить модулів.
+ */
+function resolveProfessionForSkillFilter(
+  serverProfession: string | null | undefined,
+  localProfession: string | null | undefined,
+  klass: string | undefined,
+  race: string | undefined
+): string | null {
+  const tryOne = (raw: string | null | undefined): string | null => {
+    if (!raw || !String(raw).trim()) return null;
+    const s = String(raw).trim();
+    const pid = normalizeProfessionId(s);
+    if (pid && getProfessionDefinition(pid)) return s;
+    return null;
+  };
+  return (
+    tryOne(serverProfession) ??
+    tryOne(localProfession) ??
+    getDefaultProfessionForKlass(klass || "", race)
+  );
+}
+
+function mergeHeroSkillListsByMaxLevel(
+  a: Array<{ id?: number; level?: number }> | undefined,
+  b: Array<{ id?: number; level?: number }> | undefined
+): Array<{ id: number; level: number }> {
+  const skillById = new Map<number, { id: number; level: number }>();
+  const ingest = (arr: typeof a) => {
+    if (!Array.isArray(arr)) return;
+    for (const s of arr) {
+      const id = Number((s as any).id);
+      if (!id) continue;
+      const lvl = Math.max(0, Math.floor(Number((s as any).level) || 0));
+      const cur = skillById.get(id);
+      if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
+    }
+  };
+  ingest(a);
+  ingest(b);
+  return Array.from(skillById.values());
+}
 
 function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number {
   const levelNum = Math.max(1, Math.min(MAX_LEVEL, Number(levelRaw) || 1));
@@ -355,23 +404,28 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const takeServerSkillsStrict =
           serverSkillsEmpty || (serverRevisionAdvanced && demoteToServerLevel);
         // Якщо в heroJson з API є масив skills (навіть порожній) — це джерело правди; інакше після адмін-скидання локальні скіли «оживали»
-        let skillsFromServer = takeServerSkillsStrict
-          ? Array.isArray(rawLocalSrvSkills)
-            ? rawLocalSrvSkills
-            : []
-          : Array.isArray(rawLocalSrvSkills)
-            ? rawLocalSrvSkills
-            : hydratedLocalHero.skills;
-        const profForSkillFilter =
-          (serverProfession && String(serverProfession).trim()) ? String(serverProfession) : hydratedLocalHero.profession;
+        let skillsMergedForFilter: Array<{ id: number; level?: number }>;
+        if (takeServerSkillsStrict) {
+          skillsMergedForFilter = Array.isArray(rawLocalSrvSkills) ? rawLocalSrvSkills : [];
+        } else if (Array.isArray(rawLocalSrvSkills)) {
+          skillsMergedForFilter = mergeHeroSkillListsByMaxLevel(rawLocalSrvSkills, hydratedLocalHero.skills as any);
+        } else {
+          skillsMergedForFilter = (hydratedLocalHero.skills as any) || [];
+        }
         const klassForSkillFilter =
           (serverKlass && String(serverKlass).trim()) ? String(serverKlass) : hydratedLocalHero.klass;
         const raceForSkillFilter = character.race ?? hydratedLocalHero.race;
-        skillsFromServer = filterSkillsListForHeroProfession(
+        const profForSkillFilter = resolveProfessionForSkillFilter(
+          serverProfession,
+          hydratedLocalHero.profession,
+          klassForSkillFilter,
+          raceForSkillFilter
+        );
+        const skillsAfterProfessionFilter = filterSkillsListForHeroProfession(
           profForSkillFilter,
           klassForSkillFilter,
           raceForSkillFilter,
-          skillsFromServer
+          skillsMergedForFilter
         );
         const heroForLocalRecalc: Hero = {
           ...hydratedLocalHero,
@@ -379,7 +433,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           exp: finalExp,
           profession: (serverProfession && String(serverProfession).trim()) ? String(serverProfession) : hydratedLocalHero.profession,
           klass: (serverKlass && String(serverKlass).trim()) ? String(serverKlass) : hydratedLocalHero.klass,
-          skills: skillsFromServer,
+          skills: skillsAfterProfessionFilter,
         };
         const now = Date.now();
         const savedBattle = loadBattle(hydratedLocalHero.name);
@@ -513,7 +567,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
             cpPercent: hj.cpPercent,
           });
         }
-        return mergedHero;
+        return fixHeroProfession(mergedHero) as Hero;
       }
       
       // 🔥 Перевіряємо конфлікт синхронізації (для інших випадків)

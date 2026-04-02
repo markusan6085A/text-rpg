@@ -140,7 +140,6 @@ export default function GuildScreen({
           /* ignore */
         }
         await loadHeroFromAPI();
-        showToast("Навичок вивчено.", "success");
       } catch (e: any) {
         if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
           console.warn("Ігноруємо revision conflict при вивченні скіла");
