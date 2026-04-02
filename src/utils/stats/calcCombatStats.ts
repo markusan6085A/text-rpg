@@ -42,9 +42,12 @@ export interface CombatStats {
   healReceivedBonus?: number;
   /** % зменшення витрати MP на активні скіли (після lsGuidance) */
   mpSkillCostReduction?: number;
+  /** % зменшення вхідного урону (після базової мітігації; див. processMobAttack). */
+  damageTakenReduction?: number;
 }
 
 export const RING_OF_QUEEN_ANT_ID = "ring_of_queen_ant";
+export const RING_OF_CORE_ID = "ring_of_core";
 export const EARRING_OF_ORFEN_ID = "earring_of_orfen";
 
 /** Перший слот (лексикографічно) з цим id — єдиний, що дає статти; як у L2 для унікальних епіків. */
@@ -119,14 +122,19 @@ export function calcCombatStats(
   let bleedChanceBonus = 0;
   let healReceivedBonus = 0;
   let mpSkillCostReduction = 0;
+  let damageTakenReduction = 0;
 
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
+  const ringOfCorePrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_CORE_ID);
   const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
 
   // 2. Equipment bonuses
   if (equipment) {
     Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
       if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
+        return;
+      }
+      if (itemId === RING_OF_CORE_ID && ringOfCorePrimarySlot != null && slot !== ringOfCorePrimarySlot) {
         return;
       }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
@@ -198,6 +206,10 @@ export function calcCombatStats(
         if (itemStats.bleedChanceBonus) bleedChanceBonus += itemStats.bleedChanceBonus;
         if (itemStats.healReceivedBonus) healReceivedBonus += itemStats.healReceivedBonus;
         if (itemStats.mpSkillCostReduction) mpSkillCostReduction += itemStats.mpSkillCostReduction;
+        const dtr = (itemStats as any).damageTakenReduction;
+        if (typeof dtr === "number" && Number.isFinite(dtr) && dtr > 0) {
+          damageTakenReduction += dtr;
+        }
       }
     });
     // Відсоткові бонуси будуть застосовані після set bonuses
@@ -394,6 +406,7 @@ export function calcCombatStats(
     ...(bleedChanceBonus > 0 ? { bleedChanceBonus } : {}),
     ...(healReceivedBonus > 0 ? { healReceivedBonus } : {}),
     ...(mpSkillCostReduction > 0 ? { mpSkillCostReduction } : {}),
+    ...(damageTakenReduction > 0 ? { damageTakenReduction } : {}),
   };
 }
 

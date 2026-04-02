@@ -2,6 +2,7 @@ import type { Zone, Mob } from "../../data/world/types";
 import { useHeroStore } from "../../state/heroStore";
 import { isMobOnRespawn } from "../../state/battle/mobRespawns";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
+import { applyPercentDamageTakenReduction } from "../../utils/stats/incomingDamageReduction";
 import { unequipItemLogic } from "../../state/heroStore/heroInventory";
 import { writeDeathGate } from "../../utils/deathGate";
 
@@ -43,7 +44,8 @@ export function runAggressivePatrolHit(ctx: PatrolTickCtx): {
   const base = Math.max(5, mobPAtk * 0.8);
   const raw = base * (0.75 + Math.random() * 0.5);
   const pDef = h.battleStats?.pDef ?? 0;
-  const dmg = Math.max(1, Math.round(raw * (100 / (100 + pDef))));
+  let dmg = Math.max(1, Math.round(raw * (100 / (100 + pDef))));
+  dmg = applyPercentDamageTakenReduction(dmg, h.battleStats?.damageTakenReduction);
   const nextHp = Math.max(0, (h.hp ?? 0) - dmg);
   if (nextHp > 0) {
     useHeroStore.getState().updateHero({ hp: nextHp });

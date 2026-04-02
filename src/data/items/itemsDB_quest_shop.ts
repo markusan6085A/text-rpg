@@ -356,4 +356,26 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
       holdChanceBonus: 30,
     },
   },
+  /** Епік-дроп Core (L2 item id 6662). Друге кільце не дублює пасиви — як Ring of Queen Ant. */
+  ring_of_core: {
+    id: "ring_of_core",
+    name: "Ring of Core",
+    kind: "ring",
+    slot: "rfinger;lfinger",
+    icon: "/items/drops/ring_of_core_i00.png",
+    description:
+      "Трофей з нетрів Гармої: темний метал, наче спечений у розпеченому ядрі голема. Міцний магічний оберіг (M.Def +48), точніший удар (+2 Accuracy), стійкість і шанс отрути по 20%, коріння — по 30%, і витіснення частини вхідної шкоди (~10%). Як у L2: два такі кільця не подвоюють пасиви — рахується лише одне.",
+    grade: "C",
+    stackable: false,
+    stats: {
+      mDef: 48,
+      accuracy: 2,
+      poisonResist: 20,
+      poisonChanceBonus: 20,
+      /** % зменшення будь-якого вхідного урону в бою (див. applyPercentDamageTakenReduction). */
+      damageTakenReduction: 10,
+      holdResist: 30,
+      holdChanceBonus: 30,
+    },
+  },
 };

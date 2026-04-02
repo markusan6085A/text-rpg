@@ -8,6 +8,7 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import {
   EARRING_OF_ORFEN_ID,
   primaryEquipmentSlotForItem,
+  RING_OF_CORE_ID,
   RING_OF_QUEEN_ANT_ID,
 } from "./calcCombatStats";
 
@@ -45,10 +46,14 @@ export function calcResources(
   // Спочатку додаємо flat бонуси
   let flatMaxHpBonus = 0;
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
+  const ringOfCorePrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_CORE_ID);
   const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
   if (equipment) {
     Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
       if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
+        return;
+      }
+      if (itemId === RING_OF_CORE_ID && ringOfCorePrimarySlot != null && slot !== ringOfCorePrimarySlot) {
         return;
       }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
@@ -71,6 +76,9 @@ export function calcResources(
   if (equipment) {
     Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
       if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
+        return;
+      }
+      if (itemId === RING_OF_CORE_ID && ringOfCorePrimarySlot != null && slot !== ringOfCorePrimarySlot) {
         return;
       }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {

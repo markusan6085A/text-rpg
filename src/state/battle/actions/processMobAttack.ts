@@ -22,6 +22,7 @@ import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 import { writeDeathGate } from "../../../utils/deathGate";
 import { displayMobName } from "../../../utils/worldDisplay";
 import { isChampionMob } from "../../../utils/mobs/isChampionMob";
+import { applyPercentDamageTakenReduction } from "../../../utils/stats/incomingDamageReduction";
 import { rollAggressiveMobSkills } from "./aggressiveMobSkills";
 
 type Setter = (
@@ -235,6 +236,10 @@ export const createProcessMobAttack =
       }
     }
 
+    mitigated = applyPercentDamageTakenReduction(mitigated, heroStats.damageTakenReduction, {
+      invulnerable,
+    });
+
     const reflectChances = getReflectChances(nextBuffs, hero, now);
     const reflectResult = checkReflectDamage(mitigated, isPhysicalAttack, reflectChances);
     const lsMagicParry = heroStats?.lsMagicParry ?? 0;
@@ -333,6 +338,12 @@ export const createProcessMobAttack =
             aggressiveCrit = true;
           }
         }
+
+        aggressiveMitigated = applyPercentDamageTakenReduction(
+          aggressiveMitigated,
+          heroStats.damageTakenReduction,
+          { invulnerable }
+        );
         
         // Перевіряємо промах (з меншою ймовірністю для агресивних мобів)
         const aggressiveDodgeChance = dodgeChance * 0.7; // Агресивні моби точніші

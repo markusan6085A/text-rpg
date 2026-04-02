@@ -4,10 +4,11 @@
 // тут додаємо окремі сутності зі статами як у відповідного зонного РБ того ж tier.
 //
 // Респавн усіх епіків: EPIC_RESPAWN_SEC (= 12 год, див. константу нижче).
-// Уже з дропом у коді: Queen Ant (QUEEN_ANT_EPIC_DROPS), Orfen (ORFEN_EPIC_DROPS).
-// Без дропу (drops: []): Core, Zaken, Baium, Frintezza, Antharas, Valakas.
+// Уже з дропом у коді: Queen Ant (QUEEN_ANT_EPIC_DROPS), Core (CORE_EPIC_DROPS), Orfen (ORFEN_EPIC_DROPS).
+// Без дропу (drops: []): Zaken, Baium, Frintezza, Antharas, Valakas.
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
+import { CORE_EPIC_DROPS } from "./coreEpicDrops";
 import { ORFEN_EPIC_DROPS } from "./orfenEpicDrops";
 import { QUEEN_ANT_EPIC_DROPS } from "./queenAntEpicDrops";
 
@@ -56,7 +57,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     adenaMin: 55000,
     adenaMax: 85000,
     dropChance: 1,
-    drops: [],
+    drops: [...CORE_EPIC_DROPS],
     isRaidBoss: true,
     isEpicRaidBoss: true,
     respawnTime: EPIC_RESPAWN_SEC,
