@@ -25,7 +25,10 @@ function readEffectiveLevelSp(existing: {
   const spCol = Math.max(0, Math.floor(Number(existing.sp) || 0));
   const lj = hj.level != null && hj.level !== "" ? Number(hj.level) : NaN;
   const sj = hj.sp != null && hj.sp !== "" ? Number(hj.sp) : NaN;
-  const level = Number.isFinite(lj) && lj > 0 ? lj : levelCol;
+  // Не дозволяти застарілому heroJson.level (нижчому за колонку Character.level) блокувати learn-skill / tier caps.
+  const levelFromJson =
+    Number.isFinite(lj) && lj > 0 ? Math.max(1, Math.floor(lj)) : 0;
+  const level = Math.max(levelCol, levelFromJson);
   const spFromHj = Number.isFinite(sj) && sj >= 0 ? Math.floor(sj) : null;
   const sp = spFromHj !== null ? Math.max(spFromHj, spCol) : spCol;
   return { level, sp };
