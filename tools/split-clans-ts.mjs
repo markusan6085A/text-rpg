@@ -1,3 +1,7 @@
+/**
+ * One-shot extractor: expects the monolithic server/src/clans.ts in git history
+ * (pre-split). Do not re-run on the slim clans.ts without restoring the old file first.
+ */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
