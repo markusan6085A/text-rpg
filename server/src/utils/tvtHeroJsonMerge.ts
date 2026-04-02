@@ -49,8 +49,11 @@ export function mergeTvtRewardsIntoIncomingHeroJson(existingHeroJson: any, incom
   const newTvt = Math.max(Number(incomingHeroJson.tvtCoins ?? incomingHeroJson.tvt_coins ?? 0), 0);
   const mergedCounter = Math.max(oldTvt, newTvt);
 
+  // Спочатку БД, потім вхідний snapshot — щоб не зрізати поля, яких немає в частковому body.heroJson
+  // (клієнт зазвичай шле повний об'єкт; це страховка для інших клієнтів і регресій).
+  const base = { ...oldHj, ...incomingHeroJson };
   const out = {
-    ...incomingHeroJson,
+    ...base,
     tvtCoins: mergedCounter,
     tvt_coins: mergedCounter,
     inventory: mergeTvtCoinList(oldHj.inventory, incomingHeroJson.inventory),
