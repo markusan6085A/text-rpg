@@ -4,9 +4,9 @@ import {
   cities as WORLD_CITIES,
 } from "../../data/world";
 import type { City, Zone, Mob } from "../../data/world/types";
-import { itemsDB } from "../../data/items/itemsDB";
 import { getWorldMobHpForSlot } from "../../state/worldMobHpStore";
-import { getL2dopResourceIconPath, getL2DropEntryByItemIdPath } from "../../data/world/l2dop/droplistMapping";
+import { getL2DropEntryByItemIdPath } from "../../data/world/l2dop/droplistMapping";
+import { resolveLootIconPathFromItemId } from "../../utils/lootIconPath";
 import type { DropEntry } from "../../data/combat/types";
 import { getMobEffectiveMaxHp } from "../../utils/mobs/mobEffectiveMaxHp";
 
@@ -19,10 +19,8 @@ export function formatDropChanceLabel(d: Pick<DropEntry, "chance" | "chancePerMi
 }
 
 export function dropLineIconPath(entry: DropEntry): string {
-  const defIcon = itemsDB[entry.id]?.icon;
-  if (defIcon) return defIcon.startsWith("/") ? defIcon : `/items/${defIcon}`;
-  const l2 = getL2dopResourceIconPath(entry.id);
-  if (l2) return l2;
+  const fromId = resolveLootIconPathFromItemId(entry.id);
+  if (fromId !== "/items/default_item.png") return fromId;
   const byItem = getL2DropEntryByItemIdPath(entry);
   if (byItem) return byItem;
   return "/items/default_item.png";

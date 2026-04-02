@@ -3,6 +3,7 @@ import { getNews, type NewsItem } from "../utils/api";
 import { formatGameClockHHMM } from "../utils/gameClock";
 import { getGameTimeTag } from "../utils/news";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
+import { resolveLootIconPathFromItemId } from "../utils/lootIconPath";
 import { getNickColorStyle } from "../utils/nickColor";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
@@ -151,11 +152,7 @@ function RaidBossItemDetailBody({
   isL2: boolean;
 }) {
   const def = itemsDB[itemId] || itemsDBWithStarter[itemId];
-  const iconPath = def?.icon
-    ? def.icon.startsWith("/")
-      ? def.icon
-      : `/items/${def.icon}`
-    : "/items/default_item.png";
+  const iconPath = resolveLootIconPathFromItemId(itemId);
   const stats = def?.stats && typeof def.stats === "object" ? (def.stats as Record<string, unknown>) : null;
   const statKeys = stats
     ? Object.keys(stats).filter((k) => {
@@ -314,11 +311,7 @@ function RaidBossDropModal({
               {hasItems &&
                 actualDrops!.map((drop, idx) => {
                   const itemDef = itemsDB[drop.id] || itemsDBWithStarter[drop.id];
-                  const iconPath = itemDef?.icon
-                    ? itemDef.icon.startsWith("/")
-                      ? itemDef.icon
-                      : `/items/${itemDef.icon}`
-                    : "/items/default_item.png";
+                  const iconPath = resolveLootIconPathFromItemId(drop.id);
                   const itemName = drop.name || itemDef?.name || drop.id;
                   const linkCls = isL2
                     ? "text-[#c9a44c] cursor-pointer hover:underline hover:text-[#e8d4a8] transition-colors text-left flex-1 font-medium"

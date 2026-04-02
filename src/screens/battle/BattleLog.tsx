@@ -3,7 +3,7 @@ import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
 import { getSkillDef } from "../../state/battle/loadout";
 import { useCityUiVariant } from "../../utils/cityUiVariant";
-import { itemsDB } from "../../data/items/itemsDB";
+import { getLootIconPathForDisplayName } from "../../utils/lootIconPath";
 
 /** Замінює skill#N у рядку на назву скіла з skillsDB */
 export function replaceSkillIdsWithNames(line: string): string {
@@ -188,37 +188,6 @@ function inlineLootIcon(src: string) {
   );
 }
 
-/** Як removeGradeFromResourceName у processDrops — для збігу імені в логу з itemsDB. */
-function stripGradesForLootMatch(name: string): string {
-  if (!name) return name;
-  return name
-    .replace(/\s*\[NG\]\s*/gi, "")
-    .replace(/\s*\[D\]\s*/gi, "")
-    .replace(/\s*\[C\]\s*/gi, "")
-    .replace(/\s*\[B\]\s*/gi, "")
-    .replace(/\s*\[A\]\s*/gi, "")
-    .replace(/\s*\[S\]\s*/gi, "")
-    .trim();
-}
-
-let dropDisplayNameToIcon: Map<string, string> | null = null;
-
-function iconPathForDropDisplayName(displayName: string): string | null {
-  const n = displayName.trim();
-  if (n === "Адена") return ICON_ADENA;
-  if (!dropDisplayNameToIcon) {
-    dropDisplayNameToIcon = new Map<string, string>();
-    for (const def of Object.values(itemsDB)) {
-      const k = stripGradesForLootMatch(def.name);
-      if (!k || dropDisplayNameToIcon.has(k)) continue;
-      const ic = def.icon;
-      if (!ic) continue;
-      dropDisplayNameToIcon.set(k, ic.startsWith("/") ? ic : `/items/${ic}`);
-    }
-  }
-  return dropDisplayNameToIcon.get(stripGradesForLootMatch(n)) ?? null;
-}
-
 /** Частка союзника в пати: «Нік получил 612 EXP, 187 аден и 34 SP.» */
 const parsePartyMemberShareLine = (line: string): React.ReactNode | null => {
   const m = line.match(
@@ -298,6 +267,22 @@ const parseVypaloLine = (line: string): React.ReactNode | null => {
   );
 };
 
+/** Книги гільдії магів: повідомлення з mysticSpellbookDrops (не префікс «Дроп:»). */
+const parseSpellbookLootLine = (line: string): React.ReactNode | null => {
+  const m = line.match(/^📕\s*Книга заклинания:\s*(.+)$/i);
+  if (!m) return null;
+  const rawName = m[1].trim();
+  const icon = getLootIconPathForDisplayName(rawName);
+  return (
+    <div style={{ color: "#ca8a04" }} className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+      {icon ? inlineLootIcon(icon) : null}
+      <span>
+        📕 Книга заклинания: {rawName}
+      </span>
+    </div>
+  );
+};
+
 const parseLootKindDropLine = (line: string): React.ReactNode | null => {
   const m = line.match(/^(Дроп|Спойл|Квест):\s*(.+)$/i);
   if (!m) return null;
@@ -308,7 +293,7 @@ const parseLootKindDropLine = (line: string): React.ReactNode | null => {
   const rawName = m2[1].trim();
   const count = m2[2];
   const tail = m2[3] || "";
-  const icon = iconPathForDropDisplayName(rawName);
+  const icon = getLootIconPathForDisplayName(rawName);
   const color = getColor(line);
   return (
     <div style={{ color }} className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
@@ -362,6 +347,10 @@ export function BattleLog({
         const vypalo = parseVypaloLine(lineStr);
         if (vypalo) {
           return <div key={idx}>{vypalo}</div>;
+        }
+        const spellbookLine = parseSpellbookLootLine(lineStr);
+        if (spellbookLine) {
+          return <div key={idx}>{spellbookLine}</div>;
         }
         const lootDrop = parseLootKindDropLine(lineStr);
         if (lootDrop) {
