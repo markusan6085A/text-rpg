@@ -1,5 +1,5 @@
 import type { ItemDefinition } from "./itemsDB.types";
-import { MYSTIC_SPELLBOOK_TIERS } from "../spellbooks/mysticSpellbookData";
+import { MYSTIC_SPELLBOOK_TIERS } from "../spellbooks/mysticSpellbookTiers";
 
 /** Предмети-книги для гільдії магів (іконки з l2dop). */
 export const mysticSpellbookItemsDB: Record<string, ItemDefinition> = Object.fromEntries(
