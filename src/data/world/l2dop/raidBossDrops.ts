@@ -29,6 +29,27 @@ function wRotate(pool: readonly string[], rbIndex: number, count: number, stride
   return out;
 }
 
+/** Ресурси тиру 1 (як l2dop tiered T1) для РБ рівня <20: кожен рядок — окремий roll, при успіху рівно 5 шт. */
+const LOW_RB_RESOURCE_QTY = 5;
+const LOW_RB_RESOURCE_IDS = [
+  "stem",
+  "varnish",
+  "suede",
+  "animal_skin",
+  "thread",
+  "iron_ore",
+  "coal",
+  "charcoal",
+  "animal_bone",
+  "silver_nugget",
+] as const;
+
+function lowLevelRbResources(rbIndex: number): DropEntry[] {
+  return LOW_RB_RESOURCE_IDS.map((id, i) =>
+    eq(id, "resource", 0.13 + ((i + rbIndex * 5) % 8) * 0.01, LOW_RB_RESOURCE_QTY, LOW_RB_RESOURCE_QTY)
+  );
+}
+
 /* ==================== Gludio ==================== */
 
 const GLUDIO_D_WEAP_LOW = [
@@ -90,6 +111,7 @@ function gludioLowTier(rbIndex: number): DropEntry[] {
     eq(w[(rbIndex * 2 + 3) % w.length]!, "equipment", 0.09, 1, 1),
     eq(jewD[rbIndex % jewD.length]!, "equipment", 0.08, 1, 1),
     eq(jewD[(rbIndex + 2) % jewD.length]!, "equipment", 0.07, 1, 1),
+    ...lowLevelRbResources(rbIndex),
     scW("blessed_scroll_enchant_weapon_grade_d", 0.14),
     scA("blessed_scroll_enchant_armor_grade_d", 0.05),
   ];
@@ -212,11 +234,13 @@ export function gludinRbDrops(rbIndex: number): DropEntry[] {
   ];
   const jewD = ["shop_jewelry_d_black_pearl_ring", "shop_jewelry_d_mithril_ring"] as const;
   const t = themes[rbIndex % themes.length]!;
+  const below20 = rbIndex <= 6;
   return [
     ...t,
     eq(w[rbIndex % w.length]!, "equipment", 0.09, 1, 1),
     eq(w[(rbIndex + 4) % w.length]!, "equipment", 0.08, 1, 1),
     eq(jewD[rbIndex % 2]!, "equipment", 0.07, 1, 1),
+    ...(below20 ? lowLevelRbResources(rbIndex + 20) : []),
     scW("blessed_scroll_enchant_weapon_grade_d", 0.1),
     scA("blessed_scroll_enchant_armor_grade_d", 0.04),
   ];
@@ -227,6 +251,8 @@ export function gludinRbDrops(rbIndex: number): DropEntry[] {
 export function fvRbDrops(rbIndex: number): DropEntry[] {
   if (rbIndex >= 4) return gludioMidTier(4 + (rbIndex % 3));
   const w = GLUDIO_D_WEAP_LOW;
+  const below20 = rbIndex <= 2;
+  const res = below20 ? lowLevelRbResources(rbIndex + 40) : [];
   if (rbIndex % 2 === 1) {
     return [
       eq("cloth_cap", "equipment", 0.08),
@@ -238,6 +264,7 @@ export function fvRbDrops(rbIndex: number): DropEntry[] {
       eq(w[(rbIndex + 2) % w.length]!, "equipment", 0.09),
       eq("shop_jewelry_d_elven_earing", "equipment", 0.08),
       eq("shop_jewelry_d_enchanted_necklace", "equipment", 0.08),
+      ...res,
       scW("blessed_scroll_enchant_weapon_grade_d", 0.15),
       scA("blessed_scroll_enchant_armor_grade_d", 0.05),
     ];
@@ -250,6 +277,7 @@ export function fvRbDrops(rbIndex: number): DropEntry[] {
     eq(w[(rbIndex + 3) % w.length]!, "equipment", 0.09),
     eq("shop_jewelry_d_elven_earing", "equipment", 0.08),
     eq("shop_jewelry_d_enchanted_necklace", "equipment", 0.08),
+    ...res,
     scW("blessed_scroll_enchant_weapon_grade_d", 0.15),
     scA("blessed_scroll_enchant_armor_grade_d", 0.05),
   ];

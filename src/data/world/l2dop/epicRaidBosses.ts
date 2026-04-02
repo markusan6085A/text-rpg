@@ -2,11 +2,16 @@
 // Канонічні епік-рейдбоси L2 (імена з оф. лору), прив’язані до зон l2dop за рівнем локації.
 // У папці l2dop немає окремих записів «Queen Ant / Valakas» — тільки загальні РБ у mobs.ts;
 // тут додаємо окремі сутності зі статами як у відповідного зонного РБ того ж tier.
+//
+// Респавн усіх епіків: EPIC_RESPAWN_SEC (= 12 год, див. константу нижче).
+// Уже з дропом у коді: Queen Ant (QUEEN_ANT_EPIC_DROPS), Orfen (ORFEN_EPIC_DROPS).
+// Без дропу (drops: []): Core, Zaken, Baium, Frintezza, Antharas, Valakas.
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import { ORFEN_EPIC_DROPS } from "./orfenEpicDrops";
 import { QUEEN_ANT_EPIC_DROPS } from "./queenAntEpicDrops";
 
+/** 12 год (43200 с) — спільний респ для всіх епіків у цьому списку. */
 const EPIC_RESPAWN_SEC = 12 * 60 * 60;
 
 /** Епіки додаються до пулу raidBosses зони з тим самим tier, що й звичайний РБ цієї зони. */
