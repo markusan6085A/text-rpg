@@ -1,7 +1,7 @@
 import type { BattleState } from "../../types";
 import { persistBattle } from "../../persist";
 import { persistSnapshot } from "../../helpers";
-import { calcCooldownMs } from "../../cooldowns";
+import { calcCooldownMs, getSkillCooldownMultiplier } from "../../cooldowns";
 import { calcAutoAttackInterval, calcPhysicalSkillCooldown } from "../../../../utils/combatSpeed";
 import { calcMagicCooldown } from "../../../../utils/magicSpeed";
 
@@ -118,9 +118,12 @@ export function createCooldownMs(
   return (baseSec?: number, isToggle?: boolean) => {
     if (isToggle) return 0;
     
-    // Для фізичних скілів використовуємо calcPhysicalSkillCooldown
+    // Для фізичних скілів: спочатку attackSpeed, потім той самий % зменшення КД, що й у calcCooldownMs (екіп + пасивки).
     if (skillCategory === "physical_attack" && baseSec) {
-      return calcPhysicalSkillCooldown(baseSec, attackSpeed);
+      let ms = calcPhysicalSkillCooldown(baseSec, attackSpeed);
+      const mult = getSkillCooldownMultiplier(heroStats);
+      ms = Math.round(ms * mult);
+      return Math.max(300, ms);
     }
     
     // Для магічних скілів використовуємо calcMagicCooldown

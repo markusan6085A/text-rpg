@@ -5,7 +5,7 @@
 //
 // Респавн усіх епіків: EPIC_RESPAWN_SEC (= 12 год, див. константу нижче).
 // Уже з дропом у коді: Queen Ant, Core, Orfen, Zaken; гранд-епіки Baium / Frintezza / Antharas / Valakas (GRAND _EPIC_DROPS);
-// Додатково з оф. XML (29000-29999 npc): Sirra, Captain Ice Guard, Andreas Van Halter, Sailren, Gordon, Anais — xmlGrandRaidBossEpics.ts.
+// xmlGrandRaidBossEpics.ts зараз порожній (колишні Schuttgart-епіки прибрані).
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import { CORE_EPIC_DROPS } from "./coreEpicDrops";

@@ -52,6 +52,8 @@ export interface CombatStats {
   stunChanceBonus?: number;
   /** % опір ментальним ефектам (страх, мовчання тощо). */
   mentalResist?: number;
+  /** % зменшення часу повторного використання скілів (reuse delay), підсумовується з пасивками. */
+  cooldownReduction?: number;
 }
 
 export const RING_OF_QUEEN_ANT_ID = "ring_of_queen_ant";
@@ -140,6 +142,7 @@ export function calcCombatStats(
   let stunResist = 0;
   let stunChanceBonus = 0;
   let mentalResist = 0;
+  let cooldownReduction = 0;
 
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
   const ringOfCorePrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_CORE_ID);
@@ -263,6 +266,10 @@ export function calcCombatStats(
         const mr = (itemStats as any).mentalResist;
         if (typeof mr === "number" && Number.isFinite(mr) && mr > 0) {
           mentalResist += mr;
+        }
+        const cdr = (itemStats as any).cooldownReduction;
+        if (typeof cdr === "number" && Number.isFinite(cdr) && cdr > 0) {
+          cooldownReduction += cdr;
         }
       }
     });
@@ -473,6 +480,7 @@ export function calcCombatStats(
     ...(stunResist > 0 ? { stunResist } : {}),
     ...(stunChanceBonus > 0 ? { stunChanceBonus } : {}),
     ...(mentalResist > 0 ? { mentalResist } : {}),
+    ...(cooldownReduction > 0 ? { cooldownReduction } : {}),
   };
 }
 

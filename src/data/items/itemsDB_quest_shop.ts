@@ -474,7 +474,7 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
     slot: "necklace",
     icon: "/items/drops/necklace_of_frintessa_i00.png",
     description:
-      "Трофей з Залу Фрінтези. M.Def +95, Max MP +42. Додатково: високий опір сну, отруті, кровотечі, паралічу, шоку та темряві; частина ефектів реалізована через підтримувані в бою резисти.",
+      "Трофей з Залу Фрінтези. M.Def +95, Max MP +42. Додатково: високий опір сну, отруті, кровотечі, паралічу, шоку та темряві; −10% до часу повторного використання скілів (reuse delay).",
     grade: "A",
     stackable: false,
     stats: {
@@ -485,6 +485,7 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
       stunResist: 30,
       holdResist: 30,
       mentalResist: 15,
+      cooldownReduction: 10,
     },
   },
 };
