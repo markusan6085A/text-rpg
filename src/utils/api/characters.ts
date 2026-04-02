@@ -136,3 +136,25 @@ export async function postMageSpellbookTurnIn(
   });
 }
 
+/** Серверне вивчення скілу гільдії за SP (whitelist професії + книга для містика). */
+export async function postLearnSkill(
+  characterId: string,
+  body: { skillId: number }
+): Promise<{ ok: boolean; character: Character }> {
+  return apiRequest(`/characters/${encodeURIComponent(characterId)}/learn-skill`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/** Додатковий скіл за адену — сума та whitelist лише на сервері. */
+export async function postLearnAdditionalSkill(
+  characterId: string,
+  body: { skillId: number }
+): Promise<{ ok: boolean; character: Character }> {
+  return apiRequest(`/characters/${encodeURIComponent(characterId)}/learn-additional-skill`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+

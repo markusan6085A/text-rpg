@@ -18,6 +18,10 @@ import {
   removeOneStackFromInventory,
 } from "../../../mysticSpellbookServer";
 import { trySendWelcomeLetterForNewAccount } from "../../../welcomeNewPlayerLetter";
+import {
+  computeProfessionSkillLearn,
+  computeAdditionalSkillLearn,
+} from "../../../learnSkillServer";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
@@ -828,6 +832,208 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       };
 
       return reply.send({ ok: true, character: serialized, guildKey });
+    }
+  );
+
+  // POST /characters/:id/learn-skill — серверне вивчення скілу гільдії за SP (whitelist професії, книга для містика)
+  app.post(
+    "/characters/:id/learn-skill",
+    {
+      preHandler: async (req, reply) => {
+        await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+      },
+    },
+    async (req, reply) => {
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const params = req.params as { id?: string };
+      const id = params.id;
+      if (!id) return reply.code(400).send({ error: "character id required" });
+
+      const body = req.body as { skillId?: unknown };
+      const skillId = Number(body.skillId);
+      if (!Number.isInteger(skillId) || skillId <= 0) {
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const existing = await prisma.character.findFirst({
+        where: { id, accountId: auth.accountId },
+      });
+      if (!existing) return reply.code(404).send({ error: "character not found" });
+
+      const computed = computeProfessionSkillLearn(
+        {
+          level: existing.level,
+          sp: Number((existing as any).sp ?? 0),
+          heroJson: existing.heroJson,
+          classId: existing.classId,
+        },
+        skillId
+      );
+      if (!computed.ok) {
+        return reply.code(computed.status).send({ error: computed.status === 403 ? "forbidden" : "invalid input" });
+      }
+
+      const oldHeroJson = (existing.heroJson as any) || {};
+      const mergedBase = {
+        name: oldHeroJson.name || existing.name,
+        race: oldHeroJson.race || existing.race,
+        classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+        klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+        level: oldHeroJson.level ?? existing.level ?? 1,
+      };
+      const newHeroJsonRaw = {
+        ...mergedBase,
+        ...oldHeroJson,
+        ...computed.mergedHeroJsonRaw,
+      };
+      const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
+      const validation = validateHeroJson(newHeroJson);
+      if (!validation.valid) {
+        return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
+      }
+
+      const oldRevision = oldHeroJson.heroRevision || 0;
+      const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+      const updated = await prisma.character.update({
+        where: { id },
+        data: {
+          sp: computed.newSp,
+          heroJson: versionedHeroJson as any,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+        coinsSilver: Number((updated as any).coinsSilver ?? 0),
+      };
+
+      return reply.send({ ok: true, character: serialized });
+    }
+  );
+
+  // POST /characters/:id/learn-additional-skill — додаткові скіли за адену (whitelist)
+  app.post(
+    "/characters/:id/learn-additional-skill",
+    {
+      preHandler: async (req, reply) => {
+        await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+      },
+    },
+    async (req, reply) => {
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const params = req.params as { id?: string };
+      const id = params.id;
+      if (!id) return reply.code(400).send({ error: "character id required" });
+
+      const body = req.body as { skillId?: unknown };
+      const skillId = Number(body.skillId);
+      if (!Number.isInteger(skillId) || skillId <= 0) {
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const existing = await prisma.character.findFirst({
+        where: { id, accountId: auth.accountId },
+      });
+      if (!existing) return reply.code(404).send({ error: "character not found" });
+
+      const computed = computeAdditionalSkillLearn(
+        {
+          adena: (existing as any).adena ?? 0n,
+          level: existing.level,
+          heroJson: existing.heroJson,
+          classId: existing.classId,
+        },
+        skillId
+      );
+      if (!computed.ok) {
+        return reply.code(computed.status).send({ error: computed.status === 403 ? "forbidden" : "invalid input" });
+      }
+
+      const oldHeroJson = (existing.heroJson as any) || {};
+      const mergedBase = {
+        name: oldHeroJson.name || existing.name,
+        race: oldHeroJson.race || existing.race,
+        classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+        klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+        level: oldHeroJson.level ?? existing.level ?? 1,
+      };
+      const newHeroJsonRaw = {
+        ...mergedBase,
+        ...oldHeroJson,
+        ...computed.mergedHeroJsonRaw,
+      };
+      const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
+      const validation = validateHeroJson(newHeroJson);
+      if (!validation.valid) {
+        return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
+      }
+
+      const oldRevision = oldHeroJson.heroRevision || 0;
+      const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+      const updated = await prisma.character.update({
+        where: { id },
+        data: {
+          adena: computed.newAdena,
+          heroJson: versionedHeroJson as any,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+        coinsSilver: Number((updated as any).coinsSilver ?? 0),
+      };
+
+      return reply.send({ ok: true, character: serialized });
     }
   );
 }

@@ -12,6 +12,9 @@ import { AdditionalSkills } from "../../data/skills/additional";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { showToast } from "../../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { useCharacterStore } from "../../state/characterStore";
+import { postLearnAdditionalSkill } from "../../utils/api/characters";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 interface AdditionalSkillsScreenProps {
   navigate: (path: string) => void;
@@ -46,6 +49,7 @@ export default function AdditionalSkillsScreen({
 }: AdditionalSkillsScreenProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
   const skillCardL2 =
@@ -174,43 +178,56 @@ export default function AdditionalSkillsScreen({
     })
     .filter(Boolean) as (SkillRow & { adenaCost: number })[];
 
-  const handleLearnSkill = (skillId: number, adenaCost: number) => {
+  const handleLearnSkill = async (skillId: number, adenaCost: number) => {
     const heroAdena = hero.adena ?? 0;
     if (heroAdena < adenaCost) {
       showToast(`Недостаточно аден! Нужно: ${adenaCost}, есть: ${heroAdena}`, "error");
       return;
     }
 
-    // Для додаткових скілів використовуємо спрощену логіку (без перевірки SP)
     const skillDef = allAdditionalSkills.find((s) => s.id === skillId);
     if (!skillDef) {
       showToast("Навык не найден.", "error");
       return;
     }
 
-    const skills = Array.isArray(hero.skills) ? [...hero.skills] : [];
-    const existing = skills.find((s) => s.id === skillId);
-    const currentLevel = existing?.level || 0;
-
-    // Знаходимо перший рівень скіла
-    const sortedLevels = (skillDef.levels || []).sort((a, b) => a.level - b.level);
-    const levelDef = sortedLevels.find((l) => l.level > currentLevel) || sortedLevels[0];
-    
-    if (!levelDef) {
-      showToast("Навык уже изучен на максимальный уровень.", "error");
+    const existing = currentSkills.find((s: any) => s.id === skillId);
+    const currentLevel = existing?.level ?? 0;
+    if (currentLevel > 0) {
+      showToast("Навык уже изучен.", "error");
       return;
     }
 
-    const nextLevel = levelDef.level;
+    const sortedLevels = (skillDef.levels || []).sort((a, b) => a.level - b.level);
+    const levelDef = sortedLevels[0];
+    if (!levelDef) {
+      showToast("Навык недоступен.", "error");
+      return;
+    }
     const heroLevel = hero.level || 1;
-    
-    // Перевірка requiredLevel
-    if (heroLevel < levelDef.requiredLevel) {
+    if (heroLevel < (levelDef.requiredLevel ?? 1)) {
       showToast(`Недостаточный уровень героя! Требуется: ${levelDef.requiredLevel}, у вас: ${heroLevel}`, "error");
       return;
     }
 
-    // Оновлюємо скіл
+    if (characterId) {
+      try {
+        await postLearnAdditionalSkill(characterId, { skillId });
+        await loadHeroFromAPI();
+        showToast("Навык изучен.", "success");
+      } catch (e: any) {
+        if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
+          console.warn("Ігноруємо revision conflict при вивченні скіла");
+        } else {
+          console.error(e);
+        }
+        showToast("Не удалось изучить навык на сервере.", "error");
+      }
+      return;
+    }
+
+    const skills = Array.isArray(hero.skills) ? [...hero.skills] : [];
+    const nextLevel = levelDef.level;
     if (existing) {
       const skillIndex = skills.findIndex((s) => s.id === skillId);
       skills[skillIndex] = { ...existing, level: nextLevel };
@@ -218,20 +235,16 @@ export default function AdditionalSkillsScreen({
       skills.push({ id: skillId, level: nextLevel });
     }
 
-    // Оновлюємо героя: додаємо скіл та віднімаємо адену
-    // CP бонуси додаються автоматично через пасивні ефекти (maxCp)
     try {
       updateHero({
         skills,
         adena: heroAdena - adenaCost,
       });
-      // Не показуємо alert після вивчення, щоб не заважати
     } catch (e: any) {
-      // Ігноруємо помилки revision_conflict, якщо вони спливають до UI
-      if (e?.message && (e.message.includes('revision_conflict') || e.message.includes('Character was modified'))) {
-          console.warn('Ігноруємо revision conflict при вивченні скіла');
+      if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
+        console.warn("Ігноруємо revision conflict при вивченні скіла");
       } else {
-          console.error(e);
+        console.error(e);
       }
     }
   };

@@ -17,7 +17,7 @@ import {
   mysticSpellbookGuildKey,
   type MysticSpellbookTierConfig,
 } from "../../data/spellbooks/mysticSpellbookData";
-import { postMageSpellbookTurnIn } from "../../utils/api/characters";
+import { postLearnSkill, postMageSpellbookTurnIn } from "../../utils/api/characters";
 import { useCharacterStore } from "../../state/characterStore";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { ONBOARDING_GUILD_NEED_SP_KEY } from "../../state/gameSettings";
@@ -104,17 +104,44 @@ export default function GuildScreen({
     }
   };
 
-  const handleLearnSkill = (skillId: number, reqLevel: number, spCost: number) => {
+  const handleLearnSkill = async (skillId: number, _reqLevel: number, _spCost: number) => {
+    const fail = getLearnSkillFailureReason(hero, skillId, learnOpts);
+    if (fail !== null) {
+      if (fail === "sp") {
+        try {
+          sessionStorage.setItem(ONBOARDING_GUILD_NEED_SP_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+      }
+      showToast("Не вдалося вивчити скіл. Можливо, не вистачає SP або рівня.", "error");
+      return;
+    }
+
+    if (characterId) {
+      try {
+        await postLearnSkill(characterId, { skillId });
+        try {
+          sessionStorage.removeItem(ONBOARDING_GUILD_NEED_SP_KEY);
+        } catch {
+          /* ignore */
+        }
+        await loadHeroFromAPI();
+        showToast("Навичок вивчено.", "success");
+      } catch (e: any) {
+        if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
+          console.warn("Ігноруємо revision conflict при вивченні скіла");
+        } else {
+          console.error(e);
+        }
+        showToast("Не вдалося вивчити скіл на сервері. Перевірте з'єднання та умови.", "error");
+      }
+      return;
+    }
+
     try {
       const res = learnSkillLogic(hero, skillId, learnOpts);
       if (!res.success) {
-        if (getLearnSkillFailureReason(hero, skillId, learnOpts) === "sp") {
-          try {
-            sessionStorage.setItem(ONBOARDING_GUILD_NEED_SP_KEY, "1");
-          } catch {
-            /* ignore */
-          }
-        }
         showToast("Не вдалося вивчити скіл. Можливо, не вистачає SP або рівня.", "error");
         return;
       }
@@ -127,10 +154,10 @@ export default function GuildScreen({
         updateHero(res.updatedHero);
       }
     } catch (e: any) {
-      if (e?.message && (e.message.includes('revision_conflict') || e.message.includes('Character was modified'))) {
-          console.warn('Ігноруємо revision conflict при вивченні скіла');
+      if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
+        console.warn("Ігноруємо revision conflict при вивченні скіла");
       } else {
-          console.error(e);
+        console.error(e);
       }
     }
   };
