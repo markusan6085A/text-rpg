@@ -4,7 +4,8 @@
 // тут додаємо окремі сутності зі статами як у відповідного зонного РБ того ж tier.
 //
 // Респавн усіх епіків: EPIC_RESPAWN_SEC (= 12 год, див. константу нижче).
-// Уже з дропом у коді: Queen Ant, Core, Orfen, Zaken; гранд-епіки Baium / Frintezza / Antharas / Valakas (GRAND _EPIC_DROPS).
+// Уже з дропом у коді: Queen Ant, Core, Orfen, Zaken; гранд-епіки Baium / Frintezza / Antharas / Valakas (GRAND _EPIC_DROPS);
+// Додатково з оф. XML (29000-29999 npc): Sirra, Captain Ice Guard, Andreas Van Halter, Sailren, Gordon, Anais — xmlGrandRaidBossEpics.ts.
 
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import { CORE_EPIC_DROPS } from "./coreEpicDrops";
@@ -17,6 +18,7 @@ import {
 import { ORFEN_EPIC_DROPS } from "./orfenEpicDrops";
 import { QUEEN_ANT_EPIC_DROPS } from "./queenAntEpicDrops";
 import { ZAKEN_EPIC_DROPS } from "./zakenEpicDrops";
+import { XML_GRAND_RAID_BOSS_EPICS } from "./xmlGrandRaidBossEpics";
 
 /** 12 год (43200 с) — спільний респ для всіх епіків у цьому списку. */
 const EPIC_RESPAWN_SEC = 12 * 60 * 60;
@@ -211,6 +213,7 @@ export const L2_EPIC_RAID_BOSSES: RaidBoss[] = [
     aiProfileId: "rb_floran_ai",
     zoneId: "l2dop_schuttgart_11",
   },
+  ...XML_GRAND_RAID_BOSS_EPICS,
 ];
 
 const EPIC_BY_ZONE = new Map<string, RaidBoss[]>();
