@@ -60,6 +60,7 @@ import {
   type PatrolTickCtx,
   type PatrolAggroBanner,
 } from "./location/locationPatrolAggro";
+import { L2_LOCATION_FRAME, L2_LOCATION_MOB_CARD } from "./location/locationL2ClassNames";
 
 type Navigate = (path: string) => void;
 
@@ -69,10 +70,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Frame =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
-  const l2MobCard =
-    "w-full rounded-md mb-1.5 border border-[#5c4a32]/75 bg-gradient-to-b from-[#2e2619] to-[#14110c] shadow-[inset_0_1px_0_rgba(199,173,128,0.1),0_4px_12px_rgba(0,0,0,0.45)] hover:border-[#c7ad80]/45 hover:brightness-[1.04] active:scale-[0.995] transition-[border-color,transform,filter] duration-150 px-2 py-1.5 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#c7ad80]/40";
+  const l2Frame = L2_LOCATION_FRAME;
+  const l2MobCard = L2_LOCATION_MOB_CARD;
 
   // Підтримуємо і ?id=, і ?zone= на всяк випадок
   const zoneId = q.get("id") || q.get("zone") || "";

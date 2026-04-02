@@ -38,6 +38,7 @@ import {
   formatTimeLeft,
 } from "./market/marketHelpers";
 import { applyMarketCharacterPatch } from "./market/applyMarketCharacterPatch";
+import { L2_WARM_OUTER_FRAME } from "./location/locationL2ClassNames";
 
 interface MarketProps {
   navigate: (path: string) => void;
@@ -52,8 +53,7 @@ export default function Market({ navigate }: MarketProps) {
   const cid = characterId || hero?.id || "";
 
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const l2Outer =
-    "rounded-xl overflow-hidden border border-[#c7ad80]/35 shadow-[0_0_0_1px_rgba(0,0,0,0.85),0_16px_48px_rgba(0,0,0,0.65)] bg-[radial-gradient(ellipse_100%_50%_at_50%_-8%,rgba(120,90,45,0.28)_0%,transparent_50%),linear-gradient(180deg,#1c1812_0%,#0c0a08_100%)]";
+  const l2Outer = L2_WARM_OUTER_FRAME;
 
   const [tab, setTab] = useState<Tab>("browse");
   const [listings, setListings] = useState<MarketListingDTO[]>([]);
