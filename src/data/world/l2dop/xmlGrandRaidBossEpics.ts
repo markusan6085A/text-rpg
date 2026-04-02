@@ -177,7 +177,7 @@ export const XML_GRAND_RAID_BOSS_EPICS: RaidBoss[] = [
     id: "rb_epic_l2_andreas_van_halter",
     name: "Raid Boss: Andreas Van Halter",
     lore:
-      "Андреас фон Гальтер (Seer of Pagan), npc 29062 — верховний ворог фанатиків Пагана в класичному L2; дроп з XML збережено.",
+      "Андреас фон Гальтер (Seer of Pagan) — верховний ворог фанатиків Пагана в класичному світі Lineage II.",
     level: 87,
     hp: 1080000,
     mp: 0,
@@ -202,7 +202,7 @@ export const XML_GRAND_RAID_BOSS_EPICS: RaidBoss[] = [
     id: "rb_epic_l2_sailren",
     name: "Grand Boss: Sailren",
     lore:
-      "Сайлрен (Sealed Evil Power), npc 29065 — гранд-бос класичного L2: розкрита зла сила в храмі Ельморедена. Тип GrandBoss у XML, у проєкті — в одному ряду з іншими епіками l2dop.",
+      "Сайлрен (Sealed Evil Power) — гранд-бос класичного L2: розкрита зла сила в храмі Ельморедена.",
     level: 87,
     hp: 1020000,
     mp: 0,

@@ -20,6 +20,13 @@ import { isUnauthorizedError } from "../utils/isUnauthorizedError";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { adminOwnWriteTextStyle, isAdminCharacter } from "../config/admin";
 
+/** Reserved on server; вітання для першого персонажа на акаунті. */
+const WELCOME_NEW_PLAYER_SUBJECT = "[WELCOME_NEW_PLAYER]";
+
+function isWelcomeNewPlayerLetter(letter: { subject?: string }) {
+  return letter?.subject === WELCOME_NEW_PLAYER_SUBJECT;
+}
+
 interface MailProps {
   navigate: (path: string) => void;
 }
@@ -529,6 +536,27 @@ export default function Mail({ navigate }: MailProps) {
                         }
                       })()}
                     </div>
+                  ) : isWelcomeNewPlayerLetter(letter) ? (
+                    <div
+                      className={
+                        isL2
+                          ? "mt-2 rounded-lg border border-[#3d5a80]/75 bg-[#0f1c2e]/85 px-2.5 py-2.5 text-[10px] leading-relaxed text-[#b8d4f8] shadow-[inset_0_1px_0_rgba(100,149,237,0.1)]"
+                          : "mt-2 rounded-lg border border-sky-500/45 bg-sky-950/45 px-2.5 py-2.5 text-[10px] leading-relaxed text-sky-100"
+                      }
+                    >
+                      <div className="whitespace-pre-wrap">{letter.message}</div>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/help")}
+                        className={
+                          isL2
+                            ? "mt-2 block text-left text-[10px] font-semibold text-[#8eb8f0] underline underline-offset-2 hover:text-[#cfe4ff]"
+                            : "mt-2 block text-left text-[10px] font-semibold text-sky-300 underline underline-offset-2 hover:text-white"
+                        }
+                      >
+                        Відкрити Помічник
+                      </button>
+                    </div>
                   ) : (
                     <div
                       className={isOwn && isAdminCharacter(hero?.name) ? "text-[10px]" : "text-white text-[10px]"}
@@ -659,6 +687,8 @@ export default function Mail({ navigate }: MailProps) {
                 } catch {
                   preview = "📦 предмет";
                 }
+              } else if (isWelcomeNewPlayerLetter(lastMsg)) {
+                preview = "Вітальний лист від Existence";
               } else {
                 const raw = (lastMsg?.message || lastMsg?.subject || "").trim();
                 preview = raw.length > 60 ? raw.slice(0, 57) + "..." : raw;

@@ -11,6 +11,7 @@ import {
   getClientIp,
 } from "../../../playerActivityLog";
 import { mergeHeroJsonForClientPut } from "../../../utils/tvtHeroJsonMerge";
+import { trySendWelcomeLetterForNewAccount } from "../../../welcomeNewPlayerLetter";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
@@ -36,6 +37,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (!sex) return reply.code(400).send({ error: "sex required" });
 
     try {
+      const existingCount = await prisma.character.count({
+        where: { accountId: auth.accountId },
+      });
+
       const created = await prisma.character.create({
         data: {
           accountId: auth.accountId,
@@ -86,6 +91,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         app.log.info(`News added for new player: ${created.name} (${created.id})`);
       } catch (newsError) {
         app.log.error(newsError, `Failed to add news for new player: ${created.name}`);
+      }
+
+      if (existingCount === 0) {
+        await trySendWelcomeLetterForNewAccount({
+          newCharacterId: created.id,
+          log: app.log,
+        });
       }
 
       return { ok: true, character: serialized };

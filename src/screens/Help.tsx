@@ -78,7 +78,9 @@ export default function Help({ navigate }: HelpProps) {
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className={isL2 ? "text-lg font-bold text-[#e8c56e]" : "text-lg font-bold text-[#ffe9c0]"}>Помощь</div>
-            <div className={isL2 ? "text-xs text-[#a89878]" : "text-xs text-orange-400/90"}>Обучалка для новых игроков</div>
+            <div className={isL2 ? "text-xs text-[#a89878]" : "text-xs text-orange-400/90"}>
+              Підказки для новачків (українською та російською в попередніх розділах)
+            </div>
           </div>
           <button
             onClick={() => navigate("/about")}
@@ -94,7 +96,25 @@ export default function Help({ navigate }: HelpProps) {
         <div className={isL2 ? "w-full h-px bg-[#5c4a32]/45 mb-3" : "w-full h-px bg-gray-600 mb-3"} />
 
         <div className="space-y-0 max-h-[65vh] overflow-y-auto pb-20">
-          <Section title="Как перемещаться" defaultOpen={true}>
+          <Section title="Гра в розробці — з чого почати (UK)" defaultOpen={true}>
+            <p>
+              Проєкт у стадії <strong>активної розробки</strong>: додається контент, інколи змінюється баланс або зʼявляються тимчасові технічні роботи.
+              Якщо щось здається зламаним — спробуй оновити сторінку (F5) або зайти пізніше.
+            </p>
+            <p>
+              <strong>Швидкий старт:</strong> зайди в <LinkBtn onClick={() => navigate("/city")}>місто</LinkBtn> → відкрий{" "}
+              <LinkBtn onClick={() => navigate("/gk")}>телепорт (GK)</LinkBtn>, обери зону з мобами → на екрані локації натисни моба, щоб почати бій. Досвід, дроп і прогрес зберігаються <strong>онлайн на сервері</strong>.
+            </p>
+            <p>
+              Тут зібрані детальні розділи: здоровʼя та мана, рівні, гільдія скилів, інвентар, ринок, валюти, клани тощо. Новим гравцям варто заглянути в{" "}
+              <LinkBtn onClick={() => navigate("/about")}>меню «Про гру»</LinkBtn> і пройтись списком нижче.
+            </p>
+            <p className={isL2 ? "text-[#a89878]" : "text-gray-400"}>
+              Якщо ти щойно отримав вітального листа від Existence — це нормально: його надсилає система при створенні першого персонажа на акаунті.
+            </p>
+          </Section>
+
+          <Section title="Как перемещаться" defaultOpen={false}>
             <p>
               <strong>Город</strong> — главный хаб: магазины, гильдия скиллов, склад, рынок, квесты.{" "}
               <LinkBtn onClick={() => navigate("/city")}>→ В город</LinkBtn>

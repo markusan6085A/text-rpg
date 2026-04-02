@@ -159,7 +159,8 @@ export async function letterRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "message is required" });
     }
 
-    if (body.subject === "[ITEM_TRANSFER]") {
+    const subj = (body.subject ?? "").trim();
+    if (subj === "[ITEM_TRANSFER]" || subj === "[WELCOME_NEW_PLAYER]") {
       return reply.code(400).send({ error: "Reserved subject" });
     }
 
