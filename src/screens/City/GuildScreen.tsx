@@ -796,11 +796,6 @@ export default function GuildScreen({
                             )}
                           </div>
                         ) : null}
-                        {spellReq && spellbookTurnedIn ? (
-                          <div className={isL2 ? "text-[11px] text-[#7d9b7a]" : "text-[11px] text-green-600/90"}>
-                            ✓ Книга гильдии принята. Можно учить уровень за SP.
-                          </div>
-                        ) : null}
                         {canLearn ? (
                           <button
                             type="button"
