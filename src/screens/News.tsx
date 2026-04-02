@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getNews, type NewsItem } from "../utils/api";
 import { formatGameClockHHMM } from "../utils/gameClock";
 import { getGameTimeTag } from "../utils/news";
-import { itemsDB } from "../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { getNickColorStyle } from "../utils/nickColor";
 import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
 import { PlayerNameWithEmblem } from "../components/PlayerNameWithEmblem";
@@ -42,6 +42,185 @@ interface RaidBossDropModalProps {
   navigate: (path: string) => void;
 }
 
+/** Підписи характеристик для перегляду дропу РБ (усі поля з itemsDB.stats). */
+const RB_ITEM_STAT_LABELS: Record<string, string> = {
+  pAtk: "Фіз. атака",
+  mAtk: "Маг. атака",
+  pDef: "Фіз. захист",
+  mDef: "Маг. захист",
+  rCrit: "Крит",
+  pAtkSpd: "Швидкість атаки",
+  castSpeed: "Швидкість каста",
+  maxHp: "Max HP",
+  maxMp: "Max MP",
+  maxCp: "Max CP",
+  maxHpPercent: "Max HP %",
+  maxMpPercent: "Max MP %",
+  pDefPercent: "Фіз. захист %",
+  mDefPercent: "Маг. захист %",
+  pAtkPercent: "Фіз. урон %",
+  mAtkPercent: "Маг. урон %",
+  STR: "STR",
+  DEX: "DEX",
+  CON: "CON",
+  INT: "INT",
+  WIT: "WIT",
+  MEN: "MEN",
+  accuracy: "Точність",
+  evasion: "Ухилення",
+  critPower: "Сила криту",
+  attackSpeed: "Швидкість бою",
+  poisonResist: "Стійк. до отрути",
+  holdResist: "Стійк. до утримання",
+  bleedResist: "Стійк. до кровотечі",
+  sleepResist: "Стійк. до сну",
+  poisonResistPercent: "Стійк. до отрути %",
+  holdResistPercent: "Стійк. до утрим. %",
+  poisonChanceBonus: "Шанс отрути",
+  holdChanceBonus: "Шанс утримання",
+  bleedChanceBonus: "Шанс кровотечі",
+  mpSkillCostReduction: "MP навичок −%",
+  healReceivedBonus: "Отримане зцілення +%",
+};
+
+const RB_STAT_KEY_ORDER: string[] = [
+  "pAtk",
+  "mAtk",
+  "pDef",
+  "mDef",
+  "rCrit",
+  "pAtkSpd",
+  "castSpeed",
+  "maxHp",
+  "maxMp",
+  "maxCp",
+  "maxHpPercent",
+  "maxMpPercent",
+  "pDefPercent",
+  "mDefPercent",
+  "pAtkPercent",
+  "mAtkPercent",
+  "STR",
+  "DEX",
+  "CON",
+  "INT",
+  "WIT",
+  "MEN",
+  "accuracy",
+  "evasion",
+  "critPower",
+  "attackSpeed",
+  "poisonResist",
+  "holdResist",
+  "bleedResist",
+  "sleepResist",
+  "poisonResistPercent",
+  "holdResistPercent",
+  "poisonChanceBonus",
+  "holdChanceBonus",
+  "bleedChanceBonus",
+  "mpSkillCostReduction",
+  "healReceivedBonus",
+];
+
+function formatRbStatKey(key: string): string {
+  if (RB_ITEM_STAT_LABELS[key]) return RB_ITEM_STAT_LABELS[key];
+  return key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
+}
+
+function RaidBossItemDetailBody({
+  itemId,
+  displayName,
+  dropCount,
+  isL2,
+}: {
+  itemId: string;
+  displayName: string;
+  dropCount: number;
+  isL2: boolean;
+}) {
+  const def = itemsDB[itemId] || itemsDBWithStarter[itemId];
+  const iconPath = def?.icon
+    ? def.icon.startsWith("/")
+      ? def.icon
+      : `/items/${def.icon}`
+    : "/items/default_item.png";
+  const stats = def?.stats && typeof def.stats === "object" ? (def.stats as Record<string, unknown>) : null;
+  const statKeys = stats
+    ? Object.keys(stats).filter((k) => {
+        const v = stats[k];
+        return typeof v === "number" && Number.isFinite(v);
+      })
+    : [];
+  const orderedKeys = [
+    ...RB_STAT_KEY_ORDER.filter((k) => statKeys.includes(k)),
+    ...statKeys.filter((k) => !RB_STAT_KEY_ORDER.includes(k)).sort(),
+  ];
+  const boxCls = isL2
+    ? "rounded-lg border border-[#5c4a32]/50 bg-black/35 px-2 py-2 text-[12px]"
+    : "rounded-lg border border-white/30 bg-black/35 px-2 py-2 text-[12px]";
+
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-3">
+        <img
+          src={iconPath}
+          alt={displayName}
+          className={`w-14 h-14 object-contain border bg-black/40 ${isL2 ? "border-[#5c4a32]/60" : "border-white/40"}`}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/items/default_item.png";
+          }}
+        />
+        <div className="min-w-0 flex-1">
+          <div className={`font-semibold ${isL2 ? "text-[#e8c56e]" : "text-amber-100"}`}>
+            {def?.name ?? displayName}
+            {def?.grade ? ` [${def.grade}]` : ""}
+          </div>
+          <div className="text-gray-400 text-[11px] mt-0.5">
+            У дропі: <span className="text-green-400 tabular-nums">×{dropCount}</span>
+          </div>
+          {def?.slot ? (
+            <div className="text-[11px] text-[#8a7a60] mt-0.5">
+              Слот: {def.slot} {def.kind ? `· ${def.kind}` : ""}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {!def ? (
+        <p className="text-gray-500 text-[12px] mb-2">
+          Немає повної картки в базі предметів (id: <span className="font-mono">{itemId}</span>).
+        </p>
+      ) : null}
+
+      {orderedKeys.length > 0 ? (
+        <div className={boxCls}>
+          <div className={`text-[11px] font-semibold mb-1.5 ${isL2 ? "text-[#c9a44c]" : "text-amber-200/90"}`}>
+            Характеристики
+          </div>
+          <div className="space-y-1 max-h-[40vh] overflow-y-auto pr-1">
+            {orderedKeys.map((k) => (
+              <div key={k} className="flex justify-between gap-2 text-[#e8dcc8]">
+                <span className="text-[#8a7a60] shrink-0">{formatRbStatKey(k)}</span>
+                <span className="text-cyan-200/95 tabular-nums text-right">{String(stats![k])}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : def ? (
+        <p className="text-gray-500 text-[12px]">У цієї речі немає числових характеристик у базі.</p>
+      ) : null}
+
+      {def?.description ? (
+        <div className={`mt-3 pt-2 border-t ${isL2 ? "border-[#5c4a32]/45" : "border-white/30"}`}>
+          <div className={`text-[11px] font-semibold mb-1 ${isL2 ? "text-[#e0c68a]" : "text-amber-100/90"}`}>Опис</div>
+          <p className="text-[11px] text-gray-400 leading-snug italic">{def.description}</p>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 function RaidBossDropModal({
   bossName,
   bossLevel,
@@ -55,6 +234,7 @@ function RaidBossDropModal({
 }: RaidBossDropModalProps) {
   const hero = useHeroStore((s) => s.hero);
   const isL2 = isWarmCityUi(getCityUiVariant());
+  const [itemDetail, setItemDetail] = useState<{ id: string; name: string; count: number } | null>(null);
   const modalPanel = isL2
     ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
     : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto";
@@ -75,7 +255,13 @@ function RaidBossDropModal({
         className={modalPanel}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="text-lg font-semibold text-[#b8860b] mb-2">{bossName}{bossLevel ? ` - ${bossLevel} ур.` : ""}</div>
+        <div
+          className="text-lg font-semibold mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+          style={{ color: "#8B0000" }}
+        >
+          {bossName}
+          {bossLevel ? ` - ${bossLevel} ур.` : ""}
+        </div>
         {killerName && (
           <div className="text-sm text-gray-300 mb-2">
             Убив:{" "}
@@ -116,25 +302,47 @@ function RaidBossDropModal({
               )}
               {hasItems &&
                 actualDrops!.map((drop, idx) => {
-                  const itemDef = itemsDB[drop.id];
+                  const itemDef = itemsDB[drop.id] || itemsDBWithStarter[drop.id];
                   const iconPath = itemDef?.icon
                     ? itemDef.icon.startsWith("/")
                       ? itemDef.icon
                       : `/items/${itemDef.icon}`
                     : "/items/default_item.png";
                   const itemName = drop.name || itemDef?.name || drop.id;
+                  const linkCls = isL2
+                    ? "text-[#c9a44c] cursor-pointer hover:underline hover:text-[#e8d4a8] transition-colors text-left flex-1 font-medium"
+                    : "text-sky-300 cursor-pointer hover:underline hover:text-sky-200 transition-colors text-left flex-1 font-medium";
                   return (
                     <div key={`${drop.id}-${idx}`} className="flex items-center gap-2 p-1 rounded">
-                      <img
-                        src={iconPath}
-                        alt={itemName}
-                        className={`w-5 h-5 object-contain border bg-black/40 ${isL2 ? "border-[#5c4a32]/60" : "border-white/40"}`}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
+                      <button
+                        type="button"
+                        className="p-0 border-0 bg-transparent cursor-pointer shrink-0 rounded"
+                        title="Характеристики"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setItemDetail({ id: drop.id, name: itemName, count: drop.count });
                         }}
-                      />
-                      <span className="text-gray-400 flex-1 hover:text-[#b8860b] transition-colors">{itemName}:</span>
-                      <span className="text-green-400 tabular-nums">×{drop.count}</span>
+                      >
+                        <img
+                          src={iconPath}
+                          alt={itemName}
+                          className={`w-5 h-5 object-contain border bg-black/40 ${isL2 ? "border-[#5c4a32]/60" : "border-white/40"} hover:opacity-90`}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        className={linkCls}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setItemDetail({ id: drop.id, name: itemName, count: drop.count });
+                        }}
+                      >
+                        {itemName}
+                      </button>
+                      <span className="text-green-400 tabular-nums shrink-0">×{drop.count}</span>
                     </div>
                   );
                 })}
@@ -163,6 +371,42 @@ function RaidBossDropModal({
           </button>
         </div>
       </div>
+
+      {itemDetail ? (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-3"
+          onClick={() => setItemDetail(null)}
+          role="presentation"
+        >
+          <div
+            className={
+              isL2
+                ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+                : "bg-[#14110c] border border-white/40 rounded-lg p-4 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            }
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={`text-center text-sm font-semibold mb-3 ${isL2 ? "text-[#e8c56e]" : "text-amber-100"}`}>
+              Предмет
+            </div>
+            <RaidBossItemDetailBody
+              itemId={itemDetail.id}
+              displayName={itemDetail.name}
+              dropCount={itemDetail.count}
+              isL2={isL2}
+            />
+            <div className={`flex justify-center mt-4 pt-3 border-t ${borderSep}`}>
+              <button
+                type="button"
+                className="px-4 py-2 bg-[#3a3530] text-[#e8dcc8] rounded border border-[#5c4a32]/70 hover:bg-[#4a4338] transition-colors text-sm"
+                onClick={() => setItemDetail(null)}
+              >
+                Назад
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
