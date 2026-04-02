@@ -555,8 +555,9 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             }}
           />{" "}
           убив{" "}
-          <span 
-            className="text-yellow-300 cursor-pointer hover:opacity-80 transition-colors"
+          <span
+            className="cursor-pointer hover:opacity-90 transition-colors font-medium [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+            style={{ color: "#8B0000" }}
             onClick={(e) => {
               e.stopPropagation();
               setSelectedBossDrop({
@@ -571,8 +572,8 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
             }}
           >
             {bossName}
+            {bossLevel ? ` ${bossLevel} ур.` : ""}
           </span>
-          {bossLevel ? ` ${bossLevel} ур.` : ""}
         </>
       );
     } else if (item.type === "return_to_world") {
