@@ -2,6 +2,7 @@
  * Таблиці дропу для рейд-босів l2dop / сателітних міст.
  * У кожного індексу РБ свій зміщений набір (зброя/броня), свитки blessed — єдині рядки з min/max 1–3.
  * Маг-роби: Knowledge/Demons/Karmian (C), Avadon/Doom (B), Majestic (A); чергуються з важкими сетами по rbIndex.
+ * Ресурси (ранні РБ, рівень боса <20): кожен рядок — шанс 21–34%, кількість випадкова 14–26.
  */
 import type { DropEntry } from "../../combat/types";
 
@@ -29,8 +30,9 @@ function wRotate(pool: readonly string[], rbIndex: number, count: number, stride
   return out;
 }
 
-/** Ресурси тиру 1 (як l2dop tiered T1) для РБ рівня <20: кожен рядок — окремий roll, при успіху рівно 5 шт. */
-const LOW_RB_RESOURCE_QTY = 5;
+/** Ресурси тиру 1 для РБ рівня <20: шанс рядка 0.21…0.34 (крок 1%), qty roll 14–26. */
+const LOW_RB_RESOURCE_MIN = 14;
+const LOW_RB_RESOURCE_MAX = 26;
 const LOW_RB_RESOURCE_IDS = [
   "stem",
   "varnish",
@@ -45,9 +47,10 @@ const LOW_RB_RESOURCE_IDS = [
 ] as const;
 
 function lowLevelRbResources(rbIndex: number): DropEntry[] {
-  return LOW_RB_RESOURCE_IDS.map((id, i) =>
-    eq(id, "resource", 0.13 + ((i + rbIndex * 5) % 8) * 0.01, LOW_RB_RESOURCE_QTY, LOW_RB_RESOURCE_QTY)
-  );
+  return LOW_RB_RESOURCE_IDS.map((id, i) => {
+    const chance = 0.21 + (((i + rbIndex * 5) % 14) * 0.01);
+    return eq(id, "resource", chance, LOW_RB_RESOURCE_MIN, LOW_RB_RESOURCE_MAX);
+  });
 }
 
 /* ==================== Gludio ==================== */

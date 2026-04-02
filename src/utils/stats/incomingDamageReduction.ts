@@ -1,6 +1,8 @@
 /**
- * Відсоткове зменшення вхідного урону (екіпірування / пасивні поля battleStats).
- * Кап 90%, щоб ніколи не «знищувати» шкоду до нуля через множник alone.
+ * Відсоткове зменшення вхідного урону (поле `damageTakenReduction` з екіпу → `battleStats`).
+ * Застосування в проєкті: `processMobAttack` (удар РБ/мабів, агро-моби), патруль `locationPatrolAggro`,
+ * тик кровотечі від мобів у `regenTick`. Не застосовується до добровільних витрат HP (toggle skills).
+ * Кап 90%.
  */
 export function applyPercentDamageTakenReduction(
   damage: number,

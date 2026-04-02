@@ -2,6 +2,7 @@ import { useHeroStore } from "../../heroStore";
 import { isHeroDead } from "../../heroStore/isHeroDead";
 import { getHeroRegenPerSecond } from "../../heroStore/heroRegen";
 import {
+  applyBuffsToStats,
   cleanupBuffs,
   computeBuffedMaxResources,
   persistSnapshot,
@@ -14,6 +15,7 @@ import { processMobBleedTicks } from "./aggressiveMobSkills";
 import { processToggleTicks } from "./toggleTicks";
 import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonBuffs";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
+import { applyPercentDamageTakenReduction } from "../../../utils/stats/incomingDamageReduction";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -85,7 +87,13 @@ export const createRegenTick =
     const curMP = Math.min(maxMp, heroAfterTicks.mp ?? maxMp);
     const curCP = Math.min(maxCp, heroAfterTicks.cp ?? maxCp);
 
-    const hpAfterBleed = Math.max(0, curHP - bleedResult.hpLoss);
+    const buffedForDr = applyBuffsToStats(heroAfterTicks.battleStats || {}, mergedHeroBuffs);
+    const bleedLossAfterDr = applyPercentDamageTakenReduction(
+      bleedResult.hpLoss,
+      buffedForDr.damageTakenReduction
+    );
+
+    const hpAfterBleed = Math.max(0, curHP - bleedLossAfterDr);
 
     // Завжди використовуємо АКТУАЛЬНЕ maxHp з computeBuffedMaxResources (з урахуванням бафів)
     const nextHP = Math.min(maxHp, hpAfterBleed + hpRegen);
