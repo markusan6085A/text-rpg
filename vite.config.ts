@@ -26,6 +26,10 @@ export default defineConfig(({ mode }) => ({
           // Do NOT split `state/battle` or `screens/Battle` into a separate chunk.
           // App.tsx imports Battle before useHeroStore; a `battle` chunk that imports heroStore causes Rollup
           // to execute modules in an order where live bindings hit the TDZ ("Cannot access … before initialization").
+          //
+          // MYSTIC_SPELLBOOK_TIERS is consumed by itemsDB_spellbooks (data-items). If it lands in the admin
+          // chunk (admin UI imports spellbook helpers), Rollup can emit data-items ↔ admin mutual imports → TDZ / black screen.
+          if (id.includes('mysticSpellbookTiers.ts')) return 'data-items'
           if (id.includes('/screens/admin/') || id.includes('AdminDashboard') || id.includes('AdminLogin') || id.includes('AdminItemPicker') || id.includes('PlayerAdminActions')) return 'admin'
           if (id.includes('/data/skills/')) return 'data-skills'
           if (id.includes('/data/items/')) return 'data-items'
