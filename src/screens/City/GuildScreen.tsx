@@ -86,6 +86,7 @@ export default function GuildScreen({
   const [turnInBusyId, setTurnInBusyId] = useState<number | null>(null);
 
   const learnOpts = spellbookMode ? { mageGuildSpellbooks: true as const } : undefined;
+  const updateHero = useHeroStore((s) => s.updateHero);
 
   const handleTurnInSpellbook = async (skillId: number) => {
     if (!characterId) {
@@ -94,7 +95,19 @@ export default function GuildScreen({
     }
     setTurnInBusyId(skillId);
     try {
-      await postMageSpellbookTurnIn(characterId, { skillId });
+      const res = await postMageSpellbookTurnIn(characterId, { skillId });
+      const gk = res.guildKey;
+      if (gk) {
+        const h = useHeroStore.getState().hero;
+        if (h) {
+          const hj: any = { ...(h as any).heroJson };
+          const prev =
+            hj.spellbookGuild && typeof hj.spellbookGuild === "object" && !Array.isArray(hj.spellbookGuild)
+              ? hj.spellbookGuild
+              : {};
+          updateHero({ ...h, heroJson: { ...hj, spellbookGuild: { ...prev, [gk]: true } } } as any);
+        }
+      }
       await loadHeroFromAPI();
       showToast("Книга сдана гильдии. Теперь можно выучить уровень за SP.", "success");
     } catch {
@@ -161,7 +174,6 @@ export default function GuildScreen({
       }
     }
   };
-  const updateHero = useHeroStore((s) => s.updateHero);
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
   const skillCardL2 =

@@ -48,6 +48,24 @@ function normalizeExpToLevelProgress(rawExp: unknown, levelRaw: unknown): number
   return Math.max(0, Math.min(exp, Math.max(0, need - 1)));
 }
 
+/**
+ * Після POST mage-spellbook/turn-in сервер пише heroJson.spellbookGuild; у гілці «local preferred»
+ * ми збираємо heroJson з локального snapshot — без цього мерджу UI далі показує «здайте книгу».
+ */
+function mergeSpellbookGuildFromServer(
+  localHeroJson: any,
+  serverHeroJson: Record<string, unknown> | null | undefined
+): Record<string, boolean> | undefined {
+  const l = localHeroJson?.spellbookGuild;
+  const s = serverHeroJson?.spellbookGuild;
+  const isObj = (x: unknown): x is Record<string, boolean> =>
+    Boolean(x) && typeof x === "object" && !Array.isArray(x);
+  if (isObj(l) && isObj(s)) return { ...l, ...s };
+  if (isObj(s)) return { ...s };
+  if (isObj(l)) return { ...l };
+  return undefined;
+}
+
 /** Рівень для merge: вищий з колонки БД та heroJson (узгоджено з гілкою heroJson нижче). */
 function resolveFinalLevelFromServer(character: any, heroData: any): number {
   const colLvl = Math.max(1, Number(character.level ?? 1) || 1);
@@ -410,12 +428,15 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         };
         const serverHeroJson = character.heroJson as Record<string, unknown> | null | undefined;
         const serverSeven = serverHeroJson?.sevenSealsBonus;
+        const prevMergedHj = (mergedHero as any).heroJson || {};
+        const mergedSpellbookGuild = mergeSpellbookGuildFromServer(prevMergedHj, serverHeroJson);
         (mergedHero as any).heroJson = {
-          ...((mergedHero as any).heroJson || {}),
+          ...prevMergedHj,
           ...(serverSeven && typeof serverSeven === "object"
             ? { sevenSealsBonus: serverSeven }
             : {}),
           ...(Number.isFinite(serverAdminAt) && serverAdminAt > 0 ? { adminLevelSetAt: serverAdminAt } : {}),
+          ...(mergedSpellbookGuild ? { spellbookGuild: mergedSpellbookGuild } : {}),
           adena: finalAdenaPreferred,
           inventory: consolidatedInv,
           overflowChest: mergedOverflowPreferred,
