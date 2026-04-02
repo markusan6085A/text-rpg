@@ -11,6 +11,12 @@ import {
   getClientIp,
 } from "../../../playerActivityLog";
 import { mergeHeroJsonForClientPut } from "../../../utils/tvtHeroJsonMerge";
+import {
+  heroLooksMystic,
+  mysticSpellbookGuildKey,
+  MYSTIC_SPELLBOOK_TURNIN,
+  removeOneStackFromInventory,
+} from "../../../mysticSpellbookServer";
 import { trySendWelcomeLetterForNewAccount } from "../../../welcomeNewPlayerLetter";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
@@ -711,4 +717,117 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     return { ok: true, character: serialized };
   });
+
+  // POST /characters/:id/mage-spellbook/turn-in — здати книгу гільдії магів (знімає предмет з інвентаря, виставляє heroJson.spellbookGuild)
+  app.post(
+    "/characters/:id/mage-spellbook/turn-in",
+    {
+      preHandler: async (req, reply) => {
+        await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+      },
+    },
+    async (req, reply) => {
+      const auth = getAuth(req);
+      if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+      const params = req.params as { id?: string };
+      const id = params.id;
+      if (!id) return reply.code(400).send({ error: "character id required" });
+
+      const body = req.body as { skillId?: unknown };
+      const skillId = Number(body.skillId);
+      if (!Number.isInteger(skillId) || skillId <= 0) {
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const spec = MYSTIC_SPELLBOOK_TURNIN[skillId];
+      if (!spec) return reply.code(400).send({ error: "invalid input" });
+
+      const existing = await prisma.character.findFirst({
+        where: { id, accountId: auth.accountId },
+      });
+      if (!existing) return reply.code(404).send({ error: "character not found" });
+
+      const oldHeroJson = (existing.heroJson as any) || {};
+      if (!heroLooksMystic(oldHeroJson)) {
+        return reply.code(403).send({ error: "forbidden" });
+      }
+
+      const skills = Array.isArray(oldHeroJson.skills) ? oldHeroJson.skills : [];
+      const row = skills.find((s: any) => Number(s?.id) === skillId);
+      const cur = row ? Number(row.level) || 0 : 0;
+      if (cur !== 0) return reply.code(400).send({ error: "invalid input" });
+
+      const guildKey = mysticSpellbookGuildKey(skillId, spec.targetLevel);
+      const prevGuild = oldHeroJson.spellbookGuild && typeof oldHeroJson.spellbookGuild === "object" ? oldHeroJson.spellbookGuild : {};
+      if (prevGuild[guildKey]) {
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const inventory = Array.isArray(oldHeroJson.inventory) ? [...oldHeroJson.inventory] : [];
+      let newInventory: any[];
+      try {
+        newInventory = removeOneStackFromInventory(inventory, spec.bookItemId).newInventory;
+      } catch {
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const mergedBase = {
+        name: oldHeroJson.name || existing.name,
+        race: oldHeroJson.race || existing.race,
+        classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+        klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+        level: oldHeroJson.level ?? existing.level ?? 1,
+      };
+
+      const newHeroJsonRaw = {
+        ...mergedBase,
+        ...oldHeroJson,
+        inventory: newInventory,
+        spellbookGuild: { ...prevGuild, [guildKey]: true },
+      };
+      const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
+      const validation = validateHeroJson(newHeroJson);
+      if (!validation.valid) {
+        return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
+      }
+
+      const oldRevision = oldHeroJson.heroRevision || 0;
+      const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+      const updated = await prisma.character.update({
+        where: { id },
+        data: {
+          heroJson: versionedHeroJson as any,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+      };
+
+      return reply.send({ ok: true, character: serialized, guildKey });
+    }
+  );
 }

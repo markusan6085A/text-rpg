@@ -586,7 +586,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     const hero = get().hero;
     if (!hero) return false;
 
-    const result = learnSkillLogic(hero, skillId);
+    const result = learnSkillLogic(hero, skillId, undefined);
     if (result.success && result.updatedHero) {
       get().updateHero({
         skills: result.updatedHero.skills,

@@ -18,6 +18,7 @@ import { getFloranMobDropProfile } from "../../../data/drop/floranMobDrops";
 import { MOB_LOOT_TABLES_DISABLED } from "./mobLootTablesDisabled";
 import { resourceLootDisplayName } from "../../../utils/resourceLootDisplayName";
 import { isSevenSealsFarmWindowActive } from "../../../utils/sevenSealsTime";
+import { rollMysticSpellbookDropForMobKill } from "./mysticSpellbookDrops";
 
 // Функція для видалення грейдів з назв ресурсів
 // Грейди мають бути тільки в точках (enchant scrolls) та шмотках (equipment), але не в ресурсах
@@ -619,6 +620,26 @@ export function processMobDrops(
         });
       }
     }
+  }
+
+  // Книги гільдії магів (тільки для містиків, макс. 1 за кілл, з відповідних мобів).
+  const mysticBook = rollMysticSpellbookDropForMobKill(mob, hero);
+  if (mysticBook) {
+    const it = mysticBook.item;
+    const existingSpellbook = newInventory.findIndex((x: HeroInventoryItem) => x.id === it.id);
+    if (existingSpellbook >= 0) {
+      const ex = newInventory[existingSpellbook];
+      newInventory[existingSpellbook] = {
+        ...ex,
+        count: (ex.count ?? 1) + 1,
+      };
+    } else if (!isInventoryFull) {
+      newInventory.push({ ...it, count: it.count ?? 1 });
+    } else {
+      itemsToAdd.push({ ...it, count: it.count ?? 1 });
+    }
+    dropMessages.push(mysticBook.message);
+    actualDroppedItems.push({ id: it.id, name: it.name, count: 1 });
   }
 
   let finalInventory = newInventory;

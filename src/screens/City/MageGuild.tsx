@@ -7,6 +7,7 @@ export default function MageGuild(props: { navigate: (path: string) => void }) {
       {...props}
       title="Гильдия магов — изучение и прокачка скилов"
       backLabel="В город"
+      spellbookMode
     />
   );
 }

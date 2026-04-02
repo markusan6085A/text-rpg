@@ -11,6 +11,7 @@ import { PROFESSION_CHAIN } from "../data/skills/professionChain";
 import { getLearnSkillFailureReason } from "../state/heroStore/heroSkills";
 import { ONBOARDING_GUILD_NEED_SP_KEY } from "../state/gameSettings";
 import type { Hero } from "../types/Hero";
+import { isMysticHero } from "./isMysticHero";
 
 const GUILD_PATH = "/guild";
 
@@ -79,16 +80,18 @@ function resolveChosenProfessionId(hero: unknown): ProfessionId | null {
 }
 
 function affordableLearnableSkillExists(hero: Hero, profession: ProfessionId): boolean {
+  const mysticOpts = isMysticHero(hero) ? ({ mageGuildSpellbooks: true } as const) : undefined;
   for (const sk of getSkillsForProfession(profession)) {
-    if (getLearnSkillFailureReason(hero, sk.id) === null) return true;
+    if (getLearnSkillFailureReason(hero, sk.id, mysticOpts) === null) return true;
   }
   return false;
 }
 
 function hasSkillProgressAvailable(hero: Hero, profession: ProfessionId): boolean {
+  const mysticOpts = isMysticHero(hero) ? ({ mageGuildSpellbooks: true } as const) : undefined;
   for (const sk of getSkillsForProfession(profession)) {
-    const r = getLearnSkillFailureReason(hero, sk.id);
-    if (r === null || r === "sp") return true;
+    const r = getLearnSkillFailureReason(hero, sk.id, mysticOpts);
+    if (r === null || r === "sp" || r === "spellbook") return true;
   }
   return false;
 }
@@ -132,22 +135,6 @@ function guildNeedSpFlag(): boolean {
   } catch {
     return false;
   }
-}
-
-function isMysticHero(hero: Hero): boolean {
-  const klass = String(hero.klass ?? "");
-  if (/mystic|маг/i.test(klass)) return true;
-  const p = String(hero.profession ?? "").toLowerCase();
-  return (
-    p.includes("mystic") ||
-    p.includes("_cleric") ||
-    p.includes("_wizard") ||
-    p.includes("_oracle") ||
-    p.includes("_shaman") ||
-    p.includes("_elder") ||
-    p.includes("bishop") ||
-    p.includes("prophet")
-  );
 }
 
 function pickOnboardingTutorialHint(

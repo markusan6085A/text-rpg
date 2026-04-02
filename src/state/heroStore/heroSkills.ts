@@ -1,11 +1,30 @@
 import { getSkillDef } from "../battle/loadout";
 import type { Hero } from "../../types/Hero";
+import {
+  getActiveMysticSpellbookRequirement,
+  mysticSpellbookGuildKey,
+} from "../../data/spellbooks/mysticSpellbookData";
+
+export type LearnSkillFailureReason = "sp" | "level" | "max" | "missing" | "spellbook" | null;
+
+export type LearnSkillOptions = {
+  /** У гільдії магів: перед першим вивченням скілу потрібно здати книгу (heroJson.spellbookGuild). */
+  mageGuildSpellbooks?: boolean;
+};
+
+function getSpellbookGuildRecord(hero: Hero): Record<string, boolean> {
+  const hj = (hero as any).heroJson;
+  const g = hj?.spellbookGuild;
+  if (g && typeof g === "object" && !Array.isArray(g)) return g as Record<string, boolean>;
+  return {};
+}
 
 /** Чому не вдається вивчити наступний рівень (без зміни героя). `null` — можна вчити. */
 export function getLearnSkillFailureReason(
   hero: Hero,
-  skillId: number
-): "sp" | "level" | "max" | "missing" | null {
+  skillId: number,
+  options?: LearnSkillOptions
+): LearnSkillFailureReason {
   const skillDef = getSkillDef(skillId);
   if (!skillDef) return "missing";
   const skills = Array.isArray(hero.skills) ? [...hero.skills] : [];
@@ -18,10 +37,22 @@ export function getLearnSkillFailureReason(
   if (heroLevel < levelDef.requiredLevel) return "level";
   const heroSp = hero.sp || 0;
   if (heroSp < levelDef.spCost) return "sp";
+
+  if (options?.mageGuildSpellbooks) {
+    const req = getActiveMysticSpellbookRequirement(skillId, currentLevel, levelDef.level);
+    if (req) {
+      const k = mysticSpellbookGuildKey(skillId, req.targetLevel);
+      if (!getSpellbookGuildRecord(hero)[k]) return "spellbook";
+    }
+  }
   return null;
 }
 
-export function learnSkillLogic(hero: Hero, skillId: number): { success: boolean; updatedHero?: Hero } {
+export function learnSkillLogic(
+  hero: Hero,
+  skillId: number,
+  options?: LearnSkillOptions
+): { success: boolean; updatedHero?: Hero } {
   // Отримуємо визначення скіла
   const skillDef = getSkillDef(skillId);
   if (!skillDef) {
@@ -48,6 +79,17 @@ export function learnSkillLogic(hero: Hero, skillId: number): { success: boolean
   if (heroLevel < levelDef.requiredLevel) {
     console.warn(`[learnSkill] Недостатній рівень героя: потрібно ${levelDef.requiredLevel}, має ${heroLevel}`);
     return { success: false };
+  }
+
+  if (options?.mageGuildSpellbooks) {
+    const req = getActiveMysticSpellbookRequirement(skillId, currentLevel, levelDef.level);
+    if (req) {
+      const k = mysticSpellbookGuildKey(skillId, req.targetLevel);
+      if (!getSpellbookGuildRecord(hero)[k]) {
+        console.warn(`[learnSkill] Потрібно здати книгу в гільдії магів: ${skillId}`);
+        return { success: false };
+      }
+    }
   }
 
   // Перевірка SP

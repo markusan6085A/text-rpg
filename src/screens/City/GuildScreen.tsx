@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { showToast } from "../../state/toastStore";
 import {
@@ -12,6 +12,14 @@ import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 import { PROFESSION_CHAIN } from "../../data/skills/professionChain";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { getLearnSkillFailureReason, learnSkillLogic } from "../../state/heroStore/heroSkills";
+import {
+  getActiveMysticSpellbookRequirement,
+  mysticSpellbookGuildKey,
+  type MysticSpellbookTierConfig,
+} from "../../data/spellbooks/mysticSpellbookData";
+import { postMageSpellbookTurnIn } from "../../utils/api/characters";
+import { useCharacterStore } from "../../state/characterStore";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { ONBOARDING_GUILD_NEED_SP_KEY } from "../../state/gameSettings";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import {
@@ -43,6 +51,8 @@ interface GuildScreenProps {
   selectProfessionTitle?: string;
   learnLabel?: string;
   backLabel?: string;
+  /** Гильдия магов: книги + сдача на сервере перед первым изучением. */
+  spellbookMode?: boolean;
 }
 
 type SkillRow = {
@@ -53,6 +63,10 @@ type SkillRow = {
   spCost: number;
   power: number | null;
   canLearn: boolean;
+  spellReq: MysticSpellbookTierConfig | null;
+  spellGuildKey: string;
+  spellbookTurnedIn: boolean;
+  spellbookInInventory: number;
 };
 
 const DEFAULT_TITLE = "Гильдия навыков — изучение и прокачка";
@@ -65,13 +79,36 @@ export default function GuildScreen({
   selectProfessionTitle = "Выбор профессии",
   learnLabel = "Выучить",
   backLabel = "В город",
+  spellbookMode = false,
 }: GuildScreenProps) {
   const hero = useHeroStore((s) => s.hero);
+  const characterId = useCharacterStore((s) => s.characterId);
+  const [turnInBusyId, setTurnInBusyId] = useState<number | null>(null);
+
+  const learnOpts = spellbookMode ? { mageGuildSpellbooks: true as const } : undefined;
+
+  const handleTurnInSpellbook = async (skillId: number) => {
+    if (!characterId) {
+      showToast("Нужна сессия персонажа (войдите в игру онлайн).", "error");
+      return;
+    }
+    setTurnInBusyId(skillId);
+    try {
+      await postMageSpellbookTurnIn(characterId, { skillId });
+      await loadHeroFromAPI();
+      showToast("Книга сдана гильдии. Теперь можно выучить уровень за SP.", "success");
+    } catch {
+      showToast("Не удалось сдать книгу. Проверьте, что книга в инвентаре.", "error");
+    } finally {
+      setTurnInBusyId(null);
+    }
+  };
+
   const handleLearnSkill = (skillId: number, reqLevel: number, spCost: number) => {
     try {
-      const res = learnSkillLogic(hero, skillId);
+      const res = learnSkillLogic(hero, skillId, learnOpts);
       if (!res.success) {
-        if (getLearnSkillFailureReason(hero, skillId) === "sp") {
+        if (getLearnSkillFailureReason(hero, skillId, learnOpts) === "sp") {
           try {
             sessionStorage.setItem(ONBOARDING_GUILD_NEED_SP_KEY, "1");
           } catch {
@@ -306,7 +343,19 @@ export default function GuildScreen({
         return null; // Не показуємо скіли, які ще не відкрилися
       }
       
-      const canLearn = heroLevel >= requiredLevel && heroSp >= spCost;
+      const spellReq = spellbookMode
+        ? getActiveMysticSpellbookRequirement(sk.id, currentLevel, nextLevelDef.level)
+        : null;
+      const spellGuildKey = spellReq ? mysticSpellbookGuildKey(sk.id, spellReq.targetLevel) : "";
+      const sg = (hero as any)?.heroJson?.spellbookGuild;
+      const spellbookTurnedIn = !!(spellReq && sg && typeof sg === "object" && sg[spellGuildKey]);
+      const inv = hero.inventory || [];
+      const spellbookInInventory = spellReq
+        ? inv.reduce((n, it: any) => n + (it?.id === spellReq.bookItemId ? Number(it.count) || 1 : 0), 0)
+        : 0;
+
+      const canLearn =
+        heroLevel >= requiredLevel && heroSp >= spCost && (!spellReq || spellbookTurnedIn);
 
       // Перевіряємо, чи потрібно приховати цей рівень скіла
       const nextProfs = PROFESSION_CHAIN[chosenProfession] || [];
@@ -348,6 +397,10 @@ export default function GuildScreen({
         spCost,
         power: nextLevelDef.power ?? null,
         canLearn,
+        spellReq,
+        spellGuildKey,
+        spellbookTurnedIn,
+        spellbookInInventory,
       };
     })
     .filter(Boolean) as SkillRow[];
@@ -560,7 +613,19 @@ export default function GuildScreen({
           )}
 
           <div className="space-y-2">
-            {available.map(({ skill, currentLevel, nextLevel, requiredLevel, spCost, power, canLearn }) => {
+            {available.map(
+              ({
+                skill,
+                currentLevel,
+                nextLevel,
+                requiredLevel,
+                spCost,
+                power,
+                canLearn,
+                spellReq,
+                spellbookTurnedIn,
+                spellbookInInventory,
+              }) => {
               const normalizeDescription = (text?: string) => {
                 const raw = (text || "").replace(/[^A-Za-z0-9А-Яа-яЁё:,.*_+\- ]+/g, " ");
                 const cleaned = raw.replace(/\s+/g, " ").trim();
@@ -645,10 +710,59 @@ export default function GuildScreen({
                       <div
                         className={
                           isL2
-                            ? "pt-1 border-t border-[#5c4a32]/30 mt-1.5"
-                            : "pt-1 border-t border-white/10 mt-1.5"
+                            ? "pt-1 border-t border-[#5c4a32]/30 mt-1.5 space-y-1.5"
+                            : "pt-1 border-t border-white/10 mt-1.5 space-y-1.5"
                         }
                       >
+                        {spellReq && !spellbookTurnedIn ? (
+                          <div
+                            className={
+                              isL2
+                                ? "rounded border border-[#5c4a32]/40 bg-black/25 p-2 text-[11px] text-[#b8a890]"
+                                : "rounded border border-white/15 bg-black/20 p-2 text-[11px] text-gray-400"
+                            }
+                          >
+                            <div className={isL2 ? "text-[#e8c56e] font-semibold mb-1" : "text-amber-600/90 font-semibold mb-1"}>
+                              Задание гильдии: книга
+                            </div>
+                            <div className="flex gap-2 items-start">
+                              <img
+                                src={`/items/drops/spellbooks/l2dop-by-itemid/${spellReq.l2ItemId}.jpg`}
+                                alt=""
+                                className="w-8 h-8 rounded border border-[#5c4a32]/35 object-cover shrink-0"
+                              />
+                              <div className="space-y-1">
+                                <div>{spellReq.bookName}</div>
+                                <div className="opacity-90">Шанс дропа с подходящих мобов — ~{Math.round(spellReq.dropChance * 100)}% за убийство (макс. 1 книга за раз).</div>
+                                <div className="text-[10px] leading-snug">{spellReq.huntHintRu}</div>
+                                <div className="text-[10px] opacity-80">Ключевые типы мобов: {spellReq.mobPatterns.join(", ")}</div>
+                              </div>
+                            </div>
+                            {spellbookInInventory > 0 ? (
+                              <button
+                                type="button"
+                                disabled={turnInBusyId === skill.id}
+                                onClick={() => handleTurnInSpellbook(skill.id)}
+                                className={
+                                  isL2
+                                    ? "mt-2 w-full text-[11px] py-1.5 rounded-md border border-[#7d9b7a]/50 bg-gradient-to-b from-[#2a2419] to-[#14110c] text-[#c9ecc4] hover:border-[#c7ad80]/45 disabled:opacity-50"
+                                    : "mt-2 w-full text-[11px] py-1.5 rounded border border-green-700/40 text-green-200 disabled:opacity-50"
+                                }
+                              >
+                                {turnInBusyId === skill.id ? "Отправка..." : "Сдать книгу гильдии"}
+                              </button>
+                            ) : (
+                              <div className={isL2 ? "mt-2 text-[#a89070]" : "mt-2 text-gray-500"}>
+                                Принесите книгу в инвентаре — затем сдайте здесь.
+                              </div>
+                            )}
+                          </div>
+                        ) : null}
+                        {spellReq && spellbookTurnedIn ? (
+                          <div className={isL2 ? "text-[11px] text-[#7d9b7a]" : "text-[11px] text-green-600/90"}>
+                            ✓ Книга гильдии принята. Можно учить уровень за SP.
+                          </div>
+                        ) : null}
                         {canLearn ? (
                           <button
                             type="button"
@@ -663,7 +777,13 @@ export default function GuildScreen({
                           </button>
                         ) : (
                           <span className={isL2 ? "text-[11px] text-[#6a5c48] cursor-not-allowed" : "text-[11px] text-gray-500 cursor-not-allowed"}>
-                            Недоступно
+                            {(() => {
+                              const why = getLearnSkillFailureReason(hero, skill.id, learnOpts);
+                              if (why === "spellbook") return "Сначала сдайте книгу гильдии";
+                              if (why === "sp") return "Недостаточно SP";
+                              if (why === "level") return "Низкий уровень";
+                              return "Недоступно";
+                            })()}
                           </span>
                         )}
                       </div>

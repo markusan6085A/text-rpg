@@ -125,3 +125,14 @@ export async function buffPlayer(characterId: string, skillId: number, buffData:
   return response;
 }
 
+/** Здати книгу заклинання в гільдії магів (сервер знімає предмет і ставить heroJson.spellbookGuild). */
+export async function postMageSpellbookTurnIn(
+  characterId: string,
+  body: { skillId: number }
+): Promise<{ ok: boolean; character: Character; guildKey?: string }> {
+  return apiRequest(`/characters/${encodeURIComponent(characterId)}/mage-spellbook/turn-in`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
