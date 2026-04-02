@@ -10,7 +10,10 @@ export type MysticSpellbookTierConfig = {
   bookItemId: string;
   mobPatterns: string[];
   dropChance: number;
-  /** Місто/регіон + зона; мобів гравець підбирає сам (патерни лише для дропу в коді). */
+  /**
+   * Де шукати дроп: коротко, з тими ж назвами, що в меню GK (див. src/data/world/locale/worldLabels.ts).
+   * Не вигадувати «трактів» — у грі є лише міста + картки зон.
+   */
   huntHintRu: string;
 };
 
@@ -23,7 +26,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1152",
     mobPatterns: ["goblin", "fox", "keltir"],
     dropChance: 0.28,
-    huntHintRu: "Глудін — поля й околиці стартових селищ.",
+    huntHintRu: "GK: «Флоран — Луги біля селища», «Глудін — …» (низькі рівні, як у списку телепорту).",
   },
   {
     skillId: 1012,
@@ -33,7 +36,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1053",
     mobPatterns: ["spider", "rat", "ferret"],
     dropChance: 0.26,
-    huntHintRu: "Голосний острів / Укріплення — околиці, низькі рівні.",
+    huntHintRu: "GK: «Флоран — …» або «Глудін — …» — низькорівневі картки біля старту.",
   },
   {
     skillId: 1015,
@@ -43,7 +46,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1050",
     mobPatterns: ["orc", "werewolf"],
     dropChance: 0.24,
-    huntHintRu: "Глудін — шляхи й землі біля орків.",
+    huntHintRu: "GK: «Глудіо — Орки» або «Глудін — …» (орки/оборотні в назвах мобів на картці).",
   },
   {
     skillId: 1027,
@@ -53,7 +56,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1054",
     mobPatterns: ["orc", "imp"],
     dropChance: 0.22,
-    huntHintRu: "Діон — тракти в бік Глудіо.",
+    huntHintRu: "GK: «Глудіо — Орки» (як у списку). Ще орки — зони Діона, напр. «Діон — Старе поле битви».",
   },
   {
     skillId: 1040,
@@ -63,7 +66,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1058",
     mobPatterns: ["skeleton", "zombie", "undead"],
     dropChance: 0.25,
-    huntHintRu: "Глудіо — Некрополь і катакомби.",
+    huntHintRu: "GK: «Глудіо — Руїни», «Глудіо — Печери».",
   },
   {
     skillId: 1068,
@@ -73,7 +76,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1048",
     mobPatterns: ["orc", "goblin"],
     dropChance: 0.27,
-    huntHintRu: "Глудін — табори гоблінів і орочі патрулі.",
+    huntHintRu: "GK: «Глудіо — Орки» або «Флоран — …» / «Глудін — …» з гоблінами.",
   },
   {
     skillId: 1147,
@@ -83,7 +86,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1051",
     mobPatterns: ["feral", "wolf", "lynx"],
     dropChance: 0.24,
-    huntHintRu: "Ельмореден — ліс і зовнішні поля.",
+    huntHintRu: "GK: «Hunters Village — …» або «Глудін — …» (ліс, відкриті поля).",
   },
   {
     skillId: 1164,
@@ -93,7 +96,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1056",
     mobPatterns: ["skeleton", "shade", "lich"],
     dropChance: 0.21,
-    huntHintRu: "Глудіо — кладовища та темні руїни.",
+    huntHintRu: "GK: «Глудіо — Руїни».",
   },
   {
     skillId: 1168,
@@ -103,7 +106,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1055",
     mobPatterns: ["spider", "arachnid", "stakato"],
     dropChance: 0.23,
-    huntHintRu: "Діон — печери та околиці.",
+    huntHintRu: "GK: «Діон — Шлях до Круми», інші картки Діона з павуками.",
   },
   {
     skillId: 1184,
@@ -113,7 +116,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1049",
     mobPatterns: ["skeleton", "puma", "dryad"],
     dropChance: 0.26,
-    huntHintRu: "Ельфійське селище — ліс, середні рівні.",
+    huntHintRu: "GK: картки «Діон — …» середніх рівнів (ліс, нежить).",
   },
   {
     skillId: 1069,
@@ -123,7 +126,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1394",
     mobPatterns: ["sorcerer", "mage", "shaman"],
     dropChance: 0.2,
-    huntHintRu: "Діон — степи й орочі землі.",
+    huntHintRu: "GK: «Діон — Варта партизанів» та інші зони Діона з кастерами/шаманами.",
   },
   {
     skillId: 1078,
@@ -133,7 +136,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1399",
     mobPatterns: ["scout", "tracker", "hunter"],
     dropChance: 0.22,
-    huntHintRu: "Глудіо–Діон — великі тракти й дороги.",
+    huntHintRu: "GK: «Діон — Старе поле битви», «Діон — Зруйновані барикади» або «Гіран — Стежки мисливців».",
   },
   {
     skillId: 1111,
@@ -143,7 +146,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1403",
     mobPatterns: ["sorcerer", "mystic", "witch"],
     dropChance: 0.2,
-    huntHintRu: "Діон — ворожі маги в польових таборах.",
+    huntHintRu: "GK: «Діон — Варта партизанів», «Діон — Старе поле битви».",
   },
   {
     skillId: 1126,
@@ -153,7 +156,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1404",
     mobPatterns: ["warrior", "berserker", "raider"],
     dropChance: 0.21,
-    huntHintRu: "Глудіо–Гирн — поля боїв і рейдерські зони.",
+    huntHintRu: "GK: «Гіран — Дорога, луки та пагорби» та інші картки Гірану з воїнами/рейдерами.",
   },
   {
     skillId: 1127,
@@ -163,7 +166,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1405",
     mobPatterns: ["imp", "succubus", "succub"],
     dropChance: 0.22,
-    huntHintRu: "Діон — демонічні руїни та болота.",
+    huntHintRu: "GK: «Діон — Володіння болотного лорда», «Діон — Туманне болото».",
   },
   {
     skillId: 1144,
@@ -173,7 +176,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1406",
     mobPatterns: ["scout", "ranger", "elder"],
     dropChance: 0.19,
-    huntHintRu: "Орен / Аден — околиці елітних форпостів.",
+    huntHintRu: "GK: «Орен — …» або «Аден — Околиці» (вищі рівні).",
   },
   {
     skillId: 1151,
@@ -183,7 +186,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1516",
     mobPatterns: ["zombie", "ghoul", "corpse"],
     dropChance: 0.23,
-    huntHintRu: "Глудіо — болота й кладовища.",
+    huntHintRu: "GK: «Глудіо — Болото», «Глудіо — Руїни».",
   },
   {
     skillId: 1157,
@@ -193,7 +196,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1517",
     mobPatterns: ["lesser", "hound", "grim"],
     dropChance: 0.2,
-    huntHintRu: "Руна — темні руїни й околиці міста.",
+    huntHintRu: "GK: «Рун — Шепочучі руїни», «Рун — Угіддя звіролордів».",
   },
   {
     skillId: 1160,
@@ -203,7 +206,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1409",
     mobPatterns: ["turtle", "toad", "frog"],
     dropChance: 0.22,
-    huntHintRu: "Діон — болотисті низини.",
+    huntHintRu: "GK: «Діон — Випуск болота», «Діон — Туманне болото».",
   },
   {
     skillId: 1167,
@@ -213,7 +216,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1410",
     mobPatterns: ["spider", "toad", "serpent"],
     dropChance: 0.24,
-    huntHintRu: "Крума — околиці болота та печер.",
+    huntHintRu: "GK: «Орен — Околиці Круми», «Діон — Шлях до Круми».",
   },
   {
     skillId: 1172,
@@ -223,7 +226,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1411",
     mobPatterns: ["wyrm", "salamander", "ifrit"],
     dropChance: 0.2,
-    huntHintRu: "Паган — вогняні пустки й храмові землі.",
+    huntHintRu: "GK: «Аден — Вогняне болото», «Аден — Зачарована долина».",
   },
   {
     skillId: 1181,
@@ -233,7 +236,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1052",
     mobPatterns: ["gargoyle", "drake", "wyrm"],
     dropChance: 0.21,
-    huntHintRu: "Гирн — каньйон і руїни з вогняними мобами.",
+    huntHintRu: "GK: «Гіран — Край драконових тіней», «Гіран — Темні схили».",
   },
   {
     skillId: 1220,
@@ -243,7 +246,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1372",
     mobPatterns: ["sorcerer", "magus", "seer"],
     dropChance: 0.19,
-    huntHintRu: "Аден / Орен — зони сильних кастерів (високий рівень).",
+    huntHintRu: "GK: «Аден — …», «Орен — …» — високорівневі картки з кастерами.",
   },
   {
     skillId: 1222,
@@ -263,7 +266,7 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_1668",
     mobPatterns: ["feline", "cat", "kasha"],
     dropChance: 0.22,
-    huntHintRu: "Голосний острів / Діон — поля з «котячими» мобами.",
+    huntHintRu: "GK: «Діон — Пагорби та стежки пастухів», «Флоран — …» (де є «котячі» моби).",
   },
   {
     skillId: 1274,
@@ -273,6 +276,6 @@ export const MYSTIC_SPELLBOOK_TIERS: MysticSpellbookTierConfig[] = [
     bookItemId: "l2_dop_sb_4916",
     mobPatterns: ["elemental", "binder", "oracle"],
     dropChance: 0.18,
-    huntHintRu: "Глудіо–Діон — руїни та місця сил, стихії.",
+    huntHintRu: "GK: «Діон — Шлях до Круми», «Орен — Околиці Круми» (стихії біля Круми).",
   },
 ];
