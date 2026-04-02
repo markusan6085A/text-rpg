@@ -82,6 +82,11 @@ const RB_ITEM_STAT_LABELS: Record<string, string> = {
   bleedChanceBonus: "Шанс кровотечі",
   mpSkillCostReduction: "MP навичок −%",
   healReceivedBonus: "Отримане зцілення +%",
+  vampirism: "Vampiric / крадіжка HP %",
+  stunResist: "Стійк. до шоку/оглушення",
+  stunChanceBonus: "Шанс шоку/оглушення",
+  mentalResist: "Опір ментальним ефектам",
+  damageTakenReduction: "Зменшення вхідного урону %",
 };
 
 const RB_STAT_KEY_ORDER: string[] = [
@@ -122,6 +127,11 @@ const RB_STAT_KEY_ORDER: string[] = [
   "bleedChanceBonus",
   "mpSkillCostReduction",
   "healReceivedBonus",
+  "vampirism",
+  "stunResist",
+  "stunChanceBonus",
+  "mentalResist",
+  "damageTakenReduction",
 ];
 
 function formatRbStatKey(key: string): string {

@@ -44,11 +44,20 @@ export interface CombatStats {
   mpSkillCostReduction?: number;
   /** % зменшення вхідного урону (після базової мітігації; див. processMobAttack). */
   damageTakenReduction?: number;
+  /** % HP від нанесеної шкоди (фіз. атакі/скіли з vampirism). */
+  vampirism?: number;
+  /** % стійкість до stun/shock */
+  stunResist?: number;
+  /** % бонус до шансу stun/shock на ціль (де підтримується). */
+  stunChanceBonus?: number;
+  /** % опір ментальним ефектам (страх, мовчання тощо). */
+  mentalResist?: number;
 }
 
 export const RING_OF_QUEEN_ANT_ID = "ring_of_queen_ant";
 export const RING_OF_CORE_ID = "ring_of_core";
 export const EARRING_OF_ORFEN_ID = "earring_of_orfen";
+export const EARRING_OF_ZAKEN_ID = "earring_of_zaken";
 
 /** Перший слот (лексикографічно) з цим id — єдиний, що дає статти; як у L2 для унікальних епіків. */
 export function primaryEquipmentSlotForItem(
@@ -123,10 +132,15 @@ export function calcCombatStats(
   let healReceivedBonus = 0;
   let mpSkillCostReduction = 0;
   let damageTakenReduction = 0;
+  let vampirism = 0;
+  let stunResist = 0;
+  let stunChanceBonus = 0;
+  let mentalResist = 0;
 
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
   const ringOfCorePrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_CORE_ID);
   const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
+  const zakenEarringPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ZAKEN_ID);
 
   // 2. Equipment bonuses
   if (equipment) {
@@ -138,6 +152,9 @@ export function calcCombatStats(
         return;
       }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ZAKEN_ID && zakenEarringPrimarySlot != null && slot !== zakenEarringPrimarySlot) {
         return;
       }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
@@ -210,6 +227,22 @@ export function calcCombatStats(
         if (typeof dtr === "number" && Number.isFinite(dtr) && dtr > 0) {
           damageTakenReduction += dtr;
         }
+        const vmp = (itemStats as any).vampirism;
+        if (typeof vmp === "number" && Number.isFinite(vmp) && vmp > 0) {
+          vampirism += vmp;
+        }
+        const sr = (itemStats as any).stunResist;
+        if (typeof sr === "number" && Number.isFinite(sr) && sr > 0) {
+          stunResist += sr;
+        }
+        const scb = (itemStats as any).stunChanceBonus;
+        if (typeof scb === "number" && Number.isFinite(scb) && scb > 0) {
+          stunChanceBonus += scb;
+        }
+        const mr = (itemStats as any).mentalResist;
+        if (typeof mr === "number" && Number.isFinite(mr) && mr > 0) {
+          mentalResist += mr;
+        }
       }
     });
     // Відсоткові бонуси будуть застосовані після set bonuses
@@ -276,6 +309,14 @@ export function calcCombatStats(
     if (setBonuses.bleedChanceBonus) bleedChanceBonus += setBonuses.bleedChanceBonus;
     if (setBonuses.healReceivedBonus) healReceivedBonus += setBonuses.healReceivedBonus;
     if (setBonuses.mpSkillCostReduction) mpSkillCostReduction += setBonuses.mpSkillCostReduction;
+    const setVamp = (setBonuses as any).vampirism;
+    if (typeof setVamp === "number" && Number.isFinite(setVamp) && setVamp > 0) vampirism += setVamp;
+    const setSr = (setBonuses as any).stunResist;
+    if (typeof setSr === "number" && Number.isFinite(setSr) && setSr > 0) stunResist += setSr;
+    const setScb = (setBonuses as any).stunChanceBonus;
+    if (typeof setScb === "number" && Number.isFinite(setScb) && setScb > 0) stunChanceBonus += setScb;
+    const setMr = (setBonuses as any).mentalResist;
+    if (typeof setMr === "number" && Number.isFinite(setMr) && setMr > 0) mentalResist += setMr;
     
     if (setBonuses.attackSpeed) attackSpeed += setBonuses.attackSpeed;
     if (setBonuses.castSpeed) castSpeed += setBonuses.castSpeed;
@@ -407,6 +448,10 @@ export function calcCombatStats(
     ...(healReceivedBonus > 0 ? { healReceivedBonus } : {}),
     ...(mpSkillCostReduction > 0 ? { mpSkillCostReduction } : {}),
     ...(damageTakenReduction > 0 ? { damageTakenReduction } : {}),
+    ...(vampirism > 0 ? { vampirism } : {}),
+    ...(stunResist > 0 ? { stunResist } : {}),
+    ...(stunChanceBonus > 0 ? { stunChanceBonus } : {}),
+    ...(mentalResist > 0 ? { mentalResist } : {}),
   };
 }
 

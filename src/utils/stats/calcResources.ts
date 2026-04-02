@@ -7,6 +7,7 @@ import { getActiveSetBonuses } from "../../data/sets/armorSets";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import {
   EARRING_OF_ORFEN_ID,
+  EARRING_OF_ZAKEN_ID,
   primaryEquipmentSlotForItem,
   RING_OF_CORE_ID,
   RING_OF_QUEEN_ANT_ID,
@@ -48,6 +49,7 @@ export function calcResources(
   const queenAntPrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_QUEEN_ANT_ID);
   const ringOfCorePrimarySlot = primaryEquipmentSlotForItem(equipment, RING_OF_CORE_ID);
   const orfenPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ORFEN_ID);
+  const zakenEarringPrimarySlot = primaryEquipmentSlotForItem(equipment, EARRING_OF_ZAKEN_ID);
   if (equipment) {
     Object.entries(equipment).forEach(([slot, itemId]: [string, any]) => {
       if (itemId === RING_OF_QUEEN_ANT_ID && queenAntPrimarySlot != null && slot !== queenAntPrimarySlot) {
@@ -57,6 +59,9 @@ export function calcResources(
         return;
       }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ZAKEN_ID && zakenEarringPrimarySlot != null && slot !== zakenEarringPrimarySlot) {
         return;
       }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];
@@ -82,6 +87,9 @@ export function calcResources(
         return;
       }
       if (itemId === EARRING_OF_ORFEN_ID && orfenPrimarySlot != null && slot !== orfenPrimarySlot) {
+        return;
+      }
+      if (itemId === EARRING_OF_ZAKEN_ID && zakenEarringPrimarySlot != null && slot !== zakenEarringPrimarySlot) {
         return;
       }
       const itemDef = itemsDBWithStarter[itemId] || itemsDB[itemId];

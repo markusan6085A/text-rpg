@@ -378,4 +378,26 @@ export const itemsDBQuestShop: Record<string, ItemDefinition> = {
       holdChanceBonus: 30,
     },
   },
+  /** Епік-дроп Zaken (L2 item id 6663). Друга сережка в парі не дублює пасиви — як Earring of Orfen. */
+  earring_of_zaken: {
+    id: "earring_of_zaken",
+    name: "Earring of Zaken",
+    kind: "earring",
+    slot: "rear;lear",
+    icon: "/items/drops/earring_of_zaken_i00.png",
+    description:
+      "Трофей з Дзеркального лісу: наче крапля застиглої крові корабельних ліхтарів. Як Vampiric Rage — відновлює частину HP від ваших ударів (+4%), підсилює отримане зцілення, дає стійкість до шоку/оглушення та кровотечі (+20%), такий самий бонус до шансу накласти ці стани на ворога, і міцніший опір ментальним ефектам (страх, мовчання тощо, +20% mental). Друга така сережка не подвоює пасиви.",
+    grade: "A",
+    stackable: false,
+    stats: {
+      mDef: 60,
+      vampirism: 4,
+      healReceivedBonus: 10,
+      stunResist: 20,
+      stunChanceBonus: 20,
+      bleedResist: 20,
+      bleedChanceBonus: 20,
+      mentalResist: 20,
+    },
+  },
 };

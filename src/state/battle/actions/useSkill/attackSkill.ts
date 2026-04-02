@@ -107,7 +107,9 @@ export function handleAttackSkill(
   }
 
   // Обробляємо спеціальні ефекти скілу (stun, hold, sleep тощо)
-  const skillEffects = processSkillEffects(def, levelDef);
+  const skillEffects = processSkillEffects(def, levelDef, {
+    stunChanceBonus: heroStats?.stunChanceBonus,
+  });
   let mobStunnedUntil = state.mobStunnedUntil;
   if (skillEffects.stun?.applied) {
     mobStunnedUntil = now + skillEffects.stun.duration;

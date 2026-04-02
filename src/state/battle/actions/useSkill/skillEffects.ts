@@ -21,7 +21,8 @@ export type SkillEffectResult = {
  */
 export function processSkillEffects(
   skillDef: SkillDefinition,
-  levelDef: SkillLevelDefinition
+  levelDef: SkillLevelDefinition,
+  opts?: { stunChanceBonus?: number }
 ): SkillEffectResult {
   const result: SkillEffectResult = {};
 
@@ -33,7 +34,8 @@ export function processSkillEffects(
   if (stunEffect) {
     // Отримуємо chance з ефекту або зі скілу
     const baseChance = stunEffect.chance ?? skillDef.chance ?? 100;
-    const chance = clampChance(baseChance);
+    const bonus = opts?.stunChanceBonus ?? 0;
+    const chance = clampChance(baseChance + bonus);
 
     // Перевіряємо чи спрацював ефект
     const applied = Math.random() * 100 < chance;
