@@ -1,6 +1,7 @@
 /**
  * Таблиці дропу для рейд-босів l2dop / сателітних міст.
  * У кожного індексу РБ свій зміщений набір (зброя/броня), свитки blessed — єдині рядки з min/max 1–3.
+ * Маг-роби: Knowledge/Demons/Karmian (C), Avadon/Doom (B), Majestic (A); чергуються з важкими сетами по rbIndex.
  */
 import type { DropEntry } from "../../combat/types";
 
@@ -94,23 +95,60 @@ function gludioLowTier(rbIndex: number): DropEntry[] {
   ];
 }
 
-function gludioMidTier(): DropEntry[] {
+/** Gludio 4–6: 4 — тяжкий mithril, 5 — маг D (Knowledge), 6 — маг C (Karmian). */
+function gludioMidTier(rbIndex: number): DropEntry[] {
+  const commonWeapons: DropEntry[] = [
+    eq("shop_weapon_d_knights_sword", "equipment", 0.1),
+    eq("shop_weapon_d_shilen_knife", "equipment", 0.1),
+    eq("shop_weapon_d_tomahawk", "equipment", 0.09),
+    eq("shop_weapon_d_two_handed_sword", "equipment", 0.1),
+  ];
+  const scrolls: DropEntry[] = [
+    scW("blessed_scroll_enchant_weapon_grade_d", rbIndex === 5 ? 0.17 : 0.18),
+    scA("blessed_scroll_enchant_armor_grade_d", 0.06),
+  ];
+  const jewD: DropEntry[] = [
+    eq("shop_jewelry_d_black_pearl_ring", "equipment", 0.07),
+    eq("shop_jewelry_d_elven_earing", "equipment", 0.08),
+    eq("shop_jewelry_d_enchanted_necklace", "equipment", 0.09),
+    eq("shop_jewelry_d_mithril_ring", "equipment", 0.11),
+  ];
+  if (rbIndex === 5) {
+    return [
+      eq("cloth_cap", "equipment", 0.08),
+      eq("tunic_of_knowledge", "equipment", 0.08),
+      eq("stockings_of_knowledge", "equipment", 0.08),
+      eq("gloves_of_knowledge", "equipment", 0.08),
+      eq("boots_of_knowledge", "equipment", 0.08),
+      ...commonWeapons,
+      ...scrolls,
+      ...jewD,
+    ];
+  }
+  if (rbIndex === 6) {
+    return [
+      eq("karmian_helmet", "equipment", 0.078),
+      eq("karmian_tunic", "equipment", 0.078),
+      eq("karmian_stockings", "equipment", 0.078),
+      eq("karmian_gloves", "equipment", 0.075),
+      eq("karmian_boots", "equipment", 0.075),
+      eq("shop_weapon_c_demon_staff", "equipment", 0.095),
+      eq("shop_weapon_c_apprentices_spellbook", "equipment", 0.095),
+      eq("shop_weapon_d_two_handed_sword", "equipment", 0.09),
+      eq("shop_weapon_d_tomahawk", "equipment", 0.085),
+      ...scrolls,
+      ...jewD,
+    ];
+  }
   return [
-    { id: "shop_weapon_d_knights_sword", kind: "equipment", chance: 0.1, min: 1, max: 1 },
-    { id: "shop_weapon_d_shilen_knife", kind: "equipment", chance: 0.1, min: 1, max: 1 },
-    { id: "shop_weapon_d_tomahawk", kind: "equipment", chance: 0.09, min: 1, max: 1 },
-    { id: "shop_weapon_d_two_handed_sword", kind: "equipment", chance: 0.1, min: 1, max: 1 },
-    { id: "mithril_helmet", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_breastplate", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_gaiters", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_gloves", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_boots", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "blessed_scroll_enchant_weapon_grade_d", kind: "other", chance: 0.18, min: 1, max: 3 },
-    { id: "blessed_scroll_enchant_armor_grade_d", kind: "other", chance: 0.06, min: 1, max: 3 },
-    { id: "shop_jewelry_d_black_pearl_ring", kind: "equipment", chance: 0.07, min: 1, max: 1 },
-    { id: "shop_jewelry_d_elven_earing", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "shop_jewelry_d_enchanted_necklace", kind: "equipment", chance: 0.09, min: 1, max: 1 },
-    { id: "shop_jewelry_d_mithril_ring", kind: "equipment", chance: 0.11, min: 1, max: 1 },
+    eq("mithril_helmet", "equipment", 0.08),
+    eq("mithril_breastplate", "equipment", 0.08),
+    eq("mithril_gaiters", "equipment", 0.08),
+    eq("mithril_gloves", "equipment", 0.08),
+    eq("mithril_boots", "equipment", 0.08),
+    ...commonWeapons,
+    ...scrolls,
+    ...jewD,
   ];
 }
 
@@ -150,7 +188,7 @@ function gludioHighC(rbIndex: number, robe: boolean): DropEntry[] {
 
 /** D-grade трофеї Gludio; індекси 4–6 — канон; 0–3 ранні; 7–8 C-grade. */
 export function gludioRbDrops(rbIndex: number): DropEntry[] {
-  if (rbIndex >= 4 && rbIndex <= 6) return gludioMidTier();
+  if (rbIndex >= 4 && rbIndex <= 6) return gludioMidTier(rbIndex);
   if (rbIndex >= 0 && rbIndex <= 3) return gludioLowTier(rbIndex);
   if (rbIndex === 7) return gludioHighC(rbIndex, false);
   if (rbIndex === 8) return gludioHighC(rbIndex, true);
@@ -187,8 +225,23 @@ export function gludinRbDrops(rbIndex: number): DropEntry[] {
 /* ==================== Floran Village ==================== */
 
 export function fvRbDrops(rbIndex: number): DropEntry[] {
-  if (rbIndex >= 4) return gludioMidTier();
+  if (rbIndex >= 4) return gludioMidTier(4 + (rbIndex % 3));
   const w = GLUDIO_D_WEAP_LOW;
+  if (rbIndex % 2 === 1) {
+    return [
+      eq("cloth_cap", "equipment", 0.08),
+      eq("tunic_of_knowledge", "equipment", 0.08),
+      eq("stockings_of_knowledge", "equipment", 0.07),
+      eq("gloves_of_knowledge", "equipment", 0.075),
+      eq("boots_of_knowledge", "equipment", 0.075),
+      eq(w[rbIndex % w.length]!, "equipment", 0.1, 1, 1),
+      eq(w[(rbIndex + 2) % w.length]!, "equipment", 0.09),
+      eq("shop_jewelry_d_elven_earing", "equipment", 0.08),
+      eq("shop_jewelry_d_enchanted_necklace", "equipment", 0.08),
+      scW("blessed_scroll_enchant_weapon_grade_d", 0.15),
+      scA("blessed_scroll_enchant_armor_grade_d", 0.05),
+    ];
+  }
   return [
     eq("leather_helmet", "equipment", 0.08),
     eq("reinforced_leather_shirt", "equipment", 0.08),
@@ -288,11 +341,20 @@ export function heineRbDrops(rbIndex: number): DropEntry[] {
     ];
   }
   const k = rbIndex - 3;
-  return [
+  const heavyB: DropEntry[] = [
     eq("zubeis_helmet", "equipment", 0.08),
     eq("zubeis_breastplate", "equipment", 0.08),
     eq("zubeis_gaiters", "equipment", 0.08),
     eq("zubeis_gauntlets", "equipment", 0.07),
+  ];
+  const robeB: DropEntry[] = [
+    eq("avadon_circlet", "equipment", 0.082),
+    eq("avadon_robe", "equipment", 0.082),
+    eq("avadon_gloves", "equipment", 0.078),
+    eq("avadon_boots", "equipment", 0.078),
+  ];
+  return [
+    ...(k % 2 === 0 ? heavyB : robeB),
     ...wRotate(HEINE_B_WEAP, k, 4, 1),
     eq("shop_jewelry_b_adamantite_ring", "equipment", 0.08),
     eq("shop_jewelry_b_paradia_ring", "equipment", 0.08),
@@ -317,29 +379,27 @@ const ADEN_B_WEAP = [
 ] as const;
 
 function adenStyle(rbIndex: number, worldSalt: number): DropEntry[] {
-  const cPieces: DropEntry[] = [
-    eq("demons_helmet", "equipment", 0.07),
-    eq("demons_tunic", "equipment", 0.07),
-    eq("plated_leather_gaiters", "equipment", 0.07),
-    eq("karmian_boots", "equipment", 0.07),
+  const blueWolf4: DropEntry[] = [
+    eq("blue_wolf_helmet", "equipment", 0.08),
+    eq("blue_wolf_breastplate", "equipment", 0.08),
+    eq("blue_wolf_gloves", "equipment", 0.07),
+    eq("blue_wolf_boots", "equipment", 0.07),
   ];
-  const bPieces: DropEntry[] =
-    rbIndex % 2 === 0
-      ? [
-          eq("blue_wolf_helmet", "equipment", 0.08),
-          eq("blue_wolf_breastplate", "equipment", 0.08),
-          eq("blue_wolf_gloves", "equipment", 0.07),
-          eq("blue_wolf_boots", "equipment", 0.07),
-        ]
-      : [
-          eq("doom_helmet", "equipment", 0.08),
-          eq("doom_tunic", "equipment", 0.08),
-          eq("doom_gloves", "equipment", 0.07),
-          eq("doom_boots", "equipment", 0.07),
-        ];
+  const doomRobe4: DropEntry[] = [
+    eq("doom_helmet", "equipment", 0.08),
+    eq("doom_tunic", "equipment", 0.08),
+    eq("doom_gloves", "equipment", 0.07),
+    eq("doom_boots", "equipment", 0.07),
+  ];
+  const avadon4: DropEntry[] = [
+    eq("avadon_circlet", "equipment", 0.082),
+    eq("avadon_robe", "equipment", 0.082),
+    eq("avadon_gloves", "equipment", 0.078),
+    eq("avadon_boots", "equipment", 0.078),
+  ];
   if (rbIndex < 4) {
     return [
-      ...cPieces,
+      ...dionArmorTheme(rbIndex),
       ...wRotate(ADEN_C_WEAP, rbIndex + worldSalt, 4, 3),
       eq("shop_jewelry_c_aquastone_necklace", "equipment", 0.08),
       eq("shop_jewelry_c_ring_of_protection", "equipment", 0.08),
@@ -348,6 +408,7 @@ function adenStyle(rbIndex: number, worldSalt: number): DropEntry[] {
     ];
   }
   const j = rbIndex - 4;
+  const bPieces: DropEntry[] = j % 3 === 0 ? blueWolf4 : j % 3 === 1 ? doomRobe4 : avadon4;
   return [
     ...bPieces,
     ...wRotate(ADEN_B_WEAP, j + worldSalt, 4, 2),
@@ -381,19 +442,28 @@ const HV_B_WEAP = [
 ] as const;
 
 export function huntersVillageRbDrops(rbIndex: number): DropEntry[] {
-  const heavy =
-    rbIndex % 2 === 0
+  const t = rbIndex % 3;
+  const heavy: DropEntry[] =
+    t === 0
       ? [
           eq("blue_wolf_helmet", "equipment", 0.085),
           eq("blue_wolf_breastplate", "equipment", 0.085),
           eq("blue_wolf_gaiters", "equipment", 0.08),
           eq("blue_wolf_gloves", "equipment", 0.075),
         ]
-      : [
-          eq("doom_helmet", "equipment", 0.085),
-          eq("doom_tunic", "equipment", 0.085),
-          eq("doom_stockings", "equipment", 0.08),
-        ];
+      : t === 1
+        ? [
+            eq("doom_helmet", "equipment", 0.085),
+            eq("doom_tunic", "equipment", 0.085),
+            eq("doom_stockings", "equipment", 0.08),
+            eq("doom_gloves", "equipment", 0.078),
+          ]
+        : [
+            eq("avadon_circlet", "equipment", 0.085),
+            eq("avadon_robe", "equipment", 0.085),
+            eq("avadon_gloves", "equipment", 0.08),
+            eq("avadon_boots", "equipment", 0.078),
+          ];
   return [
     ...heavy,
     ...wRotate(HV_B_WEAP, rbIndex, 5, 2),
@@ -420,10 +490,19 @@ const RUNE_A_WEAP = [
 
 export function runeRbDrops(rbIndex: number): DropEntry[] {
   if (rbIndex < 4) {
-    return [
+    const zubeis3: DropEntry[] = [
       eq("zubeis_helmet", "equipment", 0.08),
       eq("zubeis_breastplate", "equipment", 0.08),
       eq("zubeis_boots", "equipment", 0.075),
+    ];
+    const avadon4m: DropEntry[] = [
+      eq("avadon_circlet", "equipment", 0.082),
+      eq("avadon_robe", "equipment", 0.082),
+      eq("avadon_gloves", "equipment", 0.078),
+      eq("avadon_boots", "equipment", 0.078),
+    ];
+    return [
+      ...(rbIndex % 2 === 0 ? zubeis3 : avadon4m),
       ...wRotate(ADEN_B_WEAP, rbIndex + 2, 5, 2),
       eq("shop_jewelry_b_ring_of_summoning", "equipment", 0.08),
       eq("shop_jewelry_b_otherworldly_ring", "equipment", 0.08),
@@ -432,11 +511,20 @@ export function runeRbDrops(rbIndex: number): DropEntry[] {
     ];
   }
   const j = rbIndex - 4;
-  return [
+  const physA: DropEntry[] = [
     eq("blue_wolf_breastplate", "equipment", 0.08),
     eq("blue_wolf_gaiters", "equipment", 0.08),
     eq("doom_gloves", "equipment", 0.075),
     eq("doom_boots", "equipment", 0.075),
+  ];
+  const mageA: DropEntry[] = [
+    eq("majestic_circlet", "equipment", 0.085),
+    eq("majestic_robe", "equipment", 0.085),
+    eq("majestic_gauntlets", "equipment", 0.082),
+    eq("majestic_boots", "equipment", 0.082),
+  ];
+  return [
+    ...(j % 2 === 0 ? physA : mageA),
     ...wRotate(RUNE_A_WEAP, j, 4, 1),
     eq("shop_jewelry_a_phoenix_ring", "equipment", 0.085),
     eq("shop_jewelry_a_phoenix_earring", "equipment", 0.08),
@@ -458,11 +546,20 @@ const GODD_A_WEAP = [
 ] as const;
 
 export function goddardRbDrops(rbIndex: number): DropEntry[] {
-  return [
+  const physMix: DropEntry[] = [
     eq("blue_wolf_helmet", "equipment", 0.08),
     eq("blue_wolf_gloves", "equipment", 0.075),
     eq("doom_helmet", "equipment", 0.078),
     eq("doom_tunic", "equipment", 0.078),
+  ];
+  const mageA: DropEntry[] = [
+    eq("majestic_circlet", "equipment", 0.086),
+    eq("majestic_robe", "equipment", 0.086),
+    eq("majestic_gauntlets", "equipment", 0.083),
+    eq("majestic_boots", "equipment", 0.083),
+  ];
+  return [
+    ...(rbIndex % 2 === 0 ? physMix : mageA),
     ...wRotate(GODD_A_WEAP, rbIndex, 5, 2),
     eq("shop_jewelry_a_majestic_ring", "equipment", 0.085),
     eq("shop_jewelry_a_majestic_earring", "equipment", 0.085),
@@ -490,11 +587,20 @@ const SCHU_A_WEAP = [
 ] as const;
 
 export function schuttgartRbDrops(rbIndex: number): DropEntry[] {
-  const base: DropEntry[] = [
+  const physMix: DropEntry[] = [
     eq("doom_helmet", "equipment", 0.082),
     eq("doom_stockings", "equipment", 0.08),
     eq("blue_wolf_breastplate", "equipment", 0.082),
     eq("blue_wolf_boots", "equipment", 0.078),
+  ];
+  const mageA: DropEntry[] = [
+    eq("majestic_circlet", "equipment", 0.086),
+    eq("majestic_robe", "equipment", 0.086),
+    eq("majestic_gauntlets", "equipment", 0.083),
+    eq("majestic_boots", "equipment", 0.083),
+  ];
+  const base: DropEntry[] = [
+    ...(rbIndex % 2 === 0 ? physMix : mageA),
     ...wRotate(SCHU_A_WEAP, rbIndex, 5, 2),
     eq("shop_jewelry_a_necklace_of_phantom", "equipment", 0.085),
     eq("shop_jewelry_a_earring_of_phantom", "equipment", 0.082),
