@@ -437,9 +437,35 @@ export function getGludioL2DopChampions(zoneId: string, minLvl: number, maxLvl: 
   return result;
 }
 
-/** NG/D СЂРµСЃСѓСЂСЃРё РґР»СЏ РґСЂРѕРїСѓ Gludio Р Р‘ (Р»РІР» 1вЂ“40) */
-function gludioRbDrops(_rbIndex: number): DropEntry[] {
-  return [];
+/**
+ * D-grade трофеї з магазину речей для Gludio РБ рів. 22–35 (`rbIndex` 4–6).
+ * Зброя (4 види), сет Mithril (5 слотів), blessed scroll weapon D (18%, 1–3 шт.),
+ * blessed scroll armor D (~6% шанс у діапазоні 4–9%, 1–3 шт.), біжутерія D (4 типи, 7–11% кожен).
+ */
+function gludioRbDrops(rbIndex: number): DropEntry[] {
+  if (rbIndex < 4 || rbIndex > 6) return [];
+
+  return [
+    // Зброя (магазин D-grade)
+    { id: "shop_weapon_d_knights_sword", kind: "equipment", chance: 0.1, min: 1, max: 1 },
+    { id: "shop_weapon_d_shilen_knife", kind: "equipment", chance: 0.1, min: 1, max: 1 },
+    { id: "shop_weapon_d_tomahawk", kind: "equipment", chance: 0.09, min: 1, max: 1 },
+    { id: "shop_weapon_d_two_handed_sword", kind: "equipment", chance: 0.1, min: 1, max: 1 },
+    // Сет Mithril (5 частин)
+    { id: "mithril_helmet", kind: "equipment", chance: 0.08, min: 1, max: 1 },
+    { id: "mithril_breastplate", kind: "equipment", chance: 0.08, min: 1, max: 1 },
+    { id: "mithril_gaiters", kind: "equipment", chance: 0.08, min: 1, max: 1 },
+    { id: "mithril_gloves", kind: "equipment", chance: 0.08, min: 1, max: 1 },
+    { id: "mithril_boots", kind: "equipment", chance: 0.08, min: 1, max: 1 },
+    // Свитки заточки D (blessed з квест/магазину)
+    { id: "blessed_scroll_enchant_weapon_grade_d", kind: "other", chance: 0.18, min: 1, max: 3 },
+    { id: "blessed_scroll_enchant_armor_grade_d", kind: "other", chance: 0.06, min: 1, max: 3 },
+    // Біжутерія D-grade з магазину (4 предмети, шанс 7–11%)
+    { id: "shop_jewelry_d_black_pearl_ring", kind: "equipment", chance: 0.07, min: 1, max: 1 },
+    { id: "shop_jewelry_d_elven_earing", kind: "equipment", chance: 0.08, min: 1, max: 1 },
+    { id: "shop_jewelry_d_enchanted_necklace", kind: "equipment", chance: 0.09, min: 1, max: 1 },
+    { id: "shop_jewelry_d_mithril_ring", kind: "equipment", chance: 0.11, min: 1, max: 1 },
+  ];
 }
 
 /** Р‘Р°Р·РѕРІС– Р Р‘ Gludio вЂ” РїРѕ РѕРґРЅРѕРјСѓ РЅР° Р·РѕРЅСѓ; getGludioRaidBossesForZone СЂРѕР·С€РёСЂСЋС” РґРѕ 6 С– РїРѕРІРµСЂС‚Р°С” 3вЂ“6 */
