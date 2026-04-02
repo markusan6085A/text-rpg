@@ -66,6 +66,32 @@ function mergeSpellbookGuildFromServer(
   return undefined;
 }
 
+/**
+ * Чи на сервері є скіл з рівнем вищим за локальний (вивчення/прокачка через POST learn-skill тощо).
+ * У такому разі SP у відповіді API може бути меншим за локальний snapshot — не можна брати Math.max(local, server).
+ */
+function skillsStrictlyAheadOnServer(
+  localSkills: Array<{ id: number; level?: number }> | undefined,
+  serverSkills: Array<{ id: number; level?: number }> | undefined
+): boolean {
+  const loc = Array.isArray(localSkills) ? localSkills : [];
+  const srv = Array.isArray(serverSkills) ? serverSkills : [];
+  const levelById = new Map<number, number>();
+  for (const s of loc) {
+    const id = Number(s?.id);
+    if (!Number.isFinite(id) || id <= 0) continue;
+    levelById.set(id, Math.max(0, Math.floor(Number(s?.level) || 0)));
+  }
+  for (const s of srv) {
+    const id = Number(s?.id);
+    const lvl = Math.max(0, Math.floor(Number(s?.level) || 0));
+    if (!Number.isFinite(id) || id <= 0) continue;
+    const prev = levelById.get(id) ?? 0;
+    if (lvl > prev) return true;
+  }
+  return false;
+}
+
 /** Рівень для merge: вищий з колонки БД та heroJson (узгоджено з гілкою heroJson нижче). */
 function resolveFinalLevelFromServer(character: any, heroData: any): number {
   const colLvl = Math.max(1, Number(character.level ?? 1) || 1);
@@ -312,7 +338,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           : serverLevel > localLevel
             ? serverExpVal
             : Math.max(localExp, serverExpVal);
-        const finalSp = Math.max(localSp, serverSp); // 🔥 Не відправляти менше SP — сервер відхилить "sp cannot be decreased"
+        const locSpN = Math.max(0, Number(localSp) || 0);
+        const srvSpN = Math.max(0, Number(serverSp) || 0);
+        const serverLearnedSkill =
+          skillsStrictlyAheadOnServer(hydratedLocalHero.skills as any, Array.isArray(heroDataForLocal?.skills) ? heroDataForLocal.skills : []);
+        const finalSp =
+          serverLearnedSkill && srvSpN < locSpN ? srvSpN : Math.max(locSpN, srvSpN);
         // 🔥 КРИТИЧНО: перераховуємо maxHp/maxMp/maxCp по локальному герою (екіп + скіли), інакше після F5 залишається старий max
         // 🔥 Професію/klass беремо з сервера — адмін міг змінити клас, localStorage має стару
         const serverProfession = heroDataForLocal?.profession ?? heroDataForLocal?.klass;
@@ -1038,7 +1069,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         // Якщо тут підставити localHeroForMerge.adena — продавець після продажу на ринку не бачить зарахування (сервер більший, локаль застарілий).
         const localSpVal = Number(localHeroForMerge.sp ?? (localHeroForMerge as any).heroJson?.sp ?? 0) || 0;
         const hydratedSpVal = Number((hydratedHero as any).sp ?? 0) || 0;
-        const mergedSpFromLocal = Math.max(localSpVal, hydratedSpVal);
+        const serverLearnedHere = skillsStrictlyAheadOnServer(
+          localHeroForMerge.skills as any,
+          (hydratedHero as any).skills as any
+        );
+        const mergedSpFromLocal =
+          serverLearnedHere && hydratedSpVal < localSpVal
+            ? hydratedSpVal
+            : Math.max(localSpVal, hydratedSpVal);
         (hydratedHero as any).sp = mergedSpFromLocal;
         (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, sp: mergedSpFromLocal };
         console.log('[loadHeroFromAPI] Applied inventory union merge:', mergedInv.length, 'items');
