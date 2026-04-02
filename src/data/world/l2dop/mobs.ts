@@ -4,6 +4,19 @@
 import type { Mob } from "../types";
 import type { RaidBoss } from "../../bosses/floran_overlord";
 import type { DropEntry } from "../../combat/types";
+import {
+  gludioRbDrops,
+  adenRbDrops,
+  orenRbDrops,
+  goddardRbDrops,
+  schuttgartRbDrops,
+  runeRbDrops,
+  dionRbDrops,
+  fvRbDrops,
+  heineRbDrops,
+  gludinRbDrops,
+  huntersVillageRbDrops,
+} from "./raidBossDrops";
 import { getMobListIconSrc, getMobPublicIconSrc, resolveMobIconFromName } from "../../../utils/mobPublicIcon";
 import { L2DOP_GODDARD_POOL } from "./goddardMobs.generated";
 import { L2DOP_SCHUTTGART_POOL } from "./schuttgartMobs.generated";
@@ -437,36 +450,6 @@ export function getGludioL2DopChampions(zoneId: string, minLvl: number, maxLvl: 
   return result;
 }
 
-/**
- * D-grade трофеї з магазину речей для Gludio РБ рів. 22–35 (`rbIndex` 4–6).
- * Випадкова кількість (1–3) лише для blessed scroll weapon/armor D; усі інші рядки — строго 1 шт.
- */
-function gludioRbDrops(rbIndex: number): DropEntry[] {
-  if (rbIndex < 4 || rbIndex > 6) return [];
-
-  return [
-    // Зброя (магазин D-grade) — завжди 1 шт.
-    { id: "shop_weapon_d_knights_sword", kind: "equipment", chance: 0.1, min: 1, max: 1 },
-    { id: "shop_weapon_d_shilen_knife", kind: "equipment", chance: 0.1, min: 1, max: 1 },
-    { id: "shop_weapon_d_tomahawk", kind: "equipment", chance: 0.09, min: 1, max: 1 },
-    { id: "shop_weapon_d_two_handed_sword", kind: "equipment", chance: 0.1, min: 1, max: 1 },
-    // Сет Mithril (5 частин) — по 1 шт.
-    { id: "mithril_helmet", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_breastplate", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_gaiters", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_gloves", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "mithril_boots", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    // Свитки — єдині рядки з min/max > 1
-    { id: "blessed_scroll_enchant_weapon_grade_d", kind: "other", chance: 0.18, min: 1, max: 3 },
-    { id: "blessed_scroll_enchant_armor_grade_d", kind: "other", chance: 0.06, min: 1, max: 3 },
-    // Біжутерія D-grade (4 предмети, шанс 7–11%) — по 1 шт.
-    { id: "shop_jewelry_d_black_pearl_ring", kind: "equipment", chance: 0.07, min: 1, max: 1 },
-    { id: "shop_jewelry_d_elven_earing", kind: "equipment", chance: 0.08, min: 1, max: 1 },
-    { id: "shop_jewelry_d_enchanted_necklace", kind: "equipment", chance: 0.09, min: 1, max: 1 },
-    { id: "shop_jewelry_d_mithril_ring", kind: "equipment", chance: 0.11, min: 1, max: 1 },
-  ];
-}
-
 /** Р‘Р°Р·РѕРІС– Р Р‘ Gludio вЂ” РїРѕ РѕРґРЅРѕРјСѓ РЅР° Р·РѕРЅСѓ; getGludioRaidBossesForZone СЂРѕР·С€РёСЂСЋС” РґРѕ 6 С– РїРѕРІРµСЂС‚Р°С” 3вЂ“6 */
 const GLUDIO_RB_BASE: RaidBoss[] = [
   { id: "rb_l2dop_gludio_01", name: "Чемпіон", level: 5, hp: 8000, mp: 0, pAtk: 90, mAtk: 0, pDef: 70, mDef: 50, exp: 8000, sp: 500, adenaMin: 2500, adenaMax: 4500, dropChance: 1, drops: gludioRbDrops(0), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_gludio_01" },
@@ -682,11 +665,6 @@ export function getAdenL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
     result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i), zoneId));
   }
   return result;
-}
-
-/** D/C-grade СЂРµСЃСѓСЂСЃРё РґР»СЏ РґСЂРѕРїСѓ Aden Р Р‘ (Р»РІР» 40вЂ“65) */
-function adenRbDrops(_rbIndex: number): DropEntry[] {
-  return [];
 }
 
 /** Р‘Р°Р·РѕРІС– Р Р‘ Aden вЂ” РїРѕ РѕРґРЅРѕРјСѓ РЅР° Р·РѕРЅСѓ; getAdenRaidBossesForZone СЂРѕР·С€РёСЂСЋС” РґРѕ 6 С– РїРѕРІРµСЂС‚Р°С” 3вЂ“6 */
@@ -917,10 +895,6 @@ export function getOrenL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
   return result;
 }
 
-function orenRbDrops(_rbIndex: number): DropEntry[] {
-  return [];
-}
-
 const OREN_RB_BASE: RaidBoss[] = [
   { id: "rb_l2dop_oren_01", name: "Капітан Оренських Вартових", level: 44, hp: 195000, mp: 0, pAtk: 410, mAtk: 0, pDef: 328, mDef: 222, exp: 92000, sp: 4800, adenaMin: 36000, adenaMax: 56000, dropChance: 1, drops: orenRbDrops(0), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_01" },
   { id: "rb_l2dop_oren_02", name: "Володар Темного Бору", level: 46, hp: 225000, mp: 0, pAtk: 445, mAtk: 0, pDef: 352, mDef: 238, exp: 104000, sp: 5400, adenaMin: 42000, adenaMax: 65000, dropChance: 1, drops: orenRbDrops(1), isRaidBoss: true, respawnTime: 5 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_oren_02" },
@@ -985,10 +959,6 @@ export function getGoddardL2DopChampions(zoneId: string, minLvl: number, maxLvl:
     result.push(makeChampion(shuffled[i], `${baseName} ${suffixes[i % suffixes.length]}`, String.fromCharCode(97 + i), zoneId));
   }
   return result;
-}
-
-function goddardRbDrops(_rbIndex: number): DropEntry[] {
-  return [];
 }
 
 const GODDARD_RB_BASE: RaidBoss[] = [
@@ -1063,10 +1033,6 @@ export function getSchuttgartL2DopChampions(zoneId: string, minLvl: number, maxL
     result.push(makeChampion(base, `${baseName} ${suf}`, `sch${i}`, zoneId));
   }
   return result;
-}
-
-function schuttgartRbDrops(_rbIndex: number): DropEntry[] {
-  return [];
 }
 
 const SCHUTTGART_RB_BASE: RaidBoss[] = [
@@ -1149,10 +1115,6 @@ export function getRuneL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
   return result;
 }
 
-function runeRbDrops(_rbIndex: number): DropEntry[] {
-  return [];
-}
-
 const RUNE_RB_BASE: RaidBoss[] = [
   { id: "rb_l2dop_rune_01", name: "Warden of the Trade Road", level: 68, hp: 385000, mp: 0, pAtk: 2650, mAtk: 0, pDef: 820, mDef: 555, exp: 310000, sp: 18500, adenaMin: 195000, adenaMax: 298000, dropChance: 1, drops: runeRbDrops(0), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_01" },
   { id: "rb_l2dop_rune_02", name: "Patriarch of the Moor", level: 69, hp: 412000, mp: 0, pAtk: 2720, mAtk: 0, pDef: 838, mDef: 568, exp: 328000, sp: 19400, adenaMin: 205000, adenaMax: 312000, dropChance: 1, drops: runeRbDrops(1), isRaidBoss: true, respawnTime: 6 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_rune_02" },
@@ -1230,10 +1192,6 @@ export function getDionL2DopChampions(zoneId: string, minLvl: number, maxLvl: nu
   return result;
 }
 
-function dionRbDrops(_rbIndex: number): DropEntry[] {
-  return [];
-}
-
 const DION_RB_BASE: RaidBoss[] = [
   { id: "rb_l2dop_dion_01", name: "Shepherd's Bane", level: 30, hp: 88000, mp: 0, pAtk: 580, mAtk: 0, pDef: 320, mDef: 210, exp: 44000, sp: 2700, adenaMin: 3600, adenaMax: 5800, dropChance: 1, drops: dionRbDrops(0), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_01" },
   { id: "rb_l2dop_dion_02", name: "Hive Queen's Shadow", level: 31, hp: 96000, mp: 0, pAtk: 620, mAtk: 320, pDef: 335, mDef: 225, exp: 48000, sp: 2900, adenaMin: 3900, adenaMax: 6200, dropChance: 1, drops: dionRbDrops(1), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_aden_drop", aiProfileId: "rb_floran_ai", zoneId: "l2dop_dion_02" },
@@ -1309,10 +1267,6 @@ export function getFloranVillageL2DopChampions(zoneId: string, minLvl: number, m
   return result;
 }
 
-function fvRbDrops(_i: number): DropEntry[] {
-  return [];
-}
-
 const FLORAN_VILLAGE_RB_BASE: RaidBoss[] = [
   { id: "rb_floran_village_01", name: "Raid Boss: Meadow Matriarch", level: 12, hp: 28000, mp: 0, pAtk: 165, mAtk: 0, pDef: 118, mDef: 82, exp: 8500, sp: 520, adenaMin: 1200, adenaMax: 2400, dropChance: 1, drops: fvRbDrops(0), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_01" },
   { id: "rb_floran_village_02", name: "Raid Boss: Riverbend Horror", level: 14, hp: 32000, mp: 0, pAtk: 178, mAtk: 95, pDef: 125, mDef: 90, exp: 9800, sp: 580, adenaMin: 1400, adenaMax: 2700, dropChance: 1, drops: fvRbDrops(1), isRaidBoss: true, respawnTime: 4 * 60 * 60, dropProfileId: "rb_l2dop_gludio_drop", aiProfileId: "rb_floran_ai", zoneId: "floran_village_02" },
@@ -1376,10 +1330,6 @@ export function getHeineL2DopChampions(zoneId: string, minLvl: number, maxLvl: n
     result.push(makeChampion(base, `${baseName} ${suf}`, `heine${i}`, zoneId));
   }
   return result;
-}
-
-function heineRbDrops(_i: number): DropEntry[] {
-  return [];
 }
 
 const HEINE_RB_BASE: RaidBoss[] = [
@@ -1448,10 +1398,6 @@ export function getGludinVillageL2DopChampions(zoneId: string, minLvl: number, m
     result.push(makeChampion(base, `${baseName} ${suf}`, `gv${i}`, zoneId));
   }
   return result;
-}
-
-function gludinRbDrops(_i: number): DropEntry[] {
-  return [];
 }
 
 const GLUDIN_VILLAGE_RB_BASE: RaidBoss[] = [
@@ -1529,10 +1475,6 @@ export function getHuntersVillageL2DopChampions(zoneId: string, minLvl: number, 
     result.push(makeChampion(base, `${baseName} ${suf}`, `hv${i}`, zoneId));
   }
   return result;
-}
-
-function huntersVillageRbDrops(_i: number): DropEntry[] {
-  return [];
 }
 
 const HUNTERS_VILLAGE_RB_BASE: RaidBoss[] = [
