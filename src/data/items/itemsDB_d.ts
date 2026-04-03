@@ -329,7 +329,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Shilen_Knife.jpg",
     description: "Ніж Шілен D-grade. Кинджал з магічним посиленням.",
     grade: "D",
-    stats: { pAtk: 48, mAtk: 42, rCrit: 4, pAtkSpd: 379, castSpeed: 80 },
+    stats: { pAtk: 48, mAtk: 52, rCrit: 4, pAtkSpd: 379 },
   },
   d_tomahawk: {
     id: "d_tomahawk",
@@ -359,7 +359,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
     description: "Дворучний меч D-grade.",
     grade: "D",
-    stats: { pAtk: 64, mAtk: 12, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 64, mAtk: 62, rCrit: 4, pAtkSpd: 379 },
   },
   d_war_hammer: {
     id: "d_war_hammer",
