@@ -1,6 +1,7 @@
 import type { ItemDefinition } from "../data/items/itemsDB.types";
 import { itemsDBCraftResources } from "../data/items/itemsDBCraftResources";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
+import { getQuestReferencedItemIds } from "../data/quests";
 import { L2DOP_TIER_MATERIAL_IDS } from "../data/world/l2dop/tieredResourceLoot";
 
 /** Івент, рибалка, скрині, ключі — не з папки l2dop-by-itemid, але потрібні в адмінці. */
@@ -14,7 +15,6 @@ const ADMIN_EXTRA_SHOWN_RESOURCE_IDS: ReadonlySet<string> = new Set([
   "gludio_fish_lure",
   "fish_seawater",
   "treasure_box",
-  "quest_gludio_charcoal",
   "thief_key",
 ]);
 
@@ -24,6 +24,7 @@ function buildAdminShownResourceIds(): ReadonlySet<string> {
     ...L2DOP_TIER_MATERIAL_IDS,
     ...Object.keys(itemsDBCrystals),
     ...ADMIN_EXTRA_SHOWN_RESOURCE_IDS,
+    ...getQuestReferencedItemIds(),
   ]);
 }
 
@@ -35,8 +36,8 @@ function isStoneLikeResourceId(id: string): boolean {
 }
 
 /**
- * Прибирає з адмін-вибору «зайві» resource/slot:resource (квестові трофеї професій, зламані іконки тощо).
- * У грі предмети лишаються в itemsDB — лише пікер чиститься.
+ * Прибирає з адмін-вибору resource/slot:resource, яких немає в тиері, крафті, кристалах,
+ * івент-наборі та в робочих квестах (`getQuestReferencedItemIds()`).
  */
 export function shouldOmitItemFromAdminPicker(id: string, def: ItemDefinition): boolean {
   const k = def.kind || "";

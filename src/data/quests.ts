@@ -956,3 +956,26 @@ QUESTS.forEach((quest) => {
     QUESTS_BY_LOCATION[quest.location].push(quest);
   }
 });
+
+/**
+ * Усі string id предметів із `QUESTS` (нагороди, вимоги, questDrops, rewardPickOneItemId)
+ * плюс канонічні id та аліаси з `QUEST_ITEM_TURN_IN_ALIASES`.
+ * Для адмін-пікера / перевірки, що в itemsDB немає «мертвих» квестових предметів.
+ */
+export function getQuestReferencedItemIds(): ReadonlySet<string> {
+  const s = new Set<string>();
+  const add = (id?: string) => {
+    if (id) s.add(id);
+  };
+  for (const q of QUESTS) {
+    q.rewards?.items?.forEach((it) => add(it.id));
+    q.requirements?.items?.forEach((it) => add(it.id));
+    q.questDrops?.forEach((d) => add(d.itemId));
+    q.rewardPickOneItemId?.forEach(add);
+  }
+  for (const [canon, aliases] of Object.entries(QUEST_ITEM_TURN_IN_ALIASES)) {
+    add(canon);
+    aliases.forEach((a) => add(a));
+  }
+  return s;
+}
