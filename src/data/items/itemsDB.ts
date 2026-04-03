@@ -22,6 +22,7 @@ import { applyShopJewelryStatsToItemsDB } from '../shop/jewelryStatsByShopId';
 import { mysticSpellbookItemsDB } from './itemsDB_spellbooks';
 import { itemsDBGmGiantEnchants } from './itemsDB_gm_giant_enchants';
 import { itemsDBGmBlessedCharges } from './itemsDB_gm_blessed_charges';
+import { itemsDBGmBlessSoulScrolls } from './itemsDB_gm_bless_soul_scrolls';
 
 // Експортуємо тип для зручності використання
 export type { ItemDefinition } from './itemsDB.types';
@@ -45,6 +46,7 @@ const itemsDBRaw: Record<string, ItemDefinition> = {
   ...mysticSpellbookItemsDB,
   ...itemsDBGmGiantEnchants,
   ...itemsDBGmBlessedCharges,
+  ...itemsDBGmBlessSoulScrolls,
 };
 
 /** M.Def / maxMp для біжутерії з магазину (l2elo / Interlude) */

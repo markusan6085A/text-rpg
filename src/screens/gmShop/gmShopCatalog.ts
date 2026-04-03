@@ -1,5 +1,7 @@
 /** Каталог GM-шопу: краски AA, розсодники за адену. */
 
+import { GM_BLESS_SOUL_SCROLL_IDS as GM_BLESS_SOUL_SCROLL_IDS_FROM_DATA } from "../../data/items/gmBlessSoulScrollBuffs";
+
 export interface DyeItem {
   id: string;
   itemId: string;
@@ -57,6 +59,11 @@ export const GM_BLESSED_CHARGE_IDS = [
   "gm_blessed_charge_a",
   "gm_blessed_charge_s",
 ] as const;
+
+export const GM_BLESS_SOUL_SCROLL_ADENA_PRICE = 1;
+
+/** Скроли Bless the Soul (іконка одна, ефекти в gmBlessSoulScrollBuffs) */
+export const GM_BLESS_SOUL_SCROLL_IDS = GM_BLESS_SOUL_SCROLL_IDS_FROM_DATA;
 
 export const RASODNIKI_STONES_INFO: { id: string; icon: string; effect: string }[] = [
   { id: "stone_crit", icon: "/items/drops/item/Ench_wp_potion_violet_i00_0.jpg", effect: "Крит: +5%" },

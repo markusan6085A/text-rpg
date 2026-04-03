@@ -15,6 +15,8 @@ import {
   GM_GIANT_SCROLL_ADENA_PRICE,
   GM_BLESSED_CHARGE_IDS,
   GM_BLESSED_CHARGE_ADENA_PRICE,
+  GM_BLESS_SOUL_SCROLL_IDS,
+  GM_BLESS_SOUL_SCROLL_ADENA_PRICE,
   CRYSTAL_PRICE_ADENA,
   RASODNIKI_REQUIRED_LEVEL,
   RASODNIKI_STONES_INFO,
@@ -44,7 +46,7 @@ export default function GMShop({ navigate }: GMShopProps) {
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
   const [generateStoneModal, setGenerateStoneModal] = useState(false);
   const [generateStoneSelectedId, setGenerateStoneSelectedId] = useState<string | null>(null);
-  const [consumablesSub, setConsumablesSub] = useState<"giant" | "charges">("giant");
+  const [consumablesSub, setConsumablesSub] = useState<"giant" | "charges" | "bless_scrolls">("giant");
 
   if (!hero) {
     return (
@@ -499,6 +501,14 @@ export default function GMShop({ navigate }: GMShopProps) {
                 >
                   Заряди (100%)
                 </button>
+                <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
+                <button
+                  type="button"
+                  onClick={() => setConsumablesSub("bless_scrolls")}
+                  className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${consumablesSub === "bless_scrolls" ? tabOn : tabOff}`}
+                >
+                  Скроли Bless
+                </button>
               </div>
               {consumablesSub === "giant" && (
                 <>
@@ -579,6 +589,48 @@ export default function GMShop({ navigate }: GMShopProps) {
                         <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
                         <div className="text-[12px] text-[#f4e2b8] font-semibold">
                           {GM_BLESSED_CHARGE_ADENA_PRICE} Adena
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+              {consumablesSub === "bless_scrolls" && (
+                <>
+                  <div className={`text-[10px] ${isL2 ? "text-[#a89878]" : "text-gray-400"} mb-1`}>
+                    Тимчасові бафи в бою (20 хв). Одна іконка — різні ефекти; використайте з панелі під час бою.
+                  </div>
+                  {GM_BLESS_SOUL_SCROLL_IDS.map((itemId) => {
+                    const def = itemsDB[itemId];
+                    if (!def) return null;
+                    return (
+                      <div
+                        key={itemId}
+                        className={
+                          isL2
+                            ? rowL2
+                            : "flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                        }
+                        onClick={() => {
+                          setSelectedAdenaPurchase({
+                            itemId,
+                            unitPrice: GM_BLESS_SOUL_SCROLL_ADENA_PRICE,
+                            minLevel: null,
+                          });
+                          setBuyQuantity(1);
+                        }}
+                      >
+                        <img
+                          src={def.icon}
+                          alt={def.name}
+                          className="w-8 h-8 object-contain flex-shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                          }}
+                        />
+                        <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
+                        <div className="text-[12px] text-[#f4e2b8] font-semibold">
+                          {GM_BLESS_SOUL_SCROLL_ADENA_PRICE} Adena
                         </div>
                       </div>
                     );

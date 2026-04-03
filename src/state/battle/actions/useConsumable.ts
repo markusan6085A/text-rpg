@@ -8,6 +8,11 @@ import { hasSpiritshotActive } from "./useSkill/shotHelpers";
 import { applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
 import { cleanupBuffs } from "../helpers";
 import { handleEnchantScroll } from "./enchantScroll";
+import {
+  createGmBlessSoulScrollBuff,
+  isGmBlessSoulScrollItem,
+  GM_BLESS_SOUL_SCROLL_DURATION_MS,
+} from "../../../data/items/gmBlessSoulScrollBuffs";
 
 // КД для банок у PvE (1 секунда)
 const DEFAULT_POTION_COOLDOWN_MS = 1000;
@@ -271,6 +276,50 @@ export function handleConsumable(
       });
       return true;
     }
+  }
+
+  // GM скроли Bless the Soul — тимчасовий баф у бою
+  if (isGmBlessSoulScrollItem(itemId)) {
+    const newBuff = createGmBlessSoulScrollBuff(itemId, now);
+    if (!newBuff) {
+      setAndPersist({
+        log: [`Помилка скролу: ${itemId}`, ...state.log].slice(0, 30),
+      });
+      return false;
+    }
+
+    const withoutSameId = (state.heroBuffs || []).filter(
+      (b: any) => !(typeof b?.id === "number" && b.id === newBuff.id)
+    );
+    const nextBuffs = cleanupBuffs([newBuff, ...withoutSameId], now);
+
+    const updatedInventory = currentHero.inventory.map((i: any) => {
+      if (i.id === itemId) {
+        const newCount = (i.count ?? 1) - 1;
+        return newCount > 0 ? { ...i, count: newCount } : null;
+      }
+      return i;
+    }).filter(Boolean) as any[];
+
+    const heroForMax = { ...hero, inventory: updatedInventory };
+    const baseMax = getMaxResources(heroForMax);
+    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, nextBuffs);
+    const curHp = Math.min(maxHp, hero.hp ?? maxHp);
+    const curMp = Math.min(maxMp, hero.mp ?? maxMp);
+    const curCp = Math.min(maxCp, hero.cp ?? maxCp);
+
+    setAndPersist({
+      heroBuffs: nextBuffs,
+      log: [`Ви використали ${itemDef.name} (${newBuff.name ?? "баф"}, ${Math.round(GM_BLESS_SOUL_SCROLL_DURATION_MS / 60000)} хв)`, ...state.log].slice(0, 30),
+    });
+
+    updateHero({
+      inventory: updatedInventory,
+      hp: curHp,
+      mp: curMp,
+      cp: curCp,
+    });
+    return true;
   }
 
   // Перевірка чи це заточка

@@ -10,6 +10,7 @@ import { locations as WORLD_LOCATIONS } from "../../../../data/world";
 import type { Mob } from "../../../../data/world/types";
 import { useAutoShot } from "./shotHelpers";
 import { canAttackWithBow, useArrow, getWeaponGrade } from "./arrowHelpers";
+import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
 import { itemsDB } from "../../../../data/items/itemsDB";
 import { L2_PHYSICAL_COEFFICIENT, L2_PVE_DAMAGE_MULTIPLIER } from "../../../../data/balance";
 import { getMobTargetStatsForHeroDamage } from "../../helpers/mobTargetStats";
@@ -191,8 +192,10 @@ export function handleBaseAttack(
   }
   const curHero = useHeroStore.getState().hero;
 
-  // Обробка крадіжки HP (vampirism)
-  const vampirismPercent = buffedStats?.vampirism ?? 0;
+  // Обробка крадіжки HP (vampirism); Vampiric Rage скрол — лише ближній бій (без лука)
+  const weaponTypeBa = getWeaponTypeFromEquipment(hero.equipment);
+  const vampMelee = weaponTypeBa !== "bow" ? (buffedStats?.vampirismMelee ?? 0) : 0;
+  const vampirismPercent = (buffedStats?.vampirism ?? 0) + vampMelee;
   const totalVamp = vampirismPercent;
   const healFromVamp = totalVamp > 0 ? Math.round(damage * (totalVamp / 100)) : 0;
   const nextHeroHP = Math.min(maxHp, curHeroHP + healFromVamp);

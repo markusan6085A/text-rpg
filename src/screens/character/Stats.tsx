@@ -374,6 +374,12 @@ export default function Stats() {
                 <span className="text-[#c88a5c]">Уклонение</span>
                 <span className={valClass}>{formatStatValue(combatStats.evasion)}%</span>
               </div>
+              {typeof (combatStats as any).runSpeed === "number" && (combatStats as any).runSpeed > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-[#c88a5c]">Швидкість бігу</span>
+                  <span className={valClass}>{formatStatValue((combatStats as any).runSpeed)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Маг. крит</span>
                 <span className={valClass}>{formatStatValue(combatStats.mCritFlat ?? combatStats.mCrit * 10)} ({combatStats.mCrit}%)</span>

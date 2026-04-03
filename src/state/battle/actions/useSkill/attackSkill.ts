@@ -134,7 +134,10 @@ export function handleAttackSkill(
   // Обробка крадіжки HP (vampirism) для attack skills
   // Для drain skills (Steal Essence, Life Drain) - пріоритет має vampirism зі скілу (80%)
   // Для інших скілів - спочатку перевіряємо vampirism з бафів, потім зі скілу
-  const vampFromBuffs = heroStats?.vampirism ?? 0;
+  const wt = getWeaponTypeFromEquipment(hero.equipment);
+  const vampMeleeBonus =
+    isPhysical && !isMagic && wt !== "bow" ? (heroStats?.vampirismMelee ?? 0) : 0;
+  const vampFromBuffs = (heroStats?.vampirism ?? 0) + vampMeleeBonus;
   const vampFromSkill = def.effects?.find((eff: any) => eff.stat === "vampirism")?.value ?? 0;
   // Для drain skills (Steal Essence 1245, Life Drain 1090) - завжди використовуємо vampirism зі скілу, якщо він є
   const isDrainSkill = skillId === 1245 || skillId === 1090;

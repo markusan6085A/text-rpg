@@ -217,9 +217,20 @@ export const createUseSkill =
     const levelDef = def.levels.find((l) => l.level === learned.level) ?? def.levels[0];
     if (!levelDef) return;
 
+    // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk/castSpeed — перераховуємо (фікс урону ~798, швидкості касту)
+    let heroForStats = hero;
+    const bs = hero.battleStats;
+    const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1 || (bs.castSpeed ?? 0) < 1;
+    if (needsStatsRecalc) {
+      const recalculated = recalculateAllStats(hero, activeBuffs);
+      updateHero({ battleStats: recalculated.baseFinalStats });
+      heroForStats = { ...hero, battleStats: recalculated.baseFinalStats };
+    }
+
+    const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, activeBuffs);
     const rawMpCost = levelDef.mpCost ?? 0;
-    const lsGuidance = (hero.battleStats as any)?.lsGuidance ?? 0;
-    const mpSkillRed = (hero.battleStats as any)?.mpSkillCostReduction ?? 0;
+    const lsGuidance = (heroStats as any)?.lsGuidance ?? 0;
+    const mpSkillRed = Math.min(90, (heroStats as any)?.mpSkillCostReduction ?? 0);
     const mpCost = Math.max(
       0,
       Math.round(rawMpCost * (1 - lsGuidance / 100) * (1 - mpSkillRed / 100))
@@ -232,18 +243,6 @@ export const createUseSkill =
       }
       return;
     }
-
-    // 🔥 Захист: якщо battleStats порожні або без pAtk/mAtk/castSpeed — перераховуємо (фікс урону ~798, швидкості касту)
-    let heroForStats = hero;
-    const bs = hero.battleStats;
-    const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1 || (bs.castSpeed ?? 0) < 1;
-    if (needsStatsRecalc) {
-      const recalculated = recalculateAllStats(hero, activeBuffs);
-      updateHero({ battleStats: recalculated.baseFinalStats });
-      heroForStats = { ...hero, battleStats: recalculated.baseFinalStats };
-    }
-
-    const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, activeBuffs);
     const attackSpeed = heroStats?.attackSpeed ?? heroStats?.atkSpeed ?? 0;
     const castSpeed = heroStats?.castSpeed ?? 333;
     const skillCategory = def.category;
