@@ -273,12 +273,12 @@ export function processMobDrops(
     classicLineDrops.forEach(applyOneDropLine);
   }
 
-  // Treasure Box: 15% шанс лише з мобів, рівень яких у межах ±3 від рівня героя
+  // Treasure Box: лише з мобів у межах ±3 рівнів від героя
   const heroLevel = hero.level || 1;
   const levelDiff = Math.abs(mob.level - heroLevel);
   const treasureBoxMaxLevelDiff = 3;
   if (!MOB_LOOT_TABLES_DISABLED && levelDiff <= treasureBoxMaxLevelDiff) {
-    const treasureBoxChance = 0.15; // 15% шанс
+    const treasureBoxChance = 0.1;
     if (Math.random() < treasureBoxChance) {
       const treasureBoxId = "treasure_box";
       const itemDef = itemsDB[treasureBoxId];
