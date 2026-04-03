@@ -650,6 +650,9 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                   {displayStats.rCrit !== undefined && (
                     <div className="text-purple-400">Крит: {displayStats.rCrit}</div>
                   )}
+                  {typeof (displayStats as { critPower?: number }).critPower === "number" && (
+                    <div className="text-rose-300">Сила крита: {(displayStats as { critPower: number }).critPower}</div>
+                  )}
                   {displayStats.pAtkSpd !== undefined && (
                     <div className="text-yellow-400">Скорость боя: {displayStats.pAtkSpd}</div>
                   )}
