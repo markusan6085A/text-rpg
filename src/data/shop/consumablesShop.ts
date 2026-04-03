@@ -78,7 +78,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 50000,
-    icon: "/items/drops/resources/etc_blessed_scrl_of_ench_wp_d_i01.png",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i01.png",
     description: "Заточка для D-grade зброї. Шанси: до +5 100%, +5-+15 80%, +15-+30 70%, +30-+40 60%",
   },
   {
@@ -135,7 +135,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 50000,
-    icon: "/items/drops/resources/etc_blessed_scrl_of_ench_am_d_i01.png",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i01.png",
     description: "Заточка для D-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
@@ -146,7 +146,7 @@ export const CONSUMABLES_SHOP_ITEMS: ShopItem[] = [
     type: "consumable",
     category: "enchant_scroll",
     price: 80000,
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i01.png",
+    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i02.png",
     description: "Заточка для C-grade броні/біжутерії/пояса/плаща. Шанси: до +3 100%, до +10 90%, до +20 80%, до +30 70%",
   },
   {
