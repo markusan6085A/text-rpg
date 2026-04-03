@@ -6,6 +6,7 @@ import { useHeroStore } from "../../state/heroStore";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { adminItemInlineButtonClass, getAdminItemPickerHighlight } from "../../utils/adminItemSourceSets";
 import { handleResourceIconError, normalizeIconPath } from "../../utils/itemIcon";
+import { shouldOmitItemFromAdminPicker } from "../../utils/adminResourceAllowlist";
 
 const style = { color: "#c7ad80" };
 
@@ -70,6 +71,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     const map: Record<string, Array<{ id: string; name: string; grade?: string; icon?: string }>> = {};
     for (const [id, def] of Object.entries(itemsDB)) {
       if (ADMIN_NO_GIVE_IDS.has(id)) continue;
+      if (shouldOmitItemFromAdminPicker(id, def)) continue;
       if (!def?.name && !def?.id) continue;
       const cat = getCategory(def.kind || def.slot || "other");
       if (!map[cat]) map[cat] = [];

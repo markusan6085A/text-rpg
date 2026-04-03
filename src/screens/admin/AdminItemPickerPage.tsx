@@ -9,6 +9,7 @@ import {
   type AdminItemPickerFilter,
 } from "../../utils/adminItemSourceSets";
 import { handleResourceIconError, normalizeIconPath } from "../../utils/itemIcon";
+import { shouldOmitItemFromAdminPicker } from "../../utils/adminResourceAllowlist";
 
 const style = { color: "#c7ad80" };
 
@@ -76,6 +77,7 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
     const searchLower = search.trim().toLowerCase();
     for (const [id, def] of Object.entries(itemsDB)) {
       if (ADMIN_NO_GIVE_IDS.has(id)) continue;
+      if (shouldOmitItemFromAdminPicker(id, def)) continue;
       if (!def?.name && !def?.id) continue;
       const highlight = getAdminItemPickerHighlight(id, def);
       if (highlightFilter !== "all" && highlight !== highlightFilter) continue;
