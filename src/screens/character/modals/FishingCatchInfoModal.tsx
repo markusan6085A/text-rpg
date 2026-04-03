@@ -74,6 +74,10 @@ export default function FishingCatchInfoModal({ onClose }: FishingCatchInfoModal
             >
               <div>• <span className="text-green-400">Риба</span> (fish_seawater) — кількість залежить від заточки удочки</div>
               <div>• <span className="text-yellow-400">Опит</span> — 100k–1M випадково (20% шанс 600k–1M, 40% — 400k–600k, 40% — 100k–400k)</div>
+              <div>
+                • <span className="text-cyan-300">Додатковий лут</span> — при зборі улову з імовірністю можуть потрапити крафт-ресурси, зброя,
+                обладунки та біжутерія різних грейдів; точні шанси в інтерфейсі не показуються.
+              </div>
             </div>
           </div>
         </div>

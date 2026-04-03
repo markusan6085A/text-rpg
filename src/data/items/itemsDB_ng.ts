@@ -647,7 +647,8 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
     kind: "resource",
     slot: "resource",
     icon: "/items/drops/resources/Etc_fish_seawater_i01_0.jpg",
-    description: "Морська риба, спіймана на риболовлі.",
+    description:
+      "Морська риба, спіймана на риболовлі. При зборі улову додатково можуть з’явитися крафт-ресурси, зброя, обладунки та біжутерія різних грейдів.",
     grade: "NG",
   },
   fish_bream: {

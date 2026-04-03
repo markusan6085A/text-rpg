@@ -315,7 +315,8 @@ export default function Fishing({ navigate }: FishingProps) {
           >
             Здесь можно провести час на берегу: один заброс стоит {FISHING_COST_SP.toLocaleString()} SP
             {FISHING_COST_ADENA > 0 ? ` и ${FISHING_COST_ADENA.toLocaleString()} аден` : ""}. Нужны удочка и наживка.
-            Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб.
+            Через час заберите улов — от {fishRange.min} до {fishRange.max} рыб. При сборе также может выпасть дополнительный крафт-лут,
+            оружие, доспехи и бижутерия (шансы не показываются).
           </p>
           <div className="flex justify-start -ml-1">
             <div className="relative overflow-hidden rounded shadow-[inset_0_0_25px_10px_rgba(0,0,0,0.65)]">

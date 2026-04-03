@@ -4,6 +4,7 @@ import { processFishDrop, buildItemsFromDrop } from "../../../fishDismantle";
 import { getAuth } from "../auth";
 import { addVersioning } from "../../../heroJsonValidator";
 import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
+import { mergeFishingExtraIntoInventory, rollFishingExtraDrops } from "../../../fishingCollectDrops";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -276,7 +277,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         nextLevel = afterFish.level;
         nextExp = afterFish.exp;
 
-        const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        let inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
         const existing = inv.find((i: any) => (i?.id ?? i?.itemId) === FISH_ITEM_ID);
         if (existing) {
           existing.count = (Number(existing.count) ?? 0) + fishCount;
@@ -290,6 +291,11 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           });
         }
 
+        const extraDrops = rollFishingExtraDrops(fishCount);
+        const overflowChestBase: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
+        const merged = mergeFishingExtraIntoInventory(inv, overflowChestBase, extraDrops);
+        inv = merged.inventory;
+
         const { fishingSession: _, ...restHero } = heroJson;
         const prevTotal = Number(restHero.fishCaughtTotal ?? 0) || 0;
         const oldRevision = heroJson.heroRevision ?? 0;
@@ -297,6 +303,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           {
             ...restHero,
             inventory: inv,
+            overflowChest: merged.overflowChest,
             fishCaughtTotal: prevTotal + fishCount,
             level: nextLevel,
             exp: nextExp,

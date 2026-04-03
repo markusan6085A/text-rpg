@@ -189,7 +189,7 @@ export default function Help({ navigate }: HelpProps) {
 
           <Section title="Рыбалка">
             <p><strong>Нужно:</strong> удочка (слот оружия), наживка Gludio Fish Lure в инвентаре, <strong>5000 SP</strong> на заброс.</p>
-            <p><strong>Как:</strong> <LinkBtn onClick={() => navigate("/fishing")}>→ Рыбалка</LinkBtn> → «Начать», через 1 час — «Собрать».</p>
+            <p><strong>Как:</strong> <LinkBtn onClick={() => navigate("/fishing")}>→ Рыбалка</LinkBtn> → «Начать», через 1 час — «Собрать». При сборе возможны дополнительные ресурсы, оружие, доспехи и бижутерия.</p>
             <p>Улов и бонус зависят от заточки удочки; даёт EXP и рыбу.</p>
           </Section>
 

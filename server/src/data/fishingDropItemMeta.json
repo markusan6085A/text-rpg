@@ -1,0 +1,3862 @@
+﻿{
+  "shadow_helm": {
+    "name": "Shadow Helm",
+    "icon": "/items/drops/arrom_d/Shadow_Helm.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "D"
+  },
+  "shadow_brigandine": {
+    "name": "Shadow Brigandine",
+    "icon": "/items/drops/arrom_d/Shadow_Brigandine.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "shadow_gloves": {
+    "name": "Shadow Gloves",
+    "icon": "/items/drops/arrom_d/Shadow_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "D"
+  },
+  "shadow_boots": {
+    "name": "Shadow Boots",
+    "icon": "/items/drops/arrom_d/Shadow_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "D"
+  },
+  "shadow_oath_helm": {
+    "name": "Shadow Oath Helm",
+    "icon": "/items/drops/arrom_d/Shadow_Oath_Helm.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "D"
+  },
+  "shadow_oath_armor": {
+    "name": "Shadow Oath Armor",
+    "icon": "/items/drops/arrom_d/Shadow_Oath_Armor.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "shadow_oath_gauntlets": {
+    "name": "Shadow Oath Gauntlets",
+    "icon": "/items/drops/arrom_d/Shadow_Oath_Gauntlets.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "D"
+  },
+  "shadow_oath_sabaton": {
+    "name": "Shadow Oath Sabaton",
+    "icon": "/items/drops/arrom_d/Shadow_Oath_Sabaton.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "D"
+  },
+  "monster_shield": {
+    "name": "Monster Shield",
+    "icon": "/items/drops/arrom_d/monster.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "D"
+  },
+  "bronze_shield": {
+    "name": "Bronze Shield",
+    "icon": "/items/drops/arrom_d/Shield_bronze_shield_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "D"
+  },
+  "hoplon": {
+    "name": "Hoplon",
+    "icon": "/items/drops/arrom_d/Shield_hoplon_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "D"
+  },
+  "plate_shield": {
+    "name": "Plate Shield",
+    "icon": "/items/drops/arrom_d/Shield_plate_shield_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "D"
+  },
+  "clan_oath_helm": {
+    "name": "Oath Helm",
+    "icon": "/items/drops/arrom_d/Oath_Helm.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "D"
+  },
+  "clan_oath_aketon": {
+    "name": "Oath Aketon",
+    "icon": "/items/drops/arrom_d/Oath_Aketon.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "clan_oath_padded_gloves_robe": {
+    "name": "Oath Padded Gloves",
+    "icon": "/items/drops/arrom_d/Oath_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "D"
+  },
+  "clan_oath_sandals_robe": {
+    "name": "Oath Sandals",
+    "icon": "/items/drops/arrom_d/Oath_Sandals.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "D"
+  },
+  "soulshot_d": {
+    "name": "Soulshot (D-grade)",
+    "icon": "/items/drops/resources/Etc_spirit_bullet_blue_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "spiritshot_d": {
+    "name": "Spiritshot (D-grade)",
+    "icon": "/items/drops/resources/Etc_spell_shot_blue_i01_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "bone_arrow": {
+    "name": "Bone Arrow",
+    "icon": "/items/drops/resources/etc_bone_quiver_i00.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "healing_potion": {
+    "name": "Healing Potion",
+    "icon": "/items/drops/resources/Etc_potion_scarlet_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "mana_potion": {
+    "name": "Mana Potion",
+    "icon": "/items/drops/resources/Etc_potion_blue_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "d_enchant_weapon_scroll": {
+    "name": "Scroll: Enchant Weapon (D-grade)",
+    "icon": "/items/drops/resources/etc_blessed_scrl_of_ench_wp_d_i01.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "d_enchant_armor_scroll": {
+    "name": "Scroll: Enchant Armor (D-grade)",
+    "icon": "/items/drops/resources/etc_blessed_scrl_of_ench_am_d_i01.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "blessed_scroll_enchant_weapon_grade_d": {
+    "name": "Blessed Scroll: Enchant Weapon (D-grade)",
+    "icon": "/items/drops/resources/bless-weapon-d.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "blessed_scroll_enchant_armor_grade_d": {
+    "name": "Blessed Scroll: Enchant Armor (D-grade)",
+    "icon": "/items/drops/resources/bless-armor-d.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "D"
+  },
+  "ancient_adena": {
+    "name": "Ancient Adena",
+    "icon": "/items/drops/resources/etc_ancient_adena_i00.png",
+    "slot": "resource",
+    "kind": "resource",
+    "grade": "D"
+  },
+  "d_atuba_hammer": {
+    "name": "Atuba Hammer",
+    "icon": "/items/drops/weapon_d/Atuba_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_baguette_dual_sword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_d/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_dark_elven_bow": {
+    "name": "Dark Elven Bow",
+    "icon": "/items/drops/weapon_d/Dark_Elven_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_knights_sword": {
+    "name": "Knight's Sword",
+    "icon": "/items/drops/weapon_d/Knight_s_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_shilen_knife": {
+    "name": "Shilen Knife",
+    "icon": "/items/drops/weapon_d/Shilen_Knife.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_tomahawk": {
+    "name": "Tomahawk",
+    "icon": "/items/drops/weapon_d/Tomahawk.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_triple_edged_jamadhr": {
+    "name": "Triple-Edged Jamadhr",
+    "icon": "/items/drops/weapon_d/Triple-Edged_Jamadhr.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_two_handed_sword": {
+    "name": "Two-Handed Sword",
+    "icon": "/items/drops/weapon_d/Two_Handed_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "d_war_hammer": {
+    "name": "War Hammer",
+    "icon": "/items/drops/weapon_d/War_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "mithril_helmet": {
+    "name": "Mithril Helmet",
+    "icon": "/items/drops/arrom_d/Mithril_helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "D"
+  },
+  "mithril_breastplate": {
+    "name": "Mithril Breastplate",
+    "icon": "/items/drops/arrom_d/Mithril_Breastplate.jpg",
+    "slot": "chest",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "mithril_gaiters": {
+    "name": "Mithril Gaiters",
+    "icon": "/items/drops/arrom_d/Mithril_Gaiters.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "mithril_gloves": {
+    "name": "Mithril Gloves",
+    "icon": "/items/drops/arrom_d/Mithri_gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "D"
+  },
+  "mithril_boots": {
+    "name": "Mithril Boots",
+    "icon": "/items/drops/arrom_d/Mithril_bots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "D"
+  },
+  "leather_helmet": {
+    "name": "Reinforced Helmet",
+    "icon": "/items/drops/arrom_d/Reinforced_helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "D"
+  },
+  "reinforced_leather_shirt": {
+    "name": "Reinforced Leather Shirt",
+    "icon": "/items/drops/arrom_d/Reinforced_Leather_Shirt.jpg",
+    "slot": "chest",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "reinforced_leather_gaiters": {
+    "name": "Reinforced Leather Gaiters",
+    "icon": "/items/drops/arrom_d/Reinforced_Leathr_Gaiters.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "reinforced_gloves": {
+    "name": "Reinforced Gloves",
+    "icon": "/items/drops/arrom_d/Reinforced_gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "D"
+  },
+  "reinforced_leather_boots": {
+    "name": "Reinforced Leather Boots",
+    "icon": "/items/drops/arrom_d/Reinforced_Leather_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "D"
+  },
+  "cloth_cap": {
+    "name": "Helmet of Knowledge",
+    "icon": "/items/drops/arrom_d/Knowled_helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "D"
+  },
+  "tunic_of_knowledge": {
+    "name": "Tunic of Knowledge",
+    "icon": "/items/drops/arrom_d/Tunic_of_Knowledge.jpg",
+    "slot": "chest",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "stockings_of_knowledge": {
+    "name": "Stockings of Knowledge",
+    "icon": "/items/drops/arrom_d/Stockings_of_Knowledge.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "D"
+  },
+  "gloves_of_knowledge": {
+    "name": "Gloves of Knowledge",
+    "icon": "/items/drops/arrom_d/Gloves_of_Knowledge.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "D"
+  },
+  "boots_of_knowledge": {
+    "name": "Boots of Knowledge",
+    "icon": "/items/drops/arrom_d/Knowledge_bots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "D"
+  },
+  "quest_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_d/kv_shop/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_baguette_dual_sword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_d/kv_shop/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_bonebreaker": {
+    "name": "Bonebreaker",
+    "icon": "/items/drops/weapon_d/kv_shop/Bonebreaker.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_claymore": {
+    "name": "Claymore",
+    "icon": "/items/drops/weapon_d/kv_shop/Claymore.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_elven_long_sword": {
+    "name": "Elven Long Sword",
+    "icon": "/items/drops/weapon_d/kv_shop/Elven_Long_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_glaive": {
+    "name": "Glaive",
+    "icon": "/items/drops/weapon_d/kv_shop/Glaive.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_light_crossbow": {
+    "name": "Light Crossbow",
+    "icon": "/items/drops/weapon_d/kv_shop/Light_Crossbow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_mithril_dagger": {
+    "name": "Mithril Dagger",
+    "icon": "/items/drops/weapon_d/kv_shop/Mithril_Dagger.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_scallop_jamadhr": {
+    "name": "Scallop Jamadhr",
+    "icon": "/items/drops/weapon_d/kv_shop/Scallop_Jamadhr.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "quest_titan_hammer": {
+    "name": "Titan Hammer",
+    "icon": "/items/drops/weapon_d/kv_shop/Titan_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_atuba_hammer": {
+    "name": "Atuba Hammer",
+    "icon": "/items/drops/weapon_d/Atuba_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_baguette_dual_sword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_d/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_dark_elven_bow": {
+    "name": "Dark Elven Bow",
+    "icon": "/items/drops/weapon_d/Dark_Elven_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_knights_sword": {
+    "name": "Knight's Sword",
+    "icon": "/items/drops/weapon_d/Knight_s_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_shilen_knife": {
+    "name": "Shilen Knife",
+    "icon": "/items/drops/weapon_d/Shilen_Knife.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_tomahawk": {
+    "name": "Tomahawk",
+    "icon": "/items/drops/weapon_d/Tomahawk.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_triple_edged_jamadhr": {
+    "name": "Triple-Edged Jamadhr",
+    "icon": "/items/drops/weapon_d/Triple-Edged_Jamadhr.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_two_handed_sword": {
+    "name": "Two-Handed Sword",
+    "icon": "/items/drops/weapon_d/Two_Handed_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_weapon_d_war_hammer": {
+    "name": "War Hammer",
+    "icon": "/items/drops/weapon_d/War_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_atuba_hammer": {
+    "name": "Shadow тАФ Atuba Hammer",
+    "icon": "/items/drops/weapon_d/Atuba_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_baguette_dual_sword": {
+    "name": "Shadow тАФ Baguette's Dualsword",
+    "icon": "/items/drops/weapon_d/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_dark_elven_bow": {
+    "name": "Shadow тАФ Dark Elven Bow",
+    "icon": "/items/drops/weapon_d/Dark_Elven_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_knights_sword": {
+    "name": "Shadow тАФ Knight's Sword",
+    "icon": "/items/drops/weapon_d/Knight_s_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_shilen_knife": {
+    "name": "Shadow тАФ Shilen Knife",
+    "icon": "/items/drops/weapon_d/Shilen_Knife.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_tomahawk": {
+    "name": "Shadow тАФ Tomahawk",
+    "icon": "/items/drops/weapon_d/Tomahawk.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_triple_edged_jamadhr": {
+    "name": "Shadow тАФ Triple-Edged Jamadhr",
+    "icon": "/items/drops/weapon_d/Triple-Edged_Jamadhr.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_two_handed_sword": {
+    "name": "Shadow тАФ Two-Handed Sword",
+    "icon": "/items/drops/weapon_d/Two_Handed_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shadow_shop_weapon_d_war_hammer": {
+    "name": "Shadow тАФ War Hammer",
+    "icon": "/items/drops/weapon_d/War_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "D"
+  },
+  "shop_jewelry_d_black_pearl_ring": {
+    "name": "Black Pearl Ring",
+    "icon": "/items/drops/Earring_D/accessary_black_pearl_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_elven_ring": {
+    "name": "Elven Ring",
+    "icon": "/items/drops/Earring_D/accessary_elven_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_enchanted_ring": {
+    "name": "Enchanted Ring",
+    "icon": "/items/drops/Earring_D/accessary_enchanted_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_mithril_ring": {
+    "name": "Mithril Ring",
+    "icon": "/items/drops/Earring_D/accessary_mithril_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_ring_of_devotion": {
+    "name": "Ring of Devotion",
+    "icon": "/items/drops/Earring_D/accessary_ring_of_devotion_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_elven_earing": {
+    "name": "Elven Earring",
+    "icon": "/items/drops/Earring_D/accessary_elven_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_enchanted_earing": {
+    "name": "Enchanted Earring",
+    "icon": "/items/drops/Earring_D/accessary_enchanted_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_red_crescent_earing": {
+    "name": "Red Crescent Earring",
+    "icon": "/items/drops/Earring_D/accessary_red_cresent_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_onyxbeastseye_earing": {
+    "name": "Omen Beast's Eye Earring",
+    "icon": "/items/drops/Earring_D/accessary_onyxbeastseye_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_tigerseye_earing": {
+    "name": "Tiger's Eye Earring",
+    "icon": "/items/drops/Earring_D/accessary_tigerseye_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "D"
+  },
+  "shop_jewelry_d_elven_necklace": {
+    "name": "Elven Necklace",
+    "icon": "/items/drops/Earring_D/accessary_elven_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "D"
+  },
+  "shop_jewelry_d_enchanted_necklace": {
+    "name": "Enchanted Necklace",
+    "icon": "/items/drops/Earring_D/accessary_enchanted_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "D"
+  },
+  "shop_jewelry_d_near_forest_necklace": {
+    "name": "Near Forest Necklace",
+    "icon": "/items/drops/Earring_D/accessary_near_forest_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "D"
+  },
+  "shop_jewelry_d_necklace_of_darkness": {
+    "name": "Necklace of Darkness",
+    "icon": "/items/drops/Earring_D/accessary_necklace_of_darkness_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "D"
+  },
+  "shop_jewelry_d_necklace_of_devotion": {
+    "name": "Necklace of Devotion",
+    "icon": "/items/drops/Earring_D/accessary_necklace_of_devotion_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "D"
+  },
+  "demons_helmet": {
+    "name": "Demon's Helmet",
+    "icon": "/items/drops/arrom_c/Demon's_helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "C"
+  },
+  "demons_tunic": {
+    "name": "Demon's Tunic",
+    "icon": "/items/drops/arrom_c/Demon's_Tunic.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "demons_stockings": {
+    "name": "Demon's Stockings",
+    "icon": "/items/drops/arrom_c/Demon's_Stockings.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "demons_gloves": {
+    "name": "Demon's Gloves",
+    "icon": "/items/drops/arrom_c/Demon's_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "C"
+  },
+  "demons_boots": {
+    "name": "Demon's Boots",
+    "icon": "/items/drops/arrom_c/Demon's_bots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "C"
+  },
+  "karmian_helmet": {
+    "name": "Karmian Helmet",
+    "icon": "/items/drops/arrom_c/Karmian_helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "C"
+  },
+  "karmian_tunic": {
+    "name": "Karmian Tunic",
+    "icon": "/items/drops/arrom_c/Karmian_Tunic.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "karmian_stockings": {
+    "name": "Karmian Stockings",
+    "icon": "/items/drops/arrom_c/Karmian_Stockings.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "karmian_gloves": {
+    "name": "Karmian Gloves",
+    "icon": "/items/drops/arrom_c/Karmian_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "C"
+  },
+  "karmian_boots": {
+    "name": "Karmian Boots",
+    "icon": "/items/drops/arrom_c/Karmian_bots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "C"
+  },
+  "plated_leather_helmet": {
+    "name": "Plated Leather Helmet",
+    "icon": "/items/drops/arrom_c/Plated_Leather_helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "C"
+  },
+  "plated_leather": {
+    "name": "Plated Leather Armor",
+    "icon": "/items/drops/arrom_c/Plated_Leather_Armor.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "plated_leather_gaiters": {
+    "name": "Plated Leather Gaiters",
+    "icon": "/items/drops/arrom_c/Plated_Leather_Gaiters.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "plated_leather_gloves": {
+    "name": "Plated Leather Gloves",
+    "icon": "/items/drops/arrom_c/Plated_Leather_gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "C"
+  },
+  "plated_leather_boots": {
+    "name": "Plated Leather Boots",
+    "icon": "/items/drops/arrom_c/Plated_Leather_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "C"
+  },
+  "divine_helmet": {
+    "name": "Divine Helmet",
+    "icon": "/items/drops/arrom_c/Divine_helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "C"
+  },
+  "divine_tunic": {
+    "name": "Divine Tunic",
+    "icon": "/items/drops/arrom_c/Divine_Tunic.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "divine_stockings": {
+    "name": "Divine Stockings",
+    "icon": "/items/drops/arrom_c/Divine_Stockings.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "divine_gloves": {
+    "name": "Divine Gloves",
+    "icon": "/items/drops/arrom_c/Divine_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "C"
+  },
+  "divine_boots": {
+    "name": "Divine Boots",
+    "icon": "/items/drops/arrom_c/Divine_boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "C"
+  },
+  "drake_leather_helmet": {
+    "name": "Drake Leather Helmet",
+    "icon": "/items/drops/arrom_c/Drake_Leather_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "C"
+  },
+  "drake_leather_armor": {
+    "name": "Drake Leather Armor",
+    "icon": "/items/drops/arrom_c/Drake_Leather_Armor.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "C"
+  },
+  "drake_leather_gloves": {
+    "name": "Drake Leather Gloves",
+    "icon": "/items/drops/arrom_c/Drake_Leather_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "C"
+  },
+  "drake_leather_boots": {
+    "name": "Drake Leather Boots",
+    "icon": "/items/drops/arrom_c/Drake_Leather_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "C"
+  },
+  "monster_shield_c": {
+    "name": "Monster Shield",
+    "icon": "/items/drops/arrom_d/monster.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "C"
+  },
+  "composite_shield": {
+    "name": "Composite Shield",
+    "icon": "/items/drops/arrom_c/Shield_composite_shield_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "C"
+  },
+  "full_plate_shield": {
+    "name": "Full Plate Shield",
+    "icon": "/items/drops/arrom_c/Shield_full_plate_shield_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "C"
+  },
+  "soulshot_c": {
+    "name": "Soulshot (C-grade)",
+    "icon": "/items/drops/resources/Etc_spirit_bullet_green_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "C"
+  },
+  "spiritshot_c": {
+    "name": "Spiritshot (C-grade)",
+    "icon": "/items/drops/resources/Etc_spell_shot_green_i01_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "C"
+  },
+  "fine_steel_arrow": {
+    "name": "Fine Steel Arrow",
+    "icon": "/items/drops/resources/etc_fine_steel_quiver_i00.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "C"
+  },
+  "c_enchant_weapon_scroll": {
+    "name": "Scroll: Enchant Weapon (C-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_weapon_i02.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "C"
+  },
+  "c_enchant_armor_scroll": {
+    "name": "Scroll: Enchant Armor (C-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_armor_i02.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "C"
+  },
+  "blessed_scroll_enchant_weapon_grade_c": {
+    "name": "Blessed Scroll: Enchant Weapon (C-grade)",
+    "icon": "/items/drops/resources/bless-weapon-c.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "C"
+  },
+  "blessed_scroll_enchant_armor_grade_c": {
+    "name": "Blessed Scroll: Enchant Armor (C-grade)",
+    "icon": "/items/drops/resources/bless-armor-c.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "C"
+  },
+  "c_akat_long_bow": {
+    "name": "Akat Long Bow",
+    "icon": "/items/drops/weapon_c/Akat_Long_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_c/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_battle_axe": {
+    "name": "Battle Axe",
+    "icon": "/items/drops/weapon_c/Battle_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_berserker_blade": {
+    "name": "Berserker Blade",
+    "icon": "/items/drops/weapon_c/Berserker_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_big_hammer": {
+    "name": "Big Hammer",
+    "icon": "/items/drops/weapon_c/Big_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_crystal_dagger": {
+    "name": "Crystal Dagger",
+    "icon": "/items/drops/weapon_c/Crystal_Dagger.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_dark_screamer": {
+    "name": "Dark Screamer",
+    "icon": "/items/drops/weapon_c/Dark_Screamer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_demon_staff": {
+    "name": "Demon's Staff",
+    "icon": "/items/drops/weapon_c/Demon_s_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_dwarven_hammer": {
+    "name": "Dwarven Hammer",
+    "icon": "/items/drops/weapon_c/Dwarven_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_ecliptic_sword": {
+    "name": "Ecliptic Sword",
+    "icon": "/items/drops/weapon_c/Ecliptic_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_eminence_bow": {
+    "name": "Eminence Bow",
+    "icon": "/items/drops/weapon_c/Eminence_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_fisted_blade": {
+    "name": "Fisted Blade",
+    "icon": "/items/drops/weapon_c/Fisted_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_great_pata": {
+    "name": "Great Pata",
+    "icon": "/items/drops/weapon_c/Great_Pata.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_heathens_book": {
+    "name": "Heathen's Book",
+    "icon": "/items/drops/weapon_c/heathens_book.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_heavy_doom_axe": {
+    "name": "Heavy Doom Axe",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_heavy_doom_hammer": {
+    "name": "Heavy Doom Hammer",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_homunkulus_sword": {
+    "name": "Homunkulus's Sword",
+    "icon": "/items/drops/weapon_c/Homunkulus_s_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_knuckle_duster": {
+    "name": "Knuckle Duster",
+    "icon": "/items/drops/weapon_c/Knuckle_Duster.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_orcish_poleaxe": {
+    "name": "Orcish Poleaxe",
+    "icon": "/items/drops/weapon_c/Orcish_Poleaxe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_paagrian_sword": {
+    "name": "Pa'agrian Sword",
+    "icon": "/items/drops/weapon_c/Pa_agrian_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_paagrian_hammer": {
+    "name": "Pa'agrian Hammer",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_paagrian_axe": {
+    "name": "Pa'agrian Axe",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_samurai_longsword": {
+    "name": "Samurai Longsword",
+    "icon": "/items/drops/weapon_c/Samurai_Longsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_scorpion": {
+    "name": "Scorpion",
+    "icon": "/items/drops/weapon_c/Scorpion.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_war_axe": {
+    "name": "War Axe",
+    "icon": "/items/drops/weapon_c/War_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_widow_maker": {
+    "name": "Widow Maker",
+    "icon": "/items/drops/weapon_c/Widow_Maker.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "c_yaksa_mace": {
+    "name": "Yaksa Mace",
+    "icon": "/items/drops/weapon_c/Yaksa_Mace.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_akat_long_bow": {
+    "name": "Akat Long Bow",
+    "icon": "/items/drops/weapon_c/Akat_Long_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_c/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_battle_axe": {
+    "name": "Battle Axe",
+    "icon": "/items/drops/weapon_c/Battle_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_berserker_blade": {
+    "name": "Berserker Blade",
+    "icon": "/items/drops/weapon_c/Berserker_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_big_hammer": {
+    "name": "Big Hammer",
+    "icon": "/items/drops/weapon_c/Big_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_crystal_dagger": {
+    "name": "Crystal Dagger",
+    "icon": "/items/drops/weapon_c/Crystal_Dagger.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_dark_screamer": {
+    "name": "Dark Screamer",
+    "icon": "/items/drops/weapon_c/Dark_Screamer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_demon_staff": {
+    "name": "Demon's Staff",
+    "icon": "/items/drops/weapon_c/Demon_s_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_dwarven_hammer": {
+    "name": "Dwarven Hammer",
+    "icon": "/items/drops/weapon_c/Dwarven_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_ecliptic_sword": {
+    "name": "Ecliptic Sword",
+    "icon": "/items/drops/weapon_c/Ecliptic_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_eminence_bow": {
+    "name": "Eminence Bow",
+    "icon": "/items/drops/weapon_c/Eminence_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_fisted_blade": {
+    "name": "Fisted Blade",
+    "icon": "/items/drops/weapon_c/Fisted_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_great_pata": {
+    "name": "Great Pata",
+    "icon": "/items/drops/weapon_c/Great_Pata.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_heathens_book": {
+    "name": "Heathen's Book",
+    "icon": "/items/drops/weapon_c/heathens_book.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_heavy_doom_axe": {
+    "name": "Heavy Doom Axe",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_heavy_doom_hammer": {
+    "name": "Heavy Doom Hammer",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_homunkulus_sword": {
+    "name": "Homunkulus's Sword",
+    "icon": "/items/drops/weapon_c/Homunkulus_s_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_knuckle_duster": {
+    "name": "Knuckle Duster",
+    "icon": "/items/drops/weapon_c/Knuckle_Duster.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_orcish_poleaxe": {
+    "name": "Orcish Poleaxe",
+    "icon": "/items/drops/weapon_c/Orcish_Poleaxe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_paagrian_sword": {
+    "name": "Pa'agrian Sword",
+    "icon": "/items/drops/weapon_c/Pa_agrian_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_paagrian_hammer": {
+    "name": "Pa'agrian Hammer",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_paagrian_axe": {
+    "name": "Pa'agrian Axe",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_samurai_longsword": {
+    "name": "Samurai Longsword",
+    "icon": "/items/drops/weapon_c/Samurai_Longsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_scorpion": {
+    "name": "Scorpion",
+    "icon": "/items/drops/weapon_c/Scorpion.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_war_axe": {
+    "name": "War Axe",
+    "icon": "/items/drops/weapon_c/War_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_widow_maker": {
+    "name": "Widow Maker",
+    "icon": "/items/drops/weapon_c/Widow_Maker.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "quest_weapon_c_yaksa_mace": {
+    "name": "Yaksa Mace",
+    "icon": "/items/drops/weapon_c/Yaksa_Mace.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_akat_long_bow": {
+    "name": "Akat Long Bow",
+    "icon": "/items/drops/weapon_c/Akat_Long_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_c/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_battle_axe": {
+    "name": "Battle Axe",
+    "icon": "/items/drops/weapon_c/Battle_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_berserker_blade": {
+    "name": "Berserker Blade",
+    "icon": "/items/drops/weapon_c/Berserker_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_big_hammer": {
+    "name": "Big Hammer",
+    "icon": "/items/drops/weapon_c/Big_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_crystal_dagger": {
+    "name": "Crystal Dagger",
+    "icon": "/items/drops/weapon_c/Crystal_Dagger.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_dark_screamer": {
+    "name": "Dark Screamer",
+    "icon": "/items/drops/weapon_c/Dark_Screamer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_demon_staff": {
+    "name": "Demon's Staff",
+    "icon": "/items/drops/weapon_c/Demon_s_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_dwarven_hammer": {
+    "name": "Dwarven Hammer",
+    "icon": "/items/drops/weapon_c/Dwarven_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_ecliptic_sword": {
+    "name": "Ecliptic Sword",
+    "icon": "/items/drops/weapon_c/Ecliptic_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_eminence_bow": {
+    "name": "Eminence Bow",
+    "icon": "/items/drops/weapon_c/Eminence_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_fisted_blade": {
+    "name": "Fisted Blade",
+    "icon": "/items/drops/weapon_c/Fisted_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_great_pata": {
+    "name": "Great Pata",
+    "icon": "/items/drops/weapon_c/Great_Pata.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_heathens_book": {
+    "name": "Heathen's Book",
+    "icon": "/items/drops/weapon_c/heathens_book.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_heavy_doom_axe": {
+    "name": "Heavy Doom Axe",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_heavy_doom_hammer": {
+    "name": "Heavy Doom Hammer",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_homunkulus_sword": {
+    "name": "Homunkulus's Sword",
+    "icon": "/items/drops/weapon_c/Homunkulus_s_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_knuckle_duster": {
+    "name": "Knuckle Duster",
+    "icon": "/items/drops/weapon_c/Knuckle_Duster.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_orcish_poleaxe": {
+    "name": "Orcish Poleaxe",
+    "icon": "/items/drops/weapon_c/Orcish_Poleaxe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_paagrian_sword": {
+    "name": "Pa'agrian Sword",
+    "icon": "/items/drops/weapon_c/Pa_agrian_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_paagrian_hammer": {
+    "name": "Pa'agrian Hammer",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_paagrian_axe": {
+    "name": "Pa'agrian Axe",
+    "icon": "/items/drops/weapon_c/Heavy_Doom_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_samurai_longsword": {
+    "name": "Samurai Longsword",
+    "icon": "/items/drops/weapon_c/Samurai_Longsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_scorpion": {
+    "name": "Scorpion",
+    "icon": "/items/drops/weapon_c/Scorpion.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_war_axe": {
+    "name": "War Axe",
+    "icon": "/items/drops/weapon_c/War_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_widow_maker": {
+    "name": "Widow Maker",
+    "icon": "/items/drops/weapon_c/Widow_Maker.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_weapon_c_yaksa_mace": {
+    "name": "Yaksa Mace",
+    "icon": "/items/drops/weapon_c/Yaksa_Mace.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "C"
+  },
+  "shop_jewelry_c_aquastone_ring": {
+    "name": "Aquastone Ring",
+    "icon": "/items/drops/Earring_C/accessary_aquastone_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_ring_of_protection": {
+    "name": "Ring of Protection",
+    "icon": "/items/drops/Earring_C/accessary_ring_of_protection_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_ring_of_ages": {
+    "name": "Ring of Ages",
+    "icon": "/items/drops/Earring_C/accessary_ring_of_ages_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_ring_of_binding": {
+    "name": "Ring of Binding",
+    "icon": "/items/drops/Earring_C/accessary_ring_of_binding_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_blessed_ring": {
+    "name": "Blessed Ring",
+    "icon": "/items/drops/Earring_C/accessary_blessed_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_moonstone_earing": {
+    "name": "Moonstone Earring",
+    "icon": "/items/drops/Earring_C/accessary_moonstone_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_earing_of_protection": {
+    "name": "Earring of Protection",
+    "icon": "/items/drops/Earring_C/accessary_earing_of_protection_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_earing_of_binding": {
+    "name": "Earring of Binding",
+    "icon": "/items/drops/Earring_C/accessary_earing_of_binding_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_nassen_earing": {
+    "name": "Nassen's Earring",
+    "icon": "/items/drops/Earring_C/accessary_nassens_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_blessed_earing": {
+    "name": "Blessed Earring",
+    "icon": "/items/drops/Earring_C/accessary_blessed_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "C"
+  },
+  "shop_jewelry_c_aquastone_necklace": {
+    "name": "Aquastone Necklace",
+    "icon": "/items/drops/Earring_C/accessary_aquastone_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "C"
+  },
+  "shop_jewelry_c_necklace_of_protection": {
+    "name": "Necklace of Protection",
+    "icon": "/items/drops/Earring_C/accessary_necklace_of_protection_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "C"
+  },
+  "shop_jewelry_c_necklace_of_mermaid": {
+    "name": "Necklace of Mermaid",
+    "icon": "/items/drops/Earring_C/accessary_necklace_of_mermaid_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "C"
+  },
+  "shop_jewelry_c_blessed_necklace": {
+    "name": "Blessed Necklace",
+    "icon": "/items/drops/Earring_C/accessary_blessed_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "C"
+  },
+  "shop_jewelry_c_necklace_of_binding": {
+    "name": "Necklace of Binding",
+    "icon": "/items/drops/Earring_C/accessary_necklace_of_binding_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "C"
+  },
+  "avadon_circlet": {
+    "name": "Avadon Circlet",
+    "icon": "/items/drops/arrom_b/Avadon_Circlet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "B"
+  },
+  "avadon_robe": {
+    "name": "Avadon Robe",
+    "icon": "/items/drops/arrom_b/Avadon_Robe.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "avadon_gloves": {
+    "name": "Avadon Gloves",
+    "icon": "/items/drops/arrom_b/Avado_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "B"
+  },
+  "avadon_boots": {
+    "name": "Avadon Boots",
+    "icon": "/items/drops/arrom_b/Avadon_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "B"
+  },
+  "avadon_shield": {
+    "name": "Avadon Shield",
+    "icon": "/items/drops/arrom_b/Shield_avadon_shield_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "B"
+  },
+  "doom_shield": {
+    "name": "Doom Shield",
+    "icon": "/items/drops/arrom_b/Shield_doom_shield_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "B"
+  },
+  "shield_of_pledge": {
+    "name": "Shield of Pledge",
+    "icon": "/items/drops/arrom_b/Shield_shield_of_pledge_i00_0.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "B"
+  },
+  "doom_helmet": {
+    "name": "Doom Helmet",
+    "icon": "/items/drops/arrom_b/Doom_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "B"
+  },
+  "doom_tunic": {
+    "name": "Tunic of Doom",
+    "icon": "/items/drops/arrom_b/Tunic_of_Doom.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "doom_stockings": {
+    "name": "Stockings of Doom",
+    "icon": "/items/drops/arrom_b/Stockings_of_Doom.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "doom_gloves": {
+    "name": "Doom Gloves",
+    "icon": "/items/drops/arrom_b/Doom_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "B"
+  },
+  "doom_boots": {
+    "name": "Doom Boots",
+    "icon": "/items/drops/arrom_b/Doom_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "B"
+  },
+  "monster_shield_b": {
+    "name": "Monster Shield",
+    "icon": "/items/drops/arrom_d/monster.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "B"
+  },
+  "blue_wolf_helmet": {
+    "name": "Blue Wolf Helmet",
+    "icon": "/items/drops/arrom_b/Blue_Wolf_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "B"
+  },
+  "blue_wolf_breastplate": {
+    "name": "Blue Wolf Breastplate",
+    "icon": "/items/drops/arrom_b/Blue_Wolf_Breastplate.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "blue_wolf_gaiters": {
+    "name": "Blue Wolf Gaiters",
+    "icon": "/items/drops/arrom_b/Blue_Wolf_Gaiters.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "blue_wolf_gloves": {
+    "name": "Blue Wolf Gloves",
+    "icon": "/items/drops/arrom_b/Blue_Wolf_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "B"
+  },
+  "blue_wolf_boots": {
+    "name": "Blue Wolf Boots",
+    "icon": "/items/drops/arrom_b/Blue_Wolf_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "B"
+  },
+  "bound_blue_wolf_helmet": {
+    "name": "Bound Blue Wolf Helmet",
+    "icon": "/items/drops/arrom_b/Bound_Blue_Wolf_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "B"
+  },
+  "bound_blue_wolf_armor": {
+    "name": "Bound Blue Wolf Leather Armor",
+    "icon": "/items/drops/arrom_b/Bound_Blue_Wolf_Leather_Armor.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "bound_blue_wolf_gloves": {
+    "name": "Bound Blue Wolf Gloves",
+    "icon": "/items/drops/arrom_b/Bound_Blue_Wolf_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "B"
+  },
+  "bound_blue_wolf_boots": {
+    "name": "Bound Blue Wolf Boots",
+    "icon": "/items/drops/arrom_b/Bound_Blue_Wolf_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "B"
+  },
+  "zubeis_helmet": {
+    "name": "Zubei's Helmet",
+    "icon": "/items/drops/arrom_b/Zubei's_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "B"
+  },
+  "zubeis_breastplate": {
+    "name": "Zubei's Breastplate",
+    "icon": "/items/drops/arrom_b/Zubei's_Breastplate.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "zubeis_gaiters": {
+    "name": "Zubei's Gaiters",
+    "icon": "/items/drops/arrom_b/Zubei's_Gaiters.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "zubeis_gauntlets": {
+    "name": "Zubei's Gauntlets",
+    "icon": "/items/drops/arrom_b/Zubei's_Gauntlets.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "B"
+  },
+  "zubeis_boots": {
+    "name": "Zubei's Boots",
+    "icon": "/items/drops/arrom_b/Zubei's_Boot.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "B"
+  },
+  "doom_helmet_of_fortune": {
+    "name": "Doom Helmet of Fortune",
+    "icon": "/items/drops/arrom_b/Doom_Helmet_of_Fortune.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "B"
+  },
+  "leather_armor_of_doom_of_fortune": {
+    "name": "Leather Armor of Doom of Fortune",
+    "icon": "/items/drops/arrom_b/Leather_Armor_of_Doom_of_Fortune.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "B"
+  },
+  "doom_gloves_of_fortune": {
+    "name": "Doom Gloves of Fortune",
+    "icon": "/items/drops/arrom_b/Doom_Gloves_of_Fortune_Light_Armor.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "B"
+  },
+  "doom_boots_of_fortune": {
+    "name": "Doom Boots of Fortune",
+    "icon": "/items/drops/arrom_b/Doom_Boots_of_Fortune_Light_Armor.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "B"
+  },
+  "soulshot_b": {
+    "name": "Soulshot (B-grade)",
+    "icon": "/items/drops/resources/Etc_spirit_bullet_red_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "B"
+  },
+  "spiritshot_b": {
+    "name": "Spiritshot (B-grade)",
+    "icon": "/items/drops/resources/Etc_spell_shot_red_i01_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "B"
+  },
+  "silver_arrow": {
+    "name": "Silver Arrow",
+    "icon": "/items/drops/resources/etc_silver_quiver_i00.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "B"
+  },
+  "b_enchant_weapon_scroll": {
+    "name": "Scroll: Enchant Weapon (B-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_weapon_i03.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "B"
+  },
+  "b_enchant_armor_scroll": {
+    "name": "Scroll: Enchant Armor (B-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_armor_i03.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "B"
+  },
+  "blessed_scroll_enchant_weapon_grade_b": {
+    "name": "Blessed Scroll: Enchant Weapon (B-grade)",
+    "icon": "/items/drops/resources/bless-weapon-b.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "B"
+  },
+  "blessed_scroll_enchant_armor_grade_b": {
+    "name": "Blessed Scroll: Enchant Armor (B-grade)",
+    "icon": "/items/drops/resources/bless-armor-b.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "B"
+  },
+  "quest_weapon_b_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_b/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_art_of_battle_axe": {
+    "name": "Art of Battle Axe",
+    "icon": "/items/drops/weapon_b/Art_of_Battle_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_arthro_nail": {
+    "name": "Arthro Nail",
+    "icon": "/items/drops/weapon_b/Arthro_Nail.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_baguette_s_dualsword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_b/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_bellion_cestus": {
+    "name": "Bellion Cestus",
+    "icon": "/items/drops/weapon_b/Bellion_Cestus.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_bow_of_peril": {
+    "name": "Bow of Peril",
+    "icon": "/items/drops/weapon_b/Bow_of_Peril.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_dark_elven_long_bow": {
+    "name": "Dark Elven Long Bow",
+    "icon": "/items/drops/weapon_b/Dark_Elven_Long_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_deadman_s_glory": {
+    "name": "Deadman's Glory",
+    "icon": "/items/drops/weapon_b/Deadman_s_Glory.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_great_axe": {
+    "name": "Great Axe",
+    "icon": "/items/drops/weapon_b/Great_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_great_sword": {
+    "name": "Great Sword",
+    "icon": "/items/drops/weapon_b/Great_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_guardian_sword": {
+    "name": "Guardian Sword",
+    "icon": "/items/drops/weapon_b/Guardian_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_hell_knife": {
+    "name": "Hell Knife",
+    "icon": "/items/drops/weapon_b/Hell_Knife.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_ice_storm_hammer": {
+    "name": "Ice Storm Hammer",
+    "icon": "/items/drops/weapon_b/Ice_Storm_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_kaim_vanul_s_bones": {
+    "name": "Kaim Vanul's Bones",
+    "icon": "/items/drops/weapon_b/Kaim_Vanul_s_Bones.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_kris": {
+    "name": "Kris",
+    "icon": "/items/drops/weapon_b/Kris.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_lance": {
+    "name": "Lance",
+    "icon": "/items/drops/weapon_b/Lance.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_spell_breaker": {
+    "name": "Spell Breaker",
+    "icon": "/items/drops/weapon_b/Spell_Breaker.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_spirit_s_staff": {
+    "name": "Spirit's Staff",
+    "icon": "/items/drops/weapon_b/Spirit_s_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_staff_of_evil_spirits": {
+    "name": "Staff of Evil Spirits",
+    "icon": "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_star_buster": {
+    "name": "Star Buster",
+    "icon": "/items/drops/weapon_b/Star_Buster.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_sword_of_damascus": {
+    "name": "Sword of Damascus",
+    "icon": "/items/drops/weapon_b/Sword_of_Damascus.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_sword_of_valhalla": {
+    "name": "Sword of Valhalla",
+    "icon": "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "quest_weapon_b_wizard_s_tear": {
+    "name": "Wizard's Tear",
+    "icon": "/items/drops/weapon_b/Wizard_s_Tear.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_b/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_art_of_battle_axe": {
+    "name": "Art of Battle Axe",
+    "icon": "/items/drops/weapon_b/Art_of_Battle_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_arthro_nail": {
+    "name": "Arthro Nail",
+    "icon": "/items/drops/weapon_b/Arthro_Nail.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_baguette_s_dualsword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_b/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_bellion_cestus": {
+    "name": "Bellion Cestus",
+    "icon": "/items/drops/weapon_b/Bellion_Cestus.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_bow_of_peril": {
+    "name": "Bow of Peril",
+    "icon": "/items/drops/weapon_b/Bow_of_Peril.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_dark_elven_long_bow": {
+    "name": "Dark Elven Long Bow",
+    "icon": "/items/drops/weapon_b/Dark_Elven_Long_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_deadman_s_glory": {
+    "name": "Deadman's Glory",
+    "icon": "/items/drops/weapon_b/Deadman_s_Glory.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_great_axe": {
+    "name": "Great Axe",
+    "icon": "/items/drops/weapon_b/Great_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_great_sword": {
+    "name": "Great Sword",
+    "icon": "/items/drops/weapon_b/Great_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_guardian_sword": {
+    "name": "Guardian Sword",
+    "icon": "/items/drops/weapon_b/Guardian_Sword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_hell_knife": {
+    "name": "Hell Knife",
+    "icon": "/items/drops/weapon_b/Hell_Knife.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_ice_storm_hammer": {
+    "name": "Ice Storm Hammer",
+    "icon": "/items/drops/weapon_b/Ice_Storm_Hammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_kris": {
+    "name": "Kris",
+    "icon": "/items/drops/weapon_b/Kris.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_lance": {
+    "name": "Lance",
+    "icon": "/items/drops/weapon_b/Lance.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_spell_breaker": {
+    "name": "Spell Breaker",
+    "icon": "/items/drops/weapon_b/Spell_Breaker.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_spirit_s_staff": {
+    "name": "Spirit's Staff",
+    "icon": "/items/drops/weapon_b/Spirit_s_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_staff_of_evil_spirits": {
+    "name": "Staff of Evil Spirits",
+    "icon": "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_star_buster": {
+    "name": "Star Buster",
+    "icon": "/items/drops/weapon_b/Star_Buster.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_sword_of_damascus": {
+    "name": "Sword of Damascus",
+    "icon": "/items/drops/weapon_b/Sword_of_Damascus.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_sword_of_valhalla": {
+    "name": "Sword of Valhalla",
+    "icon": "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_weapon_b_wizard_s_tear": {
+    "name": "Wizard's Tear",
+    "icon": "/items/drops/weapon_b/Wizard_s_Tear.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "B"
+  },
+  "shop_jewelry_b_adamantite_ring": {
+    "name": "Adamantite Ring",
+    "icon": "/items/drops/Earring_B/accessary_adamantite_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_sages_ring": {
+    "name": "Sage's Ring",
+    "icon": "/items/drops/Earring_B/accessary_sages_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_paradia_ring": {
+    "name": "Paradia Ring",
+    "icon": "/items/drops/Earring_B/accessary_paradia_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_ring_of_solar_eclipse": {
+    "name": "Ring of Solar Eclipse",
+    "icon": "/items/drops/Earring_B/accessary_ring_of_sola_eclipse_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_ring_of_black_ore": {
+    "name": "Ring of Black Ore",
+    "icon": "/items/drops/Earring_B/accessary_ring_of_black_ore_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_ring_of_summoning": {
+    "name": "Ring of Summoning",
+    "icon": "/items/drops/Earring_B/accessary_ring_of_summons_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_otherworldly_ring": {
+    "name": "Otherworldly Ring",
+    "icon": "/items/drops/Earring_B/accessary_another_worlds_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_elemental_ring": {
+    "name": "Elemental Ring",
+    "icon": "/items/drops/Earring_B/accessary_elemental_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_ring_of_grace": {
+    "name": "Ring of Grace",
+    "icon": "/items/drops/Earring_B/accessary_ring_of_grace_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_ring_of_holy_spirit": {
+    "name": "Ring of Holy Spirit",
+    "icon": "/items/drops/Earring_B/accessary_ring_of_holy_spirit_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_ring_of_aid": {
+    "name": "Ring of Aid",
+    "icon": "/items/drops/Earring_B/accessary_ring_of_assistance_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_ring_of_blessing": {
+    "name": "Ring of Blessing",
+    "icon": "/items/drops/Earring_B/accessary_ring_of_blessing_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_adamantite_earring": {
+    "name": "Adamantite Earring",
+    "icon": "/items/drops/Earring_B/accessary_adamantite_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_mana": {
+    "name": "Earring of Mana",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_mana_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_sages_earring": {
+    "name": "Sage's Earring",
+    "icon": "/items/drops/Earring_B/accessary_sages_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_paradia_earring": {
+    "name": "Paradia Earring",
+    "icon": "/items/drops/Earring_B/accessary_paradia_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_solar_eclipse": {
+    "name": "Earring of Solar Eclipse",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_sola_eclipse_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_black_ore": {
+    "name": "Earring of Black Ore",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_black_ore_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_summoning": {
+    "name": "Earring of Summoning",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_summons_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_otherworldly_earring": {
+    "name": "Otherworldly Earring",
+    "icon": "/items/drops/Earring_B/accessary_another_worlds_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_elemental_earring": {
+    "name": "Elemental Earring",
+    "icon": "/items/drops/Earring_B/accessary_elemental_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_grace": {
+    "name": "Earring of Grace",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_grace_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_holy_spirit": {
+    "name": "Earring of Holy Spirit",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_holy_spirit_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_aid": {
+    "name": "Earring of Aid",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_assistance_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_earring_of_blessing": {
+    "name": "Earring of Blessing",
+    "icon": "/items/drops/Earring_B/accessary_earing_of_blessing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "B"
+  },
+  "shop_jewelry_b_adamantite_necklace": {
+    "name": "Adamantite Necklace",
+    "icon": "/items/drops/Earring_B/accessary_adamantite_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_mana": {
+    "name": "Necklace of Mana",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_mana_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_sages_necklace": {
+    "name": "Sage's Necklace",
+    "icon": "/items/drops/Earring_B/accessary_sages_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_paradia_necklace": {
+    "name": "Paradia Necklace",
+    "icon": "/items/drops/Earring_B/accessary_paradia_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_solar_eclipse": {
+    "name": "Necklace of Solar Eclipse",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_sola_eclipse_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_black_ore": {
+    "name": "Necklace of Black Ore",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_black_ore_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_summoning": {
+    "name": "Necklace of Summoning",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_summons_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_otherworldly_necklace": {
+    "name": "Otherworldly Necklace",
+    "icon": "/items/drops/Earring_B/accessary_another_worlds_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_elemental_necklace": {
+    "name": "Elemental Necklace",
+    "icon": "/items/drops/Earring_B/accessary_elemental_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_grace": {
+    "name": "Necklace of Grace",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_grace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_holy_spirit": {
+    "name": "Necklace of Holy Spirit",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_holy_spirit_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_aid": {
+    "name": "Necklace of Aid",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_assistance_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "shop_jewelry_b_necklace_of_blessing": {
+    "name": "Necklace of Blessing",
+    "icon": "/items/drops/Earring_B/accessary_necklace_of_blessing_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "B"
+  },
+  "majestic_circlet": {
+    "name": "Majestic Circlet",
+    "icon": "/items/drops/arrom_╨░/Majestic_Circlet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "A"
+  },
+  "majestic_robe": {
+    "name": "Majestic Robe",
+    "icon": "/items/drops/arrom_╨░/Majestic_Robe.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "A"
+  },
+  "majestic_gauntlets": {
+    "name": "Majestic Gauntlets",
+    "icon": "/items/drops/arrom_╨░/Majestic_Gauntlets.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "A"
+  },
+  "majestic_boots": {
+    "name": "Majestic Boots",
+    "icon": "/items/drops/arrom_╨░/Majestic_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "A"
+  },
+  "apella_helm": {
+    "name": "Apella Helm",
+    "icon": "/items/drops/arrom_╨░/Apella_Helm.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "A"
+  },
+  "apella_brigandine": {
+    "name": "Apella Brigandine",
+    "icon": "/items/drops/arrom_╨░/Apella_Brigandine.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "A"
+  },
+  "apella_leather_gloves_light_armor": {
+    "name": "Apella Leather Gloves",
+    "icon": "/items/drops/arrom_╨░/Apella_Leather_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "A"
+  },
+  "apella_boots_light_armor": {
+    "name": "Apella Boots",
+    "icon": "/items/drops/arrom_╨░/Apella_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "A"
+  },
+  "dark_crystal_helmet": {
+    "name": "Dark Crystal Helmet",
+    "icon": "/items/drops/arrom_╨░/Dark_Crystal_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "A"
+  },
+  "dark_crystal_breastplate": {
+    "name": "Dark Crystal Breastplate",
+    "icon": "/items/drops/arrom_╨░/Dark_Crystal_Breastplate.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "A"
+  },
+  "dark_crystal_gaiters": {
+    "name": "Dark Crystal Gaiters",
+    "icon": "/items/drops/arrom_╨░/Dark_Crystal_Gaiters.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "A"
+  },
+  "dark_crystal_gloves": {
+    "name": "Dark Crystal Gloves",
+    "icon": "/items/drops/arrom_╨░/Dark_Crystal_Glove.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "A"
+  },
+  "dark_crystal_boots": {
+    "name": "Dark Crystal Boots",
+    "icon": "/items/drops/arrom_╨░/Dark_Crystal_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "A"
+  },
+  "majestic_heavy_circlet": {
+    "name": "Majestic Circlet",
+    "icon": "/items/drops/arrom_╨░/Majesticc_Circlet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "A"
+  },
+  "majestic_heavy_plate_armor": {
+    "name": "Majestic Plate Armor",
+    "icon": "/items/drops/arrom_╨░/Majesticc_Plate_Armor.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "A"
+  },
+  "majestic_heavy_gauntlets": {
+    "name": "Majestic Gauntlets",
+    "icon": "/items/drops/arrom_╨░/Majesticc_Gauntlets.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "A"
+  },
+  "majestic_heavy_boots": {
+    "name": "Majestic Boots",
+    "icon": "/items/drops/arrom_╨░/Majesticc_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "A"
+  },
+  "nightmare_light_helm": {
+    "name": "Helm of Nightmare",
+    "icon": "/items/drops/arrom_╨░/Helm_of_Nightmare.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "A"
+  },
+  "nightmare_light_leather_armor": {
+    "name": "Leather Armor of Nightmare",
+    "icon": "/items/drops/arrom_╨░/Bound_Leather_Armor_of_Nightmare.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "A"
+  },
+  "nightmare_light_gauntlets": {
+    "name": "Gauntlets of Nightmare",
+    "icon": "/items/drops/arrom_╨░/Gauntlets_of_Nightmare.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "A"
+  },
+  "nightmare_light_boots": {
+    "name": "Boots of Nightmare",
+    "icon": "/items/drops/arrom_╨░/Boots_of_Nightmare.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "A"
+  },
+  "bound_dark_crystal_helmet": {
+    "name": "Bound Dark Crystal Helmet",
+    "icon": "/items/drops/arrom_╨░/Bound_Dark_Crystal_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "A"
+  },
+  "bound_dark_crystal_robe": {
+    "name": "Bound Dark Crystal Robe",
+    "icon": "/items/drops/arrom_╨░/Bound_Dark_Crystal_Robe.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "A"
+  },
+  "bound_dark_crystal_gloves": {
+    "name": "Bound Dark Crystal Gloves",
+    "icon": "/items/drops/arrom_╨░/Bound_Dark_Crystal_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "A"
+  },
+  "bound_dark_crystal_boots": {
+    "name": "Bound Dark Crystal Boots",
+    "icon": "/items/drops/arrom_╨░/Bound_Dark_Crystal_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "A"
+  },
+  "monster_shield_a": {
+    "name": "Monster Shield",
+    "icon": "/items/drops/arrom_╨░/monster.jpg",
+    "slot": "lhand",
+    "kind": "shield",
+    "grade": "A"
+  },
+  "dark_crystal_shield": {
+    "name": "Dark Crystal Shield",
+    "icon": "/items/drops/arrom_╨░/Shield_dark_crystal_shield_i00_0.jpg",
+    "slot": "lhand",
+    "kind": "shield",
+    "grade": "A"
+  },
+  "shield_of_nightmare": {
+    "name": "Shield of Nightmare",
+    "icon": "/items/drops/arrom_╨░/Shield_shield_of_nightmare_i00_0.jpg",
+    "slot": "lhand",
+    "kind": "shield",
+    "grade": "A"
+  },
+  "soulshot_a": {
+    "name": "Soulshot (A-grade)",
+    "icon": "/items/drops/resources/Etc_spirit_bullet_silver_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "A"
+  },
+  "spiritshot_a": {
+    "name": "Spiritshot (A-grade)",
+    "icon": "/items/drops/resources/Etc_spell_shot_silver_i01_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "A"
+  },
+  "mithril_arrow": {
+    "name": "Mithril Arrow",
+    "icon": "/items/drops/resources/etc_mithril_quiver_i00.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "A"
+  },
+  "a_enchant_weapon_scroll": {
+    "name": "Scroll: Enchant Weapon (A-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_weapon_i04.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "A"
+  },
+  "a_enchant_armor_scroll": {
+    "name": "Scroll: Enchant Armor (A-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_armor_i04.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "A"
+  },
+  "blessed_scroll_enchant_weapon_grade_a": {
+    "name": "Blessed Scroll: Enchant Weapon (A-grade)",
+    "icon": "/items/drops/resources/bless-weapon-a.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "A"
+  },
+  "blessed_scroll_enchant_armor_grade_a": {
+    "name": "Blessed Scroll: Enchant Armor (A-grade)",
+    "icon": "/items/drops/resources/bless-armor-a.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "A"
+  },
+  "quest_weapon_a_dark_legions_edge": {
+    "name": "Dark Legion's Edge",
+    "icon": "/items/drops/weapon_a/Dark_Legion_s_Edge.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_meteor_shower": {
+    "name": "Meteor Shower",
+    "icon": "/items/drops/weapon_a/Meteor_Shower.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_a/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_baguette_s_dualsword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_a/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_barakiel_s_axe": {
+    "name": "Barakiel's Axe",
+    "icon": "/items/drops/weapon_a/Barakiel_s_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_behemoth_s_tuning_fork": {
+    "name": "Behemoth's Tuning Fork",
+    "icon": "/items/drops/weapon_a/Behemoth_s_Tuning_Fork.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_blood_tornado": {
+    "name": "Blood Tornado",
+    "icon": "/items/drops/weapon_a/Blood_Tornado.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_bloody_orchid": {
+    "name": "Bloody Orchid",
+    "icon": "/items/drops/weapon_a/Bloody_Orchid.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_branch_of_the_mother_tree": {
+    "name": "Branch of The Mother Tree",
+    "icon": "/items/drops/weapon_a/Branch_of_The_Mother_Tree.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_cabrio_s_hand": {
+    "name": "Cabrio's Hand",
+    "icon": "/items/drops/weapon_a/Cabrio_s _Hand.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_carnage_bow": {
+    "name": "Carnage Bow",
+    "icon": "/items/drops/weapon_a/Carnage_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_daimon_crystal": {
+    "name": "Daimon Crystal",
+    "icon": "/items/drops/weapon_a/Daimon_Crystal.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_dasparion_s_staff": {
+    "name": "Dasparion's Staff",
+    "icon": "/items/drops/weapon_a/Dasparion_s_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_dragon_grinder": {
+    "name": "Dragon Grinder",
+    "icon": "/items/drops/weapon_a/Dragon_Grinder.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_dragon_slayer": {
+    "name": "Dragon Slayer",
+    "icon": "/items/drops/weapon_a/Dragon_Slayer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_elysian": {
+    "name": "Elysian",
+    "icon": "/items/drops/weapon_a/Elysian.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_halberd": {
+    "name": "Halberd",
+    "icon": "/items/drops/weapon_a/Halberd.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_infernal_master": {
+    "name": "Infernal Master",
+    "icon": "/items/drops/weapon_a/Infernal_Master.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_naga_storm": {
+    "name": "Naga Storm",
+    "icon": "/items/drops/weapon_a/Naga_Storm.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_shyeed_s_bow": {
+    "name": "Shyeed's Bow",
+    "icon": "/items/drops/weapon_a/Shyeed_s_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_sirra_s_blade": {
+    "name": "Sirra's Blade",
+    "icon": "/items/drops/weapon_a/Sirra_s_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_sobekk_s_hurricane": {
+    "name": "Sobekk's Hurricane",
+    "icon": "/items/drops/weapon_a/Sobekk_s_Hurricane.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_soul_bow": {
+    "name": "Soul Bow",
+    "icon": "/items/drops/weapon_a/Soul_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_soul_separator": {
+    "name": "Soul Separator",
+    "icon": "/items/drops/weapon_a/Soul_Separator.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_spiritual_eye": {
+    "name": "Spiritual Eye",
+    "icon": "/items/drops/weapon_a/Spiritual_Eye.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_sword_of_ipos": {
+    "name": "Sword of Ipos",
+    "icon": "/items/drops/weapon_a/Sword_of_Ipos.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_sword_of_miracles": {
+    "name": "Sword of Miracles",
+    "icon": "/items/drops/weapon_a/Sword_of_Miracles.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_tallum_blade": {
+    "name": "Tallum Blade",
+    "icon": "/items/drops/weapon_a/Tallum_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_tallum_glaive": {
+    "name": "Tallum Glaive",
+    "icon": "/items/drops/weapon_a/Tallum_Glaive.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_themis_tongue": {
+    "name": "Themis Tongue",
+    "icon": "/items/drops/weapon_a/Themis_Tongue.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "quest_weapon_a_tiphon_s_spear": {
+    "name": "Tiphon's Spear",
+    "icon": "/items/drops/weapon_a/Tiphon_s_Spear.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_dark_legions_edge": {
+    "name": "Dark Legion's Edge",
+    "icon": "/items/drops/weapon_a/Dark_Legion_s_Edge.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_meteor_shower": {
+    "name": "Meteor Shower",
+    "icon": "/items/drops/weapon_a/Meteor_Shower.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_a/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_baguette_s_dualsword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_a/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_barakiel_s_axe": {
+    "name": "Barakiel's Axe",
+    "icon": "/items/drops/weapon_a/Barakiel_s_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_behemoth_s_tuning_fork": {
+    "name": "Behemoth's Tuning Fork",
+    "icon": "/items/drops/weapon_a/Behemoth_s_Tuning_Fork.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_blood_tornado": {
+    "name": "Blood Tornado",
+    "icon": "/items/drops/weapon_a/Blood_Tornado.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_bloody_orchid": {
+    "name": "Bloody Orchid",
+    "icon": "/items/drops/weapon_a/Bloody_Orchid.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_branch_of_the_mother_tree": {
+    "name": "Branch of The Mother Tree",
+    "icon": "/items/drops/weapon_a/Branch_of_The_Mother_Tree.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_cabrio_s_hand": {
+    "name": "Cabrio's Hand",
+    "icon": "/items/drops/weapon_a/Cabrio_s _Hand.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_carnage_bow": {
+    "name": "Carnage Bow",
+    "icon": "/items/drops/weapon_a/Carnage_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_daimon_crystal": {
+    "name": "Daimon Crystal",
+    "icon": "/items/drops/weapon_a/Daimon_Crystal.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_dasparion_s_staff": {
+    "name": "Dasparion's Staff",
+    "icon": "/items/drops/weapon_a/Dasparion_s_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_dragon_grinder": {
+    "name": "Dragon Grinder",
+    "icon": "/items/drops/weapon_a/Dragon_Grinder.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_dragon_slayer": {
+    "name": "Dragon Slayer",
+    "icon": "/items/drops/weapon_a/Dragon_Slayer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_elysian": {
+    "name": "Elysian",
+    "icon": "/items/drops/weapon_a/Elysian.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_halberd": {
+    "name": "Halberd",
+    "icon": "/items/drops/weapon_a/Halberd.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_infernal_master": {
+    "name": "Infernal Master",
+    "icon": "/items/drops/weapon_a/Infernal_Master.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_naga_storm": {
+    "name": "Naga Storm",
+    "icon": "/items/drops/weapon_a/Naga_Storm.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_shyeed_s_bow": {
+    "name": "Shyeed's Bow",
+    "icon": "/items/drops/weapon_a/Shyeed_s_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_sirra_s_blade": {
+    "name": "Sirra's Blade",
+    "icon": "/items/drops/weapon_a/Sirra_s_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_sobekk_s_hurricane": {
+    "name": "Sobekk's Hurricane",
+    "icon": "/items/drops/weapon_a/Sobekk_s_Hurricane.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_soul_bow": {
+    "name": "Soul Bow",
+    "icon": "/items/drops/weapon_a/Soul_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_soul_separator": {
+    "name": "Soul Separator",
+    "icon": "/items/drops/weapon_a/Soul_Separator.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_spiritual_eye": {
+    "name": "Spiritual Eye",
+    "icon": "/items/drops/weapon_a/Spiritual_Eye.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_sword_of_ipos": {
+    "name": "Sword of Ipos",
+    "icon": "/items/drops/weapon_a/Sword_of_Ipos.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_sword_of_miracles": {
+    "name": "Sword of Miracles",
+    "icon": "/items/drops/weapon_a/Sword_of_Miracles.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_tallum_blade": {
+    "name": "Tallum Blade",
+    "icon": "/items/drops/weapon_a/Tallum_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_tallum_glaive": {
+    "name": "Tallum Glaive",
+    "icon": "/items/drops/weapon_a/Tallum_Glaive.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_themis_tongue": {
+    "name": "Themis Tongue",
+    "icon": "/items/drops/weapon_a/Themis_Tongue.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_weapon_a_tiphon_s_spear": {
+    "name": "Tiphon's Spear",
+    "icon": "/items/drops/weapon_a/Tiphon_s_Spear.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "A"
+  },
+  "shop_jewelry_a_majestic_ring": {
+    "name": "Majestic Ring",
+    "icon": "/items/drops/Earring_A/accessary_inferno_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_ring_of_phantom": {
+    "name": "Ring of Phantom",
+    "icon": "/items/drops/Earring_A/accessary_ring_of_phantom_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_phoenix_ring": {
+    "name": "Phoenix Ring",
+    "icon": "/items/drops/Earring_A/accessary_phoenixs_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_cerberus_ring": {
+    "name": "Cerberus Ring",
+    "icon": "/items/drops/Earring_A/accessary_cerberuss_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_majestic_earring": {
+    "name": "Majestic Earring",
+    "icon": "/items/drops/Earring_A/accessary_inferno_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_earring_of_phantom": {
+    "name": "Earring of Phantom",
+    "icon": "/items/drops/Earring_A/accessary_earing_of_phantom_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_phoenix_earring": {
+    "name": "Phoenix Earring",
+    "icon": "/items/drops/Earring_A/accessary_phoenixs_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_cerberus_earring": {
+    "name": "Cerberus Earring",
+    "icon": "/items/drops/Earring_A/accessary_cerberuss_earing_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "A"
+  },
+  "shop_jewelry_a_majestic_necklace": {
+    "name": "Majestic Necklace",
+    "icon": "/items/drops/Earring_A/accessary_inferno_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "A"
+  },
+  "shop_jewelry_a_necklace_of_phantom": {
+    "name": "Necklace of Phantom",
+    "icon": "/items/drops/Earring_A/accessary_necklace_of_phantom_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "A"
+  },
+  "shop_jewelry_a_phoenix_necklace": {
+    "name": "Phoenix Necklace",
+    "icon": "/items/drops/Earring_A/accessary_phoenixs_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "A"
+  },
+  "shop_jewelry_a_cerberus_necklace": {
+    "name": "Cerberus Necklace",
+    "icon": "/items/drops/Earring_A/accessary_cerberuss_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "A"
+  },
+  "major_arcana_circlet": {
+    "name": "Major Arcana Circlet",
+    "icon": "/items/drops/arrom_s/Major_Arcana_Circlet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "S"
+  },
+  "major_arcana_robe": {
+    "name": "Major Arcana Robe",
+    "icon": "/items/drops/arrom_s/Major_Arcana_Robe.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "major_arcana_gloves": {
+    "name": "Major Arcana Gloves",
+    "icon": "/items/drops/arrom_s/Major_Arcana_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "S"
+  },
+  "major_arcana_boots": {
+    "name": "Major Arcana Boots",
+    "icon": "/items/drops/arrom_s/Major_Arcana_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "S"
+  },
+  "draconic_leather_helmet": {
+    "name": "Draconic Leather Helmet",
+    "icon": "/items/drops/arrom_s/Draconic_Leather_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "S"
+  },
+  "draconic_leather_armor": {
+    "name": "Draconic Leather Armor",
+    "icon": "/items/drops/arrom_s/Draconic_Leather_Armor.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "draconic_leather_gloves": {
+    "name": "Draconic Leather Gloves",
+    "icon": "/items/drops/arrom_s/Draconic_Leather_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "S"
+  },
+  "draconic_leather_boots": {
+    "name": "Draconic Leather Boots",
+    "icon": "/items/drops/arrom_s/Draconic_Leather_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "S"
+  },
+  "imperial_crusader_helmet": {
+    "name": "Imperial Crusader Helmet",
+    "icon": "/items/drops/arrom_s/Imperial_Crusader_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "S"
+  },
+  "imperial_crusader_breastplate": {
+    "name": "Imperial Crusader Breastplate",
+    "icon": "/items/drops/arrom_s/Imperial_Crusader_Breastplate.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "imperial_crusader_gaiters": {
+    "name": "Imperial Crusader Gaiters",
+    "icon": "/items/drops/arrom_s/Bound_Imperial_Crusader.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "imperial_crusader_gauntlets": {
+    "name": "Imperial Crusader Gauntlets",
+    "icon": "/items/drops/arrom_s/Imperial_Crusader_Gauntlets.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "S"
+  },
+  "imperial_crusader_boots": {
+    "name": "Imperial Crusader Boots",
+    "icon": "/items/drops/arrom_s/Bound_Imperial_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "S"
+  },
+  "imperial_crusader_shield": {
+    "name": "Imperial Crusader Shield",
+    "icon": "/items/drops/arrom_s/Imperial_Crusader_Shield.jpg",
+    "slot": "shield",
+    "kind": "shield",
+    "grade": "S"
+  },
+  "moirai_circlet": {
+    "name": "Moirai Circlet",
+    "icon": "/items/drops/arrom_s/Moirai_Circlet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "S"
+  },
+  "moirai_tunic": {
+    "name": "Moirai Tunic",
+    "icon": "/items/drops/arrom_s/Moirai_Tunic.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "moirai_stockings": {
+    "name": "Moirai Stockings",
+    "icon": "/items/drops/arrom_s/Moirai_Stockings.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "moirai_gloves": {
+    "name": "Moirai Gloves",
+    "icon": "/items/drops/arrom_s/Moirai_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "S"
+  },
+  "moirai_shoes": {
+    "name": "Moirai Shoes",
+    "icon": "/items/drops/arrom_s/Moirai_Shoes.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "S"
+  },
+  "vesper_leather_helmet": {
+    "name": "Vesper Leather Helmet",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "S"
+  },
+  "vesper_leather_breastplate": {
+    "name": "Vesper Leather Breastplate",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Breastplate.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "vesper_leather_leggings": {
+    "name": "Vesper Leather Leggings",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Leggings.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "vesper_leather_gloves": {
+    "name": "Vesper Leather Gloves",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "S"
+  },
+  "vesper_leather_boots": {
+    "name": "Vesper Leather Boots",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "S"
+  },
+  "vesper_helmet": {
+    "name": "Vesper Helmet",
+    "icon": "/items/drops/arrom_s/Vesper_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "S"
+  },
+  "vesper_breastplate": {
+    "name": "Vesper Breastplate",
+    "icon": "/items/drops/arrom_s/Vesper_Breastplate.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "vesper_gaiters": {
+    "name": "Vesper Gaiters",
+    "icon": "/items/drops/arrom_s/Vesper_Gaiters.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "vesper_gauntlets": {
+    "name": "Vesper Gauntlets",
+    "icon": "/items/drops/arrom_s/Vesper_Gauntlets.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "S"
+  },
+  "vesper_boots": {
+    "name": "Vesper Boots",
+    "icon": "/items/drops/arrom_s/Vesper_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "S"
+  },
+  "vesper_leather_helmet_quest": {
+    "name": "Vesper Leather Helmet",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Helmet.jpg",
+    "slot": "head",
+    "kind": "helmet",
+    "grade": "S"
+  },
+  "vesper_leather_breastplate_quest": {
+    "name": "Vesper Leather Breastplate",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Breastplate.jpg",
+    "slot": "armor",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "vesper_leather_leggings_quest": {
+    "name": "Vesper Leather Leggings",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Leggings.jpg",
+    "slot": "legs",
+    "kind": "armor",
+    "grade": "S"
+  },
+  "vesper_leather_gloves_quest": {
+    "name": "Vesper Leather Gloves",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Gloves.jpg",
+    "slot": "gloves",
+    "kind": "gloves",
+    "grade": "S"
+  },
+  "vesper_leather_boots_quest": {
+    "name": "Vesper Leather Boots",
+    "icon": "/items/drops/arrom_s/Vesper_Leather_Boots.jpg",
+    "slot": "boots",
+    "kind": "boots",
+    "grade": "S"
+  },
+  "vesper_shield": {
+    "name": "Vesper Shield",
+    "icon": "/items/drops/arrom_s/Vesper_Shield.jpg",
+    "slot": "lhand",
+    "kind": "shield",
+    "grade": "S"
+  },
+  "soulshot_s": {
+    "name": "Soulshot (S-grade)",
+    "icon": "/items/drops/resources/Etc_spirit_bullet_gold_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "S"
+  },
+  "spiritshot_s": {
+    "name": "Spiritshot (S-grade)",
+    "icon": "/items/drops/resources/Etc_spell_shot_gold_i01_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "S"
+  },
+  "shining_arrow": {
+    "name": "Shining Arrow",
+    "icon": "/items/drops/resources/etc_shining_quiver_i00.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "S"
+  },
+  "s_enchant_weapon_scroll": {
+    "name": "Scroll: Enchant Weapon (S-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_weapon_i05.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "S"
+  },
+  "s_enchant_armor_scroll": {
+    "name": "Scroll: Enchant Armor (S-grade)",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_armor_i05.png",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "S"
+  },
+  "blessed_scroll_enchant_weapon_grade_s": {
+    "name": "Blessed Scroll: Enchant Weapon (S-grade)",
+    "icon": "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "S"
+  },
+  "blessed_scroll_enchant_armor_grade_s": {
+    "name": "Blessed Scroll: Enchant Armor (S-grade)",
+    "icon": "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    "slot": "consumable",
+    "kind": "consumable",
+    "grade": "S"
+  },
+  "quest_weapon_s_angel_slayer": {
+    "name": "Angel Slayer",
+    "icon": "/items/drops/weapon_s/Angel_Slayer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_s/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_arcana_mace": {
+    "name": "Arcana Mace",
+    "icon": "/items/drops/weapon_s/Arcana_Mace.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_baguette_s_dualsword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_s/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_basalt_battlehammer": {
+    "name": "Basalt Battlehammer",
+    "icon": "/items/drops/weapon_s/Basalt_Battlehammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_demon_splinter": {
+    "name": "Demon Splinter",
+    "icon": "/items/drops/weapon_s/Demon_Splinter.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_draconic_bow": {
+    "name": "Draconic Bow",
+    "icon": "/items/drops/weapon_s/Draconic_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_dragon_hunter_axe": {
+    "name": "Dragon Hunter Axe",
+    "icon": "/items/drops/weapon_s/Dragon_Hunter_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_god_s_blade": {
+    "name": "God's Blade",
+    "icon": "/items/drops/weapon_s/God_s_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_heaven_s_divider": {
+    "name": "Heaven's Divider",
+    "icon": "/items/drops/weapon_s/Heaven_s_Divider.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_imperial_staff": {
+    "name": "Imperial Staff",
+    "icon": "/items/drops/weapon_s/Imperial_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_saint_spear": {
+    "name": "Saint Spear",
+    "icon": "/items/drops/weapon_s/Saint_Spear.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "quest_weapon_s_shining_bow": {
+    "name": "Shining Bow",
+    "icon": "/items/drops/weapon_s/Shining_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_angel_slayer": {
+    "name": "Angel Slayer",
+    "icon": "/items/drops/weapon_s/Angel_Slayer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_apprentices_spellbook": {
+    "name": "Apprentice's Spellbook",
+    "icon": "/items/drops/weapon_s/apprentices_spellbook.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_arcana_mace": {
+    "name": "Arcana Mace",
+    "icon": "/items/drops/weapon_s/Arcana_Mace.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_baguette_s_dualsword": {
+    "name": "Baguette's Dualsword",
+    "icon": "/items/drops/weapon_s/Baguette_s_Dualsword.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_basalt_battlehammer": {
+    "name": "Basalt Battlehammer",
+    "icon": "/items/drops/weapon_s/Basalt_Battlehammer.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_demon_splinter": {
+    "name": "Demon Splinter",
+    "icon": "/items/drops/weapon_s/Demon_Splinter.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_draconic_bow": {
+    "name": "Draconic Bow",
+    "icon": "/items/drops/weapon_s/Draconic_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_dragon_hunter_axe": {
+    "name": "Dragon Hunter Axe",
+    "icon": "/items/drops/weapon_s/Dragon_Hunter_Axe.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_god_s_blade": {
+    "name": "God's Blade",
+    "icon": "/items/drops/weapon_s/God_s_Blade.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_heaven_s_divider": {
+    "name": "Heaven's Divider",
+    "icon": "/items/drops/weapon_s/Heaven_s_Divider.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_imperial_staff": {
+    "name": "Imperial Staff",
+    "icon": "/items/drops/weapon_s/Imperial_Staff.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_saint_spear": {
+    "name": "Saint Spear",
+    "icon": "/items/drops/weapon_s/Saint_Spear.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_weapon_s_shining_bow": {
+    "name": "Shining Bow",
+    "icon": "/items/drops/weapon_s/Shining_Bow.jpg",
+    "slot": "weapon",
+    "kind": "weapon",
+    "grade": "S"
+  },
+  "shop_jewelry_s_tateossian_ring": {
+    "name": "Tateossian Ring",
+    "icon": "/items/drops/Earring_S/accessory_tateossian_ring_i00.png",
+    "slot": "rfinger;lfinger",
+    "kind": "ring",
+    "grade": "S"
+  },
+  "shop_jewelry_s_tateossian_earring": {
+    "name": "Tateossian Earring",
+    "icon": "/items/drops/Earring_S/accessory_tateossian_earring_i00.png",
+    "slot": "rear;lear",
+    "kind": "earring",
+    "grade": "S"
+  },
+  "shop_jewelry_s_tateossian_necklace": {
+    "name": "Tateossian Necklace",
+    "icon": "/items/drops/Earring_S/accessory_tateossian_necklace_i00.png",
+    "slot": "necklace",
+    "kind": "necklace",
+    "grade": "S"
+  },
+  "cokes": {
+    "name": "Cokes",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1879.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "varnish_of_purity": {
+    "name": "Varnish of Purity",
+    "icon": "/items/drops/resources/l2dop-by-itemid/4039.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "synthetic_cokes": {
+    "name": "Synthetic Cokes",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1895.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "cord": {
+    "name": "Cord",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1884.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "thread": {
+    "name": "Thread",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1868.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "silver_mold": {
+    "name": "Silver Mold",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1881.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "compound_braid": {
+    "name": "Compound Braid",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1889.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "high_grade_suede": {
+    "name": "High Grade Suede",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1885.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "suede": {
+    "name": "Suede",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1866.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "steel": {
+    "name": "Steel",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1880.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "charcoal": {
+    "name": "Charcoal",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1871.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "varnish": {
+    "name": "Varnish",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1865.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "steel_mold": {
+    "name": "Steel Mold",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1880.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "mithril_alloy": {
+    "name": "Mithril Alloy",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Mithril_Alloy.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "crafted_leather": {
+    "name": "Crafted Leather",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1894.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "blacksmith_frame": {
+    "name": "Blacksmith's Frame",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Blacksmith_Frame.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "artisans_frame": {
+    "name": "Artisan's Frame",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Artisans_Frame.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "oriharukon": {
+    "name": "Oriharukon",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Oriharukon.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "metal_hardener": {
+    "name": "Metal Hardener",
+    "icon": "/items/drops/resources/l2dop-by-itemid/5220.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "metallic_fiber": {
+    "name": "Metallic Fiber",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1895.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "durable_metal_plate": {
+    "name": "Durable Metal Plate",
+    "icon": "/items/drops/resources/l2dop-by-itemid/5550.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "metallic_thread": {
+    "name": "Metallic Thread",
+    "icon": "/items/drops/resources/l2dop-by-itemid/5549.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "leather": {
+    "name": "Leather",
+    "icon": "/items/drops/resources/l2dop-by-itemid/1882.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "mold_glue": {
+    "name": "Mold Glue",
+    "icon": "/items/drops/resources/l2dop-by-itemid/4039.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "mold_lubricant": {
+    "name": "Mold Lubricant",
+    "icon": "/items/drops/resources/l2dop-by-itemid/4040.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "mold_hardener": {
+    "name": "Mold Hardener",
+    "icon": "/items/drops/resources/l2dop-by-itemid/4041.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "enria": {
+    "name": "Enria",
+    "icon": "/items/drops/resources/l2dop-by-itemid/4042.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "asofe": {
+    "name": "Asofe",
+    "icon": "/items/drops/resources/l2dop-by-itemid/4043.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "maestro_mold": {
+    "name": "Maestro Mold",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Maestro_Mold.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "craftsman_mold": {
+    "name": "Craftsman Mold",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Craftsman_Mold.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "maestro_holder": {
+    "name": "Maestro Holder",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Maestro_Holder.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  },
+  "maestro_anvil_lock": {
+    "name": "Maestro Anvil Lock",
+    "icon": "/items/drops/resources/l2dop-by-itemid/Maestro_Anvil_Lock.jpg",
+    "slot": "resource",
+    "kind": "resource"
+  }
+}
