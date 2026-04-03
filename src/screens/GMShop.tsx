@@ -5,8 +5,6 @@ import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
 import type { HeroInventoryItem } from "../types/Hero";
-import { autoDetectGrade } from "../utils/items/autoDetectArmorType";
-import { getWeaponTypeFromItemId, WEAPON_TYPE_LABELS } from "../state/heroStore/weaponUtils";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import {
@@ -32,17 +30,7 @@ export default function GMShop({ navigate }: GMShopProps) {
   const updateHero = useHeroStore((s) => s.updateHero);
   const updateAdena = useHeroStore((s) => s.updateAdena);
   const addItemToInventory = useHeroStore((s) => s.addItemToInventory);
-  const [selectedCategory, setSelectedCategory] = useState<string>("shop");
   const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "rasodniki">("dyes");
-  const [selectedGrade, setSelectedGrade] = useState<string>("D");
-  const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
-  const [confirmExchange, setConfirmExchange] = useState<{ 
-    type: string; 
-    name: string; 
-    stoneCount: number;
-    aaReward: number;
-  } | null>(null);
-  const [exchangeQuantity, setExchangeQuantity] = useState<number>(1);
   const [selectedItem, setSelectedItem] = useState<DyeItem | null>(null);
   const [selectedCrystalItem, setSelectedCrystalItem] = useState<{ itemId: string } | null>(null);
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
@@ -56,15 +44,6 @@ export default function GMShop({ navigate }: GMShopProps) {
       </div>
     );
   }
-
-  // Перевірка наявності каменів печати
-  const greenStone = hero.inventory?.find(item => item.id === "green_seal_stone");
-  const blueStone = hero.inventory?.find(item => item.id === "blue_seal_stone");
-  const redStone = hero.inventory?.find(item => item.id === "red_seal_stone");
-  
-  const greenStoneCount = greenStone?.count || 0;
-  const blueStoneCount = blueStone?.count || 0;
-  const redStoneCount = redStone?.count || 0;
 
   // Отримання AA з інвентаря
   const ancientAdenaItem = hero.inventory?.find(item => item.id === "ancient_adena");
@@ -268,80 +247,6 @@ export default function GMShop({ navigate }: GMShopProps) {
     showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
   };
 
-  // Обробка обміну
-  const handleExchange = (type: string, stoneId: string, aaPerStone: number, stoneName: string) => {
-    if (!hero) return;
-
-    const stoneItem = hero.inventory?.find(item => item.id === stoneId);
-    const stoneCount = stoneItem?.count || 0;
-
-    if (stoneCount < exchangeQuantity) {
-      showToast(`У вас недостатньо ${stoneName}!`, "error");
-      return;
-    }
-
-    const aaReward = aaPerStone * exchangeQuantity;
-
-    setConfirmExchange({
-      type,
-      name: stoneName,
-      stoneCount: exchangeQuantity,
-      aaReward,
-    });
-  };
-
-  // Підтвердження обміну
-  const confirmExchangeAction = () => {
-    if (!hero || !confirmExchange) return;
-
-    const stoneIdMap: Record<string, string> = {
-      green: "green_seal_stone",
-      blue: "blue_seal_stone",
-      red: "red_seal_stone",
-    };
-
-    const stoneId = stoneIdMap[confirmExchange.type];
-    if (!stoneId) return;
-
-    const newInventory = [...(hero.inventory || [])];
-    
-    // Видаляємо камені
-    const stoneIndex = newInventory.findIndex(item => item.id === stoneId);
-    if (stoneIndex >= 0) {
-      const stone = newInventory[stoneIndex];
-      if (stone.count && stone.count > confirmExchange.stoneCount) {
-        newInventory[stoneIndex] = { ...stone, count: stone.count - confirmExchange.stoneCount };
-      } else {
-        newInventory.splice(stoneIndex, 1);
-      }
-    }
-
-    // Додаємо AA
-    const aaIndex = newInventory.findIndex(item => item.id === "ancient_adena");
-    if (aaIndex >= 0) {
-      const aaItem = newInventory[aaIndex];
-      newInventory[aaIndex] = { 
-        ...aaItem, 
-        count: (aaItem.count || 0) + confirmExchange.aaReward 
-      };
-    } else {
-      // Якщо AA немає в інвентарі, додаємо новий предмет
-      newInventory.push({
-        id: "ancient_adena",
-        name: "Ancient Adena",
-        slot: "resource",
-        kind: "resource",
-        icon: "/items/drops/resources/etc_ancient_adena_i00.png",
-        description: "Стародавня Адена з катакомб Floran. Дорогоцінна валюта.",
-        count: confirmExchange.aaReward,
-      });
-    }
-
-    updateHero({ inventory: newInventory });
-    setConfirmExchange(null);
-    setExchangeQuantity(1);
-  };
-
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
   const rowL2 =
@@ -349,9 +254,6 @@ export default function GMShop({ navigate }: GMShopProps) {
   const borderB = isL2 ? "border-b border-[#5c4a32]/45" : "border-b border-black/70";
   const tabOn = isL2 ? "text-[#e8c56e] font-semibold border-b border-[#c9a44c]" : "text-gray-200 font-semibold border-b border-white/60";
   const tabOff = isL2 ? "text-[#a89878] hover:text-[#d4c4a8]" : "hover:text-gray-200";
-  const exchangeRow = isL2
-    ? "w-full flex items-center justify-between py-2 px-3 rounded-md bg-gradient-to-b from-[#2e2619]/90 to-[#14110c] border border-[#5c4a32]/60 hover:border-[#c7ad80]/40 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)]"
-    : "w-full flex items-center justify-between py-2 px-3 hover:bg-black/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]";
   const modalPanel = isL2
     ? "bg-[#14110c] border border-[#5c4a32] rounded-lg p-4 w-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
     : "bg-[#14110c] border border-white/40 rounded-lg p-4 w-full";
@@ -408,38 +310,8 @@ export default function GMShop({ navigate }: GMShopProps) {
         Ancient Adena (AA)
       </div>
 
-      {/* Категорії */}
+      {/* Магазин (краски / розсодники) */}
       <div className={`px-4 py-2 ${borderB}`}>
-        <div className={`text-[11px] flex gap-1.5 mb-2 flex-nowrap items-center ${isL2 ? "text-[#c9b896]" : "text-gray-300"}`}>
-          <button
-            onClick={() => {
-              setSelectedCategory("shop");
-              setSelectedExchange(null);
-            }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-              selectedCategory === "shop" ? tabOn : tabOff
-            }`}
-          >
-            Магазин
-          </button>
-          <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
-          <button
-            onClick={() => {
-              setSelectedCategory("aa");
-              setSelectedExchange("aa");
-            }}
-            className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
-              selectedCategory === "aa" ? tabOn : tabOff
-            }`}
-          >
-            Обмінник AA
-          </button>
-        </div>
-      </div>
-
-      {/* Магазин */}
-      {selectedCategory === "shop" && (
-        <div className={`px-4 py-2 ${borderB}`}>
           {/* Підкатегорії магазину — як у магазині вещей */}
           <div className={`text-[11px] flex gap-1.5 mb-2 flex-nowrap items-center ${isL2 ? "text-[#c9b896]" : "text-gray-300"}`}>
             <button
@@ -580,175 +452,7 @@ export default function GMShop({ navigate }: GMShopProps) {
             )}
           </div>
           )}
-        </div>
-      )}
-
-      {/* Обмінник AA */}
-      {selectedCategory === "aa" && selectedExchange === "aa" && (
-        <div className={`px-4 py-2 ${borderB}`}>
-          <div className="space-y-2">
-            {/* Кнопка: Обміняти Зелений Камінь Печати */}
-            <button
-              onClick={() => handleExchange("green", "green_seal_stone", 5, "Зелений Камінь Печати")}
-              disabled={greenStoneCount < exchangeQuantity}
-              className={`${exchangeRow} ${
-                greenStoneCount < exchangeQuantity ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/items/drops/resources/R99_soul_stone_i04_0.jpg" 
-                  alt="Зелений Камінь Печати" 
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
-                  }}
-                />
-                <span className="text-[12px] text-[#e0c68a]">Обміняти Зелений Камінь Печати</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[12px] text-green-400 font-semibold">1 камінь = 5 AA</span>
-              </div>
-            </button>
-            {greenStoneCount > 0 && (
-              <div className="text-[10px] text-gray-400 px-3">
-                У вас: {greenStoneCount} шт.
-              </div>
-            )}
-
-            {/* Риска */}
-            <div className={`text-center text-[12px] py-1 ${isL2 ? "text-[#6b5c42]" : "text-gray-500"}`}>─ ─ ─</div>
-
-            {/* Кнопка: Обміняти Синій Камінь Печати */}
-            <button
-              onClick={() => handleExchange("blue", "blue_seal_stone", 10, "Синій Камінь Печати")}
-              disabled={blueStoneCount < exchangeQuantity}
-              className={`${exchangeRow} ${
-                blueStoneCount < exchangeQuantity ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/items/drops/resources/R99_soul_stone_i02_0.jpg" 
-                  alt="Синій Камінь Печати" 
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
-                  }}
-                />
-                <span className="text-[12px] text-[#e0c68a]">Обміняти Синій Камінь Печати</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[12px] text-blue-400 font-semibold">1 камінь = 10 AA</span>
-              </div>
-            </button>
-            {blueStoneCount > 0 && (
-              <div className="text-[10px] text-gray-400 px-3">
-                У вас: {blueStoneCount} шт.
-              </div>
-            )}
-
-            {/* Риска */}
-            <div className={`text-center text-[12px] py-1 ${isL2 ? "text-[#6b5c42]" : "text-gray-500"}`}>─ ─ ─</div>
-
-            {/* Кнопка: Обміняти Червоний Камінь Печати */}
-            <button
-              onClick={() => handleExchange("red", "red_seal_stone", 15, "Червоний Камінь Печати")}
-              disabled={redStoneCount < exchangeQuantity}
-              className={`${exchangeRow} ${
-                redStoneCount < exchangeQuantity ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/items/drops/resources/R99_soul_stone_i00_0.jpg" 
-                  alt="Червоний Камінь Печати" 
-                  className="w-5 h-5 object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
-                  }}
-                />
-                <span className="text-[12px] text-[#e0c68a]">Обміняти Червоний Камінь Печати</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[12px] text-red-400 font-semibold">1 камінь = 15 AA</span>
-              </div>
-            </button>
-            {redStoneCount > 0 && (
-              <div className="text-[10px] text-gray-400 px-3">
-                У вас: {redStoneCount} шт.
-              </div>
-            )}
-
-            {/* Вибір кількості */}
-            <div className={`mt-4 pt-4 border-t ${isL2 ? "border-[#5c4a32]/50" : "border-white/50"}`}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-white text-[12px]">Кількість каменів:</span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setExchangeQuantity(Math.max(1, exchangeQuantity - 1))}
-                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    min="1"
-                    value={exchangeQuantity}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value) || 1;
-                      setExchangeQuantity(Math.max(1, val));
-                    }}
-                    onFocus={(e) => e.target.select()}
-                    className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-center text-[12px]"
-                  />
-                  <button
-                    onClick={() => setExchangeQuantity(exchangeQuantity + 1)}
-                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Модальне вікно підтвердження обміну */}
-      {confirmExchange && (
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
-          onClick={() => setConfirmExchange(null)}
-        >
-          <div 
-            className={`${modalPanel} max-w-[350px]`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={`text-center text-[14px] mb-4 ${isL2 ? "text-[#a89878]" : "text-gray-400"}`}>
-              Обміняти {confirmExchange.stoneCount} {confirmExchange.name} на{" "}
-              <span className="text-yellow-400 font-semibold">
-                {confirmExchange.aaReward.toLocaleString()} AA
-              </span>?
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={confirmExchangeAction}
-                className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer px-4 py-2 bg-[#1a1208] border border-white/50 rounded"
-              >
-                Підтвердити
-              </button>
-              <button
-                onClick={() => setConfirmExchange(null)}
-                className="text-gray-400 text-[12px] hover:text-gray-300 cursor-pointer px-4 py-2 bg-[#1a1208] border border-white/50 rounded"
-              >
-                Скасувати
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* Модальне вікно покупки */}
       {selectedItem && (
