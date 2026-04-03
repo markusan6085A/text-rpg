@@ -51,8 +51,9 @@ export function MarketBrowseDetailModal(props: {
     baseStats,
     isWeapon,
     isArmor,
-    enchantMultiplier,
     armorEnchantMultiplier,
+    weaponPAtkEnchantFlat = 0,
+    weaponMAtkEnchantFlat = 0,
   } = enchanted || {};
 
   return (
@@ -154,8 +155,8 @@ export function MarketBrowseDetailModal(props: {
                 <span className="text-[#8a7a60]">Фіз. атака</span>
                 <span className="text-red-400">
                   {pAtk}
-                  {el > 0 && isWeapon && baseStats?.pAtk && enchantMultiplier ? (
-                    <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.pAtk * (enchantMultiplier - 1))})</span>
+                  {el > 0 && isWeapon && weaponPAtkEnchantFlat > 0 && baseStats?.pAtk != null ? (
+                    <span className="text-[#b8860b] ml-1">(+{weaponPAtkEnchantFlat})</span>
                   ) : null}
                 </span>
               </div>
@@ -165,8 +166,8 @@ export function MarketBrowseDetailModal(props: {
                 <span className="text-[#8a7a60]">Маг. атака</span>
                 <span className="text-purple-400">
                   {mAtk}
-                  {el > 0 && isWeapon && baseStats?.mAtk && enchantMultiplier ? (
-                    <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.mAtk * (enchantMultiplier - 1))})</span>
+                  {el > 0 && isWeapon && weaponMAtkEnchantFlat > 0 && baseStats?.mAtk != null ? (
+                    <span className="text-[#b8860b] ml-1">(+{weaponMAtkEnchantFlat})</span>
                   ) : null}
                 </span>
               </div>

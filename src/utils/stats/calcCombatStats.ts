@@ -6,6 +6,11 @@ import type { HeroBaseStats } from "../../state/heroFactory";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { getActiveSetBonuses } from "../../data/sets/armorSets";
 import { HERO_STAT_MULTIPLIER } from "../../data/balance";
+import {
+  getMagicWeaponEnchantFlatMAtk,
+  getPhysicalWeaponEnchantFlatPAtk,
+  isMagicWeaponForEnchant,
+} from "./weaponEnchantBonuses";
 
 export interface CombatStats {
   pAtk: number;
@@ -185,18 +190,33 @@ export function calcCombatStats(
         const itemStats = itemDef.stats;
         const enchantLevel = equipmentEnchantLevels?.[slot] ?? 0;
         
-        // Бонус від заточки: +3% за рівень для зброї, +2% для броні
-        const enchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.03)) : 1;
+        // Заточка: зброя — плоскі правила (weaponEnchantBonuses), броня — +2% за рівень
         const armorEnchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.02)) : 1;
         
         const isWeapon = itemDef.kind === "weapon";
         const isArmor = ["armor", "helmet", "boots", "gloves", "shield"].includes(itemDef.kind || "");
         
-        if (itemStats.pAtk) {
-          pAtk += isWeapon ? Math.round(itemStats.pAtk * enchantMultiplier) : itemStats.pAtk;
+        if (itemStats.pAtk != null && Number.isFinite(Number(itemStats.pAtk))) {
+          const baseP = Math.round(Number(itemStats.pAtk));
+          if (isWeapon) {
+            pAtk += baseP;
+            if (!isMagicWeaponForEnchant(itemId, itemDef)) {
+              pAtk += getPhysicalWeaponEnchantFlatPAtk(itemId, itemDef, enchantLevel);
+            }
+          } else {
+            pAtk += itemStats.pAtk;
+          }
         }
-        if (itemStats.mAtk) {
-          mAtk += isWeapon ? Math.round(itemStats.mAtk * enchantMultiplier) : itemStats.mAtk;
+        if (itemStats.mAtk != null && Number.isFinite(Number(itemStats.mAtk))) {
+          const baseM = Math.round(Number(itemStats.mAtk));
+          if (isWeapon) {
+            mAtk += baseM;
+            if (isMagicWeaponForEnchant(itemId, itemDef)) {
+              mAtk += getMagicWeaponEnchantFlatMAtk(enchantLevel);
+            }
+          } else {
+            mAtk += itemStats.mAtk;
+          }
         }
         if (itemStats.pDef) {
           pDef += isArmor ? Math.round(itemStats.pDef * armorEnchantMultiplier) : itemStats.pDef;

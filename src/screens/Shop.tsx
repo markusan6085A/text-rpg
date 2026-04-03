@@ -18,6 +18,7 @@ import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
+import { isMagicWeaponForEnchant } from "../utils/stats/weaponEnchantBonuses";
 
 // У категорії «Стрелы» тільки стріли грейдів NG, D, C, B, A, S (один тип на грейд)
 const ARROW_GRADE_IDS = ["wooden_arrow", "bone_arrow", "fine_steel_arrow", "silver_arrow", "mithril_arrow", "shining_arrow"];
@@ -51,6 +52,7 @@ export default function Shop({ navigate }: ShopProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
+  const [weaponKindFilter, setWeaponKindFilter] = useState<"all" | "phys" | "magic">("all");
 
   // Об'єднання всіх предметів
   const allShopItems = [...NG_GRADE_SHOP_ITEMS, ...D_GRADE_SHOP_ITEMS, ...C_GRADE_SHOP_ITEMS, ...B_GRADE_SHOP_ITEMS, ...A_GRADE_SHOP_ITEMS, ...S_GRADE_SHOP_ITEMS, ...CONSUMABLES_SHOP_ITEMS];
@@ -97,6 +99,24 @@ export default function Shop({ navigate }: ShopProps) {
     // Фільтр по грейду (тільки для weapons, armor, jewelry) - без NG
     if ((selectedCategory === "weapons" || selectedCategory === "armor" || selectedCategory === "jewelry") && item.grade !== selectedGrade) {
       return false;
+    }
+
+    if (selectedCategory === "weapons" && weaponKindFilter !== "all") {
+      let itemsDBId: string | undefined = item.id && itemsDB[item.id] ? item.id : SHOP_ITEM_ID_MAPPING[item.itemId as keyof typeof SHOP_ITEM_ID_MAPPING];
+      let itemDef = itemsDBId ? itemsDB[itemsDBId] : undefined;
+      if (!itemDef && item.name) {
+        const itemNameLower = item.name.toLowerCase().replace(/\[.*?\]/g, "").trim();
+        itemsDBId = Object.keys(itemsDB).find((key) => {
+          const dbItem = itemsDB[key];
+          return dbItem?.name?.toLowerCase().replace(/\[.*?\]/g, "").trim() === itemNameLower;
+        });
+        if (itemsDBId) itemDef = itemsDB[itemsDBId];
+      }
+      if (itemDef && itemsDBId) {
+        const isMag = isMagicWeaponForEnchant(itemsDBId, itemDef);
+        if (weaponKindFilter === "phys" && isMag) return false;
+        if (weaponKindFilter === "magic" && !isMag) return false;
+      }
     }
     
     return true;
@@ -323,6 +343,7 @@ export default function Shop({ navigate }: ShopProps) {
               setSelectedArmorSubcategory(null);
               setSelectedJewelrySubcategory(null);
               setSelectedConsumablesSubcategory(null);
+              setWeaponKindFilter("all");
               setCurrentPage(1);
             }}
             className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "weapons" ? tabOn : tabOff}`}
@@ -456,6 +477,30 @@ export default function Shop({ navigate }: ShopProps) {
                 }`}
               >
                 {subcat.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {selectedCategory === "weapons" && (
+          <div className="flex gap-1 mt-2 flex-nowrap overflow-x-auto">
+            {[
+              { id: "all" as const, name: "Все" },
+              { id: "phys" as const, name: "Физ. оружие" },
+              { id: "magic" as const, name: "Маг. оружие" },
+            ].map((sub) => (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => {
+                  setWeaponKindFilter(sub.id);
+                  setCurrentPage(1);
+                }}
+                className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap flex-shrink-0 ${
+                  weaponKindFilter === sub.id ? subTabOn : subTabOff
+                }`}
+              >
+                {sub.name}
               </button>
             ))}
           </div>

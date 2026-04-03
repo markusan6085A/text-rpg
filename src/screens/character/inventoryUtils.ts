@@ -1,5 +1,10 @@
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { findSetForItem, formatSetStatsForDisplay } from "../../data/sets/armorSets";
+import {
+  getMagicWeaponEnchantFlatMAtk,
+  getPhysicalWeaponEnchantFlatPAtk,
+  isMagicWeaponForEnchant,
+} from "../../utils/stats/weaponEnchantBonuses";
 
 /**
  * Отримує інформацію про сет для предмета
@@ -127,29 +132,66 @@ export function calculateEnchantedStats(item: any) {
   const isWeapon = itemDef?.kind === "weapon";
   const isArmor = itemDef && ["armor", "helmet", "boots", "gloves", "shield"].includes(itemDef.kind || "");
   
-  const enchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.03)) : 1;
   const armorEnchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.02)) : 1;
+  const enchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.03)) : 1;
   // Дроп з риби та інші предмети можуть не мати item.stats — беремо з itemsDB
   const stats = item.stats || itemDef?.stats || {};
+
+  let weaponPAtkEnchantFlat = 0;
+  let weaponMAtkEnchantFlat = 0;
+  let pAtk: number | undefined;
+  let mAtk: number | undefined;
+
+  if (isWeapon && itemDef && item.id) {
+    if (isMagicWeaponForEnchant(item.id, itemDef)) {
+      weaponMAtkEnchantFlat = getMagicWeaponEnchantFlatMAtk(enchantLevel);
+      if (stats.pAtk !== undefined && stats.pAtk !== null && Number.isFinite(Number(stats.pAtk))) {
+        pAtk = Math.round(Number(stats.pAtk));
+      }
+      if (stats.mAtk !== undefined && stats.mAtk !== null && Number.isFinite(Number(stats.mAtk))) {
+        mAtk = Math.round(Number(stats.mAtk) + weaponMAtkEnchantFlat);
+      }
+    } else {
+      weaponPAtkEnchantFlat = getPhysicalWeaponEnchantFlatPAtk(item.id, itemDef, enchantLevel);
+      if (stats.pAtk !== undefined && stats.pAtk !== null && Number.isFinite(Number(stats.pAtk))) {
+        pAtk = Math.round(Number(stats.pAtk) + weaponPAtkEnchantFlat);
+      }
+      if (stats.mAtk !== undefined && stats.mAtk !== null && Number.isFinite(Number(stats.mAtk))) {
+        mAtk = Math.round(Number(stats.mAtk));
+      }
+    }
+  } else {
+    if (stats.pAtk !== undefined && stats.pAtk !== null && Number.isFinite(Number(stats.pAtk))) {
+      pAtk = Math.round(Number(stats.pAtk));
+    }
+    if (stats.mAtk !== undefined && stats.mAtk !== null && Number.isFinite(Number(stats.mAtk))) {
+      mAtk = Math.round(Number(stats.mAtk));
+    }
+  }
   
   return {
-    pAtk: stats.pAtk !== undefined 
-      ? (isWeapon ? Math.round(stats.pAtk * enchantMultiplier) : stats.pAtk)
-      : undefined,
-    mAtk: stats.mAtk !== undefined
-      ? (isWeapon ? Math.round(stats.mAtk * enchantMultiplier) : stats.mAtk)
-      : undefined,
-    pDef: stats.pDef !== undefined
-      ? (isArmor ? Math.round(stats.pDef * armorEnchantMultiplier) : stats.pDef)
-      : undefined,
-    mDef: stats.mDef !== undefined
-      ? (isArmor ? Math.round(stats.mDef * armorEnchantMultiplier) : stats.mDef)
-      : undefined,
+    pAtk,
+    mAtk,
+    pDef:
+      stats.pDef !== undefined
+        ? isArmor
+          ? Math.round(Number(stats.pDef) * armorEnchantMultiplier)
+          : stats.pDef
+        : undefined,
+    mDef:
+      stats.mDef !== undefined
+        ? isArmor
+          ? Math.round(Number(stats.mDef) * armorEnchantMultiplier)
+          : stats.mDef
+        : undefined,
     enchantLevel,
     isWeapon,
     isArmor,
-    enchantMultiplier,
+    /** Для зброї застаріло: UI використовує weaponPAtkEnchantFlat / weaponMAtkEnchantFlat */
+    enchantMultiplier: isWeapon ? 1 : enchantMultiplier,
     armorEnchantMultiplier,
+    weaponPAtkEnchantFlat,
+    weaponMAtkEnchantFlat,
     baseStats: stats,
   };
 }

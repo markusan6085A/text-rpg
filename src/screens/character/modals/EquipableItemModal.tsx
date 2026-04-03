@@ -26,7 +26,19 @@ export default function EquipableItemModal({
   const bt = characterModalBorderT();
   const l2 = isCharacterModalL2();
   const enchantedStats = calculateEnchantedStats(item);
-  const { pAtk, mAtk, pDef, mDef, baseStats, enchantLevel, isWeapon, isArmor, enchantMultiplier, armorEnchantMultiplier } = enchantedStats;
+  const {
+    pAtk,
+    mAtk,
+    pDef,
+    mDef,
+    baseStats,
+    enchantLevel,
+    isWeapon,
+    isArmor,
+    armorEnchantMultiplier,
+    weaponPAtkEnchantFlat = 0,
+    weaponMAtkEnchantFlat = 0,
+  } = enchantedStats;
   const hasAnyStats = Object.keys(baseStats).length > 0 || pAtk !== undefined || mAtk !== undefined || pDef !== undefined || mDef !== undefined;
   const itemDef = itemsDB[item.id];
   const displayName = itemDef?.name || item.name || item.id;
@@ -85,8 +97,8 @@ export default function EquipableItemModal({
                   <span className="text-gray-400">Физ. атака:</span>
                   <span className="text-red-400">
                     {pAtk}
-                    {enchantLevel > 0 && isWeapon && baseStats.pAtk && (
-                      <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.pAtk * (enchantMultiplier - 1))})</span>
+                    {enchantLevel > 0 && isWeapon && weaponPAtkEnchantFlat > 0 && baseStats.pAtk != null && (
+                      <span className="text-[#b8860b] ml-1">(+{weaponPAtkEnchantFlat})</span>
                     )}
                   </span>
                 </div>
@@ -96,8 +108,8 @@ export default function EquipableItemModal({
                   <span className="text-gray-400">Маг. атака:</span>
                   <span className="text-purple-400">
                     {mAtk}
-                    {enchantLevel > 0 && isWeapon && baseStats.mAtk && (
-                      <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.mAtk * (enchantMultiplier - 1))})</span>
+                    {enchantLevel > 0 && isWeapon && weaponMAtkEnchantFlat > 0 && baseStats.mAtk != null && (
+                      <span className="text-[#b8860b] ml-1">(+{weaponMAtkEnchantFlat})</span>
                     )}
                   </span>
                 </div>

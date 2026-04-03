@@ -14,6 +14,7 @@ import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
+import { isMagicWeaponForEnchant } from "../utils/stats/weaponEnchantBonuses";
 
 type Navigate = (path: string) => void;
 
@@ -46,12 +47,30 @@ export default function QuestShop({ navigate }: QuestShopProps) {
   /** Кількість «пакетів» обміну (1 пакет = 10 срібла за курс рядка). */
   const [exchangeQuantity, setExchangeQuantity] = useState<number>(1);
   const [confirmExchange, setConfirmExchange] = useState<{ type: QuestExchangeType; name: string } | null>(null);
+  const [weaponKindFilter, setWeaponKindFilter] = useState<"all" | "phys" | "magic">("all");
 
   // Фільтрація предметів
   const filteredItems = QUEST_SHOP_ITEMS.filter((item) => {
     if (selectedCategory === "weapons") {
       if (item.type !== "weapon") return false;
       if (item.grade !== selectedGrade) return false;
+      if (weaponKindFilter !== "all") {
+        let itemsDBId: string | undefined = item.id && itemsDB[item.id] ? item.id : QUEST_SHOP_ITEM_MAPPING[item.itemId];
+        let itemDef = itemsDBId ? itemsDB[itemsDBId] : undefined;
+        if (!itemDef && item.name) {
+          const itemNameLower = item.name.toLowerCase().replace(/\[.*?\]/g, "").trim();
+          itemsDBId = Object.keys(itemsDB).find((key) => {
+            const dbItem = itemsDB[key];
+            return dbItem?.name?.toLowerCase().replace(/\[.*?\]/g, "").trim() === itemNameLower;
+          });
+          if (itemsDBId) itemDef = itemsDB[itemsDBId];
+        }
+        if (itemDef && itemsDBId) {
+          const isMag = isMagicWeaponForEnchant(itemsDBId, itemDef);
+          if (weaponKindFilter === "phys" && isMag) return false;
+          if (weaponKindFilter === "magic" && !isMag) return false;
+        }
+      }
       return true;
     }
     if (selectedCategory === "sets") {
@@ -320,6 +339,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               setSelectedCategory("weapons");
               setSelectedGrade("D");
               setSelectedArmorSubcategory(null);
+              setWeaponKindFilter("all");
             }}
             className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${selectedCategory === "weapons" ? tabOn : tabOff}`}
           >
@@ -368,6 +388,27 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             Обменник
           </button>
         </div>
+
+        {selectedCategory === "weapons" && (
+          <div className="flex gap-1 mt-2 flex-nowrap overflow-x-auto">
+            {[
+              { id: "all" as const, name: "Все" },
+              { id: "phys" as const, name: "Физ. оружие" },
+              { id: "magic" as const, name: "Маг. оружие" },
+            ].map((sub) => (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => setWeaponKindFilter(sub.id)}
+                className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap flex-shrink-0 ${
+                  weaponKindFilter === sub.id ? subTabOn : subTabOff
+                }`}
+              >
+                {sub.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Фільтри по грейдах (включно з тату/пояс/плащ у «Ітеми») */}
         {(selectedCategory === "weapons" || selectedCategory === "sets" || selectedCategory === "items" || selectedCategory === "enchant_scrolls") && (
