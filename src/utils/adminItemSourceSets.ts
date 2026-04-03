@@ -62,28 +62,17 @@ export function getAdminItemPickerChrome(itemId: string): AdminItemPickerChrome 
   return "none";
 }
 
-/** Рамка картки в пікері предметів (адмінка) */
-export function adminItemPickerButtonClass(chrome: AdminItemPickerChrome): string {
-  const base =
-    "flex flex-col items-center p-2 rounded-md transition-all duration-150 hover:brightness-110";
-  if (chrome === "quest_shop") {
-    return `${base} bg-gradient-to-b from-rose-950/50 to-black/40 border border-rose-500/55 shadow-[0_0_0_1px_rgba(251,113,133,0.35),0_0_16px_rgba(225,29,72,0.22),inset_0_1px_0_rgba(255,255,255,0.06)] hover:border-rose-400/80 hover:shadow-[0_0_20px_rgba(244,63,94,0.35)]`;
-  }
-  if (chrome === "regular_shop") {
-    return `${base} bg-gradient-to-b from-emerald-950/35 to-black/40 border border-emerald-500/45 shadow-[0_0_0_1px_rgba(52,211,153,0.28),0_0_14px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-emerald-400/75 hover:shadow-[0_0_18px_rgba(34,197,94,0.28)]`;
-  }
-  return `${base} bg-[#c7ad80]/5 border border-[#c7ad80]/20 hover:bg-[#c7ad80]/15 hover:border-[#c7ad80]/40`;
+/** Предмет є на вітрині квест-шопу або магазину міста (без «мертвих» id з БД) */
+export function isAdminItemOnVendorLists(itemId: string): boolean {
+  return getAdminItemPickerChrome(itemId) !== "none";
 }
 
-/** Компактна кнопка в AdminSectionItems (рядок «Всі предмети») */
-export function adminItemInlineButtonClass(itemId: string): string {
-  const chrome = getAdminItemPickerChrome(itemId);
-  const base = "flex items-center gap-0.5 py-0.5 px-1 rounded text-xs transition-colors";
-  if (chrome === "quest_shop") {
-    return `${base} bg-rose-950/40 border border-rose-500/50 text-rose-100/95 shadow-[0_0_8px_rgba(225,29,72,0.2)] hover:bg-rose-900/45`;
-  }
-  if (chrome === "regular_shop") {
-    return `${base} bg-emerald-950/30 border border-emerald-500/45 text-emerald-100/95 shadow-[0_0_8px_rgba(16,185,129,0.15)] hover:bg-emerald-900/35`;
-  }
-  return `${base} bg-[#c7ad80]/10 text-gray-300 hover:bg-[#c7ad80]/20`;
+/** Рамка картки в пікері — нейтральна (без підсвітки джерела) */
+export function adminItemPickerButtonClass(_chrome?: AdminItemPickerChrome): string {
+  return "flex flex-col items-center p-2 rounded-md transition-all duration-150 hover:brightness-110 bg-black/35 border border-[#c7ad80]/25 hover:bg-black/45 hover:border-[#c7ad80]/45";
+}
+
+/** Компактна кнопка в AdminSectionItems — нейтральна рамка */
+export function adminItemInlineButtonClass(_itemId?: string): string {
+  return "flex items-center gap-0.5 py-0.5 px-1 rounded text-xs transition-colors bg-[#c7ad80]/10 text-gray-300 hover:bg-[#c7ad80]/20 border border-[#c7ad80]/25";
 }

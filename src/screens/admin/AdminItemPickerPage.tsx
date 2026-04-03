@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { itemsDB } from "../../data/items/itemsDB";
 import type { ItemDefinition } from "../../data/items/itemsDB.types";
-import {
-  adminItemPickerButtonClass,
-  getAdminItemPickerChrome,
-} from "../../utils/adminItemSourceSets";
+import { adminItemPickerButtonClass, isAdminItemOnVendorLists } from "../../utils/adminItemSourceSets";
+import { handleResourceIconError, normalizeIconPath } from "../../utils/itemIcon";
 
 const style = { color: "#c7ad80" };
 
@@ -50,8 +48,8 @@ function getCategory(def: ItemDefinition): string {
 }
 
 function getItemIcon(def: ItemDefinition): string {
-  const icon = def.icon || "";
-  return icon.startsWith("/") ? icon : icon ? `/items/${icon}` : "/items/drops/Weapon_squires_sword_i00_0.jpg";
+  const p = normalizeIconPath(def.icon);
+  return p || "/items/drops/Weapon_squires_sword_i00_0.jpg";
 }
 
 interface AdminItemPickerPageProps {
@@ -62,12 +60,15 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
   const [search, setSearch] = useState("");
   const [filterGrade, setFilterGrade] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
+  /** За замовчуванням лише вітрини (магазин + квест-шоп) — без риби/дропів поза продажем */
+  const [showEntireItemsDb, setShowEntireItemsDb] = useState(false);
 
   const itemsByCategory = useMemo(() => {
     const map: Record<string, Array<{ id: string; def: ItemDefinition }>> = {};
     const searchLower = search.trim().toLowerCase();
     for (const [id, def] of Object.entries(itemsDB)) {
       if (ADMIN_NO_GIVE_IDS.has(id)) continue;
+      if (!showEntireItemsDb && !isAdminItemOnVendorLists(id)) continue;
       if (!def?.name && !def?.id) continue;
       if (searchLower && !id.toLowerCase().includes(searchLower) && !(def.name || "").toLowerCase().includes(searchLower)) continue;
       if (filterGrade && (def.grade || "") !== filterGrade) continue;
@@ -85,7 +86,7 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
       });
     }
     return map;
-  }, [search, filterGrade, filterCategory]);
+  }, [search, filterGrade, filterCategory, showEntireItemsDb]);
 
   const categories = useMemo(() => {
     const list = Object.keys(itemsByCategory);
@@ -123,24 +124,16 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 mb-3 text-[11px] text-gray-400">
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              className="inline-block w-4 h-4 rounded border border-rose-500/70 shadow-[0_0_10px_rgba(244,63,94,0.35)] bg-gradient-to-br from-rose-900/60 to-black/50"
-              aria-hidden
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <label className="flex items-center gap-2 text-[11px] text-gray-400 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showEntireItemsDb}
+              onChange={(e) => setShowEntireItemsDb(e.target.checked)}
+              className="rounded border-[#c7ad80]/50 bg-black/40"
             />
-            квест-шоп
-          </span>
-          <span className="text-gray-600">·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              className="inline-block w-4 h-4 rounded border border-emerald-500/65 shadow-[0_0_10px_rgba(52,211,153,0.3)] bg-gradient-to-br from-emerald-900/50 to-black/50"
-              aria-hidden
-            />
-            магазин міста
-          </span>
-          <span className="text-gray-600">·</span>
-          <span className="text-gray-500">без підсвітки — не з цих вітрин</span>
+            Показати весь itemsDB (дропи, риба, ресурси поза вітринами)
+          </label>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">
@@ -185,16 +178,14 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
                     key={id}
                     type="button"
                     onClick={() => handleSelect(id)}
-                    className={adminItemPickerButtonClass(getAdminItemPickerChrome(id))}
+                    className={adminItemPickerButtonClass()}
                     title={`${def.name}${def.grade ? ` (${def.grade})` : ""}`}
                   >
                     <img
                       src={getItemIcon(def)}
                       alt={def.name}
                       className="w-10 h-10 object-contain mb-1"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                      }}
+                      onError={handleResourceIconError}
                     />
                     <span className="text-[10px] text-gray-400 truncate w-full text-center" title={id}>
                       {def.name || id}

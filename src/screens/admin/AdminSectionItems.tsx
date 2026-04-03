@@ -4,7 +4,8 @@ import { itemsDB } from "../../data/items/itemsDB";
 import { useCharacterStore } from "../../state/characterStore";
 import { useHeroStore } from "../../state/heroStore";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
-import { adminItemInlineButtonClass } from "../../utils/adminItemSourceSets";
+import { adminItemInlineButtonClass, isAdminItemOnVendorLists } from "../../utils/adminItemSourceSets";
+import { handleResourceIconError, normalizeIconPath } from "../../utils/itemIcon";
 
 const style = { color: "#c7ad80" };
 
@@ -37,8 +38,8 @@ function getCategory(kind: string): string {
 }
 
 function getItemIcon(icon: string | undefined): string {
-  if (!icon) return "/items/drops/Weapon_squires_sword_i00_0.jpg";
-  return icon.startsWith("/") ? icon : `/items/${icon}`;
+  const p = normalizeIconPath(icon);
+  return p || "/items/drops/Weapon_squires_sword_i00_0.jpg";
 }
 
 interface AdminSectionItemsProps {
@@ -50,6 +51,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
   const [itemId, setItemId] = useState("");
   const [qty, setQty] = useState("1");
   const [showPicker, setShowPicker] = useState(false);
+  const [inlineShowAllDb, setInlineShowAllDb] = useState(false);
   const [showPlayerInv, setShowPlayerInv] = useState(false);
   const [playerInv, setPlayerInv] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,6 +71,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     const map: Record<string, Array<{ id: string; name: string; grade?: string; icon?: string }>> = {};
     for (const [id, def] of Object.entries(itemsDB)) {
       if (ADMIN_NO_GIVE_IDS.has(id)) continue;
+      if (!inlineShowAllDb && !isAdminItemOnVendorLists(id)) continue;
       if (!def?.name && !def?.id) continue;
       const cat = getCategory(def.kind || def.slot || "other");
       if (!map[cat]) map[cat] = [];
@@ -76,7 +79,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     }
     for (const arr of Object.values(map)) arr.sort((a, b) => (a.grade || "").localeCompare(b.grade || "") || a.name.localeCompare(b.name));
     return map;
-  }, []);
+  }, [inlineShowAllDb]);
 
   const playerInvByCategory = useMemo(() => {
     const map: Record<string, Array<{ id: string; name: string; count: number; icon?: string }>> = {};
@@ -195,9 +198,7 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
     <section className="border-t border-[#c7ad80]/30 pt-3 pb-3 first:border-t-0 first:pt-0">
       <h2 className="text-sm font-semibold mb-2" style={style}>Видати предмет / Забрати предмет</h2>
       <p className="text-xs text-gray-500 mb-2">
-        Выдача или изъятие предмета из инвентаря игрока. Выбор предмета — кнопка «Вибір предметів». У списку:{" "}
-        <span className="text-rose-300/90">червона — квест-шоп</span> (позиції з екрана Quest Shop + татуси/краски з кв-шопу),{" "}
-        <span className="text-emerald-300/90">зелена — магазин у місті</span> (Gludio та розхідники). Без рамки — не продаються в цих двох джерелах або дроп/GM.
+        Выдача или изъятие предмета из инвентаря игрока. «Вибір предметів» и компактный список по умолчанию показывают только предметы с витрин (магазин города + квест-шоп), без неиспользуемых ресурсов вроде рыбы для админки. Галочка ниже — весь itemsDB.
       </p>
       <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
@@ -211,14 +212,23 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
           <button type="button" onClick={(e) => handleTake(e)} disabled={loading} className={btnDanger}>Забрати</button>
         </div>
         {showPicker && (
-          <div className="max-h-48 overflow-y-auto rounded bg-black/30 p-2 text-xs border border-[#c7ad80]/20">
+          <div className="max-h-48 overflow-y-auto rounded bg-black/30 p-2 text-xs border border-[#c7ad80]/20 space-y-2">
+            <label className="flex items-center gap-2 text-[11px] text-gray-400 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={inlineShowAllDb}
+                onChange={(e) => setInlineShowAllDb(e.target.checked)}
+                className="rounded border-[#c7ad80]/50 bg-black/40"
+              />
+              Увесь itemsDB (дропи, риба…)
+            </label>
             {Object.entries(itemsByCategory).map(([cat, list]) => (
               <div key={cat} className="mb-1.5">
                 <div className="font-medium mb-0.5 text-[#c7ad80]" style={style}>{cat}</div>
                 <div className="flex flex-wrap gap-0.5">
                   {list.map((item) => (
-                    <button key={item.id} type="button" onClick={() => setItemId(item.id)} className={adminItemInlineButtonClass(item.id)} title={`${item.name}${item.grade ? ` (${item.grade})` : ""}`}>
-                      <img src={getItemIcon(item.icon)} alt="" className="w-4 h-4 object-contain" onError={(e) => { (e.target as HTMLImageElement).src = "/items/drops/Weapon_squires_sword_i00_0.jpg"; }} />
+                    <button key={item.id} type="button" onClick={() => setItemId(item.id)} className={adminItemInlineButtonClass()} title={`${item.name}${item.grade ? ` (${item.grade})` : ""}`}>
+                      <img src={getItemIcon(item.icon)} alt="" className="w-4 h-4 object-contain" onError={handleResourceIconError} />
                       <span className="truncate max-w-[100px]">{item.name || item.id}</span>
                     </button>
                   ))}
