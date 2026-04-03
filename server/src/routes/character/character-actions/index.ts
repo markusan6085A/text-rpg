@@ -424,4 +424,130 @@ export async function characterActionsRoutes(app: FastifyInstance) {
       return reply.code(500).send({ error: "Internal Server Error" });
     }
   });
+
+  const QUEST_SHOP_EXCHANGE_SILVER_PER_UNIT = 10;
+  const QUEST_SHOP_EXCHANGE_MAX_QTY = 10_000;
+
+  // POST /characters/:id/quest-shop/exchange — обмін срібла квест-шопу (адена / exp / sp / coin of luck); суми лише на сервері.
+  app.post("/characters/:id/quest-shop/exchange", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const targetId = (req.params as { id?: string }).id;
+    if (!targetId) return reply.code(400).send({ error: "invalid input" });
+
+    const body = req.body as { kind?: string; quantity?: unknown; expectedRevision?: number };
+    const kind = body.kind;
+    const qtyRaw = body.quantity;
+    const qty = typeof qtyRaw === "number" ? Math.floor(qtyRaw) : Math.floor(Number(qtyRaw));
+
+    if (kind !== "adena" && kind !== "exp" && kind !== "sp" && kind !== "coinOfLuck") {
+      return reply.code(400).send({ error: "invalid input" });
+    }
+    if (!Number.isFinite(qty) || qty < 1 || qty > QUEST_SHOP_EXCHANGE_MAX_QTY) {
+      return reply.code(400).send({ error: "invalid input" });
+    }
+
+    try {
+      const ch = await prisma.character.findFirst({
+        where: { id: targetId, accountId: auth.accountId },
+        select: {
+          id: true,
+          adena: true,
+          exp: true,
+          sp: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+        },
+      });
+      if (!ch) return reply.code(404).send({ error: "character not found" });
+
+      const silverCost = BigInt(QUEST_SHOP_EXCHANGE_SILVER_PER_UNIT * qty);
+      const curSilver = BigInt(ch.coinsSilver ?? 0);
+      if (curSilver < silverCost) {
+        return reply.code(400).send({ error: "forbidden" });
+      }
+
+      const heroJson = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, unknown>;
+      const oldRevision = Number(heroJson.heroRevision ?? 0);
+      if (body.expectedRevision !== undefined && body.expectedRevision !== oldRevision) {
+        return reply.code(409).send({ error: "revision_conflict", revision: oldRevision });
+      }
+
+      const newSilver = curSilver - silverCost;
+      let newAdena = BigInt(ch.adena ?? 0);
+      let newExp = BigInt(ch.exp ?? 0);
+      let newSp = ch.sp ?? 0;
+      let newCoinLuck = BigInt(ch.coinLuck ?? 0);
+
+      if (kind === "adena") newAdena += BigInt(50_000 * qty);
+      if (kind === "exp") newExp += BigInt(100_000 * qty);
+      if (kind === "sp") newSp += 50_000 * qty;
+      if (kind === "coinOfLuck") newCoinLuck += BigInt(qty);
+
+      const mergedHj: Record<string, unknown> = {
+        ...heroJson,
+        adena: Number(newAdena),
+        exp: Number(newExp),
+        sp: newSp,
+        coinOfLuck: Number(newCoinLuck),
+        coins_silver: Number(newSilver),
+      };
+
+      const prevDq =
+        typeof mergedHj.dailyQuestsProgress === "object" && mergedHj.dailyQuestsProgress !== null
+          ? (mergedHj.dailyQuestsProgress as Record<string, unknown>)
+          : {};
+      const dq = { ...prevDq };
+      const prevEx = typeof dq.daily_exchange === "number" ? dq.daily_exchange : 0;
+      dq.daily_exchange = prevEx + qty;
+      mergedHj.dailyQuestsProgress = dq;
+
+      const versioned = addVersioning(mergedHj, oldRevision);
+
+      const updated = await prisma.character.update({
+        where: { id: ch.id },
+        data: {
+          coinsSilver: newSilver,
+          adena: newAdena,
+          exp: newExp,
+          sp: newSp,
+          coinLuck: newCoinLuck,
+          heroJson: versioned,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          updatedAt: true,
+        },
+      });
+
+      return reply.send({
+        ok: true,
+        character: {
+          ...updated,
+          exp: Number(updated.exp),
+          adena: Number(updated.adena),
+          coinLuck: Number(updated.coinLuck),
+          coinsSilver: Number(updated.coinsSilver),
+        },
+      });
+    } catch (error) {
+      app.log.error(error, "POST /characters/:id/quest-shop/exchange");
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+  });
 }

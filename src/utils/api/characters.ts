@@ -158,3 +158,14 @@ export async function postLearnAdditionalSkill(
   });
 }
 
+/** Обмін срібних монет квест-шопу на adena / exp / sp / coin of luck — валідація балансу на сервері. */
+export async function postQuestShopExchange(
+  characterId: string,
+  body: { kind: "adena" | "exp" | "sp" | "coinOfLuck"; quantity: number; expectedRevision?: number }
+): Promise<{ ok: boolean; character: Character }> {
+  return apiRequest(`/characters/${encodeURIComponent(characterId)}/quest-shop/exchange`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+

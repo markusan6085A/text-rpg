@@ -3,12 +3,13 @@ import React, { useState } from "react";
 import { QUEST_SHOP_ITEMS } from "../data/shop/questShop";
 import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
-import { addDailyProgress } from "../state/dailyQuestsProgress";
+import { useCharacterStore } from "../state/characterStore";
+import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
+import { postQuestShopExchange } from "../utils/api/characters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { QUEST_SHOP_ITEM_MAPPING } from "../data/shop/questShopResolvedMapping";
-import type { Hero } from "../types/Hero";
 import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
@@ -32,9 +33,10 @@ interface QuestShopProps {
 
 export default function QuestShop({ navigate }: QuestShopProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateAdena = useHeroStore((s) => s.updateAdena);
-  const addItemToInventory = useHeroStore((s) => s.addItemToInventory);
+  const setHero = useHeroStore((s) => s.setHero);
+  const characterId = useCharacterStore((s) => s.characterId);
   const updateHero = useHeroStore((s) => s.updateHero);
+  const [exchangeBusy, setExchangeBusy] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("weapons");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
@@ -891,36 +893,56 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               <div className="flex justify-center gap-4 pt-1">
                 <button
                   type="button"
+                  disabled={exchangeBusy || !characterId}
                   onClick={() => {
-                    if (!hero) return;
-                    const coinCount = hero.coins_silver ?? 0;
-                    const qty = Math.min(Math.max(1, exchangeQuantity), Math.floor(coinCount / QUEST_EXCHANGE_SILVER_PER_UNIT));
-                    const cost = QUEST_EXCHANGE_SILVER_PER_UNIT * qty;
-                    if (coinCount < cost || qty < 1) {
-                      showToast("Недостаточно Серебряных Монет!", "error");
-                      return;
-                    }
-                    const updates: Partial<Hero> = {
-                      coins_silver: coinCount - cost,
-                    };
-                    const add = perUnit * qty;
-                    if (confirmExchange.type === "adena") {
-                      updates.adena = (hero.adena || 0) + add;
-                    } else if (confirmExchange.type === "exp") {
-                      updates.exp = (hero.exp || 0) + add;
-                    } else if (confirmExchange.type === "sp") {
-                      updates.sp = (hero.sp || 0) + add;
-                    } else if (confirmExchange.type === "coinOfLuck") {
-                      updates.coinOfLuck = (hero.coinOfLuck || 0) + add;
-                    }
-                    updateHero(updates);
-                    addDailyProgress("daily_exchange", qty);
-                    setConfirmExchange(null);
-                    setExchangeQuantity(1);
+                    void (async () => {
+                      if (!hero || exchangeBusy) return;
+                      const coinCount = hero.coins_silver ?? 0;
+                      const qty = Math.min(
+                        Math.max(1, exchangeQuantity),
+                        Math.floor(coinCount / QUEST_EXCHANGE_SILVER_PER_UNIT)
+                      );
+                      const cost = QUEST_EXCHANGE_SILVER_PER_UNIT * qty;
+                      if (!characterId) {
+                        showToast("Нет персонажа — войдите в игру.", "error");
+                        return;
+                      }
+                      if (coinCount < cost || qty < 1) {
+                        showToast("Недостаточно Серебряных Монет!", "error");
+                        return;
+                      }
+                      const hj: any = (hero as any).heroJson;
+                      const expectedRevision =
+                        hj != null && typeof hj.heroRevision === "number" ? hj.heroRevision : undefined;
+                      setExchangeBusy(true);
+                      try {
+                        await postQuestShopExchange(characterId, {
+                          kind: confirmExchange.type,
+                          quantity: qty,
+                          ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+                        });
+                        const synced = await loadHeroFromAPI();
+                        if (synced) setHero(synced);
+                        showToast("Обмен выполнен.", "success");
+                        setConfirmExchange(null);
+                        setExchangeQuantity(1);
+                      } catch (e: any) {
+                        const st = e?.status;
+                        if (st === 409) {
+                          showToast("Данные персонажа устарели. Обновите страницу (F5).", "error");
+                        } else if (st === 400) {
+                          showToast("Недостаточно Серебряных Монет или неверный запрос.", "error");
+                        } else {
+                          showToast(e?.message || "Не удалось выполнить обмен.", "error");
+                        }
+                      } finally {
+                        setExchangeBusy(false);
+                      }
+                    })();
                   }}
-                  className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer"
+                  className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Подтвердить
+                  {exchangeBusy ? "…" : "Подтвердить"}
                 </button>
                 <button
                   type="button"
