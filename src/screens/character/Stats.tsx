@@ -7,7 +7,7 @@ import { getActiveSevenSealsRank, getSevenSealsBonusFromHero } from "../../utils
 import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
-import { hasShieldEquipped, getTotalShieldDefense } from "../../utils/shield/shieldDefense";
+import { hasShieldEquipped, getShieldMitigationTotal } from "../../utils/shield/shieldDefense";
 import CharacterBuffs from "./CharacterBuffs";
 import { getMyClan } from "../../utils/api";
 import { SET_STAT_FORMULAS_UI } from "../../data/sets/statBonusFormulas";
@@ -328,7 +328,7 @@ export default function Stats() {
                 <>
                   <div className="flex justify-between">
                     <span className="text-[#c88a5c]">Защ. щитом</span>
-                    <span className={valClass}>+{formatStatValue(getTotalShieldDefense(hero, combatStats))}</span>
+                    <span className={valClass}>+{formatStatValue(getShieldMitigationTotal(hero, combatStats))}</span>
                   </div>
                   {combatStats.shieldBlockRate && combatStats.shieldBlockRate > 0 && (
                     <div className="flex justify-between">

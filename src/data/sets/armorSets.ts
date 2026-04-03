@@ -24,7 +24,7 @@ const COMBAT_BONUS_KEYS = [
   "maxHpPercent", "pDefPercent", "mDefPercent", "pAtkPercent", "mAtkPercent",
   "pAtk", "mAtk", "pDef", "mDef", "accuracy", "evasion", "crit", "mCrit",
   "critPower", "attackSpeed", "castSpeed", "hpRegen", "mpRegen", "cpRegen",
-  "magicSkillPower", "shieldBlockRate", "shieldBlockPower",
+  "magicSkillPower", "shieldBlockRate", "shieldBlockPower", "shieldFortressDefense",
 ] as const;
 
 export interface ArmorSetBonus {

@@ -28,6 +28,7 @@ export type SkillStat =
   | "mpConsumeRate" // MP consumption rate multiplier
   | "shieldBlockRate"
   | "shieldBlockPower"
+  | "shieldFortressDefense"
   | "shieldDef" // Shield defense percentage
   | "sDef" // Shield defense (alternative name)
   | "rShld" // Shield block rate (alternative name)

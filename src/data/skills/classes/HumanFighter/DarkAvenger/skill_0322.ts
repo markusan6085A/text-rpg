@@ -16,9 +16,7 @@ export const skill_0322: SkillDefinition = {
   stackType: "shield_fortress",
   stackOrder: 1,
   icon: "/skills/skill0322.gif",
-  effects: [
-    { stat: "shieldBlockRate", mode: "flat" }, // value буде взято з levelDef.power
-  ],
+  effects: [{ stat: "shieldFortressDefense", mode: "flat" }],
   levels: [
     { level: 1, requiredLevel: 64, spCost: 370000, mpCost: 12, power: 446 },
     { level: 2, requiredLevel: 66, spCost: 580000, mpCost: 13, power: 468 },

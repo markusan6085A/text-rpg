@@ -69,6 +69,7 @@ export interface RecalculatedStats {
     cpRegen: number;
     shieldBlockRate?: number;
     shieldBlockPower?: number;
+    shieldFortressDefense?: number;
   };
   // Стати БЕЗ бафів (для бойової логіки)
   baseFinalStats: {
@@ -90,6 +91,7 @@ export interface RecalculatedStats {
     cpRegen: number;
     shieldBlockRate?: number;
     shieldBlockPower?: number;
+    shieldFortressDefense?: number;
   };
 }
 

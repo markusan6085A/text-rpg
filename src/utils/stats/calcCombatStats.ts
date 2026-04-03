@@ -17,6 +17,7 @@ import {
   isArmorOrShieldKind,
   isJewelryKind,
 } from "./armorEnchantBonuses";
+import { clampShieldBlockRate } from "../shield/shieldDefense";
 
 export interface CombatStats {
   pAtk: number;
@@ -35,6 +36,8 @@ export interface CombatStats {
   cpRegen: number;
   shieldBlockRate?: number;
   shieldBlockPower?: number;
+  /** Плоский бонус до зниження урону при успішному блоці (Shield Fortress тощо), не %. */
+  shieldFortressDefense?: number;
   /** % bonus to magic skill damage (from set INT bonuses) */
   magicSkillPower?: number;
   /** % стійкість до отрути (для resistStat poison у скілах) */
@@ -501,7 +504,7 @@ export function calcCombatStats(
     hpRegen,
     mpRegen,
     cpRegen,
-    shieldBlockRate,
+    shieldBlockRate: clampShieldBlockRate(shieldBlockRate),
     shieldBlockPower,
     magicSkillPower: magicSkillPower > 0 ? magicSkillPower : undefined,
     ...(poisonResist > 0 ? { poisonResist } : {}),

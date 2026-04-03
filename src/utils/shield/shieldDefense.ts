@@ -2,6 +2,14 @@ import { itemsDB } from "../../data/items/itemsDB";
 import type { Hero } from "../../types/Hero";
 import type { CombatStats } from "../stats/calcCombatStats";
 
+/** Максимальний шанс блоку щитом (%), узгоджено з L2 (не більше ~80%). */
+export const MAX_SHIELD_BLOCK_RATE = 80;
+
+export function clampShieldBlockRate(rate: number): number {
+  if (typeof rate !== "number" || !Number.isFinite(rate)) return 0;
+  return Math.min(MAX_SHIELD_BLOCK_RATE, Math.max(0, rate));
+}
+
 /**
  * Перевіряє, чи надітий щит
  */
@@ -49,14 +57,19 @@ export function getTotalShieldDefense(
 
 /**
  * Перевіряє, чи спрацював блок щита на основі shieldBlockRate
- * @param shieldBlockRate - шанс блоку у відсотках (0-100)
- * @returns true якщо блок спрацював, false якщо ні
+ * @param shieldBlockRate - шанс блоку у відсотках (0…MAX_SHIELD_BLOCK_RATE)
  */
 export function checkShieldBlock(shieldBlockRate: number): boolean {
-  if (shieldBlockRate <= 0) return false;
-  // Обмежуємо шанс блоку максимумом 100%
-  const clampedRate = Math.min(100, Math.max(0, shieldBlockRate));
-  // shieldBlockRate - це шанс у відсотках (0-100)
+  const clampedRate = clampShieldBlockRate(shieldBlockRate);
+  if (clampedRate <= 0) return false;
   return Math.random() * 100 < clampedRate;
+}
+
+/** Сума pDef щита з екіпа + бонус «крепость щита» (Shield Fortress) при успішному блоці. */
+export function getShieldMitigationTotal(hero: Hero | null, combatStats: CombatStats): number {
+  const base = getTotalShieldDefense(hero, combatStats);
+  const fort = combatStats.shieldFortressDefense;
+  const add = typeof fort === "number" && Number.isFinite(fort) ? Math.max(0, Math.round(fort)) : 0;
+  return base + add;
 }
 

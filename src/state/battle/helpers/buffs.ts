@@ -1,4 +1,5 @@
 import type { BattleBuff } from "../types";
+import { clampShieldBlockRate } from "../../../utils/shield/shieldDefense";
 
 // Fallback-бази для percent-бафів, якщо стат не заданий в base stats (наприклад atkSpeed vs attackSpeed)
 const DEFAULT_BASE_STATS: Record<string, number> = {
@@ -336,6 +337,10 @@ export const applyBuffsToStats = (
       merged["critDamage"] = merged[targetStat];
     }
   });
+
+  if (typeof merged.shieldBlockRate === "number" && Number.isFinite(merged.shieldBlockRate)) {
+    merged.shieldBlockRate = clampShieldBlockRate(merged.shieldBlockRate);
+  }
 
   if (invulnerable) merged.invulnerable = true;
   return merged;

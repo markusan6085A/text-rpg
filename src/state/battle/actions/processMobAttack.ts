@@ -12,7 +12,7 @@ import type { BattleState } from "../types";
 import { getRaidBossAIProfile } from "../../../data/ai/raidBossAI";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
 import { isMobStunned } from "./useSkill/skillEffects";
-import { getTotalShieldDefense, checkShieldBlock, hasShieldEquipped } from "../../../utils/shield/shieldDefense";
+import { getShieldMitigationTotal, checkShieldBlock, hasShieldEquipped } from "../../../utils/shield/shieldDefense";
 import { getReflectChances, checkReflectDamage } from "./useSkill/reflectDamage";
 import { unequipItemLogic } from "../../heroStore/heroInventory";
 import { locations as WORLD_LOCATIONS } from "../../../data/world";
@@ -136,7 +136,7 @@ export const createProcessMobAttack =
     const mDef = heroStats.mDef ?? 0;
     
     // Обчислюємо захист щитом (якщо надітий щит)
-    const shieldDefense = getTotalShieldDefense(hero, heroStats);
+    const shieldDefense = getShieldMitigationTotal(hero, heroStats);
     
     // Кожен удар: 50% фіз / 50% маг (якщо задано attackType — лишається явний вибір)
     const mobExplicitKind = (state.mob as { attackType?: string }).attackType;

@@ -17,7 +17,8 @@ export const skill_0322: SkillDefinition = {
   stackOrder: 1,
   icon: "/skills/skill0322.gif",
   effects: [
-    { stat: "shieldBlockRate", mode: "flat" }, // value буде взято з levelDef.power
+    // power з XML — плоский «shield defense» при блоці, не % шансу (раніше помилково йшло в shieldBlockRate).
+    { stat: "shieldFortressDefense", mode: "flat" },
   ],
   levels: [
     { level: 1, requiredLevel: 64, spCost: 370000, mpCost: 12, power: 446 },

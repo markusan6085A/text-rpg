@@ -1,6 +1,6 @@
 import React from "react";
 import type { RecalculatedStats } from "../utils/stats/recalculateAllStats";
-import { hasShieldEquipped, getTotalShieldDefense } from "../utils/shield/shieldDefense";
+import { hasShieldEquipped, getShieldMitigationTotal } from "../utils/shield/shieldDefense";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
 const formatStatValue = (v: number) => {
@@ -152,7 +152,7 @@ export default function PlayerStatsModal({ playerName, stats, hero, onClose }: P
               {hero && hasShieldEquipped(hero) && (
                 <div className="flex justify-between gap-1">
                   <span className={labelC}>Защ. щитом</span>
-                  <span className={valC}>+{formatStatValue(getTotalShieldDefense(hero, finalStats))}</span>
+                  <span className={valC}>+{formatStatValue(getShieldMitigationTotal(hero, finalStats))}</span>
                 </div>
               )}
               <div className="flex justify-between gap-1">

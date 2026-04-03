@@ -10,6 +10,7 @@ import { applyBuffsToStats } from "../../state/battle/helpers";
 import { applySinglePassive } from "../../data/skills/effects/applySkillPassives";
 import type { BattleBuff } from "../../state/battle/types";
 import type { CombatStats } from "./calcCombatStats";
+import { clampShieldBlockRate } from "../shield/shieldDefense";
 import type { Resources } from "./calcResources";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { getArmorTypeWithAutoDetect } from "../items/autoDetectArmorType";
@@ -514,6 +515,10 @@ export function applyPassiveSkillsToCombat(
         statsAfter: stats.shieldBlockRate,
       });
     }
+  }
+
+  if (typeof stats.shieldBlockRate === "number" && Number.isFinite(stats.shieldBlockRate)) {
+    stats.shieldBlockRate = clampShieldBlockRate(stats.shieldBlockRate);
   }
 
   // Повертаємо стати БЕЗ бафів (бафи застосовуються в бою)

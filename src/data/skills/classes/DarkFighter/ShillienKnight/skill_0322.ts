@@ -15,9 +15,7 @@ export const skill_0322: SkillDefinition = {
   cooldown: 0,
   duration: 0, // Toggle skill
   mpPerTick: 5, // 5 MP per second
-  effects: [
-    { stat: "shieldBlockRate", mode: "flat" }, // Value from level.power
-  ],
+  effects: [{ stat: "shieldFortressDefense", mode: "flat" }],
   levels: [
     { level: 2, requiredLevel: 66, spCost: 240000, mpCost: 11, power: 469 },
     { level: 3, requiredLevel: 68, spCost: 300000, mpCost: 12, power: 491.5 },
