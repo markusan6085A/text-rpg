@@ -552,7 +552,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/apprentices_spellbook.jpg",
     description: "Книга заклинань учня D-grade. Покращена версія з більшою швидкістю бою.",
     grade: "D",
-    stats: { pAtk: 9, mAtk: 12, rCrit: 8, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 44, mAtk: 47, rCrit: 8, pAtkSpd: 429, critPower: 10 },
   },
   quest_baguette_dual_sword: {
     id: "quest_baguette_dual_sword",
@@ -562,7 +562,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Baguette_s_Dualsword.jpg",
     description: "Подвійний меч Багет D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 96, mAtk: 47, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 131, mAtk: 82, rCrit: 4, pAtkSpd: 375, critPower: 10 },
   },
   quest_bonebreaker: {
     id: "quest_bonebreaker",
@@ -572,7 +572,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Bonebreaker.jpg",
     description: "Ламач кісток D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 92, mAtk: 54, rCrit: 4, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 127, mAtk: 89, rCrit: 4, pAtkSpd: 429, critPower: 10 },
   },
   quest_claymore: {
     id: "quest_claymore",
@@ -582,7 +582,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Claymore.jpg",
     description: "Клеймор D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 112, mAtk: 54, rCrit: 8, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 147, mAtk: 89, rCrit: 8, pAtkSpd: 375, critPower: 10 },
   },
   quest_elven_long_sword: {
     id: "quest_elven_long_sword",
@@ -592,7 +592,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Elven_Long_Sword.jpg",
     description: "Ельфійський довгий меч D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 92, mAtk: 54, rCrit: 8, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 127, mAtk: 89, rCrit: 8, pAtkSpd: 429, critPower: 10 },
   },
   quest_glaive: {
     id: "quest_glaive",
@@ -602,7 +602,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Glaive.jpg",
     description: "Глефа D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 92, mAtk: 54, rCrit: 8, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 127, mAtk: 89, rCrit: 8, pAtkSpd: 375, critPower: 10 },
   },
   quest_light_crossbow: {
     id: "quest_light_crossbow",
@@ -612,7 +612,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Light_Crossbow.jpg",
     description: "Легкий арбалет D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 191, mAtk: 54, rCrit: 12, pAtkSpd: 343, critPower: 30 },
+    stats: { pAtk: 226, mAtk: 89, rCrit: 12, pAtkSpd: 343, critPower: 10 },
   },
   quest_mithril_dagger: {
     id: "quest_mithril_dagger",
@@ -622,7 +622,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Mithril_Dagger.jpg",
     description: "Мітриловий кинджал D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 80, mAtk: 54, rCrit: 12, pAtkSpd: 483, critPower: 30 },
+    stats: { pAtk: 115, mAtk: 89, rCrit: 12, pAtkSpd: 483, critPower: 10 },
   },
   quest_scallop_jamadhr: {
     id: "quest_scallop_jamadhr",
@@ -632,7 +632,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Scallop_Jamadhr.jpg",
     description: "Гребінчастий джамадхр D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 112, mAtk: 54, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 147, mAtk: 89, rCrit: 4, pAtkSpd: 375, critPower: 10 },
   },
   quest_titan_hammer: {
     id: "quest_titan_hammer",
@@ -642,7 +642,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Titan_Hammer.jpg",
     description: "Молот титана D-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "D",
-    stats: { pAtk: 90, mAtk: 79, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 125, mAtk: 114, rCrit: 4, pAtkSpd: 375, critPower: 10 },
   },
 
   // ===== SHOP D-GRADE WEAPONS (Магазин вещей) =====
@@ -746,7 +746,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Atuba_Hammer.jpg",
     description: "Тіньова копія Atuba Hammer D-grade: +40 до фіз. і маг. атаки відносно магазинної версії.",
     grade: "D",
-    stats: { pAtk: 130, mAtk: 119, rCrit: 4, pAtkSpd: 325 },
+    stats: { pAtk: 165, mAtk: 154, rCrit: 4, pAtkSpd: 325, critPower: 10 },
   },
   shadow_shop_weapon_d_baguette_dual_sword: {
     id: "shadow_shop_weapon_d_baguette_dual_sword",
@@ -756,7 +756,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Baguette_s_Dualsword.jpg",
     description: "Тіньова копія Baguette's Dualsword D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 136, mAtk: 87, rCrit: 4, pAtkSpd: 325 },
+    stats: { pAtk: 171, mAtk: 122, rCrit: 4, pAtkSpd: 325, critPower: 10 },
   },
   shadow_shop_weapon_d_dark_elven_bow: {
     id: "shadow_shop_weapon_d_dark_elven_bow",
@@ -766,7 +766,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Dark_Elven_Bow.jpg",
     description: "Тіньова копія Dark Elven Bow D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 145, mAtk: 72, rCrit: 12, pAtkSpd: 293 },
+    stats: { pAtk: 180, mAtk: 107, rCrit: 12, pAtkSpd: 293, critPower: 10 },
   },
   shadow_shop_weapon_d_knights_sword: {
     id: "shadow_shop_weapon_d_knights_sword",
@@ -776,7 +776,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Knight_s_Sword.jpg",
     description: "Тіньова копія Knight's Sword D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 91, mAtk: 72, rCrit: 8, pAtkSpd: 379 },
+    stats: { pAtk: 126, mAtk: 107, rCrit: 8, pAtkSpd: 379, critPower: 10 },
   },
   shadow_shop_weapon_d_shilen_knife: {
     id: "shadow_shop_weapon_d_shilen_knife",
@@ -786,7 +786,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Shilen_Knife.jpg",
     description: "Тіньова копія Shilen Knife D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 85, mAtk: 92, rCrit: 12, pAtkSpd: 433 },
+    stats: { pAtk: 120, mAtk: 127, rCrit: 12, pAtkSpd: 433, critPower: 10 },
   },
   shadow_shop_weapon_d_tomahawk: {
     id: "shadow_shop_weapon_d_tomahawk",
@@ -796,7 +796,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Tomahawk.jpg",
     description: "Тіньова копія Tomahawk D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 91, mAtk: 72, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 126, mAtk: 107, rCrit: 4, pAtkSpd: 379, critPower: 10 },
   },
   shadow_shop_weapon_d_triple_edged_jamadhr: {
     id: "shadow_shop_weapon_d_triple_edged_jamadhr",
@@ -806,7 +806,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Triple-Edged_Jamadhr.jpg",
     description: "Тіньова копія Triple-Edged Jamadhr D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 118, mAtk: 79, rCrit: 4, pAtkSpd: 325 },
+    stats: { pAtk: 153, mAtk: 114, rCrit: 4, pAtkSpd: 325, critPower: 10 },
   },
   shadow_shop_weapon_d_two_handed_sword: {
     id: "shadow_shop_weapon_d_two_handed_sword",
@@ -816,7 +816,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
     description: "Тіньова копія Two-Handed Sword D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 118, mAtk: 79, rCrit: 8, pAtkSpd: 325 },
+    stats: { pAtk: 153, mAtk: 114, rCrit: 8, pAtkSpd: 325, critPower: 10 },
   },
   shadow_shop_weapon_d_war_hammer: {
     id: "shadow_shop_weapon_d_war_hammer",
@@ -826,7 +826,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/War_Hammer.jpg",
     description: "Тіньова копія War Hammer D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 104, mAtk: 79, rCrit: 8, pAtkSpd: 325 },
+    stats: { pAtk: 139, mAtk: 114, rCrit: 8, pAtkSpd: 325, critPower: 10 },
   },
 
   // ===== SHOP JEWELRY D-GRADE (Магазин вещей) =====

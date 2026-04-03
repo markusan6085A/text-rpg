@@ -491,7 +491,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Angel_Slayer.jpg",
     description: "Вбивця янголів S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 246, mAtk: 132, rCrit: 12, pAtkSpd: 483, critPower: 30 },
+    stats: { pAtk: 281, mAtk: 167, rCrit: 12, pAtkSpd: 483, critPower: 50 },
   },
   quest_weapon_s_apprentices_spellbook: {
     id: "quest_weapon_s_apprentices_spellbook",
@@ -501,7 +501,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/apprentices_spellbook.jpg",
     description: "Книга заклинань учня S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 213, mAtk: 91, rCrit: 8, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 248, mAtk: 126, rCrit: 8, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_arcana_mace: {
     id: "quest_weapon_s_arcana_mace",
@@ -511,7 +511,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Arcana_Mace.jpg",
     description: "Булава аркани S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 225, mAtk: 175, rCrit: 4, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 260, mAtk: 210, rCrit: 4, pAtkSpd: 429, critPower: 50 },
   },
   quest_weapon_s_baguette_s_dualsword: {
     id: "quest_weapon_s_baguette_s_dualsword",
@@ -521,7 +521,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Baguette_s_Dualsword.jpg",
     description: "Дворучний меч Багет S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 195, mAtk: 38, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 230, mAtk: 73, rCrit: 4, pAtkSpd: 379, critPower: 50 },
   },
   quest_weapon_s_basalt_battlehammer: {
     id: "quest_weapon_s_basalt_battlehammer",
@@ -531,7 +531,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Basalt_Battlehammer.jpg",
     description: "Базальтовий бойовий молот S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 281, mAtk: 132, rCrit: 4, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 316, mAtk: 167, rCrit: 4, pAtkSpd: 429, critPower: 50 },
   },
   quest_weapon_s_demon_splinter: {
     id: "quest_weapon_s_demon_splinter",
@@ -541,7 +541,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Demon_Splinter.jpg",
     description: "Уламок демона S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 342, mAtk: 132, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 377, mAtk: 167, rCrit: 4, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_draconic_bow: {
     id: "quest_weapon_s_draconic_bow",
@@ -551,7 +551,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Draconic_Bow.jpg",
     description: "Драконічний лук S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 581, mAtk: 132, rCrit: 12, pAtkSpd: 343, critPower: 30 },
+    stats: { pAtk: 616, mAtk: 167, rCrit: 12, pAtkSpd: 343, critPower: 50 },
   },
   quest_weapon_s_dragon_hunter_axe: {
     id: "quest_weapon_s_dragon_hunter_axe",
@@ -561,7 +561,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Dragon_Hunter_Axe.jpg",
     description: "Сокира мисливця на драконів S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 342, mAtk: 132, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 377, mAtk: 167, rCrit: 4, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_god_s_blade: {
     id: "quest_weapon_s_god_s_blade",
@@ -571,7 +571,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/God_s_Blade.jpg",
     description: "Клинок бога S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 257, mAtk: 124, rCrit: 8, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 292, mAtk: 159, rCrit: 8, pAtkSpd: 429, critPower: 50 },
   },
   quest_weapon_s_heaven_s_divider: {
     id: "quest_weapon_s_heaven_s_divider",
@@ -581,7 +581,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Heaven_s_Divider.jpg",
     description: "Роздільник небес S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 342, mAtk: 132, rCrit: 8, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 377, mAtk: 167, rCrit: 8, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_imperial_staff: {
     id: "quest_weapon_s_imperial_staff",
@@ -591,7 +591,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Imperial_Staff.jpg",
     description: "Імператорський посох S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 274, mAtk: 175, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 309, mAtk: 210, rCrit: 4, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_saint_spear: {
     id: "quest_weapon_s_saint_spear",
@@ -601,7 +601,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Saint_Spear.jpg",
     description: "Святий спіс S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 281, mAtk: 132, rCrit: 8, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 316, mAtk: 167, rCrit: 8, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_shining_bow: {
     id: "quest_weapon_s_shining_bow",
@@ -611,7 +611,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Shining_Bow.jpg",
     description: "Сяючий лук S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 581, mAtk: 132, rCrit: 12, pAtkSpd: 343, critPower: 30 },
+    stats: { pAtk: 616, mAtk: 167, rCrit: 12, pAtkSpd: 343, critPower: 50 },
   },
 
   // ===== SHOP S-GRADE WEAPONS (Магазин вещей) =====
