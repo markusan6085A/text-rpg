@@ -86,6 +86,16 @@ export const itemsDBCraftResources: Record<string, ItemDefinition> = {
     description: "Craft resource.",
     stackable: true,
   },
+  /** L2 item id 1871 — той самий ресурс, що з дропу мобів (processDrops / крафт). */
+  charcoal: {
+    id: "charcoal",
+    name: "Charcoal",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1871.jpg",
+    description: "Древесный уголь. Ресурс з дропу та для квесту «Окраина Глудио».",
+    stackable: true,
+  },
   varnish: {
     id: "varnish",
     name: "Varnish",

@@ -621,10 +621,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                           const currentProgress = Math.min(itemCount, group.requiredCount);
                           const itemDef = itemsDB[group.itemId];
                           const labelCharcoal =
-                            group.itemId === "quest_gludio_charcoal"
-                              ? "Charcoal"
-                              : itemDef?.name ||
-                                group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
+                            itemDef?.name ||
+                            group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
                           return (
                             <div key={group.itemId} className="ml-2">
                               {itemDef?.icon && (
@@ -806,10 +804,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                           const farmCaptions = collectFarmCaptionsForItemId(quest, group.itemId);
                           const itemDef = itemsDB[group.itemId];
                           const labelCharcoal =
-                            group.itemId === "quest_gludio_charcoal"
-                              ? "Charcoal"
-                              : itemDef?.name ||
-                                group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
+                            itemDef?.name ||
+                            group.itemId.replace(/^quest_/i, "").replace(/_token$/i, "").replace(/_/g, " ");
                           return (
                             <div key={idx} className="ml-2">
                               <div className="flex items-center gap-1.5 mb-0.5">

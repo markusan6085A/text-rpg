@@ -237,7 +237,8 @@ export function isHeroDwarvenFighterBaseForFirstProfQuest(hero: {
 
 /** Інвентарні id, що рахуються/знімаються разом із квестовим предметом (дроп зони vs quest_*). */
 export const QUEST_ITEM_TURN_IN_ALIASES: Record<string, readonly string[]> = {
-  quest_gludio_charcoal: ["charcoal"],
+  /** Звичайний charcoal у квесті; старі стеки quest_gludio_charcoal ще здаються разом. */
+  charcoal: ["quest_gludio_charcoal"],
 };
 
 export const QUESTS: Quest[] = [
@@ -261,10 +262,10 @@ export const QUESTS: Quest[] = [
       },
     ],
     questDrops: [
-      { mobName: "Гоблин", itemId: "quest_gludio_charcoal", requiredCount: 5 },
-      { mobName: "Материй Кельтир", itemId: "quest_gludio_charcoal", requiredCount: 5 },
-      { mobName: "Молодой Шакал", itemId: "quest_gludio_charcoal", requiredCount: 5 },
-      { mobName: "Бородатий Шакал", itemId: "quest_gludio_charcoal", requiredCount: 5 },
+      { mobName: "Гоблин", itemId: "charcoal", requiredCount: 5 },
+      { mobName: "Материй Кельтир", itemId: "charcoal", requiredCount: 5 },
+      { mobName: "Молодой Шакал", itemId: "charcoal", requiredCount: 5 },
+      { mobName: "Бородатий Шакал", itemId: "charcoal", requiredCount: 5 },
     ],
   },
   {

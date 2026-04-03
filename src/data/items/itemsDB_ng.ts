@@ -82,15 +82,16 @@ export const itemsDBNG: Record<string, ItemDefinition> = {
   },
 
   // ===== QUEST ITEMS (КВЕСТОВІ ПРЕДМЕТИ) =====
-  // Gludio Outskirts (l2dop_gludio_01)
+  /** @deprecated Лишено для старих стеків у інвентарі; квест використовує звичайний `charcoal`. */
   quest_gludio_charcoal: {
     id: "quest_gludio_charcoal",
-    name: "Charcoal",
+    name: "Charcoal (quest, legacy)",
     kind: "resource",
     slot: "resource",
-    icon: "/nps/1871.jpg",
-    description: "Квестовий предмет. Уголь для здачі в квесті «Окраина Глудио».",
+    icon: "/items/drops/resources/l2dop-by-itemid/1871.jpg",
+    description: "Застарілий id. Новий дроп і квест — предмет charcoal.",
     grade: "NG",
+    stackable: true,
   },
   /** Світлий ельф-воїн — перша профа (Floran, Venomous Spider) */
   quest_elf_fprof_spider_fang: {
