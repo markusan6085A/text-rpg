@@ -14,6 +14,7 @@ import { mobSpGainFromMob } from "../../mobSpGain";
 import { canAttackWithBow, useArrow, isBowEquipped, getWeaponGrade } from "./arrowHelpers";
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
 import { getMobTargetStatsForHeroDamage } from "../../helpers/mobTargetStats";
+import { cleanupBuffs, createMobStunVisualBuff, mergeMobStunVisualIntoMobBuffs } from "../../helpers";
 
 export function handleAttackSkill(
   skillId: number,
@@ -113,6 +114,13 @@ export function handleAttackSkill(
   let mobStunnedUntil = state.mobStunnedUntil;
   if (skillEffects.stun?.applied) {
     mobStunnedUntil = now + skillEffects.stun.duration;
+  }
+
+  const cleanedMobBuffs = cleanupBuffs(state.mobBuffs || [], now);
+  let nextMobBuffs = cleanedMobBuffs;
+  if (skillEffects.stun?.applied && mobStunnedUntil) {
+    const visual = createMobStunVisualBuff(def, now, mobStunnedUntil, skillEffects.stun.duration);
+    nextMobBuffs = mergeMobStunVisualIntoMobBuffs(cleanedMobBuffs, visual);
   }
 
   const nextMobHP = Math.max(0, state.mobHP - totalDamage);
@@ -228,6 +236,7 @@ export function handleAttackSkill(
       mobHP: 0,
       status: "victory",
       mobStunnedUntil: undefined, // Скидаємо stun при смерті моба
+      mobBuffs: [],
       log: [
         `${state.mob?.name} повержен.`,
         mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
@@ -277,6 +286,7 @@ export function handleAttackSkill(
   setAndPersist({
     mobHP: nextMobHP,
     mobStunnedUntil, // Оновлюємо stun стан
+    mobBuffs: nextMobBuffs,
     status: "fighting",
     log: newLog,
     cooldowns: updatedCooldowns,

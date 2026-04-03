@@ -1,5 +1,6 @@
 import type { BattleState } from "../../types";
 import type { SkillDefinition, SkillLevelDefinition } from "../../../../data/skills/types";
+import { cleanupBuffs, createMobStunVisualBuff, mergeMobStunVisualIntoMobBuffs } from "../../helpers";
 
 /**
  * Обробляє Warrior Bane (skill 1350) - знімає бафи, що збільшують attackSpeed та speed/runSpeed
@@ -142,7 +143,7 @@ export function handleDebuffSkill(
   mobStunnedUntil: number | undefined; 
   log: string 
 } {
-  let newMobBuffs = state.mobBuffs || [];
+  let newMobBuffs = cleanupBuffs(state.mobBuffs || [], now);
   let mobStunnedUntil = state.mobStunnedUntil;
   let log = "";
   
@@ -165,6 +166,8 @@ export function handleDebuffSkill(
         const durationSeconds = stunEffect.duration ?? 1.5;
         const durationMs = durationSeconds * 1000;
         mobStunnedUntil = now + durationMs;
+        const visual = createMobStunVisualBuff(def, now, mobStunnedUntil, durationMs);
+        newMobBuffs = mergeMobStunVisualIntoMobBuffs(newMobBuffs, visual);
         log = `${def.name}: ${state.mob.name} оглушен на ${durationSeconds} сек`;
       } else {
         log = `${def.name}: не спрацював (шанс ${chance}%)`;
