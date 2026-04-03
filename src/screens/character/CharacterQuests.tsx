@@ -1,5 +1,5 @@
 // src/screens/character/CharacterQuests.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import {
   QUESTS,
@@ -23,8 +23,10 @@ import {
   isHeroOrcFighterBaseForFirstProfQuest,
   isHeroOrcMysticBaseForFirstProfQuest,
   isHeroDwarvenFighterBaseForFirstProfQuest,
+  getQuestCityId,
   type Quest,
 } from "../../data/quests";
+import { DEFAULT_PLAYER_CITY_ID } from "../../data/world";
 import { itemsDB } from "../../data/items/itemsDB";
 import { getEffectiveQuestDropNeed } from "../../utils/quests/questDropEffectiveNeed";
 import { mergeActiveQuestsForUi } from "../../utils/quests/mergeActiveQuestsForUi";
@@ -131,6 +133,16 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   const isL2 = isWarmCityUi(getCityUiVariant());
   const rowB = isL2 ? "border-b border-solid border-[#5c4a32]/40" : "border-b border-solid border-white/50";
 
+  const currentCityId =
+    hero ? String((hero as any)?.heroJson?.currentCityId || "").trim() || DEFAULT_PLAYER_CITY_ID : DEFAULT_PLAYER_CITY_ID;
+
+  const questBelongsToCurrentCity = (q: Quest) => getQuestCityId(q) === currentCityId;
+
+  useEffect(() => {
+    if (!hero) return;
+    setSelectedLocation(null);
+  }, [hero?.id, currentCityId]);
+
   if (!hero) {
     return (
       <div
@@ -148,8 +160,10 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   const activeQuests = mergeActiveQuestsForUi(hero.activeQuests, (hero as any)?.heroJson?.activeQuests);
   const completedQuests = hero.completedQuests || [];
 
-  // Отримуємо унікальні локації з квестів
-  const locations = Array.from(new Set(QUESTS.map(q => q.location).filter(Boolean))) as string[];
+  // Отримуємо унікальні локації лише для поточного міста
+  const locations = Array.from(
+    new Set(QUESTS.filter((q) => q.location && questBelongsToCurrentCity(q)).map((q) => q.location!))
+  ) as string[];
 
   // Отримуємо активні квести з деталями та оновлюємо прогрес з інвентаря
   const activeQuestsWithDetails = activeQuests.map((activeQuest) => {
@@ -183,12 +197,14 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     if (q.id === ORC_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroOrcFighterBaseForFirstProfQuest(hero)) return false;
     if (q.id === ORC_MYSTIC_FIRST_PROF_QUEST_ID && !isHeroOrcMysticBaseForFirstProfQuest(hero)) return false;
     if (q.id === DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID && !isHeroDwarvenFighterBaseForFirstProfQuest(hero)) return false;
+    if (!questBelongsToCurrentCity(q)) return false;
     return true;
   });
 
   // Отримуємо доступні квести (не завершені та не активні)
   const availableQuests = QUESTS.filter(
     (quest) =>
+      questBelongsToCurrentCity(quest) &&
       !completedQuests.includes(quest.id) &&
       !activeQuests.some((aq) => aq.questId === quest.id) &&
       (!quest.requirements?.level || (hero.level || 1) >= quest.requirements.level) &&
@@ -207,6 +223,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   const acceptQuest = (questId: string) => {
     const questDef = QUESTS.find((q) => q.id === questId);
     if (!questDef) return;
+    if (!questBelongsToCurrentCity(questDef)) return;
 
     const initProgress: Record<string, number> = { ...(questDef.progress || {}) };
     for (const kt of questDef.questKillTargets ?? []) {
@@ -249,6 +266,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   const completeQuest = (questId: string) => {
     const questDef = QUESTS.find((q) => q.id === questId);
     if (!questDef) return;
+    if (!questBelongsToCurrentCity(questDef)) return;
 
     const hasDrops = questDef.questDrops && questDef.questDrops.length > 0;
     const hasKills = questDef.questKillTargets && questDef.questKillTargets.length > 0;
@@ -890,7 +908,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
             isL2 ? "text-[#8a7a60] text-xs text-center py-4" : "text-[#b8860b]/60 text-xs text-center py-4"
           }
         >
-          Поки що немає доступних квестів.
+          У цьому місті немає квестів на дошці. Перейдіть у відповідне місто (Телепорт), щоб побачити регіональні доручення.
         </div>
       )}
     </div>

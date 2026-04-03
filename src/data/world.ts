@@ -6,6 +6,9 @@ import { augmentAllZonesWithPatrolMobs } from "./world/augmentPatrolMobs";
 export const cities: City[] = L2DOP_CITIES;
 export const locations: Zone[] = augmentAllZonesWithPatrolMobs(L2DOP_ZONES);
 
+/** Місто за замовчуванням для нового персонажа та fallback у City/GK, якщо немає currentCityId. */
+export const DEFAULT_PLAYER_CITY_ID = "l2dop_gludio";
+
 // ===== WORLD ДЛЯ ЗРУЧНОСТІ (місто + його зони) =====
 
 export const WORLD: WorldCity[] = cities.map((city) => ({

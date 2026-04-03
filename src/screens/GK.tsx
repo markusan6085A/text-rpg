@@ -3,6 +3,8 @@ import React from "react";
 import {
   cities as WORLD_CITIES,
   locations as WORLD_LOCATIONS,
+  DEFAULT_PLAYER_CITY_ID,
+  getCityById,
 } from "../data/world";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import type { Zone } from "../data/world/types";
@@ -67,12 +69,12 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
     q.get("city") ||
     (hero?.heroJson as any)?.currentCityId ||
     getPreviousCity() ||
-    WORLD_CITIES[0]?.id;
+    DEFAULT_PLAYER_CITY_ID;
 
   const [selectedCityId, setSelectedCityId] = React.useState(defaultCityId);
 
   const selectedCity =
-    WORLD_CITIES.find((c) => c.id === selectedCityId) || WORLD_CITIES[0];
+    WORLD_CITIES.find((c) => c.id === selectedCityId) || getCityById(DEFAULT_PLAYER_CITY_ID) || WORLD_CITIES[0];
 
   const zones = selectedCity ? getZonesByCity(selectedCity.id) : [];
 

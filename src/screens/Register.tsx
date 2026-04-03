@@ -11,6 +11,7 @@ import { useCharacterStore } from "../state/characterStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { resetTutorialHint } from "../state/gameSettings";
+import { DEFAULT_PLAYER_CITY_ID } from "../data/world";
 
 interface RegisterProps {
   navigate: (path: string) => void;
@@ -158,9 +159,8 @@ export default function Register({ navigate }: RegisterProps) {
         gender,
       });
 
-      /** Стартове місто після реєстрації (City / GK / ТП) */
-      const START_CITY_ID = "gludin_village";
-      const heroJsonPayload = { ...coreHero, currentCityId: START_CITY_ID };
+      /** Стартове місто після реєстрації (City / GK / ТП) — Town of Gludio */
+      const heroJsonPayload = { ...coreHero, currentCityId: DEFAULT_PLAYER_CITY_ID };
 
       // 4. Збереження heroJson через API (+ колонка adena, щоб GET/merge не бачили 0 замість старту з heroJson)
       await updateCharacter(character.id, {
@@ -174,7 +174,7 @@ export default function Register({ navigate }: RegisterProps) {
       
       // 5.1. Поточний користувач для loadHero — без запису героя в accounts (ще немає повного hero)
       syncCurrentUserAndAccountHero(trimmedUsername);
-      savePreviousCity(START_CITY_ID);
+      savePreviousCity(DEFAULT_PLAYER_CITY_ID);
 
       // 6. Завантажуємо героя з API
       const loadedHero = await loadHeroFromAPI();

@@ -6,7 +6,7 @@ import { setString } from "../state/persistence";
 import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
 import { getPreviousCity } from "../utils/locationNavigation";
-import { cities as WORLD_CITIES, getCityById } from "../data/world";
+import { cities as WORLD_CITIES, getCityById, DEFAULT_PLAYER_CITY_ID } from "../data/world";
 import { isFishingReady } from "../state/fishing/fishingPersistence";
 import {
   getCityUiVariant,
@@ -234,8 +234,8 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         const cityId =
           (hero?.heroJson as any)?.currentCityId ||
           getPreviousCity() ||
-          WORLD_CITIES[0]?.id;
-        const currentCity = getCityById(cityId) || WORLD_CITIES[0];
+          DEFAULT_PLAYER_CITY_ID;
+        const currentCity = getCityById(cityId) || getCityById(DEFAULT_PLAYER_CITY_ID);
         const cityLabel =
           getGameSettings().language === "uk" ? "Місто" : "Город";
         return (

@@ -95,6 +95,19 @@ export function isHeroElvenFighterBaseForFirstProfQuest(hero: {
   return true;
 }
 
+/**
+ * Id міста з `src/data/world` (поле City.id), куди «належить» квест за текстом location.
+ * Якщо undefined — квест не прив’язаний до відомого міста (не показуємо на дошці регіонально).
+ */
+export function getQuestCityId(quest: Pick<Quest, "location">): string | undefined {
+  const loc = String(quest.location || "").trim();
+  if (!loc) return undefined;
+  if (loc.startsWith("Глудио")) return "l2dop_gludio";
+  if (loc.startsWith("Floran")) return "floran_village";
+  if (loc.startsWith("Gludin")) return "gludin_village";
+  return undefined;
+}
+
 /** Людина (не темний ельф, не орк, не гном). */
 export function isHeroHumanRaceForQuests(hero: { race?: string | null }): boolean {
   const r = String(hero.race || "").toLowerCase();
