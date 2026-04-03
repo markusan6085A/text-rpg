@@ -1082,7 +1082,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             onClose={() => setShowWriteModal(false)}
             onSent={() => {
               setShowWriteModal(false);
-              // TODO: Можливо показати повідомлення про успішну відправку
+              showToast(
+                character?.name ? `Лист надіслано: ${character.name}` : "Лист надіслано",
+                "success",
+                { title: "Пошта" }
+              );
             }}
           />
         )}
