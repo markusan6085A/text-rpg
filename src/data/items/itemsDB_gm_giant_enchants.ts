@@ -1,8 +1,9 @@
 // GM-шоп: свитки заточки з 100% шансом успіху (іконки Giant_scrl_of_ench_*)
 import type { ItemDefinition } from "./itemsDB.types";
 
-const ICON_AM = (g: string) => `/items/drops/item/Giant_scrl_of_ench_am_${g}_0.jpg`;
-const ICON_WP = (g: string) => `/items/drops/item/Giant_scrl_of_ench_wp_${g}_0.jpg`;
+// Файли в репо: public/items/drops/resources/Giant_scrl_of_ench_*_0.jpg
+const ICON_AM = (g: string) => `/items/drops/resources/Giant_scrl_of_ench_am_${g}_0.jpg`;
+const ICON_WP = (g: string) => `/items/drops/resources/Giant_scrl_of_ench_wp_${g}_0.jpg`;
 const DESC_100 = "Заточка з 100% шансом успіху (GM). Ті ж правила макс. рівня (+40 зброя, +30 броня).";
 
 export const itemsDBGmGiantEnchants: Record<string, ItemDefinition> = {

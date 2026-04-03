@@ -33,8 +33,8 @@ export const GM_RASODNIKI_ITEM_IDS = [
 export const CRYSTAL_PRICE_ADENA = 10;
 export const RASODNIKI_REQUIRED_LEVEL = 20;
 
-/** Свитки Giant (100% заточка) у GM-шопі — поки 1 Adena за шт. */
-export const GM_GIANT_SCROLL_ADENA_PRICE = 1;
+/** Свитки Giant (100% заточка) — та ж ціна що й кристал у розділі розсодників (не 1 Adena). */
+export const GM_GIANT_SCROLL_ADENA_PRICE = CRYSTAL_PRICE_ADENA;
 
 export const GM_GIANT_ENCHANT_SCROLL_IDS = [
   "gm_giant_enchant_armor_d",
@@ -49,8 +49,8 @@ export const GM_GIANT_ENCHANT_SCROLL_IDS = [
   "gm_giant_enchant_weapon_s",
 ] as const;
 
-/** Повні заряди (blessed): +100% урону, фіз. і маг. — та сама ціна за шт., що у Giant-укл. */
-export const GM_BLESSED_CHARGE_ADENA_PRICE = 1;
+/** Повні заряди (blessed) */
+export const GM_BLESSED_CHARGE_ADENA_PRICE = CRYSTAL_PRICE_ADENA;
 
 export const GM_BLESSED_CHARGE_IDS = [
   "gm_blessed_charge_d",
@@ -60,7 +60,7 @@ export const GM_BLESSED_CHARGE_IDS = [
   "gm_blessed_charge_s",
 ] as const;
 
-export const GM_BLESS_SOUL_SCROLL_ADENA_PRICE = 1;
+export const GM_BLESS_SOUL_SCROLL_ADENA_PRICE = CRYSTAL_PRICE_ADENA;
 
 /** Скроли Bless the Soul (іконка одна, ефекти в gmBlessSoulScrollBuffs) */
 export const GM_BLESS_SOUL_SCROLL_IDS = GM_BLESS_SOUL_SCROLL_IDS_FROM_DATA;
