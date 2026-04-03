@@ -420,6 +420,78 @@ export const QUESTS: Quest[] = [
     ],
   },
   {
+    id: "gludio_orcs_leather",
+    icon: "/nps/6.png",
+    name: "Глудио — Орки: кожа для обоза",
+    description:
+      "У зоні «Глудио — Орки» добудь 15 Leather (дроп ресурсів з мобів зони; з активним квестом додатково може впасти з орків). Здай через «Квести». Нагорода: адена, досвід і серебряні монети.",
+    level: 24,
+    location: "Глудио — Орки",
+    locationLevel: "24–35",
+    requirements: { level: 24 },
+    rewards: { adena: 260_000, exp: 160_000, coins_silver: 16 },
+    questDrops: [
+      {
+        mobName: "Тетрарх Орк Турек",
+        itemId: "leather",
+        requiredCount: 15,
+        dropZoneIdPrefix: "l2dop_gludio_07",
+        farmHint: "Лише зона «Глудио — Орки» (телепорт з міста).",
+      },
+      {
+        mobName: "Орк Воїн",
+        itemId: "leather",
+        requiredCount: 15,
+        dropZoneIdPrefix: "l2dop_gludio_07",
+      },
+      {
+        mobName: "Орк Лейтенант",
+        itemId: "leather",
+        requiredCount: 15,
+        dropZoneIdPrefix: "l2dop_gludio_07",
+      },
+      {
+        mobName: "Орк Снайпер",
+        itemId: "leather",
+        requiredCount: 15,
+        dropZoneIdPrefix: "l2dop_gludio_07",
+      },
+    ],
+  },
+  {
+    id: "gludio_caves_compound_braid",
+    icon: "/nps/6.png",
+    name: "Глудио — Печеры: плеть для снаряжения",
+    description:
+      "У зоні «Глудио — Печеры» зібери 12 Compound Braid (тиерний дроп у мобів зони). З активним квестом додатковий шанс квестового дропу з указаних мобів лише тут. Здай у вкладці «Квести».",
+    level: 28,
+    location: "Глудио — Печеры",
+    locationLevel: "28–40",
+    requirements: { level: 28 },
+    rewards: { adena: 330_000, exp: 190_000, coins_silver: 18 },
+    questDrops: [
+      {
+        mobName: "Гранітовий Голем",
+        itemId: "compound_braid",
+        requiredCount: 12,
+        dropZoneIdPrefix: "l2dop_gludio_08",
+        farmHint: "Лише зона «Глудио — Печеры».",
+      },
+      {
+        mobName: "Вождь Ящерів Мель",
+        itemId: "compound_braid",
+        requiredCount: 12,
+        dropZoneIdPrefix: "l2dop_gludio_08",
+      },
+      {
+        mobName: "Тетрарх Орк Турек",
+        itemId: "compound_braid",
+        requiredCount: 12,
+        dropZoneIdPrefix: "l2dop_gludio_08",
+      },
+    ],
+  },
+  {
     id: ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
     icon: "/nps/6.png",
     name: "Путь мага Эльфов — отзвуки стихий",
