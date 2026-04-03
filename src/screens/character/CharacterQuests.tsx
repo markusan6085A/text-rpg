@@ -132,6 +132,8 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   const updateHero = useHeroStore((s) => s.updateHero);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [pendingWeaponPickIds, setPendingWeaponPickIds] = useState<string[] | null>(null);
+  /** У «Доступні квести» деталі лише для розгорнутого квесту. */
+  const [expandedAvailableQuestId, setExpandedAvailableQuestId] = useState<string | null>(null);
   const isL2 = isWarmCityUi(getCityUiVariant());
   const rowB = isL2 ? "border-b border-solid border-[#5c4a32]/40" : "border-b border-solid border-white/50";
 
@@ -143,7 +145,12 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   useEffect(() => {
     if (!hero) return;
     setSelectedLocation(null);
+    setExpandedAvailableQuestId(null);
   }, [hero?.id, currentCityId]);
+
+  useEffect(() => {
+    setExpandedAvailableQuestId(null);
+  }, [selectedLocation]);
 
   if (!hero) {
     return (
@@ -810,13 +817,28 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
             Доступні квести:
           </div>
           <div className="space-y-2">
-            {availableQuests.map((quest) => (
-              <div key={quest.id} className={`${rowB} py-2 flex items-start gap-3`}>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <img src={questIconSrc(quest)} alt="" className="w-4 h-4 object-contain shrink-0" />
-                    <span className="text-green-400 text-xs font-semibold">{quest.name}</span>
-                  </div>
+            {availableQuests.map((quest) => {
+              const isOpen = expandedAvailableQuestId === quest.id;
+              return (
+              <div key={quest.id} className={`${rowB} py-2 flex flex-col gap-0`}>
+                <button
+                  type="button"
+                  className={
+                    isL2
+                      ? "w-full flex items-center gap-2 text-left rounded-sm py-1 px-0.5 hover:bg-[#2a2618]/40"
+                      : "w-full flex items-center gap-2 text-left py-1 hover:bg-black/15"
+                  }
+                  onClick={() => setExpandedAvailableQuestId((cur) => (cur === quest.id ? null : quest.id))}
+                  aria-expanded={isOpen}
+                >
+                  <img src={questIconSrc(quest)} alt="" className="w-4 h-4 object-contain shrink-0" />
+                  <span className="text-green-400 text-xs font-semibold flex-1 min-w-0">{quest.name}</span>
+                  <span className={isL2 ? "text-[10px] text-[#8a7a60] shrink-0" : "text-[10px] text-gray-500 shrink-0"}>
+                    {isOpen ? "▼" : "▶"}
+                  </span>
+                </button>
+                {isOpen ? (
+                <div className="flex-1 pl-1 pt-2 border-t border-[#5c4a32]/25 mt-1">
                   <div className={isL2 ? "text-[#8a7a60] text-[11px] mb-2" : "text-gray-400 text-[11px] mb-2"}>
                     {quest.description}
                   </div>
@@ -939,8 +961,10 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                     </div>
                   )}
                 </div>
+                ) : null}
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       )}
