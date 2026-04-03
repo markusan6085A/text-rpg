@@ -4,8 +4,7 @@ import {
   getPlayerActivityRhythm,
   type PlayerActivityLogRow,
 } from "../../utils/api";
-
-const style = { color: "#c7ad80" };
+import { isWarmCityUi, useCityUiVariant } from "../../utils/cityUiVariant";
 
 const ACTION_OPTIONS = [
   { value: "", label: "Все действия" },
@@ -76,6 +75,20 @@ function summarizeMetadata(action: string, m: Record<string, unknown>): string {
 }
 
 export function AdminSectionPlayerActivity() {
+  const cityUi = useCityUiVariant();
+  const isL2 = isWarmCityUi(cityUi);
+  const panelCl = isL2
+    ? "rounded-md border border-[#5c4a32]/55 bg-black/30 p-2 mb-3 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+    : "rounded border border-[#c7ad80]/20 bg-black/20 p-2 mb-3";
+  const btnCl = isL2
+    ? "text-sm py-1 px-2 rounded-md bg-gradient-to-b from-[#2e2619] to-[#14110c] border border-[#5c4a32]/75 text-[#e8dcc8] shadow-[inset_0_1px_0_rgba(199,173,128,0.12)] hover:border-[#c7ad80]/50 hover:brightness-110 transition-[border-color,filter] duration-150 disabled:opacity-50"
+    : "text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50";
+  const tableWrapCl = isL2
+    ? "max-h-96 overflow-auto rounded-md border border-[#5c4a32]/60 bg-black/20"
+    : "max-h-96 overflow-auto border border-[#c7ad80]/20 rounded";
+  const theadCl = isL2 ? "sticky top-0 bg-[#1a1610] border-b border-[#5c4a32]/45" : "sticky top-0 bg-[#1a1a1a]";
+  const rowHoverCl = isL2 ? "border-t border-[#5c4a32]/25 cursor-pointer hover:bg-[#2a2418]/60" : "border-t border-[#c7ad80]/10 cursor-pointer hover:bg-white/5";
+
   const [logs, setLogs] = useState<PlayerActivityLogRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +170,9 @@ export function AdminSectionPlayerActivity() {
     }
   };
 
-  const inputCl = "text-sm py-1 px-2 rounded bg-black/40 border border-[#c7ad80]/30 text-white placeholder-gray-500";
+  const inputCl =
+    "text-sm py-1 px-2 rounded-md bg-black/40 border text-white placeholder-gray-500 " +
+    (isL2 ? "border-[#5c4a32]/70 focus:border-[#c7ad80]/45 focus:outline-none" : "border-[#c7ad80]/30");
 
   const actionLabel = useMemo(() => {
     const m = new Map(ACTION_OPTIONS.map((o) => [o.value, o.label]));
@@ -165,20 +180,28 @@ export function AdminSectionPlayerActivity() {
   }, []);
 
   return (
-    <section className="border-t border-[#c7ad80]/30 pt-3 pb-3">
-      <h2 className="text-sm font-semibold mb-2" style={style}>
+    <section className={isL2 ? "border-t border-[#5c4a32]/40 pt-3 pb-3" : "border-t border-[#c7ad80]/30 pt-3 pb-3"}>
+      <h2
+        className={
+          isL2
+            ? "text-sm font-semibold mb-2 text-[#e8c56e] [text-shadow:0_1px_2px_rgba(0,0,0,0.85)]"
+            : "text-sm font-semibold mb-2 text-[#c7ad80]"
+        }
+      >
         Активность игроков
       </h2>
-      <p className="text-xs text-gray-500 mb-2">
+      <p className={isL2 ? "text-xs text-[#8a7a60] mb-2" : "text-xs text-gray-500 mb-2"}>
         Записи появляются только когда клиент дергает API: сохранение героя с изменениями (мобы/адена/exp/уровень/инвентарь
         и т.д.), PUT инвентаря, рынок. Чисто локальные действия без синка — не видны. После деплоя/рестарта старых строк
         нет, пока игрок снова не сохранится. Очистите даты «с—по», чтобы смотреть за всё время. IP за прокси может
         отличаться.
       </p>
 
-      <div className="rounded border border-[#c7ad80]/20 bg-black/20 p-2 mb-3">
-        <div className="text-[11px] text-[#c7ad80] mb-1">Ритм фарма (интервалы между синхами с +mobsKilled)</div>
-        <p className="text-[10px] text-gray-500 mb-1">
+      <div className={panelCl}>
+        <div className={isL2 ? "text-[11px] text-[#c9a44c] mb-1" : "text-[11px] text-[#c7ad80] mb-1"}>
+          Ритм фарма (интервалы между синхами с +mobsKilled)
+        </div>
+        <p className={isL2 ? "text-[10px] text-[#8a7a60] mb-1" : "text-[10px] text-gray-500 mb-1"}>
           Можно ввести cuid в поле ID или оставить ID пустым и указать ник в строке фильтров ниже — сервер сам найдёт
           персонажа. Если в поле ID ввести ник (не cuid), тоже попробуем найти по имени.
         </p>
@@ -189,17 +212,14 @@ export function AdminSectionPlayerActivity() {
             placeholder="Character ID (cuid) или ник"
             className={`${inputCl} flex-1 min-w-[200px]`}
           />
-          <button
-            type="button"
-            onClick={loadRhythm}
-            disabled={rhythmLoading}
-            className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
-          >
+          <button type="button" onClick={loadRhythm} disabled={rhythmLoading} className={btnCl}>
             {rhythmLoading ? "..." : "Считать ритм"}
           </button>
         </div>
         {rhythmError ? <p className="text-xs text-red-400 mt-1">{rhythmError}</p> : null}
-        {rhythmText ? <p className="text-xs text-gray-400 mt-1">{rhythmText}</p> : null}
+        {rhythmText ? (
+          <p className={isL2 ? "text-xs text-[#d4c4a8]/90 mt-1" : "text-xs text-gray-400 mt-1"}>{rhythmText}</p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -235,26 +255,21 @@ export function AdminSectionPlayerActivity() {
             setFromDate(date);
             setToDate(date);
           }}
-          className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30"
+          className={btnCl}
         >
           Сегодня
         </button>
-        <button
-          type="button"
-          onClick={() => loadLogs(1)}
-          disabled={loading}
-          className="text-sm py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] hover:bg-[#c7ad80]/30 disabled:opacity-50"
-        >
+        <button type="button" onClick={() => loadLogs(1)} disabled={loading} className={btnCl}>
           {loading ? "..." : "Обновить"}
         </button>
       </div>
 
       {error ? <p className="text-xs text-red-400 mb-2">{error}</p> : null}
 
-      <div className="max-h-96 overflow-auto border border-[#c7ad80]/20 rounded">
+      <div className={tableWrapCl}>
         <table className="w-full text-xs text-left">
-          <thead className="sticky top-0 bg-[#1a1a1a]">
-            <tr className="text-[#c7ad80]">
+          <thead className={theadCl}>
+            <tr className={isL2 ? "text-[#e8c56e]" : "text-[#c7ad80]"}>
               <th className="px-2 py-1">Время</th>
               <th className="px-2 py-1">Персонаж</th>
               <th className="px-2 py-1">Действие</th>
@@ -268,28 +283,46 @@ export function AdminSectionPlayerActivity() {
               const meta = (log.metadata || {}) as Record<string, unknown>;
               return (
                 <React.Fragment key={log.id}>
-                  <tr
-                    className="border-t border-[#c7ad80]/10 cursor-pointer hover:bg-white/5"
-                    onClick={() => setExpandedId(exp ? null : log.id)}
-                    title="Нажмите для JSON"
-                  >
-                    <td className="px-2 py-1 text-gray-400 whitespace-nowrap">
+                  <tr className={rowHoverCl} onClick={() => setExpandedId(exp ? null : log.id)} title="Нажмите для JSON">
+                    <td
+                      className={
+                        isL2 ? "px-2 py-1 text-[#8a7a60] whitespace-nowrap" : "px-2 py-1 text-gray-400 whitespace-nowrap"
+                      }
+                    >
                       {new Date(log.createdAt).toLocaleString()}
                     </td>
-                    <td className="px-2 py-1 text-gray-200">
+                    <td className={isL2 ? "px-2 py-1 text-[#e8dcc8]" : "px-2 py-1 text-gray-200"}>
                       <div>{log.characterName}</div>
-                      <div className="text-[10px] text-gray-500">{log.characterId}</div>
+                      <div className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
+                        {log.characterId}
+                      </div>
                     </td>
-                    <td className="px-2 py-1 text-gray-200">{actionLabel(log.action)}</td>
-                    <td className="px-2 py-1 text-gray-400 max-w-[240px] truncate">
+                    <td className={isL2 ? "px-2 py-1 text-[#d4c4a8]" : "px-2 py-1 text-gray-200"}>
+                      {actionLabel(log.action)}
+                    </td>
+                    <td
+                      className={
+                        isL2
+                          ? "px-2 py-1 text-[#8a7a60] max-w-[240px] truncate"
+                          : "px-2 py-1 text-gray-400 max-w-[240px] truncate"
+                      }
+                    >
                       {summarizeMetadata(log.action, meta)}
                     </td>
-                    <td className="px-2 py-1 text-gray-500">{log.clientIp || "—"}</td>
+                    <td className={isL2 ? "px-2 py-1 text-[#8a7a60]" : "px-2 py-1 text-gray-500"}>
+                      {log.clientIp || "—"}
+                    </td>
                   </tr>
                   {exp ? (
-                    <tr className="border-t border-[#c7ad80]/10 bg-black/25">
+                    <tr className={isL2 ? "border-t border-[#5c4a32]/30 bg-black/35" : "border-t border-[#c7ad80]/10 bg-black/25"}>
                       <td colSpan={5} className="px-2 py-2">
-                        <pre className="text-[10px] text-gray-300 bg-black/40 p-2 rounded overflow-auto max-h-48">
+                        <pre
+                          className={
+                            isL2
+                              ? "text-[10px] text-[#d4c4a8] bg-black/50 p-2 rounded-md border border-[#5c4a32]/40 overflow-auto max-h-48"
+                              : "text-[10px] text-gray-300 bg-black/40 p-2 rounded overflow-auto max-h-48"
+                          }
+                        >
                           {safeJson(meta)}
                         </pre>
                       </td>
@@ -300,7 +333,10 @@ export function AdminSectionPlayerActivity() {
             })}
             {!loading && logs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-2 py-3 text-center text-gray-500">
+                <td
+                  colSpan={5}
+                  className={isL2 ? "px-2 py-3 text-center text-[#8a7a60]" : "px-2 py-3 text-center text-gray-500"}
+                >
                   Записей нет — снимите фильтр по датам, проверьте ник/ID, миграцию PlayerActivityLog на сервере и что после
                   включения логов игрок уже делал сохранение/рынок/инвентарь.
                 </td>
@@ -315,18 +351,18 @@ export function AdminSectionPlayerActivity() {
           type="button"
           onClick={() => loadLogs(Math.max(1, page - 1))}
           disabled={loading || page <= 1}
-          className="py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] disabled:opacity-50"
+          className={btnCl}
         >
           Назад
         </button>
-        <span className="text-gray-400">
+        <span className={isL2 ? "text-[#8a7a60]" : "text-gray-400"}>
           Стр. {page} / {pages} (всего {total})
         </span>
         <button
           type="button"
           onClick={() => loadLogs(Math.min(pages, page + 1))}
           disabled={loading || page >= pages}
-          className="py-1 px-2 rounded bg-[#c7ad80]/20 text-[#c7ad80] disabled:opacity-50"
+          className={btnCl}
         >
           Вперёд
         </button>
