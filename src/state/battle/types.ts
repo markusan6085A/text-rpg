@@ -15,7 +15,7 @@ export type BattleBuff = {
   startedAt?: number;
   durationMs?: number;
   stacks?: number;
-  source?: "buffer" | "skill" | "summon" | "mob_skill"; // mob_skill — дебафи агро/чемпіонів
+  source?: "buffer" | "skill" | "summon" | "mob_skill" | "gm_bless_scroll"; // mob_skill — дебафи агро/чемпіонів
   // Toggle tick effects
   hpPerTick?: number; // HP споживання/відновлення на tick
   mpPerTick?: number; // MP споживання/відновлення на tick

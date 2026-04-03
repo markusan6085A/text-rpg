@@ -4,6 +4,9 @@ import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import { normalizeIconPath, handleResourceIconError, FALLBACK_ICON } from "../../utils/itemIcon";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { isGmBlessSoulScrollItem } from "../../data/items/gmBlessSoulScrollBuffs";
+import { applyGmBlessSoulScrollFromInventory } from "../../utils/gmBlessSoulScrollApply";
+import { showToast } from "../../state/toastStore";
 
 function getItemGrade(item: any, itemDef: any): string | undefined {
   if (itemDef?.grade) return itemDef.grade;
@@ -203,6 +206,27 @@ export default function InventoryItemList({
                   {item.enchantLevel !== undefined && item.enchantLevel > 0 && ` +${item.enchantLevel}`}
                   {item.count && item.count > 1 ? ` (x${item.count})` : ""}
                 </button>
+                {isGmBlessSoulScrollItem(String(itemKey)) && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const r = applyGmBlessSoulScrollFromInventory(String(itemKey));
+                      if (!r.ok) {
+                        showToast(r.message ?? "Не вдалося використати скрол", "error");
+                        return;
+                      }
+                      showToast(`Використано: ${itemDef?.name ?? itemKey}`, "success");
+                    }}
+                    className={
+                      isL2
+                        ? "text-[#7ec97e] hover:text-[#a8e6a8] text-[9px] font-semibold px-2 py-0.5 rounded-md border border-[#3d5c3d]/80 bg-gradient-to-b from-[#1a2619] to-[#0c140c] shadow-[inset_0_1px_0_rgba(150,200,150,0.12)] hover:border-[#7ec97e]/45 hover:brightness-110 whitespace-nowrap transition-[border-color,filter] duration-150"
+                        : "text-[#6bc06b] hover:text-[#8fd98f] text-[9px] font-semibold px-2 py-0.5 border border-white/50 rounded bg-[#1a2a1a] hover:bg-[#243824] whitespace-nowrap"
+                    }
+                  >
+                    Использовать
+                  </button>
+                )}
                 {isEquipable && !isEquipped && (
                   <button
                     type="button"

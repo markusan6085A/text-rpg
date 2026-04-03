@@ -473,12 +473,12 @@ export const createProcessMobAttack =
 
     // Логіка зняття бафів для катакомбних мобів (шанс 10%)
     if (state.mob.canDispelBuffs && Math.random() < 0.10) {
-      // Знімаємо всі бафи (крім бафів від статуї buffer, якщо потрібно зберегти)
-      // Але за замовчуванням знімаємо ВСІ бафи, як просив користувач
       const buffsBeforeDispel = nextBuffsAfterDispel.length;
-      nextBuffsAfterDispel = []; // Знімаємо всі бафи
-      if (buffsBeforeDispel > 0) {
-        specialEffectsLog.push(`${displayMobName(state.mob.name)} зняв всі ваші бафы! (${buffsBeforeDispel} бафов удалено)`);
+      // GM скроли «Bless the Soul» не знімаються диспелом моба
+      nextBuffsAfterDispel = nextBuffsAfterDispel.filter((b: any) => b?.source === "gm_bless_scroll");
+      const removed = buffsBeforeDispel - nextBuffsAfterDispel.length;
+      if (removed > 0) {
+        specialEffectsLog.push(`${displayMobName(state.mob.name)} зняв бафи (${removed}); скроли Bless залишились.`);
       }
     }
 

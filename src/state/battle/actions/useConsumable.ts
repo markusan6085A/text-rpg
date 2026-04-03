@@ -8,11 +8,8 @@ import { hasSpiritshotActive } from "./useSkill/shotHelpers";
 import { applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
 import { cleanupBuffs } from "../helpers";
 import { handleEnchantScroll } from "./enchantScroll";
-import {
-  createGmBlessSoulScrollBuff,
-  isGmBlessSoulScrollItem,
-  GM_BLESS_SOUL_SCROLL_DURATION_MS,
-} from "../../../data/items/gmBlessSoulScrollBuffs";
+import { isGmBlessSoulScrollItem } from "../../../data/items/gmBlessSoulScrollBuffs";
+import { mergeGmBlessSoulScrollBuffs } from "../../../utils/gmBlessSoulScrollApply";
 
 // КД для банок у PvE (1 секунда)
 const DEFAULT_POTION_COOLDOWN_MS = 1000;
@@ -278,47 +275,37 @@ export function handleConsumable(
     }
   }
 
-  // GM скроли Bless the Soul — тимчасовий баф у бою
+  // GM скроли Bless the Soul — тимчасовий баф у бою (+ синх heroJson.heroBuffs для міста/статів)
   if (isGmBlessSoulScrollItem(itemId)) {
-    const newBuff = createGmBlessSoulScrollBuff(itemId, now);
-    if (!newBuff) {
+    const r = mergeGmBlessSoulScrollBuffs(hero, itemId, now, state.heroBuffs);
+    if (r.ok === false) {
       setAndPersist({
-        log: [`Помилка скролу: ${itemId}`, ...state.log].slice(0, 30),
+        log: [r.message, ...state.log].slice(0, 30),
       });
       return false;
     }
 
-    const withoutSameId = (state.heroBuffs || []).filter(
-      (b: any) => !(typeof b?.id === "number" && b.id === newBuff.id)
-    );
-    const nextBuffs = cleanupBuffs([newBuff, ...withoutSameId], now);
-
-    const updatedInventory = currentHero.inventory.map((i: any) => {
-      if (i.id === itemId) {
-        const newCount = (i.count ?? 1) - 1;
-        return newCount > 0 ? { ...i, count: newCount } : null;
-      }
-      return i;
-    }).filter(Boolean) as any[];
-
-    const heroForMax = { ...hero, inventory: updatedInventory };
-    const baseMax = getMaxResources(heroForMax);
-    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, nextBuffs);
-    const curHp = Math.min(maxHp, hero.hp ?? maxHp);
-    const curMp = Math.min(maxMp, hero.mp ?? maxMp);
-    const curCp = Math.min(maxCp, hero.cp ?? maxCp);
-
     setAndPersist({
-      heroBuffs: nextBuffs,
-      log: [`Ви використали ${itemDef.name} (${newBuff.name ?? "баф"}, ${Math.round(GM_BLESS_SOUL_SCROLL_DURATION_MS / 60000)} хв)`, ...state.log].slice(0, 30),
+      heroBuffs: r.nextBuffs,
+      log: [
+        `Ви використали ${r.itemName} (${r.buffName}, 20 хв)`,
+      ...state.log].slice(0, 30),
     });
 
     updateHero({
-      inventory: updatedInventory,
-      hp: curHp,
-      mp: curMp,
-      cp: curCp,
+      inventory: r.updatedInventory,
+      hp: r.nextHp,
+      mp: r.nextMp,
+      cp: r.nextCp,
     });
+    const h = useHeroStore.getState().hero;
+    if (h) {
+      const ej = ((h as any).heroJson || {}) as Record<string, unknown>;
+      useHeroStore.getState().updateHero(
+        { heroJson: { ...ej, heroBuffs: r.nextBuffs } as any },
+        { persist: true }
+      );
+    }
     return true;
   }
 

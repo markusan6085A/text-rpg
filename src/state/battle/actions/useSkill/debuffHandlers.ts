@@ -25,6 +25,7 @@ export function handleWarriorBane(
   // Знімаємо бафи, що збільшують attackSpeed або speed/runSpeed
   const buffsToRemove: string[] = [];
   const filteredBuffs = activeBuffs.filter((b) => {
+    if ((b as any).source === "gm_bless_scroll") return true;
     if (!b.effects || !Array.isArray(b.effects)) return true;
     
     // Перевіряємо, чи баф збільшує attackSpeed або speed/runSpeed
@@ -89,6 +90,7 @@ export function handleMageBane(
   // Знімаємо бафи, що збільшують mAtk або castSpeed
   const buffsToRemove: string[] = [];
   const filteredBuffs = activeBuffs.filter((b) => {
+    if ((b as any).source === "gm_bless_scroll") return true;
     if (!b.effects || !Array.isArray(b.effects)) return true;
     
     // Перевіряємо, чи баф збільшує mAtk або castSpeed

@@ -10,6 +10,9 @@ import {
   characterModalPanelClass,
   isCharacterModalL2,
 } from "../characterModalL2";
+import { isGmBlessSoulScrollItem } from "../../../data/items/gmBlessSoulScrollBuffs";
+import { applyGmBlessSoulScrollFromInventory } from "../../../utils/gmBlessSoulScrollApply";
+import { showToast } from "../../../state/toastStore";
 
 interface ConsumableItemModalProps {
   item: HeroInventoryItem;
@@ -38,6 +41,7 @@ export default function ConsumableItemModal({
   const itemDef = itemsDB[item.id];
   const isPotion = itemDef && (itemDef.restoreHp || itemDef.restoreMp || itemDef.restoreCp);
   const isEnchantScroll = item.id?.includes("enchant_weapon_scroll") || item.id?.includes("enchant_armor_scroll");
+  const isBlessSoulScroll = item.id ? isGmBlessSoulScrollItem(item.id) : false;
 
   const handleTransfer = () => {
     if (transferAmount < 1 || transferAmount > maxCount) return;
@@ -102,6 +106,17 @@ export default function ConsumableItemModal({
     onClose();
   };
 
+  const handleUseBlessScroll = () => {
+    if (!item.id) return;
+    const r = applyGmBlessSoulScrollFromInventory(item.id);
+    if (!r.ok) {
+      showToast(r.message ?? "Не вдалося використати скрол", "error");
+      return;
+    }
+    showToast(`Використано: ${itemDef?.name ?? item.id}`, "success");
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
       <div
@@ -150,6 +165,17 @@ export default function ConsumableItemModal({
         </div>
         
         <div className={`${bt} pt-2 mt-2 mb-4`}>
+          {isBlessSoulScroll && (
+            <div className="mb-3">
+              <button
+                type="button"
+                onClick={handleUseBlessScroll}
+                className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold"
+              >
+                Использовать
+              </button>
+            </div>
+          )}
           {isPotion && !isEnchantScroll && (
             <div className="mb-3">
               <button
