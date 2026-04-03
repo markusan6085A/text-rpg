@@ -76,6 +76,21 @@ function checkSetTorso(
   return { shouldEquipLegs, legsItem, isRobe };
 }
 
+/** Той самий матч, що й при знятті рядка з інвентаря (LS / кристал). */
+function findMatchingInventoryIndex(inventory: HeroInventoryItem[], item: HeroInventoryItem): number {
+  const itemInsertedLS = (item as any).insertedLS;
+  const itemInsertedCrystal = (item as any).insertedCrystal;
+  let itemIndex = inventory.findIndex((i: any) => {
+    if (!i || i.id !== item.id) return false;
+    if (itemInsertedLS != null && (i.insertedLS ?? null) !== itemInsertedLS) return false;
+    if (itemInsertedCrystal != null && (i.insertedCrystal ?? null) !== itemInsertedCrystal) return false;
+    if (itemInsertedLS == null && itemInsertedCrystal == null && (i.insertedLS != null || i.insertedCrystal != null)) return false;
+    return true;
+  });
+  if (itemIndex < 0) itemIndex = inventory.findIndex((i: any) => i && i.id === item.id);
+  return itemIndex;
+}
+
 /**
  * Видалення предмета з інвентаря
  */
@@ -85,16 +100,7 @@ function removeItemFromInventory(
   isTwoHandedInBothSlots: boolean
 ): HeroInventoryItem[] {
   const newInventory = [...inventory];
-  const itemInsertedLS = (item as any).insertedLS;
-  const itemInsertedCrystal = (item as any).insertedCrystal;
-  let itemIndex = newInventory.findIndex((i: any) => {
-    if (!i || i.id !== item.id) return false;
-    if (itemInsertedLS != null && (i.insertedLS ?? null) !== itemInsertedLS) return false;
-    if (itemInsertedCrystal != null && (i.insertedCrystal ?? null) !== itemInsertedCrystal) return false;
-    if (itemInsertedLS == null && itemInsertedCrystal == null && (i.insertedLS != null || i.insertedCrystal != null)) return false;
-    return true;
-  });
-  if (itemIndex < 0) itemIndex = newInventory.findIndex((i: any) => i && i.id === item.id);
+  const itemIndex = findMatchingInventoryIndex(newInventory, item);
   
   console.log(`[equipItemLogic] 🔍 REMOVING ITEM FROM INVENTORY:`, {
     itemId: item.id,
@@ -358,9 +364,8 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
   
-  // Перевіряємо, чи є предмет в інвентарі взагалі
-  const itemIndex = newInventory.findIndex((i: any) => i && i.id === item.id);
-  if (itemIndex === -1) {
+  // Перевіряємо наявність того ж рядка, що й removeItemFromInventory (LS / crystal)
+  if (findMatchingInventoryIndex(newInventory, item) === -1) {
     console.warn(`[equipItemLogic] ⚠️ ITEM NOT FOUND IN INVENTORY! Aborting equip.`, { itemId: item.id });
     return hero;
   }
@@ -651,17 +656,22 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
         const weaponItem = itemsDBWithStarter[weaponId] || itemsDB[weaponId];
         if (weaponItem) {
           const grade = weaponItem.grade || autoDetectGrade(weaponId);
-          newInventory.push({
-            id: weaponItem.id,
-            name: weaponItem.name,
-            slot: weaponItem.slot,
-            kind: weaponItem.kind,
-            icon: weaponItem.icon,
-            description: weaponItem.description,
-            stats: weaponItem.stats,
-            count: 1,
-            grade: grade,
-          });
+          const oldEnchantLevel = hero.equipmentEnchantLevels?.weapon ?? 0;
+          const alreadyInInventory = newInventory.some((inv) => inv.id === weaponId);
+          if (!alreadyInInventory) {
+            newInventory.push({
+              id: weaponItem.id,
+              name: weaponItem.name,
+              slot: weaponItem.slot,
+              kind: weaponItem.kind,
+              icon: weaponItem.icon,
+              description: weaponItem.description,
+              stats: weaponItem.stats,
+              count: 1,
+              enchantLevel: oldEnchantLevel,
+              grade: grade,
+            });
+          }
         }
         newEquipment.weapon = null;
       }

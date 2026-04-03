@@ -547,26 +547,20 @@ export function processMobDrops(
         grade: zaricheDef.grade,
       };
 
-      // Автоматично одягаємо Зарича
-      const heroWithZariche = equipItemLogic(hero, zaricheItem);
-      
-      // Оновлюємо інвентар (стара зброя, щит та пуха повертаються в інвентар)
-      heroWithZariche.inventory.forEach((item) => {
-        const existingIndex = newInventory.findIndex((invItem) => invItem.id === item.id);
-        if (existingIndex >= 0) {
-          // Якщо предмет вже є, оновлюємо його (може бути збільшена кількість)
-          const existingItem = newInventory[existingIndex];
-          if (existingItem.count && item.count) {
-            newInventory[existingIndex] = { ...existingItem, count: existingItem.count + item.count };
-          } else {
-            newInventory[existingIndex] = item;
-          }
-        } else {
-          newInventory.push(item);
-        }
-      });
+      // Екіп потребує, щоб Зарич був у інвентарі; newInventory вже може містити дроп цього kill
+      const heroForEquip: Hero = {
+        ...hero,
+        inventory: newInventory.map((row) => ({ ...row })),
+      };
+      const zaricheInInv: HeroInventoryItem = { ...zaricheItem };
+      const heroWithZaricheInInv: Hero = {
+        ...heroForEquip,
+        inventory: [...heroForEquip.inventory, zaricheInInv],
+      };
+      const heroWithZariche = equipItemLogic(heroWithZaricheInInv, zaricheInInv);
 
-      // Зберігаємо оновлену екіпіровку та рівні заточки
+      newInventory.splice(0, newInventory.length, ...(heroWithZariche.inventory ?? []));
+
       newEquipment = heroWithZariche.equipment;
       newEquipmentEnchantLevels = heroWithZariche.equipmentEnchantLevels;
 
