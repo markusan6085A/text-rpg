@@ -31,6 +31,22 @@ export const GM_RASODNIKI_ITEM_IDS = [
 export const CRYSTAL_PRICE_ADENA = 10;
 export const RASODNIKI_REQUIRED_LEVEL = 20;
 
+/** Свитки Giant (100% заточка) у GM-шопі — поки 1 Adena за шт. */
+export const GM_GIANT_SCROLL_ADENA_PRICE = 1;
+
+export const GM_GIANT_ENCHANT_SCROLL_IDS = [
+  "gm_giant_enchant_armor_d",
+  "gm_giant_enchant_armor_c",
+  "gm_giant_enchant_armor_b",
+  "gm_giant_enchant_armor_a",
+  "gm_giant_enchant_armor_s",
+  "gm_giant_enchant_weapon_d",
+  "gm_giant_enchant_weapon_c",
+  "gm_giant_enchant_weapon_b",
+  "gm_giant_enchant_weapon_a",
+  "gm_giant_enchant_weapon_s",
+] as const;
+
 export const RASODNIKI_STONES_INFO: { id: string; icon: string; effect: string }[] = [
   { id: "stone_crit", icon: "/items/drops/item/Ench_wp_potion_violet_i00_0.jpg", effect: "Крит: +5%" },
   { id: "stone_mcrit", icon: "/items/drops/item/Ench_wp_stone_i02_0.jpg", effect: "Маг. крит: +5%" },

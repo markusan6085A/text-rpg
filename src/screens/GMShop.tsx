@@ -11,6 +11,8 @@ import {
   type DyeItem,
   GM_SHOP_ITEMS,
   GM_RASODNIKI_ITEM_IDS,
+  GM_GIANT_ENCHANT_SCROLL_IDS,
+  GM_GIANT_SCROLL_ADENA_PRICE,
   CRYSTAL_PRICE_ADENA,
   RASODNIKI_REQUIRED_LEVEL,
   RASODNIKI_STONES_INFO,
@@ -30,9 +32,13 @@ export default function GMShop({ navigate }: GMShopProps) {
   const updateHero = useHeroStore((s) => s.updateHero);
   const updateAdena = useHeroStore((s) => s.updateAdena);
   const addItemToInventory = useHeroStore((s) => s.addItemToInventory);
-  const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "rasodniki">("dyes");
+  const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "rasodniki" | "consumables">("dyes");
   const [selectedItem, setSelectedItem] = useState<DyeItem | null>(null);
-  const [selectedCrystalItem, setSelectedCrystalItem] = useState<{ itemId: string } | null>(null);
+  const [selectedAdenaPurchase, setSelectedAdenaPurchase] = useState<{
+    itemId: string;
+    unitPrice: number;
+    minLevel: number | null;
+  } | null>(null);
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
   const [generateStoneModal, setGenerateStoneModal] = useState(false);
   const [generateStoneSelectedId, setGenerateStoneSelectedId] = useState<string | null>(null);
@@ -216,17 +222,22 @@ export default function GMShop({ navigate }: GMShopProps) {
     showToast(success ? `Успіх! Отримано камінь з пасивним ефектом: ${def.name}` : `Отримано: ${def.name} (без пасивки)`, success ? "success" : "info");
   };
 
-  // Обробка покупки за Adena (розсодники — кристал, ЛС)
-  const handleBuyAdena = (itemId: string, quantity: number = 1) => {
+  // Покупка за Adena (розсодники, свитки Giant тощо)
+  const handleBuyAdena = (
+    itemId: string,
+    quantity: number = 1,
+    unitPrice: number = CRYSTAL_PRICE_ADENA,
+    minLevel: number | null = RASODNIKI_REQUIRED_LEVEL
+  ) => {
     if (!hero) return;
 
     const heroLevel = hero.level ?? 1;
-    if (heroLevel < RASODNIKI_REQUIRED_LEVEL) {
-      showToast(`Розсодники доступні з ${RASODNIKI_REQUIRED_LEVEL} рівня!`, "error");
+    if (minLevel != null && heroLevel < minLevel) {
+      showToast(`Доступно з ${minLevel} рівня!`, "error");
       return;
     }
 
-    const totalPrice = CRYSTAL_PRICE_ADENA * quantity;
+    const totalPrice = unitPrice * quantity;
     const currentAdena = hero.adena ?? 0;
 
     if (currentAdena < totalPrice) {
@@ -242,7 +253,7 @@ export default function GMShop({ navigate }: GMShopProps) {
 
     updateAdena(-totalPrice);
     addItemToInventory(itemId, quantity);
-    setSelectedCrystalItem(null);
+    setSelectedAdenaPurchase(null);
     setBuyQuantity(1);
     showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
   };
@@ -330,6 +341,15 @@ export default function GMShop({ navigate }: GMShopProps) {
               }`}
             >
               Розсодники
+            </button>
+            <span className={isL2 ? "text-[#6b5c42] text-[10px]" : "text-gray-500 text-[10px]"}>|</span>
+            <button
+              onClick={() => setSelectedShopSubcategory("consumables")}
+              className={`px-1.5 py-0.5 text-[11px] whitespace-nowrap ${
+                selectedShopSubcategory === "consumables" ? tabOn : tabOff
+              }`}
+            >
+              Розхідники
             </button>
           </div>
 
@@ -429,7 +449,11 @@ export default function GMShop({ navigate }: GMShopProps) {
                       : "flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
                   }
                   onClick={() => {
-                    setSelectedCrystalItem({ itemId });
+                    setSelectedAdenaPurchase({
+                      itemId,
+                      unitPrice: CRYSTAL_PRICE_ADENA,
+                      minLevel: RASODNIKI_REQUIRED_LEVEL,
+                    });
                     setBuyQuantity(1);
                   }}
                 >
@@ -451,6 +475,50 @@ export default function GMShop({ navigate }: GMShopProps) {
             </>
             )}
           </div>
+          )}
+
+          {/* Розхідники: Giant scroll 100% заточка */}
+          {selectedShopSubcategory === "consumables" && (
+            <div className="space-y-2">
+              <div className={`text-[10px] ${isL2 ? "text-[#a89878]" : "text-gray-400"} mb-1`}>
+                Свитки з 100% шансом заточки (та сама логіка макс. рівня, що у звичайних скролів).
+              </div>
+              {GM_GIANT_ENCHANT_SCROLL_IDS.map((itemId) => {
+                const def = itemsDB[itemId];
+                if (!def) return null;
+                return (
+                  <div
+                    key={itemId}
+                    className={
+                      isL2
+                        ? rowL2
+                        : "flex items-center gap-2 py-1.5 border-b border-solid border-white/30 hover:bg-black/20 cursor-pointer"
+                    }
+                    onClick={() => {
+                      setSelectedAdenaPurchase({
+                        itemId,
+                        unitPrice: GM_GIANT_SCROLL_ADENA_PRICE,
+                        minLevel: null,
+                      });
+                      setBuyQuantity(1);
+                    }}
+                  >
+                    <img
+                      src={def.icon}
+                      alt={def.name}
+                      className="w-8 h-8 object-contain flex-shrink-0"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/items/drops/resources/etc_ancient_adena_i00.png";
+                      }}
+                    />
+                    <div className="flex-1 text-[12px] text-[#e0c68a]">{def.name}</div>
+                    <div className="text-[12px] text-[#f4e2b8] font-semibold">
+                      {GM_GIANT_SCROLL_ADENA_PRICE} Adena
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
       </div>
 
@@ -561,20 +629,18 @@ export default function GMShop({ navigate }: GMShopProps) {
         </div>
       )}
 
-      {/* Модальне вікно покупки кристала/LS за Adena */}
-      {selectedCrystalItem && (
-        <div 
+      {/* Модальне вікно покупки за Adena (кристали / свитки Giant) */}
+      {selectedAdenaPurchase && (
+        <div
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
-          onClick={() => setSelectedCrystalItem(null)}
+          onClick={() => setSelectedAdenaPurchase(null)}
         >
-          <div 
-            className={`${modalPanel} max-w-[400px]`}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className={`${modalPanel} max-w-[400px]`} onClick={(e) => e.stopPropagation()}>
             {(() => {
-              const def = itemsDB[selectedCrystalItem.itemId] ?? itemsDBCrystals[selectedCrystalItem.itemId];
+              const { itemId, unitPrice, minLevel } = selectedAdenaPurchase;
+              const def = itemsDB[itemId] ?? itemsDBCrystals[itemId];
               if (!def) return null;
-              const totalPrice = CRYSTAL_PRICE_ADENA * buyQuantity;
+              const totalPrice = unitPrice * buyQuantity;
               return (
                 <>
                   <div
@@ -601,7 +667,7 @@ export default function GMShop({ navigate }: GMShopProps) {
                     <div className="text-gray-300 text-[12px] mb-4 italic">{def.description}</div>
                   )}
                   <div className="text-yellow-400 text-[12px] mb-4 flex items-center gap-1">
-                    Ціна: {CRYSTAL_PRICE_ADENA} Adena
+                    Ціна: {unitPrice} Adena
                   </div>
                   <div className="mb-4 border-t border-white/50 pt-2">
                     <div className="flex items-center gap-2 mb-2">
@@ -632,19 +698,17 @@ export default function GMShop({ navigate }: GMShopProps) {
                         </button>
                       </div>
                     </div>
-                    <div className="text-yellow-400 text-[12px] mb-2">
-                      Разом: {totalPrice} Adena
-                    </div>
+                    <div className="text-yellow-400 text-[12px] mb-2">Разом: {totalPrice} Adena</div>
                   </div>
                   <div className="flex gap-2 justify-center">
                     <button
-                      onClick={() => handleBuyAdena(selectedCrystalItem.itemId, buyQuantity)}
+                      onClick={() => handleBuyAdena(itemId, buyQuantity, unitPrice, minLevel)}
                       className="text-green-400 text-[12px] py-2 hover:text-green-300 cursor-pointer px-4 bg-[#1a1208] border border-white/50 rounded"
                     >
                       Купити
                     </button>
                     <button
-                      onClick={() => setSelectedCrystalItem(null)}
+                      onClick={() => setSelectedAdenaPurchase(null)}
                       className="text-gray-400 text-[12px] py-2 hover:text-gray-300 cursor-pointer px-4 bg-[#1a1208] border border-white/50 rounded"
                     >
                       Скасувати

@@ -88,7 +88,8 @@ export const CATEGORIES = [
     return (
       id.includes("enchant_weapon_scroll") ||
       id.includes("enchant_armor_scroll") ||
-      id.includes("blessed_scroll_enchant")
+      id.includes("blessed_scroll_enchant") ||
+      id.startsWith("gm_giant_enchant_")
     );
   }},
   { key: "consumable", label: "Расходники", test: (item: any) => {

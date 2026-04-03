@@ -20,6 +20,7 @@ import { itemsDBCraftResources } from './itemsDBCraftResources';
 import { starterKitItems } from '../starterKitItems';
 import { applyShopJewelryStatsToItemsDB } from '../shop/jewelryStatsByShopId';
 import { mysticSpellbookItemsDB } from './itemsDB_spellbooks';
+import { itemsDBGmGiantEnchants } from './itemsDB_gm_giant_enchants';
 
 // Експортуємо тип для зручності використання
 export type { ItemDefinition } from './itemsDB.types';
@@ -41,6 +42,7 @@ const itemsDBRaw: Record<string, ItemDefinition> = {
   ...itemsDBCrystals,
   ...itemsDBCraftResources,
   ...mysticSpellbookItemsDB,
+  ...itemsDBGmGiantEnchants,
 };
 
 /** M.Def / maxMp для біжутерії з магазину (l2elo / Interlude) */

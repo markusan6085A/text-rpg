@@ -38,7 +38,10 @@ export default function InventoryItemModal({
 }: InventoryItemModalProps) {
   const bt = characterModalBorderT();
   const l2 = isCharacterModalL2();
-  const isEnchantScroll = item.id?.includes("enchant_weapon_scroll") || item.id?.includes("enchant_armor_scroll");
+  const isEnchantScroll =
+    item.id?.includes("enchant_weapon_scroll") ||
+    item.id?.includes("enchant_armor_scroll") ||
+    item.id?.startsWith("gm_giant_enchant_");
   const isConsumable = item.slot === "consumable";
   // Перевіряємо, чи це риба
   const isFish =
