@@ -2843,7 +2843,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 50,
     bodypart: "consumable",
-    icon: "/items/drops/resources/etc_scroll_of_enchant_weapon_i05.png",
+    icon: "/items/drops/resources/bless-weapon-s.png",
     description: "Благословенна заточка для S-grade зброї. Шанс успіху 95%, безпечна заточка +3.",
   },
   {
@@ -2855,7 +2855,7 @@ export const QUEST_SHOP_ENCHANT_SCROLLS: ShopItem[] = [
     category: "enchant_scroll",
     price: 25,
     bodypart: "consumable",
-    icon: "/items/drops/resources/etc_scroll_of_enchant_armor_i05.png",
+    icon: "/items/drops/resources/Etc_blessed_scrl.jpg",
     description: "Благословенна заточка для S-grade броні. Шанс успіху 95%, безпечна заточка +3.",
   },
 ];
