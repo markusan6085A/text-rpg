@@ -121,11 +121,20 @@ export default function FishItemModal({
         const hj = res.character?.heroJson ?? {};
         const newRev = hj?.heroRevision;
         if (newRev != null) useHeroStore.getState().updateServerState?.({ heroRevision: newRev });
+        const charAny = res.character as { coinsSilver?: number | string; adena?: number | string } | undefined;
+        const nextAdena = Number(charAny?.adena ?? hj?.adena ?? currentHero.adena ?? 0);
+        const nextSilver = Number(charAny?.coinsSilver ?? hj?.coins_silver ?? (currentHero as any).coins_silver ?? 0);
         updateHero({
-          adena: res.character?.adena ?? currentHero.adena,
+          adena: Number.isFinite(nextAdena) ? nextAdena : currentHero.adena,
+          coins_silver: Number.isFinite(nextSilver) ? nextSilver : Number((currentHero as any).coins_silver ?? 0),
           inventory: hj?.inventory ?? currentHero.inventory,
           overflowChest: hj?.overflowChest ?? currentHero.overflowChest,
-          heroJson: { ...(currentHero as any).heroJson, ...hj },
+          heroJson: {
+            ...(currentHero as any).heroJson,
+            ...hj,
+            adena: Number.isFinite(nextAdena) ? nextAdena : hj?.adena ?? (currentHero as any).heroJson?.adena,
+            coins_silver: Number.isFinite(nextSilver) ? nextSilver : Number(hj?.coins_silver ?? (currentHero as any).heroJson?.coins_silver ?? 0),
+          },
         });
         setDismantleResult(res.dropResult);
         setShowDismantleResult(true);
@@ -404,7 +413,9 @@ export default function FishItemModal({
               dismantleResult.jewelryPieces.length === 0 &&
               dismantleResult.resources.length === 0 &&
               (dismantleResult.enchantScrolls?.length ?? 0) === 0 && (
-                <div className="text-gray-400 text-center py-4">Рибу розділено (дроп з розділки тимчасово вимкнено).</div>
+                <div className="text-gray-400 text-center py-4">
+                  Рибу розділено. У цьому разі без додаткового луту (спробуй ще — шанси як при зборі улову).
+                </div>
               )}
           </div>
 

@@ -377,7 +377,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
 
         const ch = await tx.character.findUnique({
           where: { id: owner.id },
-          select: { id: true, adena: true, heroJson: true },
+          select: { id: true, adena: true, coinsSilver: true, heroJson: true },
         });
         if (!ch) throw new Error("character not found");
 
@@ -430,6 +430,9 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         }
 
         const newAdena = (Number(ch.adena) ?? 0) + (dropResult.adena ?? 0);
+        const silverDelta = Math.max(0, Math.floor(dropResult.coinsSilver ?? 0));
+        const prevSilver = Number(ch.coinsSilver ?? 0);
+        const newSilver = prevSilver + silverDelta;
         const oldRevision = heroJson.heroRevision ?? 0;
         const updatedHeroJson = addVersioning(
           {
@@ -437,6 +440,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
             inventory: invAfterFish,
             overflowChest,
             adena: newAdena,
+            coins_silver: newSilver,
           },
           oldRevision
         );
@@ -445,12 +449,13 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           where: { id: ch.id },
           data: {
             adena: newAdena,
+            coinsSilver: BigInt(newSilver),
             heroJson: updatedHeroJson,
             lastActivityAt: new Date(),
           },
           select: {
             id: true, name: true, race: true, classId: true, sex: true, level: true,
-            exp: true, sp: true, adena: true, aa: true, coinLuck: true, heroJson: true, updatedAt: true,
+            exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true, heroJson: true, updatedAt: true,
           },
         });
         return { updated: charUpdated, dropResult };

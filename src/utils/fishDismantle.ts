@@ -1,5 +1,6 @@
 /**
- * Розділка риби — дроп вимкнено (порожній результат), пізніше можна повернути логіку.
+ * Офлайн-фолбек для розділки (без characterId): лише адена/срібло як на сервері, без екстра-екіпу
+ * (повний лут — тільки через POST /fish/dismantle).
  */
 
 export interface FishDropResult {
@@ -24,12 +25,17 @@ export interface InventoryItemToAdd {
   count: number;
 }
 
-/** Без дропу предметів / адени — лише структура для сумісності з UI та API. */
-export function processFishDrop(_fishCount: number): FishDropResult {
+export function processFishDrop(fishCount: number): FishDropResult {
+  const n = Math.max(0, Math.floor(fishCount));
+  const adenaPerFish = 100 + Math.floor(Math.random() * 400);
+  let coinsSilver = 0;
+  for (let i = 0; i < n; i++) {
+    if (Math.random() < 0.015) coinsSilver += 1;
+  }
   return {
-    adena: 0,
+    adena: n <= 0 ? 0 : adenaPerFish * n,
     coinOfLuck: 0,
-    coinsSilver: 0,
+    coinsSilver,
     weapons: [],
     armorPieces: [],
     jewelryPieces: [],
