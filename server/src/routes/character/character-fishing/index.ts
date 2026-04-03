@@ -377,7 +377,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
 
         const ch = await tx.character.findUnique({
           where: { id: owner.id },
-          select: { id: true, adena: true, coinsSilver: true, heroJson: true },
+          select: { id: true, adena: true, coinsSilver: true, coinLuck: true, heroJson: true },
         });
         if (!ch) throw new Error("character not found");
 
@@ -433,6 +433,9 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         const silverDelta = Math.max(0, Math.floor(dropResult.coinsSilver ?? 0));
         const prevSilver = Number(ch.coinsSilver ?? 0);
         const newSilver = prevSilver + silverDelta;
+        const colDelta = Math.max(0, Math.floor(dropResult.coinOfLuck ?? 0));
+        const prevCoinLuck = Number(ch.coinLuck ?? 0);
+        const newCoinLuck = prevCoinLuck + colDelta;
         const oldRevision = heroJson.heroRevision ?? 0;
         const updatedHeroJson = addVersioning(
           {
@@ -441,6 +444,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
             overflowChest,
             adena: newAdena,
             coins_silver: newSilver,
+            coinOfLuck: newCoinLuck,
           },
           oldRevision
         );
@@ -450,6 +454,7 @@ export async function characterFishingRoutes(app: FastifyInstance) {
           data: {
             adena: newAdena,
             coinsSilver: BigInt(newSilver),
+            coinLuck: BigInt(newCoinLuck),
             heroJson: updatedHeroJson,
             lastActivityAt: new Date(),
           },

@@ -76,6 +76,10 @@ export function processFishDrop(fishCount: number): FishDropResult {
   for (let i = 0; i < n; i++) {
     if (Math.random() < 0.015) result.coinsSilver += 1;
   }
+  const batches10 = Math.floor(n / 10);
+  for (let i = 0; i < batches10; i++) {
+    if (Math.random() < 0.005) result.coinOfLuck += 1;
+  }
   for (const row of rows) {
     const c = Math.max(1, row.count);
     switch (rowCategory(row)) {

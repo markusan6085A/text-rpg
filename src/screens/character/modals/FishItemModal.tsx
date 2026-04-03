@@ -50,6 +50,15 @@ const STAT_LABELS: Record<string, string> = {
   MEN: "MEN",
 };
 
+function dropItemGradeLabel(grade?: string) {
+  if (!grade) return null;
+  return (
+    <span className="text-[#c9a44c] font-normal ml-1" title="Грейд">
+      ({grade})
+    </span>
+  );
+}
+
 function renderStatsBlock(stats: Record<string, unknown>) {
   const entries = Object.entries(stats).filter(
     ([, v]) => v !== undefined && v !== null && (typeof v === "number" || typeof v === "string")
@@ -121,12 +130,20 @@ export default function FishItemModal({
         const hj = res.character?.heroJson ?? {};
         const newRev = hj?.heroRevision;
         if (newRev != null) useHeroStore.getState().updateServerState?.({ heroRevision: newRev });
-        const charAny = res.character as { coinsSilver?: number | string; adena?: number | string } | undefined;
+        const charAny = res.character as {
+          coinsSilver?: number | string;
+          adena?: number | string;
+          coinLuck?: number | string;
+        } | undefined;
         const nextAdena = Number(charAny?.adena ?? hj?.adena ?? currentHero.adena ?? 0);
         const nextSilver = Number(charAny?.coinsSilver ?? hj?.coins_silver ?? (currentHero as any).coins_silver ?? 0);
+        const nextCoinLuck = Number(
+          charAny?.coinLuck ?? hj?.coinOfLuck ?? currentHero.coinOfLuck ?? 0
+        );
         updateHero({
           adena: Number.isFinite(nextAdena) ? nextAdena : currentHero.adena,
           coins_silver: Number.isFinite(nextSilver) ? nextSilver : Number((currentHero as any).coins_silver ?? 0),
+          coinOfLuck: Number.isFinite(nextCoinLuck) ? nextCoinLuck : currentHero.coinOfLuck,
           inventory: hj?.inventory ?? currentHero.inventory,
           overflowChest: hj?.overflowChest ?? currentHero.overflowChest,
           heroJson: {
@@ -134,6 +151,7 @@ export default function FishItemModal({
             ...hj,
             adena: Number.isFinite(nextAdena) ? nextAdena : hj?.adena ?? (currentHero as any).heroJson?.adena,
             coins_silver: Number.isFinite(nextSilver) ? nextSilver : Number(hj?.coins_silver ?? (currentHero as any).heroJson?.coins_silver ?? 0),
+            coinOfLuck: Number.isFinite(nextCoinLuck) ? nextCoinLuck : hj?.coinOfLuck ?? (currentHero as any).heroJson?.coinOfLuck,
           },
         });
         setDismantleResult(res.dropResult);
@@ -289,7 +307,10 @@ export default function FishItemModal({
                               onError={handleResourceIconError}
                             />
                           )}
-                          <span className="text-gray-300 font-semibold">{weaponDef?.name || id}</span>
+                          <span className="text-gray-300 font-semibold">
+                            {weaponDef?.name || id}
+                            {dropItemGradeLabel(weaponDef?.grade)}
+                          </span>
                           <span className="text-green-400 ml-auto">x{count}</span>
                         </div>
                         {renderStatsBlock(stats)}
@@ -318,7 +339,10 @@ export default function FishItemModal({
                               onError={handleResourceIconError}
                             />
                           )}
-                          <span className="text-gray-300 font-semibold">{jewelryDef?.name || id}</span>
+                          <span className="text-gray-300 font-semibold">
+                            {jewelryDef?.name || id}
+                            {dropItemGradeLabel(jewelryDef?.grade)}
+                          </span>
                           <span className="text-green-400 ml-auto">x{count}</span>
                         </div>
                         {renderStatsBlock(stats)}
@@ -347,7 +371,10 @@ export default function FishItemModal({
                               onError={handleResourceIconError}
                             />
                           )}
-                          <span className="text-gray-300 font-semibold">{armorDef?.name || id}</span>
+                          <span className="text-gray-300 font-semibold">
+                            {armorDef?.name || id}
+                            {dropItemGradeLabel(armorDef?.grade)}
+                          </span>
                           <span className="text-green-400 ml-auto">x{count}</span>
                         </div>
                         {renderStatsBlock(stats)}
@@ -373,7 +400,10 @@ export default function FishItemModal({
                             className="w-5 h-5 object-contain"
                             onError={handleResourceIconError}
                           />
-                          <span className="text-gray-400">{resourceDef?.name || id}:</span>
+                          <span className="text-gray-400">
+                            {resourceDef?.name || id}
+                            {dropItemGradeLabel(resourceDef?.grade)}:
+                          </span>
                           <span className="text-green-400">x{count}</span>
                         </div>
                       );

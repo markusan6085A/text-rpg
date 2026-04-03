@@ -56,14 +56,15 @@ const VALUABLE_RESOURCE_IDS: string[] = [
   "varnish_of_purity",
 ];
 
-/** Шанс за кожні 10 риб для зброї / броні / біжутерії по грейду. */
-const EQUIP_CHANCE_BY_GRADE: Record<GradeKey, number> = {
+/** Шанс за кожні 10 риб для D/C/B: зброя / броня / біжутерія (окремий кидок на кожну пару грейд×категорія). */
+const EQUIP_CHANCE_BY_GRADE_LOWER: Record<"D" | "C" | "B", number> = {
   D: 0.02,
   C: 0.019,
   B: 0.018,
-  A: 0.015,
-  S: 0.013,
 };
+
+/** A/S: тільки зброя та броня (без біжутерії). Один кидок 1% за кожні 10 риб; при успіху — випадково A чи S і зброя чи броня. */
+const HIGH_GRADE_WEAPON_ARMOR_CHANCE = 0.01;
 
 const STACKABLE_SLOTS = new Set(["consumable", "resource", "quest"]);
 
@@ -127,15 +128,26 @@ export function rollFishingExtraDrops(fishCount: number): FishingExtraDropRow[] 
       }
     }
 
-    const grades: GradeKey[] = ["D", "C", "B", "A", "S"];
-    const cats: EquipCategory[] = ["weapon", "armor", "jewelry"];
-    for (const g of grades) {
-      const p = EQUIP_CHANCE_BY_GRADE[g];
-      for (const c of cats) {
+    const lowerGrades: Array<"D" | "C" | "B"> = ["D", "C", "B"];
+    const allCats: EquipCategory[] = ["weapon", "armor", "jewelry"];
+    for (const g of lowerGrades) {
+      const p = EQUIP_CHANCE_BY_GRADE_LOWER[g];
+      for (const c of allCats) {
         if (Math.random() >= p) continue;
         const pool = POOLS[g]?.[c] ?? [];
         const id = pickRandomId(pool);
         if (!id) continue;
+        const row = rowFromEquipId(id);
+        if (row) out.push(row);
+      }
+    }
+
+    if (Math.random() < HIGH_GRADE_WEAPON_ARMOR_CHANCE) {
+      const g: "A" | "S" = Math.random() < 0.5 ? "A" : "S";
+      const c: "weapon" | "armor" = Math.random() < 0.5 ? "weapon" : "armor";
+      const pool = POOLS[g]?.[c] ?? [];
+      const id = pickRandomId(pool);
+      if (id) {
         const row = rowFromEquipId(id);
         if (row) out.push(row);
       }
