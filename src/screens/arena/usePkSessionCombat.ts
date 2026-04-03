@@ -9,7 +9,7 @@ import { getSkillDef, getSkillDefForBattle, skillDefIsBuff, skillDefIsToggle } f
 import { processSkillEffects } from "../../state/battle/actions/useSkill/buffHelpers";
 import { useBattleStore } from "../../state/battle/store";
 import { useHeroStore } from "../../state/heroStore";
-import { useAutoShot } from "../../state/battle/actions/useSkill/shotHelpers";
+import { useAutoShot, shotLogLabel } from "../../state/battle/actions/useSkill/shotHelpers";
 import { calcAutoAttackInterval, calcPhysicalSkillCooldown } from "../../utils/combatSpeed";
 import {
   rollbackPkPredictiveCooldownIfActionFailed,
@@ -153,7 +153,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
           );
           if (shotResult.used) {
             shotMultiplier = shotResult.multiplier;
-            shotName = shotResult.shotType === "soulshot" ? "Soulshot" : "Spiritshot";
+            shotName = shotLogLabel(shotResult.shotType);
           }
         }
         let buffEffects: any[] | undefined;
@@ -243,7 +243,7 @@ export function usePkSessionCombat({ sessionId, enabled, onSessionEnded }: Optio
       const shotResult = useAutoShot(hero as any, true, false, battleState.loadoutSlots, battleState.activeChargeSlots, 1);
       if (shotResult.used) {
         shotMultiplier = shotResult.multiplier;
-        shotName = shotResult.shotType === "soulshot" ? "Soulshot" : "Spiritshot";
+        shotName = shotLogLabel(shotResult.shotType);
       }
       const res = await actPkSession(pkSession.id, undefined, { shotMultiplier, shotName });
       if (res.serverNow) setServerTimeDrift(Date.now() - res.serverNow);

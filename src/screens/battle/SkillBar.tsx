@@ -1,6 +1,6 @@
 import React from "react";
 import { useBattleStore } from "../../state/battle/store";
-import { isShotConsumable } from "../../state/battle/actions/useSkill/shotHelpers";
+import { isChargeBarItem } from "../../state/battle/actions/useSkill/shotHelpers";
 import { useHeroStore } from "../../state/heroStore";
 import { MAX_SLOTS, getSkillDefForBattle, skillDefIsToggle } from "../../state/battle/loadout";
 import { itemsDBWithStarter } from "../../data/items/itemsDB";
@@ -354,7 +354,7 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const isConsumable = slotInfo?.type === "consumable";
               const isItem = slotInfo?.type === "item";
               const itemId = (isConsumable || isItem) && "itemId" in slotInfo ? slotInfo.itemId : "";
-              const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
+              const isCharge = isConsumable && isChargeBarItem(itemId);
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(idx);
               const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
               const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
@@ -483,7 +483,7 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const isConsumable = slotInfo?.type === "consumable";
               const isItem = slotInfo?.type === "item";
               const itemId = (isConsumable || isItem) && "itemId" in slotInfo ? slotInfo.itemId : "";
-              const isCharge = isConsumable && (isShotConsumable(itemId, "soulshot") || isShotConsumable(itemId, "spiritshot"));
+              const isCharge = isConsumable && isChargeBarItem(itemId);
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(slotIndex);
               const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
               const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);

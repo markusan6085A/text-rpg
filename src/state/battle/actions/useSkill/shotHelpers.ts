@@ -6,10 +6,26 @@ import { getWeaponGrade as getWeaponGradeFromArrowHelpers } from "./arrowHelpers
 /** Soulshot / spiritshot damage bonus vs uncharged (+60% → ×1.6). */
 export const SHOT_DAMAGE_MULTIPLIER = 1.6;
 
+/** Blessed / повний заряд (GM): +100% до урону (×2) — окремо від звичайних зарядів. */
+export const BLESSED_SHOT_DAMAGE_MULTIPLIER = 2.0;
+
 export interface ShotResult {
   used: boolean;
   multiplier: number; // Множник урону (1.0 = без зміни, >1.0 = збільшений)
-  shotType: "soulshot" | "spiritshot" | null;
+  shotType: "soulshot" | "spiritshot" | "blessed_charge" | null;
+}
+
+/** Універсальний заряд soulshot+spiritshot (грейд у суфіксі id). */
+export function isUniversalBlessedCharge(itemId: string): boolean {
+  const id = itemId.toLowerCase().replace(/^shop_/, "");
+  return id.startsWith("gm_blessed_charge_");
+}
+
+export function shotLogLabel(shotType: ShotResult["shotType"]): string {
+  if (shotType === "blessed_charge") return "Повний заряд";
+  if (shotType === "soulshot") return "Soulshot";
+  if (shotType === "spiritshot") return "Spiritshot";
+  return "";
 }
 
 /**
@@ -78,6 +94,15 @@ export function isShotConsumable(itemId: string, shotType: "soulshot" | "spirits
   return parts.includes(shotType);
 }
 
+/** Слот панелі зарядів: soulshot, spiritshot або blessed. */
+export function isChargeBarItem(itemId: string): boolean {
+  return (
+    isShotConsumable(itemId, "soulshot") ||
+    isShotConsumable(itemId, "spiritshot") ||
+    isUniversalBlessedCharge(itemId)
+  );
+}
+
 /** Грейд заряду з itemId: soulshot_ng, spiritshot_c, c_spiritshot, d_soulshot тощо */
 function getShotGrade(itemId: string): "NG" | "D" | "C" | "B" | "A" | "S" | null {
   const id = itemId.toLowerCase().replace(/^shop_/, "");
@@ -130,6 +155,22 @@ function inventoryHasShotStack(
     const iid = (i.id || "").replace(/^shop_/, "");
     if (canonical && (iid === canonical || i.id === canonical || i.id === `shop_${canonical}`)) return true;
     return iid === id || i.id === panelItemId || i.id === id;
+  });
+  return found ? { item: found } : null;
+}
+
+function inventoryHasExactStack(
+  inventory: { id?: string; count?: number }[],
+  panelItemId: string,
+  minCount: number
+): { item: { id?: string; count?: number } } | null {
+  const want = panelItemId.toLowerCase().replace(/^shop_/, "");
+  const found = inventory.find((i: any) => {
+    if ((i.count ?? 0) < minCount) return false;
+    const iid = String(i.id || "")
+      .toLowerCase()
+      .replace(/^shop_/, "");
+    return iid === want;
   });
   return found ? { item: found } : null;
 }
@@ -197,15 +238,18 @@ export function useAutoShot(
       if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
       const rawItemId = slotId.replace("consumable:", "");
       const itemId = rawItemId.replace(/^shop_/, "") || rawItemId;
-      if (!isShotConsumable(itemId, shotType)) continue;
+      const blessed = isUniversalBlessedCharge(itemId);
+      if (!blessed && !isShotConsumable(itemId, shotType)) continue;
       const shotGrade = getShotGrade(itemId);
       if (weaponGrade != null && shotGrade != null && shotGrade !== weaponGrade) continue;
-      const invStack = inventoryHasShotStack(inv, itemId, shotType, toConsume);
+      const invStack = blessed
+        ? inventoryHasExactStack(inv, itemId, toConsume)
+        : inventoryHasShotStack(inv, itemId, shotType, toConsume);
       if (!invStack?.item?.id) continue;
       const updated = applyShotConsumptionToInventory(inv, invStack.item.id, toConsume);
       out.used = true;
-      out.multiplier = SHOT_DAMAGE_MULTIPLIER;
-      out.shotType = shotType;
+      out.multiplier = blessed ? BLESSED_SHOT_DAMAGE_MULTIPLIER : SHOT_DAMAGE_MULTIPLIER;
+      out.shotType = blessed ? "blessed_charge" : shotType;
       return { inventory: updated };
     }
 
@@ -224,7 +268,10 @@ export function useAutoShot(
         .map((i) => loadoutSlots[i])
         .filter((v) => typeof v === "string" && v.startsWith("consumable:")),
       invShotCount: inv
-        .filter((i: any) => (i.id || "").toLowerCase().includes(shotType))
+        .filter((i: any) => {
+          const id = (i.id || "").toLowerCase();
+          return id.includes(shotType) || id.startsWith("gm_blessed_charge_");
+        })
         .map((i: any) => ({ id: i.id, count: i.count })),
     });
   }
@@ -247,6 +294,10 @@ export function hasSpiritshotActive(
     const slotId = loadoutSlots[slotIndex];
     if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
     const itemId = (slotId.replace("consumable:", "") || "").replace(/^shop_/, "");
+    if (isUniversalBlessedCharge(itemId)) {
+      if (inventoryHasExactStack(inv, itemId, 1)) return true;
+      continue;
+    }
     if (!isShotConsumable(itemId, "spiritshot")) continue;
     if (inventoryHasShotStack(inv, itemId, "spiritshot", 1)) return true;
   }

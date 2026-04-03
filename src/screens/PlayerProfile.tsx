@@ -32,7 +32,7 @@ import { usePartyStore } from "../state/partyStore";
 import { locations as WORLD_LOCATIONS } from "../data/world";
 import { formatPublicProfileLocation } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
-import { useAutoShot } from "../state/battle/actions/useSkill/shotHelpers";
+import { useAutoShot, shotLogLabel } from "../state/battle/actions/useSkill/shotHelpers";
 import { calcAutoAttackInterval, calcPhysicalSkillCooldown } from "../utils/combatSpeed";
 
 interface PlayerProfileProps {
@@ -493,7 +493,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         if (shotResult.used) {
           shotMultiplier = shotResult.multiplier;
-          shotName = shotResult.shotType === "soulshot" ? "Soulshot" : "Spiritshot";
+          shotName = shotLogLabel(shotResult.shotType);
         }
       }
 
@@ -588,7 +588,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
         if (shotResult.used) {
           shotMultiplier = shotResult.multiplier;
-          shotName = shotResult.shotType === "soulshot" ? "Soulshot" : "Spiritshot";
+          shotName = shotLogLabel(shotResult.shotType);
         }
       }
 

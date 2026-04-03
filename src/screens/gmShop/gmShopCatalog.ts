@@ -47,6 +47,17 @@ export const GM_GIANT_ENCHANT_SCROLL_IDS = [
   "gm_giant_enchant_weapon_s",
 ] as const;
 
+/** Повні заряди (blessed): +100% урону, фіз. і маг. — та сама ціна за шт., що у Giant-укл. */
+export const GM_BLESSED_CHARGE_ADENA_PRICE = 1;
+
+export const GM_BLESSED_CHARGE_IDS = [
+  "gm_blessed_charge_d",
+  "gm_blessed_charge_c",
+  "gm_blessed_charge_b",
+  "gm_blessed_charge_a",
+  "gm_blessed_charge_s",
+] as const;
+
 export const RASODNIKI_STONES_INFO: { id: string; icon: string; effect: string }[] = [
   { id: "stone_crit", icon: "/items/drops/item/Ench_wp_potion_violet_i00_0.jpg", effect: "Крит: +5%" },
   { id: "stone_mcrit", icon: "/items/drops/item/Ench_wp_stone_i02_0.jpg", effect: "Маг. крит: +5%" },
