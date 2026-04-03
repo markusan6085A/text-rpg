@@ -311,7 +311,7 @@ const City: React.FC<CityProps> = ({ navigate }) => {
           </div>
           <p className="mb-2 opacity-95 leading-snug">
             На 19 уровне доступен квест «Теневой контракт — оружие D-grade»: вкладка «Квесты», раздел Глудио. Награда —
-            теневая D-grade зброя на выбор (+40 к атаке к магазинной) и свитки заточки.
+            теневая D-grade зброя на выбор и свитки заточки.
           </p>
           <div className="flex flex-wrap gap-2">
             <button type="button" className={primaryCityHintBtn} onClick={() => navigate("/quests")}>
