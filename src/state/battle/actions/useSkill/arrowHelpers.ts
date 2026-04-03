@@ -5,6 +5,7 @@ import type { Hero, HeroInventoryItem } from "../../../../types/Hero";
 import { itemsDB } from "../../../../data/items/itemsDB";
 import type { ItemDefinition } from "../../../../data/items/itemsDB.types";
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
+import { inferGradeFromItemId } from "../../../../utils/itemGrade";
 
 function gradeFromItemsDb(def: ItemDefinition | undefined): "NG" | "D" | "C" | "B" | "A" | "S" | null {
   const g = def?.grade;
@@ -33,12 +34,8 @@ export function getWeaponGrade(itemId: string | null | undefined): "NG" | "D" | 
   if (idLo.endsWith("_b")) return "B";
   if (idLo.endsWith("_a")) return "A";
   if (idLo.endsWith("_s")) return "S";
-  if (idLo.startsWith("s_") || idLo.includes("_s_")) return "S";
-  if (idLo.startsWith("a_") || idLo.includes("_a_")) return "A";
-  if (idLo.startsWith("b_") || idLo.includes("_b_")) return "B";
-  if (idLo.startsWith("c_") || idLo.includes("_c_")) return "C";
-  if (idLo.startsWith("d_") || idLo.includes("_d_")) return "D";
-  if (idLo.startsWith("ng_") || idLo.includes("_ng_")) return "NG";
+  const inferred = inferGradeFromItemId(idLo);
+  if (inferred) return inferred as "NG" | "D" | "C" | "B" | "A" | "S";
 
   return null;
 }

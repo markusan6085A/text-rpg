@@ -174,6 +174,35 @@ function resolveServerPathExp(character: any, heroData: any, finalLevel: number)
   return normalizeExpToLevelProgress(hjExpRaw, finalLevel);
 }
 
+/** Сімейство «Плащ Добра» з квест-шопу: після union local+server лишаємо лише найвищий рівень (інакше quest_cloak + quest_cloak_s дають два плаща). */
+const QUEST_CLOAK_FAMILY_RANK: Record<string, number> = {
+  quest_cloak: 0,
+  quest_cloak_c: 1,
+  quest_cloak_b: 2,
+  quest_cloak_a: 3,
+  quest_cloak_s: 4,
+};
+
+function normalizeInventoryRowId(it: any): string {
+  return String(it?.id ?? it?.itemId ?? "")
+    .trim()
+    .toLowerCase();
+}
+
+function dedupeQuestCloakFamilyInInventory(items: any[]): any[] {
+  const entries = items.map((it, idx) => ({ it, idx, id: normalizeInventoryRowId(it) }));
+  const cloakRows = entries.filter((e) => QUEST_CLOAK_FAMILY_RANK[e.id] !== undefined);
+  if (cloakRows.length <= 1) return items;
+  const bestRank = Math.max(...cloakRows.map((e) => QUEST_CLOAK_FAMILY_RANK[e.id] ?? -1));
+  const bestId = Object.keys(QUEST_CLOAK_FAMILY_RANK).find((id) => QUEST_CLOAK_FAMILY_RANK[id] === bestRank);
+  if (!bestId) return items;
+  const drop = new Set<number>();
+  for (const e of cloakRows) {
+    if (e.id !== bestId) drop.add(e.idx);
+  }
+  return items.filter((_, idx) => !drop.has(idx));
+}
+
 /** Чи предмет стакається. Камні з ЛС (meta.hasLSPassive) — ніколи не стакаються. */
 function isStackableItem(it: any): boolean {
   if (it?.meta?.hasLSPassive) return false;
@@ -219,7 +248,7 @@ function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
       }
     }
   });
-  return result;
+  return dedupeQuestCloakFamilyInInventory(result);
 }
 
 export async function loadHeroFromAPI(): Promise<Hero | null> {
@@ -615,9 +644,20 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       heroData.inventory = heroData.inventory.map((it: any) => {
         const { stats: _s, ...rest } = it;
         const normalized = rest;
-        if (normalized.slot === "inventory" || !normalized.slot) {
-          const def = itemsDB[normalized.id || normalized.itemId] || itemsDBWithStarter[normalized.id || normalized.itemId];
-          if (def) return { ...normalized, slot: def.slot || "other", name: normalized.name || def.name };
+        const rawId = normalized.id || normalized.itemId;
+        const lookupId = typeof rawId === "string" ? rawId.trim().toLowerCase() : String(rawId || "");
+        const def = lookupId ? itemsDB[lookupId] || itemsDBWithStarter[lookupId] : undefined;
+        if (def) {
+          const next: any = {
+            ...normalized,
+            id: def.id,
+            name: def.name ?? normalized.name,
+            ...(def.grade != null ? { grade: def.grade } : {}),
+          };
+          if (normalized.slot === "inventory" || !normalized.slot) {
+            next.slot = def.slot || "other";
+          }
+          return next;
         }
         return normalized;
       });

@@ -7,18 +7,7 @@ import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { isGmBlessSoulScrollItem } from "../../data/items/gmBlessSoulScrollBuffs";
 import { applyGmBlessSoulScrollFromInventory } from "../../utils/gmBlessSoulScrollApply";
 import { showToast } from "../../state/toastStore";
-
-function getItemGrade(item: any, itemDef: any): string | undefined {
-  if (itemDef?.grade) return itemDef.grade;
-  if (item?.grade) return item.grade;
-  const id = (item?.id ?? item?.itemId ?? "").toLowerCase();
-  if (id.includes("_d_") || id.startsWith("d_") || id.includes("_ng_")) return id.includes("_ng_") ? "NG" : "D";
-  if (id.includes("_c_") || id.startsWith("c_")) return "C";
-  if (id.includes("_b_") || id.startsWith("b_")) return "B";
-  if (id.includes("_a_") || id.startsWith("a_")) return "A";
-  if (id.includes("_s_") || id.startsWith("s_")) return "S";
-  return undefined;
-}
+import { resolveDisplayGrade } from "../../utils/itemGrade";
 
 interface InventoryItemListProps {
   items: HeroInventoryItem[];
@@ -60,7 +49,11 @@ export default function InventoryItemList({
         </div>
       ) : (
         items.map((item: any, idx: number) => {
-          const itemKey = item.id ?? item.itemId;
+          const rawKey = item.id ?? item.itemId;
+          const itemKey = String(rawKey ?? "")
+            .trim()
+            .toLowerCase();
+          const normEq = (x: string | null | undefined) => String(x ?? "").trim().toLowerCase();
           const itemDef = itemsDBWithStarter[itemKey] || itemsDB[itemKey];
           const finalIconPath = normalizeIconPath(item.icon || itemDef?.icon) || FALLBACK_ICON;
           // Конвертуємо XML формат слотів для перевірки (chest -> armor для збігу з equipment)
@@ -94,7 +87,7 @@ export default function InventoryItemList({
           if (normalizedSlot !== "earring" && normalizedSlot !== "ring") {
             // Для інших слотів перевіряємо стандартним способом
             // Використовуємо normalizedSlot замість item.slot для правильного визначення щитів та зброї
-            isEquipped = hero.equipment?.[normalizedSlot] === itemKey;
+            isEquipped = normEq(hero.equipment?.[normalizedSlot] as string) === itemKey;
           }
           
           // Діагностика для S-grade кілець
@@ -121,14 +114,20 @@ export default function InventoryItemList({
             // Перевіряємо, чи предмет вже одягнутий в обидва слоти (тоді не показуємо кнопку)
             // Дозволяємо одягати однакові предмети в різні слоти (наприклад, два однакові кільця)
             // Кнопка "Одеть" зникає тільки якщо обидва слоти зайняті цим предметом
-            const leftHasThisItem = leftEquipped === itemKey;
-            const rightHasThisItem = rightEquipped === itemKey;
+            const leftHasThisItem = normEq(leftEquipped as string) === itemKey;
+            const rightHasThisItem = normEq(rightEquipped as string) === itemKey;
             
             // Якщо обидва слоти зайняті цим предметом, вважаємо одягнутим
             isEquipped = leftHasThisItem && rightHasThisItem;
             
             // Якщо обидва слоти зайняті іншими предметами (не цим), також не показуємо кнопку
-            if (!isEquipped && leftEquipped && rightEquipped && leftEquipped !== itemKey && rightEquipped !== itemKey) {
+            if (
+              !isEquipped &&
+              leftEquipped &&
+              rightEquipped &&
+              normEq(leftEquipped as string) !== itemKey &&
+              normEq(rightEquipped as string) !== itemKey
+            ) {
               isEquipped = true;
             }
             
@@ -194,13 +193,13 @@ export default function InventoryItemList({
                   }
                 >
                   {itemDef?.name || item.name || itemKey}
-                  {getItemGrade(item, itemDef) && (
+                  {resolveDisplayGrade(item, itemDef) && (
                     <span
                       className={
                         isL2 ? "text-[#8a7a60] ml-1" : "text-[#9ca3af] ml-1"
                       }
                     >
-                      ({getItemGrade(item, itemDef)})
+                      ({resolveDisplayGrade(item, itemDef)})
                     </span>
                   )}
                   {item.enchantLevel !== undefined && item.enchantLevel > 0 && ` +${item.enchantLevel}`}
