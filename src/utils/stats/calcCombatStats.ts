@@ -11,6 +11,12 @@ import {
   getPhysicalWeaponEnchantFlatPAtk,
   isMagicWeaponForEnchant,
 } from "./weaponEnchantBonuses";
+import {
+  getArmorShieldPDefEnchantBonus,
+  getJewelryMDefEnchantBonus,
+  isArmorOrShieldKind,
+  isJewelryKind,
+} from "./armorEnchantBonuses";
 
 export interface CombatStats {
   pAtk: number;
@@ -190,11 +196,10 @@ export function calcCombatStats(
         const itemStats = itemDef.stats;
         const enchantLevel = equipmentEnchantLevels?.[slot] ?? 0;
         
-        // Заточка: зброя — плоскі правила (weaponEnchantBonuses), броня — +2% за рівень
-        const armorEnchantMultiplier = enchantLevel > 0 ? (1 + (enchantLevel * 0.02)) : 1;
-        
         const isWeapon = itemDef.kind === "weapon";
         const isArmor = ["armor", "helmet", "boots", "gloves", "shield"].includes(itemDef.kind || "");
+        const isArmorOrShield = isArmorOrShieldKind(itemDef.kind);
+        const isJewelryPiece = isJewelryKind(itemDef.kind);
         
         if (itemStats.pAtk != null && Number.isFinite(Number(itemStats.pAtk))) {
           const baseP = Math.round(Number(itemStats.pAtk));
@@ -218,11 +223,23 @@ export function calcCombatStats(
             mAtk += itemStats.mAtk;
           }
         }
-        if (itemStats.pDef) {
-          pDef += isArmor ? Math.round(itemStats.pDef * armorEnchantMultiplier) : itemStats.pDef;
+        if (itemStats.pDef != null && Number.isFinite(Number(itemStats.pDef))) {
+          const basePd = Math.round(Number(itemStats.pDef));
+          if (isArmorOrShield) {
+            pDef += basePd + getArmorShieldPDefEnchantBonus(enchantLevel);
+          } else if (!isWeapon) {
+            pDef += itemStats.pDef;
+          }
         }
-        if (itemStats.mDef) {
-          mDef += isArmor ? Math.round(itemStats.mDef * armorEnchantMultiplier) : itemStats.mDef;
+        if (itemStats.mDef != null && Number.isFinite(Number(itemStats.mDef))) {
+          const baseMd = Math.round(Number(itemStats.mDef));
+          if (isJewelryPiece) {
+            mDef += baseMd + getJewelryMDefEnchantBonus(itemId, enchantLevel);
+          } else if (isArmorOrShield) {
+            mDef += baseMd;
+          } else if (!isWeapon) {
+            mDef += itemStats.mDef;
+          }
         }
         // Збираємо відсоткові бонуси захисту та урону
         if (itemStats.pDefPercent) {

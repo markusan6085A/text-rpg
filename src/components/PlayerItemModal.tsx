@@ -96,9 +96,11 @@ export default function PlayerItemModal({
     baseStats,
     isWeapon,
     isArmor,
-    armorEnchantMultiplier,
+    isJewelry,
     weaponPAtkEnchantFlat = 0,
     weaponMAtkEnchantFlat = 0,
+    armorPDefEnchantFlat = 0,
+    jewelryMDefEnchantFlat = 0,
   } = enchantedStats || {};
 
   return (
@@ -158,8 +160,8 @@ export default function PlayerItemModal({
               <span className="text-gray-400">Физ. защита:</span>
               <span className="text-blue-400">
                 {pDef}
-                {enchantLevel > 0 && isArmor && baseStats?.pDef && (
-                  <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.pDef * (armorEnchantMultiplier! - 1))})</span>
+                {enchantLevel > 0 && isArmor && armorPDefEnchantFlat > 0 && baseStats?.pDef != null && (
+                  <span className="text-[#b8860b] ml-1">(+{armorPDefEnchantFlat})</span>
                 )}
               </span>
             </div>
@@ -169,8 +171,8 @@ export default function PlayerItemModal({
               <span className="text-gray-400">Маг. защита:</span>
               <span className="text-cyan-400">
                 {mDef}
-                {enchantLevel > 0 && isArmor && baseStats?.mDef && (
-                  <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.mDef * (armorEnchantMultiplier! - 1))})</span>
+                {enchantLevel > 0 && isJewelry && jewelryMDefEnchantFlat > 0 && baseStats?.mDef != null && (
+                  <span className="text-[#b8860b] ml-1">(+{jewelryMDefEnchantFlat})</span>
                 )}
               </span>
             </div>

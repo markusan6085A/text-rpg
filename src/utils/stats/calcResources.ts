@@ -16,6 +16,7 @@ import {
   RING_OF_CORE_ID,
   RING_OF_QUEEN_ANT_ID,
 } from "./calcCombatStats";
+import { getArmorEnchantHpFlatFromPiece } from "./armorEnchantBonuses";
 
 export interface Resources {
   hp: number;
@@ -29,7 +30,8 @@ export interface Resources {
 export function calcResources(
   baseStats: HeroBaseStats,
   level: number,
-  equipment?: Record<string, string | null>
+  equipment?: Record<string, string | null>,
+  equipmentEnchantLevels?: Record<string, number>
 ): Resources {
   const lvl = Math.max(1, level);
   
@@ -90,6 +92,10 @@ export function calcResources(
         if (itemStats.maxHp) flatMaxHpBonus += itemStats.maxHp;
         if (itemStats.maxMp) maxMp += itemStats.maxMp;
         if (itemStats.maxCp) maxCp += itemStats.maxCp;
+        const enc = equipmentEnchantLevels?.[slot] ?? 0;
+        if (enc > 0) {
+          flatMaxHpBonus += getArmorEnchantHpFlatFromPiece(itemId, itemDef, enc);
+        }
       }
     });
   }

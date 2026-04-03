@@ -35,9 +35,12 @@ export default function EquipableItemModal({
     enchantLevel,
     isWeapon,
     isArmor,
-    armorEnchantMultiplier,
+    isJewelry,
     weaponPAtkEnchantFlat = 0,
     weaponMAtkEnchantFlat = 0,
+    armorPDefEnchantFlat = 0,
+    jewelryMDefEnchantFlat = 0,
+    armorHpEnchantFlat = 0,
   } = enchantedStats;
   const hasAnyStats = Object.keys(baseStats).length > 0 || pAtk !== undefined || mAtk !== undefined || pDef !== undefined || mDef !== undefined;
   const itemDef = itemsDB[item.id];
@@ -119,8 +122,8 @@ export default function EquipableItemModal({
                   <span className="text-gray-400">Физ. захист:</span>
                   <span className="text-blue-400">
                     {pDef}
-                    {enchantLevel > 0 && isArmor && baseStats.pDef && (
-                      <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.pDef * (armorEnchantMultiplier - 1))})</span>
+                    {enchantLevel > 0 && isArmor && armorPDefEnchantFlat > 0 && baseStats.pDef != null && (
+                      <span className="text-[#b8860b] ml-1">(+{armorPDefEnchantFlat})</span>
                     )}
                   </span>
                 </div>
@@ -130,8 +133,8 @@ export default function EquipableItemModal({
                   <span className="text-gray-400">Маг. захист:</span>
                   <span className="text-cyan-400">
                     {mDef}
-                    {enchantLevel > 0 && isArmor && baseStats.mDef && (
-                      <span className="text-[#b8860b] ml-1">(+{Math.round(baseStats.mDef * (armorEnchantMultiplier - 1))})</span>
+                    {enchantLevel > 0 && isJewelry && jewelryMDefEnchantFlat > 0 && baseStats.mDef != null && (
+                      <span className="text-[#b8860b] ml-1">(+{jewelryMDefEnchantFlat})</span>
                     )}
                   </span>
                 </div>
@@ -152,6 +155,12 @@ export default function EquipableItemModal({
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400">Max HP:</span>
                   <span className="text-red-400">+{baseStats.maxHp}</span>
+                </div>
+              )}
+              {enchantLevel > 0 && isArmor && armorHpEnchantFlat > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400">Max HP (заточка):</span>
+                  <span className="text-[#b8860b]">+{armorHpEnchantFlat}</span>
                 </div>
               )}
               {baseStats.maxMp !== undefined && (

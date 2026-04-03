@@ -41,7 +41,8 @@ export function MarketBrowseDetailModal(props: {
   const curLabel = L.currency === "adena" ? "аден" : "CoL";
   const lotPB = listingLotPriceBi(L);
   const perUnit = lotCnt > 1 && lotPB > 0n ? lotPB / BigInt(lotCnt) : lotPB;
-  const showEquipStats = !isColLot && enchanted && (enchanted.isWeapon || enchanted.isArmor);
+  const showEquipStats =
+    !isColLot && enchanted && (enchanted.isWeapon || enchanted.isArmor || enchanted.isJewelry);
   const el = isColLot ? 0 : Number(enchanted?.enchantLevel ?? it.enchantLevel ?? 0);
   const {
     pAtk,
@@ -51,9 +52,11 @@ export function MarketBrowseDetailModal(props: {
     baseStats,
     isWeapon,
     isArmor,
-    armorEnchantMultiplier,
+    isJewelry,
     weaponPAtkEnchantFlat = 0,
     weaponMAtkEnchantFlat = 0,
+    armorPDefEnchantFlat = 0,
+    jewelryMDefEnchantFlat = 0,
   } = enchanted || {};
 
   return (
@@ -177,10 +180,8 @@ export function MarketBrowseDetailModal(props: {
                 <span className="text-[#8a7a60]">Фіз. захист</span>
                 <span className="text-blue-400">
                   {pDef}
-                  {el > 0 && isArmor && baseStats?.pDef && armorEnchantMultiplier ? (
-                    <span className="text-[#b8860b] ml-1">
-                      (+{Math.round(baseStats.pDef * (armorEnchantMultiplier - 1))})
-                    </span>
+                  {el > 0 && isArmor && armorPDefEnchantFlat > 0 && baseStats?.pDef != null ? (
+                    <span className="text-[#b8860b] ml-1">(+{armorPDefEnchantFlat})</span>
                   ) : null}
                 </span>
               </div>
@@ -190,10 +191,8 @@ export function MarketBrowseDetailModal(props: {
                 <span className="text-[#8a7a60]">Маг. захист</span>
                 <span className="text-cyan-400">
                   {mDef}
-                  {el > 0 && isArmor && baseStats?.mDef && armorEnchantMultiplier ? (
-                    <span className="text-[#b8860b] ml-1">
-                      (+{Math.round(baseStats.mDef * (armorEnchantMultiplier - 1))})
-                    </span>
+                  {el > 0 && isJewelry && jewelryMDefEnchantFlat > 0 && baseStats?.mDef != null ? (
+                    <span className="text-[#b8860b] ml-1">(+{jewelryMDefEnchantFlat})</span>
                   ) : null}
                 </span>
               </div>
