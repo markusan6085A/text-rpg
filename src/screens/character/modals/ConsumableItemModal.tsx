@@ -140,6 +140,26 @@ export default function ConsumableItemModal({
             <span className="text-gray-400">Количество:</span>
             <span className="text-green-400">{maxCount}</span>
           </div>
+          {isBlessSoulScroll && itemDef?.description && (
+            <div
+              className={
+                l2
+                  ? "rounded-md border border-[#5c4a32]/55 bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(120,90,45,0.12)_0%,transparent_55%),linear-gradient(180deg,#1e1912_0%,#12100c_100%)] p-2.5 text-[11px] leading-relaxed text-[#c8bc9c] shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]"
+                  : "rounded-md border border-white/15 bg-black/25 p-2.5 text-[11px] leading-relaxed text-gray-300"
+              }
+            >
+              <div
+                className={
+                  l2
+                    ? "font-semibold text-[#d4c4a8] mb-1 tracking-wide"
+                    : "font-semibold text-[#b8860b] mb-1"
+                }
+              >
+                Що дає скрол
+              </div>
+              <p className="whitespace-pre-wrap m-0">{itemDef.description}</p>
+            </div>
+          )}
           {itemDef && (
             <>
               {itemDef.restoreHp && (
