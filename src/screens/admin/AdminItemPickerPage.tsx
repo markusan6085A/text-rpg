@@ -129,7 +129,7 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
               className="inline-block w-4 h-4 rounded border border-rose-500/70 shadow-[0_0_10px_rgba(244,63,94,0.35)] bg-gradient-to-br from-rose-900/60 to-black/50"
               aria-hidden
             />
-            кв-шоп
+            квест-шоп
           </span>
           <span className="text-gray-600">·</span>
           <span className="inline-flex items-center gap-1.5">
@@ -139,6 +139,8 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
             />
             магазин міста
           </span>
+          <span className="text-gray-600">·</span>
+          <span className="text-gray-500">без підсвітки — не з цих вітрин</span>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">

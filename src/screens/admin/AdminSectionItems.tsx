@@ -196,8 +196,8 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
       <h2 className="text-sm font-semibold mb-2" style={style}>Видати предмет / Забрати предмет</h2>
       <p className="text-xs text-gray-500 mb-2">
         Выдача или изъятие предмета из инвентаря игрока. Выбор предмета — кнопка «Вибір предметів». У списку:{" "}
-        <span className="text-rose-300/90">червона рамка — кв-шоп</span>,{" "}
-        <span className="text-emerald-300/90">зелена — магазин міста</span>.
+        <span className="text-rose-300/90">червона — квест-шоп</span> (позиції з екрана Quest Shop + татуси/краски з кв-шопу),{" "}
+        <span className="text-emerald-300/90">зелена — магазин у місті</span> (Gludio та розхідники). Без рамки — не продаються в цих двох джерелах або дроп/GM.
       </p>
       <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">

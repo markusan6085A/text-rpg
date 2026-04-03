@@ -7,9 +7,25 @@ import { A_GRADE_SHOP_ITEMS } from "../data/shop/aGradeShop";
 import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../data/shop/consumablesShop";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
+import { QUEST_SHOP_ITEMS } from "../data/shop/questShop";
+import { QUEST_SHOP_ITEM_MAPPING } from "../data/shop/questShopResolvedMapping";
 
-/** Усі string id з даних квест-шопу (itemsDB_quest_shop) */
-export const ADMIN_QUEST_SHOP_ITEM_IDS = new Set(Object.keys(itemsDBQuestShop));
+/**
+ * Предмети з квест-шопу (червона рамка в адмін-пікері): татуси/краски/ епіки з itemsDB_quest_shop
+ * плюс усі позиції з екрана Quest Shop (`questShop.ts`) та їх резолв по `QUEST_SHOP_ITEM_MAPPING`.
+ */
+function collectQuestShopAdminIds(): Set<string> {
+  const s = new Set<string>();
+  for (const k of Object.keys(itemsDBQuestShop)) s.add(k);
+  for (const item of QUEST_SHOP_ITEMS) {
+    if (item.id) s.add(item.id);
+    const mapped = QUEST_SHOP_ITEM_MAPPING[item.itemId as keyof typeof QUEST_SHOP_ITEM_MAPPING];
+    if (mapped) s.add(mapped);
+  }
+  return s;
+}
+
+export const ADMIN_QUEST_SHOP_ITEM_IDS = collectQuestShopAdminIds();
 
 function collectRegularShopItemIds(): Set<string> {
   const s = new Set<string>();
