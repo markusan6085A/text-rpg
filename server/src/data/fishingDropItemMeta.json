@@ -3452,14 +3452,14 @@
   },
   "blessed_scroll_enchant_weapon_grade_s": {
     "name": "Blessed Scroll: Enchant Weapon (S-grade)",
-    "icon": "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_weapon_i05.png",
     "slot": "consumable",
     "kind": "consumable",
     "grade": "S"
   },
   "blessed_scroll_enchant_armor_grade_s": {
     "name": "Blessed Scroll: Enchant Armor (S-grade)",
-    "icon": "/items/drops/resources/Etc_bead_green_i00_0.jpg",
+    "icon": "/items/drops/resources/etc_scroll_of_enchant_armor_i05.png",
     "slot": "consumable",
     "kind": "consumable",
     "grade": "S"
