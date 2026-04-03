@@ -3,6 +3,7 @@ import { itemsDB } from "../../data/items/itemsDB";
 import type { ItemDefinition } from "../../data/items/itemsDB.types";
 import {
   ADMIN_PICKER_LEGEND,
+  ADMIN_CONSUMABLE_SORT_INDEX,
   adminItemPickerButtonClass,
   getAdminItemPickerHighlight,
   type AdminItemPickerFilter,
@@ -85,8 +86,15 @@ export function AdminItemPickerPage({ navigate }: AdminItemPickerPageProps) {
       if (!map[cat]) map[cat] = [];
       map[cat].push({ id, def, highlight });
     }
-    for (const arr of Object.values(map)) {
+    for (const [catKey, arr] of Object.entries(map)) {
       arr.sort((a, b) => {
+        if (catKey === "Расходники") {
+          const ia = ADMIN_CONSUMABLE_SORT_INDEX[a.id];
+          const ib = ADMIN_CONSUMABLE_SORT_INDEX[b.id];
+          if (ia !== undefined && ib !== undefined && ia !== ib) return ia - ib;
+          if (ia !== undefined && ib === undefined) return -1;
+          if (ia === undefined && ib !== undefined) return 1;
+        }
         const ga = GRADE_ORDER.indexOf(a.def.grade || "");
         const gb = GRADE_ORDER.indexOf(b.def.grade || "");
         if (ga !== gb) return ga - gb;

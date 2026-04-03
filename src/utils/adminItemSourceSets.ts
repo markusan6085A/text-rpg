@@ -55,6 +55,36 @@ function collectRegularShopItemIds(): Set<string> {
 
 export const ADMIN_REGULAR_SHOP_ITEM_IDS = collectRegularShopItemIds();
 
+/** Порядок розхідників у адмін-пікері: спочатку магазин зілль/заточок, потім соски/стріли NG→S як у файлах шопу. */
+function pushConsumableShopIdsInFileOrder(out: string[], list: readonly { id?: string; type?: string }[]) {
+  for (const it of list) {
+    if (it.type !== "consumable" || !it.id) continue;
+    if (!out.includes(it.id)) out.push(it.id);
+  }
+}
+
+function buildAdminConsumableSortIndex(): Record<string, number> {
+  const order: string[] = [];
+  const add = (id?: string) => {
+    if (!id || order.includes(id)) return;
+    order.push(id);
+  };
+  for (const it of CONSUMABLES_SHOP_ITEMS) add(it.id);
+  pushConsumableShopIdsInFileOrder(order, NG_GRADE_SHOP_ITEMS);
+  pushConsumableShopIdsInFileOrder(order, D_GRADE_SHOP_ITEMS);
+  pushConsumableShopIdsInFileOrder(order, C_GRADE_SHOP_ITEMS);
+  pushConsumableShopIdsInFileOrder(order, B_GRADE_SHOP_ITEMS);
+  pushConsumableShopIdsInFileOrder(order, A_GRADE_SHOP_ITEMS);
+  pushConsumableShopIdsInFileOrder(order, S_GRADE_SHOP_ITEMS);
+  const idx: Record<string, number> = {};
+  order.forEach((id, i) => {
+    idx[id] = i;
+  });
+  return idx;
+}
+
+export const ADMIN_CONSUMABLE_SORT_INDEX: Readonly<Record<string, number>> = buildAdminConsumableSortIndex();
+
 const MYSTIC_SPELLBOOK_IDS = new Set(Object.keys(mysticSpellbookItemsDB));
 
 const JEWELRY_KINDS = new Set(["ring", "necklace", "earring"]);
@@ -112,6 +142,7 @@ export type AdminItemPickerFilter = AdminItemPickerHighlight | "all";
 export function getAdminItemPickerHighlight(itemId: string, def: ItemDefinition): AdminItemPickerHighlight {
   if (isEpicJewelryItem(itemId, def)) return "epic_jewelry";
   if (ADMIN_QUEST_SHOP_ITEM_IDS.has(itemId)) return "quest_shop";
+  if (ADMIN_REGULAR_SHOP_ITEM_IDS.has(itemId) && isConsumableHighlightBucket(itemId, def)) return "consumable";
   if (ADMIN_REGULAR_SHOP_ITEM_IDS.has(itemId)) return "regular_shop";
   if (isSpellbookHighlightItem(itemId, def)) return "spellbook";
   if (isStoneHighlightItem(itemId)) return "stone";
@@ -145,7 +176,7 @@ export const ADMIN_PICKER_LEGEND: ReadonlyArray<{
   {
     filter: "regular_shop",
     label: "Магазин",
-    title: "Магазин міста (зелений)",
+    title: "Магазин міста — екіпіровка та ін.; розхідники з вітрини — у «Розхідн.» (зелений)",
     sampleClass:
       "border border-emerald-500/55 shadow-[0_0_8px_rgba(52,211,153,0.35)] bg-gradient-to-br from-emerald-900/55 to-black/50",
   },

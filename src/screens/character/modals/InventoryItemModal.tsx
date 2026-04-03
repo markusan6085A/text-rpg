@@ -41,7 +41,11 @@ export default function InventoryItemModal({
   const isEnchantScroll = item.id?.includes("enchant_weapon_scroll") || item.id?.includes("enchant_armor_scroll");
   const isConsumable = item.slot === "consumable";
   // Перевіряємо, чи це риба
-  const isFish = item.id?.startsWith("fish_") || item.id === "fish_tuna" || item.id === "fish_seawater" || item.id === "fish_bream" || item.id === "fish_angler";
+  const isFish =
+    item.id === "fish_seawater" ||
+    item.id === "fish_tuna" ||
+    item.id === "fish_bream" ||
+    item.id === "fish_angler";
   // Перевіряємо, чи це удочка (для спеціальної заточки)
   const isFishingRod = item.id === "baby_duck_rod" || item.id === "shop_baby_duck_rod" || (item.id && item.id.toLowerCase().includes("rod"));
   // Перевіряємо, чи це скарбничка

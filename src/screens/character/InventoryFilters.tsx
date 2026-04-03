@@ -96,7 +96,7 @@ export const CATEGORIES = [
     const id = item?.id || item?.itemId;
     if (slot === "consumable") return true;
     if (id === "treasure_box") return true;
-    if (typeof id === "string" && id.startsWith("fish_")) return true;
+    if (id === "fish_seawater" || id === "fish_tuna" || id === "fish_bream" || id === "fish_angler") return true;
     return false;
   }},
   { key: "resource", label: "Рес", test: (item: any) => {
