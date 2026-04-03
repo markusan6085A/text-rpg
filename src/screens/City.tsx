@@ -344,22 +344,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         }
       >
         <div className={isL2 ? "pt-0.5 space-y-0" : "border-t border-black/60 pt-2 space-y-1.5"}>
-          {currentCityId === "l2dop_gludio" ? (
-            <button
-              className={svcBtn("text-[#6b5b8a] hover:text-[#e0d4ff]")}
-              onClick={() => {
-                window.scrollTo(0, 0);
-                navigate("/quests");
-              }}
-            >
-              <img src="/nps/144.png" alt="" className={ico} />
-              <span>
-                Странник теней — квест оружия{" "}
-                <span className="text-[10px] text-[#808080]">(D-grade, 19+)</span>
-              </span>
-            </button>
-          ) : null}
-
           <button
             className={svcBtn("text-[#2d5016] hover:text-white")}
             onClick={() => {
