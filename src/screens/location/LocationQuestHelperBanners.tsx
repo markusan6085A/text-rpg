@@ -114,6 +114,9 @@ export type LocationQuestHelperBannersProps = {
   navigate: (path: string) => void;
   showGludioQuestHint: boolean;
   onDismissGludioQuestHint: () => void;
+  /** Підказка про квест тіньової D-зброї в Gludio (19+). */
+  showShadowWeaponQuestHint?: boolean;
+  onDismissShadowWeaponQuestHint?: () => void;
   firstProf: Record<LocationFirstProfHelperKey, { show: boolean; onDismiss: () => void }>;
 };
 
@@ -122,6 +125,8 @@ export function LocationQuestHelperBanners({
   navigate,
   showGludioQuestHint,
   onDismissGludioQuestHint,
+  showShadowWeaponQuestHint,
+  onDismissShadowWeaponQuestHint,
   firstProf,
 }: LocationQuestHelperBannersProps) {
   const dismissFirstProf = (key: LocationFirstProfHelperKey) => {
@@ -162,6 +167,45 @@ export function LocationQuestHelperBanners({
                   /* ignore */
                 }
                 onDismissGludioQuestHint();
+              }}
+            >
+              Скрыть
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {showShadowWeaponQuestHint && onDismissShadowWeaponQuestHint ? (
+        <div
+          className={
+            isL2
+              ? "mb-3 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8] leading-snug"
+              : "mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
+          }
+        >
+          <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
+            <img src="/nps/144.png" alt="" className="w-4 h-4 object-contain shrink-0 opacity-95 rounded-sm" />
+            Помощник
+          </div>
+          <p className="mb-2 opacity-95">
+            Вы достигли 19 уровня — во вкладке «Квесты» примите «Теневой контракт — оружие D-grade» (Глудио, Странник
+            теней): 100 мобов вашего уровня (±2, не рейд-босы), 10 Steel, награда — теневая D-grade пушка на выбор и 5
+            свитков заточки оружия D-grade.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className={primaryBtnClass(isL2)} onClick={() => navigate("/quests")}>
+              Открыть «Квесты»
+            </button>
+            <button
+              type="button"
+              className={hideBtnClass(isL2)}
+              onClick={() => {
+                try {
+                  localStorage.setItem("gludio_shadow_weapon_quest_hint", "1");
+                } catch {
+                  /* ignore */
+                }
+                onDismissShadowWeaponQuestHint();
               }}
             >
               Скрыть

@@ -26,6 +26,7 @@ import {
   getQuestCityId,
   type Quest,
 } from "../../data/quests";
+import { showToast } from "../../state/toastStore";
 import { DEFAULT_PLAYER_CITY_ID } from "../../data/world";
 import { itemsDB } from "../../data/items/itemsDB";
 import { getEffectiveQuestDropNeed } from "../../utils/quests/questDropEffectiveNeed";
@@ -130,6 +131,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [pendingWeaponPickIds, setPendingWeaponPickIds] = useState<string[] | null>(null);
   const isL2 = isWarmCityUi(getCityUiVariant());
   const rowB = isL2 ? "border-b border-solid border-[#5c4a32]/40" : "border-b border-solid border-white/50";
 
@@ -377,6 +379,42 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
       ...expPayload,
       ...spPayload,
     });
+
+    if (questDef.rewardPickOneItemId?.length) {
+      setPendingWeaponPickIds([...questDef.rewardPickOneItemId]);
+    }
+  };
+
+  const confirmShadowWeaponPick = (itemId: string) => {
+    const def = itemsDB[itemId];
+    if (!def || !hero) {
+      setPendingWeaponPickIds(null);
+      return;
+    }
+    updateHero((prev) => {
+      if (!prev) return {};
+      const inv = [...(prev.inventory || [])];
+      const idx = inv.findIndex((x) => x.id === itemId && !(x as any).meta?.hasLSPassive);
+      if (idx >= 0) {
+        const row = inv[idx]!;
+        inv[idx] = { ...row, count: (row.count ?? 1) + 1 };
+      } else {
+        inv.push({
+          id: def.id,
+          name: def.name,
+          type: def.kind,
+          slot: def.slot,
+          icon: def.icon,
+          description: def.description,
+          stats: def.stats,
+          count: 1,
+          grade: def.grade,
+        } as HeroInventoryItem);
+      }
+      return { inventory: inv };
+    });
+    showToast(`Выбрано: ${def.name}`);
+    setPendingWeaponPickIds(null);
   };
 
   // Функція для оновлення прогресу квесту (викликається при зборі предметів)
@@ -733,6 +771,11 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                           </span>
                         );
                       })}
+                      {quest.rewardPickOneItemId?.length ? (
+                        <span className={isL2 ? "text-[#c9a44c] mt-1 block" : "text-amber-300 mt-1 block"}>
+                          + після здачі: вибір 1 тіньової D-grade зброї (+40 pAtk/mAtk до магазину)
+                        </span>
+                      ) : null}
                     </div>
                   )}
 
@@ -881,6 +924,11 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                             </span>
                           );
                         })}
+                        {quest.rewardPickOneItemId?.length ? (
+                          <span className={isL2 ? "text-[#c9a44c] mt-1 block" : "text-amber-300 mt-1 block"}>
+                            + нагорода: вибір тіньової D-grade зброї та фіксовані предмети вище
+                          </span>
+                        ) : null}
                       </div>
                       <button
                         className="text-purple-400 text-[10px] hover:text-purple-300 underline cursor-pointer shrink-0"
@@ -907,6 +955,66 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
           У цьому місті немає квестів на дошці. Перейдіть у відповідне місто (Телепорт), щоб побачити регіональні доручення.
         </div>
       )}
+
+      {pendingWeaponPickIds?.length ? (
+        <div
+          className="fixed inset-0 z-[600] flex items-center justify-center bg-black/70 px-3 py-6"
+          role="presentation"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="shadow-weapon-pick-title"
+            className={
+              isL2
+                ? "max-h-[90vh] overflow-y-auto w-full max-w-md rounded-lg border border-[#5c4a32]/60 bg-[#14110c] p-3 text-[12px] text-[#d4c4a8] shadow-xl"
+                : "max-h-[90vh] overflow-y-auto w-full max-w-md rounded border border-white/20 bg-black/95 p-3 text-sm text-gray-100"
+            }
+          >
+            <div
+              id="shadow-weapon-pick-title"
+              className={isL2 ? "font-semibold text-[#e8c56e] mb-2" : "font-semibold text-orange-300 mb-2"}
+            >
+              Оберіть тіньову зброю D-grade
+            </div>
+            <p className={isL2 ? "text-[10px] text-[#a89878] mb-3 leading-snug" : "text-xs text-gray-400 mb-3"}>
+              Ті самі типи, що в «Магазині вещей» (Gludio): +40 до фіз. та маг. атаки порівняно з магазинними значеннями.
+            </p>
+            <div className="flex flex-col gap-1.5">
+              {pendingWeaponPickIds.map((id) => {
+                const def = itemsDB[id];
+                if (!def) return null;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={
+                      isL2
+                        ? "flex items-center gap-2 text-left rounded border border-[#5c4a32]/45 bg-black/35 px-2 py-2 hover:border-[#c7ad80]/40"
+                        : "flex items-center gap-2 text-left rounded border border-white/15 bg-white/5 px-2 py-2"
+                    }
+                    onClick={() => confirmShadowWeaponPick(id)}
+                  >
+                    {def.icon ? (
+                      <img src={def.icon} alt="" className="w-8 h-8 object-contain shrink-0" />
+                    ) : null}
+                    <span className="min-w-0">
+                      <span className="font-semibold block">{def.name}</span>
+                      {def.stats && (def.stats as any).pAtk != null ? (
+                        <span className={isL2 ? "text-[10px] text-[#8a7a60]" : "text-[10px] text-gray-500"}>
+                          pAtk {(def.stats as any).pAtk}
+                          {(def.stats as any).mAtk != null ? ` · mAtk ${(def.stats as any).mAtk}` : ""}
+                        </span>
+                      ) : null}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

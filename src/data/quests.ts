@@ -16,6 +16,11 @@ export type QuestKillTarget = {
   mobNamePrefix?: string;
   /** Лічити вбивство лише в цій зоні (разом із mobIdPrefix / mobName / mobNamePrefix) */
   killInZoneId?: string;
+  /**
+   * Будь-який моб (не рейд-бос), якщо |mob.level - рівень героя| <= цього значення.
+   * `mobName` лишається підписом у UI; матчинг імені не використовується.
+   */
+  maxHeroLevelDelta?: number;
 };
 
 export interface Quest {
@@ -59,7 +64,28 @@ export interface Quest {
   questKillTargets?: QuestKillTarget[];
   /** Коротка підказка + кнопка «Крафт ресурсів» у вкладці квестів (якщо передано navigate) */
   resourceCraftHint?: string;
+  /**
+   * Після здачі квесту гравець обирає один предмет зі списку (itemsDB id).
+   * Інші нагороди з `rewards` видаються одразу; зброя — після вибору в модалці.
+   */
+  rewardPickOneItemId?: string[];
 }
+
+/** Квест тіньової D-grade зброї (Gludio). */
+export const GLUDIO_SHADOW_WEAPON_QUEST_ID = "gludio_shadow_weapon_contract";
+
+/** Варіанти нагороди — тіньові копії зброї з звичайного D-магазину (+40 pAtk / mAtk до магазинних статів). */
+export const SHADOW_REWARD_WEAPON_ITEM_IDS: readonly string[] = [
+  "shadow_shop_weapon_d_atuba_hammer",
+  "shadow_shop_weapon_d_baguette_dual_sword",
+  "shadow_shop_weapon_d_dark_elven_bow",
+  "shadow_shop_weapon_d_knights_sword",
+  "shadow_shop_weapon_d_shilen_knife",
+  "shadow_shop_weapon_d_tomahawk",
+  "shadow_shop_weapon_d_triple_edged_jamadhr",
+  "shadow_shop_weapon_d_two_handed_sword",
+  "shadow_shop_weapon_d_war_hammer",
+] as const;
 
 /** Квест першої професії тільки для світлого ельфа-мага (базова профа `elven_mystic`). */
 export const ELVEN_MYSTIC_FIRST_PROF_QUEST_ID = "elven_mystic_first_profession_materials";
@@ -488,6 +514,40 @@ export const QUESTS: Quest[] = [
         itemId: "compound_braid",
         requiredCount: 12,
         dropZoneIdPrefix: "l2dop_gludio_08",
+      },
+    ],
+  },
+  {
+    id: GLUDIO_SHADOW_WEAPON_QUEST_ID,
+    icon: "/nps/144.png",
+    name: "Теневой контракт — оружие D-grade",
+    description:
+      "Странник теней в Gludio поручает испытание: убейте 100 обычных мобов (не рейд-босов), чей уровень отличается от вашего не более чем на 2. Принесите 10 Steel (ресурс с дропа). " +
+      "Награда по выбору: теневая копия любого D-grade оружия из «Магазина вещей» — те же типы, что Atuba Hammer, Knight's Sword, Dark Elven Bow и др., с +40 к физ. и маг. атаке относительно магазинной версии; плюс 5 свитков заточки оружия D-grade.",
+    level: 19,
+    location: "Глудио — Странник теней",
+    locationLevel: "19+",
+    requirements: { level: 19 },
+    rewards: {
+      adena: 50_000,
+      exp: 80_000,
+      items: [{ id: "d_enchant_weapon_scroll", count: 5 }],
+    },
+    rewardPickOneItemId: [...SHADOW_REWARD_WEAPON_ITEM_IDS],
+    questKillTargets: [
+      {
+        mobName: "Мобы вашего уровня (±2), не рейд-бос",
+        requiredCount: 100,
+        progressKey: "shadow_weapon_kills_near_level",
+        maxHeroLevelDelta: 2,
+      },
+    ],
+    questDrops: [
+      {
+        mobName: "Steel (тиерный дроп с мобов)",
+        itemId: "steel",
+        requiredCount: 10,
+        farmHint: "Steel падает с мобов примерно 20+ ур. (тиерный ресурсный дроп).",
       },
     ],
   },

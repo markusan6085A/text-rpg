@@ -1,6 +1,6 @@
 // src/screens/Location.tsx
 import React from "react";
-import { locations as WORLD_LOCATIONS } from "../data/world";
+import { locations as WORLD_LOCATIONS, DEFAULT_PLAYER_CITY_ID } from "../data/world";
 import type { Zone, Mob } from "../data/world/types";
 import { useHeroStore } from "../state/heroStore";
 import { ensureWorldZoneLoaded, subscribeWorldMobHpCache } from "../state/worldMobHpStore";
@@ -19,6 +19,7 @@ import {
   ORC_FIGHTER_FIRST_PROF_QUEST_ID,
   ORC_MYSTIC_FIRST_PROF_QUEST_ID,
   DWARVEN_FIGHTER_FIRST_PROF_QUEST_ID,
+  GLUDIO_SHADOW_WEAPON_QUEST_ID,
   isHeroElvenMysticBaseForFirstProfQuest,
   isHeroElvenFighterBaseForFirstProfQuest,
   isHeroHumanFighterBaseForFirstProfQuest,
@@ -78,6 +79,11 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
   const [patrolAggroBanner, setPatrolAggroBanner] = React.useState<PatrolAggroBanner | null>(null);
   const [gludioQuestHintDismissed, setGludioQuestHintDismissed] = React.useState(
     () => typeof localStorage !== "undefined" && localStorage.getItem("gludio_quest_tab_hint") === "1"
+  );
+  const [shadowWeaponQuestHintDismissed, setShadowWeaponQuestHintDismissed] = React.useState(
+    () =>
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem("gludio_shadow_weapon_quest_hint") === "1"
   );
   const [elvenFirstProfHelperDismissed, setElvenFirstProfHelperDismissed] = React.useState(
     () =>
@@ -314,6 +320,16 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
     return mergeActiveQuestsForUi(hero?.activeQuests, (hero as any)?.heroJson?.activeQuests);
   }, [hero?.activeQuests, (hero as any)?.heroJson?.activeQuests]);
 
+  const currentCityIdLoc =
+    String((hero as any)?.heroJson?.currentCityId || "").trim() || DEFAULT_PLAYER_CITY_ID;
+  const showShadowWeaponQuestHint =
+    !!hero &&
+    (hero.level ?? 1) >= 19 &&
+    (currentCityIdLoc === "l2dop_gludio" || String(zone.id).startsWith("l2dop_gludio")) &&
+    !(hero.completedQuests || []).includes(GLUDIO_SHADOW_WEAPON_QUEST_ID) &&
+    !activeQuests.some((a) => a.questId === GLUDIO_SHADOW_WEAPON_QUEST_ID) &&
+    !shadowWeaponQuestHintDismissed;
+
   const showElvenFirstProfLocationHelper =
     !!hero &&
     (hero.level ?? 1) >= 18 &&
@@ -477,6 +493,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
           navigate={navigate}
           showGludioQuestHint={zone.id === "l2dop_gludio_01" && !gludioQuestHintDismissed}
           onDismissGludioQuestHint={() => setGludioQuestHintDismissed(true)}
+          showShadowWeaponQuestHint={showShadowWeaponQuestHint}
+          onDismissShadowWeaponQuestHint={() => setShadowWeaponQuestHintDismissed(true)}
           firstProf={{
             elvenMystic: {
               show: showElvenFirstProfLocationHelper,
@@ -566,7 +584,8 @@ export default function LocationScreen({ navigate }: { navigate: Navigate }) {
                 activeQuests,
                 QUESTS,
                 zone.id,
-                hero?.inventory ?? []
+                hero?.inventory ?? [],
+                heroLevel
               );
               const nameCls = mobNameClass(
                 questHighlight,

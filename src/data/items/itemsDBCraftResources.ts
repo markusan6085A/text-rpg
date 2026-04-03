@@ -87,6 +87,15 @@ export const itemsDBCraftResources: Record<string, ItemDefinition> = {
     stackable: true,
   },
   /** L2 item id 1871 — той самий ресурс, що з дропу мобів (processDrops / крафт). */
+  steel: {
+    id: "steel",
+    name: "Steel",
+    kind: "resource",
+    slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1880.jpg",
+    description: "Сталь. Ресурс із тиерного дропу; для квесту «Теневой контракт» у Gludio.",
+    stackable: true,
+  },
   charcoal: {
     id: "charcoal",
     name: "Charcoal",

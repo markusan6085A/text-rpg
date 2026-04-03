@@ -7,6 +7,8 @@ import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
 import { getPreviousCity } from "../utils/locationNavigation";
 import { cities as WORLD_CITIES, getCityById, DEFAULT_PLAYER_CITY_ID } from "../data/world";
+import { GLUDIO_SHADOW_WEAPON_QUEST_ID } from "../data/quests";
+import { mergeActiveQuestsForUi } from "../utils/quests/mergeActiveQuestsForUi";
 import { isFishingReady } from "../state/fishing/fishingPersistence";
 import {
   getCityUiVariant,
@@ -33,6 +35,11 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const isAdmin = useAdminStore((s) => s.isAdmin);
   const [cityUi, setCityUi] = React.useState<CityUiVariant>(() =>
     getCityUiVariant(),
+  );
+  const [shadowWeaponQuestHintDismissed, setShadowWeaponQuestHintDismissed] = React.useState(
+    () =>
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem("gludio_shadow_weapon_quest_hint") === "1"
   );
   const isL2 = isWarmCityUi(cityUi);
 
@@ -129,6 +136,20 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   const handleRecipes = () => openFeature("Книга рецептов");
 
   const l2Frame = L2_WARM_OUTER_FRAME;
+
+  const currentCityId =
+    String((hero as any)?.heroJson?.currentCityId || "").trim() || DEFAULT_PLAYER_CITY_ID;
+  const activeQuestsCity = mergeActiveQuestsForUi(hero.activeQuests, (hero as any)?.heroJson?.activeQuests);
+  const showShadowWeaponQuestHintCity =
+    level >= 19 &&
+    currentCityId === "l2dop_gludio" &&
+    !(hero.completedQuests || []).includes(GLUDIO_SHADOW_WEAPON_QUEST_ID) &&
+    !activeQuestsCity.some((a) => a.questId === GLUDIO_SHADOW_WEAPON_QUEST_ID) &&
+    !shadowWeaponQuestHintDismissed;
+
+  const primaryCityHintBtn = isL2
+    ? "px-3 py-1.5 rounded-md border border-[#5c4a32]/80 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-[11px] text-[#e8c56e] hover:border-[#c7ad80]/45"
+    : "px-3 py-1 rounded border border-[#c7ad80]/50 text-[11px] text-[#f4e2b8] hover:bg-white/5";
 
   return (
     <div className={isL2 ? `${l2Frame} w-full min-w-0 my-1` : ""}>
@@ -276,6 +297,44 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         );
       })()}
 
+      {showShadowWeaponQuestHintCity ? (
+        <div
+          className={
+            isL2
+              ? "mx-0 mb-2 rounded-lg border border-[#5c4a32]/50 bg-black/25 px-3 py-2.5 text-[11px] text-[#d4c4a8]"
+              : "mx-4 mb-2 rounded border border-white/20 bg-black/30 px-2 py-2 text-[11px] text-[#c7ad80]"
+          }
+        >
+          <div className="font-semibold text-[#c9a44c] mb-1 flex items-center gap-2">
+            <img src="/nps/144.png" alt="" className="w-4 h-4 object-contain shrink-0 rounded-sm opacity-95" />
+            Помощник
+          </div>
+          <p className="mb-2 opacity-95 leading-snug">
+            На 19 уровне доступен квест «Теневой контракт — оружие D-grade»: вкладка «Квесты», раздел Глудио. Награда —
+            теневая D-grade зброя на выбор (+40 к атаке к магазинной) и свитки заточки.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className={primaryCityHintBtn} onClick={() => navigate("/quests")}>
+              Квесты
+            </button>
+            <button
+              type="button"
+              className={isL2 ? "text-[10px] text-[#8a7a60] hover:text-[#d4c4a8]" : "text-[10px] text-gray-500"}
+              onClick={() => {
+                try {
+                  localStorage.setItem("gludio_shadow_weapon_quest_hint", "1");
+                } catch {
+                  /* ignore */
+                }
+                setShadowWeaponQuestHintDismissed(true);
+              }}
+            >
+              Скрыть
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       {/* Сервисы */}
       <div
         className={
@@ -285,6 +344,22 @@ const City: React.FC<CityProps> = ({ navigate }) => {
         }
       >
         <div className={isL2 ? "pt-0.5 space-y-0" : "border-t border-black/60 pt-2 space-y-1.5"}>
+          {currentCityId === "l2dop_gludio" ? (
+            <button
+              className={svcBtn("text-[#6b5b8a] hover:text-[#e0d4ff]")}
+              onClick={() => {
+                window.scrollTo(0, 0);
+                navigate("/quests");
+              }}
+            >
+              <img src="/nps/144.png" alt="" className={ico} />
+              <span>
+                Странник теней — квест оружия{" "}
+                <span className="text-[10px] text-[#808080]">(D-grade, 19+)</span>
+              </span>
+            </button>
+          ) : null}
+
           <button
             className={svcBtn("text-[#2d5016] hover:text-white")}
             onClick={() => {

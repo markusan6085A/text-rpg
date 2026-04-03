@@ -31,13 +31,24 @@ export function mobMatchesKillTarget(
   mob: {
     name: string;
     id: string;
+    level: number;
     aggressivePatrol?: boolean;
     aggressiveGroup?: string;
     isRaidBoss?: boolean;
   },
   target: QuestKillTarget,
-  zoneId?: string | null
+  zoneId?: string | null,
+  heroLevel?: number
 ): boolean {
+  const delta = target.maxHeroLevelDelta;
+  if (delta != null && delta >= 0) {
+    const hl = heroLevel ?? 0;
+    if (hl < 1) return false;
+    if (mob.isRaidBoss) return false;
+    if (Math.abs(mob.level - hl) > delta) return false;
+    if (target.killInZoneId && (!zoneId || zoneId !== target.killInZoneId)) return false;
+    return true;
+  }
   if (target.raidBossKillInZone) {
     if (!zoneId || zoneId !== target.raidBossKillInZone) return false;
     return mob.isRaidBoss === true;
@@ -58,6 +69,7 @@ export function getQuestMobHighlightForMob(
   mob: {
     name: string;
     id: string;
+    level: number;
     aggressivePatrol?: boolean;
     aggressiveGroup?: string;
     isRaidBoss?: boolean;
@@ -65,7 +77,8 @@ export function getQuestMobHighlightForMob(
   activeQuests: ActiveQuestLike[],
   allQuests: Quest[],
   zoneId?: string | null,
-  inventory?: { id: string; count?: number }[] | null
+  inventory?: { id: string; count?: number }[] | null,
+  heroLevel?: number
 ): "kill" | "drop" | null {
   const questById = new Map(allQuests.map((q) => [q.id, q]));
   for (const aq of activeQuests) {
@@ -90,7 +103,7 @@ export function getQuestMobHighlightForMob(
 
     if (quest.questKillTargets?.length) {
       for (const kt of quest.questKillTargets) {
-        if (mobMatchesKillTarget(mob, kt, zoneId)) return "kill";
+        if (mobMatchesKillTarget(mob, kt, zoneId, heroLevel)) return "kill";
       }
     }
   }
