@@ -73,6 +73,10 @@ function writeLS(key: string, value: { ts: number; data: ChatMessage[] }) {
   }
 }
 
+function chatDevLog(...args: unknown[]) {
+  if (import.meta.env.DEV) console.log(...args);
+}
+
 export function useChatMessages(opts: UseChatOptions) {
   const {
     channel,
@@ -181,13 +185,13 @@ export function useChatMessages(opts: UseChatOptions) {
       // анти-спам: якщо хтось випадково викликає 2 рази підряд
       const now = Date.now();
       if (now - lastFetchAtRef.current < 500) {
-        console.log(`[chat] Skipping fetch (${reason}) - too soon after last fetch`);
+        chatDevLog(`[chat] Skipping fetch (${reason}) - too soon after last fetch`);
         return;
       }
       lastFetchAtRef.current = now;
 
       if (inFlightRef.current) {
-        console.log(`[chat] Skipping fetch (${reason}) - already in flight`);
+        chatDevLog(`[chat] Skipping fetch (${reason}) - already in flight`);
         return;
       }
       inFlightRef.current = true;
@@ -241,7 +245,7 @@ export function useChatMessages(opts: UseChatOptions) {
         // 🔥 Перевіряємо, чи канал/сторінка не змінилися під час запиту
         // Якщо змінилися - не оновлюємо state (запобігає race condition)
         if (channelRef.current !== currentChannel || pageRef.current !== currentPage) {
-          console.log('[chat] Channel/page changed during fetch, ignoring response');
+          chatDevLog("[chat] Channel/page changed during fetch, ignoring response");
           return;
         }
 
@@ -249,12 +253,12 @@ export function useChatMessages(opts: UseChatOptions) {
         const filteredByChannel = cleaned.filter((m) => m.channel === currentChannel);
 
         // оновлюємо state + кеші
-        console.log('[chat] Fetched messages:', { 
-          page: currentPage, 
-          channel: currentChannel, 
-          count: filteredByChannel.length, 
+        chatDevLog("[chat] Fetched messages:", {
+          page: currentPage,
+          channel: currentChannel,
+          count: filteredByChannel.length,
           totalPages: data.totalPages,
-          messageIds: filteredByChannel.map(m => m.id).slice(0, 5) 
+          messageIds: filteredByChannel.map((m) => m.id).slice(0, 5),
         });
         setMessages(filteredByChannel);
         if (data.totalPages !== undefined) {
@@ -270,8 +274,11 @@ export function useChatMessages(opts: UseChatOptions) {
         setError(e?.message || "Fetch error");
       } finally {
         const t1 = performance.now();
-        // eslint-disable-next-line no-console
-        console.log(`[chat] fetch (${reason}) ${Math.round(t1 - t0)}ms`, { channel: currentChannel, page: currentPage, limit: currentLimit });
+        chatDevLog(`[chat] fetch (${reason}) ${Math.round(t1 - t0)}ms`, {
+          channel: currentChannel,
+          page: currentPage,
+          limit: currentLimit,
+        });
 
         setLoading(false);
         inFlightRef.current = false;
@@ -341,7 +348,7 @@ export function useChatMessages(opts: UseChatOptions) {
     const currentChannel = channelRef.current;
     const currentPage = pageRef.current;
     const currentLimit = limitRef.current;
-    console.log('[chat] refresh() called:', { currentChannel, currentPage, currentLimit, key: keyRef.current });
+    chatDevLog("[chat] refresh() called:", { currentChannel, currentPage, currentLimit, key: keyRef.current });
     fetchNow("manual_refresh");
   }, [fetchNow]);
 
