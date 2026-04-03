@@ -16,6 +16,16 @@ import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 
 type Navigate = (path: string) => void;
 
+type QuestExchangeType = "adena" | "exp" | "sp" | "coinOfLuck";
+
+const QUEST_EXCHANGE_SILVER_PER_UNIT = 10;
+const QUEST_EXCHANGE_REWARD_PER_UNIT: Record<QuestExchangeType, number> = {
+  adena: 50_000,
+  exp: 100_000,
+  sp: 50_000,
+  coinOfLuck: 1,
+};
+
 interface QuestShopProps {
   navigate: Navigate;
 }
@@ -31,7 +41,9 @@ export default function QuestShop({ navigate }: QuestShopProps) {
   const [selectedArmorSubcategory, setSelectedArmorSubcategory] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
   const [buyQuantity, setBuyQuantity] = useState<number>(1);
-  const [confirmExchange, setConfirmExchange] = useState<{ type: string; name: string; value: string } | null>(null);
+  /** Кількість «пакетів» обміну (1 пакет = 10 срібла за курс рядка). */
+  const [exchangeQuantity, setExchangeQuantity] = useState<number>(1);
+  const [confirmExchange, setConfirmExchange] = useState<{ type: QuestExchangeType; name: string } | null>(null);
 
   // Фільтрація предметів
   const filteredItems = QUEST_SHOP_ITEMS.filter((item) => {
@@ -435,10 +447,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               onClick={() => {
                 if (!hero) return;
                 const coinCount = hero.coins_silver ?? 0;
-                if (coinCount < 10) {
+                if (coinCount < QUEST_EXCHANGE_SILVER_PER_UNIT) {
+                  showToast("Недостаточно Серебряных Монет!", "error");
                   return;
                 }
-                setConfirmExchange({ type: "adena", name: "Адена", value: "50,000" });
+                setExchangeQuantity(1);
+                setConfirmExchange({ type: "adena", name: "Адена" });
               }}
               className={exchangeRow}
             >
@@ -461,10 +475,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               onClick={() => {
                 if (!hero) return;
                 const coinCount = hero.coins_silver ?? 0;
-                if (coinCount < 10) {
+                if (coinCount < QUEST_EXCHANGE_SILVER_PER_UNIT) {
+                  showToast("Недостаточно Серебряных Монет!", "error");
                   return;
                 }
-                setConfirmExchange({ type: "exp", name: "Опыт", value: "100,000" });
+                setExchangeQuantity(1);
+                setConfirmExchange({ type: "exp", name: "Опыт" });
               }}
               className={exchangeRow}
             >
@@ -487,10 +503,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               onClick={() => {
                 if (!hero) return;
                 const coinCount = hero.coins_silver ?? 0;
-                if (coinCount < 10) {
+                if (coinCount < QUEST_EXCHANGE_SILVER_PER_UNIT) {
+                  showToast("Недостаточно Серебряных Монет!", "error");
                   return;
                 }
-                setConfirmExchange({ type: "sp", name: "SP", value: "50,000" });
+                setExchangeQuantity(1);
+                setConfirmExchange({ type: "sp", name: "SP" });
               }}
               className={exchangeRow}
             >
@@ -513,10 +531,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               onClick={() => {
                 if (!hero) return;
                 const coinCount = hero.coins_silver ?? 0;
-                if (coinCount < 10) {
+                if (coinCount < QUEST_EXCHANGE_SILVER_PER_UNIT) {
+                  showToast("Недостаточно Серебряных Монет!", "error");
                   return;
                 }
-                setConfirmExchange({ type: "coinOfLuck", name: "Coin of Luck", value: "1" });
+                setExchangeQuantity(1);
+                setConfirmExchange({ type: "coinOfLuck", name: "Coin of Luck" });
               }}
               className={exchangeRow}
             >
@@ -779,61 +799,141 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       )}
 
       {/* Модальне вікно підтвердження обміну */}
-      {confirmExchange && (
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
-          onClick={() => setConfirmExchange(null)}
-        >
-          <div 
-            className={`${modalPanel} max-w-[350px]`}
-            onClick={(e) => e.stopPropagation()}
+      {confirmExchange && hero && (() => {
+        const maxExchanges = Math.max(1, Math.floor((hero.coins_silver ?? 0) / QUEST_EXCHANGE_SILVER_PER_UNIT));
+        const q = Math.min(Math.max(1, exchangeQuantity), maxExchanges);
+        const silverTotal = QUEST_EXCHANGE_SILVER_PER_UNIT * q;
+        const perUnit = QUEST_EXCHANGE_REWARD_PER_UNIT[confirmExchange.type];
+        const rewardTotal = perUnit * q;
+        const rewardLabel =
+          confirmExchange.type === "coinOfLuck"
+            ? `${rewardTotal.toLocaleString()} шт.`
+            : rewardTotal.toLocaleString("ru-RU");
+        return (
+          <div
+            className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setConfirmExchange(null);
+              setExchangeQuantity(1);
+            }}
           >
-            <div className="text-center text-gray-400 text-[14px] mb-4">
-              Обменять 10 Серебряных Монет на {confirmExchange.name} {confirmExchange.value}?
-            </div>
+            <div className={`${modalPanel} max-w-[380px]`} onClick={(e) => e.stopPropagation()}>
+              <div className="text-center text-gray-400 text-[14px] mb-3">
+                Обменять серебро на {confirmExchange.name}
+              </div>
+              <div className="text-center text-[#e0c68a] text-[12px] mb-3">
+                Курс: {perUnit.toLocaleString("ru-RU")}
+                {confirmExchange.type === "coinOfLuck" ? " шт." : ""} за {QUEST_EXCHANGE_SILVER_PER_UNIT}{" "}
+                <span className="inline-flex items-center gap-0.5 align-middle">
+                  <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3 h-3 object-contain" />
+                </span>
+              </div>
 
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => {
-                  if (!hero) return;
-                  const coinCount = hero.coins_silver ?? 0;
-                  if (coinCount < 10) {
+              <div className="mb-3 border-t border-white/20 pt-3">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className="text-white text-[12px]">Количество обменов:</span>
+                  <button
+                    type="button"
+                    onClick={() => setExchangeQuantity((n) => Math.max(1, n - 1))}
+                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={maxExchanges}
+                    value={q}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (val.startsWith("0") && val.length > 1) {
+                        val = val.replace(/^0+/, "") || "1";
+                      }
+                      const numVal = parseInt(val, 10);
+                      if (!Number.isFinite(numVal)) {
+                        setExchangeQuantity(1);
+                        return;
+                      }
+                      setExchangeQuantity(Math.min(Math.max(1, numVal), maxExchanges));
+                    }}
+                    onFocus={(e) => e.target.select()}
+                    className="w-16 px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-center text-[12px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setExchangeQuantity((n) => Math.min(maxExchanges, n + 1))}
+                    className="px-2 py-1 bg-[#1a1208] text-white border border-white/50 rounded text-[12px] hover:bg-[#2a1a10]"
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setExchangeQuantity(maxExchanges)}
+                    className="px-2 py-1 bg-[#1a1208] text-[#ffd78c] border border-[#6b5c42] rounded text-[11px] hover:bg-[#2a1a10]"
+                  >
+                    Макс.
+                  </button>
+                </div>
+                <div className="text-center text-yellow-400/90 text-[12px]">
+                  Списать: {silverTotal.toLocaleString("ru-RU")}{" "}
+                  <span className="inline-flex items-center gap-0.5 align-middle">
+                    <img src="/items/drops/resources/etc_coins_silver_i00.png" alt="" className="w-3 h-3 object-contain" />
+                  </span>
+                </div>
+                <div className="text-center text-green-400/90 text-[12px] mt-1">
+                  Получите: {rewardLabel} {confirmExchange.name}
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!hero) return;
+                    const coinCount = hero.coins_silver ?? 0;
+                    const qty = Math.min(Math.max(1, exchangeQuantity), Math.floor(coinCount / QUEST_EXCHANGE_SILVER_PER_UNIT));
+                    const cost = QUEST_EXCHANGE_SILVER_PER_UNIT * qty;
+                    if (coinCount < cost || qty < 1) {
+                      showToast("Недостаточно Серебряных Монет!", "error");
+                      return;
+                    }
+                    const updates: Partial<Hero> = {
+                      coins_silver: coinCount - cost,
+                    };
+                    const add = perUnit * qty;
+                    if (confirmExchange.type === "adena") {
+                      updates.adena = (hero.adena || 0) + add;
+                    } else if (confirmExchange.type === "exp") {
+                      updates.exp = (hero.exp || 0) + add;
+                    } else if (confirmExchange.type === "sp") {
+                      updates.sp = (hero.sp || 0) + add;
+                    } else if (confirmExchange.type === "coinOfLuck") {
+                      updates.coinOfLuck = (hero.coinOfLuck || 0) + add;
+                    }
+                    updateHero(updates);
+                    addDailyProgress("daily_exchange", qty);
                     setConfirmExchange(null);
-                    return;
-                  }
-                  
-                  // Списання 10 Серебряных Монет (валюта) та додаємо нагороду
-                  const updates: Partial<Hero> = {
-                    coins_silver: (hero.coins_silver ?? 0) - 10,
-                  };
-                  if (confirmExchange.type === "adena") {
-                    updates.adena = (hero.adena || 0) + 50000;
-                  } else if (confirmExchange.type === "exp") {
-                    updates.exp = (hero.exp || 0) + 100000;
-                  } else if (confirmExchange.type === "sp") {
-                    updates.sp = (hero.sp || 0) + 50000;
-                  } else if (confirmExchange.type === "coinOfLuck") {
-                    updates.coinOfLuck = (hero.coinOfLuck || 0) + 1;
-                  }
-                  
-                  updateHero(updates);
-                  addDailyProgress("daily_exchange", 1);
-                  setConfirmExchange(null);
-                }}
-                className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer"
-              >
-                Подтвердить
-              </button>
-              <button
-                onClick={() => setConfirmExchange(null)}
-                className="text-gray-400 text-[12px] hover:text-gray-300 cursor-pointer"
-              >
-                Отмена
-              </button>
+                    setExchangeQuantity(1);
+                  }}
+                  className="text-[#ff8c00] text-[12px] hover:text-[#ffa500] cursor-pointer"
+                >
+                  Подтвердить
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmExchange(null);
+                    setExchangeQuantity(1);
+                  }}
+                  className="text-gray-400 text-[12px] hover:text-gray-300 cursor-pointer"
+                >
+                  Отмена
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
       </div>
     </div>
   );

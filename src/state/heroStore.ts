@@ -460,6 +460,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
                              partial.equipment !== undefined ||
                              partial.adena !== undefined ||
                              (partial as any).coinOfLuck !== undefined ||
+                             (partial as any).coins_silver !== undefined ||
                              (partial as any).aa !== undefined ||
                              (partial as any).level !== undefined ||
                              (partial as any).exp !== undefined ||
