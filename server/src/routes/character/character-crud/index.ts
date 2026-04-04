@@ -23,6 +23,7 @@ import {
   computeAdditionalSkillLearn,
   parseSkillIdFromRequestBody,
 } from "../../../learnSkillServer";
+import { calculateServerDrops } from "../../../utils/serverDropCalculator";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
@@ -1258,7 +1259,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     return reply.send({ ok: true, success, newEnchantLevel, heroJson: versionedHeroJson });
   });
 
-  // POST /characters/:id/battle-finish — lightweight battle result validation (Phase 5)
+  // POST /characters/:id/battle-finish — server-authoritative drop calc + battle result save
   app.post("/characters/:id/battle-finish", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -1266,6 +1267,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const id = (req.params as any).id;
     const body = req.body as {
       mobId?: string;
+      /** true = hero used Sweep/Auto Spoil before this kill */
+      spoiled?: boolean;
+      /** Zone where the mob was killed — used for server-side drop table lookup */
+      zoneId?: string;
       earnedExp?: number;
       earnedSp?: number;
       earnedAdena?: number;
@@ -1276,11 +1281,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       newHp?: number;
       newMp?: number;
       newCp?: number;
-      drops?: Array<{ id: string; count: number; name?: string }>;
+      /** Quest item drops (still computed client-side, added to inventory here) */
+      questDrops?: Array<{ id: string; count: number; name?: string; kind?: string; slot?: string; icon?: string }>;
       heroJsonPatch?: Record<string, any>;
     };
 
-    // Sanity limits (prevent extreme cheating while keeping the API simple)
+    // Sanity limits
     const MAX_EXP_PER_KILL = 5_000_000;
     const MAX_ADENA_PER_KILL = 500_000;
     const MAX_SP_PER_KILL = 50_000;
@@ -1295,22 +1301,47 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     const heroJson: any = (character.heroJson as any) || {};
 
-    // Build updated heroJson with battle results
+    // ── Server-side drop calculation ───────────────────────────────────────
+    const mobId = String(body.mobId ?? "");
+    const zoneId = body.zoneId ? String(body.zoneId) : undefined;
+
+    let serverDropResult = { items: [] as any[], adena: 0, messages: [] as string[] };
+    if (mobId) {
+      try {
+        serverDropResult = calculateServerDrops(
+          mobId,
+          zoneId,
+          body.spoiled === true,
+          {
+            level: Number(heroJson.level ?? 1),
+            premiumUntil: Number(heroJson.premiumUntil ?? 0),
+            profession: String(heroJson.klass ?? heroJson.profession ?? ""),
+            inventorySize: Array.isArray(heroJson.inventory) ? heroJson.inventory.length : 0,
+          }
+        );
+      } catch {
+        // If drop calculation fails, continue without drops (non-fatal)
+      }
+    }
+
+    // ── Build updated heroJson ─────────────────────────────────────────────
     const newHeroJson: any = { ...heroJson };
 
-    // Apply level/exp/sp if provided (client calculated these)
+    // Apply level/exp/sp (client calculated; server trusts with limits)
     if (body.newLevel != null) newHeroJson.level = Number(body.newLevel);
     if (body.newExp != null) newHeroJson.exp = Number(body.newExp);
     if (body.newSp != null) newHeroJson.sp = Number(body.newSp);
     if (body.newHp != null) newHeroJson.hp = Number(body.newHp);
     if (body.newMp != null) newHeroJson.mp = Number(body.newMp);
     if (body.newCp != null) newHeroJson.cp = Number(body.newCp);
-    if (body.newAdena != null) newHeroJson.adena = Number(body.newAdena);
 
-    // Apply inventory patch if provided (drops)
+    // Adena = current DB adena + client earnedAdena (validated by cap above)
+    // Note: serverDropResult.adena is 0 (items-only; adena handled client-side with cap validation)
+    newHeroJson.adena = Number(heroJson.adena ?? 0) + earnedAdena;
+
+    // Patch allowed non-critical fields (quest progress, kill counters, etc.)
     if (body.heroJsonPatch) {
       for (const [key, value] of Object.entries(body.heroJsonPatch)) {
-        // Only allow patching non-critical fields (not equipment/enchant/inventory — those have their own endpoints)
         if (
           key !== "equipment" &&
           key !== "equipmentEnchantLevels" &&
@@ -1323,6 +1354,53 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
     }
 
+    // ── Add server drops + quest drops to inventory ────────────────────────
+    const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+    const overflowChest: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
+    const MAX_INVENTORY = 200;
+
+    const allDropsToAdd = [
+      ...serverDropResult.items,
+      ...(Array.isArray(body.questDrops) ? body.questDrops : []),
+    ];
+
+    for (const drop of allDropsToAdd) {
+      if (!drop.id) continue;
+      const itemId = String(drop.id).trim();
+      const count = Math.max(1, Math.floor(Number(drop.count ?? 1)));
+      if (!itemId) continue;
+
+      const isStackable = ["consumable", "resource", "quest"].includes(
+        String(drop.kind ?? drop.slot ?? "").toLowerCase()
+      ) || count > 1;
+
+      const existingIdx = isStackable
+        ? inventory.findIndex((i: any) => i && i.id === itemId && !(i?.meta?.hasLSPassive))
+        : -1;
+
+      if (existingIdx >= 0) {
+        inventory[existingIdx] = {
+          ...inventory[existingIdx],
+          count: (inventory[existingIdx].count ?? 0) + count,
+        };
+      } else if (inventory.length < MAX_INVENTORY) {
+        inventory.push({ ...drop, id: itemId, count });
+      } else {
+        const ovIdx = overflowChest.findIndex((i: any) => i && i.id === itemId);
+        if (ovIdx >= 0) {
+          overflowChest[ovIdx] = {
+            ...overflowChest[ovIdx],
+            count: (overflowChest[ovIdx].count ?? 0) + count,
+          };
+        } else {
+          overflowChest.push({ ...drop, id: itemId, count });
+        }
+      }
+    }
+
+    newHeroJson.inventory = inventory;
+    newHeroJson.overflowChest = overflowChest;
+
     const oldRevision = Number(heroJson.heroRevision ?? 0);
     const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
 
@@ -1330,10 +1408,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       heroJson: versionedHeroJson as any,
       lastActivityAt: new Date(),
     };
-    // Update adena column if we have a new value
-    if (body.newAdena != null) {
-      updateData.adena = BigInt(Math.max(0, Math.floor(Number(body.newAdena))));
-    }
+    updateData.adena = BigInt(Math.max(0, Math.floor(Number(newHeroJson.adena))));
 
     await prisma.character.update({ where: { id }, data: updateData });
 
@@ -1343,17 +1418,27 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
       action: "battle.finish",
       metadata: {
-        mobId: body.mobId ?? null,
+        mobId: mobId || null,
         earnedExp,
         earnedSp,
         earnedAdena,
         newLevel: body.newLevel ?? null,
-        dropCount: Array.isArray(body.drops) ? body.drops.length : 0,
+        serverDrops: serverDropResult.items.length,
+        serverDropAdena: serverDropResult.adena,
+        questDrops: body.questDrops?.length ?? 0,
       },
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, heroJson: versionedHeroJson });
+    return reply.send({
+      ok: true,
+      heroJson: versionedHeroJson,
+      serverDrops: {
+        items: serverDropResult.items,
+        adena: serverDropResult.adena,
+        messages: serverDropResult.messages,
+      },
+    });
   });
 
   // POST /characters/:id/equip-commit — atomic equip state save (Phase 2)

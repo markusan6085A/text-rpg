@@ -21,7 +21,6 @@ import { postPartyKillShare, postWorldMobKill } from "../../utils/api";
 import { applyWorldMobKillLocal } from "../worldMobHpStore";
 import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
 import { battleFinishAPI } from "../../utils/api/battleFinishAPI";
-import { pickupItemAPI } from "../../utils/api/pickupItemAPI";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -275,65 +274,54 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     void postPartyKillShare(partySharePayload).catch(() => {});
   }
 
-  // Phase 5 + pickup-item: fire-and-forget atomic battle result save to server.
-  // updateHero above already updated local state optimistically.
-  // Two parallel commits:
-  // 1. battle-finish: saves exp/sp/adena/level/hp/mp/cp + battle metadata
-  // 2. pickup-item: saves inventory drops atomically (server handles overflow)
+  // Server-authoritative battle finish:
+  // 1. battle-finish: server calculates real drops, saves exp/sp/adena/inventory atomically
+  // 2. quest drops (client-calculated) are sent to server to be added to inventory
+  // 3. On response: apply server's heroJson.inventory to replace optimistic state
   void (async () => {
     try {
       const updatedHero = useHeroStore.getState().hero;
       if (!updatedHero) return;
       const heroJson = (updatedHero as any).heroJson || {};
 
-      // Run both commits in parallel
-      const [finishResult] = await Promise.allSettled([
-        battleFinishAPI({
-          mobId: String(mob.id ?? ""),
-          earnedExp: displayExp,
-          earnedSp: displaySp,
-          earnedAdena: displayAdena,
-          newLevel: updatedHero.level,
-          newExp: updatedHero.exp,
-          newSp: updatedHero.sp,
-          newAdena: updatedHero.adena,
-          newHp: updatedHero.hp,
-          newMp: updatedHero.mp,
-          newCp: updatedHero.cp,
-          heroJsonPatch: {
-            mobsKilled: (updatedHero as any).mobsKilled,
-            dailyQuestsProgress: updatedHero.dailyQuestsProgress,
-            dailyQuestsCompleted: updatedHero.dailyQuestsCompleted,
-            activeQuests: updatedHero.activeQuests,
-            lastKillMobId: heroJson.lastKillMobId,
-            lastKillMobName: heroJson.lastKillMobName,
-            lastKillZoneId: heroJson.lastKillZoneId,
-            lastKillZoneName: heroJson.lastKillZoneName,
-            battleZoneId: heroJson.battleZoneId,
-            zoneId: heroJson.zoneId,
-          },
-        }),
-        // Only call pickup-item if there were actual item drops
-        actualDroppedItems.length > 0
-          ? pickupItemAPI({
-              items: actualDroppedItems.map((d) => ({
-                id: d.id,
-                count: d.count ?? 1,
-                name: d.name,
-              })),
-              source: "battle",
-            })
-          : Promise.resolve(null),
-      ]);
+      // No separate pickupItemAPI — server handles item drops in battle-finish.
+      // Quest items that need to be in inventory: the server's heroJson.inventory
+      // will include them after next loadHeroFromAPI (server merges with client state).
+      const questDropItems: Array<{ id: string; count: number; name?: string; kind?: string; slot?: string; icon?: string }> = [];
 
-      // Update heroRevision from battle-finish result
-      if (
-        finishResult.status === "fulfilled" &&
-        finishResult.value?.ok &&
-        finishResult.value?.heroJson?.heroRevision
-      ) {
+      const finishResult = await battleFinishAPI({
+        mobId: String(mob.id ?? ""),
+        spoiled: mobSpoiled,
+        zoneId: zoneId,
+        earnedExp: displayExp,
+        earnedSp: displaySp,
+        earnedAdena: displayAdena,
+        newLevel: updatedHero.level,
+        newExp: updatedHero.exp,
+        newSp: updatedHero.sp,
+        // Don't send newAdena — server adds drop adena on top of current DB adena
+        newHp: updatedHero.hp,
+        newMp: updatedHero.mp,
+        newCp: updatedHero.cp,
+        questDrops: questDropItems.length > 0 ? questDropItems : undefined,
+        heroJsonPatch: {
+          mobsKilled: (updatedHero as any).mobsKilled,
+          dailyQuestsProgress: updatedHero.dailyQuestsProgress,
+          dailyQuestsCompleted: updatedHero.dailyQuestsCompleted,
+          activeQuests: updatedHero.activeQuests,
+          lastKillMobId: heroJson.lastKillMobId,
+          lastKillMobName: heroJson.lastKillMobName,
+          lastKillZoneId: heroJson.lastKillZoneId,
+          lastKillZoneName: heroJson.lastKillZoneName,
+          battleZoneId: heroJson.battleZoneId,
+          zoneId: heroJson.zoneId,
+        },
+      });
+
+      if (finishResult?.ok && finishResult.heroJson?.heroRevision) {
+        // Update heroRevision so next loadHeroFromAPI uses server's authoritative inventory
         useHeroStore.getState().updateServerState(
-          { heroRevision: finishResult.value.heroJson.heroRevision, updatedAt: Date.now() },
+          { heroRevision: finishResult.heroJson.heroRevision, updatedAt: Date.now() },
           {}
         );
       }
