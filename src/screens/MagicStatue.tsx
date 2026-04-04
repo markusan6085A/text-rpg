@@ -7,6 +7,7 @@ import type { BattleBuff } from "../state/battle/types";
 import { useBattleStore } from "../state/battle/store";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
+import { getHeroBuffedResourceCaps } from "../utils/heroBuffedResources";
 
 interface MagicStatueProps {
   navigate: (path: string) => void;
@@ -55,14 +56,16 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
     const heroStore = useHeroStore.getState();
     const currentHero = heroStore.hero;
     if (!currentHero) return;
-    const maxHp = currentHero.maxHp ?? 1;
-    const maxMp = currentHero.maxMp ?? 1;
-    const maxCp = currentHero.maxCp ?? Math.round(maxHp * 0.6);
+    const inBattle = useBattleStore.getState().status === "fighting";
+    const { maxHp, maxMp, maxCp } = getHeroBuffedResourceCaps(currentHero, inBattle);
     const existingJson = (currentHero as any).heroJson || {};
     heroStore.updateHero({
       hp: maxHp,
       mp: maxMp,
       cp: maxCp,
+      maxHp,
+      maxMp,
+      maxCp,
       heroJson: { ...existingJson },
     }, { persist: true });
     setRefreshKey((k) => k + 1);

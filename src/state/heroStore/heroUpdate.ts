@@ -1,6 +1,7 @@
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
+import { getMaxResources } from "../battle/helpers/getMaxResources";
 import { filterBuffsForHeroProfession } from "../battle/loadout";
 import type { Hero } from "../../types/Hero";
 import { hydrateHero } from "./heroHydration";
@@ -75,18 +76,19 @@ export function updateHeroLogic(
 
   // ❗ ВАЖЛИВО: Навіть якщо needsRecalc = false, ми все одно повинні валідувати hp/mp/cp
   // щоб вони не перевищували maxHp/maxMp/maxCp
-  // ❗ hero.maxHp — базове без бафів; partial.hp може бути до buffedMax (хіл/реген під бафами)
-  // Використовуємо buffedMax для clamp, щоб не втрачати HP при бафах
+  // База для капа — getMaxResources(prev) (unbuffed), не hero.maxHp (на сторі може лишатись buffed або змішано).
+  // Інакше computeBuffedMaxResources подвоює відсоткові бафи або clamp не збігається з фактичним прогресом.
   if (!needsRecalc && (partial.hp !== undefined || partial.mp !== undefined || partial.cp !== undefined)) {
-    const baseMax = { maxHp: prev.maxHp ?? 1, maxMp: prev.maxMp ?? 1, maxCp: prev.maxCp ?? 1 };
+    const baseMax = getMaxResources(prev);
     let maxHp = baseMax.maxHp;
     let maxMp = baseMax.maxMp;
     let maxCp = baseMax.maxCp;
-    if (updated.name) {
-      const savedBattle = loadBattle(updated.name);
+    if (prev.name) {
+      const savedBattle = loadBattle(prev.name);
       const heroJsonBuffs = Array.isArray((prev as any).heroJson?.heroBuffs) ? (prev as any).heroJson.heroBuffs : [];
       const savedBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-      const allBuffs = cleanupBuffs([...heroJsonBuffs, ...savedBuffs], Date.now());
+      const cleaned = cleanupBuffs([...heroJsonBuffs, ...savedBuffs], Date.now());
+      const allBuffs = filterBuffsForHeroProfession(prev, cleaned);
       ({ maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, allBuffs));
     }
     if (partial.hp !== undefined) {
