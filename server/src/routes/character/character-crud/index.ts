@@ -241,7 +241,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
       level: oldHeroJson.level ?? existing.level ?? 1,
     };
-    const newHeroJson = { ...baseJson, ...oldHeroJson, inventory: [] };
+    const newHeroJson = { ...baseJson, ...oldHeroJson, inventory: [], inventoryClearedAt: Date.now() };
     const validation = validateHeroJson(newHeroJson);
     if (!validation.valid) {
       return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });

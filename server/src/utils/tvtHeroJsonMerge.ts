@@ -102,5 +102,22 @@ function mergeFishingSessionPreserve(existingHeroJson: any, incomingHeroJson: an
 export function mergeHeroJsonForClientPut(existingHeroJson: any, incomingHeroJson: any): any {
   const t = mergeTvtRewardsIntoIncomingHeroJson(existingHeroJson, incomingHeroJson);
   const s = mergeSevenSealsBonusPreserve(existingHeroJson, t);
-  return mergeFishingSessionPreserve(existingHeroJson, s);
+  const result = mergeFishingSessionPreserve(existingHeroJson, s);
+
+  // Multi-device sync: якщо сервер очистив інвентар (inventoryClearedAt), а клієнт надсилає старий
+  // інвентар (не знає про очищення) — відкидаємо client inventory і лишаємо [] з сервера.
+  // Клієнт пізніше зробить GET і отримає inventoryClearedAt → на наступному PUT вже синхронізований.
+  const serverClearedAt = Number(existingHeroJson.inventoryClearedAt ?? 0);
+  const clientClearedAt = Number(result.inventoryClearedAt ?? 0);
+  if (
+    serverClearedAt > 0 &&
+    clientClearedAt < serverClearedAt &&
+    Array.isArray(result.inventory) &&
+    result.inventory.length > 0
+  ) {
+    result.inventory = [];
+    result.inventoryClearedAt = serverClearedAt;
+  }
+
+  return result;
 }
