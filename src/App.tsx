@@ -191,6 +191,39 @@ function AppInner() {
     if (hero?.name) hydrateBattleStoreFromStorage();
   }, [hero?.name]);
 
+  // Multi-device sync: коли вкладка стає активною після > 30 с прихованості —
+  // підтягуємо свіжий стан з сервера (щоб PC бачив зміни з телефону і навпаки).
+  React.useEffect(() => {
+    if (!isAuthenticated) return;
+    let hiddenAt = 0;
+    const MIN_HIDDEN_MS = 30_000;
+    let syncInProgress = false;
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        hiddenAt = Date.now();
+        return;
+      }
+      if (hiddenAt > 0 && Date.now() - hiddenAt >= MIN_HIDDEN_MS) {
+        hiddenAt = 0;
+        const { characterId } = useCharacterStore.getState();
+        if (!characterId || syncInProgress) return;
+        syncInProgress = true;
+        loadHeroFromAPI()
+          .then((loadedHero) => {
+            if (loadedHero) useHeroStore.getState().setHero(loadedHero);
+          })
+          .catch(() => {})
+          .finally(() => { syncInProgress = false; });
+      } else {
+        hiddenAt = 0;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [isAuthenticated]);
+
   // Логуємо API_URL при ініціалізації App (тільки в DEV)
   React.useEffect(() => {
     if (import.meta.env.DEV) {

@@ -156,9 +156,12 @@ export async function apiRequest<T>(
     errorWithStatus.details = (errorBody as any).details || (errorBody as any).errors;
     errorWithStatus.body = errorBody;
 
+    // Report only 409 (conflict) and 500 (app error) — NOT 502/503/504 (gateway/infra outages):
+    // reporting to /client-error-log would itself 502, creating an error spam cascade.
     const reportClient =
       endpoint.includes("/characters/") &&
-      (response.status === 409 || (response.status >= 500 && response.status < 600));
+      !endpoint.includes("/client-error-log") &&
+      (response.status === 409 || response.status === 500);
     if (reportClient) {
       void reportClientErrorToServer(endpoint, response.status, errorBody);
     }
