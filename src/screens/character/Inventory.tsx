@@ -23,6 +23,7 @@ import {
 } from "../../utils/adminInventoryEnchant";
 import { adminGetPlayerInventory, adminSetInventoryEnchant } from "../../utils/api/admin";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
+import { useAuthStore } from "../../state/authStore";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -59,6 +60,23 @@ export default function Inventory() {
   useEffect(() => {
     void useAdminStore.getState().checkAdmin();
   }, []);
+
+  // Один персонаж на всіх пристроях: при відкритті інвентаря підтягуємо знімок з API (ревізія/timestamp уже вирішують merge у loadHeroFromAPI).
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!useAuthStore.getState().isAuthenticated || !characterId) return;
+      try {
+        const h = await loadHeroFromAPI();
+        if (alive && h) useHeroStore.getState().setHero(h);
+      } catch {
+        /* залишаємо поточного героя в store */
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [characterId]);
 
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;

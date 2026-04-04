@@ -353,9 +353,28 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // (інакше ПК тягне старий екіп/стан із localStorage, навіть після гри на телефоні).
     const serverUpdatedAt = character?.updatedAt ? new Date(character.updatedAt).getTime() : 0;
     const localLastSavedAtOuter = (hydratedLocalHero as any)?.lastSavedAt || 0;
-    const preferServerSnapshot =
+    const heroJsonFromChar = (character as any)?.heroJson;
+    const serverRevPrefer = Number(heroJsonFromChar?.heroRevision ?? (character as any)?.heroRevision ?? 0);
+    const localRevPrefer = Number(
+      (hydratedLocalHero as any)?.heroJson?.heroRevision ??
+        (hydratedLocalHero as any)?.heroRevision ??
+        0
+    );
+    // Інший пристрій зробив успішний PUT — ревізія в heroJson зростає; lastSavedAt на ПК може бути «новішим» через автозбереження без узгодженого PUT.
+    const serverAheadByRevision =
+      localBelongsToCharacter && serverRevPrefer > 0 && serverRevPrefer > localRevPrefer;
+    const preferServerSnapshotByTime =
       serverUpdatedAt > 0 &&
       (localLastSavedAtOuter === 0 || serverUpdatedAt > localLastSavedAtOuter);
+    const preferServerSnapshot = preferServerSnapshotByTime || serverAheadByRevision;
+    if (import.meta.env.DEV && serverAheadByRevision && !preferServerSnapshotByTime) {
+      console.log("[loadHeroFromAPI] preferServerSnapshot: server heroRevision ahead of local", {
+        serverRevPrefer,
+        localRevPrefer,
+        serverUpdatedAt,
+        localLastSavedAtOuter,
+      });
+    }
     const localHeroForMerge =
       localBelongsToCharacter && !preferServerSnapshot ? hydratedLocalHero : null;
     /** Union інвентаря/бафів/енчантів з localStorage — навіть коли preferServerSnapshot (скіли тоді з API). Інакше F5 губить щойні GM-скроли/заточку. */
