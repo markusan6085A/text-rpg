@@ -103,7 +103,7 @@ export function isTwoHandedWeapon(itemId: string | undefined): boolean {
     (name.includes("war") && (name.includes("hammer") || name.includes("axe"))) ||
     (name.includes("dwarven") && (name.includes("hammer") || name.includes("mace"))) ||
     (name.includes("star") && name.includes("buster")) ||
-    (name.includes("basalt") && (name.includes("battlehammer") || name.includes("hammer"))) ||
+    // Basalt Battlehammer — у каноні rhand (одноручна булава), не great/blunt 2h
     (name.includes("ice") && name.includes("storm") && name.includes("hammer")) ||
     (name.includes("art") && name.includes("of") && name.includes("battle") && name.includes("axe")) ||
     (name.includes("dragon") && name.includes("hunter") && name.includes("axe")) ||
