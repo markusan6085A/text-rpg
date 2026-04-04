@@ -72,6 +72,10 @@ import { hydrateHero } from "./state/heroStore/heroHydration";
 import { useCharacterRealtime } from "./state/heroStore/useCharacterRealtime";
 import { hydrateBattleStoreFromStorage } from "./state/battle/hydrateFromStorage";
 import { startWarmup, stopWarmup } from "./utils/warmup";
+import {
+  hardReloadOnceAfterAuth,
+  stripHardReloadQueryParam,
+} from "./utils/hardReloadForNewAppBundle";
 
 /** Редірект не-адміна з /player/:id/admin на /player/:id */
 function PlayerAdminRedirect({ navigate, playerId }: { navigate: (path: string) => void; playerId: string }) {
@@ -153,6 +157,10 @@ function useRouter() {
 }
 
 function AppInner() {
+  React.useEffect(() => {
+    stripHardReloadQueryParam();
+  }, []);
+
   const hero = useHeroStore((s) => s.hero);
   const setHero = useHeroStore((s) => s.setHero);
   const loadHero = useHeroStore((s) => s.loadHero);
@@ -255,7 +263,10 @@ function AppInner() {
           clearTimeout(t);
           if (r.ok) {
             const d = await r.json();
-            if (d?.accessToken && alive) setAccessToken(d.accessToken);
+            if (d?.accessToken && alive) {
+              setAccessToken(d.accessToken);
+              if (hardReloadOnceAfterAuth()) return;
+            }
           }
           // при 401/таймауті просто продовжуємо без токена — герой з localStorage
         } catch (_) {}

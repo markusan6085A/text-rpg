@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { getJSON } from "../state/persistence";
 import { login, listCharacters } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
+import { getJSON } from "../state/persistence";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
+import { syncCurrentUserAndAccountHero } from "../state/heroStore/heroPersistence";
+import { hardReloadOnceAfterAuth } from "../utils/hardReloadForNewAppBundle";
 import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 
@@ -106,13 +108,14 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
       // 3. Використовуємо першого персонажа (якщо їх кілька - можна додати вибір пізніше)
       const character = characters[0];
       setCharacterId(character.id);
+      syncCurrentUserAndAccountHero(nick);
+      // 4. Підтягнути свіжий бандл після входу (один раз на вкладку); якщо вже зроблено — звичайне завантаження героя
+      if (hardReloadOnceAfterAuth()) return;
 
-      // 4. Завантажуємо героя з API
       const loadedHero = await loadHeroFromAPI();
       if (loadedHero) {
         onLogin(loadedHero);
       } else {
-        // Fallback: пробуємо завантажити з localStorage
         const accounts = getJSON<any[]>("l2_accounts_v2", []);
         const acc = accounts.find((a: any) => a.username === nick);
         if (acc && acc.hero) {

@@ -7,6 +7,7 @@ import { useHeroStore } from "../state/heroStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
+import { hardReloadOnceAfterAuth } from "../utils/hardReloadForNewAppBundle";
 
 interface AdminLoginProps {
   navigate: (path: string) => void;
@@ -71,6 +72,7 @@ export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginPro
         useCharacterStore.getState().setCharacterId(chars[0].id);
         const hero = await loadHeroFromAPI();
         if (hero) useHeroStore.getState().setHero(hero);
+        if (hardReloadOnceAfterAuth("/city")) return;
         go("/city");
       } else {
         navigate("/admin");

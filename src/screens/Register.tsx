@@ -12,6 +12,7 @@ import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { resetTutorialHint } from "../state/gameSettings";
 import { DEFAULT_PLAYER_CITY_ID } from "../data/world";
+import { hardReloadOnceAfterAuth } from "../utils/hardReloadForNewAppBundle";
 
 interface RegisterProps {
   navigate: (path: string) => void;
@@ -181,12 +182,14 @@ export default function Register({ navigate }: RegisterProps) {
       if (loadedHero) {
         setHero(loadedHero);
         syncCurrentUserAndAccountHero(trimmedUsername, loadedHero);
+        if (hardReloadOnceAfterAuth("/city")) return;
         navigate("/city");
       } else {
         // Fallback: встановлюємо героя вручну
         const fallbackHero = { ...heroJsonPayload, name: trimmedUsername, username: trimmedUsername, sp: 0, skills: [] } as any;
         setHero(fallbackHero);
         syncCurrentUserAndAccountHero(trimmedUsername, fallbackHero);
+        if (hardReloadOnceAfterAuth("/city")) return;
         navigate("/city");
       }
     } catch (err: any) {

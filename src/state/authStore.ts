@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { useCharacterStore } from "./characterStore";
 import { clearChatClientCaches } from "../hooks/useChatMessages";
 import { usePartyStore } from "./partyStore";
+import { clearHardReloadAfterAuthGate } from "../utils/hardReloadForNewAppBundle";
 
 interface AuthState {
   accessToken: string | null;
@@ -28,6 +29,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
+    clearHardReloadAfterAuthGate();
     const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
     fetch(`${API_URL}/auth/logout`, { method: "POST", credentials: "include" }).catch((err) => {
       console.error("Logout request failed:", err);
