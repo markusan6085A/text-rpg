@@ -1,5 +1,5 @@
 ---
-description: Скіли після зміни класу в адмінці та екіп/заточка між пристроями в loadMerge — не регресувати merge у heroLoadAPI
+description: Скіли, інвентар/overflow і екіп при multi-device у loadHeroFromAPI — не регресувати merge
 alwaysApply: true
 ---
 
@@ -20,18 +20,25 @@ alwaysApply: true
   - **Local preferred** (`takeServerSkillsStrict`, `profMismatchServerLocal` тощо).
   - **Основний server path** при `!preferServerSnapshot`: **`profMismatchLocalServer`** → без union локальних скілів, лише server/`fixedHero` як basis після фільтра по професії.
 
-## 2) Екіп і `equipmentEnchantLevels` (ПК vs телефон)
+## 2) Інвентар і `overflowChest` (дублікати / «одягнений на телефоні, в сумці на ПК»)
+
+**Проблема:** `mergeInventoriesUnion(local, server)` з **max(count)** тягнув у сумку рядки з застарілої локалі, тоді як на сервері ті ж екземпляри вже **в екіпі** або видалені з інвентаря → дублікати Draconic set, роз’їзд екіпу між пристроями.
+
+**Правила:**
+
+- Якщо **`preferServerSnapshot`** — інвентар і overflow брати **лише з API** (`cloneInventorySnapshot` серверного масиву), **без** union з `localStorage`.
+- У **пізньому блоці** після hydrate — **не** робити повторний union інвентаря/overflow, коли **`preferServerSnapshot`** (лише SP merge тощо залишається).
+
+## 3) Екіп і `equipmentEnchantLevels` (ПК vs телефон)
 
 **Проблема:** на іншому пристрої **старіший** `localStorage` мав більше слотів екіпу або свої `equipmentEnchantLevels` і **перезатирав** свіжий snapshot з API (заточка на ПК «не тягнулась» на телефон).
 
 **Правила:**
 
 - **`preferServerSnapshot`** коли `character.updatedAt` новіший за локальний `lastSavedAt` (або локаль «без збереження»). Тоді при злитті екіпу/заточки **перемагає сервер** поверх локалі в полях `mergedEquipment` / `mergedEquipmentEnchantLevels` (порядок spread: локаль база, **сервер зверху**).
-- У **пізньому блоці** після union інвентаря:
-  - **Не** виставляти «повний локальний екіп», коли локаль має більше заповнених слотів, якщо **`preferServerSnapshot`** — інакше multi-device зламається.
-  - **Не** знову підмішувати локальні **`equipmentEnchantLevels`**, коли **`preferServerSnapshot`**.
+- У **пізньому блоці** після hydrate (коли **не** `preferServerSnapshot`): опційно локальний екіп з більшою кількістю слотів і локальні **`equipmentEnchantLevels`** при **`preferLocalStackableCounts`**.
 
-## 3) Перед правками в цих місцях
+## 4) Перед правками в цих місцях
 
 - Запустити `npx tsc -b`.
 - Перевірити сценарій: «GET з новішого сервера + застарілий localStorage на другому пристрої» — UI **не** має віддавати пріоритет локальному екіпу/заточці поверх API.
