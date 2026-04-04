@@ -51,6 +51,23 @@ function getProfessionRaw(heroJson: any, classId: string): unknown {
 
 export type LearnSkillServerFail = { ok: false; status: 400 | 403; error: string };
 
+/** skillId з JSON (число / рядок цифр) або skill_id — щоб не отримувати NaN від Number(undefined). */
+export function parseSkillIdFromRequestBody(body: unknown): number | null {
+  if (body == null || typeof body !== "object" || Array.isArray(body)) return null;
+  const b = body as Record<string, unknown>;
+  const raw = b.skillId ?? b.skill_id;
+  if (typeof raw === "number") {
+    return Number.isInteger(raw) && raw > 0 ? raw : null;
+  }
+  if (typeof raw === "string") {
+    const t = raw.trim();
+    if (!/^\d+$/.test(t)) return null;
+    const n = parseInt(t, 10);
+    return n > 0 ? n : null;
+  }
+  return null;
+}
+
 export type LearnProfessionSkillOk = {
   ok: true;
   newSp: number;
@@ -195,8 +212,14 @@ export function computeAdditionalSkillLearn(
 
   const oldHeroJson = existing.heroJson && typeof existing.heroJson === "object" ? existing.heroJson : {};
   const skillsIn = Array.isArray((oldHeroJson as any).skills) ? [...(oldHeroJson as any).skills] : [];
-  const row = skillsIn.find((x: any) => Number(x?.id) === skillId);
-  const currentLevel = row ? Math.max(0, Math.floor(Number(row.level) || 0)) : 0;
+  const levelById = new Map<number, number>();
+  for (const x of skillsIn) {
+    const id = Number((x as any)?.id);
+    if (!Number.isFinite(id)) continue;
+    const lv = Math.max(0, Math.floor(Number((x as any).level) || 0));
+    levelById.set(id, Math.max(levelById.get(id) ?? 0, lv));
+  }
+  const currentLevel = levelById.get(skillId) ?? 0;
   if (currentLevel > 0) {
     return { ok: false, status: 400, error: "invalid input" };
   }
@@ -204,11 +227,11 @@ export function computeAdditionalSkillLearn(
   const nextTier = first.tier;
   const newAdena = playerAdena - adenaCost;
 
-  const newSkills: { id: number; level: number }[] = skillsIn.map((x: any) => ({
-    id: Number(x.id),
-    level: Math.max(0, Math.floor(Number(x.level) || 0)),
+  levelById.set(skillId, nextTier);
+  const newSkills: { id: number; level: number }[] = Array.from(levelById.entries()).map(([id, level]) => ({
+    id,
+    level,
   }));
-  newSkills.push({ id: skillId, level: nextTier });
 
   const mergedHeroJsonRaw = {
     ...(oldHeroJson as Record<string, unknown>),

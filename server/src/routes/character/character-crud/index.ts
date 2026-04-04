@@ -21,6 +21,7 @@ import { trySendWelcomeLetterForNewAccount } from "../../../welcomeNewPlayerLett
 import {
   computeProfessionSkillLearn,
   computeAdditionalSkillLearn,
+  parseSkillIdFromRequestBody,
 } from "../../../learnSkillServer";
 
 export async function characterCrudRoutes(app: FastifyInstance) {
@@ -851,9 +852,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const id = params.id;
       if (!id) return reply.code(400).send({ error: "character id required" });
 
-      const body = req.body as { skillId?: unknown };
-      const skillId = Number(body.skillId);
-      if (!Number.isInteger(skillId) || skillId <= 0) {
+      const skillId = parseSkillIdFromRequestBody(req.body);
+      if (skillId == null) {
         return reply.code(400).send({ error: "invalid input" });
       }
 
@@ -952,9 +952,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const id = params.id;
       if (!id) return reply.code(400).send({ error: "character id required" });
 
-      const body = req.body as { skillId?: unknown };
-      const skillId = Number(body.skillId);
-      if (!Number.isInteger(skillId) || skillId <= 0) {
+      const skillId = parseSkillIdFromRequestBody(req.body);
+      if (skillId == null) {
         return reply.code(400).send({ error: "invalid input" });
       }
 

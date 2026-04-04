@@ -152,9 +152,13 @@ export async function postLearnAdditionalSkill(
   characterId: string,
   body: { skillId: number }
 ): Promise<{ ok: boolean; character: Character }> {
+  const skillId = Math.trunc(Number(body.skillId));
+  if (!Number.isFinite(skillId) || skillId <= 0 || !Number.isInteger(skillId)) {
+    return Promise.reject(new Error("invalid skill id"));
+  }
   return apiRequest(`/characters/${encodeURIComponent(characterId)}/learn-additional-skill`, {
     method: "POST",
-    body: JSON.stringify(body),
+    body: JSON.stringify({ skillId }),
   });
 }
 
