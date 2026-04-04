@@ -231,7 +231,12 @@ function mergeInventoriesUnion(
     (arr || []).forEach((it: any) => {
       if (!it || (!it.id && !it.itemId)) return;
       const key = itemKey(it);
-      const cnt = Math.max(1, Number(it.count) ?? 1);
+      if (it.count === undefined || it.count === null) {
+        m.set(key, (m.get(key) ?? 0) + 1);
+        return;
+      }
+      const cnt = Math.max(0, Math.floor(Number(it.count)));
+      if (cnt <= 0) return;
       m.set(key, (m.get(key) ?? 0) + cnt);
     });
     return m;
@@ -264,21 +269,16 @@ function mergeInventoriesUnion(
     const sc = serverCounts.get(key) ?? 0;
     const bestItem = getBestItem(localInv, key) ?? getBestItem(serverInv, key);
     let total: number;
-    if (
-      preferLocal &&
-      isStackableItem(bestItem) &&
-      lc > 0 &&
-      sc > 0
-    ) {
+    if (preferLocal && isStackableItem(bestItem)) {
+      // Локальний snapshot новіший — повний авторитет по count (включно з 0 після витрати останнього з стаку).
       total = lc;
     } else if (
       !preferLocal &&
       isStackableItem(bestItem) &&
-      lc > 0 &&
-      sc > 0 &&
-      lc < sc
+      lc < sc &&
+      (lc > 0 || (Array.isArray(localInv) && localInv.length > 0))
     ) {
-      // Серверний heroJson ще не містить витрати (затримка PUT / heartbeat) — інакше Math.max відкочує соски/скроли.
+      // Сервер ще з старим count, а локально вже списали / прибрали рядок (lc=0, інші слоти інвентаря є).
       total = lc;
     } else {
       total = Math.max(lc, sc);
