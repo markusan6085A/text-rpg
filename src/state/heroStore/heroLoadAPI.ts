@@ -409,6 +409,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
             ...(Array.isArray(live.overflowChest)
               ? { overflowChest: live.overflowChest.map((r: any) => ({ ...r })) }
               : {}),
+            // Inject live equipment so that items equipped since loadHeroFromAPI started
+            // are not treated as stale — prevents old displaced item appearing in both
+            // equipment slot AND inventory simultaneously (x2 duplication bug).
+            ...(live.equipment ? { equipment: { ...live.equipment } } : {}),
+            ...(live.equipmentEnchantLevels
+              ? { equipmentEnchantLevels: { ...live.equipmentEnchantLevels } }
+              : {}),
           } as Hero;
         }
       } catch {
