@@ -748,25 +748,31 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       retryCount = 0;
     }
     
-    // ❗ ВАЖЛИВО: Також зберігаємо в localStorage як backup (навіть якщо API працює)
-    // Це гарантує, що дані не втрачаться при проблемах з API
-    const current = getJSON<string | null>("l2_current_user", null);
-    if (current) {
-      const accounts = getJSON<any[]>("l2_accounts_v2", []);
-      let accIndex = accounts.findIndex((a: any) => a.username === current);
-      if (accIndex === -1) {
-        accounts.push({ username: current, hero: {} });
-        accIndex = accounts.length - 1;
-      }
-      {
+    // ❗ ВАЖЛИВО: backup-збереження в localStorage після PUT.
+    // 🔥 КРИТИЧНО: applyServerSync вже викликав saveHeroToLocalStorageOnly(merged) з новою ревізією R+1.
+    // Тут НЕ перезаписуємо через старий `hero` (має R) — інакше localStorage скидається до R,
+    // наступний GET бачить serverRevision=R+1 > localRevision=R → preferServerSnapshot=true → ROLLBACK.
+    // Замість цього беремо актуального героя зі store (вже має R+1 після applyServerSync).
+    {
+      const { useHeroStore: hs } = await import('../heroStore');
+      const liveAfterSync = hs.getState().hero;
+      const heroForBackup = (liveAfterSync && liveAfterSync.name === hero.name) ? liveAfterSync : hero;
+      const current = getJSON<string | null>("l2_current_user", null);
+      if (current) {
+        const accounts = getJSON<any[]>("l2_accounts_v2", []);
+        let accIndex = accounts.findIndex((a: any) => a.username === current);
+        if (accIndex === -1) {
+          accounts.push({ username: current, hero: {} });
+          accIndex = accounts.length - 1;
+        }
         const heroWithTimestamp = {
-          ...hero,
+          ...heroForBackup,
           lastSavedAt: Date.now(),
-          heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero), hpFull: wasFullHp, mpFull: wasFullMp, cpFull: wasFullCp },
+          heroJson: { ...((heroForBackup as any).heroJson || {}), ...buildBackupHeroJson(heroForBackup as any), hpFull: wasFullHp, mpFull: wasFullMp, cpFull: wasFullCp },
         };
         accounts[accIndex].hero = heroWithTimestamp;
         setJSON("l2_accounts_v2", accounts);
-        console.log('[saveHeroToLocalStorage] Also saved to localStorage as backup');
+        console.log('[saveHeroToLocalStorage] Also saved to localStorage as backup (with live hero rev)');
       }
     }
   } catch (error: any) {
