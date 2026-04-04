@@ -131,27 +131,57 @@ export const itemsDBCraftResources: Record<string, ItemDefinition> = {
   },
 
   // ── Оброблені матеріали C/B ────────────────────────────────────────
+  thread: {
+    id: "thread", name: "Thread", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1868.jpg",
+    description: "Нитка. Базове волокно для крафту тканини та легкої броні.",
+    stackable: true,
+  },
+  suede: {
+    id: "suede", name: "Suede", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1866.jpg",
+    description: "Замша. Вичинена шкіра для легкої броні та аксесуарів.",
+    stackable: true,
+  },
+  varnish: {
+    id: "varnish", name: "Varnish", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1865.jpg",
+    description: "Лак. Захисне покриття для обробки виробів.",
+    stackable: true,
+  },
   cord: {
     id: "cord", name: "Cord", kind: "resource", slot: "resource",
     icon: "/items/drops/resources/l2dop-by-itemid/1884.jpg",
     description: "Шнур. Міцна мотузка для скріплення деталей та крафту C-предметів.",
     stackable: true,
   },
+  silver_mold: {
+    id: "silver_mold", name: "Silver Mold", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/Silver_Mold.jpg",
+    description: "Срібна форма. Пресформа зі срібла для точного лиття.",
+    stackable: true,
+  },
+  steel_mold: {
+    id: "steel_mold", name: "Steel Mold", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/Steel_Mold.jpg",
+    description: "Сталева форма. Міцна пресформа для крафту B-предметів.",
+    stackable: true,
+  },
   high_grade_suede: {
     id: "high_grade_suede", name: "High Grade Suede", kind: "resource", slot: "resource",
-    icon: "/items/drops/resources/l2dop-by-itemid/5549.jpg",
+    icon: "/items/drops/resources/l2dop-by-itemid/1885.jpg",
     description: "Замша вищого ґатунку. Тонко вичинена шкіра для B/A-броні та аксесуарів.",
     stackable: true,
   },
   compound_braid: {
     id: "compound_braid", name: "Compound Braid", kind: "resource", slot: "resource",
-    icon: "/items/drops/resources/l2dop-by-itemid/4042.jpg",
+    icon: "/items/drops/resources/l2dop-by-itemid/1889.jpg",
     description: "Складена коса. Переплетене волокно підвищеної міцності для C/B-крафту.",
     stackable: true,
   },
   crafted_leather: {
     id: "crafted_leather", name: "Crafted Leather", kind: "resource", slot: "resource",
-    icon: "/items/drops/resources/l2dop-by-itemid/4041.jpg",
+    icon: "/items/drops/resources/l2dop-by-itemid/1894.jpg",
     description: "Оброблена шкіра. Спеціально вичинена шкіра для крафту B-броні.",
     stackable: true,
   },
@@ -159,25 +189,25 @@ export const itemsDBCraftResources: Record<string, ItemDefinition> = {
   // ── Рідкісні матеріали B/A ────────────────────────────────────────
   metal_hardener: {
     id: "metal_hardener", name: "Metal Hardener", kind: "resource", slot: "resource",
-    icon: "/items/drops/resources/l2dop-by-itemid/4038.jpg",
+    icon: "/items/drops/resources/l2dop-by-itemid/5220.jpg",
     description: "Затверджувач металу. Речовина для підвищення твердості металевих виробів A-класу.",
     stackable: true,
   },
   metallic_fiber: {
     id: "metallic_fiber", name: "Metallic Fiber", kind: "resource", slot: "resource",
-    icon: "/items/drops/resources/l2dop-by-itemid/4043.jpg",
+    icon: "/items/drops/resources/l2dop-by-itemid/1895.jpg",
     description: "Металеве волокно. Тонке волокно з металевих сплавів для A/S-предметів.",
     stackable: true,
   },
   durable_metal_plate: {
     id: "durable_metal_plate", name: "Durable Metal Plate", kind: "resource", slot: "resource",
-    icon: "/items/drops/resources/l2dop-by-itemid/4044.jpg",
+    icon: "/items/drops/resources/l2dop-by-itemid/5550.jpg",
     description: "Міцна металева пластина. Пластина з загартованого металу для S-броні.",
     stackable: true,
   },
   metallic_thread: {
     id: "metallic_thread", name: "Metallic Thread", kind: "resource", slot: "resource",
-    icon: "/items/drops/resources/l2dop-by-itemid/4045.jpg",
+    icon: "/items/drops/resources/l2dop-by-itemid/5549.jpg",
     description: "Металева нитка. Надтонка нитка з металевого сплаву для A/S-предметів.",
     stackable: true,
   },
