@@ -1035,4 +1035,398 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return reply.send({ ok: true, character: serialized });
     }
   );
+
+  // POST /characters/:id/enchant — server-side atomic enchant (Phase 1)
+  app.post("/characters/:id/enchant", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as {
+      scrollId?: string;
+      slot?: string | null;
+      inventoryItemIndex?: number | null;
+    };
+
+    const scrollId = String(body.scrollId ?? "").trim();
+    if (!scrollId) return reply.code(400).send({ error: "scrollId required" });
+    if (body.slot == null && body.inventoryItemIndex == null) {
+      return reply.code(400).send({ error: "slot or inventoryItemIndex required" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const heroJson: any = (character.heroJson as any) || {};
+    const inventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+
+    // Detect scroll type from ID
+    const sid = scrollId.toLowerCase();
+    const isWeaponScroll = sid.includes("weapon");
+    const isArmorScroll = sid.includes("armor");
+    const isBlessedScroll = sid.includes("bless") || sid.includes("quest_shop");
+    const isGmGiantScroll = /^gm_giant_enchant_(weapon|armor)_(d|c|b|a|s)$/i.test(scrollId);
+
+    if (!isWeaponScroll && !isArmorScroll) {
+      return reply.code(400).send({ error: "unknown scroll type" });
+    }
+
+    // Find scroll in inventory
+    const scrollIdx = inventory.findIndex(
+      (i: any) => i && i.id === scrollId && (i.count ?? 1) > 0
+    );
+    if (scrollIdx < 0) return reply.code(400).send({ error: "scroll not found in inventory" });
+
+    // Find target item and determine if weapon
+    let currentEnchantLevel = 0;
+    let isWeaponItem = false;
+    let targetIsEquipped = false;
+    let targetSlot: string | null = null;
+    let targetInventoryIndex: number | null = null;
+
+    if (body.slot) {
+      const equipment: any = heroJson.equipment ?? {};
+      const equippedId = equipment[body.slot];
+      if (!equippedId) return reply.code(400).send({ error: "no item in slot" });
+
+      const enchLevels: any = heroJson.equipmentEnchantLevels ?? {};
+      currentEnchantLevel = Number(enchLevels[body.slot] ?? 0);
+      targetIsEquipped = true;
+      targetSlot = body.slot;
+      const weaponSlots = ["weapon", "lrhand", "rhand", "lhand"];
+      isWeaponItem = weaponSlots.includes(body.slot);
+    } else if (body.inventoryItemIndex != null) {
+      const idx = Number(body.inventoryItemIndex);
+      if (idx < 0 || idx >= inventory.length) {
+        return reply.code(400).send({ error: "invalid inventoryItemIndex" });
+      }
+      const item = inventory[idx];
+      if (!item) return reply.code(400).send({ error: "no item at index" });
+
+      currentEnchantLevel = Number(item.enchantLevel ?? 0);
+      targetInventoryIndex = idx;
+      const kind = String(item.kind ?? "").toLowerCase();
+      const itemSlot = String(item.slot ?? "").toLowerCase();
+      isWeaponItem =
+        kind === "weapon" ||
+        ["weapon", "lrhand", "rhand", "lhand"].includes(itemSlot);
+    }
+
+    // Validate scroll type vs item
+    if (isWeaponScroll && !isWeaponItem) {
+      return reply.code(400).send({ error: "weapon scroll can only enchant weapons" });
+    }
+    if (isArmorScroll && isWeaponItem) {
+      return reply.code(400).send({ error: "armor scroll cannot enchant weapons" });
+    }
+
+    const maxEnchant = isWeaponItem ? 40 : 30;
+    if (currentEnchantLevel >= maxEnchant) {
+      return reply.code(400).send({ error: "item already at max enchant" });
+    }
+
+    // Success chance (mirrors enchantScroll.ts client logic)
+    let successChance: number;
+    if (isWeaponItem) {
+      if (isGmGiantScroll) successChance = 1;
+      else if (currentEnchantLevel < 5) successChance = 1.0;
+      else if (currentEnchantLevel < 15) successChance = 0.8;
+      else if (currentEnchantLevel < 30) successChance = 0.7;
+      else successChance = 0.6;
+    } else {
+      if (isGmGiantScroll) successChance = 1;
+      else if (currentEnchantLevel < 3) successChance = 1.0;
+      else if (currentEnchantLevel < 10) successChance = 0.9;
+      else if (currentEnchantLevel < 20) successChance = 0.8;
+      else successChance = 0.7;
+    }
+    if (isBlessedScroll && !isGmGiantScroll) {
+      successChance = Math.max(successChance, 0.95);
+    }
+
+    const success = Math.random() < successChance;
+
+    // Calculate result level
+    let newEnchantLevel: number;
+    if (success) {
+      newEnchantLevel = currentEnchantLevel + 1;
+    } else if (isBlessedScroll) {
+      newEnchantLevel = currentEnchantLevel > 3 ? 3 : currentEnchantLevel;
+    } else if (isWeaponItem) {
+      if (currentEnchantLevel < 5) newEnchantLevel = 0;
+      else if (currentEnchantLevel < 15) newEnchantLevel = 5;
+      else if (currentEnchantLevel < 30) newEnchantLevel = 10;
+      else newEnchantLevel = 15;
+    } else {
+      newEnchantLevel = currentEnchantLevel;
+    }
+
+    // Deep clone heroJson and apply changes
+    const newHeroJson: any = JSON.parse(JSON.stringify(heroJson));
+    const newInventory: any[] = Array.isArray(newHeroJson.inventory) ? newHeroJson.inventory : [];
+
+    // Consume one scroll (remove or decrement)
+    let adjustedTargetIndex = targetInventoryIndex;
+    const scrollCount = Number(newInventory[scrollIdx]?.count ?? 1);
+    if (scrollCount <= 1) {
+      newInventory.splice(scrollIdx, 1);
+      if (adjustedTargetIndex != null && scrollIdx < adjustedTargetIndex) {
+        adjustedTargetIndex -= 1;
+      }
+    } else {
+      newInventory[scrollIdx] = { ...newInventory[scrollIdx], count: scrollCount - 1 };
+    }
+
+    // Apply enchant result
+    if (targetIsEquipped && targetSlot) {
+      newHeroJson.equipmentEnchantLevels = {
+        ...(newHeroJson.equipmentEnchantLevels ?? {}),
+        [targetSlot]: newEnchantLevel,
+      };
+    } else if (
+      adjustedTargetIndex != null &&
+      adjustedTargetIndex >= 0 &&
+      adjustedTargetIndex < newInventory.length
+    ) {
+      newInventory[adjustedTargetIndex] = {
+        ...newInventory[adjustedTargetIndex],
+        enchantLevel: newEnchantLevel,
+      };
+    }
+    newHeroJson.inventory = newInventory;
+
+    const oldRevision = Number(heroJson.heroRevision ?? 0);
+    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+    await prisma.character.update({
+      where: { id },
+      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+    });
+
+    return reply.send({ ok: true, success, newEnchantLevel, heroJson: versionedHeroJson });
+  });
+
+  // POST /characters/:id/battle-finish — lightweight battle result validation (Phase 5)
+  app.post("/characters/:id/battle-finish", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as {
+      mobId?: string;
+      earnedExp?: number;
+      earnedSp?: number;
+      earnedAdena?: number;
+      newLevel?: number;
+      newExp?: number;
+      newSp?: number;
+      newAdena?: number;
+      newHp?: number;
+      newMp?: number;
+      newCp?: number;
+      drops?: Array<{ id: string; count: number; name?: string }>;
+      heroJsonPatch?: Record<string, any>;
+    };
+
+    // Sanity limits (prevent extreme cheating while keeping the API simple)
+    const MAX_EXP_PER_KILL = 5_000_000;
+    const MAX_ADENA_PER_KILL = 500_000;
+    const MAX_SP_PER_KILL = 50_000;
+    const earnedExp = Math.max(0, Math.min(MAX_EXP_PER_KILL, Number(body.earnedExp ?? 0)));
+    const earnedAdena = Math.max(0, Math.min(MAX_ADENA_PER_KILL, Number(body.earnedAdena ?? 0)));
+    const earnedSp = Math.max(0, Math.min(MAX_SP_PER_KILL, Number(body.earnedSp ?? 0)));
+
+    const character = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const heroJson: any = (character.heroJson as any) || {};
+
+    // Build updated heroJson with battle results
+    const newHeroJson: any = { ...heroJson };
+
+    // Apply level/exp/sp if provided (client calculated these)
+    if (body.newLevel != null) newHeroJson.level = Number(body.newLevel);
+    if (body.newExp != null) newHeroJson.exp = Number(body.newExp);
+    if (body.newSp != null) newHeroJson.sp = Number(body.newSp);
+    if (body.newHp != null) newHeroJson.hp = Number(body.newHp);
+    if (body.newMp != null) newHeroJson.mp = Number(body.newMp);
+    if (body.newCp != null) newHeroJson.cp = Number(body.newCp);
+    if (body.newAdena != null) newHeroJson.adena = Number(body.newAdena);
+
+    // Apply inventory patch if provided (drops)
+    if (body.heroJsonPatch) {
+      for (const [key, value] of Object.entries(body.heroJsonPatch)) {
+        // Only allow patching non-critical fields (not equipment or enchant levels via this endpoint)
+        if (key !== "equipment" && key !== "equipmentEnchantLevels" && key !== "skills") {
+          newHeroJson[key] = value;
+        }
+      }
+    }
+
+    const oldRevision = Number(heroJson.heroRevision ?? 0);
+    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+    const updateData: any = {
+      heroJson: versionedHeroJson as any,
+      lastActivityAt: new Date(),
+    };
+    // Update adena column if we have a new value
+    if (body.newAdena != null) {
+      updateData.adena = BigInt(Math.max(0, Math.floor(Number(body.newAdena))));
+    }
+
+    await prisma.character.update({ where: { id }, data: updateData });
+
+    return reply.send({ ok: true, heroJson: versionedHeroJson });
+  });
+
+  // POST /characters/:id/equip-commit — atomic equip state save (Phase 2)
+  // Client calculates new equip state, server saves it atomically
+  app.post("/characters/:id/equip-commit", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as {
+      equipment?: Record<string, any>;
+      inventory?: any[];
+      equipmentEnchantLevels?: Record<string, number>;
+    };
+
+    if (!body.equipment || !body.inventory) {
+      return reply.code(400).send({ error: "equipment and inventory required" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const heroJson: any = (character.heroJson as any) || {};
+    const newHeroJson: any = {
+      ...heroJson,
+      equipment: body.equipment,
+      inventory: body.inventory,
+      equipmentEnchantLevels: body.equipmentEnchantLevels ?? heroJson.equipmentEnchantLevels ?? {},
+    };
+
+    const oldRevision = Number(heroJson.heroRevision ?? 0);
+    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+    await prisma.character.update({
+      where: { id },
+      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+    });
+
+    return reply.send({ ok: true, heroJson: versionedHeroJson });
+  });
+
+  // POST /characters/:id/shop/buy — server-side GM shop purchase (Phase 3)
+  app.post("/characters/:id/shop/buy", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as {
+      itemId?: string;
+      quantity?: number;
+      currency?: string;
+      unitPrice?: number;
+      itemMeta?: Record<string, any>;
+    };
+
+    const itemId = String(body.itemId ?? "").trim();
+    const quantity = Math.max(1, Math.floor(Number(body.quantity ?? 1)));
+
+    if (!itemId) return reply.code(400).send({ error: "itemId required" });
+
+    // Validate against server-side catalog for price authority
+    const { getGmShopItemPrice } = await import("../../../data/gmShopCatalog");
+    const catalogEntry = getGmShopItemPrice(itemId);
+    if (!catalogEntry) {
+      return reply.code(400).send({ error: "item not available in shop" });
+    }
+    const unitPrice = catalogEntry.unitPrice;
+    const currency = catalogEntry.currency;
+    const totalPrice = unitPrice * quantity;
+
+    const character = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const heroJson: any = (character.heroJson as any) || {};
+    const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+
+    let newAdena = Number((character as any).adena ?? 0);
+
+    if (currency === "adena") {
+      if (newAdena < totalPrice) {
+        return reply.code(400).send({ error: "insufficient adena" });
+      }
+      newAdena -= totalPrice;
+    } else if (currency === "ancient_adena" || currency === "aa") {
+      const aaIdx = inventory.findIndex((i: any) => i && i.id === "ancient_adena");
+      const aaCount = Number(inventory[aaIdx]?.count ?? 0);
+      if (aaCount < totalPrice) {
+        return reply.code(400).send({ error: "insufficient ancient adena" });
+      }
+      if (aaCount - totalPrice <= 0) {
+        inventory.splice(aaIdx, 1);
+      } else {
+        inventory[aaIdx] = { ...inventory[aaIdx], count: aaCount - totalPrice };
+      }
+    } else if (currency === "coins_silver") {
+      const silverCount = Number((character as any).coinsSilver ?? 0);
+      if (silverCount < totalPrice) {
+        return reply.code(400).send({ error: "insufficient silver coins" });
+      }
+    }
+
+    // Add item to inventory using client-provided metadata for item display fields
+    const itemMeta = body.itemMeta as Record<string, any> | undefined;
+    const existingIdx = inventory.findIndex((i: any) => i && i.id === itemId);
+    if (existingIdx >= 0) {
+      inventory[existingIdx] = {
+        ...inventory[existingIdx],
+        count: (inventory[existingIdx].count ?? 0) + quantity,
+      };
+    } else {
+      inventory.push({
+        id: itemId,
+        count: quantity,
+        ...(itemMeta || {}),
+      });
+    }
+
+    const newHeroJson: any = { ...heroJson, inventory };
+    const oldRevision = Number(heroJson.heroRevision ?? 0);
+    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+    const updateData: any = {
+      heroJson: versionedHeroJson as any,
+      lastActivityAt: new Date(),
+    };
+    if (currency === "adena") {
+      updateData.adena = BigInt(Math.floor(newAdena));
+    }
+    if (currency === "coins_silver") {
+      const silverCount = Number((character as any).coinsSilver ?? 0);
+      updateData.coinsSilver = Math.max(0, silverCount - totalPrice);
+    }
+
+    await prisma.character.update({ where: { id }, data: updateData });
+
+    const updatedChar = await prisma.character.findFirst({ where: { id } });
+    return reply.send({
+      ok: true,
+      heroJson: versionedHeroJson,
+      adena: Number((updatedChar as any)?.adena ?? newAdena),
+      coinsSilver: Number((updatedChar as any)?.coinsSilver ?? 0),
+    });
+  });
 }

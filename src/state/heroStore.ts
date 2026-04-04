@@ -613,7 +613,23 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     if ((updated as any).equipmentInserts !== undefined) {
       patch.equipmentInserts = (updated as any).equipmentInserts;
     }
+    // Optimistic update (also triggers regular PUT via immediateSave)
     get().updateHero(patch);
+    // Atomic commit to server immediately (Phase 2: ensures no multi-device rollback)
+    import("../utils/api/equipAPI").then(({ commitEquipStateAPI }) => {
+      commitEquipStateAPI({
+        equipment: updated.equipment as Record<string, any>,
+        inventory: updated.inventory,
+        equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
+      }).then((result) => {
+        if (result.ok && result.heroJson?.heroRevision) {
+          get().updateServerState(
+            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() },
+            {}
+          );
+        }
+      }).catch(() => { /* regular PUT will still save the state */ });
+    }).catch(() => {});
   },
 
   unequipItem: (slot: string) => {
@@ -629,7 +645,23 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     if ("equipmentInserts" in updated) {
       patch.equipmentInserts = (updated as any).equipmentInserts;
     }
+    // Optimistic update (also triggers regular PUT via immediateSave)
     get().updateHero(patch);
+    // Atomic commit to server immediately (Phase 2)
+    import("../utils/api/equipAPI").then(({ commitEquipStateAPI }) => {
+      commitEquipStateAPI({
+        equipment: updated.equipment as Record<string, any>,
+        inventory: updated.inventory,
+        equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
+      }).then((result) => {
+        if (result.ok && result.heroJson?.heroRevision) {
+          get().updateServerState(
+            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() },
+            {}
+          );
+        }
+      }).catch(() => {});
+    }).catch(() => {});
   },
 
   updateAdena: (amount: number) => {

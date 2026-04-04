@@ -4,6 +4,7 @@ import { useHeroStore } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
+import { shopBuyAPI } from "../utils/api/shopAPI";
 import type { HeroInventoryItem } from "../types/Hero";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
@@ -60,116 +61,58 @@ export default function GMShop({ navigate }: GMShopProps) {
   const ancientAdenaItem = hero.inventory?.find(item => item.id === "ancient_adena");
   const aaCount = ancientAdenaItem?.count || 0;
 
-  // Обробка покупки за AA
-  const handleBuy = (item: DyeItem, quantity: number = 1) => {
+  // Обробка покупки за AA — через сервер (Phase 3)
+  const handleBuy = async (item: DyeItem, quantity: number = 1) => {
     if (!hero) return;
 
     const totalPrice = item.price * quantity;
-
-    // Перевіряємо наявність AA
     if (aaCount < totalPrice) {
       showToast("Недостатньо Ancient Adena (AA)!", "error");
       return;
     }
 
     const itemDef = itemsDB[item.itemId];
-    if (!itemDef) {
-      // Якщо предмета немає в itemsDB, створюємо тимчасовий
-      // Пізніше додамо в itemsDB
-      const tempItem = {
-        id: item.itemId,
-        name: item.name,
-        kind: "consumable",
-        slot: "consumable",
-        icon: item.icon,
-        description: item.description,
-        grade: item.grade,
-      };
-      
-      // Вираховуємо AA
-      const newInventory = [...(hero.inventory || [])];
-      const aaIndex = newInventory.findIndex(invItem => invItem.id === "ancient_adena");
-      if (aaIndex >= 0) {
-        const aaItem = newInventory[aaIndex];
-        if (aaItem.count && aaItem.count >= totalPrice) {
-          if (aaItem.count > totalPrice) {
-            newInventory[aaIndex] = { ...aaItem, count: aaItem.count - totalPrice };
-          } else {
-            newInventory.splice(aaIndex, 1);
-          }
-          
-          // Додаємо предмет до інвентаря
-          const existingItemIndex = newInventory.findIndex(invItem => invItem.id === item.itemId);
-          if (existingItemIndex >= 0) {
-            const existingItem = newInventory[existingItemIndex];
-            newInventory[existingItemIndex] = {
-              ...existingItem,
-              count: (existingItem.count || 0) + quantity,
-            };
-          } else {
-            newInventory.push({
-              id: item.itemId,
-              name: item.name,
-              slot: "consumable",
-              kind: "consumable",
-              icon: item.icon,
-              description: item.description,
-              count: quantity,
-              grade: item.grade,
-            });
-          }
-          
-          updateHero({ inventory: newInventory });
-          setSelectedItem(null);
-          setBuyQuantity(1);
-          return;
+    const itemMeta = itemDef
+      ? {
+          id: itemDef.id,
+          name: itemDef.name,
+          slot: itemDef.slot,
+          kind: itemDef.kind,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          stats: itemDef.stats,
+          grade: itemDef.grade || item.grade,
         }
-      }
-      showToast("Недостатньо Ancient Adena (AA)!", "error");
-      return;
-    }
+      : {
+          id: item.itemId,
+          name: item.name,
+          slot: "consumable",
+          kind: "consumable",
+          icon: item.icon,
+          description: item.description,
+          grade: item.grade,
+        };
 
-    // Вираховуємо AA
-    const newInventory = [...(hero.inventory || [])];
-    const aaIndex = newInventory.findIndex(invItem => invItem.id === "ancient_adena");
-    if (aaIndex >= 0) {
-      const aaItem = newInventory[aaIndex];
-      if (aaItem.count && aaItem.count >= totalPrice) {
-        if (aaItem.count > totalPrice) {
-          newInventory[aaIndex] = { ...aaItem, count: aaItem.count - totalPrice };
-        } else {
-          newInventory.splice(aaIndex, 1);
-        }
-        
-        // Додаємо предмет до інвентаря
-        const existingItemIndex = newInventory.findIndex(invItem => invItem.id === item.itemId);
-        if (existingItemIndex >= 0) {
-          const existingItem = newInventory[existingItemIndex];
-          newInventory[existingItemIndex] = {
-            ...existingItem,
-            count: (existingItem.count || 0) + quantity,
-          };
-        } else {
-          newInventory.push({
-            id: itemDef.id,
-            name: itemDef.name,
-            slot: itemDef.slot,
-            kind: itemDef.kind,
-            icon: itemDef.icon,
-            description: itemDef.description,
-            stats: itemDef.stats,
-            count: quantity,
-            grade: itemDef.grade || item.grade,
-          });
-        }
-        
-        updateHero({ inventory: newInventory });
+    try {
+      const result = await shopBuyAPI({
+        itemId: item.itemId,
+        quantity,
+        currency: "ancient_adena",
+        unitPrice: item.price,
+        itemMeta,
+      });
+      if (result.ok) {
+        useHeroStore.getState().applyServerSync(
+          { inventory: result.heroJson.inventory },
+          { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
+        );
         setSelectedItem(null);
         setBuyQuantity(1);
-        return;
       }
+    } catch (err: any) {
+      const msg = err?.body?.error || err?.message || "Помилка купівлі";
+      showToast(msg === "insufficient ancient adena" ? "Недостатньо Ancient Adena (AA)!" : msg, "error");
     }
-    showToast("Недостатньо Ancient Adena (AA)!", "error");
   };
 
   // Генерація каменя: кристал + ЛС + камінь → 5% шанс отримати камінь з пасивним ефектом
@@ -227,8 +170,8 @@ export default function GMShop({ navigate }: GMShopProps) {
     showToast(success ? `Успіх! Отримано камінь з пасивним ефектом: ${def.name}` : `Отримано: ${def.name} (без пасивки)`, success ? "success" : "info");
   };
 
-  // Покупка за Adena (розсодники, свитки Giant тощо)
-  const handleBuyAdena = (
+  // Покупка за Adena (розсодники, свитки Giant тощо) — через сервер (Phase 3)
+  const handleBuyAdena = async (
     itemId: string,
     quantity: number = 1,
     unitPrice: number = CRYSTAL_PRICE_ADENA,
@@ -244,7 +187,6 @@ export default function GMShop({ navigate }: GMShopProps) {
 
     const totalPrice = unitPrice * quantity;
     const currentAdena = hero.adena ?? 0;
-
     if (currentAdena < totalPrice) {
       showToast("Недостатньо Adena!", "error");
       return;
@@ -256,11 +198,35 @@ export default function GMShop({ navigate }: GMShopProps) {
       return;
     }
 
-    updateAdena(-totalPrice);
-    addItemToInventory(itemId, quantity);
-    setSelectedAdenaPurchase(null);
-    setBuyQuantity(1);
-    showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
+    try {
+      const result = await shopBuyAPI({
+        itemId,
+        quantity,
+        currency: "adena",
+        unitPrice,
+        itemMeta: {
+          id: itemDef.id,
+          name: itemDef.name,
+          slot: itemDef.slot,
+          kind: itemDef.kind,
+          icon: itemDef.icon,
+          description: itemDef.description,
+          grade: itemDef.grade,
+        },
+      });
+      if (result.ok) {
+        useHeroStore.getState().applyServerSync(
+          { inventory: result.heroJson.inventory, adena: result.adena },
+          { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
+        );
+        setSelectedAdenaPurchase(null);
+        setBuyQuantity(1);
+        showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
+      }
+    } catch (err: any) {
+      const msg = err?.body?.error || err?.message || "Помилка купівлі";
+      showToast(msg === "insufficient adena" ? "Недостатньо Adena!" : msg, "error");
+    }
   };
 
   const isL2 = isWarmCityUi(getCityUiVariant());

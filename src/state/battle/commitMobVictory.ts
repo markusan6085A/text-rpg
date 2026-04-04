@@ -20,6 +20,7 @@ import { usePartyStore } from "../partyStore";
 import { postPartyKillShare, postWorldMobKill } from "../../utils/api";
 import { applyWorldMobKillLocal } from "../worldMobHpStore";
 import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
+import { battleFinishAPI } from "../../utils/api/battleFinishAPI";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -272,6 +273,52 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   if (partySharePayload) {
     void postPartyKillShare(partySharePayload).catch(() => {});
   }
+
+  // Phase 5: fire-and-forget atomic battle-finish save to server
+  // updateHero above already updated local state; this ensures server state is updated atomically.
+  void (async () => {
+    try {
+      const updatedHero = useHeroStore.getState().hero;
+      if (!updatedHero) return;
+      const heroJson = (updatedHero as any).heroJson || {};
+      await battleFinishAPI({
+        mobId: String(mob.id ?? ""),
+        earnedExp: displayExp,
+        earnedSp: displaySp,
+        earnedAdena: displayAdena,
+        newLevel: updatedHero.level,
+        newExp: updatedHero.exp,
+        newSp: updatedHero.sp,
+        newAdena: updatedHero.adena,
+        newHp: updatedHero.hp,
+        newMp: updatedHero.mp,
+        newCp: updatedHero.cp,
+        heroJsonPatch: {
+          inventory: updatedHero.inventory,
+          overflowChest: updatedHero.overflowChest,
+          mobsKilled: (updatedHero as any).mobsKilled,
+          dailyQuestsProgress: updatedHero.dailyQuestsProgress,
+          dailyQuestsCompleted: updatedHero.dailyQuestsCompleted,
+          activeQuests: updatedHero.activeQuests,
+          lastKillMobId: heroJson.lastKillMobId,
+          lastKillMobName: heroJson.lastKillMobName,
+          lastKillZoneId: heroJson.lastKillZoneId,
+          lastKillZoneName: heroJson.lastKillZoneName,
+          battleZoneId: heroJson.battleZoneId,
+          zoneId: heroJson.zoneId,
+        },
+      }).then((result) => {
+        if (result.ok && result.heroJson?.heroRevision) {
+          useHeroStore.getState().updateServerState(
+            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() },
+            {}
+          );
+        }
+      });
+    } catch {
+      // Failure is OK — the state is already in localStorage via updateHero above
+    }
+  })();
 
   let partyMemberLootLines: string[] = [];
   if (partyLogMeta?.heroId) {

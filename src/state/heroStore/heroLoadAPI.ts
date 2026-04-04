@@ -995,17 +995,20 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       }
     }
 
+    // Phase 4: server is authoritative for inventory/equipment/enchants.
+    // Phases 1-3 (enchant/equip/shop) write directly to the server atomically,
+    // so there is no legitimate reason for localStorage to be ahead for these fields.
+    // This eliminates the entire class of rollback/duplication bugs caused by merge conflicts.
     const serverEquip = fixedHero.equipment ?? {};
-    const localEquip = localSnapshot?.equipment ?? {};
-    /** Якщо сервер новіший — екіп із API (інший пристрій / заточка на ПК), інакше локальний зверху (як було). */
-    const mergedEquipment = preferServerSnapshot
-      ? { ...localEquip, ...serverEquip }
-      : { ...serverEquip, ...localEquip };
+    const mergedEquipment = serverEquip;
 
     const serverInv = fixedHero.inventory ?? [];
     const localInv = localSnapshot?.inventory ?? [];
-    // Build set of currently-equipped item keys so mergeInventoriesUnion can skip server-stale rows.
-    // Key format matches itemKey inside mergeInventoriesUnion: "${normalizedId}_${enchLvl}_"
+    // For non-server-authoritative stackable items (battle drops, consumables consumed in battle)
+    // we still need a merge to avoid losing items that haven't been PUT to server yet.
+    // Equipment and enchant levels are fully server-authoritative (phases 1-2).
+    // For inventory stackables, prefer server except when local has items from recent battle drops
+    // that haven't been committed to server yet (they go through the regular PUT path).
     const equippedKeysForMerge = (() => {
       try {
         const liveNow = useHeroStore.getState().hero;
@@ -1017,7 +1020,6 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         for (const [slot, itemId] of Object.entries(equip)) {
           if (!itemId) continue;
           const enchLvl = (enchLvels as any)[slot] ?? 0;
-          // Normalize: strip shop_ prefix (matches mergeKeyBaseId for non-stackables = raw.toLowerCase())
           const normalizedId = String(itemId).replace(/^shop_/i, "").toLowerCase();
           s.add(`${normalizedId}_${enchLvl}_`);
         }
@@ -1026,6 +1028,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         return undefined;
       }
     })();
+    // Server always wins for inventory when server is ahead; only keep local items for
+    // stackables that local has more of (battle drops not yet PUT to server).
     const mergedInventory = preferServerSnapshot
       ? cloneInventorySnapshot(serverInv)
       : mergeInventoriesUnion(localInv, serverInv, {
@@ -1033,12 +1037,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           excludeEquippedKeys: equippedKeysForMerge,
         });
 
-    const serverEnc =
-      (fixedHero as any).equipmentEnchantLevels ?? (heroData as any)?.equipmentEnchantLevels ?? {};
-    const localEnc = (localSnapshot as any)?.equipmentEnchantLevels ?? {};
-    const mergedEquipmentEnchantLevels = preferServerSnapshot
-      ? { ...localEnc, ...serverEnc }
-      : { ...serverEnc, ...localEnc };
+    // Phase 4: equipmentEnchantLevels always from server (enchants go through Phase 1 endpoint)
+    const mergedEquipmentEnchantLevels =
+      (fixedHero as any).equipmentEnchantLevels ??
+      (heroData as any)?.equipmentEnchantLevels ??
+      {};
 
     const localDyes = localSnapshot?.activeDyes ?? [];
     const serverDyes = fixedHero.activeDyes ?? [];

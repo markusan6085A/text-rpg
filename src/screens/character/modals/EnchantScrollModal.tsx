@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { getGradeFromScrollId, getGradeFromItemId } from "../../../utils/enchantHelpers";
-import { handleEnchantScroll } from "../../../state/battle/actions/enchantScroll";
-import type { BattleState } from "../../../state/battle/types";
+import { enchantItemAPI } from "../../../utils/api/enchantAPI";
+import { useHeroStore } from "../../../state/heroStore";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import {
   characterModalBorderT,
@@ -38,6 +38,7 @@ export default function EnchantScrollModal({
     success: boolean;
     newLevel: number;
   } | null>(null);
+  const [enchanting, setEnchanting] = useState(false);
 
   const scrollGrade = getGradeFromScrollId(scrollItem.id);
   const isWeaponScroll = scrollItem.id?.includes("weapon");
@@ -69,41 +70,54 @@ export default function EnchantScrollModal({
     return out;
   }, [inventory, scrollGrade, isWeaponScroll, isArmorScroll]);
 
-  const handleEnchant = () => {
-    if (selectedInvIndex == null || !hero) return;
+  const handleEnchant = async () => {
+    if (selectedInvIndex == null || !hero || enchanting) return;
     const targetRow = inventory[selectedInvIndex];
     if (!targetRow) return;
 
-    const fakeState: BattleState = {
-      log: [],
-      cooldowns: {},
-      heroBuffs: [],
-    } as unknown as BattleState;
-
-    const result = handleEnchantScroll(
-      scrollItem.id,
-      targetRow.id,
-      null,
-      fakeState,
-      hero,
-      () => {},
-      (partial) => updateHero(partial),
-      selectedInvIndex
-    );
-
-    if (result.applied && result.newLevel !== undefined && selectedInvIndex != null) {
-      // Після зняття рядка скрола індекси цілі зсуваються — інакше підсвітка «переповзе» на інший рядок
-      const sIdx = inventory.findIndex((i) => i.id === scrollItem.id);
-      let nextIdx = selectedInvIndex;
-      if (sIdx !== -1 && sIdx < nextIdx && (inventory[sIdx]?.count ?? 1) <= 1) {
-        nextIdx -= 1;
-      }
-      setSelectedInvIndex(nextIdx);
-      setLastEnchantResult({
-        invIndex: nextIdx,
-        success: result.success,
-        newLevel: result.newLevel,
+    setEnchanting(true);
+    try {
+      const result = await enchantItemAPI({
+        scrollId: scrollItem.id,
+        inventoryItemIndex: selectedInvIndex,
       });
+
+      if (result.ok) {
+        // Apply server heroJson to store (updates inventory + equipmentEnchantLevels without new PUT)
+        useHeroStore.getState().applyServerSync(
+          {
+            inventory: result.heroJson.inventory,
+            equipmentEnchantLevels: result.heroJson.equipmentEnchantLevels,
+          },
+          { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
+        );
+
+        // Find new index in updated inventory (scroll may have been removed, shifting indices)
+        const newInv: HeroInventoryItem[] = result.heroJson.inventory ?? [];
+        const sIdx = inventory.findIndex((i) => i.id === scrollItem.id);
+        let nextIdx = selectedInvIndex;
+        if (sIdx !== -1 && sIdx < nextIdx && (inventory[sIdx]?.count ?? 1) <= 1) {
+          nextIdx -= 1;
+        }
+        // Clamp to valid range
+        nextIdx = Math.min(nextIdx, newInv.length - 1);
+        if (nextIdx < 0) nextIdx = 0;
+
+        setSelectedInvIndex(nextIdx);
+        setLastEnchantResult({
+          invIndex: nextIdx,
+          success: result.success,
+          newLevel: result.newEnchantLevel,
+        });
+        onEnchantSuccess();
+      }
+    } catch (err: any) {
+      const msg = err?.body?.error || err?.message || "Помилка заточки";
+      setLastEnchantResult(null);
+      // Show error via parent or console
+      console.warn("[EnchantScrollModal] enchant failed:", msg);
+    } finally {
+      setEnchanting(false);
     }
   };
 
@@ -201,13 +215,14 @@ export default function EnchantScrollModal({
           {selectedInvIndex != null && (
             <button
               onClick={handleEnchant}
+              disabled={enchanting}
               className={
                 l2
-                  ? "px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40"
-                  : "px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a]"
+                  ? `px-4 py-2 rounded-md border border-[#5c4a32]/70 bg-gradient-to-b from-[#2e2619] to-[#14110c] text-xs text-[#c9a44c] hover:border-[#c7ad80]/40 disabled:opacity-50`
+                  : `px-4 py-2 rounded-md bg-[#2a2a2a] ring-1 ring-white/10 text-xs text-[#b8860b] hover:bg-[#3a3a3a] disabled:opacity-50`
               }
             >
-              Заточить
+              {enchanting ? "..." : "Заточить"}
             </button>
           )}
           <button
