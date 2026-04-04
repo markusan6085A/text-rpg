@@ -271,6 +271,15 @@ function mergeInventoriesUnion(
       sc > 0
     ) {
       total = lc;
+    } else if (
+      !preferLocal &&
+      isStackableItem(bestItem) &&
+      lc > 0 &&
+      sc > 0 &&
+      lc < sc
+    ) {
+      // Серверний heroJson ще не містить витрати (затримка PUT / heartbeat) — інакше Math.max відкочує соски/скроли.
+      total = lc;
     } else {
       total = Math.max(lc, sc);
     }

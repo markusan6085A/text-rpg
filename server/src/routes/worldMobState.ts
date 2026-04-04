@@ -94,13 +94,26 @@ export async function worldMobStateRoutes(app: FastifyInstance) {
     const activeRespawn = await prisma.zoneMobRespawn.findUnique({
       where: { zoneId_mobIndex: { zoneId, mobIndex } },
     });
-    if (activeRespawn && activeRespawn.respawnAt > new Date()) {
-      return reply.code(403).send({ error: "forbidden" });
-    }
-
     const existing = await prisma.zoneMobHp.findUnique({
       where: { zoneId_mobIndex: { zoneId, mobIndex } },
     });
+
+    // Stale zoneMobRespawn (e.g. boss still has HP row) must not block damage sync — otherwise PUT /hp returns 403 forever.
+    if (activeRespawn && activeRespawn.respawnAt > new Date()) {
+      const hpShowsAlive =
+        !!existing &&
+        existing.maxHp === maxHp &&
+        existing.currentHp >= 1 &&
+        currentHp <= existing.currentHp &&
+        currentHp >= 1;
+      if (hpShowsAlive) {
+        await prisma.zoneMobRespawn.delete({
+          where: { zoneId_mobIndex: { zoneId, mobIndex } },
+        });
+      } else {
+        return reply.code(403).send({ error: "forbidden" });
+      }
+    }
 
     if (existing) {
       if (existing.maxHp !== maxHp) return reply.code(400).send({ error: "invalid input" });
