@@ -259,6 +259,12 @@ function mergeInventoriesUnion(
     (arr || []).forEach((it: any) => {
       if (!it || (!it.id && !it.itemId)) return;
       const key = itemKey(it);
+      // Зброя/броня/біжутерія: один рядок інвентаря = один екземпляр. Інакше count>1 на одному рядку
+      // (баг спойлу/старі дані) при merge давав «подвоєння» після F5.
+      if (!isStackableItem(it)) {
+        m.set(key, (m.get(key) ?? 0) + 1);
+        return;
+      }
       if (it.count === undefined || it.count === null) {
         m.set(key, (m.get(key) ?? 0) + 1);
         return;
