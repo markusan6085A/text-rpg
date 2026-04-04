@@ -329,8 +329,11 @@ export default function Layout({
     logout();
     adminLogout().catch(() => {});
     useAdminStore.getState().resetAdmin();
-    useHeroStore.getState().setHero(null as any); // Очищаємо hero для SPA — щоб Landing показувався
-    if (navigate) navigate("/");
+    useHeroStore.getState().setHero(null as any);
+    // window.location.replace замість navigate("/"):
+    // - hard reload → очищує React state в пам'яті
+    // - replace → замінює поточний запис в history, тому Back не повертає на цю сторінку
+    window.location.replace("/");
   };
 
   return (

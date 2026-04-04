@@ -191,6 +191,21 @@ function AppInner() {
     if (hero?.name) hydrateBattleStoreFromStorage();
   }, [hero?.name]);
 
+  // bfcache guard: якщо браузер відновив сторінку з пам'яті (Back/Forward Cache) і юзер вже вийшов —
+  // примусово редіректимо на "/" щоб не показувати стару гру без авторизації.
+  React.useEffect(() => {
+    const handlePageshow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        const { isAuthenticated: stillAuth } = useAuthStore.getState();
+        if (!stillAuth) {
+          window.location.replace("/");
+        }
+      }
+    };
+    window.addEventListener("pageshow", handlePageshow);
+    return () => window.removeEventListener("pageshow", handlePageshow);
+  }, []);
+
   // Multi-device sync: коли вкладка стає активною після > 30 с прихованості —
   // підтягуємо свіжий стан з сервера (щоб PC бачив зміни з телефону і навпаки).
   React.useEffect(() => {
@@ -501,7 +516,7 @@ function AppInner() {
     const handleBlockedLogout = () => {
       logout();
       useHeroStore.getState().setHero(null as any);
-      navigate("/");
+      window.location.replace("/");
     };
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-[#c7ad80] p-4">
