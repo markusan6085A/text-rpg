@@ -203,16 +203,44 @@ function dedupeQuestCloakFamilyInInventory(items: any[]): any[] {
   return items.filter((_, idx) => !drop.has(idx));
 }
 
-/** Чи предмет стакається. Камні з ЛС (meta.hasLSPassive) — ніколи не стакаються. */
+/** Чи предмет стакається. Камні з ЛС (meta.hasLSPassive) — ніколи не стакаються. Зброя/екіп — ніколи (навіть якщо type === "quest"). */
 function isStackableItem(it: any): boolean {
   if (it?.meta?.hasLSPassive) return false;
-  const def = itemsDB[it?.id ?? it?.itemId] || itemsDBWithStarter[it?.id ?? it?.itemId];
+  const rawId = it?.id ?? it?.itemId;
+  const typeId = String(rawId ?? "");
+  const tid = typeId.toLowerCase();
+  const def = itemsDB[rawId] || itemsDBWithStarter[rawId];
+  const EQUIP_KINDS = new Set([
+    "weapon",
+    "armor",
+    "helmet",
+    "boots",
+    "gloves",
+    "shield",
+    "necklace",
+    "ring",
+    "earring",
+    "jewelry",
+    "belt",
+    "cloak",
+  ]);
+  const isEquipmentPiece =
+    (def && (EQUIP_KINDS.has(String(def.kind || "")) || def.slot === "weapon")) ||
+    tid.includes("_weapon_") ||
+    tid === "s_draconic_bow" ||
+    tid === "s_angel_slayer";
+  if (isEquipmentPiece) return false;
   if (def?.stackable === false) return false;
-  const typeId = String(it?.id ?? it?.itemId ?? "");
   const slot = def?.slot ?? it?.slot ?? "";
   const stackableSlots = ["consumable", "resource", "quest"];
-  return stackableSlots.includes(slot) || typeId.includes("shot") || typeId.includes("potion") ||
-    it?.type === "consumable" || it?.type === "resource" || it?.type === "quest";
+  return (
+    stackableSlots.includes(slot) ||
+    typeId.includes("shot") ||
+    typeId.includes("potion") ||
+    it?.type === "consumable" ||
+    it?.type === "resource" ||
+    it?.type === "quest"
+  );
 }
 
 /** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1).

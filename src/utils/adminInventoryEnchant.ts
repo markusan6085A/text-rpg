@@ -57,16 +57,27 @@ export function serverInventoryIndexFromFilteredSelection(
   });
 }
 
+/** Fallback, коли в itemsDB немає запису або в рядку інвентаря без kind (як на сервері adminInventoryEnchant). */
+function inferMaxEnchantFromItemIdString(rawId: string): number {
+  const id = String(rawId || "").trim().toLowerCase();
+  if (!id) return 0;
+  if (id.includes("_weapon_") || id.startsWith("weapon_")) return 40;
+  if (id === "s_draconic_bow" || id === "s_angel_slayer") return 40;
+  return 0;
+}
+
 /** Макс. +40 зброя, +30 броня/біжутерія/щит/плащ/пояс — як у handleEnchantScroll */
 export function maxEnchantLevelForItemId(itemId: string): number {
   const def = itemsDB[itemId] || itemsDBWithStarter[itemId];
-  if (!def) return 0;
-  if (def.kind === "weapon") return 40;
-  const isArmor =
-    ["armor", "helmet", "boots", "gloves", "shield", "necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(
-      def.kind || ""
-    ) || ["necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(def.slot || "");
-  return isArmor ? 30 : 0;
+  if (def) {
+    if (def.kind === "weapon") return 40;
+    const isArmor =
+      ["armor", "helmet", "boots", "gloves", "shield", "necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(
+        def.kind || ""
+      ) || ["necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(def.slot || "");
+    return isArmor ? 30 : 0;
+  }
+  return inferMaxEnchantFromItemIdString(itemId);
 }
 
 export function isAdminEnchantableInventoryItem(itemId: string): boolean {

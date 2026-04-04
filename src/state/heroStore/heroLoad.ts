@@ -24,7 +24,7 @@ import type { Hero } from "../../types/Hero";
 import { calcBaseStats } from "../../utils/stats/calcBaseStats";
 import { hydrateHero } from "./heroHydration";
 import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
-import { itemsDB } from "../../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
 export function loadHero(): Hero | null {
   // Міграція: видаляємо старий ключ l2_progress (більше не використовується)
@@ -94,16 +94,39 @@ export function loadHero(): Hero | null {
         }
         
         // Камні з ЛС (meta.hasLSPassive) — ніколи не стакати; кристали/ЛС/звичайні камні — стакаються
-        const itemDef = itemsDB[typeId];
+        const itemDef = itemsDB[typeId] || itemsDBWithStarter[typeId];
+        const EQUIP_KINDS = new Set([
+          "weapon",
+          "armor",
+          "helmet",
+          "boots",
+          "gloves",
+          "shield",
+          "necklace",
+          "ring",
+          "earring",
+          "jewelry",
+          "belt",
+          "cloak",
+        ]);
+        const tid = String(typeId).toLowerCase();
+        const isEquipmentPiece =
+          (itemDef &&
+            (EQUIP_KINDS.has(String(itemDef.kind || "")) || itemDef.slot === "weapon")) ||
+          tid.includes("_weapon_") ||
+          tid === "s_draconic_bow" ||
+          tid === "s_angel_slayer";
         const stackableSlots = ["consumable", "resource", "quest"];
-        const canStack = !item.meta?.hasLSPassive && itemDef?.stackable !== false && (
-          stackableSlots.includes(item.slot) ||
-          String(typeId).includes("shot") ||
-          String(typeId).includes("potion") ||
-          item.type === "consumable" ||
-          item.type === "resource" ||
-          item.type === "quest"
-        );
+        const canStack =
+          !isEquipmentPiece &&
+          !item.meta?.hasLSPassive &&
+          itemDef?.stackable !== false &&
+          (stackableSlots.includes(item.slot) ||
+            String(typeId).includes("shot") ||
+            String(typeId).includes("potion") ||
+            item.type === "consumable" ||
+            item.type === "resource" ||
+            item.type === "quest");
 
         if (canStack) {
           const stackKey = typeId; // Звичайні предмети стакаються по typeId
