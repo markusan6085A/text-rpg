@@ -71,7 +71,14 @@ export default function InventoryItemModal({
     }
   }
   
-  const isEquipable = !["all", "consumable", "resource", "quest", "book", "recipe"].includes(normalizedSlot);
+  const normEquipId = (id: string | null | undefined) =>
+    String(id ?? "").replace(/^shop_/i, "").trim().toLowerCase();
+  const itemBaseId = normEquipId(item.id);
+  // Якщо цей предмет вже одягнений у відповідний слот (або lrhand) — не показувати "Одеть"
+  const isAlreadyEquippedInSlot =
+    normEquipId(hero.equipment?.[normalizedSlot] as string) === itemBaseId ||
+    (normalizedSlot === "weapon" && normEquipId(hero.equipment?.lrhand as string) === itemBaseId);
+  const isEquipable = !["all", "consumable", "resource", "quest", "book", "recipe"].includes(normalizedSlot) && !isAlreadyEquippedInSlot;
   
   // Перевіряємо, чи це квестовий предмет
   const isQuestItem = QUESTS.some((q) =>

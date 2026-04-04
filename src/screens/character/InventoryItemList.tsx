@@ -100,11 +100,17 @@ export default function InventoryItemList({
           // Перевірка чи одягнутий предмет (враховуємо як slot, так і slot_left/slot_right для earring/ring)
           // Для earring та ring перевіряємо, чи обидва слоти зайняті (тоді не показуємо кнопку "Одеть")
           // Для XML формату слотів (rear;lear, rfinger;lfinger) не перевіряємо item.slot напряму
+          // Нормалізуємо shop_ префікс для порівняння: shop_atuba_hammer === atuba_hammer
+          const normEquipId = (id: string | null | undefined) =>
+            String(id ?? "").replace(/^shop_/i, "").trim().toLowerCase();
           let isEquipped = false;
           if (normalizedSlot !== "earring" && normalizedSlot !== "ring") {
-            // Для інших слотів перевіряємо стандартним способом
-            // Використовуємо normalizedSlot замість item.slot для правильного визначення щитів та зброї
-            isEquipped = normEq(hero.equipment?.[normalizedSlot] as string) === itemKey;
+            // Порівнюємо без shop_ префіксу з обох боків
+            isEquipped = normEquipId(hero.equipment?.[normalizedSlot] as string) === normEquipId(itemKey);
+            // Також перевіряємо lrhand (dual wield) для weapon слота
+            if (!isEquipped && (normalizedSlot === "weapon")) {
+              isEquipped = normEquipId(hero.equipment?.lrhand as string) === normEquipId(itemKey);
+            }
           }
           
           // Діагностика для S-grade кілець

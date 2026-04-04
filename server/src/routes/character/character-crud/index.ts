@@ -1557,7 +1557,31 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return result;
     }
 
-    newHeroJson.inventory = deduplicateStackableInventory(inventory);
+    // Видаляємо з інвентаря предмети, що ВЖЕ одягнені (щоб не виникали дублікати екіпу в сумці)
+    const equippedIds = new Set<string>();
+    const equip = newHeroJson.equipment as Record<string, string | null> | undefined;
+    if (equip) {
+      Object.values(equip).forEach((v) => { if (v) equippedIds.add(String(v).replace(/^shop_/i, "").toLowerCase()); });
+    }
+    // Прибираємо рівно одну копію кожного одягненого предмета (без meta.hasLSPassive, без count>1 стаків)
+    const filteredInv: any[] = [];
+    const removedOnce = new Set<string>();
+    for (const item of inventory) {
+      if (!item?.id) { filteredInv.push(item); continue; }
+      const baseId = String(item.id).replace(/^shop_/i, "").toLowerCase();
+      const kind = String(item.kind ?? "").toLowerCase();
+      const isEquipKind = ["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"].includes(kind);
+      const isEquipped = equippedIds.has(baseId);
+      const isLSPassive = !!(item?.meta?.hasLSPassive);
+      // Видаляємо лише одну копію не-стакованого одягненого предмета (без LS-пасиву)
+      if (isEquipped && isEquipKind && !isLSPassive && !removedOnce.has(baseId)) {
+        removedOnce.add(baseId);
+        continue; // пропускаємо цей рядок
+      }
+      filteredInv.push(item);
+    }
+
+    newHeroJson.inventory = deduplicateStackableInventory(filteredInv);
     newHeroJson.overflowChest = deduplicateStackableInventory(overflowChest);
 
     const oldRevision = Number(heroJson.heroRevision ?? 0);
