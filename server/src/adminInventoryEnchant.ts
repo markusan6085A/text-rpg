@@ -14,7 +14,8 @@ const DISALLOWED_ENCHANT_IDS = new Set(
 export function maxEnchantForInventoryRow(row: any): number {
   const rawId = String(row?.id ?? row?.itemId ?? "").trim();
   if (!rawId || DISALLOWED_ENCHANT_IDS.has(rawId.toLowerCase())) return 0;
-  const kind = String(row?.kind ?? "").toLowerCase();
+  // Клієнт у processDrops пише kind як поле `type`; у магазині/екіпі — `kind`.
+  const kind = String(row?.kind ?? row?.type ?? "").toLowerCase();
   const slot = String(row?.slot ?? "").toLowerCase();
   if (kind === "weapon") return 40;
   if (ARMOR_KINDS.has(kind) || ARMOR_SLOTS.has(slot)) return 30;
