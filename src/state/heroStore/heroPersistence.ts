@@ -389,11 +389,12 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       heroJsonMobsKilled: existingHeroJson.mobsKilled,
     });
     
-    // 🔥 КРИТИЧНО: Бафи можуть бути в heroJson.heroBuffs або в battle state
-    // Перевіряємо обидва джерела
+    // 🔥 КРИТИЧНО: Бафи — при смерті героя не мерджити старі battleBuffs з localStorage,
+    // бо persistBattle ще не встиг зберегти порожній стан після смерті.
+    const heroIsDead = Boolean(existingHeroJson.isDead) || Boolean((hero as any).isDead);
     const savedBattle = loadBattle(hero.name);
-    const battleBuffs = savedBattle?.heroBuffs || [];
-    const heroJsonBuffs = Array.isArray(existingHeroJson.heroBuffs) ? existingHeroJson.heroBuffs : [];
+    const battleBuffs = heroIsDead ? [] : (savedBattle?.heroBuffs || []);
+    const heroJsonBuffs = heroIsDead ? [] : (Array.isArray(existingHeroJson.heroBuffs) ? existingHeroJson.heroBuffs : []);
     
     // Об'єднуємо бафи з обох джерел (уникаємо дублікатів за id)
     const allBuffs = [...heroJsonBuffs, ...battleBuffs];
@@ -831,12 +832,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         console.error('[saveHeroToLocalStorage] Failed to set rate limit cooldown:', e);
       }
       
-      // 🔥 Зберігаємо в localStorage як backup — ОБОВ'ЯЗКОВО мерджимо бафи з battle state!
+      // 🔥 Зберігаємо в localStorage як backup — при смерті не мерджимо бафи
       const current = getJSON<string | null>("l2_current_user", null);
       if (current && hero) {
-        const savedBattle = loadBattle(hero.name);
-        const battleBuffs = Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : [];
-        const jsonBuffs = Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
+        const rlIsDead = Boolean((hero as any).heroJson?.isDead || (hero as any).isDead);
+        const savedBattle = rlIsDead ? null : loadBattle(hero.name);
+        const battleBuffs = rlIsDead ? [] : (Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : []);
+        const jsonBuffs = rlIsDead ? [] : (Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : []);
         const mergedBuffs = [...battleBuffs, ...jsonBuffs].filter((b: any, i: number, arr: any[]) =>
           arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
         );
@@ -954,11 +956,14 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             }
             
             // 🔥 КРИТИЧНО: Об'єднуємо бафи з нормалізацією та очищенням прострочених
+            // При смерті героя — очищаємо всі бафи (не мерджимо battleBuffs/serverBuffs)
             const heroName = localSource.name ?? hero.name;
-            const savedBattle = loadBattle(heroName);
-            const battleBuffs = savedBattle?.heroBuffs || [];
-            const serverBuffs = Array.isArray(serverHeroJson.heroBuffs) ? serverHeroJson.heroBuffs : [];
-            const localBuffs = Array.isArray((localSource as any).heroJson?.heroBuffs) ? (localSource as any).heroJson.heroBuffs : Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [];
+            const retryIsDead = Boolean((localSource as any).heroJson?.isDead || (localSource as any).isDead ||
+              (hero as any).heroJson?.isDead);
+            const savedBattle = retryIsDead ? null : loadBattle(heroName);
+            const battleBuffs = retryIsDead ? [] : (savedBattle?.heroBuffs || []);
+            const serverBuffs = retryIsDead ? [] : (Array.isArray(serverHeroJson.heroBuffs) ? serverHeroJson.heroBuffs : []);
+            const localBuffs = retryIsDead ? [] : (Array.isArray((localSource as any).heroJson?.heroBuffs) ? (localSource as any).heroJson.heroBuffs : Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : []);
             const allBuffs = [...serverBuffs, ...localBuffs, ...battleBuffs];
             
             // Нормалізуємо бафи: об'єднуємо за buffId/source, беремо максимальний expiresAt
