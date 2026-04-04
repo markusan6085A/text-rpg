@@ -387,18 +387,26 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           // а клієнт має повні L2-таблиці дропів включаючи зброю/броню/бижу.
           // Тому після заміни inventory серверною версією — берегти те, що клієнт додав (equipment) і сервер не перекрив.
           const serverNids = new Set(deduped.map((i: any) => String(i?.id ?? "").replace(/^shop_/i, "").toLowerCase()));
+          // Поточний стан equipment (щоб не додавати одягнений предмет назад в інвентар)
+          const currentEquipment = useHeroStore.getState().hero?.equipment ?? {};
+          const currentEquippedNids = new Set(
+            Object.values(currentEquipment)
+              .filter(Boolean)
+              .map((v) => String(v).replace(/^shop_/i, "").toLowerCase())
+          );
           const preServerLocalInv = localInvNow; // captured before server response, includes processMobDrops result
           for (const localItem of preServerLocalInv) {
             if (!localItem?.id) continue;
             const nid = String(localItem.id).replace(/^shop_/i, "").toLowerCase();
             if (serverNids.has(nid)) continue; // сервер вже має цей предмет — не дублюємо
+            if (currentEquippedNids.has(nid)) continue; // предмет одягнений — не додавати в інвентар
             const lkind = String((localItem as any).kind ?? "").toLowerCase();
             const lslot = String((localItem as any).slot ?? "").toLowerCase();
             // Зберігаємо тільки equipment-предмети яких сервер не дав (ресурси — тільки від сервера)
             const isEquipItem = EQUIP_K.has(lkind) || EQUIP_K.has(lslot) || lkind === "equipment";
             if (isEquipItem) {
               deduped.push(localItem);
-              serverNids.add(nid); // щоб не додавати двічі якщо одне і теж у local кілька разів
+              serverNids.add(nid); // щоб не додавати двічі якщо одне і те саме у local кілька разів
             }
           }
 

@@ -1557,26 +1557,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return result;
     }
 
-    // Видаляємо з інвентаря предмети, що ВЖЕ одягнені (щоб не виникали дублікати екіпу в сумці)
+    // Видаляємо з інвентаря ВСІ копії предметів, що ВЖЕ одягнені (щоб не виникали дублікати екіпу в сумці)
+    // Примітка: "equipment" — загальний kind від drop-таблиць; включаємо у перевірку разом з конкретними слотами.
     const equippedIds = new Set<string>();
     const equip = newHeroJson.equipment as Record<string, string | null> | undefined;
     if (equip) {
       Object.values(equip).forEach((v) => { if (v) equippedIds.add(String(v).replace(/^shop_/i, "").toLowerCase()); });
     }
-    // Прибираємо рівно одну копію кожного одягненого предмета (без meta.hasLSPassive, без count>1 стаків)
+    const EQUIP_KINDS_FILTER = new Set(["equipment","weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
     const filteredInv: any[] = [];
-    const removedOnce = new Set<string>();
     for (const item of inventory) {
       if (!item?.id) { filteredInv.push(item); continue; }
       const baseId = String(item.id).replace(/^shop_/i, "").toLowerCase();
       const kind = String(item.kind ?? "").toLowerCase();
-      const isEquipKind = ["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"].includes(kind);
+      const slot = String(item.slot ?? "").toLowerCase();
+      const isEquipKind = EQUIP_KINDS_FILTER.has(kind) || EQUIP_KINDS_FILTER.has(slot);
       const isEquipped = equippedIds.has(baseId);
       const isLSPassive = !!(item?.meta?.hasLSPassive);
-      // Видаляємо лише одну копію не-стакованого одягненого предмета (без LS-пасиву)
-      if (isEquipped && isEquipKind && !isLSPassive && !removedOnce.has(baseId)) {
-        removedOnce.add(baseId);
-        continue; // пропускаємо цей рядок
+      // Видаляємо ВСІ копії одягненого предмета (не тільки першу) без LS-пасиву
+      if (isEquipped && isEquipKind && !isLSPassive) {
+        continue; // пропускаємо — видаляємо дублікат
       }
       filteredInv.push(item);
     }
