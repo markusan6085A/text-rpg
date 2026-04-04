@@ -1,6 +1,7 @@
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { loadBattle } from "../battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
+import { filterBuffsForHeroProfession } from "../battle/loadout";
 import type { Hero } from "../../types/Hero";
 import { hydrateHero } from "./heroHydration";
 import { getExpToNext, MAX_LEVEL, normalizeLevelExpPair } from "../../data/expTable";
@@ -119,7 +120,10 @@ export function updateHeroLogic(
       const exp = b.expiresAt ?? 0;
       if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
     }
-    const savedBuffs = cleanupBuffs(Array.from(bestByKey.values()), now);
+    const savedBuffs = filterBuffsForHeroProfession(
+      updated,
+      cleanupBuffs(Array.from(bestByKey.values()), now)
+    );
     const recalculated = recalculateAllStats(updated, savedBuffs);
     
     if (!updated.baseStatsInitial) {

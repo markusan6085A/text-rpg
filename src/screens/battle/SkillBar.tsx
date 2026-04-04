@@ -5,6 +5,7 @@ import { useHeroStore } from "../../state/heroStore";
 import {
   MAX_SLOTS,
   EXTRA_SKILL_IDS_ALL_PROFESSIONS,
+  filterBuffsForHeroProfession,
   getSkillDefForBattle,
   skillDefIsToggle,
 } from "../../state/battle/loadout";
@@ -47,12 +48,12 @@ function useLearnedActive(): LearnedSkill[] {
       .map((ls: any) => {
         const sid = Number(ls.id);
         if (!Number.isFinite(sid)) return null;
-        if (
-          pid &&
-          !EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(sid) &&
-          !isSkillInProfession(sid, pid)
-        ) {
-          return null;
+        if (!EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(sid)) {
+          if (pid) {
+            if (!isSkillInProfession(sid, pid)) return null;
+          } else {
+            return null;
+          }
         }
         const def = getSkillDefForProfession(
           (pid ?? normalizeProfessionId(hero.profession ?? null)) || null,
@@ -168,8 +169,12 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const heroNextAttackAt = useBattleStore((s) => s.heroNextAttackAt);
   const zoneId = useBattleStore((s) => s.zoneId);
-  const heroBuffs = useBattleStore((s) => s.heroBuffs ?? []);
+  const heroBuffsRaw = useBattleStore((s) => s.heroBuffs ?? []);
   const hero = useHeroStore((s) => s.hero);
+  const heroBuffs = React.useMemo(
+    () => filterBuffsForHeroProfession(hero, heroBuffsRaw),
+    [hero, heroBuffsRaw]
+  );
   const equipItem = useHeroStore((s) => s.equipItem);
   const heroMP = hero?.mp ?? 0;
   const MAX_VISIBLE_SLOTS = 40;
@@ -326,7 +331,15 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
       return { ...skill, type: "skill" as const };
     }
     if (hero && typeof id === "number" && id !== 0) {
-      const hasLearned = hero.skills?.some((s: any) => Number(s?.id) === id);
+      const slotPid =
+        normalizeProfessionId(hero.profession ?? null) ||
+        normalizeProfessionId(getDefaultProfessionForKlass(String(hero.klass ?? ""), hero.race) || "") ||
+        null;
+      const foreign =
+        !EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(id) &&
+        (!slotPid || !isSkillInProfession(id, slotPid));
+      if (!foreign) {
+        const hasLearned = hero.skills?.some((s: any) => Number(s?.id) === id);
         if (hasLearned) {
           const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, id);
           if (def && def.category !== "passive") {
@@ -334,14 +347,15 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
             const levels = Array.isArray(def.levels) ? def.levels : [];
             const lvl = levels.find((l) => l.level === (ls as any)?.level) ?? levels[0];
             if (lvl) {
-            return {
-              id,
-              name: def.name,
-              icon: def.icon || "/skills/attack.jpg",
-              mpCost: lvl.mpCost ?? 0,
-              cooldown: def.cooldown ?? (def.category === "toggle" ? 0 : 5),
-              type: "skill" as const,
-            };
+              return {
+                id,
+                name: def.name,
+                icon: def.icon || "/skills/attack.jpg",
+                mpCost: lvl.mpCost ?? 0,
+                cooldown: def.cooldown ?? (def.category === "toggle" ? 0 : 5),
+                type: "skill" as const,
+              };
+            }
           }
         }
       }

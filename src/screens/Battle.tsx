@@ -18,6 +18,7 @@ import { clearDeathGate } from "../utils/deathGate";
 import { formatLootIntEn } from "../state/battle/helpers/victoryLootLogLines";
 import { flushWorldMobHpSyncAsync } from "../state/worldMobHpStore";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
+import { filterBuffsForHeroProfession } from "../state/battle/loadout";
 
 type Navigate = (path: string) => void;
 
@@ -61,6 +62,10 @@ export default function Battle({ navigate }: BattleProps) {
   const dead = hero ? isHeroDead(hero) : false;
   const [resurrecting, setResurrecting] = React.useState(false);
   const [now, setNow] = React.useState(Date.now());
+  const heroBuffsForUi = React.useMemo(
+    () => filterBuffsForHeroProfession(hero, heroBuffs ?? []),
+    [hero, heroBuffs]
+  );
   const l2Frame = L2_WARM_OUTER_FRAME;
   const testFrame =
     "rounded-2xl overflow-hidden border border-cyan-900/40 bg-[linear-gradient(180deg,#020617_0%,#0a1628_28%,#000510_72%,#000000_100%)] shadow-[inset_0_1px_0_rgba(94,234,212,0.11),inset_0_-10px_28px_rgba(0,0,0,0.55),0_14px_40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.85),0_2px_0_rgba(8,145,178,0.08)]";
@@ -643,7 +648,7 @@ export default function Battle({ navigate }: BattleProps) {
     <BattlePanel
       target={battleTarget}
       targetDebuffs={mobBuffs ?? []}
-      buffs={heroBuffs || []}
+      buffs={heroBuffsForUi}
       now={now}
       backLabel={
         dead ? (resurrecting ? "..." : "Телепортироваться в город") : isModernBattle ? "Назад в околицю" : "Повернутися в локацію"

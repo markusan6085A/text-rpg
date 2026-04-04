@@ -280,8 +280,9 @@ export function filterSkillsListForHeroProfession(
   skills: Array<{ id: number; level?: number }> | null | undefined
 ): Array<{ id: number; level: number }> {
   if (!Array.isArray(skills) || skills.length === 0) return [];
-  const effectiveProfession = profession || getDefaultProfessionForKlass(klass || "", race) || "";
-  const pid = normalizeProfessionId(effectiveProfession);
+  const effectiveProfession =
+    profession || getDefaultProfessionForKlass(klass || "", race) || null;
+  const pid = effectiveProfession ? normalizeProfessionId(effectiveProfession) : null;
   const out: Array<{ id: number; level: number }> = [];
   for (const raw of skills) {
     const id = Number((raw as any).id);
@@ -291,7 +292,9 @@ export function filterSkillsListForHeroProfession(
       out.push({ id, level });
       continue;
     }
-    if (!pid || isSkillInProfession(id, pid)) out.push({ id, level });
+    // Не використовувати !pid как «дозволити усе» — інакше після зміни класу тягнуться чужі скіли.
+    if (!pid) continue;
+    if (isSkillInProfession(id, pid)) out.push({ id, level });
   }
   return out;
 }

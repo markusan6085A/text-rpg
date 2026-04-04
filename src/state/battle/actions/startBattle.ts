@@ -2,13 +2,13 @@ import { locations as WORLD_LOCATIONS } from "../../../data/world";
 import { getMobEffectiveMaxHp } from "../../../utils/mobs/mobEffectiveMaxHp";
 import type { Mob, Zone } from "../../../data/world/types";
 import { useHeroStore } from "../../heroStore";
+import type { Hero } from "../../../types/Hero";
 import {
-  BASE_ATTACK_ID,
   loadLoadout,
   clearLoadout,
-  getHeroLearnedSkillNumericIds,
   filterBuffsForHeroProfession,
   professionOrLoadoutMismatchForBattle,
+  sanitizeBattleLoadoutSlots,
 } from "../loadout";
 import { loadBattle, persistBattle } from "../persist";
 import { cleanupBuffs, persistSnapshot, applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
@@ -150,7 +150,9 @@ export const createStartBattle =
         const ts = typeof v === "number" ? v : 0;
         if (ts > now) cooldowns[Number(k)] = ts;
       });
-      const heroBuffs = professionChanged ? [] : cleanupBuffs(saved.heroBuffs || [], now);
+      const heroBuffs = professionChanged
+        ? []
+        : cleanupBuffs(filterBuffsForHeroProfession(hero, saved.heroBuffs || []), now);
       const mobBuffs = cleanupBuffs(saved.mobBuffs || [], now); // Очищаємо застарілі debuff мобів
       const restoredSummon =
         professionChanged ? null : saved.summon && saved.summon.hp > 0 ? saved.summon : null;
@@ -168,20 +170,14 @@ export const createStartBattle =
       let loadoutSlotsResume: (number | string | null)[];
       if (professionChanged) {
         clearLoadout(heroName);
-        loadoutSlotsResume = loadLoadout(heroName);
+        loadoutSlotsResume = sanitizeBattleLoadoutSlots(loadLoadout(heroName), hero as Hero);
       } else {
         const rawSlots = Array.isArray(saved.loadoutSlots)
           ? saved.loadoutSlots
           : heroName
           ? loadLoadout(heroName)
           : [];
-        const heroSkillIds = getHeroLearnedSkillNumericIds(hero);
-        loadoutSlotsResume = rawSlots.map((s) =>
-          typeof s === "number" ? (s === BASE_ATTACK_ID || heroSkillIds.has(s) ? s : null) : s
-        );
-        if (loadoutSlotsResume[0] !== BASE_ATTACK_ID && loadoutSlotsResume[0] !== null) {
-          loadoutSlotsResume[0] = BASE_ATTACK_ID;
-        }
+        loadoutSlotsResume = sanitizeBattleLoadoutSlots(rawSlots, hero as Hero);
       }
 
       set({
@@ -333,16 +329,9 @@ export const createStartBattle =
     let loadoutSlotsNew: (number | string | null)[];
     if (classOrLoadoutMismatch) {
       clearLoadout(heroName);
-      loadoutSlotsNew = loadLoadout(heroName);
+      loadoutSlotsNew = sanitizeBattleLoadoutSlots(loadLoadout(heroName), hero as Hero);
     } else {
-      const rawNew = loadLoadout(heroName);
-      const heroSkillIdsNew = getHeroLearnedSkillNumericIds(hero);
-      loadoutSlotsNew = rawNew.map((s) =>
-        typeof s === "number" ? (s === BASE_ATTACK_ID || heroSkillIdsNew.has(s) ? s : null) : s
-      );
-      if (loadoutSlotsNew[0] !== BASE_ATTACK_ID && loadoutSlotsNew[0] !== null) {
-        loadoutSlotsNew[0] = BASE_ATTACK_ID;
-      }
+      loadoutSlotsNew = sanitizeBattleLoadoutSlots(loadLoadout(heroName), hero as Hero);
     }
 
     const maxFromDef = getMobEffectiveMaxHp(mob);
