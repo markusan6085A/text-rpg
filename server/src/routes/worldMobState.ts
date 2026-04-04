@@ -12,6 +12,14 @@ const MAX_HP_CAP = 2_000_000_000;
 const MIN_RESPAWN_MS = 1000;
 const MAX_RESPAWN_MS = 14 * 24 * 60 * 60 * 1000; // 14 днів
 
+function maxHpCompatible(a: number, b: number): boolean {
+  if (a === b) return true;
+  const lo = Math.min(a, b);
+  const hi = Math.max(a, b);
+  const tol = Math.max(1, Math.floor(lo * 0.05));
+  return hi - lo <= tol;
+}
+
 function parseZoneId(raw: string): string | null {
   try {
     const z = decodeURIComponent(raw);
@@ -98,15 +106,19 @@ export async function worldMobStateRoutes(app: FastifyInstance) {
       where: { zoneId_mobIndex: { zoneId, mobIndex } },
     });
 
-    // Stale zoneMobRespawn (e.g. boss still has HP row) must not block damage sync — otherwise PUT /hp returns 403 forever.
+    // Застряглий респавн без відповідного HP або з живим мобом у рядку HP — не блокувати синк (інакше 403 у петлі).
     if (activeRespawn && activeRespawn.respawnAt > new Date()) {
       const hpShowsAlive =
         !!existing &&
-        existing.maxHp === maxHp &&
+        maxHpCompatible(existing.maxHp, maxHp) &&
         existing.currentHp >= 1 &&
         currentHp <= existing.currentHp &&
         currentHp >= 1;
-      if (hpShowsAlive) {
+      /** Немає рядка HP, але клієнт уже в бою з пошкодженим мобом — типово застряглий respawn після збою */
+      const orphanDamaged = !existing && currentHp >= 1 && currentHp < maxHp;
+      /** Повне HP без рядка — перший синк після спавну */
+      const orphanFull = !existing && currentHp === maxHp && currentHp >= 1;
+      if (hpShowsAlive || orphanDamaged || orphanFull) {
         await prisma.zoneMobRespawn.delete({
           where: { zoneId_mobIndex: { zoneId, mobIndex } },
         });
@@ -116,14 +128,16 @@ export async function worldMobStateRoutes(app: FastifyInstance) {
     }
 
     if (existing) {
-      if (existing.maxHp !== maxHp) return reply.code(400).send({ error: "invalid input" });
+      if (!maxHpCompatible(existing.maxHp, maxHp)) return reply.code(400).send({ error: "invalid input" });
       if (currentHp > existing.currentHp) return reply.code(400).send({ error: "invalid input" });
     }
+
+    const updateMax = existing && existing.maxHp !== maxHp;
 
     await prisma.zoneMobHp.upsert({
       where: { zoneId_mobIndex: { zoneId, mobIndex } },
       create: { zoneId, mobIndex, currentHp, maxHp },
-      update: { currentHp },
+      update: updateMax ? { currentHp, maxHp } : { currentHp },
     });
 
     return { ok: true };

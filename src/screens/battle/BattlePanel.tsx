@@ -138,7 +138,7 @@ export function BattlePanel({
           <div className={pad}>
             <div className="flex flex-col items-center gap-2">
               <BuffBar buffs={targetDebuffs ?? []} now={now} />
-              <div className="flex justify-center -mt-1">
+              <div className="flex justify-center -mt-1 shrink-0">
                 <BattleTargetCard
                   name={target.name}
                   level={target.level}

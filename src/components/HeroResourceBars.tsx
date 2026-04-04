@@ -65,7 +65,13 @@ function ResourceTrack({
   const cap = Math.max(1, Math.round(max));
   const v = Math.max(0, Math.round(cur));
   const p = Math.min(100, Math.round((v / cap) * 100));
-  const h = thin ? "h-1" : compact ? "h-1.5" : premiumShine || profileTest ? "h-2.5" : "h-2";
+  const h = thin
+    ? "h-1.5 min-h-[6px]"
+    : compact
+      ? "h-2 min-h-[8px]"
+      : premiumShine || profileTest
+        ? "h-2.5 min-h-[10px]"
+        : "h-2 min-h-[9px]";
   const labelCls = compact ? "text-[8px] w-[26px]" : "text-[9px] w-5";
   const trackRing = profileTest
     ? "border-cyan-950/60 shadow-[inset_0_3px_10px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(94,234,212,0.09),0_1px_0_rgba(255,255,255,0.04)]"
@@ -79,7 +85,7 @@ function ResourceTrack({
       : "";
   const labelColor = profileTest ? "text-cyan-400/80" : "text-[#b59a72]";
   return (
-    <div className={`flex items-center ${compact ? "gap-1" : "gap-1.5"}`}>
+    <div className={`flex items-center shrink-0 ${compact ? "gap-1" : "gap-1.5"}`}>
       <span className={`shrink-0 font-semibold ${labelColor} ${labelCls} tabular-nums`}>
         {label}
       </span>

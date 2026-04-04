@@ -43,7 +43,8 @@ export function BattleTargetCard({
       : { color: "#c7ad80" };
   const nameClass = compact ? "text-[10px] font-semibold leading-tight" : "text-xs font-semibold leading-tight";
   const levelClass = compact ? "text-[9px]" : "text-[11px]";
-  const barHeight = compact ? "h-[1.05rem]" : "h-[1.15rem]";
+  /** min-h + shrink-0: у вузьких/flex-контейнерах смуга не стискається до 1px */
+  const barHeight = compact ? "h-5 min-h-[1.15rem] shrink-0" : "h-6 min-h-[1.35rem] shrink-0";
   const barTextSize = compact ? "text-[10px]" : "text-[11px]";
 
   const barShell = isBattleTest
@@ -65,8 +66,8 @@ export function BattleTargetCard({
           Lv {level}
         </div>
       </div>
-      <div className="w-full max-w-[240px] px-0.5">
-        <div className={`${barHeight} ${barShell}`}>
+      <div className="w-full max-w-[240px] px-0.5 shrink-0">
+        <div className={`${barHeight} ${barShell} w-full`}>
           <div
             className={`absolute left-0 top-0 bottom-0 z-0 rounded-[5px] overflow-hidden ${
               isBattleTest
