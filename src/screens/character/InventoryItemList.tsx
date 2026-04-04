@@ -3,6 +3,7 @@ import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 import { OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import { normalizeIconPath, handleResourceIconError, FALLBACK_ICON } from "../../utils/itemIcon";
+import { getL2dopResourceIconPath } from "../../data/world/l2dop/droplistMapping";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { isGmBlessSoulScrollItem } from "../../data/items/gmBlessSoulScrollBuffs";
 import { applyGmBlessSoulScrollFromInventory } from "../../utils/gmBlessSoulScrollApply";
@@ -67,7 +68,10 @@ export default function InventoryItemList({
             .toLowerCase();
           const normEq = (x: string | null | undefined) => String(x ?? "").trim().toLowerCase();
           const itemDef = itemsDBWithStarter[itemKey] || itemsDB[itemKey];
-          const finalIconPath = normalizeIconPath(item.icon || itemDef?.icon) || FALLBACK_ICON;
+          const finalIconPath =
+            normalizeIconPath(item.icon || itemDef?.icon) ||
+            getL2dopResourceIconPath(itemKey) ||
+            FALLBACK_ICON;
           // Конвертуємо XML формат слотів для перевірки (chest -> armor для збігу з equipment)
           let normalizedSlot = item.slot;
           if (item.slot === "chest") {

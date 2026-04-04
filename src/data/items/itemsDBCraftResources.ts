@@ -5,6 +5,83 @@
 import type { ItemDefinition } from "./itemsDB.types";
 
 export const itemsDBCraftResources: Record<string, ItemDefinition> = {
+  // ── Базові ресурси NG (L2 IDs 1864–1878) ──────────────────────────────
+  stem: {
+    id: "stem", name: "Stem", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1864.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  animal_skin: {
+    id: "animal_skin", name: "Animal Skin", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1867.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  iron_ore: {
+    id: "iron_ore", name: "Iron Ore", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1869.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  coal: {
+    id: "coal", name: "Coal", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1870.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  animal_bone: {
+    id: "animal_bone", name: "Animal Bone", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1872.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  silver_nugget: {
+    id: "silver_nugget", name: "Silver Nugget", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1873.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  oriharukon_ore: {
+    id: "oriharukon_ore", name: "Oriharukon Ore", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1874.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  stone_of_purity: {
+    id: "stone_of_purity", name: "Stone of Purity", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1875.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  mithril_ore: {
+    id: "mithril_ore", name: "Mithril Ore", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1876.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  adamantite_nugget: {
+    id: "adamantite_nugget", name: "Adamantite Nugget", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1877.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  braided_hemp: {
+    id: "braided_hemp", name: "Braided Hemp", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1878.jpg",
+    description: "Basic craft resource.", stackable: true,
+  },
+  // ── Custom ресурси (без L2 ID — generic іконка) ───────────────────────
+  nickel: {
+    id: "nickel", name: "Нікель", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1873.jpg",
+    description: "Resource.", stackable: true,
+  },
+  crystal_dye: {
+    id: "crystal_dye", name: "Crystal Dye", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1875.jpg",
+    description: "Resource.", stackable: true,
+  },
+  crystal_quality: {
+    id: "crystal_quality", name: "Crystal Quality", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1875.jpg",
+    description: "Resource.", stackable: true,
+  },
+  weavers_module: {
+    id: "weavers_module", name: "Модуль Ткачів", kind: "resource", slot: "resource",
+    icon: "/items/drops/resources/l2dop-by-itemid/1889.jpg",
+    description: "Resource.", stackable: true,
+  },
   cokes: {
     id: "cokes",
     name: "Cokes",

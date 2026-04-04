@@ -27,7 +27,7 @@ export function normalizeIconPath(icon: string | undefined): string {
   return p;
 }
 
-export const FALLBACK_ICON = "/items/drops/Weapon_squires_sword_i00_0.jpg";
+export const FALLBACK_ICON = "/items/drops/resources/l2dop-by-itemid/1864.jpg";
 
 /**
  * Після невдалого завантаження — одна спроба fallback.
