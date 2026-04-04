@@ -13,6 +13,7 @@ import { getMyClan } from "../../utils/api";
 import { SET_STAT_FORMULAS_UI } from "../../data/sets/statBonusFormulas";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { getHeroResourceValues } from "../../utils/heroBuffedResources";
+import { filterBuffsForHeroProfession } from "../../state/battle/loadout";
 import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 
 export default function Stats() {
@@ -60,8 +61,9 @@ export default function Stats() {
         (!b.id && !buff.id && b.name === buff.name)
       )
     );
+    const buffsForProfession = filterBuffsForHeroProfession(hero, uniqueBuffs);
     
-    const recalculated = recalculateAllStats(hero, uniqueBuffs);
+    const recalculated = recalculateAllStats(hero, buffsForProfession);
     
     setBaseStats(recalculated.baseStats);
     setCombatStats(recalculated.finalStats);

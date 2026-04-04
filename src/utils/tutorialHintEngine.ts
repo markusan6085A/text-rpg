@@ -333,6 +333,7 @@ export function canChooseNextGuildProfession(hero: unknown): boolean {
       : heroProfessionId;
 
   const nextProfessions = PROFESSION_CHAIN[chosenProfession] || [];
+  if (nextProfessions.length === 0) return false;
   return nextProfessions.some((pid) => {
     const def = getProfessionDefinition(pid);
     return def && heroLevel >= (def.minLevel ?? 1);
@@ -349,7 +350,12 @@ export function pickContextualTutorialHint(
 ): ContextualTutorialHint | null {
   if (!hero || typeof hero !== "object") return null;
   const h = fixHeroProfession(hero as any);
-  const level = Number((h as any).level) || 1;
+  const hj = (h as any).heroJson;
+  const level = Math.max(
+    Number((h as any).level) || 0,
+    Number(hj?.level) || 0,
+    1
+  );
   const heroTyped = h as Hero;
 
   if (pickCtx) {
@@ -368,7 +374,7 @@ export function pickContextualTutorialHint(
       ctaLabel: "В гильдию навыков",
     };
   }
-  if (level >= 40 && canProf && !dismissedIds.has("milestone_prof_40")) {
+  if (level >= 40 && level <= 75 && canProf && !dismissedIds.has("milestone_prof_40")) {
     return {
       id: "milestone_prof_40",
       message:
@@ -377,7 +383,7 @@ export function pickContextualTutorialHint(
       ctaLabel: "В гильдию навыков",
     };
   }
-  if (level >= 20 && canProf && !dismissedIds.has("milestone_prof_20")) {
+  if (level >= 20 && level <= 39 && canProf && !dismissedIds.has("milestone_prof_20")) {
     return {
       id: "milestone_prof_20",
       message:

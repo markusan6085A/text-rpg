@@ -3,6 +3,7 @@ import { useHeroStore } from "../../state/heroStore";
 import { useBattleStore } from "../../state/battle/store";
 import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
+import { filterBuffsForHeroProfession } from "../../state/battle/loadout";
 import { getCharacter } from "../../utils/api";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
@@ -83,8 +84,9 @@ export default function CharacterBuffs() {
       (!b.id && !buff.id && b.name === buff.name)
     )
   );
+  const displayBuffs = filterBuffsForHeroProfession(hero, uniqueBuffs);
 
-  if (uniqueBuffs.length === 0) return null;
+  if (displayBuffs.length === 0) return null;
 
   const isL2 = isWarmCityUi(getCityUiVariant());
 
@@ -97,7 +99,7 @@ export default function CharacterBuffs() {
       }
     >
       <div className="flex flex-wrap gap-1.5">
-        {uniqueBuffs.map((buff: any) => {
+        {displayBuffs.map((buff: any) => {
           let iconSrc = buff.icon?.startsWith("/") ? buff.icon : `/skills/${buff.icon || ""}`;
           
           return (

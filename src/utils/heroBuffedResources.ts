@@ -1,6 +1,7 @@
 import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
 import { getMaxResources } from "../state/battle/helpers/getMaxResources";
+import { filterBuffsForHeroProfession } from "../state/battle/loadout";
 import { useBattleStore } from "../state/battle/store";
 import type { Hero } from "../types/Hero";
 
@@ -20,12 +21,13 @@ export function getCombinedHeroBuffs(
 
   const baseBuffs = inBattleNow ? battleBuffs : savedBuffs;
   const all = [...baseBuffs, ...activeHeroJsonBuffs];
-  return all.filter((buff, index, self) =>
+  const deduped = all.filter((buff, index, self) =>
     index ===
     self.findIndex((b) =>
       (b.id && buff.id && b.id === buff.id) || (!b.id && !buff.id && b.name === buff.name),
     ),
   );
+  return filterBuffsForHeroProfession(hero, deduped);
 }
 
 export function getHeroBuffedResourceCaps(hero: Hero, inBattle: boolean) {
