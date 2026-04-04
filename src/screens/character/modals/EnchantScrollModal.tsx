@@ -31,60 +31,79 @@ export default function EnchantScrollModal({
 }: EnchantScrollModalProps) {
   const bt = characterModalBorderT();
   const l2 = isCharacterModalL2();
-  const [enchantTargetItem, setEnchantTargetItem] = useState<HeroInventoryItem | null>(null);
-  const [lastEnchantResult, setLastEnchantResult] = useState<{ itemId: string; success: boolean; newLevel: number } | null>(null);
+  /** Індекс рядка в `inventory` — один предмет на кілька однакових id у списку */
+  const [selectedInvIndex, setSelectedInvIndex] = useState<number | null>(null);
+  const [lastEnchantResult, setLastEnchantResult] = useState<{
+    invIndex: number;
+    success: boolean;
+    newLevel: number;
+  } | null>(null);
 
   const scrollGrade = getGradeFromScrollId(scrollItem.id);
   const isWeaponScroll = scrollItem.id?.includes("weapon");
   const isArmorScroll = scrollItem.id?.includes("armor");
 
-  // Знаходимо підходящі предмети для заточки
+  // Підходящі предмети + індекс рядка в інвентарі (не тільки id — інакше дублікати «злипаються»)
   const suitableItems = useMemo(() => {
-    return inventory.filter((item: any) => {
-      if (!item || !item.id) return false;
+    const out: { item: HeroInventoryItem; invIndex: number }[] = [];
+    (inventory || []).forEach((item: any, invIndex: number) => {
+      if (!item || !item.id) return;
       const itemDef = itemsDB[item.id];
-      if (!itemDef) return false;
-      // Грейд з опису предмета (armor/weapon мають grade), інакше з id (наприклад shop_jewelry_d_...)
+      if (!itemDef) return;
       const itemGrade = itemDef.grade ?? getGradeFromItemId(item.id);
-      if (scrollGrade && itemGrade && itemGrade !== scrollGrade) return false;
-      
-      if (isWeaponScroll && itemDef.kind === "weapon") return true;
-      // Заточки для броні працюють з: бронею, шоломом, рукавицями, чоботами, щитом, біжутерією, поясом, плащем
-      if (isArmorScroll && (
-        ["armor", "helmet", "boots", "gloves", "shield", "necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(itemDef.kind || "") ||
-        ["necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(itemDef.slot || "")
-      )) return true;
-      
-      return false;
+      if (scrollGrade && itemGrade && itemGrade !== scrollGrade) return;
+      if (isWeaponScroll && itemDef.kind === "weapon") {
+        out.push({ item, invIndex });
+        return;
+      }
+      if (
+        isArmorScroll &&
+        (["armor", "helmet", "boots", "gloves", "shield", "necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(
+          itemDef.kind || ""
+        ) ||
+          ["necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(itemDef.slot || ""))
+      ) {
+        out.push({ item, invIndex });
+      }
     });
+    return out;
   }, [inventory, scrollGrade, isWeaponScroll, isArmorScroll]);
 
   const handleEnchant = () => {
-    if (!enchantTargetItem || !hero) return;
-    
+    if (selectedInvIndex == null || !hero) return;
+    const targetRow = inventory[selectedInvIndex];
+    if (!targetRow) return;
+
     const fakeState: BattleState = {
       log: [],
       cooldowns: {},
       heroBuffs: [],
     } as unknown as BattleState;
-    
+
     const result = handleEnchantScroll(
       scrollItem.id,
-      enchantTargetItem.id,
+      targetRow.id,
       null,
       fakeState,
       hero,
-      () => {}, // лог не показуємо — тільки кольорова підсвітка
-      (partial) => updateHero(partial)
+      () => {},
+      (partial) => updateHero(partial),
+      selectedInvIndex
     );
-    
-    if (result.applied && result.newLevel !== undefined) {
+
+    if (result.applied && result.newLevel !== undefined && selectedInvIndex != null) {
+      // Після зняття рядка скрола індекси цілі зсуваються — інакше підсвітка «переповзе» на інший рядок
+      const sIdx = inventory.findIndex((i) => i.id === scrollItem.id);
+      let nextIdx = selectedInvIndex;
+      if (sIdx !== -1 && sIdx < nextIdx && (inventory[sIdx]?.count ?? 1) <= 1) {
+        nextIdx -= 1;
+      }
+      setSelectedInvIndex(nextIdx);
       setLastEnchantResult({
-        itemId: enchantTargetItem.id,
+        invIndex: nextIdx,
         success: result.success,
         newLevel: result.newLevel,
       });
-      // Модалку не закриваємо — інвентар оновиться через updateHero у store
     }
   };
 
@@ -127,14 +146,14 @@ export default function EnchantScrollModal({
                 Немає підходящих предметів
               </div>
             ) : (
-              suitableItems.map((item: any, idx: number) => {
+              suitableItems.map(({ item, invIndex }) => {
                 const itemDef = itemsDB[item.id];
                 const displayName = item.name || itemDef?.name || item.id;
                 const iconRaw = item.icon || itemDef?.icon;
                 const iconPath = typeof iconRaw === "string"
                   ? (iconRaw.startsWith("/") ? iconRaw : `/items/${iconRaw}`)
                   : "/items/drops/Weapon_squires_sword_i00_0.jpg";
-                const isJustEnchanted = lastEnchantResult?.itemId === item.id;
+                const isJustEnchanted = lastEnchantResult?.invIndex === invIndex;
                 const displayLevel = isJustEnchanted ? lastEnchantResult.newLevel : (item.enchantLevel ?? 0);
                 const levelColor = isJustEnchanted
                   ? lastEnchantResult.success
@@ -143,17 +162,17 @@ export default function EnchantScrollModal({
                   : "text-gray-400";
                 return (
                   <button
-                    key={idx}
-                    onClick={() => setEnchantTargetItem(item)}
+                    key={`inv-${invIndex}`}
+                    onClick={() => setSelectedInvIndex(invIndex)}
                     className={
                       l2
                         ? `w-full flex items-center gap-2 p-2 border rounded-md ${
-                            enchantTargetItem?.id === item.id
+                            selectedInvIndex === invIndex
                               ? "border-[#c7ad80]/45 bg-[#2a2618]/80"
                               : "border-[#5c4a32]/55 bg-[#14110c]"
                           }`
                         : `w-full flex items-center gap-2 p-2 border rounded ${
-                            enchantTargetItem?.id === item.id
+                            selectedInvIndex === invIndex
                               ? "border-white/50 bg-[#2a2a2a]"
                               : "border-white/50 bg-[#1a1a1a]"
                           }`
@@ -179,7 +198,7 @@ export default function EnchantScrollModal({
         </div>
         
         <div className={`flex justify-center gap-2 pt-2 ${bt}`}>
-          {enchantTargetItem && (
+          {selectedInvIndex != null && (
             <button
               onClick={handleEnchant}
               className={

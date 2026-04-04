@@ -5,21 +5,42 @@ import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../heroStore";
 import { getGradeFromScrollId, getGradeFromItemId } from "../../../utils/enchantHelpers";
 
-/** Один рядок інвентаря без flatMap-розщеплення: при count>1 не створюємо другу «пуху» зі старою заточкою. */
-function applyInventoryEnchantOneRow(
+function applyInventoryEnchantAtIndex(
   inventory: HeroInventoryItem[],
-  targetItemId: string,
-  currentEnchantLevel: number,
+  index: number,
   newEnchantLevel: number
 ): HeroInventoryItem[] {
-  let applied = false;
-  return inventory.map((i) => {
-    if (applied || i.id !== targetItemId || (i.enchantLevel || 0) !== currentEnchantLevel) {
+  if (index < 0 || index >= inventory.length) return inventory;
+  return inventory.map((i, j) =>
+    j === index ? { ...i, enchantLevel: newEnchantLevel, count: i.count ?? 1 } : i
+  );
+}
+
+/** Після зняття 1 скрола рядок може зникнути — індекс цілі зсувається на −1, якщо скрол був раніше в масиві. */
+function inventoryAfterScrollConsumed(
+  inventory: HeroInventoryItem[],
+  scrollItemId: string,
+  targetIndex: number
+): { nextInv: HeroInventoryItem[]; enchantIndex: number } {
+  const scrollIdx = inventory.findIndex((i) => i.id === scrollItemId);
+  const scrollRow = scrollIdx >= 0 ? inventory[scrollIdx] : null;
+  const scrollStackRemoved = scrollRow != null && (scrollRow.count ?? 1) <= 1;
+
+  const nextInv = inventory
+    .map((i: HeroInventoryItem) => {
+      if (i.id === scrollItemId) {
+        const newCount = (i.count ?? 1) - 1;
+        return newCount > 0 ? { ...i, count: newCount } : null;
+      }
       return i;
-    }
-    applied = true;
-    return { ...i, enchantLevel: newEnchantLevel, count: i.count ?? 1 };
-  });
+    })
+    .filter(Boolean) as HeroInventoryItem[];
+
+  let enchantIndex = targetIndex;
+  if (scrollStackRemoved && scrollIdx >= 0 && scrollIdx < targetIndex) {
+    enchantIndex = targetIndex - 1;
+  }
+  return { nextInv, enchantIndex };
 }
 
 /**
@@ -40,7 +61,9 @@ export function handleEnchantScroll(
   state: BattleState,
   hero: Hero,
   setAndPersist: (updates: Partial<BattleState>) => void,
-  updateHero: (partial: Partial<Hero>) => void
+  updateHero: (partial: Partial<Hero>) => void,
+  /** Явний індекс рядка в inventory — потрібен, якщо кілька екземплярів з однаковим id/enchant */
+  targetInventoryIndex?: number | null
 ): { applied: false } | { applied: true; success: boolean; newLevel: number } {
   const heroStore = useHeroStore.getState();
   const currentHero = heroStore.hero;
@@ -86,13 +109,29 @@ export function handleEnchantScroll(
     }
     currentEnchantLevel = hero.equipmentEnchantLevels?.[targetSlot] ?? 0;
   } else {
-    // Предмет в інвентарі
-    targetItem = currentHero.inventory.find((i: HeroInventoryItem) => i.id === targetItemId) || null;
-    if (!targetItem) {
-      setAndPersist({
-        log: [`Предмет не знайдено в інвентарі`, ...state.log].slice(0, 30),
-      });
-      return { applied: false };
+    // Предмет в інвентарі (за індексом рядка або перший збіг за id)
+    const inv = currentHero.inventory;
+    if (
+      targetInventoryIndex != null &&
+      targetInventoryIndex >= 0 &&
+      targetInventoryIndex < inv.length
+    ) {
+      const row = inv[targetInventoryIndex];
+      if (!row || row.id !== targetItemId) {
+        setAndPersist({
+          log: [`Предмет не знайдено в інвентарі`, ...state.log].slice(0, 30),
+        });
+        return { applied: false };
+      }
+      targetItem = row;
+    } else {
+      targetItem = currentHero.inventory.find((i: HeroInventoryItem) => i.id === targetItemId) || null;
+      if (!targetItem) {
+        setAndPersist({
+          log: [`Предмет не знайдено в інвентарі`, ...state.log].slice(0, 30),
+        });
+        return { applied: false };
+      }
     }
     currentEnchantLevel = targetItem.enchantLevel ?? 0;
   }
@@ -136,14 +175,44 @@ export function handleEnchantScroll(
     return { applied: false };
   }
 
-  // Видаляємо заточку з інвентаря
-  const updatedInventory = currentHero.inventory.map((i: HeroInventoryItem) => {
-    if (i.id === scrollItemId) {
-      const newCount = (i.count ?? 1) - 1;
-      return newCount > 0 ? { ...i, count: newCount } : null;
+  let targetInvIndexForEnchant: number | null =
+    !targetSlot && targetItem
+      ? targetInventoryIndex != null &&
+        targetInventoryIndex >= 0 &&
+        targetInventoryIndex < currentHero.inventory.length
+        ? targetInventoryIndex
+        : currentHero.inventory.findIndex((i: HeroInventoryItem) => i.id === targetItemId)
+      : null;
+
+  if (!targetSlot && targetItem) {
+    if (
+      targetInvIndexForEnchant == null ||
+      targetInvIndexForEnchant < 0 ||
+      targetInvIndexForEnchant >= currentHero.inventory.length
+    ) {
+      setAndPersist({
+        log: [`Предмет не знайдено в інвентарі`, ...state.log].slice(0, 30),
+      });
+      return { applied: false };
     }
-    return i;
-  }).filter(Boolean) as HeroInventoryItem[];
+    const rowAt = currentHero.inventory[targetInvIndexForEnchant];
+    if (!rowAt || rowAt.id !== targetItemId) {
+      setAndPersist({
+        log: [`Предмет не знайдено в інвентарі`, ...state.log].slice(0, 30),
+      });
+      return { applied: false };
+    }
+  }
+
+  const updatedInventoryScrollOnly = currentHero.inventory
+    .map((i: HeroInventoryItem) => {
+      if (i.id === scrollItemId) {
+        const newCount = (i.count ?? 1) - 1;
+        return newCount > 0 ? { ...i, count: newCount } : null;
+      }
+      return i;
+    })
+    .filter(Boolean) as HeroInventoryItem[];
 
   // Перевіряємо чи це blessed scroll (заточка з квест-шопу)
   const isBlessedScroll = scrollItemId.includes("bless") || scrollItemId.includes("quest_shop");
@@ -211,17 +280,31 @@ export function handleEnchantScroll(
         [targetSlot]: newEnchantLevel,
       };
       updateHero({
-        inventory: updatedInventory,
+        inventory: updatedInventoryScrollOnly,
         equipmentEnchantLevels: updatedEquipmentEnchantLevels,
       });
-    } else if (targetItem) {
+    } else if (
+      targetItem &&
+      targetInvIndexForEnchant != null &&
+      targetInvIndexForEnchant >= 0
+    ) {
+      const { nextInv, enchantIndex } = inventoryAfterScrollConsumed(
+        currentHero.inventory,
+        scrollItemId,
+        targetInvIndexForEnchant
+      );
+      if (
+        enchantIndex < 0 ||
+        enchantIndex >= nextInv.length ||
+        nextInv[enchantIndex]?.id !== targetItemId
+      ) {
+        setAndPersist({
+          log: [`Помилка синхронізації інвентаря`, ...state.log].slice(0, 30),
+        });
+        return { applied: false };
+      }
       updateHero({
-        inventory: applyInventoryEnchantOneRow(
-          updatedInventory,
-          targetItemId,
-          currentEnchantLevel,
-          newEnchantLevel
-        ),
+        inventory: applyInventoryEnchantAtIndex(nextInv, enchantIndex, newEnchantLevel),
       });
     }
 
@@ -268,15 +351,33 @@ export function handleEnchantScroll(
         [targetSlot]: newEnchantLevelAfterFail,
       };
       updateHero({
-        inventory: updatedInventory,
+        inventory: updatedInventoryScrollOnly,
         equipmentEnchantLevels: updatedEquipmentEnchantLevels,
       });
-    } else if (targetItem) {
+    } else if (
+      targetItem &&
+      targetInvIndexForEnchant != null &&
+      targetInvIndexForEnchant >= 0
+    ) {
+      const { nextInv, enchantIndex } = inventoryAfterScrollConsumed(
+        currentHero.inventory,
+        scrollItemId,
+        targetInvIndexForEnchant
+      );
+      if (
+        enchantIndex < 0 ||
+        enchantIndex >= nextInv.length ||
+        nextInv[enchantIndex]?.id !== targetItemId
+      ) {
+        setAndPersist({
+          log: [`Помилка синхронізації інвентаря`, ...state.log].slice(0, 30),
+        });
+        return { applied: false };
+      }
       updateHero({
-        inventory: applyInventoryEnchantOneRow(
-          updatedInventory,
-          targetItemId,
-          currentEnchantLevel,
+        inventory: applyInventoryEnchantAtIndex(
+          nextInv,
+          enchantIndex,
           newEnchantLevelAfterFail
         ),
       });
