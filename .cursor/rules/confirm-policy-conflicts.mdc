@@ -13,6 +13,7 @@ alwaysApply: true
 |------|------|
 | `do-not-break-what-works.mdc` | Мінімальний патч, без рефакторингу «заодно», не чіпати робоче без причини. |
 | `hero-currency-merge-and-storage.mdc` | Мапінг `coinOfLuck` ↔ `coinLuck`, **таблиця merge в heroLoadAPI без змін без явного «OK»**, записи в `l2_accounts_v2` лише з дозволених місць, register/localStorage нюанси. |
+| `hero-loadapi-skills-equip-sync.mdc` | Скіли без union з локаллю при зміні професії; `preferServerSnapshot` — сервер виграє екіп/заточку; пізній блок інвентаря не перезатирає API. |
 | `always-push-changes.mdc` | Після змін у коді — `git add` (без сміття) → `commit` → `push`. |
 | `common-pitfalls.mdc` | Типові технічні помилки (TS, бій, PK, бафи тощо). |
 | `resource-icons-from-l2dop.mdc` | Політика іконок ресурсів з l2dop. |

@@ -11,7 +11,7 @@ alwaysApply: true
 
 - **Теплий L2-UI** для екранів: `getCityUiVariant()` з `src/utils/cityUiVariant.ts`, палітра та рамки як у канону в `.cursor/rules/l2-warm-ui-screens.mdc` (референс-список файлів там же).
 - **Пакети роботи:** по **2 логічні одиниці** (екрани/модалки) → `npx tsc -b` → за потреби оновити список у `l2-warm-ui-screens.mdc` → `git add` / `git commit` / `git push` (див. `.cursor/rules/always-push-changes.mdc`).
-- **Не чіпати** логіку героя/merge/coinLuck/localStorage — див. `hero-currency-merge-and-storage.mdc`; мінімальні патчі — `do-not-break-what-works.mdc`.
+- **Не чіпати** логіку героя/merge/coinLuck/localStorage — див. `hero-currency-merge-and-storage.mdc`; **скіли після зміни класу та екіп/заточка між пристроями** — `hero-loadapi-skills-equip-sync.mdc`; мінімальні патчі — `do-not-break-what-works.mdc`.
 
 ## Як швидко зрозуміти «що лишилось»
 
