@@ -384,20 +384,22 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "invalid adena (must be >= 0)" });
       }
       const currentAdena = Number(existing.adena ?? 0);
-      // Максимально дозволений приріст за один PUT — не більше 10M (баланс + анти-читерство)
-      // Легітимне накопичення йде через /battle-finish з cap MAX_ADENA_PER_KILL
-      const MAX_ADENA_DELTA_PER_PUT = 10_000_000;
-      if (adenaNum > currentAdena + MAX_ADENA_DELTA_PER_PUT) {
+      // Адена через PUT може тільки ЗМЕНШУВАТИСЯ (покупки в магазині).
+      // Збільшення адени — виключно через /battle-finish, /fishing, /admin/player/:id/adena.
+      // Будь-яка спроба збільшити адену через PUT — заблокована.
+      if (adenaNum > currentAdena) {
         app.log.warn({
           accountId: auth.accountId,
           characterId: id,
           currentAdena,
           attemptedAdena: adenaNum,
           delta: adenaNum - currentAdena,
-        }, `[PUT /characters/:id] Suspicious adena increase blocked: +${adenaNum - currentAdena}`);
-        return reply.code(400).send({ error: "adena increase too large" });
+        }, `[PUT /characters/:id] Adena increase via PUT blocked: ${currentAdena} → ${adenaNum} (+${adenaNum - currentAdena})`);
+        // Не повертаємо помилку — просто ігноруємо збільшення (не ламаємо легітимний flow після battle-finish race)
+        (body as any).adena = undefined;
+      } else {
+        (body as any).adena = adenaNum;
       }
-      (body as any).adena = adenaNum;
     }
 
     if (body.aa !== undefined) {

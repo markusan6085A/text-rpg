@@ -759,7 +759,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const serverCoinLuck = Number((updatedCharacter as any).coinLuck ?? 0);
         const serverCoinsSilver = Number((updatedCharacter as any).coinsSilver ?? 0);
         const serverAdena = Number((updatedCharacter as any).adena ?? 0);
-        const clampedAdena = Math.max(Number(currentHero.adena ?? 0), serverAdena);
+        // Сервер авторитетний для адени: не беремо max(local, server).
+        // Адена може збільшитися лише через battle-finish/fishing (їх applyServerSync вже зробили це).
+        // Math.max тут дозволяв читерам "закріпити" роздуту адену через PUT.
+        const clampedAdena = serverAdena;
         const clampedCoinLuck = Math.max(Number(currentHero.coinOfLuck ?? 0), serverCoinLuck);
         useHeroStore.getState().applyServerSync(
           {
@@ -1030,11 +1033,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               const mergedLevel = adminDemoteRetry ? serverLevel : Math.max(localLv, serverLevel);
               const mergedSp = Math.max(heroBase.sp ?? 0, serverSp);
 
-              // 🔥 КРИТИЧНО: після купівлі лоту на ринку сервер уже нарахував адену/CoL, а локальний store ще старий.
-              // Без max() retry PUT перезапише БД старою сумою — «продав, а грошей немає».
+              // Адена: сервер авторитетний. Маркет/battle-finish вже оновили сервер до правильного значення.
+              // Math.max(local, server) дозволяло "закріпити" читерну адену при retry — прибрано.
               const serverAdena = Number((currentCharacter as any).adena ?? 0);
-              const localAdena = Number(heroBase.adena ?? (heroBase as any).heroJson?.adena ?? 0);
-              const mergedAdena = Math.max(localAdena, serverAdena);
+              const mergedAdena = serverAdena;
               const serverCol = Number((currentCharacter as any).coinLuck ?? 0);
               const localCol = Number(
                 (heroBase as any).coinOfLuck ?? (heroBase as any).heroJson?.coinOfLuck ?? 0
