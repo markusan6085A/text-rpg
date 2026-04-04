@@ -76,17 +76,35 @@ function checkSetTorso(
   return { shouldEquipLegs, legsItem, isRobe };
 }
 
-/** Той самий матч, що й при знятті рядка з інвентаря (LS / кристал). */
+/** Той самий матч, що й при знятті рядка з інвентаря (LS / кристал / enchantLevel). */
 function findMatchingInventoryIndex(inventory: HeroInventoryItem[], item: HeroInventoryItem): number {
   const itemInsertedLS = (item as any).insertedLS;
   const itemInsertedCrystal = (item as any).insertedCrystal;
+  const itemEnchantLevel = (item as any).enchantLevel ?? null;
+
+  // Pass 1: точний збіг з enchantLevel + LS + crystal
   let itemIndex = inventory.findIndex((i: any) => {
     if (!i || i.id !== item.id) return false;
     if (itemInsertedLS != null && (i.insertedLS ?? null) !== itemInsertedLS) return false;
     if (itemInsertedCrystal != null && (i.insertedCrystal ?? null) !== itemInsertedCrystal) return false;
     if (itemInsertedLS == null && itemInsertedCrystal == null && (i.insertedLS != null || i.insertedCrystal != null)) return false;
+    // Збіг за enchantLevel: якщо у предмета є рівень заточки — шукати точний збіг, щоб не зняти не ту зброю
+    if (itemEnchantLevel != null && (i.enchantLevel ?? 0) !== itemEnchantLevel) return false;
     return true;
   });
+
+  // Pass 2: LS/crystal збіг без enchantLevel (fallback для предметів без enchantLevel)
+  if (itemIndex < 0) {
+    itemIndex = inventory.findIndex((i: any) => {
+      if (!i || i.id !== item.id) return false;
+      if (itemInsertedLS != null && (i.insertedLS ?? null) !== itemInsertedLS) return false;
+      if (itemInsertedCrystal != null && (i.insertedCrystal ?? null) !== itemInsertedCrystal) return false;
+      if (itemInsertedLS == null && itemInsertedCrystal == null && (i.insertedLS != null || i.insertedCrystal != null)) return false;
+      return true;
+    });
+  }
+
+  // Pass 3: ID-only fallback (останній захід)
   if (itemIndex < 0) itemIndex = inventory.findIndex((i: any) => i && i.id === item.id);
   return itemIndex;
 }
@@ -144,9 +162,17 @@ function addOldItemToInventory(
   if (isTwoHandedInBothSlots) {
     return inventory;
   }
-  
-  const oldItem = itemsDBWithStarter[oldItemId] || itemsDB[oldItemId];
+
+  // Шукаємо у DB; якщо ID має shop_ префікс — пробуємо і без нього
+  const normalizedId = oldItemId.replace(/^shop_/i, "");
+  const oldItem =
+    itemsDBWithStarter[oldItemId] ||
+    itemsDB[oldItemId] ||
+    itemsDBWithStarter[normalizedId] ||
+    itemsDB[normalizedId];
+
   if (!oldItem) {
+    console.warn(`[addOldItemToInventory] ⚠️ item not found in DB: ${oldItemId} (normalized: ${normalizedId})`);
     return inventory;
   }
   
@@ -157,7 +183,8 @@ function addOldItemToInventory(
   return [
     ...inventory,
     {
-      id: oldItem.id,
+      // Зберігаємо оригінальний oldItemId (з shop_ префіксом якщо є) для консистентності з equipment
+      id: oldItemId,
       name: oldItem.name,
       slot: oldItem.slot,
       kind: oldItem.kind,

@@ -19,6 +19,8 @@ export async function enchantItemAPI(params: {
   slot?: string | null;
   /** Індекс рядка в inventory (якщо точимо з інвентаря) */
   inventoryItemIndex?: number | null;
+  /** ID предмета для верифікації — сервер перевірить, що item[index].id збігається */
+  targetItemId?: string | null;
 }): Promise<EnchantResult> {
   const characterId = useCharacterStore.getState().characterId;
   if (!characterId) throw new Error("no character id");
@@ -31,6 +33,7 @@ export async function enchantItemAPI(params: {
       ...(params.inventoryItemIndex != null
         ? { inventoryItemIndex: params.inventoryItemIndex }
         : {}),
+      ...(params.targetItemId != null ? { targetItemId: params.targetItemId } : {}),
     }),
   });
 }

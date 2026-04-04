@@ -80,6 +80,9 @@ export default function EnchantScrollModal({
       const result = await enchantItemAPI({
         scrollId: scrollItem.id,
         inventoryItemIndex: selectedInvIndex,
+        // Передаємо ID предмета щоб сервер верифікував: якщо порядок inventory розбігся між
+        // клієнтом і сервером, сервер сам знайде правильний предмет за ID
+        targetItemId: targetRow.id ?? null,
       });
 
       if (result.ok) {

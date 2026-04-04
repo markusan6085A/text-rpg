@@ -111,10 +111,13 @@ export function mergeHeroJsonForClientPut(existingHeroJson: any, incomingHeroJso
   if (
     serverClearedAt > 0 &&
     clientClearedAt < serverClearedAt &&
-    Array.isArray(result.inventory) &&
-    result.inventory.length > 0
+    (
+      (Array.isArray(result.inventory) && result.inventory.length > 0) ||
+      (Array.isArray(result.overflowChest) && result.overflowChest.length > 0)
+    )
   ) {
     result.inventory = [];
+    result.overflowChest = [];
     result.inventoryClearedAt = serverClearedAt;
   }
 

@@ -241,7 +241,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
       level: oldHeroJson.level ?? existing.level ?? 1,
     };
-    const newHeroJson = { ...baseJson, ...oldHeroJson, inventory: [], inventoryClearedAt: Date.now() };
+    const newHeroJson = {
+      ...baseJson,
+      ...oldHeroJson,
+      inventory: [],
+      overflowChest: [],
+      inventoryClearedAt: Date.now(),
+    };
     const validation = validateHeroJson(newHeroJson);
     if (!validation.valid) {
       return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
@@ -1046,6 +1052,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       scrollId?: string;
       slot?: string | null;
       inventoryItemIndex?: number | null;
+      /** itemId of the target — сервер верифікує, що item[index].id збігається, щоб уникнути заточки не тієї зброї при розбіжності індексів */
+      targetItemId?: string | null;
     };
 
     const scrollId = String(body.scrollId ?? "").trim();
@@ -1102,11 +1110,37 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (idx < 0 || idx >= inventory.length) {
         return reply.code(400).send({ error: "invalid inventoryItemIndex" });
       }
-      const item = inventory[idx];
+
+      let item = inventory[idx];
       if (!item) return reply.code(400).send({ error: "no item at index" });
 
+      // Verify that the item at the given index matches the expected itemId.
+      // If there is a mismatch (client/server inventory order diverged), find the correct item by ID.
+      const targetItemId = body.targetItemId
+        ? String(body.targetItemId).replace(/^shop_/i, "").toLowerCase()
+        : null;
+      if (targetItemId) {
+        const serverItemId = String(item.id ?? "").replace(/^shop_/i, "").toLowerCase();
+        if (serverItemId !== targetItemId) {
+          // Wrong item at this index — search for the correct one
+          const correctedIdx = inventory.findIndex((it: any) => {
+            if (!it) return false;
+            const id = String(it.id ?? "").replace(/^shop_/i, "").toLowerCase();
+            return id === targetItemId;
+          });
+          if (correctedIdx < 0) {
+            return reply.code(400).send({ error: "target item not found in inventory" });
+          }
+          item = inventory[correctedIdx];
+          targetInventoryIndex = correctedIdx;
+        } else {
+          targetInventoryIndex = idx;
+        }
+      } else {
+        targetInventoryIndex = idx;
+      }
+
       currentEnchantLevel = Number(item.enchantLevel ?? 0);
-      targetInventoryIndex = idx;
       const kind = String(item.kind ?? "").toLowerCase();
       const itemSlot = String(item.slot ?? "").toLowerCase();
       isWeaponItem =
