@@ -63,7 +63,8 @@ export function mergeGmBlessSoulScrollBuffs(
   }
   const itemDef = itemsDB[itemId];
   const inv = hero.inventory || [];
-  const invItem = inv.find((i) => i.id === itemId);
+  const normScrollId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+  const invItem = inv.find((i) => normScrollId(i.id) === normScrollId(itemId));
   if (!invItem || (invItem.count ?? 0) <= 0) {
     return { ok: false, message: "Немає предмета в інвентарі" };
   }
@@ -120,9 +121,10 @@ export async function applyGmBlessSoulScrollFromInventory(itemId: string): Promi
     return { ok: false, message: "Немає героя" };
   }
 
-  // Оптимістична перевірка: є скрол в інвентарі?
+  // Оптимістична перевірка: є скрол в інвентарі? (нормалізуємо shop_ prefix)
   const inv = hero.inventory || [];
-  const invItem = inv.find((i) => i.id === itemId);
+  const normScrollIdFull = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+  const invItem = inv.find((i) => normScrollIdFull(i.id) === normScrollIdFull(itemId));
   if (!invItem || (invItem.count ?? 0) <= 0) {
     return { ok: false, message: "Немає предмета в інвентарі" };
   }

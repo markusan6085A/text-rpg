@@ -114,9 +114,14 @@ export default function GMShop({ navigate }: GMShopProps) {
             { inventory: result.heroJson.inventory },
             { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
           );
+        } else if (result && !result.ok) {
+          showToast(`Помилка покупки: сервер відхилив запит`, "error");
         }
       })
-      .catch(() => { /* server not available — client state already saved */ });
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err ?? "");
+        showToast(`Помилка синхронізації: ${msg || "сервер недоступний"}`, "error");
+      });
   };
 
   // Генерація каменя: кристал + ЛС + камінь → 5% шанс отримати камінь з пасивним ефектом
@@ -239,9 +244,14 @@ export default function GMShop({ navigate }: GMShopProps) {
             { inventory: result.heroJson.inventory, adena: result.adena },
             { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
           );
+        } else if (result && !result.ok) {
+          showToast(`Помилка покупки: сервер відхилив запит`, "error");
         }
       })
-      .catch(() => { /* server not available — client state already saved */ });
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err ?? "");
+        showToast(`Помилка синхронізації: ${msg || "сервер недоступний"}`, "error");
+      });
   };
 
   const isL2 = isWarmCityUi(getCityUiVariant());

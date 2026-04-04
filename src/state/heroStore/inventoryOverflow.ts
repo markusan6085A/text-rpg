@@ -21,6 +21,7 @@ export function isStackableHeroItem(item: HeroInventoryItem): boolean {
   const tid = typeId.toLowerCase();
   const def = itemsDB[rawId as string] || itemsDBWithStarter[rawId as string];
   const EQUIP_KINDS = new Set([
+    "equipment",
     "weapon",
     "armor",
     "helmet",
@@ -33,6 +34,9 @@ export function isStackableHeroItem(item: HeroInventoryItem): boolean {
     "jewelry",
     "belt",
     "cloak",
+    "lhand",
+    "rhand",
+    "lrhand",
   ]);
   const isEquipmentPiece =
     (def && (EQUIP_KINDS.has(String(def.kind || "")) || def.slot === "weapon")) ||
@@ -71,7 +75,8 @@ export function addItemsWithOverflow(
     const stackable = canStack(toAdd);
 
     if (stackable) {
-      const idx = inventory.findIndex((i) => i.id === toAdd.id && !(i as any).meta?.hasLSPassive);
+      const normOvId = (s: any) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+      const idx = inventory.findIndex((i) => normOvId(i.id) === normOvId(toAdd.id) && !(i as any).meta?.hasLSPassive);
       if (idx >= 0) {
         const cur = inventory[idx];
         inventory[idx] = { ...cur, count: (cur.count ?? 1) + count };
@@ -135,7 +140,8 @@ export function unloadOverflowChest(hero: Hero): { inventory: HeroInventoryItem[
     const total = item.count ?? 1;
 
     if (stackable) {
-      const idx = inventory.findIndex((i) => i.id === item.id && !(i as any).meta?.hasLSPassive);
+      const normOvId2 = (s: any) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+      const idx = inventory.findIndex((i) => normOvId2(i.id) === normOvId2(item.id) && !(i as any).meta?.hasLSPassive);
       if (idx >= 0) {
         const cur = inventory[idx];
         inventory[idx] = { ...cur, count: (cur.count ?? 1) + total };

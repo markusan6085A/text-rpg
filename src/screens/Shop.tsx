@@ -9,7 +9,7 @@ import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../data/shop/consumablesShop";
 import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
-import { addItemsWithOverflow } from "../state/heroStore/inventoryOverflow";
+import { addItemsWithOverflow, isStackableHeroItem } from "../state/heroStore/inventoryOverflow";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
@@ -172,44 +172,35 @@ export default function Shop({ navigate }: ShopProps) {
 
     // Збираємо предмети для додавання (з overflow-логікою)
     const itemsToAdd: import("../types/Hero").HeroInventoryItem[] = [];
-    const stackableSlots = ["consumable", "resource", "quest"];
-    const canStack = stackableSlots.includes(itemDef.slot);
     const grade = itemDef.grade || autoDetectGrade(itemsDBId);
     const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
 
+    const baseShopItem = {
+      id: itemDef.id,
+      name: itemDef.name,
+      slot: itemDef.slot,
+      kind: itemDef.kind,
+      icon: itemDef.icon,
+      description: itemDef.description,
+      stats: finalStats,
+      grade: grade,
+      armorType: armorType,
+    };
+
+    // Використовуємо канонічний isStackableHeroItem (blocklist підхід, а не allowlist)
+    const canStack = isStackableHeroItem(baseShopItem as any);
     if (canStack) {
-      itemsToAdd.push({
-        id: itemDef.id,
-        name: itemDef.name,
-        slot: itemDef.slot,
-        kind: itemDef.kind,
-        icon: itemDef.icon,
-        description: itemDef.description,
-        stats: finalStats,
-        count: quantity,
-        grade: grade,
-        armorType: armorType,
-      });
+      itemsToAdd.push({ ...baseShopItem, count: quantity });
     } else {
       for (let i = 0; i < quantity; i++) {
-        itemsToAdd.push({
-          id: itemDef.id,
-          name: itemDef.name,
-          slot: itemDef.slot,
-          kind: itemDef.kind,
-          icon: itemDef.icon,
-          description: itemDef.description,
-          stats: finalStats,
-          count: 1,
-          grade: grade,
-          armorType: armorType,
-        });
+        itemsToAdd.push({ ...baseShopItem, count: 1 });
       }
     }
 
     const heroForOverflow = { ...hero, inventory: hero.inventory || [], overflowChest: hero.overflowChest ?? [] };
     const { inventory: finalInventory, overflowChest: finalOverflow } = addItemsWithOverflow(heroForOverflow, itemsToAdd);
-    updateHero({ inventory: finalInventory, overflowChest: finalOverflow });
+    // persist: true — покупка критична, зберігаємо одразу на сервер
+    updateHero({ inventory: finalInventory, overflowChest: finalOverflow }, { persist: true });
     
     setSelectedItem(null);
     setBuyQuantity(1);
