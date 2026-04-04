@@ -5,7 +5,9 @@
 
 export const GM_BLESS_SCROLL_DURATION_MS = 20 * 60 * 1000; // 20 хв
 
-export const GM_BLESS_SCROLL_EFFECTS: Record<string, { buffId: number; buffName: string; effects: any[] }> = {
+export const GM_BLESS_SCROLL_ICON = "/items/drops/resources/Br_cash_scroll_of_bless_the_soul_i00_0.jpg";
+
+export const GM_BLESS_SCROLL_EFFECTS: Record<string, { buffId: number; buffName: string; effects: any[]; icon?: string }> = {
   gm_bless_scroll_might:          { buffId: -971001, buffName: "Might (скрол)",           effects: [{ stat: "pAtk",                  mode: "percent",    value: 15  }] },
   gm_bless_scroll_haste:          { buffId: -971002, buffName: "Haste (скрол)",            effects: [{ stat: "atkSpeed",              mode: "percent",    value: 15  }] },
   gm_bless_scroll_focus:          { buffId: -971003, buffName: "Focus (скрол)",            effects: [{ stat: "crit",                  mode: "percent",    value: 25  }] },

@@ -73,7 +73,8 @@ export default function InventoryItemList({
             getL2dopResourceIconPath(itemKey) ||
             FALLBACK_ICON;
           // Конвертуємо XML формат слотів для перевірки (chest -> armor для збігу з equipment)
-          let normalizedSlot = item.slot;
+          // Якщо item.slot відсутній (сервер міг не передати його), беремо з DB або kind
+          let normalizedSlot = item.slot || itemDef?.slot || item.kind || itemDef?.kind;
           if (item.slot === "chest") {
             normalizedSlot = "armor";
           } else if (item.slot && (item.slot.includes("rear") || item.slot.includes("lear") || item.slot === "rear;lear")) {

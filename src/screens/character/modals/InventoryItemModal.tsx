@@ -55,7 +55,9 @@ export default function InventoryItemModal({
   const isTreasureBox = item.id === "treasure_box";
   const isSevenSealsMedal = item.id === "seven_seals_medal";
   // Нормалізуємо слот для щитів (lhand -> shield) та зброї (lrhand -> weapon)
-  let normalizedSlot = item.slot;
+  // Якщо item.slot відсутній (сервер міг не передати) — беремо з DB або kind
+  const _itemDefForSlot = itemsDB[item.id] || itemsDBWithStarter[item.id];
+  let normalizedSlot = item.slot || _itemDefForSlot?.slot || item.kind || _itemDefForSlot?.kind;
   if (item.slot === "lhand") {
     const itemDef = itemsDB[item.id] || itemsDBWithStarter[item.id];
     if (itemDef && (itemDef.kind === "shield" || itemDef.kind === "armor")) {

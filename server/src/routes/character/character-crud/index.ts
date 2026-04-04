@@ -1299,11 +1299,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     // Будуємо баф
     const now = Date.now();
+    const { GM_BLESS_SCROLL_ICON } = await import("../../../data/gmBlessScrollBuffs");
     const newBuff = {
       id: buffDef.buffId,
       name: buffDef.buffName,
       source: "gm_bless_scroll",
       buffGroup: "GM_BLESS_SCROLL",
+      icon: buffDef.icon ?? GM_BLESS_SCROLL_ICON,
       effects: buffDef.effects.map((e: any) => ({ ...e })),
       expiresAt: now + GM_BLESS_SCROLL_DURATION_MS,
       startedAt: now,
