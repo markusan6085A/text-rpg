@@ -333,7 +333,28 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         const patch: Partial<import("../../types/Hero").Hero> = {};
 
         if (Array.isArray(serverHj.inventory)) {
-          patch.inventory = serverHj.inventory;
+          // Merge server inventory with current local inventory:
+          // - For STACKABLE items (consumables, charges, resources): take MIN(server, local)
+          //   so shots consumed during battle are preserved (server doesn't know about mid-battle consumption).
+          // - For NON-STACKABLE items: server wins (drops, quest items added by server).
+          const localInvNow = useHeroStore.getState().hero?.inventory ?? [];
+          const localById = new Map<string, number>();
+          for (const item of localInvNow) {
+            if (!item?.id) continue;
+            const nid = item.id.replace(/^shop_/i, "").toLowerCase();
+            localById.set(nid, (localById.get(nid) ?? 0) + ((item.count ?? 1)));
+          }
+          patch.inventory = serverHj.inventory.map((srv: any) => {
+            if (!srv?.id) return srv;
+            const nid = srv.id.replace(/^shop_/i, "").toLowerCase();
+            const localCount = localById.get(nid);
+            // Only merge (min) for stackable consumables/resources — not equipment/quest items
+            const isStackable = srv.slot === "consumable" || srv.slot === "resource" || srv.type === "consumable" || srv.type === "resource";
+            if (isStackable && localCount != null && localCount < (srv.count ?? 1)) {
+              return { ...srv, count: localCount };
+            }
+            return srv;
+          });
         }
         if (Array.isArray(serverHj.overflowChest)) {
           patch.overflowChest = serverHj.overflowChest;
