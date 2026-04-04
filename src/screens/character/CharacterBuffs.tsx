@@ -7,9 +7,22 @@ import { filterBuffsForHeroProfession } from "../../state/battle/loadout";
 import { getCharacter } from "../../utils/api";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 
+/** Як у loadHeroFromAPI: не підміняти локальні бафи (GM-скроли, статуя) застарілим GET, коли на сервері їх ще нема. */
+function mergeHeroJsonBuffsPreferLatest(localArr: any[], serverArr: any[], now: number): any[] {
+  const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
+  const raw = [...(Array.isArray(localArr) ? localArr : []), ...(Array.isArray(serverArr) ? serverArr : [])];
+  const best = new Map<string, any>();
+  for (const b of raw) {
+    const k = byKey(b);
+    const cur = best.get(k);
+    const ex = Number(b.expiresAt) || 0;
+    if (!cur || ex > (Number(cur.expiresAt) || 0)) best.set(k, b);
+  }
+  return cleanupBuffs([...best.values()], now);
+}
+
 export default function CharacterBuffs() {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
   const battleStatus = useBattleStore((s) => s.status);
   const battleBuffs = useBattleStore((s) => s.heroBuffs || []);
   // 🔥 Таймер — перерендер кожну секунду, щоб зникали прострочені бафи
@@ -38,8 +51,11 @@ export default function CharacterBuffs() {
           ? (cur as any).heroJson.heroBuffs
           : [];
 
-        if (!disposed && JSON.stringify(serverBuffs) !== JSON.stringify(localBuffs)) {
-          useHeroStore.getState().updateHero({ heroJson: { heroBuffs: serverBuffs } }, { persist: false });
+        const now = Date.now();
+        const merged = mergeHeroJsonBuffsPreferLatest(localBuffs, serverBuffs, now);
+        const localClean = cleanupBuffs(localBuffs, now);
+        if (!disposed && JSON.stringify(merged) !== JSON.stringify(localClean)) {
+          useHeroStore.getState().updateHero({ heroJson: { heroBuffs: merged } }, { persist: true });
         }
       } catch (e: unknown) {
         if ((e as { status?: number })?.status === 404 && intervalId) {
@@ -50,7 +66,8 @@ export default function CharacterBuffs() {
     };
 
     syncFromServer();
-    intervalId = setInterval(syncFromServer, 5000);
+    // Рідше за 5 с — менше PUT-навантаження; злиття бафів не вимагає такого частого опитування.
+    intervalId = setInterval(syncFromServer, 30_000);
     return () => {
       disposed = true;
       if (intervalId) clearInterval(intervalId);

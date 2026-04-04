@@ -400,9 +400,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Інший пристрій зробив успішний PUT — ревізія в heroJson зростає; lastSavedAt на ПК може бути «новішим» через автозбереження без узгодженого PUT.
     const serverAheadByRevision =
       localBelongsToCharacter && serverRevPrefer > 0 && serverRevPrefer > localRevPrefer;
+    // Не використовувати character.updatedAt як ознаку «heroJson з API новіший», коли вже був локальний save:
+    // updatedAt часто росте на heartbeat / ancillary DB touch без зміни inventory → preferServerSnapshot давав clone(server),
+    // і соски/скроли/заряди «відкатувались» через хвилину-дві.
     const preferServerSnapshotByTime =
+      localBelongsToCharacter &&
       serverUpdatedAt > 0 &&
-      (localLastSavedAtOuter === 0 || serverUpdatedAt > localLastSavedAtOuter);
+      localLastSavedAtOuter === 0 &&
+      !serverAheadByRevision;
     const preferServerSnapshot = preferServerSnapshotByTime || serverAheadByRevision;
     if (import.meta.env.DEV && serverAheadByRevision && !preferServerSnapshotByTime) {
       console.log("[loadHeroFromAPI] preferServerSnapshot: server heroRevision ahead of local", {
@@ -416,12 +421,15 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       localBelongsToCharacter && !preferServerSnapshot ? hydratedLocalHero : null;
     /** Union інвентаря/бафів/енчантів з localStorage — навіть коли preferServerSnapshot (скіли тоді з API). Інакше F5 губить щойні GM-скроли/заточку. */
     const localSnapshot = localBelongsToCharacter ? hydratedLocalHero : null;
-    /** Stack counts: max(local, server) відкочує витрату скролів, поки PUT не оновив heroJson. Якщо локальний snapshot новіший — для стаків довіряємо локалці. */
+    /** Для стаків: довіряємо локалці, якщо ревізія heroJson не пішла вперед на сервері (або lastSaved ≥ updatedAt). Інакше Math.max з сервером відкочує витрату при «фейковому» updatedAt. */
     const preferLocalStackableCounts =
       localBelongsToCharacter &&
-      localLastSavedAtOuter > 0 &&
-      serverUpdatedAt > 0 &&
-      localLastSavedAtOuter >= serverUpdatedAt;
+      !serverAheadByRevision &&
+      ((localLastSavedAtOuter > 0 &&
+        serverUpdatedAt > 0 &&
+        localLastSavedAtOuter >= serverUpdatedAt) ||
+        (serverRevPrefer > 0 && localRevPrefer >= serverRevPrefer) ||
+        (serverRevPrefer === 0 && localRevPrefer === 0));
     
     // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
     // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
