@@ -348,10 +348,17 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             if (!srv?.id) return srv;
             const nid = srv.id.replace(/^shop_/i, "").toLowerCase();
             const localCount = localById.get(nid);
-            // Only merge (min) for stackable items (shots/charges consumed mid-battle) — not equipment.
-            const EQUIP_K = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
-            const isStackable = !(srv as any).meta?.hasLSPassive && !EQUIP_K.has(String(srv.kind ?? "").toLowerCase()) && !EQUIP_K.has(String(srv.slot ?? "").toLowerCase());
-            if (isStackable && localCount != null && localCount < (srv.count ?? 1)) {
+            // Only apply min(local, server) for items that CAN be consumed mid-battle
+            // (shots, charges, potions). Resources/quest items/drops — always trust server count.
+            const srvKind = String(srv.kind ?? "").toLowerCase();
+            const srvSlot = String(srv.slot ?? "").toLowerCase();
+            const isConsumedDuringBattle =
+              srvKind === "shot" || srvKind === "ammo" || srvKind === "arrow" ||
+              srvSlot === "shot" || srvSlot === "ammo" || srvSlot === "arrow" ||
+              nid.includes("soulshot") || nid.includes("spiritshot") ||
+              nid.includes("blessed_soulshot") || nid.includes("blessed_spiritshot") ||
+              nid.includes("_charge") || nid.includes("full_charge");
+            if (isConsumedDuringBattle && localCount != null && localCount < (srv.count ?? 1)) {
               return { ...srv, count: localCount };
             }
             return srv;
