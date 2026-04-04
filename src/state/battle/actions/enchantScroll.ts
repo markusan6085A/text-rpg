@@ -130,50 +130,54 @@ export function handleEnchantScroll(
 
   // Перевіряємо чи це blessed scroll (заточка з квест-шопу)
   const isBlessedScroll = scrollItemId.includes("bless") || scrollItemId.includes("quest_shop");
+  // GM Giant scroll — завжди 100% успіх (itemsDB_gm_giant_enchants)
+  const isGmGiantEnchantScroll = /^gm_giant_enchant_(weapon|armor)_(d|c|b|a|s)$/i.test(scrollItemId);
 
   // Визначаємо шанс успіху заточки залежно від типу та поточного рівня
   let successChance: number;
-  
+
   if (isWeapon) {
     // Зброя: максимальна заточка +40
-    // До +5: 100%, +5-+15: 80%, +15-+30: 70%, +30-+40: 60%
-    if (currentEnchantLevel < 5) {
-      successChance = 1.0; // 100%
-    } else if (currentEnchantLevel < 15) {
-      successChance = 0.8; // 80%
-    } else if (currentEnchantLevel < 30) {
-      successChance = 0.7; // 70%
-    } else if (currentEnchantLevel < 40) {
-      successChance = 0.6; // 60%
-    } else {
-      // Максимальна заточка досягнута
+    if (currentEnchantLevel >= 40) {
       setAndPersist({
         log: [`⚠️ ${itemDef.name} вже має максимальну заточку +40!`, ...state.log].slice(0, 30),
       });
       return { applied: false };
     }
-  } else {
-    // Броня/біжутерія/пояс/плащ: максимальна заточка +30
-    // До +3: 100%, до +10: 90%, до +20: 80%, до +30: 70%
-    if (currentEnchantLevel < 3) {
+    if (isGmGiantEnchantScroll) {
+      successChance = 1;
+    } else if (currentEnchantLevel < 5) {
       successChance = 1.0; // 100%
-    } else if (currentEnchantLevel < 10) {
-      successChance = 0.9; // 90%
-    } else if (currentEnchantLevel < 20) {
+    } else if (currentEnchantLevel < 15) {
       successChance = 0.8; // 80%
     } else if (currentEnchantLevel < 30) {
       successChance = 0.7; // 70%
     } else {
-      // Максимальна заточка досягнута
+      successChance = 0.6; // 60%
+    }
+  } else {
+    // Броня/біжутерія/пояс/плащ: максимальна заточка +30
+    if (currentEnchantLevel >= 30) {
       setAndPersist({
         log: [`⚠️ ${itemDef.name} вже має максимальну заточку +30!`, ...state.log].slice(0, 30),
       });
       return { applied: false };
     }
+    if (isGmGiantEnchantScroll) {
+      successChance = 1;
+    } else if (currentEnchantLevel < 3) {
+      successChance = 1.0; // 100%
+    } else if (currentEnchantLevel < 10) {
+      successChance = 0.9; // 90%
+    } else if (currentEnchantLevel < 20) {
+      successChance = 0.8; // 80%
+    } else {
+      successChance = 0.7; // 70%
+    }
   }
 
-  // Для blessed scrolls встановлюємо мінімальний шанс успіху 95%
-  if (isBlessedScroll) {
+  // Для blessed scrolls встановлюємо мінімальний шанс успіху 95% (Giant GM уже 100%)
+  if (isBlessedScroll && !isGmGiantEnchantScroll) {
     successChance = Math.max(successChance, 0.95); // Мінімум 95% для blessed scrolls
   }
   

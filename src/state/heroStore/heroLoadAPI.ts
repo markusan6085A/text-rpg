@@ -315,6 +315,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       (localLastSavedAtOuter === 0 || serverUpdatedAt > localLastSavedAtOuter);
     const localHeroForMerge =
       localBelongsToCharacter && !preferServerSnapshot ? hydratedLocalHero : null;
+    /** Union інвентаря/бафів/енчантів з localStorage — навіть коли preferServerSnapshot (скіли тоді з API). Інакше F5 губить щойні GM-скроли/заточку. */
+    const localSnapshot = localBelongsToCharacter ? hydratedLocalHero : null;
     
     // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
     // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
@@ -797,24 +799,29 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     }
 
     const serverEquip = fixedHero.equipment ?? {};
-    const localEquip = localHeroForMerge?.equipment ?? {};
+    const localEquip = localSnapshot?.equipment ?? {};
     const mergedEquipment = { ...serverEquip, ...localEquip };
 
     const serverInv = fixedHero.inventory ?? [];
-    const localInv = localHeroForMerge?.inventory ?? [];
+    const localInv = localSnapshot?.inventory ?? [];
     // 🔥 Union-merge: ніколи не губити предмети (напр. 2 удочки +1000), якщо вони є в local або server
     const mergedInventory = mergeInventoriesUnion(localInv, serverInv);
 
-    const localDyes = localHeroForMerge?.activeDyes ?? [];
+    const serverEnc =
+      (fixedHero as any).equipmentEnchantLevels ?? (heroData as any)?.equipmentEnchantLevels ?? {};
+    const localEnc = (localSnapshot as any)?.equipmentEnchantLevels ?? {};
+    const mergedEquipmentEnchantLevels = { ...serverEnc, ...localEnc };
+
+    const localDyes = localSnapshot?.activeDyes ?? [];
     const serverDyes = fixedHero.activeDyes ?? [];
     const mergedActiveDyes = (localDyes.length >= serverDyes.length ? localDyes : serverDyes) as any;
 
     const serverActiveQuests = Array.isArray((heroData as any)?.activeQuests) ? (heroData as any).activeQuests : [];
-    const localActiveQuests = Array.isArray(localHeroForMerge?.activeQuests) ? localHeroForMerge.activeQuests : [];
+    const localActiveQuests = Array.isArray(localSnapshot?.activeQuests) ? localSnapshot.activeQuests : [];
     const mergedActiveQuests = serverActiveQuests.length > 0 ? serverActiveQuests : localActiveQuests;
 
     const serverOverflow = Array.isArray((fixedHero as any).overflowChest) ? (fixedHero as any).overflowChest : [];
-    const localOverflow = Array.isArray(localHeroForMerge?.overflowChest) ? localHeroForMerge.overflowChest : [];
+    const localOverflow = Array.isArray(localSnapshot?.overflowChest) ? localSnapshot.overflowChest : [];
     /** Як інвентар — union, інакше «більший локальний overflow» затирав серверні нагороди (TvT тощо). */
     const mergedOverflow = mergeInventoriesUnion(localOverflow, serverOverflow);
 
@@ -822,6 +829,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       ...fixedHero,
       skills: finalSkillsForRecalc,
       equipment: mergedEquipment,
+      equipmentEnchantLevels: mergedEquipmentEnchantLevels,
       inventory: mergedInventory,
       overflowChest: mergedOverflow,
       activeDyes: mergedActiveDyes,
@@ -852,9 +860,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const heroJsonBuffs = professionChanged ? [] : heroJsonBuffsRaw;
     const savedBattleBuffs = professionChanged ? [] : (savedBattle?.heroBuffs || []);
     
-    // Об'єднуємо бафи з сервера та з battle (статуя зберігає в battle). При однаковому id/stackType
-    // залишаємо баф з більшим expiresAt (свіжіший), щоб щойно взяті бафи статуї не пропадали після GET
-    const allBuffs = [...heroJsonBuffs, ...savedBattleBuffs];
+    // Об'єднуємо бафи з сервера, battle і heroJson з localStorage (GM-скроли пишуть у heroJson; при preferServerSnapshot раніше втрачалися).
+    const localHeroJsonBuffsForMerge =
+      !professionChanged &&
+      localBelongsToCharacter &&
+      Array.isArray((hydratedLocalHero as any)?.heroJson?.heroBuffs)
+        ? (hydratedLocalHero as any).heroJson.heroBuffs
+        : [];
+    const allBuffs = [...heroJsonBuffs, ...savedBattleBuffs, ...localHeroJsonBuffsForMerge];
     const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
     const bestByKey = new Map<string, any>();
     for (const b of allBuffs) {
@@ -875,9 +888,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     };
     const heroDataAny = heroData as any;
     const serverIsDead = Boolean(heroDataAny?.isDead) || Number(heroDataAny?.deadAt) > 0;
-    const localJson = (localHeroForMerge as any)?.heroJson || {};
+    const localJson = (localSnapshot as any)?.heroJson || {};
     const localIsDead = Boolean(localJson.isDead) || Number(localJson.deadAt || 0) > 0;
-    const localHp = Number(localHeroForMerge?.hp ?? 0);
+    const localHp = Number(localSnapshot?.hp ?? 0);
     // Якщо сервер мертвий, а локально hp > 0 — вважаємо живим (пріоритет живому стану після resurrect)
     const preferLocalAlive = serverIsDead && localHp > 0;
     const isDead = preferLocalAlive ? false : serverIsDead;
@@ -903,8 +916,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     let isAliveAfterLoad = isDead;
     if (preferLocalAlive) {
       finalHp = Math.min(finalMaxHp, Math.max(1, localHp));
-      finalMp = Math.min(finalMaxMp, Math.max(0, Number(localHeroForMerge?.mp ?? 0)));
-      finalCp = Math.min(finalMaxCp, Math.max(0, Number(localHeroForMerge?.cp ?? 0)));
+      finalMp = Math.min(finalMaxMp, Math.max(0, Number(localSnapshot?.mp ?? 0)));
+      finalCp = Math.min(finalMaxCp, Math.max(0, Number(localSnapshot?.cp ?? 0)));
     } else if (isDead) {
       // Після смерті на F5 — залишаємо 0 HP, доки гравець не воскресне через «У місто».
       finalHp = 0;
@@ -969,14 +982,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // 🔥 Схема A: hero.* - єдине джерело істини
     // Skills вже об'єднані в finalSkillsForRecalc; використовуємо їх для фінального героя
-    const localMobsKilled = (localHeroForMerge as any)?.mobsKilled ?? 0;
+    const localMobsKilled = (localSnapshot as any)?.mobsKilled ?? 0;
     const serverMobsKilled = mobsKilledFromData ?? 0;
     const finalSkills = finalSkillsForRecalc;
     const finalMobsKilled = localMobsKilled > serverMobsKilled ? localMobsKilled : (serverMobsKilled > 0 ? serverMobsKilled : currentMobsKilled);
     
     // Щоденні завдання: завжди беремо максимум з локального та серверного прогресу, щоб прогрес оновлювався миттєво і не перезаписувався старим API
     const serverProgress = (fixedHero as any).dailyQuestsProgress ?? (heroData as any)?.dailyQuestsProgress ?? {};
-    const localProgress = (localHeroForMerge as any)?.dailyQuestsProgress ?? {};
+    const localProgress = (localSnapshot as any)?.dailyQuestsProgress ?? {};
     const mergedProgress: Record<string, number> = {};
     const allKeys = new Set([...Object.keys(serverProgress || {}), ...Object.keys(localProgress || {})]);
     allKeys.forEach((id) => {
@@ -988,12 +1001,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Завжди задаємо dailyQuestsProgress (об'єкт), щоб UI та victory-блок не отримували undefined
     const dailyQuestsProgress: Record<string, number> = Object.keys(mergedProgress).length > 0 ? mergedProgress : {};
     const serverCompleted = (fixedHero as any).dailyQuestsCompleted ?? (heroData as any)?.dailyQuestsCompleted ?? [];
-    const localCompleted = (localHeroForMerge as any)?.dailyQuestsCompleted ?? [];
+    const localCompleted = (localSnapshot as any)?.dailyQuestsCompleted ?? [];
     const dailyQuestsCompleted = Array.from(new Set([
       ...(Array.isArray(serverCompleted) ? serverCompleted : []),
       ...(Array.isArray(localCompleted) ? localCompleted : []),
     ]));
-    const dailyQuestsResetDate = (fixedHero as any).dailyQuestsResetDate ?? (heroData as any)?.dailyQuestsResetDate ?? localHeroForMerge?.dailyQuestsResetDate;
+    const dailyQuestsResetDate = (fixedHero as any).dailyQuestsResetDate ?? (heroData as any)?.dailyQuestsResetDate ?? localSnapshot?.dailyQuestsResetDate;
 
     // 🔥 КРИТИЧНО: adena — max(локаль, сервер), щоб після продажу GET не перезаписував нову адена старим значенням з API
     // fixedHero.adena може бути 0 при валідному 0 у колонці; heroJson.adena тоді губився через ?? (0 не nullish)
@@ -1002,7 +1015,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       Number((heroData as any)?.adena ?? 0),
       Number(character.adena ?? 0),
     );
-    const localAdenaVal = Number(localHeroForMerge?.adena ?? (localHeroForMerge as any)?.heroJson?.adena ?? 0);
+    const localAdenaVal = Number(localSnapshot?.adena ?? (localSnapshot as any)?.heroJson?.adena ?? 0);
     const finalAdena = Math.max(serverAdenaVal, localAdenaVal);
 
     const heroWithRecalculatedStats: Hero = {
@@ -1019,6 +1032,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       cp: finalCp,
       skills: finalSkills,
       equipment: mergedEquipment,
+      equipmentEnchantLevels: mergedEquipmentEnchantLevels,
       inventory: mergedInventory,
       mobsKilled: finalMobsKilled as any,
       // Адмін: блок/бан — показуємо екран або блокуємо чат
@@ -1119,14 +1133,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       });
 
       // 🔥 КРИТИЧНО: Преміум + Coin of Luck — беремо з локального, якщо там новіший преміум (після покупки F5 не має відкатувати)
-      if (localHeroForMerge) {
-        const localPremiumUntil = (localHeroForMerge as any).premiumUntil ?? (localHeroForMerge as any).heroJson?.premiumUntil;
+      if (localSnapshot) {
+        const localPremiumUntil = (localSnapshot as any).premiumUntil ?? (localSnapshot as any).heroJson?.premiumUntil;
         const serverPremiumUntil = (hydratedHero as any).premiumUntil ?? (hydratedHero as any).heroJson?.premiumUntil;
         if (localPremiumUntil != null && Number(localPremiumUntil) > Number(serverPremiumUntil || 0)) {
           (hydratedHero as any).premiumUntil = localPremiumUntil;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, premiumUntil: localPremiumUntil };
           // Після покупки преміуму коіни вже зняті локально — не перезаписувати серверним значенням
-          const localCoinOfLuck = (localHeroForMerge as any).coinOfLuck ?? (localHeroForMerge as any).heroJson?.coinOfLuck;
+          const localCoinOfLuck = (localSnapshot as any).coinOfLuck ?? (localSnapshot as any).heroJson?.coinOfLuck;
           if (localCoinOfLuck !== undefined && localCoinOfLuck !== null) {
             (hydratedHero as any).coinOfLuck = localCoinOfLuck;
             (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, coinOfLuck: localCoinOfLuck };
@@ -1135,17 +1149,17 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       }
       // 🔥 КРИТИЧНО: Union-merge інвентаря — ніколи не губити предмети (удочки +1000 тощо)
       // Порожній локальний [] + непорожній сервер — раніше затирали сервер (втрата нагород TvT після GET).
-      if (localHeroForMerge) {
-        const localInv = localHeroForMerge.inventory ?? [];
+      if (localSnapshot) {
+        const localInv = localSnapshot.inventory ?? [];
         const serverInv = hydratedHero.inventory ?? [];
-        const localEquip = localHeroForMerge.equipment ?? {};
+        const localEquip = localSnapshot.equipment ?? {};
         const serverEquip = hydratedHero.equipment ?? {};
         const mergedInv = mergeInventoriesUnion(localInv, serverInv);
-        const localOv = Array.isArray((localHeroForMerge as any).overflowChest) ? (localHeroForMerge as any).overflowChest : [];
+        const localOv = Array.isArray((localSnapshot as any).overflowChest) ? (localSnapshot as any).overflowChest : [];
         const serverOv = Array.isArray((hydratedHero as any).overflowChest) ? (hydratedHero as any).overflowChest : [];
         const mergedOv = mergeInventoriesUnion(localOv, serverOv);
         const localTvt = Math.max(
-          Number((localHeroForMerge as any).heroJson?.tvtCoins ?? (localHeroForMerge as any).heroJson?.tvt_coins ?? 0),
+          Number((localSnapshot as any).heroJson?.tvtCoins ?? (localSnapshot as any).heroJson?.tvt_coins ?? 0),
           0
         );
         const serverTvt = Math.max(
@@ -1164,10 +1178,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         };
         // ❌ НЕ перезаписувати adena лише з локалі: вище вже finalAdena = max(сервер, локаль).
         // Якщо тут підставити localHeroForMerge.adena — продавець після продажу на ринку не бачить зарахування (сервер більший, локаль застарілий).
-        const localSpVal = Number(localHeroForMerge.sp ?? (localHeroForMerge as any).heroJson?.sp ?? 0) || 0;
+        const localSpVal = Number(localSnapshot.sp ?? (localSnapshot as any).heroJson?.sp ?? 0) || 0;
         const hydratedSpVal = Number((hydratedHero as any).sp ?? 0) || 0;
         const serverLearnedHere = skillsStrictlyAheadOnServer(
-          localHeroForMerge.skills as any,
+          localSnapshot.skills as any,
           (hydratedHero as any).skills as any
         );
         const mergedSpFromLocal =
