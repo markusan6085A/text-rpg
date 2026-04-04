@@ -17,10 +17,9 @@ import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 import { showToast } from "../../state/toastStore";
 import type { HeroInventoryItem } from "../../types/Hero";
-import {
-  applyAdminEnchantToHeroInventory,
-  heroInventoryIndexFromFilteredIndex,
-} from "../../utils/adminInventoryEnchant";
+import { heroInventoryIndexFromFilteredIndex } from "../../utils/adminInventoryEnchant";
+import { adminSetInventoryEnchant } from "../../utils/api/admin";
+import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -99,8 +98,8 @@ export default function Inventory() {
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleAdminEnchantApply = useCallback(
-    (item: HeroInventoryItem, pageLocalIndex: number) => {
-      if (!hero) return;
+    async (item: HeroInventoryItem, pageLocalIndex: number) => {
+      if (!hero || !characterId) return;
       const filteredIndex = startIndex + pageLocalIndex;
       const raw =
         adminEnchantDraft[filteredIndex] ?? String(item.enchantLevel ?? 0);
@@ -109,15 +108,27 @@ export default function Inventory() {
         showToast("Не знайдено рядок у інвентарі", "error");
         return;
       }
-      const r = applyAdminEnchantToHeroInventory(hero, ix, raw);
-      if (!r.ok || !r.inventory) {
-        showToast(r.message ?? "Помилка заточки", "error");
-        return;
+      const want = Math.floor(Number(String(raw).trim().replace(",", ".")) || 0);
+      try {
+        const r = await adminSetInventoryEnchant(characterId, {
+          index: ix,
+          enchantLevel: want,
+          expectedItemId: item.id,
+          expectedEnchant: item.enchantLevel ?? 0,
+          expectedCount: item.count ?? 1,
+        });
+        const loaded = await loadHeroFromAPI();
+        if (loaded) useHeroStore.getState().setHero(loaded);
+        showToast(`Заточка (адмін, сервер): +${r.enchantLevel ?? want}`, "success");
+      } catch (e: any) {
+        const msg =
+          e?.status === 409
+            ? "Інвентар змінився, оновіть і спробуйте ще"
+            : e?.message || "Помилка";
+        showToast(msg, "error");
       }
-      updateHero({ inventory: r.inventory });
-      showToast(`Заточка (адмін): +${r.level ?? 0}`, "success");
     },
-    [hero, filteredItems, startIndex, adminEnchantDraft, updateHero]
+    [hero, characterId, filteredItems, startIndex, adminEnchantDraft]
   );
 
   // Кількість зайнятих слотів (включаючи слот сундука переповнення)

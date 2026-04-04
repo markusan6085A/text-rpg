@@ -5,6 +5,7 @@ import { prisma } from "../db";
 import { setMuted } from "../chatMute";
 import { writeAdminAuditLog } from "../adminAudit";
 import { addVersioning } from "../heroJsonValidator";
+import { maxEnchantForInventoryRow } from "../adminInventoryEnchant";
 
 function getAdminLogin(req: any): string {
   return String(req?.admin?.login || "unknown");
@@ -299,6 +300,121 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         metadata: { itemId, qty },
       });
       return { ok: true };
+    }
+  );
+
+  // POST /admin/player/:characterId/set-inventory-enchant — лише admin cookie; не можна підробити звичайним PUT героя
+  app.post<{
+    Params: { characterId: string };
+    Body: {
+      index?: number;
+      enchantLevel?: number;
+      expectedItemId?: string;
+      expectedEnchant?: number;
+      expectedCount?: number;
+    };
+  }>(
+    "/:characterId/set-inventory-enchant",
+    { preHandler: [requireAdmin] },
+    async (req, reply) => {
+      const characterId = String((req.params as any).characterId ?? "").trim();
+      const body = req.body as any;
+      const index = Math.max(0, Math.floor(Number(body?.index)));
+      const wantLevel = Math.floor(Number(body?.enchantLevel ?? NaN));
+      const expectedItemId = String(body?.expectedItemId ?? "").trim();
+      const expectedEnchant = Math.max(0, Math.floor(Number(body?.expectedEnchant ?? 0)));
+      const expectedCount = Math.max(1, Math.floor(Number(body?.expectedCount ?? 1)));
+
+      if (!characterId || !expectedItemId || !Number.isFinite(wantLevel)) {
+        await logAdminFailed(req, "admin.set_inventory_enchant", {
+          message: "invalid body",
+          targetCharacterId: characterId || null,
+          metadata: { index, wantLevel, expectedItemId },
+        });
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const char = await prisma.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, name: true, heroJson: true },
+      });
+      if (!char) {
+        await logAdminFailed(req, "admin.set_inventory_enchant", {
+          message: "character not found",
+          targetCharacterId: characterId,
+        });
+        return reply.code(404).send({ error: "character not found" });
+      }
+
+      const heroJson = (char.heroJson as any) || {};
+      const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+      if (index >= inventory.length) {
+        await logAdminFailed(req, "admin.set_inventory_enchant", {
+          message: "index out of range",
+          targetCharacterId: characterId,
+          targetCharacterName: char.name,
+          metadata: { index, len: inventory.length },
+        });
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const row = inventory[index];
+      const rowId = String(row?.id ?? row?.itemId ?? "").trim();
+      const rowEnc = Math.max(0, Math.floor(Number(row?.enchantLevel ?? 0)));
+      const rowCnt = Math.max(1, Math.floor(Number(row?.count ?? 1)));
+
+      if (
+        rowId !== expectedItemId ||
+        rowEnc !== expectedEnchant ||
+        rowCnt !== expectedCount
+      ) {
+        await logAdminFailed(req, "admin.set_inventory_enchant", {
+          message: "inventory row mismatch",
+          targetCharacterId: characterId,
+          targetCharacterName: char.name,
+          metadata: { index, rowId, rowEnc, rowCnt, expectedItemId, expectedEnchant, expectedCount },
+        });
+        return reply.code(409).send({ error: "inventory changed" });
+      }
+
+      const maxEnc = maxEnchantForInventoryRow(row);
+      if (maxEnc <= 0) {
+        await logAdminFailed(req, "admin.set_inventory_enchant", {
+          message: "item not enchantable",
+          targetCharacterId: characterId,
+          targetCharacterName: char.name,
+          metadata: { rowId },
+        });
+        return reply.code(400).send({ error: "item cannot be enchanted" });
+      }
+
+      const level = Math.max(0, Math.min(maxEnc, wantLevel));
+      const before = { id: rowId, enchant: rowEnc, count: rowCnt };
+      inventory[index] = { ...row, enchantLevel: level, count: rowCnt };
+
+      const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
+      const updatedHeroJson = addVersioning(
+        {
+          ...heroJson,
+          inventory,
+        },
+        oldRev
+      );
+
+      await prisma.character.update({
+        where: { id: characterId },
+        data: { heroJson: updatedHeroJson },
+      });
+
+      await logAdminSuccess(req, "admin.set_inventory_enchant", {
+        targetCharacterId: characterId,
+        targetCharacterName: char.name,
+        before,
+        after: { id: rowId, enchant: level, count: rowCnt },
+        metadata: { index, maxEnc },
+      });
+
+      return { ok: true, enchantLevel: level, maxEnchant: maxEnc };
     }
   );
 

@@ -305,6 +305,35 @@ export async function adminTakeItem(characterId: string, itemId: string, qty: nu
   return { ok: true };
 }
 
+/** Адмін: заточка рядка інвентаря (тільки з admin cookie; очікуваний рядок — анти-guess індексу) */
+export async function adminSetInventoryEnchant(
+  characterId: string,
+  body: {
+    index: number;
+    enchantLevel: number;
+    expectedItemId: string;
+    expectedEnchant: number;
+    expectedCount: number;
+  }
+): Promise<{ ok: boolean; enchantLevel?: number; maxEnchant?: number }> {
+  const res = await fetch(
+    `${API_URL}/admin/player/${encodeURIComponent(characterId)}/set-inventory-enchant`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      credentials: "include",
+    }
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error((data as ApiError).error || "Forbidden") as Error & { status?: number };
+    err.status = res.status;
+    throw err;
+  }
+  return data as { ok: boolean; enchantLevel?: number; maxEnchant?: number };
+}
+
 /** Адмін: встановити рівень (0–80) */
 export async function adminSetLevel(characterId: string, level: number): Promise<{ ok: boolean }> {
   const res = await fetch(`${API_URL}/admin/player/${encodeURIComponent(characterId)}/set-level`, {
