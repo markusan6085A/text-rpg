@@ -381,6 +381,27 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
               deduped.push({ ...item });
             }
           }
+
+          // Зберегти client-reported equipment-дропи які сервер не знає:
+          // Реєстр сервера має equipment-дроп лише для RB. Для звичайних мобів сервер дає тільки ресурси,
+          // а клієнт має повні L2-таблиці дропів включаючи зброю/броню/бижу.
+          // Тому після заміни inventory серверною версією — берегти те, що клієнт додав (equipment) і сервер не перекрив.
+          const serverNids = new Set(deduped.map((i: any) => String(i?.id ?? "").replace(/^shop_/i, "").toLowerCase()));
+          const preServerLocalInv = localInvNow; // captured before server response, includes processMobDrops result
+          for (const localItem of preServerLocalInv) {
+            if (!localItem?.id) continue;
+            const nid = String(localItem.id).replace(/^shop_/i, "").toLowerCase();
+            if (serverNids.has(nid)) continue; // сервер вже має цей предмет — не дублюємо
+            const lkind = String((localItem as any).kind ?? "").toLowerCase();
+            const lslot = String((localItem as any).slot ?? "").toLowerCase();
+            // Зберігаємо тільки equipment-предмети яких сервер не дав (ресурси — тільки від сервера)
+            const isEquipItem = EQUIP_K.has(lkind) || EQUIP_K.has(lslot) || lkind === "equipment";
+            if (isEquipItem) {
+              deduped.push(localItem);
+              serverNids.add(nid); // щоб не додавати двічі якщо одне і теж у local кілька разів
+            }
+          }
+
           patch.inventory = deduped;
         }
         if (Array.isArray(serverHj.overflowChest)) {
