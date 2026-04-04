@@ -39,6 +39,15 @@ type SkillRow = {
 const DEFAULT_TITLE = "Дополнительные скилы — изучение дополнительных скилов";
 const DEFAULT_EMPTY = "Навыков пока нет.";
 
+function maxLearnedLevelForSkillId(skills: any[], skillId: number): number {
+  let max = 0;
+  for (const hs of skills) {
+    if (Number(hs?.id) !== skillId) continue;
+    max = Math.max(max, Math.max(0, Math.floor(Number(hs?.level) || 0)));
+  }
+  return max;
+}
+
 export default function AdditionalSkillsScreen({
   navigate,
   title = DEFAULT_TITLE,
@@ -141,8 +150,7 @@ export default function AdditionalSkillsScreen({
   // 🎯 Скіли відкриваються по рівню: показуємо тільки скіли з requiredLevel <= heroLevel
   const availableSkills = allAdditionalSkills
     .map((sk) => {
-      const entry = currentSkills.find((hs: any) => hs.id === sk.id);
-      const currentLevel = entry?.level ?? 0;
+      const currentLevel = maxLearnedLevelForSkillId(currentSkills, sk.id);
       
       // Якщо скіл вже вивчений (currentLevel > 0), не показуємо його
       if (currentLevel > 0) {
@@ -192,8 +200,7 @@ export default function AdditionalSkillsScreen({
       return;
     }
 
-    const existing = currentSkills.find((s: any) => s.id === skillId);
-    const currentLevel = existing?.level ?? 0;
+    const currentLevel = maxLearnedLevelForSkillId(currentSkills, skillId);
     if (currentLevel > 0) {
       showToast("Навык уже изучен.", "error");
       return;
@@ -230,9 +237,9 @@ export default function AdditionalSkillsScreen({
 
     const skills = Array.isArray(hero.skills) ? [...hero.skills] : [];
     const nextLevel = levelDef.level;
-    if (existing) {
-      const skillIndex = skills.findIndex((s) => s.id === skillId);
-      skills[skillIndex] = { ...existing, level: nextLevel };
+    const skillIndex = skills.findIndex((s) => Number(s?.id) === skillId);
+    if (skillIndex >= 0) {
+      skills[skillIndex] = { ...skills[skillIndex], id: skillId, level: nextLevel };
     } else {
       skills.push({ id: skillId, level: nextLevel });
     }
