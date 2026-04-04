@@ -253,7 +253,15 @@ function mergeInventoriesUnion(
   serverInv: any[],
   opts?: { preferLocalStackCounts?: boolean }
 ): any[] {
-  const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}_${(i as any).meta?.hasLSPassive ? "ls" : ""}`;
+  /** GM-шоп і клієнт: shop_<id> та канонічний id — один стак (інакше GET змерджує 1000 з API + 990 локально → знову 1000). */
+  const mergeKeyBaseId = (i: any) => {
+    const raw = String(i?.id ?? i?.itemId ?? "");
+    const noShop = raw.replace(/^shop_/i, "").toLowerCase();
+    const pseudo = { ...i, id: noShop };
+    return isStackableItem(pseudo) || isStackableItem(i) ? noShop : raw;
+  };
+  const itemKey = (i: any) =>
+    `${mergeKeyBaseId(i)}_${i?.enchantLevel ?? 0}_${(i as any).meta?.hasLSPassive ? "ls" : ""}`;
   const countByKey = (arr: any[]) => {
     const m = new Map<string, number>();
     (arr || []).forEach((it: any) => {
@@ -363,7 +371,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
   try {
     // 🔥 Правило 1: Local-first старт - завантажуємо локальну версію спочатку
     const localHero = loadHero();
-    const hydratedLocalHero = hydrateHero(localHero);
+    let hydratedLocalHero = hydrateHero(localHero);
     
     // Load character from API
     console.log('[loadHeroFromAPI] Fetching character from API...');
@@ -389,6 +397,23 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const localBelongsToCharacter = !!(charName && localName && charName === localName);
     if (!localBelongsToCharacter && hydratedLocalHero) {
       console.warn('[loadHeroFromAPI] Local hero belongs to different character (char:', character?.name, 'local:', localName || '(empty)', '), using server');
+    }
+    if (localBelongsToCharacter && hydratedLocalHero) {
+      try {
+        const live = useHeroStore.getState().hero;
+        const liveName = String(live?.name ?? "").trim().toLowerCase();
+        if (live && liveName === charName && Array.isArray(live.inventory)) {
+          hydratedLocalHero = {
+            ...hydratedLocalHero,
+            inventory: live.inventory.map((r: any) => ({ ...r })),
+            ...(Array.isArray(live.overflowChest)
+              ? { overflowChest: live.overflowChest.map((r: any) => ({ ...r })) }
+              : {}),
+          } as Hero;
+        }
+      } catch {
+        /* ignore */
+      }
     }
     // 🔥 КРИТИЧНО: У server path не використовуємо hydratedLocalHero, якщо він належить ІНШОМУ персонажу.
     // Інакше новий герой (Register) підтягував би skills/inventory/gender зі старого — баг.
@@ -427,15 +452,18 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       localBelongsToCharacter && !preferServerSnapshot ? hydratedLocalHero : null;
     /** Union інвентаря/бафів/енчантів з localStorage — навіть коли preferServerSnapshot (скіли тоді з API). Інакше F5 губить щойні GM-скроли/заточку. */
     const localSnapshot = localBelongsToCharacter ? hydratedLocalHero : null;
-    /** Для стаків: довіряємо локалці, якщо ревізія heroJson не пішла вперед на сервері (або lastSaved ≥ updatedAt). Інакше Math.max з сервером відкочує витрату при «фейковому» updatedAt. */
+    /** Для стаків: довіряємо локалці, якщо lastSaved ≥ updatedAt (навіть при serverAheadByRevision) або ревізія локально ≥ серверної.
+     * Інакше GET після витрати зарядів міг брати Math.max(ік, сік) і відкочувати 1000. */
+    const localSaveAtLeastAsNewAsServer =
+      localLastSavedAtOuter > 0 &&
+      serverUpdatedAt > 0 &&
+      localLastSavedAtOuter >= serverUpdatedAt;
     const preferLocalStackableCounts =
       localBelongsToCharacter &&
-      !serverAheadByRevision &&
-      ((localLastSavedAtOuter > 0 &&
-        serverUpdatedAt > 0 &&
-        localLastSavedAtOuter >= serverUpdatedAt) ||
-        (serverRevPrefer > 0 && localRevPrefer >= serverRevPrefer) ||
-        (serverRevPrefer === 0 && localRevPrefer === 0));
+      (localSaveAtLeastAsNewAsServer ||
+        (!serverAheadByRevision &&
+          ((serverRevPrefer > 0 && localRevPrefer >= serverRevPrefer) ||
+            (serverRevPrefer === 0 && localRevPrefer === 0))));
     
     // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
     // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
