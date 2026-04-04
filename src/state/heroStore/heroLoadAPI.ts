@@ -472,11 +472,20 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const serverProfession = heroDataForLocal?.profession ?? heroDataForLocal?.klass;
         const serverKlass = character.classId ?? heroDataForLocal?.classId ?? heroDataForLocal?.klass;
         const rawLocalSrvSkills = heroDataForLocal?.skills;
+        const serverProfNorm = String(serverProfession ?? "").trim().toLowerCase();
+        const localProfNorm = String(hydratedLocalHero.profession ?? "").trim().toLowerCase();
+        const profMismatchServerLocal =
+          serverProfNorm !== "" &&
+          localProfNorm !== "" &&
+          serverProfNorm !== localProfNorm;
         const serverSkillsEmpty =
           Array.isArray(rawLocalSrvSkills) && rawLocalSrvSkills.length === 0;
         // Явний skills: [] після change-class / скидання — завжди брати з сервера, навіть якщо localRev=0 і serverRevisionAdvanced хибний (інакше старі скіли з localStorage повертаються).
+        // Зміна професії на сервері — ніколи не union з локальними скілами (skills у JSON може бути undefined в старих записах).
         const takeServerSkillsStrict =
-          serverSkillsEmpty || (serverRevisionAdvanced && demoteToServerLevel);
+          serverSkillsEmpty ||
+          profMismatchServerLocal ||
+          (serverRevisionAdvanced && demoteToServerLevel);
         // Якщо в heroJson з API є масив skills (навіть порожній) — це джерело правди; інакше після адмін-скидання локальні скіли «оживали»
         let skillsMergedForFilter: Array<{ id: number; level?: number }>;
         if (takeServerSkillsStrict) {
@@ -817,37 +826,57 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           []
         );
       } else {
+        const serverProfNorm = String((fixedHero as any).profession ?? "").trim().toLowerCase();
+        const localProfNorm = String(localHeroForMerge?.profession ?? "").trim().toLowerCase();
+        const profMismatchLocalServer =
+          !!localHeroForMerge &&
+          serverProfNorm !== "" &&
+          localProfNorm !== "" &&
+          serverProfNorm !== localProfNorm;
         const serverSkillsForMerge = Array.isArray(rawHeroSkillsMerge) ? rawHeroSkillsMerge : [];
-        const localSkills = localHeroForMerge?.skills || [];
-        const skillById = new Map<number, { id: number; level: number }>();
-        for (const s of serverSkillsForMerge) {
-          const id = Number((s as any).id);
-          const lvl = Number((s as any).level) || 1;
-          if (id) skillById.set(id, { id, level: lvl });
+        if (profMismatchLocalServer) {
+          const basis = Array.isArray(rawHeroSkillsMerge) ? rawHeroSkillsMerge : (fixedHero.skills || []);
+          finalSkillsForRecalc = filterSkillsListForHeroProfession(
+            fixedHero.profession,
+            fixedHero.klass,
+            fixedHero.race,
+            basis
+          );
+        } else {
+          const localSkills = localHeroForMerge?.skills || [];
+          const skillById = new Map<number, { id: number; level: number }>();
+          for (const s of serverSkillsForMerge) {
+            const id = Number((s as any).id);
+            const lvl = Number((s as any).level) || 1;
+            if (id) skillById.set(id, { id, level: lvl });
+          }
+          for (const s of localSkills) {
+            const id = Number((s as any).id);
+            const lvl = Number((s as any).level) || 1;
+            if (!id) continue;
+            const cur = skillById.get(id);
+            if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
+          }
+          finalSkillsForRecalc =
+            skillById.size > 0
+              ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level }))
+              : (fixedHero.skills || []);
+          finalSkillsForRecalc = filterSkillsListForHeroProfession(
+            fixedHero.profession,
+            fixedHero.klass,
+            fixedHero.race,
+            finalSkillsForRecalc
+          );
         }
-        for (const s of localSkills) {
-          const id = Number((s as any).id);
-          const lvl = Number((s as any).level) || 1;
-          if (!id) continue;
-          const cur = skillById.get(id);
-          if (!cur || cur.level < lvl) skillById.set(id, { id, level: lvl });
-        }
-        finalSkillsForRecalc =
-          skillById.size > 0
-            ? Array.from(skillById.values()).map(({ id, level }) => ({ id, level }))
-            : (fixedHero.skills || []);
-        finalSkillsForRecalc = filterSkillsListForHeroProfession(
-          fixedHero.profession,
-          fixedHero.klass,
-          fixedHero.race,
-          finalSkillsForRecalc
-        );
       }
     }
 
     const serverEquip = fixedHero.equipment ?? {};
     const localEquip = localSnapshot?.equipment ?? {};
-    const mergedEquipment = { ...serverEquip, ...localEquip };
+    /** Якщо сервер новіший — екіп із API (інший пристрій / заточка на ПК), інакше локальний зверху (як було). */
+    const mergedEquipment = preferServerSnapshot
+      ? { ...localEquip, ...serverEquip }
+      : { ...serverEquip, ...localEquip };
 
     const serverInv = fixedHero.inventory ?? [];
     const localInv = localSnapshot?.inventory ?? [];
@@ -859,7 +888,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const serverEnc =
       (fixedHero as any).equipmentEnchantLevels ?? (heroData as any)?.equipmentEnchantLevels ?? {};
     const localEnc = (localSnapshot as any)?.equipmentEnchantLevels ?? {};
-    const mergedEquipmentEnchantLevels = { ...serverEnc, ...localEnc };
+    const mergedEquipmentEnchantLevels = preferServerSnapshot
+      ? { ...localEnc, ...serverEnc }
+      : { ...serverEnc, ...localEnc };
 
     const localDyes = localSnapshot?.activeDyes ?? [];
     const serverDyes = fixedHero.activeDyes ?? [];
@@ -1248,13 +1279,13 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         console.log('[loadHeroFromAPI] Applied inventory union merge:', mergedInv.length, 'items');
         const localEquipCount = Object.keys(localEquip).filter((k) => localEquip[k] != null).length;
         const serverEquipCount = Object.keys(serverEquip).filter((k) => serverEquip[k] != null).length;
-        if (localEquipCount > serverEquipCount) {
+        if (!preferServerSnapshot && localEquipCount > serverEquipCount) {
           (hydratedHero as any).equipment = localEquip;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, equipment: localEquip };
           console.log('[loadHeroFromAPI] Preferring local equipment (more slots):', localEquipCount, 'vs', serverEquipCount);
         }
         // Заточка в слотах: знову підмішуємо локальні рівні, якщо snapshot новіший — після hydrate/localDiff не затирати + на екіпі
-        if (preferLocalStackableCounts) {
+        if (!preferServerSnapshot && preferLocalStackableCounts) {
           const le = (localSnapshot as any)?.equipmentEnchantLevels ?? {};
           if (le && typeof le === "object" && Object.keys(le).length > 0) {
             const cur = { ...((hydratedHero as any).equipmentEnchantLevels ?? {}) };
